@@ -1,0 +1,137 @@
+# Test mouse click event handling
+# This program tests that mouse clicks are properly detected
+# even when keyboard events are polled first
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+fn main() -> int {
+    # Initialize SDL
+    (SDL_Init 32)
+    
+    let window: SDL_Window = (SDL_CreateWindow "Mouse Click Test" 100 100 400 300 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else {
+        (println "✓ SDL initialized")
+    }
+    
+    # Disable mouse motion events
+    (SDL_EventState 1024 0)
+    
+    (println "")
+    (println "=== MOUSE CLICK TEST ===")
+    (println "This test verifies that mouse clicks work even when keyboard events are polled first.")
+    (println "")
+    (println "Instructions:")
+    (println "  - Click anywhere in the window to test mouse detection")
+    (println "  - Press SPACE to test keyboard detection")
+    (println "  - Press ESC to quit")
+    (println "")
+    
+    let mut running: bool = true
+    let mut click_count: int = 0
+    let mut key_count: int = 0
+    
+    # Initial render
+    (SDL_SetRenderDrawColor renderer 30 30 50 255)
+    (SDL_RenderClear renderer)
+    (SDL_RenderPresent renderer)
+    
+    # Main loop - IMPORTANT: We poll keyboard BEFORE mouse to test the fix!
+    while running {
+        # Poll keyboard FIRST (this is what was breaking mouse clicks before)
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                # ESC = quit
+                (println "ESC pressed - exiting...")
+                set running false
+            } else {
+                if (== key 44) {
+                    # SPACE pressed
+                    set key_count (+ key_count 1)
+                    (print "✓ Keyboard event detected! (SPACE press #")
+                    (print key_count)
+                    (println ")")
+                } else {
+                    (print "Key pressed: ")
+                    (println key)
+                }
+            }
+        } else {
+            (print "")
+        }
+        
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            (println "Window closed - exiting...")
+            set running false
+        } else {
+            (print "")
+        }
+        
+        # Check for mouse click - THIS SHOULD WORK NOW!
+        let mouse: int = (nl_sdl_poll_mouse_click)
+        if (> mouse -1) {
+            let mouse_x: int = (/ mouse 10000)
+            let mouse_y: int = (% mouse 10000)
+            set click_count (+ click_count 1)
+            
+            (print "✓ Mouse click detected at (")
+            (print mouse_x)
+            (print ", ")
+            (print mouse_y)
+            (print ") - click #")
+            (println click_count)
+            
+            # Draw a circle at click position
+            (SDL_SetRenderDrawColor renderer 100 200 255 255)
+            let mut dy: int = -10
+            while (<= dy 10) {
+                let mut dx: int = -10
+                while (<= dx 10) {
+                    let dist_sq: int = (+ (* dx dx) (* dy dy))
+                    if (<= dist_sq 100) {
+                        (SDL_RenderDrawPoint renderer (+ mouse_x dx) (+ mouse_y dy))
+                    } else {
+                        (print "")
+                    }
+                    set dx (+ dx 1)
+                }
+                set dy (+ dy 1)
+            }
+            (SDL_RenderPresent renderer)
+        } else {
+            (print "")
+        }
+        
+        (SDL_Delay 16)
+    }
+    
+    (println "")
+    (println "=== TEST RESULTS ===")
+    (print "Total mouse clicks detected: ")
+    (println click_count)
+    (print "Total keyboard events detected: ")
+    (println key_count)
+    (println "")
+    
+    if (> click_count 0) {
+        (println "✅ PASS: Mouse clicks were successfully detected!")
+    } else {
+        (println "❌ FAIL: No mouse clicks detected (try clicking in the window)")
+    }
+    (println "")
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}

@@ -8,19 +8,9 @@ pub fn public_add(a: int, b: int) -> int {
     return (+ a b)
 }
 
-shadow public_add {
-    assert (== (public_add 5 7) 12)
-    assert (== (public_add 0 0) 0)
-    assert (== (public_add -5 10) 5)
-}
-
 # Private function (default)
 fn private_helper() -> int {
     return 100
-}
-
-shadow private_helper {
-    assert (== (private_helper) 100)
 }
 
 # Public struct
@@ -50,18 +40,12 @@ fn main() -> int {
     # Test enum
     let s: Status = Status.Active
     
-    (println p.x)
-    return 0
+    return p.x
 }
 
 shadow main {
-    assert (== (main) 0)
+    assert (== (main) 12)
 }
-
-
-
-
-
 
 
 

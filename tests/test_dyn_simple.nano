@@ -1,0 +1,38 @@
+# Simple Dynamic Array Test
+
+fn main() -> int {
+    (println "Testing dynamic arrays...")
+    
+    # Create empty array and push some integers
+    let mut arr: array<int> = []
+    set arr (array_push arr 42)
+    set arr (array_push arr 43)
+    set arr (array_push arr 44)
+    
+    # Print the array
+    (print "Array: ")
+    (println arr)
+    
+    # Print length
+    (print "Length: ")
+    (println (array_length arr))
+    
+    # Access elements
+    (print "First element: ")
+    (println (at arr 0))
+    
+    # Pop element
+    let val: int = (array_pop arr)
+    (print "Popped: ")
+    (println val)
+    
+    (print "Length after pop: ")
+    (println (array_length arr))
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -6,6 +6,8 @@
   "cflags": ["-Imodules/audio_viz"],
   "c_sources": ["audio_viz.c"],
   "pkg_config": ["sdl2", "SDL2_mixer"],
-  "system_packages": ["sdl2", "sdl2_mixer"],
+  "apt_packages": ["libsdl2-dev", "libsdl2-mixer-dev"],
+  "dnf_packages": ["SDL2-devel", "SDL2_mixer-devel"],
+  "brew_packages": ["sdl2", "sdl2_mixer"],
   "dependencies": ["sdl_mixer"]
 }

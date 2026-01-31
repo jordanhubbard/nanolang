@@ -85,8 +85,5 @@ void gc_set_cycle_detection_enabled(bool enabled);
 /* Set GC threshold (trigger collection when memory usage exceeds this) */
 void gc_set_threshold(size_t bytes);
 
-/* Allocate GC-managed string */
-char* gc_alloc_string(size_t length);
-
 #endif /* NANOLANG_GC_H */
 

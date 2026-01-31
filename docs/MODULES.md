@@ -449,6 +449,7 @@ from "std/math/extended.nano" import sqrt, pow, sin
 - **glew** - OpenGL extension wrangling
 - **glut** - OpenGL utility toolkit
 - **uv** - libuv async I/O
+- **onnx** - ONNX machine learning runtime
 
 For detailed documentation on these modules, see their respective README.md files in `modules/<module_name>/`.
 

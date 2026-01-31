@@ -8,105 +8,53 @@
 import "modules/glew/glew.nano" as GL
 
 pub fn glClearColor(r: float, g: float, b: float, a: float) -> void {
-    unsafe { (GL.nlg_glClearColor r g b a) }
-}
-
-shadow glClearColor {
-    assert true
+    (GL.nlg_glClearColor r g b a)
 }
 
 pub fn glVertex2f(x: float, y: float) -> void {
-    unsafe { (GL.nlg_glVertex2f x y) }
-}
-
-shadow glVertex2f {
-    assert true
+    (GL.nlg_glVertex2f x y)
 }
 
 pub fn glVertex3f(x: float, y: float, z: float) -> void {
-    unsafe { (GL.nlg_glVertex3f x y z) }
-}
-
-shadow glVertex3f {
-    assert true
+    (GL.nlg_glVertex3f x y z)
 }
 
 pub fn glColor3f(r: float, g: float, b: float) -> void {
-    unsafe { (GL.nlg_glColor3f r g b) }
-}
-
-shadow glColor3f {
-    assert true
+    (GL.nlg_glColor3f r g b)
 }
 
 pub fn glColor4f(r: float, g: float, b: float, a: float) -> void {
-    unsafe { (GL.nlg_glColor4f r g b a) }
-}
-
-shadow glColor4f {
-    assert true
+    (GL.nlg_glColor4f r g b a)
 }
 
 pub fn glTranslatef(x: float, y: float, z: float) -> void {
-    unsafe { (GL.nlg_glTranslatef x y z) }
-}
-
-shadow glTranslatef {
-    assert true
+    (GL.nlg_glTranslatef x y z)
 }
 
 pub fn glRotatef(angle: float, x: float, y: float, z: float) -> void {
-    unsafe { (GL.nlg_glRotatef angle x y z) }
-}
-
-shadow glRotatef {
-    assert true
+    (GL.nlg_glRotatef angle x y z)
 }
 
 pub fn glScalef(x: float, y: float, z: float) -> void {
-    unsafe { (GL.nlg_glScalef x y z) }
-}
-
-shadow glScalef {
-    assert true
+    (GL.nlg_glScalef x y z)
 }
 
 pub fn glLineWidth(width: float) -> void {
-    unsafe { (GL.nlg_glLineWidth width) }
-}
-
-shadow glLineWidth {
-    assert true
+    (GL.nlg_glLineWidth width)
 }
 
 pub fn glPointSize(size: float) -> void {
-    unsafe { (GL.nlg_glPointSize size) }
-}
-
-shadow glPointSize {
-    assert true
+    (GL.nlg_glPointSize size)
 }
 
 pub fn glNormal3f(nx: float, ny: float, nz: float) -> void {
-    unsafe { (GL.nlg_glNormal3f nx ny nz) }
-}
-
-shadow glNormal3f {
-    assert true
+    (GL.nlg_glNormal3f nx ny nz)
 }
 
 pub fn glRasterPos2f(x: float, y: float) -> void {
-    unsafe { (GL.nlg_glRasterPos2f x y) }
-}
-
-shadow glRasterPos2f {
-    assert true
+    (GL.nlg_glRasterPos2f x y)
 }
 
 pub fn glMaterialf(face: int, pname: int, param: float) -> void {
-    unsafe { (GL.nlg_glMaterialf face pname param) }
-}
-
-shadow glMaterialf {
-    assert true
+    (GL.nlg_glMaterialf face pname param)
 }

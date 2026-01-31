@@ -1,8 +1,0 @@
-{
-  "name": "nano_tools",
-  "version": "0.1.0",
-  "description": "NanoLang tooling helpers (linting, syntax checks, pretty-printing).",
-  "c_sources": ["nano_tools.c"],
-  "headers": ["nano_tools.h"],
-  "include_dirs": ["src"]
-}

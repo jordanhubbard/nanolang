@@ -6,6 +6,8 @@
     "cflags": ["-Imodules/ncurses"],
     "c_sources": ["ncurses_helpers.c"],
     "ldflags": ["-lncurses"],
-    "system_packages": ["ncurses"],
+    "brew_packages": ["ncurses"],
+    "apt_packages": ["libncurses-dev"],
+    "dnf_packages": ["ncurses-devel"],
     "dependencies": []
 }

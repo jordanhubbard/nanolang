@@ -336,13 +336,3 @@ void gc_set_threshold(size_t bytes) {
     gc_state.threshold = bytes;
 }
 
-/* Allocate GC-managed string */
-char* gc_alloc_string(size_t length) {
-    /* Allocate space for the string content + null terminator */
-    char* str = (char*)gc_alloc(length + 1, GC_TYPE_STRING);
-    if (str) {
-        str[length] = '\0';  /* Ensure null termination */
-    }
-    return str;
-}
-

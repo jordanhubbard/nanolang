@@ -10,7 +10,7 @@
  * 3. Keep this file small and focused on orchestration
  * 
  * Components:
- * - lexer_main.nano: tokenize(source) -> List<LexerToken>
+ * - lexer_main.nano: tokenize(source) -> List<Token>
  * - parser.nano: parse_program(tokens, count) -> Parser
  * - typecheck.nano: typecheck_parser(parser) -> int
  * - transpiler.nano: transpile_parser(parser) -> string
@@ -73,7 +73,7 @@ fn parse_args() -> CompilerOpts {
     
     let input: string = (get_argv 1)
     
-    if (== input "--help") {
+    if (str_equals input "--help") {
         return CompilerOpts {
             input_file: "",
             output_file: "a.out",
@@ -94,7 +94,7 @@ fn parse_args() -> CompilerOpts {
     while (< i argc) {
         let arg: string = (get_argv i)
         
-        if (== arg "-o") {
+        if (str_equals arg "-o") {
             set i (+ i 1)
             if (< i argc) {
                 set output (get_argv i)
@@ -110,13 +110,13 @@ fn parse_args() -> CompilerOpts {
                 }
             }
         } else {
-            if (== arg "--keep-c") {
+            if (str_equals arg "--keep-c") {
                 set keep_c true
             } else {
-                if (== arg "--verbose") {
+                if (str_equals arg "--verbose") {
                     set verbose true
                 } else {
-                    if (== arg "-v") {
+                    if (str_equals arg "-v") {
                         set verbose true
                     } else {
                         (print "Unknown option: ")
@@ -180,7 +180,7 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
      * if verbose {
      *     (println "[2/6] Lexing (NanoLang lexer)...")
      * }
-     * let tokens: List<LexerToken> = (tokenize source)
+     * let tokens: List<Token> = (tokenize source)
      * 
      * if verbose {
      *     (println "[3/6] Parsing (NanoLang parser)...")
@@ -188,11 +188,11 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
      * let parser: Parser = (parse_program tokens (List_Token_length tokens))
      * 
      * if verbose {
-     *     (println "[4/6] NSType checking (NanoLang typechecker)...")
+     *     (println "[4/6] Type checking (NanoLang typechecker)...")
      * }
      * let tc_result: int = (typecheck_parser parser)
      * if (!= tc_result 0) {
-     *     (println "NSType checking failed!")
+     *     (println "Type checking failed!")
      *     return 1
      * }
      * 
@@ -204,17 +204,17 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
      * if verbose {
      *     (println "[6/6] Compiling C code...")
      * }
-     * let c_file: string = (+ output ".c")
+     * let c_file: string = (str_concat output ".c")
      * let write_result: int = (file_write c_file c_code)
      * if (!= write_result 0) {
      *     (println "Failed to write C file!")
      *     return 1
      * }
      * 
-     * let gcc_cmd: string = (+ "gcc " c_file)
-     * let gcc_cmd2: string = (+ gcc_cmd " -o ")
-     * let gcc_cmd3: string = (+ gcc_cmd2 output)
-     * let gcc_cmd4: string = (+ gcc_cmd3 " -lm")
+     * let gcc_cmd: string = (str_concat "gcc " c_file)
+     * let gcc_cmd2: string = (str_concat gcc_cmd " -o ")
+     * let gcc_cmd3: string = (str_concat gcc_cmd2 output)
+     * let gcc_cmd4: string = (str_concat gcc_cmd3 " -lm")
      * let result: int = (system gcc_cmd4)
      * 
      * if (!= result 0) {
@@ -233,12 +233,12 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
         (print "")
     }
     
-    let cmd1: string = (+ "bin/nanoc " input)
-    let cmd2: string = (+ cmd1 " -o ")
-    let cmd: string = (+ cmd2 output)
+    let cmd1: string = (str_concat "bin/nanoc " input)
+    let cmd2: string = (str_concat cmd1 " -o ")
+    let cmd: string = (str_concat cmd2 output)
     
     if keep_c {
-        set cmd (+ cmd " --keep-c")
+        set cmd (str_concat cmd " --keep-c")
     } else {
         (print "")
     }

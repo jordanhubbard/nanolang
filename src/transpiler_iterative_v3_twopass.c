@@ -20,105 +20,6 @@
 
 extern ASTNode *g_current_function;  /* Current function being transpiled */
 
-/* =========================================================================
- * GENERIC TYPE NAME HELPERS
- * ========================================================================= */
-
-static bool typeinfo_to_monomorph_segment(TypeInfo *ti, char *out, size_t out_size) {
-    if (!out || out_size == 0) return false;
-    if (!ti) return snprintf(out, out_size, "unknown") < (int)out_size;
-
-    switch (ti->base_type) {
-        case TYPE_INT:
-            return snprintf(out, out_size, "int") < (int)out_size;
-        case TYPE_U8:
-            return snprintf(out, out_size, "u8") < (int)out_size;
-        case TYPE_STRING:
-            return snprintf(out, out_size, "string") < (int)out_size;
-        case TYPE_BOOL:
-            return snprintf(out, out_size, "bool") < (int)out_size;
-        case TYPE_FLOAT:
-            return snprintf(out, out_size, "float") < (int)out_size;
-        case TYPE_STRUCT:
-        case TYPE_UNION:
-        case TYPE_ENUM:
-            if (ti->generic_name) return snprintf(out, out_size, "%s", ti->generic_name) < (int)out_size;
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-        case TYPE_ARRAY: {
-            char elem[128];
-            if (!typeinfo_to_monomorph_segment(ti->element_type, elem, sizeof(elem))) {
-                return snprintf(out, out_size, "array_unknown") < (int)out_size;
-            }
-            return snprintf(out, out_size, "array_%s", elem) < (int)out_size;
-        }
-        default:
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-    }
-}
-
-static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_size, TypeInfo *info) {
-    if (!dest || dest_size == 0) return false;
-    if (!info || !info->generic_name || info->type_param_count <= 0) return false;
-
-    int written = snprintf(dest, dest_size, "%s", info->generic_name);
-    if (written < 0 || (size_t)written >= dest_size) return false;
-
-    size_t pos = (size_t)written;
-    for (int i = 0; i < info->type_param_count; i++) {
-        char seg[128];
-        if (!typeinfo_to_monomorph_segment(info->type_params[i], seg, sizeof(seg))) {
-            return false;
-        }
-
-        written = snprintf(dest + pos, dest_size - pos, "_%s", seg);
-        if (written < 0 || (size_t)written >= dest_size - pos) return false;
-        pos += (size_t)written;
-    }
-
-    return true;
-}
-
-static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, size_t buf_size) {
-    if (!hm_info || !buf || buf_size == 0) return NULL;
-    if (!hm_info->generic_name || strcmp(hm_info->generic_name, "HashMap") != 0) return NULL;
-    if (hm_info->type_param_count != 2) return NULL;
-
-    if (!build_monomorphized_name_from_typeinfo_iter(buf, buf_size, hm_info)) return NULL;
-    if (strncmp(buf, "HashMap_", 8) == 0) return buf + 8;
-    return buf;
-}
-
-static const char *hashmap_suffix_from_expr(ASTNode *hm_expr, Environment *env, char *buf, size_t buf_size) {
-    if (!hm_expr || !env) return NULL;
-    if (hm_expr->type == AST_IDENTIFIER) {
-        Symbol *sym = env_get_var_visible_at(env, hm_expr->as.identifier, hm_expr->line, hm_expr->column);
-        if (sym && sym->type_info) {
-            return hashmap_suffix_from_typeinfo(sym->type_info, buf, buf_size);
-        }
-    }
-    return NULL;
-}
-
-__attribute__((unused))
-static const char *match_union_c_name(ASTNode *match, Environment *env, char *buf, size_t buf_size) {
-    if (!match || !env) return NULL;
-    const char *base = match->as.match_expr.union_type_name;
-    if (!base) return NULL;
-
-    ASTNode *scrutinee = match->as.match_expr.expr;
-    if (scrutinee && scrutinee->type == AST_IDENTIFIER) {
-        Symbol *sym = env_get_var_visible_at(env, scrutinee->as.identifier, match->line, match->column);
-        if (sym && sym->type == TYPE_UNION && sym->type_info && sym->type_info->generic_name &&
-            sym->type_info->type_param_count > 0 && strcmp(sym->type_info->generic_name, base) == 0) {
-            if (build_monomorphized_name_from_typeinfo_iter(buf, buf_size, sym->type_info)) {
-                return buf;
-            }
-        }
-    }
-
-    return base;
-}
-
 /* ============================================================================
  * WORK ITEM TYPES - Describe what output to generate
  * ============================================================================ */
@@ -255,7 +156,6 @@ static const FunctionMapping function_map[] = {
     {"print", "print"},
     {"cast_int", "nl_cast_int"},
     {"cast_float", "nl_cast_float"},
-    {"null_opaque", "nl_null_opaque"},
     {"file_read", "nl_os_file_read"},
     {"file_read_bytes", "nl_os_file_read_bytes"},
     {"file_write", "nl_os_file_write"},
@@ -314,9 +214,9 @@ static const FunctionMapping function_map[] = {
     {"char_to_lower", "char_to_lower"},         /* Generated inline, no prefix */
     {"char_to_upper", "char_to_upper"},         /* Generated inline, no prefix */
     {"array_length", "dyn_array_length"},
-    {"at", "dyn_array_get"},      /* Legacy - consider deprecating */
+    {"at", "dyn_array_get"},
     {"array_set", "dyn_array_put"},
-    /* array_get removed - has special handling for type-specific accessors */
+    {"array_get", "dyn_array_get"},
     {"array_remove_at", "dyn_array_remove_at"},
 };
 
@@ -343,14 +243,6 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* Handle legacy module-qualified names with dot notation */
     const char *dot = strchr(name, '.');
     if (dot) {
-        /* Try module-qualified lookup first to preserve module scoping */
-        Function *qualified_func = env_get_function(env, name);
-        if (qualified_func) {
-            const char *resolved_name = qualified_func->alias_of ? qualified_func->alias_of : qualified_func->name;
-            extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
-            return get_c_func_name_with_module(resolved_name, qualified_func->module_name, qualified_func->is_extern);
-        }
-        /* Fallback: treat as unqualified for builtins/mappings */
         name = dot + 1;
     }
     
@@ -364,11 +256,10 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* User-defined function? Look up to get module context */
     Function *func = env_get_function(env, name);
     
-    if (func) {
+    if (func && !func->is_extern && func->body != NULL) {
         /* Use get_c_func_name_with_module for namespace mangling */
-        const char *resolved_name = func->alias_of ? func->alias_of : func->name;
-        extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
-        return get_c_func_name_with_module(resolved_name, func->module_name, func->is_extern);
+        extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name);
+        return get_c_func_name_with_module(name, func->module_name);
     }
     
     return name;
@@ -412,171 +303,6 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     }
 
     return TYPE_UNKNOWN;
-}
-
-/* ============================================================================
- * HELPER: Serialize expression AST to human-readable string (for error messages)
- * Uses static buffer - NOT thread-safe, but sufficient for single-threaded compiler
- * ============================================================================ */
-
-static char g_expr_buf[1024];
-static int g_expr_pos;
-
-static void expr_buf_reset(void) { g_expr_pos = 0; g_expr_buf[0] = '\0'; }
-static void expr_buf_append(const char *s) {
-    int len = strlen(s);
-    if (g_expr_pos + len < (int)sizeof(g_expr_buf) - 1) {
-        strcpy(g_expr_buf + g_expr_pos, s);
-        g_expr_pos += len;
-    }
-}
-static void expr_buf_appendf(const char *fmt, ...) {
-    char tmp[256];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(tmp, sizeof(tmp), fmt, args);
-    va_end(args);
-    expr_buf_append(tmp);
-}
-
-static void expr_to_string_impl(ASTNode *expr) {
-    if (!expr) return;
-    
-    switch (expr->type) {
-        case AST_NUMBER:
-            expr_buf_appendf("%lld", expr->as.number);
-            break;
-        case AST_FLOAT:
-            expr_buf_appendf("%g", expr->as.float_val);
-            break;
-        case AST_STRING:
-            expr_buf_appendf("\\\"%s\\\"", expr->as.string_val ? expr->as.string_val : "");
-            break;
-        case AST_BOOL:
-            expr_buf_append(expr->as.bool_val ? "true" : "false");
-            break;
-        case AST_IDENTIFIER:
-            expr_buf_append(expr->as.identifier ? expr->as.identifier : "?");
-            break;
-        case AST_PREFIX_OP: {
-            expr_buf_append("(");
-            /* Map token type to operator string */
-            const char *op = "?";
-            switch (expr->as.prefix_op.op) {
-                case TOKEN_PLUS: op = "+"; break;
-                case TOKEN_MINUS: op = "-"; break;
-                case TOKEN_STAR: op = "*"; break;
-                case TOKEN_SLASH: op = "/"; break;
-                case TOKEN_PERCENT: op = "%"; break;
-                case TOKEN_EQ: op = "=="; break;
-                case TOKEN_NE: op = "!="; break;
-                case TOKEN_LT: op = "<"; break;
-                case TOKEN_LE: op = "<="; break;
-                case TOKEN_GT: op = ">"; break;
-                case TOKEN_GE: op = ">="; break;
-                case TOKEN_AND: op = "and"; break;
-                case TOKEN_OR: op = "or"; break;
-                case TOKEN_NOT: op = "not"; break;
-                default: break;
-            }
-            expr_buf_append(op);
-            for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
-                expr_buf_append(" ");
-                expr_to_string_impl(expr->as.prefix_op.args[i]);
-            }
-            expr_buf_append(")");
-            break;
-        }
-        case AST_CALL:
-            expr_buf_append("(");
-            expr_buf_append(expr->as.call.name ? expr->as.call.name : "?");
-            for (int i = 0; i < expr->as.call.arg_count; i++) {
-                expr_buf_append(" ");
-                expr_to_string_impl(expr->as.call.args[i]);
-            }
-            expr_buf_append(")");
-            break;
-        default:
-            expr_buf_append("...");
-            break;
-    }
-}
-
-/* Returns pointer to static buffer - do not free */
-static const char *expr_to_string(ASTNode *expr) {
-    expr_buf_reset();
-    expr_to_string_impl(expr);
-    return g_expr_buf;
-}
-
-/* ============================================================================
- * HELPER: Try to evaluate condition at compile time (for contract elision)
- * Returns: 1 = always true, 0 = always false, -1 = cannot determine
- * ============================================================================ */
-
-static int try_eval_bool_const(ASTNode *expr) {
-    if (!expr) return -1;
-    
-    switch (expr->type) {
-        case AST_BOOL:
-            return expr->as.bool_val ? 1 : 0;
-            
-        case AST_NUMBER:
-            /* Numbers are truthy if non-zero */
-            return expr->as.number != 0 ? 1 : 0;
-            
-        case AST_PREFIX_OP: {
-            /* Handle simple comparison operators with constant operands */
-            if (expr->as.prefix_op.arg_count == 2) {
-                ASTNode *left = expr->as.prefix_op.args[0];
-                ASTNode *right = expr->as.prefix_op.args[1];
-                
-                /* Both must be constant numbers */
-                if (left->type != AST_NUMBER || right->type != AST_NUMBER)
-                    return -1;
-                    
-                long long l = left->as.number;
-                long long r = right->as.number;
-                
-                switch (expr->as.prefix_op.op) {
-                    case TOKEN_EQ: return (l == r) ? 1 : 0;
-                    case TOKEN_NE: return (l != r) ? 1 : 0;
-                    case TOKEN_LT: return (l < r) ? 1 : 0;
-                    case TOKEN_LE: return (l <= r) ? 1 : 0;
-                    case TOKEN_GT: return (l > r) ? 1 : 0;
-                    case TOKEN_GE: return (l >= r) ? 1 : 0;
-                    default: break;
-                }
-            }
-            
-            /* Handle 'not' with constant operand */
-            if (expr->as.prefix_op.op == TOKEN_NOT && expr->as.prefix_op.arg_count == 1) {
-                int inner = try_eval_bool_const(expr->as.prefix_op.args[0]);
-                if (inner >= 0) return inner ? 0 : 1;
-            }
-            
-            /* Handle 'and' / 'or' with constant operands */
-            if (expr->as.prefix_op.arg_count == 2) {
-                int left_val = try_eval_bool_const(expr->as.prefix_op.args[0]);
-                int right_val = try_eval_bool_const(expr->as.prefix_op.args[1]);
-                
-                if (expr->as.prefix_op.op == TOKEN_AND) {
-                    if (left_val == 0 || right_val == 0) return 0;  /* false and x = false */
-                    if (left_val == 1 && right_val == 1) return 1;  /* true and true = true */
-                }
-                if (expr->as.prefix_op.op == TOKEN_OR) {
-                    if (left_val == 1 || right_val == 1) return 1;  /* true or x = true */
-                    if (left_val == 0 && right_val == 0) return 0;  /* false or false = false */
-                }
-            }
-            break;
-        }
-        
-        default:
-            break;
-    }
-    
-    return -1;  /* Cannot determine */
 }
 
 /* ============================================================================
@@ -860,18 +586,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
-                /* Check for string operations */
-                Type op_t1 = check_expression(expr->as.prefix_op.args[0], env);
-                Type op_t2 = check_expression(expr->as.prefix_op.args[1], env);
-                
                 bool is_string_comp = false;
-                if ((op == TOKEN_EQ || op == TOKEN_NE) && op_t1 == TYPE_STRING && op_t2 == TYPE_STRING) {
-                    is_string_comp = true;
-                }
-                
-                bool is_string_concat = false;
-                if (op == TOKEN_PLUS && op_t1 == TYPE_STRING && op_t2 == TYPE_STRING) {
-                    is_string_concat = true;
+                if (op == TOKEN_EQ || op == TOKEN_NE) {
+                    Type t1 = check_expression(expr->as.prefix_op.args[0], env);
+                    Type t2 = check_expression(expr->as.prefix_op.args[1], env);
+                    if (t1 == TYPE_STRING && t2 == TYPE_STRING) {
+                        is_string_comp = true;
+                    }
                 }
                 
                 if (is_string_comp) {
@@ -885,18 +606,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     } else {
                         emit_literal(list, ") != 0)");
                     }
-                } else if (is_string_concat) {
-                    /* String concatenation: nl_str_concat(a, b) */
-                    emit_literal(list, "nl_str_concat(");
-                    build_expr(list, expr->as.prefix_op.args[0], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.prefix_op.args[1], env);
-                    emit_literal(list, ")");
                 } else {
                     /* Regular binary operator */
                     bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
-                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT ||
-                                       op == TOKEN_AND || op == TOKEN_OR);
+                                       op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT);
                     
                     if (needs_parens) emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);
@@ -925,18 +638,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             } else if (arg_count == 1) {
                 /* Unary operator */
                 if (op == TOKEN_NOT) {
-                    ASTNode *arg = expr->as.prefix_op.args[0];
-                    bool arg_is_binary_op = (arg && arg->type == AST_PREFIX_OP && arg->as.prefix_op.arg_count == 2);
-                    
                     emit_literal(list, "(!");
-                    /* Add extra parentheses around binary operations to fix precedence */
-                    if (arg_is_binary_op) {
-                        emit_literal(list, "(");
-                    }
-                    build_expr(list, arg, env);
-                    if (arg_is_binary_op) {
-                        emit_literal(list, ")");
-                    }
+                    build_expr(list, expr->as.prefix_op.args[0], env);
                     emit_literal(list, ")");
                 } else if (op == TOKEN_MINUS) {
                     Type t = check_expression(expr->as.prefix_op.args[0], env);
@@ -1149,115 +852,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, expr->as.call.args[1], env);
                 emit_literal(list, "; (_r.tag == 0) ? _f(_r.data.Ok.value) : _r; })");
-            }
-
-            /* HashMap<K,V> core built-ins (only if no user-defined function exists) */
-            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_new") == 0 && expr->as.call.arg_count == 0) {
-                const char *mono = expr->as.call.return_struct_type_name;
-                if (!mono) {
-                    emit_literal(list, "({ assert(false && \"map_new requires HashMap<K,V> type context\"); (void*)0; })");
-                } else {
-                    const char *suffix = mono;
-                    if (strncmp(mono, "HashMap_", 8) == 0) suffix = mono + 8;
-                    emit_formatted(list, "nl_hashmap_%s_new()", suffix);
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL &&
-                     (strcmp(func_name, "map_put") == 0 || strcmp(func_name, "map_set") == 0) &&
-                     expr->as.call.arg_count == 3) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_put\"); (void)0; })");
-                } else {
-                    emit_formatted(list, "nl_hashmap_%s_put(", suffix);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[2], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_get") == 0 && expr->as.call.arg_count == 2) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_get\"); 0; })");
-                } else {
-                    emit_formatted(list, "nl_hashmap_%s_get(", suffix);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_has") == 0 && expr->as.call.arg_count == 2) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_has\"); false; })");
-                } else {
-                    emit_formatted(list, "nl_hashmap_%s_has(", suffix);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_remove") == 0 && expr->as.call.arg_count == 2) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_remove\"); (void)0; })");
-                } else {
-                    emit_formatted(list, "nl_hashmap_%s_remove(", suffix);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL &&
-                     (strcmp(func_name, "map_length") == 0 || strcmp(func_name, "map_size") == 0) &&
-                     expr->as.call.arg_count == 1) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_length\"); 0; })");
-                } else {
-                    emit_formatted(list, "nl_hashmap_%s_length(", suffix);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL &&
-                     (strcmp(func_name, "map_clear") == 0 || strcmp(func_name, "map_free") == 0) &&
-                     expr->as.call.arg_count == 1) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_clear\"); (void)0; })");
-                } else {
-                    const char *op = (strcmp(func_name, "map_free") == 0) ? "free" : "clear";
-                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ")");
-                }
-            }
-            else if (env_get_function(env, func_name) == NULL &&
-                     (strcmp(func_name, "map_keys") == 0 || strcmp(func_name, "map_values") == 0) &&
-                     expr->as.call.arg_count == 1) {
-                char buf[256];
-                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
-                if (!suffix) {
-                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_keys\"); (DynArray*)0; })");
-                } else {
-                    const char *op = (strcmp(func_name, "map_values") == 0) ? "values" : "keys";
-                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
-                    build_expr(list, expr->as.call.args[0], env);
-                    emit_literal(list, ")");
-                }
             }
 
             /* Special handling for filter() - compiled lowering */
@@ -1825,57 +1419,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, ", &_s); _v; })");
                 }
             }
-            /* Special handling for array_get - needs type-specific accessor */
-            else if (strcmp(func_name, "array_get") == 0 && expr->as.call.arg_count == 2) {
-                /* Determine array element type from first argument */
-                Type elem_type = infer_array_element_type(expr->as.call.args[0], env);
-                const char *struct_name = NULL;
-                
-                /* For struct arrays, try to get struct name */
-                if (elem_type == TYPE_STRUCT) {
-                    ASTNode *arr_expr = expr->as.call.args[0];
-                    if (arr_expr->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var(env, arr_expr->as.identifier);
-                        if (sym && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    }
-                }
-                
-                /* For structs, use dyn_array_get_struct */
-                if (elem_type == TYPE_STRUCT && struct_name) {
-                    /* Generate: ({ nl_StructName _v; dyn_array_get_struct(arr, idx, &_v, sizeof(nl_StructName)); _v; }) */
-                    emit_formatted(list, "({ nl_%s _v; dyn_array_get_struct(", struct_name);
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);  /* index */
-                    emit_formatted(list, ", &_v, sizeof(nl_%s)); _v; })", struct_name);
-                } else {
-                    /* Map element type to suffix for primitive types */
-                    const char *type_suffix = "int";
-                    if (elem_type == TYPE_U8) {
-                        type_suffix = "u8";
-                    } else if (elem_type == TYPE_FLOAT) {
-                        type_suffix = "float";
-                    } else if (elem_type == TYPE_STRING) {
-                        type_suffix = "string";
-                    } else if (elem_type == TYPE_BOOL) {
-                        type_suffix = "bool";
-                    } else if (elem_type == TYPE_ARRAY) {
-                        type_suffix = "array";  /* For nested arrays */
-                    }
-                    
-                    /* Generate: dyn_array_get_<type>(arr, idx) */
-                    char func_buf[128];
-                    snprintf(func_buf, sizeof(func_buf), "dyn_array_get_%s", type_suffix);
-                    emit_literal(list, func_buf);
-                    emit_literal(list, "(");
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);  /* index */
-                    emit_literal(list, ")");
-                }
-            }
             else {
                 /* Regular function call */
                 const char *mapped_name = func_name;
@@ -1897,33 +1440,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
         
-        case AST_MODULE_QUALIFIED_CALL: {
-            /* Module-qualified function call: (Module.function args...) */
-            const char *module_alias = expr->as.module_qualified_call.module_alias;
-            const char *function_name = expr->as.module_qualified_call.function_name;
-            
-            /* Generate qualified function name: "Module.function" */
-            char *qualified_name = malloc(strlen(module_alias) + strlen(function_name) + 2);
-            sprintf(qualified_name, "%s.%s", module_alias, function_name);
-            
-            /* Map to C function name */
-            const char *c_name = map_function_name(qualified_name, env);
-            
-            emit_literal(list, c_name);
-            emit_literal(list, "(");
-            
-            /* Emit arguments */
-            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
-                if (i > 0) emit_literal(list, ", ");
-                build_expr(list, expr->as.module_qualified_call.args[i], env);
-            }
-            
-            emit_literal(list, ")");
-            
-            free(qualified_name);
-            break;
-        }
-        
         case AST_IF: {
             /* Ternary operator */
             emit_literal(list, "(");
@@ -1933,25 +1449,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             emit_literal(list, " : ");
             build_expr(list, expr->as.if_stmt.else_branch, env);
             emit_literal(list, ")");
-            break;
-        }
-
-        case AST_COND: {
-            /* Transpile cond expression to nested ternary operators */
-            emit_literal(list, "(");
-            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
-                if (i > 0) {
-                    emit_literal(list, " : (");
-                }
-                build_expr(list, expr->as.cond_expr.conditions[i], env);
-                emit_literal(list, " ? ");
-                build_expr(list, expr->as.cond_expr.values[i], env);
-            }
-            emit_literal(list, " : ");
-            build_expr(list, expr->as.cond_expr.else_value, env);
-            for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
-                emit_literal(list, ")");
-            }
             break;
         }
         
@@ -2074,105 +1571,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_STRUCT_LITERAL: {
             /* Struct literal: StructName { field1: val1, field2: val2 } */
             const char *struct_name = expr->as.struct_literal.struct_name;
-            int field_count = expr->as.struct_literal.field_count;
-
-            /* Union variant construction is currently parsed as a struct literal with a dotted name:
-             *   UnionName.Variant { ... }
-             * If UnionName is a known union, emit a tagged union literal instead of a struct literal.
-             */
-            if (struct_name) {
-                const char *dot = strchr(struct_name, '.');
-                if (dot) {
-                    char union_name_buf[256];
-                    size_t union_len = (size_t)(dot - struct_name);
-                    if (union_len > 0 && union_len < sizeof(union_name_buf)) {
-                        memcpy(union_name_buf, struct_name, union_len);
-                        union_name_buf[union_len] = '\0';
-                        const char *variant_name = dot + 1;
-
-                        if (env_get_union(env, union_name_buf)) {
-                            const char *prefixed_union;
-                            char monomorphized_name[256];
-                            bool is_generic = false;
-
-                            /* Generic unions: if we're returning Result<int, string>, emit nl_Result_int_string */
-                            if (g_current_function &&
-                                g_current_function->as.function.return_type == TYPE_UNION &&
-                                g_current_function->as.function.return_type_info &&
-                                g_current_function->as.function.return_type_info->generic_name &&
-                                g_current_function->as.function.return_type_info->type_param_count > 0 &&
-                                strcmp(union_name_buf, g_current_function->as.function.return_type_info->generic_name) == 0) {
-                                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
-                                                                                g_current_function->as.function.return_type_info)) {
-                                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", union_name_buf);
-                                }
-                                prefixed_union = get_prefixed_type_name(monomorphized_name);
-                                is_generic = true;
-                            } else {
-                                prefixed_union = get_prefixed_type_name(union_name_buf);
-                            }
-
-                            int variant_idx = env_get_union_variant_index(env, union_name_buf, variant_name);
-                            if (variant_idx < 0) {
-                                fprintf(stderr, "Error: Unknown variant '%s' in union '%s'\n", variant_name, union_name_buf);
-                                emit_literal(list, "/* ERROR: unknown variant */");
-                                break;
-                            }
-
-                            if (is_generic) {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, monomorphized_name, variant_name);
-                            } else {
-                                emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", prefixed_union, union_name_buf, variant_name);
-                            }
-
-                            if (field_count > 0) {
-                                emit_formatted(list, ", .data.%s = {", variant_name);
-                                for (int i = 0; i < field_count; i++) {
-                                    if (i > 0) emit_literal(list, ", ");
-                                    emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                                    build_expr(list, expr->as.struct_literal.field_values[i], env);
-                                }
-                                emit_literal(list, "}");
-                            }
-
-                            emit_literal(list, "}");
-                            break;
-                        }
-                    }
-                }
-            }
-
             const char *prefixed = get_prefixed_type_name(struct_name);
-            
-            /* Look up struct definition to propagate types to empty array fields */
-            StructDef *sdef = env_get_struct(env, struct_name);
-            
-            /* Propagate element types to empty array literals in struct fields */
-            if (sdef) {
-                for (int i = 0; i < field_count; i++) {
-                    ASTNode *field_value = expr->as.struct_literal.field_values[i];
-                    const char *field_name = expr->as.struct_literal.field_names[i];
-                    
-                    /* Check if this field value is an empty array literal */
-                    if (field_value && 
-                        field_value->type == AST_ARRAY_LITERAL &&
-                        field_value->as.array_literal.element_count == 0 &&
-                        field_value->as.array_literal.element_type == TYPE_UNKNOWN) {
-                        
-                        /* Find matching field in struct definition */
-                        for (int j = 0; j < sdef->field_count; j++) {
-                            if (strcmp(field_name, sdef->field_names[j]) == 0) {
-                                /* Found matching field - check if it's an array type */
-                                if (sdef->field_types[j] == TYPE_ARRAY) {
-                                    /* Propagate the element type from struct definition */
-                                    field_value->as.array_literal.element_type = sdef->field_element_types[j];
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            int field_count = expr->as.struct_literal.field_count;
             
             emit_formatted(list, "(%s){", prefixed);
             for (int i = 0; i < field_count; i++) {
@@ -2201,9 +1601,26 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 g_current_function->as.function.return_type_info->type_param_count > 0 &&
                 strcmp(union_name, g_current_function->as.function.return_type_info->generic_name) == 0) {
                 /* Build monomorphized name: Result<int, string> -> Result_int_string */
-                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
-                                                                g_current_function->as.function.return_type_info)) {
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", union_name);
+                snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", 
+                        g_current_function->as.function.return_type_info->generic_name);
+                
+                for (int ti = 0; ti < g_current_function->as.function.return_type_info->type_param_count; ti++) {
+                    TypeInfo *param = g_current_function->as.function.return_type_info->type_params[ti];
+                    strcat(monomorphized_name, "_");
+                    
+                    if (param->base_type == TYPE_INT) {
+                        strcat(monomorphized_name, "int");
+                    } else if (param->base_type == TYPE_STRING) {
+                        strcat(monomorphized_name, "string");
+                    } else if (param->base_type == TYPE_BOOL) {
+                        strcat(monomorphized_name, "bool");
+                    } else if (param->base_type == TYPE_FLOAT) {
+                        strcat(monomorphized_name, "float");
+                    } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                        strcat(monomorphized_name, param->generic_name);
+                    } else {
+                        strcat(monomorphized_name, "unknown");
+                    }
                 }
                 
                 prefixed_union = get_prefixed_type_name(monomorphized_name);
@@ -2308,20 +1725,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.array_literal.elements[i], env);
                     }
                     emit_literal(list, ")");
-                } else if (elem_type == TYPE_STRING) {
-                    emit_formatted(list, "dynarray_literal_string(%d", count);
-                    for (int i = 0; i < count; i++) {
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
-                    }
-                    emit_literal(list, ")");
-                } else if (elem_type == TYPE_BOOL) {
-                    emit_formatted(list, "dynarray_literal_bool(%d", count);
-                    for (int i = 0; i < count; i++) {
-                        emit_literal(list, ", ");
-                        build_expr(list, expr->as.array_literal.elements[i], env);
-                    }
-                    emit_literal(list, ")");
                 } else {
                     /* For other types, fallback to old behavior */
                     const char *c_type = type_to_c(elem_type);
@@ -2333,129 +1736,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "}");
                 }
             }
-            break;
-        }
-        
-        case AST_MATCH: {
-            /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
-            /* Generate: ({ UnionType _m = scrutinee; int64_t _out = 0; switch(_m.tag) { case TAG_V: { VariantType nl_binding = _m.data.V; _out = body; break; } } _out; }) */
-            
-            const char *union_c_name = expr->as.match_expr.union_type_name;
-            if (!union_c_name) {
-                emit_literal(list, "/* match: unknown union type */0");
-                break;
-            }
-            
-            /* Look up union definition to check variant field counts.
-             * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
-            
-            /* Determine output type - check if we're in a function returning a struct */
-            const char *out_type = "int64_t";  /* Default fallback */
-            char out_type_buf[256] = "int64_t";  /* Buffer to save out_type */
-            if (g_current_function && 
-                g_current_function->as.function.return_type == TYPE_STRUCT &&
-                g_current_function->as.function.return_struct_type_name) {
-                const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
-                strncpy(out_type_buf, temp, sizeof(out_type_buf) - 1);
-                out_type_buf[sizeof(out_type_buf) - 1] = '\0';
-                out_type = out_type_buf;
-            }
-            
-            const char *prefixed_union = get_prefixed_type_name(union_c_name);
-            
-            /* Start compound expression */
-            emit_literal(list, "({ ");
-            emit_literal(list, prefixed_union);
-            emit_literal(list, " _m = ");
-            build_expr(list, expr->as.match_expr.expr, env);
-            emit_literal(list, "; ");
-            emit_literal(list, out_type);
-            emit_literal(list, " _out = {0}; switch (_m.tag) { ");
-            
-            /* Generate each match arm */
-            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                const char *variant_name = expr->as.match_expr.pattern_variants[i];
-                const char *binding_name = expr->as.match_expr.pattern_bindings[i];
-                ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
-                
-                /* case nl_UnionName_TAG_Variant: { */
-                emit_literal(list, "case nl_");
-                emit_literal(list, union_c_name);
-                emit_literal(list, "_TAG_");
-                emit_literal(list, variant_name);
-                emit_literal(list, ": { ");
-                
-                /* Find variant index to check field count */
-                int variant_field_count = 0;
-                if (udef) {
-                    for (int v = 0; v < udef->variant_count; v++) {
-                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
-                            variant_field_count = udef->variant_field_counts[v];
-                            break;
-                        }
-                    }
-                }
-                
-                /* Declare binding only if variant has fields */
-                if (variant_field_count > 0) {
-                    /* Binding name should NOT have nl_ prefix - it's referenced directly in code */
-                    emit_literal(list, "nl_");
-                    emit_literal(list, union_c_name);
-                    emit_literal(list, "_");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, " ");
-                    emit_literal(list, binding_name);
-                    emit_literal(list, " = _m.data.");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, "; ");
-                } else {
-                    /* Empty variant - just suppress unused warning */
-                    emit_literal(list, "(void)_m.data.");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, "; ");
-                }
-                
-                /* Handle arm body */
-                if (arm_body) {
-                    if (arm_body->type == AST_BLOCK) {
-                        /* For block bodies, find return statement */
-                        for (int j = 0; j < arm_body->as.block.count; j++) {
-                            ASTNode *stmt = arm_body->as.block.statements[j];
-                            if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
-                                emit_literal(list, "_out = ");
-                                build_expr(list, stmt->as.return_stmt.value, env);
-                                emit_literal(list, "; ");
-                                break;
-                            }
-                        }
-                    } else {
-                        /* Expression body */
-                        emit_literal(list, "_out = ");
-                        build_expr(list, arm_body, env);
-                        emit_literal(list, "; ");
-                    }
-                }
-                
-                emit_literal(list, "break; } ");
-            }
-            
-            /* Close switch and compound expression */
-            emit_literal(list, "} _out; })");
             break;
         }
             
@@ -2483,134 +1763,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
-
-        case AST_UNSAFE_BLOCK:
-            /* Unsafe blocks transpile to regular C blocks */
-            emit_indent_item(list, indent);
-            emit_literal(list, "/* unsafe */ {\n");
-            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
-                build_stmt(list, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
-            }
-            emit_indent_item(list, indent);
-            emit_literal(list, "}\n");
-            break;
-
-        case AST_MATCH: {
-            const char *union_c_name = stmt->as.match_expr.union_type_name;
-            if (!union_c_name) {
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* match: unknown union type */;\n");
-                break;
-            }
-
-            /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
-             * We still need the base name (e.g. Result) to look up the union definition. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
-
-            const char *prefixed_union = get_prefixed_type_name(union_c_name);
-
-            emit_indent_item(list, indent);
-            emit_literal(list, "{\n");
-
-            emit_indent_item(list, indent + 1);
-            emit_literal(list, prefixed_union);
-            emit_literal(list, " _m = ");
-            build_expr(list, stmt->as.match_expr.expr, env);
-            emit_literal(list, ";\n");
-
-            emit_indent_item(list, indent + 1);
-            emit_literal(list, "switch (_m.tag) {\n");
-
-            for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
-                const char *variant_name = stmt->as.match_expr.pattern_variants[i];
-                const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
-                ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
-
-                emit_indent_item(list, indent + 2);
-                emit_literal(list, "case nl_");
-                emit_literal(list, union_c_name);
-                emit_literal(list, "_TAG_");
-                emit_literal(list, variant_name);
-                emit_literal(list, ": {\n");
-
-                int variant_field_count = 0;
-                if (udef) {
-                    for (int v = 0; v < udef->variant_count; v++) {
-                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
-                            variant_field_count = udef->variant_field_counts[v];
-                            break;
-                        }
-                    }
-                }
-
-                if (variant_field_count > 0) {
-                    if (binding_name && strcmp(binding_name, "_") != 0) {
-                        emit_indent_item(list, indent + 3);
-                        emit_literal(list, "nl_");
-                        emit_literal(list, union_c_name);
-                        emit_literal(list, "_");
-                        emit_literal(list, variant_name);
-                        emit_literal(list, " ");
-                        emit_literal(list, binding_name);
-                        emit_literal(list, " = _m.data.");
-                        emit_literal(list, variant_name);
-                        emit_literal(list, ";\n");
-                    } else {
-                        emit_indent_item(list, indent + 3);
-                        emit_literal(list, "(void)_m.data.");
-                        emit_literal(list, variant_name);
-                        emit_literal(list, ";\n");
-                    }
-                } else {
-                    emit_indent_item(list, indent + 3);
-                    emit_literal(list, "(void)_m.data.");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, ";\n");
-                }
-
-                if (arm_body) {
-                    if (arm_body->type == AST_BLOCK) {
-                        for (int j = 0; j < arm_body->as.block.count; j++) {
-                            build_stmt(list, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                        }
-                    } else {
-                        emit_indent_item(list, indent + 3);
-                        build_expr(list, arm_body, env);
-                        emit_literal(list, ";\n");
-                    }
-                }
-
-                emit_indent_item(list, indent + 3);
-                emit_literal(list, "break;\n");
-                emit_indent_item(list, indent + 2);
-                emit_literal(list, "}\n");
-            }
-
-            /* Add default case with __builtin_unreachable() for exhaustive matches
-             * This tells the compiler that all variants are covered, avoiding
-             * "control reaches end of non-void function" warnings on GCC */
-            emit_indent_item(list, indent + 2);
-            emit_literal(list, "default: __builtin_unreachable();\n");
-            emit_indent_item(list, indent + 1);
-            emit_literal(list, "}\n");
-            emit_indent_item(list, indent);
-            emit_literal(list, "}\n");
-            break;
-        }
             
         case AST_RETURN:
             emit_indent_item(list, indent);
@@ -2620,16 +1772,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 build_expr(list, stmt->as.return_stmt.value, env);
             }
             emit_literal(list, ";\n");
-            break;
-
-        case AST_BREAK:
-            emit_indent_item(list, indent);
-            emit_literal(list, "break;\n");
-            break;
-
-        case AST_CONTINUE:
-            emit_indent_item(list, indent);
-            emit_literal(list, "continue;\n");
             break;
             
         case AST_LET: {
@@ -2661,22 +1803,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 }
                 emit_literal(list, ";\n");
             }
-            /* Handle HashMap<K,V> */
-            else if (stmt->as.let.var_type == TYPE_HASHMAP && stmt->as.let.type_info &&
-                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count == 2) {
-                char monomorphized_name[256];
-                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
-                                                                stmt->as.let.type_info)) {
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "HashMap");
-                }
-
-                emit_formatted(list, "%s* %s", monomorphized_name, stmt->as.let.name);
-                if (stmt->as.let.value) {
-                    emit_literal(list, " = ");
-                    build_expr(list, stmt->as.let.value, env);
-                }
-                emit_literal(list, ";\n");
-            }
             /* Handle struct/enum types that need prefixing */
             else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
                 /* Check if this is a generic union instantiation */
@@ -2684,9 +1810,25 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count > 0) {
                     /* Build monomorphized name: Result<int, string> -> Result_int_string */
                     char monomorphized_name[256];
-                    if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
-                                                                    stmt->as.let.type_info)) {
-                        snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", stmt->as.let.type_info->generic_name);
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", stmt->as.let.type_info->generic_name);
+                    
+                    for (int i = 0; i < stmt->as.let.type_info->type_param_count; i++) {
+                        TypeInfo *param = stmt->as.let.type_info->type_params[i];
+                        strcat(monomorphized_name, "_");
+                        
+                        if (param->base_type == TYPE_INT) {
+                            strcat(monomorphized_name, "int");
+                        } else if (param->base_type == TYPE_STRING) {
+                            strcat(monomorphized_name, "string");
+                        } else if (param->base_type == TYPE_BOOL) {
+                            strcat(monomorphized_name, "bool");
+                        } else if (param->base_type == TYPE_FLOAT) {
+                            strcat(monomorphized_name, "float");
+                        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
+                            strcat(monomorphized_name, param->generic_name);
+                        } else {
+                            strcat(monomorphized_name, "unknown");
+                        }
                     }
                     
                     const char *prefixed = get_prefixed_type_name(monomorphized_name);
@@ -2717,52 +1859,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                                 emit_literal(list, "}");
                             }
                             emit_literal(list, "}");
-                        } else if (stmt->as.let.value->type == AST_STRUCT_LITERAL) {
-                            /* UnionName.Variant { ... } is parsed as a dotted struct literal; handle it here so
-                             * generic unions use the monomorphized C type/tag.
-                             */
-                            ASTNode *sl = stmt->as.let.value;
-                            const char *sl_name = sl->as.struct_literal.struct_name;
-                            const char *dot = sl_name ? strchr(sl_name, '.') : NULL;
-                            if (dot) {
-                                char union_name_buf[256];
-                                size_t union_len = (size_t)(dot - sl_name);
-                                if (union_len > 0 && union_len < sizeof(union_name_buf)) {
-                                    memcpy(union_name_buf, sl_name, union_len);
-                                    union_name_buf[union_len] = '\0';
-                                    const char *variant_name = dot + 1;
-
-                                    if (stmt->as.let.type_info && stmt->as.let.type_info->generic_name &&
-                                        strcmp(union_name_buf, stmt->as.let.type_info->generic_name) == 0 &&
-                                        env_get_union(env, union_name_buf)) {
-
-                                        int variant_idx = env_get_union_variant_index(env, union_name_buf, variant_name);
-                                        (void)variant_idx;
-
-                                        emit_formatted(list, "(%s){ .tag = nl_%s_TAG_%s", 
-                                                      prefixed, monomorphized_name, variant_name);
-
-                                        int field_count = sl->as.struct_literal.field_count;
-                                        if (field_count > 0) {
-                                            emit_formatted(list, ", .data.%s = {", variant_name);
-                                            for (int i = 0; i < field_count; i++) {
-                                                if (i > 0) emit_literal(list, ", ");
-                                                emit_formatted(list, ".%s = ", sl->as.struct_literal.field_names[i]);
-                                                build_expr(list, sl->as.struct_literal.field_values[i], env);
-                                            }
-                                            emit_literal(list, "}");
-                                        }
-
-                                        emit_literal(list, "}");
-                                    } else {
-                                        build_expr(list, stmt->as.let.value, env);
-                                    }
-                                } else {
-                                    build_expr(list, stmt->as.let.value, env);
-                                }
-                            } else {
-                                build_expr(list, stmt->as.let.value, env);
-                            }
                         } else {
                             build_expr(list, stmt->as.let.value, env);
                         }
@@ -2854,20 +1950,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
         }
         
         case AST_SET:
-            /* Detect self-assignment (set x x) and skip generating code */
-            if (stmt->as.set.value &&
-                stmt->as.set.value->type == AST_IDENTIFIER &&
-                strcmp(stmt->as.set.value->as.identifier, stmt->as.set.name) == 0) {
-                /* Self-assignment detected: skip code generation to avoid -Wself-assign warning */
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* self-assignment elided: ");
-                emit_literal(list, stmt->as.set.name);
-                emit_literal(list, " = ");
-                emit_literal(list, stmt->as.set.name);
-                emit_literal(list, " */\n");
-                break;
-            }
-            
             emit_indent_item(list, indent);
             emit_literal(list, stmt->as.set.name);
             emit_literal(list, " = ");
@@ -2898,39 +1980,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             build_stmt(list, stmt->as.while_stmt.body, indent, env, fn_registry);
             break;
             
-        case AST_FOR: {
-            /* for i in (range start end) { body } 
-             * Transpiles to: for (int64_t i = start; i < end; i++) { body } 
-             */
-            const char *var = stmt->as.for_stmt.var_name;
-            ASTNode *range = stmt->as.for_stmt.range_expr;
-            
-            /* Expecting range_expr to be (range start end) call */
-            if (range && range->type == AST_CALL && 
-                range->as.call.name && strcmp(range->as.call.name, "range") == 0 &&
-                range->as.call.arg_count == 2) {
-                
-                emit_indent_item(list, indent);
-                emit_literal(list, "for (int64_t ");
-                emit_literal(list, var);
-                emit_literal(list, " = ");
-                build_expr(list, range->as.call.args[0], env);
-                emit_literal(list, "; ");
-                emit_literal(list, var);
-                emit_literal(list, " < ");
-                build_expr(list, range->as.call.args[1], env);
-                emit_literal(list, "; ");
-                emit_literal(list, var);
-                emit_literal(list, "++) ");
-                build_stmt(list, stmt->as.for_stmt.body, indent, env, fn_registry);
-            } else {
-                /* Fallback for non-range for loops */
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* unsupported for-in pattern */;\n");
-            }
-            break;
-        }
-            
         case AST_IF:
             emit_indent_item(list, indent);
             emit_literal(list, "if (");
@@ -2943,37 +1992,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 build_stmt(list, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
             }
             break;
-
-        case AST_COND: {
-            /* Transpile cond to nested if/else */
-            for (int i = 0; i < stmt->as.cond_expr.clause_count; i++) {
-                emit_indent_item(list, indent);
-                if (i == 0) {
-                    emit_literal(list, "if (");
-                } else {
-                    emit_literal(list, "else if (");
-                }
-                build_expr(list, stmt->as.cond_expr.conditions[i], env);
-                emit_literal(list, ") {\n");
-                
-                /* Emit the value as a statement (usually a return) */
-                emit_indent_item(list, indent + 1);
-                build_expr(list, stmt->as.cond_expr.values[i], env);
-                emit_literal(list, ";\n");
-                
-                emit_indent_item(list, indent);
-                emit_literal(list, "} ");
-            }
-            
-            /* Emit else clause */
-            emit_literal(list, "else {\n");
-            emit_indent_item(list, indent + 1);
-            build_expr(list, stmt->as.cond_expr.else_value, env);
-            emit_literal(list, ";\n");
-            emit_indent_item(list, indent);
-            emit_literal(list, "}\n");
-            break;
-        }
             
         case AST_PRINT: {
             emit_indent_item(list, indent);
@@ -2995,42 +2013,6 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "(");
             build_expr(list, stmt->as.print.expr, env);
             emit_literal(list, ");\n");
-            break;
-        }
-            
-        case AST_ASSERT: {
-            /* Try to evaluate condition at compile time */
-            int const_result = try_eval_bool_const(stmt->as.assert.condition);
-            
-            if (const_result == 1) {
-                /* Condition is provably true - elide the check (emit comment) */
-                emit_indent_item(list, indent);
-                emit_formatted(list, "/* contract at line %d: always true, elided */\n", stmt->line);
-                break;
-            }
-            
-            if (const_result == 0) {
-                /* Condition is provably false - emit warning and unconditional failure */
-                fprintf(stderr, "Warning at line %d: contract condition is always false\n", stmt->line);
-                emit_indent_item(list, indent);
-                const char *cond_str = expr_to_string(stmt->as.assert.condition);
-                emit_formatted(list, "{ fprintf(stderr, \"Contract violation at line %d: %s (always false)\\n\"); exit(1); }\n",
-                              stmt->line, cond_str);
-                break;
-            }
-            
-            /* Generate runtime assertion check with informative error message */
-            emit_indent_item(list, indent);
-            emit_formatted(list, "if (!(");
-            build_expr(list, stmt->as.assert.condition, env);
-            emit_literal(list, ")) { ");
-            
-            /* Generate descriptive error message showing the condition */
-            const char *cond_str = expr_to_string(stmt->as.assert.condition);
-            emit_formatted(list, "fprintf(stderr, \"Contract violation at line %d: %s\\n\"); ",
-                          stmt->line, cond_str);
-            
-            emit_literal(list, "exit(1); }\n");
             break;
         }
             

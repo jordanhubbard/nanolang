@@ -5,7 +5,7 @@ fn main() -> int {
 shadow main {
     let b: u8 = 200
     let c: u8 = (+ b 1)
-    assert (== (to_string b) "200")
+    assert (str_equals (to_string b) "200")
     assert (== c 201)
 
     let d: byte = 7

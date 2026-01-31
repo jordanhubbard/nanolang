@@ -1,0 +1,12 @@
+enum TestEnum {
+    VALUE1 = 0
+    VALUE2 = 1
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -7,22 +7,6 @@ static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
     return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
-static double g_ui_scale = 1.0;
-
-void nl_ui_set_scale(double scale) {
-    if (scale <= 0.01) scale = 1.0;
-    g_ui_scale = scale;
-}
-
-static void get_mouse_scaled(int *out_x, int *out_y) {
-    int mx, my;
-    SDL_GetMouseState(&mx, &my);
-    mx = (int)((double)mx / g_ui_scale);
-    my = (int)((double)my / g_ui_scale);
-    if (out_x) *out_x = mx;
-    if (out_y) *out_y = my;
-}
-
 // Static state for widget click detection (separate for each widget type)
 // We track both CURRENT and PREVIOUS to detect transitions
 static int button_current_mouse_down = 0;
@@ -105,7 +89,7 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state is tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    get_mouse_scaled(&mouse_x, &mouse_y);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
     int clicked = 0;
@@ -203,8 +187,6 @@ double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // If mouse is down and over slider, update value
@@ -274,7 +256,7 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    get_mouse_scaled(&mouse_x, &mouse_y);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, box_size, box_size);
     
@@ -353,7 +335,7 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse position (state tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
-    get_mouse_scaled(&mouse_x, &mouse_y);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     int is_hovered = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, circle_size, circle_size);
     
@@ -461,8 +443,6 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // Detect click
@@ -471,19 +451,16 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
-    SDL_SetRenderDrawColor(renderer, 18, 18, 26, 255);
+    SDL_SetRenderDrawColor(renderer, 25, 25, 35, 255);
     SDL_RenderFillRect(renderer, &bg);
     
     // Draw border
-    SDL_SetRenderDrawColor(renderer, 70, 70, 90, 255);
+    SDL_SetRenderDrawColor(renderer, 80, 80, 100, 255);
     SDL_RenderDrawRect(renderer, &bg);
     
     // Calculate visible items
-    int item_height = 24;
+    int item_height = 20;
     int visible_count = (int)h / item_height;
-
-    // Clip list contents to its rectangle
-    SDL_RenderSetClipRect(renderer, &bg);
     
     // Draw items
     for (int i = 0; i < visible_count && (scroll_offset + i) < item_count; i++) {
@@ -504,52 +481,37 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
         }
         
         // Choose background color
-        SDL_Color row_even = (SDL_Color){22, 22, 30, 255};
-        SDL_Color row_odd  = (SDL_Color){18, 18, 26, 255};
         SDL_Color bg_color;
         if (item_idx == selected_index) {
-            bg_color = (SDL_Color){65, 110, 210, 255};  // Selected
+            bg_color = (SDL_Color){60, 100, 180, 255};  // Selected
         } else if (is_hovered) {
-            bg_color = (SDL_Color){40, 40, 56, 255};    // Hovered
+            bg_color = (SDL_Color){50, 50, 70, 255};    // Hovered
         } else {
-            bg_color = ((i % 2) == 0) ? row_even : row_odd;
+            bg_color = (SDL_Color){25, 25, 35, 255};    // Normal
         }
         
         // Draw item background
         SDL_Rect item_rect = {(int)x + 2, item_y, (int)w - 4, item_height};
         SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
         SDL_RenderFillRect(renderer, &item_rect);
-
-        // Subtle separator
-        SDL_SetRenderDrawColor(renderer, 28, 28, 38, 255);
-        SDL_RenderDrawLine(renderer, item_rect.x, item_rect.y + item_rect.h - 1,
-                           item_rect.x + item_rect.w, item_rect.y + item_rect.h - 1);
-
-        // Selected accent bar
-        if (item_idx == selected_index) {
-            SDL_Rect accent = {item_rect.x, item_rect.y, 4, item_rect.h};
-            SDL_SetRenderDrawColor(renderer, 140, 200, 255, 255);
-            SDL_RenderFillRect(renderer, &accent);
-        }
         
         // Draw item text
-        SDL_Color text_color = (item_idx == selected_index) ? (SDL_Color){255, 255, 255, 255}
-                                                            : (SDL_Color){225, 225, 235, 255};
+        SDL_Color text_color = {220, 220, 220, 255};
         SDL_Surface* surface = TTF_RenderText_Blended(font, item_text, text_color);
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = (int)x + 10;
-                int text_y = item_y + (item_height - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_Rect dest = {(int)x + 5, item_y + 2, surface->w, surface->h};
+                // Clip text if too wide
+                if (dest.w > (int)w - 10) {
+                    dest.w = (int)w - 10;
+                }
                 SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
         }
     }
-
-    SDL_RenderSetClipRect(renderer, NULL);
     
     list_prev_mouse_down = mouse_down;
     return clicked_index;
@@ -597,8 +559,6 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int seek_prev_mouse_down = 0;
@@ -654,8 +614,6 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int input_prev_mouse_down = 0;
@@ -750,8 +708,6 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int dropdown_prev_mouse_down = 0;
@@ -894,8 +850,6 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int spinner_prev_mouse_down = 0;
@@ -991,8 +945,6 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int file_selector_prev_mouse_down = 0;
@@ -1073,7 +1025,7 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     
     // Get mouse state
     int mouse_x, mouse_y;
-    get_mouse_scaled(&mouse_x, &mouse_y);
+    SDL_GetMouseState(&mouse_x, &mouse_y);
     
     // Check if mouse is over the widget area
     if (!point_in_rect(mouse_x, mouse_y, (int)widget_x, (int)widget_y, (int)widget_w, (int)widget_h)) {
@@ -1110,503 +1062,4 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
         }
         SDL_FreeSurface(surface);
     }
-}
-
-// Image button widget - clickable button with image texture
-// Returns: 1 if button was clicked (mouse released over button), 0 otherwise
-// Handles hover effect and click detection
-//
-// Parameters:
-//   renderer: SDL renderer
-//   texture_id: SDL texture ID (from SDL_image or similar, cast to int64_t)
-//   x, y: button position
-//   w, h: button size (image will be scaled to fit)
-//   hover_brightness: brightness multiplier on hover (1.0 = no change, 1.2 = 20% brighter)
-int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
-                             int64_t x, int64_t y, int64_t w, int64_t h,
-                             double hover_brightness) {
-    
-    SDL_Texture* texture = (SDL_Texture*)texture_id;
-    if (!texture) return 0;  // Invalid texture
-    
-    // Get mouse state
-    int mouse_x, mouse_y;
-    get_mouse_scaled(&mouse_x, &mouse_y);
-    
-    // Check if mouse is over button
-    int hover = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h);
-    
-    // Detect click: mouse was down last frame, up this frame, and over button
-    int clicked = 0;
-    if (button_prev_mouse_down && !button_current_mouse_down && hover) {
-        clicked = 1;
-    }
-    
-    // Draw the image texture
-    SDL_Rect dest = {(int)x, (int)y, (int)w, (int)h};
-    
-    if (hover && hover_brightness > 1.0) {
-        // Apply brightness modulation for hover effect
-        Uint8 brightness = (Uint8)(255 * hover_brightness);
-        if (brightness > 255) brightness = 255;
-        SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
-    } else {
-        // Normal brightness
-        SDL_SetTextureColorMod(texture, 255, 255, 255);
-    }
-    
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    
-    // Draw border on hover
-    if (hover) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 180);
-        SDL_RenderDrawRect(renderer, &dest);
-        
-        // Draw inner highlight for more pronounced effect
-        SDL_Rect inner = {(int)x + 1, (int)y + 1, (int)w - 2, (int)h - 2};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
-        SDL_RenderDrawRect(renderer, &inner);
-    }
-    
-    // Draw pressed effect
-    if (button_current_mouse_down && hover) {
-        // Darken slightly when pressed
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
-        SDL_RenderFillRect(renderer, &dest);
-    }
-    
-    return clicked ? 1 : 0;
-}
-
-// ============================================================================
-// Code Display Widget - Syntax-Highlighted Code Viewer
-// ============================================================================
-
-// Token types for syntax highlighting
-typedef enum {
-    TOKEN_KEYWORD,      // fn, let, if, while, etc.
-    TOKEN_TYPE,         // int, string, bool, etc.
-    TOKEN_STRING,       // String literals
-    TOKEN_NUMBER,       // Numeric literals
-    TOKEN_COMMENT,      // Comments
-    TOKEN_OPERATOR,     // Operators: +, -, *, /, ==, etc.
-    TOKEN_PAREN,        // Parentheses: ( )
-    TOKEN_IDENTIFIER,   // Variables, functions
-    TOKEN_WHITESPACE,   // Spaces, tabs
-    TOKEN_TEXT          // Everything else
-} TokenType;
-
-// Token color scheme (RGB)
-static void get_token_color(TokenType type, int* r, int* g, int* b) {
-    switch (type) {
-        case TOKEN_KEYWORD:
-            *r = 220; *g = 120; *b = 255;  // Purple
-            break;
-        case TOKEN_TYPE:
-            *r = 100; *g = 200; *b = 255;  // Cyan
-            break;
-        case TOKEN_STRING:
-            *r = 255; *g = 200; *b = 100;  // Orange
-            break;
-        case TOKEN_NUMBER:
-            *r = 150; *g = 255; *b = 150;  // Light green
-            break;
-        case TOKEN_COMMENT:
-            *r = 120; *g = 120; *b = 120;  // Gray
-            break;
-        case TOKEN_OPERATOR:
-            *r = 255; *g = 180; *b = 180;  // Light red
-            break;
-        case TOKEN_PAREN:
-            *r = 200; *g = 200; *b = 100;  // Yellow
-            break;
-        case TOKEN_IDENTIFIER:
-            *r = 220; *g = 220; *b = 240;  // Light gray
-            break;
-        default:
-            *r = 200; *g = 200; *b = 200;  // Default gray
-            break;
-    }
-}
-
-// Check if character is part of an identifier
-static int is_ident_char(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
-           (c >= '0' && c <= '9') || c == '_';
-}
-
-// Check if string is a NanoLang keyword
-static int is_keyword(const char* word, int len) {
-    static const char* keywords[] = {
-        "fn", "let", "mut", "if", "else", "while", "for", "return",
-        "unsafe", "extern", "import", "from", "module", "struct", "enum",
-        "pub", "assert", "shadow", "cond", "and", "or", "not", "set"
-    };
-    
-    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strlen(keywords[i]) == (size_t)len && 
-            strncmp(word, keywords[i], len) == 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-// Check if string is a NanoLang type
-static int is_type(const char* word, int len) {
-    static const char* types[] = {
-        "int", "float", "string", "bool", "void", "u8", "u16", "u32", "u64",
-        "i8", "i16", "i32", "i64", "f32", "f64", "array"
-    };
-    
-    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
-        if (strlen(types[i]) == (size_t)len && 
-            strncmp(word, types[i], len) == 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-// Simple tokenizer for NanoLang syntax
-static TokenType get_token_type(const char* code, int pos, int* token_len) {
-    char c = code[pos];
-    
-    // Whitespace
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-        *token_len = 1;
-        return TOKEN_WHITESPACE;
-    }
-    
-    // Comments
-    if (c == '#') {
-        int len = 0;
-        while (code[pos + len] && code[pos + len] != '\n') {
-            len++;
-        }
-        *token_len = len;
-        return TOKEN_COMMENT;
-    }
-    
-    // String literals
-    if (c == '"') {
-        int len = 1;
-        while (code[pos + len] && code[pos + len] != '"') {
-            if (code[pos + len] == '\\' && code[pos + len + 1]) {
-                len += 2;  // Skip escaped character
-            } else {
-                len++;
-            }
-        }
-        if (code[pos + len] == '"') len++;  // Include closing quote
-        *token_len = len;
-        return TOKEN_STRING;
-    }
-    
-    // Numbers
-    if ((c >= '0' && c <= '9') || (c == '-' && code[pos+1] >= '0' && code[pos+1] <= '9')) {
-        int len = (c == '-') ? 1 : 0;
-        len++;
-        while (code[pos + len] >= '0' && code[pos + len] <= '9') len++;
-        if (code[pos + len] == '.') {
-            len++;
-            while (code[pos + len] >= '0' && code[pos + len] <= '9') len++;
-        }
-        *token_len = len;
-        return TOKEN_NUMBER;
-    }
-    
-    // Parentheses
-    if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}') {
-        *token_len = 1;
-        return TOKEN_PAREN;
-    }
-    
-    // Operators
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' ||
-        c == '=' || c == '!' || c == '<' || c == '>' || c == ':' ||
-        c == ',' || c == '.' || c == ';') {
-        int len = 1;
-        // Handle multi-character operators
-        char next = code[pos + 1];
-        if ((c == '=' && next == '=') || (c == '!' && next == '=') ||
-            (c == '<' && next == '=') || (c == '>' && next == '=') ||
-            (c == '-' && next == '>')) {
-            len = 2;
-        }
-        *token_len = len;
-        return TOKEN_OPERATOR;
-    }
-    
-    // Identifiers and keywords
-    if (is_ident_char(c) && !(c >= '0' && c <= '9')) {
-        int len = 0;
-        while (is_ident_char(code[pos + len])) len++;
-        
-        if (is_keyword(code + pos, len)) {
-            *token_len = len;
-            return TOKEN_KEYWORD;
-        }
-        if (is_type(code + pos, len)) {
-            *token_len = len;
-            return TOKEN_TYPE;
-        }
-        
-        *token_len = len;
-        return TOKEN_IDENTIFIER;
-    }
-    
-    // Default: single character
-    *token_len = 1;
-    return TOKEN_TEXT;
-}
-
-// Code display widget - shows syntax-highlighted code with scrolling
-// Parameters:
-//   renderer: SDL renderer
-//   font: TTF font for text
-//   code: source code string to display
-//   x, y, w, h: display area rectangle
-//   scroll_offset: number of lines to scroll from top
-//   line_height: height of each line in pixels (typically font size + padding)
-void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
-                         const char* code, int64_t x, int64_t y, 
-                         int64_t w, int64_t h, int64_t scroll_offset,
-                         int64_t line_height) {
-    
-    if (!font || !code) return;
-    
-    // Draw background
-    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
-    SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
-    SDL_RenderFillRect(renderer, &bg);
-    
-    // Draw border
-    SDL_SetRenderDrawColor(renderer, 60, 60, 70, 255);
-    SDL_RenderDrawRect(renderer, &bg);
-    
-    // Set up clipping rectangle to prevent text overflow
-    SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
-    SDL_RenderSetClipRect(renderer, &clip);
-    
-    int current_x = (int)x + 5;
-    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
-    int pos = 0;
-    int code_len = strlen(code);
-    
-    // Render tokens line by line
-    while (pos < code_len) {
-        char c = code[pos];
-        
-        // Handle newline
-        if (c == '\n') {
-            current_x = (int)x + 5;
-            current_y += (int)line_height;
-            pos++;
-            
-            // Early exit if we're past the visible area
-            if (current_y > (int)y + (int)h) break;
-            continue;
-        }
-        
-        // Get token type and length
-        int token_len = 0;
-        TokenType token_type = get_token_type(code, pos, &token_len);
-        
-        if (token_len == 0) {
-            pos++;
-            continue;
-        }
-        
-        // Skip rendering if above visible area
-        if (current_y + (int)line_height < (int)y) {
-            pos += token_len;
-            continue;
-        }
-        
-        // Skip whitespace rendering but advance position
-        if (token_type == TOKEN_WHITESPACE) {
-            if (c == ' ') {
-                // Measure space width
-                int space_w;
-                TTF_SizeText(font, " ", &space_w, NULL);
-                current_x += space_w;
-            } else if (c == '\t') {
-                int space_w;
-                TTF_SizeText(font, " ", &space_w, NULL);
-                current_x += space_w * 4;  // Tab = 4 spaces
-            }
-            pos++;
-            continue;
-        }
-        
-        // Extract token text
-        char token_text[256];
-        int copy_len = token_len < 255 ? token_len : 255;
-        strncpy(token_text, code + pos, copy_len);
-        token_text[copy_len] = '\0';
-        
-        // Get color for token type
-        int r, g, b;
-        get_token_color(token_type, &r, &g, &b);
-        
-        // Render token
-        SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
-        SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
-        if (surface) {
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            if (texture) {
-                SDL_Rect dest = {current_x, current_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
-                current_x += surface->w;
-                SDL_DestroyTexture(texture);
-            }
-            SDL_FreeSurface(surface);
-        }
-        
-        pos += token_len;
-        
-        // Wrap to next line if exceeds width
-        if (current_x > (int)x + (int)w - 10) {
-            current_x = (int)x + 5;
-            current_y += (int)line_height;
-            
-            // Early exit if past visible area
-            if (current_y > (int)y + (int)h) break;
-        }
-    }
-    
-    // Clear clipping
-    SDL_RenderSetClipRect(renderer, NULL);
-}
-
-static void ansi_color_from_code(int code, int *r, int *g, int *b) {
-    switch (code) {
-        case 35: // keyword (purple)
-            *r = 180; *g = 120; *b = 255;
-            break;
-        case 36: // type (cyan)
-            *r = 100; *g = 220; *b = 255;
-            break;
-        case 32: // string (green)
-            *r = 140; *g = 220; *b = 140;
-            break;
-        case 33: // number (yellow/orange)
-            *r = 240; *g = 200; *b = 120;
-            break;
-        case 90: // comment (gray)
-            *r = 120; *g = 120; *b = 140;
-            break;
-        case 37: // operator/paren (light gray)
-            *r = 220; *g = 220; *b = 220;
-            break;
-        case 0:  // reset
-        default:
-            *r = 220; *g = 220; *b = 220;
-            break;
-    }
-}
-
-// Code display widget - ANSI-colored code viewer
-void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
-                             const char* code, int64_t x, int64_t y,
-                             int64_t w, int64_t h, int64_t scroll_offset,
-                             int64_t line_height) {
-    if (!font || !code) return;
-
-    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
-    SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
-    SDL_RenderFillRect(renderer, &bg);
-    SDL_SetRenderDrawColor(renderer, 60, 60, 70, 255);
-    SDL_RenderDrawRect(renderer, &bg);
-
-    SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
-    SDL_RenderSetClipRect(renderer, &clip);
-
-    int current_x = (int)x + 5;
-    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
-    int pos = 0;
-    int code_len = strlen(code);
-
-    int r = 220, g = 220, b = 220;
-
-    while (pos < code_len) {
-        char c = code[pos];
-
-        if (c == '\n') {
-            current_x = (int)x + 5;
-            current_y += (int)line_height;
-            pos++;
-            if (current_y > (int)y + (int)h) break;
-            continue;
-        }
-
-        if (c == ' ') {
-            int space_w;
-            TTF_SizeText(font, " ", &space_w, NULL);
-            current_x += space_w;
-            pos++;
-            continue;
-        }
-
-        if (c == '\t') {
-            int space_w;
-            TTF_SizeText(font, " ", &space_w, NULL);
-            current_x += space_w * 4;
-            pos++;
-            continue;
-        }
-
-        if (c == 27 && code[pos + 1] == '[') {
-            int seq = 0;
-            int seq_pos = pos + 2;
-            while (code[seq_pos] && code[seq_pos] != 'm') {
-                if (code[seq_pos] >= '0' && code[seq_pos] <= '9') {
-                    seq = seq * 10 + (code[seq_pos] - '0');
-                }
-                seq_pos++;
-            }
-            if (code[seq_pos] == 'm') {
-                ansi_color_from_code(seq, &r, &g, &b);
-                pos = seq_pos + 1;
-                continue;
-            }
-        }
-
-        // Render a run until whitespace/newline/escape
-        char token_text[256];
-        int token_len = 0;
-        while (pos + token_len < code_len && token_len < 255) {
-            char tc = code[pos + token_len];
-            if (tc == '\n' || tc == ' ' || tc == '\t' || (tc == 27 && code[pos + token_len + 1] == '[')) {
-                break;
-            }
-            token_text[token_len++] = tc;
-        }
-        if (token_len == 0) {
-            pos++;
-            continue;
-        }
-        token_text[token_len] = '\0';
-
-        if (current_y + (int)line_height >= (int)y) {
-            SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
-            SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
-            if (surface) {
-                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-                if (texture) {
-                    SDL_Rect dst = {current_x, current_y, surface->w, surface->h};
-                    SDL_RenderCopy(renderer, texture, NULL, &dst);
-                    current_x += surface->w;
-                    SDL_DestroyTexture(texture);
-                }
-                SDL_FreeSurface(surface);
-            }
-        }
-
-        pos += token_len;
-    }
-
-    SDL_RenderSetClipRect(renderer, NULL);
 }

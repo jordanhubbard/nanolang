@@ -1,11 +1,7 @@
 #ifndef NANOLANG_H
 #define NANOLANG_H
 
-// Define _POSIX_C_SOURCE only if not already defined
-// Some systems (like Ubuntu) define this in their headers
-#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +11,6 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#include "generated/compiler_schema.h"
-
 /* Backtrace support for assertions */
 #ifdef __APPLE__
 #include <execinfo.h>
@@ -25,6 +19,93 @@
 #include <execinfo.h>
 #include <unistd.h>
 #endif
+
+/* Token types */
+typedef enum {
+    TOKEN_EOF,
+    TOKEN_NUMBER,
+    TOKEN_FLOAT,
+    TOKEN_STRING,
+    TOKEN_IDENTIFIER,
+    TOKEN_TRUE,
+    TOKEN_FALSE,
+
+    /* Delimiters */
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
+    TOKEN_COMMA,
+    TOKEN_COLON,
+    TOKEN_DOUBLE_COLON,  /* :: for namespace qualification */
+    TOKEN_ARROW,
+    TOKEN_ASSIGN,
+    TOKEN_DOT,
+
+    /* Keywords */
+    TOKEN_MODULE,    /* module keyword for explicit module declaration */
+    TOKEN_PUB,       /* pub keyword for visibility */
+    TOKEN_FROM,      /* from keyword for selective imports */
+    TOKEN_USE,       /* use keyword for re-exports */
+    TOKEN_EXTERN,
+    TOKEN_FN,
+    TOKEN_LET,
+    TOKEN_MUT,
+    TOKEN_SET,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_FOR,
+    TOKEN_IN,
+    TOKEN_RETURN,
+    TOKEN_ASSERT,
+    TOKEN_SHADOW,
+    /* TOKEN_PRINT removed - print/println are regular built-in functions */
+    TOKEN_ARRAY,
+    TOKEN_STRUCT,
+    TOKEN_ENUM,
+    TOKEN_UNION,
+    TOKEN_MATCH,
+    TOKEN_IMPORT,
+    TOKEN_AS,       /* "as" keyword for import aliases */
+    TOKEN_OPAQUE,
+
+    /* Types */
+    TOKEN_TYPE_INT,
+    TOKEN_TYPE_U8,
+    TOKEN_TYPE_FLOAT,
+    TOKEN_TYPE_BOOL,
+    TOKEN_TYPE_STRING,
+    TOKEN_TYPE_BSTRING,
+    TOKEN_TYPE_VOID,
+
+    /* Operators (as identifiers in prefix position) */
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_STAR,
+    TOKEN_SLASH,
+    TOKEN_PERCENT,
+    TOKEN_EQ,
+    TOKEN_NE,
+    TOKEN_LT,
+    TOKEN_LE,
+    TOKEN_GT,
+    TOKEN_GE,
+    TOKEN_AND,
+    TOKEN_OR,
+    TOKEN_NOT
+    /* TOKEN_RANGE removed - range is a regular built-in function */
+} TokenType;
+
+/* Token structure */
+typedef struct {
+    TokenType token_type;  /* Changed from 'type' to match NanoLang transpiler output */
+    char *value;
+    int line;
+    int column;
+} Token;
 
 /* Forward declarations */
 typedef struct Value Value;
@@ -100,7 +181,6 @@ typedef enum {
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
-    TYPE_HASHMAP,      /* Generic HashMap<K,V> */
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
@@ -133,8 +213,6 @@ typedef struct TypeInfo {
 struct Value {
     ValueType type;
     bool is_return;  /* Flag to propagate return statements through control flow */
-    bool is_break;   /* Flag to propagate break statements through control flow */
-    bool is_continue;/* Flag to propagate continue statements through control flow */
     union {
         long long int_val;
         double float_val;
@@ -162,17 +240,13 @@ typedef enum {
     AST_IDENTIFIER,
     AST_PREFIX_OP,
     AST_CALL,
-    AST_MODULE_QUALIFIED_CALL,  /* Module-qualified call: (Module.function args...) */
     AST_ARRAY_LITERAL,
     AST_LET,
     AST_SET,
     AST_IF,
-    AST_COND,
     AST_WHILE,
     AST_FOR,
     AST_RETURN,
-    AST_BREAK,
-    AST_CONTINUE,
     AST_BLOCK,
     AST_FUNCTION,
     AST_SHADOW,
@@ -191,8 +265,7 @@ typedef enum {
     AST_OPAQUE_TYPE,       /* Opaque type declaration: opaque type TypeName */
     AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
     AST_TUPLE_INDEX,       /* Tuple index access: tuple.0, tuple.1 */
-    AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
-    AST_UNSAFE_BLOCK       /* Unsafe block: unsafe { ... } */
+    AST_QUALIFIED_NAME     /* Qualified name: module::symbol or std::io::read_file */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -215,7 +288,6 @@ typedef struct {
     char *struct_type_name;  /* For TYPE_STRUCT: which struct (e.g., "Point") */
     Type element_type;       /* For TYPE_ARRAY: element type (e.g., TYPE_INT for array<int>) */
     FunctionSignature *fn_sig;   /* For TYPE_FUNCTION: function signature */
-    TypeInfo *type_info;     /* For generic types: Result<int, string> */
 } Parameter;
 
 /* AST node structure */
@@ -242,13 +314,6 @@ struct ASTNode {
             char *return_struct_type_name;  /* For calls that return struct types (e.g., list_Point_get) */
         } call;
         struct {
-            char *module_alias;       /* Module alias (e.g., "Vec" from "as Vec") */
-            char *function_name;      /* Function name (e.g., "add") */
-            ASTNode **args;
-            int arg_count;
-            char *return_struct_type_name;  /* For calls that return struct types */
-        } module_qualified_call;
-        struct {
             ASTNode **elements;
             int element_count;
             Type element_type;  /* Type of array elements */
@@ -273,12 +338,6 @@ struct ASTNode {
             ASTNode *else_branch;
         } if_stmt;
         struct {
-            ASTNode **conditions;   /* Array of condition expressions */
-            ASTNode **values;       /* Array of value expressions */
-            int clause_count;       /* Number of (condition, value) pairs */
-            ASTNode *else_value;    /* Mandatory else clause */
-        } cond_expr;
-        struct {
             ASTNode *condition;
             ASTNode *body;
         } while_stmt;
@@ -299,7 +358,6 @@ struct ASTNode {
             Parameter *params;
             int param_count;
             Type return_type;
-            Type return_element_type;       /* For TYPE_ARRAY returns */
             char *return_struct_type_name;  /* For TYPE_STRUCT returns */
             FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns */
             TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
@@ -329,8 +387,6 @@ struct ASTNode {
             Type *field_element_types;  // For TYPE_ARRAY fields: element type
             int field_count;          // Number of fields
             bool is_pub;              // Visibility: public (pub) vs private
-            bool is_resource;         // Resource type: affine semantics (use at most once)
-            bool is_extern;           // External C type: do not emit definition
         } struct_def;
         struct {
             char *struct_name;        // Name of struct type
@@ -348,7 +404,6 @@ struct ASTNode {
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
             bool is_pub;              // Visibility: public (pub) vs private
-            bool is_extern;           // External C type: do not emit definition
         } enum_def;
         
         /* Union definition: union Color { Red {}, Blue { intensity: int } } 
@@ -362,7 +417,6 @@ struct ASTNode {
             Type **variant_field_types;
             char ***variant_field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
             bool is_pub;              // Visibility: public (pub) vs private
-            bool is_extern;           // External C type: do not emit definition
             char **generic_params;    // Generic parameter names: ["T", "E"]
             int generic_param_count;  // Number of generic parameters
         } union_def;
@@ -389,13 +443,11 @@ struct ASTNode {
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
             char *module_path;      /* Path to module file (e.g., "math.nano" or "utils/math.nano") */
-            char *module_alias;     /* Optional module alias (for "module ... as alias") */
-            bool is_unsafe;         /* true for "unsafe module" */
+            char *module_alias;     /* Optional module alias (for "import ... as alias") */
             bool is_selective;      /* true for "from...import" syntax */
             bool is_wildcard;       /* true for "from...import *" syntax */
             bool is_pub_use;        /* true for "pub use" (re-export) */
             char **import_symbols;  /* NULL or array of symbol names for selective import */
-            char **import_aliases;  /* NULL or array of alias names (aligned with import_symbols) */
             int import_symbol_count;/* Number of symbols in selective import */
         } import_stmt;
         /* Module declaration: module module_name */
@@ -422,20 +474,8 @@ struct ASTNode {
             ASTNode *tuple;        /* The tuple expression */
             int index;             /* The index being accessed (0, 1, 2, ...) */
         } tuple_index;
-        /* Unsafe block: unsafe { ... } */
-        struct {
-            ASTNode **statements;  /* Statements in the unsafe block */
-            int count;             /* Number of statements */
-        } unsafe_block;
     } as;
 };
-
-/* Resource use state for affine types */
-typedef enum {
-    RESOURCE_UNUSED,    /* Resource variable declared but not yet used */
-    RESOURCE_USED,      /* Resource variable used (read/passed as argument) */
-    RESOURCE_CONSUMED   /* Resource variable consumed (ownership transferred) */
-} ResourceUseState;
 
 /* Symbol table entry for variables */
 typedef struct {
@@ -446,9 +486,7 @@ typedef struct {
     TypeInfo *type_info;     /* For complex types (tuples, generics, etc.) - full type information */
     bool is_mut;
     Value value;
-    bool is_used;        /* Track if variable is ever used (for warnings) */
-    bool is_resource;    /* True if this variable's type is a resource type */
-    ResourceUseState resource_state;  /* For resource types: track usage state */
+    bool is_used;        /* Track if variable is ever used */
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
@@ -460,7 +498,6 @@ typedef struct {
     Parameter *params;
     int param_count;
     Type return_type;
-    Type return_element_type;       /* For TYPE_ARRAY returns */
     char *return_struct_type_name;  /* For TYPE_STRUCT returns: which struct */
     FunctionSignature *return_fn_sig;  /* For TYPE_FUNCTION returns: function signature */
     TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
@@ -469,7 +506,6 @@ typedef struct {
     bool is_extern;  /* Mark external C functions */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
-    char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
 } Function;
 
 /* Struct definition entry */
@@ -481,8 +517,6 @@ typedef struct {
     Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
-    bool is_resource;  /* Resource type: affine semantics (use at most once) */
-    bool is_extern;    /* External C type: do not emit definition */
     char *module_name;  /* Module this struct belongs to (NULL for global) */
 } StructDef;
 
@@ -493,7 +527,6 @@ typedef struct {
     int *variant_values;
     int variant_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
-    bool is_extern;   /* External C type: do not emit definition */
     char *module_name;  /* Module this enum belongs to (NULL for global) */
 } EnumDef;
 
@@ -507,7 +540,6 @@ typedef struct {
     Type **variant_field_types;
     char ***variant_field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type names */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
-    bool is_extern;   /* External C type: do not emit definition */
     char *module_name;  /* Module this union belongs to (NULL for global) */
     char **generic_params;    /* Generic parameter names: ["T", "E"] for Result<T, E> */
     int generic_param_count;  /* Number of generic parameters (0 for non-generic) */
@@ -538,7 +570,6 @@ typedef struct {
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
-    char *module_name;         /* Original module name */
     char **function_names;     /* Functions from this module */
     int function_count;
     char **struct_names;       /* Structs from this module */
@@ -548,18 +579,6 @@ typedef struct {
     char **union_names;        /* Unions from this module */
     int union_count;
 } ModuleNamespace;
-
-/* Module metadata for introspection */
-typedef struct {
-    char *name;                /* Module name (e.g., "sdl", "vector2d") */
-    char *path;                /* Module file path */
-    bool is_unsafe;            /* Is this module marked unsafe? */
-    bool has_ffi;              /* Does this module contain extern functions? */
-    char **exported_functions; /* List of exported function names */
-    int function_count;
-    char **exported_structs;   /* List of exported struct names */
-    int struct_count;
-} ModuleInfo;
 
 /* Selective import tracking */
 typedef struct {
@@ -604,19 +623,6 @@ typedef struct {
     int namespace_capacity;
     char *current_module;  /* Currently active module name (NULL for global scope) */
     ImportTracker *import_tracker;  /* Track selective imports */
-    bool builtins_registered;  /* Flag to prevent duplicate builtin registration */
-    ModuleInfo *modules;  /* Module metadata for introspection */
-    int module_count;
-    int module_capacity;
-    bool emit_module_metadata;  /* Emit ___module_* metadata functions in transpiled C (disable for module objects) */
-    bool emit_c_main;  /* Emit C main()/g_argc/g_argv wrapper in transpiled C (disable for module objects) */
-    bool current_module_is_unsafe;  /* Is the current module context unsafe? */
-    /* Phase 3: Module safety warning flags */
-    bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
-    bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */
-    bool warn_ffi;             /* Warn on any FFI call */
-    bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
-    bool profile_gprof;        /* Enable gprof profiling analysis at exit */
 } Environment;
 
 /* Function declarations */
@@ -627,20 +633,12 @@ void free_tokens(Token *tokens, int count);
 const char *token_type_name(TokenType type);
 
 /* Parser */
-typedef struct {
-    Token *tokens;
-    int count;
-    int pos;
-    int recursion_depth;  /* Track recursion depth to prevent stack overflow */
-} Stage1Parser;
-
 ASTNode *parse_program(Token *tokens, int token_count);
 void free_ast(ASTNode *node);
 
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
-void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
 /* Shadow-Test Runner */
@@ -651,7 +649,7 @@ bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 
 /* C Transpiler */
-char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file);
+char *transpile_to_c(ASTNode *program, Environment *env);
 
 /* Environment */
 Environment *create_environment(void);
@@ -667,22 +665,14 @@ Function *env_get_function(Environment *env, const char *name);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
-void env_register_namespace(Environment *env, const char *alias, const char *module_name,
+void env_register_namespace(Environment *env, const char *alias,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
                             char **enum_names, int enum_count,
                             char **union_names, int union_count);
-/* Module introspection */
-void env_register_module(Environment *env, const char *name, const char *path, bool is_unsafe);
-ModuleInfo *env_get_module(Environment *env, const char *name);
-bool env_is_current_module_unsafe(Environment *env);
-void env_mark_module_has_ffi(Environment *env, const char *name);
-void env_add_module_exported_function(Environment *env, const char *module_name, const char *function_name);
-void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);
-void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);

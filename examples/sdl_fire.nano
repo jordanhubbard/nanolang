@@ -1,0 +1,256 @@
+# FIRE EFFECT - Classic Demoscene Effect
+# Mesmerizing fire simulation with palette animation
+# ESC to exit
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 320
+let WINDOW_HEIGHT: int = 240
+let FIRE_WIDTH: int = 320
+let FIRE_HEIGHT: int = 240
+
+# === EXTERNAL FUNCTIONS ===
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+extern fn time(t: int) -> int
+
+# === FIRE ALGORITHM ===
+# Classic fire effect:
+# 1. Bottom row = hot (random intensity)
+# 2. Each pixel = average of pixels below it, with cooling
+# 3. Heat rises and cools as it goes up
+
+fn init_fire_buffer(width: int, height: int) -> array<int> {
+    let mut buffer: array<int> = []
+    let size: int = (* width height)
+    
+    let mut i: int = 0
+    while (< i size) {
+        set buffer (array_push buffer 0)
+        set i (+ i 1)
+    }
+    
+    return buffer
+}
+
+shadow init_fire_buffer {
+    let buf: array<int> = (init_fire_buffer 3 2)
+    assert (== (array_length buf) 6)
+    assert (== (at buf 0) 0)
+}
+
+fn index_2d(x: int, y: int, width: int) -> int {
+    return (+ (* y width) x)
+}
+
+shadow index_2d {
+    assert (== (index_2d 0 0 10) 0)
+    assert (== (index_2d 1 0 10) 1)
+    assert (== (index_2d 0 1 10) 10)
+    assert (== (index_2d 3 2 10) 23)
+}
+
+fn get_pixel(buffer: array<int>, x: int, y: int, width: int, height: int) -> int {
+    if (< x 0) { return 0 } else {}
+    if (>= x width) { return 0 } else {}
+    if (< y 0) { return 0 } else {}
+    if (>= y height) { return 0 } else {}
+    
+    let idx: int = (index_2d x y width)
+    return (at buffer idx)
+}
+
+shadow get_pixel {
+    let buf: array<int> = [10, 11, 12,
+                           20, 21, 22]
+    assert (== (get_pixel buf 1 1 3 2) 21)
+    assert (== (get_pixel buf (- 1) 0 3 2) 0)
+    assert (== (get_pixel buf 0 2 3 2) 0)
+}
+
+fn update_fire(buffer: array<int>, width: int, height: int) -> array<int> {
+    let mut new_buffer: array<int> = []
+    
+    let mut y: int = 0
+    while (< y height) {
+        let mut x: int = 0
+        while (< x width) {
+            if (== y (- height 1)) {
+                # Bottom row - generate random fire
+                let r: int = (% (rand) 100)
+                if (< r 90) {
+                    # Hot spot
+                    set new_buffer (array_push new_buffer 255)
+                } else {
+                    # Cooler spot
+                    set new_buffer (array_push new_buffer 0)
+                }
+            } else {
+                # Average surrounding pixels below with cooling
+                let below1: int = (get_pixel buffer x (+ y 1) width height)
+                let below2: int = (get_pixel buffer (- x 1) (+ y 1) width height)
+                let below3: int = (get_pixel buffer (+ x 1) (+ y 1) width height)
+                let below4: int = (get_pixel buffer x (+ y 2) width height)
+                
+                let sum: int = (+ below1 (+ below2 (+ below3 below4)))
+                let avg: int = (/ sum 4)
+                
+                # Cool down (subtract 1-3)
+                let cool: int = (+ (% (rand) 3) 1)
+                let new_val: int = (- avg cool)
+                
+                if (< new_val 0) {
+                    set new_buffer (array_push new_buffer 0)
+                } else {
+                    set new_buffer (array_push new_buffer new_val)
+                }
+            }
+            
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+    
+    return new_buffer
+}
+
+# === PALETTE ===
+# Fire palette: black -> red -> orange -> yellow -> white
+
+fn get_fire_color(intensity: int, r: int, g: int, b: int) -> int {
+    # Returns packed RGB color
+    # intensity 0-255
+    
+    if (< intensity 64) {
+        # Black to dark red
+        let red: int = (* intensity 4)
+        return red  # Just return R for now, will set RGB separately
+    } else {
+        if (< intensity 128) {
+            # Dark red to bright red
+            return 255  # Red = 255
+        } else {
+            if (< intensity 192) {
+                # Red to orange (add green)
+                return 255  # Red = 255, will add green
+            } else {
+                # Orange to yellow/white
+                return 255  # Red = 255, green = 255
+            }
+        }
+    }
+}
+
+shadow get_fire_color {
+    assert (== (get_fire_color 0 0 0 0) 0)
+    assert (== (get_fire_color 10 0 0 0) 40)
+    assert (== (get_fire_color 100 0 0 0) 255)
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════╗")
+    (println "║        FIRE EFFECT - Demoscene Classic    ║")
+    (println "╚════════════════════════════════════════════╝")
+    (println "")
+    (println "Press ESC to exit")
+    (println "")
+    
+    # Seed random
+    let t: int = (time 0)
+    (srand t)
+    
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO)
+    let window: SDL_Window = (SDL_CreateWindow "Fire Effect" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    
+    # Initialize fire buffer
+    let mut fire_buffer: array<int> = (init_fire_buffer FIRE_WIDTH FIRE_HEIGHT)
+    
+    let mut running: bool = true
+    
+    # Main loop
+    while running {
+        # Check for quit
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) { set running false } else {}  # ESC
+        if (== (nl_sdl_poll_event_quit) 1) { set running false } else {}
+        
+        # Update fire
+        set fire_buffer (update_fire fire_buffer FIRE_WIDTH FIRE_HEIGHT)
+        
+        # Render fire
+        # Clear screen (black)
+        (SDL_SetRenderDrawColor renderer 0 0 0 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw fire pixels
+        let mut y: int = 0
+        while (< y FIRE_HEIGHT) {
+            let mut x: int = 0
+            while (< x FIRE_WIDTH) {
+                let idx: int = (index_2d x y FIRE_WIDTH)
+                let intensity: int = (at fire_buffer idx)
+                
+                if (> intensity 0) {
+                    # Map intensity to fire colors
+                    let mut r: int = 0
+                    let mut g: int = 0
+                    let mut b: int = 0
+                    
+                    if (< intensity 64) {
+                        # Black to dark red
+                        set r (* intensity 4)
+                        set g 0
+                        set b 0
+                    } else {
+                        if (< intensity 128) {
+                            # Dark red to bright red
+                            set r 255
+                            set g 0
+                            set b 0
+                        } else {
+                            if (< intensity 192) {
+                                # Red to orange (add green)
+                                set r 255
+                                let green_val: int = (* (- intensity 128) 4)
+                                set g green_val
+                                set b 0
+                            } else {
+                                # Orange to yellow/white
+                                set r 255
+                                set g 255
+                                let blue_val: int = (* (- intensity 192) 4)
+                                set b blue_val
+                            }
+                        }
+                    }
+                    
+                    (SDL_SetRenderDrawColor renderer r g b 255)
+                    (nl_sdl_render_fill_rect renderer x y 1 1)
+                } else {}
+                
+                set x (+ x 1)
+            }
+            set y (+ y 1)
+        }
+        
+        (SDL_RenderPresent renderer)
+        
+        # Small delay
+        (SDL_Delay 16)
+    }
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    (println "Fire extinguished.")
+    
+    return 0
+}

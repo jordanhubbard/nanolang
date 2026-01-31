@@ -35,7 +35,6 @@ static BuiltinFuncInfo builtin_functions[] = {
     {"cast_bool", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
     {"cast_string", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
     {"to_string", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
-    {"null_opaque", 0, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_OPAQUE},
     
     /* String operations */
     {"str_length", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
@@ -49,6 +48,45 @@ static BuiltinFuncInfo builtin_functions[] = {
     {"array_new", 2, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
     {"array_set", 3, {TYPE_ARRAY, TYPE_INT, TYPE_INT}, TYPE_VOID},
     {"at", 2, {TYPE_ARRAY, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
+
+    /* File operations */
+    {"file_read", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"file_write", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_append", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_remove", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_rename", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_INT},
+    {"file_exists", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"file_size", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+
+    /* Temp helpers */
+    {"tmp_dir", 0, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"mktemp", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"mktemp_dir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+
+    /* Directory operations */
+    {"dir_create", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"dir_remove", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"dir_list", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"dir_exists", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"getcwd", 0, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"chdir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"fs_walkdir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
+
+    /* Path operations */
+    {"path_isfile", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"path_isdir", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
+    {"path_join", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_STRING},
+    {"path_basename", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"path_dirname", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"path_normalize", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+
+    /* Process operations */
+    {"system", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"exit", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
+    {"getenv", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
+    {"setenv", 3, {TYPE_STRING, TYPE_STRING, TYPE_INT}, TYPE_INT},
+    {"unsetenv", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
+    {"process_run", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
 
     /* Result<T, E> helpers (type-checked specially) */
     {"result_is_ok", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
@@ -91,27 +129,11 @@ Environment *create_environment(void) {
     env->namespace_capacity = 8;
     env->current_module = NULL;  /* Start in global scope */
     
-    /* Initialize module tracking for introspection */
-    env->modules = NULL;
-    env->module_count = 0;
-    env->module_capacity = 0;
-    env->emit_module_metadata = true;
-    env->emit_c_main = true;
-    env->current_module_is_unsafe = false;
-    
-    /* Initialize Phase 3: Module safety warning flags */
-    env->warn_unsafe_imports = false;
-    env->warn_unsafe_calls = false;
-    env->warn_ffi = false;
-    env->forbid_unsafe = false;
-    
     /* Initialize import tracker */
     env->import_tracker = malloc(sizeof(ImportTracker));
     env->import_tracker->imports = malloc(sizeof(SelectiveImport) * 8);
     env->import_tracker->import_count = 0;
     env->import_tracker->import_capacity = 8;
-    
-    env->builtins_registered = false;
     
     return env;
 }
@@ -127,9 +149,6 @@ static void env_free_value(Value v) {
         free(sv->struct_name);
         for (int j = 0; j < sv->field_count; j++) {
             free(sv->field_names[j]);
-            if (sv->field_values[j].type == VAL_STRING) {
-                free(sv->field_values[j].as.string_val);
-            }
         }
         free(sv->field_names);
         free(sv->field_values);
@@ -251,27 +270,6 @@ void free_environment(Environment *env) {
     }
     free(env->namespaces);
 
-    /* Free module metadata */
-    if (env->modules) {
-        for (int i = 0; i < env->module_count; i++) {
-            free(env->modules[i].name);
-            free(env->modules[i].path);
-            if (env->modules[i].exported_functions) {
-                for (int j = 0; j < env->modules[i].function_count; j++) {
-                    free(env->modules[i].exported_functions[j]);
-                }
-                free(env->modules[i].exported_functions);
-            }
-            if (env->modules[i].exported_structs) {
-                for (int j = 0; j < env->modules[i].struct_count; j++) {
-                    free(env->modules[i].exported_structs[j]);
-                }
-                free(env->modules[i].exported_structs);
-            }
-        }
-        free(env->modules);
-    }
-
     free(env);
 }
 
@@ -299,8 +297,6 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_used = false;  /* Initialize as unused */
-    sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
-    sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
@@ -353,44 +349,29 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
      * "Visible" here is a best-effort approximation used by later compilation stages
      * (e.g., transpilation) to avoid picking locals from later functions.
      */
-    /* Prefer symbols that have a real source location (def_line > 0).
-     * Some symbols are inserted without locations (def_line == 0), and if we keep all
-     * function-locals across the compilation unit, those "unknown location" symbols can
-     * incorrectly shadow well-scoped locals in earlier functions.
-     */
-    Symbol *best_unknown = NULL;
+    Symbol *best = NULL;
 
-    /* Pass 1: from most-recent to oldest, return first visible symbol WITH a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
+    for (int i = 0; i < env->symbol_count; i++) {
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
         int sline = sym->def_line;
         int scol = sym->def_column;
-        if (sline <= 0) {
-            continue;
+
+        /* If we have a definition location, require it to be before (or at) the lookup site.
+         * Symbols without locations (e.g., params in some paths) are always considered visible.
+         */
+        if (sline > 0) {
+            if (sline > line) continue;
+            if (sline == line && column > 0 && scol > column) continue;
         }
 
-        if (sline > line) continue;
-        if (sline == line && column > 0 && scol > column) continue;
-
-        return sym;
+        /* Last visible wins (preserves insertion order within the current compilation context). */
+        best = sym;
     }
 
-    /* Pass 2: fall back to most-recent symbol without a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
-        if (!sym->name) continue;
-        if (safe_strcmp(sym->name, name) != 0) continue;
-
-        if (sym->def_line > 0) continue;
-
-        best_unknown = sym;
-        break;
-    }
-
-    return best_unknown;
+    return best;
 }
 
 /* Set variable value */
@@ -415,17 +396,6 @@ bool is_builtin_function(const char *name) {
     return false;
 }
 
-/* Helper function to check if a string is in a list */
-static bool module_string_list_contains(char **items, int count, const char *name) {
-    if (!items || count <= 0 || !name) return false;
-    for (int i = 0; i < count; i++) {
-        if (items[i] && strcmp(items[i], name) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 /* Define function */
 void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {
@@ -438,19 +408,6 @@ void env_define_function(Environment *env, Function func) {
     }
 
     env->functions[env->function_count++] = func;
-    
-    /* Add to module's exported functions list if public and module exists */
-    if (func.is_pub && func.module_name) {
-        ModuleInfo *mod = env_get_module(env, func.module_name);
-        if (mod) {
-            /* Check if function is already in the list (avoid duplicates) */
-            if (!module_string_list_contains(mod->exported_functions, mod->function_count, func.name)) {
-                /* Grow array to accommodate one more element */
-                mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * (mod->function_count + 1));
-                mod->exported_functions[mod->function_count++] = strdup(func.name);
-            }
-        }
-    }
 }
 
 /* Get function */
@@ -477,17 +434,8 @@ Function *env_get_function(Environment *env, const char *name) {
                 /* Check if function is in this namespace */
                 for (int j = 0; j < env->namespaces[i].function_count; j++) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
-                        /* Look up the actual function by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
-                            if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* If module name matches, or if one is NULL (global/builtin) */
-                                if (!orig_mod || !env->functions[k].module_name ||
-                                    strcmp(env->functions[k].module_name, orig_mod) == 0) {
-                                    return &env->functions[k];
-                                }
-                            }
-                        }
+                        /* Look up the actual function by its original name */
+                        return env_get_function(env, func_name);
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -520,19 +468,6 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* Check user-defined functions */
-    /* First pass: prefer functions in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->function_count; i++) {
-            if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if (env->functions[i].module_name && 
-                    strcmp(env->functions[i].module_name, env->current_module) == 0) {
-                    return &env->functions[i];
-                }
-            }
-        }
-    }
-
-    /* Second pass: check all functions (global or other modules) */
     for (int i = 0; i < env->function_count; i++) {
         /* Skip functions with NULL names */
         if (!env->functions[i].name) {
@@ -551,8 +486,6 @@ Value create_int(long long val) {
     Value v;
     v.type = VAL_INT;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.int_val = val;
     return v;
 }
@@ -561,8 +494,6 @@ Value create_float(double val) {
     Value v;
     v.type = VAL_FLOAT;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.float_val = val;
     return v;
 }
@@ -571,8 +502,6 @@ Value create_bool(bool val) {
     Value v;
     v.type = VAL_BOOL;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.bool_val = val;
     return v;
 }
@@ -581,8 +510,6 @@ Value create_string(const char *val) {
     Value v;
     v.type = VAL_STRING;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.string_val = strdup(val);
     return v;
 }
@@ -591,8 +518,6 @@ Value create_void(void) {
     Value v;
     v.type = VAL_VOID;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     return v;
 }
 
@@ -600,8 +525,6 @@ Value create_array(ValueType elem_type, int length, int capacity) {
     Value v;
     v.type = VAL_ARRAY;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.array_val = malloc(sizeof(Array));
     v.as.array_val->element_type = elem_type;
     v.as.array_val->length = length;
@@ -625,8 +548,6 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     Value v;
     v.type = VAL_STRUCT;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.struct_val = malloc(sizeof(StructValue));
     v.as.struct_val->struct_name = strdup(struct_name);
     v.as.struct_val->field_count = field_count;
@@ -640,12 +561,7 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     /* Allocate and copy field values */
     v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
     for (int i = 0; i < field_count; i++) {
-        if (field_values[i].type == VAL_STRING) {
-            const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
-            v.as.struct_val->field_values[i] = create_string(src);
-        } else {
-            v.as.struct_val->field_values[i] = field_values[i];
-        }
+        v.as.struct_val->field_values[i] = field_values[i];
     }
     
     return v;
@@ -656,8 +572,6 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     Value v;
     v.type = VAL_UNION;
     v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
     v.as.union_val = malloc(sizeof(UnionValue));
     v.as.union_val->union_name = strdup(union_name);
     v.as.union_val->variant_index = variant_index;
@@ -697,14 +611,6 @@ void env_define_struct(Environment *env, StructDef struct_def) {
         env->structs = realloc(env->structs, sizeof(StructDef) * env->struct_capacity);
     }
     env->structs[env->struct_count++] = struct_def;
-
-    /* Module introspection: track exported structs (public only).
-     * NOTE: Use the centralized helper to avoid mismatched allocation strategies.
-     */
-    if (struct_def.is_pub && struct_def.module_name) {
-        env_add_module_exported_struct(env, struct_def.module_name, struct_def.name);
-    }
-
 }
 
 /* Get struct definition */
@@ -727,16 +633,8 @@ StructDef *env_get_struct(Environment *env, const char *name) {
                 /* Check if struct is in this namespace */
                 for (int j = 0; j < env->namespaces[i].struct_count; j++) {
                     if (strcmp(env->namespaces[i].struct_names[j], type_name) == 0) {
-                        /* Look up the actual struct by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->struct_count; k++) {
-                            if (safe_strcmp(env->structs[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->structs[k].module_name ||
-                                    strcmp(env->structs[k].module_name, orig_mod) == 0) {
-                                    return &env->structs[k];
-                                }
-                            }
-                        }
+                        /* Look up the actual struct by its original name */
+                        return env_get_struct(env, type_name);
                     }
                 }
                 return NULL;
@@ -745,18 +643,6 @@ StructDef *env_get_struct(Environment *env, const char *name) {
         return NULL;
     }
     
-    /* First pass: prefer structs in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->struct_count; i++) {
-            if (env->structs[i].name && safe_strcmp(env->structs[i].name, name) == 0) {
-                if (env->structs[i].module_name && 
-                    strcmp(env->structs[i].module_name, env->current_module) == 0) {
-                    return &env->structs[i];
-                }
-            }
-        }
-    }
-
     for (int i = 0; i < env->struct_count; i++) {
         if (safe_strcmp(env->structs[i].name, name) == 0) {
             return &env->structs[i];
@@ -819,16 +705,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
             if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].enum_count; j++) {
                     if (strcmp(env->namespaces[i].enum_names[j], type_name) == 0) {
-                        /* Look up the actual enum by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->enum_count; k++) {
-                            if (safe_strcmp(env->enums[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->enums[k].module_name ||
-                                    strcmp(env->enums[k].module_name, orig_mod) == 0) {
-                                    return &env->enums[k];
-                                }
-                            }
-                        }
+                        return env_get_enum(env, type_name);
                     }
                 }
                 return NULL;
@@ -837,18 +714,6 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         return NULL;
     }
     
-    /* First pass: prefer enums in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->enum_count; i++) {
-            if (env->enums[i].name && safe_strcmp(env->enums[i].name, name) == 0) {
-                if (env->enums[i].module_name && 
-                    strcmp(env->enums[i].module_name, env->current_module) == 0) {
-                    return &env->enums[i];
-                }
-            }
-        }
-    }
-
     for (int i = 0; i < env->enum_count; i++) {
         /* Use safe_strcmp which handles NULL pointers */
         if (safe_strcmp(env->enums[i].name, name) == 0) {
@@ -907,16 +772,7 @@ UnionDef *env_get_union(Environment *env, const char *name) {
             if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].union_count; j++) {
                     if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
-                        /* Look up the actual union by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->union_count; k++) {
-                            if (safe_strcmp(env->unions[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->unions[k].module_name ||
-                                    strcmp(env->unions[k].module_name, orig_mod) == 0) {
-                                    return &env->unions[k];
-                                }
-                            }
-                        }
+                        return env_get_union(env, type_name);
                     }
                 }
                 return NULL;
@@ -925,18 +781,6 @@ UnionDef *env_get_union(Environment *env, const char *name) {
         return NULL;
     }
     
-    /* First pass: prefer unions in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->union_count; i++) {
-            if (env->unions[i].name && safe_strcmp(env->unions[i].name, name) == 0) {
-                if (env->unions[i].module_name && 
-                    strcmp(env->unions[i].module_name, env->current_module) == 0) {
-                    return &env->unions[i];
-                }
-            }
-        }
-    }
-
     for (int i = 0; i < env->union_count; i++) {
         if (safe_strcmp(env->unions[i].name, name) == 0) {
             return &env->unions[i];
@@ -986,25 +830,6 @@ void env_define_opaque_type(Environment *env, const char *name) {
 /* Get opaque type definition */
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
     if (!env || !name) return NULL;
-    
-    /* Check for Module.Type pattern */
-    const char *dot = strchr(name, '.');
-    if (dot) {
-        char module_alias[256];
-        size_t module_len = dot - name;
-        if (module_len >= sizeof(module_alias)) {
-            module_len = sizeof(module_alias) - 1;
-        }
-        strncpy(module_alias, name, module_len);
-        module_alias[module_len] = '\0';
-        const char *type_name = dot + 1;
-        
-        /* Opaque types aren't explicitly tracked in namespaces yet, 
-         * but we can still search for them globally with module matching if we add it.
-         * For now, just search globally by short name as a fallback.
-         */
-        return env_get_opaque_type(env, type_name);
-    }
     
     for (int i = 0; i < env->opaque_type_count; i++) {
         if (safe_strcmp(env->opaque_types[i].name, name) == 0) {
@@ -1132,46 +957,6 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.shadow_test = NULL;
     func.is_extern = true;
     env_define_function(env, func);
-}
-
-/* Register a HashMap<K,V> instantiation for code generation
- * Example: HashMap<string, int> -> HashMap_string_int
- */
-void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type) {
-    if (!env || !key_type || !value_type) return;
-
-    /* Check if already registered */
-    for (int i = 0; i < env->generic_instance_count; i++) {
-        GenericInstantiation *inst = &env->generic_instances[i];
-        if (safe_strcmp(inst->generic_name, "HashMap") == 0 &&
-            inst->type_arg_count == 2 && inst->type_arg_names &&
-            safe_strcmp(inst->type_arg_names[0], key_type) == 0 &&
-            safe_strcmp(inst->type_arg_names[1], value_type) == 0) {
-            return;
-        }
-    }
-
-    if (env->generic_instance_count >= env->generic_instance_capacity) {
-        env->generic_instance_capacity *= 2;
-        env->generic_instances = realloc(env->generic_instances,
-            sizeof(GenericInstantiation) * env->generic_instance_capacity);
-    }
-
-    GenericInstantiation inst;
-    inst.generic_name = strdup("HashMap");
-    inst.type_arg_count = 2;
-    inst.type_args = malloc(sizeof(Type) * 2);
-    inst.type_arg_names = malloc(sizeof(char*) * 2);
-    inst.type_args[0] = TYPE_UNKNOWN;
-    inst.type_args[1] = TYPE_UNKNOWN;
-    inst.type_arg_names[0] = strdup(key_type);
-    inst.type_arg_names[1] = strdup(value_type);
-
-    char specialized[512];
-    snprintf(specialized, sizeof(specialized), "HashMap_%s_%s", key_type, value_type);
-    inst.concrete_name = strdup(specialized);
-
-    env->generic_instances[env->generic_instance_count++] = inst;
 }
 
 /* Register a generic union instantiation for code generation
@@ -1344,8 +1129,6 @@ Value create_function(const char *function_name, FunctionSignature *signature) {
     Value val;
     val.type = VAL_FUNCTION;
     val.is_return = false;
-    val.is_break = false;
-    val.is_continue = false;
     val.as.function_val.function_name = strdup(function_name);
     val.as.function_val.signature = signature;
     return val;
@@ -1356,8 +1139,6 @@ Value create_tuple(Value *elements, int element_count) {
     Value val;
     val.type = VAL_TUPLE;
     val.is_return = false;
-    val.is_break = false;
-    val.is_continue = false;
     val.as.tuple_val = malloc(sizeof(TupleValue));
     val.as.tuple_val->element_count = element_count;
     
@@ -1396,7 +1177,7 @@ void free_tuple(TupleValue *tuple) {
 }
 
 /* Register a module namespace (for import aliases) */
-void env_register_namespace(Environment *env, const char *alias, const char *module_name,
+void env_register_namespace(Environment *env, const char *alias, 
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
                             char **enum_names, int enum_count,
@@ -1415,14 +1196,13 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     
     /* Expand capacity if needed */
     if (env->namespace_count >= env->namespace_capacity) {
-        env->namespace_capacity = env->namespace_capacity == 0 ? 4 : env->namespace_capacity * 2;
+        env->namespace_capacity *= 2;
         env->namespaces = realloc(env->namespaces, sizeof(ModuleNamespace) * env->namespace_capacity);
     }
     
     /* Register the namespace */
     ModuleNamespace *ns = &env->namespaces[env->namespace_count++];
     ns->alias = strdup(alias);
-    ns->module_name = module_name ? strdup(module_name) : NULL;
     ns->function_names = function_names;
     ns->function_count = function_count;
     ns->struct_names = struct_names;
@@ -1431,96 +1211,4 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     ns->enum_count = enum_count;
     ns->union_names = union_names;
     ns->union_count = union_count;
-}
-
-/* Module introspection helper functions */
-
-/* Register a module in the environment for introspection */
-void env_register_module(Environment *env, const char *name, const char *path, bool is_unsafe) {
-    /* Grow module array if needed */
-    if (env->module_count >= env->module_capacity) {
-        env->module_capacity = env->module_capacity == 0 ? 4 : env->module_capacity * 2;
-        env->modules = realloc(env->modules, sizeof(ModuleInfo) * env->module_capacity);
-    }
-    
-    /* Check if module already exists */
-    for (int i = 0; i < env->module_count; i++) {
-        if (strcmp(env->modules[i].name, name) == 0) {
-            /* Module already registered, update is_unsafe flag */
-            env->modules[i].is_unsafe = is_unsafe;
-            return;
-        }
-    }
-    
-    /* Register new module */
-    ModuleInfo *mod = &env->modules[env->module_count++];
-    mod->name = strdup(name);
-    mod->path = path ? strdup(path) : NULL;
-    mod->is_unsafe = is_unsafe;
-    mod->has_ffi = false;  /* Will be updated during typechecking */
-    mod->exported_functions = NULL;
-    mod->function_count = 0;
-    mod->exported_structs = NULL;
-    mod->struct_count = 0;
-}
-
-/* Get module info by name */
-ModuleInfo *env_get_module(Environment *env, const char *name) {
-    for (int i = 0; i < env->module_count; i++) {
-        if (strcmp(env->modules[i].name, name) == 0) {
-            return &env->modules[i];
-        }
-    }
-    return NULL;
-}
-
-/* Check if current module is unsafe */
-bool env_is_current_module_unsafe(Environment *env) {
-    return env->current_module_is_unsafe;
-}
-
-/* Mark module as having FFI (extern functions) */
-void env_mark_module_has_ffi(Environment *env, const char *name) {
-    ModuleInfo *mod = env_get_module(env, name);
-    if (mod) {
-        mod->has_ffi = true;
-    }
-}
-
-void env_add_module_exported_function(Environment *env, const char *module_name, const char *function_name) {
-    if (!env || !module_name || !function_name) return;
-
-    ModuleInfo *mod = env_get_module(env, module_name);
-    if (!mod) {
-        /* Best-effort: ensure the module exists so we can track exports */
-        env_register_module(env, module_name, NULL, false);
-        mod = env_get_module(env, module_name);
-        if (!mod) return;
-    }
-
-    if (module_string_list_contains(mod->exported_functions, mod->function_count, function_name)) {
-        return;
-    }
-
-    mod->exported_functions = realloc(mod->exported_functions, sizeof(char*) * (mod->function_count + 1));
-    mod->exported_functions[mod->function_count++] = strdup(function_name);
-}
-
-void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name) {
-    if (!env || !module_name || !struct_name) return;
-
-    ModuleInfo *mod = env_get_module(env, module_name);
-    if (!mod) {
-        /* Best-effort: ensure the module exists so we can track exports */
-        env_register_module(env, module_name, NULL, false);
-        mod = env_get_module(env, module_name);
-        if (!mod) return;
-    }
-
-    if (module_string_list_contains(mod->exported_structs, mod->struct_count, struct_name)) {
-        return;
-    }
-
-    mod->exported_structs = realloc(mod->exported_structs, sizeof(char*) * (mod->struct_count + 1));
-    mod->exported_structs[mod->struct_count++] = strdup(struct_name);
 }

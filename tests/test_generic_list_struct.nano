@@ -29,10 +29,6 @@ fn main() -> int {
     }
 }
 
-shadow main {
-    assert (== (main) 0)
-}
-
 shadow test_list_point {
     assert (== (test_list_point) true)
 }

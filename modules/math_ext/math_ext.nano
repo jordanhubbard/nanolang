@@ -5,21 +5,24 @@
 # game development, physics simulations, and advanced graphics.
 
 # Inverse trigonometric functions
-extern fn asin(_x: float) -> float
-extern fn acos(_x: float) -> float
-extern fn atan(_x: float) -> float
+extern fn asin(x: float) -> float
+extern fn acos(x: float) -> float
+extern fn atan(x: float) -> float
+
+# Two-argument arctangent (critical for vector-to-angle conversion)
+extern fn atan2(y: float, x: float) -> float
 
 # Logarithmic and exponential functions
-extern fn log(_x: float) -> float    # Natural logarithm (base e)
-extern fn log10(_x: float) -> float  # Base-10 logarithm
-extern fn exp(_x: float) -> float    # e^x
+extern fn log(x: float) -> float    # Natural logarithm (base e)
+extern fn log10(x: float) -> float  # Base-10 logarithm
+extern fn exp(x: float) -> float    # e^x
 
 # Hyperbolic functions (useful for some physics)
-extern fn sinh(_x: float) -> float
-extern fn cosh(_x: float) -> float
-extern fn tanh(_x: float) -> float
+extern fn sinh(x: float) -> float
+extern fn cosh(x: float) -> float
+extern fn tanh(x: float) -> float
 
 # Additional utility functions
-extern fn fmod(_x: float, _y: float) -> float  # Floating-point remainder
-extern fn fabs(_x: float) -> float            # Floating-point absolute value
+extern fn fmod(x: float, y: float) -> float  # Floating-point remainder
+extern fn fabs(x: float) -> float            # Floating-point absolute value
 

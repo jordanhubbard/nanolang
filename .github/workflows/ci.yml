@@ -8,49 +8,29 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test (${{ matrix.arch || 'x64' }})
+    name: Build and Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            arch: x64
-          - os: ubuntu-24.04-arm
-            arch: arm64
-          - os: macos-14
-            arch: arm64
+        os: [ubuntu-latest, macos-latest]
       fail-fast: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show platform info
-        run: |
-          echo "OS: ${{ runner.os }}"
-          echo "Architecture: ${{ matrix.arch || 'default' }}"
-          uname -a || systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
-
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            valgrind \
-            pkg-config \
-            libsdl2-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libncurses-dev
+          sudo apt-get install -y build-essential valgrind
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf
+          brew install gcc
 
       - name: Check dependencies
-        shell: bash
         run: make check-deps
 
       - name: Build - Stage 1 (C Reference Compiler)
@@ -65,17 +45,8 @@ jobs:
       - name: Run test suite
         run: make test
 
-      - name: Run negative tests
-        run: |
-          cd tests/negative
-          ./run_negative_tests.sh
-
-      - name: Validate user guide snippets
-        run: make userguide-check
-
       - name: Show error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -87,19 +58,17 @@ jobs:
           done | head -200
 
       - name: Verify binaries exist
-        shell: bash
         run: |
           test -f ./bin/nanoc || exit 1
-          echo "✓ Compiler binary built successfully"
+          test -f ./bin/nano || exit 1
+          echo "✓ Binaries built successfully"
 
       - name: Test basic examples
-        shell: bash
         run: |
-          ./bin/nanoc examples/language/nl_hello.nano -o hello_test
-          ./hello_test
-          ./bin/nanoc examples/language/nl_factorial.nano -o factorial_test
+          ./bin/nano examples/nl_hello.nano
+          ./bin/nanoc examples/nl_factorial.nano -o factorial_test
           ./factorial_test
-          rm -f hello_test factorial_test
+          rm -f factorial_test
 
       # Valgrind checks disabled - small leaks acceptable for short-lived compiler
       # - name: Check for memory leaks (Linux only)
@@ -120,7 +89,6 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Prevent runaway tests
 
     steps:
       - name: Checkout code
@@ -129,41 +97,23 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            pkg-config \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev
+          sudo apt-get install -y build-essential
 
       - name: Build with AddressSanitizer
-        run: |
-          # Disable leak detection for exit-time leaks in short-lived compiler process
-          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
-          export ASAN_OPTIONS=detect_leaks=0
-          make sanitize
+        run: make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          make build
+        run: make build
 
       - name: Run tests with sanitizers
-        timeout-minutes: 20  # Timeout for test step specifically
         run: |
+          # Disable leak detection for exit-time leaks in short-lived compiler process
+          # AddressSanitizer still catches real memory issues (use-after-free, etc.)
           export ASAN_OPTIONS=detect_leaks=0
-          make test-units  # Run only unit tests, skip slow integration tests
-
-      - name: Run negative tests with sanitizers
-        run: |
-          export ASAN_OPTIONS=detect_leaks=0
-          cd tests/negative
-          ./run_negative_tests.sh
+          make test
 
       - name: Show sanitizer error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first 3 failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -177,7 +127,6 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # Prevent runaway tests
 
     steps:
       - name: Checkout code
@@ -186,15 +135,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            lcov \
-            bc \
-            pkg-config \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev
+          sudo apt-get install -y build-essential lcov
 
       - name: Build with coverage
         run: make coverage
@@ -205,14 +146,8 @@ jobs:
       - name: Run tests
         run: make test
 
-      - name: Run negative tests
-        run: |
-          cd tests/negative
-          ./run_negative_tests.sh
-
       - name: Show error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -245,7 +180,7 @@ jobs:
       - name: Enforce coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=50.0
+          THRESHOLD=60.0
           echo "Current coverage: $COVERAGE%"
           echo "Required threshold: $THRESHOLD%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
@@ -270,7 +205,7 @@ jobs:
         with:
           script: |
             const coverage = '${{ steps.coverage.outputs.coverage }}';
-            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (50%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (60%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

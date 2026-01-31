@@ -1,0 +1,8 @@
+enum TestEnum {
+    VALUE1 = 0
+}
+
+fn main() -> int {
+    let val: TestEnum = TestEnum.VALUE1
+    return 0
+}

@@ -1,0 +1,25 @@
+# Test bounds checking in compiled code
+
+fn test_bounds_valid() -> int {
+    # This should work
+    return (at [10, 20, 30] 2)
+}
+
+shadow test_bounds_valid {
+    assert (== (test_bounds_valid) 30)
+}
+
+# Uncomment to test bounds checking failure:
+# fn test_bounds_invalid() -> int {
+#     # This should fail with bounds error
+#     return (at [10, 20, 30] 5)
+# }
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

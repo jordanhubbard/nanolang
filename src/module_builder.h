@@ -31,9 +31,6 @@ typedef struct {
     char **c_sources;
     size_t c_sources_count;
     
-    // C compiler to use (e.g., "c++" for C++ sources)
-    char *c_compiler;
-    
     // System libraries to link (-l flags)
     char **system_libs;
     size_t system_libs_count;
@@ -63,11 +60,6 @@ typedef struct {
     size_t dependencies_count;
     
     // System package dependencies (for auto-installation)
-    // New unified format (logical names, looked up in packages.json)
-    char **system_packages;    // Logical package names (e.g., "sdl2", "sqlite3")
-    size_t system_packages_count;
-    
-    // Legacy platform-specific format (deprecated, but still supported)
     char **apt_packages;       // Debian/Ubuntu package names
     size_t apt_packages_count;
     char **dnf_packages;       // Fedora/RHEL package names
@@ -77,10 +69,6 @@ typedef struct {
     
     // Module directory path
     char *module_dir;
-
-    // Install commands (from module.json "install" object)
-    char *install_brew;    // brew package name (macOS)
-    char *install_apt;     // apt package name (Linux)
 
     // FFI ownership metadata (optional)
     // Functions listed here return heap-allocated strings that the interpreter should free

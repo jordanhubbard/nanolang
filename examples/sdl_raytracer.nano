@@ -1,0 +1,614 @@
+/*
+ * sdl_raytracer.nano
+ * Progressive path tracer (multiple bounces + Monte Carlo sampling).
+ *
+ * Controls:
+ *   SPACE      reset + start rendering (progressively accumulates)
+ *   Click      move emissive light + reset
+ *   Arrow keys orbit camera (resets)
+ *   Mouse wheel zoom camera (resets)
+ *   ESC        quit
+ */
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+import "modules/sdl_ttf/sdl_ttf.nano"
+import "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+from "std/math/extended.nano" import deg_to_rad, clamp
+from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_add, vec3_sub, vec3_scale, vec3_dot, vec3_cross, vec3_length, vec3_normalize, vec3_reflect
+
+/* External C RNG/time helpers */
+extern fn rand() -> int
+extern fn srand(seed: int) -> void
+extern fn time(t: int) -> int
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+let UI_HEIGHT: int = 40
+
+/* Render at low resolution and upscale for speed */
+let SCALE: int = 4
+let RENDER_W: int = (/ WINDOW_WIDTH SCALE)
+let RENDER_H: int = (/ (- WINDOW_HEIGHT UI_HEIGHT) SCALE)
+
+let MAX_DEPTH: int = 10
+let MAX_SAMPLES: int = 400
+
+struct Ray {
+    origin: Vector3D,
+    direction: Vector3D
+}
+
+union Material {
+    Lambertian { albedo: Vector3D },
+    Checker { a: Vector3D, b: Vector3D, scale: float },
+    Metal { albedo: Vector3D, fuzz: float },
+    Dielectric { ir: float },
+    Emissive { color: Vector3D }
+}
+
+struct Sphere {
+    center: Vector3D,
+    radius: float,
+    mat: Material
+}
+
+struct HitRecord {
+    hit: bool,
+    t: float,
+    p: Vector3D,
+    normal: Vector3D,
+    front_face: bool,
+    mat: Material
+}
+
+struct Camera {
+    origin: Vector3D,
+    lower_left: Vector3D,
+    horizontal: Vector3D,
+    vertical: Vector3D,
+    u: Vector3D,
+    v: Vector3D,
+    w: Vector3D,
+    lens_radius: float
+}
+
+fn v3_mul(a: Vector3D, b: Vector3D) -> Vector3D {
+    return Vector3D { x: (* a.x b.x), y: (* a.y b.y), z: (* a.z b.z) }
+}
+
+fn v3_near_zero(v: Vector3D) -> bool {
+    let s: float = 0.0000001
+    return (and (and (< (abs v.x) s) (< (abs v.y) s)) (< (abs v.z) s))
+}
+
+fn random_float() -> float {
+    /* [0,1) */
+    let r: int = (rand)
+    let rf: float = (cast_float (% r 1000000))
+    return (/ rf 1000000.0)
+}
+
+fn random_range(min_v: float, max_v: float) -> float {
+    return (+ min_v (* (- max_v min_v) (random_float)))
+}
+
+fn random_vec3(min_v: float, max_v: float) -> Vector3D {
+    return (vec3_new (random_range min_v max_v) (random_range min_v max_v) (random_range min_v max_v))
+}
+
+fn random_in_unit_sphere() -> Vector3D {
+    while true {
+        let p: Vector3D = (random_vec3 -1.0 1.0)
+        if (< (vec3_dot p p) 1.0) {
+            return p
+        } else {
+            (print "")
+        }
+    }
+    return (vec3_new 0.0 0.0 0.0)
+}
+
+fn random_unit_vector() -> Vector3D {
+    return (vec3_normalize (random_in_unit_sphere))
+}
+
+fn random_in_unit_disk() -> Vector3D {
+    while true {
+        let p: Vector3D = (vec3_new (random_range -1.0 1.0) (random_range -1.0 1.0) 0.0)
+        if (< (vec3_dot p p) 1.0) {
+            return p
+        } else {
+            (print "")
+        }
+    }
+    return (vec3_new 0.0 0.0 0.0)
+}
+
+fn ray_at(r: Ray, t: float) -> Vector3D {
+    return (vec3_add r.origin (vec3_scale r.direction t))
+}
+
+fn set_face_normal(r: Ray, outward: Vector3D) -> (bool, Vector3D) {
+    let front: bool = (< (vec3_dot r.direction outward) 0.0)
+    if front {
+        return (true, outward)
+    } else {
+        return (false, (vec3_scale outward -1.0))
+    }
+}
+
+fn sphere_hit(s: Sphere, r: Ray, t_min: float, t_max: float) -> HitRecord {
+    let oc: Vector3D = (vec3_sub r.origin s.center)
+    let a: float = (vec3_dot r.direction r.direction)
+    let half_b: float = (vec3_dot oc r.direction)
+    let c: float = (- (vec3_dot oc oc) (* s.radius s.radius))
+    let discriminant: float = (- (* half_b half_b) (* a c))
+
+    if (< discriminant 0.0) {
+        return HitRecord {
+            hit: false,
+            t: 0.0,
+            p: (vec3_new 0.0 0.0 0.0),
+            normal: (vec3_new 0.0 0.0 0.0),
+            front_face: true,
+            mat: s.mat
+        }
+    } else {
+        let sqrtd: float = (sqrt discriminant)
+        let mut root: float = (/ (- (- 0.0 half_b) sqrtd) a)
+        if (or (< root t_min) (> root t_max)) {
+            set root (/ (+ (- 0.0 half_b) sqrtd) a)
+            if (or (< root t_min) (> root t_max)) {
+                return HitRecord {
+                    hit: false,
+                    t: 0.0,
+                    p: (vec3_new 0.0 0.0 0.0),
+                    normal: (vec3_new 0.0 0.0 0.0),
+                    front_face: true,
+                    mat: s.mat
+                }
+            } else {
+                (print "")
+            }
+        } else {
+            (print "")
+        }
+
+        let p: Vector3D = (ray_at r root)
+        let outward: Vector3D = (vec3_scale (vec3_sub p s.center) (/ 1.0 s.radius))
+        let ff_and_n: (bool, Vector3D) = (set_face_normal r outward)
+        return HitRecord {
+            hit: true,
+            t: root,
+            p: p,
+            normal: ff_and_n.1,
+            front_face: ff_and_n.0,
+            mat: s.mat
+        }
+    }
+}
+
+fn checker_at(m: Material, p: Vector3D) -> Vector3D {
+    match m {
+        Checker(c) => {
+            let sx: int = (cast_int (floor (* p.x c.scale)))
+            let sz: int = (cast_int (floor (* p.z c.scale)))
+            if (== (% (+ sx sz) 2) 0) {
+                return c.a
+            } else {
+                return c.b
+            }
+        }
+        Lambertian(l) => { return l.albedo }
+        Metal(mm) => { return mm.albedo }
+        Dielectric(d) => { return (vec3_new 1.0 1.0 1.0) }
+        Emissive(e) => { return e.color }
+    }
+
+    return (vec3_new 0.0 0.0 0.0)
+}
+
+fn refract(uv: Vector3D, n: Vector3D, etai_over_etat: float) -> Vector3D {
+    let cos_theta: float = (min 1.0 (- (vec3_dot (vec3_scale uv -1.0) n) 0.0))
+    let r_out_perp: Vector3D = (vec3_scale (vec3_add uv (vec3_scale n cos_theta)) etai_over_etat)
+    let k: float = (- 1.0 (vec3_dot r_out_perp r_out_perp))
+    let r_out_parallel: Vector3D = (vec3_scale n (- (sqrt (abs k)) 0.0))
+    return (vec3_add r_out_perp r_out_parallel)
+}
+
+fn reflectance(cosine: float, ref_idx: float) -> float {
+    let mut r0: float = (/ (- 1.0 ref_idx) (+ 1.0 ref_idx))
+    set r0 (* r0 r0)
+    return (+ r0 (* (- 1.0 r0) (pow (- 1.0 cosine) 5.0)))
+}
+
+fn hit_world(r: Ray, t_min: float, t_max: float, light_center: Vector3D) -> HitRecord {
+    /* Scene: ground checker, 2 spheres, glass, emissive light */
+    let ground: Sphere = Sphere {
+        center: (vec3_new 0.0 -100.5 -1.0),
+        radius: 100.0,
+        mat: Material.Checker {
+            a: (vec3_new 0.9 0.9 0.9),
+            b: (vec3_new 0.1 0.1 0.1),
+            scale: 2.0
+        }
+    }
+
+    let glass: Sphere = Sphere { center: (vec3_new 0.0 0.0 -1.0), radius: 0.5, mat: Material.Dielectric { ir: 1.5 } }
+    let left: Sphere = Sphere { center: (vec3_new -1.0 0.0 -1.0), radius: 0.5, mat: Material.Lambertian { albedo: (vec3_new 0.8 0.2 0.2) } }
+    let right: Sphere = Sphere { center: (vec3_new 1.0 0.0 -1.0), radius: 0.5, mat: Material.Metal { albedo: (vec3_new 0.8 0.8 0.8), fuzz: 0.05 } }
+
+    let light: Sphere = Sphere { center: light_center, radius: 0.25, mat: Material.Emissive { color: (vec3_new 9.0 8.0 6.0) } }
+
+    let mut closest: float = t_max
+    let mut best: HitRecord = HitRecord {
+        hit: false,
+        t: 0.0,
+        p: (vec3_new 0.0 0.0 0.0),
+        normal: (vec3_new 0.0 0.0 0.0),
+        front_face: true,
+        mat: ground.mat
+    }
+
+    let hg: HitRecord = (sphere_hit ground r t_min closest)
+    if hg.hit {
+        set closest hg.t
+        set best hg
+    } else { (print "") }
+
+    let hl: HitRecord = (sphere_hit left r t_min closest)
+    if hl.hit {
+        set closest hl.t
+        set best hl
+    } else { (print "") }
+
+    let hr: HitRecord = (sphere_hit right r t_min closest)
+    if hr.hit {
+        set closest hr.t
+        set best hr
+    } else { (print "") }
+
+    let hg2: HitRecord = (sphere_hit glass r t_min closest)
+    if hg2.hit {
+        set closest hg2.t
+        set best hg2
+    } else { (print "") }
+
+    let hlight: HitRecord = (sphere_hit light r t_min closest)
+    if hlight.hit {
+        set closest hlight.t
+        set best hlight
+    } else { (print "") }
+
+    return best
+}
+
+fn ray_color(r_in: Ray, light_center: Vector3D) -> Vector3D {
+    let mut r: Ray = r_in
+    let mut throughput: Vector3D = (vec3_new 1.0 1.0 1.0)
+    let mut out: Vector3D = (vec3_new 0.0 0.0 0.0)
+
+    let mut depth: int = 0
+    while (< depth MAX_DEPTH) {
+        let rec: HitRecord = (hit_world r 0.001 1000000.0 light_center)
+        if rec.hit {
+            match rec.mat {
+                Emissive(e) => {
+                    set out (vec3_add out (v3_mul throughput e.color))
+                    return out
+                }
+                Checker(c) => {
+                    /* Lambertian with procedural checker */
+                    let albedo: Vector3D = (checker_at rec.mat rec.p)
+                    let mut scatter_dir: Vector3D = (vec3_add rec.normal (random_unit_vector))
+                    if (v3_near_zero scatter_dir) { set scatter_dir rec.normal } else { (print "") }
+                    set throughput (v3_mul throughput albedo)
+                    set r Ray { origin: rec.p, direction: scatter_dir }
+                }
+                Lambertian(l) => {
+                    let mut scatter_dir: Vector3D = (vec3_add rec.normal (random_unit_vector))
+                    if (v3_near_zero scatter_dir) { set scatter_dir rec.normal } else { (print "") }
+                    set throughput (v3_mul throughput l.albedo)
+                    set r Ray { origin: rec.p, direction: scatter_dir }
+                }
+                Metal(m) => {
+                    let unit_dir: Vector3D = (vec3_normalize r.direction)
+                    let reflected: Vector3D = (vec3_reflect unit_dir rec.normal)
+                    let scattered_dir: Vector3D = (vec3_add reflected (vec3_scale (random_in_unit_sphere) m.fuzz))
+                    if (> (vec3_dot scattered_dir rec.normal) 0.0) {
+                        set throughput (v3_mul throughput m.albedo)
+                        set r Ray { origin: rec.p, direction: scattered_dir }
+                    } else {
+                        return out
+                    }
+                }
+                Dielectric(d) => {
+                    let mut ref_ratio: float = d.ir
+                    if rec.front_face {
+                        set ref_ratio (/ 1.0 d.ir)
+                    } else { (print "") }
+
+                    let unit_dir: Vector3D = (vec3_normalize r.direction)
+                    let cos_theta: float = (min 1.0 (- (vec3_dot (vec3_scale unit_dir -1.0) rec.normal) 0.0))
+                    let sin_theta: float = (sqrt (- 1.0 (* cos_theta cos_theta)))
+
+                    let cannot: bool = (> (* ref_ratio sin_theta) 1.0)
+                    let reflect_p: bool = (< (random_float) (reflectance cos_theta ref_ratio))
+                    let mut dir: Vector3D = (refract unit_dir rec.normal ref_ratio)
+                    if (or cannot reflect_p) {
+                        set dir (vec3_reflect unit_dir rec.normal)
+                    } else { (print "") }
+
+                    set throughput (v3_mul throughput (vec3_new 1.0 1.0 1.0))
+                    set r Ray { origin: rec.p, direction: dir }
+                }
+            }
+        } else {
+            let unit: Vector3D = (vec3_normalize r.direction)
+            let t: float = (* (+ unit.y 1.0) 0.5)
+            let sky: Vector3D = (vec3_add (vec3_scale (vec3_new 1.0 1.0 1.0) (- 1.0 t)) (vec3_scale (vec3_new 0.5 0.7 1.0) t))
+            set out (vec3_add out (v3_mul throughput sky))
+            return out
+        }
+        set depth (+ depth 1)
+    }
+    return out
+}
+
+fn camera_new(lookfrom: Vector3D, lookat: Vector3D, vup: Vector3D, vfov_deg: float, aspect: float, aperture: float, focus_dist: float) -> Camera {
+    let theta: float = (deg_to_rad vfov_deg)
+    let h: float = (tan (/ theta 2.0))
+    let viewport_h: float = (* 2.0 h)
+    let viewport_w: float = (* aspect viewport_h)
+
+    let w: Vector3D = (vec3_normalize (vec3_sub lookfrom lookat))
+    let u: Vector3D = (vec3_normalize (vec3_cross vup w))
+    let v: Vector3D = (vec3_cross w u)
+
+    let origin: Vector3D = lookfrom
+    let horizontal: Vector3D = (vec3_scale u (* viewport_w focus_dist))
+    let vertical: Vector3D = (vec3_scale v (* viewport_h focus_dist))
+
+    let lower_left: Vector3D = (vec3_sub (vec3_sub (vec3_sub origin (vec3_scale horizontal 0.5)) (vec3_scale vertical 0.5)) (vec3_scale w focus_dist))
+
+    return Camera {
+        origin: origin,
+        lower_left: lower_left,
+        horizontal: horizontal,
+        vertical: vertical,
+        u: u,
+        v: v,
+        w: w,
+        lens_radius: (/ aperture 2.0)
+    }
+}
+
+fn camera_get_ray(cam: Camera, s: float, t: float) -> Ray {
+    let rd: Vector3D = (vec3_scale (random_in_unit_disk) cam.lens_radius)
+    let offset: Vector3D = (vec3_add (vec3_scale cam.u rd.x) (vec3_scale cam.v rd.y))
+    let dir: Vector3D = (vec3_sub (vec3_add (vec3_add cam.lower_left (vec3_scale cam.horizontal s)) (vec3_scale cam.vertical t)) (vec3_add cam.origin offset))
+    return Ray { origin: (vec3_add cam.origin offset), direction: dir }
+}
+
+fn to_srgb8(x: float) -> int {
+    let c: float = (sqrt (clamp x 0.0 0.999))
+    return (cast_int (* 256.0 c))
+}
+
+fn draw_ui(renderer: SDL_Renderer, font: TTF_Font, samples: int, yaw: float, pitch: float, dist: float) -> void {
+    (SDL_SetRenderDrawColor renderer 15 15 20 255)
+    (nl_sdl_render_fill_rect renderer 0 0 WINDOW_WIDTH UI_HEIGHT)
+
+    (nl_draw_text_blended renderer font "Nanolang Path Tracer" 10 10 255 255 255 255)
+    (nl_draw_text_blended renderer font "SPACE: reset  |  click: move light  |  arrows/wheel: orbit camera  |  ESC: quit" 240 12 180 180 180 255)
+
+    let mut s: string = "Samples: "
+    set s (str_concat s (int_to_string samples))
+    set s (str_concat s " / ")
+    set s (str_concat s (int_to_string MAX_SAMPLES))
+    (nl_draw_text_blended renderer font s 10 22 255 200 120 255)
+}
+
+fn reset_accum() -> array<float> {
+    let len: int = (* (* RENDER_W RENDER_H) 3)
+    return (array_new len 0.0)
+}
+
+fn accum_add(accum: array<float>, idx: int, v: float) -> void {
+    let cur: float = (at accum idx)
+    (array_set accum idx (+ cur v))
+}
+
+fn render_pass(renderer: SDL_Renderer, accum: array<float>, sample_count: int, cam: Camera, light_center: Vector3D) -> void {
+    let inv_w: float = (/ 1.0 (cast_float RENDER_W))
+    let inv_h: float = (/ 1.0 (cast_float RENDER_H))
+
+    let mut y: int = 0
+    while (< y RENDER_H) {
+        let mut x: int = 0
+        while (< x RENDER_W) {
+            let u: float = (* (+ (cast_float x) (random_float)) inv_w)
+            let v: float = (* (+ (cast_float (- (- RENDER_H y) 1)) (random_float)) inv_h)
+            let r: Ray = (camera_get_ray cam u v)
+            let c: Vector3D = (ray_color r light_center)
+
+            let base: int = (* 3 (+ x (* y RENDER_W)))
+            (accum_add accum base c.x)
+            (accum_add accum (+ base 1) c.y)
+            (accum_add accum (+ base 2) c.z)
+
+            let denom: float = (cast_float (+ sample_count 1))
+            let rr: int = (to_srgb8 (/ (at accum base) denom))
+            let gg: int = (to_srgb8 (/ (at accum (+ base 1)) denom))
+            let bb: int = (to_srgb8 (/ (at accum (+ base 2)) denom))
+
+            (SDL_SetRenderDrawColor renderer rr gg bb 255)
+            (nl_sdl_render_fill_rect renderer (* x SCALE) (+ UI_HEIGHT (* y SCALE)) SCALE SCALE)
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+}
+
+fn compute_camera(yaw_deg: float, pitch_deg: float, dist: float) -> Camera {
+    let yaw: float = (deg_to_rad yaw_deg)
+    let pitch: float = (deg_to_rad pitch_deg)
+    let cp: float = (cos pitch)
+    let sp: float = (sin pitch)
+    let cy: float = (cos yaw)
+    let sy: float = (sin yaw)
+
+    let lookat: Vector3D = (vec3_new 0.0 0.0 -1.0)
+    let lookfrom: Vector3D = (vec3_add lookat (vec3_new (* dist (* cp cy)) (* dist sp) (* dist (* cp sy))))
+    let vup: Vector3D = (vec3_new 0.0 1.0 0.0)
+    let aspect: float = (/ (cast_float RENDER_W) (cast_float RENDER_H))
+
+    let focus: float = (vec3_length (vec3_sub lookfrom lookat))
+    return (camera_new lookfrom lookat vup 35.0 aspect 0.08 focus)
+}
+
+fn main() -> int {
+    (SDL_Init 32)
+    let window: SDL_Window = (SDL_CreateWindow "Nanolang Path Tracer" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else { (print "") }
+
+    (TTF_Init)
+    let font: TTF_Font = (nl_open_font_portable "Arial" 16)
+    if (== font 0) {
+        (println "Failed to load font")
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    } else { (print "") }
+
+    (srand (time 0))
+
+    let mut yaw: float = 35.0
+    let mut pitch: float = -10.0
+    let mut dist: float = 3.2
+
+    let mut light_x: int = (/ WINDOW_WIDTH 2)
+    let mut light_y: int = (+ UI_HEIGHT 60)
+
+    let mut light_center: Vector3D = (vec3_new 0.0 1.2 -0.2)
+    let mut cam: Camera = (compute_camera yaw pitch dist)
+
+    let mut accum: array<float> = (reset_accum)
+    let mut samples: int = 0
+    let mut running: bool = true
+    let mut rendering: bool = false
+
+    (SDL_SetRenderDrawColor renderer 0 0 0 255)
+    (SDL_RenderClear renderer)
+    (draw_ui renderer font samples yaw pitch dist)
+    (SDL_RenderPresent renderer)
+
+    while running {
+        let key: int = (nl_sdl_poll_keypress)
+        if (> key -1) {
+            if (== key 41) {
+                set running false
+            } else {
+                if (== key 44) {
+                    set accum (reset_accum)
+                    set samples 0
+                    set rendering true
+                } else {
+                    /* arrows: 79 right, 80 left, 81 down, 82 up */
+                    if (== key 79) {
+                        set yaw (+ yaw 3.0)
+                        set cam (compute_camera yaw pitch dist)
+                        set accum (reset_accum)
+                        set samples 0
+                        set rendering true
+                    } else { (print "") }
+
+                    if (== key 80) {
+                        set yaw (- yaw 3.0)
+                        set cam (compute_camera yaw pitch dist)
+                        set accum (reset_accum)
+                        set samples 0
+                        set rendering true
+                    } else { (print "") }
+
+                    if (== key 82) {
+                        set pitch (min 80.0 (+ pitch 3.0))
+                        set cam (compute_camera yaw pitch dist)
+                        set accum (reset_accum)
+                        set samples 0
+                        set rendering true
+                    } else { (print "") }
+
+                    if (== key 81) {
+                        set pitch (max -80.0 (- pitch 3.0))
+                        set cam (compute_camera yaw pitch dist)
+                        set accum (reset_accum)
+                        set samples 0
+                        set rendering true
+                    } else { (print "") }
+                }
+            }
+        } else { (print "") }
+
+        let wheel: int = (nl_sdl_poll_mouse_wheel)
+        if (!= wheel 0) {
+            set dist (clamp (- dist (* (cast_float wheel) 0.15)) 1.8 8.0)
+            set cam (compute_camera yaw pitch dist)
+            set accum (reset_accum)
+            set samples 0
+            set rendering true
+        } else { (print "") }
+
+        let mouse: int = (nl_sdl_poll_mouse_click)
+        if (> mouse -1) {
+            set light_x (/ mouse 10000)
+            set light_y (% mouse 10000)
+            if (> light_y UI_HEIGHT) {
+                let lx: float = (/ (* (- (cast_float light_x) (/ (cast_float WINDOW_WIDTH) 2.0)) 4.0) (cast_float WINDOW_WIDTH))
+                let ly: float = (/ (* (- (/ (cast_float (- WINDOW_HEIGHT UI_HEIGHT)) 2.0) (cast_float (- light_y UI_HEIGHT))) 3.0) (cast_float (- WINDOW_HEIGHT UI_HEIGHT)))
+                set light_center (vec3_new lx (+ 1.0 ly) -0.2)
+                set accum (reset_accum)
+                set samples 0
+                set rendering true
+            } else {
+                (print "")
+            }
+        } else { (print "") }
+
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) { set running false } else { (print "") }
+
+        if rendering {
+            if (< samples MAX_SAMPLES) {
+                (render_pass renderer accum samples cam light_center)
+                set samples (+ samples 1)
+            } else {
+                set rendering false
+            }
+
+            (draw_ui renderer font samples yaw pitch dist)
+            (SDL_RenderPresent renderer)
+        } else {
+            (SDL_Delay 16)
+        }
+    }
+
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

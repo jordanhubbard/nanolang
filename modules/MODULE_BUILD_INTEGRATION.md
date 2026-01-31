@@ -73,11 +73,8 @@ cd modules
 
 ### Future Enhancements
 
-Tracked as beads:
-- `nanolang-3jpj`: Parse pkg-config output to extract exact flags
-- `nanolang-z0m9`: Support multiple library dependencies
-- `nanolang-tija`: Cache discovery results
-- `nanolang-rc4y`: Validate discovered paths before using them
-
-View with: `bd ready` or `bd show <id>`
+- Parse pkg-config output to extract exact flags
+- Support multiple library dependencies
+- Cache discovery results
+- Validate discovered paths before using them
 

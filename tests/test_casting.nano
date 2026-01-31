@@ -107,7 +107,7 @@ fn test_cast_string_from_bool() -> string {
     let f: bool = false
     let ts: string = (cast_string t)
     let fs: string = (cast_string f)
-    return (+ ts (+ " " fs))
+    return (str_concat ts (str_concat " " fs))
 }
 
 shadow test_cast_string_from_bool {

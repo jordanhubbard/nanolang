@@ -17,7 +17,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 SRC_NANO="$PROJECT_ROOT/src_nano"
 BIN_DIR="$PROJECT_ROOT/bin"
-BUILD_DIR="$PROJECT_ROOT/obj/build_bootstrap"
+BUILD_DIR="$PROJECT_ROOT/build_bootstrap"
 
 echo "==================================================================="
 echo "  nanolang Bootstrap - Phase 2"

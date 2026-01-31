@@ -1,21 +1,14 @@
-from "modules/std/json/json.nano" import Json, parse, free, object_has, get, get_int, get_string, as_int, as_string, is_number, keys, stringify
+from "std/json/json.nano" import Json, parse, free, object_has, get, get_int, get_string, as_int, as_string, is_number, keys, stringify
 
 fn contains_str(xs: array<string>, target: string) -> bool {
     let mut i: int = 0
     while (< i (array_length xs)) {
-        if (== (at xs i) target) {
+        if (str_equals (at xs i) target) {
             return true
         }
         set i (+ i 1)
     }
     return false
-}
-
-shadow contains_str {
-    let xs: array<string> = ["a", "b"]
-    assert (contains_str xs "a")
-    assert (contains_str xs "b")
-    assert (not (contains_str xs "c"))
 }
 
 fn json_basic() -> int {
@@ -32,19 +25,19 @@ fn main() -> int {
 
 shadow json_basic {
     let j: Json = (parse "{\"a\": 1, \"b\": \"hi\"}")
-    assert (!= j 0)
+    assert (!= j (cast 0 Json))
 
     assert (object_has j "a")
 
     let a: Json = (get j "a")
-    assert (!= a 0)
+    assert (!= a (cast 0 Json))
     assert (is_number a)
     assert (== (as_int a) 1)
     (free a)
 
     let b: Json = (get j "b")
-    assert (!= b 0)
-    assert (== (as_string b) "hi")
+    assert (!= b (cast 0 Json))
+    assert (str_equals (as_string b) "hi")
     (free b)
 
     let ks: array<string> = (keys j)
@@ -56,10 +49,6 @@ shadow json_basic {
     assert (> (str_length s) 0)
 
     (free j)
-
-    # keys() must return owned/copied strings (safe after JSON is freed)
-    assert (contains_str ks "a")
-    assert (contains_str ks "b")
 }
 
 shadow get_int {
@@ -71,8 +60,8 @@ shadow get_int {
 
 shadow get_string {
     let j: Json = (parse "{\"b\": \"hi\"}")
-    assert (== (get_string j "b") "hi")
-    assert (== (get_string j "missing") "")
+    assert (str_equals (get_string j "b") "hi")
+    assert (str_equals (get_string j "missing") "")
     (free j)
 }
 

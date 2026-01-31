@@ -2,26 +2,6 @@
 
 > **Purpose:** This file is designed specifically for Large Language Model consumption. It contains the essential knowledge needed to generate, debug, and understand NanoLang code. Pair this with `spec.json` for complete language coverage.
 
-## 🚨 READ FIRST: LLM-First Design
-
-**NanoLang has EXACTLY ONE canonical way to write each construct.**
-
-**REQUIRED READING:**
-1. **`docs/CANONICAL_STYLE.md`** - The One True Way™ for every operation
-2. **`docs/LLM_CORE_SUBSET.md`** - The 50-primitive core to learn first
-
-**Quick Rules:**
-- ✅ **ONE syntax per operation** - No alternatives
-- ✅ **Prefix notation ONLY** - `(f x y)` never `f(x, y)` or `x + y`
-- ✅ **Explicit types** - Always annotate
-- ✅ **Core subset first** - Advanced features only when asked
-- ✅ **Use `(+ str1 str2)`** not `str_concat` (deprecated)
-- ✅ **Use `(cond ...)`** for expressions, `if/else` for statements
-
-**Why this matters:** When there's only one way to do it, LLMs can't get it wrong.
-
----
-
 ## Critical First Principles
 
 ### 1. ALWAYS Use Prefix Notation
@@ -37,17 +17,8 @@ x * y
 println("hello")
 ```
 
-### 2. ALWAYS Include Shadow Tests ⚠️ MANDATORY ⚠️
-**Every function MUST have a shadow test. This is a CORE DESIGN PRINCIPLE of NanoLang.**
-
-**NO EXCEPTIONS: This applies to:**
-- ✅ Core library functions
-- ✅ Application code
-- ✅ **Example code**
-- ✅ **Utility functions**
-- ✅ **Demo programs**
-- ✅ **Test files**
-- ❌ ONLY EXCEPTION: `extern` functions (C FFI)
+### 2. ALWAYS Include Shadow Tests
+Every function MUST have a shadow test. No exceptions.
 
 ```nano
 fn double(x: int) -> int {
@@ -61,27 +32,7 @@ shadow double {
 }
 ```
 
-**Why Shadow Tests Are Mandatory:**
-1. **Correctness:** Code is tested at compile time, not runtime
-2. **Documentation:** Tests show how to use functions
-3. **LLM-Friendly:** Forces AI to think through edge cases
-4. **Self-Hosting:** Enables the compiler to validate itself
-
-**If you forget shadow tests, compilation will show warnings. This is intentional.**
-
-**For LLMs:** When generating NanoLang code, ALWAYS include shadow tests for every function you write. This is not optional - it's part of the language design.
-
-### 2.1 Examples are also stress tests (NO workarounds)
-If an example reveals a weakness (miscompile, memory/lifetime bug, nondeterminism, etc.), treat it as a **language/compiler/runtime defect**:
-- Create a bead for the defect (P0/P1 as appropriate)
-- Build a **minimal deterministic reproducer** (shadow test)
-- Fix root cause (no workarounds)
-- Add a regression test
-
-### 2.2 Agent-only compiler flags / machine-readable diagnostics
-NanoLang is LLM-first, so the compiler supports (and will continue to add) **agent-focused** debugging/tracing outputs (preferably machine-readable).
-
-See `docs/LLM_AGENT_FLAGS.md`.
+**If you forget shadow tests, compilation will fail.**
 
 ### 3. ALWAYS Use Explicit Types
 ```nano
@@ -115,48 +66,11 @@ shadow name {
     assert (== (name arg1 arg2) expected)
 }
 
-# External C Functions (FFI)
+# External C Functions
 extern fn function_name(param: type) -> return_type
-
-# ⚠️ Extern calls require either:
-#    1. unsafe module import (preferred), OR
-#    2. unsafe blocks (legacy)
-
-# PREFERRED: Module-level safety
-unsafe module "modules/ffi_lib/ffi_lib.nano"
-
-fn call_extern() -> int {
-    # No unsafe block needed with 'unsafe module'!
-    return (function_name arg)
-}
-
-# LEGACY: Individual unsafe blocks
-module "modules/ffi_lib/ffi_lib.nano"
-
-fn call_extern_legacy() -> int {
-    let mut result: int = 0
-    unsafe {
-        set result (function_name arg)
-    }
-    return result
-}
 
 # Public external functions (for modules)
 pub extern fn module_function(param: type) -> return_type
-
-# Import safe module with alias
-module "modules/math_helper.nano" as Math
-let result: int = (Math.add 2 3)
-
-# Import unsafe (FFI) module
-unsafe module "modules/sdl/sdl.nano"
-
-# Import without alias
-module "modules/utilities.nano"
-(some_function arg)
-
-# Legacy syntax (still supported, will be deprecated)
-import "modules/old_module.nano"
 ```
 
 ### Control Flow
@@ -168,32 +82,6 @@ if condition {
     # else branch
 }
 
-# Cond expression (multi-branch conditional - cleaner than nested if/else)
-(cond
-    (condition1 value1)
-    (condition2 value2)
-    (condition3 value3)
-    (else default_value))
-
-# Example: Number classification
-fn classify(n: int) -> string {
-    return (cond
-        ((< n 0) "negative")
-        ((== n 0) "zero")
-        ((< n 10) "small")
-        (else "large"))
-}
-
-# Example: Letter grade
-fn grade(score: int) -> string {
-    return (cond
-        ((>= score 90) "A")
-        ((>= score 80) "B")
-        ((>= score 70) "C")
-        ((>= score 60) "D")
-        (else "F"))
-}
-
 # While loop
 while condition {
     # body
@@ -203,22 +91,12 @@ while condition {
 for i in (range 0 10) {
     # i goes from 0 to 9
 }
-
-# Unsafe blocks (for FFI and unchecked operations)
-unsafe {
-    # Mark explicit trust boundaries
-    # Used for extern function calls and unchecked ops
-}
 ```
 
 ### Operators (Always Prefix!)
 ```nano
 # Arithmetic
 (+ a b)  (- a b)  (* a b)  (/ a b)  (% a b)
-
-# String concatenation (+ works for strings too!)
-(+ "hello" " world")  # Returns "hello world"
-(+ (+ "nano" "lang") "!")  # Returns "nanolang!"
 
 # Comparison
 (== a b)  (!= a b)  (< a b)  (<= a b)  (> a b)  (>= a b)
@@ -266,15 +144,10 @@ match result {
     Error(e) => { (println e.message) }
 }
 
-# Array (dynamic, garbage-collected)
+# Array
 array<int>  # Fixed type, dynamic size
-let arr: array<int> = [1, 2, 3, 4]          # Array literal
-let empty: array<int> = []                   # Empty array
-let first: int = (at arr 0)                  # Access element
-let mut nums: array<int> = []
-set nums (array_push nums 42)                # Append element
-let val: int = (array_pop nums)              # Remove last
-set nums (array_remove_at nums 0)            # Remove at index
+let arr: array<int> = [1, 2, 3, 4]
+let first: int = (at arr 0)
 
 # Generic List
 List<int>, List<string>, List<Point>
@@ -486,20 +359,22 @@ Error at line 42, column 15: Type mismatch
 ```
 Look at line 42, character 15 to find the issue.
 
-### Step 2: Compile and Test
+### Step 2: Use the Interpreter for Testing
 ```bash
-# Compile to binary
-./bin/nanoc mycode.nano -o mycode
+# Quick test without compilation
+./bin/nano mycode.nano
 
-# Run the binary
-./mycode
+# Trace execution
+./bin/nano mycode.nano --trace-all
+./bin/nano mycode.nano --trace-function=myfunc
+./bin/nano mycode.nano --trace-var=counter
 ```
 
 ### Step 3: Check Shadow Tests
-Shadow tests compile into the binary and run at runtime. If they fail, fix them first:
+Shadow tests run at compile time. If they fail, fix them first:
 ```nano
 shadow factorial {
-    assert (== (factorial 5) 120)  # This runs when the binary executes!
+    assert (== (factorial 5) 120)  # This runs during compilation!
 }
 ```
 
@@ -630,19 +505,12 @@ fn get_product(id: ProductId) -> Product { ... }
 
 ### Using Modules
 ```nano
-# Import a safe module (pure NanoLang)
-module "modules/vector2d/vector2d.nano"
+# Import an FFI module (looks for module.json with FFI bindings)
+import sdl
 
-# Import an unsafe FFI module (requires 'unsafe' prefix)
-unsafe module "modules/sdl/sdl.nano"
-
-# Import with alias
-unsafe module "modules/bullet/bullet.nano" as Physics
-
-# Use module functions
+# Use module functions with namespace prefix
 fn main() -> int {
-    # SDL functions work without unsafe {} blocks
-    # because the module was imported as 'unsafe module'
+    # SDL functions available directly
     (SDL_Init 0)
     
     # stdlib functions use namespace
@@ -663,37 +531,6 @@ fn main() -> int {
 }
 ```
 
-### Module Safety
-**Module-level safety eliminates scattered unsafe blocks:**
-
-```nano
-# OLD WAY (before module-level safety)
-import "modules/sdl/sdl.nano"
-
-fn render() -> void {
-    unsafe { (SDL_Init 0) }
-    unsafe { (SDL_CreateWindow "Game" 800 600) }
-    unsafe { (SDL_Quit) }
-}
-
-# NEW WAY (with module-level safety)
-unsafe module "modules/sdl/sdl.nano"
-
-fn render() -> void {
-    (SDL_Init 0)
-    (SDL_CreateWindow "Game" 800 600)
-    (SDL_Quit)
-}
-```
-
-**Key principle:** Mark modules as `unsafe` at import, not individual calls.
-
-**Benefits:**
-- ✅ 98% reduction in unsafe blocks (1,235 → 88 in examples/)
-- ✅ Clear safety declaration at module boundary
-- ✅ Cleaner, more readable code
-- ✅ Same compile-time safety guarantees
-
 ### Module Installation
 Modules automatically install dependencies:
 ```bash
@@ -707,182 +544,9 @@ Modules automatically install dependencies:
 - **sdl_mixer** - Audio playback
 - **sdl_ttf** - Font rendering
 - **glfw** - OpenGL windowing
+- **onnx** - Neural network inference
 
 Check `modules/` directory for full list.
-
-## Unsafe Blocks
-
-**Purpose**: Explicitly mark code that performs potentially dangerous operations, requiring conscious safety decisions by programmers.
-
-### What Requires `unsafe`
-- **FFI calls**: All `extern` function calls MUST be inside `unsafe` blocks
-- **Future**: Unchecked arithmetic, raw pointer operations, inline assembly
-
-### Basic Syntax
-```nano
-fn call_external_function() -> int {
-    let mut result: int = 0
-    unsafe {
-        set result (some_extern_function)
-    }
-    return result
-}
-```
-
-### Multiple and Nested Unsafe Blocks
-```nano
-fn complex_operation() -> int {
-    let mut total: int = 0
-    
-    /* First unsafe operation */
-    unsafe {
-        set total (extern_func_1)
-    }
-    
-    /* Safe code in between */
-    let x: int = (+ total 10)
-    
-    /* Second unsafe operation */
-    unsafe {
-        set total (+ x (extern_func_2))
-    }
-    
-    /* Nested unsafe blocks are allowed */
-    unsafe {
-        unsafe {
-            set total (+ total 1)
-        }
-    }
-    
-    return total
-}
-```
-
-### Why Unsafe Blocks Matter
-1. **Explicit Safety Boundaries**: Clear visual markers for code review
-2. **Compiler Enforcement**: Can't call `extern` functions without `unsafe`
-3. **Audit Trail**: Easy to find all potentially dangerous operations
-4. **MISRA/JSF Alignment**: Explicit unsafe operations satisfy coding standards
-5. **Gradual Safety**: Safe by default, unsafe by choice
-
-### Example: Wrapping External Libraries
-```nano
-/* Declare external C function */
-extern fn nl_os_getpid() -> int
-
-/* Safe wrapper - encapsulates the unsafe call */
-fn get_process_id() -> int {
-    let mut pid: int = 0
-    unsafe {
-        set pid (nl_os_getpid)
-    }
-    return pid
-}
-
-/* Now users can call the safe wrapper */
-fn main() -> int {
-    let pid: int = (get_process_id)  /* Safe! */
-    (println pid)
-    return 0
-}
-```
-
-### Best Practices
-- **Minimize unsafe scope**: Keep `unsafe` blocks as small as possible
-- **Encapsulate in safe functions**: Wrap extern calls in safe interfaces
-- **Document invariants**: Comment why the unsafe operation is actually safe
-- **Validate inputs**: Check preconditions before unsafe operations
-
-## Checked Arithmetic Operations (SAFETY)
-
-**NEW**: NanoLang provides checked arithmetic operations that detect overflow, underflow, and division by zero at runtime, returning `Result<int, string>` instead of crashing or wrapping silently.
-
-**MISRA Rule 12.4 Compliance**: These functions satisfy safety-critical requirements for overflow detection.  
-**JSF AV Rule 204 Compliance**: Division operations check for zero divisor.
-
-### Available Functions
-
-Import the module:
-```nano
-module "modules/stdlib/checked_math.nano"
-```
-
-Then use:
-
-```nano
-/* Safe addition - catches overflow/underflow */
-fn example_addition() -> int {
-    let result: Result<int, string> = (checked_add 1000000 2000000)
-    match result {
-        Ok(v) => {
-            (println v.value)  /* 3000000 */
-        },
-        Err(e) => {
-            (println e.error)  /* "Integer overflow in addition" */
-        }
-    }
-    return 0
-}
-
-/* Safe division - catches division by zero */
-fn example_division() -> int {
-    let result: Result<int, string> = (checked_div 100 0)
-    match result {
-        Ok(v) => {
-            (println v.value)
-        },
-        Err(e) => {
-            (println e.error)  /* "Division by zero" */
-        }
-    }
-    return 0
-}
-```
-
-### All Checked Operations
-
-| Function | Returns | Catches |
-|----------|---------|---------|
-| `checked_add(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_sub(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_mul(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_div(a, b)` | `Result<int, string>` | Division by zero, INT64_MIN / -1 |
-| `checked_mod(a, b)` | `Result<int, string>` | Modulo by zero |
-
-### When to Use
-
-- **Safety-critical applications**: Avionics, medical devices, automotive
-- **Financial calculations**: Money arithmetic must not overflow silently
-- **User input validation**: Prevent malicious overflow attacks
-- **Production code**: When correctness matters more than performance
-
-### When NOT to Use
-
-- **Performance-critical inner loops**: Checked ops are slower (~2-3x)
-- **Proven-safe calculations**: E.g., loop counters with known bounds
-- **Compiler-optimized code**: When overflow is mathematically impossible
-
-### Example: Safe Calculator
-
-See `examples/nl_checked_math_demo.nano` for a complete demonstration.
-
-```nano
-module "modules/stdlib/checked_math.nano"
-
-fn safe_calculator(a: int, op: string, b: int) -> Result<int, string> {
-    if (== op "+") {
-        return (checked_add a b)
-    } else { if (== op "-") {
-        return (checked_sub a b)
-    } else { if (== op "*") {
-        return (checked_mul a b)
-    } else { if (== op "/") {
-        return (checked_div a b)
-    } else {
-        return Result.Err { error: "Unknown operator" }
-    }}}}
-}
-```
 
 ## Performance Tips
 
@@ -1065,109 +729,6 @@ Before generating nanolang code, verify:
 - [ ] Function calls use prefix: `(function arg1 arg2)`
 - [ ] Range loops use proper syntax: `for i in (range 0 10)`
 
-## Dynamic Array Operations
-
-**SEMANTICS:** NanoLang arrays use **pure functional semantics** - all operations return new arrays, original arrays are unchanged. This matches the immutable-by-default philosophy.
-
-NanoLang arrays are dynamic and garbage-collected. They can grow and shrink as needed.
-
-### Creating Arrays
-```nano
-let empty: array<int> = []                   # Empty array
-let nums: array<int> = [1, 2, 3, 4, 5]       # Array literal
-let strings: array<string> = ["a", "b"]      # String array
-let nested: array<array<int>> = [[1], [2]]   # Nested arrays
-```
-
-### Adding Elements
-```nano
-let mut arr: array<int> = []
-set arr (array_push arr 42)                  # Append to end
-set arr (array_push arr 43)                  # arr is now [42, 43]
-```
-
-**Important:** `array_push` returns a new array. You must assign it back to the variable.
-
-### Removing Elements
-```nano
-let mut arr: array<int> = [10, 20, 30, 40]
-
-# Remove last element
-let val: int = (array_pop arr)               # val = 40, arr unchanged
-# Note: array_pop doesn't modify the array in place
-
-# Remove at specific index
-set arr (array_remove_at arr 1)              # Remove index 1
-# arr becomes [10, 30, 40] (removed 20)
-```
-
-### Accessing Elements
-```nano
-let first: int = (at arr 0)                  # Get element (bounds-checked)
-(array_set arr 0 100)                        # Set element (bounds-checked)
-let len: int = (array_length arr)            # Get length
-```
-
-### Complete Example
-```nano
-fn array_demo() -> int {
-    # Create empty array
-    let mut numbers: array<int> = []
-    
-    # Add elements
-    set numbers (array_push numbers 10)
-    set numbers (array_push numbers 20)
-    set numbers (array_push numbers 30)
-    # numbers = [10, 20, 30]
-    
-    # Remove last
-    let last: int = (array_pop numbers)
-    # last = 30, but numbers still [10, 20, 30]
-    
-    # Remove at index
-    set numbers (array_remove_at numbers 0)
-    # numbers = [20, 30]
-    
-    # Access and create modified version
-    let first: int = (at numbers 0)          # first = 20
-    set numbers (array_set numbers 0 99)     # numbers = [99, 30] (new array)
-    
-    return (array_length numbers)            # Returns 2
-}
-
-shadow array_demo {
-    assert (== (array_demo) 2)
-}
-```
-
-### Array Operations Summary
-
-**CHOSEN SEMANTICS: Fully Functional (Immutable by Default)**
-
-All array operations return new arrays and leave the original unchanged. This matches NanoLang's immutable-by-default philosophy.
-
-| Operation | Function | Returns | Original Array | Performance |
-|-----------|----------|---------|----------------|-------------|
-| Append | `array_push(arr, elem)` | new array | unchanged | O(1) amortized |
-| Remove last | `array_pop(arr)` | removed element | unchanged | O(1) |
-| Remove at index | `array_remove_at(arr, idx)` | new array | unchanged | O(n) |
-| Get element | `at(arr, idx)` | element value | unchanged | O(1) |
-| Set element | `array_set(arr, idx, val)` | new array | unchanged | O(n) copy |
-| Get length | `array_length(arr)` | int | unchanged | O(1) |
-
-**Implementation Detail:** Under the hood, operations use structural sharing and copy-on-write for efficiency. You don't pay for full array copies unless you actually modify elements.
-
-**Best Practice:** If you need to make many modifications, collect them and create a new array. Or consider using a mutable algorithm with explicit copies:
-
-```nano
-let mut working_copy: array<int> = arr  # Shallow copy
-set working_copy (array_push working_copy 1)
-set working_copy (array_push working_copy 2)
-# Original arr is still unchanged
-```
-
-**Key Principle:** Pure functional semantics → no hidden mutations → easier to reason about → fewer bugs.
-
 ## Advanced Features
 
 ### First-Class Functions
@@ -1289,188 +850,6 @@ When generating nanolang code:
 - Write shadow tests that verify correctness
 - Use prefix notation for all operations
 - Leverage the type system to catch errors early
-
----
-
-## Advanced Features (v0.3+)
-
-### Affine Types for Resource Safety
-
-**Affine types** ensure resources (files, sockets, etc.) are used **at most once**, preventing use-after-free/close bugs at compile time.
-
-```nano
-# Declare a resource struct
-resource struct FileHandle {
-    fd: int
-}
-
-# FFI functions that work with resources
-extern fn open_file(path: string) -> FileHandle
-extern fn close_file(f: FileHandle) -> void
-extern fn read_file(f: FileHandle) -> string
-
-fn safe_file_usage() -> int {
-    # Create resource
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    # Use resource (can use multiple times before consuming)
-    let data: string = unsafe { (read_file f) }
-    
-    # Consume resource (transfers ownership, resource is "moved")
-    unsafe { (close_file f) }
-    
-    # ERROR: Cannot use 'f' after it has been consumed!
-    # let more: string = unsafe { (read_file f) }  # Compile error!
-    
-    return 0
-}
-
-shadow safe_file_usage {
-    assert (== (safe_file_usage) 0)
-}
-```
-
-**Key Rules**:
-1. **Resources must be consumed** before end of scope (or compile error)
-2. **Cannot use after consume** (compile-time error)
-3. **Cannot consume twice** (compile-time error)
-4. Resources transition through states: `UNUSED` → `USED` → `CONSUMED`
-
-**When to Use**:
-- File handles
-- Network sockets
-- Database connections
-- GPU resources
-- Anything that requires cleanup
-
----
-
-### Self-Hosted Compiler Architecture
-
-NanoLang is now **self-hosted** - the compiler is written in NanoLang!
-
-**Two Compilers**:
-1. **`bin/nanoc`** (symlink to `bin/nanoc_c`) - C reference compiler (Stage 1)
-2. **`bin/nanoc_nano`** - Self-hosted NanoLang compiler (Stage 2)
-
-**Note**: NanoLang is a compiled language. The interpreter was removed to eliminate dual implementation burden.
-
-**Compilation Pipeline** (both compilers):
-```
-Source → Lex → Parse → TypeCheck → Transpile → C Compiler → Binary
-```
-
-**Bootstrap Process**:
-1. **Stage 1**: C compiler (`nanoc_c`) compiles self-hosted components
-2. **Stage 2**: Self-hosted compiler compiles itself
-3. **Stage 3**: Stage 2 compiler validates its output matches Stage 1
-
-**Compiler Phase Interfaces** (for self-hosted development):
-
-```nano
-# Phase 1: Lexer
-fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput {
-    # Returns: { tokens, token_count, had_error, diagnostics }
-}
-
-# Phase 2: Parser
-fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
-    # Returns: { parser, had_error, diagnostics }
-}
-
-# Phase 3: Type Checker
-fn typecheck_phase(parser_state: Parser) -> TypecheckPhaseOutput {
-    # Returns: { had_error, diagnostics }
-}
-
-# Phase 4: Transpiler
-fn transpile_phase(parser_state: Parser, c_file: string) -> TranspilePhaseOutput {
-    # Returns: { c_source, had_error, diagnostics, output_path }
-}
-```
-
-All phase outputs include:
-- `had_error: bool`
-- `diagnostics: List<CompilerDiagnostic>`
-
----
-
-### Diagnostic System (Self-Hosted)
-
-The self-hosted compiler uses a structured diagnostic system:
-
-```nano
-struct CompilerDiagnostic {
-    severity: int,      # DIAG_ERROR, DIAG_WARNING, DIAG_INFO
-    phase: int,         # PHASE_LEX, PHASE_PARSE, PHASE_TYPECHECK, PHASE_TRANSPILE
-    code: string,       # Error code (e.g., "E001")
-    message: string,    # Human-readable message
-    location: CompilerSourceLocation
-}
-
-struct CompilerSourceLocation {
-    file: string,
-    line: int,
-    column: int
-}
-
-# Create diagnostics
-fn diag_error(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
-fn diag_warning(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
-```
-
-**Elm-Style Error Messages** (in development):
-- Show source code context
-- Highlight problematic code
-- Suggest fixes
-- Explain *why* something is wrong
-
----
-
-### Result Type Pattern (Error Handling)
-
-For functions that can fail, use the `Result` union pattern:
-
-```nano
-union ResultInt {
-    Ok { value: int },
-    Err { error: string }
-}
-
-fn divide(a: int, b: int) -> ResultInt {
-    if (== b 0) {
-        return ResultInt.Err { error: "Division by zero" }
-    }
-    return ResultInt.Ok { value: (/ a b) }
-}
-
-shadow divide {
-    match (divide 10 2) {
-        Ok(v) => { assert (== v.value 5) }
-        Err(e) => { assert false }
-    }
-    match (divide 10 0) {
-        Ok(v) => { assert false }
-        Err(e) => { assert true }
-    }
-}
-```
-
----
-
-## LLM Development Guidelines (Updated 2025)
-
-When generating NanoLang code, remember:
-
-- Think "What would the simplest, clearest version look like?"
-- Make types explicit
-- **Write shadow tests that verify correctness** (MANDATORY)
-- Use prefix notation for all operations
-- Leverage the type system to catch errors early
-- **Use `resource struct` for types that require cleanup**
-- **Wrap FFI calls in `unsafe { ... }` blocks**
-- Use `Result` unions for fallible operations
-- Check for resource leaks in complex functions
 
 ---
 
