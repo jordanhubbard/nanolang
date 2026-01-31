@@ -2,7 +2,7 @@
   "name": "event",
   "version": "1.0.0",
   "description": "libevent - Asynchronous event notification library for network servers and high-performance I/O",
-  "headers": ["event2/event.h", "event_helpers.h"],
+  "headers": ["event2/event.h"],
   "c_sources": ["event_helpers.c"],
   "pkg_config": ["libevent"],
   "install": {

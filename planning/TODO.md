@@ -194,10 +194,10 @@ These improvements will make Phase 2 easier and more pleasant:
 - **Impact:** Self-hosted compiler can now use clean `List<Token>`, `List<ASTNode>` syntax!
 
 ### B. First-Class Functions (Without User-Visible Pointers)
-- **Status:** ✅ COMPLETE! (B1, B2, B3 all working)
-- **Priority:** HIGH (DONE - ready for self-hosting)
-- **Time Invested:** 6 hours (B1) + 6 hours (B2) + 8 hours (B3) = 20 hours total
-- **Documentation:** Pending (B4)
+- **Status:** ✅ Phase B1 COMPLETE! (B2/B3 pending)
+- **Priority:** HIGH (Required before self-hosting)
+- **Time Invested:** 6 hours (B1)
+- **Time Remaining:** 10-18 hours (B2/B3)
 - **Benefit:** Enables functional programming patterns without pointers in user code!
 - **Philosophy:** Functions as values WITHOUT exposing pointers - clean syntax, C implementation
 - **Description:**
@@ -245,16 +245,14 @@ fn double(x: int) -> int { return (* x 2) }
 let result: int = (apply_twice 5 double)  /* = 20 */
 ```
 
-#### B2. Functions as Return Values - ✅ COMPLETE!
-- **Status:** ✅ Complete (verified working)
-- **Priority:** HIGH (DONE)
+#### B2. Functions as Return Values (5-8 hours)
+- **Priority:** HIGH
 - **Benefit:** Function factories, strategy pattern
-- **Time Invested:** 6 hours (investigation + implementation)
 - **Tasks:**
-  1. ✅ Parser: Handle function types in return position
-  2. ✅ Type Checker: Validate returned function signatures
-  3. ✅ Transpiler: Generate correct return type (function pointer)
-  4. ✅ Testing: Function factory examples (all passing)
+  1. Parser: Handle function types in return position (1h)
+  2. Type Checker: Validate returned function signatures (2h)
+  3. Transpiler: Generate correct return type (function pointer) (2h)
+  4. Testing: Function factory examples (2h)
   
 **Example:**
 ```nano
@@ -265,16 +263,14 @@ let op: fn(int, int) -> int = (get_operation 1)
 let result: int = (op 5 3)  /* Calls multiply */
 ```
 
-#### B3. Function Variables - ✅ COMPLETE!
-- **Status:** ✅ Complete (verified working)
-- **Priority:** MEDIUM-HIGH (DONE)
+#### B3. Function Variables (5-10 hours)
+- **Priority:** MEDIUM-HIGH
 - **Benefit:** Function dispatch tables, cleaner code organization
-- **Time Invested:** 8 hours (investigation + implementation)
 - **Tasks:**
-  1. ✅ Type Checker: Allow function type in let statements
-  2. ✅ Transpiler: Generate function pointer variables
-  3. ✅ Integration: Works with generics
-  4. ✅ Testing: Comprehensive examples (all passing)
+  1. Type Checker: Allow function type in let statements (2h)
+  2. Transpiler: Generate function pointer variables (2h)
+  3. Integration: Works with generics (future: `fn map<T,U>(f: fn(T)->U)`) (3h)
+  4. Testing: Comprehensive examples (3h)
   
 **Example:**
 ```nano
@@ -461,9 +457,9 @@ Choose your path:
 - [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
 
 ### Examples
-- [examples/nl_union_types.nano](../examples/language/nl_union_types.nano) - Union types demo
-- [examples/nl_struct.nano](../examples/language/nl_struct.nano) - Struct example
-- [examples/nl_enum.nano](../examples/language/nl_enum.nano) - Enum example
+- [examples/nl_union_types.nano](../examples/nl_union_types.nano) - Union types demo
+- [examples/nl_struct.nano](../examples/nl_struct.nano) - Struct example
+- [examples/nl_enum.nano](../examples/nl_enum.nano) - Enum example
 
 ### Test Infrastructure
 - `tests/unit/unions/` - 5 union tests

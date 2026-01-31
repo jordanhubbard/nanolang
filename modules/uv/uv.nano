@@ -26,29 +26,29 @@ extern fn nl_uv_version() -> int
 
 extern fn nl_uv_default_loop() -> int
 extern fn nl_uv_loop_new() -> int
-extern fn nl_uv_loop_close(_loop: int) -> int
-extern fn nl_uv_run(_loop: int, _mode: int) -> int
-extern fn nl_uv_stop(_loop: int) -> void
-extern fn nl_uv_loop_alive(_loop: int) -> int
-extern fn nl_uv_loop_get_active_handles(_loop: int) -> int
+extern fn nl_uv_loop_close(loop: int) -> int
+extern fn nl_uv_run(loop: int, mode: int) -> int
+extern fn nl_uv_stop(loop: int) -> void
+extern fn nl_uv_loop_alive(loop: int) -> int
+extern fn nl_uv_loop_get_active_handles(loop: int) -> int
 
 # ============================================================================
 # Time functions
 # ============================================================================
 
-extern fn nl_uv_now(_loop: int) -> int
-extern fn nl_uv_update_time(_loop: int) -> void
+extern fn nl_uv_now(loop: int) -> int
+extern fn nl_uv_update_time(loop: int) -> void
 extern fn nl_uv_hrtime() -> int
-extern fn nl_uv_sleep(_msec: int) -> void
-extern fn nl_uv_backend_timeout(_loop: int) -> int
+extern fn nl_uv_sleep(msec: int) -> void
+extern fn nl_uv_backend_timeout(loop: int) -> int
 
 # ============================================================================
 # Error handling
 # ============================================================================
 
-extern fn nl_uv_strerror(_err: int) -> string
-extern fn nl_uv_err_name(_err: int) -> string
-extern fn nl_uv_translate_sys_error(_sys_errno: int) -> int
+extern fn nl_uv_strerror(err: int) -> string
+extern fn nl_uv_err_name(err: int) -> string
+extern fn nl_uv_translate_sys_error(sys_errno: int) -> int
 
 # ============================================================================
 # System information

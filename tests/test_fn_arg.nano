@@ -1,0 +1,17 @@
+# Test passing function variable as argument
+
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn apply_func(f: fn(int) -> int, x: int) -> int {
+    return (f x)
+}
+
+fn main() -> int {
+    let my_func: fn(int) -> int = double
+    let result: int = (apply_func my_func 5)
+    (print "Result: ")
+    (println result)
+    return result
+}

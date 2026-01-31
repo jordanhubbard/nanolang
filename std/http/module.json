@@ -1,9 +1,0 @@
-{
-  "name": "std_http",
-  "version": "0.1.0",
-  "description": "HTTP client utilities",
-  "headers": ["curl/curl.h"],
-  "c_sources": ["http_impl.c"],
-  "pkg_config": ["libcurl"],
-  "owned_string_returns": ["nl_http_response_header"]
-}

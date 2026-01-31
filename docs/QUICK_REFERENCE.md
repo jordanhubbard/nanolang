@@ -172,9 +172,7 @@ for var in (range start end) {
 return expression
 ```
 
-## Standard Library (66 Functions)
-
-**Note:** This reference shows commonly-used functions. See [STDLIB.md](STDLIB.md) and spec.json for the complete list of all 72 functions.
+## Standard Library (37 Functions)
 
 ### Core I/O (3)
 ```nano
@@ -569,64 +567,6 @@ shadow main {
     assert (== (main) 0)
 }
 ```
-
-## Interactive REPL
-
-NanoLang includes a full-featured REPL for interactive development:
-
-### Build & Launch
-```bash
-./bin/nanoc examples/language/full_repl.nano -o bin/repl
-./bin/repl
-```
-
-### Features
-- Persistent variables: `let x: int = 42`
-- Function definitions: `fn double(x: int) -> int { return (* x 2) }`
-- Multi-line input with continuation prompts (`....>`)
-- Type-specific evaluation: `:int`, `:float`, `:string`, `:bool`
-- Session management: `:vars`, `:funcs`, `:imports`, `:clear`, `:quit`
-
-### Example Session
-```nano
-nano> let x: int = 42
-Defined: x
-
-nano> fn double(n: int) -> int {
-....>     return (* n 2)
-....> }
-Defined: double(n: int) -> int
-
-nano> (double x)
-=> 84
-
-nano> :float (* 3.14 2.0)
-=> 6.28
-
-nano> :vars
-Defined variables: x
-
-nano> :funcs
-Defined functions: double(n: int) -> int
-```
-
-### REPL Commands
-
-| Command | Description |
-|---------|-------------|
-| `:vars` | List variables |
-| `:funcs` | List functions |
-| `:imports` | List imports |
-| `:clear` | Clear session |
-| `:quit` | Exit (or Ctrl-D) |
-
-### Use Cases
-- **Learning** - Try syntax interactively
-- **Prototyping** - Test functions before writing full programs
-- **Debugging** - Experiment with expressions
-- **Quick calculations** - Use as a powerful calculator
-
-See `examples/language/full_repl.nano` for implementation.
 
 ## Resources
 

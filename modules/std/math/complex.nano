@@ -6,7 +6,7 @@
 module std_math_complex
 
 /* libm */
-extern fn exp(_x: float) -> float
+extern fn exp(x: float) -> float
 
 pub struct Complex {
     re: float,

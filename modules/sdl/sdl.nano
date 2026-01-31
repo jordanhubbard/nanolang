@@ -49,56 +49,50 @@ let SDL_GL_CONTEXT_PROFILE_CORE: int = 1
 let SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: int = 2
 
 # SDL2 Core Functions
-extern fn SDL_Init(_flags: int) -> int
+extern fn SDL_Init(flags: int) -> int
 extern fn SDL_Quit() -> void
 extern fn SDL_GetError() -> string
 extern fn SDL_GetTicks() -> int
-extern fn SDL_Delay(_ms: int) -> void
+extern fn SDL_Delay(ms: int) -> void
 
 # SDL2 Window Functions
-extern fn SDL_CreateWindow(_title: string, _x: int, _y: int, _w: int, _h: int, _flags: int) -> SDL_Window
-extern fn SDL_DestroyWindow(_window: SDL_Window) -> void
-extern fn SDL_SetWindowTitle(_window: SDL_Window, _title: string) -> void
-extern fn SDL_SetWindowSize(_window: SDL_Window, _w: int, _h: int) -> void
-extern fn SDL_GetWindowSize(_window: SDL_Window, _w_ptr: int, _h_ptr: int) -> void
+extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -> SDL_Window
+extern fn SDL_DestroyWindow(window: SDL_Window) -> void
+extern fn SDL_SetWindowTitle(window: SDL_Window, title: string) -> void
+extern fn SDL_GetWindowSize(window: SDL_Window, w_ptr: int, h_ptr: int) -> void
 
 # SDL2 OpenGL Functions
-extern fn SDL_GL_SetAttribute(_attr: int, _value: int) -> int
-extern fn SDL_GL_CreateContext(_window: SDL_Window) -> SDL_GLContext
-extern fn SDL_GL_MakeCurrent(_window: SDL_Window, _context: SDL_GLContext) -> int
-extern fn SDL_GL_SetSwapInterval(_interval: int) -> int
-extern fn SDL_GL_SwapWindow(_window: SDL_Window) -> void
-extern fn SDL_GL_DeleteContext(_context: SDL_GLContext) -> void
+extern fn SDL_GL_SetAttribute(attr: int, value: int) -> int
+extern fn SDL_GL_CreateContext(window: SDL_Window) -> SDL_GLContext
+extern fn SDL_GL_MakeCurrent(window: SDL_Window, context: SDL_GLContext) -> int
+extern fn SDL_GL_SetSwapInterval(interval: int) -> int
+extern fn SDL_GL_SwapWindow(window: SDL_Window) -> void
+extern fn SDL_GL_DeleteContext(context: SDL_GLContext) -> void
 
 # SDL2 Renderer Functions  
-extern fn SDL_CreateRenderer(_window: SDL_Window, _index: int, _flags: int) -> SDL_Renderer
-extern fn SDL_DestroyRenderer(_renderer: SDL_Renderer) -> void
-extern fn SDL_RenderClear(_renderer: SDL_Renderer) -> int
-extern fn SDL_RenderPresent(_renderer: SDL_Renderer) -> void
-extern fn SDL_RenderSetLogicalSize(_renderer: SDL_Renderer, _w: int, _h: int) -> int
-extern fn SDL_RenderSetScale(_renderer: SDL_Renderer, _scale_x: float, _scale_y: float) -> int
-extern fn SDL_SetRenderDrawColor(_renderer: SDL_Renderer, _r: int, _g: int, _b: int, _a: int) -> int
-extern fn SDL_RenderFillRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
-extern fn SDL_RenderDrawPoint(_renderer: SDL_Renderer, _x: int, _y: int) -> int
-extern fn SDL_RenderDrawLine(_renderer: SDL_Renderer, _x1: int, _y1: int, _x2: int, _y2: int) -> int
-extern fn SDL_RenderDrawRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
-extern fn SDL_SetRenderDrawBlendMode(_renderer: SDL_Renderer, _mode: int) -> int
-extern fn SDL_RenderCopy(_renderer: SDL_Renderer, _texture: SDL_Texture, _srcrect: int, _dstrect: int) -> int
-extern fn SDL_CreateTexture(_renderer: SDL_Renderer, _format: int, _access: int, _w: int, _h: int) -> SDL_Texture
-extern fn SDL_UpdateTexture(_texture: SDL_Texture, _rect: int, _pixels: int, _pitch: int) -> int
-extern fn SDL_SetTextureBlendMode(_texture: SDL_Texture, _mode: int) -> int
-extern fn SDL_SetTextureAlphaMod(_texture: SDL_Texture, _alpha: int) -> int
-extern fn SDL_QueryTexture(_texture: SDL_Texture, _format: int, _access: int, _w: int, _h: int) -> int
-extern fn SDL_CreateTextureFromSurface(_renderer: SDL_Renderer, _surface: SDL_Surface) -> SDL_Texture
-extern fn SDL_DestroyTexture(_texture: SDL_Texture) -> void
-extern fn SDL_FreeSurface(_surface: SDL_Surface) -> void
+extern fn SDL_CreateRenderer(window: SDL_Window, index: int, flags: int) -> SDL_Renderer
+extern fn SDL_DestroyRenderer(renderer: SDL_Renderer) -> void
+extern fn SDL_RenderClear(renderer: SDL_Renderer) -> int
+extern fn SDL_RenderPresent(renderer: SDL_Renderer) -> void
+extern fn SDL_SetRenderDrawColor(renderer: SDL_Renderer, r: int, g: int, b: int, a: int) -> int
+extern fn SDL_RenderFillRect(renderer: SDL_Renderer, rect_ptr: int) -> int
+extern fn SDL_RenderDrawPoint(renderer: SDL_Renderer, x: int, y: int) -> int
+extern fn SDL_RenderDrawLine(renderer: SDL_Renderer, x1: int, y1: int, x2: int, y2: int) -> int
+extern fn SDL_RenderDrawRect(renderer: SDL_Renderer, rect_ptr: int) -> int
+extern fn SDL_SetRenderDrawBlendMode(renderer: SDL_Renderer, mode: int) -> int
+extern fn SDL_RenderCopy(renderer: SDL_Renderer, texture: SDL_Texture, srcrect: int, dstrect: int) -> int
+extern fn SDL_CreateTexture(renderer: SDL_Renderer, format: int, access: int, w: int, h: int) -> SDL_Texture
+extern fn SDL_UpdateTexture(texture: SDL_Texture, rect: int, pixels: int, pitch: int) -> int
+extern fn SDL_SetTextureBlendMode(texture: SDL_Texture, mode: int) -> int
+extern fn SDL_SetTextureAlphaMod(texture: SDL_Texture, alpha: int) -> int
+extern fn SDL_QueryTexture(texture: SDL_Texture, format: int, access: int, w: int, h: int) -> int
+extern fn SDL_CreateTextureFromSurface(renderer: SDL_Renderer, surface: SDL_Surface) -> SDL_Texture
+extern fn SDL_DestroyTexture(texture: SDL_Texture) -> void
+extern fn SDL_FreeSurface(surface: SDL_Surface) -> void
 
 # SDL2 Event Functions
-extern fn SDL_PollEvent(_event_ptr: int) -> int
-extern fn SDL_EventState(_type: int, _state: int) -> int
-
-# SDL2 Hints
-extern fn SDL_SetHint(_name: string, _value: string) -> int
+extern fn SDL_PollEvent(event_ptr: int) -> int
+extern fn SDL_EventState(type: int, state: int) -> int
 
 # SDL_ttf integration has been moved to modules/sdl_ttf/
 # Use: import "modules/sdl_ttf/sdl_ttf.nano" for TTF font rendering

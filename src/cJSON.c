@@ -124,7 +124,7 @@ CJSON_PUBLIC(double) cJSON_GetNumberValue(const cJSON * const item)
 CJSON_PUBLIC(const char*) cJSON_Version(void)
 {
     static char version[15];
-    snprintf(version, sizeof(version), "%i.%i.%i", CJSON_VERSION_MAJOR, CJSON_VERSION_MINOR, CJSON_VERSION_PATCH);
+    sprintf(version, "%i.%i.%i", CJSON_VERSION_MAJOR, CJSON_VERSION_MINOR, CJSON_VERSION_PATCH);
 
     return version;
 }
@@ -606,22 +606,22 @@ static cJSON_bool print_number(const cJSON * const item, printbuffer * const out
     /* This checks for NaN and Infinity */
     if (isnan(d) || isinf(d))
     {
-        length = snprintf((char*)number_buffer, sizeof(number_buffer), "null");
+        length = sprintf((char*)number_buffer, "null");
     }
     else if(d == (double)item->valueint)
     {
-        length = snprintf((char*)number_buffer, sizeof(number_buffer), "%d", item->valueint);
+        length = sprintf((char*)number_buffer, "%d", item->valueint);
     }
     else
     {
         /* Try 15 decimal places of precision to avoid nonsignificant nonzero digits */
-        length = snprintf((char*)number_buffer, sizeof(number_buffer), "%1.15g", d);
+        length = sprintf((char*)number_buffer, "%1.15g", d);
 
         /* Check whether the original double can be recovered */
         if ((sscanf((char*)number_buffer, "%lg", &test) != 1) || !compare_double((double)test, d))
         {
             /* If not, print with 17 decimal places of precision */
-            length = snprintf((char*)number_buffer, sizeof(number_buffer), "%1.17g", d);
+            length = sprintf((char*)number_buffer, "%1.17g", d);
         }
     }
 
@@ -1055,7 +1055,7 @@ static cJSON_bool print_string_ptr(const unsigned char * const input, printbuffe
                     break;
                 default:
                     /* escape and print as unicode codepoint */
-                    snprintf((char*)output_pointer, 6, "u%04x", *input_pointer);
+                    sprintf((char*)output_pointer, "u%04x", *input_pointer);
                     output_pointer += 4;
                     break;
             }

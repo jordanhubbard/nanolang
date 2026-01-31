@@ -8,13 +8,13 @@ module std_collections_set
 opaque type NLStringSet
 
 extern fn nl_set_new() -> NLStringSet
-extern fn nl_set_add(_s: NLStringSet, _key: string) -> void
-extern fn nl_set_has(_s: NLStringSet, _key: string) -> bool
-extern fn nl_set_size(_s: NLStringSet) -> int
-extern fn nl_set_values(_s: NLStringSet) -> array<string>
-extern fn nl_set_remove(_s: NLStringSet, _key: string) -> void
-extern fn nl_set_clear(_s: NLStringSet) -> void
-extern fn nl_set_free(_s: NLStringSet) -> void
+extern fn nl_set_add(s: NLStringSet, key: string) -> void
+extern fn nl_set_has(s: NLStringSet, key: string) -> bool
+extern fn nl_set_size(s: NLStringSet) -> int
+extern fn nl_set_values(s: NLStringSet) -> array<string>
+extern fn nl_set_remove(s: NLStringSet, key: string) -> void
+extern fn nl_set_clear(s: NLStringSet) -> void
+extern fn nl_set_free(s: NLStringSet) -> void
 
 pub struct Set {
     handle: NLStringSet
@@ -25,9 +25,7 @@ pub fn set_new() -> Set {
 }
 
 pub fn set_add(s: Set, key: string) -> Set {
-    unsafe {
-        (nl_set_add s.handle key)
-    }
+    (nl_set_add s.handle key)
     return s
 }
 
@@ -44,23 +42,17 @@ pub fn set_values(s: Set) -> array<string> {
 }
 
 pub fn set_remove(s: Set, key: string) -> Set {
-    unsafe {
-        (nl_set_remove s.handle key)
-    }
+    (nl_set_remove s.handle key)
     return s
 }
 
 pub fn set_clear(s: Set) -> Set {
-    unsafe {
-        (nl_set_clear s.handle)
-    }
+    (nl_set_clear s.handle)
     return s
 }
 
 pub fn set_free(s: Set) -> void {
-    unsafe {
-        (nl_set_free s.handle)
-    }
+    (nl_set_free s.handle)
 }
 
 shadow set_new {

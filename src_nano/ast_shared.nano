@@ -1,13 +1,199 @@
 /* =============================================================================
- * Compiler IR (Shared)
+ * Shared AST Type Definitions
  * =============================================================================
- * Canonical data types shared by the self-hosted compiler phases.
- * 
- * NOTE: Most types (LexerToken, Parser, NSType, etc.) are auto-generated 
- * from compiler_schema.json and are available via compiler_ast.nano.
+ * Common types shared across lexer, parser, typechecker, and transpiler.
+ * This prevents duplicate definitions when modules are imported together.
  */
 
-import "src_nano/generated/compiler_schema.nano"
-import "src_nano/generated/compiler_ast.nano"
+/* Token from lexer (unified naming) */
+struct Token {
+    token_type: int,
+    value: string,
+    line: int,
+    column: int
+}
 
-# No manual definitions needed here anymore - they are in compiler_ast.nano
+/* AST Node Types */
+enum ParseNodeType {
+    PNODE_NUMBER = 0,
+    PNODE_STRING = 1,
+    PNODE_BOOL = 2,
+    PNODE_IDENTIFIER = 3,
+    PNODE_BINARY_OP = 4,
+    PNODE_CALL = 5,
+    PNODE_LET = 6,
+    PNODE_BLOCK = 7,
+    PNODE_PROGRAM = 8,
+    PNODE_FUNCTION = 9,
+    PNODE_STRUCT = 10,
+    PNODE_ENUM = 11,
+    PNODE_UNION = 12
+}
+
+/* Base Parse Node */
+struct ParseNode {
+    node_type: int,
+    line: int,
+    column: int
+}
+
+/* Specific AST Node Types */
+struct ASTNumber {
+    node_type: int,
+    line: int,
+    column: int,
+    value: string
+}
+
+struct ASTString {
+    node_type: int,
+    line: int,
+    column: int,
+    value: string
+}
+
+struct ASTBool {
+    node_type: int,
+    line: int,
+    column: int,
+    value: bool
+}
+
+struct ASTIdentifier {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string
+}
+
+struct ASTBinaryOp {
+    node_type: int,
+    line: int,
+    column: int,
+    op: int,
+    left: int,
+    right: int,
+    left_type: int,
+    right_type: int
+}
+
+struct ASTCall {
+    node_type: int,
+    line: int,
+    column: int,
+    function: int,
+    arg_count: int
+}
+
+struct ASTLet {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    var_type: string,
+    value: int,
+    value_type: int,
+    is_mut: bool
+}
+
+struct ASTIf {
+    node_type: int,
+    line: int,
+    column: int,
+    condition: int,
+    condition_type: int,
+    then_body: int,
+    else_body: int
+}
+
+struct ASTWhile {
+    node_type: int,
+    line: int,
+    column: int,
+    condition: int,
+    condition_type: int,
+    body: int
+}
+
+struct ASTReturn {
+    node_type: int,
+    line: int,
+    column: int,
+    value: int,
+    value_type: int
+}
+
+struct ASTSet {
+    node_type: int,
+    line: int,
+    column: int,
+    target: string,
+    value: int,
+    value_type: int
+}
+
+struct ASTBlock {
+    node_type: int,
+    line: int,
+    column: int,
+    statement_count: int
+}
+
+struct ASTFunction {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    param_count: int,
+    return_type: string,
+    body: int
+}
+
+struct ASTStruct {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    field_count: int
+}
+
+struct ASTEnum {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    variant_count: int
+}
+
+struct ASTUnion {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    variant_count: int
+}
+
+/* Parser State - stores all AST nodes */
+struct Parser {
+    tokens: List<Token>,
+    position: int,
+    token_count: int,
+    has_error: bool,
+    next_node_id: int,
+    calls_count: int,
+    
+    numbers: List<ASTNumber>,
+    identifiers: List<ASTIdentifier>,
+    binary_ops: List<ASTBinaryOp>,
+    calls: List<ASTCall>,
+    lets: List<ASTLet>,
+    sets: List<ASTSet>,
+    ifs: List<ASTIf>,
+    whiles: List<ASTWhile>,
+    returns: List<ASTReturn>,
+    blocks: List<ASTBlock>,
+    functions: List<ASTFunction>,
+    structs: List<ASTStruct>,
+    enums: List<ASTEnum>,
+    unions: List<ASTUnion>
+}

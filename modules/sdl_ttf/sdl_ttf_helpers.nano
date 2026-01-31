@@ -8,17 +8,17 @@ import "modules/sdl_ttf/sdl_ttf.nano"
 
 # Render text to texture (blended, anti-aliased)
 # Returns texture handle or 0 on failure
-extern fn nl_render_text_blended_to_texture(_renderer: SDL_Renderer, _font: TTF_Font, _text: string, _r: int, _g: int, _b: int, _a: int) -> int
+extern fn nl_render_text_blended_to_texture(renderer: SDL_Renderer, font: TTF_Font, text: string, r: int, g: int, b: int, a: int) -> int
 
 # Draw text at position (blended, anti-aliased)
 # Returns 1 on success, 0 on failure
-extern fn nl_draw_text_blended(_renderer: SDL_Renderer, _font: TTF_Font, _text: string, _x: int, _y: int, _r: int, _g: int, _b: int, _a: int) -> int
+extern fn nl_draw_text_blended(renderer: SDL_Renderer, font: TTF_Font, text: string, x: int, y: int, r: int, g: int, b: int, a: int) -> int
 
 # Open font with platform-specific fallback paths
 # Searches for font by name across common font directories on macOS, Linux, and Windows
 # If font not found, tries common fallbacks (Arial, DejaVuSans, LiberationSans, FreeSans)
 # Returns font handle or 0 on failure
-extern fn nl_open_font_portable(_font_name: string, _ptsize: int) -> TTF_Font
+extern fn nl_open_font_portable(font_name: string, ptsize: int) -> TTF_Font
 
 # Note: nl_draw_text_blended and nl_open_font_portable can be used directly
 # since they are extern functions with convenient parameter names

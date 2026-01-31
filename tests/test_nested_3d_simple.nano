@@ -39,9 +39,5 @@ fn main() -> int {
     (print "Value: ")
     (println value)
     
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
+    return value
 }

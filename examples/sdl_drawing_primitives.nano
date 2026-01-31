@@ -1,0 +1,85 @@
+# SDL Drawing Primitives Demo
+# Demonstrates SDL_RenderDrawRect and other drawing functions
+
+import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
+
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+
+fn main() -> int {
+    (println "SDL Drawing Primitives - Press ESC to quit")
+    
+    # Initialize
+    (SDL_Init SDL_INIT_VIDEO)
+    let window: SDL_Window = (SDL_CreateWindow "Drawing Primitives" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Main loop
+    let mut running: bool = true
+    let mut frame: int = 0
+    
+    while running {
+        # Events
+        if (!= (nl_sdl_poll_event_quit) 0) {
+            set running false
+        } else {
+            if (== (nl_sdl_poll_keypress) 27) {
+                set running false
+            } else {
+                # continue
+            }
+        }
+        
+        # Clear
+        (SDL_SetRenderDrawColor renderer 20 20 30 255)
+        (SDL_RenderClear renderer)
+        
+        # Draw filled rectangles (using nl_sdl_render_fill_rect)
+        (SDL_SetRenderDrawColor renderer 255 0 0 255)
+        (nl_sdl_render_fill_rect renderer 50 50 100 80)
+        
+        (SDL_SetRenderDrawColor renderer 0 255 0 255)
+        (nl_sdl_render_fill_rect renderer 200 50 100 80)
+        
+        (SDL_SetRenderDrawColor renderer 0 0 255 255)
+        (nl_sdl_render_fill_rect renderer 350 50 100 80)
+        
+        # Draw lines
+        (SDL_SetRenderDrawColor renderer 255 255 0 255)
+        (SDL_RenderDrawLine renderer 50 200 750 200)
+        (SDL_RenderDrawLine renderer 50 250 750 250)
+        
+        # Draw animated line
+        let angle: float = (* 0.05 (cast_float frame))
+        let x2: int = (+ 400 (cast_int (* 200.0 (cos angle))))
+        let y2: int = (+ 400 (cast_int (* 200.0 (sin angle))))
+        (SDL_SetRenderDrawColor renderer 0 255 255 255)
+        (SDL_RenderDrawLine renderer 400 400 x2 y2)
+        
+        # Draw points in a circle
+        (SDL_SetRenderDrawColor renderer 255 128 0 255)
+        let mut i: int = 0
+        while (< i 360) {
+            let rad: float = (* 0.017453 (cast_float i))  # deg to rad
+            let px: int = (+ 600 (cast_int (* 80.0 (cos rad))))
+            let py: int = (+ 400 (cast_int (* 80.0 (sin rad))))
+            (SDL_RenderDrawPoint renderer px py)
+            set i (+ i 10)
+        }
+        
+        # Present
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        set frame (+ frame 1)
+    }
+    
+    # Cleanup
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    
+    return 0
+}
+
+shadow main { assert true }

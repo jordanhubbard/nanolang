@@ -1,3 +1,0 @@
-import "modules/tools/dep_locator.nano"
-
-shadow main { assert true }

@@ -45,9 +45,7 @@ void pt2_audio_play(void) {
 /* Stop playback */
 void pt2_audio_stop(void) {
     printf("pt2_audio_stop\n");
-    if (current_module != NULL) {
-        modStop();
-    }
+    modStop();
 }
 
 /* Update audio - generates samples into buffer */

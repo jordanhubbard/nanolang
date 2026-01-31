@@ -19,35 +19,35 @@ extern fn pt2_get_tick() -> int
 extern fn pt2_get_song_pos() -> int
 
 # State setters
-extern fn pt2_set_current_row(_row: int) -> int
-extern fn pt2_set_current_pattern(_pattern: int) -> int
-extern fn pt2_set_speed(_speed: int) -> int
-extern fn pt2_set_bpm(_bpm: int) -> int
-extern fn pt2_set_tick(_tick: int) -> int
-extern fn pt2_set_song_pos(_pos: int) -> int
+extern fn pt2_set_current_row(row: int) -> int
+extern fn pt2_set_current_pattern(pattern: int) -> int
+extern fn pt2_set_speed(speed: int) -> int
+extern fn pt2_set_bpm(bpm: int) -> int
+extern fn pt2_set_tick(tick: int) -> int
+extern fn pt2_set_song_pos(pos: int) -> int
 
 # Channel state
-extern fn pt2_set_channel_period(_channel: int, _period: int) -> int
-extern fn pt2_get_channel_period(_channel: int) -> int
-extern fn pt2_set_channel_volume(_channel: int, _volume: int) -> int
-extern fn pt2_get_channel_volume(_channel: int) -> int
-extern fn pt2_set_channel_sample(_channel: int, _sample: int) -> int
-extern fn pt2_get_channel_sample(_channel: int) -> int
-extern fn pt2_set_channel_note(_channel: int, _note: int) -> int
-extern fn pt2_get_channel_note(_channel: int) -> int
+extern fn pt2_set_channel_period(channel: int, period: int) -> int
+extern fn pt2_get_channel_period(channel: int) -> int
+extern fn pt2_set_channel_volume(channel: int, volume: int) -> int
+extern fn pt2_get_channel_volume(channel: int) -> int
+extern fn pt2_set_channel_sample(channel: int, sample: int) -> int
+extern fn pt2_get_channel_sample(channel: int) -> int
+extern fn pt2_set_channel_note(channel: int, note: int) -> int
+extern fn pt2_get_channel_note(channel: int) -> int
 
 # Pattern table
-extern fn pt2_set_pattern_table_entry(_pos: int, _pattern: int) -> int
-extern fn pt2_get_pattern_table_entry(_pos: int) -> int
-extern fn pt2_set_song_length(_length: int) -> int
+extern fn pt2_set_pattern_table_entry(pos: int, pattern: int) -> int
+extern fn pt2_get_pattern_table_entry(pos: int) -> int
+extern fn pt2_set_song_length(length: int) -> int
 extern fn pt2_get_song_length() -> int
 
 # Sample data
-extern fn pt2_set_sample_length(_sample: int, _length: int) -> void
-extern fn pt2_get_sample_length(_sample: int) -> int
-extern fn pt2_set_sample_volume(_sample: int, _volume: int) -> void
-extern fn pt2_get_sample_volume(_sample: int) -> int
-extern fn pt2_set_sample_loop_start(_sample: int, _start: int) -> void
-extern fn pt2_get_sample_loop_start(_sample: int) -> int
-extern fn pt2_set_sample_loop_length(_sample: int, _length: int) -> void
-extern fn pt2_get_sample_loop_length(_sample: int) -> int
+extern fn pt2_set_sample_length(sample: int, length: int) -> void
+extern fn pt2_get_sample_length(sample: int) -> int
+extern fn pt2_set_sample_volume(sample: int, volume: int) -> void
+extern fn pt2_get_sample_volume(sample: int) -> int
+extern fn pt2_set_sample_loop_start(sample: int, start: int) -> void
+extern fn pt2_get_sample_loop_start(sample: int) -> int
+extern fn pt2_set_sample_loop_length(sample: int, length: int) -> void
+extern fn pt2_get_sample_loop_length(sample: int) -> int

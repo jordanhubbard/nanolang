@@ -16,71 +16,24 @@ pub fn vec3_new(x: float, y: float, z: float) -> Vector3D {
     return Vector3D { x: x, y: y, z: z }
 }
 
-shadow vec3_new {
-    let v: Vector3D = (vec3_new 1.0 2.0 3.0)
-    assert (== v.x 1.0)
-    assert (== v.y 2.0)
-    assert (== v.z 3.0)
-}
-
 pub fn vec3_zero() -> Vector3D {
     return Vector3D { x: 0.0, y: 0.0, z: 0.0 }
-}
-
-shadow vec3_zero {
-    let v: Vector3D = (vec3_zero)
-    assert (== v.x 0.0)
-    assert (== v.y 0.0)
-    assert (== v.z 0.0)
 }
 
 pub fn vec3_add(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D { x: (+ a.x b.x), y: (+ a.y b.y), z: (+ a.z b.z) }
 }
 
-shadow vec3_add {
-    let a: Vector3D = (vec3_new 1.0 2.0 3.0)
-    let b: Vector3D = (vec3_new 4.0 5.0 6.0)
-    let result: Vector3D = (vec3_add a b)
-    assert (== result.x 5.0)
-    assert (== result.y 7.0)
-    assert (== result.z 9.0)
-}
-
 pub fn vec3_sub(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D { x: (- a.x b.x), y: (- a.y b.y), z: (- a.z b.z) }
-}
-
-shadow vec3_sub {
-    let a: Vector3D = (vec3_new 5.0 7.0 9.0)
-    let b: Vector3D = (vec3_new 1.0 2.0 3.0)
-    let result: Vector3D = (vec3_sub a b)
-    assert (== result.x 4.0)
-    assert (== result.y 5.0)
-    assert (== result.z 6.0)
 }
 
 pub fn vec3_scale(v: Vector3D, s: float) -> Vector3D {
     return Vector3D { x: (* v.x s), y: (* v.y s), z: (* v.z s) }
 }
 
-shadow vec3_scale {
-    let v: Vector3D = (vec3_new 1.0 2.0 3.0)
-    let result: Vector3D = (vec3_scale v 2.0)
-    assert (== result.x 2.0)
-    assert (== result.y 4.0)
-    assert (== result.z 6.0)
-}
-
 pub fn vec3_dot(a: Vector3D, b: Vector3D) -> float {
     return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
-}
-
-shadow vec3_dot {
-    let a: Vector3D = (vec3_new 1.0 2.0 3.0)
-    let b: Vector3D = (vec3_new 4.0 5.0 6.0)
-    /* 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32 */
-    assert (== (vec3_dot a b) 32.0)
 }
 
 pub fn vec3_cross(a: Vector3D, b: Vector3D) -> Vector3D {
@@ -91,45 +44,16 @@ pub fn vec3_cross(a: Vector3D, b: Vector3D) -> Vector3D {
     }
 }
 
-shadow vec3_cross {
-    /* Unit vectors: i × j = k */
-    let i: Vector3D = (vec3_new 1.0 0.0 0.0)
-    let j: Vector3D = (vec3_new 0.0 1.0 0.0)
-    let k: Vector3D = (vec3_cross i j)
-    assert (== k.x 0.0)
-    assert (== k.y 0.0)
-    assert (== k.z 1.0)
-}
-
 pub fn vec3_length_squared(v: Vector3D) -> float {
     return (vec3_dot v v)
-}
-
-shadow vec3_length_squared {
-    let v: Vector3D = (vec3_new 2.0 3.0 6.0)
-    /* 2² + 3² + 6² = 4 + 9 + 36 = 49 */
-    assert (== (vec3_length_squared v) 49.0)
 }
 
 pub fn vec3_length(v: Vector3D) -> float {
     return (sqrt (vec3_length_squared v))
 }
 
-shadow vec3_length {
-    let v: Vector3D = (vec3_new 2.0 3.0 6.0)
-    /* √49 = 7 */
-    assert (== (vec3_length v) 7.0)
-}
-
 pub fn vec3_distance(a: Vector3D, b: Vector3D) -> float {
     return (vec3_length (vec3_sub b a))
-}
-
-shadow vec3_distance {
-    let a: Vector3D = (vec3_new 0.0 0.0 0.0)
-    let b: Vector3D = (vec3_new 3.0 4.0 0.0)
-    /* Distance = √(3² + 4²) = √25 = 5 */
-    assert (== (vec3_distance a b) 5.0)
 }
 
 pub fn vec3_normalize(v: Vector3D) -> Vector3D {
@@ -141,15 +65,6 @@ pub fn vec3_normalize(v: Vector3D) -> Vector3D {
     }
 }
 
-shadow vec3_normalize {
-    let v: Vector3D = (vec3_new 3.0 4.0 0.0)
-    let norm: Vector3D = (vec3_normalize v)
-    /* Length should be 1.0 */
-    let len: float = (vec3_length norm)
-    assert (> len 0.99)
-    assert (< len 1.01)
-}
-
 pub fn vec3_lerp(a: Vector3D, b: Vector3D, t: float) -> Vector3D {
     return Vector3D {
         x: (+ a.x (* (- b.x a.x) t)),
@@ -158,28 +73,9 @@ pub fn vec3_lerp(a: Vector3D, b: Vector3D, t: float) -> Vector3D {
     }
 }
 
-shadow vec3_lerp {
-    let a: Vector3D = (vec3_new 0.0 0.0 0.0)
-    let b: Vector3D = (vec3_new 10.0 20.0 30.0)
-    let mid: Vector3D = (vec3_lerp a b 0.5)
-    assert (== mid.x 5.0)
-    assert (== mid.y 10.0)
-    assert (== mid.z 15.0)
-}
-
 pub fn vec3_reflect(v: Vector3D, normal: Vector3D) -> Vector3D {
     let d: float = (vec3_dot v normal)
     return (vec3_sub v (vec3_scale normal (* 2.0 d)))
-}
-
-shadow vec3_reflect {
-    /* Reflect (1, -1, 0) across Y-up normal (0, 1, 0) -> (1, 1, 0) */
-    let v: Vector3D = (vec3_new 1.0 -1.0 0.0)
-    let normal: Vector3D = (vec3_new 0.0 1.0 0.0)
-    let reflected: Vector3D = (vec3_reflect v normal)
-    assert (== reflected.x 1.0)
-    assert (== reflected.y 1.0)
-    assert (== reflected.z 0.0)
 }
 
 pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
@@ -189,13 +85,4 @@ pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
     } else {
         return v
     }
-}
-
-shadow vec3_clamp_length {
-    /* Vector longer than max should be clamped */
-    let v: Vector3D = (vec3_new 3.0 4.0 0.0) /* Length = 5 */
-    let clamped: Vector3D = (vec3_clamp_length v 3.0)
-    let len: float = (vec3_length clamped)
-    assert (> len 2.99)
-    assert (< len 3.01)
 }

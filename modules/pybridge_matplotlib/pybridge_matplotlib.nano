@@ -1,3 +1,0 @@
-extern fn mpl_init(_privileged: int) -> int
-extern fn mpl_render_png(_spec_json: string, _inline: int) -> string
-extern fn mpl_shutdown() -> void

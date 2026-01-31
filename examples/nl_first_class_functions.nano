@@ -1,0 +1,82 @@
+/* =============================================================================
+ * First-Class Functions Example
+ * =============================================================================
+ * Demonstrates passing functions as parameters without pointers!
+ */
+
+/* Helper functions */
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+    assert (== (double 0) 0)
+}
+
+fn is_positive(x: int) -> bool {
+    return (> x 0)
+}
+
+shadow is_positive {
+    assert (== (is_positive 5) true)
+    assert (== (is_positive -3) false)
+    assert (== (is_positive 0) false)
+}
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+/* Higher-order function: apply a function twice */
+fn apply_twice(x: int, f: fn(int) -> int) -> int {
+    let result1: int = (f x)
+    let result2: int = (f result1)
+    return result2
+}
+
+shadow apply_twice {
+    /* Test applying a function twice */
+    let result: int = (apply_twice 5 double)
+    assert (== result 20)  /* 5 * 2 * 2 = 20 */
+}
+
+/* Higher-order function: apply binary operation */
+fn combine(a: int, b: int, op: fn(int, int) -> int) -> int {
+    return (op a b)
+}
+
+shadow combine {
+    /* Test combining two numbers with a binary operation */
+    let result: int = (combine 10 7 add)
+    assert (== result 17)  /* 10 + 7 = 17 */
+}
+
+fn main() -> int {
+    (println "First-Class Functions Demo")
+    (println "===========================")
+    (println "")
+    
+    /* Apply twice */
+    let result1: int = (apply_twice 5 double)
+    (print "apply_twice(5, double) = ")
+    (println result1)  /* Should be 20 */
+    
+    /* Combine */
+    let result2: int = (combine 10 7 add)
+    (print "combine(10, 7, add) = ")
+    (println result2)  /* Should be 17 */
+    
+    (println "")
+    (println "✓ All function calls successful!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

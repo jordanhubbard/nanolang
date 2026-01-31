@@ -3003,42 +3003,19 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                 if (== tok.token_type (token_identifier)) {
                     /* Variant name */
                     let p2: Parser = (parser_advance p)  /* consume variant */
-                    let mut p_after_variant: Parser = p2
-                    
-                    /* Optional explicit value assignment (Variant = 3) */
-                    if (not (parser_is_at_end p_after_variant)) {
-                        let tok_assign: Token = (parser_current p_after_variant)
-                        if (== tok_assign.token_type (token_assign)) {
-                            let p_assign: Parser = (parser_advance p_after_variant)
-                            if (parser_is_at_end p_assign) {
-                                return (parser_with_error p_assign true)
-                            } else {
-                                let tok_value: Token = (parser_current p_assign)
-                                if (== tok_value.token_type (token_number)) {
-                                    set p_after_variant (parser_advance p_assign)
-                                } else {
-                                    return (parser_with_error p_assign true)
-                                }
-                            }
-                        } else {
-                            (print "")
-                        }
-                    } else {
-                        (print "")
-                    }
                     
                     /* Check for comma or '}' */
-                    if (parser_is_at_end p_after_variant) {
-                        return (parser_with_error p_after_variant true)
+                    if (parser_is_at_end p2) {
+                        return (parser_with_error p2 true)
                     } else {
-                        let tok2: Token = (parser_current p_after_variant)
+                        let tok2: Token = (parser_current p2)
                         if (== tok2.token_type (token_comma)) {
-                            let p3: Parser = (parser_advance p_after_variant)  /* consume ',' */
+                            let p3: Parser = (parser_advance p2)  /* consume ',' */
                             /* Continue parsing more variants */
                             return (parse_enum_variants p3 (+ variant_count 1) name start_line start_column)
                         } else {
                             /* Expect '}' next - continue to parse it */
-                            return (parse_enum_variants p_after_variant (+ variant_count 1) name start_line start_column)
+                            return (parse_enum_variants p2 (+ variant_count 1) name start_line start_column)
                         }
                     }
                 } else {

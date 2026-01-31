@@ -20,92 +20,84 @@ let FILE_MODE_READ_WRITE: string = "r+b"
 
 # Open a file
 # Returns file handle (FILE* as int) or 0 on failure
-extern fn nl_stdio_fopen(_filename: string, _mode: string) -> int
+extern fn fopen(filename: string, mode: string) -> int
 
 # Close a file
 # Returns 0 on success
-extern fn nl_stdio_fclose(_file: int) -> int
+extern fn fclose(file: int) -> int
 
 # Read data from file into buffer
 # size: size of each element
 # count: number of elements to read
 # Returns number of elements successfully read
-extern fn nl_stdio_fread(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn fread(ptr: int, size: int, count: int, file: int) -> int
 
 # Write data to file from buffer
 # size: size of each element
 # count: number of elements to write
 # Returns number of elements successfully written
-extern fn nl_stdio_fwrite(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn fwrite(ptr: int, size: int, count: int, file: int) -> int
 
 # Seek to position in file
 # offset: number of bytes to seek
 # whence: SEEK_SET, SEEK_CUR, or SEEK_END
 # Returns 0 on success
-extern fn nl_stdio_fseek(_file: int, _offset: int, _whence: int) -> int
+extern fn fseek(file: int, offset: int, whence: int) -> int
 
 # Get current file position
 # Returns current position or -1 on error
-extern fn nl_stdio_ftell(_file: int) -> int
+extern fn ftell(file: int) -> int
 
 # Rewind file to beginning
-extern fn nl_stdio_rewind(_file: int) -> int
+extern fn rewind(file: int) -> int
 
 # Check for end of file
 # Returns non-zero if EOF reached
-extern fn nl_stdio_feof(_file: int) -> int
+extern fn feof(file: int) -> int
 
 # Check for file error
 # Returns non-zero if error occurred
-extern fn nl_stdio_ferror(_file: int) -> int
+extern fn ferror(file: int) -> int
 
 # Clear EOF and error indicators
-extern fn nl_stdio_clearerr(_file: int) -> int
+extern fn clearerr(file: int) -> int
 
 # Flush file buffer
 # Returns 0 on success
-extern fn nl_stdio_fflush(_file: int) -> int
+extern fn fflush(file: int) -> int
 
 # === Seek Whence Constants ===
 
-let STDIO_SEEK_SET: int = 0  # Seek from beginning of file
-let STDIO_SEEK_CUR: int = 1  # Seek from current position
-let STDIO_SEEK_END: int = 2  # Seek from end of file
+let SEEK_SET: int = 0  # Seek from beginning of file
+let SEEK_CUR: int = 1  # Seek from current position
+let SEEK_END: int = 2  # Seek from end of file
 
 # === Character I/O ===
 
 # Read a single character
 # Returns character as int, or -1 on EOF
-extern fn nl_stdio_fgetc(_file: int) -> int
+extern fn fgetc(file: int) -> int
 
 # Write a single character
 # Returns character written, or -1 on error
-extern fn nl_stdio_fputc(_c: int, _file: int) -> int
+extern fn fputc(c: int, file: int) -> int
 
 # Put character back to stream
 # Returns character pushed back, or -1 on error
-extern fn nl_stdio_ungetc(_c: int, _file: int) -> int
+extern fn ungetc(c: int, file: int) -> int
 
 # === Helper Functions ===
 
 # Get file size in bytes
 fn file_size(filename: string) -> int {
-    let mut file: int = 0
-    unsafe {
-        set file (nl_stdio_fopen filename FILE_MODE_READ)
-    }
+    let file: int = (fopen filename FILE_MODE_READ)
     if (== file 0) {
         return -1
     } else {
         # Seek to end
-        unsafe {
-            (nl_stdio_fseek file 0 STDIO_SEEK_END)
-        }
-        let mut size: int = 0
-        unsafe {
-            set size (nl_stdio_ftell file)
-            (nl_stdio_fclose file)
-        }
+        (fseek file 0 SEEK_END)
+        let size: int = (ftell file)
+        (fclose file)
         return size
     }
 }
@@ -117,16 +109,11 @@ shadow file_size {
 
 # Check if file exists
 fn file_exists(filename: string) -> bool {
-    let mut file: int = 0
-    unsafe {
-        set file (nl_stdio_fopen filename FILE_MODE_READ)
-    }
+    let file: int = (fopen filename FILE_MODE_READ)
     if (== file 0) {
         return false
     } else {
-        unsafe {
-            (nl_stdio_fclose file)
-        }
+        (fclose file)
         return true
     }
 }

@@ -7,7 +7,11 @@
     "pt2_module_loader.c",
     "pt2_module_saver.c"
   ],
-  "headers": [],
+  "headers": [
+    "pt2_structs.h",
+    "pt2_module_loader.h",
+    "pt2_module_saver.h"
+  ],
   "cflags": ["-I.", "-Wno-unused-variable", "-Wno-unused-parameter"],
   "pkg_config": []
 }

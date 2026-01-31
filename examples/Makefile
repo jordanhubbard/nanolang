@@ -23,116 +23,100 @@ INTERPRETER = $(BIN_DIR)/nano
 export NANO_MODULE_PATH=../modules
 
 # === Nanolang-Only Compiled Examples (nl_*) ===
+# After fixing the print statement bug, many more examples now compile!
 
-NL_SOURCES := $(filter-out language/nl_pi_calculator.nano language/nl_pi_chudnovsky.nano,$(wildcard language/nl_*.nano))
-NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%,$(NL_SOURCES))
-NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
+NL_EXAMPLES = \
+	$(BIN_DIR)/nl_hello \
+	$(BIN_DIR)/nl_calculator \
+	$(BIN_DIR)/nl_factorial \
+	$(BIN_DIR)/nl_fibonacci \
+	$(BIN_DIR)/nl_primes \
+	$(BIN_DIR)/nl_enum \
+	$(BIN_DIR)/nl_struct \
+	$(BIN_DIR)/nl_comparisons \
+	$(BIN_DIR)/nl_logical \
+	$(BIN_DIR)/nl_operators \
+	$(BIN_DIR)/nl_floats \
+	$(BIN_DIR)/nl_types \
+	$(BIN_DIR)/nl_mutable \
+	$(BIN_DIR)/nl_union_types \
+	$(BIN_DIR)/nl_extern_char \
+	$(BIN_DIR)/nl_extern_math \
+	$(BIN_DIR)/nl_extern_string \
+	$(BIN_DIR)/nl_advanced_math \
+	$(BIN_DIR)/nl_string_operations \
+	$(BIN_DIR)/nl_matrix_operations \
+	$(BIN_DIR)/nl_filter_map_fold \
+	$(BIN_DIR)/nl_first_class_functions \
+	$(BIN_DIR)/nl_function_variables \
+	$(BIN_DIR)/nl_function_return_values \
+	$(BIN_DIR)/nl_function_factories_v2 \
+	$(BIN_DIR)/nl_array_bounds \
+	$(BIN_DIR)/nl_array_complete \
+	$(BIN_DIR)/nl_tracing \
+	$(BIN_DIR)/nl_falling_sand \
+	$(BIN_DIR)/nl_tictactoe \
+	$(BIN_DIR)/nl_game_of_life \
+	$(BIN_DIR)/nl_snake
 
-# === REPL Examples ===
+# Temporarily disabled due to module import context bug (nanolang-6h9):
+# - nl_demo_selfhosting (imports math_helper with 'as' alias)
 
-REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano,$(wildcard language/*_repl.nano))
-REPL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%,$(REPL_SOURCES))
-REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
-
-# === Advanced Examples ===
-
-ADVANCED_SOURCES := $(filter-out advanced/math_helper.nano,$(wildcard advanced/*.nano))
-ADVANCED_EXAMPLES := $(patsubst advanced/%.nano,$(BIN_DIR)/%,$(ADVANCED_SOURCES))
-ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
-
-# === Data Examples ===
-
-DATA_SOURCES := $(wildcard data/*.nano)
-DATA_EXAMPLES := $(patsubst data/%.nano,$(BIN_DIR)/%,$(DATA_SOURCES))
-DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
-
-# === Debugging & Validation Examples ===
-
-DEBUG_SOURCES := $(wildcard debug/*.nano)
-DEBUG_EXAMPLES := $(patsubst debug/%.nano,$(BIN_DIR)/%,$(DEBUG_SOURCES))
-DEBUG_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DEBUG_EXAMPLES)))
-
-# === Network Examples ===
-
-NETWORK_SOURCES := $(wildcard network/*.nano)
-NETWORK_EXAMPLES := $(patsubst network/%.nano,$(BIN_DIR)/%,$(NETWORK_SOURCES))
-NETWORK_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NETWORK_EXAMPLES)))
-
-# === Physics Examples ===
-
-BULLET_AVAILABLE := $(shell pkg-config --exists bullet >/dev/null 2>&1 && echo yes || echo no)
-PHYSICS_SOURCES := $(wildcard physics/*.nano)
-PHYSICS_EXAMPLES := $(patsubst physics/%.nano,$(BIN_DIR)/%,$(PHYSICS_SOURCES))
-PHYSICS_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(PHYSICS_EXAMPLES)))
-
-ifeq ($(BULLET_AVAILABLE),no)
-PHYSICS_SOURCES :=
-PHYSICS_EXAMPLES :=
-PHYSICS_NAMES :=
-endif
-
-# === Playground Examples ===
-
-PLAYGROUND_SOURCES := $(wildcard playground/*.nano)
-PLAYGROUND_EXAMPLES := $(patsubst playground/%.nano,$(BIN_DIR)/%,$(PLAYGROUND_SOURCES)) $(BIN_DIR)/playground
-PLAYGROUND_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(PLAYGROUND_EXAMPLES)))
-
-# === Root Examples ===
-
-ROOT_SOURCES := nano_tools_lint.nano sdl_example_launcher.nano
-ROOT_EXAMPLES := $(patsubst %.nano,$(BIN_DIR)/%,$(ROOT_SOURCES))
-ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
-
-# === OPL Examples ===
-
-OPL_SOURCES := $(filter-out opl/opl_ast.nano opl/opl_codegen.nano opl/opl_compile.nano opl/opl_json.nano opl/opl_lexer.nano opl/opl_parser.nano opl/opl_validate.nano,$(wildcard opl/*.nano))
-OPL_EXAMPLES := $(patsubst opl/%.nano,$(BIN_DIR)/%,$(OPL_SOURCES)) $(BIN_DIR)/opl
-OPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPL_EXAMPLES)))
+# Derive interpreter-only list from current source set vs known-to-compile list.
+NL_ALL_SOURCES := $(wildcard nl_*.nano)
+NL_ALL_NAMES := $(sort $(basename $(NL_ALL_SOURCES)))
+NL_COMPILED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
+NL_INTERPRETER_ONLY_NAMES := $(sort $(filter-out $(NL_COMPILED_NAMES),$(NL_ALL_NAMES)))
 
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
 
 SDL_EXAMPLES = \
-	$(patsubst graphics/%.nano,$(BIN_DIR)/%,$(wildcard graphics/sdl_*.nano)) \
-	$(patsubst audio/%.nano,$(BIN_DIR)/%,$(wildcard audio/sdl_*.nano)) \
-	$(patsubst games/%.nano,$(BIN_DIR)/%,$(wildcard games/sdl_*.nano)) \
-	$(BIN_DIR)/sdl_example_launcher
-SDL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(SDL_EXAMPLES)))
+	$(BIN_DIR)/sdl_pong \
+	$(BIN_DIR)/sdl_fire \
+	$(BIN_DIR)/sdl_starfield \
+	$(BIN_DIR)/sdl_checkers \
+	$(BIN_DIR)/sdl_boids \
+	$(BIN_DIR)/sdl_particles \
+	$(BIN_DIR)/sdl_mod_visualizer \
+	$(BIN_DIR)/sdl_nanoamp \
+	$(BIN_DIR)/sdl_raytracer \
+	$(BIN_DIR)/sdl_asteroids \
+	$(BIN_DIR)/sdl_terrain_explorer \
+	$(BIN_DIR)/sdl_falling_sand \
+	$(BIN_DIR)/sdl_ui_widgets_extended \
+	$(BIN_DIR)/sdl_texture_demo \
+	$(BIN_DIR)/sdl_drawing_primitives \
+	$(BIN_DIR)/sdl_audio_wav \
+	$(BIN_DIR)/sdl_mouse_click
 
 # === NCurses Examples (ncurses_*) ===
 # Require ncurses library
 
-NCURSES_SOURCES := $(wildcard terminal/ncurses_*.nano)
-NCURSES_EXAMPLES := $(patsubst terminal/%.nano,$(BIN_DIR)/%,$(NCURSES_SOURCES))
-NCURSES_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NCURSES_EXAMPLES)))
+NCURSES_EXAMPLES = \
+	$(BIN_DIR)/ncurses_snake \
+	$(BIN_DIR)/ncurses_game_of_life \
+	$(BIN_DIR)/ncurses_matrix_rain
 
 # === OpenGL Examples (opengl_*) ===
 # Require GLFW + GLEW
 
-OPENGL_SOURCES := $(wildcard opengl/*.nano)
-OPENGL_EXAMPLES := $(patsubst opengl/%.nano,$(BIN_DIR)/%,$(OPENGL_SOURCES))
-OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
+OPENGL_EXAMPLES = \
+	$(BIN_DIR)/opengl_cube \
+	$(BIN_DIR)/opengl_teapot
 
 # === All Default Examples ===
+# These are known to compile and work
+# NOTE: OpenGL examples excluded by default (require GLFW+GLEW libraries)
 
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
-	$(REPL_EXAMPLES) \
-	$(ADVANCED_EXAMPLES) \
-	$(DATA_EXAMPLES) \
-	$(DEBUG_EXAMPLES) \
-	$(NETWORK_EXAMPLES) \
-	$(PHYSICS_EXAMPLES) \
-	$(PLAYGROUND_EXAMPLES) \
-	$(ROOT_EXAMPLES) \
-	$(OPL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
-	$(NCURSES_EXAMPLES) \
-	$(OPENGL_EXAMPLES)
+	$(NCURSES_EXAMPLES)
 
 # === Targets ===
 
-.PHONY: all build nl opl sdl ncurses opengl debug clean help launcher
+.PHONY: all build nl sdl ncurses opengl clean help launcher
 
 # Default: build all examples
 all: build
@@ -142,67 +126,57 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "Default examples built successfully!"
 	@echo ""
-	@echo "Nanolang-only examples (nl_*):"
-	@$(if $(strip $(NL_NAMES)),$(foreach ex,$(NL_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "REPL examples:"
-	@$(if $(strip $(REPL_NAMES)),$(foreach ex,$(REPL_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Advanced examples:"
-	@$(if $(strip $(ADVANCED_NAMES)),$(foreach ex,$(ADVANCED_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Data examples:"
-	@$(if $(strip $(DATA_NAMES)),$(foreach ex,$(DATA_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Debugging & Validation examples:"
-	@$(if $(strip $(DEBUG_NAMES)),$(foreach ex,$(DEBUG_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Network examples:"
-	@$(if $(strip $(NETWORK_NAMES)),$(foreach ex,$(NETWORK_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Physics examples:"
-	@$(if $(strip $(PHYSICS_NAMES)),$(foreach ex,$(PHYSICS_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Playground examples:"
-	@$(if $(strip $(PLAYGROUND_NAMES)),$(foreach ex,$(PLAYGROUND_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "Tools & launchers:"
-	@$(if $(strip $(ROOT_NAMES)),$(foreach ex,$(ROOT_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-	@echo "OPL examples:"
-	@$(if $(strip $(OPL_NAMES)),$(foreach ex,$(OPL_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo "Nanolang-only examples (nl_*) - $(words $(NL_COMPILED_NAMES)) compiled:"
+	@$(if $(strip $(NL_COMPILED_NAMES)),$(foreach ex,$(NL_COMPILED_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "SDL examples (sdl_*):"
-	@$(if $(strip $(SDL_NAMES)),$(foreach ex,$(SDL_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo "  ./bin/sdl_pong              - Table tennis (1972)"
+	@echo "  ./bin/sdl_asteroids         - Space shooter with HUD"
+	@echo "  ./bin/sdl_checkers          - Board game with AI"
+	@echo "  ./bin/sdl_fire              - Demoscene fire effect"
+	@echo "  ./bin/sdl_starfield         - 3D star field"
+	@echo "  ./bin/sdl_boids             - Flocking simulation"
+	@echo "  ./bin/sdl_particles         - Particle effects"
+	@echo "  ./bin/sdl_raytracer         - Real-time ray tracer"
+	@echo "  ./bin/sdl_terrain_explorer  - 3D terrain"
+	@echo "  ./bin/sdl_falling_sand      - Cellular automata sandbox"
+	@echo "  ./bin/sdl_mod_visualizer    - MOD music player with visualizer"
+	@echo "  ./bin/sdl_nanoamp           - MP3 player (Winamp tribute)"
+	@echo "  ./bin/sdl_ui_widgets_extended - Extended UI widgets demo (all widgets)"
+	@echo "  ./bin/sdl_texture_demo      - Texture loading and rendering"
+	@echo "  ./bin/sdl_drawing_primitives - Basic shape drawing"
+	@echo "  ./bin/sdl_audio_wav         - Simple WAV audio playback"
+	@echo "  ./bin/sdl_mouse_click       - Mouse input handling"
 	@echo ""
 	@echo "NCurses examples (ncurses_*):"
-	@$(if $(strip $(NCURSES_NAMES)),$(foreach ex,$(NCURSES_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo "  ./bin/ncurses_snake         - Snake game"
+	@echo "  ./bin/ncurses_game_of_life  - Conway's Game of Life"
+	@echo "  ./bin/ncurses_matrix_rain   - Matrix digital rain"
 	@echo ""
-	@echo "OpenGL examples (opengl_*):"
-	@$(if $(strip $(OPENGL_NAMES)),$(foreach ex,$(OPENGL_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo "OpenGL examples (opengl_*) (not built by default):"
+	@echo "  ./bin/opengl_cube           - Rotating textured cube (build: cd examples && make opengl)"
+	@echo "  ./bin/opengl_teapot         - Utah teapot with multiple shaders (build: cd examples && make opengl)"
+	@echo ""
+	@echo "Other nl_* examples (not built by default):"
+	@echo "  Run with interpreter: ./bin/nano examples/<file>"
+	@echo "  Or try compiling individually: ./bin/nanoc examples/<file> -o bin/<name>"
+	@echo "  $(words $(NL_INTERPRETER_ONLY_NAMES)) nl_* file(s) not built by default:"
+	@$(if $(strip $(NL_INTERPRETER_ONLY_NAMES)),$(foreach ex,$(NL_INTERPRETER_ONLY_NAMES),echo "    - $(ex).nano";),:)
 	@echo ""
 	@echo "To launch the example browser:"
 	@echo "  cd examples && make launcher"
-	@echo "  # or from repo root: make launcher"
+	@echo "  # or from repo root: make examples-launcher"
 	@echo ""
 
 # Example launcher (SDL app-store style)
-launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher
+launcher: $(COMPILER)
+	@echo "Building SDL example launcher..."
+	@cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_example_launcher.nano -o bin/sdl_example_launcher
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
-debug: $(COMPILER) $(DEBUG_EXAMPLES)
-	@echo ""
-	@echo "Debugging & Validation examples built successfully!"
-	@echo "Run them:"
-	@$(if $(strip $(DEBUG_NAMES)),$(foreach ex,$(DEBUG_NAMES),echo "  ./bin/$(ex)";),:)
-	@echo ""
-opl: $(COMPILER) $(OPL_EXAMPLES)
-	@echo ""
-	@echo "OPL DSL toolchain built successfully!"
-	@echo "Try: ./bin/opl --help"
 sdl: $(COMPILER) $(SDL_EXAMPLES)
 ncurses: $(COMPILER) $(NCURSES_EXAMPLES)
 opengl: $(COMPILER) $(OPENGL_EXAMPLES)
@@ -216,140 +190,40 @@ $(INTERPRETER):
 
 # === Build Rules ===
 
-# Debugging & validation examples (in debug/ subdirectory)
-$(BIN_DIR)/logging_%: debug/logging_%.nano $(COMPILER)
+# Nanolang-only examples (no module path needed)
+$(BIN_DIR)/nl_%: nl_%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
+
+# SDL examples
+$(BIN_DIR)/sdl_%: sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/coverage_demo: debug/coverage_demo.nano $(COMPILER)
+# NCurses examples
+$(BIN_DIR)/ncurses_%: ncurses_%.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/property_test_%: debug/property_test_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# OPL toolchain CLI (in opl/ subdirectory)
-$(BIN_DIR)/opl: $(BIN_DIR)/opl_cli
-	@echo "Linking $@..."
-	cp $(BIN_DIR)/opl_cli $(BIN_DIR)/opl
-
-$(BIN_DIR)/opl_%: opl/opl_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Nanolang-only examples (now in language/ subdirectory)
-$(BIN_DIR)/nl_%: language/nl_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/%_repl: language/%_repl.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Advanced examples (in advanced/ subdirectory)
-$(BIN_DIR)/%: advanced/%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Data examples (in data/ subdirectory)
-$(BIN_DIR)/%: data/%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Network examples (in network/ subdirectory)
-$(BIN_DIR)/%: network/%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Physics examples (in physics/ subdirectory)
-$(BIN_DIR)/bullet_%: physics/bullet_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Playground examples
-$(BIN_DIR)/playground_server: playground/playground_server.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/playground: $(BIN_DIR)/playground_server
-	@echo "Linking $@..."
-	cp $(BIN_DIR)/playground_server $(BIN_DIR)/playground
-
-# Root examples
-$(BIN_DIR)/nano_tools_lint: nano_tools_lint.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_example_launcher: sdl_example_launcher.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_asteroids: games/sdl_asteroids.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_checkers: games/sdl_checkers.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_pong: games/sdl_pong.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Graphics (pattern rule for remaining SDL graphics examples)
-$(BIN_DIR)/sdl_%: graphics/sdl_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# Audio (pattern rule with fallback)
-$(BIN_DIR)/sdl_nanoamp: audio/sdl_nanoamp.nano $(COMPILER)
-	@echo "Building SDL NanoAmp - Pixel-perfect Winamp tribute..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/sdl_nanoamp
-	@echo "✓ SDL NanoAmp built: $@"
-
-$(BIN_DIR)/sdl_mod_visualizer: audio/sdl_mod_visualizer.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_tracker_shell: audio/sdl_tracker_shell.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-$(BIN_DIR)/sdl_audio_%: audio/sdl_audio_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# NCurses examples (in terminal/ subdirectory)
-$(BIN_DIR)/ncurses_%: terminal/ncurses_%.nano $(COMPILER)
-	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/$(notdir $@)
-
-# OpenGL examples (in opengl/ subdirectory)
-$(BIN_DIR)/opengl_cube: opengl/opengl_cube.nano $(COMPILER)
+# OpenGL examples
+$(BIN_DIR)/opengl_cube: opengl_cube.nano $(COMPILER)
 	@echo "Building OpenGL Cube..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_cube
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_cube.nano -o bin/opengl_cube
 
-$(BIN_DIR)/opengl_teapot: opengl/opengl_teapot.nano $(COMPILER)
+$(BIN_DIR)/opengl_teapot: opengl_teapot.nano $(COMPILER)
 	@echo "Building OpenGL Teapot..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_teapot
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/opengl_teapot.nano -o bin/opengl_teapot
 	@echo "✓ OpenGL Teapot built: $@"
 
-$(BIN_DIR)/opengl_solar_system: opengl/opengl_solar_system.nano $(COMPILER)
-	@echo "Building OpenGL Solar System..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_solar_system
+$(BIN_DIR)/sdl_nanoamp: sdl_nanoamp.nano $(COMPILER)
+	@echo "Building SDL NanoAmp - Pixel-perfect Winamp tribute..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_nanoamp.nano -o bin/sdl_nanoamp
+	@echo "✓ SDL NanoAmp built: $@"
 
-$(BIN_DIR)/opengl_particle_fountain: opengl/opengl_particle_fountain.nano $(COMPILER)
-	@echo "Building OpenGL Particle Fountain..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_particle_fountain
-
-$(BIN_DIR)/opengl_modern_hello_triangle: opengl/opengl_modern_hello_triangle.nano $(COMPILER)
-	@echo "Building Modern OpenGL Hello Triangle..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_modern_hello_triangle
-
-$(BIN_DIR)/opengl_modern_postprocess: opengl/opengl_modern_postprocess.nano $(COMPILER)
-	@echo "Building Modern OpenGL Postprocess..."
-	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/$< -o bin/opengl_modern_postprocess
+$(BIN_DIR)/sdl_ui_widgets_extended: sdl_ui_widgets_extended.nano $(COMPILER)
+	@echo "Building Extended UI Widgets Demo..."
+	cd .. && NANO_MODULE_PATH=modules ./bin/nanoc examples/sdl_ui_widgets_extended.nano -o bin/sdl_ui_widgets_extended
+	@echo "✓ UI Widgets Extended built: $@"
 
 # === Clean ===
 

@@ -18,9 +18,6 @@ int64_t nl_sdl_poll_mouse_click(void);
 /* Poll for mouse state (holding) */
 int64_t nl_sdl_poll_mouse_state(void);
 
-/* Get current mouse position (always returns x * 10000 + y) */
-int64_t nl_sdl_get_mouse_pos(void);
-
 /* Poll for mouse button up */
 int64_t nl_sdl_poll_mouse_up(void);
 
@@ -41,12 +38,6 @@ int64_t nl_sdl_render_text_solid(SDL_Renderer* renderer, int64_t font, const cha
 
 /* Render text (blended - slower, anti-aliased) */
 int64_t nl_sdl_render_text_blended(SDL_Renderer* renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);
-
-/* Save current renderer output to BMP file. Returns 0 on success. */
-int64_t nl_sdl_save_bmp(SDL_Renderer* renderer, int64_t w, int64_t h, const char* path);
-
-/* Save current renderer output to PNG file. Returns 0 on success. */
-int64_t nl_sdl_save_png(SDL_Renderer* renderer, int64_t w, int64_t h, const char* path);
 
 /* Execute a shell command via system(3) */
 int64_t nl_system(const char* cmd);

@@ -5,14 +5,14 @@ import "std/diagnostics.nano"
 import "std/result.nano"
 
 fn typecheck_nanoc() -> int {
-    let r: Result<TokenList, Diagnostic> = (tokenize_file_result "src_nano/nanoc_v06.nano")
+    let r: Result<TokenList, Diagnostic> = (tokenize_file_result "src_nano/nanoc.nano")
     match r {
         Ok(v) => {
-            let tokens: List<LexerToken> = v.value.tokens
-            let count: int = (list_LexerToken_length tokens)
+            let tokens: List<LexToken> = v.value.tokens
+            let count: int = (list_LexToken_length tokens)
             let p: Parser = (parse_program tokens count)
             if (parser_has_error p) {
-                let tok: LexerToken = (parser_current p)
+                let tok: LexToken = (parser_current p)
                 (print "Parse failed at token #")
                 (print (int_to_string (parser_position p)))
                 (print ": line ")

@@ -33,17 +33,12 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "set") == 0) return TOKEN_SET;
     if (strcmp(str, "if") == 0) return TOKEN_IF;
     if (strcmp(str, "else") == 0) return TOKEN_ELSE;
-    if (strcmp(str, "cond") == 0) return TOKEN_COND;
     if (strcmp(str, "while") == 0) return TOKEN_WHILE;
     if (strcmp(str, "for") == 0) return TOKEN_FOR;
     if (strcmp(str, "in") == 0) return TOKEN_IN;
     if (strcmp(str, "return") == 0) return TOKEN_RETURN;
-    if (strcmp(str, "break") == 0) return TOKEN_BREAK;
-    if (strcmp(str, "continue") == 0) return TOKEN_CONTINUE;
     if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
     if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
-    if (strcmp(str, "requires") == 0) return TOKEN_REQUIRES;
-    if (strcmp(str, "ensures") == 0) return TOKEN_ENSURES;
     /* "print" and "println" are builtin functions, not keywords */
     if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
     if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;
@@ -52,8 +47,6 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "match") == 0) return TOKEN_MATCH;
     if (strcmp(str, "opaque") == 0) return TOKEN_OPAQUE;
     if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
-    if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
-    if (strcmp(str, "resource") == 0) return TOKEN_RESOURCE;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -328,7 +321,7 @@ Token *tokenize(const char *source, int *token_count) {
 /* Free token array */
 void free_tokens(Token *tokens, int count) {
     for (int i = 0; i < count; i++) {
-        free((void*)tokens[i].value);
+        free(tokens[i].value);
     }
     free(tokens);
 }
@@ -365,7 +358,6 @@ const char *token_type_name(TokenType type) {
         case TOKEN_SET: return "SET";
         case TOKEN_IF: return "IF";
         case TOKEN_ELSE: return "ELSE";
-        case TOKEN_COND: return "COND";
         case TOKEN_WHILE: return "WHILE";
         case TOKEN_FOR: return "FOR";
         case TOKEN_IN: return "IN";
@@ -401,8 +393,6 @@ const char *token_type_name(TokenType type) {
         case TOKEN_OR: return "OR";
         case TOKEN_NOT: return "NOT";
         /* TOKEN_RANGE removed */
-        case TOKEN_UNSAFE: return "UNSAFE";
-        case TOKEN_RESOURCE: return "RESOURCE";
         default: return "UNKNOWN";
     }
 }

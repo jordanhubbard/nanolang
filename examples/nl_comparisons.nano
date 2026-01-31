@@ -1,0 +1,88 @@
+# Comparison Operators
+# This example demonstrates all comparison operations
+
+fn equals(a: int, b: int) -> bool {
+    return (== a b)
+}
+
+shadow equals {
+    assert (== (equals 5 5) true)
+    assert (== (equals 5 10) false)
+    assert (== (equals 0 0) true)
+}
+
+fn not_equals(a: int, b: int) -> bool {
+    return (!= a b)
+}
+
+shadow not_equals {
+    assert (== (not_equals 5 10) true)
+    assert (== (not_equals 5 5) false)
+    assert (== (not_equals 0 1) true)
+}
+
+fn less_than(a: int, b: int) -> bool {
+    return (< a b)
+}
+
+shadow less_than {
+    assert (== (less_than 5 10) true)
+    assert (== (less_than 10 5) false)
+    assert (== (less_than 5 5) false)
+}
+
+fn less_or_equal(a: int, b: int) -> bool {
+    return (<= a b)
+}
+
+shadow less_or_equal {
+    assert (== (less_or_equal 5 10) true)
+    assert (== (less_or_equal 10 5) false)
+    assert (== (less_or_equal 5 5) true)
+}
+
+fn greater_than(a: int, b: int) -> bool {
+    return (> a b)
+}
+
+shadow greater_than {
+    assert (== (greater_than 10 5) true)
+    assert (== (greater_than 5 10) false)
+    assert (== (greater_than 5 5) false)
+}
+
+fn greater_or_equal(a: int, b: int) -> bool {
+    return (>= a b)
+}
+
+shadow greater_or_equal {
+    assert (== (greater_or_equal 10 5) true)
+    assert (== (greater_or_equal 5 10) false)
+    assert (== (greater_or_equal 5 5) true)
+}
+
+# Note: abs, min, and max are now built-in stdlib functions!
+# No need to define them - just use them directly.
+
+fn main() -> int {
+    (println "=== Comparison Operations ===")
+    (println "equals(10, 10):")
+    (println (equals 10 10))
+    (println "not_equals(5, 7):")
+    (println (not_equals 5 7))
+    (println "less_than(3, 8):")
+    (println (less_than 3 8))
+    (println "greater_than(15, 10):")
+    (println (greater_than 15 10))
+    (println "max(20, 30):")
+    (println (max 20 30))
+    (println "min(20, 30):")
+    (println (min 20 30))
+    (println "abs(-42):")
+    (println (abs (- 0 42)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

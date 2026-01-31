@@ -1,15 +1,22 @@
 #include "nanolang.h"
-#include "colors.h"
 #include <stdint.h>
+
+/* Parser state */
+typedef struct {
+    Token *tokens;
+    int count;
+    int pos;
+    int recursion_depth;  /* Track recursion depth to prevent stack overflow */
+} Parser;
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
 
 /* Forward declarations */
-static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out);
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out);
 
 /* Helper functions */
-static Token *current_token(Stage1Parser *p) {
+static Token *current_token(Parser *p) {
     if (!p) {
         return NULL;
     }
@@ -53,7 +60,7 @@ static Token *current_token(Stage1Parser *p) {
     return tok;
 }
 
-static Token *peek_token(Stage1Parser *p, int offset) {
+static Token *peek_token(Parser *p, int offset) {
     if (!p || !p->tokens || p->count <= 0) {
         return NULL;
     }
@@ -68,32 +75,32 @@ static Token *peek_token(Stage1Parser *p, int offset) {
     return &p->tokens[p->count - 1];
 }
 
-static void advance(Stage1Parser *p) {
+static void advance(Parser *p) {
     if (p->pos < p->count - 1) {
         p->pos++;
     }
 }
 
-static bool match(Stage1Parser *p, TokenType type) {
+static bool match(Parser *p, TokenType type) {
     Token *tok = current_token(p);
     if (!tok) {
         return false;
     }
-    return tok->token_type == (int)type;
+    return tok->token_type == type;
 }
 
-static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
+static bool expect(Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
         Token *tok = current_token(p);
         if (!tok || !p || p->count == 0) {
-            fprintf(stderr, "%sError:%s Stage1Parser state invalid\n", CSTART_ERROR, CEND);
+            fprintf(stderr, "Error: Parser state invalid\n");
             return false;
         }
         const char *msg_safe = msg ? msg : "(null message)";
         const char *token_name = token_type_name(tok->token_type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
-        fprintf(stderr, "%sError at line %d, column %d:%s %s (got %s)\n",
-                CSTART_ERROR, tok->line, tok->column, CEND, msg_safe, token_name_safe);
+        fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
+                tok->line, tok->column, msg_safe, token_name_safe);
         return false;
     }
     advance(p);
@@ -101,14 +108,14 @@ static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
 }
 
 /* Forward declarations */
-static ASTNode *parse_statement(Stage1Parser *p);
-static ASTNode *parse_expression(Stage1Parser *p);
-static ASTNode *parse_block(Stage1Parser *p);
-static ASTNode *parse_struct_def(Stage1Parser *p);
-static ASTNode *parse_enum_def(Stage1Parser *p);
-static ASTNode *parse_union_def(Stage1Parser *p);
-static ASTNode *parse_opaque_type(Stage1Parser *p);
-static ASTNode *parse_match_expr(Stage1Parser *p);
+static ASTNode *parse_statement(Parser *p);
+static ASTNode *parse_expression(Parser *p);
+static ASTNode *parse_block(Parser *p);
+static ASTNode *parse_struct_def(Parser *p);
+static ASTNode *parse_enum_def(Parser *p);
+static ASTNode *parse_union_def(Parser *p);
+static ASTNode *parse_opaque_type(Parser *p);
+static ASTNode *parse_match_expr(Parser *p);
 
 /* Create AST nodes */
 static ASTNode *create_node(ASTNodeType type, int line, int column) {
@@ -120,13 +127,13 @@ static ASTNode *create_node(ASTNodeType type, int line, int column) {
 }
 
 /* Forward declaration for function signature parsing */
-static FunctionSignature *parse_function_signature(Stage1Parser *p);
+static FunctionSignature *parse_function_signature(Parser *p);
 
 /* Parse function signature: fn(int, string) -> bool */
-static FunctionSignature *parse_function_signature(Stage1Parser *p) {
+static FunctionSignature *parse_function_signature(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in function signature\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in function signature\n");
         return NULL;
     }
     
@@ -141,7 +148,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect '(' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after 'fn'\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) after 'fn'\n");
         return NULL;
     }
     if (tok->token_type != TOKEN_LPAREN) {
@@ -162,7 +169,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Parse parameter types */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before parameter types\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before parameter types\n");
         free_function_signature(sig);
         return NULL;
     }
@@ -201,7 +208,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             
             tok = current_token(p);
             if (!tok) {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parameter list\n");
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parameter list\n");
                 free_function_signature(sig);
                 return NULL;
             }
@@ -217,7 +224,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect ')' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before ')'\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before ')'\n");
         free_function_signature(sig);
         return NULL;
     }
@@ -232,7 +239,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect '->' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before '->'\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) before '->'\n");
         free_function_signature(sig);
         return NULL;
     }
@@ -262,13 +269,13 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
 
 /* Parse type annotation - currently unused but kept for API consistency */
 /*
-static Type parse_type(Stage1Parser *p) {
+static Type parse_type(Parser *p) {
     return parse_type_with_element(p, NULL, NULL, NULL, NULL);
 }
 */
 
 /* Parse type annotation with optional element_type output (for arrays) and type_param_name for generics */
-static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out) {
+static Type parse_type_with_element(Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out) {
     Type type = TYPE_UNKNOWN;
     Token *tok = current_token(p);
 
@@ -280,7 +287,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
         case TOKEN_TYPE_STRING: type = TYPE_STRING; break;
         case TOKEN_TYPE_BSTRING: type = TYPE_BSTRING; break;
         case TOKEN_TYPE_VOID: type = TYPE_VOID; break;
-        case TOKEN_OPAQUE: type = TYPE_OPAQUE; break;
         
         case TOKEN_FN: {
             /* Function type: fn(type1, type2) -> return_type */
@@ -313,37 +319,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             {
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
-
-                /* Module-qualified type sugar: Alias.TypeName
-                 * For now, treat as TypeName (module structs are registered globally).
-                 */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    Token *next_ident = peek_token(p, 1);
-                    if (next_ident && next_ident->token_type == TOKEN_IDENTIFIER) {
-                        advance(p);  /* consume '.' */
-                        free(type_name);
-                        type_name = strdup(next_ident->value);
-                        advance(p);  /* consume TypeName */
-                    }
-                }
-                
-                /* Check for Module.Type pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    advance(p);  /* consume '.' */
-                    Token *type_tok = current_token(p);
-                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected type name after '.'\n",
-                                type_tok->line, type_tok->column);
-                        free(type_name);
-                        return TYPE_UNKNOWN;
-                    }
-                    /* Build qualified name: Module.Type */
-                    char qualified_name[512];
-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", type_name, type_tok->value);
-                    free(type_name);
-                    type_name = strdup(qualified_name);
-                    advance(p);  /* consume type name */
-                }
                 
                 /* Check if this is a generic type (followed by '<') */
                 if (current_token(p)->token_type == TOKEN_LT) {
@@ -363,13 +338,19 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         type = TYPE_LIST_STRING;
                         advance(p);
                     } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
-                        /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
-                        type = TYPE_LIST_GENERIC;
-                        /* Store type parameter name for later use */
-                        if (type_param_name_out) {
-                            *type_param_name_out = strdup(type_param_tok->value);
+                        /* Handle Token specially for backwards compatibility */
+                        if (strcmp(type_param_tok->value, "Token") == 0) {
+                            type = TYPE_LIST_TOKEN;
+                            advance(p);
+                        } else {
+                            /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+                            type = TYPE_LIST_GENERIC;
+                            /* Store type parameter name for later use */
+                            if (type_param_name_out) {
+                                *type_param_name_out = strdup(type_param_tok->value);
+                            }
+                            advance(p);
                         }
-                        advance(p);
                     } else {
                         fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
                                 type_param_tok->line, type_param_tok->column);
@@ -387,220 +368,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         free(type_name);
                     return type;
                 }
-
-                    /* HashMap<K, V> (core generic type) */
-                    if (strcmp(type_name, "HashMap") == 0) {
-                        if (type_info_out) {
-                            TypeInfo *info = calloc(1, sizeof(TypeInfo));
-                            if (!info) {
-                                fprintf(stderr, "Error: Out of memory allocating HashMap TypeInfo\n");
-                                free(type_name);
-                                return TYPE_UNKNOWN;
-                            }
-                            info->base_type = TYPE_HASHMAP;
-                            info->generic_name = type_name;  /* Transfer ownership */
-                            info->type_param_count = 0;
-
-                            int capacity = 2;
-                            info->type_params = malloc(sizeof(TypeInfo*) * capacity);
-                            if (!info->type_params) {
-                                fprintf(stderr, "Error: Out of memory allocating HashMap type params\n");
-                                free(info->generic_name);
-                                free(info);
-                                return TYPE_UNKNOWN;
-                            }
-
-                            /* Parse exactly 2 type parameters: K, V */
-                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-                                if (info->type_param_count >= capacity) {
-                                    fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
-                                            current_token(p)->line, current_token(p)->column);
-                                    /* Cleanup */
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
-                                if (!param_info) {
-                                    fprintf(stderr, "Error: Out of memory allocating HashMap param TypeInfo\n");
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                Token *param_tok = current_token(p);
-                                if (param_tok->token_type == TOKEN_TYPE_INT) {
-                                    param_info->base_type = TYPE_INT;
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_TYPE_U8) {
-                                    param_info->base_type = TYPE_U8;
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
-                                    param_info->base_type = TYPE_STRING;
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_TYPE_BOOL) {
-                                    param_info->base_type = TYPE_BOOL;
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
-                                    param_info->base_type = TYPE_FLOAT;
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
-                                    param_info->base_type = TYPE_STRUCT;
-                                    param_info->generic_name = strdup(param_tok->value);
-                                    advance(p);
-                                } else if (param_tok->token_type == TOKEN_ARRAY) {
-                                    /* Support array<T> as a type parameter */
-                                    param_info->base_type = TYPE_ARRAY;
-                                    advance(p);
-                                    if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in HashMap type parameter")) {
-                                        free(param_info);
-                                        for (int i = 0; i < info->type_param_count; i++) {
-                                            free(info->type_params[i]);
-                                        }
-                                        free(info->type_params);
-                                        free(info->generic_name);
-                                        free(info);
-                                        return TYPE_UNKNOWN;
-                                    }
-
-                                    TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
-                                    if (!elem_info) {
-                                        fprintf(stderr, "Error: Out of memory allocating array elem TypeInfo\n");
-                                        free(param_info);
-                                        for (int i = 0; i < info->type_param_count; i++) {
-                                            free(info->type_params[i]);
-                                        }
-                                        free(info->type_params);
-                                        free(info->generic_name);
-                                        free(info);
-                                        return TYPE_UNKNOWN;
-                                    }
-
-                                    Token *elem_tok = current_token(p);
-                                    if (elem_tok->token_type == TOKEN_TYPE_INT) {
-                                        elem_info->base_type = TYPE_INT;
-                                        advance(p);
-                                    } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
-                                        elem_info->base_type = TYPE_U8;
-                                        advance(p);
-                                    } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
-                                        elem_info->base_type = TYPE_STRING;
-                                        advance(p);
-                                    } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
-                                        elem_info->base_type = TYPE_BOOL;
-                                        advance(p);
-                                    } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
-                                        elem_info->base_type = TYPE_FLOAT;
-                                        advance(p);
-                                    } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
-                                        elem_info->base_type = TYPE_STRUCT;
-                                        elem_info->generic_name = strdup(elem_tok->value);
-                                        advance(p);
-                                    } else {
-                                        fprintf(stderr, "Error at line %d, column %d: Expected array element type in HashMap type parameter\n",
-                                                elem_tok->line, elem_tok->column);
-                                        if (elem_info->generic_name) free(elem_info->generic_name);
-                                        free(elem_info);
-                                        free(param_info);
-                                        for (int i = 0; i < info->type_param_count; i++) {
-                                            free(info->type_params[i]);
-                                        }
-                                        free(info->type_params);
-                                        free(info->generic_name);
-                                        free(info);
-                                        return TYPE_UNKNOWN;
-                                    }
-
-                                    if (!expect(p, TOKEN_GT, "Expected '>' after array element type in HashMap type parameter")) {
-                                        if (elem_info->generic_name) free(elem_info->generic_name);
-                                        free(elem_info);
-                                        free(param_info);
-                                        for (int i = 0; i < info->type_param_count; i++) {
-                                            free(info->type_params[i]);
-                                        }
-                                        free(info->type_params);
-                                        free(info->generic_name);
-                                        free(info);
-                                        return TYPE_UNKNOWN;
-                                    }
-
-                                    param_info->element_type = elem_info;
-                                } else {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected HashMap type parameter\n",
-                                            param_tok->line, param_tok->column);
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                info->type_params[info->type_param_count++] = param_info;
-
-                                if (match(p, TOKEN_COMMA)) {
-                                    advance(p);
-                                } else if (!match(p, TOKEN_GT)) {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in HashMap type parameters\n",
-                                            current_token(p)->line, current_token(p)->column);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-                            }
-
-                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
-                                for (int i = 0; i < info->type_param_count; i++) {
-                                    free(info->type_params[i]);
-                                }
-                                free(info->type_params);
-                                free(info->generic_name);
-                                free(info);
-                                return TYPE_UNKNOWN;
-                            }
-
-                            if (info->type_param_count != 2) {
-                                fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
-                                        tok->line, tok->column);
-                                for (int i = 0; i < info->type_param_count; i++) {
-                                    free(info->type_params[i]);
-                                }
-                                free(info->type_params);
-                                free(info->generic_name);
-                                free(info);
-                                return TYPE_UNKNOWN;
-                            }
-
-                            *type_info_out = info;
-                            return TYPE_HASHMAP;
-                        } else {
-                            /* No type_info_out provided: consume params and return TYPE_HASHMAP */
-                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-                                advance(p);
-                            }
-                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
-                                free(type_name);
-                                return TYPE_UNKNOWN;
-                            }
-                            free(type_name);
-                            return TYPE_HASHMAP;
-                        }
-                    }
                     
                     /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
                     if (type_info_out) {
@@ -654,81 +421,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
                                 param_info->base_type = TYPE_FLOAT;
                                 advance(p);
-                            } else if (param_tok->token_type == TOKEN_ARRAY) {
-                                /* Support array<T> as a generic type parameter (e.g., Result<array<int>, string>) */
-                                param_info->base_type = TYPE_ARRAY;
-                                advance(p);  /* consume 'array' */
-
-                                if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in type parameter")) {
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                TypeInfo *elem_info = malloc(sizeof(TypeInfo));
-                                elem_info->element_type = NULL;
-                                elem_info->generic_name = NULL;
-                                elem_info->type_params = NULL;
-                                elem_info->type_param_count = 0;
-                                elem_info->tuple_types = NULL;
-                                elem_info->tuple_type_names = NULL;
-                                elem_info->tuple_element_count = 0;
-                                elem_info->opaque_type_name = NULL;
-                                elem_info->fn_sig = NULL;
-
-                                Token *elem_tok = current_token(p);
-                                if (elem_tok->token_type == TOKEN_TYPE_INT) {
-                                    elem_info->base_type = TYPE_INT;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
-                                    elem_info->base_type = TYPE_U8;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
-                                    elem_info->base_type = TYPE_STRING;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
-                                    elem_info->base_type = TYPE_BOOL;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
-                                    elem_info->base_type = TYPE_FLOAT;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
-                                    elem_info->base_type = TYPE_STRUCT;
-                                    elem_info->generic_name = strdup(elem_tok->value);
-                                    advance(p);
-                                } else {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected array element type in type parameter\n",
-                                            elem_tok->line, elem_tok->column);
-                                    free(elem_info);
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                if (!expect(p, TOKEN_GT, "Expected '>' after array element type in type parameter")) {
-                                    if (elem_info->generic_name) free(elem_info->generic_name);
-                                    free(elem_info);
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                param_info->element_type = elem_info;
                             } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
                                 param_info->base_type = TYPE_STRUCT;
                                 param_info->generic_name = strdup(param_tok->value);
@@ -830,22 +522,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (element_type_out) {
                 *element_type_out = element_type;
             }
-            
-            /* Populate TypeInfo for arrays if requested */
-            if (type_info_out) {
-                TypeInfo *info = calloc(1, sizeof(TypeInfo));
-                info->base_type = TYPE_ARRAY;
-                
-                TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
-                elem_info->base_type = element_type;
-                if (type_param_name_out && *type_param_name_out) {
-                    elem_info->generic_name = strdup(*type_param_name_out);
-                }
-                
-                info->element_type = elem_info;
-                *type_info_out = info;
-            }
-            
             type = TYPE_ARRAY;
             return type;
         case TOKEN_LPAREN: {
@@ -924,17 +600,13 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
     }
-    
-    /* For simple types (int, float, etc.), we need to advance past the type token */
-    if (type != TYPE_UNKNOWN) {
-        advance(p);
-    }
-    
+
+    advance(p);
     return type;
 }
 
 /* Parse function parameters */
-static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_count) {
+static bool parse_parameters(Parser *p, Parameter **params, int *param_count) {
     int capacity = 4;
     int count = 0;
     Parameter *param_list = malloc(sizeof(Parameter) * capacity);
@@ -966,26 +638,17 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             Token *type_token = current_token(p);
             char *struct_name = NULL;
             if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    struct_name = strdup(rhs->value);
-                } else {
-                    struct_name = strdup(type_token->value);
-                }
+                struct_name = strdup(type_token->value);
             }
             
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
             FunctionSignature *fn_sig = NULL;
-            TypeInfo *type_info = NULL;
-            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
+            param_list[count].type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, NULL);
             param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
             param_list[count].fn_sig = fn_sig;  /* Store function signature if it's a function type */
-            param_list[count].type_info = type_info;  /* Store full type info for generic types */
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
@@ -1010,7 +673,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
 }
 
 /* Parse prefix operation: (op arg1 arg2 ...) */
-static ASTNode *parse_prefix_op(Stage1Parser *p) {
+static ASTNode *parse_prefix_op(Parser *p) {
     Token *tok = current_token(p);
     int line = tok->line;
     int column = tok->column;
@@ -1107,92 +770,11 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
     }
 }
 
-/* Helper function to parse generic type arguments: <T, E, ...>
- * Returns a TypeInfo structure with the parsed type parameters.
- * Assumes the '<' has NOT been consumed yet.
- * Returns NULL on error.
- */
-static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name) {
-    if (!match(p, TOKEN_LT)) {
-        return NULL;  /* No generic args */
-    }
-    
-    advance(p);  /* consume '<' */
-    
-    /* Allocate TypeInfo for the generic type */
-    TypeInfo *type_info = calloc(1, sizeof(TypeInfo));
-    if (!type_info) {
-        fprintf(stderr, "Error: Failed to allocate memory for TypeInfo\n");
-        return NULL;
-    }
-    
-    type_info->base_type = TYPE_GENERIC;
-    type_info->generic_name = strdup(base_name);
-    
-    /* Parse type parameters */
-    int capacity = 4;
-    int count = 0;
-    TypeInfo **type_params = malloc(sizeof(TypeInfo*) * capacity);
-    
-    while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-        if (count >= capacity) {
-            capacity *= 2;
-            type_params = realloc(type_params, sizeof(TypeInfo*) * capacity);
-        }
-        
-        /* Parse a type parameter */
-        TypeInfo *param_type_info = NULL;
-        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
-        
-        if (param_type == TYPE_UNKNOWN) {
-            fprintf(stderr, "Error at line %d, column %d: Failed to parse generic type parameter\n",
-                    current_token(p)->line, current_token(p)->column);
-            /* Cleanup */
-            for (int i = 0; i < count; i++) {
-                free(type_params[i]);
-            }
-            free(type_params);
-            free(type_info->generic_name);
-            free(type_info);
-            return NULL;
-        }
-        
-        /* Create TypeInfo for this parameter if not already created */
-        if (!param_type_info) {
-            param_type_info = calloc(1, sizeof(TypeInfo));
-            param_type_info->base_type = param_type;
-        }
-        
-        type_params[count++] = param_type_info;
-        
-        /* Optional comma between parameters */
-        if (match(p, TOKEN_COMMA)) {
-            advance(p);
-        }
-    }
-    
-    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
-        /* Cleanup */
-        for (int i = 0; i < count; i++) {
-            free(type_params[i]);
-        }
-        free(type_params);
-        free(type_info->generic_name);
-        free(type_info);
-        return NULL;
-    }
-    
-    type_info->type_params = type_params;
-    type_info->type_param_count = count;
-    
-    return type_info;
-}
-
 /* Parse primary expression */
-static ASTNode *parse_primary(Stage1Parser *p) {
+static ASTNode *parse_primary(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token)\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token)\n");
         return NULL;
     }
     ASTNode *node;
@@ -1269,156 +851,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             return node;
         }
 
-        case TOKEN_UNSAFE: {
-            /* Unsafe block as expression: unsafe { expr } */
-            int line = tok->line;
-            int column = tok->column;
-            advance(p);  /* consume 'unsafe' */
-
-            /* Expect opening brace */
-            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'unsafe'")) {
-                return NULL;
-            }
-
-            /* Parse statements in the unsafe block */
-            int capacity = 8;
-            int count = 0;
-            ASTNode **statements = malloc(sizeof(ASTNode*) * capacity);
-
-            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                if (count >= capacity) {
-                    capacity *= 2;
-                    statements = realloc(statements, sizeof(ASTNode*) * capacity);
-                }
-
-                ASTNode *stmt = parse_statement(p);
-                if (stmt) {
-                    statements[count++] = stmt;
-                } else {
-                    /* Parsing failed - advance to avoid infinite loop */
-                    advance(p);
-                }
-            }
-
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
-                free(statements);
-                return NULL;
-            }
-
-            node = create_node(AST_UNSAFE_BLOCK, line, column);
-            node->as.unsafe_block.statements = statements;
-            node->as.unsafe_block.count = count;
-            return node;
-        }
-
-        case TOKEN_LBRACE: {
-            /* Check if this is an anonymous struct literal: { field: value, ... } */
-            /* We need to distinguish from code blocks */
-            /* Look ahead to see if pattern looks like { identifier : expression, ... } */
-            Token *first_tok = peek_token(p, 1);
-            Token *second_tok = peek_token(p, 2);
-            
-            /* Heuristic: if we see IDENTIFIER followed by COLON, it's likely a struct literal */
-            bool looks_like_struct_literal = first_tok && second_tok &&
-                first_tok->token_type == TOKEN_IDENTIFIER &&
-                second_tok->token_type == TOKEN_COLON;
-            
-            if (looks_like_struct_literal) {
-                /* Parse anonymous struct literal */
-                int line = tok->line;
-                int column = tok->column;
-                advance(p);  /* consume '{' */
-                
-                int capacity = 4;
-                int count = 0;
-                char **field_names = malloc(sizeof(char*) * capacity);
-                ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
-                
-                while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                    if (count >= capacity) {
-                        capacity *= 2;
-                        field_names = realloc(field_names, sizeof(char*) * capacity);
-                        field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
-                    }
-                    
-                    /* Parse field name */
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected field name in anonymous struct literal\n",
-                                current_token(p)->line, current_token(p)->column);
-                        break;
-                    }
-                    field_names[count] = strdup(current_token(p)->value);
-                    advance(p);
-                    
-                    /* Expect ':' */
-                    if (!expect(p, TOKEN_COLON, "Expected ':' after field name in struct literal")) {
-                        free(field_names[count]);
-                        break;
-                    }
-                    
-                    /* Parse field value */
-                    field_values[count] = parse_expression(p);
-                    if (!field_values[count]) {
-                        free(field_names[count]);
-                        break;
-                    }
-                    count++;
-                    
-                    /* Check for comma (optional before '}') */
-                    if (match(p, TOKEN_COMMA)) {
-                        advance(p);
-                    }
-                }
-                
-                if (!expect(p, TOKEN_RBRACE, "Expected '}' after struct literal fields")) {
-                    for (int i = 0; i < count; i++) {
-                        free(field_names[i]);
-                        free_ast(field_values[i]);
-                    }
-                    free(field_names);
-                    free(field_values);
-                    return NULL;
-                }
-                
-                node = create_node(AST_STRUCT_LITERAL, line, column);
-                node->as.struct_literal.struct_name = NULL;  /* Anonymous - will be inferred by typechecker */
-                node->as.struct_literal.field_names = field_names;
-                node->as.struct_literal.field_values = field_values;
-                node->as.struct_literal.field_count = count;
-                return node;
-            }
-            
-            /* Otherwise, this is an unexpected '{' in expression context */
-            Token *current_tok = current_token(p);
-            if (!current_tok) {
-                fprintf(stderr, "Error: Unexpected LBRACE in NULL token state\n");
-                return NULL;
-            }
-            const char *type_name = token_type_name(current_tok->token_type);
-            fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
-                    current_tok->line, current_tok->column, 
-                    type_name ? type_name : "UNKNOWN", 
-                    current_tok->token_type);
-            return NULL;
-        }
-
-        case TOKEN_IDENTIFIER:
-        case TOKEN_SET: {
-            /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
+        case TOKEN_IDENTIFIER: {
+            /* Check if this is a struct literal: StructName { ... } */
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
             /* AND it's not followed by code keywords that indicate it's a condition */
             Token *next = peek_token(p, 1);
-            Token *after_next = peek_token(p, 2);
             Token *after_brace = peek_token(p, 2);
             bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
-            
-            /* Check for Module.Type pattern */
-            bool is_qualified = next && next->token_type == TOKEN_DOT && 
-                               after_next && after_next->token_type == TOKEN_IDENTIFIER;
-            if (is_qualified) {
-                after_brace = peek_token(p, 3);  /* { comes after Module.Type */
-                looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
-            }
             
             /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
                this is NOT a struct literal, it's a code block after a condition */
@@ -1430,34 +869,12 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 after_brace->token_type == TOKEN_FOR
             );
             
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) || 
-                             (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
-            
-            if (has_lbrace && looks_like_struct && !looks_like_code_block) {
+            if (next && next->token_type == TOKEN_LBRACE && looks_like_struct && !looks_like_code_block) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
                 char *struct_name = strdup(tok->value);
                 advance(p);  /* consume struct name */
-                
-                /* Check for Module.StructName pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    advance(p);  /* consume '.' */
-                    Token *type_tok = current_token(p);
-                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected struct name after '.'\n",
-                                type_tok->line, type_tok->column);
-                        free(struct_name);
-                        return NULL;
-                    }
-                    /* Build qualified name: Module.StructName */
-                    char qualified_name[512];
-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", struct_name, type_tok->value);
-                    free(struct_name);
-                    struct_name = strdup(qualified_name);
-                    advance(p);  /* consume struct name */
-                }
-                
                 advance(p);  /* consume '{' */
                 
                 int capacity = 4;
@@ -1530,7 +947,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 while (match(p, TOKEN_DOUBLE_COLON)) {
                     advance(p);  /* consume :: */
                     
-                    if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
+                    if (!match(p, TOKEN_IDENTIFIER)) {
                         fprintf(stderr, "Error at line %d, column %d: Expected identifier after '::'\n",
                                 current_token(p)->line, current_token(p)->column);
                         for (int i = 0; i < count; i++) {
@@ -1549,137 +966,10 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 }
                 
                 if (count == 1) {
-                    /* Simple identifier - check for generic type args: Type<T, E> */
-                    /* This is needed for generic union construction: Result<int, string>.Ok { ... } */
-                    TypeInfo *generic_type_info = NULL;
-                    
-                    /* Check if followed by '<' for generic type instantiation */
-                    if (match(p, TOKEN_LT)) {
-                        generic_type_info = parse_generic_type_args(p, name_parts[0]);
-                        if (!generic_type_info) {
-                            /* Error already reported by parse_generic_type_args */
-                            free(name_parts[0]);
-                            free(name_parts);
-                            return NULL;
-                        }
-                    }
-                    
+                    /* Simple identifier */
                     node = create_node(AST_IDENTIFIER, line, column);
                     node->as.identifier = name_parts[0];
                     free(name_parts);
-                    
-                    /* If we parsed generic args, we need to pass this info to parse_postfix.
-                     * We'll store it in the node temporarily. However, AST_IDENTIFIER doesn't
-                     * have a field for TypeInfo. We need a different approach.
-                     * 
-                     * Solution: Create a new AST node type or use a wrapper.
-                     * For now, let's use a different approach: store the TypeInfo in the
-                     * Stage1Parser struct as temporary state, and parse_postfix will check for it.
-                     */
-                    
-                    /* Actually, let's use a cleaner approach: if we have generic type args,
-                     * we'll handle the complete union construction here if followed by .Variant.
-                     * Otherwise, it's an error (generic types in expressions must be for union construction).
-                     */
-                    if (generic_type_info) {
-                        /* Must be followed by .Variant for union construction */
-                        if (!match(p, TOKEN_DOT)) {
-                            fprintf(stderr, "Error at line %d, column %d: Generic type instantiation '%s<...>' must be followed by '.Variant' for union construction\n",
-                                    line, column, node->as.identifier);
-                            free(node->as.identifier);
-                            free(node);
-                            /* TODO: free generic_type_info */
-                            return NULL;
-                        }
-                        
-                        advance(p);  /* consume '.' */
-                        
-                        if (!match(p, TOKEN_IDENTIFIER)) {
-                            fprintf(stderr, "Error at line %d, column %d: Expected variant name after '.'\n",
-                                    current_token(p)->line, current_token(p)->column);
-                            free(node->as.identifier);
-                            free(node);
-                            /* TODO: free generic_type_info */
-                            return NULL;
-                        }
-                        
-                        char *variant_name = strdup(current_token(p)->value);
-                        advance(p);
-                        
-                        /* Expect '{' for variant fields */
-                        if (!expect(p, TOKEN_LBRACE, "Expected '{' after variant name")) {
-                            free(node->as.identifier);
-                            free(node);
-                            free(variant_name);
-                            /* TODO: free generic_type_info */
-                            return NULL;
-                        }
-                        
-                        /* Parse variant fields */
-                        int field_capacity = 4;
-                        int field_count = 0;
-                        char **field_names = malloc(sizeof(char*) * field_capacity);
-                        ASTNode **field_values = malloc(sizeof(ASTNode*) * field_capacity);
-                        
-                        while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                            if (field_count >= field_capacity) {
-                                field_capacity *= 2;
-                                field_names = realloc(field_names, sizeof(char*) * field_capacity);
-                                field_values = realloc(field_values, sizeof(ASTNode*) * field_capacity);
-                            }
-                            
-                            /* Parse field name */
-                            if (!match(p, TOKEN_IDENTIFIER)) {
-                                fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
-                                        current_token(p)->line, current_token(p)->column);
-                                break;
-                            }
-                            field_names[field_count] = strdup(current_token(p)->value);
-                            advance(p);
-                            
-                            /* Expect colon */
-                            if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
-                                break;
-                            }
-                            
-                            /* Parse field value */
-                            field_values[field_count] = parse_expression(p);
-                            field_count++;
-                            
-                            /* Optional comma */
-                            if (match(p, TOKEN_COMMA)) {
-                                advance(p);
-                            }
-                        }
-                        
-                        if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
-                            for (int i = 0; i < field_count; i++) {
-                                free(field_names[i]);
-                                free_ast(field_values[i]);
-                            }
-                            free(field_names);
-                            free(field_values);
-                            free(node->as.identifier);
-                            free(node);
-                            free(variant_name);
-                            /* TODO: free generic_type_info */
-                            return NULL;
-                        }
-                        
-                        /* Create union construction node */
-                        char *union_name = node->as.identifier;
-                        free(node);  /* Free the temporary identifier node */
-                        
-                        node = create_node(AST_UNION_CONSTRUCT, line, column);
-                        node->as.union_construct.union_name = union_name;
-                        node->as.union_construct.variant_name = variant_name;
-                        node->as.union_construct.field_names = field_names;
-                        node->as.union_construct.field_values = field_values;
-                        node->as.union_construct.field_count = field_count;
-                        node->as.union_construct.type_info = generic_type_info;
-                        
-                        return node;
-                    }
                 } else {
                     /* Qualified name */
                     node = create_node(AST_QUALIFIED_NAME, line, column);
@@ -1824,29 +1114,6 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* Free the identifier node shell (but not the string, we stole it) */
                     free(first_expr);
                     return node;
-                } else if (first_expr->type == AST_FIELD_ACCESS) {
-                    /* Module.function call with zero arguments - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
-                        char *field = first_expr->as.field_access.field_name;
-                        
-                        advance(p);  /* consume ')' */
-                        
-                        ASTNode *node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
-                        node->as.module_qualified_call.module_alias = strdup(module);
-                        node->as.module_qualified_call.function_name = strdup(field);
-                        node->as.module_qualified_call.args = NULL;
-                        node->as.module_qualified_call.arg_count = 0;
-                        node->as.module_qualified_call.return_struct_type_name = NULL;
-                        
-                        /* Free the field_access node */
-                        free_ast(first_expr);
-                        return node;
-                    } else {
-                        /* Parenthesized expression: (expr) */
-                        advance(p);  /* consume ')' */
-                        return first_expr;
-                    }
                 } else {
                     /* Parenthesized expression: (expr) */
                     advance(p);  /* consume ')' */
@@ -1861,27 +1128,23 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *func_name = NULL;
                 ASTNode *func_expr = NULL;
                 
-                bool is_module_qualified = false;
-                char *module_alias = NULL;
-                char *qualified_func_name = NULL;
-                
                 if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
-                    /* Module.function call - use AST_MODULE_QUALIFIED_CALL */
+                    /* Module.function call - convert to qualified name */
+                    /* e.g., Math.square becomes "Math.square" */
                     if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
                         char *module = first_expr->as.field_access.object->as.identifier;
                         char *field = first_expr->as.field_access.field_name;
+                        func_name = malloc(strlen(module) + strlen(field) + 2);
+                        sprintf(func_name, "%s.%s", module, field);
                         
-                        /* Mark as module-qualified for later processing */
-                        is_module_qualified = true;
-                        module_alias = strdup(module);
-                        qualified_func_name = strdup(field);
-                        
-                        /* Free the field_access node */
-                        free_ast(first_expr);
-                        first_expr = NULL;
+                        /* BUGFIX: Don't free the field_access node at all!
+                         * The strings (module, field) are still in use by later AST nodes.
+                         * This causes a small memory leak but prevents use-after-free corruption.
+                         * TODO: Proper fix would be to copy strings or restructure AST lifecycle. */
+                        /* free_ast(first_expr);  -- DISABLED to prevent corruption */
                     } else {
                         fprintf(stderr, "Error at line %d, column %d: Complex field access not supported in function calls\n",
                                 line, column);
@@ -1919,8 +1182,6 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         free(args);
                         if (func_name) free(func_name);
                         if (func_expr) free_ast(func_expr);
-                        if (module_alias) free(module_alias);
-                        if (qualified_func_name) free(qualified_func_name);
                         if (first_expr && first_expr->type == AST_IDENTIFIER) {
                             free(first_expr);  /* Don't use free_ast - we already extracted the identifier */
                         }
@@ -1936,8 +1197,6 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     free(args);
                     if (func_name) free(func_name);
                     if (func_expr) free_ast(func_expr);
-                    if (module_alias) free(module_alias);
-                    if (qualified_func_name) free(qualified_func_name);
                     if (first_expr && first_expr->type == AST_IDENTIFIER) {
                         free(first_expr);
                     }
@@ -1945,31 +1204,20 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 }
                 
                 /* Create function call node */
-                if (is_module_qualified) {
-                    /* Create module-qualified call node */
-                    node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
-                    node->as.module_qualified_call.module_alias = module_alias;
-                    node->as.module_qualified_call.function_name = qualified_func_name;
-                    node->as.module_qualified_call.args = args;
-                    node->as.module_qualified_call.arg_count = count;
-                    node->as.module_qualified_call.return_struct_type_name = NULL;
+                node = create_node(AST_CALL, line, column);
+                if (func_name) {
+                    node->as.call.name = func_name;
+                    node->as.call.func_expr = NULL;
+                    /* Free the first_expr struct but keep the identifier */
+                    free(first_expr);  /* Don't use free_ast - we're using the identifier */
                 } else {
-                    /* Create regular call node */
-                    node = create_node(AST_CALL, line, column);
-                    if (func_name) {
-                        node->as.call.name = func_name;
-                        node->as.call.func_expr = NULL;
-                        /* Free the first_expr struct but keep the identifier */
-                        free(first_expr);  /* Don't use free_ast - we're using the identifier */
-                    } else {
-                        node->as.call.name = NULL;
-                        node->as.call.func_expr = func_expr;
-                        /* func_expr is already first_expr, don't free it again */
-                    }
-                    node->as.call.args = args;
-                    node->as.call.arg_count = count;
-                    node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
+                    node->as.call.name = NULL;
+                    node->as.call.func_expr = func_expr;
+                    /* func_expr is already first_expr, don't free it again */
                 }
+                node->as.call.args = args;
+                node->as.call.arg_count = count;
+                node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
                 
                 return node;
             }
@@ -1979,7 +1227,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Re-read token to ensure it's still valid (might have been corrupted during recursion) */
             Token *current_tok = current_token(p);
             if (!current_tok) {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_primary default case\n");
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_primary default case\n");
                 return NULL;
             }
             /* Safety check: validate token values are reasonable */
@@ -2008,119 +1256,10 @@ static ASTNode *parse_primary(Stage1Parser *p) {
 }
 
 /* Parse if expression */
-/* Parse cond expression: (cond (pred1 val1) (pred2 val2) ... (else valN)) */
-static ASTNode *parse_cond_expression(Stage1Parser *p) {
+static ASTNode *parse_if_expression(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_cond_expression\n");
-        return NULL;
-    }
-    int line = tok->line;
-    int column = tok->column;
-    
-    if (!expect(p, TOKEN_COND, "Expected 'cond'")) {
-        return NULL;
-    }
-    
-    /* Allocate arrays for conditions and values (start with capacity for 8 clauses) */
-    int capacity = 8;
-    ASTNode **conditions = (ASTNode **)malloc(capacity * sizeof(ASTNode *));
-    ASTNode **values = (ASTNode **)malloc(capacity * sizeof(ASTNode *));
-    int clause_count = 0;
-    
-    /* Parse clauses until we hit '(else' */
-    while (true) {
-        Token *current = current_token(p);
-        if (!current) {
-            fprintf(stderr, "Error: Unexpected end of input in cond expression\n");
-            free(conditions);
-            free(values);
-            return NULL;
-        }
-        
-        /* Expect opening paren for clause */
-        if (!expect(p, TOKEN_LPAREN, "Expected '(' for cond clause or else clause")) {
-            free(conditions);
-            free(values);
-            return NULL;
-        }
-        
-        /* Check if this is the else clause */
-        Token *next = current_token(p);
-        if (next && next->token_type == TOKEN_ELSE) {
-            /* This is the else clause - consume 'else' and break */
-            advance(p);  /* consume 'else' */
-            break;
-        }
-        
-        /* Parse condition */
-        ASTNode *condition = parse_expression(p);
-        if (!condition) {
-            fprintf(stderr, "Error: Failed to parse condition in cond clause at line %d\n", line);
-            free(conditions);
-            free(values);
-            return NULL;
-        }
-        
-        /* Parse value */
-        ASTNode *value = parse_expression(p);
-        if (!value) {
-            fprintf(stderr, "Error: Failed to parse value in cond clause at line %d\n", line);
-            free(conditions);
-            free(values);
-            return NULL;
-        }
-        
-        /* Expect closing paren */
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after cond clause")) {
-            free(conditions);
-            free(values);
-            return NULL;
-        }
-        
-        /* Grow arrays if needed */
-        if (clause_count >= capacity) {
-            capacity *= 2;
-            conditions = (ASTNode **)realloc(conditions, capacity * sizeof(ASTNode *));
-            values = (ASTNode **)realloc(values, capacity * sizeof(ASTNode *));
-        }
-        
-        /* Store clause */
-        conditions[clause_count] = condition;
-        values[clause_count] = value;
-        clause_count++;
-    }
-    
-    /* Parse else value (we've already consumed 'else') */
-    ASTNode *else_value = parse_expression(p);
-    if (!else_value) {
-        fprintf(stderr, "Error: Failed to parse else value in cond expression at line %d\n", line);
-        free(conditions);
-        free(values);
-        return NULL;
-    }
-    
-    /* Expect closing paren for else clause */
-    if (!expect(p, TOKEN_RPAREN, "Expected ')' after else clause")) {
-        free(conditions);
-        free(values);
-        return NULL;
-    }
-    
-    /* Create AST node */
-    ASTNode *node = create_node(AST_COND, line, column);
-    node->as.cond_expr.conditions = conditions;
-    node->as.cond_expr.values = values;
-    node->as.cond_expr.clause_count = clause_count;
-    node->as.cond_expr.else_value = else_value;
-    
-    return node;
-}
-
-static ASTNode *parse_if_expression(Stage1Parser *p) {
-    Token *tok = current_token(p);
-    if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_if_expression\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_if_expression\n");
         return NULL;
     }
     int line = tok->line;
@@ -2182,7 +1321,7 @@ static ASTNode *parse_if_expression(Stage1Parser *p) {
 }
 
 /* Parse expression */
-static ASTNode *parse_expression(Stage1Parser *p) {
+static ASTNode *parse_expression(Parser *p) {
     /* Recursion depth guard */
     p->recursion_depth++;
     if (p->recursion_depth > MAX_RECURSION_DEPTH) {
@@ -2195,12 +1334,6 @@ static ASTNode *parse_expression(Stage1Parser *p) {
     
     if (match(p, TOKEN_IF)) {
         ASTNode *result = parse_if_expression(p);
-        p->recursion_depth--;
-        return result;
-    }
-    
-    if (match(p, TOKEN_COND)) {
-        ASTNode *result = parse_cond_expression(p);
         p->recursion_depth--;
         return result;
     }
@@ -2226,7 +1359,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
     while (match(p, TOKEN_DOT)) {
         Token *dot_tok = current_token(p);
         if (!dot_tok) {
-            fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
+            fprintf(stderr, "Error: Parser reached invalid state (NULL token) in field access\n");
             p->recursion_depth--;
             return expr;
         }
@@ -2254,7 +1387,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
                 fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
                         err_tok->line, err_tok->column);
             } else {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
+                fprintf(stderr, "Error: Parser reached invalid state (NULL token) after '.'\n");
             }
             p->recursion_depth--;
             return expr;
@@ -2365,7 +1498,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 }
 
 /* Parse block */
-static ASTNode *parse_block(Stage1Parser *p) {
+static ASTNode *parse_block(Parser *p) {
     /* Recursion depth guard */
     p->recursion_depth++;
     if (p->recursion_depth > MAX_RECURSION_DEPTH) {
@@ -2378,7 +1511,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_block\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_block\n");
         p->recursion_depth--;
         return NULL;
     }
@@ -2409,7 +1542,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             consecutive_failures++;
             if (consecutive_failures > 10) {
                 Token *err_tok = current_token(p);
-                fprintf(stderr, "Error: Stage1Parser stuck in infinite loop in block at line %d, column %d. Aborting.\n",
+                fprintf(stderr, "Error: Parser stuck in infinite loop in block at line %d, column %d. Aborting.\n",
                         err_tok ? err_tok->line : 0, err_tok ? err_tok->column : 0);
                 free(statements);
                 p->recursion_depth--;
@@ -2462,10 +1595,10 @@ static ASTNode *parse_block(Stage1Parser *p) {
 }
 
 /* Parse statement */
-static ASTNode *parse_statement(Stage1Parser *p) {
+static ASTNode *parse_statement(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_statement\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_statement\n");
         return NULL;
     }
     ASTNode *node;
@@ -2503,14 +1636,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             Token *type_token = current_token(p);
             char *type_name = NULL;
             if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    type_name = strdup(rhs->value);
-                } else {
-                    type_name = strdup(type_token->value);
-                }
+                type_name = strdup(type_token->value);
             }
             
             /* Parse type with element_type support for arrays and generics */
@@ -2521,13 +1647,9 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
 
             /* For generic lists, type_param_name contains the element type (e.g., "Point") */
-            /* For structs, type_param_name contains the struct name (including qualified names like "Math.Point") */
+            /* For structs, type_name contains the struct name */
             if (type == TYPE_LIST_GENERIC && type_param_name) {
                 /* Replace type_name with the generic parameter name */
-                if (type_name) free(type_name);
-                type_name = type_param_name;
-            } else if (type == TYPE_STRUCT && type_param_name) {
-                /* Use the struct name from parse_type_with_element (handles qualified names) */
                 if (type_name) free(type_name);
                 type_name = type_param_name;
             }
@@ -2652,24 +1774,6 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             return node;
         }
 
-        case TOKEN_BREAK: {
-            int line = tok->line;
-            int column = tok->column;
-            advance(p);
-
-            node = create_node(AST_BREAK, line, column);
-            return node;
-        }
-
-        case TOKEN_CONTINUE: {
-            int line = tok->line;
-            int column = tok->column;
-            advance(p);
-
-            node = create_node(AST_CONTINUE, line, column);
-            return node;
-        }
-
         /* TOKEN_PRINT case removed - print is now a regular built-in function */
 
         case TOKEN_ASSERT: {
@@ -2681,47 +1785,6 @@ static ASTNode *parse_statement(Stage1Parser *p) {
 
             node = create_node(AST_ASSERT, line, column);
             node->as.assert.condition = condition;
-            return node;
-        }
-
-        case TOKEN_UNSAFE: {
-            int line = tok->line;
-            int column = tok->column;
-            advance(p);
-
-            /* Expect opening brace */
-            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'unsafe'")) {
-                return NULL;
-            }
-
-            /* Parse statements in the unsafe block */
-            int capacity = 8;
-            int count = 0;
-            ASTNode **statements = malloc(sizeof(ASTNode*) * capacity);
-
-            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                if (count >= capacity) {
-                    capacity *= 2;
-                    statements = realloc(statements, sizeof(ASTNode*) * capacity);
-                }
-
-                ASTNode *stmt = parse_statement(p);
-                if (stmt) {
-                    statements[count++] = stmt;
-                } else {
-                    /* Parsing failed - advance to avoid infinite loop */
-                    advance(p);
-                }
-            }
-
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
-                free(statements);
-                return NULL;
-            }
-
-            node = create_node(AST_UNSAFE_BLOCK, line, column);
-            node->as.unsafe_block.statements = statements;
-            node->as.unsafe_block.count = count;
             return node;
         }
 
@@ -2775,7 +1838,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
 }
 
 /* Parse struct definition */
-static ASTNode *parse_struct_def(Stage1Parser *p) {
+static ASTNode *parse_struct_def(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
     
@@ -2869,13 +1932,12 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
     node->as.struct_def.field_type_names = field_type_names;
     node->as.struct_def.field_element_types = field_element_types;
     node->as.struct_def.field_count = count;
-    node->as.struct_def.is_resource = false;  /* Default to non-resource, will be set by caller if needed */
     
     return node;
 }
 
 /* Parse enum definition */
-static ASTNode *parse_enum_def(Stage1Parser *p) {
+static ASTNode *parse_enum_def(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
     
@@ -2984,7 +2046,7 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
 }
 
 /* Parse opaque type declaration: opaque type TypeName */
-static ASTNode *parse_opaque_type(Stage1Parser *p) {
+static ASTNode *parse_opaque_type(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
     
@@ -3023,7 +2085,7 @@ static ASTNode *parse_opaque_type(Stage1Parser *p) {
 }
 
 /* Parse union definition */
-static ASTNode *parse_union_def(Stage1Parser *p) {
+static ASTNode *parse_union_def(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
     
@@ -3243,10 +2305,10 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
 }
 
 /* Parse match expression */
-static ASTNode *parse_match_expr(Stage1Parser *p) {
+static ASTNode *parse_match_expr(Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_match_expr\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_match_expr\n");
         return NULL;
     }
     int line = tok->line;
@@ -3371,255 +2433,11 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     return match_node;
 }
 
-/* Helper to free precondition assert nodes on error */
-static void free_precondition_asserts(ASTNode **nodes, int count) {
-    if (!nodes) {
-        return;
-    }
-    for (int i = 0; i < count; i++) {
-        if (nodes[i]) {
-            free_ast(nodes[i]);
-        }
-    }
-    free(nodes);
-}
-
-/* Forward declaration for clone_ast_node */
-static ASTNode *clone_ast_node(const ASTNode *node);
-
-/* Helper to clone an AST node (deep copy) */
-static ASTNode *clone_ast_node(const ASTNode *node) {
-    if (!node) {
-        return NULL;
-    }
-
-    ASTNode *cloned = create_node(node->type, node->line, node->column);
-    if (!cloned) {
-        return NULL;
-    }
-
-    switch (node->type) {
-        case AST_NUMBER:
-            cloned->as.number = node->as.number;
-            break;
-        case AST_FLOAT:
-            cloned->as.float_val = node->as.float_val;
-            break;
-        case AST_STRING:
-            cloned->as.string_val = node->as.string_val ? strdup(node->as.string_val) : NULL;
-            break;
-        case AST_BOOL:
-            cloned->as.bool_val = node->as.bool_val;
-            break;
-        case AST_IDENTIFIER:
-            cloned->as.identifier = node->as.identifier ? strdup(node->as.identifier) : NULL;
-            break;
-        case AST_PREFIX_OP:
-            cloned->as.prefix_op.op = node->as.prefix_op.op;
-            cloned->as.prefix_op.arg_count = node->as.prefix_op.arg_count;
-            cloned->as.prefix_op.args = malloc(sizeof(ASTNode*) * node->as.prefix_op.arg_count);
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
-                cloned->as.prefix_op.args[i] = clone_ast_node(node->as.prefix_op.args[i]);
-            }
-            break;
-        case AST_CALL:
-            if (node->as.call.name) {
-                cloned->as.call.name = strdup(node->as.call.name);
-            }
-            cloned->as.call.func_expr = clone_ast_node(node->as.call.func_expr);
-            cloned->as.call.arg_count = node->as.call.arg_count;
-            cloned->as.call.args = malloc(sizeof(ASTNode*) * node->as.call.arg_count);
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                cloned->as.call.args[i] = clone_ast_node(node->as.call.args[i]);
-            }
-            break;
-        case AST_ASSERT:
-            cloned->as.assert.condition = clone_ast_node(node->as.assert.condition);
-            break;
-        /* Add more cases as needed */
-        default:
-            /* For unhandled types, just copy the node structure */
-            /* This is a simplified implementation - full implementation would handle all types */
-            break;
-    }
-
-    return cloned;
-}
-
-/* Helper to substitute an identifier in an AST (replaces old_name with new_name) */
-static void substitute_identifier(ASTNode *node, const char *old_name, const char *new_name) {
-    if (!node || !old_name || !new_name) {
-        return;
-    }
-
-    switch (node->type) {
-        case AST_IDENTIFIER:
-            if (node->as.identifier && strcmp(node->as.identifier, old_name) == 0) {
-                free(node->as.identifier);
-                node->as.identifier = strdup(new_name);
-            }
-            break;
-        case AST_PREFIX_OP:
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
-                substitute_identifier(node->as.prefix_op.args[i], old_name, new_name);
-            }
-            break;
-        case AST_CALL:
-            if (node->as.call.func_expr) {
-                substitute_identifier(node->as.call.func_expr, old_name, new_name);
-            }
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                substitute_identifier(node->as.call.args[i], old_name, new_name);
-            }
-            break;
-        case AST_ASSERT:
-            substitute_identifier(node->as.assert.condition, old_name, new_name);
-            break;
-        /* Add more cases as needed */
-        default:
-            break;
-    }
-}
-
-/* Helper to recursively update line/column in an AST (for postcondition injection) */
-static void update_ast_location(ASTNode *node, int line, int column) {
-    if (!node) return;
-    
-    node->line = line;
-    node->column = column;
-    
-    switch (node->type) {
-        case AST_PREFIX_OP:
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
-                update_ast_location(node->as.prefix_op.args[i], line, column);
-            }
-            break;
-        case AST_CALL:
-            if (node->as.call.func_expr) {
-                update_ast_location(node->as.call.func_expr, line, column);
-            }
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                update_ast_location(node->as.call.args[i], line, column);
-            }
-            break;
-        case AST_ASSERT:
-            update_ast_location(node->as.assert.condition, line, column);
-            break;
-        case AST_IDENTIFIER:
-        case AST_NUMBER:
-        case AST_FLOAT:
-        case AST_STRING:
-        case AST_BOOL:
-            /* Leaf nodes - just update the location (already done above) */
-            break;
-        default:
-            /* For other node types, location is already updated */
-            break;
-    }
-}
-
-/* Helper to inject postconditions before a return statement */
-static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **postconditions, int postcondition_count, Type return_type) {
-    if (!return_node || return_node->type != AST_RETURN || postcondition_count == 0) {
-        return return_node;
-    }
-
-    /* For void returns, no postcondition injection needed (can't reference result) */
-    if (return_type == TYPE_VOID || !return_node->as.return_stmt.value) {
-        return return_node;
-    }
-
-    /* Create a block to hold: let __result = expr; assert...; return __result */
-    ASTNode *block = create_node(AST_BLOCK, return_node->line, return_node->column);
-    block->as.block.count = postcondition_count + 2;  /* let + asserts + return */
-    block->as.block.statements = malloc(sizeof(ASTNode*) * block->as.block.count);
-
-    /* Create: let __result = <return_value> */
-    ASTNode *let_node = create_node(AST_LET, return_node->line, return_node->column);
-    let_node->as.let.name = strdup("__result");
-    let_node->as.let.value = return_node->as.return_stmt.value;
-    let_node->as.let.is_mut = false;
-    let_node->as.let.var_type = return_type;
-    let_node->as.let.type_name = NULL;
-    let_node->as.let.element_type = TYPE_UNKNOWN;
-    let_node->as.let.fn_sig = NULL;
-    let_node->as.let.type_info = NULL;
-    block->as.block.statements[0] = let_node;
-
-    /* Clone, substitute, and update line numbers for postconditions */
-    for (int i = 0; i < postcondition_count; i++) {
-        ASTNode *postcond = clone_ast_node(postconditions[i]);
-        substitute_identifier(postcond, "result", "__result");
-        /* Update line/column to match return statement location, so typechecker 
-         * visibility checks work correctly (__result is defined at return's line) */
-        postcond->line = return_node->line;
-        postcond->column = return_node->column;
-        if (postcond->as.assert.condition) {
-            /* Also update the condition's source location */
-            update_ast_location(postcond->as.assert.condition, return_node->line, return_node->column);
-        }
-        block->as.block.statements[i + 1] = postcond;
-    }
-
-    /* Create: return __result */
-    ASTNode *new_return = create_node(AST_RETURN, return_node->line, return_node->column);
-    ASTNode *result_ref = create_node(AST_IDENTIFIER, return_node->line, return_node->column);
-    result_ref->as.identifier = strdup("__result");
-    new_return->as.return_stmt.value = result_ref;
-    block->as.block.statements[postcondition_count + 1] = new_return;
-
-    /* Free the original return node structure (but not its value, which we moved) */
-    free(return_node);
-
-    return block;
-}
-
-/* Helper to recursively transform return statements in a block */
-static void transform_returns_in_block(ASTNode *block, ASTNode **postconditions, int postcondition_count, Type return_type) {
-    if (!block || block->type != AST_BLOCK) {
-        return;
-    }
-
-    for (int i = 0; i < block->as.block.count; i++) {
-        ASTNode *stmt = block->as.block.statements[i];
-        if (!stmt) {
-            continue;
-        }
-
-        if (stmt->type == AST_RETURN) {
-            /* Transform this return statement */
-            block->as.block.statements[i] = inject_postconditions_at_return(stmt, postconditions, postcondition_count, return_type);
-        } else if (stmt->type == AST_BLOCK) {
-            /* Recursively transform nested blocks */
-            transform_returns_in_block(stmt, postconditions, postcondition_count, return_type);
-        } else if (stmt->type == AST_IF) {
-            /* Transform returns in if branches */
-            if (stmt->as.if_stmt.then_branch) {
-                transform_returns_in_block(stmt->as.if_stmt.then_branch, postconditions, postcondition_count, return_type);
-            }
-            if (stmt->as.if_stmt.else_branch) {
-                transform_returns_in_block(stmt->as.if_stmt.else_branch, postconditions, postcondition_count, return_type);
-            }
-        } else if (stmt->type == AST_WHILE) {
-            /* Transform returns in while body */
-            if (stmt->as.while_stmt.body) {
-                transform_returns_in_block(stmt->as.while_stmt.body, postconditions, postcondition_count, return_type);
-            }
-        } else if (stmt->type == AST_FOR) {
-            /* Transform returns in for body */
-            if (stmt->as.for_stmt.body) {
-                transform_returns_in_block(stmt->as.for_stmt.body, postconditions, postcondition_count, return_type);
-            }
-        }
-        /* Add more statement types as needed */
-    }
-}
-
 /* Parse function definition */
-static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
+static ASTNode *parse_function(Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_function\n");
+        fprintf(stderr, "Error: Parser reached invalid state (NULL token) in parse_function\n");
         return NULL;
     }
     int line = tok->line;
@@ -3629,7 +2447,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         return NULL;
     }
 
-    if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
+    if (!match(p, TOKEN_IDENTIFIER)) {
         fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line, column);
         return NULL;
     }
@@ -3664,8 +2482,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     char *return_struct_name = NULL;
     FunctionSignature *return_fn_sig = NULL;
     TypeInfo *return_type_info = NULL;
-    Type return_element_type = TYPE_UNKNOWN;
-    Type return_type = parse_type_with_element(p, &return_element_type, &return_struct_name, &return_fn_sig, &return_type_info);
+    Type return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, &return_type_info);
     
     /* For non-generic structs, we still need to capture the name */
     if (return_type == TYPE_STRUCT && !return_struct_name) {
@@ -3678,73 +2495,6 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         }
     }
 
-    ASTNode **preconditions = NULL;
-    int precondition_count = 0;
-    int precondition_capacity = 0;
-
-    while (match(p, TOKEN_REQUIRES)) {
-        Token *req_tok = current_token(p);
-        advance(p);  /* consume 'requires' */
-
-        ASTNode *condition = parse_expression(p);
-        if (!condition) {
-            free(name);
-            free(params);
-            if (return_struct_name) free(return_struct_name);
-            free_precondition_asserts(preconditions, precondition_count);
-            return NULL;
-        }
-
-        ASTNode *assert_node = create_node(AST_ASSERT, req_tok->line, req_tok->column);
-        assert_node->as.assert.condition = condition;
-
-        if (precondition_count >= precondition_capacity) {
-            precondition_capacity = precondition_capacity ? precondition_capacity * 2 : 4;
-            preconditions = realloc(preconditions, sizeof(ASTNode*) * precondition_capacity);
-        }
-        preconditions[precondition_count++] = assert_node;
-    }
-
-    /* Parse optional 'ensures' clauses (postconditions) */
-    ASTNode **postconditions = NULL;
-    int postcondition_count = 0;
-    int postcondition_capacity = 0;
-
-    while (match(p, TOKEN_ENSURES)) {
-        Token *ens_tok = current_token(p);
-        advance(p);  /* consume 'ensures' */
-
-        ASTNode *condition = parse_expression(p);
-        if (!condition) {
-            free(name);
-            free(params);
-            if (return_struct_name) free(return_struct_name);
-            free_precondition_asserts(preconditions, precondition_count);
-            free_precondition_asserts(postconditions, postcondition_count);
-            return NULL;
-        }
-
-        ASTNode *assert_node = create_node(AST_ASSERT, ens_tok->line, ens_tok->column);
-        assert_node->as.assert.condition = condition;
-
-        if (postcondition_count >= postcondition_capacity) {
-            postcondition_capacity = postcondition_capacity ? postcondition_capacity * 2 : 4;
-            postconditions = realloc(postconditions, sizeof(ASTNode*) * postcondition_capacity);
-        }
-        postconditions[postcondition_count++] = assert_node;
-    }
-
-    if (is_extern && (precondition_count > 0 || postcondition_count > 0)) {
-        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' or 'ensures' clauses\n",
-                line, column);
-        free(name);
-        free(params);
-        if (return_struct_name) free(return_struct_name);
-        free_precondition_asserts(preconditions, precondition_count);
-        free_precondition_asserts(postconditions, postcondition_count);
-        return NULL;
-    }
-
     ASTNode *body = NULL;
     if (!is_extern) {
         /* Regular functions must have a body */
@@ -3753,52 +2503,16 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             free(name);
             free(params);
             if (return_struct_name) free(return_struct_name);
-            free_precondition_asserts(preconditions, precondition_count);
-            free_precondition_asserts(postconditions, postcondition_count);
             return NULL;
-        }
-
-        if (precondition_count > 0) {
-            int original_count = body->as.block.count;
-            ASTNode **new_statements = malloc(sizeof(ASTNode*) * (precondition_count + original_count));
-            for (int i = 0; i < precondition_count; i++) {
-                new_statements[i] = preconditions[i];
-            }
-            for (int i = 0; i < original_count; i++) {
-                new_statements[precondition_count + i] = body->as.block.statements[i];
-            }
-            if (body->as.block.statements) {
-                free(body->as.block.statements);
-            }
-            body->as.block.statements = new_statements;
-            body->as.block.count = precondition_count + original_count;
-        }
-
-        /* Inject postconditions before return statements */
-        if (postcondition_count > 0) {
-            transform_returns_in_block(body, postconditions, postcondition_count, return_type);
         }
     }
     /* Extern functions have no body - declaration only */
-
-    if (!is_extern && precondition_count > 0) {
-        free(preconditions);
-        preconditions = NULL;
-    } else {
-        free_precondition_asserts(preconditions, precondition_count);
-        preconditions = NULL;
-    }
-
-    /* Free postconditions (they've been cloned into the AST) */
-    free_precondition_asserts(postconditions, postcondition_count);
-    postconditions = NULL;
 
     ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;
     node->as.function.params = params;
     node->as.function.param_count = param_count;
     node->as.function.return_type = return_type;
-    node->as.function.return_element_type = return_element_type;
     node->as.function.return_struct_type_name = return_struct_name;  /* May be NULL */
     node->as.function.return_fn_sig = return_fn_sig;  /* May be NULL */
     node->as.function.return_type_info = return_type_info;  /* May be NULL, for tuple returns */
@@ -3809,7 +2523,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
 }
 
 /* Parse module declaration: module my_module */
-static ASTNode *parse_module_decl(Stage1Parser *p) {
+static ASTNode *parse_module_decl(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
@@ -3830,27 +2544,18 @@ static ASTNode *parse_module_decl(Stage1Parser *p) {
     return node;
 }
 
-/* Parse module import statement:
- *   - module "path.nano"
- *   - unsafe module "path.nano"
- *   - module "path.nano" as alias
- *   - unsafe module "path.nano" as alias
- *   - from "path.nano" import sym1, sym2  (legacy, will be deprecated)
- *   - from "path.nano" import *  (legacy, will be deprecated)
- *   - pub use "path.nano" as alias  (re-export, will be deprecated)
+/* Parse import statement:
+ *   - import "path.nano"
+ *   - import "path.nano" as alias
+ *   - from "path.nano" import sym1, sym2
+ *   - from "path.nano" import *
+ *   - pub use "path.nano" as alias  (re-export)
  */
-static ASTNode *parse_import(Stage1Parser *p) {
+static ASTNode *parse_import(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
-    bool is_unsafe = false;
     bool is_from = false;
-
-    /* Check for 'unsafe' prefix */
-    if (match(p, TOKEN_UNSAFE)) {
-        is_unsafe = true;
-        advance(p);  /* consume 'unsafe' */
-    }
 
     /* Check if this is 'use' (for pub use re-exports) */
     if (match(p, TOKEN_USE)) {
@@ -3861,31 +2566,27 @@ static ASTNode *parse_import(Stage1Parser *p) {
         is_from = true;
         advance(p);  /* consume 'from' */
     }
-    /* Otherwise it must be 'module' (new syntax) or 'import' (legacy) */
-    else if (!match(p, TOKEN_MODULE) && !match(p, TOKEN_IMPORT)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected 'module', 'import', 'from', or 'use'\n", line, column);
+    /* Otherwise it must be 'import' */
+    else if (!expect(p, TOKEN_IMPORT, "Expected 'import', 'from', or 'use'")) {
         return NULL;
-    } else {
-        advance(p);  /* consume 'module' or 'import' */
     }
 
-    /* Parse module path: "module.nano" or module (identifier) */
+    /* Parse import path: "module.nano" or module (identifier) */
     char *module_path = NULL;
 
     if (match(p, TOKEN_STRING)) {
-        /* module "module.nano" */
+        /* import "module.nano" */
         module_path = strdup(current_token(p)->value);
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
-        /* module foo (treat as "modules/foo/foo.nano") */
-        const char *ident = current_token(p)->value;
-        /* For bare identifiers, look in modules/ directory */
-        char *path = malloc(strlen(ident) * 2 + 20);  /* "modules/X/X.nano\0" */
-        snprintf(path, strlen(ident) * 2 + 20, "modules/%s/%s.nano", ident, ident);
+        /* import module (treat as "module.nano") */
+        char *ident = current_token(p)->value;
+        char *path = malloc(strlen(ident) + 6);  /* +6 for ".nano\0" */
+        snprintf(path, strlen(ident) + 6, "%s.nano", ident);
         module_path = path;
         advance(p);
     } else {
-        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'module'\n", line, column);
+        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'import'\n", line, column);
         return NULL;
     }
 
@@ -3893,7 +2594,6 @@ static ASTNode *parse_import(Stage1Parser *p) {
     bool is_selective = false;
     bool is_wildcard = false;
     char **import_symbols = NULL;
-    char **import_aliases = NULL;
     int import_symbol_count = 0;
 
     if (is_from) {
@@ -3913,55 +2613,25 @@ static ASTNode *parse_import(Stage1Parser *p) {
             is_selective = true;
             int capacity = 8;
             import_symbols = malloc(sizeof(char*) * capacity);
-            import_aliases = malloc(sizeof(char*) * capacity);
             
             while (true) {
-                if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
+                if (!match(p, TOKEN_IDENTIFIER)) {
                     fprintf(stderr, "Error at line %d, column %d: Expected symbol name after 'import'\n",
                             current_token(p)->line, current_token(p)->column);
                     free(module_path);
                     for (int i = 0; i < import_symbol_count; i++) {
                         free(import_symbols[i]);
-                        if (import_aliases && import_aliases[i]) {
-                            free(import_aliases[i]);
-                        }
                     }
                     free(import_symbols);
-                    free(import_aliases);
                     return NULL;
                 }
 
                 if (import_symbol_count >= capacity) {
                     capacity *= 2;
                     import_symbols = realloc(import_symbols, sizeof(char*) * capacity);
-                    import_aliases = realloc(import_aliases, sizeof(char*) * capacity);
                 }
-                import_symbols[import_symbol_count] = strdup(current_token(p)->value);
+                import_symbols[import_symbol_count++] = strdup(current_token(p)->value);
                 advance(p);
-
-                /* Optional alias: from "module" import symbol as alias */
-                if (match(p, TOKEN_AS)) {
-                    advance(p);  /* consume "as" */
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected alias name after 'as'\n",
-                                current_token(p)->line, current_token(p)->column);
-                        free(module_path);
-                        for (int i = 0; i < import_symbol_count; i++) {
-                            free(import_symbols[i]);
-                            if (import_aliases && import_aliases[i]) {
-                                free(import_aliases[i]);
-                            }
-                        }
-                        free(import_symbols);
-                        free(import_aliases);
-                        return NULL;
-                    }
-                    import_aliases[import_symbol_count] = strdup(current_token(p)->value);
-                    advance(p);
-                } else {
-                    import_aliases[import_symbol_count] = NULL;
-                }
-                import_symbol_count++;
 
                 if (!match(p, TOKEN_COMMA)) {
                     break;
@@ -3986,17 +2656,15 @@ static ASTNode *parse_import(Stage1Parser *p) {
     ASTNode *node = create_node(AST_IMPORT, line, column);
     node->as.import_stmt.module_path = module_path;
     node->as.import_stmt.module_alias = module_alias;
-    node->as.import_stmt.is_unsafe = is_unsafe;  /* NEW: Track unsafe modules */
     node->as.import_stmt.is_selective = is_selective;
     node->as.import_stmt.is_wildcard = is_wildcard;
     node->as.import_stmt.is_pub_use = false;  /* Set by caller if 'pub use' */
     node->as.import_stmt.import_symbols = import_symbols;
-    node->as.import_stmt.import_aliases = import_aliases;
     node->as.import_stmt.import_symbol_count = import_symbol_count;
     return node;
 }
 
-static ASTNode *parse_shadow(Stage1Parser *p) {
+static ASTNode *parse_shadow(Parser *p) {
     int line = current_token(p)->line;
     int column = current_token(p)->column;
 
@@ -4030,7 +2698,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         return NULL;
     }
     
-    Stage1Parser parser;
+    Parser parser;
     parser.tokens = tokens;
     parser.count = token_count;
     parser.pos = 0;
@@ -4047,7 +2715,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         /* Safety check: if current_token returns NULL, we've hit an error */
         Token *tok = current_token(&parser);
         if (!tok) {
-            fprintf(stderr, "Error: Stage1Parser reached invalid state\n");
+            fprintf(stderr, "Error: Parser reached invalid state\n");
             break;
         }
         
@@ -4055,7 +2723,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         if (parser.pos == last_pos) {
             consecutive_failures++;
             if (consecutive_failures > 10) {
-                fprintf(stderr, "Error: Stage1Parser stuck in infinite loop at line %d, column %d. Aborting.\n",
+                fprintf(stderr, "Error: Parser stuck in infinite loop at line %d, column %d. Aborting.\n",
                         tok->line, tok->column);
                 break;
             }
@@ -4070,60 +2738,9 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         }
 
         ASTNode *parsed = NULL;
-        /* Check for unsafe prefix before module */
-        if (match(&parser, TOKEN_UNSAFE)) {
-            /* Could be 'unsafe module' import or 'unsafe module name { ... }' declaration */
-            Token *next = peek_token(&parser, 1);
-            if (next && next->token_type == TOKEN_MODULE) {
-                /* It's either 'unsafe module "path"' or 'unsafe module name { ... }' */
-                Token *after_module = peek_token(&parser, 2);
-                if (after_module && after_module->token_type == TOKEN_STRING) {
-                    /* unsafe module "path" - import */
-                    parsed = parse_import(&parser);
-                } else if (after_module && after_module->token_type == TOKEN_IDENTIFIER) {
-                    /* unsafe module name {...} - declaration (TODO: implement) */
-                    advance(&parser); /* consume unsafe */
-                    parsed = parse_module_decl(&parser);
-                } else {
-                    advance(&parser); /* consume unsafe */
-                    parsed = parse_import(&parser);
-                }
-            } else {
-                /* unsafe block - look for 'unsafe {' */
-                Token *next_tok = peek_token(&parser, 1);
-                if (next_tok && next_tok->token_type == TOKEN_LBRACE) {
-                    /* It's an unsafe block - but we can't parse it here at top level */
-                    /* This will be handled by the expression parser */
-                    fprintf(stderr, "Error: unsafe block can only appear inside functions, not at top level\n");
-                    advance(&parser); /* consume unsafe */
-                    advance(&parser); /* consume { */
-                    /* Skip to closing brace */
-                    int depth = 1;
-                    while (depth > 0 && !match(&parser, TOKEN_EOF)) {
-                        if (match(&parser, TOKEN_LBRACE)) depth++;
-                        if (match(&parser, TOKEN_RBRACE)) depth--;
-                        advance(&parser);
-                    }
-                    parsed = NULL;
-                } else {
-                    /* Unknown unsafe construct */
-                    fprintf(stderr, "Error: Expected 'module' or '{' after 'unsafe'\n");
-                    advance(&parser);
-                    parsed = NULL;
-                }
-            }
-        } else if (match(&parser, TOKEN_MODULE)) {
-            /* Could be 'module name' declaration or 'module "path"' import */
-            Token *next = peek_token(&parser, 1);
-            if (next && next->token_type == TOKEN_STRING) {
-                /* module "path" - import */
-                parsed = parse_import(&parser);
-            } else {
-                /* module name - declaration */
-                parsed = parse_module_decl(&parser);
-            }
+        if (match(&parser, TOKEN_MODULE)) {
+            parsed = parse_module_decl(&parser);
         } else if (match(&parser, TOKEN_IMPORT) || match(&parser, TOKEN_FROM)) {
-            /* Legacy import syntax - still supported for now */
             parsed = parse_import(&parser);
         } else if (match(&parser, TOKEN_PUB)) {
             /* pub keyword before function or type definition */
@@ -4137,30 +2754,9 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     parsed->as.import_stmt.is_pub_use = true;
                 }
             } else if (match(&parser, TOKEN_EXTERN)) {
-                /* pub extern declarations */
+                /* pub extern fn declarations */
                 advance(&parser);  /* Skip 'extern' token */
-                if (match(&parser, TOKEN_STRUCT)) {
-                    parsed = parse_struct_def(&parser);
-                    if (parsed && parsed->type == AST_STRUCT_DEF) {
-                        parsed->as.struct_def.is_pub = is_pub;
-                        parsed->as.struct_def.is_extern = true;
-                    }
-                } else if (match(&parser, TOKEN_ENUM)) {
-                    parsed = parse_enum_def(&parser);
-                    if (parsed && parsed->type == AST_ENUM_DEF) {
-                        parsed->as.enum_def.is_pub = is_pub;
-                        parsed->as.enum_def.is_extern = true;
-                    }
-                } else if (match(&parser, TOKEN_UNION)) {
-                    parsed = parse_union_def(&parser);
-                    if (parsed && parsed->type == AST_UNION_DEF) {
-                        parsed->as.union_def.is_pub = is_pub;
-                        parsed->as.union_def.is_extern = true;
-                    }
-                } else {
-                    /* Assume it's a pub extern fn declarations */
-                    parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
-                }
+                parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
             } else if (match(&parser, TOKEN_FN)) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
@@ -4187,21 +2783,6 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 }
                 continue;
             }
-        } else if (match(&parser, TOKEN_RESOURCE)) {
-            /* resource struct declarations */
-            advance(&parser);  /* Skip 'resource' token */
-            if (!match(&parser, TOKEN_STRUCT)) {
-                Token *err_tok = current_token(&parser);
-                if (err_tok) {
-                    fprintf(stderr, "Error at line %d, column %d: 'resource' keyword must be followed by 'struct'\n",
-                            err_tok->line, err_tok->column);
-                }
-                continue;
-            }
-            parsed = parse_struct_def(&parser);
-            if (parsed && parsed->type == AST_STRUCT_DEF) {
-                parsed->as.struct_def.is_resource = true;
-            }
         } else if (match(&parser, TOKEN_STRUCT)) {
             parsed = parse_struct_def(&parser);
         } else if (match(&parser, TOKEN_ENUM)) {
@@ -4211,46 +2792,49 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_OPAQUE)) {
             parsed = parse_opaque_type(&parser);
         } else if (match(&parser, TOKEN_EXTERN)) {
-            /* extern declarations (private by default) */
+            /* extern fn declarations (private by default) */
             advance(&parser);  /* Skip 'extern' token */
-            if (match(&parser, TOKEN_STRUCT)) {
-                parsed = parse_struct_def(&parser);
-                if (parsed && parsed->type == AST_STRUCT_DEF) {
-                    parsed->as.struct_def.is_extern = true;
-                }
-            } else if (match(&parser, TOKEN_ENUM)) {
-                parsed = parse_enum_def(&parser);
-                if (parsed && parsed->type == AST_ENUM_DEF) {
-                    parsed->as.enum_def.is_extern = true;
-                }
-            } else if (match(&parser, TOKEN_UNION)) {
-                parsed = parse_union_def(&parser);
-                if (parsed && parsed->type == AST_UNION_DEF) {
-                    parsed->as.union_def.is_extern = true;
-                }
-            } else {
-                /* Assume it's an extern fn */
-                parsed = parse_function(&parser, true, false);  /* is_extern=true, is_pub=false */
-            }
+            parsed = parse_function(&parser, true, false);  /* is_extern=true, is_pub=false */
         } else if (match(&parser, TOKEN_FN)) {
             /* Regular fn declarations (private by default) */
             parsed = parse_function(&parser, false, false);  /* is_extern=false, is_pub=false */
         } else if (match(&parser, TOKEN_SHADOW)) {
             parsed = parse_shadow(&parser);
         } else if (match(&parser, TOKEN_LET)) {
-            /* Top-level variable/constant declarations */
+            /* Top-level constants (immutable only) */
+            int line = current_token(&parser)->line;
+            int column = current_token(&parser)->column;
             advance(&parser);  /* Skip 'let' */
-
+            
+            /* Check for 'mut' - not allowed at top level */
+            if (match(&parser, TOKEN_MUT)) {
+                fprintf(stderr, "Error at line %d, column %d: Mutable variables not allowed at top level (use 'let' without 'mut' for constants)\n",
+                        line, column);
+                advance(&parser);  /* Skip 'mut' */
+                continue;
+            }
+            
             /* Go back one token so parse_statement can handle it properly */
             parser.pos--;
             parsed = parse_statement(&parser);
+            
+            /* Mark as top-level constant and enforce immutability */
+            if (parsed && parsed->type == AST_LET) {
+                if (parsed->as.let.is_mut) {
+                    fprintf(stderr, "Error at line %d, column %d: Mutable variables not allowed at top level\n",
+                            line, column);
+                    free_ast(parsed);
+                    parsed = NULL;
+                    continue;
+                }
+            }
         } else {
             Token *err_tok = current_token(&parser);
             if (err_tok) {
                 fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\n",
                         err_tok->line, err_tok->column);
             } else {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state\n");
+                fprintf(stderr, "Error: Parser reached invalid state\n");
             }
             advance(&parser);  /* Skip invalid token to avoid infinite loop */
             continue;
@@ -4355,12 +2939,8 @@ void free_ast(ASTNode *node) {
             if (node->as.import_stmt.import_symbols) {
                 for (int i = 0; i < node->as.import_stmt.import_symbol_count; i++) {
                     free(node->as.import_stmt.import_symbols[i]);
-                    if (node->as.import_stmt.import_aliases && node->as.import_stmt.import_aliases[i]) {
-                        free(node->as.import_stmt.import_aliases[i]);
-                    }
                 }
                 free(node->as.import_stmt.import_symbols);
-                free(node->as.import_stmt.import_aliases);
             }
             break;
         case AST_MODULE_DECL:

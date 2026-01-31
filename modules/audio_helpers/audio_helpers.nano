@@ -3,4 +3,4 @@
 
 # Convert raw PCM to WAV format
 # Returns 0 on success, -1 on error
-extern fn audio_convert_raw_to_wav(_raw_file: string, _wav_file: string, _sample_rate: int) -> int
+extern fn audio_convert_raw_to_wav(raw_file: string, wav_file: string, sample_rate: int) -> int

@@ -1,8 +1,0 @@
-{
-  "name": "pybridge",
-  "version": "1.0.0",
-  "description": "Python helper process bridge for NanoLang",
-  "headers": ["pybridge.h"],
-  "c_sources": ["pybridge.c"],
-  "cflags": ["-Imodules/pybridge", "-Isrc"]
-}

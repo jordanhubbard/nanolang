@@ -1,16 +1,19 @@
 # nanolang
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-74%2F74%20passing-brightgreen.svg)
+![Coverage](https://img.shields.io/badge/coverage-%3E60%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
 ![Type System](https://img.shields.io/badge/type%20system-100%25%20functional-success.svg)
-![Language](https://img.shields.io/badge/language-compiled-success.svg)
+![Parity](https://img.shields.io/badge/compiler%2Finterpreter-100%25%20parity-success.svg)
 
 **A minimal, LLM-friendly programming language with mandatory testing and unambiguous syntax.**
 
 NanoLang transpiles to C for native performance while providing a clean, modern syntax optimized for both human readability and AI code generation.
 
-> **Self-hosting:** NanoLang supports true self-hosting via a Stage 0 → Stage 1 → Stage 2 bootstrap (`make bootstrap`); see [planning/SELF_HOSTING.md](planning/SELF_HOSTING.md).
+> **Self-hosting:** the compiler is being incrementally self-hosted; see [planning/SELF_HOSTING.md](planning/SELF_HOSTING.md) for design notes and current status.
 
 ## Quick Start
 
@@ -19,235 +22,47 @@ NanoLang transpiles to C for native performance while providing a clean, modern 
 ```bash
 git clone https://github.com/jordanhubbard/nanolang.git
 cd nanolang
-make build
+make
 ```
 
-**Note for FreeBSD/BSD users:** Use `gmake` instead of `make` (requires GNU Make).
-
-This builds the compiler:
-- `bin/nanoc` - NanoLang compiler (transpiles to C)
+This builds two tools:
+- `bin/nano` - Interactive interpreter
+- `bin/nanoc` - Compiler (transpiles to C)
 
 ### Hello World
 
 Create `hello.nano`:
 
 ```nano
-fn greet(name: string) -> string {
-    return (+ "Hello, " name)
+fn greet(name: string) -> void {
+    (println (str_concat "Hello, " name))
 }
 
 shadow greet {
-    assert (str_equals (greet "World") "Hello, World")
+    greet "World"
+    greet "NanoLang"
 }
 
 fn main() -> int {
-    (println (greet "World"))
+    greet "World"
     return 0
 }
 
 shadow main {
-    assert true
+    assert (== (main) 0)
 }
 ```
 
 Run it:
 
 ```bash
-# Compile to native binary
+# Option 1: Interpret (instant execution)
+./bin/nano hello.nano
+
+# Option 2: Compile to native binary
 ./bin/nanoc hello.nano -o hello
 ./hello
 ```
-
-## Interactive Development 🎮
-
-NanoLang includes **two interactive development tools** for learning and experimentation:
-
-### 1. Web Playground (Recommended for Beginners)
-
-Browser-based playground inspired by Swift Playgrounds:
-
-```bash
-# Build and start the playground server
-./bin/nanoc examples/playground/playground_server.nano -o bin/playground
-./bin/playground
-
-# Open in your browser
-open http://localhost:8080
-```
-
-**Features:**
-- 📝 Interactive code editor
-- 📚 10+ example programs
-- ⚡ Real-time syntax validation
-- 📋 Copy/download functionality
-- 🎨 Beautiful modern UI
-
-See **[examples/playground/README.md](examples/playground/README.md)** for full documentation.
-
-### 2. Terminal REPL
-
-Full-featured command-line REPL:
-
-```bash
-# Build the REPL
-./bin/nanoc examples/language/full_repl.nano -o bin/repl
-
-# Launch it
-./bin/repl
-```
-
-### Features
-
-- ✅ **Persistent variables** - Define variables that persist across evaluations
-- ✅ **Function definitions** - Define functions with support for recursion
-- ✅ **Module imports** - Import and use modules interactively
-- ✅ **Multi-line input** - Smart continuation prompts for complex code
-- ✅ **Multi-type support** - Evaluate int, float, string, and bool expressions
-- ✅ **Session management** - Commands to inspect and manage your session
-
-### Example Session
-
-```nano
-$ ./bin/repl
-
-NanoLang Full-Featured REPL
-============================
-Variables: let x: int = 42
-Functions: fn double(x: int) -> int { return (* x 2) }
-Imports: from "std/math" import sqrt
-Types: :int, :float, :string, :bool
-Commands: :vars, :funcs, :imports, :clear, :quit
-
-nano> let x: int = 42
-Defined: x
-
-nano> let y: float = 3.14159
-Defined: y
-
-nano> (+ x 10)
-=> 52
-
-nano> :float (* y 2.0)
-=> 6.28318
-
-nano> fn factorial(n: int) -> int {
-....>     if (<= n 1) {
-....>         return 1
-....>     } else {
-....>         return (* n (factorial (- n 1)))
-....>     }
-....> }
-Defined: factorial(n: int) -> int
-
-nano> (factorial 5)
-=> 120
-
-nano> :vars
-Defined variables: x, y
-
-nano> :funcs
-Defined functions: factorial(n: int) -> int
-
-nano> :quit
-Goodbye!
-```
-
-### REPL Commands
-
-| Command | Description |
-|---------|-------------|
-| `:vars` | List all defined variables |
-| `:funcs` | List all defined functions |
-| `:imports` | List all imported modules |
-| `:clear` | Clear entire session (variables, functions, imports) |
-| `:quit` | Exit REPL (or press Ctrl-D) |
-
-### Type-Specific Evaluation
-
-By default, expressions are evaluated as integers. Use type prefixes for other types:
-
-```nano
-nano> (+ 1 2)           # Default: int
-=> 3
-
-nano> :float (* 3.14 2.0)
-=> 6.28
-
-nano> :string (+ "Hello, " "World")
-=> Hello, World
-
-nano> :bool (> 5 3)
-=> true
-```
-
-### Multi-Line Input
-
-The REPL automatically detects incomplete input and shows a continuation prompt:
-
-```nano
-nano> fn double(x: int) -> int {
-....>     return (* x 2)
-....> }
-Defined: double(x: int) -> int
-
-nano> if (> x 10) {
-....>     (println "big")
-....> } else {
-....>     (println "small")
-....> }
-=> ...
-```
-
-### Use Cases
-
-- **Learning NanoLang** - Try syntax and features interactively
-- **Quick calculations** - Use as a calculator with variables
-- **Prototyping** - Test ideas before writing full programs
-- **Debugging** - Experiment with expressions and functions
-- **Teaching** - Demonstrate language features live
-
-See `examples/language/` for REPL source code and implementation details.
-
-## Platform Support
-
-### Tier 1: Fully Supported ✅
-NanoLang is actively tested and supported on:
-
-- **Ubuntu 22.04+** (x86_64)
-- **Ubuntu 24.04** (ARM64) - Raspberry Pi, AWS Graviton, etc.
-- **macOS 14+** (ARM64/Apple Silicon)
-- **FreeBSD**
-
-### Tier 2: Windows via WSL 🪟
-**Windows 10/11 users:** NanoLang runs perfectly on Windows via WSL2 (Windows Subsystem for Linux).
-
-#### Install WSL2:
-```powershell
-# In PowerShell (as Administrator)
-wsl --install -d Ubuntu
-```
-
-After installation, restart your computer, then:
-
-```bash
-# Inside WSL Ubuntu terminal
-git clone https://github.com/jordanhubbard/nanolang.git
-cd nanolang
-make
-./bin/nanoc examples/language/nl_hello.nano -o hello
-./hello
-```
-
-**Why WSL?** NanoLang's dependencies (SDL2, ncurses, pkg-config) are Unix/POSIX libraries. WSL2 provides a full Linux environment with near-native performance on Windows.
-
-**Note:** Native Windows binaries (`.exe`) are not currently supported, but may be added in a future release via cross-compilation.
-
-### Tier 3: Experimental 🧪
-These platforms should work but are not actively tested in CI:
-
-- macOS Intel (via Rosetta 2 on Apple Silicon, or native on older Macs)
-- Other Linux distributions (Arch, Fedora, Debian, etc.)
-- OpenBSD (requires manual dependency installation)
 
 ## Key Features
 
@@ -255,7 +70,7 @@ These platforms should work but are not actively tested in CI:
 - **Mandatory Testing** - Every function requires a `shadow` test block
 - **Static Typing** - Catch errors at compile time
 - **Generic Types** - Generic unions like `Result<T, E>` for error handling
-- **Compiled Language** - Transpiles to C for native performance
+- **100% Parity** - Compiler and interpreter support identical features
 - **Immutable by Default** - Use `let mut` for mutability
 - **C Interop** - Easy FFI via modules with automatic package management
 - **Module System** - Automatic dependency installation via `module.json`
@@ -265,7 +80,6 @@ These platforms should work but are not actively tested in CI:
 
 ### Learning Path
 
-0. **[User Guide (HTML)](https://jordanhubbard.github.io/nanolang/)** - Progressive tutorial + executable snippets
 1. **[Getting Started](docs/GETTING_STARTED.md)** - 15-minute tutorial
 2. **[Quick Reference](docs/QUICK_REFERENCE.md)** - Syntax cheat sheet  
 3. **[Language Specification](docs/SPECIFICATION.md)** - Complete reference
@@ -274,11 +88,9 @@ These platforms should work but are not actively tested in CI:
 ### Key Topics
 
 - **[Standard Library](docs/STDLIB.md)** - Built-in functions
-- **[Type Inference](docs/TYPE_INFERENCE.md)** - What can/cannot be inferred
 - **[Module System](docs/MODULE_SYSTEM.md)** - Creating and using modules
 - **[FFI Guide](docs/EXTERN_FFI.md)** - Calling C functions
 - **[Shadow Tests](docs/SHADOW_TESTS.md)** - Testing philosophy
-- **[Code Coverage](docs/COVERAGE.md)** - Coverage reporting
 - **[All Documentation](docs/DOCS_INDEX.md)** - Complete index
 
 ## Language Overview
@@ -390,19 +202,19 @@ fn main() -> int {
 
 ### Core Examples
 
-- **[hello.nano](examples/language/nl_hello.nano)** - Basic structure
-- **[calculator.nano](examples/language/nl_calculator.nano)** - Arithmetic operations
-- **[factorial.nano](examples/language/nl_factorial.nano)** - Recursion
-- **[fibonacci.nano](examples/language/nl_fibonacci.nano)** - Multiple algorithms
-- **[primes.nano](examples/language/nl_primes.nano)** - Prime number sieve
+- **[hello.nano](examples/nl_hello.nano)** - Basic structure
+- **[calculator.nano](examples/nl_calculator.nano)** - Arithmetic operations
+- **[factorial.nano](examples/nl_factorial.nano)** - Recursion
+- **[fibonacci.nano](examples/nl_fibonacci.nano)** - Multiple algorithms
+- **[primes.nano](examples/nl_primes.nano)** - Prime number sieve
 
 ### Game Examples
 
-- **[snake_ncurses.nano](examples/terminal/ncurses_snake.nano)** - Classic snake with NCurses UI
-- **[game_of_life_ncurses.nano](examples/terminal/ncurses_game_of_life.nano)** - Conway's Game of Life
-- **[asteroids_complete.nano](examples/games/sdl_asteroids.nano)** - Full Asteroids game (SDL)
-- **[checkers.nano](examples/games/sdl_checkers.nano)** - Checkers with AI (SDL)
-- **[boids_sdl.nano](examples/graphics/sdl_boids.nano)** - Flocking simulation (SDL)
+- **[snake_ncurses.nano](examples/ncurses_snake.nano)** - Classic snake with NCurses UI
+- **[game_of_life_ncurses.nano](examples/ncurses_game_of_life.nano)** - Conway's Game of Life
+- **[asteroids_complete.nano](examples/sdl_asteroids.nano)** - Full Asteroids game (SDL)
+- **[checkers.nano](examples/sdl_checkers.nano)** - Checkers with AI (SDL)
+- **[boids_sdl.nano](examples/sdl_boids.nano)** - Flocking simulation (SDL)
 
 See **[examples/README.md](examples/README.md)** for the complete list.
 
@@ -417,51 +229,29 @@ NanoLang includes several modules with **automatic dependency management**:
 - **sdl_ttf** - Font rendering (`brew install sdl2_ttf`)
 - **glfw** - OpenGL window management (`brew install glfw`)
 
+### AI/ML
+- **onnx** - Neural network inference (`brew install onnxruntime`)
+
 Modules automatically install dependencies via package managers (Homebrew, apt, etc.) when first used. See **[docs/MODULE_SYSTEM.md](docs/MODULE_SYSTEM.md)** for details.
 
 ## Building & Testing
 
 ```bash
-# Build (3-stage component bootstrap)
-make build
+# Build compiler and interpreter
+make
 
-# Run full test suite
+# Run test suite
 make test
-
-# Quick test (language tests only)
-make test-quick
 
 # Build all examples
 make examples
 
-# Launch the examples browser
-make examples-launcher
-
-# Generate code coverage report (requires: brew install lcov)
-make coverage-report
-
-# Validate user guide snippets (extract → compile → run)
-make userguide-check
-
-# Build static HTML for the user guide
-make userguide-html
-# Options:
-#   CMD_TIMEOUT=600              # per-command timeout (seconds)
-#   USERGUIDE_TIMEOUT=600        # build timeout (seconds)
-#   USERGUIDE_BUILD_API_DOCS=1   # regenerate API reference
-#   NANO_USERGUIDE_HIGHLIGHT=0   # disable highlighting (CI default)
-
-# Serve the user guide locally (dev)
-make -C userguide serve
-
 # Clean build
 make clean
 
-# Install to /usr/local/bin (override with PREFIX=...)
+# Install to /usr/local/bin
 sudo make install
 ```
-
-On BSD systems (FreeBSD/OpenBSD/NetBSD), use GNU make: `gmake build`, `gmake test`, etc.
 
 ## Teaching LLMs NanoLang
 
@@ -500,11 +290,11 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines.
 ### Completed Features
 
 - ✅ Complete language implementation (lexer, parser, typechecker, transpiler)
-- ✅ Compiled language (transpiles to C for native performance)
+- ✅ Dual execution (interpreter + compiler)
 - ✅ Static typing with inference
 - ✅ Structs, enums, unions, generics
 - ✅ Module system with auto-dependency management
-- ✅ 72 standard library functions (see spec.json)
+- ✅ 49+ standard library functions
 - ✅ 90+ working examples
 - ✅ Shadow-test framework
 - ✅ FFI support for C libraries
