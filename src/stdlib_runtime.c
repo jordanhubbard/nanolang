@@ -1651,8 +1651,9 @@ void generate_profiling_system(StringBuilder *sb) {
     sb_append(sb, "    (void)real_main; /* Not used directly - we exec through gprofng */\n");
     sb_append(sb, "    \n");
     sb_append(sb, "    /* Check if we're already being profiled (avoid recursion) */\n");
-    sb_append(sb, "    if (getenv(\"_NL_PROFILING_CHILD\")) {\n");
-    sb_append(sb, "        /* We're the child - just run normally */\n");
+    sb_append(sb, "    const char* ld_preload = getenv(\"LD_PRELOAD\");\n");
+    sb_append(sb, "    if (getenv(\"_NL_PROFILING_CHILD\") || (ld_preload && strstr(ld_preload, \"libgp-collector\"))) {\n");
+    sb_append(sb, "        /* We're already being profiled - just run normally */\n");
     sb_append(sb, "        return (int)real_main();\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    \n");
