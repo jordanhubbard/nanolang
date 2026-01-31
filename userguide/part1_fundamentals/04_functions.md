@@ -393,7 +393,179 @@ shadow format_name {
 }
 ```
 
-## 4.4 Recursion by Example
+## 4.4 Contracts: requires and ensures
+
+NanoLang supports **design by contract** through `requires` (preconditions) and `ensures` (postconditions). These clauses specify what must be true when a function is called and what the function guarantees when it returns.
+
+### Preconditions with requires
+
+Use `requires` to specify what must be true when the function is called:
+
+<!--nl-snippet {"name":"ug_fn_requires_basic","check":true}-->
+```nano
+fn safe_divide(a: int, b: int) -> int
+requires (> b 0)
+{
+    return (/ a b)
+}
+
+shadow safe_divide {
+    assert (== (safe_divide 10 2) 5)
+    assert (== (safe_divide 100 5) 20)
+}
+
+fn main() -> int {
+    (println (int_to_string (safe_divide 10 2)))
+    return 0
+}
+
+shadow main { assert true }
+```
+
+**If the caller violates the precondition, the program exits with an error:**
+
+```
+Contract violation at line 3: (> b 0)
+```
+
+### Postconditions with ensures
+
+Use `ensures` to specify what the function guarantees about its return value:
+
+<!--nl-snippet {"name":"ug_fn_ensures_basic","check":true}-->
+```nano
+fn abs_value(x: int) -> int
+ensures (>= result 0)
+{
+    return (cond
+        ((< x 0) (- 0 x))
+        (else x)
+    )
+}
+
+shadow abs_value {
+    assert (== (abs_value 5) 5)
+    assert (== (abs_value -5) 5)
+    assert (== (abs_value 0) 0)
+}
+
+fn main() -> int {
+    (println (int_to_string (abs_value -42)))
+    return 0
+}
+
+shadow main { assert true }
+```
+
+The special `result` keyword refers to the function's return value in `ensures` clauses.
+
+### Combining requires and ensures
+
+Functions can have multiple `requires` and `ensures` clauses:
+
+<!--nl-snippet {"name":"ug_fn_contracts_combined","check":true}-->
+```nano
+fn bounded_increment(x: int, max: int) -> int
+requires (>= x 0)
+requires (> max x)
+ensures (> result x)
+ensures (<= result max)
+{
+    return (cond
+        ((< (+ x 1) max) (+ x 1))
+        (else max)
+    )
+}
+
+shadow bounded_increment {
+    assert (== (bounded_increment 5 10) 6)
+    assert (== (bounded_increment 9 10) 10)
+}
+
+fn main() -> int {
+    (println (int_to_string (bounded_increment 5 100)))
+    return 0
+}
+
+shadow main { assert true }
+```
+
+### Static Analysis
+
+The compiler performs static analysis on contracts:
+
+**Always-true conditions are elided:**
+```nano
+fn example() -> int
+requires (> 5 0)   # Compiler comment: always true, elided
+{
+    return 42
+}
+```
+
+**Always-false conditions generate warnings:**
+```nano
+fn broken() -> int
+requires (< 0 0)   # Warning: contract condition is always false
+{
+    return 42
+}
+```
+
+### Best Practices
+
+**1. Use requires for input validation**
+```nano
+fn process_age(age: int) -> string
+requires (>= age 0)
+requires (<= age 150)
+{
+    # age is guaranteed to be in valid range
+    ...
+}
+```
+
+**2. Use ensures to document function behavior**
+```nano
+fn string_length_safe(s: string) -> int
+ensures (>= result 0)
+{
+    return (str_length s)
+}
+```
+
+**3. Contracts complement shadow tests**
+- Shadow tests verify specific examples
+- Contracts express invariants that hold for all inputs
+
+```nano
+fn factorial(n: int) -> int
+requires (>= n 0)
+ensures (>= result 1)
+{
+    if (<= n 1) { return 1 }
+    return (* n (factorial (- n 1)))
+}
+
+shadow factorial {
+    # Shadow tests verify specific values
+    assert (== (factorial 0) 1)
+    assert (== (factorial 5) 120)
+    # But contracts ensure n >= 0 and result >= 1 for ALL calls
+}
+```
+
+### Contract Violations at Runtime
+
+When a contract is violated at runtime, the program prints a helpful error message showing the condition that failed:
+
+```
+Contract violation at line 5: (>= result 0)
+```
+
+This makes it easy to identify which contract was broken and where.
+
+## 4.5 Recursion by Example
 
 Recursion is when a function calls itself. It's a powerful technique for solving problems that have recursive structure.
 

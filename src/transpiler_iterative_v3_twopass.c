@@ -415,6 +415,171 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 }
 
 /* ============================================================================
+ * HELPER: Serialize expression AST to human-readable string (for error messages)
+ * Uses static buffer - NOT thread-safe, but sufficient for single-threaded compiler
+ * ============================================================================ */
+
+static char g_expr_buf[1024];
+static int g_expr_pos;
+
+static void expr_buf_reset(void) { g_expr_pos = 0; g_expr_buf[0] = '\0'; }
+static void expr_buf_append(const char *s) {
+    int len = strlen(s);
+    if (g_expr_pos + len < (int)sizeof(g_expr_buf) - 1) {
+        strcpy(g_expr_buf + g_expr_pos, s);
+        g_expr_pos += len;
+    }
+}
+static void expr_buf_appendf(const char *fmt, ...) {
+    char tmp[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(tmp, sizeof(tmp), fmt, args);
+    va_end(args);
+    expr_buf_append(tmp);
+}
+
+static void expr_to_string_impl(ASTNode *expr) {
+    if (!expr) return;
+    
+    switch (expr->type) {
+        case AST_NUMBER:
+            expr_buf_appendf("%lld", expr->as.number);
+            break;
+        case AST_FLOAT:
+            expr_buf_appendf("%g", expr->as.float_val);
+            break;
+        case AST_STRING:
+            expr_buf_appendf("\\\"%s\\\"", expr->as.string_val ? expr->as.string_val : "");
+            break;
+        case AST_BOOL:
+            expr_buf_append(expr->as.bool_val ? "true" : "false");
+            break;
+        case AST_IDENTIFIER:
+            expr_buf_append(expr->as.identifier ? expr->as.identifier : "?");
+            break;
+        case AST_PREFIX_OP: {
+            expr_buf_append("(");
+            /* Map token type to operator string */
+            const char *op = "?";
+            switch (expr->as.prefix_op.op) {
+                case TOKEN_PLUS: op = "+"; break;
+                case TOKEN_MINUS: op = "-"; break;
+                case TOKEN_STAR: op = "*"; break;
+                case TOKEN_SLASH: op = "/"; break;
+                case TOKEN_PERCENT: op = "%"; break;
+                case TOKEN_EQ: op = "=="; break;
+                case TOKEN_NE: op = "!="; break;
+                case TOKEN_LT: op = "<"; break;
+                case TOKEN_LE: op = "<="; break;
+                case TOKEN_GT: op = ">"; break;
+                case TOKEN_GE: op = ">="; break;
+                case TOKEN_AND: op = "and"; break;
+                case TOKEN_OR: op = "or"; break;
+                case TOKEN_NOT: op = "not"; break;
+                default: break;
+            }
+            expr_buf_append(op);
+            for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
+                expr_buf_append(" ");
+                expr_to_string_impl(expr->as.prefix_op.args[i]);
+            }
+            expr_buf_append(")");
+            break;
+        }
+        case AST_CALL:
+            expr_buf_append("(");
+            expr_buf_append(expr->as.call.name ? expr->as.call.name : "?");
+            for (int i = 0; i < expr->as.call.arg_count; i++) {
+                expr_buf_append(" ");
+                expr_to_string_impl(expr->as.call.args[i]);
+            }
+            expr_buf_append(")");
+            break;
+        default:
+            expr_buf_append("...");
+            break;
+    }
+}
+
+/* Returns pointer to static buffer - do not free */
+static const char *expr_to_string(ASTNode *expr) {
+    expr_buf_reset();
+    expr_to_string_impl(expr);
+    return g_expr_buf;
+}
+
+/* ============================================================================
+ * HELPER: Try to evaluate condition at compile time (for contract elision)
+ * Returns: 1 = always true, 0 = always false, -1 = cannot determine
+ * ============================================================================ */
+
+static int try_eval_bool_const(ASTNode *expr) {
+    if (!expr) return -1;
+    
+    switch (expr->type) {
+        case AST_BOOL:
+            return expr->as.bool_val ? 1 : 0;
+            
+        case AST_NUMBER:
+            /* Numbers are truthy if non-zero */
+            return expr->as.number != 0 ? 1 : 0;
+            
+        case AST_PREFIX_OP: {
+            /* Handle simple comparison operators with constant operands */
+            if (expr->as.prefix_op.arg_count == 2) {
+                ASTNode *left = expr->as.prefix_op.args[0];
+                ASTNode *right = expr->as.prefix_op.args[1];
+                
+                /* Both must be constant numbers */
+                if (left->type != AST_NUMBER || right->type != AST_NUMBER)
+                    return -1;
+                    
+                long long l = left->as.number;
+                long long r = right->as.number;
+                
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_EQ: return (l == r) ? 1 : 0;
+                    case TOKEN_NE: return (l != r) ? 1 : 0;
+                    case TOKEN_LT: return (l < r) ? 1 : 0;
+                    case TOKEN_LE: return (l <= r) ? 1 : 0;
+                    case TOKEN_GT: return (l > r) ? 1 : 0;
+                    case TOKEN_GE: return (l >= r) ? 1 : 0;
+                    default: break;
+                }
+            }
+            
+            /* Handle 'not' with constant operand */
+            if (expr->as.prefix_op.op == TOKEN_NOT && expr->as.prefix_op.arg_count == 1) {
+                int inner = try_eval_bool_const(expr->as.prefix_op.args[0]);
+                if (inner >= 0) return inner ? 0 : 1;
+            }
+            
+            /* Handle 'and' / 'or' with constant operands */
+            if (expr->as.prefix_op.arg_count == 2) {
+                int left_val = try_eval_bool_const(expr->as.prefix_op.args[0]);
+                int right_val = try_eval_bool_const(expr->as.prefix_op.args[1]);
+                
+                if (expr->as.prefix_op.op == TOKEN_AND) {
+                    if (left_val == 0 || right_val == 0) return 0;  /* false and x = false */
+                    if (left_val == 1 && right_val == 1) return 1;  /* true and true = true */
+                }
+                if (expr->as.prefix_op.op == TOKEN_OR) {
+                    if (left_val == 1 || right_val == 1) return 1;  /* true or x = true */
+                    if (left_val == 0 && right_val == 0) return 0;  /* false or false = false */
+                }
+            }
+            break;
+        }
+        
+        default:
+            break;
+    }
+    
+    return -1;  /* Cannot determine */
+}
+
+/* ============================================================================
  * PASS 1: BUILD WORK ITEMS (Expression Transpiler)
  * Traverses AST and appends work items in correct output order
  * ============================================================================ */
@@ -2834,12 +2999,38 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
         }
             
         case AST_ASSERT: {
-            /* Generate runtime assertion check */
+            /* Try to evaluate condition at compile time */
+            int const_result = try_eval_bool_const(stmt->as.assert.condition);
+            
+            if (const_result == 1) {
+                /* Condition is provably true - elide the check (emit comment) */
+                emit_indent_item(list, indent);
+                emit_formatted(list, "/* contract at line %d: always true, elided */\n", stmt->line);
+                break;
+            }
+            
+            if (const_result == 0) {
+                /* Condition is provably false - emit warning and unconditional failure */
+                fprintf(stderr, "Warning at line %d: contract condition is always false\n", stmt->line);
+                emit_indent_item(list, indent);
+                const char *cond_str = expr_to_string(stmt->as.assert.condition);
+                emit_formatted(list, "{ fprintf(stderr, \"Contract violation at line %d: %s (always false)\\n\"); exit(1); }\n",
+                              stmt->line, cond_str);
+                break;
+            }
+            
+            /* Generate runtime assertion check with informative error message */
             emit_indent_item(list, indent);
             emit_formatted(list, "if (!(");
             build_expr(list, stmt->as.assert.condition, env);
-            emit_formatted(list, ")) { fprintf(stderr, \"Assertion failed at line %d\\n\"); exit(1); }\n",
-                          stmt->line);
+            emit_literal(list, ")) { ");
+            
+            /* Generate descriptive error message showing the condition */
+            const char *cond_str = expr_to_string(stmt->as.assert.condition);
+            emit_formatted(list, "fprintf(stderr, \"Contract violation at line %d: %s\\n\"); ",
+                          stmt->line, cond_str);
+            
+            emit_literal(list, "exit(1); }\n");
             break;
         }
             
