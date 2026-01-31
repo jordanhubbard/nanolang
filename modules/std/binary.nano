@@ -101,8 +101,9 @@ fn read_i64_payload(buf: array<u8>, pos: int) -> Result<ReadInt, string> {
 
     match vr {
         Ok(v) => {
-            let n: int = v.value.value
-            let p: int = v.value.pos
+            let payload: ReadVarint = v.value
+            let n: int = payload.value
+            let p: int = payload.pos
             if (== sign 0) {
                 return Result.Ok { value: ReadInt { value: n, pos: p } }
             }
@@ -129,7 +130,10 @@ pub fn decode_int(buf: array<u8>) -> Result<int, string> {
 
     let r: Result<ReadInt, string> = (read_i64_payload buf 1)
     match r {
-        Ok(v) => { return Result.Ok { value: v.value.value } }
+        Ok(v) => {
+            let payload: ReadInt = v.value
+            return Result.Ok { value: payload.value }
+        }
         Err(e) => { return Result.Err { error: e.error } }
     }
 }
@@ -188,8 +192,9 @@ pub fn decode_string(buf: array<u8>) -> Result<string, string> {
     let vr: Result<ReadVarint, string> = (read_varint buf 1)
     match vr {
         Ok(v) => {
-            let n: int = v.value.value
-            let p: int = v.value.pos
+            let payload: ReadVarint = v.value
+            let n: int = payload.value
+            let p: int = payload.pos
             if (< (- (array_length buf) p) n) {
                 return Result.Err { error: "eof" }
             }
@@ -226,16 +231,18 @@ pub fn decode_int_array(buf: array<u8>) -> Result<array<int>, string> {
     let vr: Result<ReadVarint, string> = (read_varint buf 1)
     match vr {
         Ok(v) => {
-            let count: int = v.value.value
-            let mut pos: int = v.value.pos
+            let vpayload: ReadVarint = v.value
+            let count: int = vpayload.value
+            let mut pos: int = vpayload.pos
             let mut out: array<int> = []
             let mut i: int = 0
             while (< i count) {
                 let ir: Result<ReadInt, string> = (read_i64_payload buf pos)
                 match ir {
                     Ok(r) => {
-                        set out (array_push out r.value.value)
-                        set pos r.value.pos
+                        let rpayload: ReadInt = r.value
+                        set out (array_push out rpayload.value)
+                        set pos rpayload.pos
                     }
                     Err(e) => { return Result.Err { error: e.error } }
                 }
