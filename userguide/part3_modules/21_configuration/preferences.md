@@ -10,4 +10,4 @@
 
 ---
 
-**Next:** [Chapter 22: Canonical Style Guide](../../part4_advanced/22_canonical_style.md)
+**Next:** [Chapter 22: Canonical Style Guide](../../part4_advanced/22_canonical_style.html)

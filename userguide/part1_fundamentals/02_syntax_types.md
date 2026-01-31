@@ -627,5 +627,5 @@ shadow concat_three {
 
 ---
 
-**Previous:** [Chapter 1: Getting Started](01_getting_started.md)  
-**Next:** [Chapter 3: Variables & Bindings](03_variables.md)
+**Previous:** [Chapter 1: Getting Started](01_getting_started.html)  
+**Next:** [Chapter 3: Variables & Bindings](03_variables.html)

@@ -797,5 +797,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 9: Core Utilities](09_core_utilities.md)  
-**Next:** [Chapter 11: I/O & Filesystem](11_io_filesystem.md)
+**Previous:** [Chapter 9: Core Utilities](09_core_utilities.html)  
+**Next:** [Chapter 11: I/O & Filesystem](11_io_filesystem.html)

@@ -37,5 +37,5 @@ None expected for 1.1
 
 ---
 
-**Previous:** [Appendix B: Error Reference](b_error_reference.md)  
-**Next:** [Appendix D: Glossary](d_glossary.md)
+**Previous:** [Appendix B: Error Reference](b_error_reference.html)  
+**Next:** [Appendix D: Glossary](d_glossary.html)

@@ -91,5 +91,5 @@ SDL provides:
 
 ---
 
-**Previous:** [Chapter 15: Web & Networking](../15_web_networking/index.md)  
-**Next:** [Chapter 17: OpenGL Graphics](../17_opengl_graphics/index.md)
+**Previous:** [Chapter 15: Web & Networking](../15_web_networking/index.html)  
+**Next:** [Chapter 17: OpenGL Graphics](../17_opengl_graphics/index.html)

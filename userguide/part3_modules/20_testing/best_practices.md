@@ -12,5 +12,5 @@
 
 ---
 
-**Previous:** [20.2 coverage - Code Coverage](coverage.md)  
-**Next:** [Chapter 21: Configuration](../21_configuration/index.md)
+**Previous:** [20.2 coverage - Code Coverage](coverage.html)  
+**Next:** [Chapter 21: Configuration](../21_configuration/index.html)

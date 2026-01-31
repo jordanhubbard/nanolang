@@ -545,5 +545,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 12: System & Runtime](../../part2_stdlib/12_system_runtime.md)  
-**Next:** [Chapter 14: Data Formats](../14_data_formats/index.md)
+**Previous:** [Chapter 12: System & Runtime](../../part2_stdlib/12_system_runtime.html)  
+**Next:** [Chapter 14: Data Formats](../14_data_formats/index.html)

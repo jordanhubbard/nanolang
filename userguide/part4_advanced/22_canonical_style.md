@@ -146,5 +146,5 @@ shadow calculate_sum {
 
 ---
 
-**Previous:** [Chapter 21: Configuration](../part3_modules/21_configuration/index.md)  
-**Next:** [Chapter 23: LLM Code Generation](23_llm_generation.md)
+**Previous:** [Chapter 21: Configuration](../part3_modules/21_configuration/index.html)  
+**Next:** [Chapter 23: LLM Code Generation](23_llm_generation.html)

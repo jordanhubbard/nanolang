@@ -583,5 +583,5 @@ shadow main { assert true }
 
 ---
 
-**Previous:** [Chapter 7: Data Structures](07_data_structures.md)  
-**Next:** [Chapter 9: Core Utilities](../part2_stdlib/09_core_utilities.md)
+**Previous:** [Chapter 7: Data Structures](07_data_structures.html)  
+**Next:** [Chapter 9: Core Utilities](../part2_stdlib/09_core_utilities.html)

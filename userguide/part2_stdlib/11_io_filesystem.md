@@ -661,5 +661,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 10: Collections Library](10_collections_library.md)  
-**Next:** [Chapter 12: System & Runtime](12_system_runtime.md)
+**Previous:** [Chapter 10: Collections Library](10_collections_library.html)  
+**Next:** [Chapter 12: System & Runtime](12_system_runtime.html)

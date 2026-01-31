@@ -38,5 +38,5 @@
 
 ---
 
-**Previous:** [13.1 regex - Regular Expressions](regex.md)  
-**Next:** [13.3 StringBuilder - Advanced Techniques](stringbuilder.md)
+**Previous:** [13.1 regex - Regular Expressions](regex.html)  
+**Next:** [13.3 StringBuilder - Advanced Techniques](stringbuilder.html)

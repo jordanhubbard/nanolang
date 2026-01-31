@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [17.1 OpenGL - Modern Graphics Pipeline](opengl.md)  
-**Next:** [17.3 GLEW - Extension Wrangler](glew.md)
+**Previous:** [17.1 OpenGL - Modern Graphics Pipeline](opengl.html)  
+**Next:** [17.3 GLEW - Extension Wrangler](glew.html)

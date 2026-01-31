@@ -671,5 +671,5 @@ shadow evaluate {
 
 ---
 
-**Previous:** [Chapter 6: Collections](06_collections.md)  
-**Next:** [Chapter 8: Modules & Imports](08_modules.md)
+**Previous:** [Chapter 6: Collections](06_collections.html)  
+**Next:** [Chapter 8: Modules & Imports](08_modules.html)

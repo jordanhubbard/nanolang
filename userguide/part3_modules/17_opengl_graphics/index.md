@@ -64,5 +64,5 @@ OpenGL provides:
 
 ---
 
-**Previous:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.md)  
-**Next:** [Chapter 18: Game Development](../18_game_development/index.md)
+**Previous:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.html)  
+**Next:** [Chapter 18: Game Development](../18_game_development/index.html)

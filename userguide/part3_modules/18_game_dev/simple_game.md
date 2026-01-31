@@ -16,5 +16,5 @@
 
 ---
 
-**Previous:** [18.3 bullet - Physics Engine](bullet.md)  
-**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.md)
+**Previous:** [18.3 bullet - Physics Engine](bullet.html)  
+**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.html)

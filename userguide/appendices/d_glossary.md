@@ -62,4 +62,4 @@
 
 ---
 
-**Previous:** [Appendix C: Migration Guide](c_migration_guide.md)
+**Previous:** [Appendix C: Migration Guide](c_migration_guide.html)

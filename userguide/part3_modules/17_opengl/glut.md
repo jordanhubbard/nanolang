@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [17.3 GLEW - Extension Wrangler](glew.md)  
-**Next:** [Chapter 18: Game Development](../18_game_dev/index.md)
+**Previous:** [17.3 GLEW - Extension Wrangler](glew.html)  
+**Next:** [Chapter 18: Game Development](../18_game_dev/index.html)

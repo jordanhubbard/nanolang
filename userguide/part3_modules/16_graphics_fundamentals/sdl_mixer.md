@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [16.2 SDL_image - Image Loading](sdl_image.md)  
-**Next:** [16.4 SDL_ttf - TrueType Fonts](sdl_ttf.md)
+**Previous:** [16.2 SDL_image - Image Loading](sdl_image.html)  
+**Next:** [16.4 SDL_ttf - TrueType Fonts](sdl_ttf.html)

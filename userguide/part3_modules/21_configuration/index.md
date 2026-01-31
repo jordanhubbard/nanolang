@@ -62,5 +62,5 @@ Configuration provides:
 
 ---
 
-**Previous:** [Chapter 20: Testing & Quality](../20_testing_quality/index.md)  
-**Next:** [Chapter 22: Canonical Style](../../part4_advanced/22_canonical_style.md)
+**Previous:** [Chapter 20: Testing & Quality](../20_testing_quality/index.html)  
+**Next:** [Chapter 22: Canonical Style](../../part4_advanced/22_canonical_style.html)

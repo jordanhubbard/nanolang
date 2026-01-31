@@ -306,5 +306,5 @@ let f: fn(int) -> int = double
 
 ---
 
-**Previous:** [Appendix A: Examples Gallery](a_examples_gallery.md)  
-**Next:** [Appendix C: Troubleshooting Guide](c_troubleshooting.md)
+**Previous:** [Appendix A: Examples Gallery](a_examples_gallery.html)  
+**Next:** [Appendix C: Troubleshooting Guide](c_troubleshooting.html)

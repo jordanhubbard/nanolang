@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [15.1 curl - HTTP Client](curl.md)  
-**Next:** [15.3 uv - Async I/O](uv.md)
+**Previous:** [15.1 curl - HTTP Client](curl.html)  
+**Next:** [15.3 uv - Async I/O](uv.html)

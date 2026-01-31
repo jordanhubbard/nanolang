@@ -71,5 +71,5 @@ Testing tools:
 
 ---
 
-**Previous:** [Chapter 19: Terminal UI](../19_terminal_ui/index.md)  
-**Next:** [Chapter 21: Configuration](../21_configuration/index.md)
+**Previous:** [Chapter 19: Terminal UI](../19_terminal_ui/index.html)  
+**Next:** [Chapter 21: Configuration](../21_configuration/index.html)

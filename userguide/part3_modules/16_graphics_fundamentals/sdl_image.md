@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [16.1 SDL - Simple DirectMedia Layer](sdl.md)  
-**Next:** [16.3 SDL_mixer - Audio Playback](sdl_mixer.md)
+**Previous:** [16.1 SDL - Simple DirectMedia Layer](sdl.html)  
+**Next:** [16.3 SDL_mixer - Audio Playback](sdl_mixer.html)

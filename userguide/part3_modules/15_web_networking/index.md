@@ -325,5 +325,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 14: Data Formats](../14_data_formats/index.md)  
-**Next:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.md)
+**Previous:** [Chapter 14: Data Formats](../14_data_formats/index.html)  
+**Next:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.html)

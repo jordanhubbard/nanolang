@@ -16,5 +16,5 @@
 
 ---
 
-**Previous:** [Chapter 17: OpenGL Graphics](../17_opengl/glut.md)  
-**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.md)
+**Previous:** [Chapter 17: OpenGL Graphics](../17_opengl/glut.html)  
+**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.html)

@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [15.2 http_server - Building Web Services](http_server.md)  
-**Next:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.md)
+**Previous:** [15.2 http_server - Building Web Services](http_server.html)  
+**Next:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/index.html)

@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [18.2 vector2d - 2D Math](vector2d.md)  
-**Next:** [18.4 Example: Building a Simple Game](simple_game.md)
+**Previous:** [18.2 vector2d - 2D Math](vector2d.html)  
+**Next:** [18.4 Example: Building a Simple Game](simple_game.html)

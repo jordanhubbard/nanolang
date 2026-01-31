@@ -48,5 +48,5 @@
 
 ---
 
-**Previous:** [Appendix A: Examples Gallery](a_examples_gallery.md)  
-**Next:** [Appendix C: Migration Guide](c_migration_guide.md)
+**Previous:** [Appendix A: Examples Gallery](a_examples_gallery.html)  
+**Next:** [Appendix C: Migration Guide](c_migration_guide.html)

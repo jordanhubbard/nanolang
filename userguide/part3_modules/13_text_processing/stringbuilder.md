@@ -30,5 +30,5 @@
 
 ---
 
-**Previous:** [13.2 log - Structured Logging](log.md)  
-**Next:** [Chapter 14: Data Formats](../14_data_formats/index.md)
+**Previous:** [13.2 log - Structured Logging](log.html)  
+**Next:** [Chapter 14: Data Formats](../14_data_formats/index.html)

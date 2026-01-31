@@ -752,5 +752,5 @@ shadow gcd {
 
 ---
 
-**Previous:** [Chapter 4: Functions](04_functions.md)  
-**Next:** [Chapter 6: Collections](06_collections.md)
+**Previous:** [Chapter 4: Functions](04_functions.html)  
+**Next:** [Chapter 6: Collections](06_collections.html)

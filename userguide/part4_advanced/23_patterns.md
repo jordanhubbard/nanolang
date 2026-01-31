@@ -38,5 +38,5 @@
 
 ---
 
-**Previous:** [Chapter 22: Canonical Style Guide](22_canonical_style.md)  
-**Next:** [Chapter 24: Performance & Optimization](24_performance.md)
+**Previous:** [Chapter 22: Canonical Style Guide](22_canonical_style.html)  
+**Next:** [Chapter 24: Performance & Optimization](24_performance.html)

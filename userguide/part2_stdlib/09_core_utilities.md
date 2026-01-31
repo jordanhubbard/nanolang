@@ -665,5 +665,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 8: Modules & Imports](../part1_fundamentals/08_modules.md)  
-**Next:** [Chapter 10: Collections Library](10_collections_library.md)
+**Previous:** [Chapter 8: Modules & Imports](../part1_fundamentals/08_modules.html)  
+**Next:** [Chapter 10: Collections Library](10_collections_library.html)

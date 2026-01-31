@@ -665,5 +665,5 @@ In this chapter, you learned:
 
 ---
 
-**Previous:** [Chapter 13: Text Processing](../13_text_processing/index.md)  
-**Next:** [Chapter 15: Web & Networking](../15_web_networking/index.md)
+**Previous:** [Chapter 13: Text Processing](../13_text_processing/index.html)  
+**Next:** [Chapter 15: Web & Networking](../15_web_networking/index.html)

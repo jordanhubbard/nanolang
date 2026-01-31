@@ -548,5 +548,5 @@ shadow transform_by_shadowing {
 
 ---
 
-**Previous:** [Chapter 2: Basic Syntax & Types](02_syntax_types.md)  
-**Next:** [Chapter 4: Functions](04_functions.md)
+**Previous:** [Chapter 2: Basic Syntax & Types](02_syntax_types.html)  
+**Next:** [Chapter 4: Functions](04_functions.html)

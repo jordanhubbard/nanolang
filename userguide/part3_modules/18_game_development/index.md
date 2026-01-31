@@ -63,5 +63,5 @@ Game development modules:
 
 ---
 
-**Previous:** [Chapter 17: OpenGL Graphics](../17_opengl_graphics/index.md)  
-**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.md)
+**Previous:** [Chapter 17: OpenGL Graphics](../17_opengl_graphics/index.html)  
+**Next:** [Chapter 19: Terminal UI](../19_terminal_ui/index.html)

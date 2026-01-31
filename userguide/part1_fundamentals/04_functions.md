@@ -622,5 +622,5 @@ shadow max_recursive {
 
 ---
 
-**Previous:** [Chapter 3: Variables & Bindings](03_variables.md)  
-**Next:** [Chapter 5: Control Flow](05_control_flow.md)
+**Previous:** [Chapter 3: Variables & Bindings](03_variables.html)  
+**Next:** [Chapter 5: Control Flow](05_control_flow.html)

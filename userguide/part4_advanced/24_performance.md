@@ -44,5 +44,5 @@
 
 ---
 
-**Previous:** [Chapter 23: Higher-Level Patterns](23_patterns.md)  
-**Next:** [Chapter 25: Contributing & Extending](25_contributing.md)
+**Previous:** [Chapter 23: Higher-Level Patterns](23_patterns.html)  
+**Next:** [Chapter 25: Contributing & Extending](25_contributing.html)

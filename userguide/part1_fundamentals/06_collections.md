@@ -668,5 +668,5 @@ shadow rotate_right {
 
 ---
 
-**Previous:** [Chapter 5: Control Flow](05_control_flow.md)  
-**Next:** [Chapter 7: Data Structures](07_data_structures.md)
+**Previous:** [Chapter 5: Control Flow](05_control_flow.html)  
+**Next:** [Chapter 7: Data Structures](07_data_structures.html)

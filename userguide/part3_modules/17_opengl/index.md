@@ -17,5 +17,5 @@
 
 ---
 
-**Previous:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/sdl_ttf.md)  
-**Next:** [Chapter 18: Game Development](../18_game_dev/index.md)
+**Previous:** [Chapter 16: Graphics Fundamentals](../16_graphics_fundamentals/sdl_ttf.html)  
+**Next:** [Chapter 18: Game Development](../18_game_dev/index.html)

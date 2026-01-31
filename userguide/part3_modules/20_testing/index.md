@@ -14,5 +14,5 @@
 
 ---
 
-**Previous:** [Chapter 19: Terminal UI](../19_terminal_ui/ncurses.md)  
-**Next:** [Chapter 21: Configuration](../21_configuration/index.md)
+**Previous:** [Chapter 19: Terminal UI](../19_terminal_ui/ncurses.html)  
+**Next:** [Chapter 21: Configuration](../21_configuration/index.html)

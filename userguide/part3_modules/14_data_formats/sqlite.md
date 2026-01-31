@@ -30,5 +30,5 @@
 
 ---
 
-**Previous:** [14.1 JSON - Parsing & Generation](json.md)  
-**Next:** [Chapter 15: Web & Networking](../15_web_networking/index.md)
+**Previous:** [14.1 JSON - Parsing & Generation](json.html)  
+**Next:** [Chapter 15: Web & Networking](../15_web_networking/index.html)

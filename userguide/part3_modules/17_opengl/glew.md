@@ -10,5 +10,5 @@
 
 ---
 
-**Previous:** [17.2 GLFW - Window & Input Management](glfw.md)  
-**Next:** [17.4 GLUT - Utility Toolkit](glut.md)
+**Previous:** [17.2 GLFW - Window & Input Management](glfw.html)  
+**Next:** [17.4 GLUT - Utility Toolkit](glut.html)

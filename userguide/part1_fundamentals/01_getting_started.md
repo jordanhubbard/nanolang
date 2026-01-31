@@ -581,5 +581,5 @@ A: See [Chapter 9: Core Utilities](../part2_stdlib/09_core_utilities.md) for bui
 
 ---
 
-**Previous:** [User Guide Index](../index.md)  
-**Next:** [Chapter 2: Basic Syntax & Types](02_syntax_types.md)
+**Previous:** [User Guide Index](../index.html)  
+**Next:** [Chapter 2: Basic Syntax & Types](02_syntax_types.html)

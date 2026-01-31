@@ -10,4 +10,4 @@
 
 ---
 
-**Next:** [16.2 SDL_image - Image Loading](sdl_image.md)
+**Next:** [16.2 SDL_image - Image Loading](sdl_image.html)

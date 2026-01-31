@@ -10,4 +10,4 @@
 
 ---
 
-**Next:** [17.2 GLFW - Window & Input Management](glfw.md)
+**Next:** [17.2 GLFW - Window & Input Management](glfw.html)
