@@ -36,7 +36,9 @@ pub fn complex_conj(a: Complex) -> Complex {
     return Complex { re: a.re, im: (- a.im) }
 }
 
-pub fn complex_abs(a: Complex) -> float {
+pub fn complex_abs(a: Complex) -> float
+ensures (>= result 0.0)
+{
     return (sqrt (+ (* a.re a.re) (* a.im a.im)))
 }
 
