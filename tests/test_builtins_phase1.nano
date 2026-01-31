@@ -1,0 +1,60 @@
+fn test_string_ops() -> int {
+    let s1: string = "hello"
+    let s2: string = " world"
+    let concat: string = (+ s1 s2)
+    let len: int = (str_length concat)
+    (println concat)
+    return len
+}
+
+shadow test_string_ops {
+    assert (== (test_string_ops) 11)
+}
+
+fn test_conversions() -> string {
+    let num: int = 42
+    let s: string = (int_to_string num)
+    return s
+}
+
+shadow test_conversions {
+    let result: string = (test_conversions)
+    assert (== (str_length result) 2)
+}
+
+fn test_math() -> int {
+    let a: int = 10
+    let b: int = 20
+    let c: int = (min a b)
+    let d: int = (max a b)
+    return (+ c d)
+}
+
+shadow test_math {
+    assert (== (test_math) 30)
+}
+
+fn main() -> int {
+    (println "Testing built-in functions...")
+    
+    let str_test: int = (test_string_ops)
+    (print "String test result: ")
+    let str_test_s: string = (int_to_string str_test)
+    (println str_test_s)
+    
+    let conv_test: string = (test_conversions)
+    (print "Conversion test result: ")
+    (println conv_test)
+    
+    let math_test: int = (test_math)
+    (print "Math test result: ")
+    let math_test_s: string = (int_to_string math_test)
+    (println math_test_s)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

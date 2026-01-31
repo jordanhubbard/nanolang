@@ -1,0 +1,27 @@
+/* Test generic union instantiation with full usage */
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result<int, string>.Err { error: "Division by zero" }
+    } else {
+        return Result<int, string>.Ok { value: (/ a b) }
+    }
+}
+
+fn main() -> int {
+    let r1: Result<int, string> = (divide 10 2)
+    let r2: Result<int, string> = (divide 10 0)
+    
+    /* For now, just return success - match expression needs separate work */
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

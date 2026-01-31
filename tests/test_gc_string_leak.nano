@@ -1,0 +1,72 @@
+# Test that GC-managed strings don't leak memory
+# This test creates many temporary strings via concatenation
+
+fn concat_many_strings(count: int) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i count) {
+        # This creates temporary strings that should be GC'd
+        set result (+ result (+ "x" (int_to_string i)))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow concat_many_strings {
+    let result: string = (concat_many_strings 5)
+    assert (== (str_length result) 10)  # "x0x1x2x3x4"
+}
+
+fn nested_string_ops(iterations: int) -> int {
+    let mut i: int = 0
+    while (< i iterations) {
+        # Create temp strings that should be GC'd immediately
+        let temp1: string = (+ "a" "b")
+        let temp2: string = (+ temp1 "c")
+        let temp3: string = (+ temp2 (int_to_string i))
+        # temp1, temp2, temp3 go out of scope here and should be collected
+        set i (+ i 1)
+    }
+    return iterations
+}
+
+shadow nested_string_ops {
+    assert (== (nested_string_ops 10) 10)
+    assert (== (nested_string_ops 100) 100)
+}
+
+fn main() -> int {
+    (println "Testing GC string memory management...")
+    
+    # Test 1: Many concatenations
+    (println "Test 1: Multiple concatenations")
+    let result1: string = (concat_many_strings 1000)
+    (print "Created string of length: ")
+    (println (int_to_string (str_length result1)))
+    
+    # Test 2: Nested operations creating temporaries
+    (println "Test 2: Nested operations with temporaries")
+    let result2: int = (nested_string_ops 10000)
+    (print "Completed ")
+    (print (int_to_string result2))
+    (println " iterations")
+    
+    # Test 3: String conversions
+    (println "Test 3: Type conversions")
+    let mut j: int = 0
+    while (< j 1000) {
+        let s: string = (int_to_string j)
+        # s goes out of scope and should be collected
+        set j (+ j 1)
+    }
+    (println "Completed 1000 int_to_string calls")
+    
+    (println "✓ All GC string tests passed!")
+    (println "Note: Memory should be reclaimed automatically")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

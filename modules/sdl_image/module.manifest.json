@@ -1,0 +1,42 @@
+{
+  "name": "sdl_image",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "SDL_image - Load PNG, JPG, and other image formats into SDL textures.",
+  "use_when": [
+    "User wants to load PNG, JPEG, or other image files",
+    "User says 'load image', 'display icon', 'show picture', 'texture from file'",
+    "User needs to render images in SDL windows",
+    "User wants to create a game or app with sprites/icons"
+  ],
+  "avoid_when": [
+    "User only needs to draw primitives (use SDL drawing functions)",
+    "User wants to generate images programmatically (use pixel manipulation)"
+  ],
+  "capabilities": [
+    "load_png",
+    "load_jpeg",
+    "load_bmp",
+    "load_gif",
+    "load_webp",
+    "create_texture_from_file",
+    "render_images"
+  ],
+  "keywords": ["sdl", "image", "png", "jpg", "jpeg", "texture", "sprite", "icon", "graphics"],
+  "examples": [
+    "examples/sdl_example_launcher.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["sdl"],
+    "system": [
+      {"id": "sdl2_image", "install": {"apt": "libsdl2-image-dev", "brew": "sdl2_image"}}
+    ]
+  },
+  "io_surfaces": ["window"],
+  "alternatives": [
+    {"when": "BMP only", "module": "sdl"},
+    {"when": "custom image formats", "module": "custom_loader"}
+  ]
+}
+

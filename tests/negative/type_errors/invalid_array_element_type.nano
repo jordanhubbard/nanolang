@@ -1,0 +1,20 @@
+# Expected error: Inconsistent array element types
+# Array literal with mixed types
+
+fn mixed_array() -> array<int> {
+    # Error: array has both int and string elements
+    return [1, "two", 3]
+}
+
+shadow mixed_array {
+    let arr: array<int> = (mixed_array)
+    assert true
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

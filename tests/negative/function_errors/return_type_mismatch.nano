@@ -1,0 +1,17 @@
+# Expected Error: Return type mismatch
+
+fn get_number() -> int {
+    return "not a number"  # Error: returning string from int function
+}
+
+shadow get_number {
+    assert (== (get_number) 42)
+}
+
+fn main() -> int {
+    return (get_number)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

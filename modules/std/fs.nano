@@ -1,28 +1,104 @@
 /* =============================================================================
- * std::fs - traversal + glob + path utilities
+ * std::fs - File system operations: I/O + traversal + glob + path utilities
  * =============================================================================
  */
 
 module std_fs
 
+/* FFI declarations for filesystem operations */
+extern fn fs_walkdir(_root: string) -> array<string>
+extern fn path_normalize(_path: string) -> string
+extern fn path_join(_a: string, _b: string) -> string
+extern fn path_basename(_path: string) -> string
+extern fn path_dirname(_path: string) -> string
+extern fn path_relpath(_target: string, _base: string) -> string
+extern fn file_read(_path: string) -> string
+extern fn file_write(_path: string, _content: string) -> int
+extern fn file_append(_path: string, _content: string) -> int
+extern fn file_exists(_path: string) -> bool
+extern fn file_delete(_path: string) -> int
+extern fn fs_mkdir_p(_path: string) -> int
+extern fn file_copy(_src: string, _dst: string) -> int
+extern fn dir_copy(_src: string, _dst: string) -> int
+/* Note: getcwd is a builtin and doesn't need extern declaration */
+
 pub fn walkdir(root: string) -> array<string> {
-    return (fs_walkdir root)
+    unsafe {
+        return (fs_walkdir root)
+    }
+}
+
+shadow walkdir {
+    let files: array<string> = (walkdir "modules")
+    assert (> (array_length files) 0)
 }
 
 pub fn normalize(path: string) -> string {
-    return (path_normalize path)
+    unsafe {
+        return (path_normalize path)
+    }
+}
+
+shadow normalize {
+    assert (== (normalize "/foo/./bar/../baz") "/foo/baz")
+    assert (== (normalize "foo/bar/..") "foo")
+    assert (== (normalize "./foo") "foo")
 }
 
 pub fn join(a: string, b: string) -> string {
-    return (path_join a b)
+    unsafe {
+        return (path_join a b)
+    }
+}
+
+shadow join {
+    assert (== (join "foo" "bar") "foo/bar")
+    assert (== (join "foo/" "bar") "foo/bar")
+    assert (== (join "" "bar") "bar")
 }
 
 pub fn basename(path: string) -> string {
-    return (path_basename path)
+    unsafe {
+        return (path_basename path)
+    }
+}
+
+shadow basename {
+    assert (== (basename "/foo/bar/baz.txt") "baz.txt")
+    assert (== (basename "baz.txt") "baz.txt")
 }
 
 pub fn dirname(path: string) -> string {
-    return (path_dirname path)
+    unsafe {
+        return (path_dirname path)
+    }
+}
+
+shadow dirname {
+    assert (== (dirname "/foo/bar/baz.txt") "/foo/bar")
+    assert (== (dirname "foo/bar") "foo")
+}
+
+
+pub fn relpath(target: string, base: string) -> string {
+    unsafe {
+        return (path_relpath target base)
+    }
+}
+
+shadow relpath {
+    assert (== (relpath "/a/b/c" "/a") "b/c")
+}
+
+pub fn cwd() -> string {
+    unsafe {
+        return (getcwd)
+    }
+}
+
+shadow cwd {
+    let dir: string = (cwd)
+    assert (> (str_length dir) 0)
 }
 
 fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
@@ -74,8 +150,21 @@ fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
     return false
 }
 
+shadow glob_match_impl {
+    assert (glob_match_impl "*" 0 "nanolang" 0)
+    assert (glob_match_impl "a?c" 0 "abc" 0)
+    assert (not (glob_match_impl "abc" 0 "ab" 0))
+}
+
 pub fn glob_match(pattern: string, text: string) -> bool {
     return (glob_match_impl pattern 0 text 0)
+}
+
+shadow glob_match {
+    assert (glob_match "*.txt" "foo.txt")
+    assert (glob_match "test_*.c" "test_foo.c")
+    assert (glob_match "???.txt" "foo.txt")
+    assert (not (glob_match "*.c" "foo.txt"))
 }
 
 pub fn glob(root: string, pattern: string) -> array<string> {
@@ -93,6 +182,133 @@ pub fn glob(root: string, pattern: string) -> array<string> {
         }
         set i (+ i 1)
     }
-
     return out
+}
+
+shadow glob {
+    let nanos: array<string> = (glob "modules/std" "*.nano")
+    assert (> (array_length nanos) 0)
+}
+
+/* =============================================================================
+ * FILE I/O OPERATIONS
+ * ============================================================================= */
+
+pub fn read(path: string) -> string {
+    unsafe {
+        return (file_read path)
+    }
+}
+
+shadow read {
+    /* Test with a known file */
+    let content: string = (read "README.md")
+    assert (> (str_length content) 0)
+}
+
+pub fn write(path: string, content: string) -> int {
+    unsafe {
+        return (file_write path content)
+    }
+}
+
+shadow write {
+    /* Test write and read round-trip */
+    let test_path: string = "/tmp/nanolang_test_write.txt"
+    let test_content: string = "test content"
+    let write_result: int = (write test_path test_content)
+    assert (== write_result 0)
+    let read_back: string = (read test_path)
+    assert (== read_back test_content)
+    /* Clean up */
+    (file_delete test_path)
+}
+
+pub fn append(path: string, content: string) -> int {
+    unsafe {
+        return (file_append path content)
+    }
+}
+
+shadow append {
+    /* Test append functionality */
+    let test_path: string = "/tmp/nanolang_test_append.txt"
+    (write test_path "line1\n")
+    (append test_path "line2\n")
+    let content: string = (read test_path)
+    assert (== content "line1\nline2\n")
+    (file_delete test_path)
+}
+
+pub fn exists(path: string) -> bool {
+    unsafe {
+        return (file_exists path)
+    }
+}
+
+shadow exists {
+    assert (exists "README.md")
+    assert (not (exists "/nonexistent/path/that/does/not/exist"))
+}
+
+pub fn delete(path: string) -> int {
+    unsafe {
+        return (file_delete path)
+    }
+}
+
+shadow delete {
+    /* Test delete */
+    let test_path: string = "/tmp/nanolang_test_delete.txt"
+    (write test_path "temp")
+    assert (exists test_path)
+    (delete test_path)
+    assert (not (exists test_path))
+}
+
+
+pub fn mkdir_p(path: string) -> int {
+    unsafe {
+        return (fs_mkdir_p path)
+    }
+}
+
+shadow mkdir_p {
+    let code: int = (mkdir_p "/tmp/nanolang_fs_test_dir")
+    assert (== code 0)
+}
+
+pub fn copy_file(src: string, dst: string) -> int {
+    unsafe {
+        return (file_copy src dst)
+    }
+}
+
+shadow copy_file {
+    let src: string = "/tmp/nanolang_copy_src.txt"
+    let dst: string = "/tmp/nanolang_copy_dst.txt"
+    (write src "hello")
+    let code: int = (copy_file src dst)
+    assert (== code 0)
+    assert (== (read dst) "hello")
+    (file_delete src)
+    (file_delete dst)
+}
+
+pub fn copy_dir(src: string, dst: string) -> int {
+    unsafe {
+        return (dir_copy src dst)
+    }
+}
+
+shadow copy_dir {
+    let src: string = "/tmp/nanolang_copy_dir_src"
+    let dst: string = "/tmp/nanolang_copy_dir_dst"
+    (mkdir_p src)
+    (write (+ src "/file.txt") "ok")
+    let code: int = (copy_dir src dst)
+    assert (== code 0)
+    assert (exists (+ dst "/file.txt"))
+    (file_delete (+ src "/file.txt"))
+    (file_delete (+ dst "/file.txt"))
 }

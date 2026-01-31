@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoLang Playground</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="#code-editor" class="skip-link">Skip to code editor</a>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🔬 NanoLang Playground</h1>
+                <p class="tagline">Interactive NanoLang Development Environment</p>
+            </div>
+            <div class="header-actions">
+                <button id="run-btn" class="btn btn-primary" aria-label="Run code">
+                    ▶️ Run Code
+                </button>
+                <button id="clear-btn" class="btn btn-secondary" aria-label="Clear code editor">
+                    🗑️ Clear
+                </button>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Sidebar with examples -->
+            <aside class="sidebar">
+                <h2>📚 Examples</h2>
+                <nav class="examples-list" id="examples-list" aria-label="Code examples">
+                    <button class="example-btn" data-example="hello">Hello World</button>
+                    <button class="example-btn" data-example="factorial">Factorial</button>
+                    <button class="example-btn" data-example="fibonacci">Fibonacci</button>
+                    <button class="example-btn" data-example="prime">Prime Numbers</button>
+                    <button class="example-btn" data-example="arrays">Array Operations</button>
+                    <button class="example-btn" data-example="strings">String Manipulation</button>
+                    <button class="example-btn" data-example="struct">Structs</button>
+                    <button class="example-btn" data-example="cond">Conditionals (cond)</button>
+                    <button class="example-btn" data-example="loops">Loops (while & for)</button>
+                    <button class="example-btn" data-example="recursion">Recursion</button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <h3>🔗 Quick Links</h3>
+                    <nav aria-label="Quick links">
+                        <ul class="quick-links">
+                            <li><a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in new tab)">GitHub</a></li>
+                            <li><a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer" aria-label="Documentation (opens in new tab)">Documentation</a></li>
+                            <li><a href="../../../docs/QUICK_REFERENCE.md" target="_blank" rel="noopener noreferrer" aria-label="Quick Reference (opens in new tab)">Quick Reference</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Code editor -->
+            <div class="editor-pane">
+                <div class="editor-header">
+                    <span class="filename">playground.nano</span>
+                    <div class="editor-controls">
+                        <button id="copy-btn" class="btn-icon" aria-label="Copy code to clipboard">
+                            📋
+                        </button>
+                        <button id="download-btn" class="btn-icon" aria-label="Download code as file">
+                            💾
+                        </button>
+                    </div>
+                </div>
+                <textarea id="code-editor" class="code-editor" spellcheck="false" aria-label="NanoLang code editor"></textarea>
+            </div>
+
+            <!-- Output panel -->
+            <div class="output-pane">
+                <div class="output-header">
+                    <h3>📄 Output</h3>
+                    <button id="clear-output-btn" class="btn-icon" aria-label="Clear output">🗑️</button>
+                </div>
+                <div id="output" class="output-content" role="log" aria-live="polite" aria-label="Code execution output"></div>
+
+                <div class="output-header" style="margin-top: 20px;">
+                    <h3>⚠️ Compiler Messages</h3>
+                </div>
+                <div id="errors" class="error-content" role="log" aria-live="polite" aria-label="Compiler messages and errors"></div>
+            </div>
+        </div>
+
+        <!-- Info banner -->
+        <div class="info-banner">
+            <div class="info-content">
+                <p><strong>💡 Tip:</strong> This playground validates NanoLang syntax and provides examples.
+                   To execute code, copy it and run with: <code>./bin/nanoc your_code.nano -o output && ./output</code></p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>NanoLang Playground &copy; 2026 |
+               <a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in new tab)">GitHub</a> |
+               <a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer" aria-label="Documentation (opens in new tab)">Docs</a>
+            </p>
+            <p class="version">Version 2.0.12</p>
+        </footer>
+    </div>
+
+    <script src="examples.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

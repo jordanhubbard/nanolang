@@ -88,3 +88,23 @@ src_nano/*.genC
 
 # Compiled binaries
 bin/
+modules/index.json
+nanoc_self
+repl_test
+
+# Module cache (build artifacts - platform-specific)
+_cache/
+
+# Code coverage artifacts
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+coverage/
+
+# Fuzzing artifacts
+tests/fuzzing/fuzz_*
+!tests/fuzzing/fuzz_*.c
+tests/fuzzing/findings_*/
+tests/fuzzing/crash-*
+tests/fuzzing/*.log

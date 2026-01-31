@@ -7,16 +7,26 @@ pub fn helper() -> int {
     return 99
 }
 
+shadow helper {
+    assert (== (helper) 99)
+}
+
 fn main() -> int {
     # For now, just test that module declaration works
     # TODO: Test actual qualified name calls once fully implemented
     let result: int = (helper)
-    return result
+    (println result)
+    return 0
 }
 
 shadow main {
-    assert (== (main) 99)
+    assert (== (main) 0)
 }
+
+
+
+
+
 
 
 

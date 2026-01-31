@@ -2,12 +2,10 @@
   "name": "sdl_mixer",
   "version": "1.0.0",
   "description": "Audio mixing and playback for SDL - music and sound effects",
-  "headers": ["SDL_mixer.h"],
+  "headers": ["SDL2/SDL_mixer.h"],
   "c_sources": [],
   "pkg_config": ["SDL2_mixer"],
-  "apt_packages": ["libsdl2-dev", "libsdl2-mixer-dev"],
-  "dnf_packages": ["SDL2-devel", "SDL2_mixer-devel"],
-  "brew_packages": ["sdl2", "sdl2_mixer"],
+  "system_packages": ["sdl2", "sdl2_mixer"],
   "dependencies": ["sdl"]
 }
 

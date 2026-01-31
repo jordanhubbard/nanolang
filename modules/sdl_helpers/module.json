@@ -6,8 +6,6 @@
   "cflags": ["-Imodules/sdl_helpers"],
   "c_sources": ["sdl_helpers.c"],
   "pkg_config": ["sdl2"],
-  "apt_packages": ["libsdl2-dev"],
-  "dnf_packages": ["SDL2-devel"],
-  "brew_packages": ["sdl2"],
+  "system_packages": ["sdl2"],
   "dependencies": ["sdl"]
 }

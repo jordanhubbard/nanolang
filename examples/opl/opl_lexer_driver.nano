@@ -1,0 +1,10 @@
+import "examples/opl/opl_lexer.nano"
+
+fn main() -> int {
+    let r: OplTokensResult = (opl_lex "agent a { uses web.search }")
+    if r.ok { return 0 } else { return 1 }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

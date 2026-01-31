@@ -1,0 +1,80 @@
+/*
+ * Simplified Bullet Soft Body Demo
+ * Shows deformable beads falling through obstacles
+ */
+
+unsafe module "modules/bullet/bullet.nano"
+
+fn main() -> int {
+    (println "╔════════════════════════════════════════════════════════════╗")
+    (println "║           Bullet Physics Soft Body Test                   ║")
+    (println "╚════════════════════════════════════════════════════════════╝")
+    (println "")
+    
+    /* Initialize */
+    let mut init_result: int = 0
+    set init_result (nl_bullet_init)
+    
+    if (== init_result 0) {
+        (println "Error: Failed to initialize Bullet Physics")
+        return 1
+    }
+    
+    (println "✓ Physics world initialized")
+    
+    /* Create ground */
+    let mut ground: int = 0
+    set ground (nl_bullet_create_rigid_box 0.0 (- 0.0 10.0) 0.0 50.0 1.0 50.0 0.0 0.5)
+    (print "✓ Created ground (handle ")
+    (print ground)
+    (println ")")
+    
+    /* Create obstacle */
+    (nl_bullet_create_rigid_box_rotated 5.0 5.0 0.0 8.0 1.0 1.0 30.0 0.0 0.4)
+    (println "✓ Created obstacle")
+    
+    /* Create soft body bead */
+    let mut bead: int = 0
+    set bead (nl_bullet_create_soft_sphere 0.0 20.0 0.0 1.5 24)
+    (print "✓ Created soft body bead (handle ")
+    (print bead)
+    (println ")")
+    
+    /* Simulate 100 steps */
+    (println "")
+    (println "Simulating physics...")
+    
+    let mut step: int = 0
+    while (< step 100) {
+        (nl_bullet_step 0.016666)
+        
+        /* Print position every 10 steps */
+        if (== (% step 10) 0) {
+            let mut node_count: int = 0
+            let mut y: float = 0.0
+            set node_count (nl_bullet_get_soft_body_node_count bead)
+            set y (nl_bullet_get_soft_body_node_y bead 0)
+            (print "Step ")
+            (print step)
+            (print ": nodes=")
+            (print node_count)
+            (print ", y=")
+            (println y)
+        }
+        
+        set step (+ step 1)
+    }
+    
+    (println "")
+    (println "✓ Simulation complete!")
+    
+    /* Cleanup */
+    (nl_bullet_cleanup)
+    
+    return 0
+}
+
+shadow main {
+    assert true
+}
+

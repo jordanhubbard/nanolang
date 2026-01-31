@@ -1,0 +1,400 @@
+# stdlib/coverage.nano - Runtime coverage and instrumentation API
+#
+# Provides hooks for collecting execution traces, coverage data, and performance metrics.
+# Designed for LLM agents to validate code generation and identify untested paths.
+
+# Coverage record structure
+struct CoveragePoint {
+    file: string,
+    line: int,
+    column: int,
+    hit_count: int
+}
+
+# Global coverage state (managed by runtime)
+let mut g_coverage_enabled: bool = false
+let mut g_coverage_points: array<CoveragePoint> = []
+
+# Initialize coverage tracking
+fn coverage_init() -> void {
+    set g_coverage_enabled true
+    set g_coverage_points []
+}
+
+shadow coverage_init {
+    (coverage_init)
+    assert g_coverage_enabled
+}
+
+# Record a coverage point hit
+fn coverage_record(file: string, line: int, column: int) -> void {
+    if g_coverage_enabled {
+        # Find existing point or create new (rebuild array to avoid array_set on dynamic arrays)
+        let mut found: bool = false
+        let mut i: int = 0
+        let mut updated_points: array<CoveragePoint> = []
+        while (< i (array_length g_coverage_points)) {
+            let point: CoveragePoint = (at g_coverage_points i)
+            if (and (== point.file file)
+                    (and (== point.line line) (== point.column column))) {
+                # Increment hit count (struct values are immutable; rebuild the struct)
+                let updated: CoveragePoint = {
+                    file: point.file,
+                    line: point.line,
+                    column: point.column,
+                    hit_count: (+ point.hit_count 1)
+                }
+                set updated_points (array_push updated_points updated)
+                set found true
+            } else {
+                set updated_points (array_push updated_points point)
+            }
+            set i (+ i 1)
+        }
+        
+        if (not found) {
+            # Add new coverage point
+            let new_point: CoveragePoint = {
+                file: file,
+                line: line,
+                column: column,
+                hit_count: 1
+            }
+            set updated_points (array_push updated_points new_point)
+        }
+
+        set g_coverage_points updated_points
+    }
+}
+
+shadow coverage_record {
+    (coverage_init)
+    (coverage_record "shadow" 1 1)
+    assert (== (coverage_get_hit_count) 1)
+}
+
+# Get total number of coverage points hit
+fn coverage_get_hit_count() -> int {
+    return (array_length g_coverage_points)
+}
+
+shadow coverage_get_hit_count {
+    (coverage_init)
+    assert (== (coverage_get_hit_count) 0)
+}
+
+# Get number of times a specific line was executed
+fn coverage_get_line_hits(file: string, line: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length g_coverage_points)) {
+        let point: CoveragePoint = (at g_coverage_points i)
+        if (and (== point.file file) (== point.line line)) {
+            return point.hit_count
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow coverage_get_line_hits {
+    (coverage_init)
+    (coverage_record "shadow" 10 5)
+    assert (== (coverage_get_line_hits "shadow" 10) 1)
+}
+
+# Print coverage report
+fn coverage_report() -> void {
+    (println "========================================")
+    (println "Coverage Report")
+    (println "========================================")
+    (println (+ "Total coverage points: " (int_to_string (array_length g_coverage_points))))
+    (println "")
+    (println "File:Line:Column - Hit Count")
+    (println "----------------------------------------")
+    
+    let mut i: int = 0
+    while (< i (array_length g_coverage_points)) {
+        let point: CoveragePoint = (at g_coverage_points i)
+        (println (+
+            point.file
+            (+ ":"
+            (+ (int_to_string point.line)
+            (+ ":"
+            (+ (int_to_string point.column)
+            (+ " - "
+            (+ (int_to_string point.hit_count)
+            " hits"))))))))
+        set i (+ i 1)
+    }
+    (println "========================================")
+}
+
+shadow coverage_report {
+    (coverage_init)
+    (coverage_record "shadow" 2 3)
+    (coverage_report)
+    assert true
+}
+
+# Reset coverage data
+fn coverage_reset() -> void {
+    set g_coverage_points []
+}
+
+shadow coverage_reset {
+    (coverage_init)
+    (coverage_record "shadow" 3 4)
+    (coverage_reset)
+    assert (== (coverage_get_hit_count) 0)
+}
+
+# Disable coverage tracking
+fn coverage_disable() -> void {
+    set g_coverage_enabled false
+}
+
+shadow coverage_disable {
+    (coverage_init)
+    (coverage_disable)
+    (coverage_record "shadow" 4 5)
+    assert (== (coverage_get_hit_count) 0)
+}
+
+# Performance instrumentation
+
+struct TimingPoint {
+    label: string,
+    start_time_ms: int,
+    total_time_ms: int,
+    call_count: int
+}
+
+let mut g_timing_points: array<TimingPoint> = []
+
+# Start timing a labeled section
+fn timing_start(label: string) -> int {
+    # Return current time in milliseconds (placeholder - needs runtime support)
+    let _label: string = label
+    return 0  # TODO: Implement with actual clock
+}
+
+shadow timing_start {
+    let t: int = (timing_start "shadow")
+    assert (>= t 0)
+}
+
+# End timing a labeled section
+fn timing_end(label: string, start_time: int) -> void {
+    let end_time: int = 0  # TODO: Get actual time
+    let elapsed: int = (- end_time start_time)
+    
+    # Find or create timing point (rebuild array to avoid array_set on dynamic arrays)
+    let mut found: bool = false
+    let mut i: int = 0
+    let mut updated_points: array<TimingPoint> = []
+    while (< i (array_length g_timing_points)) {
+        let point: TimingPoint = (at g_timing_points i)
+        if (== point.label label) {
+            let updated: TimingPoint = {
+                label: point.label,
+                start_time_ms: point.start_time_ms,
+                total_time_ms: (+ point.total_time_ms elapsed),
+                call_count: (+ point.call_count 1)
+            }
+            set updated_points (array_push updated_points updated)
+            set found true
+        } else {
+            set updated_points (array_push updated_points point)
+        }
+        set i (+ i 1)
+    }
+    
+    if (not found) {
+        let new_point: TimingPoint = {
+            label: label,
+            start_time_ms: start_time,
+            total_time_ms: elapsed,
+            call_count: 1
+        }
+        set updated_points (array_push updated_points new_point)
+    }
+
+    set g_timing_points updated_points
+}
+
+shadow timing_end {
+    let t: int = (timing_start "shadow")
+    (timing_end "shadow" t)
+    assert true
+}
+
+# Print timing report
+fn timing_report() -> void {
+    (println "========================================")
+    (println "Performance Timing Report")
+    (println "========================================")
+    (println "Label - Calls - Total Time (ms) - Avg Time (ms)")
+    (println "----------------------------------------")
+    
+    let mut i: int = 0
+    while (< i (array_length g_timing_points)) {
+        let point: TimingPoint = (at g_timing_points i)
+        let mut avg: int = 0
+        if (> point.call_count 0) {
+            set avg (/ point.total_time_ms point.call_count)
+        }
+        (println (+
+            point.label
+            (+ " - "
+            (+ (int_to_string point.call_count)
+            (+ " calls - "
+            (+ (int_to_string point.total_time_ms)
+            (+ " ms - "
+            (+ (int_to_string avg)
+            " ms avg"))))))))
+        set i (+ i 1)
+    }
+    (println "========================================")
+}
+
+shadow timing_report {
+    (timing_report)
+    assert true
+}
+
+# Reset timing data
+fn timing_reset() -> void {
+    set g_timing_points []
+}
+
+shadow timing_reset {
+    (timing_reset)
+    assert (== (array_length g_timing_points) 0)
+}
+
+# Execution trace
+
+struct TraceEvent {
+    timestamp_ms: int,
+    event_type: string,  # "CALL", "RETURN", "LINE"
+    location: string,
+    details: string
+}
+
+let mut g_trace_enabled: bool = false
+let mut g_trace_events: array<TraceEvent> = []
+let mut g_trace_max_events: int = 10000
+
+# Initialize tracing
+fn trace_init() -> void {
+    set g_trace_enabled true
+    set g_trace_events []
+}
+
+shadow trace_init {
+    (trace_init)
+    assert g_trace_enabled
+}
+
+fn trace_init_with_limit(max_events: int) -> void {
+    set g_trace_enabled true
+    set g_trace_events []
+    set g_trace_max_events max_events
+}
+
+shadow trace_init_with_limit {
+    (trace_init_with_limit 2)
+    assert g_trace_enabled
+    assert (== g_trace_max_events 2)
+}
+
+# Record a trace event
+fn trace_record(event_type: string, location: string, details: string) -> void {
+    if g_trace_enabled {
+        if (< (array_length g_trace_events) g_trace_max_events) {
+            let event: TraceEvent = {
+                timestamp_ms: 0,  # TODO: Implement with actual clock
+                event_type: event_type,
+                location: location,
+                details: details
+            }
+            set g_trace_events (array_push g_trace_events event)
+        }
+    }
+}
+
+shadow trace_record {
+    (trace_init)
+    (trace_record "CALL" "shadow" "test")
+    assert (== (array_length g_trace_events) 1)
+}
+
+# Print trace
+fn trace_report() -> void {
+    (println "========================================")
+    (println "Execution Trace")
+    (println "========================================")
+    (println (+ "Total events: " (int_to_string (array_length g_trace_events))))
+    if (>= (array_length g_trace_events) g_trace_max_events) {
+        (println (+ "WARNING: Trace limit reached (" (+ (int_to_string g_trace_max_events) " events)")))
+    }
+    (println "")
+    (println "Timestamp - Type - Location - Details")
+    (println "----------------------------------------")
+    
+    let mut i: int = 0
+    while (< i (array_length g_trace_events)) {
+        let event: TraceEvent = (at g_trace_events i)
+        (println (+
+            (int_to_string event.timestamp_ms)
+            (+ " - "
+            (+ event.event_type
+            (+ " - "
+            (+ event.location
+            (+ " - "
+            event.details)))))))
+        set i (+ i 1)
+    }
+    (println "========================================")
+}
+
+shadow trace_report {
+    (trace_init)
+    (trace_record "CALL" "shadow" "test")
+    (trace_report)
+    assert true
+}
+
+# Disable tracing
+fn trace_disable() -> void {
+    set g_trace_enabled false
+}
+
+shadow trace_disable {
+    (trace_disable)
+    assert (not g_trace_enabled)
+}
+
+# Reset trace
+fn trace_reset() -> void {
+    set g_trace_events []
+}
+
+shadow trace_reset {
+    (trace_reset)
+    assert (== (array_length g_trace_events) 0)
+}
+
+# Utility: Manual instrumentation macros (for LLM code generation)
+
+# Example usage pattern:
+# 
+# fn my_function(x: int) -> int {
+#     (trace_record "CALL" "my_function" (int_to_string x))
+#     (coverage_record "my_file.nano" 10 5)
+#     
+#     let result: int = (* x 2)
+#     
+#     (trace_record "RETURN" "my_function" (int_to_string result))
+#     return result
+# }

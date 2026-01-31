@@ -1,0 +1,120 @@
+/* Test stdlib math library contracts */
+
+from "stdlib/std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_distance, vec_clamp_length
+from "stdlib/std/math/vector3d.nano" import Vector3D, vec3_new, vec3_length, vec3_distance, vec3_clamp_length
+from "stdlib/std/math/extended.nano" import clamp
+from "stdlib/std/math/array_ops.nano" import array_min, array_max, array_norm
+from "stdlib/std/math/complex.nano" import Complex, complex_new, complex_abs
+
+fn test_vec2_contracts() -> bool {
+    /* Test vec_length ensures >= 0 */
+    let v: Vector2D = (vec_new 3.0 4.0)
+    let len: float = (vec_length v)
+    assert (>= len 0.0)
+    
+    /* Test vec_distance ensures >= 0 */
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    let dist: float = (vec_distance a b)
+    assert (>= dist 0.0)
+    
+    /* Test vec_clamp_length requires max_len >= 0 */
+    let clamped: Vector2D = (vec_clamp_length v 10.0)
+    let clamped_len: float = (vec_length clamped)
+    assert (<= clamped_len 10.1)
+    
+    return true
+}
+
+shadow test_vec2_contracts {
+    assert (test_vec2_contracts)
+}
+
+fn test_vec3_contracts() -> bool {
+    /* Test vec3_length ensures >= 0 */
+    let v: Vector3D = (vec3_new 3.0 4.0 0.0)
+    let len: float = (vec3_length v)
+    assert (>= len 0.0)
+    
+    /* Test vec3_distance ensures >= 0 */
+    let a: Vector3D = (vec3_new 0.0 0.0 0.0)
+    let b: Vector3D = (vec3_new 3.0 4.0 0.0)
+    let dist: float = (vec3_distance a b)
+    assert (>= dist 0.0)
+    
+    /* Test vec3_clamp_length requires max_len >= 0 */
+    let clamped: Vector3D = (vec3_clamp_length v 10.0)
+    let clamped_len: float = (vec3_length clamped)
+    assert (<= clamped_len 10.1)
+    
+    return true
+}
+
+shadow test_vec3_contracts {
+    assert (test_vec3_contracts)
+}
+
+fn test_clamp_contracts() -> bool {
+    /* Test clamp requires min <= max, ensures min <= result <= max */
+    let val1: float = (clamp 5.0 0.0 10.0)
+    assert (>= val1 0.0)
+    assert (<= val1 10.0)
+    
+    let val2: float = (clamp -5.0 0.0 10.0)
+    assert (== val2 0.0)
+    
+    let val3: float = (clamp 15.0 0.0 10.0)
+    assert (== val3 10.0)
+    
+    return true
+}
+
+shadow test_clamp_contracts {
+    assert (test_clamp_contracts)
+}
+
+fn test_array_contracts() -> bool {
+    /* Test array_min/max requires length > 0 */
+    let arr: array<float> = [1.0, 5.0, 3.0, 2.0]
+    let min_val: float = (array_min arr)
+    let max_val: float = (array_max arr)
+    assert (== min_val 1.0)
+    assert (== max_val 5.0)
+    
+    /* Test array_norm ensures >= 0 */
+    let norm: float = (array_norm arr)
+    assert (>= norm 0.0)
+    
+    return true
+}
+
+shadow test_array_contracts {
+    assert (test_array_contracts)
+}
+
+fn test_complex_contracts() -> bool {
+    /* Test complex_abs ensures >= 0 */
+    let c: Complex = (complex_new 3.0 4.0)
+    let abs_val: float = (complex_abs c)
+    assert (>= abs_val 0.0)
+    assert (== abs_val 5.0)
+    
+    return true
+}
+
+shadow test_complex_contracts {
+    assert (test_complex_contracts)
+}
+
+fn main() -> int {
+    (println "Testing stdlib contracts...")
+    assert (test_vec2_contracts)
+    assert (test_vec3_contracts)
+    assert (test_clamp_contracts)
+    assert (test_array_contracts)
+    assert (test_complex_contracts)
+    (println "All stdlib contract tests passed!")
+    return 0
+}
+
+shadow main { assert true }

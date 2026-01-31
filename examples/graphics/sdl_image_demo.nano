@@ -1,0 +1,198 @@
+# SDL_image Complete Demo
+# Demonstrates all major SDL_image features:
+# - Loading PNG images as textures
+# - Rendering with scaling
+# - Rotation and flipping
+# - Alpha transparency
+# - Color modulation (tinting)
+# - Sprite sheet rendering
+# - Batch loading
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+fn main() -> int {
+    (println "")
+    (println "=== SDL_image Complete Feature Demo ===")
+    (println "")
+    
+    # Initialize SDL
+    (SDL_Init 32) 
+    (TTF_Init) 
+    
+    # Initialize SDL_image with all format support
+    (println "Initializing SDL_image...")
+    let img_flags: int = (IMG_Init IMG_INIT_ALL)
+    if (== img_flags 0) {
+        (println "Failed to initialize SDL_image!")
+        let error: string = (IMG_GetError)
+        (println (+ "Error: " error))
+        return 1
+    } else {
+        (println (+ "✓ SDL_image initialized (flags: " (+ (int_to_string img_flags) ")")))
+    }
+    
+    # Create window and renderer
+    let window: SDL_Window = (SDL_CreateWindow "SDL_image Feature Demo"
+                                                100 100 900 700 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    if (== renderer 0) {
+        (println "Failed to create renderer")
+        return 1
+    } else {}
+    
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    
+    # Load test icons
+    (println "")
+    (println "Loading icon textures...")
+    let icon1: int = (nl_img_load_png_texture renderer "examples/icons/sdl_asteroids.png")
+    let icon2: int = (nl_img_load_png_texture renderer "examples/icons/sdl_fire.png")
+    let icon3: int = (nl_img_load_png_texture renderer "examples/icons/sdl_particles.png")
+    let icon4: int = (nl_img_load_png_texture renderer "examples/icons/sdl_boids.png")
+    
+    if (== icon1 0) {
+        (println "✗ Failed to load icons - make sure examples/icons/ directory exists")
+        (println "  Run: ./examples/extract_icons_precise.sh ~/Downloads/SDLiconcollectionoverview.png")
+        return 1
+    } else {
+        (println "✓ Loaded 4 test icons successfully")
+    }
+    
+    # Icons loaded - ready to display
+    (println "  Each icon is 80x80 pixels")
+    
+    # Animation state
+    let mut angle: float = 0.0
+    let mut alpha: int = 255
+    let mut alpha_dir: int = -5
+    let mut frame: int = 0
+    
+    (println "")
+    (println "Controls:")
+    (println "  - Watch the animated demonstrations")
+    (println "  - Close window to exit")
+    (println "")
+    
+    # Main loop
+    let mut running: bool = true
+    while running {
+        # Check for quit event
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Update animation
+        set angle (+ angle 2.0)
+        if (> angle 360.0) {
+            set angle 0.0
+        } else {}
+        
+        set alpha (+ alpha alpha_dir)
+        if (<= alpha 50) {
+            set alpha 50
+            set alpha_dir 5
+        } else {}
+        if (>= alpha 255) {
+            set alpha 255
+            set alpha_dir -5
+        } else {}
+        
+        set frame (+ frame 1)
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 25 30 40 255) 
+        (SDL_RenderClear renderer) 
+        
+        # Title
+        (nl_draw_text_blended renderer font "SDL_image Feature Demonstrations" 20 20 255 255 255 255) 
+        
+        # Demo 1: Basic rendering (top-left)
+        (nl_draw_text_blended renderer font "1. Basic Rendering" 20 60 200 200 255 255) 
+        (nl_img_render_texture renderer icon1 20 85 100 100) 
+        
+        # Demo 2: Scaling (different sizes)
+        (nl_draw_text_blended renderer font "2. Scaled Rendering" 150 60 200 200 255 255) 
+        (nl_img_render_texture renderer icon1 150 85 50 50) 
+        (nl_img_render_texture renderer icon1 210 85 80 80) 
+        (nl_img_render_texture renderer icon1 300 85 120 120) 
+        
+        # Demo 3: Rotation
+        (nl_draw_text_blended renderer font "3. Rotation" 20 220 200 200 255 255) 
+        (nl_img_render_texture_ex renderer icon2 70 270 80 80 angle SDL_FLIP_NONE) 
+        
+        # Demo 4: Flipping
+        (nl_draw_text_blended renderer font "4. Flipping" 180 220 200 200 255 255) 
+        (nl_img_render_texture_ex renderer icon2 180 270 70 70 0.0 SDL_FLIP_NONE) 
+        (nl_img_render_texture_ex renderer icon2 260 270 70 70 0.0 SDL_FLIP_HORIZONTAL) 
+        (nl_img_render_texture_ex renderer icon2 340 270 70 70 0.0 SDL_FLIP_VERTICAL) 
+        (nl_img_render_texture_ex renderer icon2 420 270 70 70 0.0 SDL_FLIP_BOTH) 
+        
+        # Demo 5: Alpha transparency (fading)
+        (nl_draw_text_blended renderer font "5. Alpha Fading" 520 220 200 200 255 255) 
+        (nl_img_set_texture_alpha icon3 alpha) 
+        (nl_img_render_texture renderer icon3 550 270 80 80) 
+        
+        # Demo 6: Color modulation (tinting)
+        (nl_draw_text_blended renderer font "6. Color Tinting" 20 400 200 200 255 255) 
+        let tint_r: int = (+ 128 (/ (* 127 (/ (% frame 120) 120)) 1))
+        let tint_g: int = (+ 128 (/ (* 127 (/ (% (+ frame 40) 120) 120)) 1))
+        let tint_b: int = (+ 128 (/ (* 127 (/ (% (+ frame 80) 120) 120)) 1))
+        (nl_img_set_texture_color icon4 tint_r tint_g tint_b) 
+        (nl_img_render_texture renderer icon4 70 450 80 80) 
+        
+        # Demo 7: Combined effects
+        (nl_draw_text_blended renderer font "7. Combined: Rotate + Scale + Tint" 200 400 200 200 255 255) 
+        let combo_size: int = 80
+        (nl_img_set_texture_color icon3 255 200 100) 
+        (nl_img_render_texture_ex renderer icon3 350 450 combo_size combo_size (/ angle 2.0) SDL_FLIP_HORIZONTAL) 
+        
+        # Demo 8: Multiple instances
+        (nl_draw_text_blended renderer font "8. Multiple Instances" 550 400 200 200 255 255) 
+        let mut grid_i: int = 0
+        while (< grid_i 9) {
+            let grid_x: int = (+ 560 (* (% grid_i 3) 45))
+            let grid_y: int = (+ 450 (* (/ grid_i 3) 45))
+            let grid_angle: float = (+ angle (* 15.0 15.0))
+            (nl_img_render_texture_ex renderer icon1 grid_x grid_y 40 40 grid_angle SDL_FLIP_NONE) 
+            set grid_i (+ grid_i 1)
+        }
+        
+        # Stats footer
+        let fps_text: string = (+ "Frame: " (int_to_string frame))
+        (nl_draw_text_blended renderer font fps_text 20 660 150 150 150 255) 
+        
+        # Present
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Cleaning up...")
+    (nl_img_destroy_texture icon1) 
+    (nl_img_destroy_texture icon2) 
+    (nl_img_destroy_texture icon3) 
+    (nl_img_destroy_texture icon4) 
+    
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (TTF_Quit) 
+    (SDL_Quit) 
+    
+    (println "✓ SDL_image demo completed successfully")
+    return 0
+}
+
+shadow main {
+    # Cannot test with shadow as it requires SDL context
+    assert (== 1 1)
+}
+

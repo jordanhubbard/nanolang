@@ -3,6 +3,10 @@
  * Wraps standard C time.h functionality
  */
 
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 700
+#endif
+
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,0 +1,40 @@
+/* Test fs_walkdir function */
+
+extern fn fs_walkdir(root: string) -> array<string>
+extern fn path_basename(path: string) -> string
+
+fn main() -> int {
+    (println "Testing fs_walkdir:")
+    
+    let mut files: array<string> = []
+    unsafe {
+        set files (fs_walkdir "modules/std")
+    }
+    
+    let n: int = (array_length files)
+    (print "Found ")
+    (print (int_to_string n))
+    (println " files in modules/std")
+    
+    /* Show first 10 files */
+    let mut i: int = 0
+    while (and (< i n) (< i 10)) {
+        let mut basename: string = ""
+        let path: string = (at files i)
+        unsafe {
+            set basename (path_basename path)
+        }
+        (print "  ")
+        (print (int_to_string (+ i 1)))
+        (print ". ")
+        (println basename)
+        set i (+ i 1)
+    }
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

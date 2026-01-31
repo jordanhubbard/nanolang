@@ -1,0 +1,352 @@
+# Property-based testing example: Mathematical properties
+# Demonstrates testing algebraic properties with random inputs
+
+from "modules/proptest/proptest.nano" import int_range, int_pair, forall_int, forall_int_pair, prop_pass, prop_fail, report_passed, PropertyReport, IntRangeGenerator, IntPairGenerator
+
+# Addition function
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+fn prop_add_commutative(a: int, b: int) -> string {
+    if (== (add a b) (add b a)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "commutative")
+    }
+}
+
+fn prop_add_identity(x: int) -> string {
+    if (== (add x 0) x) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "identity")
+    }
+}
+
+fn prop_add_inverse(x: int) -> string {
+    if (== (add x (* x -1)) 0) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "inverse")
+    }
+}
+
+# Multiplication function  
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+fn prop_multiply_commutative(a: int, b: int) -> string {
+    if (== (multiply a b) (multiply b a)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "commutative")
+    }
+}
+
+fn prop_multiply_identity(x: int) -> string {
+    if (== (multiply x 1) x) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "identity")
+    }
+}
+
+fn prop_multiply_zero(x: int) -> string {
+    if (== (multiply x 0) 0) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "zero")
+    }
+}
+
+fn prop_multiply_distributivity_simple(a: int, b: int) -> string {
+    let left: int = (multiply a (add b 1))
+    let right: int = (add (multiply a b) (multiply a 1))
+    if (== left right) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "distributive")
+    }
+}
+
+# Absolute value
+fn demo_abs(x: int) -> int {
+    if (< x 0) {
+        return (* x -1)
+    } else {
+        return x
+    }
+}
+
+fn prop_abs_non_negative(x: int) -> string {
+    if (>= (demo_abs x) 0) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "non_negative")
+    }
+}
+
+fn prop_abs_symmetric(x: int) -> string {
+    if (== (demo_abs (* x -1)) (demo_abs x)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "symmetric")
+    }
+}
+
+fn prop_abs_idempotent(x: int) -> string {
+    if (== (demo_abs (demo_abs x)) (demo_abs x)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "idempotent")
+    }
+}
+
+fn prop_abs_triangle_inequality(a: int, b: int) -> string {
+    let left: int = (demo_abs (add a b))
+    let right: int = (add (demo_abs a) (demo_abs b))
+    if (<= left right) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "triangle")
+    }
+}
+
+# Maximum of two numbers
+fn demo_max(a: int, b: int) -> int {
+    if (> a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+fn prop_max_commutative(a: int, b: int) -> string {
+    if (== (demo_max a b) (demo_max b a)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "commutative")
+    }
+}
+
+fn prop_max_idempotent(x: int) -> string {
+    if (== (demo_max x x) x) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "idempotent")
+    }
+}
+
+fn prop_max_bounds(a: int, b: int) -> string {
+    let m: int = (demo_max a b)
+    if (and (>= m a) (>= m b)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "bounds")
+    }
+}
+
+fn prop_max_equals_input(a: int, b: int) -> string {
+    let m: int = (demo_max a b)
+    if (or (== m a) (== m b)) {
+        return (prop_pass)
+    } else {
+        return (prop_fail "equals")
+    }
+}
+
+shadow prop_add_commutative {
+    assert (== (prop_add_commutative 2 5) (prop_pass))
+}
+
+shadow prop_add_identity {
+    assert (== (prop_add_identity 7) (prop_pass))
+}
+
+shadow prop_add_inverse {
+    assert (== (prop_add_inverse -9) (prop_pass))
+}
+
+shadow prop_multiply_commutative {
+    assert (== (prop_multiply_commutative 3 4) (prop_pass))
+}
+
+shadow prop_multiply_identity {
+    assert (== (prop_multiply_identity -6) (prop_pass))
+}
+
+shadow prop_multiply_zero {
+    assert (== (prop_multiply_zero 11) (prop_pass))
+}
+
+shadow prop_multiply_distributivity_simple {
+    assert (== (prop_multiply_distributivity_simple 2 3) (prop_pass))
+}
+
+shadow prop_abs_non_negative {
+    assert (== (prop_abs_non_negative -5) (prop_pass))
+}
+
+shadow prop_abs_symmetric {
+    assert (== (prop_abs_symmetric 12) (prop_pass))
+}
+
+shadow prop_abs_idempotent {
+    assert (== (prop_abs_idempotent -7) (prop_pass))
+}
+
+shadow prop_abs_triangle_inequality {
+    assert (== (prop_abs_triangle_inequality 3 4) (prop_pass))
+}
+
+shadow prop_max_commutative {
+    assert (== (prop_max_commutative 8 2) (prop_pass))
+}
+
+shadow prop_max_idempotent {
+    assert (== (prop_max_idempotent 5) (prop_pass))
+}
+
+shadow prop_max_bounds {
+    assert (== (prop_max_bounds 2 9) (prop_pass))
+}
+
+shadow prop_max_equals_input {
+    assert (== (prop_max_equals_input 2 9) (prop_pass))
+}
+
+shadow add {
+    # Example-based tests
+    assert (== (add 2 3) 5)
+    assert (== (add 0 0) 0)
+    assert (== (add -1 1) 0)
+    
+    let gen_pair: IntPairGenerator = (int_pair (int_range -100 100) (int_range -100 100))
+    let gen: IntRangeGenerator = (int_range -100 100)
+
+    let r1: PropertyReport = (forall_int_pair "commutative" gen_pair prop_add_commutative)
+    assert (report_passed r1)
+
+    let r2: PropertyReport = (forall_int "identity" gen prop_add_identity)
+    assert (report_passed r2)
+
+    let r3: PropertyReport = (forall_int "inverse" gen prop_add_inverse)
+    assert (report_passed r3)
+}
+
+shadow multiply {
+    # Example-based tests
+    assert (== (multiply 2 3) 6)
+    assert (== (multiply 0 5) 0)
+    assert (== (multiply 1 7) 7)
+    
+    let gen_pair: IntPairGenerator = (int_pair (int_range -100 100) (int_range -100 100))
+    let gen: IntRangeGenerator = (int_range -100 100)
+
+    let r1: PropertyReport = (forall_int_pair "commutative" gen_pair prop_multiply_commutative)
+    assert (report_passed r1)
+
+    let r2: PropertyReport = (forall_int "identity" gen prop_multiply_identity)
+    assert (report_passed r2)
+
+    let r3: PropertyReport = (forall_int "zero" gen prop_multiply_zero)
+    assert (report_passed r3)
+
+    let r4: PropertyReport = (forall_int_pair "distributivity_simple" gen_pair prop_multiply_distributivity_simple)
+    assert (report_passed r4)
+}
+
+shadow demo_abs {
+    # Example-based tests
+    assert (== (demo_abs 5) 5)
+    assert (== (demo_abs -5) 5)
+    assert (== (demo_abs 0) 0)
+    
+    let gen_pair: IntPairGenerator = (int_pair (int_range -100 100) (int_range -100 100))
+    let gen: IntRangeGenerator = (int_range -100 100)
+
+    let r1: PropertyReport = (forall_int "non_negative" gen prop_abs_non_negative)
+    assert (report_passed r1)
+
+    let r2: PropertyReport = (forall_int "symmetric" gen prop_abs_symmetric)
+    assert (report_passed r2)
+
+    let r3: PropertyReport = (forall_int "idempotent" gen prop_abs_idempotent)
+    assert (report_passed r3)
+
+    let r4: PropertyReport = (forall_int_pair "triangle_inequality" gen_pair prop_abs_triangle_inequality)
+    assert (report_passed r4)
+}
+
+shadow demo_max {
+    # Example-based tests
+    assert (== (demo_max 3 5) 5)
+    assert (== (demo_max 5 3) 5)
+    assert (== (demo_max 4 4) 4)
+    
+    let gen_pair: IntPairGenerator = (int_pair (int_range -100 100) (int_range -100 100))
+    let gen: IntRangeGenerator = (int_range -100 100)
+
+    let r1: PropertyReport = (forall_int_pair "commutative" gen_pair prop_max_commutative)
+    assert (report_passed r1)
+
+    let r2: PropertyReport = (forall_int "idempotent" gen prop_max_idempotent)
+    assert (report_passed r2)
+
+    let r3: PropertyReport = (forall_int_pair "bounds" gen_pair prop_max_bounds)
+    assert (report_passed r3)
+
+    let r4: PropertyReport = (forall_int_pair "equals_input" gen_pair prop_max_equals_input)
+    assert (report_passed r4)
+}
+
+fn main() -> int {
+    (println "=== Property-Based Testing: Mathematical Properties ===")
+    (println "")
+    (println "Testing algebraic properties with 100 random cases each:")
+    (println "")
+    (println "Addition:")
+    (println "  - Commutativity: a + b = b + a")
+    (println "  - Identity: a + 0 = a")
+    (println "  - Inverse: a + (-a) = 0")
+    (println "")
+    (println "Multiplication:")
+    (println "  - Commutativity: a * b = b * a")
+    (println "  - Identity: a * 1 = a")
+    (println "  - Zero: a * 0 = 0")
+    (println "  - Distributivity: a * (b + c) = (a * b) + (a * c)")
+    (println "")
+    (println "Absolute Value:")
+    (println "  - Non-negativity: |x| >= 0")
+    (println "  - Symmetry: |-x| = |x|")
+    (println "  - Idempotence: ||x|| = |x|")
+    (println "  - Triangle inequality: |a + b| <= |a| + |b|")
+    (println "")
+    (println "Maximum:")
+    (println "  - Commutativity: max(a, b) = max(b, a)")
+    (println "  - Idempotence: max(x, x) = x")
+    (println "  - Bounds: max(a, b) >= a and max(a, b) >= b")
+    (println "  - Result is one of inputs: max(a, b) ∈ {a, b}")
+    (println "")
+    
+    # Demonstrate some calculations
+    (println "Sample calculations:")
+    (print "add(17, 25) = ")
+    (println (int_to_string (add 17 25)))
+    (print "multiply(7, 8) = ")
+    (println (int_to_string (multiply 7 8)))
+    (print "abs(-42) = ")
+    (println (int_to_string (demo_abs -42)))
+    (print "max(99, 100) = ")
+    (println (int_to_string (demo_max 99 100)))
+    (println "")
+    
+    (println "All property tests passed! ✓")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

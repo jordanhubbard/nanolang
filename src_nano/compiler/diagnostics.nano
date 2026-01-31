@@ -1,0 +1,276 @@
+import "src_nano/generated/compiler_ast.nano"
+
+/* =============================================================================
+ * LOCATION HELPERS
+ * ============================================================================= */
+
+pub fn diag_location(file: string, line: int, column: int) -> CompilerSourceLocation {
+    return CompilerSourceLocation {
+        file: file,
+        line: line,
+        column: column
+    }
+}
+
+pub fn diag_location_empty() -> CompilerSourceLocation {
+    return (diag_location "" 0 0)
+}
+
+shadow diag_location {
+    let loc: CompilerSourceLocation = (diag_location "test.nano" 42 10)
+    assert (== loc.file "test.nano")
+    assert (== loc.line 42)
+    assert (== loc.column 10)
+}
+
+shadow diag_location_empty {
+    let loc: CompilerSourceLocation = (diag_location_empty)
+    assert (== loc.file "")
+    assert (== loc.line 0)
+    assert (== loc.column 0)
+}
+
+/* =============================================================================
+ * DIAGNOSTIC CONSTRUCTORS
+ * ============================================================================= */
+
+pub fn diag_new(phase: int, severity: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return CompilerDiagnostic {
+        phase: phase,
+        severity: severity,
+        code: code,
+        message: message,
+        location: location
+    }
+}
+
+pub fn diag_simple(phase: int, severity: int, code: string, message: string) -> CompilerDiagnostic {
+    let loc: CompilerSourceLocation = (diag_location_empty)
+    return (diag_new phase severity code message loc)
+}
+
+/* Error constructors */
+pub fn diag_error(phase: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_new phase DiagnosticSeverity.DIAG_ERROR code message location)
+}
+
+pub fn diag_error_simple(phase: int, code: string, message: string) -> CompilerDiagnostic {
+    return (diag_simple phase DiagnosticSeverity.DIAG_ERROR code message)
+}
+
+/* Warning constructors */
+pub fn diag_warning(phase: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_new phase DiagnosticSeverity.DIAG_WARNING code message location)
+}
+
+pub fn diag_warning_simple(phase: int, code: string, message: string) -> CompilerDiagnostic {
+    return (diag_simple phase DiagnosticSeverity.DIAG_WARNING code message)
+}
+
+/* Info constructors */
+pub fn diag_info(phase: int, code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_new phase DiagnosticSeverity.DIAG_INFO code message location)
+}
+
+pub fn diag_info_simple(phase: int, code: string, message: string) -> CompilerDiagnostic {
+    return (diag_simple phase DiagnosticSeverity.DIAG_INFO code message)
+}
+
+shadow diag_error {
+    let loc: CompilerSourceLocation = (diag_location "test.nano" 10 5)
+    let diag: CompilerDiagnostic = (diag_error CompilerPhase.PHASE_PARSER "E0001" "Syntax error" loc)
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+    assert (== diag.code "E0001")
+}
+
+shadow diag_warning {
+    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_TYPECHECK "W0001" "Unused variable")
+    assert (== diag.severity DiagnosticSeverity.DIAG_WARNING)
+    assert (== diag.code "W0001")
+}
+
+/* =============================================================================
+ * PHASE-SPECIFIC HELPERS
+ * ============================================================================= */
+
+pub fn diag_lexer_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_LEXER code message location)
+}
+
+pub fn diag_parser_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_PARSER code message location)
+}
+
+pub fn diag_typecheck_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_TYPECHECK code message location)
+}
+
+pub fn diag_transpiler_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_TRANSPILER code message location)
+}
+
+shadow diag_parser_error {
+    let loc: CompilerSourceLocation = (diag_location "input.nano" 20 8)
+    let diag: CompilerDiagnostic = (diag_parser_error "P001" "Unexpected token" loc)
+    assert (== diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+}
+
+/* =============================================================================
+ * DIAGNOSTIC LIST HELPERS
+ * ============================================================================= */
+
+pub fn diag_list_new() -> List<CompilerDiagnostic> {
+    return (list_CompilerDiagnostic_new)
+}
+
+pub fn diag_list_add(list: List<CompilerDiagnostic>, diag: CompilerDiagnostic) -> void {
+    (list_CompilerDiagnostic_push list diag)
+}
+
+pub fn diag_list_count(list: List<CompilerDiagnostic>) -> int {
+    return (list_CompilerDiagnostic_length list)
+}
+
+pub fn diag_list_get(list: List<CompilerDiagnostic>, index: int) -> CompilerDiagnostic {
+    return (list_CompilerDiagnostic_get list index)
+}
+
+pub fn diag_list_has_errors(list: List<CompilerDiagnostic>) -> bool {
+    let count: int = (diag_list_count list)
+    let mut i: int = 0
+    while (< i count) {
+        let diag: CompilerDiagnostic = (diag_list_get list i)
+        if (== diag.severity DiagnosticSeverity.DIAG_ERROR) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow diag_list_new {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    assert (== (diag_list_count diags) 0)
+}
+
+shadow diag_list_add {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_LEXER "E001" "Test error")
+    (diag_list_add diags diag)
+    assert (== (diag_list_count diags) 1)
+}
+
+shadow diag_list_has_errors {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    assert (not (diag_list_has_errors diags))
+    
+    let warning: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_PARSER "W001" "Warning")
+    (diag_list_add diags warning)
+    assert (not (diag_list_has_errors diags))
+    
+    let error: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_TYPECHECK "E001" "Error")
+    (diag_list_add diags error)
+    assert (diag_list_has_errors diags)
+}
+
+/* =============================================================================
+ * MESSAGE FORMATTING HELPERS
+ * =============================================================================
+ * Note: For now, we use simple string literals for messages.
+ * Full string formatting can be added later when std::string is available.
+ */
+
+/* Helper to create type error messages */
+pub fn diag_make_type_error(expected_type: string, found_type: string) -> string {
+    # For now, just return a simple error message
+    # In the future, this could use string formatting
+    let _expected_type: string = expected_type
+    let _found_type: string = found_type
+    return "NSType mismatch"
+}
+
+shadow diag_make_type_error {
+    let msg: string = (diag_make_type_error "int" "string")
+    assert (== msg "NSType mismatch")
+}
+
+/* Helper to create undefined reference messages */
+pub fn diag_make_undefined_error(name: string) -> string {
+    # For now, just return a simple error message
+    return "Undefined reference"
+}
+
+shadow diag_make_undefined_error {
+    let msg: string = (diag_make_undefined_error "x")
+    assert (== msg "Undefined reference")
+}
+
+/* Shadow tests for functions without them */
+shadow diag_new {
+    let loc: CompilerSourceLocation = (diag_location "test.nano" 1 1)
+    let diag: CompilerDiagnostic = (diag_new CompilerPhase.PHASE_LEXER DiagnosticSeverity.DIAG_ERROR "E001" "Test" loc)
+    assert (== diag.code "E001")
+}
+
+shadow diag_simple {
+    let diag: CompilerDiagnostic = (diag_simple CompilerPhase.PHASE_PARSER DiagnosticSeverity.DIAG_INFO "I001" "Test info")
+    assert (== diag.code "I001")
+}
+
+shadow diag_error_simple {
+    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_TYPECHECK "E002" "NSType error")
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+}
+
+shadow diag_warning_simple {
+    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_TRANSPILER "W002" "Warning")
+    assert (== diag.severity DiagnosticSeverity.DIAG_WARNING)
+}
+
+shadow diag_info {
+    let loc: CompilerSourceLocation = (diag_location "test.nano" 5 10)
+    let diag: CompilerDiagnostic = (diag_info CompilerPhase.PHASE_RUNTIME "I002" "Info message" loc)
+    assert (== diag.severity DiagnosticSeverity.DIAG_INFO)
+}
+
+shadow diag_info_simple {
+    let diag: CompilerDiagnostic = (diag_info_simple CompilerPhase.PHASE_LEXER "I003" "Simple info")
+    assert (== diag.code "I003")
+}
+
+shadow diag_lexer_error {
+    let loc: CompilerSourceLocation = (diag_location "input.nano" 1 1)
+    let diag: CompilerDiagnostic = (diag_lexer_error "L001" "Lexer error" loc)
+    assert (== diag.phase CompilerPhase.PHASE_LEXER)
+}
+
+shadow diag_typecheck_error {
+    let loc: CompilerSourceLocation = (diag_location "input.nano" 10 5)
+    let diag: CompilerDiagnostic = (diag_typecheck_error "T001" "NSType error" loc)
+    assert (== diag.phase CompilerPhase.PHASE_TYPECHECK)
+}
+
+shadow diag_transpiler_error {
+    let loc: CompilerSourceLocation = (diag_location "input.nano" 20 8)
+    let diag: CompilerDiagnostic = (diag_transpiler_error "TR001" "Transpiler error" loc)
+    assert (== diag.phase CompilerPhase.PHASE_TRANSPILER)
+}
+
+shadow diag_list_count {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    assert (== (diag_list_count diags) 0)
+    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_PARSER "E001" "Error")
+    (diag_list_add diags diag)
+    assert (== (diag_list_count diags) 1)
+}
+
+shadow diag_list_get {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let diag: CompilerDiagnostic = (diag_error_simple CompilerPhase.PHASE_PARSER "E001" "Test error")
+    (diag_list_add diags diag)
+    let retrieved: CompilerDiagnostic = (diag_list_get diags 0)
+    assert (== retrieved.code "E001")
+}
+
+/* Note: This module is designed to be imported, not run standalone */

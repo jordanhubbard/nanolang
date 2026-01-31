@@ -1,0 +1,18 @@
+fn sum_first_two(arr: array<int>) -> int {
+    let a: int = (at arr 0)
+    let b: int = (at arr 1)
+    return (+ a b)
+}
+
+shadow sum_first_two {
+    let nums: array<int> = [10, 20, 30]
+    assert (== (sum_first_two nums) 30)
+}
+
+fn main() -> int {
+    let data: array<int> = [5, 10, 15]
+    assert (== (sum_first_two data) 15)
+    return 0
+}
+
+shadow main { assert true }

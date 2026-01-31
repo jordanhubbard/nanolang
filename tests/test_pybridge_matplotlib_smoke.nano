@@ -1,0 +1,101 @@
+from "modules/pybridge_matplotlib/pybridge_matplotlib.nano" import mpl_init, mpl_render_png, mpl_shutdown
+from "modules/std/json/json.nano" import Json, parse, free, get, object_has, is_string, as_string
+
+fn pybridge_extract_result_object(response_json: string) -> Json {
+    let root: Json = (parse response_json)
+    if (== root 0) {
+        return (parse "null")
+    }
+    if (object_has root "error") {
+        (free root)
+        return (parse "null")
+    }
+    let result: Json = (get root "result")
+    (free root)
+    return result
+}
+
+shadow pybridge_extract_result_object {
+    let ok: Json = (pybridge_extract_result_object "{\"v\":1,\"id\":1,\"result\":{\"ok\":true}}")
+    assert (!= ok 0)
+    (free ok)
+}
+
+fn test_pybridge_matplotlib_smoke() -> int {
+    let mut ok: int = 0
+    unsafe {
+        set ok (mpl_init 0)
+    }
+    if (== ok 0) {
+        return 0
+    }
+
+    let spec: string = "{\"title\":\"NanoLang\",\"x\":[0,1,2],\"y\":[0,1,4]}"
+    let mut resp: string = ""
+    unsafe {
+        set resp (mpl_render_png spec 1)
+    }
+    if (== (str_length resp) 0) {
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    let result: Json = (pybridge_extract_result_object resp)
+    if (== result 0) {
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    if (not (object_has result "png")) {
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    assert (!= result 0)
+    let png: Json = (get result "png")
+    if (== png 0) {
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    let b64: Json = (get png "__pybridge_binary__")
+    if (== b64 0) {
+        (free png)
+        (free result)
+        unsafe {
+            (mpl_shutdown)
+        }
+        return 0
+    }
+    assert (is_string b64)
+    assert (> (str_length (as_string b64)) 0)
+    (free b64)
+    (free png)
+    (free result)
+
+    unsafe {
+        (mpl_shutdown)
+    }
+
+    return 0
+}
+
+shadow test_pybridge_matplotlib_smoke {
+    assert (== (test_pybridge_matplotlib_smoke) 0)
+}
+
+fn main() -> int {
+    assert (== (test_pybridge_matplotlib_smoke) 0)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

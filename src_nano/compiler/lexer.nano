@@ -2,35 +2,72 @@
  * Self-hosted lexer (library)
  * =============================================================================
  * Public API:
- *   - tokenize_string(source) -> List<LexToken>
- *   - tokenize_file(path) -> List<LexToken>
+ *   - tokenize_string(source) -> List<LexerToken>
+ *   - tokenize_file(path) -> List<LexerToken>
  */
 
 import "src_nano/compiler/ir.nano"
-import "std/diagnostics.nano"
-import "std/result.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
+from "modules/std/fs.nano" import read
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
+}
+
+shadow is_identifier_start {
+    assert (is_identifier_start 65)  /* A */
+    assert (is_identifier_start 90)  /* Z */
+    assert (is_identifier_start 97)  /* a */
+    assert (is_identifier_start 122) /* z */
+    assert (is_identifier_start 95)  /* _ */
+    assert (not (is_identifier_start 48)) /* 0 */
+    assert (not (is_identifier_start 32)) /* space */
 }
 
 fn is_identifier_char(c: int) -> bool {
     return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
 }
 
+shadow is_identifier_char {
+    assert (is_identifier_char 65)  /* A */
+    assert (is_identifier_char 97)  /* a */
+    assert (is_identifier_char 95)  /* _ */
+    assert (is_identifier_char 48)  /* 0 */
+    assert (is_identifier_char 57)  /* 9 */
+    assert (not (is_identifier_char 32))  /* space */
+    assert (not (is_identifier_char 45))  /* - */
+}
+
 fn is_whitespace_char(c: int) -> bool {
     return (or (or (or (== c 32) (== c 9)) (== c 10)) (== c 13))
+}
+
+shadow is_whitespace_char {
+    assert (is_whitespace_char 32)  /* space */
+    assert (is_whitespace_char 9)   /* tab */
+    assert (is_whitespace_char 10)  /* newline */
+    assert (is_whitespace_char 13)  /* carriage return */
+    assert (not (is_whitespace_char 65))  /* A */
 }
 
 fn is_digit_char(c: int) -> bool {
     return (and (>= c 48) (<= c 57))
 }
 
+shadow is_digit_char {
+    assert (is_digit_char 48)  /* 0 */
+    assert (is_digit_char 57)  /* 9 */
+    assert (is_digit_char 53)  /* 5 */
+    assert (not (is_digit_char 65))  /* A */
+    assert (not (is_digit_char 47))  /* / (before 0) */
+    assert (not (is_digit_char 58))  /* : (after 9) */
+}
+
 fn keyword_group1(s: string) -> int {
-    if (== s "module") { return NLTokenType.NL_TOKEN_MODULE } else {
-        if (== s "pub") { return NLTokenType.NL_TOKEN_PUB } else {
-            if (== s "from") { return NLTokenType.NL_TOKEN_FROM } else {
-                if (== s "use") { return NLTokenType.NL_TOKEN_USE } else {
+    if (== s "module") { return LexerTokenType.TOKEN_MODULE } else {
+        if (== s "pub") { return LexerTokenType.TOKEN_PUB } else {
+            if (== s "from") { return LexerTokenType.TOKEN_FROM } else {
+                if (== s "use") { return LexerTokenType.TOKEN_USE } else {
                     return -1
                 }
             }
@@ -38,34 +75,47 @@ fn keyword_group1(s: string) -> int {
     }
 }
 
+shadow keyword_group1 {
+    assert (== (keyword_group1 "module") 19)  /* TOKEN_MODULE */
+    assert (== (keyword_group1 "pub") 20)     /* TOKEN_PUB */
+    assert (== (keyword_group1 "from") 21)    /* TOKEN_FROM */
+    assert (== (keyword_group1 "use") 22)     /* TOKEN_USE */
+    assert (== (keyword_group1 "unknown") (- 0 1))  /* not a keyword */
+}
+
 fn keyword_group2(s: string) -> int {
-    if (== s "extern") { return NLTokenType.NL_TOKEN_EXTERN } else {
-        if (== s "fn") { return NLTokenType.NL_TOKEN_FN } else {
-            if (== s "let") { return NLTokenType.NL_TOKEN_LET } else {
-                if (== s "mut") { return NLTokenType.NL_TOKEN_MUT } else {
-                    if (== s "set") { return NLTokenType.NL_TOKEN_SET } else {
-                        if (== s "if") { return NLTokenType.NL_TOKEN_IF } else {
-                            if (== s "else") { return NLTokenType.NL_TOKEN_ELSE } else {
-                                if (== s "while") { return NLTokenType.NL_TOKEN_WHILE } else {
-                                    if (== s "for") { return NLTokenType.NL_TOKEN_FOR } else {
-                                        if (== s "in") { return NLTokenType.NL_TOKEN_IN } else {
-                                            if (== s "return") { return NLTokenType.NL_TOKEN_RETURN } else {
-                                                if (== s "assert") { return NLTokenType.NL_TOKEN_ASSERT } else {
-                                                    if (== s "shadow") { return NLTokenType.NL_TOKEN_SHADOW } else {
-                                                        if (== s "array") { return NLTokenType.NL_TOKEN_ARRAY } else {
-                                                            if (== s "struct") { return NLTokenType.NL_TOKEN_STRUCT } else {
-                                                                if (== s "enum") { return NLTokenType.NL_TOKEN_ENUM } else {
-                                                                    if (== s "union") { return NLTokenType.NL_TOKEN_UNION } else {
-                                                                        if (== s "match") { return NLTokenType.NL_TOKEN_MATCH } else {
-                                                                            if (== s "import") { return NLTokenType.NL_TOKEN_IMPORT } else {
-                                                                                if (== s "as") { return NLTokenType.NL_TOKEN_AS } else {
-                                                                                    if (== s "opaque") { return NLTokenType.NL_TOKEN_OPAQUE } else {
-                                                                                        if (== s "true") { return NLTokenType.NL_TOKEN_TRUE } else {
-                                                                                            if (== s "false") { return NLTokenType.NL_TOKEN_FALSE } else {
-                                                                                                return -1
-                                                                                            }
-                                                                                        }
-                                                                                    }
+    if (== s "extern") { return LexerTokenType.TOKEN_EXTERN } else {
+        if (== s "fn") { return LexerTokenType.TOKEN_FN } else {
+            if (== s "let") { return LexerTokenType.TOKEN_LET } else {
+                if (== s "mut") { return LexerTokenType.TOKEN_MUT } else {
+                    if (== s "set") { return LexerTokenType.TOKEN_SET } else {
+                        if (== s "if") { return LexerTokenType.TOKEN_IF } else {
+                            if (== s "else") { return LexerTokenType.TOKEN_ELSE } else {
+                                if (== s "while") { return LexerTokenType.TOKEN_WHILE } else {
+                                    if (== s "for") { return LexerTokenType.TOKEN_FOR } else {
+                                        if (== s "in") { return LexerTokenType.TOKEN_IN } else {
+                                            if (== s "return") { return LexerTokenType.TOKEN_RETURN } else {
+                                                if (== s "assert") { return LexerTokenType.TOKEN_ASSERT } else {
+                                                    if (== s "shadow") { return LexerTokenType.TOKEN_SHADOW } else {
+                                if (== s "requires") { return LexerTokenType.TOKEN_REQUIRES } else {
+                                    if (== s "ensures") { return LexerTokenType.TOKEN_ENSURES } else {
+                                                        if (== s "array") { return LexerTokenType.TOKEN_ARRAY } else {
+                                                            if (== s "struct") { return LexerTokenType.TOKEN_STRUCT } else {
+                                                                if (== s "enum") { return LexerTokenType.TOKEN_ENUM } else {
+                                                                    if (== s "union") { return LexerTokenType.TOKEN_UNION } else {
+                                                                        if (== s "match") { return LexerTokenType.TOKEN_MATCH } else {
+                                                                            if (== s "import") { return LexerTokenType.TOKEN_IMPORT } else {
+                                                                                if (== s "as") { return LexerTokenType.TOKEN_AS } else {
+                                                if (== s "opaque") { return LexerTokenType.TOKEN_OPAQUE } else {
+                                                    if (== s "unsafe") { return LexerTokenType.TOKEN_UNSAFE } else {
+                                                        if (== s "true") { return LexerTokenType.TOKEN_TRUE } else {
+                                                            if (== s "false") { return LexerTokenType.TOKEN_FALSE } else {
+                                                                return -1
+                                                            }
+                                                        }
+                                    }
+                                                    }
+                                                }
                                                                                 }
                                                                             }
                                                                         }
@@ -79,6 +129,7 @@ fn keyword_group2(s: string) -> int {
                                         }
                                     }
                                 }
+                                }
                             }
                         }
                     }
@@ -88,13 +139,24 @@ fn keyword_group2(s: string) -> int {
     }
 }
 
+shadow keyword_group2 {
+    assert (== (keyword_group2 "fn") 24)       /* TOKEN_FN */
+    assert (== (keyword_group2 "let") 25)      /* TOKEN_LET */
+    assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
+    assert (== (keyword_group2 "return") 34)   /* TOKEN_RETURN */
+    assert (== (keyword_group2 "struct") 43)   /* TOKEN_STRUCT */
+    assert (== (keyword_group2 "true") 5)      /* TOKEN_TRUE */
+    assert (== (keyword_group2 "false") 6)     /* TOKEN_FALSE */
+    assert (== (keyword_group2 "unknown") (- 0 1))
+}
+
 fn keyword_group3(s: string) -> int {
-    if (== s "int") { return NLTokenType.NL_TOKEN_TYPE_INT } else {
-        if (== s "float") { return NLTokenType.NL_TOKEN_TYPE_FLOAT } else {
-            if (== s "bool") { return NLTokenType.NL_TOKEN_TYPE_BOOL } else {
-                if (== s "string") { return NLTokenType.NL_TOKEN_TYPE_STRING } else {
-                    if (== s "bstring") { return NLTokenType.NL_TOKEN_TYPE_BSTRING } else {
-                        if (== s "void") { return NLTokenType.NL_TOKEN_TYPE_VOID } else {
+    if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
+        if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return LexerTokenType.TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return LexerTokenType.TOKEN_TYPE_STRING } else {
+                    if (== s "bstring") { return LexerTokenType.TOKEN_TYPE_BSTRING } else {
+                        if (== s "void") { return LexerTokenType.TOKEN_TYPE_VOID } else {
                             return -1
                         }
                     }
@@ -104,14 +166,30 @@ fn keyword_group3(s: string) -> int {
     }
 }
 
+shadow keyword_group3 {
+    assert (== (keyword_group3 "int") 50)      /* TOKEN_TYPE_INT */
+    assert (== (keyword_group3 "float") 52)    /* TOKEN_TYPE_FLOAT */
+    assert (== (keyword_group3 "bool") 53)     /* TOKEN_TYPE_BOOL */
+    assert (== (keyword_group3 "string") 54)   /* TOKEN_TYPE_STRING */
+    assert (== (keyword_group3 "void") 56)     /* TOKEN_TYPE_VOID */
+    assert (== (keyword_group3 "unknown") (- 0 1))
+}
+
 fn keyword_group4(s: string) -> int {
-    if (== s "and") { return NLTokenType.NL_TOKEN_AND } else {
-        if (== s "or") { return NLTokenType.NL_TOKEN_OR } else {
-            if (== s "not") { return NLTokenType.NL_TOKEN_NOT } else {
+    if (== s "and") { return LexerTokenType.TOKEN_AND } else {
+        if (== s "or") { return LexerTokenType.TOKEN_OR } else {
+            if (== s "not") { return LexerTokenType.TOKEN_NOT } else {
                 return -1
             }
         }
     }
+}
+
+shadow keyword_group4 {
+    assert (== (keyword_group4 "and") 68)   /* TOKEN_AND */
+    assert (== (keyword_group4 "or") 69)    /* TOKEN_OR */
+    assert (== (keyword_group4 "not") 70)   /* TOKEN_NOT */
+    assert (== (keyword_group4 "unknown") (- 0 1))
 }
 
 fn keyword_or_identifier(s: string) -> int {
@@ -131,19 +209,36 @@ fn keyword_or_identifier(s: string) -> int {
                 if (!= t4 -1) {
                     return t4
                 } else {
-                    return NLTokenType.NL_TOKEN_IDENTIFIER
+                    return LexerTokenType.TOKEN_IDENTIFIER
                 }
             }
         }
     }
 }
 
-fn push_tok(tokens: List<LexToken>, token_type: int, value: string, line: int, column: int) -> void {
-    let tok: LexToken = LexToken { token_type: token_type, value: value, line: line, column: column }
-    (list_LexToken_push tokens tok)
+shadow keyword_or_identifier {
+    assert (== (keyword_or_identifier "fn") 24)     /* keyword from group2 */
+    assert (== (keyword_or_identifier "int") 50)    /* keyword from group3 */
+    assert (== (keyword_or_identifier "and") 68)    /* keyword from group4 */
+    assert (== (keyword_or_identifier "myvar") 4)   /* TOKEN_IDENTIFIER */
 }
 
-fn process_string(source: string, i: int, len: int, tokens: List<LexToken>, line: int, column: int) -> int {
+fn push_tok(tokens: List<LexerToken>, token_type: int, value: string, line: int, column: int) -> void {
+    let tok: LexerToken = LexerToken { token_type: token_type, value: value, line: line, column: column }
+    (list_LexerToken_push tokens tok)
+}
+
+shadow push_tok {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    (push_tok tokens 24 "fn" 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 24)
+    assert (== tok.line 1)
+    assert (== tok.column 1)
+}
+
+fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     let start: int = pos
     while (and (< pos len) (!= (char_at source pos) 34)) {
@@ -158,12 +253,20 @@ fn process_string(source: string, i: int, len: int, tokens: List<LexToken>, line
     } else {
         let str_length: int = (- pos start)
         let str_value: string = (str_substring source start str_length)
-        (push_tok tokens NLTokenType.NL_TOKEN_STRING str_value line column)
+        (push_tok tokens LexerTokenType.TOKEN_STRING str_value line column)
         return (+ pos 1)
     }
 }
 
-fn process_number(source: string, i: int, len: int, tokens: List<LexToken>, line: int, column: int) -> int {
+shadow process_string {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "\"hello\""
+    let new_pos: int = (process_string src 0 7 tokens 1 1)
+    assert (== new_pos 7)  /* position after closing quote */
+    assert (== (list_LexerToken_length tokens) 1)
+}
+
+fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     if (== (char_at source pos) 45) {
@@ -183,17 +286,27 @@ fn process_number(source: string, i: int, len: int, tokens: List<LexToken>, line
         }
         let float_length: int = (- pos start)
         let float_value: string = (str_substring source start float_length)
-        (push_tok tokens NLTokenType.NL_TOKEN_FLOAT float_value line column)
+        (push_tok tokens LexerTokenType.TOKEN_FLOAT float_value line column)
         return pos
     } else {
         let num_length: int = (- pos start)
         let num_value: string = (str_substring source start num_length)
-        (push_tok tokens NLTokenType.NL_TOKEN_NUMBER num_value line column)
+        (push_tok tokens LexerTokenType.TOKEN_NUMBER num_value line column)
         return pos
     }
 }
 
-fn process_identifier(source: string, i: int, len: int, tokens: List<LexToken>, line: int, column: int) -> int {
+shadow process_number {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "123"
+    let new_pos: int = (process_number src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER */
+}
+
+fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
     while (and (< pos len) (is_identifier_char (char_at source pos))) {
@@ -206,7 +319,17 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<LexToken>, 
     return pos
 }
 
-fn process_char_literal(source: string, i: int, len: int, tokens: List<LexToken>, line: int, column: int) -> int {
+shadow process_identifier {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "myvar"
+    let new_pos: int = (process_identifier src 0 5 tokens 1 1)
+    assert (== new_pos 5)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 4)  /* TOKEN_IDENTIFIER */
+}
+
+fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = (+ i 1)
     if (>= pos len) {
         return -1
@@ -247,13 +370,23 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexToken>
         return -1
     } else {
         let value_str: string = (int_to_string ch)
-        (push_tok tokens NLTokenType.NL_TOKEN_NUMBER value_str line column)
+        (push_tok tokens LexerTokenType.TOKEN_NUMBER value_str line column)
         return (+ pos 1)
     }
 }
 
-pub fn tokenize_string(source: string) -> List<LexToken> {
-    let mut tokens: List<LexToken> = (list_LexToken_new)
+shadow process_char_literal {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "'A'"
+    let new_pos: int = (process_char_literal src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER (char as int) */
+}
+
+pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let mut i: int = 0
     let len: int = (str_length source)
     let mut line: int = 1
@@ -267,10 +400,8 @@ pub fn tokenize_string(source: string) -> List<LexToken> {
             if (== c 10) {
                 set line (+ line 1)
                 set line_start (+ i 1)
-                set column 1
-            } else {
-                set column (+ column 1)
             }
+            /* Don't manually track column - it's recalculated below when tokens are created */
             set i (+ i 1)
         } else {
             /* Line comment */
@@ -302,44 +433,52 @@ pub fn tokenize_string(source: string) -> List<LexToken> {
                     set column (- (+ i 1) line_start)
 
                     if (and (< (+ i 1) len) (and (== c 58) (== (char_at source (+ i 1)) 58))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_DOUBLE_COLON "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_DOUBLE_COLON "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 45) (== (char_at source (+ i 1)) 62))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_ARROW "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 62))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_ARROW "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 61))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_EQ "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_EQ "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 33) (== (char_at source (+ i 1)) 61))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_NE "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_NE "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 61))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_LE "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_LE "" line column)
                         set i (+ i 2)
                     } else {
                     if (and (< (+ i 1) len) (and (== c 62) (== (char_at source (+ i 1)) 61))) {
-                        (push_tok tokens NLTokenType.NL_TOKEN_GE "" line column)
+                        (push_tok tokens LexerTokenType.TOKEN_GE "" line column)
                         set i (+ i 2)
                     } else {
                         /* Single '=' assignment (but not '==', '=>') */
                         if (== c 61) {
-                            (push_tok tokens NLTokenType.NL_TOKEN_ASSIGN "" line column)
+                            (push_tok tokens LexerTokenType.TOKEN_ASSIGN "" line column)
                             set i (+ i 1)
                         } else {
                             let mut new_pos: int = -1
                             if (== c 39) {
                                 set new_pos (process_char_literal source i len tokens line column)
+                                if (== new_pos -1) {
+                                    let diag: CompilerDiagnostic = (diag_lexer_error "L0001" "Unterminated or invalid character literal" (diag_location file_name line column))
+                                    (diag_list_add diags diag)
+                                } else { (print "") }
                             } else {
                                 if (== c 34) {
                                     set new_pos (process_string source i len tokens line column)
+                                    if (== new_pos -1) {
+                                        let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated string literal" (diag_location file_name line column))
+                                        (diag_list_add diags diag)
+                                    } else { (print "") }
                                 } else {
                                     if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
                                         set new_pos (process_number source i len tokens line column)
@@ -348,69 +487,72 @@ pub fn tokenize_string(source: string) -> List<LexToken> {
                                             set new_pos (process_identifier source i len tokens line column)
                                         } else {
                                             if (== c 40) {
-                                                (push_tok tokens NLTokenType.NL_TOKEN_LPAREN "" line column)
+                                                (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
                                                 set new_pos (+ i 1)
                                             } else {
                                                 if (== c 41) {
-                                                    (push_tok tokens NLTokenType.NL_TOKEN_RPAREN "" line column)
+                                                    (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
                                                     set new_pos (+ i 1)
                                                 } else {
                                                     if (== c 123) {
-                                                        (push_tok tokens NLTokenType.NL_TOKEN_LBRACE "" line column)
+                                                        (push_tok tokens LexerTokenType.TOKEN_LBRACE "" line column)
                                                         set new_pos (+ i 1)
                                                     } else {
                                                         if (== c 125) {
-                                                            (push_tok tokens NLTokenType.NL_TOKEN_RBRACE "" line column)
+                                                            (push_tok tokens LexerTokenType.TOKEN_RBRACE "" line column)
                                                             set new_pos (+ i 1)
                                                         } else {
                                                             if (== c 91) {
-                                                                (push_tok tokens NLTokenType.NL_TOKEN_LBRACKET "" line column)
+                                                                (push_tok tokens LexerTokenType.TOKEN_LBRACKET "" line column)
                                                                 set new_pos (+ i 1)
                                                             } else {
                                                                 if (== c 93) {
-                                                                    (push_tok tokens NLTokenType.NL_TOKEN_RBRACKET "" line column)
+                                                                    (push_tok tokens LexerTokenType.TOKEN_RBRACKET "" line column)
                                                                     set new_pos (+ i 1)
                                                                 } else {
                                                                     if (== c 44) {
-                                                                        (push_tok tokens NLTokenType.NL_TOKEN_COMMA "" line column)
+                                                                        (push_tok tokens LexerTokenType.TOKEN_COMMA "" line column)
                                                                         set new_pos (+ i 1)
                                                                     } else {
                                                                         if (== c 58) {
-                                                                            (push_tok tokens NLTokenType.NL_TOKEN_COLON "" line column)
+                                                                            (push_tok tokens LexerTokenType.TOKEN_COLON "" line column)
                                                                             set new_pos (+ i 1)
                                                                         } else {
                                                                             if (== c 46) {
-                                                                                (push_tok tokens NLTokenType.NL_TOKEN_DOT "" line column)
+                                                                                (push_tok tokens LexerTokenType.TOKEN_DOT "" line column)
                                                                                 set new_pos (+ i 1)
                                                                             } else {
                                                                                 if (== c 43) {
-                                                                                    (push_tok tokens NLTokenType.NL_TOKEN_PLUS "" line column)
+                                                                                    (push_tok tokens LexerTokenType.TOKEN_PLUS "" line column)
                                                                                     set new_pos (+ i 1)
                                                                                 } else {
                                                                                     if (== c 45) {
-                                                                                        (push_tok tokens NLTokenType.NL_TOKEN_MINUS "" line column)
+                                                                                        (push_tok tokens LexerTokenType.TOKEN_MINUS "" line column)
                                                                                         set new_pos (+ i 1)
                                                                                     } else {
                                                                                         if (== c 42) {
-                                                                                            (push_tok tokens NLTokenType.NL_TOKEN_STAR "" line column)
+                                                                                            (push_tok tokens LexerTokenType.TOKEN_STAR "" line column)
                                                                                             set new_pos (+ i 1)
                                                                                         } else {
                                                                                             if (== c 47) {
-                                                                                                (push_tok tokens NLTokenType.NL_TOKEN_SLASH "" line column)
+                                                                                                (push_tok tokens LexerTokenType.TOKEN_SLASH "" line column)
                                                                                                 set new_pos (+ i 1)
                                                                                             } else {
                                                                                                 if (== c 37) {
-                                                                                                    (push_tok tokens NLTokenType.NL_TOKEN_PERCENT "" line column)
+                                                                                                    (push_tok tokens LexerTokenType.TOKEN_PERCENT "" line column)
                                                                                                     set new_pos (+ i 1)
                                                                                                 } else {
                                                                                                     if (== c 60) {
-                                                                                                        (push_tok tokens NLTokenType.NL_TOKEN_LT "" line column)
+                                                                                                        (push_tok tokens LexerTokenType.TOKEN_LT "" line column)
                                                                                                         set new_pos (+ i 1)
                                                                                                     } else {
                                                                                                         if (== c 62) {
-                                                                                                            (push_tok tokens NLTokenType.NL_TOKEN_GT "" line column)
+                                                                                                            (push_tok tokens LexerTokenType.TOKEN_GT "" line column)
                                                                                                             set new_pos (+ i 1)
                                                                                                         } else {
+                                                                                                            /* Unexpected character */
+                                                                                                            let diag: CompilerDiagnostic = (diag_lexer_error "L0003" "Unexpected character" (diag_location file_name line column))
+                                                                                                            (diag_list_add diags diag)
                                                                                                             set new_pos (+ i 1)
                                                                                                         }
                                                                                                     }
@@ -445,32 +587,27 @@ pub fn tokenize_string(source: string) -> List<LexToken> {
         }
     }
 
-    (push_tok tokens NLTokenType.NL_TOKEN_EOF "" line column)
+    (push_tok tokens LexerTokenType.TOKEN_EOF "" line column)
     return tokens
 }
 
-pub fn tokenize_file(path: string) -> List<LexToken> {
-    let source: string = (file_read path)
-    return (tokenize_string source)
+pub fn tokenize_file(path: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
+    let source: string = (read path)
+    return (tokenize_string source path diags)
 }
 
-pub struct TokenList {
-    tokens: List<LexToken>
-}
-
-pub fn tokenize_file_result(path: string) -> Result<TokenList, Diagnostic> {
-    if (== (file_exists path) false) {
-        let s: Span = (span_single path 1 1)
-        let d: Diagnostic = (diag_error (str_concat "file not found: " path) s)
-        return Result.Err { error: d }
-    }
-
-    let source: string = (file_read path)
-    return Result.Ok { value: TokenList { tokens: (tokenize_string source) } }
+shadow tokenize_file {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* Test on a known file that exists in the repository */
+    let toks: List<LexerToken> = (tokenize_file "examples/language/nl_hello.nano" diags)
+    assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
 }
 
 shadow tokenize_string {
     let source: string = "import \"x.nano\" as X\nfn main() -> int { return 0 }"
-    let toks: List<LexToken> = (tokenize_string source)
-    assert (> (list_LexToken_length toks) 0)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let toks: List<LexerToken> = (tokenize_string source "test.nano" diags)
+    assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
 }

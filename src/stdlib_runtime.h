@@ -76,10 +76,33 @@ void generate_math_utility_builtins(StringBuilder *sb);
 void generate_stdlib_runtime(StringBuilder *sb);
 
 /* generate_module_system_stubs: Generate stub implementations for module functions
- * 
+ *
  * Provides fallback implementations when module system isn't linked.
  */
 void generate_module_system_stubs(StringBuilder *sb);
+
+/**
+ * @brief Generate C code for timing utilities (microseconds, nanoseconds)
+ * @param sb StringBuilder to append generated code to
+ */
+void generate_timing_utilities(StringBuilder *sb);
+
+/**
+ * @brief Generate C code for console I/O utilities (readline, etc.)
+ * @param sb StringBuilder to append generated code to
+ */
+void generate_console_io_utilities(StringBuilder *sb);
+
+/**
+ * @brief Generate C code for cross-platform profiling system
+ * @param sb StringBuilder to append generated code to
+ *
+ * When profiling is enabled (-pg flag), this generates code that:
+ * - macOS: Uses 'sample' command on child process
+ * - Linux: Uses 'gprofng collect' to wrap execution
+ * Both output OS-neutral JSON analysis of performance hotspots
+ */
+void generate_profiling_system(StringBuilder *sb);
 
 #endif /* STDLIB_RUNTIME_H */
 

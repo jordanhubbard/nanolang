@@ -5,21 +5,10 @@
  */
 
 /* AST Node Types */
-enum ASTNodeType {
-    Program,
-    Function,
-    Call,
-    Identifier,
-    IntLiteral,
-    StringLiteral,
-    Block,
-    If,
-    Empty
-}
 
 /* Core AST Structure */
 struct AST {
-    node_type: ASTNodeType,
+    node_type: int,
     name: string,
     value: string,
     child_count: int
@@ -28,98 +17,175 @@ struct AST {
 /* Create empty node */
 fn ast_empty() -> AST {
     return AST {
-        node_type: ASTNodeType.Empty,
+        node_type: 8,
         name: "",
         value: "",
         child_count: 0
     }
 }
 
+shadow ast_empty {
+    let node: AST = (ast_empty)
+    assert (== node.node_type 8)
+}
+
 /* Create program */
 fn ast_program() -> AST {
     return AST {
-        node_type: ASTNodeType.Program,
+        node_type: 0,
         name: "program",
         value: "",
         child_count: 0
     }
 }
 
+shadow ast_program {
+    let node: AST = (ast_program)
+    assert (== node.node_type 0)
+    assert (== node.name "program")
+}
+
 /* Create function */
 fn ast_function(name: string) -> AST {
     return AST {
-        node_type: ASTNodeType.Function,
+        node_type: 1,
         name: name,
         value: "",
         child_count: 0
     }
 }
 
+shadow ast_function {
+    let node: AST = (ast_function "foo")
+    assert (== node.node_type 1)
+    assert (== node.name "foo")
+}
+
 /* Create identifier */
 fn ast_identifier(name: string) -> AST {
     return AST {
-        node_type: ASTNodeType.Identifier,
+        node_type: 3,
         name: name,
         value: name,
         child_count: 0
     }
 }
 
+shadow ast_identifier {
+    let node: AST = (ast_identifier "bar")
+    assert (== node.node_type 3)
+    assert (== node.name "bar")
+    assert (== node.value "bar")
+}
+
 /* Create integer literal - store as string */
 fn ast_int(value: string) -> AST {
     return AST {
-        node_type: ASTNodeType.IntLiteral,
+        node_type: 4,
         name: "",
         value: value,
         child_count: 0
     }
+}
+
+shadow ast_int {
+    let node: AST = (ast_int "123")
+    assert (== node.node_type 4)
+    assert (== node.value "123")
 }
 
 /* Create string literal */
 fn ast_string(value: string) -> AST {
     return AST {
-        node_type: ASTNodeType.StringLiteral,
+        node_type: 5,
         name: "",
         value: value,
         child_count: 0
     }
 }
 
+shadow ast_string {
+    let node: AST = (ast_string "hi")
+    assert (== node.node_type 5)
+    assert (== node.value "hi")
+}
+
 /* Create call node */
 fn ast_call(func_name: string, arg_count: int) -> AST {
     return AST {
-        node_type: ASTNodeType.Call,
+        node_type: 2,
         name: func_name,
         value: "",
         child_count: arg_count
     }
 }
 
+shadow ast_call {
+    let node: AST = (ast_call "println" 2)
+    assert (== node.node_type 2)
+    assert (== node.name "println")
+    assert (== node.child_count 2)
+}
+
 /* Create block */
 fn ast_block(stmt_count: int) -> AST {
     return AST {
-        node_type: ASTNodeType.Block,
+        node_type: 6,
         name: "",
         value: "",
         child_count: stmt_count
     }
 }
 
+shadow ast_block {
+    let node: AST = (ast_block 3)
+    assert (== node.node_type 6)
+    assert (== node.child_count 3)
+}
+
 /* Query functions */
 fn ast_is_call(node: AST) -> bool {
-    return (== node.node_type ASTNodeType.Call)
+    return (== node.node_type 2)
+}
+
+shadow ast_is_call {
+    let call_node: AST = (ast_call "f" 1)
+    let int_node: AST = (ast_int "1")
+    assert (ast_is_call call_node)
+    assert (not (ast_is_call int_node))
 }
 
 fn ast_is_identifier(node: AST) -> bool {
-    return (== node.node_type ASTNodeType.Identifier)
+    return (== node.node_type 3)
+}
+
+shadow ast_is_identifier {
+    let id_node: AST = (ast_identifier "x")
+    let str_node: AST = (ast_string "x")
+    assert (ast_is_identifier id_node)
+    assert (not (ast_is_identifier str_node))
 }
 
 fn ast_is_int_literal(node: AST) -> bool {
-    return (== node.node_type ASTNodeType.IntLiteral)
+    return (== node.node_type 4)
+}
+
+shadow ast_is_int_literal {
+    let int_node: AST = (ast_int "7")
+    let call_node: AST = (ast_call "f" 0)
+    assert (ast_is_int_literal int_node)
+    assert (not (ast_is_int_literal call_node))
 }
 
 fn ast_is_string_literal(node: AST) -> bool {
-    return (== node.node_type ASTNodeType.StringLiteral)
+    return (== node.node_type 5)
+}
+
+shadow ast_is_string_literal {
+    let str_node: AST = (ast_string "s")
+    let id_node: AST = (ast_identifier "s")
+    assert (ast_is_string_literal str_node)
+    assert (not (ast_is_string_literal id_node))
 }
 
 fn ast_is_literal(node: AST) -> bool {
@@ -133,29 +199,38 @@ fn ast_is_literal(node: AST) -> bool {
     }
 }
 
+shadow ast_is_literal {
+    let int_node: AST = (ast_int "9")
+    let str_node: AST = (ast_string "s")
+    let id_node: AST = (ast_identifier "s")
+    assert (ast_is_literal int_node)
+    assert (ast_is_literal str_node)
+    assert (not (ast_is_literal id_node))
+}
+
 /* Get type name */
 fn ast_type_name(node: AST) -> string {
-    let node_type: ASTNodeType = node.node_type
+    let node_type: int = node.node_type
     
-    if (== node_type ASTNodeType.Program) {
+    if (== node_type 0) {
         return "Program"
     } else {
-        if (== node_type ASTNodeType.Function) {
+        if (== node_type 1) {
             return "Function"
         } else {
-            if (== node_type ASTNodeType.Call) {
+            if (== node_type 2) {
                 return "Call"
             } else {
-                if (== node_type ASTNodeType.Identifier) {
+                if (== node_type 3) {
                     return "Identifier"
                 } else {
-                    if (== node_type ASTNodeType.IntLiteral) {
+                    if (== node_type 4) {
                         return "IntLiteral"
                     } else {
-                        if (== node_type ASTNodeType.StringLiteral) {
+                        if (== node_type 5) {
                             return "StringLiteral"
                         } else {
-                            if (== node_type ASTNodeType.Block) {
+                            if (== node_type 6) {
                                 return "Block"
                             } else {
                                 return "Unknown"
@@ -168,21 +243,26 @@ fn ast_type_name(node: AST) -> string {
     }
 }
 
+shadow ast_type_name {
+    let call_node: AST = (ast_call "f" 0)
+    assert (== (ast_type_name call_node) "Call")
+}
+
 /* Pretty print */
 fn ast_to_string(node: AST) -> string {
-    let node_type: ASTNodeType = node.node_type
+    let node_type: int = node.node_type
     
-    if (== node_type ASTNodeType.IntLiteral) {
-        return (str_concat "Int(" (str_concat node.value ")"))
+    if (== node_type 4) {
+        return (+ "Int(" (+ node.value ")"))
     } else {
-        if (== node_type ASTNodeType.StringLiteral) {
-            return (str_concat "String(" (str_concat node.value ")"))
+        if (== node_type 5) {
+            return (+ "String(" (+ node.value ")"))
         } else {
-            if (== node_type ASTNodeType.Identifier) {
-                return (str_concat "Id(" (str_concat node.name ")"))
+            if (== node_type 3) {
+                return (+ "Id(" (+ node.name ")"))
             } else {
-                if (== node_type ASTNodeType.Call) {
-                    return (str_concat "Call(" (str_concat node.name ")"))
+                if (== node_type 2) {
+                    return (+ "Call(" (+ node.name ")"))
                 } else {
                     return (ast_type_name node)
                 }
@@ -191,7 +271,14 @@ fn ast_to_string(node: AST) -> string {
     }
 }
 
-fn main() -> int {
+shadow ast_to_string {
+    let int_node: AST = (ast_int "5")
+    let id_node: AST = (ast_identifier "x")
+    assert (== (ast_to_string int_node) "Int(5)")
+    assert (== (ast_to_string id_node) "Id(x)")
+}
+
+fn ast_self_test() -> int {
     (println "=== AST Module - Basic Tests ===")
     (println "")
     
@@ -253,7 +340,7 @@ fn main() -> int {
     /* Test type names */
     (println "Testing type names...")
     let prog_name: string = (ast_type_name prog_node)
-    if (== (str_equals prog_name "Program") true) {
+    if (== (== prog_name "Program") true) {
         (println "✓ Program type name")
     } else {
         (println "✗ FAIL: Program type name")
@@ -261,7 +348,7 @@ fn main() -> int {
     }
     
     let func_name: string = (ast_type_name func_node)
-    if (== (str_equals func_name "Function") true) {
+    if (== (== func_name "Function") true) {
         (println "✓ Function type name")
     } else {
         (println "✗ FAIL: Function type name")
@@ -273,4 +360,8 @@ fn main() -> int {
     (println "All AST tests PASSED! ✓")
     (println "============================")
     return 0
+}
+
+shadow ast_self_test {
+    assert (== (ast_self_test) 0)
 }

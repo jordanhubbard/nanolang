@@ -1,0 +1,22 @@
+{
+  "name": "uv",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "libuv asynchronous I/O for non-blocking operations.",
+  "use_when": [
+    "User needs async I/O",
+    "User says 'non-blocking', 'async', 'event loop', 'networking'",
+    "User is building a server or async application"
+  ],
+  "avoid_when": ["User wants synchronous I/O (use std)"],
+  "capabilities": ["async_io", "event_loop", "tcp_server", "udp", "timers"],
+  "keywords": ["async", "libuv", "networking", "server", "non-blocking"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["http_server"],
+    "system": [{"id": "libuv", "install": {"apt": "libuv1-dev", "brew": "libuv"}}]
+  },
+  "io_surfaces": ["network"],
+  "alternatives": [{"when": "sync I/O", "module": "std"}]
+}

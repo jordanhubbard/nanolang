@@ -1,0 +1,320 @@
+/* =============================================================================
+ * Standard Library: Logging and Tracing
+ * =============================================================================
+ * Structured logging with log levels, contexts, and machine-readable output.
+ * 
+ * Features:
+ * - Hierarchical log levels (Debug < Info < Warn < Error < Fatal)
+ * - Structured context (key-value pairs)
+ * - JSON output mode for machine parsing
+ * - Function call tracing with timing
+ * - Thread-safe operations
+ * 
+ * Usage:
+ *   from "modules/std/log/log.nano" import log_info, log_error, trace_enter
+ *   
+ *   (log_info "Application started")
+ *   let trace_id: int = (trace_enter "process_data")
+ *   // ... work ...
+ *   (trace_exit trace_id)
+ * ============================================================================= */
+
+/* Log Levels (0 = Debug, 1 = Info, 2 = Warn, 3 = Error, 4 = Fatal) */
+let LOG_LEVEL_DEBUG: int = 0
+let LOG_LEVEL_INFO: int = 1
+let LOG_LEVEL_WARN: int = 2
+let LOG_LEVEL_ERROR: int = 3
+let LOG_LEVEL_FATAL: int = 4
+
+/* Output modes */
+let OUTPUT_MODE_TEXT: int = 0
+let OUTPUT_MODE_JSON: int = 1
+
+/* =============================================================================
+ * C BACKEND FUNCTIONS
+ * ============================================================================= */
+
+extern fn nl_log_set_level(level: int) -> void
+extern fn nl_log_get_level() -> int
+extern fn nl_log_set_output_mode(mode: int) -> void
+extern fn nl_log_get_output_mode() -> int
+extern fn nl_log_set_file(path: string) -> void
+extern fn nl_log_write(level: int, message: string) -> void
+extern fn nl_log_trace_enter(fn_name: string) -> int
+extern fn nl_log_trace_exit(trace_id: int, fn_name: string) -> void
+extern fn nl_log_trace_event(name: string, data: string) -> void
+
+/* =============================================================================
+ * CONFIGURATION
+ * ============================================================================= */
+
+pub fn set_log_level(level: int) -> void {
+    unsafe {
+        (nl_log_set_level level)
+    }
+}
+
+shadow set_log_level {
+    (set_log_level LOG_LEVEL_WARN)
+    assert (== (nl_log_get_level) LOG_LEVEL_WARN)
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+}
+
+pub fn set_output_mode(mode: int) -> void {
+    unsafe {
+        (nl_log_set_output_mode mode)
+    }
+}
+
+shadow set_output_mode {
+    (set_output_mode OUTPUT_MODE_JSON)
+    assert (== (nl_log_get_output_mode) OUTPUT_MODE_JSON)
+    (set_output_mode OUTPUT_MODE_TEXT)  /* Reset */
+}
+
+pub fn set_log_file(path: string) -> void {
+    unsafe {
+        (nl_log_set_file path)
+    }
+}
+
+shadow set_log_file {
+    (set_log_file "/tmp/test.log")
+    (set_log_file "")  /* Reset */
+    assert true
+}
+
+pub fn get_log_level() -> int {
+    unsafe {
+        return (nl_log_get_level)
+    }
+}
+
+shadow get_log_level {
+    let level: int = (get_log_level)
+    assert (>= level 0)
+    assert (<= level 4)
+}
+
+/* =============================================================================
+ * BASIC LOGGING
+ * ============================================================================= */
+
+fn level_to_string(level: int) -> string {
+    return (cond
+        ((== level LOG_LEVEL_DEBUG) "DEBUG")
+        ((== level LOG_LEVEL_INFO) "INFO")
+        ((== level LOG_LEVEL_WARN) "WARN")
+        ((== level LOG_LEVEL_ERROR) "ERROR")
+        ((== level LOG_LEVEL_FATAL) "FATAL")
+        (else "UNKNOWN")
+    )
+}
+
+shadow level_to_string {
+    assert (== (level_to_string LOG_LEVEL_DEBUG) "DEBUG")
+    assert (== (level_to_string LOG_LEVEL_INFO) "INFO")
+    assert (== (level_to_string LOG_LEVEL_WARN) "WARN")
+    assert (== (level_to_string LOG_LEVEL_ERROR) "ERROR")
+    assert (== (level_to_string LOG_LEVEL_FATAL) "FATAL")
+}
+
+fn format_log_text(level: int, message: string) -> string {
+    let level_str: string = (level_to_string level)
+    return (+ "[" (+ level_str (+ "] " message)))
+}
+
+shadow format_log_text {
+    let text: string = (format_log_text LOG_LEVEL_INFO "test message")
+    assert (> (str_length text) 0)
+}
+
+fn format_log_json(level: int, message: string) -> string {
+    let level_str: string = (level_to_string level)
+    let mut json: string = "{"
+    set json (+ json "\"level\":\"")
+    set json (+ json level_str)
+    set json (+ json "\",\"message\":\"")
+    set json (+ json message)
+    set json (+ json "\"}")
+    return json
+}
+
+shadow format_log_json {
+    let json: string = (format_log_json LOG_LEVEL_ERROR "test error")
+    assert (> (str_length json) 0)
+}
+
+fn should_log(level: int) -> bool {
+    return (>= level (get_log_level))
+}
+
+shadow should_log {
+    (set_log_level LOG_LEVEL_WARN)
+    assert (not (should_log LOG_LEVEL_DEBUG))
+    assert (not (should_log LOG_LEVEL_INFO))
+    assert (should_log LOG_LEVEL_WARN)
+    assert (should_log LOG_LEVEL_ERROR)
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+}
+
+pub fn log_write(level: int, message: string) -> void {
+    if (should_log level) {
+        /* Let the C backend apply output mode formatting and file routing. */
+        unsafe {
+            (nl_log_write level message)
+        }
+    }
+}
+
+shadow log_write {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (log_write LOG_LEVEL_INFO "test")
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+    assert true
+}
+
+/* =============================================================================
+ * CONVENIENCE FUNCTIONS
+ * ============================================================================= */
+
+pub fn log_debug(message: string) -> void {
+    (log_write LOG_LEVEL_DEBUG message)
+}
+
+shadow log_debug {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (log_debug "debug message")
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+    assert true
+}
+
+pub fn log_info(message: string) -> void {
+    (log_write LOG_LEVEL_INFO message)
+}
+
+shadow log_info {
+    (log_info "info message")
+    assert true
+}
+
+pub fn log_warn(message: string) -> void {
+    (log_write LOG_LEVEL_WARN message)
+}
+
+shadow log_warn {
+    (log_warn "warning message")
+    assert true
+}
+
+pub fn log_error(message: string) -> void {
+    (log_write LOG_LEVEL_ERROR message)
+}
+
+shadow log_error {
+    (log_error "error message")
+    assert true
+}
+
+pub fn log_fatal(message: string) -> void {
+    (log_write LOG_LEVEL_FATAL message)
+}
+
+shadow log_fatal {
+    (log_fatal "fatal message")
+    assert true
+}
+
+/* =============================================================================
+ * TRACING
+ * ============================================================================= */
+
+/* Trace entry: returns unique trace ID */
+pub fn trace_enter(fn_name: string) -> int {
+    unsafe {
+        return (nl_log_trace_enter fn_name)
+    }
+}
+
+shadow trace_enter {
+    (set_log_level LOG_LEVEL_DEBUG)
+    let id1: int = (trace_enter "test_function")
+    let id2: int = (trace_enter "test_function")
+    assert (!= id1 id2)
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+}
+
+/* Trace exit */
+pub fn trace_exit(trace_id: int, fn_name: string) -> void {
+    unsafe {
+        (nl_log_trace_exit trace_id fn_name)
+    }
+}
+
+shadow trace_exit {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (trace_exit 1 "test_function")
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+    assert true
+}
+
+/* Trace event (arbitrary named event) */
+pub fn trace_event(name: string, data: string) -> void {
+    unsafe {
+        (nl_log_trace_event name data)
+    }
+}
+
+shadow trace_event {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (trace_event "cache_miss" "user_id=42")
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+    assert true
+}
+
+/* =============================================================================
+ * HELPER: Format integer for logging
+ * ============================================================================= */
+
+pub fn log_int(level: int, message: string, value: int) -> void {
+    let full_message: string = (+ message (+ "=" (int_to_string value)))
+    (log_write level full_message)
+}
+
+shadow log_int {
+    (log_int LOG_LEVEL_INFO "count" 42)
+    assert true
+}
+
+pub fn log_debug_int(message: string, value: int) -> void {
+    (log_int LOG_LEVEL_DEBUG message value)
+}
+
+shadow log_debug_int {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (log_debug_int "x" 10)
+    (set_log_level LOG_LEVEL_INFO)  /* Reset */
+    assert true
+}
+
+pub fn log_info_int(message: string, value: int) -> void {
+    (log_int LOG_LEVEL_INFO message value)
+}
+
+shadow log_info_int {
+    (log_info_int "count" 5)
+    assert true
+}
+
+/* =============================================================================
+ * MODULE METADATA
+ * ============================================================================= */
+
+pub fn log_version() -> string {
+    return "1.0.0"
+}
+
+shadow log_version {
+    let version: string = (log_version)
+    assert (== version "1.0.0")
+}

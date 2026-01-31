@@ -1,0 +1,16 @@
+# Expected Error: Missing field in struct initialization
+
+struct Point {
+    x: int
+    y: int
+    z: int
+}
+
+fn main() -> int {
+    let p: Point = Point { x: 10, y: 20 }  # Error: missing field 'z'
+    return p.x
+}
+
+shadow main {
+    assert (== (main) 0)
+}

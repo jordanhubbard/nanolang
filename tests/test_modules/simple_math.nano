@@ -1,0 +1,47 @@
+# Simple math module used by module qualification + introspection tests
+
+module simple_math
+
+pub struct Point {
+    x: int,
+    y: int
+}
+
+pub struct Rectangle {
+    x: int,
+    y: int,
+    w: int,
+    h: int
+}
+
+pub fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+pub fn subtract(a: int, b: int) -> int {
+    return (- a b)
+}
+
+shadow subtract {
+    assert (== (subtract 10 3) 7)
+}
+
+pub fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 4 5) 20)
+}
+
+pub fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 21) 42)
+}

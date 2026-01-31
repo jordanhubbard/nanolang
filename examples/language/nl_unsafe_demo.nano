@@ -1,0 +1,95 @@
+/* Demonstration of unsafe blocks in Nanolang
+ * 
+ * Unsafe blocks are used to mark code sections that:
+ * - Call extern functions (FFI)
+ * - Perform unchecked operations
+ * - Require explicit acknowledgment of potential hazards
+ * 
+ * This is a compile-time safety feature that makes FFI calls explicit.
+ */
+
+/* Example 1: Basic unsafe block with simple operations */
+fn example_basic_unsafe() -> int {
+    (println "Example 1: Basic unsafe block")
+    
+    /* Unsafe blocks can contain any valid NanoLang code */
+    unsafe {
+        let x: int = 42
+        let y: int = 58
+        let result: int = (+ x y)
+        (print "  Result inside unsafe block: ")
+        (println result)
+        return result
+    }
+}
+
+shadow example_basic_unsafe {
+    assert (== (example_basic_unsafe) 100)
+}
+
+/* Example 2: Nested unsafe blocks */
+fn example_nested_unsafe() -> int {
+    (println "Example 2: Nested unsafe blocks")
+    
+    let a: int = 10
+    unsafe {
+        let b: int = 20
+        (print "  Outer unsafe: a + b = ")
+        (println (+ a b))
+        
+        unsafe {
+            let c: int = 30
+            let total: int = (+ (+ a b) c)
+            (print "  Inner unsafe: total = ")
+            (println total)
+            return total
+        }
+    }
+}
+
+shadow example_nested_unsafe {
+    assert (== (example_nested_unsafe) 60)
+}
+
+/* Example 3: Unsafe blocks for FFI-like operations
+ * Note: In a real scenario, you'd use actual extern declarations
+ */
+fn example_unsafe_rationale() -> int {
+    (println "Example 3: Unsafe blocks mark explicit trust boundaries")
+    (println "  - FFI calls to C libraries")
+    (println "  - Operations that bypass safety checks")
+    (println "  - Code requiring manual verification")
+    
+    /* In production, this would contain actual extern calls */
+    unsafe {
+        /* Example: extern fn some_c_function() -> int */
+        let simulated_result: int = 123
+        return simulated_result
+    }
+}
+
+shadow example_unsafe_rationale {
+    assert (== (example_unsafe_rationale) 123)
+}
+
+fn main() -> int {
+    (println "=== Nanolang Unsafe Blocks Demo ===")
+    (println "")
+    
+    let r1: int = (example_basic_unsafe)
+    (println "")
+    
+    let r2: int = (example_nested_unsafe)
+    (println "")
+    
+    let r3: int = (example_unsafe_rationale)
+    (println "")
+    
+    (println "=== All examples completed successfully ===")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

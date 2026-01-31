@@ -1,0 +1,237 @@
+# SDL_image Module - Complete API Wrapper
+# Load PNG, JPG, GIF, WEBP, TIF, and other image formats into SDL surfaces and textures
+#
+# This module provides complete bindings to SDL_image 2.x
+# SDL_image supports: PNG, JPEG, BMP, GIF, PCX, TGA, TIFF, WEBP, XPM, XV, and more.
+#
+# Note: This module depends on SDL for renderer, surface, and texture types.
+# Always import SDL before SDL_image: import "modules/sdl/sdl.nano"
+
+# ============================================================================
+# Initialization and Version Info
+# ============================================================================
+
+# Initialize SDL_image with support for specified formats
+# flags: Combination of IMG_INIT_* constants (use bitwise OR)
+# Returns: Flags successfully initialized (or 0 on failure)
+# Example: (IMG_Init (+ IMG_INIT_PNG IMG_INIT_JPG)) for PNG and JPEG support
+extern fn IMG_Init(_flags: int) -> int
+
+# Shutdown and cleanup SDL_image - call before SDL_Quit
+extern fn IMG_Quit() -> void
+
+# Get SDL_image version information
+# Returns: Version packed as int (use Linked_Version functions to extract)
+extern fn IMG_Linked_Version() -> int
+
+# ============================================================================
+# Image Loading - From File
+# ============================================================================
+
+# Load an image file into an SDL_Surface (auto-detects format)
+# Returns: SDL_Surface pointer (or 0 on failure)
+# Note: Caller must free the surface with SDL_FreeSurface when done
+extern fn IMG_Load(_file: string) -> int
+
+# Load an image file directly as an SDL_Texture for rendering
+# renderer: The SDL_Renderer to use
+# file: Path to the image file
+# Returns: SDL_Texture pointer (or 0 on failure)
+# Note: This is the most convenient function - loads and converts in one step
+extern fn IMG_LoadTexture(_renderer: SDL_Renderer, _file: string) -> int
+
+# Load image as surface with type detection
+extern fn IMG_Load_RW(_src: int, _freesrc: int) -> int
+
+# Load specific image formats from file
+extern fn IMG_LoadPNG_RW(_src: int) -> int
+extern fn IMG_LoadJPG_RW(_src: int) -> int
+extern fn IMG_LoadBMP_RW(_src: int) -> int
+extern fn IMG_LoadGIF_RW(_src: int) -> int
+extern fn IMG_LoadTGA_RW(_src: int) -> int
+extern fn IMG_LoadPCX_RW(_src: int) -> int
+extern fn IMG_LoadTIF_RW(_src: int) -> int
+extern fn IMG_LoadWEBP_RW(_src: int) -> int
+extern fn IMG_LoadXPM_RW(_src: int) -> int
+extern fn IMG_LoadXV_RW(_src: int) -> int
+
+# Load texture from RWops with type detection
+extern fn IMG_LoadTexture_RW(_renderer: SDL_Renderer, _src: int, _freesrc: int) -> int
+
+# Load specific formats as textures
+extern fn IMG_LoadTextureTyped_RW(_renderer: SDL_Renderer, _src: int, _freesrc: int, _type: string) -> int
+
+# ============================================================================
+# Format Detection
+# ============================================================================
+
+# Check if a file/data is a specific image format
+# Returns: 1 if format matches, 0 otherwise
+extern fn IMG_isPNG(_src: int) -> int
+extern fn IMG_isJPG(_src: int) -> int
+extern fn IMG_isBMP(_src: int) -> int
+extern fn IMG_isGIF(_src: int) -> int
+extern fn IMG_isTIF(_src: int) -> int
+extern fn IMG_isPCX(_src: int) -> int
+extern fn IMG_isPNM(_src: int) -> int
+extern fn IMG_isSVG(_src: int) -> int
+extern fn IMG_isTGA(_src: int) -> int
+extern fn IMG_isWEBP(_src: int) -> int
+extern fn IMG_isXPM(_src: int) -> int
+extern fn IMG_isXV(_src: int) -> int
+extern fn IMG_isICO(_src: int) -> int
+extern fn IMG_isCUR(_src: int) -> int
+
+# ============================================================================
+# Image Saving
+# ============================================================================
+
+# Save an SDL_Surface as a PNG file
+# surface: The SDL_Surface to save
+# file: Path where to save the PNG
+# Returns: 0 on success, -1 on failure
+extern fn IMG_SavePNG(_surface: int, _file: string) -> int
+
+# Save PNG to RWops
+extern fn IMG_SavePNG_RW(_surface: int, _dst: int, _freedst: int) -> int
+
+# Save as JPEG (requires libjpeg)
+extern fn IMG_SaveJPG(_surface: int, _file: string, _quality: int) -> int
+extern fn IMG_SaveJPG_RW(_surface: int, _dst: int, _freedst: int, _quality: int) -> int
+
+# ============================================================================
+# Animation Support (GIF/WEBP)
+# ============================================================================
+
+# Load animated image
+extern fn IMG_LoadAnimation(_file: string) -> int
+extern fn IMG_LoadAnimation_RW(_src: int, _freesrc: int) -> int
+extern fn IMG_LoadAnimationTyped_RW(_src: int, _freesrc: int, _type: string) -> int
+
+# Load specific animated formats
+extern fn IMG_LoadGIFAnimation_RW(_src: int) -> int
+extern fn IMG_LoadWEBPAnimation_RW(_src: int) -> int
+
+# Free animation
+extern fn IMG_FreeAnimation(_anim: int) -> void
+
+# ============================================================================
+# Error Handling
+# ============================================================================
+
+# Get the last error message from SDL_image
+# Returns: Error string describing the last error
+extern fn IMG_GetError() -> string
+
+# Set the error message (for custom error reporting)
+extern fn IMG_SetError(_fmt: string) -> int
+
+# ============================================================================
+# Constants - Initialization Flags
+# ============================================================================
+
+let IMG_INIT_JPG: int = 1    # JPEG support via libjpeg
+let IMG_INIT_PNG: int = 2    # PNG support via libpng
+let IMG_INIT_TIF: int = 4    # TIFF support via libtiff
+let IMG_INIT_WEBP: int = 8   # WEBP support via libwebp
+let IMG_INIT_JXL: int = 16   # JPEG XL support (SDL_image 2.6+)
+let IMG_INIT_AVIF: int = 32  # AVIF support (SDL_image 2.6+)
+let IMG_INIT_ALL: int = 63   # All supported formats
+
+# ============================================================================
+# NanoLang Helper Functions
+# These provide convenient wrappers for common operations
+# ============================================================================
+
+# Load a PNG icon as a texture (convenience wrapper)
+# Returns: SDL_Texture pointer (or 0 on failure)
+extern fn nl_img_load_png_texture(_renderer: SDL_Renderer, _file: string) -> int
+
+# Load any image format as a texture with error handling
+# Returns: SDL_Texture pointer (or 0 on failure)
+extern fn nl_img_load_texture(_renderer: SDL_Renderer, _file: string) -> int
+
+# Render a texture at a specific position
+# texture: The SDL_Texture to render
+# renderer: The SDL_Renderer to use
+# x, y: Position to render at (top-left corner)
+# w, h: Width and height to render (use 0, 0 for original size)
+# Returns: 0 on success, -1 on failure
+extern fn nl_img_render_texture(_renderer: SDL_Renderer, _texture: int, _x: int, _y: int, _w: int, _h: int) -> int
+
+# Render texture with rotation and flipping
+# angle: Rotation angle in degrees (0-360)
+# flip: 0=none, 1=horizontal, 2=vertical, 3=both
+extern fn nl_img_render_texture_ex(_renderer: SDL_Renderer, _texture: int, _x: int, _y: int, _w: int, _h: int, _angle: float, _flip: int) -> int
+
+# Render texture with source rectangle (sprite sheet support)
+# src_x, src_y, src_w, src_h: Source rectangle in texture
+# dst_x, dst_y, dst_w, dst_h: Destination rectangle on screen
+extern fn nl_img_render_texture_sprite(_renderer: SDL_Renderer, _texture: int, _src_x: int, _src_y: int, _src_w: int, _src_h: int, _dst_x: int, _dst_y: int, _dst_w: int, _dst_h: int) -> int
+
+# Get texture dimensions
+# Returns: Width in upper 32 bits, height in lower 32 bits
+# Extract: width = (/ result 4294967296), height = (% result 4294967296)
+extern fn nl_img_get_texture_size(_texture: int) -> int
+
+# Get texture width only
+extern fn nl_img_get_texture_width(_texture: int) -> int
+
+# Get texture height only
+extern fn nl_img_get_texture_height(_texture: int) -> int
+
+# Set texture alpha modulation (transparency)
+# alpha: 0 (fully transparent) to 255 (fully opaque)
+extern fn nl_img_set_texture_alpha(_texture: int, _alpha: int) -> int
+
+# Set texture color modulation (tinting)
+# r, g, b: Color components 0-255
+extern fn nl_img_set_texture_color(_texture: int, _r: int, _g: int, _b: int) -> int
+
+# Set texture blend mode
+# blend: 0=none, 1=blend, 2=add, 4=mod
+extern fn nl_img_set_texture_blend_mode(_texture: int, _blend: int) -> int
+
+# Create a texture from pixel data
+# width, height: Dimensions
+# pixels: Pointer to RGBA pixel data (4 bytes per pixel)
+# Returns: SDL_Texture pointer (or 0 on failure)
+extern fn nl_img_create_texture_from_pixels(_renderer: SDL_Renderer, _width: int, _height: int, _pixels: int) -> int
+
+# Load multiple icons into an array (batch loading)
+# files: Array of file paths
+# count: Number of files to load
+# Returns: Array of texture pointers (each 0 on failure)
+extern fn nl_img_load_icon_batch(_renderer: SDL_Renderer, _files: array<string>, _count: int) -> array<int>
+
+# Destroy a texture and free memory
+extern fn nl_img_destroy_texture(_texture: int) -> void
+
+# Destroy multiple textures (batch cleanup)
+extern fn nl_img_destroy_texture_batch(_textures: array<int>, _count: int) -> void
+
+# Check if image file exists and is loadable
+# Returns: 1 if file exists and format is supported, 0 otherwise
+extern fn nl_img_can_load(_file: string) -> int
+
+# Get supported image format extensions as array
+# Returns: Array of file extension strings (e.g., ["png", "jpg", "bmp"])
+extern fn nl_img_get_supported_formats() -> array<string>
+
+# ============================================================================
+# SDL Blend Mode Constants (for nl_img_set_texture_blend_mode)
+# ============================================================================
+
+let SDL_BLENDMODE_NONE: int = 0   # No blending
+let SDL_BLENDMODE_BLEND: int = 1  # Alpha blending (default)
+let SDL_BLENDMODE_ADD: int = 2    # Additive blending
+let SDL_BLENDMODE_MOD: int = 4    # Color modulation
+
+# ============================================================================
+# SDL Flip Constants (for nl_img_render_texture_ex)
+# ============================================================================
+
+let SDL_FLIP_NONE: int = 0        # No flipping
+let SDL_FLIP_HORIZONTAL: int = 1  # Flip horizontally
+let SDL_FLIP_VERTICAL: int = 2    # Flip vertically
+let SDL_FLIP_BOTH: int = 3        # Flip both directions

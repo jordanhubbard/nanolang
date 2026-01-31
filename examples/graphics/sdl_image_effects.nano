@@ -1,0 +1,215 @@
+# SDL_image Effects Example
+# Demonstrates various image rendering effects
+#
+# This example shows:
+# - Color tinting/modulation
+# - Alpha blending (transparency)
+# - Rotation and flipping
+# - Scaling and transformation
+# - Multiple blend modes
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+
+fn main() -> int {
+    (println "=== SDL_image Effects Gallery ===")
+    (println "")
+    (println "Demonstrating various image rendering effects...")
+    (println "")
+    
+    # Initialize SDL and SDL_image
+    (SDL_Init 32) 
+    (TTF_Init) 
+    let img_init: int = (IMG_Init IMG_INIT_PNG)
+    if (== img_init 0) {
+        (println "Failed to initialize SDL_image")
+        return 1
+    } else {}
+    
+    # Create window and renderer
+    let window: SDL_Window = (SDL_CreateWindow "Image Effects Gallery"
+                                                100 100 1000 700 4)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
+    
+    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
+    # Load base image
+    (println "Loading image...")
+    let base_image: int = (nl_img_load_png_texture renderer "examples/icons/sdl_fire.png")
+    
+    if (== base_image 0) {
+        (println "Failed to load image")
+        return 1
+    } else {
+        (println "✓ Image loaded successfully")
+    }
+    
+    # Animation state
+    let mut frame: int = 0
+    let mut angle: float = 0.0
+    
+    (println "")
+    (println "Displaying 15 different image effects:")
+    (println "  Row 1: Color tinting (Red, Green, Blue, Yellow, Magenta)")
+    (println "  Row 2: Alpha blending (50%, 75%, pulsing, fade in/out)")
+    (println "  Row 3: Rotation (45°, 90°, rotating, flip H, flip V)")
+    (println "")
+    (println "Close window to exit")
+    (println "")
+    
+    # Main loop
+    let mut running: bool = true
+    while running {
+        # Check for quit
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) {
+            set running false
+        } else {}
+        
+        # Update animation
+        set frame (+ frame 1)
+        set angle (+ angle 2.0)
+        if (> angle 360.0) {
+            set angle (- angle 360.0)
+        } else {}
+        
+        # Clear screen
+        (SDL_SetRenderDrawColor renderer 25 30 35 255) 
+        (SDL_RenderClear renderer) 
+        
+        # Title
+        (nl_draw_text_blended renderer font "Image Effects Gallery - 15 Different Effects" 20 20 240 240 255 255) 
+        
+        # Grid layout
+        let effect_size: int = 80
+        let effect_margin: int = 20
+        let start_x: int = 50
+        let start_y: int = 60
+        
+        # === Row 1: Color Tinting ===
+        
+        # Effect 1: Red tint
+        (nl_img_set_texture_color base_image 255 100 100) 
+        (nl_img_set_texture_alpha base_image 255) 
+        (nl_img_render_texture renderer base_image start_x start_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Red Tint" start_x (+ (+ start_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 2: Green tint
+        let x2: int = (+ start_x (+ effect_size effect_margin))
+        (nl_img_set_texture_color base_image 100 255 100) 
+        (nl_img_render_texture renderer base_image x2 start_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Green Tint" x2 (+ (+ start_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 3: Blue tint
+        let x3: int = (+ x2 (+ effect_size effect_margin))
+        (nl_img_set_texture_color base_image 100 100 255) 
+        (nl_img_render_texture renderer base_image x3 start_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Blue Tint" x3 (+ (+ start_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 4: Yellow tint
+        let x4: int = (+ x3 (+ effect_size effect_margin))
+        (nl_img_set_texture_color base_image 255 255 100) 
+        (nl_img_render_texture renderer base_image x4 start_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Yellow" x4 (+ (+ start_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 5: Magenta tint
+        let x5: int = (+ x4 (+ effect_size effect_margin))
+        (nl_img_set_texture_color base_image 255 100 255) 
+        (nl_img_render_texture renderer base_image x5 start_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Magenta" x5 (+ (+ start_y effect_size) 5) 200 200 200 255) 
+        
+        # === Row 2: Alpha Blending ===
+        let row2_y: int = (+ start_y (+ (+ effect_size effect_margin) 30))
+        
+        # Effect 6: 50% transparent
+        (nl_img_set_texture_color base_image 255 255 255) 
+        (nl_img_set_texture_alpha base_image 128) 
+        (nl_img_render_texture renderer base_image start_x row2_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "50% Alpha" start_x (+ (+ row2_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 7: 75% transparent
+        (nl_img_set_texture_alpha base_image 192) 
+        (nl_img_render_texture renderer base_image x2 row2_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "75% Alpha" x2 (+ (+ row2_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 8: Pulsing alpha
+        let pulse_alpha: int = (+ 128 (/ (* 127 (% frame 60)) 60))
+        (nl_img_set_texture_alpha base_image pulse_alpha) 
+        (nl_img_render_texture renderer base_image x3 row2_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Pulsing" x3 (+ (+ row2_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 9: Fade in/out
+        let fade_cycle: int = (% frame 120)
+        let mut fade_alpha: int = 0
+        if (< fade_cycle 60) {
+            set fade_alpha (* fade_cycle 4)
+        } else {
+            set fade_alpha (* (- 119 fade_cycle) 4)
+        }
+        if (> fade_alpha 255) {
+            set fade_alpha 255
+        } else {}
+        (nl_img_set_texture_alpha base_image fade_alpha) 
+        (nl_img_render_texture renderer base_image x4 row2_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Fade In/Out" x4 (+ (+ row2_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 10: Normal (reset)
+        (nl_img_set_texture_alpha base_image 255) 
+        (nl_img_render_texture renderer base_image x5 row2_y effect_size effect_size) 
+        (nl_draw_text_blended renderer font "Normal" x5 (+ (+ row2_y effect_size) 5) 200 200 200 255) 
+        
+        # === Row 3: Rotation and Flipping ===
+        let row3_y: int = (+ row2_y (+ (+ effect_size effect_margin) 30))
+        
+        # Effect 11: Rotate 45°
+        (nl_img_render_texture_ex renderer base_image start_x row3_y effect_size effect_size 45.0 SDL_FLIP_NONE) 
+        (nl_draw_text_blended renderer font "Rotate 45" start_x (+ (+ row3_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 12: Rotate 90°
+        (nl_img_render_texture_ex renderer base_image x2 row3_y effect_size effect_size 90.0 SDL_FLIP_NONE) 
+        (nl_draw_text_blended renderer font "Rotate 90" x2 (+ (+ row3_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 13: Continuous rotation
+        (nl_img_render_texture_ex renderer base_image x3 row3_y effect_size effect_size angle SDL_FLIP_NONE) 
+        (nl_draw_text_blended renderer font "Rotating" x3 (+ (+ row3_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 14: Flip horizontal
+        (nl_img_render_texture_ex renderer base_image x4 row3_y effect_size effect_size 0.0 SDL_FLIP_HORIZONTAL) 
+        (nl_draw_text_blended renderer font "Flip H" x4 (+ (+ row3_y effect_size) 5) 200 200 200 255) 
+        
+        # Effect 15: Flip vertical
+        (nl_img_render_texture_ex renderer base_image x5 row3_y effect_size effect_size 0.0 SDL_FLIP_VERTICAL) 
+        (nl_draw_text_blended renderer font "Flip V" x5 (+ (+ row3_y effect_size) 5) 200 200 200 255) 
+        
+        # Stats
+        let frame_text: string = (+ "Frame: " (int_to_string frame))
+        (nl_draw_text_blended renderer font frame_text 20 650 150 150 150 255) 
+        
+        # Present
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
+    }
+    
+    # Cleanup
+    (println "")
+    (println "Cleaning up...")
+    (nl_img_destroy_texture base_image) 
+    
+    (TTF_CloseFont font) 
+    (SDL_DestroyRenderer renderer) 
+    (SDL_DestroyWindow window) 
+    (IMG_Quit) 
+    (TTF_Quit) 
+    (SDL_Quit) 
+    
+    (println "✓ Effects gallery completed")
+    return 0
+}
+
+shadow main {
+    assert (== 1 1)  # Cannot test with shadow as it requires SDL context
+}
+

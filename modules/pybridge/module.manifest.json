@@ -1,0 +1,30 @@
+{
+  "name": "pybridge",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Bridge to Python via a helper process with JSON-RPC messaging.",
+  "use_when": [
+    "User needs to call Python libraries from NanoLang",
+    "User wants Python interoperability without embedding CPython",
+    "User mentions NumPy, Pandas, Matplotlib, or Python ecosystem"
+  ],
+  "avoid_when": [
+    "User needs native NanoLang-only implementation",
+    "User requires zero external dependencies"
+  ],
+  "capabilities": [
+    "python_rpc",
+    "process_isolation",
+    "json_rpc",
+    "dependency_management"
+  ],
+  "keywords": ["python", "interop", "rpc", "bridge", "venv"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["std"],
+    "system": []
+  },
+  "io_surfaces": ["process", "files"],
+  "alternatives": []
+}

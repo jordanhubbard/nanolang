@@ -16,45 +16,45 @@ extern fn TTF_WasInit() -> int
 
 # Open a font file with specified point size
 # Returns font handle or 0 on failure
-extern fn TTF_OpenFont(file: string, ptsize: int) -> TTF_Font
+extern fn TTF_OpenFont(_file: string, _ptsize: int) -> TTF_Font
 
 # Close a font handle
-extern fn TTF_CloseFont(font: TTF_Font) -> void
+extern fn TTF_CloseFont(_font: TTF_Font) -> void
 
 # === Text Rendering ===
 
 # Render text in solid color (fast, but blocky)
 # Returns SDL_Surface handle or 0 on failure (SDL_Surface is imported from sdl module)
 # color should be 0xRRGGBBAA format
-extern fn TTF_RenderText_Solid(font: TTF_Font, text: string, r: int, g: int, b: int, a: int) -> int
+extern fn TTF_RenderText_Solid(_font: TTF_Font, _text: string, _r: int, _g: int, _b: int, _a: int) -> int
 
 # Render text with alpha blending (slower, but smooth anti-aliased)
 # Returns SDL_Surface handle or 0 on failure (SDL_Surface is imported from sdl module)
-extern fn TTF_RenderText_Blended(font: TTF_Font, text: string, r: int, g: int, b: int, a: int) -> int
+extern fn TTF_RenderText_Blended(_font: TTF_Font, _text: string, _r: int, _g: int, _b: int, _a: int) -> int
 
 # Render text with shading (background color)
 # Returns SDL_Surface handle or 0 on failure (SDL_Surface is imported from sdl module)
-extern fn TTF_RenderText_Shaded(font: TTF_Font, text: string, fg_r: int, fg_g: int, fg_b: int, fg_a: int, bg_r: int, bg_g: int, bg_b: int, bg_a: int) -> int
+extern fn TTF_RenderText_Shaded(_font: TTF_Font, _text: string, _fg_r: int, _fg_g: int, _fg_b: int, _fg_a: int, _bg_r: int, _bg_g: int, _bg_b: int, _bg_a: int) -> int
 
 # === Font Attributes ===
 
 # Get font height (maximum pixel height of all glyphs)
-extern fn TTF_FontHeight(font: TTF_Font) -> int
+extern fn TTF_FontHeight(_font: TTF_Font) -> int
 
 # Get font ascent (distance from top of font to baseline)
-extern fn TTF_FontAscent(font: TTF_Font) -> int
+extern fn TTF_FontAscent(_font: TTF_Font) -> int
 
 # Get font descent (distance from baseline to bottom)
-extern fn TTF_FontDescent(font: TTF_Font) -> int
+extern fn TTF_FontDescent(_font: TTF_Font) -> int
 
 # Get font line skip (recommended pixel height between lines)
-extern fn TTF_FontLineSkip(font: TTF_Font) -> int
+extern fn TTF_FontLineSkip(_font: TTF_Font) -> int
 
 # === Text Metrics ===
 
 # Get size of rendered text (width and height)
 # Returns: width as return value, height stored in h_out parameter
-extern fn TTF_SizeText(font: TTF_Font, text: string, w_out: int, h_out: int) -> int
+extern fn TTF_SizeText(_font: TTF_Font, _text: string, _w_out: int, _h_out: int) -> int
 
 # === Font Styles ===
 
@@ -65,10 +65,10 @@ let TTF_STYLE_UNDERLINE: int = 4
 let TTF_STYLE_STRIKETHROUGH: int = 8
 
 # Get current font style
-extern fn TTF_GetFontStyle(font: TTF_Font) -> int
+extern fn TTF_GetFontStyle(_font: TTF_Font) -> int
 
 # Set font style (use bitwise OR to combine styles)
-extern fn TTF_SetFontStyle(font: TTF_Font, style: int) -> void
+extern fn TTF_SetFontStyle(_font: TTF_Font, _style: int) -> void
 
 # === Error Handling ===
 

@@ -10,6 +10,7 @@
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool show_intermediate_code;
     bool use_nano_lexer;  /* NEW: Toggle between nano and C lexer */
 } CompilerOptions;
 
@@ -64,6 +65,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Parsing complete\n");
 
     /* Phase 3: Type Checking */
+    typecheck_set_current_file(input_file);
     Environment *env = create_environment();
     if (!type_check(program, env)) {
         fprintf(stderr, "Type checking failed\n");
@@ -97,6 +99,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Transpilation complete\n");
+
+    if (opts->show_intermediate_code) {
+        fputs(c_code, stdout);
+        fflush(stdout);
+    }
 
     /* Write C code to temporary file */
     char temp_c_file[256];
@@ -174,6 +181,7 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: a.out)\n");
         printf("  --verbose      Show detailed compilation steps\n");
         printf("  --keep-c       Keep generated C file\n");
+        printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  --use-c-lexer  Use C lexer instead of nanolang lexer\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
@@ -200,6 +208,7 @@ int main(int argc, char *argv[]) {
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,
+        .show_intermediate_code = false,
         .use_nano_lexer = true  /* Default to nanolang lexer */
     };
 
@@ -212,6 +221,8 @@ int main(int argc, char *argv[]) {
             opts.verbose = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
+        } else if (strcmp(argv[i], "-fshow-intermediate-code") == 0) {
+            opts.show_intermediate_code = true;
         } else if (strcmp(argv[i], "--use-c-lexer") == 0) {
             opts.use_nano_lexer = false;
         } else {

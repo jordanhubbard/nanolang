@@ -1,0 +1,101 @@
+# Test file to exercise stdlib/std/math/complex.nano for coverage
+
+from "std/math/complex.nano" import Complex, complex_new, complex_add, complex_mul, complex_conj, complex_abs
+
+fn test_complex_basic() -> bool {
+    let a: Complex = (complex_new 3.0 4.0)
+    let b: Complex = (complex_new 1.0 2.0)
+    
+    # Test addition
+    let sum: Complex = (complex_add a b)
+    if (!= sum.re 4.0) {
+        return false
+    } else {}
+    if (!= sum.im 6.0) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_complex_mul() -> bool {
+    # Test i * i = -1
+    let i: Complex = (complex_new 0.0 1.0)
+    let i_sq: Complex = (complex_mul i i)
+    
+    if (!= i_sq.re -1.0) {
+        return false
+    } else {}
+    if (!= i_sq.im 0.0) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_complex_abs() -> bool {
+    # |3 + 4i| = 5
+    let c: Complex = (complex_new 3.0 4.0)
+    let mag: float = (complex_abs c)
+    
+    if (!= mag 5.0) {
+        return false
+    } else {}
+    
+    return true
+}
+
+fn test_complex_conj() -> bool {
+    let c: Complex = (complex_new 3.0 4.0)
+    let conj: Complex = (complex_conj c)
+    
+    if (!= conj.re 3.0) {
+        return false
+    } else {}
+    if (!= conj.im -4.0) {
+        return false
+    } else {}
+    
+    return true
+}
+
+shadow test_complex_basic {
+    assert (test_complex_basic)
+}
+
+shadow test_complex_mul {
+    assert (test_complex_mul)
+}
+
+shadow test_complex_abs {
+    assert (test_complex_abs)
+}
+
+shadow test_complex_conj {
+    assert (test_complex_conj)
+}
+
+fn main() -> int {
+    if (not (test_complex_basic)) {
+        return 1
+    } else {}
+    
+    if (not (test_complex_mul)) {
+        return 1
+    } else {}
+    
+    if (not (test_complex_abs)) {
+        return 1
+    } else {}
+    
+    if (not (test_complex_conj)) {
+        return 1
+    } else {}
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

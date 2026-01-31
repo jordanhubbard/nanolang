@@ -1,0 +1,272 @@
+/* test_cond.nano - Test cond expressions
+ * Tests the new cond expression syntax for cleaner multi-branch conditionals
+ */
+
+/* ==== PART 1: Basic Cond Expressions ==== */
+
+fn classify_number(n: int) -> string {
+    return (cond
+        ((< n 0) "negative")
+        ((== n 0) "zero")
+        ((< n 10) "small")
+        (else "large"))
+}
+
+shadow classify_number {
+    assert (== (classify_number -5) "negative")
+    assert (== (classify_number 0) "zero")
+    assert (== (classify_number 5) "small")
+    assert (== (classify_number 100) "large")
+}
+
+fn letter_grade(score: int) -> string {
+    return (cond
+        ((>= score 90) "A")
+        ((>= score 80) "B")
+        ((>= score 70) "C")
+        ((>= score 60) "D")
+        (else "F"))
+}
+
+shadow letter_grade {
+    assert (== (letter_grade 95) "A")
+    assert (== (letter_grade 85) "B")
+    assert (== (letter_grade 75) "C")
+    assert (== (letter_grade 65) "D")
+    assert (== (letter_grade 55) "F")
+}
+
+/* ==== PART 2: Cond with Int Results ==== */
+
+fn my_abs(n: int) -> int {
+    return (cond
+        ((< n 0) (- 0 n))
+        (else n))
+}
+
+shadow my_abs {
+    assert (== (my_abs -5) 5)
+    assert (== (my_abs 5) 5)
+    assert (== (my_abs 0) 0)
+}
+
+fn sign(n: int) -> int {
+    return (cond
+        ((< n 0) -1)
+        ((> n 0) 1)
+        (else 0))
+}
+
+shadow sign {
+    assert (== (sign -10) -1)
+    assert (== (sign 10) 1)
+    assert (== (sign 0) 0)
+}
+
+fn max3(a: int, b: int, c: int) -> int {
+    return (cond
+        ((and (>= a b) (>= a c)) a)
+        ((>= b c) b)
+        (else c))
+}
+
+shadow max3 {
+    assert (== (max3 10 5 3) 10)
+    assert (== (max3 3 10 5) 10)
+    assert (== (max3 3 5 10) 10)
+}
+
+/* ==== PART 3: Cond with Bool Results ==== */
+
+fn is_valid_age(age: int) -> bool {
+    return (cond
+        ((< age 0) false)
+        ((> age 150) false)
+        (else true))
+}
+
+shadow is_valid_age {
+    assert (is_valid_age 25)
+    assert (is_valid_age 0)
+    assert (is_valid_age 150)
+    assert (not (is_valid_age -1))
+    assert (not (is_valid_age 151))
+}
+
+fn is_weekend(day: int) -> bool {
+    return (cond
+        ((== day 0) true)
+        ((== day 6) true)
+        (else false))
+}
+
+shadow is_weekend {
+    assert (is_weekend 0)
+    assert (is_weekend 6)
+    assert (not (is_weekend 1))
+    assert (not (is_weekend 5))
+}
+
+/* ==== PART 4: Nested Conditions ==== */
+
+fn categorize(x: int, y: int) -> string {
+    return (cond
+        ((and (> x 0) (> y 0)) "quadrant_1")
+        ((and (< x 0) (> y 0)) "quadrant_2")
+        ((and (< x 0) (< y 0)) "quadrant_3")
+        ((and (> x 0) (< y 0)) "quadrant_4")
+        (else "origin"))
+}
+
+shadow categorize {
+    assert (== (categorize 5 5) "quadrant_1")
+    assert (== (categorize -5 5) "quadrant_2")
+    assert (== (categorize -5 -5) "quadrant_3")
+    assert (== (categorize 5 -5) "quadrant_4")
+    assert (== (categorize 0 0) "origin")
+}
+
+/* ==== PART 5: Cond with Multiple Clauses ==== */
+
+fn day_of_week(n: int) -> string {
+    return (cond
+        ((== n 0) "Sunday")
+        ((== n 1) "Monday")
+        ((== n 2) "Tuesday")
+        ((== n 3) "Wednesday")
+        ((== n 4) "Thursday")
+        ((== n 5) "Friday")
+        ((== n 6) "Saturday")
+        (else "Invalid"))
+}
+
+shadow day_of_week {
+    assert (== (day_of_week 0) "Sunday")
+    assert (== (day_of_week 1) "Monday")
+    assert (== (day_of_week 3) "Wednesday")
+    assert (== (day_of_week 6) "Saturday")
+    assert (== (day_of_week 7) "Invalid")
+}
+
+/* ==== PART 6: Cond in Complex Expressions ==== */
+
+fn discount_price(price: int, member_years: int) -> int {
+    let discount: int = (cond
+        ((>= member_years 10) 30)
+        ((>= member_years 5) 20)
+        ((>= member_years 1) 10)
+        (else 0))
+    
+    return (- price (/ (* price discount) 100))
+}
+
+shadow discount_price {
+    assert (== (discount_price 100 15) 70)
+    assert (== (discount_price 100 7) 80)
+    assert (== (discount_price 100 2) 90)
+    assert (== (discount_price 100 0) 100)
+}
+
+/* ==== PART 7: Cond with Calculations ==== */
+
+fn fizzbuzz_value(n: int) -> int {
+    return (cond
+        ((== (% n 15) 0) 0)
+        ((== (% n 3) 0) 1)
+        ((== (% n 5) 0) 2)
+        (else n))
+}
+
+shadow fizzbuzz_value {
+    assert (== (fizzbuzz_value 15) 0)
+    assert (== (fizzbuzz_value 9) 1)
+    assert (== (fizzbuzz_value 10) 2)
+    assert (== (fizzbuzz_value 7) 7)
+}
+
+/* ==== PART 8: Multiple Conds in One Function ==== */
+
+fn process_pair(x: int, y: int) -> int {
+    let x_cat: int = (cond
+        ((< x 0) -1)
+        ((== x 0) 0)
+        (else 1))
+    
+    let y_cat: int = (cond
+        ((< y 0) -1)
+        ((== y 0) 0)
+        (else 1))
+    
+    return (+ (* x_cat 10) y_cat)
+}
+
+shadow process_pair {
+    assert (== (process_pair 5 5) 11)
+    assert (== (process_pair -5 5) -9)
+    assert (== (process_pair 0 0) 0)
+}
+
+/* ==== PART 9: Cond as Statement (Not Expression) ==== */
+
+fn print_classification(n: int) -> int {
+    (cond
+        ((< n 0) (println "negative"))
+        ((== n 0) (println "zero"))
+        (else (println "positive")))
+    return 0
+}
+
+shadow print_classification {
+    assert (== (print_classification -5) 0)
+    assert (== (print_classification 0) 0)
+    assert (== (print_classification 5) 0)
+}
+
+fn main() -> int {
+    (println "=== Cond Expression Tests ===")
+    (println "")
+    
+    (println "Testing classify_number...")
+    (print "  classify_number(-5) = ")
+    (println (classify_number -5))
+    (print "  classify_number(0) = ")
+    (println (classify_number 0))
+    (print "  classify_number(5) = ")
+    (println (classify_number 5))
+    (print "  classify_number(100) = ")
+    (println (classify_number 100))
+    (println "")
+    
+    (println "Testing letter_grade...")
+    (print "  letter_grade(95) = ")
+    (println (letter_grade 95))
+    (print "  letter_grade(75) = ")
+    (println (letter_grade 75))
+    (print "  letter_grade(55) = ")
+    (println (letter_grade 55))
+    (println "")
+    
+    (println "Testing sign...")
+    (print "  sign(-10) = ")
+    (println (sign -10))
+    (print "  sign(10) = ")
+    (println (sign 10))
+    (print "  sign(0) = ")
+    (println (sign 0))
+    (println "")
+    
+    (println "Testing day_of_week...")
+    (print "  day_of_week(0) = ")
+    (println (day_of_week 0))
+    (print "  day_of_week(3) = ")
+    (println (day_of_week 3))
+    (println "")
+    
+    (println "All cond expression tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

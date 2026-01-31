@@ -1,8 +1,129 @@
 # nanolang Examples
 
-This directory contains example programs demonstrating nanolang's features, from simple "Hello World" to complex real-time graphics.
+This directory contains **150+ example programs** demonstrating nanolang's features, from simple "Hello World" to complex real-time graphics.
 
-## Quick Start
+## 📚 Learning Path (Start Here!)
+
+**New to NanoLang?** Follow this curated path through the examples:
+
+### Level 1: Absolute Beginner (Start Here!)
+
+Work through these 5 examples in order:
+
+1. **[nl_hello.nano](language/nl_hello.nano)** ⭐ **START HERE!**
+   - Your first NanoLang program
+   - Demonstrates: `main` function, `println`, shadow tests
+   - Time: 5 minutes
+
+2. **[nl_calculator.nano](language/nl_calculator.nano)**
+   - Basic arithmetic and functions
+   - Demonstrates: prefix notation, multiple functions, parameters
+   - Time: 10 minutes
+
+3. **[nl_mutable.nano](language/nl_mutable.nano)**
+   - Variable declarations and mutability
+   - Demonstrates: `let`, `mut`, type annotations, reassignment
+   - Time: 10 minutes
+
+4. **[nl_control_if_while.nano](language/nl_control_if_while.nano)**
+   - Conditional logic
+   - Demonstrates: `if/else`, comparison operators, boolean logic, `while`
+   - Time: 15 minutes
+
+5. **[nl_control_for.nano](language/nl_control_for.nano)**
+   - Iteration fundamentals
+   - Demonstrates: `for` loops, `range`
+   - Time: 15 minutes
+
+**After these 5:** You understand NanoLang basics! ✅
+
+### Level 2: Beginner (Core Concepts)
+
+Once comfortable with Level 1, explore these:
+
+6. **[nl_functions_basic.nano](language/nl_functions_basic.nano)**
+   - Function definitions and calls
+   - Return values, multiple parameters
+
+7. **[nl_array_complete.nano](language/nl_array_complete.nano)**
+   - Array literals and operations
+   - Indexing with `at`, `array_length`
+
+8. **[nl_struct.nano](language/nl_struct.nano)**
+   - Custom data types
+   - Field access, struct literals
+
+9. **[nl_string_operations.nano](language/nl_string_operations.nano)**
+   - String manipulation
+   - Concatenation, substring, length
+
+10. **[nl_factorial.nano](language/nl_factorial.nano)**
+    - Recursion basics
+    - Base case and recursive case
+
+**After these 10:** You can write useful programs! ✅
+
+### Level 3: Intermediate (Advanced Features)
+
+Ready for more? Try these next:
+
+11. **[nl_types_union_construct.nano](language/nl_types_union_construct.nano)**
+    - Union types and pattern matching
+    - Result<T,E> for error handling
+
+12. **[nl_generics_demo.nano](language/nl_generics_demo.nano)**
+    - Generic types (List<T>)
+    - Type parameters and monomorphization
+
+13. **[nl_hashmap.nano](language/nl_hashmap.nano)**
+    - Hash maps for key-value storage
+    - HashMap<K,V> operations
+
+14. **[namespace_demo.nano](advanced/namespace_demo.nano)**
+    - Code organization with modules
+    - Module declarations and visibility
+
+15. **[nl_extern_string.nano](language/nl_extern_string.nano)**
+    - Calling C functions
+    - FFI basics
+
+**After these 15:** You're proficient in NanoLang! ✅
+
+### Level 4: Advanced (Real Projects)
+
+Build something real:
+
+16. **Terminal Games:**
+    - [ncurses_snake.nano](terminal/ncurses_snake.nano) - Classic snake game
+    - [ncurses_game_of_life.nano](terminal/ncurses_game_of_life.nano) - Conway's Life
+
+17. **Graphics & Games:**
+    - [sdl_checkers.nano](games/sdl_checkers.nano) - Checkers with AI
+    - [sdl_asteroids.nano](games/sdl_asteroids.nano) - Full Asteroids clone
+
+18. **Systems Programming:**
+    - [performance_optimization.nano](advanced/performance_optimization.nano)
+    - [namespace_demo.nano](advanced/namespace_demo.nano)
+
+**After these:** You're ready to build anything! 🚀
+
+## 🔍 Find Examples by Topic
+
+Looking for something specific?
+
+| Topic | Examples | Difficulty |
+|-------|----------|------------|
+| **Hello World** | nl_hello.nano | 🟢 Beginner |
+| **Functions** | nl_functions.nano, nl_factorial.nano, nl_fibonacci.nano | 🟢 Beginner |
+| **Data Structures** | nl_arrays.nano, nl_struct.nano, nl_hashmap.nano | 🟡 Intermediate |
+| **Generics** | nl_generics.nano, nl_list_operations.nano | 🟡 Intermediate |
+| **Pattern Matching** | nl_control_match.nano, nl_types_union_construct.nano | 🟡 Intermediate |
+| **Modules & FFI** | nl_modules.nano, nl_extern_ffi.nano | 🟡 Intermediate |
+| **Games** | ncurses_snake.nano, sdl_asteroids.nano, sdl_checkers.nano | 🔴 Advanced |
+| **Graphics** | sdl_boids.nano, sdl_particles.nano, opengl_triangle.nano | 🔴 Advanced |
+| **Performance** | performance_optimization.nano | 🔴 Advanced |
+
+## Quick Start Commands
 
 ```bash
 # Build all compiled examples
@@ -15,7 +136,49 @@ cd examples && make
 ../bin/nanoc hello.nano -o hello && ./hello
 ```
 
-## Example Categories
+## All Examples by Category
+
+### 🔍 Debugging & Validation (NEW!)
+
+**Demonstrates feedback mechanisms for LLM-driven code generation**
+
+- **logging_levels_demo.nano** - Structured logging with 6 levels
+  - TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+  - Threshold filtering (default: INFO)
+  - Demonstrates log levels in action
+  - Shows category-free convenience functions
+  
+- **logging_categories_demo.nano** - Category-based logging
+  - Multi-tier application simulation
+  - User registration workflow
+  - Categories: validation, database, email, registration
+  - Shows how categories help trace execution flow
+  
+- **coverage_demo.nano** - Runtime instrumentation
+  - Coverage tracking with coverage_record()
+  - Execution tracing with trace_record()
+  - Instrumented fibonacci, classify_number, sum_array
+  - Coverage and trace reports
+  
+- **property_test_sorting.nano** - Property-based testing for algorithms
+  - Bubble sort implementation
+  - 4 universal properties: length preservation, sorted output, permutation, idempotence
+  - 100 random test cases per property
+  
+- **property_test_math.nano** - Property-based testing for math
+  - 15+ mathematical properties
+  - Commutativity, identity, inverse, symmetry
+  - Triangle inequality for abs()
+  - Distributivity demonstration
+
+**See also:**
+- `stdlib/log.nano` - Logging API
+- `stdlib/coverage.nano` - Coverage/tracing API
+- `docs/DEBUGGING_GUIDE.md` - Complete debugging reference
+- `docs/PROPERTY_TESTING_GUIDE.md` - Property testing workflow
+- `docs/SELF_VALIDATING_CODE_GENERATION.md` - LLM agent self-correction tutorial
+
+---
 
 ### 🎮 Graphics & Games (SDL/OpenGL)
 
@@ -101,6 +264,13 @@ cd examples && make
   - Boolean logic
   - Optimization with early exit
   - Composite function testing
+
+- **nl_pi_chudnovsky.nano** - High-precision π calculator
+  - Machin's formula (1706) for π calculation
+  - Verifies results against published π archives
+  - Demonstrates stdlib/timing.nano for microsecond-precision benchmarking
+  - Calculates π to arbitrary decimal places (10, 20, 50, 100, 500, 1000+)
+  - Educational: references record-breaking algorithms (Chudnovsky, Bailey-Borwein-Plouffe)
 
 **Advanced Features:**
 

@@ -1,0 +1,335 @@
+# PONG - The First Video Game (1972)
+# Two-player table tennis simulation
+# Controls: W/S for left paddle, Up/Down arrows for right paddle
+# Authentic 1972 style with blocky score display (no fonts!)
+# Enhanced with UI widgets for game control
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+
+# === CONSTANTS ===
+let WINDOW_WIDTH: int = 800
+let WINDOW_HEIGHT: int = 600
+let PADDLE_WIDTH: int = 15
+let PADDLE_HEIGHT: int = 80
+let BALL_SIZE: int = 12
+let PADDLE_SPEED: float = 400.0
+let BALL_SPEED: float = 300.0
+let WINNING_SCORE: int = 11
+
+fn clamp_paddle_position(y: float) -> float {
+    let min_y: float = 0.0
+    let max_y: float = (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+    return (cond
+        ((< y min_y) min_y)
+        ((> y max_y) max_y)
+        (else y)
+    )
+}
+
+shadow clamp_paddle_position {
+    let low: float = (clamp_paddle_position -10.0)
+    assert (== low 0.0)
+    let max_val: float = (cast_float (- WINDOW_HEIGHT PADDLE_HEIGHT))
+    let high: float = (clamp_paddle_position (+ max_val 50.0))
+    assert (== high max_val)
+}
+
+fn winner_banner_x(player1_score: int, player2_score: int) -> int {
+    return (cond
+        ((>= player1_score WINNING_SCORE) 250)
+        ((>= player2_score WINNING_SCORE) 450)
+        (else 250)
+    )
+}
+
+shadow winner_banner_x {
+    assert (== (winner_banner_x WINNING_SCORE 0) 250)
+    assert (== (winner_banner_x 0 WINNING_SCORE) 450)
+}
+
+struct VerticalBounceResult {
+    y: float,
+    vy: float
+}
+
+struct PaddleCollisionResult {
+    x: float,
+    vx: float,
+    vy: float
+}
+
+fn resolve_vertical_bounce(y: float, vy: float) -> VerticalBounceResult {
+    let min_y: float = 0.0
+    let max_y: float = (cast_float (- WINDOW_HEIGHT BALL_SIZE))
+    return (cond
+        ((< y min_y) VerticalBounceResult { y: min_y, vy: (- 0.0 vy) })
+        ((> y max_y) VerticalBounceResult { y: max_y, vy: (- 0.0 vy) })
+        (else VerticalBounceResult { y: y, vy: vy })
+    )
+}
+
+shadow resolve_vertical_bounce {
+    let low: VerticalBounceResult = (resolve_vertical_bounce -5.0 10.0)
+    assert (== low.y 0.0)
+    assert (== low.vy -10.0)
+    let high: VerticalBounceResult = (resolve_vertical_bounce 900.0 5.0)
+    let clamp: float = (cast_float (- WINDOW_HEIGHT BALL_SIZE))
+    assert (== high.y clamp)
+}
+
+fn resolve_paddle_collision(ball_x: float, ball_y: float, ball_vx: float, ball_vy: float, paddle_y: float, is_left: bool) -> PaddleCollisionResult {
+    let paddle_top: float = paddle_y
+    let paddle_bottom: float = (+ paddle_y (cast_float PADDLE_HEIGHT))
+    let ball_center_y: float = (+ ball_y (/ (cast_float BALL_SIZE) 2.0))
+    let left_zone_start: float = 10.0
+    let left_zone_end: float = 40.0
+    let right_zone_start: float = (cast_float (- WINDOW_WIDTH 40))
+    let right_zone_end: float = (cast_float (- WINDOW_WIDTH 10))
+    let hit_pos: float = (/ (- ball_center_y paddle_y) (cast_float PADDLE_HEIGHT))
+    let spin_vy: float = (* (* (- hit_pos 0.5) 2.0) BALL_SPEED)
+    let left_hit: bool =
+        (and is_left
+            (and (and (> ball_x left_zone_start) (< ball_x left_zone_end))
+                 (and (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom))))
+
+    let right_hit: bool =
+        (and (not is_left)
+            (and (and (> ball_x right_zone_start) (< ball_x right_zone_end))
+                 (and (>= ball_center_y paddle_top) (<= ball_center_y paddle_bottom))))
+
+    return (cond
+        (left_hit (PaddleCollisionResult { x: left_zone_end, vx: (- 0.0 ball_vx), vy: spin_vy }))
+        (right_hit (PaddleCollisionResult { x: right_zone_start, vx: (- 0.0 ball_vx), vy: spin_vy }))
+        (else (PaddleCollisionResult { x: ball_x, vx: ball_vx, vy: ball_vy }))
+    )
+}
+
+shadow resolve_paddle_collision {
+    let left_hit: PaddleCollisionResult = (resolve_paddle_collision 20.0 100.0 300.0 0.0 90.0 true)
+    assert (== left_hit.x 40.0)
+    assert (< left_hit.vx 0.0)
+    let right_hit: PaddleCollisionResult = (resolve_paddle_collision 780.0 120.0 -300.0 0.0 100.0 false)
+    let right_zone_start: float = (cast_float (- WINDOW_WIDTH 40))
+    assert (== right_hit.x right_zone_start)
+}
+
+fn main() -> int {
+    # Initialize SDL
+    (SDL_Init SDL_INIT_VIDEO) 
+    (TTF_Init) 
+    
+    let window: SDL_Window = (SDL_CreateWindow "PONG (1972)" SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    
+    # Load fonts
+    let font: TTF_Font = (nl_open_font_portable "Arial" 14)
+    let help_font: TTF_Font = (nl_open_font_portable "Arial" 12)
+    
+    # Game state
+    let mut running: bool = true
+    let mut paused: bool = true  # Start paused until Start button clicked
+    let mut player1_score: int = 0
+    let mut player2_score: int = 0
+    let mut game_over: bool = false
+    let mut show_fps: int = 0  # Checkbox state for showing FPS
+    
+    # Paddle positions (Y coordinate, centered)
+    let mut paddle1_y: float = (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+    let mut paddle2_y: float = (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+    
+    # Ball state
+    let mut ball_x: float = (/ (cast_float WINDOW_WIDTH) 2.0)
+    let mut ball_y: float = (/ (cast_float WINDOW_HEIGHT) 2.0)
+    let mut ball_vx: float = BALL_SPEED
+    let mut ball_vy: float = 0.0
+    
+    # Timing
+    let mut last_time: int = (SDL_GetTicks)
+    
+    while running {
+        # Check for quit event FIRST (before consuming other events)
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
+        
+        # Handle keyboard input
+        (nl_sdl_poll_keypress) 
+        
+        # Calculate delta time
+        let current_time: int = (SDL_GetTicks)
+        let mut dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
+        set last_time current_time
+        
+        # Limit dt to prevent huge jumps
+        if (> dt 0.1) { set dt 0.016 }
+        
+        # Update game state (only if not paused and not game over)
+        if (not paused) {
+            if (not game_over) {
+                # Get keyboard state for paddle controls
+                let p1_up: bool = (== (nl_sdl_key_state 26) 1)     # W
+                let p1_down: bool = (== (nl_sdl_key_state 22) 1)   # S
+                let p2_up: bool = (== (nl_sdl_key_state 82) 1)     # Up arrow
+                let p2_down: bool = (== (nl_sdl_key_state 81) 1)   # Down arrow
+                
+                # Move paddles
+                if p1_up { set paddle1_y (- paddle1_y (* PADDLE_SPEED dt)) }
+                if p1_down { set paddle1_y (+ paddle1_y (* PADDLE_SPEED dt)) }
+                if p2_up { set paddle2_y (- paddle2_y (* PADDLE_SPEED dt)) }
+                if p2_down { set paddle2_y (+ paddle2_y (* PADDLE_SPEED dt)) }
+                
+                # Clamp paddles to screen using cond helper
+                set paddle1_y (clamp_paddle_position paddle1_y)
+                set paddle2_y (clamp_paddle_position paddle2_y)
+                
+                # Move ball
+                set ball_x (+ ball_x (* ball_vx dt))
+                set ball_y (+ ball_y (* ball_vy dt))
+                
+                # Ball collision with top/bottom using cond helper
+                let vertical_hit: VerticalBounceResult = (resolve_vertical_bounce ball_y ball_vy)
+                set ball_y vertical_hit.y
+                set ball_vy vertical_hit.vy
+                
+                # Ball collision with paddles using cond helper
+                let left_hit: PaddleCollisionResult = (resolve_paddle_collision ball_x ball_y ball_vx ball_vy paddle1_y true)
+                set ball_x left_hit.x
+                set ball_vx left_hit.vx
+                set ball_vy left_hit.vy
+                
+                let right_hit: PaddleCollisionResult = (resolve_paddle_collision ball_x ball_y ball_vx ball_vy paddle2_y false)
+                set ball_x right_hit.x
+                set ball_vx right_hit.vx
+                set ball_vy right_hit.vy
+                
+                # Ball out of bounds - score
+                if (< ball_x 0.0) {
+                    set player2_score (+ player2_score 1)
+                    set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+                    set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+                    set ball_vx BALL_SPEED
+                    set ball_vy 0.0
+                    if (>= player2_score WINNING_SCORE) {
+                        set game_over true
+                        set paused true
+                        (println "Player 2 Wins!")
+                    }
+                }
+                
+                if (> ball_x (cast_float WINDOW_WIDTH)) {
+                    set player1_score (+ player1_score 1)
+                    set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+                    set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+                    set ball_vx (- 0.0 BALL_SPEED)
+                    set ball_vy 0.0
+                    if (>= player1_score WINNING_SCORE) {
+                        set game_over true
+                        set paused true
+                        (println "Player 1 Wins!")
+                    }
+                }
+            }
+        }
+        
+        # Render
+        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
+        (SDL_RenderClear renderer) 
+        (SDL_SetRenderDrawColor renderer 255 255 255 255) 
+
+        # Update widget mouse state once per frame before any widget calls
+        (nl_ui_update_mouse_state) 
+        
+        # UI Buttons at bottom
+        if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
+            set paused false
+            set game_over false
+        }
+        
+        if (== (nl_ui_button renderer font "Pause" 330 560 70 30) 1) {
+            set paused true
+        }
+        
+        if (== (nl_ui_button renderer font "Reset" 410 560 70 30) 1) {
+            set player1_score 0
+            set player2_score 0
+            set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+            set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+            set ball_vx BALL_SPEED
+            set ball_vy 0.0
+            set paddle1_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+            set paddle2_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+            set paused true
+            set game_over false
+            (println "Game Reset")
+        }
+        
+        # Checkbox for showing FPS
+        set show_fps (nl_ui_checkbox renderer font "Show FPS" 550 565 show_fps)
+        
+        # Display FPS if checkbox is enabled
+        if (== show_fps 1) {
+            (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255) 
+        }
+        
+        # Draw center line (dashed)
+        let mut line_y: int = 0
+        while (< line_y WINDOW_HEIGHT) {
+            (nl_sdl_render_fill_rect renderer (- (/ WINDOW_WIDTH 2) 2) line_y 4 10) 
+            set line_y (+ line_y 20)
+        }
+        
+        # Draw paddles (white)
+        (nl_sdl_render_fill_rect renderer 10 (cast_int paddle1_y) PADDLE_WIDTH PADDLE_HEIGHT) 
+        (nl_sdl_render_fill_rect renderer (- WINDOW_WIDTH 25) (cast_int paddle2_y) PADDLE_WIDTH PADDLE_HEIGHT) 
+        
+        # Draw ball (white)
+        (nl_sdl_render_fill_rect renderer (cast_int ball_x) (cast_int ball_y) BALL_SIZE BALL_SIZE) 
+        
+        # Draw simple scores (just use rectangles)
+        let score1_x: int = 280
+        let score2_x: int = 480
+        let score_y: int = 50
+        
+        # Player 1 score (left)
+        let mut i: int = 0
+        while (< i player1_score) {
+            (nl_sdl_render_fill_rect renderer (+ score1_x (* i 12)) score_y 8 20) 
+            set i (+ i 1)
+        }
+        
+        # Player 2 score (right)
+        set i 0
+        while (< i player2_score) {
+            (nl_sdl_render_fill_rect renderer (+ score2_x (* i 12)) score_y 8 20) 
+            set i (+ i 1)
+        }
+        
+        # Game over message
+        if game_over {
+            let msg_y: int = 270
+            let banner_x: int = (winner_banner_x player1_score player2_score)
+            (nl_sdl_render_fill_rect renderer banner_x msg_y 80 15) 
+            (nl_sdl_render_fill_rect renderer banner_x msg_y 15 50) 
+            (nl_sdl_render_fill_rect renderer banner_x (+ msg_y 35) 80 15) 
+        }
+        
+        # Draw on-screen help
+        
+        (SDL_RenderPresent renderer) 
+        (SDL_Delay 16) 
+    }
+    
+    # Cleanup
+    (println "Shutting down...")
+    if (!= font 0) { unsafe { (TTF_CloseFont font) } } else {}
+    if (!= help_font 0) { unsafe { (TTF_CloseFont help_font) } } else {}
+    if (!= renderer 0) { unsafe { (SDL_DestroyRenderer renderer) } } else {}
+    if (!= window 0) { unsafe { (SDL_DestroyWindow window) } } else {}
+    (TTF_Quit) 
+    (SDL_Quit) 
+    return 0
+}
+
+shadow main { assert true }

@@ -1,0 +1,117 @@
+# Modern OpenGL: Hello Triangle (Shaders + VAO/VBO)
+#
+# Demonstrates:
+# - GLSL vertex/fragment shaders
+# - VAO + VBO
+# - glVertexAttribPointer layout
+#
+# Controls:
+#   ESC - Quit
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+
+let WINDOW_WIDTH: int = 900
+let WINDOW_HEIGHT: int = 700
+
+fn clamp_float(v: float, lo: float, hi: float) -> float {
+    if (< v lo) { return lo } else { if (> v hi) { return hi } else { return v } }
+}
+
+shadow clamp_float { assert (== (clamp_float 2.0 0.0 1.0) 1.0) }
+
+fn main() -> int {
+    if (== (glfwInit) 0) { return 1 } else {}
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "Modern OpenGL - Hello Triangle (NanoLang)" 0 0)
+    if (== window 0) {
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    (glfwMakeContextCurrent window)
+    (glfwSwapInterval 1)
+
+    if (!= (glewInit) GLEW_OK) {
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    # Shaders (GLSL 120 works on compatibility contexts)
+    let vs: string =
+        (+ (+ (+ (+ "#version 120\n"
+                    "attribute vec2 aPos;\n")
+                 "attribute vec3 aColor;\n")
+              "varying vec3 vColor;\n")
+           "void main(){ vColor=aColor; gl_Position=vec4(aPos,0.0,1.0);} \n")
+
+    let fs: string =
+        (+ (+ "#version 120\n"
+              "varying vec3 vColor;\n")
+           "void main(){ gl_FragColor=vec4(vColor,1.0);} \n")
+
+    let program: int = (nl_gl3_create_program_from_sources vs fs)
+    if (== program 0) {
+        (println "Failed to build shader program")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    # Vertex format: x,y,r,g,b
+    let mut verts: array<float> = []
+    set verts (array_push verts (- 0.0 0.6))
+    set verts (array_push verts (- 0.0 0.5))
+    set verts (array_push verts 1.0)
+    set verts (array_push verts 0.2)
+    set verts (array_push verts 0.2)
+
+    set verts (array_push verts 0.6)
+    set verts (array_push verts (- 0.0 0.5))
+    set verts (array_push verts 0.2)
+    set verts (array_push verts 1.0)
+    set verts (array_push verts 0.2)
+
+    set verts (array_push verts 0.0)
+    set verts (array_push verts 0.6)
+    set verts (array_push verts 0.2)
+    set verts (array_push verts 0.2)
+    set verts (array_push verts 1.0)
+
+    let vao: int = (nl_gl3_gen_vertex_array)
+    let vbo: int = (nl_gl3_gen_buffer)
+    (nl_gl3_bind_vertex_array vao)
+    (nl_gl3_bind_buffer GL_ARRAY_BUFFER vbo)
+    (nl_gl3_buffer_data_f32 GL_ARRAY_BUFFER verts GL_STATIC_DRAW)
+
+    # Layout: 5 floats per vertex = 20 bytes
+    (nl_gl3_enable_vertex_attrib_array 0)
+    (nl_gl3_vertex_attrib_pointer_f32 0 2 0 20 0)
+    (nl_gl3_enable_vertex_attrib_array 1)
+    (nl_gl3_vertex_attrib_pointer_f32 1 3 0 20 8)
+
+    (glClearColor 0.05 0.06 0.08 1.0)
+    (println "✓ Modern hello triangle running (ESC quit)")
+
+    while (== (glfwWindowShouldClose window) 0) {
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+
+        (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+        (nl_gl3_use_program program)
+        (nl_gl3_bind_vertex_array vao)
+        (nl_gl3_draw_arrays GL_TRIANGLES 0 3)
+
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+    }
+
+    (nl_gl3_use_program 0)
+    (nl_gl3_delete_program program)
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    return 0
+}
+
+shadow main { assert true }
+

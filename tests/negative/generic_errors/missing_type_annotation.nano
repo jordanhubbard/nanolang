@@ -1,0 +1,10 @@
+# Expected Error: Missing type annotation
+
+fn main() -> int {
+    let x = 5  # Error: missing type annotation for variable
+    return x
+}
+
+shadow main {
+    assert (== (main) 5)
+}

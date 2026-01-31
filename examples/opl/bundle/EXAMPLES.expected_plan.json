@@ -1,0 +1,91 @@
+{
+  "planVersion": "opl-plan-0.1",
+  "plans": [
+    {
+      "for": "agent.search_then_emit",
+      "steps": [
+        {
+          "op": "call",
+          "tool": "web.search",
+          "args": {
+            "query": {
+              "$var": "query"
+            },
+            "limit": {
+              "$var": "limit"
+            }
+          },
+          "saveAs": "results"
+        },
+        {
+          "op": "assert",
+          "cond": {
+            "$expr": {
+              "kind": "bin",
+              "op": "!=",
+              "a": {
+                "kind": "id",
+                "name": "results"
+              },
+              "b": {
+                "kind": "lit",
+                "v": null
+              }
+            }
+          },
+          "message": "search failed"
+        },
+        {
+          "op": "emit",
+          "name": "results",
+          "value": {
+            "$var": "results"
+          }
+        }
+      ]
+    },
+    {
+      "for": "agent.guarded",
+      "steps": [
+        {
+          "op": "if",
+          "cond": {
+            "$expr": {
+              "kind": "bin",
+              "op": "!=",
+              "a": {
+                "kind": "id",
+                "name": "query"
+              },
+              "b": {
+                "kind": "lit",
+                "v": ""
+              }
+            }
+          },
+          "then": [
+            {
+              "op": "call",
+              "tool": "web.search",
+              "args": {
+                "query": {
+                  "$var": "query"
+                },
+                "limit": 3
+              },
+              "saveAs": "r"
+            },
+            {
+              "op": "emit",
+              "name": "r",
+              "value": {
+                "$var": "r"
+              }
+            }
+          ],
+          "else": []
+        }
+      ]
+    }
+  ]
+}

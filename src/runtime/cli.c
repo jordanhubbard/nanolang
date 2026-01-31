@@ -4,6 +4,8 @@
  * Provides argc/argv access to transpiled NanoLang programs
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For setenv(), unsetenv() */
+
 #include <stdint.h>
 
 /* These are set by main.c during program startup */
@@ -21,4 +23,27 @@ const char* get_argv(int64_t index) {
         return "";
     }
     return g_argv[index];
+}
+
+#include <stdlib.h>
+
+/* Wrapper for system() to avoid conflicts with stdlib.h declaration */
+int64_t nl_os_system(const char* command) {
+    return (int64_t)system(command);
+}
+
+/* Wrapper for getenv() */
+const char* nl_os_getenv(const char* name) {
+    const char* val = getenv(name);
+    return val ? val : "";
+}
+
+/* Wrapper for setenv() */
+int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite) {
+    return (int64_t)setenv(name, value, (int)overwrite);
+}
+
+/* Wrapper for unsetenv() */
+int64_t nl_os_unsetenv(const char* name) {
+    return (int64_t)unsetenv(name);
 }
