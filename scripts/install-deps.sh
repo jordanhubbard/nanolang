@@ -52,6 +52,7 @@ echo ""
 PACKAGES_TO_INSTALL=$(python3 << 'PYTHON_SCRIPT'
 import json
 import sys
+import os
 
 try:
     with open('modules/index.json', 'r') as f:
@@ -63,6 +64,7 @@ except:
 pkg_mgr = sys.argv[1] if len(sys.argv) > 1 else "apt"
 packages = set()
 
+# Method 1: Check system dependencies in modules/index.json (old format)
 for module in data.get('modules', []):
     deps = module.get('dependencies', {})
     if isinstance(deps, list):
@@ -73,6 +75,31 @@ for module in data.get('modules', []):
         if 'install' in dep and pkg_mgr in dep['install']:
             pkg_name = dep['install'][pkg_mgr]
             packages.add(pkg_name)
+
+# Method 2: Check individual module.json files for install field (new format)
+for module in data.get('modules', []):
+    module_name = module['name']
+    module_path = f'modules/{module_name}/module.json'
+
+    if not os.path.exists(module_path):
+        continue
+
+    try:
+        with open(module_path) as f:
+            mod_manifest = json.load(f)
+    except:
+        continue
+
+    # Get install information
+    install_info = mod_manifest.get('install', {})
+
+    # Check for platform-specific install info
+    if 'linux' in install_info and pkg_mgr == 'apt':
+        if 'apt' in install_info['linux']:
+            packages.add(install_info['linux']['apt'])
+    elif 'macos' in install_info and pkg_mgr == 'brew':
+        if 'brew' in install_info['macos']:
+            packages.add(install_info['macos']['brew'])
 
 # Print unique packages
 for pkg in sorted(packages):

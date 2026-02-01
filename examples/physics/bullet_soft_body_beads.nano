@@ -12,8 +12,8 @@
  * - Performance metrics
  */
 
-unsafe module "modules/sdl/sdl.nano as SDL" as SDL
-unsafe module "modules/bullet/bullet.nano as Bullet" as Bullet
+unsafe module "modules/sdl/sdl.nano" as SDL
+unsafe module "modules/bullet/bullet.nano" as Bullet
 
 /* Constants */
 let WINDOW_WIDTH: int = 1200

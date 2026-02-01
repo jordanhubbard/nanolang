@@ -31,11 +31,13 @@ else
     echo ""
 fi
 
-# Use Python to parse the modules index
+# Use Python to parse module manifests and check dependencies
 VALIDATION_RESULT=$(python3 << 'PYTHON_SCRIPT'
 import json
 import sys
 import subprocess
+import os
+import glob
 
 try:
     with open('modules/index.json', 'r') as f:
@@ -45,20 +47,37 @@ except:
     sys.exit(1)
 
 modules_with_deps = []
+
+# Read individual module.json files to get pkg_config names
 for module in data.get('modules', []):
-    deps = module.get('dependencies', {})
-    # Handle both dict and list formats
-    if isinstance(deps, list):
-        continue  # Old format, skip
-    system_deps = deps.get('system', [])
-    if system_deps and len(system_deps) > 0:
-        dep_ids = [dep.get('id', '') for dep in system_deps if 'id' in dep]
-        if dep_ids:
-            modules_with_deps.append({
-                'name': module['name'],
-                'deps': dep_ids,
-                'install': {dep.get('id'): dep.get('install', {}) for dep in system_deps}
-            })
+    module_name = module['name']
+    module_path = f'modules/{module_name}/module.json'
+
+    if not os.path.exists(module_path):
+        continue
+
+    try:
+        with open(module_path) as f:
+            mod_manifest = json.load(f)
+    except:
+        continue
+
+    # Get pkg_config names (for checking with pkg-config)
+    pkg_config_names = mod_manifest.get('pkg_config', [])
+
+    # Get system dependencies (for installation)
+    deps_from_index = module.get('dependencies', {})
+    if isinstance(deps_from_index, list):
+        continue
+
+    system_deps = deps_from_index.get('system', [])
+
+    if pkg_config_names or system_deps:
+        modules_with_deps.append({
+            'name': module_name,
+            'pkg_config': pkg_config_names,
+            'install': {dep.get('id'): dep.get('install', {}) for dep in system_deps}
+        })
 
 if not modules_with_deps:
     print("NONE")
@@ -72,19 +91,22 @@ for module in modules_with_deps:
     module_ok = True
     missing_deps = []
 
-    for dep in module['deps']:
-        # Check if available via pkg-config
+    # Check pkg-config packages
+    for pkg in module['pkg_config']:
         try:
-            result = subprocess.run(['pkg-config', '--exists', dep],
+            result = subprocess.run(['pkg-config', '--exists', pkg],
                                   capture_output=True, timeout=2)
             if result.returncode != 0:
                 module_ok = False
-                missing_deps.append(dep)
+                missing_deps.append(pkg)
         except:
             module_ok = False
-            missing_deps.append(dep)
+            missing_deps.append(pkg)
 
-    if module_ok:
+    if module_ok and module['pkg_config']:  # Only mark as OK if it had pkg_config to check
+        available.append(module['name'])
+        print(f"OK:{module['name']}")
+    elif not module['pkg_config'] and not missing_deps:  # No pkg_config needed
         available.append(module['name'])
         print(f"OK:{module['name']}")
     else:
