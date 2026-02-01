@@ -518,6 +518,39 @@ code {
     animation: fadeIn 0.3s ease-out;
 }
 
+/* Program Output */
+.compile-output,
+.program-output,
+.error-details {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    border-radius: 0.5rem;
+    color: #d4d4d4;
+}
+
+.compile-output pre,
+.program-output pre {
+    margin: 0.5rem 0 0 0;
+    font-family: var(--code-font);
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #a5d6a7;
+}
+
+.error-details {
+    background-color: #2d1515;
+    color: #ef9a9a;
+}
+
+.compile-output strong,
+.program-output strong,
+.error-details strong {
+    color: #90caf9;
+    font-size: 0.875rem;
+}
+
 /* Print Styles */
 @media print {
     .header, .sidebar, .info-banner, .footer {

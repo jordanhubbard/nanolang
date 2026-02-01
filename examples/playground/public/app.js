@@ -130,16 +130,68 @@ function runCode() {
     clearOutput();
 
     // Show running state
-    outputDiv.innerHTML = '<div class="info-message">⏳ Validating syntax...</div>';
+    outputDiv.innerHTML = '<div class="info-message">⏳ Compiling and running...</div>';
     runBtn.disabled = true;
     runBtn.textContent = '⏳ Running...';
 
-    // Simulate validation (since we can't actually execute on the client)
-    setTimeout(() => {
-        validateSyntax(code);
+    // Call the execute API
+    fetch('/api/execute', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain'
+        },
+        body: code
+    })
+    .then(response => response.json())
+    .then(result => {
         runBtn.disabled = false;
         runBtn.textContent = '▶️ Run Code';
-    }, 300);
+        displayExecutionResult(result);
+    })
+    .catch(error => {
+        runBtn.disabled = false;
+        runBtn.textContent = '▶️ Run Code';
+        // Fall back to client-side validation if server unavailable
+        console.warn('Server unavailable, falling back to syntax validation:', error);
+        outputDiv.innerHTML = '<div class="warning-message">⚠️ Server unavailable. Performing syntax validation only...</div>';
+        setTimeout(() => validateSyntax(code), 300);
+    });
+}
+
+function displayExecutionResult(result) {
+    if (result.success) {
+        let output = '<div class="success-message">✅ <strong>Execution successful!</strong></div>';
+        
+        if (result.compile_output && result.compile_output.trim()) {
+            output += '<div class="compile-output"><strong>Compile output:</strong><pre>' + 
+                      escapeHtml(result.compile_output) + '</pre></div>';
+        }
+        
+        if (result.output && result.output.trim()) {
+            output += '<div class="program-output"><strong>Program output:</strong><pre>' + 
+                      escapeHtml(result.output) + '</pre></div>';
+        } else {
+            output += '<div class="info-message">Program produced no output.</div>';
+        }
+        
+        outputDiv.innerHTML = output;
+        errorsDiv.innerHTML = '<div class="success-message">No errors</div>';
+    } else {
+        let errorOutput = '<div class="error-message">❌ <strong>Execution failed</strong></div>';
+        
+        if (result.error) {
+            errorOutput += '<div class="error-details"><strong>Error:</strong> ' + 
+                          escapeHtml(result.error) + '</div>';
+        }
+        
+        if (result.output && result.output.trim()) {
+            errorOutput += '<div class="compile-output"><strong>Output:</strong><pre>' + 
+                          escapeHtml(result.output) + '</pre></div>';
+        }
+        
+        errorsDiv.innerHTML = errorOutput;
+        outputDiv.innerHTML = '<div class="error-message">Please fix the errors and try again.</div>';
+    }
 }
 
 function validateSyntax(code) {

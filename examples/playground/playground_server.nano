@@ -133,21 +133,39 @@ shadow build_error_json {
     assert (str_contains json "Syntax error")
 }
 
-fn print_banner() -> void {
+fn get_port() -> int {
+    let port_str: string = (getenv "PLAYGROUND_PORT")
+    if (str_equals port_str "") {
+        return 8080
+    } else {
+        return (string_to_int port_str)
+    }
+}
+
+shadow get_port {
+    # Default port is 8080
+    assert (> (get_port) 0)
+}
+
+fn print_banner(port: int) -> void {
     (println "")
     (println "╔══════════════════════════════════════════════════╗")
     (println "║      NanoLang Playground Server                 ║")
     (println "╚══════════════════════════════════════════════════╝")
     (println "")
-    (println "🚀 Server starting on http://localhost:8080")
+    (print "🚀 Server starting on http://localhost:")
+    (print (int_to_string port))
+    (println "")
     (println "")
     (println "📝 Features:")
     (println "   • Interactive code editor")
     (println "   • Example code snippets")
-    (println "   • Real-time execution")
+    (println "   • Real-time code execution")
     (println "   • Syntax highlighting")
     (println "")
-    (println "💡 Open http://localhost:8080 in your browser to start coding!")
+    (print "💡 Open http://localhost:")
+    (print (int_to_string port))
+    (println " in your browser to start coding!")
     (println "")
     (println "Press Ctrl+C to stop the server")
     (println "")
@@ -158,17 +176,17 @@ shadow print_banner {
 }
 
 fn main() -> int {
-    (print_banner)
+    let port: int = (get_port)
+    (print_banner port)
 
-    # Create HTTP server on port 8080
-    let server: HttpServer = (create 8080)
+    # Create HTTP server
+    let server: HttpServer = (create port)
 
     # Serve static files from public directory
     (set_static_dir server "examples/playground/public")
 
-    # Note: API endpoint for /api/execute would be added here
-    # Currently http_server module doesn't support NanoLang route handlers
-    # The frontend will use a workaround or we'll implement CGI-style execution
+    # The /api/execute endpoint is built into the http_server module
+    # It compiles and runs NanoLang code submitted via POST
 
     # Start the server (this blocks)
     let result: int = (start server)

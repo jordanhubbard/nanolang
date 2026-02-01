@@ -8,7 +8,7 @@ Inspired by Swift Playgrounds, the NanoLang Playground provides an interactive w
 
 - **📝 Code Editor** - Syntax-aware editor with monospace font and line numbers
 - **📚 Example Gallery** - 10+ curated examples covering key language features
-- **▶️ Syntax Validation** - Real-time validation of NanoLang syntax
+- **▶️ Code Execution** - Compile and run NanoLang code in the browser
 - **📋 Copy & Download** - Export your code for local compilation
 - **⌨️ Keyboard Shortcuts** - Ctrl+Enter to run, Ctrl+S to download
 - **📱 Responsive Design** - Works on desktop, tablet, and mobile
@@ -82,20 +82,16 @@ The playground comes with 10 interactive examples:
 - **Copy to Clipboard**: Click the 📋 button
 - **Download as File**: Click the 💾 button or press **Ctrl+S**
 
-### Executing Code Locally
+### Code Execution
 
-The playground validates syntax but doesn't execute code. To run your code:
+When running with the NanoLang playground server, your code is compiled and executed on the server:
 
-```bash
-# 1. Save your code to a file
-echo 'your_code_here' > program.nano
+1. Click "Run Code" or press **Ctrl+Enter**
+2. The code is sent to the server's `/api/execute` endpoint
+3. The server compiles and runs your code
+4. Output (or errors) are displayed in real-time
 
-# 2. Compile it
-./bin/nanoc program.nano -o program
-
-# 3. Run it
-./program
-```
+**Note:** If the server is unavailable (e.g., using a simple static file server), the playground falls back to client-side syntax validation only.
 
 ## 🏗️ Architecture
 
@@ -109,15 +105,17 @@ echo 'your_code_here' > program.nano
 ### Backend (NanoLang HTTP Server)
 
 - **playground_server.nano** - HTTP server serving static files
-- Uses `http_server` module for serving
-- Future: API endpoint for server-side code execution
+- Uses `http_server` module with built-in `/api/execute` endpoint
+- Server compiles and executes submitted code, returning JSON results
+- Set `PLAYGROUND_PORT` environment variable to change the port (default: 8080)
 
-### Validation
+### Execution Flow
 
-Currently client-side only:
-- Brace/parenthesis balance checking
-- Shadow test presence validation
-- Function definition detection
+1. User writes code in the browser editor
+2. Code is sent to `/api/execute` via POST
+3. Server writes code to temp file, compiles with `nanoc`
+4. If compilation succeeds, runs the binary and captures output
+5. Returns JSON with success/failure, compile output, and program output
 
 ## 🎯 Keyboard Shortcuts
 
@@ -161,8 +159,6 @@ Modify `public/style.css` to customize:
 - Animations
 
 ## 🚧 Future Enhancements
-
-- [ ] **Server-side Execution** - Run code on the server with `eval_internal`
 - [ ] **Syntax Highlighting** - Full syntax highlighting with CodeMirror/Monaco
 - [ ] **Auto-completion** - IntelliSense-style code completion
 - [ ] **Share Links** - Share code via URLs
@@ -187,7 +183,7 @@ Contributions welcome! Areas to improve:
 1. **More Examples** - Add examples for advanced features (unions, generics, FFI)
 2. **Better Validation** - Improve client-side syntax checking
 3. **UI Enhancements** - Better error messages, syntax highlighting
-4. **Server-side Execution** - Implement safe code execution API
+4. **Sandboxed Execution** - Add sandboxing for safer code execution
 5. **Mobile Optimization** - Improve mobile user experience
 
 ## 📄 License

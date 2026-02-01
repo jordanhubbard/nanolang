@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <uv.h>
 #include <ctype.h>
 #include "http_server.h"
@@ -315,10 +316,215 @@ static void serve_static_file(http_server_t* server, http_request_t* req, http_r
 }
 
 /* ========================================================================
+ * Code Execution API (for playground)
+ * ======================================================================== */
+
+#include <sys/wait.h>
+
+#define EVAL_MAX_OUTPUT 65536
+
+/* Helper to escape JSON strings */
+static char* json_escape_eval(const char* input) {
+    if (!input) return strdup("");
+    
+    size_t len = strlen(input);
+    char* output = malloc(len * 2 + 1);  /* Worst case: every char escaped */
+    if (!output) return strdup("");
+    
+    size_t j = 0;
+    for (size_t i = 0; i < len; i++) {
+        char c = input[i];
+        switch (c) {
+            case '"':  output[j++] = '\\'; output[j++] = '"'; break;
+            case '\\': output[j++] = '\\'; output[j++] = '\\'; break;
+            case '\n': output[j++] = '\\'; output[j++] = 'n'; break;
+            case '\r': output[j++] = '\\'; output[j++] = 'r'; break;
+            case '\t': output[j++] = '\\'; output[j++] = 't'; break;
+            default:   output[j++] = c; break;
+        }
+    }
+    output[j] = '\0';
+    return output;
+}
+
+/* Execute code and return JSON result */
+static char* execute_nanolang_code(const char* source) {
+    char* result = malloc(EVAL_MAX_OUTPUT);
+    if (!result) return strdup("{\"success\":false,\"error\":\"Memory allocation failed\"}");
+    
+    if (!source || strlen(source) == 0) {
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"No code provided\"}");
+        return result;
+    }
+
+    /* Create temp file for source */
+    char src_template[] = "/tmp/nano_eval_XXXXXX";
+    int src_fd = mkstemp(src_template);
+    if (src_fd < 0) {
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"Failed to create temp file\"}");
+        return result;
+    }
+
+    FILE *src_file = fdopen(src_fd, "w");
+    if (!src_file) {
+        close(src_fd);
+        unlink(src_template);
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"Failed to open temp file\"}");
+        return result;
+    }
+
+    fputs(source, src_file);
+    fclose(src_file);
+
+    /* Create temp file for binary */
+    char bin_template[] = "/tmp/nano_eval_bin_XXXXXX";
+    int bin_fd = mkstemp(bin_template);
+    if (bin_fd < 0) {
+        unlink(src_template);
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"Failed to create binary temp file\"}");
+        return result;
+    }
+    close(bin_fd);
+
+    /* Compile with output capture */
+    char compile_cmd[4096];
+    char compile_output_file[] = "/tmp/nano_compile_out_XXXXXX";
+    int compile_out_fd = mkstemp(compile_output_file);
+    if (compile_out_fd < 0) {
+        unlink(src_template);
+        unlink(bin_template);
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"Failed to create output file\"}");
+        return result;
+    }
+    close(compile_out_fd);
+
+    snprintf(compile_cmd, sizeof(compile_cmd), 
+             "NANO_MODULE_PATH=modules ./bin/nanoc %s -o %s >%s 2>&1", 
+             src_template, bin_template, compile_output_file);
+    
+    int compile_status = system(compile_cmd);
+
+    /* Read compile output */
+    char compile_output[EVAL_MAX_OUTPUT / 2];
+    memset(compile_output, 0, sizeof(compile_output));
+    FILE* compile_out = fopen(compile_output_file, "r");
+    if (compile_out) {
+        size_t read_len = fread(compile_output, 1, sizeof(compile_output) - 1, compile_out);
+        compile_output[read_len] = '\0';
+        fclose(compile_out);
+    }
+    unlink(compile_output_file);
+
+    if (compile_status != 0) {
+        unlink(src_template);
+        unlink(bin_template);
+        char* escaped_output = json_escape_eval(compile_output);
+        snprintf(result, EVAL_MAX_OUTPUT, 
+                 "{\"success\":false,\"error\":\"Compilation failed\",\"output\":\"%s\"}", 
+                 escaped_output);
+        free(escaped_output);
+        return result;
+    }
+
+    /* Run with output capture */
+    char run_output_file[] = "/tmp/nano_run_out_XXXXXX";
+    int run_out_fd = mkstemp(run_output_file);
+    if (run_out_fd < 0) {
+        unlink(src_template);
+        unlink(bin_template);
+        snprintf(result, EVAL_MAX_OUTPUT, "{\"success\":false,\"error\":\"Failed to create run output file\"}");
+        return result;
+    }
+    close(run_out_fd);
+
+    char run_cmd[4096];
+    snprintf(run_cmd, sizeof(run_cmd), "%s >%s 2>&1", bin_template, run_output_file);
+    int run_status = system(run_cmd);
+
+    /* Read run output */
+    char run_output[EVAL_MAX_OUTPUT / 2];
+    memset(run_output, 0, sizeof(run_output));
+    FILE* run_out = fopen(run_output_file, "r");
+    if (run_out) {
+        size_t read_len = fread(run_output, 1, sizeof(run_output) - 1, run_out);
+        run_output[read_len] = '\0';
+        fclose(run_out);
+    }
+    unlink(run_output_file);
+
+    /* Cleanup */
+    unlink(src_template);
+    unlink(bin_template);
+
+    /* Build result JSON */
+    int success = WIFEXITED(run_status) && WEXITSTATUS(run_status) == 0;
+    char* escaped_compile = json_escape_eval(compile_output);
+    char* escaped_run = json_escape_eval(run_output);
+    
+    snprintf(result, EVAL_MAX_OUTPUT,
+             "{\"success\":%s,\"compile_output\":\"%s\",\"output\":\"%s\",\"exit_code\":%d}",
+             success ? "true" : "false",
+             escaped_compile,
+             escaped_run,
+             WIFEXITED(run_status) ? WEXITSTATUS(run_status) : -1);
+    
+    free(escaped_compile);
+    free(escaped_run);
+    
+    return result;
+}
+
+static void handle_execute_api(http_request_t* req, http_response_t* res) {
+    /* Only accept POST requests */
+    if (strcmp(req->method, "POST") != 0) {
+        http_response_set_status(res, 405, "Method Not Allowed");
+        http_response_json(res, "{\"success\":false,\"error\":\"Use POST method\"}");
+        return;
+    }
+    
+    /* Get code from request body */
+    const char* code = req->body;
+    if (!code || strlen(code) == 0) {
+        http_response_set_status(res, 400, "Bad Request");
+        http_response_json(res, "{\"success\":false,\"error\":\"No code in request body\"}");
+        return;
+    }
+    
+    /* Execute the code */
+    char* result = execute_nanolang_code(code);
+    
+    /* Send response */
+    http_response_add_header(res, "Access-Control-Allow-Origin", "*");
+    http_response_json(res, result);
+    
+    free(result);
+}
+
+static void handle_options_cors(http_response_t* res) {
+    http_response_set_status(res, 204, "No Content");
+    http_response_add_header(res, "Access-Control-Allow-Origin", "*");
+    http_response_add_header(res, "Access-Control-Allow-Methods", "POST, OPTIONS");
+    http_response_add_header(res, "Access-Control-Allow-Headers", "Content-Type");
+    http_response_add_header(res, "Access-Control-Max-Age", "86400");
+}
+
+/* ========================================================================
  * Request Handling
  * ======================================================================== */
 
 static void handle_request(http_server_t* server, http_request_t* req, http_response_t* res) {
+    /* Handle CORS preflight */
+    if (strcmp(req->method, "OPTIONS") == 0) {
+        handle_options_cors(res);
+        return;
+    }
+    
+    /* Built-in API endpoints */
+    if (strcmp(req->path, "/api/execute") == 0) {
+        handle_execute_api(req, res);
+        return;
+    }
+    
     /* Try to find matching route */
     route_t* route = find_route(server, req->method, req->path);
     
