@@ -202,6 +202,7 @@ update_changelog() {
 create_release() {
     local version=$1
     local prev_version=$2
+    local test_status=$3  # Passed from caller to avoid running tests twice
     
     info "Creating release v$version..."
     
@@ -210,7 +211,7 @@ create_release() {
     
     # Count statistics
     local commit_count=$(git rev-list --count "v$prev_version"..HEAD)
-    local test_status=$(make test 2>&1 | grep -E "TOTAL:|passed|failed" | tail -1 || echo "Unknown")
+    # test_status is now passed as argument (no longer runs make test again)
     
     # Build release notes
     cat > /tmp/release_notes.md << EOF
@@ -338,23 +339,30 @@ main() {
     # Update changelog
     update_changelog "$CHANGELOG_ENTRY"
     
-    # Run tests before release
+    # Run tests before release (capture output for release notes)
     info "Running tests..."
-    if ! make test > /dev/null 2>&1; then
+    local test_output_file=$(mktemp)
+    if ! make test > "$test_output_file" 2>&1; then
         if [[ "$BATCH_MODE" == "yes" ]]; then
+            rm -f "$test_output_file"
             error "Tests failed in batch mode. Fix tests before releasing."
         fi
         warn "Tests failed! Continue anyway?"
         read -p "(y/n) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            rm -f "$test_output_file"
             error "Release cancelled due to test failures"
         fi
     fi
     success "Tests passed"
     
+    # Extract test status from captured output (avoid running tests twice)
+    local test_status=$(grep -E "TOTAL:|passed|failed" "$test_output_file" | tail -1 || echo "All tests passed")
+    rm -f "$test_output_file"
+    
     # Create release
-    create_release "$NEXT_VERSION" "$CURRENT_VERSION"
+    create_release "$NEXT_VERSION" "$CURRENT_VERSION" "$test_status"
     
     echo ""
     echo "╔═══════════════════════════════════════╗"
