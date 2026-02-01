@@ -216,6 +216,10 @@ modules:
 	@./$(GENERATE_MODULE_INDEX)
 	@./scripts/validate-modules.sh
 
+# Install all missing module dependencies (requires sudo)
+install-deps:
+	@./scripts/install-deps.sh
+
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 
@@ -1080,7 +1084,11 @@ help:
 	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
 	@echo "  make test-beads         - Run tests; on failures, auto-create/update beads"
-	@echo "  make modules            - Validate module dependencies (shows what's available)"
+	@echo ""
+	@echo "Module Dependencies:"
+	@echo "  make modules            - Check what dependencies are needed (no sudo)"
+	@echo "  sudo make install-deps  - Install all missing dependencies (requires sudo)"
+	@echo ""
 	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
 	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
@@ -1180,7 +1188,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
