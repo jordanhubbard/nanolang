@@ -294,6 +294,9 @@ TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
 BOOTSTRAP2_TIMEOUT ?= 3600
 BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
+# Release needs extended timeout since it runs tests + git/gh operations
+RELEASE_TIMEOUT ?= 2400
+RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
 USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
@@ -1167,12 +1170,12 @@ $(BUILD_DIR):
 #   make release-major        # Bump major version (X.0.0)
 release:
 	@echo "Creating patch release..."
-	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh patch
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh patch
 
 release-minor:
 	@echo "Creating minor release..."
-	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh minor
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh minor
 
 release-major:
 	@echo "Creating major release..."
-	@BATCH=$(BATCH) $(TIMEOUT_CMD) ./scripts/release.sh major
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh major

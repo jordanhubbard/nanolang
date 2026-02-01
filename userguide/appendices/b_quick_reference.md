@@ -84,6 +84,48 @@ For nested operations, parentheses make order explicit:
 | `char_to_lower` | `char_to_lower(int) -> int` | Convert to lowercase |
 | `char_to_upper` | `char_to_upper(int) -> int` | Convert to uppercase |
 
+### Binary String Operations (bstring)
+
+Binary strings support embedded nulls and UTF-8 aware operations.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `bstr_new` | `bstr_new(string) -> bstring` | Create from C string |
+| `bstr_new_binary` | `bstr_new_binary(string, int) -> bstring` | Create with explicit length |
+| `bstr_length` | `bstr_length(bstring) -> int` | Get byte length |
+| `bstr_concat` | `bstr_concat(bstring, bstring) -> bstring` | Concatenate |
+| `bstr_substring` | `bstr_substring(bstring, int, int) -> bstring` | Extract substring |
+| `bstr_equals` | `bstr_equals(bstring, bstring) -> bool` | Equality check |
+| `bstr_byte_at` | `bstr_byte_at(bstring, int) -> int` | Get byte at index |
+| `bstr_to_cstr` | `bstr_to_cstr(bstring) -> string` | Convert to C string |
+| `bstr_validate_utf8` | `bstr_validate_utf8(bstring) -> bool` | Check UTF-8 validity |
+| `bstr_utf8_length` | `bstr_utf8_length(bstring) -> int` | Get UTF-8 char count |
+| `bstr_utf8_char_at` | `bstr_utf8_char_at(bstring, int) -> int` | Get UTF-8 code point |
+| `bstr_free` | `bstr_free(bstring) -> void` | Free memory |
+
+### HashMap Operations
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `map_new` | `map_new() -> HashMap<K,V>` | Create empty hash map |
+| `map_put` | `map_put(map, key, value) -> void` | Insert/update key-value pair |
+| `map_get` | `map_get(map, key) -> V` | Get value by key |
+| `map_has` | `map_has(map, key) -> bool` | Check if key exists |
+| `map_size` | `map_size(map) -> int` | Get number of entries |
+| `map_free` | `map_free(map) -> void` | Free map memory |
+
+### Checked Math (Safe Arithmetic)
+
+Import from `modules/stdlib/checked_math.nano` for overflow-safe operations.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `checked_add` | `checked_add(int, int) -> Result<int, string>` | Safe addition |
+| `checked_sub` | `checked_sub(int, int) -> Result<int, string>` | Safe subtraction |
+| `checked_mul` | `checked_mul(int, int) -> Result<int, string>` | Safe multiplication |
+| `checked_div` | `checked_div(int, int) -> Result<int, string>` | Safe division |
+| `checked_mod` | `checked_mod(int, int) -> Result<int, string>` | Safe modulo |
+
 ### Array Operations
 
 | Function | Signature | Description |
@@ -99,6 +141,33 @@ For nested operations, parentheses make order explicit:
 | `filter` | `filter(arr, fn) -> array<T>` | Keep elements matching predicate |
 | `map` | `map(arr, fn) -> array<T>` | Transform each element |
 | `reduce` | `reduce(arr, init, fn) -> A` | Fold array into single value |
+
+### Generic List Operations
+
+Generic lists are monomorphized at compile time. Replace `T` with your type (e.g., `list_int_*`).
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `list_T_new` | `list_T_new() -> List<T>` | Create empty list |
+| `list_T_push` | `list_T_push(list, elem) -> void` | Append element |
+| `list_T_get` | `list_T_get(list, index) -> T` | Get element (bounds-checked) |
+| `list_T_length` | `list_T_length(list) -> int` | Get number of elements |
+
+**Example:**
+
+```nano
+let nums: List<int> = (list_int_new)
+(list_int_push nums 42)
+let val: int = (list_int_get nums 0)
+```
+
+### OS Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `getcwd` | `getcwd() -> string` | Get current directory |
+| `getenv` | `getenv(string) -> string` | Get environment variable |
+| `range` | `range(start, end) -> iterator` | Create range for loops |
 
 ### Type Conversions
 
@@ -267,6 +336,28 @@ match result {
 }
 ```
 
+### Unsafe Blocks and FFI
+
+Use `unsafe` blocks for calling extern (C) functions:
+
+```nano
+# Declare external C function
+extern fn getpid() -> int
+
+fn get_process_id() -> int {
+    let pid: int = 0
+    unsafe {
+        set pid (getpid)
+    }
+    return pid
+}
+```
+
+**Key points:**
+- `extern fn` declares C functions
+- All extern calls must be inside `unsafe { }` blocks
+- Extern functions don't require shadow tests
+
 ## B.6 Types Quick Reference
 
 ### Primitive Types
@@ -276,7 +367,8 @@ match result {
 | `int` | 64-bit | Signed integer |
 | `float` | 64-bit | IEEE 754 double |
 | `bool` | 1-bit | `true` or `false` |
-| `string` | ptr | UTF-8 text |
+| `string` | ptr | UTF-8 text (null-terminated) |
+| `bstring` | ptr | Binary string (length-prefixed, UTF-8 aware) |
 | `void` | 0 | No value (return type only) |
 
 ### Composite Types
@@ -299,6 +391,10 @@ let x: int = coord.0
 
 # Array
 let arr: array<int> = [1, 2, 3]
+
+# HashMap
+let counts: HashMap<string, int> = (map_new)
+(map_put counts "key" 42)
 
 # Function type
 let f: fn(int) -> int = double

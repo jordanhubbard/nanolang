@@ -3,6 +3,8 @@
 Even in a low-level language, patterns like map/reduce/fold can be expressed explicitly.
 NanoLang also provides built-in `map`, `filter`, and `reduce` for arrays.
 
+> **For comprehensive coverage** see [Chapter 6: Collections](part1_fundamentals/06_collections.md) and [Chapter 7: Data Structures](part1_fundamentals/07_data_structures.md) for unions and pattern matching.
+
 ## Built-in map/filter/reduce
 
 <!--nl-snippet {"name":"ug_patterns_builtin_map_reduce","check":true}-->

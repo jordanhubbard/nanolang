@@ -2,6 +2,8 @@
 
 NanoLang uses explicit imports. Module paths are strings.
 
+> **For comprehensive coverage** see [Chapter 8: Modules & Imports](part1_fundamentals/08_modules.md).
+
 ## Importing a module
 
 This example uses the built-in `std/json` module.

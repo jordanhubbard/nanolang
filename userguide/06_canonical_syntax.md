@@ -2,6 +2,8 @@
 
 NanoLang is intentionally strict: there is **exactly ONE canonical way** to write each construct. This makes code generation by LLMs more reliable and code review easier.
 
+> **For the complete style guide** see [Canonical Style Guide](../docs/CANONICAL_STYLE.md) and [LLM Core Subset](../docs/LLM_CORE_SUBSET.md).
+
 ## Why Canonical Syntax?
 
 When LLMs see multiple equivalent forms, they guess wrong ~50% of the time. NanoLang eliminates ambiguity:

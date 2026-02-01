@@ -2,6 +2,8 @@
 
 Core types: `int`, `float`, `bool`, `string`, `array<T>`, `void`.
 
+> **For comprehensive coverage** see [Chapter 2: Syntax & Types](part1_fundamentals/02_syntax_types.md) and [Chapter 7: Data Structures](part1_fundamentals/07_data_structures.md) for structs, enums, and unions.
+
 ## Strings
 
 String concatenation is done with `+`.
