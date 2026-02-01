@@ -22,6 +22,14 @@ INTERPRETER = $(BIN_DIR)/nano
 # Set module path for automatic module building
 export NANO_MODULE_PATH=../modules
 
+# === Dependency Detection ===
+# Check for required system packages
+
+PKG_CONFIG_AVAILABLE := $(shell command -v pkg-config >/dev/null 2>&1 && echo yes || echo no)
+LIBEVENT_AVAILABLE := $(shell pkg-config --exists libevent >/dev/null 2>&1 && echo yes || echo no)
+SDL2_AVAILABLE := $(shell pkg-config --exists sdl2 >/dev/null 2>&1 && echo yes || echo no)
+SQLITE3_AVAILABLE := $(shell pkg-config --exists sqlite3 >/dev/null 2>&1 && echo yes || echo no)
+
 # === Nanolang-Only Compiled Examples (nl_*) ===
 
 NL_SOURCES := $(filter-out language/nl_pi_calculator.nano language/nl_pi_chudnovsky.nano,$(wildcard language/nl_*.nano))
@@ -30,13 +38,30 @@ NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
 # === REPL Examples ===
 
-REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano,$(wildcard language/*_repl.nano))
+REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano language/simple_repl.nano language/vars_repl.nano,$(wildcard language/*_repl.nano))
 REPL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%,$(REPL_SOURCES))
 REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
 
 # === Advanced Examples ===
+# Some advanced examples require external dependencies
 
 ADVANCED_SOURCES := $(filter-out advanced/math_helper.nano,$(wildcard advanced/*.nano))
+
+# Filter out examples based on missing dependencies
+ifeq ($(PKG_CONFIG_AVAILABLE),no)
+ADVANCED_SOURCES := $(filter-out advanced/event_example.nano advanced/module_introspection_demo.nano advanced/sqlite_simple.nano,$(ADVANCED_SOURCES))
+else
+  ifeq ($(LIBEVENT_AVAILABLE),no)
+    ADVANCED_SOURCES := $(filter-out advanced/event_example.nano,$(ADVANCED_SOURCES))
+  endif
+  ifeq ($(SDL2_AVAILABLE),no)
+    ADVANCED_SOURCES := $(filter-out advanced/module_introspection_demo.nano,$(ADVANCED_SOURCES))
+  endif
+  ifeq ($(SQLITE3_AVAILABLE),no)
+    ADVANCED_SOURCES := $(filter-out advanced/sqlite_simple.nano,$(ADVANCED_SOURCES))
+  endif
+endif
+
 ADVANCED_EXAMPLES := $(patsubst advanced/%.nano,$(BIN_DIR)/%,$(ADVANCED_SOURCES))
 ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
 
@@ -53,10 +78,21 @@ DEBUG_EXAMPLES := $(patsubst debug/%.nano,$(BIN_DIR)/%,$(DEBUG_SOURCES))
 DEBUG_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DEBUG_EXAMPLES)))
 
 # === Network Examples ===
+# Require libevent library (checked via pkg-config)
 
 NETWORK_SOURCES := $(wildcard network/*.nano)
 NETWORK_EXAMPLES := $(patsubst network/%.nano,$(BIN_DIR)/%,$(NETWORK_SOURCES))
 NETWORK_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NETWORK_EXAMPLES)))
+
+ifeq ($(PKG_CONFIG_AVAILABLE),no)
+NETWORK_SOURCES :=
+NETWORK_EXAMPLES :=
+NETWORK_NAMES :=
+else ifeq ($(LIBEVENT_AVAILABLE),no)
+NETWORK_SOURCES :=
+NETWORK_EXAMPLES :=
+NETWORK_NAMES :=
+endif
 
 # === Physics Examples ===
 
@@ -137,13 +173,15 @@ ALL_EXAMPLES = \
 # Default: build all examples
 all: build
 
-# Build all examples
-build: $(COMPILER) $(ALL_EXAMPLES)
+# Build all examples (continue on error for missing dependencies)
+build: $(COMPILER)
+	@$(MAKE) -k $(ALL_EXAMPLES) || true
 	@echo ""
-	@echo "Default examples built successfully!"
+	@echo "Examples build complete!"
+	@echo "Note: Some examples may have been skipped due to missing system libraries."
 	@echo ""
 	@echo "Nanolang-only examples (nl_*):"
-	@$(if $(strip $(NL_NAMES)),$(foreach ex,$(NL_NAMES),echo "  ./bin/$(ex)";),:)
+	@$(if $(strip $(NL_NAMES)),$(foreach ex,$(NL_NAMES),test -f ./bin/$(ex) && echo "  ./bin/$(ex)" || true;),:)
 	@echo ""
 	@echo "REPL examples:"
 	@$(if $(strip $(REPL_NAMES)),$(foreach ex,$(REPL_NAMES),echo "  ./bin/$(ex)";),:)

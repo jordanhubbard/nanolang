@@ -348,15 +348,55 @@ static char* run_command(const char *cmd) {
     return output;
 }
 
+// Helper to detect WSL2
+static bool is_wsl2(void) {
+    FILE *fp = fopen("/proc/version", "r");
+    if (!fp) return false;
+
+    char buffer[256];
+    bool is_wsl = false;
+    if (fgets(buffer, sizeof(buffer), fp)) {
+        // Check for "microsoft", "Microsoft", "WSL", or "wsl" in /proc/version
+        if (strstr(buffer, "microsoft") || strstr(buffer, "Microsoft") ||
+            strstr(buffer, "WSL") || strstr(buffer, "wsl")) {
+            is_wsl = true;
+        }
+    }
+    fclose(fp);
+    return is_wsl;
+}
+
+// Helper to check if passwordless sudo is available
+static bool has_passwordless_sudo(void) {
+    // Try to run a simple command with sudo -n (non-interactive)
+    int result = system("sudo -n true 2>/dev/null");
+    return result == 0;
+}
+
 static const char* module_builder_sudo_prefix(void) {
     static bool initialized = false;
     static const char *prefix = "sudo";
 
     if (!initialized) {
         bool interactive = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
-        if (!interactive) {
-            prefix = "sudo -n";
-            printf("[Module]   Non-interactive shell detected; using sudo -n\n");
+        bool wsl = is_wsl2();
+
+        // On WSL2, prefer interactive sudo even if shell appears non-interactive
+        // since WSL2 often runs in contexts where interactive sudo works fine
+        if (!interactive && !wsl) {
+            // Check if passwordless sudo is available
+            if (has_passwordless_sudo()) {
+                prefix = "sudo -n";
+                printf("[Module]   Non-interactive shell detected; using sudo -n\n");
+            } else {
+                prefix = "sudo";
+                printf("[Module]   Non-interactive shell detected but passwordless sudo not available\n");
+                printf("[Module]   Package installation may fail - consider configuring passwordless sudo\n");
+            }
+        } else if (!interactive && wsl) {
+            // WSL2: always try interactive sudo since the environment is more forgiving
+            prefix = "sudo";
+            printf("[Module]   WSL2 detected; using interactive sudo\n");
         }
         initialized = true;
     }
@@ -369,6 +409,45 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
     char cmd[2048];
     int result;
     const char *sudo_cmd = module_builder_sudo_prefix();
+
+    // Check if sudo will work before attempting installation (for package managers that need it)
+    bool needs_sudo = (pm == PKG_MGR_APT || pm == PKG_MGR_DNF || pm == PKG_MGR_YUM ||
+                      pm == PKG_MGR_PKG || pm == PKG_MGR_PACMAN || pm == PKG_MGR_ZYPPER ||
+                      pm == PKG_MGR_APK);
+
+    if (needs_sudo && !has_passwordless_sudo()) {
+        // sudo requires a password and we can't provide one in this context
+        fprintf(stderr, "[Module]   ⚠️  Cannot auto-install %s: sudo requires a password\n", package_name);
+        fprintf(stderr, "[Module]   Please install manually:\n");
+
+        switch (pm) {
+            case PKG_MGR_APT:
+                fprintf(stderr, "[Module]     sudo apt-get install %s\n", package_name);
+                break;
+            case PKG_MGR_DNF:
+                fprintf(stderr, "[Module]     sudo dnf install %s\n", package_name);
+                break;
+            case PKG_MGR_YUM:
+                fprintf(stderr, "[Module]     sudo yum install %s\n", package_name);
+                break;
+            case PKG_MGR_PKG:
+                fprintf(stderr, "[Module]     sudo pkg install %s\n", package_name);
+                break;
+            case PKG_MGR_PACMAN:
+                fprintf(stderr, "[Module]     sudo pacman -S %s\n", package_name);
+                break;
+            case PKG_MGR_ZYPPER:
+                fprintf(stderr, "[Module]     sudo zypper install %s\n", package_name);
+                break;
+            case PKG_MGR_APK:
+                fprintf(stderr, "[Module]     sudo apk add %s\n", package_name);
+                break;
+            default:
+                break;
+        }
+        fprintf(stderr, "[Module]   Alternatively, configure passwordless sudo for package installation\n");
+        return false;
+    }
 
     switch (pm) {
         case PKG_MGR_APT:
