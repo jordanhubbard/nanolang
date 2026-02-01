@@ -47,7 +47,7 @@ jobs:
       - name: Build user guide HTML
         run: make userguide-html
         env:
-          USERGUIDE_TIMEOUT: 1800
+          USERGUIDE_TIMEOUT: 2400
           USERGUIDE_BUILD_API_DOCS: 0
 
       - name: Upload Pages artifact

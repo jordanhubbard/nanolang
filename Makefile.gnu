@@ -285,7 +285,7 @@ test-impl: test-units
 # Default test: Use most evolved compiler available (no bd dependency)
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
 TEST_TIMEOUT ?= 1800
-USERGUIDE_TIMEOUT ?= 600
+USERGUIDE_TIMEOUT ?= 2400
 USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
