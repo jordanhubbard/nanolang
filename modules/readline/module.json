@@ -4,9 +4,13 @@
     "description": "GNU Readline bindings for interactive line editing with history",
     "headers": ["readline_helpers.h"],
     "pkg_config": ["readline"],
-    "cflags": ["-Imodules/readline"],
+    "cflags": ["-Imodules/readline", "-I/opt/homebrew/opt/readline/include"],
     "c_sources": ["readline_helpers.c"],
-    "ldflags": ["-lreadline"],
+    "ldflags": ["-lreadline", "-L/opt/homebrew/opt/readline/lib"],
     "system_packages": ["readline"],
+    "install": {
+        "macos": { "brew": "readline" },
+        "linux": { "apt": "libreadline-dev" }
+    },
     "dependencies": []
 }

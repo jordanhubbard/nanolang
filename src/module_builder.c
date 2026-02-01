@@ -571,8 +571,17 @@ static bool check_pkg_config_package(const char *package) {
         return false;
     }
     
-    char cmd[512];
+    char cmd[1024];
+#ifdef __APPLE__
+    // On macOS, Homebrew keg-only packages need PKG_CONFIG_PATH set
+    // Include common keg-only package paths
+    snprintf(cmd, sizeof(cmd), 
+        "PKG_CONFIG_PATH=\"/opt/homebrew/opt/%s/lib/pkgconfig:/usr/local/opt/%s/lib/pkgconfig:$PKG_CONFIG_PATH\" "
+        "%s --exists %s 2>/dev/null",
+        package, package, pkg_config_path, package);
+#else
     snprintf(cmd, sizeof(cmd), "%s --exists %s 2>/dev/null", pkg_config_path, package);
+#endif
     int result = system(cmd);
     return (result == 0);
 }
@@ -597,7 +606,7 @@ static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char 
 
 // Get pkg-config flags, with automatic package installation on failure
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
-    char cmd[512];
+    char cmd[1024];
     
     // Ensure pkg-config is available (auto-install if needed)
     const char *pkg_config_path = ensure_pkg_config();
@@ -606,7 +615,15 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     }
     
     // Run pkg-config with the found path
+#ifdef __APPLE__
+    // On macOS, Homebrew keg-only packages need PKG_CONFIG_PATH set
+    snprintf(cmd, sizeof(cmd), 
+        "PKG_CONFIG_PATH=\"/opt/homebrew/opt/%s/lib/pkgconfig:/usr/local/opt/%s/lib/pkgconfig:$PKG_CONFIG_PATH\" "
+        "%s %s %s 2>/dev/null",
+        package, package, pkg_config_path, flag_type, package);
+#else
     snprintf(cmd, sizeof(cmd), "%s %s %s 2>/dev/null", pkg_config_path, flag_type, package);
+#endif
     char *result = run_command(cmd);
     
     
@@ -814,9 +831,12 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     }
 
     // Parse install object (for dependency auto-installation)
+    // Supports two formats:
+    //   Nested: { "macos": { "brew": "pkg" }, "linux": { "apt": "pkg" } }
+    //   Flat:   { "brew": "pkg", "apt": "pkg" }
     cJSON *install = cJSON_GetObjectItem(json, "install");
     if (install && cJSON_IsObject(install)) {
-        // Parse macOS install info
+        // Try nested format first (macos/linux objects)
         cJSON *macos = cJSON_GetObjectItem(install, "macos");
         if (macos && cJSON_IsObject(macos)) {
             cJSON *brew = cJSON_GetObjectItem(macos, "brew");
@@ -824,10 +844,22 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
                 meta->install_brew = strdup(brew->valuestring);
             }
         }
-        // Parse Linux install info
         cJSON *linux_obj = cJSON_GetObjectItem(install, "linux");
         if (linux_obj && cJSON_IsObject(linux_obj)) {
             cJSON *apt = cJSON_GetObjectItem(linux_obj, "apt");
+            if (apt && cJSON_IsString(apt)) {
+                meta->install_apt = strdup(apt->valuestring);
+            }
+        }
+        // Fall back to flat format if nested not found
+        if (!meta->install_brew) {
+            cJSON *brew = cJSON_GetObjectItem(install, "brew");
+            if (brew && cJSON_IsString(brew)) {
+                meta->install_brew = strdup(brew->valuestring);
+            }
+        }
+        if (!meta->install_apt) {
+            cJSON *apt = cJSON_GetObjectItem(install, "apt");
             if (apt && cJSON_IsString(apt)) {
                 meta->install_apt = strdup(apt->valuestring);
             }
