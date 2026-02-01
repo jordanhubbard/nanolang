@@ -210,6 +210,12 @@ modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
 
+# Validate module dependencies (always run, don't cache)
+modules:
+	@echo "[modules] Generating module index from manifests..."
+	@./$(GENERATE_MODULE_INDEX)
+	@./scripts/validate-modules.sh
+
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 
@@ -469,17 +475,32 @@ $(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
 $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
 
-# Build all examples (primary examples target)
-examples: build check-deps-sdl
+# Build all examples (STRICT: requires all module dependencies)
+# Run 'make -B modules' first to validate dependencies
+examples: build modules check-deps-sdl
 	@echo ""
 	@echo "=========================================="
-	@echo "Building Examples"
+	@echo "Building Examples (Strict Mode)"
 	@echo "=========================================="
+	@echo "Note: This will fail if any module dependencies are missing."
+	@echo "      Run 'make -B modules' to see what's needed."
+	@echo "      Or use 'make examples-available' to skip unavailable examples."
+	@echo ""
 	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
 		$(TIMEOUT_CMD) $(MAKE) -C examples build; \
 	else \
 		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
 	fi
+
+# Build available examples (GRACEFUL: skip examples with missing dependencies)
+examples-available: build check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Available Examples"
+	@echo "=========================================="
+	@echo "Note: Examples with missing dependencies will be skipped."
+	@echo ""
+	@$(TIMEOUT_CMD) $(MAKE) -C examples examples-available
 
 # Launch example browser
 launcher: build check-deps-sdl
@@ -1055,15 +1076,17 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Main Targets:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make build            - Build all components (default)"
-	@echo "  make bootstrap        - TRUE 3-stage bootstrap (GCC-style)"
-	@echo "  make test             - Build + run all tests (auto-detect best compiler)"
-	@echo "  make test-beads       - Run tests; on failures, auto-create/update beads"
-	@echo "  make examples         - Build all examples"
-	@echo "  make examples-beads   - Build examples; on failures, auto-create/update beads"
-	@echo "  make launcher         - Launch example browser"
-	@echo "  make clean            - Remove all artifacts"
-	@echo "  make rebuild          - Clean + build"
+	@echo "  make build              - Build all components (default)"
+	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
+	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
+	@echo "  make test-beads         - Run tests; on failures, auto-create/update beads"
+	@echo "  make modules            - Validate module dependencies (shows what's available)"
+	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
+	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
+	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
+	@echo "  make launcher           - Launch example browser"
+	@echo "  make clean              - Remove all artifacts"
+	@echo "  make rebuild            - Clean + build"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Testing Targets:"
@@ -1157,7 +1180,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs examples launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
