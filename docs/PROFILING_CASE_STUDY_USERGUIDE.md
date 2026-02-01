@@ -250,7 +250,7 @@ For batch operations (processing 50 files):
 
 **See also:**
 - [PROFILING_CASE_STUDY_PRIMES.md](PROFILING_CASE_STUDY_PRIMES.md) - Algorithm optimization example
-- [userguide/08_profiling.md](../userguide/part2_features/08_profiling.md) - Profiling guide
+- [userguide/08_profiling.md](../userguide/08_profiling.md) - Profiling guide
 - [PERFORMANCE.md](PERFORMANCE.md) - General performance guidelines
 
 **Status:** Analysis complete. Ready to implement StringBuilder optimizations.

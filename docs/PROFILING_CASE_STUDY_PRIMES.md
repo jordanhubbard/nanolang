@@ -230,6 +230,6 @@ But profiling showed these are premature - 88ms is already fast enough for most 
 ---
 
 **See also:**
-- [userguide/08_profiling.md](../userguide/part2_features/08_profiling.md) - Full profiling guide
+- [userguide/08_profiling.md](../userguide/08_profiling.md) - Full profiling guide
 - [docs/PROFILING_ON_UBUNTU.md](PROFILING_ON_UBUNTU.md) - Setup instructions
 - [docs/PERFORMANCE.md](PERFORMANCE.md) - General performance guidelines
