@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.19] - 2026-02-01
+
+### Added
+- Complete WSL2 port with full module dependency support
+  - Added WSL2 detection in module builder
+  - Fixed module validation to check pkg_config names correctly
+  - Fixed install-deps.sh to discover all module dependencies
+  - All 20 modules with dependencies now available on WSL2
+  - Created comprehensive WSL2 documentation
+
+### Fixed
+- Fixed bullet module C++ linking for Linux/WSL2 (lstdc++ vs lc++)
+- Repaired bullet_soft_body_beads example to use modern SDL/Bullet API
+- Fixed module validation pkg-config name mismatches (SDL2_mixer vs sdl2_mixer)
+
+### Changed
+- Updated install-deps.sh to check both index.json and individual module.json files
+
 ## [2.0.18] - 2026-02-01
 
 ### Added
