@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.16] - 2026-01-31
+
+### Added
+- add Linux profiling test infrastructure for ubuntu.local
+- major v2 preparation - contracts, modules, docs, examples
+- add contracts to StringBuilder, Matrix4, and Timing modules
+- add contracts to stdlib math library
+- complete contract system with better errors, static analysis, and docs
+- implement requires/ensures contract clauses
+
+### Fixed
+- handle Homebrew keg-only packages for readline
+- exclude broken examples from build
+- prevent nested profiling recursion
+- correct gprofng command syntax and output parsing
+- avoid always-true comparison warning in test
+- use intermediate variables for nested match bindings in binary.nano
+- disable ASan leak detection in all sanitizer CI steps
+- free module ASTs in clear_module_cache to fix memory leaks
+- update link checker to accept .html links with .md sources
+- improve physics examples with visual feedback and controls
+
 ## [2.0.15] - 2026-01-30
 
 ### Added
