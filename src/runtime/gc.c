@@ -45,12 +45,14 @@ static struct {
     GCHashEntry* hash_table[GC_HASH_SIZE];  /* Hash set for O(1) lookup */
     GCStats stats;              /* GC statistics */
     size_t threshold;           /* Memory threshold for auto-collection */
+    size_t last_collection_usage; /* Usage at last collection (hysteresis) */
     bool cycle_detection_enabled;
     bool initialized;
 } gc_state = {
     .all_objects = NULL,
     .stats = {0},
     .threshold = 10 * 1024 * 1024,  /* 10MB default */
+    .last_collection_usage = 0,
     .cycle_detection_enabled = true,
     .initialized = false
 };
@@ -160,6 +162,7 @@ void gc_init(void) {
     memset(gc_state.hash_table, 0, sizeof(gc_state.hash_table));
     gc_state.all_objects = NULL;
     gc_state.threshold = 10 * 1024 * 1024;
+    gc_state.last_collection_usage = 0;
     gc_state.cycle_detection_enabled = true;
     gc_state.initialized = true;
 }
@@ -227,9 +230,15 @@ void* gc_alloc(size_t size, GCObjectType type) {
     gc_state.stats.current_usage += total_size;
     gc_state.stats.num_objects++;
     
-    /* Check if we should trigger collection */
-    if (gc_state.stats.current_usage > gc_state.threshold) {
+    /* Check if we should trigger collection
+     * Use hysteresis: only collect if we've allocated at least 1MB MORE
+     * since the last collection. This prevents collecting on every allocation
+     * when memory usage hovers around the threshold.
+     */
+    if (gc_state.stats.current_usage > gc_state.threshold &&
+        gc_state.stats.current_usage > gc_state.last_collection_usage + (1024 * 1024)) {
         if (gc_state.cycle_detection_enabled) {
+            gc_state.last_collection_usage = gc_state.stats.current_usage;
             gc_collect_cycles();
         }
     }
