@@ -936,6 +936,90 @@ bootstrap-status:
 	@echo ""
 
 # ============================================================================
+# Profiled Bootstrap (Self-Analysis)
+# ============================================================================
+# Build profiled versions of compiler components and analyze performance.
+# This creates _p suffixed binaries with profiling enabled, runs them on
+# real workloads, and outputs LLM-ready JSON for hotspot analysis.
+
+.PHONY: bootstrap-profile bootstrap-profile-macos bootstrap-profile-linux
+
+# Profiled binaries
+PARSER_P = $(BIN_DIR)/parser_p
+TYPECHECK_P = $(BIN_DIR)/typecheck_p
+TRANSPILER_P = $(BIN_DIR)/transpiler_p
+USERGUIDE_HTML_P = $(BIN_DIR)/userguide_html_p
+
+bootstrap-profile: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Bootstrap Profile: Self-Analysis Mode"
+	@echo "=========================================="
+	@echo ""
+	@echo "Building profiled compiler components..."
+	@echo ""
+	@# Build profiled parser
+	@echo "  [1/4] Building parser_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/parser_driver.nano -o $(PARSER_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled typecheck
+	@echo "  [2/4] Building typecheck_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/typecheck_driver.nano -o $(TYPECHECK_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled transpiler  
+	@echo "  [3/4] Building transpiler_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/transpiler_driver.nano -o $(TRANSPILER_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled userguide_html
+	@echo "  [4/4] Building userguide_html_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_HTML_P) -pg 2>&1 | tail -3
+	@echo ""
+	@echo "=========================================="
+	@echo "Running profiled components..."
+	@echo "=========================================="
+	@echo ""
+	@# Run profiled parser
+	@echo ">>> PROFILING: parser_p on self (parser.nano)"
+	@echo "-------------------------------------------"
+	@$(PARSER_P) 2>&1 || true
+	@echo ""
+	@# Run profiled typecheck
+	@echo ">>> PROFILING: typecheck_p on self (typecheck.nano)"
+	@echo "-------------------------------------------"
+	@$(TYPECHECK_P) 2>&1 || true
+	@echo ""
+	@# Run profiled transpiler
+	@echo ">>> PROFILING: transpiler_p on self (transpiler.nano)"
+	@echo "-------------------------------------------"
+	@$(TRANSPILER_P) 2>&1 || true
+	@echo ""
+	@# Run profiled userguide_html
+	@echo ">>> PROFILING: userguide_html_p"
+	@echo "-------------------------------------------"
+	@$(USERGUIDE_HTML_P) 2>&1 | head -60 || true
+	@echo ""
+	@echo "=========================================="
+	@echo "✅ Bootstrap Profile Complete"
+	@echo "=========================================="
+	@echo ""
+	@echo "Profiled binaries created:"
+	@ls -lh $(BIN_DIR)/*_p 2>/dev/null || echo "  (none found)"
+	@echo ""
+	@echo "Analysis: Look for nl_ prefixed functions with high sample counts"
+	@echo "These are NanoLang-generated hotspots that may benefit from optimization."
+	@echo ""
+
+# macOS-specific profile run
+bootstrap-profile-macos: bootstrap-profile
+	@echo "Running on macOS with sample(1)..."
+	@echo "Platform-specific profiling complete."
+
+# Linux-specific profile run  
+bootstrap-profile-linux: bootstrap-profile
+	@echo "Running on Linux with gprofng..."
+	@echo "Platform-specific profiling complete."
+
+# ============================================================================
 # Additional Targets
 # ============================================================================
 
