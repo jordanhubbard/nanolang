@@ -236,20 +236,16 @@ Use when you need to identify performance bottlenecks or optimize slow code.
 
 **Platform-specific tools used:**
 - **Linux:** `gprofng collect` (from binutils) - automatic, no special permissions
-- **macOS:** `sample` command - requires sudo or developer entitlements
+- **macOS:** `sample` command - automatic, no special permissions required
 
-**macOS permissions note:**
-Due to System Integrity Protection, profiling on macOS requires elevated privileges:
-```bash
-# Option 1: Run with sudo
-sudo ./bin/myprogram
+**How it works:**
+When you run a `-pg` compiled binary, it automatically:
+1. Forks a child process to run your actual program
+2. Runs the appropriate profiling tool (`sample` on macOS, `gprofng` on Linux)
+3. Waits for your program to complete
+4. Parses the profiling output and emits structured JSON
 
-# Option 2: Use Instruments GUI
-open -a Instruments
-
-# Option 3: Manual sample (in another terminal while program runs)
-sample <pid> 10 -file /tmp/profile.txt
-```
+No user interaction required - profiling is fully automatic and transparent.
 
 **The `-pg` flag adds these C compiler flags:**
 - `-pg` - Enable profiling instrumentation

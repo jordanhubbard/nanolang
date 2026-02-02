@@ -98,8 +98,8 @@ NanoLang automatically uses the right tool for your OS:
 
 **macOS:**
 - Uses `sample` command
-- Requires sudo or developer entitlements (SIP protection)
-- NanoLang runtime automatically invokes sudo if needed
+- No special permissions required on modern macOS
+- Sampling-based profiling (low overhead)
 
 ### Automatic Profiling Flow
 
@@ -451,27 +451,15 @@ sudo dnf install binutils  # Fedora
 **Tool:** sample command (built-in)
 
 **Permissions:**
-Due to System Integrity Protection (SIP), profiling requires elevated privileges:
+No special permissions required on modern macOS. The `sample` command works automatically for profiling your own processes.
 
 ```bash
-# Option 1: NanoLang automatically requests sudo
+# Just run your program - profiling is automatic!
 ./bin/myprogram
-# You'll be prompted for password if needed
 
-# Option 2: Run with sudo directly
-sudo ./bin/myprogram
-
-# Option 3: Use Instruments GUI (no sudo needed)
+# Alternative: Use Instruments GUI for detailed analysis
 open -a Instruments
 # Then: File → New → Time Profiler
-```
-
-**Alternative - Disable SIP (not recommended for production machines):**
-```bash
-# Boot to recovery mode (Cmd+R on startup)
-# Open Terminal from Utilities menu
-csrutil disable
-reboot
 ```
 
 ## Best Practices
@@ -580,16 +568,18 @@ fn main() -> int {
 }
 ```
 
-### Permission denied (macOS)
+### Permission denied (macOS) - Rare
 
 **Symptom:** "sample failed: Permission denied"
 
-**Solution:**
-```bash
-# Run with sudo
-sudo ./bin/myprogram
+**Note:** This error is rare on modern macOS. The `sample` command typically works without elevated privileges for profiling your own processes.
 
-# Or use Instruments GUI (no sudo needed)
+**If it does occur:**
+```bash
+# Check if your binary is code-signed with restrictive entitlements
+codesign -d --entitlements - ./bin/myprogram
+
+# Use Instruments GUI as alternative
 open -a Instruments
 ```
 
