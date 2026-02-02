@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.20] - 2026-02-02
+
+### Added
+- Add bootstrap-profile target for self-analysis profiling
+
+### Fixed
+- macOS sample no longer requires sudo
+- Fix broken links and clean up duplicate chapters
+- Prefer built-in generic HashMap<K,V> over user-defined map_*
+
 ## [2.0.19] - 2026-02-01
 
 ### Added
