@@ -661,7 +661,7 @@ Full schema of profiling output:
 - **[Performance Guide](https://github.com/jordanhubbard/nanolang/blob/main/docs/PERFORMANCE.md)** - General performance optimization
 - **[Debugging Guide](https://github.com/jordanhubbard/nanolang/blob/main/docs/DEBUGGING_GUIDE.md)** - Debugging techniques
 - **[AGENTS.md](https://github.com/jordanhubbard/nanolang/blob/main/planning/AGENTS.md)** - Full profiling documentation
-- **[examples/advanced/performance_optimization.nano](../examples/advanced/performance_optimization.nano)** - More examples
+- **[examples/advanced/performance_optimization.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/performance_optimization.nano)** - More examples
 
 ---
 

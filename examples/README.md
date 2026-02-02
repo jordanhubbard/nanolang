@@ -102,7 +102,7 @@ Build something real:
     - [sdl_asteroids.nano](games/sdl_asteroids.nano) - Full Asteroids clone
 
 18. **Systems Programming:**
-    - [performance_optimization.nano](advanced/performance_optimization.nano)
+    - [performance_optimization.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/performance_optimization.nano)
     - [namespace_demo.nano](advanced/namespace_demo.nano)
 
 **After these:** You're ready to build anything! 🚀

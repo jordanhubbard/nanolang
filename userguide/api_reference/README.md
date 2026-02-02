@@ -25,7 +25,7 @@ This directory contains complete API references for all NanoLang modules, automa
 ## Network
 
 - [curl](curl.md) - HTTP client using libcurl
-- [http_server](http_server.md) - Simple HTTP server
+- [http_server](http_server.html) - Simple HTTP server
 - [uv](uv.md) - libuv bindings for async I/O and event loop
 
 ## Data

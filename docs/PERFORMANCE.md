@@ -509,7 +509,7 @@ Before optimizing, ask:
 **See Also:**
 - **[MEMORY_MANAGEMENT.md](MEMORY_MANAGEMENT.md)** - Memory model and GC details
 - **[GENERICS_DEEP_DIVE.md](GENERICS_DEEP_DIVE.md)** - Monomorphization performance impact
-- **[examples/advanced/performance_optimization.nano](../examples/advanced/performance_optimization.nano)** - Performance examples
+- **[examples/advanced/performance_optimization.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/performance_optimization.nano)** - Performance examples
 
 **Last Updated:** January 25, 2026  
 **Benchmarks:** Measured on M1 MacBook Pro (2023), macOS 14.2, gcc-13
