@@ -1097,7 +1097,41 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
-            if (!func) {
+            /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
+             * even if a user-defined map_* function exists (to avoid conflict with non-generic
+             * HashMap module functions like map_new() -> HashMap) */
+            bool is_hashmap_generic_context = false;
+            
+            /* Check return type context (for map_new) */
+            if (expr->as.call.return_struct_type_name &&
+                strncmp(expr->as.call.return_struct_type_name, "HashMap_", 8) == 0) {
+                is_hashmap_generic_context = true;
+            }
+            
+            /* Check first argument type context (for map_put, map_get, etc.) */
+            if (!is_hashmap_generic_context && expr->as.call.arg_count >= 1 && 
+                expr->as.call.args[0] && expr->as.call.args[0]->type == AST_IDENTIFIER) {
+                Symbol *first_arg_sym = env_get_var_visible_at(env, expr->as.call.args[0]->as.identifier,
+                    expr->as.call.args[0]->line, expr->as.call.args[0]->column);
+                if (first_arg_sym && first_arg_sym->type == TYPE_HASHMAP) {
+                    is_hashmap_generic_context = true;
+                }
+            }
+            
+            bool is_map_builtin = expr->as.call.name && (
+                strcmp(expr->as.call.name, "map_new") == 0 ||
+                strcmp(expr->as.call.name, "map_put") == 0 ||
+                strcmp(expr->as.call.name, "map_set") == 0 ||
+                strcmp(expr->as.call.name, "map_get") == 0 ||
+                strcmp(expr->as.call.name, "map_has") == 0 ||
+                strcmp(expr->as.call.name, "map_remove") == 0 ||
+                strcmp(expr->as.call.name, "map_length") == 0 ||
+                strcmp(expr->as.call.name, "map_size") == 0 ||
+                strcmp(expr->as.call.name, "map_clear") == 0 ||
+                strcmp(expr->as.call.name, "map_free") == 0 ||
+                strcmp(expr->as.call.name, "map_keys") == 0 ||
+                strcmp(expr->as.call.name, "map_values") == 0);
+            if (!func || (is_map_builtin && is_hashmap_generic_context)) {
                 Symbol *sym = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (sym && sym->type == TYPE_FUNCTION) {
                     /* Mark the variable as used */
@@ -2888,11 +2922,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
                     env_register_hashmap_instantiation(tc->env, key_name, val_name);
 
-                    /* If RHS is (map_new), annotate call with monomorphized return type for transpiler */
+                    /* If RHS is (map_new), annotate call with monomorphized return type for transpiler.
+                     * ALWAYS set this, even if a user-defined map_new exists - the check_expression
+                     * handler will use this to prefer the built-in generic over user-defined. */
                     if (stmt->as.let.value && stmt->as.let.value->type == AST_CALL &&
                         stmt->as.let.value->as.call.name &&
-                        strcmp(stmt->as.let.value->as.call.name, "map_new") == 0 &&
-                        env_get_function(tc->env, "map_new") == NULL) {
+                        strcmp(stmt->as.let.value->as.call.name, "map_new") == 0) {
                         char mono[512];
                         snprintf(mono, sizeof(mono), "HashMap_%s_%s", key_name, val_name);
                         if (stmt->as.let.value->as.call.return_struct_type_name) {
