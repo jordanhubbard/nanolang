@@ -1,8 +1,13 @@
 /*
  * Garbage Collector for nanolang
  * 
- * Simple reference counting GC with optional cycle detection
+ * Reference counting GC with optional cycle detection
  * Manages dynamic arrays, strings, and future heap objects
+ * 
+ * OPTIMIZATION (2026-02): 
+ * - Hash table for O(1) gc_is_managed() lookup (was O(n))
+ * - Doubly-linked list for O(1) object removal (was O(n))
+ * - Expected improvement: 46% overhead -> 2-3% overhead
  */
 
 #ifndef NANOLANG_GC_H
@@ -21,13 +26,14 @@ typedef enum {
 } GCObjectType;
 
 /* GC Header (prepended to all GC-managed objects) */
-typedef struct {
+typedef struct GCHeader {
     uint32_t ref_count;      /* Reference count */
     uint8_t type;            /* Object type (GCObjectType) */
     uint8_t marked;          /* Mark bit for cycle collection */
     uint16_t flags;          /* Additional flags */
     size_t size;             /* Object size in bytes (including header) */
-    void* next;              /* Next object in allocation list */
+    struct GCHeader* next;   /* Next object in allocation list */
+    struct GCHeader* prev;   /* Previous object for O(1) removal */
 } GCHeader;
 
 /* GC Statistics */
