@@ -1224,7 +1224,8 @@ fn main() -> int {
         }
 
         let nav_html: string = (sb_join [ "<div class=\"chapter-nav\">", prev_html, (+ "<a class=\"chapter-link home\" href=\"" (+ (html_escape home_href) "\" aria-label=\"Back to guide index\">&#8962;</a>")), next_html, "</div>" ] "\n")
-        let toc_html: string = toc_base_html
+        /* Rebuild TOC with correct page_dir so relative paths work for nested pages */
+        let toc_html: string = (build_toc link_titles link_rels html_rel out_dir page_dir [])
 
         if (or (str_contains rel "/07_examples.md") (str_ends_with rel "07_examples.md")) {
             if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: streaming examples page\n") } else { (print "") }
