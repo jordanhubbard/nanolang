@@ -81,5 +81,5 @@ ncurses provides:
 
 ---
 
-**Previous:** [Chapter 18: Game Development](../18_game_development/index.html)  
-**Next:** [Chapter 20: Testing & Quality](../20_testing_quality/index.html)
+**Previous:** [Chapter 18: Game Development](../18_game_dev/index.md)  
+**Next:** [Chapter 20: Testing & Quality](../20_testing/index.md)

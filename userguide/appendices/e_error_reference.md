@@ -49,4 +49,4 @@
 ---
 
 **Previous:** [Appendix A: Examples Gallery](a_examples_gallery.html)  
-**Next:** [Appendix C: Migration Guide](c_migration_guide.html)
+**Next:** [Appendix F: Migration Guide](f_migration_guide.md)

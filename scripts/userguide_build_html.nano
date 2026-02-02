@@ -351,7 +351,12 @@ fn render_inline(text: string) -> string {
             return out
         }
         let link_text: string = (debug_substring text (+ open_idx 1) (- close_idx (+ open_idx 1)) "render_inline link_text")
-        let link_href: string = (debug_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)) "render_inline link_href")
+        let mut link_href: string = (debug_substring text (+ close_idx 2) (- end_idx (+ close_idx 2)) "render_inline link_href")
+        /* Convert .md links to .html for internal links (not external URLs) */
+        if (and (str_ends_with link_href ".md") (not (str_starts_with link_href "http"))) {
+            let href_len: int = (str_length link_href)
+            set link_href (+ (str_substring link_href 0 (- href_len 3)) ".html")
+        }
         set out (+ out "<a href=\"")
         set out (+ out (html_escape link_href))
         set out (+ out "\">")

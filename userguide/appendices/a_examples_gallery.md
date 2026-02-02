@@ -153,4 +153,4 @@ All examples include shadow tests and compile successfully. Browse the full coll
 ---
 
 **Previous:** [Chapter 25: Contributing](../part4_advanced/25_contributing.html)  
-**Next:** [Appendix B: Error Reference](b_error_reference.html)
+**Next:** [Appendix B: Quick Reference](b_quick_reference.md)

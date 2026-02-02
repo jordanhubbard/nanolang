@@ -58,6 +58,8 @@ Deep dives into best practices, patterns, and performance.
 - **Chapter 23:** Higher-Level Patterns
 - **Chapter 24:** Performance & Optimization
 - **Chapter 25:** Contributing & Extending
+- **Chapter 26:** LLM Code Generation
+- **Chapter 27:** Self-Hosting
 
 ### Appendices
 Quick references, troubleshooting, and comprehensive examples.
@@ -66,6 +68,8 @@ Quick references, troubleshooting, and comprehensive examples.
 - **Appendix B:** Quick Reference
 - **Appendix C:** Troubleshooting Guide
 - **Appendix D:** Glossary
+- **Appendix E:** Error Reference
+- **Appendix F:** Migration Guide
 
 ## Learning Path
 

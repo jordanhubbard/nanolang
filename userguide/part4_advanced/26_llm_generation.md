@@ -58,4 +58,4 @@ shadow my_function {
 ---
 
 **Previous:** [Chapter 22: Canonical Style](22_canonical_style.html)  
-**Next:** [Chapter 24: Self-Hosting](24_self_hosting.html)
+**Next:** [Chapter 27: Self-Hosting](27_self_hosting.md)

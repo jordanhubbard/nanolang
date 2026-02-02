@@ -55,5 +55,5 @@ Self-hosting benefits:
 
 ---
 
-**Previous:** [Chapter 23: LLM Code Generation](23_llm_generation.html)  
+**Previous:** [Chapter 26: LLM Code Generation](26_llm_generation.md)  
 **Next:** [Chapter 25: Contributing](25_contributing.html)

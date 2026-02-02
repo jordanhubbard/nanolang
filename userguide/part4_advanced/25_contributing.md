@@ -82,5 +82,5 @@ shadow new_feature {
 
 ---
 
-**Previous:** [Chapter 24: Self-Hosting](24_self_hosting.html)  
+**Previous:** [Chapter 27: Self-Hosting](27_self_hosting.md)  
 **Next:** [Appendix A: Examples Gallery](../appendices/a_examples_gallery.html)
