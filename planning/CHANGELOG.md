@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.24] - 2026-02-03
+
+### Changed
+- simplify key handling with or expressions
+- modernize more language examples
+- more example modernization with cond and helpers
+- modernize examples with cond, helpers, shadow tests
+- modernize sdl_example_launcher.nano
+
+### Fixed
+- pi calculator algorithm and readline dependency check
+- comprehensive ASan memory leak and UAF fixes
+- add markdown table support and fix inline code link parsing
+
 ## [2.0.24] - 2026-02-02
 
 ### Changed
