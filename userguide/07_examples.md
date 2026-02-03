@@ -1,15 +1,32 @@
 # Examples
 
-All examples live in the repository examples directory:
+All examples live in the repository [examples directory](https://github.com/jordanhubbard/nanolang/tree/main/examples).
 
-https://github.com/jordanhubbard/nanolang/tree/main/examples
+## Categories
 
-## Top-level examples
+Examples are organized into the following categories:
 
-- [Makefile](https://github.com/jordanhubbard/nanolang/blob/main/examples/Makefile)
-- [PROTRACKER_CLONE.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/PROTRACKER_CLONE.md)
-- [README.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/README.md)
+| Category | Description |
+|----------|-------------|
+| **advanced** | FFI, modules, namespaces, async I/O, error handling |
+| **audio** | SDL audio playback, MOD visualizer, tracker |
+| **data** | JSON parsing and manipulation |
+| **debug** | Logging, coverage, property testing |
+| **games** | Asteroids, Pong, Checkers |
+| **graphics** | SDL rendering, particles, raytracing, physics |
+| **language** | Core language features, algorithms, data structures |
+| **network** | HTTP client/server, REST APIs |
+| **opengl** | Modern OpenGL with shaders |
+| **physics** | Bullet physics engine demos |
+| **terminal** | ncurses-based terminal apps |
+
+## Example Launcher
+
+The SDL example launcher provides a graphical menu to browse and run examples:
+
 - [sdl_example_launcher.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/sdl_example_launcher.nano)
+
+---
 
 ## advanced
 
@@ -51,7 +68,6 @@ https://github.com/jordanhubbard/nanolang/tree/main/examples
 ## data
 
 - [data/json_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/data/json_demo.nano)
-- [data/json_errors_demo.c](https://github.com/jordanhubbard/nanolang/blob/main/examples/data/json_errors_demo.c)
 
 ## debug
 
@@ -146,7 +162,6 @@ https://github.com/jordanhubbard/nanolang/tree/main/examples
 ## network
 
 - [network/curl_example.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/curl_example.nano)
-- [network/hello_public/index.html](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/hello_public/index.html)
 - [network/http_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_demo.nano)
 - [network/http_hello_world.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_hello_world.nano)
 - [network/http_rest_api.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_rest_api.nano)
@@ -163,40 +178,10 @@ https://github.com/jordanhubbard/nanolang/tree/main/examples
 
 ## opl
 
-- [opl/README.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/README.md)
-- [opl/bundle/AST_IR.schema.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/AST_IR.schema.json)
-- [opl/bundle/BUILTINS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/BUILTINS.md)
-- [opl/bundle/ERRORS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/ERRORS.md)
-- [opl/bundle/EXAMPLES.expected_ast.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/EXAMPLES.expected_ast.json)
-- [opl/bundle/EXAMPLES.expected_plan.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/EXAMPLES.expected_plan.json)
-- [opl/bundle/EXAMPLES.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/EXAMPLES.opl)
-- [opl/bundle/GRAMMAR.ebnf](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/GRAMMAR.ebnf)
-- [opl/bundle/IMPLEMENTATION_GUIDE.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/IMPLEMENTATION_GUIDE.md)
-- [opl/bundle/PLAN.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/PLAN.md)
-- [opl/bundle/PLAN_IR.schema.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/PLAN_IR.schema.json)
-- [opl/bundle/SEMANTICS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/SEMANTICS.md)
-- [opl/bundle/SPEC.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/SPEC.md)
-- [opl/bundle/STYLE.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/STYLE.md)
-- [opl/bundle/TESTS.cases.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/TESTS.cases.json)
-- [opl/bundle/TESTS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/TESTS.md)
-- [opl/bundle/TOKENS.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/TOKENS.md)
-- [opl/bundle/VALIDATION.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/bundle/VALIDATION.md)
-- [opl/examples/Makefile](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/Makefile)
-- [opl/examples/README.md](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/README.md)
-- [opl/examples/conditional.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/conditional.opl)
-- [opl/examples/hello.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/hello.opl)
-- [opl/examples/multi_tool.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/multi_tool.opl)
-- [opl/examples/output/conditional.ast.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/conditional.ast.json)
-- [opl/examples/output/conditional.plan.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/conditional.plan.json)
-- [opl/examples/output/conditional.validate.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/conditional.validate.json)
-- [opl/examples/output/hello.ast.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/hello.ast.json)
-- [opl/examples/output/hello.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/hello.nano)
-- [opl/examples/output/hello.plan.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/hello.plan.json)
-- [opl/examples/output/web_search.ast.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/web_search.ast.json)
-- [opl/examples/output/web_search.plan.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/web_search.plan.json)
-- [opl/examples/output/web_search.validate.json](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/output/web_search.validate.json)
-- [opl/examples/service_spec.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/service_spec.opl)
-- [opl/examples/web_search.opl](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/examples/web_search.opl)
+OPL (Orchestration Planning Language) is a domain-specific language implemented in NanoLang. See the [OPL specification](https://github.com/jordanhubbard/nanolang/tree/main/examples/opl/bundle) for details.
+
+**NanoLang implementation:**
+
 - [opl/opl_ast.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/opl_ast.nano)
 - [opl/opl_cli.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/opl_cli.nano)
 - [opl/opl_codegen.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/opl/opl_codegen.nano)
