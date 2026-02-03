@@ -116,6 +116,42 @@ code .tok-paren { color: rgb(200, 200, 100); }
 code .tok-identifier { color: rgb(220, 220, 240); }
 code .tok-text { color: var(--code-fg); }
 
+/* Tables */
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.95em;
+}
+
+.md-table th,
+.md-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+.md-table th {
+  background: var(--code);
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.md-table td {
+  background: var(--card);
+}
+
+.md-table tr:hover td {
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+}
+
+.md-table code {
+  background: var(--code);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
 .spacer {
   height: 10px;
 }

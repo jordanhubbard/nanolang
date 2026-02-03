@@ -334,7 +334,27 @@ fn render_inline(text: string) -> string {
     let mut i: int = 0
     let n: int = (str_length text)
     while (< i n) {
-        let open_idx: int = (str_index_of text "[" i)
+        /* Find next [ but skip any inside backticks */
+        let mut open_idx: int = (str_index_of text "[" i)
+        /* Check if this [ is inside backticks by counting backticks before it */
+        while (> open_idx -1) {
+            let segment: string = (str_substring text i (- open_idx i))
+            let segment_len: int = (str_length segment)
+            let mut tick_count: int = 0
+            let mut j: int = 0
+            while (< j segment_len) {
+                if (== (char_at segment j) 96) {
+                    set tick_count (+ tick_count 1)
+                }
+                set j (+ j 1)
+            }
+            /* If odd number of backticks before [, we're inside code - skip this [ */
+            if (== (% tick_count 2) 1) {
+                set open_idx (str_index_of text "[" (+ open_idx 1))
+            } else {
+                break
+            }
+        }
         if (== open_idx -1) {
             set out (+ out (inline_code (debug_substring text i (- n i) "render_inline tail")))
             return out
@@ -508,6 +528,95 @@ shadow join_lines {
     assert (== v "a\nb")
 }
 
+/* ========== TABLE SUPPORT ========== */
+
+fn is_table_row(line: string) -> bool {
+    let trimmed: string = (trim line)
+    return (and (str_starts_with trimmed "|") (str_ends_with trimmed "|"))
+}
+
+shadow is_table_row {
+    assert (is_table_row "| a | b |")
+    assert (not (is_table_row "not a table"))
+}
+
+fn is_table_separator(line: string) -> bool {
+    let trimmed: string = (trim line)
+    if (not (is_table_row trimmed)) { return false }
+    /* Check if it's mostly dashes and pipes */
+    let trimmed_len: int = (str_length trimmed)
+    let mut dashes: int = 0
+    let mut i: int = 0
+    while (< i trimmed_len) {
+        let c: int = (char_at trimmed i)
+        if (or (== c 45) (or (== c 124) (or (== c 58) (== c 32)))) {
+            set dashes (+ dashes 1)
+        }
+        set i (+ i 1)
+    }
+    return (== dashes trimmed_len)
+}
+
+shadow is_table_separator {
+    assert (is_table_separator "|---|---|")
+    assert (is_table_separator "|:---:|:---|")
+    assert (not (is_table_separator "| a | b |"))
+}
+
+fn split_table_cells(line: string) -> array<string> {
+    let trimmed: string = (trim line)
+    /* Remove leading and trailing pipes */
+    let trimmed_len: int = (str_length trimmed)
+    let inner: string = (str_substring trimmed 1 (- trimmed_len 2))
+    let inner_len: int = (str_length inner)
+    /* Split on | */
+    let mut cells: array<string> = []
+    let mut current: string = ""
+    let mut i: int = 0
+    while (< i inner_len) {
+        let c: int = (char_at inner i)
+        if (== c 124) {
+            set cells (array_push cells (trim current))
+            set current ""
+        } else {
+            set current (+ current (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    set cells (array_push cells (trim current))
+    return cells
+}
+
+shadow split_table_cells {
+    let cells: array<string> = (split_table_cells "| a | b |")
+    assert (== (array_length cells) 2)
+    assert (== (at cells 0) "a")
+    assert (== (at cells 1) "b")
+}
+
+fn render_table_row(line: string, is_header: bool, fast_inline: bool) -> string {
+    let cells: array<string> = (split_table_cells line)
+    let tag: string = (cond (is_header "th") (else "td"))
+    let mut out: string = "<tr>"
+    let mut i: int = 0
+    while (< i (array_length cells)) {
+        let cell: string = (at cells i)
+        set out (+ out (+ "<" (+ tag ">")))
+        set out (+ out (render_inline_mode cell fast_inline))
+        set out (+ out (+ "</" (+ tag ">")))
+        set i (+ i 1)
+    }
+    set out (+ out "</tr>")
+    return out
+}
+
+shadow render_table_row {
+    let row: string = (render_table_row "| a | b |" false false)
+    assert (str_contains row "<td>")
+    let header: string = (render_table_row "| a | b |" true false)
+    assert (str_contains header "<th>")
+}
+
 fn str_lower(s: string) -> string {
     let n: int = (str_length s)
     let mut i: int = 0
@@ -540,6 +649,8 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
     let mut in_code: bool = false
     let mut code_lang: string = ""
     let mut in_list: bool = false
+    let mut in_table: bool = false
+    let mut table_header_done: bool = false
     let mut seen_h1: bool = false
     let mut skipped_summary: bool = false
     let mut code_lines: array<string> = []
@@ -557,6 +668,11 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
                     (sb_append_line out "</ul>")
                     set in_list false
                 }
+                if in_table {
+                    (sb_append_line out "</table>")
+                    set in_table false
+                    set table_header_done false
+                }
                 set in_code true
                 set code_lang (parse_fence_lang line)
                 (sb_append_line out (+ "<pre><code class=\"language-" (+ (html_escape code_lang) "\">")))
@@ -568,6 +684,11 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
                 if in_list {
                     (sb_append_line out "</ul>")
                     set in_list false
+                }
+                if in_table {
+                    (sb_append_line out "</table>")
+                    set in_table false
+                    set table_header_done false
                 }
                 let mut level: int = (heading_level line)
                 if (< level 1) { set level 1 }
@@ -583,6 +704,11 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
                 continue
             }
             if (str_starts_with line "- ") {
+                if in_table {
+                    (sb_append_line out "</table>")
+                    set in_table false
+                    set table_header_done false
+                }
                 if (not in_list) {
                     (sb_append_line out "<ul>")
                     set in_list true
@@ -597,6 +723,11 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
                     (sb_append_line out "</ul>")
                     set in_list false
                 }
+                if in_table {
+                    (sb_append_line out "</table>")
+                    set in_table false
+                    set table_header_done false
+                }
                 (sb_append_line out "<div class=\"spacer\"></div>")
                 set i (+ i 1)
                 continue
@@ -609,6 +740,30 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
                 set skipped_summary true
                 set i (+ i 1)
                 continue
+            }
+            /* Table handling */
+            if (is_table_row line) {
+                if (is_table_separator line) {
+                    /* Skip separator row, mark header as done */
+                    set table_header_done true
+                    set i (+ i 1)
+                    continue
+                }
+                if (not in_table) {
+                    (sb_append_line out "<table class=\"md-table\">")
+                    set in_table true
+                    set table_header_done false
+                }
+                let is_header: bool = (not table_header_done)
+                (sb_append_line out (render_table_row line is_header fast_inline))
+                set i (+ i 1)
+                continue
+            }
+            /* Close table if we're leaving table context */
+            if in_table {
+                (sb_append_line out "</table>")
+                set in_table false
+                set table_header_done false
             }
             (sb_append_line out (+ "<p>" (+ (render_inline_mode line fast_inline) "</p>")))
             set i (+ i 1)
@@ -651,6 +806,9 @@ fn md_to_html(md_text: string, summary: string, fast_inline: bool) -> string {
     }
     if in_list {
         (sb_append_line out "</ul>")
+    }
+    if in_table {
+        (sb_append_line out "</table>")
     }
     if in_code {
         let code_text: string = (join_lines code_lines)
