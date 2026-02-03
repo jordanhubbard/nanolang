@@ -29,25 +29,22 @@ shadow grid_index {
     assert (== (grid_index 9 9 10) 99)
 }
 
+fn is_out_of_bounds(x: int, y: int, width: int, height: int) -> bool {
+    return (or (< x 0) (or (>= x width) (or (< y 0) (>= y height))))
+}
+
+shadow is_out_of_bounds {
+    assert (is_out_of_bounds -1 0 10 10)
+    assert (is_out_of_bounds 10 0 10 10)
+    assert (not (is_out_of_bounds 5 5 10 10))
+}
+
 fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> CellState {
-    if (< x 0) {
+    if (is_out_of_bounds x y width height) {
         return CellState.DEAD
-    } else {
-        if (>= x width) {
-            return CellState.DEAD
-        } else {
-            if (< y 0) {
-                return CellState.DEAD
-            } else {
-                if (>= y height) {
-                    return CellState.DEAD
-                } else {
-                    let idx: int = (grid_index x y width)
-                    return (at grid idx)
-                }
-            }
-        }
     }
+    let idx: int = (grid_index x y width)
+    return (at grid idx)
 }
 
 shadow grid_get {

@@ -34,29 +34,22 @@ let SHADER_HIGH_SHININESS: int = 4
 let SHADER_MATTE: int = 5
 let NUM_SHADER_MODES: int = 6
 
-# Helper to get shader mode name
+# Helper to get shader mode name using cond
 fn get_shader_name(mode: int) -> string {
-    if (== mode SHADER_SMOOTH_PHONG) {
-        return "1: Smooth Phong"
-    } else {
-        if (== mode SHADER_FLAT_SHADING) {
-            return "2: Flat Shading"
-        } else {
-            if (== mode SHADER_WIREFRAME) {
-                return "3: Wireframe"
-            } else {
-                if (== mode SHADER_SOLID_WIREFRAME) {
-                    return "4: Solid + Wireframe"
-                } else {
-                    if (== mode SHADER_HIGH_SHININESS) {
-                        return "5: High Shininess"
-                    } else {
-                        return "6: Matte Material"
-                    }
-                }
-            }
-        }
-    }
+    return (cond
+        ((== mode SHADER_SMOOTH_PHONG) "1: Smooth Phong")
+        ((== mode SHADER_FLAT_SHADING) "2: Flat Shading")
+        ((== mode SHADER_WIREFRAME) "3: Wireframe")
+        ((== mode SHADER_SOLID_WIREFRAME) "4: Solid + Wireframe")
+        ((== mode SHADER_HIGH_SHININESS) "5: High Shininess")
+        (else "6: Matte Material")
+    )
+}
+
+shadow get_shader_name {
+    assert (== (get_shader_name SHADER_SMOOTH_PHONG) "1: Smooth Phong")
+    assert (== (get_shader_name SHADER_WIREFRAME) "3: Wireframe")
+    assert (== (get_shader_name 99) "6: Matte Material")
 }
 
 # Setup lighting for the scene
