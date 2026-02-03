@@ -1026,7 +1026,7 @@ static Value builtin_array_slice(Value *args) {
                 case ELEM_U8: dyn_array_push_int(out, (int64_t)dyn_array_get_u8(arr, i)); break;
                 case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
-                case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;
+                case ELEM_STRING: dyn_array_push_string_copy(out, dyn_array_get_string(arr, i)); break;
                 case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;
                 case ELEM_STRUCT: {
                     void *raw = dyn_array_get_struct(arr, i);
@@ -1105,7 +1105,7 @@ static Value builtin_array_push(Value *args) {
                 dyn_array_push_bool(arr, args[1].as.bool_val);
                 break;
             case VAL_STRING:
-                dyn_array_push_string(arr, args[1].as.string_val);
+                dyn_array_push_string_copy(arr, args[1].as.string_val);
                 break;
             case VAL_DYN_ARRAY:
                 dyn_array_push_array(arr, args[1].as.dyn_array_val);
@@ -1157,7 +1157,7 @@ static Value builtin_array_push(Value *args) {
             dyn_array_push_bool(arr, args[1].as.bool_val);
             break;
         case VAL_STRING:
-            dyn_array_push_string(arr, args[1].as.string_val);
+            dyn_array_push_string_copy(arr, args[1].as.string_val);
             break;
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
@@ -1425,7 +1425,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         fprintf(stderr, "Error: Transform function must return same type\n");
                         return create_void();
                     }
-                    dyn_array_push_string(output_arr, transformed.as.string_val);
+                    dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
@@ -1597,7 +1597,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     dyn_array_push_bool(output_arr, elem.as.bool_val);
                     break;
                 case ELEM_STRING:
-                    dyn_array_push_string(output_arr, elem.as.string_val);
+                    dyn_array_push_string_copy(output_arr, elem.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);

@@ -104,6 +104,7 @@ Environment *create_environment(void) {
     env->warn_unsafe_calls = false;
     env->warn_ffi = false;
     env->forbid_unsafe = false;
+    env->profile_gprof = false;
     
     /* Initialize import tracker */
     env->import_tracker = malloc(sizeof(ImportTracker));
@@ -1288,6 +1289,41 @@ void free_function_signature(FunctionSignature *sig) {
     }
     
     free(sig);
+}
+
+void free_type_info(TypeInfo *info) {
+    if (!info) return;
+
+    if (info->element_type) {
+        free_type_info(info->element_type);
+    }
+    if (info->generic_name) {
+        free(info->generic_name);
+    }
+    if (info->type_params) {
+        for (int i = 0; i < info->type_param_count; i++) {
+            free_type_info(info->type_params[i]);
+        }
+        free(info->type_params);
+    }
+    if (info->tuple_types) {
+        free(info->tuple_types);
+    }
+    if (info->tuple_type_names) {
+        for (int i = 0; i < info->tuple_element_count; i++) {
+            if (info->tuple_type_names[i]) {
+                free(info->tuple_type_names[i]);
+            }
+        }
+        free(info->tuple_type_names);
+    }
+    if (info->opaque_type_name) {
+        free(info->opaque_type_name);
+    }
+    if (info->fn_sig) {
+        free_function_signature(info->fn_sig);
+    }
+    free(info);
 }
 
 /* Check if two function signatures are equal */

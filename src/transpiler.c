@@ -425,11 +425,8 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    /* Free each FunctionSignature struct, not just the array of pointers */
+    /* Function registry does not own signatures (AST owns them). */
     if (reg->signatures) {
-        for (int i = 0; i < reg->count; i++) {
-            free_function_signature(reg->signatures[i]);
-        }
         free(reg->signatures);
     }
     free(reg);
@@ -468,16 +465,8 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    /* Free each TypeInfo struct and its tuple_types array, not just the array of pointers */
+    /* Tuple registry does not own TypeInfo (AST owns it). */
     if (reg->tuples) {
-        for (int i = 0; i < reg->count; i++) {
-            if (reg->tuples[i]) {
-                if (reg->tuples[i]->tuple_types) {
-                    free(reg->tuples[i]->tuple_types);
-                }
-                free(reg->tuples[i]);
-            }
-        }
         free(reg->tuples);
     }
     free(reg);

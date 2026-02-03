@@ -4289,6 +4289,9 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            if (node->as.call.return_struct_type_name) {
+                free(node->as.call.return_struct_type_name);
+            }
             if (node->as.call.func_expr) {
                 free_ast(node->as.call.func_expr);
             }
@@ -4297,10 +4300,33 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.call.args);
             break;
+        case AST_MODULE_QUALIFIED_CALL:
+            free(node->as.module_qualified_call.module_alias);
+            free(node->as.module_qualified_call.function_name);
+            if (node->as.module_qualified_call.return_struct_type_name) {
+                free(node->as.module_qualified_call.return_struct_type_name);
+            }
+            for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
+                free_ast(node->as.module_qualified_call.args[i]);
+            }
+            free(node->as.module_qualified_call.args);
+            break;
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++) {
+                free_ast(node->as.array_literal.elements[i]);
+            }
+            free(node->as.array_literal.elements);
+            break;
         case AST_LET:
             free(node->as.let.name);
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);
+            }
+            if (node->as.let.fn_sig) {
+                free_function_signature(node->as.let.fn_sig);
+            }
+            if (node->as.let.type_info) {
+                free_type_info(node->as.let.type_info);
             }
             free_ast(node->as.let.value);
             break;
@@ -4312,6 +4338,15 @@ void free_ast(ASTNode *node) {
             free_ast(node->as.if_stmt.condition);
             free_ast(node->as.if_stmt.then_branch);
             free_ast(node->as.if_stmt.else_branch);
+            break;
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+                free_ast(node->as.cond_expr.conditions[i]);
+                free_ast(node->as.cond_expr.values[i]);
+            }
+            free(node->as.cond_expr.conditions);
+            free(node->as.cond_expr.values);
+            free_ast(node->as.cond_expr.else_value);
             break;
         case AST_WHILE:
             free_ast(node->as.while_stmt.condition);
@@ -4335,8 +4370,26 @@ void free_ast(ASTNode *node) {
             free(node->as.function.name);
             for (int i = 0; i < node->as.function.param_count; i++) {
                 free(node->as.function.params[i].name);
+                if (node->as.function.params[i].struct_type_name) {
+                    free(node->as.function.params[i].struct_type_name);
+                }
+                if (node->as.function.params[i].fn_sig) {
+                    free_function_signature(node->as.function.params[i].fn_sig);
+                }
+                if (node->as.function.params[i].type_info) {
+                    free_type_info(node->as.function.params[i].type_info);
+                }
             }
             free(node->as.function.params);
+            if (node->as.function.return_struct_type_name) {
+                free(node->as.function.return_struct_type_name);
+            }
+            if (node->as.function.return_fn_sig) {
+                free_function_signature(node->as.function.return_fn_sig);
+            }
+            if (node->as.function.return_type_info) {
+                free_type_info(node->as.function.return_type_info);
+            }
             if (node->as.function.body) {  /* Extern functions have no body */
                 free_ast(node->as.function.body);
             }
@@ -4372,6 +4425,27 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.qualified_name.name_parts);
             break;
+        case AST_OPAQUE_TYPE:
+            free(node->as.opaque_type.name);
+            break;
+        case AST_TUPLE_LITERAL:
+            for (int i = 0; i < node->as.tuple_literal.element_count; i++) {
+                free_ast(node->as.tuple_literal.elements[i]);
+            }
+            free(node->as.tuple_literal.elements);
+            if (node->as.tuple_literal.element_types) {
+                free(node->as.tuple_literal.element_types);
+            }
+            break;
+        case AST_TUPLE_INDEX:
+            free_ast(node->as.tuple_index.tuple);
+            break;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < node->as.unsafe_block.count; i++) {
+                free_ast(node->as.unsafe_block.statements[i]);
+            }
+            free(node->as.unsafe_block.statements);
+            break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {
                 free_ast(node->as.program.items[i]);
@@ -4388,9 +4462,18 @@ void free_ast(ASTNode *node) {
             free(node->as.struct_def.name);
             for (int i = 0; i < node->as.struct_def.field_count; i++) {
                 free(node->as.struct_def.field_names[i]);
+                if (node->as.struct_def.field_type_names && node->as.struct_def.field_type_names[i]) {
+                    free(node->as.struct_def.field_type_names[i]);
+                }
             }
             free(node->as.struct_def.field_names);
             free(node->as.struct_def.field_types);
+            if (node->as.struct_def.field_type_names) {
+                free(node->as.struct_def.field_type_names);
+            }
+            if (node->as.struct_def.field_element_types) {
+                free(node->as.struct_def.field_element_types);
+            }
             break;
         case AST_STRUCT_LITERAL:
             free(node->as.struct_literal.struct_name);
@@ -4419,14 +4502,31 @@ void free_ast(ASTNode *node) {
                 free(node->as.union_def.variant_names[i]);
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {
                     free(node->as.union_def.variant_field_names[i][j]);
+                    if (node->as.union_def.variant_field_type_names &&
+                        node->as.union_def.variant_field_type_names[i] &&
+                        node->as.union_def.variant_field_type_names[i][j]) {
+                        free(node->as.union_def.variant_field_type_names[i][j]);
+                    }
                 }
                 free(node->as.union_def.variant_field_names[i]);
                 free(node->as.union_def.variant_field_types[i]);
+                if (node->as.union_def.variant_field_type_names) {
+                    free(node->as.union_def.variant_field_type_names[i]);
+                }
             }
             free(node->as.union_def.variant_names);
             free(node->as.union_def.variant_field_counts);
             free(node->as.union_def.variant_field_names);
             free(node->as.union_def.variant_field_types);
+            if (node->as.union_def.variant_field_type_names) {
+                free(node->as.union_def.variant_field_type_names);
+            }
+            if (node->as.union_def.generic_params) {
+                for (int i = 0; i < node->as.union_def.generic_param_count; i++) {
+                    free(node->as.union_def.generic_params[i]);
+                }
+                free(node->as.union_def.generic_params);
+            }
             break;
         case AST_UNION_CONSTRUCT:
             free(node->as.union_construct.union_name);
@@ -4437,6 +4537,9 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.union_construct.field_names);
             free(node->as.union_construct.field_values);
+            if (node->as.union_construct.type_info) {
+                free_type_info(node->as.union_construct.type_info);
+            }
             break;
         case AST_MATCH:
             free_ast(node->as.match_expr.expr);

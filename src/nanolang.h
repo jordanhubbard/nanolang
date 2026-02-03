@@ -710,6 +710,7 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+void free_type_info(TypeInfo *info);
 
 /* Tuple helpers */
 Value create_tuple(Value *elements, int element_count);
