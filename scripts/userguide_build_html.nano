@@ -970,8 +970,8 @@ fn expand_examples_inline(md_text: string) -> string {
                             let code: string = (read full_path)
                             let code_len: int = (str_length code)
                             
-                            /*  Only inline if under 5KB */
-                            if (< code_len 5000) {
+                            /* Inline all examples regardless of size */
+                            if true {
                                 /* Extract just filename */
                                 let slash_pos: int = (str_index_of local_path "/" 0)
                                 let fname_start: int = (+ slash_pos 1)
@@ -1089,23 +1089,15 @@ shadow make_anchor_id {
 fn extract_example_names(md_text: string) -> array<string> {
     let lines: array<string> = (split_lines md_text)
     let mut names: array<string> = []
-    let mut inlined: int = 0
     let mut i: int = 0
     while (< i (array_length lines)) {
         let line: string = (at lines i)
         if (is_example_link_line line) {
             let link: ExampleLink = (parse_example_link line)
             if link.ok {
-                if (<= inlined 25) {
-                    let full_path: string = (+ "examples/" link.local_path)
-                    if (exists full_path) {
-                        let code: string = (read full_path)
-                        let code_len: int = (str_length code)
-                        if (<= code_len 8000) {
-                            set names (array_push names link.filename)
-                            set inlined (+ inlined 1)
-                        }
-                    }
+                let full_path: string = (+ "examples/" link.local_path)
+                if (exists full_path) {
+                    set names (array_push names link.filename)
                 }
             }
         }
@@ -1121,8 +1113,6 @@ shadow extract_example_names {
 fn append_examples_body(out_path: string, md_text: string, skip_highlight: bool) -> void {
     let lines: array<string> = (split_lines md_text)
     let mut chunk: array<string> = []
-    let mut inlined: int = 0
-    let mut limit_hit: bool = false
     let mut i: int = 0
     while (< i (array_length lines)) {
         let line: string = (at lines i)
@@ -1134,53 +1124,23 @@ fn append_examples_body(out_path: string, md_text: string, skip_highlight: bool)
             }
             let link: ExampleLink = (parse_example_link line)
             if link.ok {
-                if (> inlined 25) {
-                    if (not limit_hit) {
-                        (append "/tmp/userguide_build_html.log" "userguide-html: inline limit reached\n")
-                        set limit_hit true
-                    } else { (print "") }
-                    let link_html: string = (sb_join [
-                        "<p><a href=\"",
-                        (html_escape link.url),
-                        "\">",
-                        (html_escape link.filename),
-                        " (View on GitHub)</a></p>\n"
-                    ] "")
-                    (append out_path link_html)
-                    set i (+ i 1)
-                    continue
-                }
                 let full_path: string = (+ "examples/" link.local_path)
                 if (exists full_path) {
                     let code: string = (read full_path)
-                    let code_len: int = (str_length code)
-                    if (> code_len 8000) {
-                        (append "/tmp/userguide_build_html.log" (+ "userguide-html: example skipped (large) " (+ link.local_path "\n")))
-                        let link_html: string = (sb_join [
-                            "<p><a href=\"",
-                            (html_escape link.url),
-                            "\">",
-                            (html_escape link.filename),
-                            " (View on GitHub)</a></p>\n"
-                        ] "")
-                        (append out_path link_html)
-                    } else {
-                        let anchor_id: string = (make_anchor_id link.filename)
-                        let code_html: string = (cond (skip_highlight (html_escape code)) (else (pretty_print_html code)))
-                        let snippet_html: string = (sb_join [
-                            "<h3 id=\"",
-                            (html_escape anchor_id),
-                            "\">",
-                            (html_escape link.filename),
-                            "</h3>\n<pre><code class=\"language-nano\">",
-                            code_html,
-                            "</code></pre>\n<p><a href=\"",
-                            (html_escape link.url),
-                            "\">View on GitHub</a></p>\n"
-                        ] "")
-                        (append out_path snippet_html)
-                        set inlined (+ inlined 1)
-                    }
+                    let anchor_id: string = (make_anchor_id link.filename)
+                    let code_html: string = (cond (skip_highlight (html_escape code)) (else (pretty_print_html code)))
+                    let snippet_html: string = (sb_join [
+                        "<h3 id=\"",
+                        (html_escape anchor_id),
+                        "\">",
+                        (html_escape link.filename),
+                        "</h3>\n<pre><code class=\"language-nano\">",
+                        code_html,
+                        "</code></pre>\n<p><a href=\"",
+                        (html_escape link.url),
+                        "\">View on GitHub</a></p>\n"
+                    ] "")
+                    (append out_path snippet_html)
                     set i (+ i 1)
                     continue
                 }
