@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.24] - 2026-02-02
+
+### Changed
+- Modernize examples with cond expressions, helper functions, and shadow tests
+- Simplify key handling with or expressions in SDL examples
+- Add rgb() helper for color packing in physics/SDL examples
+- Extract is_out_of_bounds() helper for grid bounds checking
+- Modernize sdl_example_launcher.nano with struct-based Example type
+
+### Fixed
+- Fix pi calculator algorithm and readline dependency check
+- Comprehensive ASan memory leak and UAF fixes
+- Add markdown table support and fix inline code link parsing in user guide
+
 ## [2.0.23] - 2026-02-02
 
 ## [2.0.22] - 2026-02-02
