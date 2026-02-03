@@ -30,7 +30,14 @@ NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
 # === REPL Examples ===
 
+# Most REPL examples require the readline module. Skip if it's not available.
+READLINE_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists readline >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists readline >/dev/null 2>&1 && echo yes; fi')
+
+ifeq ($(READLINE_AVAILABLE),yes)
 REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano,$(wildcard language/*_repl.nano))
+else
+REPL_SOURCES :=
+endif
 REPL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%,$(REPL_SOURCES))
 REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
 

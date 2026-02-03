@@ -481,7 +481,7 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 
 # Build all examples (STRICT: requires all module dependencies)
 # Run 'make -B modules' first to validate dependencies
-examples: build modules check-deps-sdl
+examples: build modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (Strict Mode)"
