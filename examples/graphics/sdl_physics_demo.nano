@@ -295,15 +295,11 @@ fn main() -> int {
         # Poll keyboard
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
-            if (== key 41) {
-                # ESC key
+            # ESC (41) or Q (20) key to quit
+            if (or (== key 41) (== key 20)) {
                 set running false
             } else {
-                if (== key 20) {
-                    # Q key
-                    set running false
-                } else {
-                    if (== key 44) {
+                if (== key 44) {
                         # SPACE key - spawn random ball
                         if (< ball_count MAX_BALLS) {
                             let spawn_x: float = (+ 100.0 (* (cast_float (% frame 800)) 1.0))
@@ -319,14 +315,13 @@ fn main() -> int {
                             set ball_count (+ ball_count 1)
                         } else {}
                     } else {
-                        if (== key 6) {
-                            # C key - clear all balls
-                            set ball_count 0
-                        } else {}
-                    }
+                    if (== key 6) {
+                        # C key - clear all balls
+                        set ball_count 0
+                    } else {}
                 }
             }
-        } else {}
+        }
         
         # Check for quit event
         let quit: int = (nl_sdl_poll_event_quit)
