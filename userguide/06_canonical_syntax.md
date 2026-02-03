@@ -96,10 +96,9 @@ shadow main { assert true }
 ```
 
 **Key rules:**
-- ✅ Use `(+ s1 s2)` for concatenation
-- ❌ Never use `str_concat` (deprecated)
+- ✅ Use `(+ s1 s2)` for concatenation (shorthand for `str_concat`)
 - ✅ Use `(== s1 s2)` for string equality
-- ✅ Use `str_equals` only if you need it explicitly
+- `str_concat` and `str_equals` work identically but `+` and `==` are preferred for consistency
 
 ## Array access
 

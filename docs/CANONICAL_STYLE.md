@@ -172,12 +172,12 @@ let greeting: string = (+ "Hello, " name)
 let full_path: string = (+ (+ base "/") filename)
 ```
 
-### ❌ Deprecated: `str_concat`
+### Alternative: `str_concat`
 ```nano
-(str_concat "Hello, " name)  # OLD WAY - still works but avoid
+(str_concat "Hello, " name)  # Equivalent to (+ "Hello, " name)
 ```
 
-**Rule:** Always use `(+ string1 string2)` for concatenation.
+**Note:** `(+ s1 s2)` is syntactic shorthand for `(str_concat s1 s2)`. Both work identically; prefer `+` for consistency with numeric operations.
 
 ### ✅ Canonical: String `==`
 ```nano
@@ -419,7 +419,7 @@ use module::function;           # Rust-style - DOES NOT EXIST
 
 1. **Function calls:** `(f x y)` - prefix notation only
 2. **Expressions:** `(cond ((test) result) (else default))`
-3. **Strings:** `(+ "a" "b")` - not `str_concat`
+3. **Strings:** `(+ "a" "b")` - preferred over `str_concat` for consistency
 4. **Math:** `(+ a b)` - prefix notation only
 5. **Logic:** `(and a b)` - prefix notation only
 6. **Variables:** `let name: type = value` and `set name value`
@@ -440,7 +440,6 @@ use module::function;           # Rust-style - DOES NOT EXIST
 **Compiler warnings (future):**
 ```bash
 ./bin/nanoc file.nano --strict-canonical
-# Warning: Using deprecated str_concat, prefer (+ string1 string2)
 # Warning: Using if/else for expression, prefer cond
 ```
 
