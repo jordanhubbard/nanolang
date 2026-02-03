@@ -42,18 +42,14 @@ shadow display_board {
     assert true
 }
 
-# Get display character for a cell
+# Get display character for a cell using cond
 fn get_cell_display(board: array<int>, pos: int) -> string {
     let cell: int = (at board pos)
-    if (== cell 0) {
-        return " "
-    } else {
-        if (== cell 1) {
-            return "X"
-        } else {
-            return "O"
-        }
-    }
+    return (cond
+        ((== cell 0) " ")
+        ((== cell 1) "X")
+        (else "O")
+    )
 }
 
 shadow get_cell_display {

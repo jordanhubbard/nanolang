@@ -23,20 +23,17 @@ let MAX_FRAMES: int = 40
 # === BOID SIMULATION ===
 
 fn wrap_position(pos: float, max: float) -> float {
-    if (> pos max) {
-        return 0.0
-    } else {
-        if (< pos 0.0) {
-            return max
-        } else {
-            return pos
-        }
-    }
+    return (cond
+        ((> pos max) 0.0)
+        ((< pos 0.0) max)
+        (else pos)
+    )
 }
 
 shadow wrap_position {
-    let wrapped2: float = (wrap_position 50.0 200.0)
-    assert (== wrapped2 50.0)
+    assert (== (wrap_position 50.0 200.0) 50.0)
+    assert (== (wrap_position 201.0 200.0) 0.0)
+    assert (== (wrap_position -1.0 200.0) 200.0)
 }
 
 fn float_to_string(f: float) -> string {
