@@ -374,6 +374,39 @@ fn main() -> int {
 shadow main { assert true }
 ```
 
+## Parentheses: Calls vs Tuples
+
+NanoLang uses parentheses for both function calls and tuple literals. The comma is what distinguishes them:
+
+| Pattern | Meaning |
+|---------|---------|
+| `(fn a b)` | Function call (space-separated args) |
+| `(a, b)` | Tuple literal (comma-separated) |
+| `(expr)` | Grouping (single expression) |
+| `()` | Empty tuple |
+
+Example: What is `(process a (x, y) b)`?
+
+```nano
+(process a (x, y) b)
+#   │     │   │   └─ arg 3: b
+#   │     │   └───── arg 2: tuple (x, y)
+#   │     └───────── arg 1: a
+#   └─────────────── function: process
+```
+
+It's a function call with 3 arguments because the outer parens have **spaces** (not commas).
+
+Common mistake:
+
+```nano
+# ❌ This calls fn with TWO args (a and b)
+(fn a b)
+
+# ✅ This calls fn with ONE tuple arg
+(fn (a, b))
+```
+
 ## Summary: The Canonical Forms
 
 | Construct | Canonical Form |

@@ -30,6 +30,85 @@ function arg1 arg2    # Haskell-style - DOES NOT EXIST
 
 ---
 
+## Parentheses: Function Calls vs Tuples vs Grouping
+
+NanoLang uses parentheses for three purposes. The parser disambiguates based on what follows the opening `(`:
+
+### The Rule: Commas Make Tuples, Spaces Make Calls
+
+| Pattern | Meaning |
+|---------|---------|
+| `(a, b, c)` | **Tuple literal** - comma-separated |
+| `(fn a b c)` | **Function call** - space-separated |
+| `(expr)` | **Grouping** - single expression, no comma |
+| `()` | **Empty tuple** |
+| `(fn)` | **Zero-arg call** - identifier alone = call |
+
+### Examples
+
+```nano
+# Function calls - arguments separated by SPACES
+(add 1 2)              # Call add with args 1 and 2
+(println "Hello")      # Call println with one arg
+(process x y z)        # Call process with three args
+
+# Tuples - elements separated by COMMAS
+(1, 2)                 # Tuple with two elements
+("a", "b", "c")        # Tuple with three strings
+(x, (y, z))            # Nested tuple
+
+# Grouping - single expression
+(+ 1 2)                # Just groups the prefix op (returns 3)
+
+# Mixed: function taking a tuple argument
+(fn_expects_tuple (1, 2))   # Call fn_expects_tuple with tuple arg
+```
+
+### Parsing `(arg (arg, arg) arg)`
+
+This parses as a **function call** because there are no commas at the top level:
+
+```nano
+(process a (x, y) b)
+#   │     │   │   └─ third argument: b
+#   │     │   └───── second argument: tuple (x, y)
+#   │     └───────── first argument: a
+#   └─────────────── function name: process
+```
+
+The nested `(x, y)` is a tuple because it contains a comma.
+
+### Type Annotations
+
+Tuple types also use comma separation:
+
+```nano
+let pair: (int, int) = (1, 2)           # Tuple type and literal
+let triple: (string, int, bool) = ("a", 1, true)
+
+fn returns_pair() -> (int, string) {
+    return (42, "answer")
+}
+```
+
+### Common Mistakes
+
+```nano
+# ❌ WRONG: This calls fn with args a, b (not a tuple)
+(fn a b)    # Function call with TWO arguments
+
+# ✅ RIGHT: To pass a single tuple argument:
+(fn (a, b)) # Function call with ONE tuple argument
+
+# ❌ WRONG: Forgetting commas creates a call, not a tuple
+let t = (1 2 3)  # ERROR: tries to call "1" as function!
+
+# ✅ RIGHT: Use commas for tuples
+let t = (1, 2, 3)  # Creates a tuple
+```
+
+---
+
 ## Imports and Qualified Calls
 
 ### ✅ Canonical: Module Alias + Qualified Call
