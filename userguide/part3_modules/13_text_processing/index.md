@@ -11,7 +11,7 @@ The `stdlib/regex.nano` module provides POSIX regex pattern matching.
 ### Compiling Patterns
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, free, Regex
+from "stdlib/regex.nano" import compile, matches, Regex
 
 fn validate_email(email: string) -> bool {
     let pattern: Regex = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")
@@ -34,7 +34,7 @@ shadow validate_email {
 ### Matching Patterns
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, free, Regex
+from "stdlib/regex.nano" import compile, matches, Regex
 
 fn test_patterns() -> bool {
     let pattern: Regex = (compile "hello.*world")

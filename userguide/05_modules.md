@@ -10,7 +10,7 @@ This example uses the built-in `std/json` module.
 
 <!--nl-snippet {"name":"ug_modules_std_json","check":true}-->
 ```nano
-from "modules/std/json/json.nano" import Json, parse, free, get, object_has, as_string
+from "modules/std/json/json.nano" import Json, parse, get, object_has, as_string
 
 fn extract_name(json_text: string) -> string {
     let root: Json = (parse json_text)
@@ -18,13 +18,10 @@ fn extract_name(json_text: string) -> string {
         return ""
     }
     if (not (object_has root "name")) {
-        (free root)
         return ""
     }
     let v: Json = (get root "name")
     let out: string = (as_string v)
-    (free v)
-    (free root)
     return out
 }
 

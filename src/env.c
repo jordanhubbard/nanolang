@@ -1,4 +1,6 @@
 #include "nanolang.h"
+#include "runtime/gc.h"
+#include <string.h>
 
 /* Built-in function metadata */
 typedef struct {
@@ -119,7 +121,12 @@ Environment *create_environment(void) {
 
 static void env_free_value(Value v) {
     if (v.type == VAL_STRING) {
-        free(v.as.string_val);
+        /* Release GC-managed string if applicable */
+        if (gc_is_managed(v.as.string_val)) {
+            gc_release(v.as.string_val);
+        } else {
+            free(v.as.string_val);
+        }
         return;
     }
     if (v.type == VAL_STRUCT) {
@@ -129,7 +136,12 @@ static void env_free_value(Value v) {
         for (int j = 0; j < sv->field_count; j++) {
             free(sv->field_names[j]);
             if (sv->field_values[j].type == VAL_STRING) {
-                free(sv->field_values[j].as.string_val);
+                /* Release GC-managed strings in struct fields */
+                if (gc_is_managed(sv->field_values[j].as.string_val)) {
+                    gc_release(sv->field_values[j].as.string_val);
+                } else {
+                    free(sv->field_values[j].as.string_val);
+                }
             }
         }
         free(sv->field_names);
@@ -584,7 +596,19 @@ Value create_string(const char *val) {
     v.is_return = false;
     v.is_break = false;
     v.is_continue = false;
-    v.as.string_val = strdup(val);
+
+    /* Use GC allocation for all dynamically created strings */
+    size_t len = strlen(val);
+    char *gc_str = gc_alloc_string(len);
+    if (gc_str) {
+        memcpy(gc_str, val, len);
+        gc_str[len] = '\0';
+        v.as.string_val = gc_str;
+    } else {
+        /* Fallback to empty string on allocation failure */
+        v.as.string_val = gc_alloc_string(0);
+    }
+
     return v;
 }
 

@@ -922,14 +922,17 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_join(const char* a, const char* b) {\n");
-    sb_append(sb, "    char* buffer = malloc(2048);\n");
-    sb_append(sb, "    if (!buffer) return \"\";\n");
-    sb_append(sb, "    if (strlen(a) == 0) {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s\", b);\n");
-    sb_append(sb, "    } else if (a[strlen(a) - 1] == '/') {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s%s\", a, b);\n");
+    sb_append(sb, "    size_t len_a = strlen(a);\n");
+    sb_append(sb, "    size_t len_b = strlen(b);\n");
+    sb_append(sb, "    size_t total_len = len_a + len_b + 2; /* +1 for '/', +1 for null */\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(total_len);\n");
+    sb_append(sb, "    if (!buffer) return gc_alloc_string(0);\n");
+    sb_append(sb, "    if (len_a == 0) {\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s\", b);\n");
+    sb_append(sb, "    } else if (a[len_a - 1] == '/') {\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s%s\", a, b);\n");
     sb_append(sb, "    } else {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s/%s\", a, b);\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s/%s\", a, b);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
@@ -937,24 +940,28 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "static char* nl_os_path_basename(const char* path) {\n");
     sb_append(sb, "    char* path_copy = strdup(path);\n");
     sb_append(sb, "    char* base = basename(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(base);\n");
+    sb_append(sb, "    size_t len = strlen(base);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (result) memcpy(result, base, len + 1);\n");
     sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
+    sb_append(sb, "    return result ? result : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_dirname(const char* path) {\n");
     sb_append(sb, "    char* path_copy = strdup(path);\n");
     sb_append(sb, "    char* dir = dirname(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(dir);\n");
+    sb_append(sb, "    size_t len = strlen(dir);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (result) memcpy(result, dir, len + 1);\n");
     sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
+    sb_append(sb, "    return result ? result : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_normalize(const char* path) {\n");
-    sb_append(sb, "    if (!path) return \"\";\n");
+    sb_append(sb, "    if (!path) return gc_alloc_string(0);\n");
     sb_append(sb, "    bool abs = (path[0] == '/');\n");
     sb_append(sb, "    char* copy = strdup(path);\n");
-    sb_append(sb, "    if (!copy) return \"\";\n");
+    sb_append(sb, "    if (!copy) return gc_alloc_string(0);\n");
     sb_append(sb, "\n");
     sb_append(sb, "    const char* parts[512];\n");
     sb_append(sb, "    int count = 0;\n");
@@ -975,19 +982,25 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "        tok = strtok_r(NULL, \"/\", &save);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "\n");
+    sb_append(sb, "    /* Allocate GC string with max possible size */\n");
     sb_append(sb, "    size_t cap = strlen(path) + 3;\n");
-    sb_append(sb, "    char* out = malloc(cap);\n");
-    sb_append(sb, "    if (!out) { free(copy); return \"\"; }\n");
+    sb_append(sb, "    char* out = gc_alloc_string(cap);\n");
+    sb_append(sb, "    if (!out) { free(copy); return gc_alloc_string(0); }\n");
     sb_append(sb, "    size_t pos = 0;\n");
     sb_append(sb, "    if (abs) out[pos++] = '/';\n");
     sb_append(sb, "\n");
     sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
     sb_append(sb, "        size_t len = strlen(parts[i]);\n");
+    sb_append(sb, "        /* Check if we have enough space */\n");
     sb_append(sb, "        if (pos + len + 2 > cap) {\n");
-    sb_append(sb, "            cap = (pos + len + 2) * 2;\n");
-    sb_append(sb, "            char* n = realloc(out, cap);\n");
-    sb_append(sb, "            if (!n) { free(out); free(copy); return \"\"; }\n");
-    sb_append(sb, "            out = n;\n");
+    sb_append(sb, "            /* Need more space - allocate new GC string and copy */\n");
+    sb_append(sb, "            size_t new_cap = (pos + len + 2) * 2;\n");
+    sb_append(sb, "            char* new_out = gc_alloc_string(new_cap);\n");
+    sb_append(sb, "            if (!new_out) { gc_release(out); free(copy); return gc_alloc_string(0); }\n");
+    sb_append(sb, "            memcpy(new_out, out, pos);\n");
+    sb_append(sb, "            gc_release(out);\n");
+    sb_append(sb, "            out = new_out;\n");
+    sb_append(sb, "            cap = new_cap;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';\n");
     sb_append(sb, "        memcpy(out + pos, parts[i], len);\n");
@@ -1017,11 +1030,11 @@ void generate_dir_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_os_dir_list(const char* path) {\n");
     sb_append(sb, "    DIR* dir = opendir(path);\n");
-    sb_append(sb, "    if (!dir) return \"\";\n");
+    sb_append(sb, "    if (!dir) return gc_alloc_string(0);\n");
     sb_append(sb, "    size_t capacity = 4096;\n");
     sb_append(sb, "    size_t used = 0;\n");
-    sb_append(sb, "    char* buffer = malloc(capacity);\n");
-    sb_append(sb, "    if (!buffer) { closedir(dir); return \"\"; }\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(capacity);\n");
+    sb_append(sb, "    if (!buffer) { closedir(dir); return gc_alloc_string(0); }\n");
     sb_append(sb, "    buffer[0] = '\\0';\n");
     sb_append(sb, "    struct dirent* entry;\n");
     sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
@@ -1030,8 +1043,10 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "        size_t needed = used + name_len + 2; /* +1 for newline, +1 for null */\n");
     sb_append(sb, "        if (needed > capacity) {\n");
     sb_append(sb, "            capacity = needed * 2;\n");
-    sb_append(sb, "            char* new_buffer = realloc(buffer, capacity);\n");
-    sb_append(sb, "            if (!new_buffer) { free(buffer); closedir(dir); return \"\"; }\n");
+    sb_append(sb, "            char* new_buffer = gc_alloc_string(capacity);\n");
+    sb_append(sb, "            if (!new_buffer) { gc_release(buffer); closedir(dir); return gc_alloc_string(0); }\n");
+    sb_append(sb, "            memcpy(new_buffer, buffer, used);\n");
+    sb_append(sb, "            gc_release(buffer);\n");
     sb_append(sb, "            buffer = new_buffer;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "        memcpy(buffer + used, entry->d_name, name_len);\n");
@@ -1050,11 +1065,14 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_getcwd(void) {\n");
-    sb_append(sb, "    char* buffer = malloc(1024);\n");
-    sb_append(sb, "    if (getcwd(buffer, 1024) == NULL) {\n");
-    sb_append(sb, "        buffer[0] = '\\0';\n");
+    sb_append(sb, "    char temp_buffer[1024];\n");
+    sb_append(sb, "    if (getcwd(temp_buffer, sizeof(temp_buffer)) == NULL) {\n");
+    sb_append(sb, "        return gc_alloc_string(0);\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "    size_t len = strlen(temp_buffer);\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (buffer) memcpy(buffer, temp_buffer, len + 1);\n");
+    sb_append(sb, "    return buffer ? buffer : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_chdir(const char* path) {\n");
@@ -1103,12 +1121,12 @@ void generate_file_operations(StringBuilder *sb) {
     /* File operations */
     sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
     sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
-    sb_append(sb, "    if (!f) return \"\";\n");
+    sb_append(sb, "    if (!f) return gc_alloc_string(0);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
     sb_append(sb, "    long size = ftell(f);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    char* buffer = malloc(size + 1);\n");
-    sb_append(sb, "    if (!buffer) { fclose(f); return \"\"; }\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string((size_t)size);\n");
+    sb_append(sb, "    if (!buffer) { fclose(f); return gc_alloc_string(0); }\n");
     sb_append(sb, "    fread(buffer, 1, size, f);\n");
     sb_append(sb, "    buffer[size] = '\\0';\n");
     sb_append(sb, "    fclose(f);\n");
@@ -1186,8 +1204,8 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    const char* tmp = getenv(\"TMPDIR\");\n");
     sb_append(sb, "    if (!tmp || tmp[0] == '\\0') tmp = \"/tmp\";\n");
     sb_append(sb, "    size_t len = strlen(tmp);\n");
-    sb_append(sb, "    char* out = malloc(len + 1);\n");
-    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "    memcpy(out, tmp, len);\n");
     sb_append(sb, "    out[len] = '\\0';\n");
     sb_append(sb, "    return out;\n");
@@ -1200,11 +1218,11 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    char templ[1024];\n");
     sb_append(sb, "    snprintf(templ, sizeof(templ), \"%s/%sXXXXXX\", tmp, p);\n");
     sb_append(sb, "    int fd = mkstemp(templ);\n");
-    sb_append(sb, "    if (fd < 0) return \"\";\n");
+    sb_append(sb, "    if (fd < 0) return gc_alloc_string(0);\n");
     sb_append(sb, "    close(fd);\n");
     sb_append(sb, "    size_t len = strlen(templ);\n");
-    sb_append(sb, "    char* out = malloc(len + 1);\n");
-    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "    memcpy(out, templ, len);\n");
     sb_append(sb, "    out[len] = '\\0';\n");
     sb_append(sb, "    return out;\n");
@@ -1219,14 +1237,14 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "        snprintf(path, sizeof(path), \"%s/%s%lld_%d\", tmp, p, (long long)time(NULL), i);\n");
     sb_append(sb, "        if (mkdir(path, 0700) == 0) {\n");
     sb_append(sb, "            size_t len = strlen(path);\n");
-    sb_append(sb, "            char* out = malloc(len + 1);\n");
-    sb_append(sb, "            if (!out) return \"\";\n");
+    sb_append(sb, "            char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "            if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "            memcpy(out, path, len);\n");
     sb_append(sb, "            out[len] = '\\0';\n");
     sb_append(sb, "            return out;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "    return gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 }
 

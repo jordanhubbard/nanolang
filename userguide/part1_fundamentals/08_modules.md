@@ -137,12 +137,11 @@ shadow app_startup {
 - You want cleaner call sites
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, free
+from "stdlib/regex.nano" import compile, matches
 
 fn validate_email(email: string) -> bool {
     let pattern: Regex = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")
     let result: bool = (matches pattern email)
-    (free pattern)
     return result
 }
 
