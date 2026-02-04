@@ -6,10 +6,24 @@
 
 #include "eval_hashmap.h"
 #include "../nanolang.h"
+#include "../runtime/gc.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+/* Internal cleanup function (used as GC finalizer) */
+static void nl_hm_cleanup(void *ptr) {
+    if (!ptr) return;
+    NLHashMapCore *hm = (NLHashMapCore*)ptr;
+    /* Clear all entries and free the entries array */
+    nl_hm_clear(hm);
+    if (hm->entries) {
+        free(hm->entries);
+        hm->entries = NULL;
+    }
+    /* Note: Don't free hm itself - GC handles that */
+}
 
 /* ============================ Core HashMap<K,V> (Interpreter Implementation) ============================
  *
@@ -91,14 +105,18 @@ NLHashMapCore *nl_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t cap
     int64_t cap = 1;
     while (cap < capacity) cap <<= 1;
 
-    NLHashMapCore *hm = (NLHashMapCore*)calloc(1, sizeof(NLHashMapCore));
+    /* Allocate using GC with finalizer for automatic cleanup */
+    NLHashMapCore *hm = (NLHashMapCore*)gc_alloc_opaque(sizeof(NLHashMapCore), nl_hm_cleanup);
     if (!hm) return NULL;
+
+    /* Initialize fields (gc_alloc_opaque doesn't zero memory like calloc) */
+    memset(hm, 0, sizeof(NLHashMapCore));
     hm->key_type = kt;
     hm->val_type = vt;
     hm->capacity = cap;
     hm->entries = (NLHashMapEntry*)calloc((size_t)cap, sizeof(NLHashMapEntry));
     if (!hm->entries) {
-        free(hm);
+        /* No need to manually free hm - GC will handle it */
         return NULL;
     }
     return hm;
@@ -203,7 +221,7 @@ void nl_hm_clear(NLHashMapCore *hm) {
 
 void nl_hm_free(NLHashMapCore *hm) {
     if (!hm) return;
-    nl_hm_clear(hm);
-    free(hm->entries);
-    free(hm);
+    /* GC manages cleanup automatically via finalizer */
+    /* Call gc_release() to decrement ref count immediately */
+    gc_release(hm);
 }
