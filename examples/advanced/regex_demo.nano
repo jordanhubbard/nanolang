@@ -177,10 +177,9 @@ fn demo_compiled_loop() -> void {
         (println "  ✗ Invalid: not-an-email")
     }
     
-    # Don't forget to free!
-    (Re.free email_pattern)
+    # GC automatically cleans up - no manual free needed!
     (println "")
-    (println "✓ Pattern freed - no memory leaks")
+    (println "✓ Pattern automatically cleaned up by GC - no memory leaks")
 }
 
 shadow demo_compiled_loop {
@@ -201,7 +200,7 @@ fn demo_comparison() -> void {
     (println "  let re: opaque = (compile pattern)")
     (println "  if (matches re text1) { ... }")
     (println "  if (matches re text2) { ... }")
-    (println "  (free re)")
+    (println "  # GC automatically cleans up when re goes out of scope")
 }
 
 shadow demo_comparison {

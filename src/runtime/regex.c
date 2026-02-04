@@ -233,10 +233,8 @@ DynArray* nl_regex_split(void* regex, const char* text) {
 // Free regex (now a no-op - GC handles cleanup automatically)
 // Kept for backward compatibility but no longer required
 void nl_regex_free(void* regex) {
-    if (!regex) return;
-
-    /* GC manages cleanup automatically via finalizer */
-    /* Optionally: call gc_release() to decrement ref count immediately */
-    gc_release(regex);
+    /* Complete no-op - GC handles cleanup automatically when ref count reaches 0 */
+    /* Calling gc_release() here would cause double-free since env_free_value also calls it */
+    (void)regex;  /* Suppress unused parameter warning */
 }
 

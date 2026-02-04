@@ -113,7 +113,6 @@ pub fn quick_match(pattern: string, text: string) -> bool {
         return false
     }
     let result: bool = (matches regex text)
-    (free regex)
     return result
 }
 
@@ -123,7 +122,6 @@ pub fn quick_find(pattern: string, text: string) -> int {
         return (- 1)
     }
     let result: int = (find regex text)
-    (free regex)
     return result
 }
 
@@ -133,7 +131,6 @@ pub fn quick_replace(pattern: string, text: string, replacement: string) -> stri
         return text
     }
     let result: string = (replace regex text replacement)
-    (free regex)
     return result
 }
 
@@ -143,34 +140,29 @@ pub fn quick_split(pattern: string, text: string) -> array<string> {
         return []
     }
     let result: array<string> = (split regex text)
-    (free regex)
     return result
 }
 
 shadow compile {
     let r: Regex = (compile "a.c")
     assert (!= r (null_opaque))
-    (free r)
 }
 
 shadow matches {
     let r: Regex = (compile "a.c")
     assert (matches r "abc")
     assert (not (matches r "ac"))
-    (free r)
 }
 
 shadow find {
     let r: Regex = (compile "b")
     assert (== (find r "abc") 1)
-    (free r)
 }
 
 shadow find_all {
     let r: Regex = (compile "b")
     let xs: array<int> = (find_all r "abbb")
     assert (>= (array_length xs) 1)
-    (free r)
 }
 
 shadow groups {
@@ -180,19 +172,16 @@ shadow groups {
     assert (== (array_get gs 0) "ab")
     assert (== (array_get gs 1) "a")
     assert (== (array_get gs 2) "b")
-    (free r)
 }
 
 shadow replace {
     let r: Regex = (compile "b")
     assert (== (replace r "abc" "X") "aXc")
-    (free r)
 }
 
 shadow replace_all {
     let r: Regex = (compile "b")
     assert (== (replace_all r "abbb" "X") "aXXX")
-    (free r)
 }
 
 shadow split {
@@ -202,12 +191,10 @@ shadow split {
     assert (== (array_get parts 0) "a")
     assert (== (array_get parts 1) "b")
     assert (== (array_get parts 2) "c")
-    (free r)
 }
 
 shadow free {
     let r: Regex = (compile "a")
-    (free r)
 }
 
 shadow quick_match {

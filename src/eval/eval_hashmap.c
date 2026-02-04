@@ -220,8 +220,7 @@ void nl_hm_clear(NLHashMapCore *hm) {
 }
 
 void nl_hm_free(NLHashMapCore *hm) {
-    if (!hm) return;
-    /* GC manages cleanup automatically via finalizer */
-    /* Call gc_release() to decrement ref count immediately */
-    gc_release(hm);
+    /* Complete no-op - GC handles cleanup automatically when ref count reaches 0 */
+    /* Calling gc_release() here would cause double-free since env_free_value also calls it */
+    (void)hm;  /* Suppress unused parameter warning */
 }
