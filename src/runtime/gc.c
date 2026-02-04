@@ -273,11 +273,14 @@ void gc_release(void* ptr) {
     if (ptr == NULL) {
         return;
     }
-    
+
     GCHeader* header = gc_get_header(ptr);
-    
-    assert(header->ref_count > 0 && "GC: Double free detected!");
-    
+
+    if (header->ref_count == 0) {
+        fprintf(stderr, "GC ERROR: Double release detected on %p (type=%d)\n", ptr, header->type);
+        assert(0 && "GC: Double release detected!");
+    }
+
     header->ref_count--;
     
     /* If ref count reaches zero, free immediately */

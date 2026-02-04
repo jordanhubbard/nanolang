@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "dyn_array.h"
 #include "gc.h"
 
@@ -19,21 +20,34 @@ typedef struct {
 
 /* Internal cleanup function (used as GC finalizer) */
 static void nl_regex_cleanup(void* regex) {
+    fprintf(stderr, "[REGEX] cleanup: %p\n", regex);
     if (!regex) return;
     nl_regex_t* re = (nl_regex_t*)regex;
     if (re->is_valid) {
+        fprintf(stderr, "[REGEX] cleanup: calling regfree\n");
         regfree(&re->compiled);
         re->is_valid = 0;
     }
+    fprintf(stderr, "[REGEX] cleanup: done\n");
 }
 
 // Compile regex pattern (GC-managed with automatic cleanup)
 void* nl_regex_compile(const char* pattern) {
-    if (!pattern) return NULL;
+    if (!pattern) {
+        fprintf(stderr, "[REGEX] compile: null pattern\n");
+        return NULL;
+    }
+
+    fprintf(stderr, "[REGEX] compile: allocating for pattern '%s'\n", pattern);
 
     /* Allocate using GC with finalizer for automatic cleanup */
     nl_regex_t* re = (nl_regex_t*)gc_alloc_opaque(sizeof(nl_regex_t), nl_regex_cleanup);
-    if (!re) return NULL;
+    if (!re) {
+        fprintf(stderr, "[REGEX] compile: allocation failed\n");
+        return NULL;
+    }
+
+    fprintf(stderr, "[REGEX] compile: allocated %p\n", (void*)re);
 
     // REG_EXTENDED = modern regex syntax
     int result = regcomp(&re->compiled, pattern, REG_EXTENDED);

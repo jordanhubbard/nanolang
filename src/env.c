@@ -129,14 +129,10 @@ static void env_free_value(Value v) {
         }
         return;
     }
-    if (v.type == VAL_INT) {
-        /* Check if this int_val is actually a GC-managed opaque pointer */
-        void *ptr = (void*)(intptr_t)v.as.int_val;
-        if (ptr && gc_is_managed(ptr)) {
-            gc_release(ptr);
-        }
-        return;
-    }
+    /* Note: Opaque pointers stored as VAL_INT are NOT released here in interpreter mode
+     * because interpreter function-local variables persist in global environment.
+     * GC cycle collection will clean them up when the program ends.
+     * Compiled code handles opaque lifetimes correctly via scope-based cleanup. */
     if (v.type == VAL_STRUCT) {
         StructValue *sv = v.as.struct_val;
         if (!sv) return;

@@ -109,7 +109,7 @@ pub fn free(regex: Regex) -> void {
 
 pub fn quick_match(pattern: string, text: string) -> bool {
     let regex: Regex = (compile pattern)
-    if (== regex (cast 0 Regex)) {
+    if (== regex (null_opaque)) {
         return false
     }
     let result: bool = (matches regex text)
@@ -118,7 +118,7 @@ pub fn quick_match(pattern: string, text: string) -> bool {
 
 pub fn quick_find(pattern: string, text: string) -> int {
     let regex: Regex = (compile pattern)
-    if (== regex (cast 0 Regex)) {
+    if (== regex (null_opaque)) {
         return (- 1)
     }
     let result: int = (find regex text)
@@ -127,7 +127,7 @@ pub fn quick_find(pattern: string, text: string) -> int {
 
 pub fn quick_replace(pattern: string, text: string, replacement: string) -> string {
     let regex: Regex = (compile pattern)
-    if (== regex (cast 0 Regex)) {
+    if (== regex (null_opaque)) {
         return text
     }
     let result: string = (replace regex text replacement)
@@ -136,7 +136,7 @@ pub fn quick_replace(pattern: string, text: string, replacement: string) -> stri
 
 pub fn quick_split(pattern: string, text: string) -> array<string> {
     let regex: Regex = (compile pattern)
-    if (== regex (cast 0 Regex)) {
+    if (== regex (null_opaque)) {
         return []
     }
     let result: array<string> = (split regex text)
