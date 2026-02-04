@@ -470,6 +470,11 @@ typedef struct {
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
     char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
+
+    /* Memory semantics annotations (for module metadata and tooling) */
+    bool returns_gc_managed;     /* True if return value is GC-tracked (e.g., strings) */
+    bool requires_manual_free;   /* True if return value needs explicit free (e.g., opaque handles) */
+    char *cleanup_function;      /* Name of cleanup function if requires_manual_free (e.g., "regex_free") */
 } Function;
 
 /* Struct definition entry */

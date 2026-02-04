@@ -92,21 +92,23 @@ static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
     return out;
 }
 
-/* Helper: Check if symbol was explicitly imported via selective import
- * NOTE: Currently unused - reserved for future selective import enforcement
- */
-#if 0  /* Disabled - not yet needed */
+/* Helper: Check if symbol was explicitly imported via selective import */
 static bool is_symbol_imported(const char *symbol_name, const char *module_path, Environment *env) {
     if (!env->import_tracker) return true;  /* No tracking = allow all */
-    
+
+    /* If no imports from this module, not imported */
+    bool has_import_from_module = false;
+
     for (int i = 0; i < env->import_tracker->import_count; i++) {
         SelectiveImport *imp = &env->import_tracker->imports[i];
-        
+
         /* Check if this import is from the right module */
         if (imp->module_path && strcmp(imp->module_path, module_path) == 0) {
+            has_import_from_module = true;
+
             /* Wildcard import - all symbols accessible */
             if (imp->is_wildcard) return true;
-            
+
             /* Check if symbol in imported list */
             if (imp->imported_symbols) {
                 for (int j = 0; j < imp->symbol_count; j++) {
@@ -117,11 +119,11 @@ static bool is_symbol_imported(const char *symbol_name, const char *module_path,
             }
         }
     }
-    
-    /* Not found in any selective import - not accessible */
-    return false;
+
+    /* If we have imports from this module but symbol not found, it wasn't imported */
+    /* If we don't have any imports from this module, allow (legacy behavior) */
+    return !has_import_from_module;
 }
-#endif  /* Disabled - not yet needed */
 
 /* Helper: Check if a function is accessible from current module */
 static bool is_function_accessible(Function *func, Environment *env, int line, int column) {
@@ -147,10 +149,17 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
         fprintf(stderr, "  Hint: Private functions are only accessible within their defining module\n");
         return false;
     }
-    
-    /* TODO: Check if symbol was explicitly imported via selective import */
-    /* For now, if public and visible, allow access */
-    
+
+    /* Check if symbol was explicitly imported via selective import */
+    if (!is_symbol_imported(func->name, func->module_name, env)) {
+        fprintf(stderr, "Error at line %d, column %d: Function '%s' from module '%s' was not imported\n",
+                line, column, func->name, func->module_name);
+        fprintf(stderr, "  Note: Add 'from \"%s\" import %s' to import this function\n",
+                func->module_name, func->name);
+        fprintf(stderr, "  Hint: Functions must be explicitly imported before use\n");
+        return false;
+    }
+
     return true;
 }
 
@@ -677,8 +686,37 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Try looking up as variable (for module-level constants) */
                 Symbol *sym = env_get_var_visible_at(env, symbol_name, expr->line, expr->column);
                 if (sym) {
-                    /* TODO: Check if symbol belongs to the specified module */
-                    /* TODO: Check visibility */
+                    /* Check if symbol belongs to the specified module */
+                    if (module_name && (!sym->struct_type_name || strcmp(sym->struct_type_name, module_name) != 0)) {
+                        /* Symbol found but doesn't belong to this module */
+                        char message[256];
+                        snprintf(message, sizeof(message),
+                                "Symbol `%s` does not belong to module `%s`.", symbol_name, module_name);
+                        emit_context_error(
+                            "WRONG MODULE",
+                            expr->line,
+                            expr->column,
+                            (int)safe_strlen(symbol_name),
+                            message,
+                            "This symbol belongs to a different module");
+                        return TYPE_UNKNOWN;
+                    }
+
+                    /* Check if symbol was imported (for selective imports) */
+                    if (!is_symbol_imported(symbol_name, module_name, env)) {
+                        char message[256];
+                        snprintf(message, sizeof(message),
+                                "Constant `%s` from module `%s` was not imported.", symbol_name, module_name);
+                        emit_context_error(
+                            "NOT IMPORTED",
+                            expr->line,
+                            expr->column,
+                            (int)safe_strlen(symbol_name),
+                            message,
+                            "Add this symbol to your import statement");
+                        return TYPE_UNKNOWN;
+                    }
+
                     sym->is_used = true;
                     return sym->type;
                 }
