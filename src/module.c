@@ -1672,6 +1672,49 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             if (env->functions[i].return_struct_type_name) {
                 meta->functions[i].return_struct_type_name = strdup(env->functions[i].return_struct_type_name);
             }
+
+            /* Auto-generate memory semantics annotations based on return type */
+            if (env->functions[i].return_type == TYPE_STRING) {
+                /* String return types are GC-managed */
+                meta->functions[i].returns_gc_managed = true;
+                meta->functions[i].requires_manual_free = false;
+                meta->functions[i].cleanup_function = NULL;
+            } else if (env->functions[i].return_type == TYPE_OPAQUE) {
+                /* Opaque types typically require manual free */
+                meta->functions[i].returns_gc_managed = false;
+                meta->functions[i].requires_manual_free = true;
+
+                /* Infer cleanup function name from function name convention */
+                /* Pattern: <type>_<action> -> <type>_free (e.g., regex_compile -> regex_free) */
+                if (env->functions[i].name) {
+                    const char *name = env->functions[i].name;
+                    /* Find last underscore to extract type prefix */
+                    const char *last_underscore = strrchr(name, '_');
+                    if (last_underscore && last_underscore > name) {
+                        /* Extract prefix (type name) */
+                        size_t prefix_len = last_underscore - name;
+                        char *cleanup_name = malloc(prefix_len + 6); /* prefix + "_free" + \0 */
+                        if (cleanup_name) {
+                            memcpy(cleanup_name, name, prefix_len);
+                            cleanup_name[prefix_len] = '\0';
+                            strcat(cleanup_name, "_free");
+                            meta->functions[i].cleanup_function = cleanup_name;
+                        } else {
+                            meta->functions[i].cleanup_function = NULL;
+                        }
+                    } else {
+                        meta->functions[i].cleanup_function = NULL;
+                    }
+                } else {
+                    meta->functions[i].cleanup_function = NULL;
+                }
+            } else {
+                /* Other types don't require special memory management */
+                meta->functions[i].returns_gc_managed = false;
+                meta->functions[i].requires_manual_free = false;
+                meta->functions[i].cleanup_function = NULL;
+            }
+
             /* Clear body and shadow_test - not needed in metadata */
             meta->functions[i].body = NULL;
             meta->functions[i].shadow_test = NULL;
