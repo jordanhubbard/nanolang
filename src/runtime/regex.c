@@ -10,26 +10,38 @@
 #include <string.h>
 #include <stdint.h>
 #include "dyn_array.h"
+#include "gc.h"
 
 typedef struct {
     regex_t compiled;
     int is_valid;
 } nl_regex_t;
 
-// Compile regex pattern
+/* Internal cleanup function (used as GC finalizer) */
+static void nl_regex_cleanup(void* regex) {
+    if (!regex) return;
+    nl_regex_t* re = (nl_regex_t*)regex;
+    if (re->is_valid) {
+        regfree(&re->compiled);
+        re->is_valid = 0;
+    }
+}
+
+// Compile regex pattern (GC-managed with automatic cleanup)
 void* nl_regex_compile(const char* pattern) {
     if (!pattern) return NULL;
-    
-    nl_regex_t* re = (nl_regex_t*)malloc(sizeof(nl_regex_t));
+
+    /* Allocate using GC with finalizer for automatic cleanup */
+    nl_regex_t* re = (nl_regex_t*)gc_alloc_opaque(sizeof(nl_regex_t), nl_regex_cleanup);
     if (!re) return NULL;
-    
+
     // REG_EXTENDED = modern regex syntax
     int result = regcomp(&re->compiled, pattern, REG_EXTENDED);
     if (result != 0) {
-        free(re);
+        /* No need to manually free - GC will handle it */
         return NULL;
     }
-    
+
     re->is_valid = 1;
     return re;
 }
@@ -218,14 +230,13 @@ DynArray* nl_regex_split(void* regex, const char* text) {
     return parts;
 }
 
-// Free regex
+// Free regex (now a no-op - GC handles cleanup automatically)
+// Kept for backward compatibility but no longer required
 void nl_regex_free(void* regex) {
     if (!regex) return;
-    
-    nl_regex_t* re = (nl_regex_t*)regex;
-    if (re->is_valid) {
-        regfree(&re->compiled);
-    }
-    free(re);
+
+    /* GC manages cleanup automatically via finalizer */
+    /* Optionally: call gc_release() to decrement ref count immediately */
+    gc_release(regex);
 }
 
