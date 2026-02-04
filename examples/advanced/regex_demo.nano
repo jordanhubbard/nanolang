@@ -217,7 +217,7 @@ fn main() -> int {
     (println "")
     (println "═══════════════════════════════════════════════════")
     (println "    NanoLang Regex - Pythonic API Demo")
-    (println "    No Manual Memory Management Required!")
+    (println "    Tier 1: No Memory Management - Tier 2: Manual Free")
     (println "═══════════════════════════════════════════════════")
     (println "")
     
