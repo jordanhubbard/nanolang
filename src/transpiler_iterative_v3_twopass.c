@@ -127,6 +127,7 @@ typedef enum {
     WORK_LITERAL,      /* Output a literal string */
     WORK_FORMATTED,    /* Output a formatted string */
     WORK_INDENT,       /* Output indentation */
+    WORK_GC_RELEASE,   /* Generate gc_release() call for a variable */
 } WorkItemType;
 
 typedef struct {
@@ -135,6 +136,7 @@ typedef struct {
         char *literal;           /* For WORK_LITERAL */
         char *formatted;         /* For WORK_FORMATTED (pre-formatted) */
         int indent_level;        /* For WORK_INDENT */
+        char *var_name;          /* For WORK_GC_RELEASE */
     } data;
 } WorkItem;
 
@@ -174,6 +176,9 @@ static void worklist_free(WorkList *list) {
         if (list->items[i].type == WORK_FORMATTED && list->items[i].data.formatted) {
             free(list->items[i].data.formatted);
         }
+        if (list->items[i].type == WORK_GC_RELEASE && list->items[i].data.var_name) {
+            free(list->items[i].data.var_name);
+        }
     }
     free(list->items);
     free(list);
@@ -199,6 +204,143 @@ static void worklist_append(WorkList *list, WorkItem item) {
         worklist_grow(list);
     }
     list->items[list->count++] = item;
+}
+
+/* ============================================================================
+ * FORWARD DECLARATIONS
+ * ============================================================================ */
+static void emit_indent_item(WorkList *list, int level);
+static void emit_formatted(WorkList *list, const char *fmt, ...);
+
+/* ============================================================================
+ * SCOPE TRACKING - Track GC-managed variables for automatic cleanup
+ * ============================================================================ */
+
+typedef struct {
+    char *name;
+    Type type;
+    bool needs_gc_release;  /* True for strings, opaques, hashmaps */
+} ScopeVar;
+
+typedef struct {
+    ScopeVar *vars;
+    int capacity;
+    int count;
+} Scope;
+
+typedef struct {
+    Scope *scopes;
+    int capacity;
+    int count;
+} ScopeStack;
+
+static ScopeStack *scope_stack_create() {
+    ScopeStack *stack = malloc(sizeof(ScopeStack));
+    if (!stack) {
+        fprintf(stderr, "Error: Out of memory allocating ScopeStack\n");
+        exit(1);
+    }
+    stack->capacity = 32;
+    stack->count = 0;
+    stack->scopes = malloc(sizeof(Scope) * stack->capacity);
+    if (!stack->scopes) {
+        fprintf(stderr, "Error: Out of memory allocating ScopeStack scopes\n");
+        free(stack);
+        exit(1);
+    }
+    return stack;
+}
+
+static void scope_stack_free(ScopeStack *stack) {
+    if (!stack) return;
+    for (int i = 0; i < stack->count; i++) {
+        for (int j = 0; j < stack->scopes[i].count; j++) {
+            free(stack->scopes[i].vars[j].name);
+        }
+        free(stack->scopes[i].vars);
+    }
+    free(stack->scopes);
+    free(stack);
+}
+
+static void scope_stack_push(ScopeStack *stack) {
+    if (stack->count >= stack->capacity) {
+        stack->capacity *= 2;
+        stack->scopes = realloc(stack->scopes, sizeof(Scope) * stack->capacity);
+        if (!stack->scopes) {
+            fprintf(stderr, "Error: Out of memory growing ScopeStack\n");
+            exit(1);
+        }
+    }
+    Scope *scope = &stack->scopes[stack->count++];
+    scope->capacity = 16;
+    scope->count = 0;
+    scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
+    if (!scope->vars) {
+        fprintf(stderr, "Error: Out of memory allocating Scope vars\n");
+        exit(1);
+    }
+}
+
+static void scope_add_var(ScopeStack *stack, const char *name, Type type, const char *type_name, Environment *env) {
+    if (stack->count == 0) return;  /* No scope active */
+
+    /* Check if this type needs gc_release */
+    bool needs_cleanup = false;
+    if (type == TYPE_STRING || type == TYPE_OPAQUE || type == TYPE_HASHMAP) {
+        needs_cleanup = true;
+    }
+    /* Opaque types are represented as TYPE_STRUCT - check if this struct is opaque */
+    else if (type == TYPE_STRUCT && type_name && env) {
+        OpaqueTypeDef *opaque = env_get_opaque_type(env, type_name);
+        if (opaque) {
+            needs_cleanup = true;
+        }
+    }
+
+    if (!needs_cleanup) return;  /* Don't track variables that don't need cleanup */
+
+    Scope *scope = &stack->scopes[stack->count - 1];
+    if (scope->count >= scope->capacity) {
+        scope->capacity *= 2;
+        scope->vars = realloc(scope->vars, sizeof(ScopeVar) * scope->capacity);
+        if (!scope->vars) {
+            fprintf(stderr, "Error: Out of memory growing Scope vars\n");
+            exit(1);
+        }
+    }
+
+    ScopeVar *var = &scope->vars[scope->count++];
+    var->name = strdup(name);
+    if (!var->name) {
+        fprintf(stderr, "Error: Out of memory duplicating variable name\n");
+        exit(1);
+    }
+    var->type = type;
+    var->needs_gc_release = true;
+}
+
+static void scope_emit_cleanup(ScopeStack *stack, WorkList *list, int indent) {
+    if (stack->count == 0) return;
+
+    Scope *scope = &stack->scopes[stack->count - 1];
+    /* Emit cleanup in reverse order (LIFO) */
+    for (int i = scope->count - 1; i >= 0; i--) {
+        if (scope->vars[i].needs_gc_release) {
+            emit_indent_item(list, indent);
+            emit_formatted(list, "gc_release(%s);\n", scope->vars[i].name);
+        }
+    }
+}
+
+static void scope_stack_pop(ScopeStack *stack) {
+    if (stack->count == 0) return;
+
+    Scope *scope = &stack->scopes[--stack->count];
+    for (int i = 0; i < scope->count; i++) {
+        free(scope->vars[i].name);
+    }
+    free(scope->vars);
 }
 
 /* ============================================================================
@@ -586,7 +728,7 @@ static int try_eval_bool_const(ASTNode *expr) {
 
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
-static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env, 
+static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
 
 static bool is_generic_list_runtime_fn(const char *name) {
@@ -2469,17 +2611,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
  * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
  * ============================================================================ */
 
-static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env,
+static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
-    
+
     switch (stmt->type) {
         case AST_BLOCK:
             emit_indent_item(list, indent);
             emit_literal(list, "{\n");
+
+            /* Push new scope for this block */
+            scope_stack_push(scopes);
+
             for (int i = 0; i < stmt->as.block.count; i++) {
-                build_stmt(list, stmt->as.block.statements[i], indent + 1, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.block.statements[i], indent + 1, env, fn_registry);
             }
+
+            /* Emit cleanup for variables in this scope */
+            scope_emit_cleanup(scopes, list, indent + 1);
+
+            /* Pop scope */
+            scope_stack_pop(scopes);
+
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
@@ -2489,7 +2642,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_indent_item(list, indent);
             emit_literal(list, "/* unsafe */ {\n");
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
-                build_stmt(list, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
             }
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
@@ -2585,7 +2738,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 if (arm_body) {
                     if (arm_body->type == AST_BLOCK) {
                         for (int j = 0; j < arm_body->as.block.count; j++) {
-                            build_stmt(list, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                            build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
                         }
                     } else {
                         emit_indent_item(list, indent + 3);
@@ -2836,9 +2989,12 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Register in environment */
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
                                          stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
-            
+
+            /* Track variable for GC cleanup if needed */
+            scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);
+
             /* For array<struct>, set struct_type_name so array_push can find it */
-            if (stmt->as.let.var_type == TYPE_ARRAY && 
+            if (stmt->as.let.var_type == TYPE_ARRAY &&
                 stmt->as.let.element_type == TYPE_STRUCT &&
                 stmt->as.let.type_name) {
                 Symbol *sym = env_get_var(env, stmt->as.let.name);
@@ -2895,7 +3051,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "while (");
             build_expr(list, stmt->as.while_stmt.condition, env);
             emit_literal(list, ") ");
-            build_stmt(list, stmt->as.while_stmt.body, indent, env, fn_registry);
+            build_stmt(list, scopes, stmt->as.while_stmt.body, indent, env, fn_registry);
             break;
             
         case AST_FOR: {
@@ -2922,7 +3078,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 emit_literal(list, "; ");
                 emit_literal(list, var);
                 emit_literal(list, "++) ");
-                build_stmt(list, stmt->as.for_stmt.body, indent, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.for_stmt.body, indent, env, fn_registry);
             } else {
                 /* Fallback for non-range for loops */
                 emit_indent_item(list, indent);
@@ -2936,11 +3092,11 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "if (");
             build_expr(list, stmt->as.if_stmt.condition, env);
             emit_literal(list, ") ");
-            build_stmt(list, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
+            build_stmt(list, scopes, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
             if (stmt->as.if_stmt.else_branch) {
                 emit_indent_item(list, indent);
                 emit_literal(list, "else ");
-                build_stmt(list, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
             }
             break;
 
@@ -3056,13 +3212,18 @@ static void process_worklist(StringBuilder *sb, WorkList *list) {
             case WORK_LITERAL:
                 sb_append(sb, item->data.literal);
                 break;
-                
+
             case WORK_FORMATTED:
                 sb_append(sb, item->data.formatted);
                 break;
-                
+
             case WORK_INDENT:
                 emit_indent(sb, item->data.indent_level);
+                break;
+
+            case WORK_GC_RELEASE:
+                /* Generate gc_release() call for variable */
+                sb_appendf(sb, "gc_release(%s);", item->data.var_name);
                 break;
         }
     }
@@ -3089,14 +3250,20 @@ void transpile_expression_iterative(StringBuilder *sb, ASTNode *expr, Environmen
 void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
                                   Environment *env, FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
-    
-    /* Pass 1: Build work items */
+
+    /* Pass 1: Build work items with scope tracking */
     WorkList *list = worklist_create(5000);
-    build_stmt(list, stmt, indent, env, fn_registry);
-    
+    ScopeStack *scopes = scope_stack_create();
+
+    /* Function body is already a scope, but we track variables in it */
+    scope_stack_push(scopes);
+    build_stmt(list, scopes, stmt, indent, env, fn_registry);
+    scope_stack_pop(scopes);
+
     /* Pass 2: Process and output */
     process_worklist(sb, list);
-    
+
     /* Cleanup */
     worklist_free(list);
+    scope_stack_free(scopes);
 }
