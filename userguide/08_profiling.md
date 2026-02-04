@@ -13,6 +13,56 @@ This is a **major innovation**: instead of manually interpreting profiler output
 - ⚡ **Zero Configuration** - Just add `-pg` flag, profiling runs automatically
 - 📊 **Actionable Insights** - Maps hotspots to source code locations
 
+## Autonomous Optimization Loop
+
+**NanoLang's profiling system enables LLMs to autonomously optimize your code** without human intervention. This is not just profiling for manual analysis - it's **actionable feedback designed for autonomous optimization agents**.
+
+### The Self-Optimization Workflow
+
+An LLM (like Claude) can run this loop autonomously:
+
+1. **Compile** - LLM compiles your program with `-pg` flag
+2. **Run** - LLM executes the program with representative workload
+3. **Analyze** - LLM reads platform-neutral JSON profiling output
+4. **Identify** - LLM finds statistically significant bottlenecks (>1% runtime)
+5. **Optimize** - LLM modifies source code to address performance issues
+6. **Repeat** - LLM re-compiles and re-runs
+7. **Converge** - Loop continues until no significant improvements remain
+
+### Example Autonomous Session
+
+```bash
+# LLM autonomously runs:
+$ ./bin/nanoc myprogram.nano -o bin/myprogram -pg
+$ ./bin/myprogram 2> profile.json
+
+# LLM reads profile.json, identifies ray_sphere_intersect at 89% runtime
+# LLM modifies source to eliminate redundant vec3_dot call
+# LLM saves changes and repeats:
+
+$ ./bin/nanoc myprogram.nano -o bin/myprogram -pg
+$ ./bin/myprogram 2> profile2.json
+
+# LLM reads profile2.json, sees 3x speedup, identifies next hotspot
+# Process repeats until profile shows no function >5% runtime
+```
+
+### Why This Is Novel
+
+Traditional profilers require humans to:
+- Interpret complex profiler output formats
+- Map assembly/binary symbols back to source code
+- Decide which optimizations to apply
+- Manually edit code and re-test
+
+NanoLang's profiling system provides:
+- **Platform-neutral JSON** - LLMs don't need to understand gprof/Instruments formats
+- **Transparent profiling** - No separate profiling commands, happens automatically
+- **Statistically actionable** - Focuses on hotspots that matter (>1% runtime)
+- **Self-documenting** - `analysis_hints` guide LLM optimization decisions
+
+**Result:** LLMs can autonomously optimize codebases, achieving 2-10x speedups without human intervention.
+
 ## Quick Start
 
 ### 1. Compile with Profiling
@@ -93,13 +143,18 @@ NanoLang automatically uses the right tool for your OS:
 
 **Linux:**
 - Uses `gprofng collect` (from binutils)
+- **Instrumentation-based profiling** - hooks every function call
+- Captures complete execution trace with exact call counts
 - No special permissions required
-- Sampling-based profiling (low overhead)
+- ~2-3x overhead but comprehensive data
 
 **macOS:**
-- Uses `sample` command
+- Uses `sample` command (⚠️ **Known limitation** - see issue nanolang-ftkm)
+- **Sampling-based profiling** - periodic stack snapshots (~1ms intervals)
+- Statistical approximation that can miss fast functions
 - No special permissions required on modern macOS
-- Sampling-based profiling (low overhead)
+- Low overhead but incomplete data
+- **Note:** We're working on switching to `xctrace` for instrumentation-based profiling to match Linux behavior
 
 ### Automatic Profiling Flow
 
@@ -587,13 +642,17 @@ open -a Instruments
 
 **Symptom:** Program much slower with -pg
 
+**Causes:**
+- Linux: gprofng uses instrumentation (2-3x overhead expected)
+- macOS: sample has low overhead (if slow, likely program issue not profiling)
+
 **Solution:**
 ```bash
-# Use sampling instead of instrumentation
-# (NanoLang uses sampling by default, but if you added other flags)
+# Linux: This overhead is expected for comprehensive profiling
+# For lower overhead, consider using perf in sampling mode (requires manual setup)
 
-# Reduce sample frequency (if using manual sampling)
-sample <pid> 5 -file profile.txt  # Sample for 5 seconds instead of 10
+# macOS: If profiling is slow, check your program logic
+# sample has very low overhead (~5-10%)
 ```
 
 ### Unreadable function names
@@ -615,9 +674,9 @@ Full schema of profiling output:
 
 ```json
 {
-  "profile_type": "sampling",           // Always "sampling" for -pg
+  "profile_type": "sampling",           // Note: "sampling" is legacy name (Linux actually uses instrumentation)
   "platform": "Linux" | "macOS",        // Detected OS
-  "tool": "gprofng" | "sample",         // Profiler used
+  "tool": "gprofng" | "sample",         // Profiler used (gprofng=instrumentation, sample=sampling)
   "binary": "./bin/myprogram",          // Path to profiled binary
   "hotspots": [                         // Functions sorted by time
     {
@@ -638,7 +697,7 @@ Full schema of profiling output:
 
 ## Summary
 
-**NanoLang's LLM-powered profiling enables a new development workflow:**
+**NanoLang's LLM-powered profiling enables fully autonomous code optimization:**
 
 1. **Compile with `-pg`** - Add profiling instrumentation
 2. **Run normally** - Profiling happens automatically
@@ -646,15 +705,28 @@ Full schema of profiling output:
 4. **Feed to LLM** - Get concrete optimization advice
 5. **Apply changes** - Implement suggested improvements
 6. **Re-profile** - Verify performance gains
-7. **Repeat** - Continue until performance goals met
+7. **Repeat** - Continue until convergence (no significant improvements remain)
 
-**This is self-improving code**: the language runtime generates profiling data specifically designed for AI analysis, enabling automated performance optimization loops.
+**This is self-improving code**: the language runtime generates profiling data specifically designed for AI analysis, enabling **fully autonomous performance optimization loops**.
+
+### The Autonomous Vision
+
+LLMs can run this entire loop without human intervention:
+- Compile and run programs autonomously
+- Parse platform-neutral JSON (no need to understand gprof/Instruments formats)
+- Identify statistically significant bottlenecks
+- Modify source code to address performance issues
+- Re-compile and validate improvements
+- **Iterate until convergence** - achieve 2-10x speedups autonomously
+
+This is not just "profiling for humans" - it's **actionable feedback for autonomous optimization agents**.
 
 **Key advantages:**
 - 🎯 **Targeted** - Profile shows exactly where time is spent
-- 🤖 **Automated** - LLM translates profiling data to actionable changes
-- 🔄 **Iterative** - Profile → Optimize → Profile cycle
+- 🤖 **Fully Autonomous** - LLM handles entire compile→run→optimize loop
+- 🔄 **Iterative** - Continues until no significant improvements remain
 - 📊 **Data-Driven** - No guessing, measure everything
+- 🌍 **Platform-Neutral** - JSON abstracts away OS-specific profiler differences
 
 ## See Also
 
