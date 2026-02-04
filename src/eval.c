@@ -3646,7 +3646,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
     for (int i = old_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].value.type == VAL_STRING) {
-            free(env->symbols[i].value.as.string_val);
+            /* Release GC-managed string if applicable */
+            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
+                gc_release(env->symbols[i].value.as.string_val);
+            } else {
+                free(env->symbols[i].value.as.string_val);
+            }
         }
         if (env->symbols[i].value.type == VAL_FUNCTION) {
             /* Free function value - both function_name and signature */
