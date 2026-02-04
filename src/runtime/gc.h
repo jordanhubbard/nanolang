@@ -22,8 +22,12 @@ typedef enum {
     GC_TYPE_ARRAY = 1,
     GC_TYPE_STRING = 2,
     GC_TYPE_STRUCT = 3,
-    GC_TYPE_CLOSURE = 4
+    GC_TYPE_CLOSURE = 4,
+    GC_TYPE_OPAQUE = 5  /* Opaque handles (regex, hashmap, etc.) with finalizers */
 } GCObjectType;
+
+/* Finalizer function type - called when object is freed */
+typedef void (*GCFinalizer)(void* object);
 
 /* GC Header (prepended to all GC-managed objects) */
 typedef struct GCHeader {
@@ -34,6 +38,7 @@ typedef struct GCHeader {
     size_t size;             /* Object size in bytes (including header) */
     struct GCHeader* next;   /* Next object in allocation list */
     struct GCHeader* prev;   /* Previous object for O(1) removal */
+    GCFinalizer finalizer;   /* Optional cleanup function (NULL if none) */
 } GCHeader;
 
 /* GC Statistics */
@@ -93,6 +98,9 @@ void gc_set_threshold(size_t bytes);
 
 /* Allocate GC-managed string */
 char* gc_alloc_string(size_t length);
+
+/* Allocate GC-managed opaque object with finalizer */
+void* gc_alloc_opaque(size_t size, GCFinalizer finalizer);
 
 #endif /* NANOLANG_GC_H */
 

@@ -118,6 +118,13 @@ static void gc_hash_clear(void) {
 static void gc_destroy_object(GCHeader *header, bool release_children) {
     if (!header) return;
     void *obj = gc_header_to_ptr(header);
+
+    /* Call finalizer first if present (for opaque types) */
+    if (header->finalizer) {
+        header->finalizer(obj);
+        header->finalizer = NULL;  /* Prevent double finalization */
+    }
+
     switch (header->type) {
         case GC_TYPE_ARRAY: {
             DynArray *arr = (DynArray *)obj;
@@ -147,6 +154,9 @@ static void gc_destroy_object(GCHeader *header, bool release_children) {
             }
             break;
         }
+        case GC_TYPE_OPAQUE:
+            /* Opaque types handled entirely by finalizer */
+            break;
         default:
             break;
     }
@@ -210,6 +220,7 @@ void* gc_alloc(size_t size, GCObjectType type) {
     header->marked = 0;
     header->flags = 0;
     header->size = total_size;
+    header->finalizer = NULL;   /* No finalizer by default */
     
     /* Add to doubly-linked list - O(1) */
     header->prev = NULL;
@@ -459,5 +470,15 @@ char* gc_alloc_string(size_t length) {
         str[length] = '\0';  /* Ensure null termination */
     }
     return str;
+}
+
+/* Allocate GC-managed opaque object with finalizer */
+void* gc_alloc_opaque(size_t size, GCFinalizer finalizer) {
+    void* obj = gc_alloc(size, GC_TYPE_OPAQUE);
+    if (obj && finalizer) {
+        GCHeader* header = gc_get_header(obj);
+        header->finalizer = finalizer;
+    }
+    return obj;
 }
 
