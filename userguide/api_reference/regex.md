@@ -193,16 +193,6 @@
 **Returns:** `array<string>`
 
 
-#### `fn free(regex: Regex) -> void`
-
-**Parameters:**
-| Name | Type |
-|------|------|
-| `regex` | `Regex` |
-
-**Returns:** `void`
-
-
 #### `fn quick_match(pattern: string, text: string) -> bool`
 
 **Parameters:**

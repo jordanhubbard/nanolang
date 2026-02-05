@@ -20,8 +20,6 @@
 
 ### replace()
 
-### free()
-
 ## Examples
 
 ### Email Validation

@@ -728,12 +728,9 @@ if (map_has hm key) {
     # Use value
 }
 
-# Always free when done
+# Use clear for reuse
 let hm: HashMap<string, int> = (map_new)
 # ... use hm ...
-(map_free hm)  # Prevent memory leak
-
-# Use clear for reuse
 (map_clear hm)
 # Can add new entries
 ```
@@ -753,20 +750,21 @@ let value: int = (map_get hm key)
 
 ### Memory Management
 
+HashMaps are **garbage collected automatically** - no manual cleanup needed:
+
 ```nano
-fn proper_cleanup() -> int {
+fn automatic_cleanup() -> int {
     let hm: HashMap<string, int> = (map_new)
     (map_put hm "key" 42)
-    
+
     # ... use hm ...
-    
-    # Always free before returning
-    (map_free hm)
+
+    # GC automatically cleans up when hm goes out of scope
     return 0
 }
 
-shadow proper_cleanup {
-    assert (== (proper_cleanup) 0)
+shadow automatic_cleanup {
+    assert (== (automatic_cleanup) 0)
 }
 ```
 

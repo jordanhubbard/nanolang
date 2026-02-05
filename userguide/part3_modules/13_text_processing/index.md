@@ -16,7 +16,6 @@ from "stdlib/regex.nano" import compile, matches, Regex
 fn validate_email(email: string) -> bool {
     let pattern: Regex = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")
     let result: bool = (matches pattern email)
-    (free pattern)
     return result
 }
 
@@ -27,8 +26,7 @@ shadow validate_email {
 ```
 
 **Key points:**
-- `compile(pattern)` - Returns opaque `Regex` handle
-- Always call `free(regex)` when done
+- `compile(pattern)` - Returns opaque `Regex` handle (GC-managed, no manual cleanup needed)
 - Backslashes must be escaped: `\\`
 
 ### Matching Patterns
@@ -38,12 +36,11 @@ from "stdlib/regex.nano" import compile, matches, Regex
 
 fn test_patterns() -> bool {
     let pattern: Regex = (compile "hello.*world")
-    
+
     let match1: bool = (matches pattern "hello beautiful world")  # true
     let match2: bool = (matches pattern "hello world")             # true
     let match3: bool = (matches pattern "goodbye world")           # false
-    
-    (free pattern)
+
     return (and match1 (and match2 (not match3)))
 }
 
@@ -60,7 +57,6 @@ from "stdlib/regex.nano" import compile, find, free, Regex
 fn find_position(text: string, pattern_str: string) -> int {
     let pattern: Regex = (compile pattern_str)
     let pos: int = (find pattern text)
-    (free pattern)
     return pos
 }
 
@@ -81,7 +77,6 @@ fn count_matches(text: string, pattern_str: string) -> int {
     let pattern: Regex = (compile pattern_str)
     let positions: array<int> = (find_all pattern text)
     let count: int = (array_length positions)
-    (free pattern)
     return count
 }
 
@@ -99,7 +94,6 @@ from "stdlib/regex.nano" import compile, groups, free, Regex
 fn extract_parts(text: string) -> array<string> {
     let pattern: Regex = (compile "([a-z]+)@([a-z]+)\\.([a-z]+)")
     let captures: array<string> = (groups pattern text)
-    (free pattern)
     return captures
 }
 
@@ -118,7 +112,6 @@ from "stdlib/regex.nano" import compile, replace, replace_all, free, Regex
 fn clean_text(text: string) -> string {
     let pattern: Regex = (compile "[0-9]+")
     let result: string = (replace_all pattern text "X")
-    (free pattern)
     return result
 }
 
@@ -139,7 +132,6 @@ from "stdlib/regex.nano" import compile, split, free, Regex
 fn split_by_comma(text: string) -> array<string> {
     let pattern: Regex = (compile ",\\s*")
     let parts: array<string> = (split pattern text)
-    (free pattern)
     return parts
 }
 
@@ -491,8 +483,7 @@ fn parse_log_line(line: string) -> LogEntry {
     
     if (< (array_length parts) 4) {
         (log_error "parser" "Invalid log line format")
-        (free pattern)
-        return LogEntry { level: "", category: "", message: "" }
+            return LogEntry { level: "", category: "", message: "" }
     }
     
     let entry: LogEntry = LogEntry {
@@ -501,7 +492,6 @@ fn parse_log_line(line: string) -> LogEntry {
         message: (at parts 3)
     }
     
-    (free pattern)
     return entry
 }
 
@@ -539,7 +529,7 @@ In this chapter, you learned:
 
 | Module | Key Functions |
 |--------|---------------|
-| **regex** | `compile`, `matches`, `find`, `find_all`, `groups`, `replace`, `replace_all`, `split`, `free` |
+| **regex** | `compile`, `matches`, `find`, `find_all`, `groups`, `replace`, `replace_all`, `split` |
 | **log** | `log_trace`, `log_debug`, `log_info`, `log_warn`, `log_error`, `log_fatal` |
 | **StringBuilder** | `StringBuilder_new`, `StringBuilder_append`, `StringBuilder_to_string`, `StringBuilder_length` |
 
