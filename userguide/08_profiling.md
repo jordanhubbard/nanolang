@@ -9,7 +9,7 @@ This is a **major innovation**: instead of manually interpreting profiler output
 **Key Features:**
 - 🤖 **LLM-Ready Output** - Structured JSON designed for AI analysis
 - 🔄 **Self-Improving Loop** - Profile → Analyze → Optimize → Repeat
-- 🌍 **Cross-Platform** - Works on Linux (gprofng) and macOS (sample)
+- 🌍 **Cross-Platform** - Works on Linux (gprofng) and macOS (xctrace/sample)
 - ⚡ **Zero Configuration** - Just add `-pg` flag, profiling runs automatically
 - 📊 **Actionable Insights** - Maps hotspots to source code locations
 
@@ -503,14 +503,28 @@ sudo dnf install binutils  # Fedora
 
 ### macOS
 
-**Tool:** sample command (built-in)
+**Tools:** xctrace (preferred) or sample (fallback)
+
+**Profiling Method:**
+- **xctrace**: Instrumentation-based profiling (consistent with Linux gprofng)
+  - Requires: Full Xcode installation (not just Command Line Tools)
+  - Captures complete execution trace with exact timing
+  - Won't miss fast-executing functions
+- **sample**: Sampling-based profiling (fallback)
+  - Built-in, no Xcode required
+  - Statistical approximation, may miss fast functions
+  - Automatically used if xctrace unavailable
 
 **Permissions:**
-No special permissions required on modern macOS. The `sample` command works automatically for profiling your own processes.
+No special permissions required. NanoLang automatically tries xctrace first, then falls back to sample if needed.
 
 ```bash
 # Just run your program - profiling is automatic!
 ./bin/myprogram
+
+# To enable xctrace (better profiling):
+# 1. Install full Xcode from App Store
+# 2. sudo xcode-select --switch /Applications/Xcode.app
 
 # Alternative: Use Instruments GUI for detailed analysis
 open -a Instruments
@@ -644,7 +658,8 @@ open -a Instruments
 
 **Causes:**
 - Linux: gprofng uses instrumentation (2-3x overhead expected)
-- macOS: sample has low overhead (if slow, likely program issue not profiling)
+- macOS xctrace: instrumentation (2-3x overhead expected)
+- macOS sample: sampling has low overhead (if slow, likely program issue not profiling)
 
 **Solution:**
 ```bash
