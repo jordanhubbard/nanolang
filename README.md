@@ -53,10 +53,11 @@ EOF
 
 ## Key Features
 
+- **Automatic Memory Management (ARC)** ⭐ - Zero-overhead reference counting, no manual free() calls (v2.3.0)
+- **LLM-Powered Autonomous Optimization** ⭐ - Continuous profiling and automatic optimization loop (v2.3.0)
 - **Prefix Notation** - No operator precedence ambiguity: `(+ a (* b c))`
 - **Mandatory Testing** - Every function requires a `shadow` test block
 - **Static Typing** with type inference
-- **Automatic Memory Management** - ARC-style GC for strings, arrays, and opaque types
 - **C Interop** - Easy FFI via modules
 - **Native Performance** - Transpiles to optimized C
 

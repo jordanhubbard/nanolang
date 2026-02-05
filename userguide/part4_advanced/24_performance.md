@@ -165,24 +165,31 @@ NanoLang uses a **hybrid memory model** where some values live on the stack and 
 
 **Rule of thumb:** Primitives and small structs are stack-allocated; collections and strings are heap-allocated.
 
-### Manual Memory Management
+### Automatic Memory Management (ARC)
 
-NanoLang handles memory automatically through garbage collection, but understanding the model helps write efficient code:
+**NEW in v2.3.0:** NanoLang uses Automatic Reference Counting (ARC) for zero-overhead memory management. No manual free() calls needed!
+
+**How ARC Works:**
+- **Owned references** (from constructors like `parse`, `new_object`) are automatically freed when going out of scope
+- **Borrowed references** (from accessors like `get`, `as_string`) have zero overhead - no ref counting
+- **Cycle detection** - Circular references are automatically collected
+- **Deterministic cleanup** - Objects freed immediately when last reference disappears
 
 ```nano
 fn efficient_memory() -> void {
     # Stack allocated - no GC overhead
     let x: int = 42
     let point: Point = Point { x: 1.0, y: 2.0 }
-    
-    # Heap allocated - reference counted
+
+    # Heap allocated - ARC managed (no manual free needed!)
     let name: string = "Hello"
     let numbers: array<int> = [1, 2, 3, 4, 5]
-    
+
     # When function exits:
     # - Stack variables automatically freed
-    # - Heap variables: refcount decremented
-    # - If refcount reaches 0, memory freed
+    # - Heap variables: refcount decremented by ARC
+    # - If refcount reaches 0, memory freed automatically
+    # No manual cleanup required!
 }
 ```
 

@@ -7,6 +7,32 @@
 
 ## Core Features
 
+### ✅ Automatic Memory Management (ARC)
+
+**NEW in v2.3.0!** Automatic Reference Counting (ARC) provides zero-overhead memory management:
+
+```nano
+from "modules/std/json/json.nano" import Json, parse, get_string
+
+fn extract_data(json_text: string) -> string {
+    let root: Json = (parse json_text)         # Owned - auto-freed
+    let name: string = (get_string root "name") # Borrowed - no overhead
+    return name
+    # No free() needed - ARC handles everything!
+}
+```
+
+**Benefits:**
+- No manual memory management - No free() calls needed
+- Deterministic cleanup - Objects freed when last reference goes away
+- Borrowed reference detection - Zero-cost for accessors
+- Cycle detection - Circular references handled automatically
+- Native performance - Compiles to C with minimal overhead
+
+See [Automatic Memory Management Guide](03_basic_types.md#automatic-memory-management) for details.
+
+---
+
 ### ✅ Prefix Notation (S-Expressions)
 
 All operations use prefix notation for unambiguous parsing:

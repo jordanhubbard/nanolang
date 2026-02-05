@@ -8,35 +8,35 @@ This chapter covers working with structured data formats: JSON for serialization
 
 The `modules/std/json/json.nano` module provides JSON parsing and generation.
 
+**Memory Management:** All JSON objects are automatically garbage collected. No manual free() calls needed!
+
 ### Parsing JSON
 
 ```nano
-from "modules/std/json/json.nano" import parse, free, Json
+from "modules/std/json/json.nano" import parse, Json
 
 fn parse_json_string() -> Json {
     let json_text: string = "{\"name\": \"Alice\", \"age\": 30}"
     let obj: Json = (parse json_text)
     return obj
+    # No free() needed - automatic GC!
 }
 
 shadow parse_json_string {
     let obj: Json = (parse_json_string)
     assert (!= obj 0)
-    (free obj)
 }
 ```
-
-**Important:** Always call `free(json)` when done to prevent memory leaks.
 
 ### Type Checking
 
 ```nano
 from "modules/std/json/json.nano" import parse, is_object, is_array
-from "modules/std/json/json.nano" import is_string, is_number, is_bool, is_null, free
+from "modules/std/json/json.nano" import is_string, is_number, is_bool, is_null
 
 fn check_json_types(text: string) -> bool {
     let json: Json = (parse text)
-    
+
     let result: bool = (cond
         ((is_object json) true)
         ((is_array json) true)
@@ -46,9 +46,9 @@ fn check_json_types(text: string) -> bool {
         ((is_null json) true)
         (else false)
     )
-    
-    (free json)
+
     return result
+    # No free() needed - automatic GC!
 }
 
 shadow check_json_types {
@@ -64,27 +64,22 @@ shadow check_json_types {
 ### Extracting Values
 
 ```nano
-from "modules/std/json/json.nano" import parse, get, as_string, as_int, as_bool, free
+from "modules/std/json/json.nano" import parse, get, as_string, as_int, as_bool
 
 fn extract_user_data(json_text: string) -> bool {
     let obj: Json = (parse json_text)
-    
-    # Get nested JSON values
+
+    # Get nested JSON values (borrowed references - no copying)
     let name_json: Json = (get obj "name")
     let age_json: Json = (get obj "age")
     let active_json: Json = (get obj "active")
-    
+
     # Convert to NanoLang types
     let name: string = (as_string name_json)
     let age: int = (as_int age_json)
     let active: bool = (as_bool active_json)
-    
-    # Clean up
-    (free name_json)
-    (free age_json)
-    (free active_json)
-    (free obj)
-    
+
+    # No cleanup needed - automatic GC!
     return (and (== name "Alice") (== age 30))
 }
 
@@ -96,17 +91,17 @@ shadow extract_user_data {
 ### Convenience Functions
 
 ```nano
-from "modules/std/json/json.nano" import parse, get_string, get_int, free
+from "modules/std/json/json.nano" import parse, get_string, get_int
 
 fn get_values_easily(json_text: string) -> string {
     let obj: Json = (parse json_text)
-    
+
     # Convenience functions handle type conversion
     let name: string = (get_string obj "name")
     let age: int = (get_int obj "age")
-    
-    (free obj)
+
     return name
+    # No free() needed - automatic GC!
 }
 
 shadow get_values_easily {
@@ -122,19 +117,18 @@ shadow get_values_easily {
 ### Checking Keys
 
 ```nano
-from "modules/std/json/json.nano" import parse, object_has, get_string, free
+from "modules/std/json/json.nano" import parse, object_has, get_string
 
 fn safe_get(json_text: string, key: string) -> string {
     let obj: Json = (parse json_text)
-    
+
     if (object_has obj key) {
         let value: string = (get_string obj key)
-        (free obj)
         return value
+    } else {
+        return ""
     }
-    
-    (free obj)
-    return ""
+    # No free() needed - automatic GC!
 }
 
 shadow safe_get {
@@ -146,21 +140,21 @@ shadow safe_get {
 ### Iterating Over Objects
 
 ```nano
-from "modules/std/json/json.nano" import parse, keys, get_string, free
+from "modules/std/json/json.nano" import parse, keys, get_string
 
 fn print_all_keys(json_text: string) -> int {
     let obj: Json = (parse json_text)
     let key_array: array<string> = (keys obj)
     let count: int = (array_length key_array)
-    
+
     for i in (range 0 count) {
         let key: string = (at key_array i)
         let value: string = (get_string obj key)
         (println (+ key (+ ": " value)))
     }
-    
-    (free obj)
+
     return count
+    # No free() needed - automatic GC!
 }
 
 shadow print_all_keys {
@@ -172,21 +166,20 @@ shadow print_all_keys {
 ### Working with Arrays
 
 ```nano
-from "modules/std/json/json.nano" import parse, array_size, get_index, as_int, free
+from "modules/std/json/json.nano" import parse, array_size, get_index, as_int
 
 fn sum_json_array(json_text: string) -> int {
     let arr: Json = (parse json_text)
     let len: int = (array_size arr)
     let mut sum: int = 0
-    
+
     for i in (range 0 len) {
-        let item: Json = (get_index arr i)
+        let item: Json = (get_index arr i)  # Borrowed reference
         set sum (+ sum (as_int item))
-        (free item)
     }
-    
-    (free arr)
+
     return sum
+    # No free() needed - automatic GC!
 }
 
 shadow sum_json_array {
@@ -198,20 +191,20 @@ shadow sum_json_array {
 
 ```nano
 from "modules/std/json/json.nano" import new_object, new_string, new_int
-from "modules/std/json/json.nano" import object_set, stringify, free
+from "modules/std/json/json.nano" import object_set, stringify
 
 fn create_json_object() -> string {
     let obj: Json = (new_object)
-    
+
     # Add fields
     (object_set obj "name" (new_string "Alice"))
     (object_set obj "age" (new_int 30))
-    
+
     # Convert to string
     let json_str: string = (stringify obj)
-    
-    (free obj)
+
     return json_str
+    # No free() needed - automatic GC!
 }
 
 shadow create_json_object {
@@ -224,21 +217,21 @@ shadow create_json_object {
 
 ```nano
 from "modules/std/json/json.nano" import new_array, new_int
-from "modules/std/json/json.nano" import json_array_push, stringify, free
+from "modules/std/json/json.nano" import json_array_push, stringify
 
 fn create_json_array() -> string {
     let arr: Json = (new_array)
-    
+
     # Add elements
     (json_array_push arr (new_int 1))
     (json_array_push arr (new_int 2))
     (json_array_push arr (new_int 3))
-    
+
     # Convert to string
     let json_str: string = (stringify arr)
-    
-    (free arr)
+
     return json_str
+    # No free() needed - automatic GC!
 }
 
 shadow create_json_array {
@@ -250,7 +243,7 @@ shadow create_json_array {
 ### Complete Example: Configuration File
 
 ```nano
-from "modules/std/json/json.nano" import parse, get_string, get_int, object_has, free
+from "modules/std/json/json.nano" import parse, get_string, get_int, object_has
 from "modules/std/fs.nano" import file_read, file_write
 
 struct Config {
@@ -263,16 +256,16 @@ struct Config {
 fn load_config(path: string) -> Config {
     let json_text: string = (file_read path)
     let obj: Json = (parse json_text)
-    
+
     let config: Config = Config {
         app_name: (get_string obj "app_name"),
         version: (get_string obj "version"),
         port: (get_int obj "port"),
         debug: (object_has obj "debug")
     }
-    
-    (free obj)
+
     return config
+    # No free() needed - automatic GC!
 }
 
 shadow load_config {

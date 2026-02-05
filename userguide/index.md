@@ -7,6 +7,8 @@
 NanoLang is a compiled systems programming language designed specifically for LLM code generation. It transpiles to C for native performance while maintaining a simple, consistent syntax.
 
 **Key Features:**
+- **Automatic Memory Management (ARC):** Zero-overhead reference counting, no manual free() calls ⭐ NEW in v2.3.0
+- **LLM-Powered Autonomous Optimization:** Continuous profiling and automatic code optimization ⭐ NEW in v2.3.0
 - **LLM-First Design:** Exactly ONE canonical way to write each construct
 - **Prefix Notation:** All operations use `(f x y)` form
 - **Explicit Types:** Always annotate types, minimal inference

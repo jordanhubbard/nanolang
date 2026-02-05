@@ -92,24 +92,24 @@ shadow download_image {
 
 ```nano
 from "modules/curl/curl.nano" import get, post_with_headers
-from "modules/std/json/json.nano" import parse, get_string, free, Json
+from "modules/std/json/json.nano" import parse, get_string, Json
 
 fn fetch_user(user_id: int) -> string {
     let url: string = (+ "https://api.example.com/users/" (int_to_string user_id))
     let response: string = (get url)
-    
+
     let json: Json = (parse response)
     let name: string = (get_string json "name")
-    (free json)
-    
+
     return name
+    # No free() needed - automatic GC!
 }
 
 fn create_user(name: string, email: string) -> bool {
     let data: string = (+ "{\"name\": \"" (+ name (+ "\", \"email\": \"" (+ email "\"}"))))
     let headers: array<string> = ["Content-Type: application/json"]
     let response: string = (post_with_headers "https://api.example.com/users" data headers)
-    
+
     return (> (str_length response) 0)
 }
 
@@ -166,18 +166,18 @@ shadow setup_routes {
 
 ```nano
 from "modules/http_server/http_server.nano" import create_server, register_route
-from "modules/std/json/json.nano" import new_object, new_string, new_int, object_set, stringify, free
+from "modules/std/json/json.nano" import new_object, new_string, new_int, object_set, stringify
 
 fn api_handler(request: string) -> string {
     let json: Json = (new_object)
     (object_set json "status" (new_string "ok"))
     (object_set json "code" (new_int 200))
-    
+
     let body: string = (stringify json)
-    (free json)
-    
+
     let response: string = (+ "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" body)
     return response
+    # No free() needed - automatic GC!
 }
 
 shadow api_handler {
