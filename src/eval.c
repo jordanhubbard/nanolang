@@ -4865,7 +4865,12 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].value.type == VAL_STRING) {
-            free(env->symbols[i].value.as.string_val);
+            /* Release GC-managed string if applicable */
+            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
+                gc_release(env->symbols[i].value.as.string_val);
+            } else {
+                free(env->symbols[i].value.as.string_val);
+            }
         }
     }
     env->symbol_count = original_symbol_count;
