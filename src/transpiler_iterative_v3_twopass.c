@@ -2027,14 +2027,75 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     mapped_name = buf;
                 }
                 mapped_name = map_function_name(mapped_name, env);
-                
+
+                /* ARC: Check if function returns opaque type requiring manual free
+                 * Be very defensive - only apply to extern functions we can safely lookup */
+                bool needs_wrapping = false;
+                bool needs_unwrap_check = false;
+                Function *func_info = NULL;
+
+                /* Only attempt lookup if we have a valid function name and environment
+                 * Skip for built-in/special functions that might not be in env */
+                if (func_name && env &&
+                    strcmp(func_name, "println") != 0 &&
+                    strcmp(func_name, "print") != 0 &&
+                    !is_generic_list_runtime_fn(func_name)) {
+
+                    func_info = env_get_function(env, func_name);
+
+                    /* Only wrap extern functions with explicit cleanup */
+                    if (func_info && func_info->is_extern && func_info->requires_manual_free) {
+                        if (func_info->cleanup_function && func_info->cleanup_function[0] != '\0') {
+                            needs_wrapping = true;
+                            needs_unwrap_check = true;
+                        }
+                    }
+                }
+
+                /* If wrapping needed, emit gc_wrap_external( */
+                if (needs_wrapping) {
+                    emit_literal(list, "gc_wrap_external(");
+                }
+
                 emit_literal(list, mapped_name);
                 emit_literal(list, "(");
+
+                /* Emit arguments - unwrap if opaque type */
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     if (i > 0) emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[i], env);
+
+                    /* ARC: Check if parameter is opaque type that needs unwrapping */
+                    bool needs_unwrap = false;
+                    if (needs_unwrap_check && func_info && i < func_info->param_count && env) {
+                        Type param_type = func_info->params[i].type;
+                        /* Check if it's an opaque type */
+                        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
+                            OpaqueTypeDef *opaque = env_get_opaque_type(env, func_info->params[i].struct_type_name);
+                            if (opaque) {
+                                needs_unwrap = true;
+                            }
+                        } else if (param_type == TYPE_OPAQUE) {
+                            needs_unwrap = true;
+                        }
+                    }
+
+                    if (needs_unwrap) {
+                        emit_literal(list, "gc_unwrap(");
+                        build_expr(list, expr->as.call.args[i], env);
+                        emit_literal(list, ")");
+                    } else {
+                        build_expr(list, expr->as.call.args[i], env);
+                    }
                 }
+
                 emit_literal(list, ")");
+
+                /* If wrapping needed, close gc_wrap_external with finalizer */
+                if (needs_wrapping) {
+                    emit_literal(list, ", ");
+                    emit_literal(list, func_info->cleanup_function);
+                    emit_literal(list, ")");
+                }
             }
             break;
         }
