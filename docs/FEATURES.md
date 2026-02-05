@@ -29,7 +29,7 @@ fn extract_data(json_text: string) -> string {
 - Cycle detection - Circular references handled automatically
 - Native performance - Compiles to C with minimal overhead
 
-See [Automatic Memory Management Guide](03_basic_types.md#automatic-memory-management) for details.
+See [Automatic Memory Management Guide](../userguide/03_basic_types.md#automatic-memory-management) for details.
 
 ---
 
