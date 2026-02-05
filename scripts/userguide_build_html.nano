@@ -2,7 +2,7 @@ from "modules/std/fs.nano" import walkdir, read, write, append, exists, dirname,
 from "modules/std/process.nano" import exec
 from "modules/std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line, sb_to_string, sb_join
 from "modules/std/collections/hashmap.nano" import HashMap, map_new, map_put, map_has, map_get
-from "modules/std/collections/array_utils.nano" import array_sort_strings
+from "modules/std/collections/array_utils.nano" import array_sort_strings, str_compare
 from "modules/std/env.nano" import get
 from "modules/std/log/log.nano" import set_log_level, LOG_LEVEL_DEBUG, log_debug
 from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
@@ -914,7 +914,10 @@ fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
         set changed false
         let mut j: int = 0
         while (< j (- n 1)) {
-            if (> (strcmp (at sort_keys j) (at sort_keys (+ j 1))) 0) {
+            let key1: string = (at sort_keys j)
+            let key2: string = (at sort_keys (+ j 1))
+            /* Compare strings: if key1 > key2, swap */
+            if (> (str_compare key1 key2) 0) {
                 /* Swap */
                 let tmp_file: string = (at sorted j)
                 let tmp_key: string = (at sort_keys j)
