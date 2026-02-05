@@ -389,6 +389,8 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
         APPEND(temp);
         snprintf(temp, sizeof(temp), "    _module_functions[%d].requires_manual_free = %s;\n", i, f->requires_manual_free ? "true" : "false");
         APPEND(temp);
+        snprintf(temp, sizeof(temp), "    _module_functions[%d].returns_borrowed = %s;\n", i, f->returns_borrowed ? "true" : "false");
+        APPEND(temp);
         if (f->cleanup_function) {
             snprintf(temp, sizeof(temp), "    _module_functions[%d].cleanup_function = \"%s\";\n", i, f->cleanup_function);
             APPEND(temp);

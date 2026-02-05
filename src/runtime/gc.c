@@ -274,6 +274,12 @@ void gc_release(void* ptr) {
         return;
     }
 
+    /* Safety check: only release GC-managed pointers */
+    /* This allows safe release of potentially borrowed references */
+    if (!gc_is_managed(ptr)) {
+        return;  /* Not GC-managed - nothing to release */
+    }
+
     GCHeader* header = gc_get_header(ptr);
 
     if (header->ref_count == 0) {

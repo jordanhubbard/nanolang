@@ -1708,10 +1708,31 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
                 } else {
                     meta->functions[i].cleanup_function = NULL;
                 }
+
+                /* Detect borrowed reference returns (accessors vs constructors) */
+                /* Pattern: functions with "get" in the name return borrowed refs */
+                /* Constructors (parse, new_, compile) return owned refs */
+                meta->functions[i].returns_borrowed = false;
+                if (env->functions[i].name) {
+                    const char *name = env->functions[i].name;
+                    /* Check if it's an accessor function (gets existing data) */
+                    if (strstr(name, "get") != NULL ||
+                        strstr(name, "Get") != NULL ||
+                        strstr(name, "as_") != NULL) {  /* as_string, as_bool, etc. also borrowed */
+                        meta->functions[i].returns_borrowed = true;
+                        /* Borrowed refs don't need cleanup */
+                        meta->functions[i].requires_manual_free = false;
+                        if (meta->functions[i].cleanup_function) {
+                            free(meta->functions[i].cleanup_function);
+                            meta->functions[i].cleanup_function = NULL;
+                        }
+                    }
+                }
             } else {
                 /* Other types don't require special memory management */
                 meta->functions[i].returns_gc_managed = false;
                 meta->functions[i].requires_manual_free = false;
+                meta->functions[i].returns_borrowed = false;
                 meta->functions[i].cleanup_function = NULL;
             }
 

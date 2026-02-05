@@ -474,6 +474,7 @@ typedef struct {
     /* Memory semantics annotations (for module metadata and tooling) */
     bool returns_gc_managed;     /* True if return value is GC-tracked (e.g., strings) */
     bool requires_manual_free;   /* True if return value needs explicit free (e.g., opaque handles) */
+    bool returns_borrowed;       /* True if return is borrowed ref (e.g., Json.get) - don't wrap/free */
     char *cleanup_function;      /* Name of cleanup function if requires_manual_free (e.g., "regex_free") */
 } Function;
 

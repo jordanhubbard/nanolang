@@ -290,23 +290,17 @@ static void scope_add_var(ScopeStack *stack, const char *name, Type type, const 
      * 1. String literals (const char*) should never be released
      * 2. GC-allocated strings are managed by the GC's ref counting
      * 3. Releasing strings at scope end would break returns and cause double-frees
-     * NOTE: We also do NOT release Json types because:
-     * 1. Json has internal reference counting (cJSON)
-     * 2. We can't distinguish borrowed vs owned Json references
-     * 3. Json functions return borrowed refs (get, get_index) that would cause double-free
-     * We ONLY release opaque types (HashMap, Regex) that are always owned allocations.
+     *
+     * For opaque types: gc_release() safely handles both:
+     * - Wrapped (owned) refs: Released normally
+     * - Borrowed refs: gc_release() checks gc_is_managed() and returns early
      */
     bool needs_cleanup = false;
-    /* Skip Json types - check type_name for "Json" */
-    bool is_json = (type_name && (strcmp(type_name, "Json") == 0 ||
-                                   strstr(type_name, "json") != NULL ||
-                                   strstr(type_name, "JSON") != NULL));
-
-    if (!is_json && (type == TYPE_OPAQUE || type == TYPE_HASHMAP)) {
+    if (type == TYPE_OPAQUE || type == TYPE_HASHMAP) {
         needs_cleanup = true;
     }
     /* Opaque types are represented as TYPE_STRUCT - check if this struct is opaque */
-    else if (!is_json && type == TYPE_STRUCT && type_name && env) {
+    else if (type == TYPE_STRUCT && type_name && env) {
         OpaqueTypeDef *opaque = env_get_opaque_type(env, type_name);
         if (opaque) {
             needs_cleanup = true;
@@ -2058,18 +2052,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                     func_info = env_get_function(env, func_name);
 
-                    /* Only wrap extern functions with explicit cleanup */
-                    if (func_info && func_info->is_extern && func_info->requires_manual_free) {
+                    /* Only wrap extern functions with explicit cleanup that aren't borrowed refs */
+                    if (func_info && func_info->is_extern && func_info->requires_manual_free && !func_info->returns_borrowed) {
                         if (func_info->cleanup_function && func_info->cleanup_function[0] != '\0') {
-                            /* Skip wrapping for Json - it has internal reference counting
-                             * and we can't distinguish borrowed vs owned references */
-                            if (strstr(func_info->cleanup_function, "json") == NULL &&
-                                strstr(func_info->cleanup_function, "Json") == NULL &&
-                                strstr(func_info->cleanup_function, "JSON") == NULL &&
-                                strstr(func_info->cleanup_function, "cjson") == NULL) {
-                                needs_wrapping = true;
-                                needs_unwrap_check = true;
-                            }
+                            needs_wrapping = true;
+                            needs_unwrap_check = true;
                         }
                     }
                 }
