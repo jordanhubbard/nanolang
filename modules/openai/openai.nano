@@ -22,8 +22,6 @@
 #   (openai_set_api_base "http://localhost:8080/v1")
 #   let response: string = (openai_chat_completion_simple "local-model" "" "Hello!" "dummy-key")
 
-from "modules/std/result/result.nano" import Result
-
 # ============================================================================
 # FFI declarations - C functions from openai.c
 # ============================================================================
@@ -53,7 +51,9 @@ extern fn nl_openai_count_tokens_estimate(_text: string) -> int
 # ============================================================================
 
 pub fn openai_set_api_base(base_url: string) -> void {
-    (nl_openai_set_api_base base_url)
+    unsafe {
+        (nl_openai_set_api_base base_url)
+    }
     return
 }
 
@@ -64,7 +64,9 @@ shadow openai_set_api_base {
 }
 
 pub fn openai_get_api_base() -> string {
-    return (nl_openai_get_api_base)
+    unsafe {
+        return (nl_openai_get_api_base)
+    }
 }
 
 shadow openai_get_api_base {
@@ -73,7 +75,9 @@ shadow openai_get_api_base {
 }
 
 pub fn openai_get_key_from_env() -> string {
-    return (nl_openai_get_key_from_env)
+    unsafe {
+        return (nl_openai_get_key_from_env)
+    }
 }
 
 shadow openai_get_key_from_env {
@@ -87,7 +91,9 @@ shadow openai_get_key_from_env {
 # ============================================================================
 
 pub fn openai_chat_completion(model: string, messages_json: string, api_key: string) -> string {
-    return (nl_openai_chat_completion model messages_json api_key)
+    unsafe {
+        return (nl_openai_chat_completion model messages_json api_key)
+    }
 }
 
 shadow openai_chat_completion {
@@ -96,7 +102,9 @@ shadow openai_chat_completion {
 }
 
 pub fn openai_chat_completion_simple(model: string, system_prompt: string, user_message: string, api_key: string) -> string {
-    return (nl_openai_chat_completion_simple model system_prompt user_message api_key)
+    unsafe {
+        return (nl_openai_chat_completion_simple model system_prompt user_message api_key)
+    }
 }
 
 shadow openai_chat_completion_simple {
@@ -105,7 +113,9 @@ shadow openai_chat_completion_simple {
 }
 
 pub fn openai_chat_completion_with_temperature(model: string, messages_json: string, temperature: float, max_tokens: int, api_key: string) -> string {
-    return (nl_openai_chat_completion_with_temperature model messages_json temperature max_tokens api_key)
+    unsafe {
+        return (nl_openai_chat_completion_with_temperature model messages_json temperature max_tokens api_key)
+    }
 }
 
 shadow openai_chat_completion_with_temperature {
@@ -118,7 +128,9 @@ shadow openai_chat_completion_with_temperature {
 # ============================================================================
 
 pub fn openai_create_embedding(model: string, input: string, api_key: string) -> string {
-    return (nl_openai_create_embedding model input api_key)
+    unsafe {
+        return (nl_openai_create_embedding model input api_key)
+    }
 }
 
 shadow openai_create_embedding {
@@ -131,7 +143,9 @@ shadow openai_create_embedding {
 # ============================================================================
 
 pub fn openai_list_models(api_key: string) -> string {
-    return (nl_openai_list_models api_key)
+    unsafe {
+        return (nl_openai_list_models api_key)
+    }
 }
 
 shadow openai_list_models {
@@ -140,7 +154,9 @@ shadow openai_list_models {
 }
 
 pub fn openai_get_model(model_id: string, api_key: string) -> string {
-    return (nl_openai_get_model model_id api_key)
+    unsafe {
+        return (nl_openai_get_model model_id api_key)
+    }
 }
 
 shadow openai_get_model {
@@ -153,7 +169,9 @@ shadow openai_get_model {
 # ============================================================================
 
 pub fn openai_count_tokens_estimate(text: string) -> int {
-    return (nl_openai_count_tokens_estimate text)
+    unsafe {
+        return (nl_openai_count_tokens_estimate text)
+    }
 }
 
 shadow openai_count_tokens_estimate {

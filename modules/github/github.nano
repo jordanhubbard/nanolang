@@ -13,8 +13,6 @@
 #       return 0
 #   }
 
-from "modules/std/result/result.nano" import Result
-
 # ============================================================================
 # FFI declarations - C functions from github.c
 # ============================================================================
@@ -36,7 +34,9 @@ extern fn nl_github_check_rate_limit(_token: string) -> int
 # ============================================================================
 
 pub fn github_get_repo(owner: string, repo: string, token: string) -> string {
-    return (nl_github_get_repo owner repo token)
+    unsafe {
+        return (nl_github_get_repo owner repo token)
+    }
 }
 
 shadow github_get_repo {
@@ -49,7 +49,9 @@ shadow github_get_repo {
 # ============================================================================
 
 pub fn github_list_issues(owner: string, repo: string, state: string, token: string) -> string {
-    return (nl_github_list_issues owner repo state token)
+    unsafe {
+        return (nl_github_list_issues owner repo state token)
+    }
 }
 
 shadow github_list_issues {
@@ -57,7 +59,9 @@ shadow github_list_issues {
 }
 
 pub fn github_get_issue(owner: string, repo: string, issue_number: int, token: string) -> string {
-    return (nl_github_get_issue owner repo issue_number token)
+    unsafe {
+        return (nl_github_get_issue owner repo issue_number token)
+    }
 }
 
 shadow github_get_issue {
@@ -65,7 +69,9 @@ shadow github_get_issue {
 }
 
 pub fn github_create_issue(owner: string, repo: string, title: string, body: string, token: string) -> string {
-    return (nl_github_create_issue owner repo title body token)
+    unsafe {
+        return (nl_github_create_issue owner repo title body token)
+    }
 }
 
 shadow github_create_issue {
@@ -73,7 +79,9 @@ shadow github_create_issue {
 }
 
 pub fn github_update_issue(owner: string, repo: string, issue_number: int, title: string, body: string, state: string, token: string) -> string {
-    return (nl_github_update_issue owner repo issue_number title body state token)
+    unsafe {
+        return (nl_github_update_issue owner repo issue_number title body state token)
+    }
 }
 
 shadow github_update_issue {
@@ -81,7 +89,9 @@ shadow github_update_issue {
 }
 
 pub fn github_create_issue_comment(owner: string, repo: string, issue_number: int, body: string, token: string) -> string {
-    return (nl_github_create_issue_comment owner repo issue_number body token)
+    unsafe {
+        return (nl_github_create_issue_comment owner repo issue_number body token)
+    }
 }
 
 shadow github_create_issue_comment {
@@ -93,7 +103,9 @@ shadow github_create_issue_comment {
 # ============================================================================
 
 pub fn github_list_prs(owner: string, repo: string, state: string, token: string) -> string {
-    return (nl_github_list_prs owner repo state token)
+    unsafe {
+        return (nl_github_list_prs owner repo state token)
+    }
 }
 
 shadow github_list_prs {
@@ -101,7 +113,9 @@ shadow github_list_prs {
 }
 
 pub fn github_get_pr(owner: string, repo: string, pr_number: int, token: string) -> string {
-    return (nl_github_get_pr owner repo pr_number token)
+    unsafe {
+        return (nl_github_get_pr owner repo pr_number token)
+    }
 }
 
 shadow github_get_pr {
@@ -109,7 +123,9 @@ shadow github_get_pr {
 }
 
 pub fn github_create_pr(owner: string, repo: string, title: string, body: string, head: string, base: string, token: string) -> string {
-    return (nl_github_create_pr owner repo title body head base token)
+    unsafe {
+        return (nl_github_create_pr owner repo title body head base token)
+    }
 }
 
 shadow github_create_pr {
@@ -121,7 +137,9 @@ shadow github_create_pr {
 # ============================================================================
 
 pub fn github_get_token_from_env() -> string {
-    return (nl_github_get_token_from_env)
+    unsafe {
+        return (nl_github_get_token_from_env)
+    }
 }
 
 shadow github_get_token_from_env {
@@ -131,7 +149,9 @@ shadow github_get_token_from_env {
 }
 
 pub fn github_check_rate_limit(token: string) -> int {
-    return (nl_github_check_rate_limit token)
+    unsafe {
+        return (nl_github_check_rate_limit token)
+    }
 }
 
 shadow github_check_rate_limit {
