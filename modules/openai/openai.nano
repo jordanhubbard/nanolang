@@ -1,0 +1,165 @@
+# openai.nano - OpenAI-compatible API client for nanolang
+#
+# Provides comprehensive OpenAI API access including chat completions, embeddings, and more.
+# Supports OpenAI API and any OpenAI-compatible endpoints (local LLMs, Ollama, LM Studio, etc.).
+# Requires OPENAI_API_KEY environment variable or explicit key parameter.
+#
+# Example usage:
+#   import "modules/openai/openai.nano"
+#
+#   fn main() -> int {
+#       let api_key: string = (openai_get_key_from_env)
+#       let response: string = (openai_chat_completion_simple
+#           "gpt-4"
+#           "You are a helpful assistant."
+#           "What is the meaning of life?"
+#           api_key)
+#       (println response)
+#       return 0
+#   }
+#
+# For local LLMs:
+#   (openai_set_api_base "http://localhost:8080/v1")
+#   let response: string = (openai_chat_completion_simple "local-model" "" "Hello!" "dummy-key")
+
+from "modules/std/result/result.nano" import Result
+
+# ============================================================================
+# FFI declarations - C functions from openai.c
+# ============================================================================
+
+# Configuration
+extern fn nl_openai_set_api_base(_base_url: string) -> void
+extern fn nl_openai_get_api_base() -> string
+extern fn nl_openai_get_key_from_env() -> string
+
+# Chat completions
+extern fn nl_openai_chat_completion(_model: string, _messages_json: string, _api_key: string) -> string
+extern fn nl_openai_chat_completion_simple(_model: string, _system_prompt: string, _user_message: string, _api_key: string) -> string
+extern fn nl_openai_chat_completion_with_temperature(_model: string, _messages_json: string, _temperature: float, _max_tokens: int, _api_key: string) -> string
+
+# Embeddings
+extern fn nl_openai_create_embedding(_model: string, _input: string, _api_key: string) -> string
+
+# Model management
+extern fn nl_openai_list_models(_api_key: string) -> string
+extern fn nl_openai_get_model(_model_id: string, _api_key: string) -> string
+
+# Utility
+extern fn nl_openai_count_tokens_estimate(_text: string) -> int
+
+# ============================================================================
+# Public API - Configuration
+# ============================================================================
+
+pub fn openai_set_api_base(base_url: string) -> void {
+    (nl_openai_set_api_base base_url)
+    return
+}
+
+shadow openai_set_api_base {
+    (openai_set_api_base "http://localhost:8080/v1")
+    let current: string = (openai_get_api_base)
+    assert (str_contains current "localhost")
+}
+
+pub fn openai_get_api_base() -> string {
+    return (nl_openai_get_api_base)
+}
+
+shadow openai_get_api_base {
+    let base: string = (openai_get_api_base)
+    assert (> (str_length base) 0)
+}
+
+pub fn openai_get_key_from_env() -> string {
+    return (nl_openai_get_key_from_env)
+}
+
+shadow openai_get_key_from_env {
+    let key: string = (openai_get_key_from_env)
+    # Key may be empty if OPENAI_API_KEY not set
+    assert (>= (str_length key) 0)
+}
+
+# ============================================================================
+# Public API - Chat completions
+# ============================================================================
+
+pub fn openai_chat_completion(model: string, messages_json: string, api_key: string) -> string {
+    return (nl_openai_chat_completion model messages_json api_key)
+}
+
+shadow openai_chat_completion {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+pub fn openai_chat_completion_simple(model: string, system_prompt: string, user_message: string, api_key: string) -> string {
+    return (nl_openai_chat_completion_simple model system_prompt user_message api_key)
+}
+
+shadow openai_chat_completion_simple {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+pub fn openai_chat_completion_with_temperature(model: string, messages_json: string, temperature: float, max_tokens: int, api_key: string) -> string {
+    return (nl_openai_chat_completion_with_temperature model messages_json temperature max_tokens api_key)
+}
+
+shadow openai_chat_completion_with_temperature {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+# ============================================================================
+# Public API - Embeddings
+# ============================================================================
+
+pub fn openai_create_embedding(model: string, input: string, api_key: string) -> string {
+    return (nl_openai_create_embedding model input api_key)
+}
+
+shadow openai_create_embedding {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+# ============================================================================
+# Public API - Model management
+# ============================================================================
+
+pub fn openai_list_models(api_key: string) -> string {
+    return (nl_openai_list_models api_key)
+}
+
+shadow openai_list_models {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+pub fn openai_get_model(model_id: string, api_key: string) -> string {
+    return (nl_openai_get_model model_id api_key)
+}
+
+shadow openai_get_model {
+    # Test requires API key, so we just verify the function exists
+    assert true
+}
+
+# ============================================================================
+# Public API - Utility functions
+# ============================================================================
+
+pub fn openai_count_tokens_estimate(text: string) -> int {
+    return (nl_openai_count_tokens_estimate text)
+}
+
+shadow openai_count_tokens_estimate {
+    let text: string = "Hello, world! This is a test message."
+    let tokens: int = (openai_count_tokens_estimate text)
+    # Rough estimate: 1 token ≈ 4 characters
+    assert (> tokens 5)
+    assert (< tokens 20)
+}

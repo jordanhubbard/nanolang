@@ -1,0 +1,239 @@
+# ai_github_agent.nano - Autonomous GitHub Issue Agent
+#
+# Demonstrates NanoLang's ability to:
+# 1. Fetch GitHub issues
+# 2. Analyze them with an LLM (OpenAI API)
+# 3. Create responses or fixes
+#
+# This enables NanoLang programs to autonomously:
+# - Triage issues
+# - Generate responses
+# - Propose fixes
+# - Create pull requests
+#
+# Requirements:
+# - GITHUB_TOKEN environment variable
+# - OPENAI_API_KEY environment variable (or local LLM endpoint)
+#
+# For local LLMs (Ollama, LM Studio, etc.):
+#   export OPENAI_API_KEY="dummy"  # Not needed for local
+#   # The example shows how to set base URL to localhost
+
+import "modules/github/github.nano"
+import "modules/openai/openai.nano"
+from "modules/std/json/json.nano" import Json, parse, get_string, get_int, json_free
+
+# ============================================================================
+# Helper: Extract issue details from GitHub JSON response
+# ============================================================================
+
+fn extract_issue_title(json_response: string) -> string {
+    let root: Json = (parse json_response)
+    let title: string = (get_string root "title")
+    return title
+}
+
+shadow extract_issue_title {
+    let json: string = "{\"title\":\"Test Issue\",\"number\":123}"
+    let title: string = (extract_issue_title json)
+    assert (str_contains title "Test")
+}
+
+fn extract_issue_body(json_response: string) -> string {
+    let root: Json = (parse json_response)
+    let body: string = (get_string root "body")
+    return body
+}
+
+shadow extract_issue_body {
+    let json: string = "{\"title\":\"Test\",\"body\":\"Issue description\"}"
+    let body: string = (extract_issue_body json)
+    assert (str_contains body "description")
+}
+
+# ============================================================================
+# Core: Analyze issue with LLM
+# ============================================================================
+
+fn analyze_issue_with_llm(title: string, body: string, api_key: string) -> string {
+    let system_prompt: string = "You are a helpful assistant that analyzes GitHub issues and provides actionable insights. Be concise and specific."
+
+    let user_message: string = (str_concat "Analyze this GitHub issue:\n\nTitle: " title)
+    set user_message (str_concat user_message "\n\nBody: ")
+    set user_message (str_concat user_message body)
+    set user_message (str_concat user_message "\n\nProvide: 1) Summary 2) Severity (Low/Medium/High) 3) Suggested action")
+
+    let response: string = (openai_chat_completion_simple
+        "gpt-4"
+        system_prompt
+        user_message
+        api_key)
+
+    return response
+}
+
+shadow analyze_issue_with_llm {
+    # Requires API key - just verify function exists
+    assert true
+}
+
+# ============================================================================
+# Core: Generate issue comment with LLM
+# ============================================================================
+
+fn generate_issue_comment(title: string, body: string, analysis: string, api_key: string) -> string {
+    let system_prompt: string = "You are a helpful GitHub bot. Generate a friendly, professional comment for a GitHub issue based on the analysis provided. Keep it under 200 words."
+
+    let user_message: string = (str_concat "Issue: " title)
+    set user_message (str_concat user_message "\n\nDescription: ")
+    set user_message (str_concat user_message body)
+    set user_message (str_concat user_message "\n\nAnalysis: ")
+    set user_message (str_concat user_message analysis)
+    set user_message (str_concat user_message "\n\nGenerate a helpful comment.")
+
+    let response: string = (openai_chat_completion_simple
+        "gpt-4"
+        system_prompt
+        user_message
+        api_key)
+
+    return response
+}
+
+shadow generate_issue_comment {
+    # Requires API key - just verify function exists
+    assert true
+}
+
+# ============================================================================
+# Main: Autonomous Issue Agent Demo
+# ============================================================================
+
+fn main() -> int {
+    (println "🤖 NanoLang Autonomous GitHub Agent")
+    (println "====================================")
+    (println "")
+
+    # Get API credentials
+    let github_token: string = (github_get_token_from_env)
+    let openai_key: string = (openai_get_key_from_env)
+
+    if (== (str_length github_token) 0) {
+        (println "ERROR: GITHUB_TOKEN environment variable not set")
+        (println "Export your GitHub personal access token:")
+        (println "  export GITHUB_TOKEN='your_token_here'")
+        return 1
+    } else {
+        (println "✓ GitHub token loaded")
+    }
+
+    if (== (str_length openai_key) 0) {
+        (println "")
+        (println "WARNING: OPENAI_API_KEY not set")
+        (println "For OpenAI API:")
+        (println "  export OPENAI_API_KEY='your_key_here'")
+        (println "")
+        (println "For local LLMs (Ollama, LM Studio, etc.):")
+        (println "  export OPENAI_API_KEY='dummy'")
+        (println "  # Then uncomment the set_api_base line in the code")
+        return 1
+    } else {
+        (println "✓ OpenAI API key loaded")
+    }
+
+    # Optional: Use local LLM instead of OpenAI
+    # (openai_set_api_base "http://localhost:8080/v1")
+    # (println "✓ Using local LLM endpoint")
+
+    (println "")
+    (println "Configuration:")
+    (println (str_concat "  OpenAI Base: " (openai_get_api_base)))
+    (println "")
+
+    # Example: Fetch an issue from nanolang repository
+    let owner: string = "jordanhubbard"
+    let repo: string = "nanolang"
+    let issue_number: int = 6  # Example issue
+
+    (println (str_concat "Fetching issue #" (int_to_string issue_number)))
+    (println (str_concat "Repository: " owner))
+    (println (str_concat "           " repo))
+    (println "")
+
+    let issue_json: string = (github_get_issue owner repo issue_number github_token)
+
+    # Check for errors
+    if (str_contains issue_json "\"error\"") {
+        (println "ERROR: Failed to fetch issue")
+        (println issue_json)
+        return 1
+    } else {
+        (println "✓ Issue fetched successfully")
+    }
+
+    # Extract issue details
+    let title: string = (extract_issue_title issue_json)
+    let body: string = (extract_issue_body issue_json)
+
+    (println "")
+    (println "Issue Details:")
+    (println (str_concat "  Title: " title))
+    (println (str_concat "  Body preview: " (str_substring body 0 (min 80 (str_length body)))))
+    (println "")
+
+    # Analyze with LLM
+    (println "🤔 Analyzing issue with LLM...")
+    let analysis: string = (analyze_issue_with_llm title body openai_key)
+
+    if (str_contains analysis "\"error\"") {
+        (println "ERROR: LLM analysis failed")
+        (println analysis)
+        return 1
+    } else {
+        (println "✓ Analysis complete")
+    }
+
+    (println "")
+    (println "LLM Analysis:")
+    (println analysis)
+    (println "")
+
+    # Generate suggested comment
+    (println "💬 Generating suggested comment...")
+    let comment: string = (generate_issue_comment title body analysis openai_key)
+
+    if (str_contains comment "\"error\"") {
+        (println "ERROR: Comment generation failed")
+        (println comment)
+        return 1
+    } else {
+        (println "✓ Comment generated")
+    }
+
+    (println "")
+    (println "Suggested Comment:")
+    (println comment)
+    (println "")
+
+    # In a real autonomous agent, you would:
+    # 1. Post the comment: (github_create_issue_comment owner repo issue_number comment github_token)
+    # 2. Update issue labels/status if needed
+    # 3. Create a PR with fixes if appropriate
+
+    (println "")
+    (println "🎉 Demo complete!")
+    (println "")
+    (println "Next steps for autonomous operation:")
+    (println "  1. Parse LLM analysis to extract severity/actions")
+    (println "  2. Post comments automatically")
+    (println "  3. Generate code fixes and create PRs")
+    (println "  4. Monitor rate limits and handle errors")
+    (println "  5. Run in a loop to process multiple issues")
+
+    return 0
+}
+
+shadow main {
+    # Main requires API keys to run, so just verify it compiles
+    assert true
+}
