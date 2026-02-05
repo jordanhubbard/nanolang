@@ -1,0 +1,66 @@
+{
+  "name": "github",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "GitHub REST API client for managing repositories, issues, pull requests, and more.",
+  "use_when": [
+    "User wants to interact with GitHub repositories programmatically",
+    "User says 'GitHub API', 'create issue', 'list PRs', 'repository info', 'GitHub automation'",
+    "User needs to automate GitHub workflows (issue triage, PR management)",
+    "User wants to build autonomous agents that interact with GitHub",
+    "User needs to fetch, create, or update GitHub resources"
+  ],
+  "avoid_when": [
+    "User wants to use Git directly (use system git commands)",
+    "User needs GitLab/Bitbucket APIs (GitHub module is GitHub-specific)",
+    "User wants local git operations without API access"
+  ],
+  "capabilities": [
+    "get_repository_info",
+    "list_issues",
+    "get_issue",
+    "create_issue",
+    "update_issue",
+    "close_issue",
+    "create_issue_comment",
+    "list_pull_requests",
+    "get_pull_request",
+    "create_pull_request",
+    "check_rate_limit",
+    "authentication"
+  ],
+  "keywords": [
+    "github",
+    "api",
+    "rest",
+    "issue",
+    "pull request",
+    "pr",
+    "repository",
+    "automation",
+    "ci/cd",
+    "devops",
+    "collaboration",
+    "version control"
+  ],
+  "examples": [
+    "examples/ai_github_agent.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["curl", "json"],
+    "system": [
+      {
+        "id": "curl",
+        "install": {
+          "apt": "libcurl4-openssl-dev",
+          "brew": "curl",
+          "pacman": "curl"
+        },
+        "version": ">=7.0"
+      }
+    ]
+  },
+  "io_surfaces": ["network", "env"],
+  "alternatives": []
+}
