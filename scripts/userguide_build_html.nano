@@ -864,6 +864,80 @@ shadow init_theme_map {
 
 
 
+/* Custom sorting for documentation: numbered chapters first, then parts, then appendices, then API */
+fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
+    /* Extract relative path for categorization */
+    let n: int = (array_length files)
+    let mut sort_keys: array<string> = (array_new n "")
+    let mut i: int = 0
+
+    while (< i n) {
+        let path: string = (at files i)
+        let name: string = (basename path)
+        let mut key: string = ""
+
+        /* Categorize by path structure */
+        if (str_contains path "/part1_fundamentals/") {
+            set key (+ "2_" name)
+        } else { if (str_contains path "/part2_stdlib/") {
+            set key (+ "3_" name)
+        } else { if (str_contains path "/part3_modules/") {
+            set key (+ "4_" name)
+        } else { if (str_contains path "/appendices/") {
+            set key (+ "5_" name)
+        } else { if (str_contains path "/api_reference/") {
+            set key (+ "6_" name)
+        } else {
+            /* Root-level files (01-08 numbered chapters) */
+            if (str_starts_with name "0") {
+                set key (+ "1_" name)
+            } else {
+                /* index.md and other root files */
+                set key (+ "0_" name)
+            }
+        } } } } }
+
+        (array_set sort_keys i key)
+        set i (+ i 1)
+    }
+
+    /* Simple bubble sort by keys */
+    let mut sorted: array<string> = (array_new n "")
+    let mut idx: int = 0
+    while (< idx n) {
+        (array_set sorted idx (at files idx))
+        set idx (+ idx 1)
+    }
+
+    let mut changed: bool = true
+    while changed {
+        set changed false
+        let mut j: int = 0
+        while (< j (- n 1)) {
+            if (> (strcmp (at sort_keys j) (at sort_keys (+ j 1))) 0) {
+                /* Swap */
+                let tmp_file: string = (at sorted j)
+                let tmp_key: string = (at sort_keys j)
+                (array_set sorted j (at sorted (+ j 1)))
+                (array_set sort_keys j (at sort_keys (+ j 1)))
+                (array_set sorted (+ j 1) tmp_file)
+                (array_set sort_keys (+ j 1) tmp_key)
+                set changed true
+            }
+            set j (+ j 1)
+        }
+    }
+
+    return sorted
+}
+
+shadow sort_doc_files {
+    let files: array<string> = ["userguide/api_reference/test.md", "userguide/01_start.md", "userguide/appendices/a_ref.md"]
+    let sorted: array<string> = (sort_doc_files files "userguide")
+    /* Verify chapters come before appendices and API */
+    assert (str_contains (at sorted 0) "01_start")
+}
+
 fn build_toc_group(title: string, items: array<string>, open_default: bool) -> string {
     let open_attr: string = (cond (open_default " open") (else ""))
     let header: string = (sb_join ["<details class=\"toc-group\"", open_attr, ">"] "")
@@ -1240,7 +1314,9 @@ fn main() -> int {
         }
         set fi (+ fi 1)
     }
-    set md_files (array_sort_strings md_files)
+
+    /* Custom sort for documentation structure: chapters (01-08) -> parts (part1,2,3) -> appendices -> API */
+    set md_files (sort_doc_files md_files src_dir)
     if (trace_enabled) {
         (log_debug (+ "userguide: Markdown files: " (int_to_string (array_length md_files))))
     }
