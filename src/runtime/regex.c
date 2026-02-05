@@ -11,48 +11,39 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "dyn_array.h"
-#include "gc.h"
 
 typedef struct {
     regex_t compiled;
     int is_valid;
 } nl_regex_t;
 
-/* Internal cleanup function (used as GC finalizer) */
-static void nl_regex_cleanup(void* regex) {
-    fprintf(stderr, "[REGEX] cleanup: %p\n", regex);
+/* Cleanup function for regex (called by ARC wrapper finalizer) */
+void nl_regex_free(void* regex) {
     if (!regex) return;
     nl_regex_t* re = (nl_regex_t*)regex;
     if (re->is_valid) {
-        fprintf(stderr, "[REGEX] cleanup: calling regfree\n");
         regfree(&re->compiled);
         re->is_valid = 0;
     }
-    fprintf(stderr, "[REGEX] cleanup: done\n");
+    free(re);
 }
 
-// Compile regex pattern (GC-managed with automatic cleanup)
+// Compile regex pattern (returns raw malloc'd pointer - ARC wraps automatically)
 void* nl_regex_compile(const char* pattern) {
     if (!pattern) {
-        fprintf(stderr, "[REGEX] compile: null pattern\n");
         return NULL;
     }
 
-    fprintf(stderr, "[REGEX] compile: allocating for pattern '%s'\n", pattern);
-
-    /* Allocate using GC with finalizer for automatic cleanup */
-    nl_regex_t* re = (nl_regex_t*)gc_alloc_opaque(sizeof(nl_regex_t), nl_regex_cleanup);
+    /* Simple malloc - ARC wrapper will call nl_regex_free when done */
+    nl_regex_t* re = (nl_regex_t*)malloc(sizeof(nl_regex_t));
     if (!re) {
-        fprintf(stderr, "[REGEX] compile: allocation failed\n");
         return NULL;
     }
-
-    fprintf(stderr, "[REGEX] compile: allocated %p\n", (void*)re);
 
     // REG_EXTENDED = modern regex syntax
     int result = regcomp(&re->compiled, pattern, REG_EXTENDED);
     if (result != 0) {
-        /* No need to manually free - GC will handle it */
+        free(re);
         return NULL;
     }
 
@@ -244,11 +235,5 @@ DynArray* nl_regex_split(void* regex, const char* text) {
     return parts;
 }
 
-// Free regex (now a no-op - GC handles cleanup automatically)
-// Kept for backward compatibility but no longer required
-void nl_regex_free(void* regex) {
-    /* Complete no-op - GC handles cleanup automatically when ref count reaches 0 */
-    /* Calling gc_release() here would cause double-free since env_free_value also calls it */
-    (void)regex;  /* Suppress unused parameter warning */
-}
+/* nl_regex_free is now defined above with the cleanup logic */
 
