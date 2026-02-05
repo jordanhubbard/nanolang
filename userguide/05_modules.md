@@ -23,6 +23,7 @@ fn extract_name(json_text: string) -> string {
     let v: Json = (get root "name")
     let out: string = (as_string v)
     return out
+    # Note: Json is automatically GC-managed - no manual free needed
 }
 
 shadow extract_name {

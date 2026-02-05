@@ -2,6 +2,7 @@
  * HashMap Word Count
  * =============================================================================
  * Demonstrates HashMap<string, int> for counting occurrences.
+ * Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
  */
 
 fn count_words(words: array<string>) -> HashMap<string, int> {
@@ -27,7 +28,6 @@ shadow count_words {
     assert (== (map_get counts "blue") 2)
     assert (== (map_get counts "green") 1)
     assert (== (map_has counts "missing") false)
-    (map_free counts)
 }
 
 fn main() -> int {
@@ -35,7 +35,6 @@ fn main() -> int {
     let counts: HashMap<string, int> = (count_words words)
     assert (== (map_get counts "hello") 2)
     assert (== (map_get counts "world") 1)
-    (map_free counts)
     return 0
 }
 

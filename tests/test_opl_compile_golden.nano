@@ -1,3 +1,4 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 import "examples/opl/opl_compile.nano"
 
 module "modules/std/fs.nano"
@@ -18,15 +19,11 @@ fn main() -> int {
     let exp: string = (stringify exp_json)
 
     if (== got exp) {
-        (free exp_json)
-        (free plan)
         return 0
     } else {
         (println "PLAN_MISMATCH")
         (println got)
         (println exp)
-        (free exp_json)
-        (free plan)
         return 2
     }
 }

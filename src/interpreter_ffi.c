@@ -639,6 +639,16 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             }
 
             if (cleanup_func) {
+                /* Skip wrapping for Json - it has internal reference counting
+                 * and we can't distinguish borrowed vs owned references */
+                if (strstr(func_info->cleanup_function, "json") != NULL ||
+                    strstr(func_info->cleanup_function, "Json") != NULL ||
+                    strstr(func_info->cleanup_function, "JSON") != NULL ||
+                    strstr(func_info->cleanup_function, "cjson") != NULL) {
+                    /* Return unwrapped - Json manages its own memory */
+                    return create_int((int64_t)(intptr_t)external_ptr);
+                }
+
                 /* Wrap external pointer in GC-managed object */
                 void* wrapped = gc_wrap_external(external_ptr, cleanup_func);
 

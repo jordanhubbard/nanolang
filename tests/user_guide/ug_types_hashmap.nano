@@ -20,14 +20,14 @@ shadow count_words {
     assert (== (map_get counts "a") 2)
     assert (== (map_get counts "b") 1)
     assert (== (map_has counts "c") false)
-    (map_free counts)
+    # Note: HashMap is automatically GC-managed - no manual free needed
 }
 
 fn main() -> int {
     let counts: HashMap<string, int> = (count_words ["x", "x", "y"])
     assert (== (map_get counts "x") 2)
     assert (== (map_get counts "y") 1)
-    (map_free counts)
+    # Note: HashMap is automatically GC-managed - no manual free needed
     return 0
 }
 

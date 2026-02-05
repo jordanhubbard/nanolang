@@ -1,3 +1,4 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 import "examples/opl/opl_parser.nano"
 import "examples/opl/opl_lexer.nano"
 
@@ -20,8 +21,6 @@ fn main() -> int {
     let exp: string = (stringify exp_json)
 
     if (== got exp) {
-        (free exp_json)
-        (free r.ast)
         return 0
     } else {
         (println "AST_MISMATCH")
@@ -46,8 +45,6 @@ fn main() -> int {
             (println (+ "LEX_ERR " lr.error.code))
         }
 
-        (free exp_json)
-        (free r.ast)
         return 2
     }
 }

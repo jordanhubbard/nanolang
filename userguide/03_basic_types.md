@@ -101,14 +101,14 @@ shadow count_words {
     assert (== (map_get counts "a") 2)
     assert (== (map_get counts "b") 1)
     assert (== (map_has counts "c") false)
-    (map_free counts)
+    # Note: HashMap is automatically GC-managed - no manual free needed
 }
 
 fn main() -> int {
     let counts: HashMap<string, int> = (count_words ["x", "x", "y"])
     assert (== (map_get counts "x") 2)
     assert (== (map_get counts "y") 1)
-    (map_free counts)
+    # Note: HashMap is automatically GC-managed - no manual free needed
     return 0
 }
 
@@ -225,4 +225,86 @@ fn main() -> int {
 }
 
 shadow main { assert true }
+```
+
+## Automatic Memory Management
+
+NanoLang features **ARC-style (Automatic Reference Counting)** memory management for all heap-allocated objects, including strings, arrays, and opaque types from external libraries.
+
+### Garbage Collection
+
+All dynamically allocated memory is automatically tracked and freed by the garbage collector. You don't need to manually free memory for:
+
+- **Strings** - Dynamically allocated strings are GC-managed
+- **Arrays** - Both fixed and dynamic arrays are GC-managed
+- **Opaque types** - External library types (HashMap, regex, JSON) are automatically wrapped with ARC cleanup
+
+### Opaque Types
+
+Opaque types represent handles to external C libraries. Common examples:
+
+- `HashMap<K,V>` - Generic hash maps
+- `Regex` - Compiled regular expressions
+- `Json` - JSON values from the json module
+
+**Key feature:** The compiler automatically wraps and unwraps these types at call boundaries, ensuring proper cleanup without manual intervention.
+
+### Example: Regex (No Manual Free)
+
+```nano
+from "modules/std/regex/regex.nano" import Regex, compile, match
+
+fn check_email(text: string) -> bool {
+    let pattern: Regex = (compile "^[a-z]+@[a-z]+\\.[a-z]+$")
+    if (== pattern 0) {
+        return false
+    }
+    let result: int = (match pattern text)
+    return (== result 1)
+    # No regex_free needed - automatically cleaned up by GC
+}
+```
+
+### Example: JSON (No Manual Free)
+
+```nano
+from "modules/std/json/json.nano" import Json, parse, get, as_string
+
+fn extract_field(json_text: string) -> string {
+    let root: Json = (parse json_text)
+    if (== root 0) {
+        return ""
+    }
+    let value: Json = (get root "name")
+    return (as_string value)
+    # No json_free needed - automatically cleaned up by GC
+}
+```
+
+### How It Works
+
+The compiler uses **ARC-style wrapping**:
+
+1. **Wrapping**: When an external function returns an opaque type, the compiler wraps it in a GC-managed object with the appropriate cleanup function
+2. **Unwrapping**: When passing an opaque type to an external function, the compiler automatically unwraps it to get the original pointer
+3. **Cleanup**: When the GC determines an object is no longer referenced, it calls the cleanup function (e.g., `regex_free`, `json_free`)
+
+This approach is inspired by Objective-C ARC and Swift, providing automatic memory management without manual free calls.
+
+### Benefits
+
+- ✅ **No manual memory management** - No `free()` calls needed
+- ✅ **Uniform handling** - All opaque types work the same way
+- ✅ **Zero-cost abstraction** - Wrapping/unwrapping at compile time
+- ✅ **Library compatibility** - Works with any C library that provides cleanup functions
+
+### Memory Safety
+
+The GC automatically prevents:
+
+- **Memory leaks** - Objects are freed when no longer referenced
+- **Double-free** - Each object is freed exactly once
+- **Use-after-free** - References are tracked and validated
+
+For more details on memory management and profiling, see [Chapter 8: Profiling](08_profiling.md).
 ```

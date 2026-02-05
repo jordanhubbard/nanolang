@@ -8,15 +8,15 @@
 
 NanoLang transpiles to C for native performance while providing a clean, modern syntax optimized for both human readability and AI code generation.
 
-## Documentation
+## 📖 Documentation
 
-**[User Guide](https://jordanhubbard.github.io/nanolang/)** - Comprehensive tutorial with executable examples
+**→ [User Guide](https://jordanhubbard.github.io/nanolang/) ←** - **Start here!** Comprehensive tutorial with executable examples
 
-Quick references:
-- [Getting Started](docs/GETTING_STARTED.md) - 15-minute tutorial
+**Additional Resources:**
+- [Getting Started](docs/GETTING_STARTED.md) - 15-minute quick start
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Syntax cheat sheet
-- [Language Specification](docs/SPECIFICATION.md) - Complete reference
-- [All Documentation](docs/DOCS_INDEX.md) - Full index
+- [Language Specification](docs/SPECIFICATION.md) - Complete language reference
+- [All Documentation](docs/DOCS_INDEX.md) - Full documentation index
 
 ## Quick Start
 
@@ -55,9 +55,10 @@ EOF
 
 - **Prefix Notation** - No operator precedence ambiguity: `(+ a (* b c))`
 - **Mandatory Testing** - Every function requires a `shadow` test block
-- **Static Typing** - Catch errors at compile time
-- **C Interop** - Easy FFI via modules with automatic dependency installation
-- **Native Performance** - Transpiles to C
+- **Static Typing** with type inference
+- **Automatic Memory Management** - ARC-style GC for strings, arrays, and opaque types
+- **C Interop** - Easy FFI via modules
+- **Native Performance** - Transpiles to optimized C
 
 ## Language Overview
 
@@ -98,48 +99,25 @@ make test-quick     # Quick language tests only
 make examples       # Build all examples
 ```
 
-## Examples
+## Examples & Interactive Tools
 
-Run the examples launcher to browse and run all examples (requires SDL2):
+**Web Playground** (recommended for learning):
+```bash
+./bin/nanoc examples/playground/playground_server.nano -o bin/playground
+./bin/playground  # Open http://localhost:8080
+```
 
+**Examples Browser** (requires SDL2):
 ```bash
 cd examples && make launcher
 ```
 
-Or compile individual examples:
-
+**Individual examples:**
 ```bash
-./bin/nanoc examples/language/nl_fibonacci.nano -o fib
-./fib
+./bin/nanoc examples/language/nl_fibonacci.nano -o fib && ./fib
 ```
 
-See **[examples/README.md](examples/README.md)** for the complete list including games (Snake, Asteroids, Checkers) and graphics demos.
-
-## Interactive Development
-
-### Web Playground
-
-Browser-based code editor that compiles and runs NanoLang code:
-
-```bash
-# Build and run the playground server
-./bin/nanoc examples/playground/playground_server.nano -o bin/playground
-./bin/playground
-# Open http://localhost:8080
-```
-
-Features: Interactive editor, 10+ examples, real-time compilation and execution.
-
-### REPL (Experimental)
-
-Basic expression evaluator:
-
-```bash
-./bin/nanoc examples/language/full_repl.nano -o bin/repl
-./bin/repl
-```
-
-Note: The REPL is experimental. For reliable development, use the compiler directly.
+See **[examples/README.md](examples/README.md)** for the complete catalog including games (Snake, Asteroids, Checkers) and graphics demos.
 
 ## Platform Support
 

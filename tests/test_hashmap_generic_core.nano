@@ -1,3 +1,4 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 fn main() -> int { return 0 }
 
 shadow main {
@@ -24,8 +25,6 @@ shadow main {
         set i (+ i 1)
     }
 
-    (map_free hm_si)
-
     let hm_is: HashMap<int, string> = (map_new)
     (map_put hm_is 10 "x")
     (map_put hm_is 20 "y")
@@ -36,5 +35,4 @@ shadow main {
     assert (== (array_length vals) 2)
     (map_clear hm_is)
     assert (== (map_size hm_is) 0)
-    (map_free hm_is)
 }
