@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "responsible-vibe-mcp": {
+      "command": "npx",
+      "args": [
+        "@codemcp/workflows@latest"
+      ]
+    }
+  }
+}
