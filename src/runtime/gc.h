@@ -102,5 +102,16 @@ char* gc_alloc_string(size_t length);
 /* Allocate GC-managed opaque object with finalizer */
 void* gc_alloc_opaque(size_t size, GCFinalizer finalizer);
 
+/* ARC-Style Automatic Wrapping (Path A) */
+
+/* Wrap external malloc'd pointer in GC-managed object */
+void* gc_wrap_external(void* external_ptr, GCFinalizer finalizer);
+
+/* Unwrap GC-managed pointer to get original external pointer */
+void* gc_unwrap(void* wrapper_ptr);
+
+/* Legacy function - deprecated, use gc_wrap_external instead */
+void gc_set_finalizer(void* ptr, GCFinalizer finalizer);
+
 #endif /* NANOLANG_GC_H */
 

@@ -485,3 +485,97 @@ void* gc_alloc_opaque(size_t size, GCFinalizer finalizer) {
     return obj;
 }
 
+/* ============================================================================
+ * ARC-Style Automatic Wrapping for External Pointers
+ * ============================================================================
+ *
+ * External C libraries (cJSON, etc.) return raw malloc'd pointers.
+ * We wrap these in GC-managed objects for automatic cleanup.
+ *
+ * The wrapper is transparent to user code - the compiler automatically:
+ * - Wraps opaque returns from extern functions
+ * - Unwraps opaque parameters to extern functions
+ */
+
+/* Wrapper for external pointers */
+typedef struct {
+    void* external_ptr;      /* The actual malloc'd pointer */
+    GCFinalizer user_finalizer;  /* Cleanup function for external_ptr */
+} GCExternalWrapper;
+
+/* Internal finalizer for wrapper - calls user finalizer on wrapped pointer */
+static void gc_external_wrapper_finalizer(void* wrapper_obj) {
+    GCExternalWrapper* wrapper = (GCExternalWrapper*)wrapper_obj;
+    if (wrapper && wrapper->external_ptr && wrapper->user_finalizer) {
+        /* Call user's finalizer on the wrapped pointer */
+        wrapper->user_finalizer(wrapper->external_ptr);
+        wrapper->external_ptr = NULL;  /* Mark as cleaned up */
+    }
+}
+
+/* Wrap external pointer in GC-managed object (ARC-style) */
+void* gc_wrap_external(void* external_ptr, GCFinalizer finalizer) {
+    if (external_ptr == NULL) {
+        return NULL;
+    }
+
+    /* Check if already GC-managed (don't double-wrap) */
+    if (gc_is_managed(external_ptr)) {
+        /* Already wrapped or directly allocated with gc_alloc_opaque */
+        return external_ptr;
+    }
+
+    /* Create GC-managed wrapper */
+    GCExternalWrapper* wrapper = (GCExternalWrapper*)gc_alloc_opaque(
+        sizeof(GCExternalWrapper),
+        gc_external_wrapper_finalizer
+    );
+
+    if (!wrapper) {
+        /* Allocation failed - clean up external pointer */
+        if (finalizer) {
+            finalizer(external_ptr);
+        }
+        return NULL;
+    }
+
+    wrapper->external_ptr = external_ptr;
+    wrapper->user_finalizer = finalizer;
+
+    return (void*)wrapper;  /* Return wrapper, not external pointer */
+}
+
+/* Unwrap GC-managed pointer to get external pointer */
+void* gc_unwrap(void* wrapper_ptr) {
+    if (wrapper_ptr == NULL) {
+        return NULL;
+    }
+
+    /* Check if this is a GC-managed wrapper */
+    if (!gc_is_managed(wrapper_ptr)) {
+        /* Not GC-managed - assume it's already unwrapped (direct pointer) */
+        return wrapper_ptr;
+    }
+
+    /* Get the GC header to check if it's a wrapper */
+    GCHeader* header = gc_get_header(wrapper_ptr);
+
+    /* If finalizer is gc_external_wrapper_finalizer, it's a wrapper */
+    if (header->finalizer == gc_external_wrapper_finalizer) {
+        GCExternalWrapper* wrapper = (GCExternalWrapper*)wrapper_ptr;
+        return wrapper->external_ptr;
+    }
+
+    /* Not a wrapper - it's directly allocated opaque type */
+    /* (e.g., from gc_alloc_opaque in modified C code) */
+    return wrapper_ptr;
+}
+
+/* Legacy function - now redirects to gc_wrap_external */
+void gc_set_finalizer(void* ptr, GCFinalizer finalizer) {
+    (void)ptr;        /* Suppress unused warning */
+    (void)finalizer;  /* Suppress unused warning */
+    /* This is now a no-op - use gc_wrap_external instead */
+    fprintf(stderr, "[GC] gc_set_finalizer is deprecated - use gc_wrap_external\n");
+}
+
