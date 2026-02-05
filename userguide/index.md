@@ -2,6 +2,68 @@
 
 **Welcome to NanoLang by Example** - A comprehensive guide to writing NanoLang programs.
 
+## The Problem: LLMs and Existing Languages
+
+Large Language Models struggle with existing programming languages because they offer too many ways to do the same thing:
+
+**Python:**
+```python
+# String formatting - 4 different ways
+"Hello " + name                    # concatenation
+"Hello %s" % name                  # old style
+"Hello {}".format(name)            # format method
+f"Hello {name}"                    # f-strings
+```
+
+**JavaScript:**
+```javascript
+// Function definitions - 5 different ways
+function add(a, b) { return a + b; }          // function declaration
+const add = function(a, b) { return a + b; }  // function expression
+const add = (a, b) => { return a + b; }       // arrow function
+const add = (a, b) => a + b;                  // implicit return
+class Math { static add(a, b) { return a + b; } }  // class method
+```
+
+**Rust:**
+```rust
+// Implicit vs explicit returns - both valid
+fn add1(a: i32, b: i32) -> i32 { a + b }        // implicit
+fn add2(a: i32, b: i32) -> i32 { return a + b; } // explicit
+```
+
+This ambiguity creates problems for LLM code generation:
+- **Inconsistent outputs** - Same prompt produces different styles
+- **Mixing styles** - Code generated in multiple sessions has no coherent style
+- **Hard to validate** - Multiple valid forms make correctness harder to verify
+- **Context pollution** - LLMs must track multiple equivalent patterns
+
+## The Solution: NanoLang's Canonical Syntax
+
+NanoLang provides **exactly ONE canonical way** to write each construct:
+
+```nano
+# String concatenation - ONE way only
+(str_concat "Hello " name)
+
+# Function definition - ONE way only
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+# All operations use prefix notation
+(+ a b)           # Addition
+(== x 5)          # Comparison
+(println "Hi")    # Function call
+```
+
+**Benefits for LLM code generation:**
+- ✅ **Consistent output** - Same prompt always produces same style
+- ✅ **Predictable structure** - Prefix notation is unambiguous
+- ✅ **Easy to validate** - Only one correct form
+- ✅ **Better training** - Less noise in training data
+- ✅ **Composable** - Uniform syntax makes code generation reliable
+
 ## What is NanoLang?
 
 NanoLang is a compiled systems programming language designed specifically for LLM code generation. It transpiles to C for native performance while maintaining a simple, consistent syntax.

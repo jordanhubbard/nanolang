@@ -860,44 +860,108 @@ shadow init_theme_map {
     assert (map_has hm "index")
 }
 
+/* Convert int to string with zero-padding (e.g., 5 -> "0005" with width 4) */
+fn int_to_string_padded(num: int, width: int) -> string {
+    let s: string = (int_to_string num)
+    let len: int = (str_length s)
+    if (>= len width) {
+        return s
+    }
+    /* Prepend zeros */
+    let mut result: string = s
+    let mut i: int = len
+    while (< i width) {
+        set result (str_concat "0" result)
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow int_to_string_padded {
+    assert (str_equals (int_to_string_padded 5 4) "0005")
+    assert (str_equals (int_to_string_padded 123 4) "0123")
+    assert (str_equals (int_to_string_padded 9999 4) "9999")
+    assert (str_equals (int_to_string_padded 10 2) "10")
+}
 
 
+/* Extract numeric chapter number from filename for sorting (e.g., "01_start.md" -> 1, "Chapter_10.md" -> 10) */
+fn extract_chapter_number(filename: string) -> int {
+    let len: int = (str_length filename)
+    let mut num_str: string = ""
+    let mut i: int = 0
+    let mut found_digit: bool = false
 
+    /* Skip non-digits at start */
+    while (< i len) {
+        let c: int = (char_at filename i)
+        if (is_digit c) {
+            set found_digit true
+            set num_str (str_concat num_str (string_from_char c))
+            set i (+ i 1)
+        } else {
+            if found_digit {
+                /* Stop at first non-digit after digits found */
+                set i len
+            } else {
+                set i (+ i 1)
+            }
+        }
+    }
+
+    if (> (str_length num_str) 0) {
+        return (string_to_int num_str)
+    }
+    return 999  /* Sort non-numbered files at end */
+}
+
+shadow extract_chapter_number {
+    assert (== (extract_chapter_number "01_start.md") 1)
+    assert (== (extract_chapter_number "10_advanced.md") 10)
+    assert (== (extract_chapter_number "Chapter_02.md") 2)
+    assert (== (extract_chapter_number "index.md") 999)
+}
 
 /* Custom sorting for documentation: numbered chapters first, then parts, then appendices, then API */
 fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
     /* Extract relative path for categorization */
     let n: int = (array_length files)
     let mut sort_keys: array<string> = (array_new n "")
+    let mut chapter_nums: array<int> = (array_new n 0)
     let mut i: int = 0
 
     while (< i n) {
         let path: string = (at files i)
         let name: string = (basename path)
+        let chapter_num: int = (extract_chapter_number name)
         let mut key: string = ""
 
         /* Categorize by path structure */
         if (str_contains path "/part1_fundamentals/") {
-            set key (+ "2_" name)
+            /* Pad chapter number to 4 digits for proper string sorting: 2_0001, 2_0010, 2_0100 */
+            set key (str_concat "2_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/part2_stdlib/") {
-            set key (+ "3_" name)
+            set key (str_concat "3_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/part3_modules/") {
-            set key (+ "4_" name)
+            set key (str_concat "4_" (int_to_string_padded chapter_num 4))
+        } else { if (str_contains path "/part4_advanced/") {
+            set key (str_concat "5_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/appendices/") {
-            set key (+ "5_" name)
+            set key (str_concat "6_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/api_reference/") {
-            set key (+ "6_" name)
+            set key (str_concat "7_" (int_to_string_padded chapter_num 4))
         } else {
             /* Root-level files (01-08 numbered chapters) */
             if (str_starts_with name "0") {
-                set key (+ "1_" name)
+                set key (str_concat "1_" (int_to_string_padded chapter_num 4))
             } else {
                 /* index.md and other root files */
-                set key (+ "0_" name)
+                set key (str_concat "0_" name)
             }
-        } } } } }
+        } } } } } }
 
         (array_set sort_keys i key)
+        (array_set chapter_nums i chapter_num)
         set i (+ i 1)
     }
 
@@ -921,10 +985,13 @@ fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
                 /* Swap */
                 let tmp_file: string = (at sorted j)
                 let tmp_key: string = (at sort_keys j)
+                let tmp_num: int = (at chapter_nums j)
                 (array_set sorted j (at sorted (+ j 1)))
                 (array_set sort_keys j (at sort_keys (+ j 1)))
+                (array_set chapter_nums j (at chapter_nums (+ j 1)))
                 (array_set sorted (+ j 1) tmp_file)
                 (array_set sort_keys (+ j 1) tmp_key)
+                (array_set chapter_nums (+ j 1) tmp_num)
                 set changed true
             }
             set j (+ j 1)
@@ -935,10 +1002,13 @@ fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
 }
 
 shadow sort_doc_files {
-    let files: array<string> = ["userguide/api_reference/test.md", "userguide/01_start.md", "userguide/appendices/a_ref.md"]
+    let files: array<string> = ["userguide/api_reference/test.md", "userguide/01_start.md", "userguide/10_advanced.md", "userguide/02_basics.md", "userguide/appendices/a_ref.md"]
     let sorted: array<string> = (sort_doc_files files "userguide")
     /* Verify chapters come before appendices and API */
     assert (str_contains (at sorted 0) "01_start")
+    /* Verify lexical (numerical) sorting: 01, 02, 10 (not 01, 10, 02) */
+    assert (str_contains (at sorted 1) "02_basics")
+    assert (str_contains (at sorted 2) "10_advanced")
 }
 
 fn build_toc_group(title: string, items: array<string>, open_default: bool) -> string {
