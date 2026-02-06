@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-02-05
+
+### Fixed
+- GC refcount bug causing use-after-free on aliased string variables
+- correct sidebar sorting and chapter numbering in user guide
+
 ## [2.0.25] - 2026-02-03
 
 ## [2.0.24] - 2026-02-03
