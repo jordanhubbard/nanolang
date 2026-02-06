@@ -1009,6 +1009,17 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
     return true;
 }
 
+/* Helper: Check if token type is an infix binary operator */
+static bool is_infix_binary_op(TokenType type) {
+    return (type == TOKEN_PLUS || type == TOKEN_MINUS ||
+            type == TOKEN_STAR || type == TOKEN_SLASH ||
+            type == TOKEN_PERCENT ||
+            type == TOKEN_EQ || type == TOKEN_NE ||
+            type == TOKEN_LT || type == TOKEN_LE ||
+            type == TOKEN_GT || type == TOKEN_GE ||
+            type == TOKEN_AND || type == TOKEN_OR);
+}
+
 /* Parse prefix operation: (op arg1 arg2 ...) */
 static ASTNode *parse_prefix_op(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -1198,6 +1209,36 @@ static ASTNode *parse_primary(Stage1Parser *p) {
     ASTNode *node;
 
     switch (tok->token_type) {
+        case TOKEN_NOT: {
+            /* Unary not: not expr */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume 'not' */
+            ASTNode *operand = parse_primary(p);
+            if (!operand) return NULL;
+            ASTNode *not_node = create_node(AST_PREFIX_OP, line, column);
+            not_node->as.prefix_op.op = TOKEN_NOT;
+            not_node->as.prefix_op.args = malloc(sizeof(ASTNode*));
+            not_node->as.prefix_op.args[0] = operand;
+            not_node->as.prefix_op.arg_count = 1;
+            return not_node;
+        }
+
+        case TOKEN_MINUS: {
+            /* Unary minus: -expr */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume '-' */
+            ASTNode *operand = parse_primary(p);
+            if (!operand) return NULL;
+            ASTNode *neg_node = create_node(AST_PREFIX_OP, line, column);
+            neg_node->as.prefix_op.op = TOKEN_MINUS;
+            neg_node->as.prefix_op.args = malloc(sizeof(ASTNode*));
+            neg_node->as.prefix_op.args[0] = operand;
+            neg_node->as.prefix_op.arg_count = 1;
+            return neg_node;
+        }
+
         case TOKEN_NUMBER:
             node = create_node(AST_NUMBER, tok->line, tok->column);
             node->as.number = atoll(tok->value);
@@ -1553,8 +1594,11 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* This is needed for generic union construction: Result<int, string>.Ok { ... } */
                     TypeInfo *generic_type_info = NULL;
                     
-                    /* Check if followed by '<' for generic type instantiation */
-                    if (match(p, TOKEN_LT)) {
+                    /* Check if followed by '<' for generic type instantiation.
+                     * Only try this for uppercase identifiers (type names) to avoid
+                     * ambiguity with infix '<' operator on variables. */
+                    bool looks_like_type = name_parts[0][0] >= 'A' && name_parts[0][0] <= 'Z';
+                    if (looks_like_type && match(p, TOKEN_LT)) {
                         generic_type_info = parse_generic_type_args(p, name_parts[0]);
                         if (!generic_type_info) {
                             /* Error already reported by parse_generic_type_args */
@@ -2160,12 +2204,19 @@ static ASTNode *parse_if_expression(Stage1Parser *p) {
     //         if_depth, after_then ? token_type_name(after_then->type) : "NULL",
     //         after_then ? after_then->line : 0, after_then ? after_then->column : 0);
 
-    /* Check for optional 'else' clause */
+    /* Check for optional 'else' or 'else if' clause */
     ASTNode *else_branch = NULL;
     Token *current = current_token(p);
     if (current && current->token_type == TOKEN_ELSE) {
         advance(p);  /* consume 'else' */
-        else_branch = parse_block(p);
+
+        /* Check for 'else if' - parse as nested if expression */
+        Token *next = current_token(p);
+        if (next && next->token_type == TOKEN_IF) {
+            else_branch = parse_if_expression(p);
+        } else {
+            else_branch = parse_block(p);
+        }
         if (!else_branch) {
             // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
             // if_depth--;
@@ -2218,148 +2269,185 @@ static ASTNode *parse_expression(Stage1Parser *p) {
         return NULL;
     }
     
-    /* Handle field access or union construction:
-     * - obj.field -> field access
-     * - UnionName.Variant { ... } -> union construction
-     * - tuple.0, tuple.1 -> tuple index access
+    /* Outer loop handles both postfix (dot-access) and infix binary operators.
+     * For each iteration: first consume all dot-access on expr, then check
+     * for infix binary operator. If found, parse right operand and loop again.
      */
-    while (match(p, TOKEN_DOT)) {
-        Token *dot_tok = current_token(p);
-        if (!dot_tok) {
-            fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
-            p->recursion_depth--;
-            return expr;
-        }
-        int line = dot_tok->line;
-        int column = dot_tok->column;
-        advance(p);  /* consume '.' */
-        
-        /* Check if this is a tuple index: tuple.0, tuple.1, etc. */
-        if (match(p, TOKEN_NUMBER)) {
-            Token *num_tok = current_token(p);
-            int index = (int)atoll(num_tok->value);
-            advance(p);  /* consume number */
-            
-            /* Create tuple index node */
-            ASTNode *index_node = create_node(AST_TUPLE_INDEX, line, column);
-            index_node->as.tuple_index.tuple = expr;
-            index_node->as.tuple_index.index = index;
-            expr = index_node;
-            continue;
-        }
-        
-        if (!match(p, TOKEN_IDENTIFIER)) {
-            Token *err_tok = current_token(p);
-            if (err_tok) {
-                fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
-                        err_tok->line, err_tok->column);
-            } else {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
+    for (;;) {
+        /* Handle field access or union construction:
+         * - obj.field -> field access
+         * - UnionName.Variant { ... } -> union construction
+         * - tuple.0, tuple.1 -> tuple index access
+         */
+        while (match(p, TOKEN_DOT)) {
+            Token *dot_tok = current_token(p);
+            if (!dot_tok) {
+                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
+                p->recursion_depth--;
+                return expr;
             }
-            p->recursion_depth--;
-            return expr;
-        }
-        
-        Token *field_tok = current_token(p);
-        if (!field_tok || !field_tok->value) {
-            fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
-                    field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
-            return expr;
-        }
-        char *field_or_variant = strdup(field_tok->value);
-        if (!field_or_variant) {
-            fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
-            return expr;
-        }
-        advance(p);
-        
-        /* Check if this is union construction: UnionName.Variant { ... } */
-        /* Union names should start with uppercase by convention, and we need both
-         * the union name and variant name to be identifiers (not field access) */
-        bool looks_like_union = (expr->type == AST_IDENTIFIER && 
-                                 expr->as.identifier && 
-                                 expr->as.identifier[0] >= 'A' && 
-                                 expr->as.identifier[0] <= 'Z' &&
-                                 field_or_variant && 
-                                 field_or_variant[0] >= 'A' &&
-                                 field_or_variant[0] <= 'Z');
-        
-        if (match(p, TOKEN_LBRACE) && looks_like_union) {
-            /* This is union construction */
-            char *union_name = expr->as.identifier;
-            char *variant_name = field_or_variant;
-            
-            advance(p);  /* consume '{' */
-            
-            /* Parse variant fields */
-            int capacity = 4;
-            int count = 0;
-            char **field_names = malloc(sizeof(char*) * capacity);
-            ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
-            
-            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                if (count >= capacity) {
-                    capacity *= 2;
-                    field_names = realloc(field_names, sizeof(char*) * capacity);
-                    field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+            int line = dot_tok->line;
+            int column = dot_tok->column;
+            advance(p);  /* consume '.' */
+
+            /* Check if this is a tuple index: tuple.0, tuple.1, etc. */
+            if (match(p, TOKEN_NUMBER)) {
+                Token *num_tok = current_token(p);
+                int index = (int)atoll(num_tok->value);
+                advance(p);  /* consume number */
+
+                /* Create tuple index node */
+                ASTNode *index_node = create_node(AST_TUPLE_INDEX, line, column);
+                index_node->as.tuple_index.tuple = expr;
+                index_node->as.tuple_index.index = index;
+                expr = index_node;
+                continue;
+            }
+
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                Token *err_tok = current_token(p);
+                if (err_tok) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
+                            err_tok->line, err_tok->column);
+                } else {
+                    fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
                 }
-                
-                /* Parse field name */
-                if (!match(p, TOKEN_IDENTIFIER)) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
-                            current_token(p)->line, current_token(p)->column);
-                    break;
-                }
-                field_names[count] = strdup(current_token(p)->value);
-                advance(p);
-                
-                /* Expect colon */
-                if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
-                    break;
-                }
-                
-                /* Parse field value */
-                field_values[count] = parse_expression(p);
-                count++;
-                
-                /* Optional comma */
-                if (match(p, TOKEN_COMMA)) {
+                p->recursion_depth--;
+                return expr;
+            }
+
+            Token *field_tok = current_token(p);
+            if (!field_tok || !field_tok->value) {
+                fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
+                        field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
+                return expr;
+            }
+            char *field_or_variant = strdup(field_tok->value);
+            if (!field_or_variant) {
+                fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
+                return expr;
+            }
+            advance(p);
+
+            /* Check if this is union construction: UnionName.Variant { ... } */
+            /* Union names should start with uppercase by convention, and we need both
+             * the union name and variant name to be identifiers (not field access) */
+            bool looks_like_union = (expr->type == AST_IDENTIFIER &&
+                                     expr->as.identifier &&
+                                     expr->as.identifier[0] >= 'A' &&
+                                     expr->as.identifier[0] <= 'Z' &&
+                                     field_or_variant &&
+                                     field_or_variant[0] >= 'A' &&
+                                     field_or_variant[0] <= 'Z');
+
+            if (match(p, TOKEN_LBRACE) && looks_like_union) {
+                /* This is union construction */
+                char *union_name = expr->as.identifier;
+                char *variant_name = field_or_variant;
+
+                advance(p);  /* consume '{' */
+
+                /* Parse variant fields */
+                int capacity = 4;
+                int count = 0;
+                char **field_names = malloc(sizeof(char*) * capacity);
+                ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
+
+                while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        field_names = realloc(field_names, sizeof(char*) * capacity);
+                        field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+                    }
+
+                    /* Parse field name */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                                current_token(p)->line, current_token(p)->column);
+                        break;
+                    }
+                    field_names[count] = strdup(current_token(p)->value);
                     advance(p);
+
+                    /* Expect colon */
+                    if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                        break;
+                    }
+
+                    /* Parse field value */
+                    field_values[count] = parse_expression(p);
+                    count++;
+
+                    /* Optional comma */
+                    if (match(p, TOKEN_COMMA)) {
+                        advance(p);
+                    }
                 }
-            }
-            
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
-                free(union_name);
-                free(variant_name);
-                for (int i = 0; i < count; i++) {
-                    free(field_names[i]);
-                    free_ast(field_values[i]);
+
+                if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
+                    free(union_name);
+                    free(variant_name);
+                    for (int i = 0; i < count; i++) {
+                        free(field_names[i]);
+                        free_ast(field_values[i]);
+                    }
+                    free(field_names);
+                    free(field_values);
+                    return NULL;
                 }
-                free(field_names);
-                free(field_values);
-                return NULL;
+
+                /* Create union construction node */
+                ASTNode *union_construct = create_node(AST_UNION_CONSTRUCT, line, column);
+                union_construct->as.union_construct.union_name = strdup(union_name);
+                union_construct->as.union_construct.variant_name = variant_name;
+                union_construct->as.union_construct.field_names = field_names;
+                union_construct->as.union_construct.field_values = field_values;
+                union_construct->as.union_construct.field_count = count;
+
+                /* Free the original identifier node */
+                free_ast(expr);
+                expr = union_construct;
+            } else {
+                /* Regular field access */
+                ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
+                field_access->as.field_access.object = expr;
+                field_access->as.field_access.field_name = field_or_variant;
+                expr = field_access;
             }
-            
-            /* Create union construction node */
-            ASTNode *union_construct = create_node(AST_UNION_CONSTRUCT, line, column);
-            union_construct->as.union_construct.union_name = strdup(union_name);
-            union_construct->as.union_construct.variant_name = variant_name;
-            union_construct->as.union_construct.field_names = field_names;
-            union_construct->as.union_construct.field_values = field_values;
-            union_construct->as.union_construct.field_count = count;
-            
-            /* Free the original identifier node */
-            free_ast(expr);
-            expr = union_construct;
-        } else {
-            /* Regular field access */
-            ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
-            field_access->as.field_access.object = expr;
-            field_access->as.field_access.field_name = field_or_variant;
-            expr = field_access;
         }
+
+        /* Check for infix binary operator: expr op primary */
+        {
+            Token *cur = current_token(p);
+            if (cur && is_infix_binary_op(cur->token_type)) {
+                TokenType op = cur->token_type;
+                int op_line = cur->line;
+                int op_col = cur->column;
+                advance(p);  /* consume operator */
+
+                ASTNode *right = parse_primary(p);
+                if (!right) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected expression after operator\n",
+                            op_line, op_col);
+                    p->recursion_depth--;
+                    return expr;
+                }
+
+                /* Create binary operation node (reuses AST_PREFIX_OP) */
+                ASTNode *bin_node = create_node(AST_PREFIX_OP, op_line, op_col);
+                bin_node->as.prefix_op.op = op;
+                bin_node->as.prefix_op.args = malloc(sizeof(ASTNode*) * 2);
+                bin_node->as.prefix_op.args[0] = expr;
+                bin_node->as.prefix_op.args[1] = right;
+                bin_node->as.prefix_op.arg_count = 2;
+                expr = bin_node;
+                continue;  /* loop back for more dot-access or infix ops */
+            }
+        }
+
+        break;  /* no more postfix or infix operators */
     }
-    
+
     p->recursion_depth--;
     return expr;
 }

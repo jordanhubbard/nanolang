@@ -1,0 +1,89 @@
+/* Test infix operators via self-hosted compiler */
+
+fn test_infix_arithmetic() -> int {
+    let a: int = 2 + 3
+    let b: int = 10 - 4
+    return a + b
+}
+
+shadow test_infix_arithmetic {
+    assert (== (test_infix_arithmetic) 11)
+}
+
+fn test_infix_multiply() -> int {
+    return 4 * 5
+}
+
+shadow test_infix_multiply {
+    assert (== (test_infix_multiply) 20)
+}
+
+fn test_infix_chained() -> int {
+    # Left-to-right: (1 + 2) + 3 = 6
+    return 1 + 2 + 3
+}
+
+shadow test_infix_chained {
+    assert (== (test_infix_chained) 6)
+}
+
+fn test_infix_comparison() -> bool {
+    return 5 == 5
+}
+
+shadow test_infix_comparison {
+    assert (test_infix_comparison)
+}
+
+fn test_infix_logic() -> bool {
+    return true and true
+}
+
+shadow test_infix_logic {
+    assert (test_infix_logic)
+}
+
+fn test_not_bare() -> bool {
+    return not false
+}
+
+shadow test_not_bare {
+    assert (test_not_bare)
+}
+
+fn test_unary_minus() -> int {
+    let x: int = 7
+    return -x
+}
+
+shadow test_unary_minus {
+    assert (== (test_unary_minus) -7)
+}
+
+fn test_else_if(x: int) -> int {
+    if x < 0 {
+        return -1
+    } else if x == 0 {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+shadow test_else_if {
+    assert (== (test_else_if -5) -1)
+    assert (== (test_else_if 0) 0)
+    assert (== (test_else_if 10) 1)
+}
+
+fn test_mixed_prefix_infix() -> int {
+    return (+ 1 2) * 3
+}
+
+shadow test_mixed_prefix_infix {
+    assert (== (test_mixed_prefix_infix) 9)
+}
+
+fn main() -> int {
+    return 0
+}

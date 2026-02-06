@@ -1,0 +1,352 @@
+# Test infix operators and else if support in C reference parser
+
+# Basic infix arithmetic
+fn test_infix_add() -> int {
+    return 1 + 2
+}
+
+shadow test_infix_add {
+    assert (== (test_infix_add) 3)
+}
+
+fn test_infix_sub() -> int {
+    return 10 - 3
+}
+
+shadow test_infix_sub {
+    assert (== (test_infix_sub) 7)
+}
+
+fn test_infix_mul() -> int {
+    return 4 * 5
+}
+
+shadow test_infix_mul {
+    assert (== (test_infix_mul) 20)
+}
+
+fn test_infix_div() -> int {
+    return 20 / 4
+}
+
+shadow test_infix_div {
+    assert (== (test_infix_div) 5)
+}
+
+fn test_infix_mod() -> int {
+    return 10 % 3
+}
+
+shadow test_infix_mod {
+    assert (== (test_infix_mod) 1)
+}
+
+# Chained operators (left-to-right, equal precedence)
+fn test_chained_add() -> int {
+    return 1 + 2 + 3
+}
+
+shadow test_chained_add {
+    assert (== (test_chained_add) 6)
+}
+
+fn test_chained_mixed() -> int {
+    # Left-to-right: (10 - 3) + 2 = 9
+    return 10 - 3 + 2
+}
+
+shadow test_chained_mixed {
+    assert (== (test_chained_mixed) 9)
+}
+
+fn test_left_to_right_precedence() -> int {
+    # Left-to-right: (2 + 3) * 4 = 20
+    return 2 + 3 * 4
+}
+
+shadow test_left_to_right_precedence {
+    assert (== (test_left_to_right_precedence) 20)
+}
+
+# Parenthesized grouping to override left-to-right
+fn test_parens_grouping() -> int {
+    # Parens: 2 * (3 + 4) = 14
+    return 2 * (3 + 4)
+}
+
+shadow test_parens_grouping {
+    assert (== (test_parens_grouping) 14)
+}
+
+# Comparison operators
+fn test_infix_eq() -> bool {
+    return 5 == 5
+}
+
+shadow test_infix_eq {
+    assert (test_infix_eq)
+}
+
+fn test_infix_ne() -> bool {
+    return 5 != 3
+}
+
+shadow test_infix_ne {
+    assert (test_infix_ne)
+}
+
+fn test_infix_lt() -> bool {
+    return 3 < 5
+}
+
+shadow test_infix_lt {
+    assert (test_infix_lt)
+}
+
+fn test_infix_le() -> bool {
+    return 5 <= 5
+}
+
+shadow test_infix_le {
+    assert (test_infix_le)
+}
+
+fn test_infix_gt() -> bool {
+    return 10 > 5
+}
+
+shadow test_infix_gt {
+    assert (test_infix_gt)
+}
+
+fn test_infix_ge() -> bool {
+    return 5 >= 5
+}
+
+shadow test_infix_ge {
+    assert (test_infix_ge)
+}
+
+# Logical operators
+fn test_infix_and() -> bool {
+    return true and true
+}
+
+shadow test_infix_and {
+    assert (test_infix_and)
+}
+
+fn test_infix_or() -> bool {
+    return false or true
+}
+
+shadow test_infix_or {
+    assert (test_infix_or)
+}
+
+fn test_logical_chain() -> bool {
+    let x: int = 5
+    # With equal precedence, must use parens: (x > 0) and (x < 100)
+    return (x > 0) and (x < 100)
+}
+
+shadow test_logical_chain {
+    assert (test_logical_chain)
+}
+
+# Unary not without parens
+fn test_not_bare() -> bool {
+    return not false
+}
+
+shadow test_not_bare {
+    assert (test_not_bare)
+}
+
+fn test_not_comparison() -> bool {
+    return not (5 == 3)
+}
+
+shadow test_not_comparison {
+    assert (test_not_comparison)
+}
+
+# Unary minus without parens
+fn test_unary_minus() -> int {
+    let x: int = 5
+    return -x
+}
+
+shadow test_unary_minus {
+    assert (== (test_unary_minus) -5)
+}
+
+fn test_unary_minus_expr() -> int {
+    return -(3 + 4)
+}
+
+shadow test_unary_minus_expr {
+    assert (== (test_unary_minus_expr) -7)
+}
+
+# Mixed prefix and infix
+fn test_prefix_still_works() -> int {
+    return (+ 1 2)
+}
+
+shadow test_prefix_still_works {
+    assert (== (test_prefix_still_works) 3)
+}
+
+fn test_mixed_prefix_infix() -> int {
+    # Prefix inside infix: (+ 1 2) * 3
+    # Left-to-right: ((+ 1 2) * 3) = 9
+    return (+ 1 2) * 3
+}
+
+shadow test_mixed_prefix_infix {
+    assert (== (test_mixed_prefix_infix) 9)
+}
+
+# String concatenation infix
+fn test_string_concat() -> string {
+    return "hello" + " " + "world"
+}
+
+shadow test_string_concat {
+    assert (== (test_string_concat) "hello world")
+}
+
+# Infix with variables
+fn test_infix_vars() -> int {
+    let a: int = 10
+    let b: int = 20
+    return a + b
+}
+
+shadow test_infix_vars {
+    assert (== (test_infix_vars) 30)
+}
+
+fn test_infix_complex_vars() -> int {
+    let a: int = 10
+    let b: int = 3
+    let c: int = 7
+    # Left-to-right: ((a - b) * c) = 49
+    return a - b * c
+}
+
+shadow test_infix_complex_vars {
+    assert (== (test_infix_complex_vars) 49)
+}
+
+# else if chaining
+fn test_else_if(x: int) -> string {
+    if x < 0 {
+        return "negative"
+    } else if x == 0 {
+        return "zero"
+    } else if x < 10 {
+        return "small"
+    } else {
+        return "big"
+    }
+}
+
+shadow test_else_if {
+    assert (== (test_else_if -5) "negative")
+    assert (== (test_else_if 0) "zero")
+    assert (== (test_else_if 7) "small")
+    assert (== (test_else_if 42) "big")
+}
+
+# else if without final else
+fn test_else_if_no_final(x: int) -> int {
+    let mut result: int = 0
+    if x > 100 {
+        set result 3
+    } else if x > 10 {
+        set result 2
+    } else if x > 0 {
+        set result 1
+    }
+    return result
+}
+
+shadow test_else_if_no_final {
+    assert (== (test_else_if_no_final 200) 3)
+    assert (== (test_else_if_no_final 50) 2)
+    assert (== (test_else_if_no_final 5) 1)
+    assert (== (test_else_if_no_final -1) 0)
+}
+
+# Infix operators in if conditions
+fn test_infix_in_condition() -> int {
+    let x: int = 5
+    # With equal precedence, must use parens for mixed comparison + logical
+    if (x > 3) and (x < 10) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow test_infix_in_condition {
+    assert (== (test_infix_in_condition) 1)
+}
+
+fn main() -> int {
+    (println "=== Testing Infix Operators ===")
+    (println "")
+
+    (print "Infix add: ")
+    (println (test_infix_add))
+
+    (print "Infix sub: ")
+    (println (test_infix_sub))
+
+    (print "Infix mul: ")
+    (println (test_infix_mul))
+
+    (print "Infix div: ")
+    (println (test_infix_div))
+
+    (print "Infix mod: ")
+    (println (test_infix_mod))
+
+    (print "Chained add: ")
+    (println (test_chained_add))
+
+    (print "Chained mixed: ")
+    (println (test_chained_mixed))
+
+    (print "Left-to-right: ")
+    (println (test_left_to_right_precedence))
+
+    (print "Parens grouping: ")
+    (println (test_parens_grouping))
+
+    (print "String concat: ")
+    (println (test_string_concat))
+
+    (print "Infix vars: ")
+    (println (test_infix_vars))
+
+    (print "Complex vars: ")
+    (println (test_infix_complex_vars))
+
+    (print "else if: ")
+    (println (test_else_if 7))
+
+    (print "Infix in condition: ")
+    (println (test_infix_in_condition))
+
+    (println "")
+    (println "All infix operator tests passed!")
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
