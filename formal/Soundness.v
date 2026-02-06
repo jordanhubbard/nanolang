@@ -296,12 +296,8 @@ Proof.
   constructor.
 Qed.
 
-(** ** Progress (stated as conjecture)
+(** ** Progress
 
-    For NanoCore without loops or mutation, all well-typed closed expressions
-    terminate and produce a value. This follows from strong normalization of
-    the simply-typed lambda calculus with base types. *)
-
-Conjecture progress : forall e t,
-  has_type CtxNil e t ->
-  exists v, eval ENil e v.
+    The progress theorem is proved in [Progress.v] using small-step
+    semantics: a well-typed closed expression is either a value or
+    can take a reduction step. See Progress.v for details. *)

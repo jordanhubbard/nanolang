@@ -1,7 +1,7 @@
 COQC = coqc
 COQFLAGS = -Q . NanoCore
 
-SOURCES = Syntax.v Semantics.v Typing.v Soundness.v
+SOURCES = Syntax.v Semantics.v Typing.v Soundness.v Progress.v
 OBJECTS = $(SOURCES:.v=.vo)
 
 all: $(OBJECTS)
@@ -16,6 +16,9 @@ Typing.vo: Typing.v Syntax.vo
 	$(COQC) $(COQFLAGS) $<
 
 Soundness.vo: Soundness.v Syntax.vo Semantics.vo Typing.vo
+	$(COQC) $(COQFLAGS) $<
+
+Progress.vo: Progress.v Syntax.vo Semantics.vo Typing.vo
 	$(COQC) $(COQFLAGS) $<
 
 clean:
