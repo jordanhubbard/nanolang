@@ -861,20 +861,19 @@ shadow init_theme_map {
 }
 
 /* Convert int to string with zero-padding (e.g., 5 -> "0005" with width 4) */
+/* NOTE: Uses if-else chain instead of loop to avoid GC crash with mutable string self-concat */
 fn int_to_string_padded(num: int, width: int) -> string {
     let s: string = (int_to_string num)
     let len: int = (str_length s)
     if (>= len width) {
         return s
     }
-    /* Prepend zeros */
-    let mut result: string = s
-    let mut i: int = len
-    while (< i width) {
-        set result (str_concat "0" result)
-        set i (+ i 1)
-    }
-    return result
+    let pad: int = (- width len)
+    if (== pad 1) { return (str_concat "0" s) }
+    if (== pad 2) { return (str_concat "00" s) }
+    if (== pad 3) { return (str_concat "000" s) }
+    if (== pad 4) { return (str_concat "0000" s) }
+    return s
 }
 
 shadow int_to_string_padded {
@@ -922,6 +921,34 @@ shadow extract_chapter_number {
     assert (== (extract_chapter_number "index.md") 999)
 }
 
+/* Check if a root-level file is an old chapter superseded by part directories */
+fn is_old_root_chapter(path: string, src_dir: string) -> bool {
+    let name: string = (basename path)
+    let dir: string = (dirname path)
+    /* Only filter root-level files (not in subdirectories) */
+    if (not (str_ends_with dir src_dir)) {
+        return false
+    }
+    /* Keep index.md, 07_examples.md, 08_profiling.md */
+    if (str_equals name "index.md") { return false }
+    if (str_starts_with name "07_") { return false }
+    if (str_starts_with name "08_") { return false }
+    /* Skip other numbered root files (01-06) and README */
+    if (str_starts_with name "0") { return true }
+    if (str_equals name "README.md") { return true }
+    return false
+}
+
+shadow is_old_root_chapter {
+    assert (is_old_root_chapter "userguide/01_getting_started.md" "userguide")
+    assert (is_old_root_chapter "userguide/06_canonical_syntax.md" "userguide")
+    assert (is_old_root_chapter "userguide/README.md" "userguide")
+    assert (not (is_old_root_chapter "userguide/index.md" "userguide"))
+    assert (not (is_old_root_chapter "userguide/07_examples.md" "userguide"))
+    assert (not (is_old_root_chapter "userguide/08_profiling.md" "userguide"))
+    assert (not (is_old_root_chapter "userguide/part1_fundamentals/01_getting_started.md" "userguide"))
+}
+
 /* Custom sorting for documentation: numbered chapters first, then parts, then appendices, then API */
 fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
     /* Extract relative path for categorization */
@@ -943,13 +970,21 @@ fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
         } else { if (str_contains path "/part2_stdlib/") {
             set key (str_concat "3_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/part3_modules/") {
-            set key (str_concat "4_" (int_to_string_padded chapter_num 4))
+            /* Part 3 has nested dirs: part3_modules/13_text_processing/regex.md */
+            /* Sort by parent directory chapter number, then by filename */
+            let parent_dir: string = (basename (dirname path))
+            let dir_num: int = (extract_chapter_number parent_dir)
+            /* index.md sorts first within each module dir (0), others after (1) */
+            let sub_prefix: string = (cond ((str_equals name "index.md") "0") (else "1"))
+            /* Build key in one expression to avoid mutable self-concat GC bug */
+            set key (sb_join ["4_", (int_to_string_padded dir_num 4), "_", sub_prefix, "_", name] "")
         } else { if (str_contains path "/part4_advanced/") {
             set key (str_concat "5_" (int_to_string_padded chapter_num 4))
         } else { if (str_contains path "/appendices/") {
-            set key (str_concat "6_" (int_to_string_padded chapter_num 4))
+            /* Appendices use letter prefixes (a_, b_, c_...) - sort by filename */
+            set key (str_concat "6_" name)
         } else { if (str_contains path "/api_reference/") {
-            set key (str_concat "7_" (int_to_string_padded chapter_num 4))
+            set key (str_concat "7_" name)
         } else {
             /* Root-level files (01-08 numbered chapters) */
             if (str_starts_with name "0") {
@@ -1002,13 +1037,38 @@ fn sort_doc_files(files: array<string>, base_dir: string) -> array<string> {
 }
 
 shadow sort_doc_files {
-    let files: array<string> = ["userguide/api_reference/test.md", "userguide/01_start.md", "userguide/10_advanced.md", "userguide/02_basics.md", "userguide/appendices/a_ref.md"]
+    let files: array<string> = [
+        "userguide/api_reference/test.md",
+        "userguide/part4_advanced/22_style.md",
+        "userguide/part1_fundamentals/02_syntax.md",
+        "userguide/part1_fundamentals/01_start.md",
+        "userguide/index.md",
+        "userguide/appendices/b_ref.md",
+        "userguide/appendices/a_gallery.md",
+        "userguide/part2_stdlib/10_collections.md",
+        "userguide/part2_stdlib/09_core.md",
+        "userguide/part3_modules/13_text/regex.md",
+        "userguide/part3_modules/13_text/index.md",
+        "userguide/part3_modules/15_web/index.md",
+        "userguide/08_profiling.md"
+    ]
     let sorted: array<string> = (sort_doc_files files "userguide")
-    /* Verify chapters come before appendices and API */
-    assert (str_contains (at sorted 0) "01_start")
-    /* Verify lexical (numerical) sorting: 01, 02, 10 (not 01, 10, 02) */
-    assert (str_contains (at sorted 1) "02_basics")
-    assert (str_contains (at sorted 2) "10_advanced")
+    /* index first, then root 08, then part1, part2, part3, part4, appendices, API */
+    assert (str_contains (at sorted 0) "index")
+    assert (str_contains (at sorted 1) "08_profiling")
+    assert (str_contains (at sorted 2) "01_start")
+    assert (str_contains (at sorted 3) "02_syntax")
+    assert (str_contains (at sorted 4) "09_core")
+    assert (str_contains (at sorted 5) "10_collections")
+    /* Part 3: chapter 13 index before 13 regex, then chapter 15 */
+    assert (str_contains (at sorted 6) "13_text/index")
+    assert (str_contains (at sorted 7) "13_text/regex")
+    assert (str_contains (at sorted 8) "15_web/index")
+    assert (str_contains (at sorted 9) "22_style")
+    /* Appendices: a before b */
+    assert (str_contains (at sorted 10) "a_gallery")
+    assert (str_contains (at sorted 11) "b_ref")
+    assert (str_contains (at sorted 12) "test.md")
 }
 
 fn build_toc_group(title: string, items: array<string>, open_default: bool) -> string {
@@ -1383,7 +1443,10 @@ fn main() -> int {
         if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 730 9) }
         let p: string = (at files fi)
         if (str_ends_with p ".md") {
-            set md_files (array_push md_files p)
+            /* Skip old root chapters superseded by part directories */
+            if (not (is_old_root_chapter p src_dir)) {
+                set md_files (array_push md_files p)
+            }
         }
         set fi (+ fi 1)
     }

@@ -1,4 +1,4 @@
-# Appendix B: Error Reference
+# Appendix E: Error Reference
 
 **Common errors and how to fix them.**
 

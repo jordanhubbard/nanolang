@@ -1,4 +1,4 @@
-# Appendix C: Migration Guide
+# Appendix F: Migration Guide
 
 **Upgrading between NanoLang versions.**
 

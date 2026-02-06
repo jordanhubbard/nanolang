@@ -1,4 +1,4 @@
-# Chapter 24: Self-Hosting
+# Chapter 27: Self-Hosting
 
 **NanoLang compiler written in NanoLang.**
 

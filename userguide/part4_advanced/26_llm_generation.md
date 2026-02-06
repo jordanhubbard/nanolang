@@ -1,4 +1,4 @@
-# Chapter 23: LLM Code Generation
+# Chapter 26: LLM Code Generation
 
 **Best practices for AI-generated NanoLang code.**
 
