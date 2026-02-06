@@ -147,14 +147,11 @@ static void llm_emit_diags_toon(
     }
 
     /* Output to file */
-    if (!toon_diagnostics_output_to_file(path)) {
+    if (!toon_diagnostics_output_to_file(path, input_file, output_file, exit_code)) {
         /* best-effort, ignore failure */
     }
 
     toon_diagnostics_cleanup();
-    (void)input_file;
-    (void)output_file;
-    (void)exit_code;
 }
 
 static void diags_push_simple(List_CompilerDiagnostic *diags, int phase, int severity, const char *code, const char *message) {

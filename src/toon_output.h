@@ -17,7 +17,7 @@
 
 /**
  * @brief Enable TOON diagnostic output
- * @note Mutually exclusive with JSON output
+ * @note Can be used together with JSON output for dual output mode
  */
 void toon_diagnostics_enable(void);
 
@@ -43,18 +43,26 @@ void toon_diagnostics_add(const char *severity, const char *code,
 /**
  * @brief Output accumulated diagnostics in TOON format
  * @param fp File pointer to write to (e.g., stdout or file)
+ * @param input_file Source file being compiled (may be NULL)
+ * @param output_file Output file path (may be NULL)
+ * @param exit_code Compiler exit code (0 = success)
  *
  * Writes diagnostics in TOON format. Call after compilation completes.
  * Requires prior toon_diagnostics_enable().
  */
-void toon_diagnostics_output(FILE *fp);
+void toon_diagnostics_output(FILE *fp, const char *input_file,
+                             const char *output_file, int exit_code);
 
 /**
  * @brief Output accumulated diagnostics to a file path
  * @param path File path to write TOON output to
+ * @param input_file Source file being compiled (may be NULL)
+ * @param output_file Output file path (may be NULL)
+ * @param exit_code Compiler exit code (0 = success)
  * @return true on success, false on file open failure
  */
-bool toon_diagnostics_output_to_file(const char *path);
+bool toon_diagnostics_output_to_file(const char *path, const char *input_file,
+                                     const char *output_file, int exit_code);
 
 /**
  * @brief Free all TOON diagnostic resources

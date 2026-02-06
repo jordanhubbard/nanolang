@@ -324,7 +324,7 @@ FIXTURE
        grep -q 'diagnostics\[1\]:' "$INTEG_TEMP/d.toon" && \
        grep -q 'severity.*code.*message.*file.*line.*column' "$INTEG_TEMP/d.toon" && \
        grep -q 'error.*CTYPE01' "$INTEG_TEMP/d.toon" && \
-       grep -q 'error_count: 1' "$INTEG_TEMP/d.toon"; then
+       grep -q 'diagnostic_count: 1' "$INTEG_TEMP/d.toon"; then
         echo -e "${GREEN}✅${NC} --llm-diags-toon (error)"
         INTEG_PASS=$((INTEG_PASS + 1))
         TOTAL_PASS=$((TOTAL_PASS + 1))
@@ -336,7 +336,7 @@ FIXTURE
     
     # Test: --llm-diags-toon (success case)
     ./bin/nanoc "$INTEG_TEMP/success.nano" -o "$INTEG_TEMP/out2" --llm-diags-toon "$INTEG_TEMP/ok.toon" >/dev/null 2>&1
-    if [ -f "$INTEG_TEMP/ok.toon" ] && grep -q 'error_count: 0' "$INTEG_TEMP/ok.toon"; then
+    if [ -f "$INTEG_TEMP/ok.toon" ] && grep -q 'diagnostic_count: 0' "$INTEG_TEMP/ok.toon"; then
         echo -e "${GREEN}✅${NC} --llm-diags-toon (success)"
         INTEG_PASS=$((INTEG_PASS + 1))
         TOTAL_PASS=$((TOTAL_PASS + 1))

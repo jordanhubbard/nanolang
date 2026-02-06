@@ -70,21 +70,32 @@ void toon_diagnostics_add(const char *severity, const char *code,
     d->column = column;
 }
 
-void toon_diagnostics_output(FILE *fp) {
+/* Write a string field, escaping tabs, newlines, and backslashes */
+static void toon_write_field(FILE *fp, const char *s) {
+    if (!s) return;
+    for (const char *p = s; *p; p++) {
+        switch (*p) {
+        case '\t': fprintf(fp, "\\t"); break;
+        case '\n': fprintf(fp, "\\n"); break;
+        case '\r': fprintf(fp, "\\r"); break;
+        case '\\': fprintf(fp, "\\\\"); break;
+        default:   fputc(*p, fp); break;
+        }
+    }
+}
+
+void toon_diagnostics_output(FILE *fp, const char *input_file,
+                             const char *output_file, int exit_code) {
     if (!g_toon_output_enabled || !fp) return;
 
-    /*
-     * Output TOON format directly.
-     * TOON uses tabular format for uniform arrays of objects.
-     * Format:
-     *   diagnostics[N]:
-     *     severity	code	message	file	line	column
-     *     error	E001	msg	file.nano	10	5
-     *   error_count: N
-     *   has_errors: true/false
-     */
+    /* Metadata */
+    fprintf(fp, "tool: nanoc_c\n");
+    fprintf(fp, "success: %s\n", exit_code == 0 ? "true" : "false");
+    fprintf(fp, "exit_code: %d\n", exit_code);
+    fprintf(fp, "input_file: %s\n", input_file ? input_file : "");
+    fprintf(fp, "output_file: %s\n", output_file ? output_file : "");
 
-    /* Header */
+    /* Diagnostics table */
     fprintf(fp, "diagnostics[%d]:\n", g_toon_diagnostic_count);
 
     if (g_toon_diagnostic_count > 0) {
@@ -94,28 +105,31 @@ void toon_diagnostics_output(FILE *fp) {
         /* Data rows */
         for (int i = 0; i < g_toon_diagnostic_count; i++) {
             ToonDiagnostic *d = &g_toon_diagnostics[i];
-            fprintf(fp, "  %s\t%s\t%s\t%s\t%d\t%d\n",
-                    d->severity ? d->severity : "",
-                    d->code ? d->code : "",
-                    d->message ? d->message : "",
-                    d->file ? d->file : "",
-                    d->line,
-                    d->column);
+            fprintf(fp, "  ");
+            toon_write_field(fp, d->severity ? d->severity : "");
+            fputc('\t', fp);
+            toon_write_field(fp, d->code ? d->code : "");
+            fputc('\t', fp);
+            toon_write_field(fp, d->message ? d->message : "");
+            fputc('\t', fp);
+            toon_write_field(fp, d->file ? d->file : "");
+            fprintf(fp, "\t%d\t%d\n", d->line, d->column);
         }
     }
 
-    /* Summary fields */
-    fprintf(fp, "error_count: %d\n", g_toon_diagnostic_count);
-    fprintf(fp, "has_errors: %s\n", g_toon_diagnostic_count > 0 ? "true" : "false");
+    /* Summary */
+    fprintf(fp, "diagnostic_count: %d\n", g_toon_diagnostic_count);
+    fprintf(fp, "has_diagnostics: %s\n", g_toon_diagnostic_count > 0 ? "true" : "false");
 }
 
-bool toon_diagnostics_output_to_file(const char *path) {
+bool toon_diagnostics_output_to_file(const char *path, const char *input_file,
+                                     const char *output_file, int exit_code) {
     if (!path) return false;
 
     FILE *fp = fopen(path, "w");
     if (!fp) return false;
 
-    toon_diagnostics_output(fp);
+    toon_diagnostics_output(fp, input_file, output_file, exit_code);
     fclose(fp);
     return true;
 }
