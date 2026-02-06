@@ -102,6 +102,13 @@ _cache/
 coverage.info
 coverage/
 
+# Coq/Rocq build artifacts
+formal/*.vo
+formal/*.vok
+formal/*.vos
+formal/*.glob
+formal/.*.aux
+
 # Fuzzing artifacts
 tests/fuzzing/fuzz_*
 !tests/fuzzing/fuzz_*.c

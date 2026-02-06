@@ -564,6 +564,7 @@ clean:
 	rm -f test.nano test_output.c test_program
 	rm -rf .test_output
 	find tests -name "*.out" -o -name "*.out.c" 2>/dev/null | xargs rm -f || true
+	rm -f formal/*.vo formal/*.vok formal/*.vos formal/*.glob formal/.*.aux
 	@$(TIMEOUT_CMD) $(MAKE) -C examples clean 2>/dev/null || true
 	@echo "✅ Clean complete - ready for fresh build"
 
