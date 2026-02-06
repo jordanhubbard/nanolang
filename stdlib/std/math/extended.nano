@@ -199,7 +199,11 @@ shadow rad_to_deg {
 }
 
 /* Clamp value between min and max */
-pub fn clamp(value: float, min: float, max: float) -> float {
+pub fn clamp(value: float, min: float, max: float) -> float
+requires (<= min max)
+ensures (>= result min)
+ensures (<= result max)
+{
     if (< value min) {
         return min
     } else {

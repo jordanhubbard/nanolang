@@ -112,7 +112,7 @@ fn parse_args() -> ResultArgs {
     let mut i: int = 1
     while (< i arg_count) {
         let token: string = (runtime_argv i)
-        if (str_equals token "--help") {
+        if (== token "--help") {
             return ResultArgs.Ok { value: CompilerArgs {
                 input_file: "",
                 output_file: output_file,
@@ -122,7 +122,7 @@ fn parse_args() -> ResultArgs {
                 extra_cc_args: extra_cc_args
             } }
         }
-        if (str_equals token "--version") {
+        if (== token "--version") {
             return ResultArgs.Ok { value: CompilerArgs {
                 input_file: "",
                 output_file: output_file,
@@ -132,10 +132,10 @@ fn parse_args() -> ResultArgs {
                 extra_cc_args: extra_cc_args
             } }
         }
-        if (str_equals token "-v") {
+        if (== token "-v") {
             set verbose_flag true
         } else {
-            if (str_equals token "-o") {
+            if (== token "-o") {
                 set i (+ i 1)
                 if (>= i arg_count) {
                     return ResultArgs.Err { error: "Missing output file after -o" }
@@ -146,7 +146,7 @@ fn parse_args() -> ResultArgs {
                 }
                 set output_file out_path
             } else {
-                if (str_equals token "-I") {
+                if (== token "-I") {
                     set i (+ i 1)
                     if (>= i arg_count) {
                         return ResultArgs.Err { error: "Missing include path after -I" }
@@ -154,7 +154,7 @@ fn parse_args() -> ResultArgs {
                     let include_path: string = (runtime_argv i)
                     set extra_cc_args (+ extra_cc_args (+ " -I " include_path))
                 } else {
-                    if (str_equals token "-L") {
+                    if (== token "-L") {
                         set i (+ i 1)
                         if (>= i arg_count) {
                             return ResultArgs.Err { error: "Missing library path after -L" }
@@ -162,7 +162,7 @@ fn parse_args() -> ResultArgs {
                         let lib_path: string = (runtime_argv i)
                         set extra_cc_args (+ extra_cc_args (+ " -L " lib_path))
                     } else {
-                        if (str_equals token "-l") {
+                        if (== token "-l") {
                             set i (+ i 1)
                             if (>= i arg_count) {
                                 return ResultArgs.Err { error: "Missing library name after -l" }
@@ -170,7 +170,7 @@ fn parse_args() -> ResultArgs {
                             let lib_name: string = (runtime_argv i)
                             set extra_cc_args (+ extra_cc_args (+ " -l " lib_name))
                         } else {
-                            if (str_equals token "--") {
+                            if (== token "--") {
                                 set i (+ i 1)
                                 if (>= i arg_count) {
                                     return ResultArgs.Err { error: "Expected input file after --" }
@@ -182,7 +182,7 @@ fn parse_args() -> ResultArgs {
                                 set input_file remainder
                             } else {
                                 if (== input_file "") {
-                                    if (and (> (str_length token) 0) (str_equals (str_substring token 0 1) "-")) {
+                                    if (and (> (str_length token) 0) (== (str_substring token 0 1) "-")) {
                                         let err_flag: string = (+ "Unknown flag: " token)
                                         return ResultArgs.Err { error: err_flag }
                                     }

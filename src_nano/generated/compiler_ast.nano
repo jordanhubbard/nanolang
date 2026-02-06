@@ -71,6 +71,16 @@ extern struct ASTCall {
     arg_count: int
 }
 
+extern struct ASTModuleQualifiedCall {
+    node_type: int,
+    line: int,
+    column: int,
+    module_name: string,
+    function_name: string,
+    arg_start: int,
+    arg_count: int
+}
+
 extern struct ASTArrayLiteral {
     node_type: int,
     line: int,
@@ -275,7 +285,14 @@ extern struct ASTImport {
     line: int,
     column: int,
     module_path: string,
-    module_name: string
+    module_name: string,
+    is_unsafe: bool,
+    is_selective: bool,
+    is_wildcard: bool,
+    is_pub_use: bool,
+    import_symbols: array<string>,
+    import_aliases: array<string>,
+    import_symbol_count: int
 }
 
 extern struct ASTOpaqueType {
@@ -317,6 +334,7 @@ extern struct Parser {
     identifiers: List<ASTIdentifier>,
     binary_ops: List<ASTBinaryOp>,
     calls: List<ASTCall>,
+    module_qualified_calls: List<ASTModuleQualifiedCall>,
     call_args: List<ASTStmtRef>,
     array_elements: List<ASTStmtRef>,
     array_literals: List<ASTArrayLiteral>,
@@ -350,6 +368,7 @@ extern struct Parser {
     identifiers_count: int,
     binary_ops_count: int,
     calls_count: int,
+    module_qualified_calls_count: int,
     array_literals_count: int,
     lets_count: int,
     sets_count: int,

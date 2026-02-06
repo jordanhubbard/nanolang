@@ -57,7 +57,7 @@ fn create_bug_report(
     line: int,
     is_critical: bool
 ) -> string {
-    let priority: int = (if is_critical 0 1)
+    let priority: int = (cond ((== is_critical true) 0) (else 1))
     
     let mut description: string = "Bug Report\n\n"
     set description (+ description (+ "Error: " error_message))
@@ -67,7 +67,8 @@ fn create_bug_report(
     
     let labels: array<string> = (array_new 2 "")
     (array_set labels 0 "bug")
-    (array_set labels 1 (if is_critical "critical" "normal"))
+    let severity_label: string = (cond ((== is_critical true) "critical") (else "normal"))
+    (array_set labels 1 severity_label)
     
     let opts: BeadCreateOptions = BeadCreateOptions {
         title: title,
@@ -162,10 +163,10 @@ fn daily_summary() -> int {
     
     # Overall health
     let total_active: int = (+ stats.open (+ stats.in_progress stats.blocked))
-    let completion_rate: int = (if (> stats.total 0)
-        (/ (* stats.closed 100) stats.total)
-        0
-    )
+    let mut completion_rate: int = 0
+    if (> stats.total 0) {
+        set completion_rate (/ (* stats.closed 100) stats.total)
+    } else {}
     
     (println "Project Health:")
     (println (+ "  Total issues: " (int_to_string stats.total)))

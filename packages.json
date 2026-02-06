@@ -62,7 +62,28 @@
         },
         "zypper": {
           "package": "libSDL2-devel"
+        },
+        "pkg": {
+          "package": "sdl2"
         }
+      }
+    },
+    "sdl2_image": {
+      "description": "SDL2 image loading library",
+      "version": ">=2.0.0",
+      "detection": {
+        "pkg-config": "SDL2_image",
+        "headers": ["SDL2/SDL_image.h", "SDL_image.h"]
+      },
+      "install": {
+        "apt": {"package": "libsdl2-image-dev"},
+        "dnf": {"package": "SDL2_image-devel"},
+        "yum": {"package": "SDL2_image-devel"},
+        "pacman": {"package": "sdl2_image"},
+        "brew": {"package": "sdl2_image"},
+        "apk": {"package": "sdl2_image-dev"},
+        "zypper": {"package": "libSDL2_image-devel"},
+        "pkg": {"package": "sdl2_image"}
       }
     },
     "sdl2_mixer": {
@@ -81,7 +102,8 @@
         "chocolatey": {"package": "sdl2-mixer"},
         "winget": {"package": "SDL2_mixer"},
         "apk": {"package": "sdl2_mixer-dev"},
-        "zypper": {"package": "libSDL2_mixer-devel"}
+        "zypper": {"package": "libSDL2_mixer-devel"},
+        "pkg": {"package": "sdl2_mixer"}
       }
     },
     "sdl2_ttf": {
@@ -97,7 +119,8 @@
         "brew": {"package": "sdl2_ttf"},
         "chocolatey": {"package": "sdl2-ttf"},
         "apk": {"package": "sdl2_ttf-dev"},
-        "zypper": {"package": "libSDL2_ttf-devel"}
+        "zypper": {"package": "libSDL2_ttf-devel"},
+        "pkg": {"package": "sdl2_ttf"}
       }
     },
     "ncurses": {
@@ -116,6 +139,41 @@
         "zypper": {"package": "ncurses-devel"}
       },
       "notes": "Windows: Use PDCurses or Windows Terminal API instead"
+    },
+    "readline": {
+      "description": "GNU Readline line editing library",
+      "version": ">=6.0",
+      "detection": {
+        "headers": ["readline/readline.h"]
+      },
+      "install": {
+        "apt": {"package": "libreadline-dev"},
+        "dnf": {"package": "readline-devel"},
+        "yum": {"package": "readline-devel"},
+        "pacman": {"package": "readline"},
+        "brew": {"package": "readline"},
+        "apk": {"package": "readline-dev"},
+        "zypper": {"package": "readline-devel"},
+        "pkg": {"package": "readline"}
+      }
+    },
+    "utf8proc": {
+      "description": "Unicode processing library",
+      "version": ">=2.0.0",
+      "detection": {
+        "pkg-config": "libutf8proc",
+        "headers": ["utf8proc.h"]
+      },
+      "install": {
+        "apt": {"package": "libutf8proc-dev"},
+        "dnf": {"package": "utf8proc-devel"},
+        "yum": {"package": "utf8proc-devel"},
+        "pacman": {"package": "utf8proc"},
+        "brew": {"package": "utf8proc"},
+        "apk": {"package": "utf8proc-dev"},
+        "zypper": {"package": "libutf8proc-devel"},
+        "pkg": {"package": "utf8proc"}
+      }
     },
     "sqlite3": {
       "description": "Embedded SQL database",
@@ -214,6 +272,21 @@
         "brew": {"package": "bullet"},
         "chocolatey": {"package": "bullet"},
         "apk": {"package": "bullet-dev"}
+      }
+    },
+    "pkg-config": {
+      "description": "Package configuration tool for library detection",
+      "version": ">=0.29",
+      "detection": {
+        "command": "pkg-config --version"
+      },
+      "install": {
+        "apt": {"package": "pkg-config"},
+        "dnf": {"package": "pkgconf-pkg-config"},
+        "pacman": {"package": "pkgconf"},
+        "brew": {"package": "pkg-config"},
+        "apk": {"package": "pkgconf"},
+        "zypper": {"package": "pkg-config"}
       }
     }
   }

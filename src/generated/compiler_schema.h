@@ -72,6 +72,10 @@ typedef struct List_ASTLet List_ASTLet;
 #define FORWARD_DEFINED_List_ASTMatch
 typedef struct List_ASTMatch List_ASTMatch;
 #endif
+#ifndef FORWARD_DEFINED_List_ASTModuleQualifiedCall
+#define FORWARD_DEFINED_List_ASTModuleQualifiedCall
+typedef struct List_ASTModuleQualifiedCall List_ASTModuleQualifiedCall;
+#endif
 #ifndef FORWARD_DEFINED_List_ASTNumber
 #define FORWARD_DEFINED_List_ASTNumber
 typedef struct List_ASTNumber List_ASTNumber;
@@ -280,7 +284,8 @@ typedef enum {
     PNODE_STRUCT = 34,
     PNODE_ENUM = 35,
     PNODE_UNION = 36,
-    PNODE_UNSAFE_BLOCK = 37
+    PNODE_UNSAFE_BLOCK = 37,
+    PNODE_MODULE_QUALIFIED_CALL = 38
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken
@@ -386,6 +391,20 @@ typedef struct nl_ASTCall {
     int arg_count;
 } nl_ASTCall;
 typedef nl_ASTCall ASTCall;
+#endif
+
+#ifndef DEFINED_nl_ASTModuleQualifiedCall
+#define DEFINED_nl_ASTModuleQualifiedCall
+typedef struct nl_ASTModuleQualifiedCall {
+    int node_type;
+    int line;
+    int column;
+    const char * module_name;
+    const char * function_name;
+    int arg_start;
+    int arg_count;
+} nl_ASTModuleQualifiedCall;
+typedef nl_ASTModuleQualifiedCall ASTModuleQualifiedCall;
 #endif
 
 #ifndef DEFINED_nl_ASTArrayLiteral
@@ -683,6 +702,13 @@ typedef struct nl_ASTImport {
     int column;
     const char * module_path;
     const char * module_name;
+    bool is_unsafe;
+    bool is_selective;
+    bool is_wildcard;
+    bool is_pub_use;
+    DynArray * import_symbols;
+    DynArray * import_aliases;
+    int import_symbol_count;
 } nl_ASTImport;
 typedef nl_ASTImport ASTImport;
 #endif
@@ -740,6 +766,7 @@ typedef struct nl_Parser {
     List_ASTIdentifier * identifiers;
     List_ASTBinaryOp * binary_ops;
     List_ASTCall * calls;
+    List_ASTModuleQualifiedCall * module_qualified_calls;
     List_ASTStmtRef * call_args;
     List_ASTStmtRef * array_elements;
     List_ASTArrayLiteral * array_literals;
@@ -773,6 +800,7 @@ typedef struct nl_Parser {
     int identifiers_count;
     int binary_ops_count;
     int calls_count;
+    int module_qualified_calls_count;
     int array_literals_count;
     int lets_count;
     int sets_count;

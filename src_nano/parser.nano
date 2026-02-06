@@ -27,6 +27,7 @@ fn parser_init_ast_lists() -> Parser {
     let identifiers: List<ASTIdentifier> = (list_ASTIdentifier_new)
     let binary_ops: List<ASTBinaryOp> = (list_ASTBinaryOp_new)
     let calls: List<ASTCall> = (list_ASTCall_new)
+    let module_qualified_calls: List<ASTModuleQualifiedCall> = (list_ASTModuleQualifiedCall_new)
     let call_args: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let array_elements: List<ASTStmtRef> = (list_ASTStmtRef_new)
     let array_literals: List<ASTArrayLiteral> = (list_ASTArrayLiteral_new)
@@ -71,6 +72,7 @@ fn parser_init_ast_lists() -> Parser {
         identifiers: identifiers,
         binary_ops: binary_ops,
         calls: calls,
+        module_qualified_calls: module_qualified_calls,
         call_args: call_args,
         array_elements: array_elements,
         array_literals: array_literals,
@@ -104,6 +106,7 @@ fn parser_init_ast_lists() -> Parser {
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        module_qualified_calls_count: 0,
         array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
@@ -141,7 +144,7 @@ shadow parser_init_ast_lists {
 
 /* Create new parser from token list */
 /* Note: token_count is calculated externally to avoid generic instantiation issues */
-fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+pub fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
     /* Initialize AST lists using helper (triggers generic instantiation) */
     let init_parser: Parser = (parser_init_ast_lists)
     
@@ -159,6 +162,7 @@ fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> 
         identifiers: init_parser.identifiers,
         binary_ops: init_parser.binary_ops,
         calls: init_parser.calls,
+        module_qualified_calls: init_parser.module_qualified_calls,
         call_args: init_parser.call_args,
         array_elements: init_parser.array_elements,
         array_literals: init_parser.array_literals,
@@ -192,6 +196,7 @@ fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string) -> 
         identifiers_count: 0,
         binary_ops_count: 0,
         calls_count: 0,
+        module_qualified_calls_count: 0,
         array_literals_count: 0,
         lets_count: 0,
         sets_count: 0,
@@ -273,6 +278,7 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -306,6 +312,7 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -452,6 +459,7 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -485,6 +493,7 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -658,6 +667,9 @@ shadow token_assert { assert (== (token_assert) LexerTokenType.TOKEN_ASSERT) }
 fn token_requires() -> int { return LexerTokenType.TOKEN_REQUIRES }
 shadow token_requires { assert (== (token_requires) LexerTokenType.TOKEN_REQUIRES) }
 
+fn token_ensures() -> int { return LexerTokenType.TOKEN_ENSURES }
+shadow token_ensures { assert (== (token_ensures) LexerTokenType.TOKEN_ENSURES) }
+
 fn token_unsafe() -> int { return LexerTokenType.TOKEN_UNSAFE }
 shadow token_unsafe { assert (== (token_unsafe) LexerTokenType.TOKEN_UNSAFE) }
 
@@ -761,6 +773,16 @@ fn parse_qualified_name(p: Parser) -> NameParseResult {
     }
 }
 
+shadow parse_qualified_name {
+    let source: string = "Foo::Bar"
+    let tokens: List<LexerToken> = (tokenize_string source)
+    let token_count: int = (list_LexerToken_length tokens)
+    let p: Parser = (parser_new tokens token_count)
+    let res: NameParseResult = (parse_qualified_name p)
+    assert (== res.ok true)
+    assert (== res.name "Foo::Bar")
+}
+
 /* Parse a call target name, allowing both namespace separators (::) and
  * module alias separators (.) in the *function position* of prefix calls.
  *
@@ -822,6 +844,16 @@ fn parse_call_name(p: Parser) -> NameParseResult {
     }
 }
 
+shadow parse_call_name {
+    let source: string = "Mod.fn"
+    let tokens: List<LexerToken> = (tokenize_string source)
+    let token_count: int = (list_LexerToken_length tokens)
+    let p: Parser = (parser_new tokens token_count)
+    let res: NameParseResult = (parse_call_name p)
+    assert (== res.ok true)
+    assert (== res.name "Mod.fn")
+}
+
 struct TypeParseResult {
     p: Parser,
     type_name: string,
@@ -832,6 +864,8 @@ fn is_type_start_token_type(token_type: int) -> bool {
     return (or
         (== token_type (token_identifier))
         (or
+            (== token_type (token_fn))
+            (or
             (== token_type (token_array))
             (or
                 (== token_type (token_type_int))
@@ -852,8 +886,14 @@ fn is_type_start_token_type(token_type: int) -> bool {
                     )
                 )
             )
+            )
         )
     )
+}
+
+shadow is_type_start_token_type {
+    assert (is_type_start_token_type (token_identifier))
+    assert (not (is_type_start_token_type (token_plus)))
 }
 
 fn parse_type_string(p: Parser) -> TypeParseResult {
@@ -867,6 +907,70 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             let mut type_name: string = ""
             let mut cur: Parser = p
 
+            if (== tok.token_type (token_fn)) {
+                /* Function type: fn(T1,T2)->R */
+                set type_name "fn"
+                let p1: Parser = (parser_advance p)
+                let p2: Parser = (parser_expect p1 (token_lparen))
+                if (parser_has_error p2) {
+                    return TypeParseResult { p: p2, type_name: type_name, ok: false }
+                } else {
+                    set type_name (+ type_name "(")
+                    let mut cur2: Parser = p2
+                    if (not (parser_is_at_end cur2)) {
+                        let maybe_rparen: LexerToken = (parser_current cur2)
+                        if (== maybe_rparen.token_type (token_rparen)) {
+                            /* No params */
+                            set type_name (+ type_name ")")
+                            set cur2 (parser_advance cur2)
+                        } else {
+                            let arg1: TypeParseResult = (parse_type_string cur2)
+                            if (not arg1.ok) {
+                                return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
+                            } else {
+                                set type_name (+ type_name arg1.type_name)
+                                set cur2 arg1.p
+                            }
+
+                            while (not (parser_is_at_end cur2)) {
+                                let tc: LexerToken = (parser_current cur2)
+                                if (== tc.token_type (token_comma)) {
+                                    set type_name (+ type_name ",")
+                                    set cur2 (parser_advance cur2)
+                                    let argn: TypeParseResult = (parse_type_string cur2)
+                                    if (not argn.ok) {
+                                        return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
+                                    } else {
+                                        set type_name (+ type_name argn.type_name)
+                                        set cur2 argn.p
+                                    }
+                                } else {
+                                    if (== tc.token_type (token_rparen)) {
+                                        set type_name (+ type_name ")")
+                                        set cur2 (parser_advance cur2)
+                                        break
+                                    } else {
+                                        return TypeParseResult { p: cur2, type_name: type_name, ok: false }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    let p_arrow: Parser = (parser_expect cur2 (token_arrow))
+                    if (parser_has_error p_arrow) {
+                        return TypeParseResult { p: p_arrow, type_name: type_name, ok: false }
+                    } else {
+                        let ret: TypeParseResult = (parse_type_string p_arrow)
+                        if (not ret.ok) {
+                            return TypeParseResult { p: ret.p, type_name: type_name, ok: false }
+                        } else {
+                            set type_name (+ type_name "->")
+                            set type_name (+ type_name ret.type_name)
+                            return TypeParseResult { p: ret.p, type_name: type_name, ok: true }
+                        }
+                    }
+                }
+            } else {
             if (== tok.token_type (token_lparen)) {
                 /* Tuple type: (T1,T2,...) */
                 let mut type_name: string = "("
@@ -916,6 +1020,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             } else {
                 set type_name tok.value
                 set cur (parser_advance p)
+            }
             }
 
             /* Parse optional generic args: NSType<Arg1,Arg2> */
@@ -970,6 +1075,16 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
     }
 }
 
+shadow parse_type_string {
+    let source: string = "int"
+    let tokens: List<LexerToken> = (tokenize_string source)
+    let token_count: int = (list_LexerToken_length tokens)
+    let p: Parser = (parser_new tokens token_count)
+    let res: TypeParseResult = (parse_type_string p)
+    assert (== res.ok true)
+    assert (== res.type_name "int")
+}
+
 /* Helper: Store number node and return node ID */
 fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Parser {
     let node: ASTNumber = ASTNumber {
@@ -995,6 +1110,7 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1028,6 +1144,7 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1088,6 +1205,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1121,6 +1239,7 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1180,6 +1299,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1213,6 +1333,7 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1272,6 +1393,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1305,6 +1427,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         identifiers_count: (+ p.identifiers_count 1),
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1369,6 +1492,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1402,6 +1526,7 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         identifiers_count: p.identifiers_count,
         binary_ops_count: (+ p.binary_ops_count 1),
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1466,6 +1591,7 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1499,6 +1625,7 @@ fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: (+ p.calls_count 1),
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1532,17 +1659,22 @@ shadow parser_store_call {
     assert (== 1 1)
 }
 
-/* Helper: Store a call argument reference (expression node id + expression kind) */
-fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
-    let r: ASTStmtRef = ASTStmtRef {
-        node_id: node_id,
-        node_type: node_type
+/* Helper: Store module-qualified call node */
+fn parser_store_module_qualified_call(p: Parser, module_name: string, function_name: string, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
+    let node: ASTModuleQualifiedCall = ASTModuleQualifiedCall {
+        node_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL,
+        line: line,
+        column: column,
+        module_name: module_name,
+        function_name: function_name,
+        arg_start: arg_start,
+        arg_count: arg_count
     }
-    (list_ASTStmtRef_push p.call_args r)
-
+    let node_id: int = p.module_qualified_calls_count
+    (list_ASTModuleQualifiedCall_push p.module_qualified_calls node)
+    
     return Parser {
         tokens: p.tokens, file_name: p.file_name, 
-        
         position: p.position,
         token_count: p.token_count,
         has_error: p.has_error,
@@ -1554,6 +1686,7 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1587,6 +1720,119 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: (+ p.module_qualified_calls_count 1),
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: (+ p.next_node_id 1),
+        last_expr_node_id: node_id,
+        last_expr_node_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL
+    }
+}
+
+shadow parser_store_module_qualified_call {
+    assert (== 1 1)
+}
+
+/* Helper: Check if a name contains a dot (Module.function pattern) */
+fn name_contains_dot(name: string) -> bool {
+    let mut i: int = 0
+    let len: int = (str_length name)
+    while (< i len) {
+        if (== (char_at name i) 46) {  /* 46 is ASCII '.' */
+            return true
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow name_contains_dot {
+    assert (== (name_contains_dot "Module.function") true)
+    assert (== (name_contains_dot "simple_function") false)
+    assert (== (name_contains_dot "Diagnostics.diag_error") true)
+}
+
+/* Helper: Store a call argument reference (expression node id + expression kind) */
+fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
+    let r: ASTStmtRef = ASTStmtRef {
+        node_id: node_id,
+        node_type: node_type
+    }
+    (list_ASTStmtRef_push p.call_args r)
+
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name, 
+        
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1643,6 +1889,7 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -1676,6 +1923,7 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -1763,6 +2011,10 @@ fn parse_union_construct(p: Parser, union_name: string, variant_name: string, st
     return (parser_with_error pcur true)
 }
 
+shadow parse_union_construct {
+    assert (== 1 1)
+}
+
 /* Parse struct literal: StructName{field1: val1, field2: val2} */
 fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
     /* p should be positioned after the { */
@@ -1829,6 +2081,10 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
     return (parser_with_error pcur true)
 }
 
+shadow parse_struct_literal {
+    assert (== 1 1)
+}
+
 /* Parse cond expression: (cond ((test) val)+ (else default))
  * Converts to nested if-else during parsing */
 fn parse_cond_expression(p: Parser) -> Parser {
@@ -1840,7 +2096,7 @@ fn parse_cond_expression(p: Parser) -> Parser {
     } else {
         let tok2: LexerToken = (parser_current p1)
         /* Verify 'cond' keyword */
-        if (or (!= tok2.token_type (token_identifier)) (not (str_equals tok2.value "cond"))) {
+        if (or (!= tok2.token_type (token_identifier)) (not (== tok2.value "cond"))) {
             return (parser_with_error p1 true)
         } else {
             let p2: Parser = (parser_advance p1)  /* consume 'cond' */
@@ -2047,6 +2303,10 @@ fn parse_match(p: Parser) -> Parser {
     }
 }
 
+shadow parse_match {
+    assert (== 1 1)
+}
+
 /* Parse primary expression: number, identifier, string, bool, or parenthesized */
 fn parse_primary(p: Parser) -> Parser {
     if (parser_is_at_end p) {
@@ -2066,7 +2326,7 @@ fn parse_primary(p: Parser) -> Parser {
             let p_lookahead: Parser = (parser_advance p)  /* consume '(' */
             if (not (parser_is_at_end p_lookahead)) {
                 let tok_next: LexerToken = (parser_current p_lookahead)
-                if (and (== tok_next.token_type (token_identifier)) (str_equals tok_next.value "cond")) {
+                if (and (== tok_next.token_type (token_identifier)) (== tok_next.value "cond")) {
                     /* This is a cond expression */
                     return (parse_cond_expression p)
                 } else {
@@ -2236,8 +2496,19 @@ fn parse_primary(p: Parser) -> Parser {
                                             } else {
                                                 let func_name: string = name_res.name
                                                 let p_after_name: Parser = name_res.p
-                                                let p2: Parser = (parser_store_identifier p_after_name func_name tok2.line tok2.column)
-                                                let func_id: int = p2.last_expr_node_id
+                                                
+                                                /* Check if this is a module-qualified call (Module.function) */
+                                                let is_module_call: bool = (name_contains_dot func_name)
+                                                
+                                                /* For regular calls, store identifier; for module calls, don't need identifier */
+                                                let mut p2: Parser = p_after_name
+                                                let mut func_id: int = (- 0 1)
+                                                if (not is_module_call) {
+                                                    set p2 (parser_store_identifier p_after_name func_name tok2.line tok2.column)
+                                                    set func_id p2.last_expr_node_id
+                                                } else {
+                                                    (print "")
+                                                }
                                                 
                                                 /* arg_start will be set after parsing first argument */
                                                 let mut arg_start: int = (- 0 1)
@@ -2255,7 +2526,14 @@ fn parse_primary(p: Parser) -> Parser {
                                                         } else {
                                                             (print "")
                                                         }
-                                                        return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
+                                                        /* Store appropriate call type */
+                                                        if is_module_call {
+                                                            /* For now, store full qualified name in function_name, empty module_name */
+                                                            /* String splitting will be handled in C where proper string functions exist */
+                                                            return (parser_store_module_qualified_call p4 "" func_name arg_start arg_count tok.line tok.column)
+                                                        } else {
+                                                            return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
+                                                        }
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
                                                         if (parser_has_error parg) {
@@ -2554,6 +2832,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -2587,6 +2866,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: (+ p.lets_count 1),
         sets_count: p.sets_count,
@@ -2649,6 +2929,7 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -2682,6 +2963,7 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: (+ p.sets_count 1),
@@ -2745,6 +3027,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -2778,6 +3061,7 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -2840,6 +3124,7 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -2873,6 +3158,7 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -2934,6 +3220,7 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -2967,6 +3254,7 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3024,6 +3312,7 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3057,6 +3346,7 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: (+ p.array_literals_count 1),
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3088,13 +3378,20 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
 }
 
 /* Helper: Store import node */
-fn parser_store_import(p: Parser, module_path: string, module_name: string, line: int, column: int) -> Parser {
+fn parser_store_import(p: Parser, module_path: string, module_name: string, is_unsafe: bool, is_selective: bool, is_wildcard: bool, import_symbols: array<string>, import_aliases: array<string>, import_symbol_count: int, line: int, column: int) -> Parser {
     let node: ASTImport = ASTImport {
         node_type: ParseNodeType.PNODE_IMPORT,
         line: line,
         column: column,
         module_path: module_path,
-        module_name: module_name
+        module_name: module_name,
+        is_unsafe: is_unsafe,
+        is_selective: is_selective,
+        is_wildcard: is_wildcard,
+        is_pub_use: false,
+        import_symbols: import_symbols,
+        import_aliases: import_aliases,
+        import_symbol_count: import_symbol_count
     }
     let node_id: int = p.imports_count
     (list_ASTImport_push p.imports node)
@@ -3113,6 +3410,7 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3146,6 +3444,7 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, line
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3201,6 +3500,7 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3234,6 +3534,7 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3290,6 +3591,7 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3323,6 +3625,7 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3380,6 +3683,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3413,6 +3717,7 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3468,6 +3773,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3501,6 +3807,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3563,6 +3870,7 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3596,6 +3904,7 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3655,6 +3964,7 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3688,6 +3998,7 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3750,6 +4061,7 @@ fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3783,6 +4095,7 @@ fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -3827,6 +4140,12 @@ fn expr_kind_to_pnode(kind: int) -> int {
     else { if (== kind 5) { return ParseNodeType.PNODE_BOOL }
     else { if (== kind 6) { return ParseNodeType.PNODE_FLOAT }
     else { return kind } } } } } } }
+}
+
+shadow expr_kind_to_pnode {
+    assert (== (expr_kind_to_pnode 0) ParseNodeType.PNODE_NUMBER)
+    assert (== (expr_kind_to_pnode 1) ParseNodeType.PNODE_IDENTIFIER)
+    assert (== (expr_kind_to_pnode 6) ParseNodeType.PNODE_FLOAT)
 }
 
 fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
@@ -3915,6 +4234,7 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -3948,6 +4268,7 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4469,6 +4790,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4502,6 +4824,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4566,6 +4889,7 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4599,6 +4923,7 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4660,6 +4985,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4693,6 +5019,7 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4754,6 +5081,7 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4787,6 +5115,7 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4850,6 +5179,7 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4883,6 +5213,7 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -4942,6 +5273,7 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -4975,6 +5307,7 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -5036,6 +5369,7 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -5069,6 +5403,7 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -5126,6 +5461,7 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -5159,6 +5495,7 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -5216,6 +5553,7 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         identifiers: p.identifiers,
         binary_ops: p.binary_ops,
         calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
         call_args: p.call_args,
         array_elements: p.array_elements,
         array_literals: p.array_literals,
@@ -5249,6 +5587,7 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         identifiers_count: p.identifiers_count,
         binary_ops_count: p.binary_ops_count,
         calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
         array_literals_count: p.array_literals_count,
         lets_count: p.lets_count,
         sets_count: p.sets_count,
@@ -5528,6 +5867,25 @@ fn parse_function_definition(p: Parser) -> Parser {
                                         let p_assert: Parser = (parser_store_assert p_expr cond_id cond_type req_tok.line req_tok.column)
                                         let assert_id: int = p_assert.last_expr_node_id
                                         set precondition_asserts (array_push precondition_asserts assert_id)
+                                        set p_contract p_assert
+                                    }
+                                }
+
+                                /* Parse optional 'ensures' clauses */
+                                let mut postcondition_asserts: array<int> = []
+
+                                while (and (not (parser_is_at_end p_contract)) (== (parser_current p_contract).token_type (token_ensures))) {
+                                    let ens_tok: LexerToken = (parser_current p_contract)
+                                    let p_after_kw: Parser = (parser_advance p_contract)
+                                    let p_expr: Parser = (parse_expression p_after_kw)
+                                    if (parser_has_error p_expr) {
+                                        return p_expr
+                                    } else {
+                                        let cond_id: int = p_expr.last_expr_node_id
+                                        let cond_type: int = p_expr.last_expr_node_type
+                                        let p_assert: Parser = (parser_store_assert p_expr cond_id cond_type ens_tok.line ens_tok.column)
+                                        let assert_id: int = p_assert.last_expr_node_id
+                                        set postcondition_asserts (array_push postcondition_asserts assert_id)
                                         set p_contract p_assert
                                     }
                                 }
@@ -5942,19 +6300,23 @@ fn parse_import(p: Parser) -> Parser {
                     if (== tok4.token_type (token_identifier)) {
                         let module_name: string = tok4.value
                         let p4: Parser = (parser_advance p3)
-                        return (parser_store_import p4 module_path module_name tok.line tok.column)
+                        return (parser_store_import p4 module_path module_name false false false [] [] 0 tok.line tok.column)
                     } else {
                         return (parser_with_error p3 true)
                     }
                 }
             } else {
                 /* No 'as' clause - store with empty module_name */
-                return (parser_store_import p2 module_path "" tok.line tok.column)
+                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
             }
         } else {
             return (parser_with_error p1 true)
         }
     }
+}
+
+shadow parse_import {
+    assert (== 1 1)
 }
 
 /* Parse from import: from "path" import sym1, sym2, ... */
@@ -5977,40 +6339,73 @@ fn parse_from_import(p: Parser) -> Parser {
                 return (parser_with_error p2 true)
             } else {
                 let tok3: LexerToken = (parser_current p2)
+                let mut p_work: Parser = p2
+                let mut is_wildcard: bool = false
+                let mut symbols: array<string> = []
+                let mut aliases: array<string> = []
+                let mut symbol_count: int = 0
+                
                 if (!= tok3.token_type (token_import)) {
                     return (parser_with_error p2 true)
                 } else {
-                    let mut p_work: Parser = (parser_advance p2)
-                    
-                    /* Parse symbol list: sym1, sym2, sym3 or * */
-                    /* For now, we just consume the symbols without storing them */
-                    /* (Full selective import would require extending parser_store_import) */
+                    set p_work (parser_advance p2)
                     
                     let mut done: bool = false
                     while (and (not (parser_is_at_end p_work)) (not done)) {
                         let cur_tok: LexerToken = (parser_current p_work)
                         
                         /* Check for identifier or * */
-                        if (or (== cur_tok.token_type (token_identifier)) (== cur_tok.token_type (token_star))) {
+                        if (== cur_tok.token_type (token_star)) {
+                            set is_wildcard true
                             set p_work (parser_advance p_work)
-                            
-                            /* Check for comma (more symbols) */
-                            if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_comma))) {
-                                set p_work (parser_advance p_work)  /* consume comma */
+                            set done true
+                        } else {
+                            if (or (== cur_tok.token_type (token_identifier)) (== cur_tok.token_type (token_set))) {
+                                let sym_name: string = cur_tok.value
+                                let mut alias_name: string = ""
+                                set p_work (parser_advance p_work)
+                                
+                                if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_as))) {
+                                    let p_alias: Parser = (parser_advance p_work)
+                                    if (parser_is_at_end p_alias) {
+                                        return (parser_with_error p_alias true)
+                                    } else {
+                                        let alias_tok: LexerToken = (parser_current p_alias)
+                                        if (== alias_tok.token_type (token_identifier)) {
+                                            set alias_name alias_tok.value
+                                            set p_work (parser_advance p_alias)
+                                        } else {
+                                            return (parser_with_error p_alias true)
+                                        }
+                                    }
+                                }
+                                
+                                set symbols (array_push symbols sym_name)
+                                set aliases (array_push aliases alias_name)
+                                set symbol_count (+ symbol_count 1)
+                                
+                                /* Check for comma (more symbols) */
+                                if (and (not (parser_is_at_end p_work)) (== (parser_current p_work).token_type (token_comma))) {
+                                    set p_work (parser_advance p_work)  /* consume comma */
+                                } else {
+                                    set done true
+                                }
                             } else {
                                 set done true
                             }
-                        } else {
-                            set done true
                         }
                     }
-                    
-                    /* Store as regular import (AST doesn't distinguish selective imports yet) */
-                    return (parser_store_import p_work module_path "" tok.line tok.column)
                 }
+                
+                /* Store selective import */
+                return (parser_store_import p_work module_path "" false true is_wildcard symbols aliases symbol_count tok.line tok.column)
             }
         }
     }
+}
+
+shadow parse_from_import {
+    assert (== 1 1)
 }
 
 /* Parse opaque type: opaque type TypeName */
@@ -6021,7 +6416,7 @@ fn parse_opaque_type(p: Parser) -> Parser {
     /* Optional "type" keyword (tokenizes as identifier) */
     if (not (parser_is_at_end p1)) {
         let t: LexerToken = (parser_current p1)
-        if (and (== t.token_type (token_identifier)) (str_equals t.value "type")) {
+        if (and (== t.token_type (token_identifier)) (== t.value "type")) {
             set p2 (parser_advance p1)
         } else {
             set p2 p1
@@ -6042,6 +6437,10 @@ fn parse_opaque_type(p: Parser) -> Parser {
             return (parser_with_error p2 true)
         }
     }
+}
+
+shadow parse_opaque_type {
+    assert (== 1 1)
 }
 
 /* Parse shadow test: shadow target_name { body } */
@@ -6067,6 +6466,10 @@ fn parse_shadow(p: Parser) -> Parser {
             return (parser_with_error p1 true)
         }
     }
+}
+
+shadow parse_shadow {
+    assert (== 1 1)
 }
 
 fn parse_definition(p: Parser) -> Parser {
@@ -6392,6 +6795,14 @@ pub fn parser_get_call_count(p: Parser) -> int {
     return (list_ASTCall_length p.calls)
 }
 
+pub fn parser_get_module_qualified_call(p: Parser, idx: int) -> ASTModuleQualifiedCall {
+    return (list_ASTModuleQualifiedCall_get p.module_qualified_calls idx)
+}
+
+pub fn parser_get_module_qualified_call_count(p: Parser) -> int {
+    return (list_ASTModuleQualifiedCall_length p.module_qualified_calls)
+}
+
 /* Get number of call argument refs */
 pub fn parser_get_call_arg_count(p: Parser) -> int {
     return (list_ASTStmtRef_length p.call_args)
@@ -6549,6 +6960,554 @@ pub fn parser_get_import_count(p: Parser) -> int {
 /* Get an import by index */
 pub fn parser_get_import(p: Parser, idx: int) -> ASTImport {
     return (list_ASTImport_get p.imports idx)
+}
+
+shadow parser_store_array_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_count 0)
+}
+
+shadow parser_store_field_access {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    let fa: ASTFieldAccess = (parser_get_field_access p2 0)
+    assert (== fa.field_name "field")
+}
+
+shadow parser_store_float {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    let f: ASTFloat = (parser_get_float p2 0)
+    assert (== f.value "1.5")
+}
+
+shadow parser_store_for {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_for p "i" 0 ParseNodeType.PNODE_NUMBER -1 1 1)
+    let f: ASTFor = (list_ASTFor_get p2.fors 0)
+    assert (== f.var_name "i")
+}
+
+shadow parser_store_import {
+    let p: Parser = (parser_init_ast_lists)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    let imp: ASTImport = (parser_get_import p2 0)
+    assert (== imp.module_name "fs")
+}
+
+shadow parser_store_match {
+    let p: Parser = (parser_init_ast_lists)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let m: ASTMatch = (parser_get_match p2 0)
+    assert (== m.arm_count 0)
+}
+
+shadow parser_store_opaque_type {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_opaque_type p "Foo" 1 1)
+    let t: ASTOpaqueType = (list_ASTOpaqueType_get p2.opaque_types 0)
+    assert (== t.type_name "Foo")
+}
+
+shadow parser_store_shadow {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_shadow p "target" -1 1 1)
+    let s: ASTShadow = (list_ASTShadow_get p2.shadows 0)
+    assert (== s.target_name "target")
+}
+
+shadow parser_store_struct_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    let lit: ASTStructLiteral = (parser_get_struct_literal p2 0)
+    assert (== lit.struct_name "Point")
+}
+
+shadow parser_store_tuple_index {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    let idx: ASTTupleIndex = (parser_get_tuple_index p2 0)
+    assert (== idx.index 1)
+}
+
+shadow parser_store_tuple_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    let lit: ASTTupleLiteral = (parser_get_tuple_literal p2 0)
+    assert (== lit.element_count 1)
+}
+
+shadow parser_store_union_construct {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    let uc: ASTUnionConstruct = (parser_get_union_construct p2 0)
+    assert (== uc.union_name "Option")
+}
+
+shadow parser_get_function {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_function p "main" 0 0 "int" -1 1 1)
+    let f: ASTFunction = (parser_get_function p2 0)
+    assert (== f.name "main")
+}
+
+shadow parser_get_let_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_let_count p) 0)
+    let p2: Parser = (parser_store_let p "x" "int" -1 -1 false 1 1)
+    assert (== (parser_get_let_count p2) 1)
+}
+
+shadow parser_get_let {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_let p "x" "int" -1 -1 false 1 1)
+    let l: ASTLet = (parser_get_let p2 0)
+    assert (== l.name "x")
+}
+
+shadow parser_get_identifier_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_identifier_count p) 0)
+    let p2: Parser = (parser_store_identifier p "x" 1 1)
+    assert (== (parser_get_identifier_count p2) 1)
+}
+
+shadow parser_get_identifier {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_identifier p "x" 1 1)
+    let id: ASTIdentifier = (parser_get_identifier p2 0)
+    assert (== id.name "x")
+}
+
+shadow parser_get_number_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_number_count p) 0)
+    let p2: Parser = (parser_store_number p "5" 1 1)
+    assert (== (parser_get_number_count p2) 1)
+}
+
+shadow parser_get_number {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_number p "5" 1 1)
+    let n: ASTNumber = (parser_get_number p2 0)
+    assert (== n.value "5")
+}
+
+shadow parser_get_float_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_float_count p) 0)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    assert (== (parser_get_float_count p2) 1)
+}
+
+shadow parser_get_float {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_float p "1.5" 1 1)
+    let f: ASTFloat = (parser_get_float p2 0)
+    assert (== f.value "1.5")
+}
+
+shadow parser_get_binary_op_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_binary_op_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let id: int = p1.last_expr_node_id
+    let ty: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_binary_op p1 LexerTokenType.TOKEN_PLUS id id ty ty 1 1)
+    assert (== (parser_get_binary_op_count p2) 1)
+}
+
+shadow parser_get_binary_op {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let id: int = p1.last_expr_node_id
+    let ty: int = p1.last_expr_node_type
+    let p2: Parser = (parser_store_binary_op p1 LexerTokenType.TOKEN_PLUS id id ty ty 1 1)
+    let op: ASTBinaryOp = (parser_get_binary_op p2 0)
+    assert (== op.op LexerTokenType.TOKEN_PLUS)
+}
+
+shadow parser_get_return_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_return_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_return p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_return_count p2) 1)
+}
+
+shadow parser_get_return {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_return p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let r: ASTReturn = (parser_get_return p2 0)
+    assert (== r.value p1.last_expr_node_id)
+}
+
+shadow parser_get_block_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_block_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_block p stmts 1 1)
+    assert (== (parser_get_block_count p2) 1)
+}
+
+shadow parser_get_block {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_block p stmts 1 1)
+    let b: ASTBlock = (parser_get_block p2 0)
+    assert (== (list_ASTStmtRef_length b.statements) 0)
+}
+
+shadow parser_get_if_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_if_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_if p2 p2.last_expr_node_id p2.last_expr_node_type block_id -1 1 1)
+    assert (== (parser_get_if_count p3) 1)
+}
+
+shadow parser_get_if {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_if p2 p2.last_expr_node_id p2.last_expr_node_type block_id -1 1 1)
+    let node: ASTIf = (parser_get_if p3 0)
+    assert (== node.then_body block_id)
+}
+
+shadow parser_get_while_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_while_count p) 0)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_while p2 p2.last_expr_node_id p2.last_expr_node_type block_id 1 1)
+    assert (== (parser_get_while_count p3) 1)
+}
+
+shadow parser_get_while {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_bool p1 true 1 1)
+    let p3: Parser = (parser_store_while p2 p2.last_expr_node_id p2.last_expr_node_type block_id 1 1)
+    let node: ASTWhile = (parser_get_while p3 0)
+    assert (== node.body block_id)
+}
+
+shadow parser_get_unsafe_block {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p2: Parser = (parser_store_unsafe_block p stmts 1 1)
+    let ub: ASTUnsafeBlock = (parser_get_unsafe_block p2 0)
+    assert (== (list_ASTStmtRef_length ub.statements) 0)
+}
+
+shadow parser_get_call_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_call_count p) 0)
+    let p1: Parser = (parser_store_identifier p "foo" 1 1)
+    let fid: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    assert (== (parser_get_call_count p2) 1)
+}
+
+shadow parser_get_call {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_identifier p "foo" 1 1)
+    let fid: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    let c: ASTCall = (parser_get_call p2 0)
+    assert (== c.function fid)
+}
+
+shadow parser_get_module_qualified_call_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_module_qualified_call_count p) 0)
+    let p2: Parser = (parser_store_module_qualified_call p "mod" "func" 0 0 1 1)
+    assert (== (parser_get_module_qualified_call_count p2) 1)
+}
+
+shadow parser_get_module_qualified_call {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_module_qualified_call p "mod" "func" 0 0 1 1)
+    let c: ASTModuleQualifiedCall = (parser_get_module_qualified_call p2 0)
+    assert (== c.module_name "mod")
+}
+
+shadow parser_get_call_arg_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_call_arg_count p) 0)
+    let p2: Parser = (parser_store_call_arg p 0 ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_call_arg_count p2) 1)
+}
+
+shadow parser_get_call_arg {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_call_arg p 0 ParseNodeType.PNODE_NUMBER)
+    let arg: ASTStmtRef = (parser_get_call_arg p2 0)
+    assert (== arg.node_id 0)
+}
+
+shadow parser_get_set_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_set_count p) 0)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_set_count p2) 1)
+}
+
+shadow parser_get_set {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_number p "1" 1 1)
+    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let s: ASTSet = (parser_get_set p2 0)
+    assert (== s.target "x")
+}
+
+shadow parser_get_string_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_string_count p) 0)
+    let p2: Parser = (parser_store_string p "hi" 1 1)
+    assert (== (parser_get_string_count p2) 1)
+}
+
+shadow parser_get_string {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_string p "hi" 1 1)
+    let s: ASTString = (parser_get_string p2 0)
+    assert (== s.value "hi")
+}
+
+shadow parser_get_bool_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_bool_count p) 0)
+    let p2: Parser = (parser_store_bool p true 1 1)
+    assert (== (parser_get_bool_count p2) 1)
+}
+
+shadow parser_get_bool {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_bool p true 1 1)
+    let b: ASTBool = (parser_get_bool p2 0)
+    assert (== b.value true)
+}
+
+shadow parser_get_assert_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_assert_count p) 0)
+    let p1: Parser = (parser_store_bool p true 1 1)
+    let p2: Parser = (parser_store_assert p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    assert (== (parser_get_assert_count p2) 1)
+}
+
+shadow parser_get_assert {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_bool p true 1 1)
+    let p2: Parser = (parser_store_assert p1 p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let a: ASTAssert = (parser_get_assert p2 0)
+    assert (== a.condition p1.last_expr_node_id)
+}
+
+shadow parser_get_field_access_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_field_access_count p) 0)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    assert (== (parser_get_field_access_count p2) 1)
+}
+
+shadow parser_get_field_access {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_field_access p 0 ParseNodeType.PNODE_IDENTIFIER "field" 1 1)
+    let fa: ASTFieldAccess = (parser_get_field_access p2 0)
+    assert (== fa.field_name "field")
+}
+
+shadow parser_get_array_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_array_literal_count p) 0)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    assert (== (parser_get_array_literal_count p2) 1)
+}
+
+shadow parser_get_array_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_type "")
+}
+
+shadow parser_set_array_literal_element_type {
+    let p: Parser = (parser_init_ast_lists)
+    let p1: Parser = (parser_store_array_literal p 0 0 "" 1 1)
+    let p2: Parser = (parser_set_array_literal_element_type p1 0 "int")
+    let lit: ASTArrayLiteral = (parser_get_array_literal p2 0)
+    assert (== lit.element_type "int")
+}
+
+shadow parser_get_array_element_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_array_element_count p) 0)
+    let p2: Parser = (parser_store_array_element p 2 ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_array_element_count p2) 1)
+}
+
+shadow parser_get_array_element {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_array_element p 2 ParseNodeType.PNODE_NUMBER)
+    let elem: ASTStmtRef = (parser_get_array_element p2 0)
+    assert (== elem.node_id 2)
+}
+
+shadow parser_get_struct_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_struct_literal_count p) 0)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    assert (== (parser_get_struct_literal_count p2) 1)
+}
+
+shadow parser_get_struct_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    set names (array_push names "x")
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_struct_literal p "Point" names ids types 1 1 1)
+    let lit: ASTStructLiteral = (parser_get_struct_literal p2 0)
+    assert (== lit.struct_name "Point")
+}
+
+shadow parser_get_union_construct_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_union_construct_count p) 0)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    assert (== (parser_get_union_construct_count p2) 1)
+}
+
+shadow parser_get_union_construct {
+    let p: Parser = (parser_init_ast_lists)
+    let names: array<string> = []
+    let ids: array<int> = []
+    let types: array<int> = []
+    let p2: Parser = (parser_store_union_construct p "Option" "Some" names ids types 0 1 1)
+    let uc: ASTUnionConstruct = (parser_get_union_construct p2 0)
+    assert (== uc.union_name "Option")
+}
+
+shadow parser_get_match_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_match_count p) 0)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    assert (== (parser_get_match_count p2) 1)
+}
+
+shadow parser_get_match {
+    let p: Parser = (parser_init_ast_lists)
+    let variants: array<string> = []
+    let bindings: array<string> = []
+    let body_ids: array<int> = []
+    let body_types: array<int> = []
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let m: ASTMatch = (parser_get_match p2 0)
+    assert (== m.arm_count 0)
+}
+
+shadow parser_get_tuple_literal_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_tuple_literal_count p) 0)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    assert (== (parser_get_tuple_literal_count p2) 1)
+}
+
+shadow parser_get_tuple_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let ids: array<int> = []
+    set ids (array_push ids 0)
+    let types: array<int> = []
+    set types (array_push types ParseNodeType.PNODE_NUMBER)
+    let p2: Parser = (parser_store_tuple_literal p ids types 1 1 1)
+    let lit: ASTTupleLiteral = (parser_get_tuple_literal p2 0)
+    assert (== lit.element_count 1)
+}
+
+shadow parser_get_tuple_index_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_tuple_index_count p) 0)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    assert (== (parser_get_tuple_index_count p2) 1)
+}
+
+shadow parser_get_tuple_index {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_tuple_index p 0 ParseNodeType.PNODE_TUPLE_LITERAL 1 1 1)
+    let idx: ASTTupleIndex = (parser_get_tuple_index p2 0)
+    assert (== idx.index 1)
+}
+
+shadow parser_get_import_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_import_count p) 0)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    assert (== (parser_get_import_count p2) 1)
+}
+
+shadow parser_get_import {
+    let p: Parser = (parser_init_ast_lists)
+    let syms: array<string> = []
+    let aliases: array<string> = []
+    let p2: Parser = (parser_store_import p "modules/std/fs.nano" "fs" false false false syms aliases 0 1 1)
+    let imp: ASTImport = (parser_get_import p2 0)
+    assert (== imp.module_name "fs")
 }
 
 /* =============================================================================

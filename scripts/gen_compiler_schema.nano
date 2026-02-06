@@ -10,7 +10,7 @@ let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
 
 fn write_if_changed(path: string, content: string) -> int {
     let current: string = (read path)
-    if (str_equals current content) {
+    if (== current content) {
         return 0
     }
     return (write path content)
@@ -312,7 +312,7 @@ fn str_starts_with(s: string, prefix: string) -> bool {
         return false
     } else {}
     let sub: string = (str_substring s 0 p_len)
-    return (str_equals sub prefix)
+    return (== sub prefix)
 }
 
 shadow str_starts_with {
@@ -334,19 +334,19 @@ fn extract_between(s: string, start: string, end: string) -> string {
 }
 
 shadow extract_between {
-    assert (str_equals (extract_between "List<int>" "List<" ">") "int")
-    assert (str_equals (extract_between "array<string>" "array<" ">") "string")
+    assert (== (extract_between "List<int>" "List<" ">") "int")
+    assert (== (extract_between "array<string>" "array<" ">") "string")
 }
 
 # Helper: Map NanoLang type to C type
 fn map_type_to_c(nano_type: string) -> string {
-    if (str_equals nano_type "string") {
+    if (== nano_type "string") {
         return "const char *"
     } else {
-        if (str_equals nano_type "bool") {
+        if (== nano_type "bool") {
             return "bool"
         } else {
-            if (str_equals nano_type "int") {
+            if (== nano_type "int") {
                 return "int64_t"
             } else {
                 if (str_starts_with nano_type "array<") {
@@ -356,10 +356,10 @@ fn map_type_to_c(nano_type: string) -> string {
                         let inner: string = (extract_between nano_type "List<" ">")
                         return (+ "List_" (+ inner " *"))
                     } else {
-                        if (or (str_equals nano_type "Parser") (str_equals nano_type "TypeEnvironment")) {
+                        if (or (== nano_type "Parser") (== nano_type "TypeEnvironment")) {
                             return nano_type
                         } else {
-                            if (str_equals nano_type "Type") {
+                            if (== nano_type "Type") {
                                 return "NSType"
                             } else {
                                 return nano_type
@@ -373,12 +373,12 @@ fn map_type_to_c(nano_type: string) -> string {
 }
 
 shadow map_type_to_c {
-    assert (str_equals (map_type_to_c "string") "const char *")
-    assert (str_equals (map_type_to_c "bool") "bool")
-    assert (str_equals (map_type_to_c "int") "int64_t")
-    assert (str_equals (map_type_to_c "array<int>") "DynArray *")
-    assert (str_equals (map_type_to_c "List<Token>") "List_Token *")
-    assert (str_equals (map_type_to_c "Type") "NSType")
+    assert (== (map_type_to_c "string") "const char *")
+    assert (== (map_type_to_c "bool") "bool")
+    assert (== (map_type_to_c "int") "int64_t")
+    assert (== (map_type_to_c "array<int>") "DynArray *")
+    assert (== (map_type_to_c "List<Token>") "List_Token *")
+    assert (== (map_type_to_c "Type") "NSType")
 }
 
 # Generate C header
@@ -542,10 +542,10 @@ fn gen_c(schema: Json) -> string {
                     set output (+ output (+ "typedef " (+ c_struct_name (+ " " (+ struct_name ";\n")))))
                     
                     # Special typedefs
-                    if (str_equals struct_name "LexerToken") {
+                    if (== struct_name "LexerToken") {
                         set output (+ output "typedef nl_LexerToken Token;\n")
                     } else {}
-                    if (str_equals struct_name "Type") {
+                    if (== struct_name "Type") {
                         set output (+ output "typedef Type NSType;\n")
                     } else {}
                     

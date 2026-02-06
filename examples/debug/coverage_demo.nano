@@ -25,6 +25,12 @@ fn fibonacci(n: int) -> int {
     return result
 }
 
+shadow fibonacci {
+    assert (== (fibonacci 0) 0)
+    assert (== (fibonacci 1) 1)
+    assert (== (fibonacci 5) 5)
+}
+
 # Function demonstrating conditional coverage
 fn classify_number(x: int) -> string {
     (trace_record "CALL" "classify_number" (int_to_string x))
@@ -47,6 +53,12 @@ fn classify_number(x: int) -> string {
     }
 }
 
+shadow classify_number {
+    assert (== (classify_number -3) "negative")
+    assert (== (classify_number 0) "zero")
+    assert (== (classify_number 4) "positive")
+}
+
 # Function with loop coverage
 fn sum_array(arr: array<int>) -> int {
     (trace_record "CALL" "sum_array" (int_to_string (array_length arr)))
@@ -63,6 +75,11 @@ fn sum_array(arr: array<int>) -> int {
     
     (trace_record "RETURN" "sum_array" (int_to_string total))
     return total
+}
+
+shadow sum_array {
+    assert (== (sum_array []) 0)
+    assert (== (sum_array [1, 2, 3]) 6)
 }
 
 fn main() -> int {
@@ -106,4 +123,8 @@ fn main() -> int {
     (trace_report)
     
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

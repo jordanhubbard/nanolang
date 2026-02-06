@@ -8,6 +8,10 @@
 #include "runtime/dyn_array.h"
 #include "tracing.h"
 #include "interpreter_ffi.h"
+#include "eval/eval_hashmap.h"
+#include "eval/eval_math.h"
+#include "eval/eval_string.h"
+#include "eval/eval_io.h"
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -25,6 +29,7 @@ typedef struct {
     int first_column;
     int fail_count;
 } ShadowFailure;
+
 
 static FunctionSignature *copy_function_signature(const FunctionSignature *sig) {
     if (!sig) return NULL;
@@ -303,595 +308,7 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
 }
 
 /* ==========================================================================
- * Built-in OS Functions Implementation
- * ========================================================================== */
-
-/* File Operations */
-static Value builtin_file_read(Value *args) {
-    const char *path = args[0].as.string_val;
-    FILE *f = fopen(path, "rb");  /* Binary mode for MOD files and other binary data */
-    if (!f) return create_string("");
-
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    char *buffer = malloc(size + 1);
-    fread(buffer, 1, size, f);
-    buffer[size] = '\0';
-    fclose(f);
-
-    Value result = create_string(buffer);
-    free(buffer);
-    return result;
-}
-
-static Value builtin_file_read_bytes(Value *args) {
-    const char *path = args[0].as.string_val;
-    FILE *f = fopen(path, "rb");
-    if (!f) {
-        return create_dyn_array(dyn_array_new(ELEM_INT));
-    }
-
-    DynArray *bytes = dyn_array_new(ELEM_INT);
-    int c;
-    while ((c = fgetc(f)) != EOF) {
-        dyn_array_push_int(bytes, (int64_t)(unsigned char)c);
-    }
-    fclose(f);
-    return create_dyn_array(bytes);
-}
-
-static Value builtin_bytes_from_string(Value *args) {
-    if (args[0].type != VAL_STRING) {
-        fprintf(stderr, "Error: bytes_from_string requires a string argument\n");
-        return create_void();
-    }
-
-    const char *s = args[0].as.string_val;
-    size_t len = strlen(s);
-    DynArray *out = dyn_array_new(ELEM_INT);
-    for (size_t i = 0; i < len; i++) {
-        dyn_array_push_int(out, (int64_t)(unsigned char)s[i]);
-    }
-    return create_dyn_array(out);
-}
-
-static Value builtin_string_from_bytes(Value *args) {
-    if (args[0].type != VAL_ARRAY && args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: string_from_bytes requires an array argument\n");
-        return create_void();
-    }
-
-    int64_t len = 0;
-    char *buf = NULL;
-
-    if (args[0].type == VAL_ARRAY) {
-        Array *arr = args[0].as.array_val;
-        if (arr->element_type != VAL_INT) {
-            fprintf(stderr, "Error: string_from_bytes requires array<int>\n");
-            return create_void();
-        }
-        len = arr->length;
-        buf = malloc((size_t)len + 1);
-        for (int64_t i = 0; i < len; i++) {
-            long long v = ((long long*)arr->data)[i];
-            buf[i] = (char)(unsigned char)v;
-        }
-    } else {
-        DynArray *arr = args[0].as.dyn_array_val;
-        ElementType t = dyn_array_get_elem_type(arr);
-        if (t != ELEM_INT && t != ELEM_U8) {
-            fprintf(stderr, "Error: string_from_bytes requires array<u8> (represented as int/u8)\n");
-            return create_void();
-        }
-        len = dyn_array_length(arr);
-        buf = malloc((size_t)len + 1);
-        for (int64_t i = 0; i < len; i++) {
-            int64_t v = (t == ELEM_U8) ? (int64_t)dyn_array_get_u8(arr, i) : dyn_array_get_int(arr, i);
-            buf[i] = (char)(unsigned char)v;
-        }
-    }
-
-    if (!buf) return create_string("");
-    buf[len] = '\0';
-    Value result = create_string(buf);
-    free(buf);
-    return result;
-}
-
-static Value builtin_file_write(Value *args) {
-    const char *path = args[0].as.string_val;
-    const char *content = args[1].as.string_val;
-    FILE *f = fopen(path, "w");
-    if (!f) return create_int(-1);
-
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
-}
-
-static Value builtin_file_append(Value *args) {
-    const char *path = args[0].as.string_val;
-    const char *content = args[1].as.string_val;
-    FILE *f = fopen(path, "a");
-    if (!f) return create_int(-1);
-
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
-}
-
-static Value builtin_file_remove(Value *args) {
-    const char *path = args[0].as.string_val;
-    return create_int(remove(path) == 0 ? 0 : -1);
-}
-
-static Value builtin_file_rename(Value *args) {
-    const char *old_path = args[0].as.string_val;
-    const char *new_path = args[1].as.string_val;
-    return create_int(rename(old_path, new_path) == 0 ? 0 : -1);
-}
-
-static Value builtin_file_exists(Value *args) {
-    const char *path = args[0].as.string_val;
-    return create_bool(access(path, F_OK) == 0);
-}
-
-static Value builtin_file_size(Value *args) {
-    const char *path = args[0].as.string_val;
-    struct stat st;
-    if (stat(path, &st) != 0) return create_int(-1);
-    return create_int(st.st_size);
-}
-
-static Value builtin_tmp_dir(Value *args) {
-    (void)args;
-    const char *tmp = getenv("TMPDIR");
-    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
-    return create_string(tmp);
-}
-
-static Value builtin_mktemp(Value *args) {
-    const char *prefix = args[0].as.string_val;
-    const char *tmp = getenv("TMPDIR");
-    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
-
-    char templ[1024];
-    const char *p = (prefix && prefix[0] != '\0') ? prefix : "nanolang_";
-    snprintf(templ, sizeof(templ), "%s/%sXXXXXX", tmp, p);
-
-    int fd = mkstemp(templ);
-    if (fd < 0) return create_string("");
-    close(fd);
-    return create_string(templ);
-}
-
-static Value builtin_mktemp_dir(Value *args) {
-    const char *prefix = args[0].as.string_val;
-    const char *tmp = getenv("TMPDIR");
-    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
-
-    char path[1024];
-    const char *p = (prefix && prefix[0] != '\0') ? prefix : "nanolang_dir_";
-
-    for (int i = 0; i < 100; i++) {
-        /* Best-effort: unique-ish name; mkdir is atomic */
-        snprintf(path, sizeof(path), "%s/%s%lld_%d", tmp, p, (long long)time(NULL), i);
-        if (mkdir(path, 0700) == 0) {
-            return create_string(path);
-        }
-    }
-
-    return create_string("");
-}
-
-/* Directory Operations */
-static Value builtin_dir_create(Value *args) {
-    const char *path = args[0].as.string_val;
-    return create_int(mkdir(path, 0755) == 0 ? 0 : -1);
-}
-
-static Value builtin_dir_remove(Value *args) {
-    const char *path = args[0].as.string_val;
-    return create_int(rmdir(path) == 0 ? 0 : -1);
-}
-
-static Value builtin_dir_list(Value *args) {
-    const char *path = args[0].as.string_val;
-    DIR *dir = opendir(path);
-    if (!dir) return create_string("");
-
-    /* Build newline-separated list */
-    char buffer[4096] = "";
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        /* Skip . and .. */
-        assert(entry->d_name != NULL);
-        if (safe_strcmp(entry->d_name, ".") == 0 || safe_strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-        safe_strncat(buffer, entry->d_name, sizeof(buffer));
-        safe_strncat(buffer, "\n", sizeof(buffer));
-    }
-    closedir(dir);
-
-    return create_string(buffer);
-}
-
-static Value builtin_dir_exists(Value *args) {
-    const char *path = args[0].as.string_val;
-    struct stat st;
-    if (stat(path, &st) != 0) return create_bool(false);
-    return create_bool(S_ISDIR(st.st_mode));
-}
-
-static Value builtin_getcwd(Value *args) {
-    (void)args;  /* Unused */
-    char buffer[1024];
-    if (getcwd(buffer, sizeof(buffer)) == NULL) {
-        return create_string("");
-    }
-    return create_string(buffer);
-}
-
-static Value builtin_chdir(Value *args) {
-    const char *path = args[0].as.string_val;
-    return create_int(chdir(path) == 0 ? 0 : -1);
-}
-
-/* Path Operations */
-static Value builtin_path_isfile(Value *args) {
-    const char *path = args[0].as.string_val;
-    struct stat st;
-    if (stat(path, &st) != 0) return create_bool(false);
-    return create_bool(S_ISREG(st.st_mode));
-}
-
-static Value builtin_path_isdir(Value *args) {
-    const char *path = args[0].as.string_val;
-    struct stat st;
-    if (stat(path, &st) != 0) return create_bool(false);
-    return create_bool(S_ISDIR(st.st_mode));
-}
-
-static Value builtin_path_join(Value *args) {
-    const char *a = args[0].as.string_val;
-    const char *b = args[1].as.string_val;
-    char buffer[2048];
-
-    /* Handle various cases */
-    assert(a != NULL);
-    assert(b != NULL);
-    if (safe_strlen(a) == 0) {
-        snprintf(buffer, sizeof(buffer), "%s", b);
-    } else if (a[safe_strlen(a) - 1] == '/') {
-        snprintf(buffer, sizeof(buffer), "%s%s", a, b);
-    } else {
-        snprintf(buffer, sizeof(buffer), "%s/%s", a, b);
-    }
-
-    return create_string(buffer);
-}
-
-static Value builtin_path_basename(Value *args) {
-    const char *path = args[0].as.string_val;
-    char *path_copy = strdup(path);
-    char *base = basename(path_copy);
-    Value result = create_string(base);
-    free(path_copy);
-    return result;
-}
-
-static Value builtin_path_dirname(Value *args) {
-    const char *path = args[0].as.string_val;
-    char *path_copy = strdup(path);
-    char *dir = dirname(path_copy);
-    Value result = create_string(dir);
-    free(path_copy);
-    return result;
-}
-
-static char* nl_path_normalize(const char* path) {
-    if (!path) return strdup("");
-    bool abs = (path[0] == '/');
-    char* copy = strdup(path);
-    if (!copy) return strdup("");
-
-    const char* parts[512];
-    int count = 0;
-    char* save = NULL;
-    char* tok = strtok_r(copy, "/", &save);
-    while (tok) {
-        if (tok[0] == '\0' || strcmp(tok, ".") == 0) {
-            /* skip */
-        } else if (strcmp(tok, "..") == 0) {
-            if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
-                count--;
-            } else if (!abs) {
-                parts[count++] = tok;
-            }
-        } else {
-            if (count < 512) parts[count++] = tok;
-        }
-        tok = strtok_r(NULL, "/", &save);
-    }
-
-    size_t cap = strlen(path) + 3;
-    char* out = malloc(cap);
-    if (!out) { free(copy); return strdup(""); }
-    size_t pos = 0;
-    if (abs) out[pos++] = '/';
-    for (int i = 0; i < count; i++) {
-        size_t len = strlen(parts[i]);
-        if (pos + len + 2 > cap) {
-            cap = (pos + len + 2) * 2;
-            char* n = realloc(out, cap);
-            if (!n) { free(out); free(copy); return strdup(""); }
-            out = n;
-        }
-        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';
-        memcpy(out + pos, parts[i], len);
-        pos += len;
-    }
-    if (pos == 0) {
-        if (abs) out[pos++] = '/';
-        else out[pos++] = '.';
-    }
-    out[pos] = '\0';
-
-    free(copy);
-    return out;
-}
-
-static Value builtin_path_normalize(Value *args) {
-    char* norm = nl_path_normalize(args[0].as.string_val);
-    Value v = create_string(norm);
-    free(norm);
-    return v;
-}
-
-static void nl_walkdir_rec(const char* root, DynArray* out) {
-    DIR* dir = opendir(root);
-    if (!dir) return;
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-        size_t root_len = strlen(root);
-        size_t name_len = strlen(entry->d_name);
-        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');
-        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;
-        char* path = malloc(cap);
-        if (!path) continue;
-        if (needs_slash) snprintf(path, cap, "%s/%s", root, entry->d_name);
-        else snprintf(path, cap, "%s%s", root, entry->d_name);
-
-        struct stat st;
-        if (stat(path, &st) != 0) { free(path); continue; }
-        if (S_ISDIR(st.st_mode)) {
-            nl_walkdir_rec(path, out);
-            free(path);
-        } else if (S_ISREG(st.st_mode)) {
-            dyn_array_push_string(out, path);
-        } else {
-            free(path);
-        }
-    }
-    closedir(dir);
-}
-
-static Value builtin_fs_walkdir(Value *args) {
-    const char* root = args[0].as.string_val;
-    DynArray* out = dyn_array_new(ELEM_STRING);
-    if (root && root[0] != '\0') {
-        nl_walkdir_rec(root, out);
-    }
-    return create_dyn_array(out);
-}
-
-/* Process Operations */
-static Value builtin_system(Value *args) {
-    const char *command = args[0].as.string_val;
-    return create_int(system(command));
-}
-
-static Value builtin_exit(Value *args) {
-    int code = (int)args[0].as.int_val;
-    exit(code);
-    return create_void();  /* Never reached */
-}
-
-static Value builtin_getenv(Value *args) {
-    const char *name = args[0].as.string_val;
-    const char *value = getenv(name);
-    return create_string(value ? value : "");
-}
-
-static Value builtin_setenv(Value *args) {
-    const char *name = args[0].as.string_val;
-    const char *value = args[1].as.string_val;
-    int overwrite = (int)args[2].as.int_val;
-    return create_int(setenv(name, value, overwrite) == 0 ? 0 : -1);
-}
-
-static Value builtin_unsetenv(Value *args) {
-    const char *name = args[0].as.string_val;
-    return create_int(unsetenv(name) == 0 ? 0 : -1);
-}
-
-static char* nl_read_all_fd(int fd) {
-    size_t cap = 4096;
-    size_t len = 0;
-    char* buf = malloc(cap);
-    if (!buf) return strdup("");
-    while (1) {
-        if (len + 1 >= cap) {
-            cap *= 2;
-            char* n = realloc(buf, cap);
-            if (!n) { free(buf); return strdup(""); }
-            buf = n;
-        }
-        ssize_t r = read(fd, buf + len, cap - len - 1);
-        if (r <= 0) break;
-        len += (size_t)r;
-    }
-    buf[len] = '\0';
-    return buf;
-}
-
-static Value builtin_process_run(Value *args) {
-    const char* command = args[0].as.string_val;
-    DynArray* out = dyn_array_new(ELEM_STRING);
-
-    int out_pipe[2];
-    int err_pipe[2];
-    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
-        dyn_array_push_string(out, strdup("-1"));
-        dyn_array_push_string(out, strdup(""));
-        dyn_array_push_string(out, strdup(""));
-        return create_dyn_array(out);
-    }
-
-    posix_spawn_file_actions_t actions;
-    posix_spawn_file_actions_init(&actions);
-    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);
-    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);
-    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);
-    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);
-
-    pid_t pid = 0;
-    char* argv[] = { "sh", "-c", (char*)command, NULL };
-    extern char **environ;
-    int rc = posix_spawn(&pid, "/bin/sh", &actions, NULL, argv, environ);
-    posix_spawn_file_actions_destroy(&actions);
-
-    close(out_pipe[1]);
-    close(err_pipe[1]);
-
-    char* out_s = nl_read_all_fd(out_pipe[0]);
-    char* err_s = nl_read_all_fd(err_pipe[0]);
-    close(out_pipe[0]);
-    close(err_pipe[0]);
-
-    int code = -1;
-    if (rc != 0) {
-        code = rc;
-    } else {
-        int status = 0;
-        (void)waitpid(pid, &status, 0);
-        if (WIFEXITED(status)) code = WEXITSTATUS(status);
-        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);
-        else code = -1;
-    }
-
-    char code_buf[64];
-    snprintf(code_buf, sizeof(code_buf), "%d", code);
-    dyn_array_push_string(out, strdup(code_buf));
-    dyn_array_push_string(out, out_s);
-    dyn_array_push_string(out, err_s);
-    return create_dyn_array(out);
-}
-
-static Value builtin_result_is_ok(Value *args) {
-    if (args[0].type != VAL_UNION) return create_bool(false);
-    UnionValue *uv = args[0].as.union_val;
-    return create_bool(uv && strcmp(uv->variant_name, "Ok") == 0);
-}
-
-static Value builtin_result_is_err(Value *args) {
-    if (args[0].type != VAL_UNION) return create_bool(false);
-    UnionValue *uv = args[0].as.union_val;
-    return create_bool(uv && strcmp(uv->variant_name, "Err") == 0);
-}
-
-static Value builtin_result_unwrap(Value *args) {
-    if (args[0].type != VAL_UNION) {
-        fprintf(stderr, "panic: result_unwrap called on non-union\n");
-        exit(1);
-    }
-    UnionValue *uv = args[0].as.union_val;
-    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
-        fprintf(stderr, "panic: result_unwrap on non-Ok\n");
-        exit(1);
-    }
-    return uv->field_values[0];
-}
-
-static Value builtin_result_unwrap_err(Value *args) {
-    if (args[0].type != VAL_UNION) {
-        fprintf(stderr, "panic: result_unwrap_err called on non-union\n");
-        exit(1);
-    }
-    UnionValue *uv = args[0].as.union_val;
-    if (!uv || strcmp(uv->variant_name, "Err") != 0 || uv->field_count < 1) {
-        fprintf(stderr, "panic: result_unwrap_err on non-Err\n");
-        exit(1);
-    }
-    return uv->field_values[0];
-}
-
-static Value builtin_result_unwrap_or(Value *args) {
-    if (args[0].type != VAL_UNION) return args[1];
-    UnionValue *uv = args[0].as.union_val;
-    if (uv && strcmp(uv->variant_name, "Ok") == 0 && uv->field_count >= 1) {
-        return uv->field_values[0];
-    }
-    return args[1];
-}
-
-static Value builtin_result_map(Value *args, Environment *env) {
-    if (args[0].type != VAL_UNION) return args[0];
-    if (args[1].type != VAL_FUNCTION) {
-        fprintf(stderr, "panic: result_map requires a function\n");
-        exit(1);
-    }
-
-    UnionValue *uv = args[0].as.union_val;
-    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
-        return args[0];
-    }
-
-    Value call_args[1];
-    call_args[0] = uv->field_values[0];
-    const char *fn_name = args[1].as.function_val.function_name;
-    Value mapped = call_function(fn_name, call_args, 1, env);
-    mapped.is_return = false;
-    mapped.is_break = false;
-    mapped.is_continue = false;
-
-    char *field_names[1] = { "value" };
-    Value field_values[1] = { mapped };
-    return create_union(uv->union_name, 0, "Ok", field_names, field_values, 1);
-}
-
-static Value builtin_result_and_then(Value *args, Environment *env) {
-    if (args[0].type != VAL_UNION) return args[0];
-    if (args[1].type != VAL_FUNCTION) {
-        fprintf(stderr, "panic: result_and_then requires a function\n");
-        exit(1);
-    }
-
-    UnionValue *uv = args[0].as.union_val;
-    if (!uv || strcmp(uv->variant_name, "Ok") != 0 || uv->field_count < 1) {
-        return args[0];
-    }
-
-    Value call_args[1];
-    call_args[0] = uv->field_values[0];
-    const char *fn_name = args[1].as.function_val.function_name;
-    Value next = call_function(fn_name, call_args, 1, env);
-    next.is_return = false;
-    next.is_break = false;
-    next.is_continue = false;
-    if (next.type != VAL_UNION) {
-        fprintf(stderr, "panic: result_and_then callback did not return a Result\n");
-        exit(1);
-    }
-    return next;
-}
-
-/* ==========================================================================
- * End of Built-in OS Functions
+ * Print and Evaluation Helper Functions
  * ========================================================================== */
 
 /* Print a value (used by println and eval) */
@@ -1013,171 +430,6 @@ static void print_value(Value val) {
             printf("void");
             break;
     }
-}
-
-/* ==========================================================================
- * Math and Utility Built-in Functions
- * ========================================================================== */
-
-static Value builtin_abs(Value *args) {
-    if (args[0].type == VAL_INT) {
-        long long val = args[0].as.int_val;
-        return create_int(val < 0 ? -val : val);
-    } else if (args[0].type == VAL_FLOAT) {
-        double val = args[0].as.float_val;
-        return create_float(val < 0 ? -val : val);
-    }
-    fprintf(stderr, "Error: abs requires int or float argument\n");
-    return create_void();
-}
-
-static Value builtin_min(Value *args) {
-    if (args[0].type == VAL_INT && args[1].type == VAL_INT) {
-        long long a = args[0].as.int_val;
-        long long b = args[1].as.int_val;
-        return create_int(a < b ? a : b);
-    } else if (args[0].type == VAL_FLOAT && args[1].type == VAL_FLOAT) {
-        double a = args[0].as.float_val;
-        double b = args[1].as.float_val;
-        return create_float(a < b ? a : b);
-    }
-    fprintf(stderr, "Error: min requires two arguments of same type (int or float)\n");
-    return create_void();
-}
-
-static Value builtin_max(Value *args) {
-    if (args[0].type == VAL_INT && args[1].type == VAL_INT) {
-        long long a = args[0].as.int_val;
-        long long b = args[1].as.int_val;
-        return create_int(a > b ? a : b);
-    } else if (args[0].type == VAL_FLOAT && args[1].type == VAL_FLOAT) {
-        double a = args[0].as.float_val;
-        double b = args[1].as.float_val;
-        return create_float(a > b ? a : b);
-    }
-    fprintf(stderr, "Error: max requires two arguments of same type (int or float)\n");
-    return create_void();
-}
-
-/* Advanced Math Functions */
-static Value builtin_sqrt(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(sqrt(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_float(sqrt((double)args[0].as.int_val));
-    }
-    fprintf(stderr, "Error: sqrt requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_pow(Value *args) {
-    double base, exponent;
-    if (args[0].type == VAL_FLOAT) {
-        base = args[0].as.float_val;
-    } else if (args[0].type == VAL_INT) {
-        base = (double)args[0].as.int_val;
-    } else {
-        fprintf(stderr, "Error: pow requires numeric arguments\n");
-        return create_void();
-    }
-    
-    if (args[1].type == VAL_FLOAT) {
-        exponent = args[1].as.float_val;
-    } else if (args[1].type == VAL_INT) {
-        exponent = (double)args[1].as.int_val;
-    } else {
-        fprintf(stderr, "Error: pow requires numeric arguments\n");
-        return create_void();
-    }
-    
-    return create_float(pow(base, exponent));
-}
-
-static Value builtin_floor(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(floor(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_int(args[0].as.int_val);  /* Already an integer */
-    }
-    fprintf(stderr, "Error: floor requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_ceil(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(ceil(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_int(args[0].as.int_val);  /* Already an integer */
-    }
-    fprintf(stderr, "Error: ceil requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_round(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(round(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_int(args[0].as.int_val);  /* Already an integer */
-    }
-    fprintf(stderr, "Error: round requires numeric argument\n");
-    return create_void();
-}
-
-/* Trigonometric Functions */
-static Value builtin_sin(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(sin(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_float(sin((double)args[0].as.int_val));
-    }
-    fprintf(stderr, "Error: sin requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_cos(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(cos(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_float(cos((double)args[0].as.int_val));
-    }
-    fprintf(stderr, "Error: cos requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_tan(Value *args) {
-    if (args[0].type == VAL_FLOAT) {
-        return create_float(tan(args[0].as.float_val));
-    } else if (args[0].type == VAL_INT) {
-        return create_float(tan((double)args[0].as.int_val));
-    }
-    fprintf(stderr, "Error: tan requires numeric argument\n");
-    return create_void();
-}
-
-static Value builtin_atan2(Value *args) {
-    double y = 0.0, x = 0.0;
-    
-    /* Get y value */
-    if (args[0].type == VAL_FLOAT) {
-        y = args[0].as.float_val;
-    } else if (args[0].type == VAL_INT) {
-        y = (double)args[0].as.int_val;
-    } else {
-        fprintf(stderr, "Error: atan2 requires numeric arguments\n");
-        return create_void();
-    }
-    
-    /* Get x value */
-    if (args[1].type == VAL_FLOAT) {
-        x = args[1].as.float_val;
-    } else if (args[1].type == VAL_INT) {
-        x = (double)args[1].as.int_val;
-    } else {
-        fprintf(stderr, "Error: atan2 requires numeric arguments\n");
-        return create_void();
-    }
-    
-    return create_float(atan2(y, x));
 }
 
 /* ============================================================================
@@ -1483,105 +735,6 @@ static Value builtin_println(Value *args) {
     return create_void();
 }
 
-/* ============================================================================
- * String Operations
- * ========================================================================== */
-
-static Value builtin_str_length(Value *args) {
-    if (args[0].type != VAL_STRING) {
-        fprintf(stderr, "Error: str_length requires string argument\n");
-        return create_void();
-    }
-    assert(args[0].as.string_val != NULL);
-    return create_int(safe_strlen(args[0].as.string_val));
-}
-
-static Value builtin_str_concat(Value *args) {
-    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
-        fprintf(stderr, "Error: str_concat requires two string arguments\n");
-        return create_void();
-    }
-    
-    assert(args[0].as.string_val != NULL);
-    assert(args[1].as.string_val != NULL);
-    size_t len1 = safe_strlen(args[0].as.string_val);
-    size_t len2 = safe_strlen(args[1].as.string_val);
-    char *result = malloc(len1 + len2 + 1);
-    if (!result) {
-        safe_fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
-        return create_void();
-    }
-    
-    safe_strncpy(result, args[0].as.string_val, len1 + len2 + 1);
-    safe_strncat(result, args[1].as.string_val, len1 + len2 + 1);
-    
-    return create_string(result);
-}
-
-static Value builtin_str_substring(Value *args) {
-    if (args[0].type != VAL_STRING) {
-        fprintf(stderr, "Error: str_substring requires string as first argument\n");
-        return create_void();
-    }
-    if (args[1].type != VAL_INT || args[2].type != VAL_INT) {
-        fprintf(stderr, "Error: str_substring requires integer start and length\n");
-        return create_void();
-    }
-    
-    const char *str = args[0].as.string_val;
-    assert(str != NULL);
-    long long start = args[1].as.int_val;
-    long long length = args[2].as.int_val;
-    long long str_len = safe_strlen(str);
-    
-    if (start < 0 || start >= str_len) {
-        fprintf(stderr, "Error: str_substring start index out of bounds\n");
-        return create_void();
-    }
-    
-    if (length < 0) {
-        fprintf(stderr, "Error: str_substring length cannot be negative\n");
-        return create_void();
-    }
-    
-    /* Adjust length if it exceeds string bounds */
-    if (start + length > str_len) {
-        length = str_len - start;
-    }
-    
-    char *result = malloc(length + 1);
-    if (!result) {
-        fprintf(stderr, "Error: Memory allocation failed in str_substring\n");
-        return create_void();
-    }
-    
-    strncpy(result, str + start, length);
-    result[length] = '\0';
-    
-    return create_string(result);
-}
-
-static Value builtin_str_contains(Value *args) {
-    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
-        fprintf(stderr, "Error: str_contains requires two string arguments\n");
-        return create_void();
-    }
-    
-    const char *str = args[0].as.string_val;
-    const char *substr = args[1].as.string_val;
-    
-    return create_bool(strstr(str, substr) != NULL);
-}
-
-static Value builtin_str_equals(Value *args) {
-    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
-        fprintf(stderr, "Error: str_equals requires two string arguments\n");
-        return create_void();
-    }
-    
-    return create_bool(strcmp(args[0].as.string_val, args[1].as.string_val) == 0);
-}
-
 /* ==========================================================================
  * Array Built-in Functions (With Bounds Checking!)
  * ========================================================================== */
@@ -1616,6 +769,10 @@ static Value builtin_at(Value *args) {
                 return create_bool(((bool*)arr->data)[index]);
             case VAL_STRING:
                 return create_string(((char**)arr->data)[index]);
+            case VAL_STRUCT: {
+                StructValue *sv = ((StructValue**)arr->data)[index];
+                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -1647,6 +804,12 @@ static Value builtin_at(Value *args) {
                 return create_string(dyn_array_get_string(arr, index));
             case ELEM_ARRAY:
                 return create_dyn_array(dyn_array_get_array(arr, index));
+            case ELEM_STRUCT: {
+                void *raw = dyn_array_get_struct(arr, index);
+                if (!raw) return create_void();
+                StructValue *sv = *(StructValue**)raw;
+                return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 return create_void();
@@ -1701,6 +864,14 @@ static Value builtin_array_new(Value *args) {
             case VAL_STRING:
                 ((char**)arr.as.array_val->data)[i] = strdup(args[1].as.string_val);
                 break;
+            case VAL_STRUCT: {
+                Value copy = create_struct(args[1].as.struct_val->struct_name,
+                    args[1].as.struct_val->field_names,
+                    args[1].as.struct_val->field_values,
+                    args[1].as.struct_val->field_count);
+                ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                break;
+            }
             default:
                 break;
         }
@@ -1764,6 +935,19 @@ static Value builtin_array_set(Value *args) {
             }
             ((char**)arr->data)[index] = strdup(args[2].as.string_val);
             break;
+        case VAL_STRUCT:
+            if (args[2].type != VAL_STRUCT) {
+                fprintf(stderr, "Error: Type mismatch in array_set\n");
+                return create_void();
+            }
+            {
+                Value copy = create_struct(args[2].as.struct_val->struct_name,
+                    args[2].as.struct_val->field_names,
+                    args[2].as.struct_val->field_values,
+                    args[2].as.struct_val->field_count);
+                ((StructValue**)arr->data)[index] = copy.as.struct_val;
+            }
+            break;
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
             break;
@@ -1814,6 +998,13 @@ static Value builtin_array_slice(Value *args) {
                     ((char**)out.as.array_val->data)[i] = strdup(((char**)arr->data)[start + i]);
                 }
                 break;
+            case VAL_STRUCT:
+                for (int64_t i = 0; i < out_len; i++) {
+                    StructValue *sv = ((StructValue**)arr->data)[start + i];
+                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    ((StructValue**)out.as.array_val->data)[i] = copy.as.struct_val;
+                }
+                break;
             default:
                 break;
         }
@@ -1835,8 +1026,20 @@ static Value builtin_array_slice(Value *args) {
                 case ELEM_U8: dyn_array_push_int(out, (int64_t)dyn_array_get_u8(arr, i)); break;
                 case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
-                case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;
+                case ELEM_STRING: dyn_array_push_string_copy(out, dyn_array_get_string(arr, i)); break;
                 case ELEM_ARRAY: dyn_array_push_array(out, dyn_array_get_array(arr, i)); break;
+                case ELEM_STRUCT: {
+                    void *raw = dyn_array_get_struct(arr, i);
+                    if (!raw) {
+                        fprintf(stderr, "Error: array_slice unsupported element type\n");
+                        return create_void();
+                    }
+                    StructValue *sv = *(StructValue**)raw;
+                    Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                    StructValue *sv_copy = copy.as.struct_val;
+                    dyn_array_push_struct(out, &sv_copy, sizeof(StructValue*));
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: array_slice unsupported element type\n");
                     return create_void();
@@ -1902,11 +1105,20 @@ static Value builtin_array_push(Value *args) {
                 dyn_array_push_bool(arr, args[1].as.bool_val);
                 break;
             case VAL_STRING:
-                dyn_array_push_string(arr, args[1].as.string_val);
+                dyn_array_push_string_copy(arr, args[1].as.string_val);
                 break;
             case VAL_DYN_ARRAY:
                 dyn_array_push_array(arr, args[1].as.dyn_array_val);
                 break;
+            case VAL_STRUCT: {
+                Value copy = create_struct(args[1].as.struct_val->struct_name,
+                    args[1].as.struct_val->field_names,
+                    args[1].as.struct_val->field_values,
+                    args[1].as.struct_val->field_count);
+                StructValue *sv_copy = copy.as.struct_val;
+                dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
+                break;
+            }
             default:
                 fprintf(stderr, "Error: Unsupported array element type\n");
                 gc_release(arr);
@@ -1945,11 +1157,20 @@ static Value builtin_array_push(Value *args) {
             dyn_array_push_bool(arr, args[1].as.bool_val);
             break;
         case VAL_STRING:
-            dyn_array_push_string(arr, args[1].as.string_val);
+            dyn_array_push_string_copy(arr, args[1].as.string_val);
             break;
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
+        case VAL_STRUCT: {
+            Value copy = create_struct(args[1].as.struct_val->struct_name,
+                args[1].as.struct_val->field_names,
+                args[1].as.struct_val->field_values,
+                args[1].as.struct_val->field_count);
+            StructValue *sv_copy = copy.as.struct_val;
+            dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
+            break;
+        }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
             return create_void();
@@ -1996,6 +1217,12 @@ static Value builtin_array_pop(Value *args) {
         case ELEM_ARRAY: {
             DynArray *val = dyn_array_pop_array(arr, &success);
             return success ? create_dyn_array(val) : create_void();
+        }
+        case ELEM_STRUCT: {
+            StructValue *sv = NULL;
+            dyn_array_pop_struct(arr, &sv, sizeof(StructValue*), &success);
+            if (!success || !sv) return create_void();
+            return create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
         }
         default:
             fprintf(stderr, "Error: Unsupported array element type\n");
@@ -2198,7 +1425,7 @@ static Value builtin_map(Value *args, Environment *env) {
                         fprintf(stderr, "Error: Transform function must return same type\n");
                         return create_void();
                     }
-                    dyn_array_push_string(output_arr, transformed.as.string_val);
+                    dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
@@ -2370,7 +1597,7 @@ static Value builtin_filter(Value *args, Environment *env) {
                     dyn_array_push_bool(output_arr, elem.as.bool_val);
                     break;
                 case ELEM_STRING:
-                    dyn_array_push_string(output_arr, elem.as.string_val);
+                    dyn_array_push_string_copy(output_arr, elem.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);
@@ -4000,6 +3227,226 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
     /* Get user-defined function */
     Function *func = env_get_function(env, name);
+
+    /* HashMap<K,V> core built-ins (only when not shadowed by a user-defined function) */
+    if (!func) {
+        if (strcmp(name, "map_new") == 0) {
+            if (node->as.call.arg_count != 0) {
+                fprintf(stderr, "Error: map_new requires 0 arguments\n");
+                return create_void();
+            }
+
+            NLHashMapKeyType kt;
+            NLHashMapValType vt;
+            const char *mono = node->as.call.return_struct_type_name;
+            if (!nl_hm_parse_monomorph(mono, &kt, &vt)) {
+                fprintf(stderr, "Error: map_new requires HashMap<K,V> type context\n");
+                return create_void();
+            }
+
+            NLHashMapCore *hm = nl_hm_alloc(kt, vt, 16);
+            return create_int((long long)hm);
+        }
+
+        if (strcmp(name, "map_put") == 0 || strcmp(name, "map_set") == 0) {
+            if (node->as.call.arg_count != 3) {
+                fprintf(stderr, "Error: %s requires 3 arguments\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+
+            /* Resize */
+            if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {
+                nl_hm_rehash(hm, hm->capacity * 2);
+            }
+
+            /* Type checks */
+            if (hm->key_type == NL_HM_KEY_INT && args[1].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects int key\n", name);
+                return create_void();
+            }
+            if (hm->key_type == NL_HM_KEY_STRING && args[1].type != VAL_STRING) {
+                fprintf(stderr, "Error: %s expects string key\n", name);
+                return create_void();
+            }
+            if (hm->val_type == NL_HM_VAL_INT && args[2].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects int value\n", name);
+                return create_void();
+            }
+            if (hm->val_type == NL_HM_VAL_STRING && args[2].type != VAL_STRING) {
+                fprintf(stderr, "Error: %s expects string value\n", name);
+                return create_void();
+            }
+
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (idx < 0) return create_void();
+            NLHashMapEntry *e = &hm->entries[idx];
+
+            if (found) {
+                if (hm->val_type == NL_HM_VAL_STRING) {
+                    if (e->value.s) free(e->value.s);
+                    e->value.s = args[2].as.string_val ? strdup(args[2].as.string_val) : strdup("");
+                } else {
+                    e->value.i = args[2].as.int_val;
+                }
+                return create_void();
+            }
+
+            if (e->state == 2) hm->tombstones--;
+            e->state = 1;
+            if (hm->key_type == NL_HM_KEY_STRING) {
+                e->key.s = args[1].as.string_val ? strdup(args[1].as.string_val) : strdup("");
+            } else {
+                e->key.i = args[1].as.int_val;
+            }
+            if (hm->val_type == NL_HM_VAL_STRING) {
+                e->value.s = args[2].as.string_val ? strdup(args[2].as.string_val) : strdup("");
+            } else {
+                e->value.i = args[2].as.int_val;
+            }
+            hm->size++;
+            return create_void();
+        }
+
+        if (strcmp(name, "map_get") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_get requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_get expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) {
+                return (Value){ .type = VAL_VOID };
+            }
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (!found || idx < 0) {
+                if (hm->val_type == NL_HM_VAL_STRING) return create_string("");
+                return create_int(0);
+            }
+            NLHashMapEntry *e = &hm->entries[idx];
+            if (hm->val_type == NL_HM_VAL_STRING) return create_string(e->value.s ? e->value.s : "");
+            return create_int(e->value.i);
+        }
+
+        if (strcmp(name, "map_has") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_has requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_has expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_bool(false);
+            bool found = false;
+            (void)nl_hm_find_slot(hm, &args[1], &found);
+            return create_bool(found);
+        }
+
+        if (strcmp(name, "map_remove") == 0) {
+            if (node->as.call.arg_count != 2) {
+                fprintf(stderr, "Error: map_remove requires 2 arguments\n");
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: map_remove expects HashMap as first argument\n");
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+            bool found = false;
+            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            if (!found || idx < 0) return create_void();
+            NLHashMapEntry *e = &hm->entries[idx];
+            nl_hm_free_entry(hm, e);
+            e->state = 2;
+            hm->size--;
+            hm->tombstones++;
+            return create_void();
+        }
+
+        if (strcmp(name, "map_length") == 0 || strcmp(name, "map_size") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            return create_int(hm ? hm->size : 0);
+        }
+
+        if (strcmp(name, "map_clear") == 0 || strcmp(name, "map_free") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_void();
+            if (strcmp(name, "map_free") == 0) {
+                nl_hm_free(hm);
+            } else {
+                nl_hm_clear(hm);
+            }
+            return create_void();
+        }
+
+        if (strcmp(name, "map_keys") == 0 || strcmp(name, "map_values") == 0) {
+            if (node->as.call.arg_count != 1) {
+                fprintf(stderr, "Error: %s requires 1 argument\n", name);
+                return create_void();
+            }
+            if (args[0].type != VAL_INT) {
+                fprintf(stderr, "Error: %s expects HashMap as first argument\n", name);
+                return create_void();
+            }
+            NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
+            if (!hm) return create_array(VAL_INT, 0, 0);
+
+            bool is_keys = (strcmp(name, "map_keys") == 0);
+            ValueType elem_type;
+            if (is_keys) {
+                elem_type = (hm->key_type == NL_HM_KEY_STRING) ? VAL_STRING : VAL_INT;
+            } else {
+                elem_type = (hm->val_type == NL_HM_VAL_STRING) ? VAL_STRING : VAL_INT;
+            }
+
+            Value out = create_array(elem_type, (int)hm->size, (int)hm->size);
+            int out_idx = 0;
+            for (int64_t i = 0; i < hm->capacity; i++) {
+                NLHashMapEntry *e = &hm->entries[i];
+                if (e->state != 1) continue;
+                if (elem_type == VAL_STRING) {
+                    char *s = NULL;
+                    if (is_keys) s = e->key.s; else s = e->value.s;
+                    ((char**)out.as.array_val->data)[out_idx++] = s;
+                } else {
+                    int64_t v = 0;
+                    if (is_keys) v = e->key.i; else v = e->value.i;
+                    ((long long*)out.as.array_val->data)[out_idx++] = v;
+                }
+            }
+            out.as.array_val->length = out_idx;
+            return out;
+        }
+    }
     
     /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
     /* This check happens before checking func->body because generic list functions are registered as extern */
@@ -4199,7 +3646,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
     for (int i = old_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].value.type == VAL_STRING) {
-            free(env->symbols[i].value.as.string_val);
+            /* Release GC-managed string if applicable */
+            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
+                gc_release(env->symbols[i].value.as.string_val);
+            } else {
+                free(env->symbols[i].value.as.string_val);
+            }
         }
         if (env->symbols[i].value.type == VAL_FUNCTION) {
             /* Free function value - both function_name and signature */
@@ -4708,8 +4160,34 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
     switch (stmt->type) {
         case AST_LET: {
+            /* For HashMap<K,V>, ensure (map_new) has concrete type context during interpretation. */
+            if (stmt->as.let.var_type == TYPE_HASHMAP &&
+                stmt->as.let.type_info &&
+                stmt->as.let.value &&
+                stmt->as.let.value->type == AST_CALL &&
+                stmt->as.let.value->as.call.name &&
+                strcmp(stmt->as.let.value->as.call.name, "map_new") == 0 &&
+                stmt->as.let.value->as.call.return_struct_type_name == NULL) {
+                TypeInfo *info = stmt->as.let.type_info;
+                if (info->generic_name && strcmp(info->generic_name, "HashMap") == 0 && info->type_param_count == 2) {
+                    const char *k = nl_hm_typeinfo_arg_name(info->type_params[0]);
+                    const char *v = nl_hm_typeinfo_arg_name(info->type_params[1]);
+                    if (k && v) {
+                        char mono[128];
+                        snprintf(mono, sizeof(mono), "HashMap_%s_%s", k, v);
+                        stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
+                    }
+                }
+            }
+
             Value value = eval_expression(stmt->as.let.value, env);
-            env_define_var(env, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.is_mut, value);
+            env_define_var_with_type_info(env,
+                                         stmt->as.let.name,
+                                         stmt->as.let.var_type,
+                                         stmt->as.let.element_type,
+                                         stmt->as.let.type_info,
+                                         stmt->as.let.is_mut,
+                                         value);
             
             /* Trace variable declaration */
 #ifdef TRACING_ENABLED
@@ -5387,7 +4865,12 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].value.type == VAL_STRING) {
-            free(env->symbols[i].value.as.string_val);
+            /* Release GC-managed string if applicable */
+            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
+                gc_release(env->symbols[i].value.as.string_val);
+            } else {
+                free(env->symbols[i].value.as.string_val);
+            }
         }
     }
     env->symbol_count = original_symbol_count;

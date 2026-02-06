@@ -329,4 +329,10 @@ extern fn nl_ui_code_display(_renderer: SDL_Renderer, _font: TTF_Font,
                                _w: int, _h: int, _scroll_offset: int,
                                _line_height: int) -> void
 
+# ANSI code display widget - renders ANSI-colored source strings
+extern fn nl_ui_code_display_ansi(_renderer: SDL_Renderer, _font: TTF_Font,
+                                  _code: string, _x: int, _y: int,
+                                  _w: int, _h: int, _scroll_offset: int,
+                                  _line_height: int) -> void
+
 

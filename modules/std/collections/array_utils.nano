@@ -53,7 +53,7 @@ pub fn array_sort_strings(items: array<string>) -> array<string> {
 
 shadow array_sort_strings {
     let sorted: array<string> = (array_sort_strings ["b", "a", "c"])
-    assert (str_equals (at sorted 0) "a")
-    assert (str_equals (at sorted 1) "b")
-    assert (str_equals (at sorted 2) "c")
+    assert (== (at sorted 0) "a")
+    assert (== (at sorted 1) "b")
+    assert (== (at sorted 2) "c")
 }

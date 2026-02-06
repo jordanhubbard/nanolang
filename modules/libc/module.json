@@ -5,7 +5,7 @@
   "safety": "unsafe",
   "has_ffi": true,
   
-  "c_sources": [],
+  "c_sources": ["libc_impl.c"],
   "headers": [],
   "pkg_config": [],
   

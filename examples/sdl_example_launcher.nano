@@ -8,33 +8,38 @@ unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 unsafe module "modules/sdl_image/sdl_image.nano"
 module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import file_read
-from "modules/std/process.nano" import spawn
+from "modules/std/process.nano" import spawn, is_running, exec
+from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 
-# Forward declare extern to avoid module issues
-extern fn file_read(_path: string) -> string
-
-enum ExampleCategory {
+# Example categories
+enum Category {
     ALL = 0,
     GAMES = 1,
     GRAPHICS = 2,
     AUDIO = 3,
     OPENGL = 4,
     TERMINAL = 5,
-    DEBUG = 6
+    PHYSICS = 6
 }
 
-# Window layout
+# Example data structure
+struct Example {
+    name: string,
+    desc: string,
+    category: int,
+    command: string,
+    file: string,
+    icon: string
+}
+
+# Window layout constants
 let WINDOW_WIDTH: int = 1200
 let WINDOW_HEIGHT: int = 800
-
-# Left panel (icon grid)
 let LEFT_PANEL_WIDTH: int = 320
 let LEFT_PANEL_X: int = 10
 let LEFT_PANEL_Y: int = 10
-
-# Right panel (source preview)
-let RIGHT_PANEL_X: int = (+ LEFT_PANEL_WIDTH 20)
-let RIGHT_PANEL_WIDTH: int = (- (- WINDOW_WIDTH RIGHT_PANEL_X) 10)
+let RIGHT_PANEL_X: int = 340
+let RIGHT_PANEL_WIDTH: int = 850
 let RIGHT_PANEL_Y: int = 10
 
 # Icon grid layout
@@ -42,156 +47,125 @@ let ICON_SIZE: int = 80
 let ICON_MARGIN: int = 12
 let ICON_LABEL_HEIGHT: int = 20
 let ICONS_PER_ROW: int = 3
-let ICON_TOTAL_SIZE: int = (+ ICON_SIZE ICON_LABEL_HEIGHT)
+let ICON_TOTAL_SIZE: int = 100
 
-# Category colors (RGB)
-let COLOR_GAMES_R: int = 100
-let COLOR_GAMES_G: int = 150
-let COLOR_GAMES_B: int = 255
+# Color helper: pack RGB into single int
+fn rgb(r: int, g: int, b: int) -> int {
+    return (+ (* r 65536) (+ (* g 256) b))
+}
 
-let COLOR_GRAPHICS_R: int = 255
-let COLOR_GRAPHICS_G: int = 120
-let COLOR_GRAPHICS_B: int = 100
+shadow rgb {
+    assert (== (rgb 255 0 0) 16711680)
+    assert (== (rgb 0 255 0) 65280)
+    assert (== (rgb 0 0 255) 255)
+}
 
-let COLOR_AUDIO_R: int = 150
-let COLOR_AUDIO_G: int = 255
-let COLOR_AUDIO_B: int = 150
-
-let COLOR_OPENGL_R: int = 255
-let COLOR_OPENGL_G: int = 200
-let COLOR_OPENGL_B: int = 100
-
-let COLOR_TERMINAL_R: int = 180
-let COLOR_TERMINAL_G: int = 180
-let COLOR_TERMINAL_B: int = 180
-
-let COLOR_DEBUG_R: int = 255
-let COLOR_DEBUG_G: int = 180
-let COLOR_DEBUG_B: int = 50
-
+# Get category color using cond
 fn get_category_color(category: int) -> int {
-    if (== category ExampleCategory.GAMES) {
-        return (+ (* COLOR_GAMES_R 65536) (+ (* COLOR_GAMES_G 256) COLOR_GAMES_B))
-    } else {
-        if (== category ExampleCategory.GRAPHICS) {
-            return (+ (* COLOR_GRAPHICS_R 65536) (+ (* COLOR_GRAPHICS_G 256) COLOR_GRAPHICS_B))
-        } else {
-            if (== category ExampleCategory.AUDIO) {
-                return (+ (* COLOR_AUDIO_R 65536) (+ (* COLOR_AUDIO_G 256) COLOR_AUDIO_B))
-            } else {
-                if (== category ExampleCategory.OPENGL) {
-                    return (+ (* COLOR_OPENGL_R 65536) (+ (* COLOR_OPENGL_G 256) COLOR_OPENGL_B))
-                } else {
-                    if (== category ExampleCategory.DEBUG) {
-                        return (+ (* COLOR_DEBUG_R 65536) (+ (* COLOR_DEBUG_G 256) COLOR_DEBUG_B))
-                    } else {
-                        return (+ (* COLOR_TERMINAL_R 65536) (+ (* COLOR_TERMINAL_G 256) COLOR_TERMINAL_B))
-                    }
-                }
-            }
-        }
-    }
+    return (cond
+        ((== category Category.GAMES) (rgb 100 150 255))
+        ((== category Category.GRAPHICS) (rgb 255 120 100))
+        ((== category Category.AUDIO) (rgb 150 255 150))
+        ((== category Category.OPENGL) (rgb 255 200 100))
+        ((== category Category.TERMINAL) (rgb 180 180 180))
+        ((== category Category.PHYSICS) (rgb 255 100 200))
+        (else (rgb 200 200 200))
+    )
 }
 
 shadow get_category_color {
-    assert (!= (get_category_color ExampleCategory.GAMES) 0)
-    assert (!= (get_category_color ExampleCategory.GRAPHICS) (get_category_color ExampleCategory.AUDIO))
+    assert (!= (get_category_color Category.GAMES) 0)
+    assert (!= (get_category_color Category.GRAPHICS) (get_category_color Category.AUDIO))
 }
 
-# Generate unique color for each example by index (for visual distinction)
+# Icon colors for visual distinction
 fn get_icon_color(index: int) -> int {
-    # Super bright primary colors for maximum visibility
-    let colors: array<int> = (array_new 12 0)
-    (array_set colors 0 (+ (* 255 65536) (+ (* 0 256) 0)))      # Pure Red
-    (array_set colors 1 (+ (* 0 65536) (+ (* 255 256) 0)))      # Pure Green
-    (array_set colors 2 (+ (* 0 65536) (+ (* 0 256) 255)))      # Pure Blue
-    (array_set colors 3 (+ (* 255 65536) (+ (* 255 256) 0)))    # Pure Yellow
-    (array_set colors 4 (+ (* 255 65536) (+ (* 0 256) 255)))    # Pure Magenta
-    (array_set colors 5 (+ (* 0 65536) (+ (* 255 256) 255)))    # Pure Cyan
-    (array_set colors 6 (+ (* 255 65536) (+ (* 128 256) 0)))    # Orange
-    (array_set colors 7 (+ (* 128 65536) (+ (* 0 256) 255)))    # Purple
-    (array_set colors 8 (+ (* 0 65536) (+ (* 255 256) 128)))    # Spring Green
-    (array_set colors 9 (+ (* 255 65536) (+ (* 0 256) 128)))    # Rose
-    (array_set colors 10 (+ (* 128 65536) (+ (* 255 256) 0)))   # Chartreuse
-    (array_set colors 11 (+ (* 0 65536) (+ (* 128 256) 255)))   # Sky Blue
+    let colors: array<int> = [
+        (rgb 255 0 0),      # Red
+        (rgb 0 255 0),      # Green
+        (rgb 0 0 255),      # Blue
+        (rgb 255 255 0),    # Yellow
+        (rgb 255 0 255),    # Magenta
+        (rgb 0 255 255),    # Cyan
+        (rgb 255 128 0),    # Orange
+        (rgb 128 0 255),    # Purple
+        (rgb 0 255 128),    # Spring Green
+        (rgb 255 0 128),    # Rose
+        (rgb 128 255 0),    # Chartreuse
+        (rgb 0 128 255)     # Sky Blue
+    ]
     return (at colors (% index 12))
 }
 
 shadow get_icon_color {
     let c0: int = (get_icon_color 0)
     let c1: int = (get_icon_color 1)
-    let c2: int = (get_icon_color 2)
     assert (!= c0 0)
-    assert (> c0 1000)
     assert (!= c0 c1)
-    assert (!= c1 c2)
 }
 
-fn build_filtered_indices(categories: array<int>, category: int) -> array<int> {
+# Build filtered indices based on category
+fn build_filtered_indices(examples: array<Example>, category: int) -> array<int> {
     let mut out: array<int> = []
     let mut i: int = 0
-
-    while (< i (array_length categories)) {
-        let c: int = (at categories i)
-        if (or (== category ExampleCategory.ALL) (== c category)) {
+    while (< i (array_length examples)) {
+        let ex: Example = (at examples i)
+        if (or (== category Category.ALL) (== ex.category category)) {
             set out (array_push out i)
-        } else {}
+        }
         set i (+ i 1)
     }
-
     return out
 }
 
 shadow build_filtered_indices {
-    let cs: array<int> = []
-    let idxs: array<int> = (build_filtered_indices cs ExampleCategory.ALL)
+    let empty: array<Example> = []
+    let idxs: array<int> = (build_filtered_indices empty Category.ALL)
     assert (== (array_length idxs) 0)
 }
 
-fn clamp_int(v: int, lo: int, hi: int) -> int {
-    if (< v lo) {
-        return lo
-    } else {
-        if (> v hi) {
-            return hi
-        } else {
-            return v
-        }
-    }
-}
-
-shadow clamp_int {
-    assert (== (clamp_int 5 0 10) 5)
-    assert (== (clamp_int (- 1) 0 10) 0)
-    assert (== (clamp_int 99 0 10) 10)
-}
-
+# Truncate string with ellipsis
 fn str_truncate(s: string, max_len: int) -> string {
     let len: int = (str_length s)
     if (<= len max_len) {
         return s
-    } else {
-        return (+ (str_substring s 0 max_len) "...")
     }
+    return (+ (str_substring s 0 max_len) "...")
 }
 
 shadow str_truncate {
-    assert (str_equals (str_truncate "hello" 10) "hello")
-    assert (str_equals (str_truncate "hello world" 5) "hello...")
+    assert (== (str_truncate "hello" 10) "hello")
+    assert (== (str_truncate "hello world" 5) "hello...")
+}
+
+# Create example helper
+fn make_example(name: string, desc: string, cat: int, cmd: string, file: string, icon: string) -> Example {
+    return Example {
+        name: name,
+        desc: desc,
+        category: cat,
+        command: cmd,
+        file: file,
+        icon: icon
+    }
+}
+
+shadow make_example {
+    let ex: Example = (make_example "Test" "Desc" Category.GAMES "cmd" "file" "icon")
+    assert (== ex.name "Test")
 }
 
 fn main() -> int {
     (SDL_Init SDL_INIT_VIDEO) 
     (TTF_Init) 
     
-    # Initialize SDL_image for loading PNG icons
     let img_result: int = (IMG_Init IMG_INIT_PNG)
     if (== img_result 0) {
-        (println "✗ Failed to initialize SDL_image")
+        (println "Failed to initialize SDL_image")
         return 1
-    } else {}
+    }
 
-    let window: SDL_Window = (SDL_CreateWindow "NanoLang Examples - App Store"
+    let window: SDL_Window = (SDL_CreateWindow "NanoLang Examples"
                                                 SDL_WINDOWPOS_CENTERED
                                                 SDL_WINDOWPOS_CENTERED
                                                 WINDOW_WIDTH WINDOW_HEIGHT
@@ -204,274 +178,258 @@ fn main() -> int {
     let small_font: TTF_Font = (nl_open_font_portable "Arial" 11)
 
     if (== font 0) {
-        (println "✗ Failed to load font")
+        (println "Failed to load font")
         (SDL_DestroyRenderer renderer) 
         (SDL_DestroyWindow window) 
         (IMG_Quit) 
         (TTF_Quit) 
         (SDL_Quit) 
         return 1
-    } else {}
+    }
 
-    # Example data arrays
-    let mut example_names: array<string> = []
-    let mut example_descs: array<string> = []
-    let mut example_categories: array<int> = []
-    let mut example_commands: array<string> = []
-    let mut example_files: array<string> = []
-    let mut example_icons: array<string> = []
+    # Build examples array using struct - use temp var to avoid rvalue address issue
+    let mut examples: array<Example> = []
+    let mut ex: Example = Example { name: "", desc: "", category: 0, command: "", file: "", icon: "" }
+    
+    # === Games ===
+    set ex (make_example "Pong" "Classic Pong arcade game" Category.GAMES
+        "make -C examples ../bin/sdl_pong && ./bin/sdl_pong"
+        "examples/games/sdl_pong.nano" "examples/icons/sdl_pong.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Asteroids" "Space shooter with physics" Category.GAMES
+        "make -C examples ../bin/sdl_asteroids && ./bin/sdl_asteroids"
+        "examples/games/sdl_asteroids.nano" "examples/icons/sdl_asteroids.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Checkers" "Board game with AI" Category.GAMES
+        "make -C examples ../bin/sdl_checkers && ./bin/sdl_checkers"
+        "examples/games/sdl_checkers.nano" "examples/icons/sdl_checkers.png")
+    set examples (array_push examples ex)
 
-    # === Games (SDL) ===
-    set example_names (array_push example_names "Pong")
-    set example_descs (array_push example_descs "Classic Pong arcade game")
-    set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_pong && ./bin/sdl_pong")
-    set example_files (array_push example_files "examples/games/sdl_pong.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_pong.png")
+    # === Graphics ===
+    set ex (make_example "Sand" "Falling sand cellular automata" Category.GRAPHICS
+        "make -C examples ../bin/sdl_falling_sand && ./bin/sdl_falling_sand"
+        "examples/graphics/sdl_falling_sand.nano" "examples/icons/sdl_falling_sand.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Boids" "Flocking simulation" Category.GRAPHICS
+        "make -C examples ../bin/sdl_boids && ./bin/sdl_boids"
+        "examples/graphics/sdl_boids.nano" "examples/icons/sdl_boids.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Particles" "Particle system demo" Category.GRAPHICS
+        "make -C examples ../bin/sdl_particles && ./bin/sdl_particles"
+        "examples/graphics/sdl_particles.nano" "examples/icons/sdl_particles.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Raytracer" "CPU raytracer with spheres" Category.GRAPHICS
+        "make -C examples ../bin/sdl_raytracer && ./bin/sdl_raytracer"
+        "examples/graphics/sdl_raytracer.nano" "examples/icons/sdl_raytracer.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Fire" "Doom fire effect" Category.GRAPHICS
+        "make -C examples ../bin/sdl_fire && ./bin/sdl_fire"
+        "examples/graphics/sdl_fire.nano" "examples/icons/sdl_fire.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Stars" "Starfield parallax effect" Category.GRAPHICS
+        "make -C examples ../bin/sdl_starfield && ./bin/sdl_starfield"
+        "examples/graphics/sdl_starfield.nano" "examples/icons/sdl_starfield.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Terrain" "Pseudo-3D terrain explorer" Category.GRAPHICS
+        "make -C examples ../bin/sdl_terrain_explorer && ./bin/sdl_terrain_explorer"
+        "examples/graphics/sdl_terrain_explorer.nano" "examples/icons/sdl_terrain_explorer.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Life (SDL)" "Animated Conway's Game of Life" Category.GRAPHICS
+        "make -C examples ../bin/sdl_game_of_life && ./bin/sdl_game_of_life"
+        "examples/graphics/sdl_game_of_life.nano" "examples/icons/sdl_particles.png")
+    set examples (array_push examples ex)
 
-    set example_names (array_push example_names "Asteroids")
-    set example_descs (array_push example_descs "Space shooter with physics")
-    set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_asteroids && ./bin/sdl_asteroids")
-    set example_files (array_push example_files "examples/games/sdl_asteroids.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_asteroids.png")
-
-    set example_names (array_push example_names "Checkers")
-    set example_descs (array_push example_descs "Board game with AI")
-    set example_categories (array_push example_categories ExampleCategory.GAMES)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_checkers && ./bin/sdl_checkers")
-    set example_files (array_push example_files "examples/games/sdl_checkers.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_checkers.png")
-
-    # === Graphics (SDL) ===
-    set example_names (array_push example_names "Sand")
-    set example_descs (array_push example_descs "Falling sand cellular automata")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_falling_sand && ./bin/sdl_falling_sand")
-    set example_files (array_push example_files "examples/graphics/sdl_falling_sand.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_falling_sand.png")
-
-    set example_names (array_push example_names "Boids")
-    set example_descs (array_push example_descs "Flocking simulation")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_boids && ./bin/sdl_boids")
-    set example_files (array_push example_files "examples/graphics/sdl_boids.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_boids.png")
-
-    set example_names (array_push example_names "Particles")
-    set example_descs (array_push example_descs "Particle system demo")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_particles && ./bin/sdl_particles")
-    set example_files (array_push example_files "examples/graphics/sdl_particles.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
-
-    set example_names (array_push example_names "Raytracer")
-    set example_descs (array_push example_descs "CPU raytracer with spheres")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_raytracer && ./bin/sdl_raytracer")
-    set example_files (array_push example_files "examples/graphics/sdl_raytracer.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_raytracer.png")
-
-    set example_names (array_push example_names "Fire")
-    set example_descs (array_push example_descs "Doom fire effect")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_fire && ./bin/sdl_fire")
-    set example_files (array_push example_files "examples/graphics/sdl_fire.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
-
-    set example_names (array_push example_names "Stars")
-    set example_descs (array_push example_descs "Starfield parallax effect")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_starfield && ./bin/sdl_starfield")
-    set example_files (array_push example_files "examples/graphics/sdl_starfield.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_starfield.png")
-
-    set example_names (array_push example_names "Terrain")
-    set example_descs (array_push example_descs "Pseudo-3D terrain explorer")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_terrain_explorer && ./bin/sdl_terrain_explorer")
-    set example_files (array_push example_files "examples/graphics/sdl_terrain_explorer.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_terrain_explorer.png")
-
-    set example_names (array_push example_names "Life (SDL)")
-    set example_descs (array_push example_descs "Animated Conway's Game of Life")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_game_of_life && ./bin/sdl_game_of_life")
-    set example_files (array_push example_files "examples/graphics/sdl_game_of_life.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
-
-    set example_names (array_push example_names "Bullet Towers")
-    set example_descs (array_push example_descs "384-block mega stack collapse")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_rigid_megastacks.nano -o bin/bullet_rigid_megastacks && ./bin/bullet_rigid_megastacks")
-    set example_files (array_push example_files "examples/physics/bullet_rigid_megastacks.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
-
-    set example_names (array_push example_names "Bullet Hourglass")
-    set example_descs (array_push example_descs "Soft-body hourglass particle flood")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_softbody_hourglass.nano -o bin/bullet_softbody_hourglass && ./bin/bullet_softbody_hourglass")
-    set example_files (array_push example_files "examples/physics/bullet_softbody_hourglass.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
-
-    set example_names (array_push example_names "Bouncy Balls")
-    set example_descs (array_push example_descs "Interactive ball spawner with physics")
-    set example_categories (array_push example_categories ExampleCategory.GRAPHICS)
-    set example_commands (array_push example_commands "./bin/nanoc examples/physics/bullet_bouncy_balls.nano -o bin/bullet_bouncy_balls && ./bin/bullet_bouncy_balls")
-    set example_files (array_push example_files "examples/physics/bullet_bouncy_balls.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
-
-    # === Audio (SDL) ===
-    set example_names (array_push example_names "NanoAmp")
-    set example_descs (array_push example_descs "Winamp-style MP3 player")
-    set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_nanoamp && ./bin/sdl_nanoamp")
-    set example_files (array_push example_files "examples/audio/sdl_nanoamp.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_nanoamp.png")
-
-    set example_names (array_push example_names "MOD Viz")
-    set example_descs (array_push example_descs "MOD music visualizer")
-    set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/audio/gabba-studies-12.mod")
-    set example_files (array_push example_files "examples/audio/sdl_mod_visualizer.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_mod_visualizer.png")
-
-    set example_names (array_push example_names "Tracker")
-    set example_descs (array_push example_descs "ProTracker-style shell")
-    set example_categories (array_push example_categories ExampleCategory.AUDIO)
-    set example_commands (array_push example_commands "make -C examples ../bin/sdl_tracker_shell && cd examples/audio && ../../bin/sdl_tracker_shell")
-    set example_files (array_push example_files "examples/audio/sdl_tracker_shell.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_tracker_shell.png")
+    # === Audio ===
+    set ex (make_example "NanoAmp" "Winamp-style MP3 player" Category.AUDIO
+        "make -C examples ../bin/sdl_nanoamp && ./bin/sdl_nanoamp"
+        "examples/audio/sdl_nanoamp.nano" "examples/icons/sdl_nanoamp.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "MOD Viz" "MOD music visualizer" Category.AUDIO
+        "make -C examples ../bin/sdl_mod_visualizer && ./bin/sdl_mod_visualizer examples/audio/gabba-studies-12.mod"
+        "examples/audio/sdl_mod_visualizer.nano" "examples/icons/sdl_mod_visualizer.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Tracker" "ProTracker-style shell" Category.AUDIO
+        "make -C examples ../bin/sdl_tracker_shell && cd examples/audio && ../../bin/sdl_tracker_shell"
+        "examples/audio/sdl_tracker_shell.nano" "examples/icons/sdl_tracker_shell.png")
+    set examples (array_push examples ex)
 
     # === OpenGL ===
-    set example_names (array_push example_names "Teapot")
-    set example_descs (array_push example_descs "Utah teapot (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_teapot && ./bin/opengl_teapot")
-    set example_files (array_push example_files "examples/opengl/opengl_teapot.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
+    set ex (make_example "Teapot" "Utah teapot (OpenGL)" Category.OPENGL
+        "make -C examples ../bin/opengl_teapot && ./bin/opengl_teapot"
+        "examples/opengl/opengl_teapot.nano" "examples/icons/sdl_glass_sphere.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Cube" "Rotating textured cube" Category.OPENGL
+        "make -C examples ../bin/opengl_cube && ./bin/opengl_cube"
+        "examples/opengl/opengl_cube.nano" "examples/icons/sdl_glass_sphere.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Solar System" "Hierarchical transforms" Category.OPENGL
+        "make -C examples ../bin/opengl_solar_system && ./bin/opengl_solar_system"
+        "examples/opengl/opengl_solar_system.nano" "examples/icons/sdl_starfield.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Particles GL" "Blended point sprites" Category.OPENGL
+        "make -C examples ../bin/opengl_particle_fountain && ./bin/opengl_particle_fountain"
+        "examples/opengl/opengl_particle_fountain.nano" "examples/icons/sdl_particles.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Triangle" "Shaders + VAO/VBO" Category.OPENGL
+        "make -C examples ../bin/opengl_modern_hello_triangle && ./bin/opengl_modern_hello_triangle"
+        "examples/opengl/opengl_modern_hello_triangle.nano" "examples/icons/sdl_glass_sphere.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Postprocess" "FBO + fullscreen shader" Category.OPENGL
+        "make -C examples ../bin/opengl_modern_postprocess && ./bin/opengl_modern_postprocess"
+        "examples/opengl/opengl_modern_postprocess.nano" "examples/icons/sdl_fire.png")
+    set examples (array_push examples ex)
 
-    set example_names (array_push example_names "OpenGL Cube")
-    set example_descs (array_push example_descs "Rotating textured cube (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_cube && ./bin/opengl_cube")
-    set example_files (array_push example_files "examples/opengl/opengl_cube.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
+    # === Physics ===
+    set ex (make_example "Towers" "384-block mega stack collapse" Category.PHYSICS
+        "./bin/nanoc examples/physics/bullet_rigid_megastacks.nano -o bin/bullet_rigid_megastacks && ./bin/bullet_rigid_megastacks"
+        "examples/physics/bullet_rigid_megastacks.nano" "examples/icons/sdl_fire.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Hourglass" "Soft-body particle flood" Category.PHYSICS
+        "./bin/nanoc examples/physics/bullet_softbody_hourglass.nano -o bin/bullet_softbody_hourglass && ./bin/bullet_softbody_hourglass"
+        "examples/physics/bullet_softbody_hourglass.nano" "examples/icons/sdl_particles.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Bouncy" "Interactive ball spawner" Category.PHYSICS
+        "./bin/nanoc examples/physics/bullet_bouncy_balls.nano -o bin/bullet_bouncy_balls && ./bin/bullet_bouncy_balls"
+        "examples/physics/bullet_bouncy_balls.nano" "examples/icons/sdl_glass_sphere.png")
+    set examples (array_push examples ex)
 
-    set example_names (array_push example_names "Solar System")
-    set example_descs (array_push example_descs "Hierarchical transforms + lighting (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_solar_system && ./bin/opengl_solar_system")
-    set example_files (array_push example_files "examples/opengl/opengl_solar_system.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_starfield.png")
+    # === Terminal ===
+    set ex (make_example "Life (term)" "Terminal Game of Life" Category.TERMINAL
+        "make -C examples ../bin/ncurses_game_of_life && ./bin/ncurses_game_of_life"
+        "examples/terminal/ncurses_game_of_life.nano" "examples/icons/sdl_particles.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Matrix" "Matrix rain effect" Category.TERMINAL
+        "make -C examples ../bin/ncurses_matrix_rain && ./bin/ncurses_matrix_rain"
+        "examples/terminal/ncurses_matrix_rain.nano" "examples/icons/sdl_starfield.png")
+    set examples (array_push examples ex)
+    
+    set ex (make_example "Snake" "Terminal snake game" Category.TERMINAL
+        "make -C examples ../bin/ncurses_snake && ./bin/ncurses_snake"
+        "examples/terminal/ncurses_snake.nano" "examples/icons/sdl_pong.png")
+    set examples (array_push examples ex)
 
-    set example_names (array_push example_names "Particle Fountain")
-    set example_descs (array_push example_descs "Blended point sprites (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_particle_fountain && ./bin/opengl_particle_fountain")
-    set example_files (array_push example_files "examples/opengl/opengl_particle_fountain.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_particles.png")
+    # PID tracking and source cache
+    let example_count: int = (array_length examples)
+    let mut example_pids: array<int> = (array_new example_count 0)
+    let mut source_cache: array<string> = (array_new example_count "")
 
-    set example_names (array_push example_names "Modern: Hello Triangle")
-    set example_descs (array_push example_descs "Shaders + VAO/VBO (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_modern_hello_triangle && ./bin/opengl_modern_hello_triangle")
-    set example_files (array_push example_files "examples/opengl/opengl_modern_hello_triangle.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_glass_sphere.png")
-
-    set example_names (array_push example_names "Modern: Postprocess")
-    set example_descs (array_push example_descs "FBO + fullscreen shader (OpenGL)")
-    set example_categories (array_push example_categories ExampleCategory.OPENGL)
-    set example_commands (array_push example_commands "make -C examples ../bin/opengl_modern_postprocess && ./bin/opengl_modern_postprocess")
-    set example_files (array_push example_files "examples/opengl/opengl_modern_postprocess.nano")
-    set example_icons (array_push example_icons "examples/icons/sdl_fire.png")
-
-
-
-    # Load all icon textures
-    let icon_count: int = (array_length example_icons)
+    # Load icon textures
     let mut icon_textures: array<int> = []
     let mut icon_idx: int = 0
-    while (< icon_idx icon_count) {
-        let icon_path: string = (at example_icons icon_idx)
-        let texture: int = (nl_img_load_png_texture renderer icon_path)
+    while (< icon_idx example_count) {
+        let ex: Example = (at examples icon_idx)
+        let texture: int = (nl_img_load_png_texture renderer ex.icon)
         set icon_textures (array_push icon_textures texture)
         set icon_idx (+ icon_idx 1)
     }
 
-    let mut selected_category: int = ExampleCategory.ALL
-    let mut indices: array<int> = (build_filtered_indices example_categories selected_category)
-
+    let mut selected_category: int = Category.ALL
+    let mut indices: array<int> = (build_filtered_indices examples selected_category)
     let mut selected_index: int = -1
     let mut source_code: string = ""
     let mut source_scroll: int = 0
     let mut icon_scroll: int = 0
-
     let mut running: bool = true
-    let mut launch_cmd: string = ""
-    let mut should_launch: bool = false
+    let mut launch_request_idx: int = -1
+    let mut kill_request_idx: int = -1
+
+    # Category button layout
+    let cat_y1: int = (+ LEFT_PANEL_Y 10)
+    let cat_y2: int = (+ cat_y1 28)
+    let cat_y3: int = (+ cat_y2 28)
+    let cat_w: int = 95
+    let cat_h: int = 24
+    
+    # Button data: [label, category, x_offset, row]
+    let cat_labels: array<string> = ["All", "Games", "Graphics", "Audio", "OpenGL", "Physics", "Terminal"]
+    let cat_categories: array<int> = [Category.ALL, Category.GAMES, Category.GRAPHICS, Category.AUDIO, Category.OPENGL, Category.PHYSICS, Category.TERMINAL]
+    let cat_x_offsets: array<int> = [10, 110, 210, 10, 110, 210, 110]
+    let cat_rows: array<int> = [0, 0, 0, 1, 1, 1, 2]
 
     while running {
+        # Poll running examples
+        let mut poll_idx: int = 0
+        while (< poll_idx example_count) {
+            let pid: int = (at example_pids poll_idx)
+            if (> pid 0) {
+                if (== (is_running pid) 0) {
+                    (array_set example_pids poll_idx 0)
+                }
+            }
+            set poll_idx (+ poll_idx 1)
+        }
+
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
-        } else {}
+        }
 
         let key: int = (nl_sdl_poll_keypress)
-
-        # Up arrow (82) - scroll source code up
+        
+        # Arrow keys for scrolling
         if (== key 82) {
             if (> source_scroll 0) {
                 set source_scroll (- source_scroll 1)
-            } else {}
-        } else {}
-        
-        # Down arrow (81) - scroll source code down
+            }
+        }
         if (== key 81) {
             set source_scroll (+ source_scroll 1)
-        } else {}
+        }
         
-        # Mouse wheel / trackpad scrolling
+        # Mouse wheel scrolling
         let wheel: int = (nl_sdl_poll_mouse_wheel)
         let mouse_pos: int = (nl_sdl_get_mouse_pos)
         let mouse_x: int = (/ mouse_pos 10000)
         let left_panel_right: int = (+ LEFT_PANEL_X LEFT_PANEL_WIDTH)
         
         if (> wheel 0) {
-            # Scroll up (wheel up or trackpad two-finger swipe up)
             if (< mouse_x left_panel_right) {
-                # Mouse over left panel - scroll icon grid
                 if (> icon_scroll 0) {
                     set icon_scroll (- icon_scroll 1)
-                } else {}
+                }
             } else {
-                # Mouse over right panel - scroll source code
-                if (> source_scroll 0) {
-                    set source_scroll (- source_scroll 3)
-                    if (< source_scroll 0) {
-                        set source_scroll 0
-                    } else {}
-                } else {}
+                set source_scroll (- source_scroll 3)
+                if (< source_scroll 0) {
+                    set source_scroll 0
+                }
             }
-        } else {}
+        }
         if (< wheel 0) {
-            # Scroll down (wheel down or trackpad two-finger swipe down)
             if (< mouse_x left_panel_right) {
-                # Mouse over left panel - scroll icon grid
                 set icon_scroll (+ icon_scroll 1)
             } else {
-                # Mouse over right panel - scroll source code
                 set source_scroll (+ source_scroll 3)
             }
-        } else {}
+        }
 
-        # Enter launches the selected example
-        if (or (== key 40) (== key 88)) {  # Return / KP Enter
+        # Enter launches selected example
+        if (or (== key 40) (== key 88)) {
             if (>= selected_index 0) {
                 let ex_idx: int = (at indices selected_index)
-                set launch_cmd (at example_commands ex_idx)
-                set should_launch true
-            } else {}
-        } else {}
+                let pid: int = (at example_pids ex_idx)
+                if (== pid 0) {
+                    set launch_request_idx ex_idx
+                }
+            }
+        }
 
         # Handle mouse clicks
         let mouse_click: int = (nl_sdl_poll_mouse_click)
@@ -479,110 +437,89 @@ fn main() -> int {
             let click_x: int = (/ mouse_click 10000)
             let click_y: int = (% mouse_click 10000)
             
-            # Check if click is on category tabs
-            let cat_tab_y: int = (+ LEFT_PANEL_Y 10)
-            let cat_tab_w: int = (/ LEFT_PANEL_WIDTH 3)
-            let cat_tab_h: int = 24
-            let all_btn_x: int = (+ LEFT_PANEL_X 10)
-            let all_btn_w: int = (- cat_tab_w 5)
-            let games_btn_x: int = (+ LEFT_PANEL_X (+ cat_tab_w 5))
-            let games_btn_w: int = (- cat_tab_w 5)
-            let gfx_btn_x: int = (+ LEFT_PANEL_X (* cat_tab_w 2))
-            let gfx_btn_w: int = (- cat_tab_w 10)
-            
-            # Check All button
-            if (and (>= click_x all_btn_x) (and (< click_x (+ all_btn_x all_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
-            set selected_category ExampleCategory.ALL
-            set selected_index -1
-            set icon_scroll 0
-        } else {}
-            
-            # Check Games button
-            if (and (>= click_x games_btn_x) (and (< click_x (+ games_btn_x games_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
-            set selected_category ExampleCategory.GAMES
-            set selected_index -1
-            set icon_scroll 0
-        } else {}
-            
-            # Check Gfx button
-            if (and (>= click_x gfx_btn_x) (and (< click_x (+ gfx_btn_x gfx_btn_w)) (and (>= click_y cat_tab_y) (< click_y (+ cat_tab_y cat_tab_h))))) {
-                set selected_category ExampleCategory.GRAPHICS
-                set selected_index -1
-                set icon_scroll 0
-            } else {}
-            
-            # Check Debug button (row 2)
-            let cat_tab_y2_click: int = (+ cat_tab_y 28)
-            let debug_btn_x_click: int = (+ LEFT_PANEL_X 10)
-            let debug_btn_w_click: int = (- (/ LEFT_PANEL_WIDTH 3) 5)
-            if (and (>= click_x debug_btn_x_click) (and (< click_x (+ debug_btn_x_click debug_btn_w_click)) (and (>= click_y cat_tab_y2_click) (< click_y (+ cat_tab_y2_click cat_tab_h))))) {
-                set selected_category ExampleCategory.DEBUG
-                set selected_index -1
-                set icon_scroll 0
-            } else {}
+            # Check category buttons
+            let mut btn_idx: int = 0
+            while (< btn_idx 7) {
+                let btn_x: int = (+ LEFT_PANEL_X (at cat_x_offsets btn_idx))
+                let btn_row: int = (at cat_rows btn_idx)
+                let btn_y: int = (cond
+                    ((== btn_row 0) cat_y1)
+                    ((== btn_row 1) cat_y2)
+                    (else cat_y3)
+                )
+                if (and (>= click_x btn_x) (and (< click_x (+ btn_x cat_w))
+                    (and (>= click_y btn_y) (< click_y (+ btn_y cat_h))))) {
+                    set selected_category (at cat_categories btn_idx)
+                    set selected_index -1
+                    set icon_scroll 0
+                    set btn_idx 999
+                }
+                set btn_idx (+ btn_idx 1)
+            }
             
             # Check Quit button
             let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
             let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
-            let quit_btn_w: int = 70
-            let quit_btn_h: int = 28
-            if (and (>= click_x quit_btn_x) (and (< click_x (+ quit_btn_x quit_btn_w)) (and (>= click_y quit_btn_y) (< click_y (+ quit_btn_y quit_btn_h))))) {
+            if (and (>= click_x quit_btn_x) (and (< click_x (+ quit_btn_x 70))
+                (and (>= click_y quit_btn_y) (< click_y (+ quit_btn_y 28))))) {
                 set running false
-            } else {}
+            }
             
-            # Check if click is on an icon
+            # Check icon clicks
             let mut clicked_icon: int = -1
             let mut check_idx: int = 0
-            let cat_tab_y_click: int = (+ LEFT_PANEL_Y 10)
-            let grid_start_y_click: int = (+ cat_tab_y_click 68)
+            let grid_start_y_click: int = (+ LEFT_PANEL_Y 110)
             let scroll_offset_px: int = (* icon_scroll (+ ICON_TOTAL_SIZE ICON_MARGIN))
+            
             while (< check_idx (array_length indices)) {
                 let row: int = (/ check_idx ICONS_PER_ROW)
                 let col: int = (% check_idx ICONS_PER_ROW)
                 let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
                 let icon_y: int = (- (+ grid_start_y_click (* row (+ ICON_TOTAL_SIZE ICON_MARGIN))) scroll_offset_px)
                 
-                # Check if click is within icon bounds and icon is visible
                 if (and (>= icon_y grid_start_y_click) (< icon_y (- WINDOW_HEIGHT 20))) {
-                    if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE)) (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
+                    if (and (>= click_x icon_x) (and (< click_x (+ icon_x ICON_SIZE))
+                        (and (>= click_y icon_y) (< click_y (+ icon_y ICON_SIZE))))) {
                         set clicked_icon check_idx
-                        set check_idx 9999  # Break loop
-                    } else {}
-                } else {}
-                
+                        set check_idx 9999
+                    }
+                }
                 set check_idx (+ check_idx 1)
             }
             
-            # Handle click on icon
             if (>= clicked_icon 0) {
-                if (== selected_index clicked_icon) {
-                    # Double-click: launch example
-                    let ex_idx: int = (at indices clicked_icon)
-                    set launch_cmd (at example_commands ex_idx)
-                    set should_launch true
+                set selected_index clicked_icon
+                let ex_idx: int = (at indices clicked_icon)
+                let cached: string = (at source_cache ex_idx)
+                
+                if (== (str_length cached) 0) {
+                    let ex: Example = (at examples ex_idx)
+                    let raw_source: string = (file_read ex.file)
+                    let highlighted: string = (pretty_print_ansi raw_source)
+                    (array_set source_cache ex_idx highlighted)
+                    set source_code highlighted
                 } else {
-                    # First click: select and load source
-                    set selected_index clicked_icon
-                    let ex_idx: int = (at indices clicked_icon)
-                    let file_path: string = (at example_files ex_idx)
-                    set source_code (file_read file_path)
-                    set source_scroll 0
+                    set source_code cached
                 }
-            } else {}
-            
-            # Check Launch button (only if an example is selected)
-            if (>= selected_index 0) {
-                let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
-                let launch_btn_y: int = (- WINDOW_HEIGHT 60)
-                let launch_btn_w: int = 180
-                let launch_btn_h: int = 36
-                if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x launch_btn_w)) (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y launch_btn_h))))) {
-                    let ex_idx: int = (at indices selected_index)
-                    set launch_cmd (at example_commands ex_idx)
-                    set should_launch true
-                } else {}
-            } else {}
-        } else {}
+                set source_scroll 0
+            } else {
+                # Check Launch button
+                if (>= selected_index 0) {
+                    let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+                    let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
+                    if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x 160))
+                        (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y 28))))) {
+                        let ex_idx: int = (at indices selected_index)
+                        let pid: int = (at example_pids ex_idx)
+                        if (> pid 0) {
+                            set kill_request_idx ex_idx
+                        } else {
+                            set launch_request_idx ex_idx
+                        }
+                    }
+                }
+            }
+        }
 
         (nl_ui_update_mouse_state) 
 
@@ -590,216 +527,177 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer 18 18 24 255) 
         (SDL_RenderClear renderer) 
 
-        # Left panel background
+        # Left panel
         (nl_ui_panel renderer LEFT_PANEL_X LEFT_PANEL_Y LEFT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) 
         
-        # Category tabs at top of left panel
-        let cat_tab_y: int = (+ LEFT_PANEL_Y 10)
-        let cat_tab_w: int = (/ LEFT_PANEL_WIDTH 3)
-        let cat_tab_h: int = 24
-        
-        # Draw category buttons manually (no nl_ui_button for better click detection)
-        # Row 1
-        let all_btn_x: int = (+ LEFT_PANEL_X 10)
-        let all_btn_w: int = (- cat_tab_w 5)
-        let games_btn_x: int = (+ LEFT_PANEL_X (+ cat_tab_w 5))
-        let games_btn_w: int = (- cat_tab_w 5)
-        let gfx_btn_x: int = (+ LEFT_PANEL_X (* cat_tab_w 2))
-        let gfx_btn_w: int = (- cat_tab_w 10)
-        
-        # Row 2
-        let cat_tab_y2: int = (+ cat_tab_y 28)
-        let debug_btn_x: int = (+ LEFT_PANEL_X 10)
-        let debug_btn_w: int = (- cat_tab_w 5)
-        
-        # Draw All button
-        let all_active: bool = (== selected_category ExampleCategory.ALL)
-        if all_active {
-            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
-        } else {
-            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
+        # Draw category buttons
+        let mut draw_btn_idx: int = 0
+        while (< draw_btn_idx 7) {
+            let btn_label: string = (at cat_labels draw_btn_idx)
+            let btn_cat: int = (at cat_categories draw_btn_idx)
+            let btn_x: int = (+ LEFT_PANEL_X (at cat_x_offsets draw_btn_idx))
+            let btn_row: int = (at cat_rows draw_btn_idx)
+            let btn_y: int = (cond
+                ((== btn_row 0) cat_y1)
+                ((== btn_row 1) cat_y2)
+                (else cat_y3)
+            )
+            let is_active: bool = (== selected_category btn_cat)
+            if is_active {
+                (SDL_SetRenderDrawColor renderer 80 80 120 255) 
+            } else {
+                (SDL_SetRenderDrawColor renderer 50 50 70 255) 
+            }
+            (nl_sdl_render_fill_rect renderer btn_x btn_y cat_w cat_h) 
+            (nl_draw_text_blended renderer small_font btn_label (+ btn_x 8) (+ btn_y 5) 220 220 240 255) 
+            set draw_btn_idx (+ draw_btn_idx 1)
         }
-        (nl_sdl_render_fill_rect renderer all_btn_x cat_tab_y all_btn_w cat_tab_h) 
-        (nl_draw_text_blended renderer small_font "All" (+ all_btn_x 15) (+ cat_tab_y 5) 220 220 240 255) 
-        
-        # Draw Games button
-        let games_active: bool = (== selected_category ExampleCategory.GAMES)
-        if games_active {
-            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
-        } else {
-            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
-        }
-        (nl_sdl_render_fill_rect renderer games_btn_x cat_tab_y games_btn_w cat_tab_h) 
-        (nl_draw_text_blended renderer small_font "Games" (+ games_btn_x 10) (+ cat_tab_y 5) 220 220 240 255) 
-        
-        # Draw Gfx button
-        let gfx_active: bool = (== selected_category ExampleCategory.GRAPHICS)
-        if gfx_active {
-            (SDL_SetRenderDrawColor renderer 80 80 120 255) 
-        } else {
-            (SDL_SetRenderDrawColor renderer 50 50 70 255) 
-        }
-        (nl_sdl_render_fill_rect renderer gfx_btn_x cat_tab_y gfx_btn_w cat_tab_h) 
-        (nl_draw_text_blended renderer small_font "Gfx" (+ gfx_btn_x 15) (+ cat_tab_y 5) 220 220 240 255)
-        
-        # Draw Debug button (Row 2)
-        let debug_active: bool = (== selected_category ExampleCategory.DEBUG)
-        if debug_active {
-            (SDL_SetRenderDrawColor renderer 200 140 40 255) 
-        } else {
-            (SDL_SetRenderDrawColor renderer 120 80 30 255) 
-        }
-        (nl_sdl_render_fill_rect renderer debug_btn_x cat_tab_y2 debug_btn_w cat_tab_h) 
-        (nl_draw_text_blended renderer small_font "Debug" (+ debug_btn_x 8) (+ cat_tab_y2 5) 255 220 180 255) 
 
         # Rebuild filtered indices
-        set indices (build_filtered_indices example_categories selected_category)
+        set indices (build_filtered_indices examples selected_category)
         let item_count: int = (array_length indices)
 
-        # Icon grid (adjusted for second row of category buttons)
-        let grid_start_y: int = (+ cat_tab_y 68)
+        # Icon grid (below 3 rows of category buttons)
+        let grid_start_y: int = (+ LEFT_PANEL_Y 110)
         let scroll_offset_px: int = (* icon_scroll (+ ICON_TOTAL_SIZE ICON_MARGIN))
         let mut grid_idx: int = 0
         
         while (< grid_idx item_count) {
             let ex_idx: int = (at indices grid_idx)
+            let ex: Example = (at examples ex_idx)
             let row: int = (/ grid_idx ICONS_PER_ROW)
             let col: int = (% grid_idx ICONS_PER_ROW)
             
             let icon_x: int = (+ LEFT_PANEL_X (+ 15 (* col (+ ICON_SIZE ICON_MARGIN))))
             let icon_y: int = (- (+ grid_start_y (* row (+ ICON_TOTAL_SIZE ICON_MARGIN))) scroll_offset_px)
             
-            # Only render icons that are visible in the left panel
             if (and (>= icon_y (- grid_start_y 20)) (< icon_y (- WINDOW_HEIGHT 20))) {
-                # Draw selection border if selected
+                # Selection border
                 if (== grid_idx selected_index) {
-                    # Selected: white glow border
                     (SDL_SetRenderDrawColor renderer 255 255 255 255) 
                     (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ ICON_SIZE 6) (+ ICON_SIZE 6)) 
-                } else {}
+                }
                 
-                # Get example name for label
-                let name: string = (at example_names ex_idx)
-                
-                # Draw PNG icon
+                # Draw icon
                 let icon_texture: int = (at icon_textures ex_idx)
                 if (!= icon_texture 0) {
                     (nl_img_render_texture renderer icon_texture icon_x icon_y ICON_SIZE ICON_SIZE) 
                 } else {
-                    # Fallback to colored square if icon failed to load
                     let color: int = (get_icon_color ex_idx)
                     let r: int = (/ color 65536)
                     let g: int = (% (/ color 256) 256)
                     let b: int = (% color 256)
                     (SDL_SetRenderDrawColor renderer r g b 255) 
                     (nl_sdl_render_fill_rect renderer icon_x icon_y ICON_SIZE ICON_SIZE) 
-                    
-                    # Draw first letter as fallback
-                    let first_letter: string = (str_substring name 0 1)
+                    let first_letter: string = (str_substring ex.name 0 1)
                     (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255) 
                 }
                 
-                # Draw label below icon
-                let truncated: string = (str_truncate name 10)
+                # Label
+                let truncated: string = (str_truncate ex.name 10)
                 (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) 
-            } else {}
-            
+            }
             set grid_idx (+ grid_idx 1)
         }
 
-        # Right panel background
+        # Right panel
         (nl_ui_panel renderer RIGHT_PANEL_X RIGHT_PANEL_Y RIGHT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) 
-        
-        # Header
         (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255) 
         
-        # Quit button (top right) - drawn manually
+        # Quit button
         let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
         let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
-        let quit_btn_w: int = 70
-        let quit_btn_h: int = 28
         (SDL_SetRenderDrawColor renderer 100 50 50 255) 
-        (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y quit_btn_w quit_btn_h) 
+        (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y 70 28) 
         (nl_draw_text_blended renderer font "Quit" (+ quit_btn_x 15) (+ quit_btn_y 6) 240 220 220 255) 
 
         if (>= selected_index 0) {
             let ex_idx: int = (at indices selected_index)
-            let ex_name: string = (at example_names ex_idx)
-            let ex_desc: string = (at example_descs ex_idx)
-            let ex_file: string = (at example_files ex_idx)
+            let ex: Example = (at examples ex_idx)
             
             # Example info
             let info_y: int = (+ RIGHT_PANEL_Y 60)
-            (nl_ui_label renderer font (+ "Name: " ex_name) (+ RIGHT_PANEL_X 20) info_y 240 240 255 255) 
-            (nl_ui_label renderer font (+ "Description: " ex_desc) (+ RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255) 
-            (nl_ui_label renderer font (+ "File: " ex_file) (+ RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255) 
+            (nl_ui_label renderer font (+ "Name: " ex.name) (+ RIGHT_PANEL_X 20) info_y 240 240 255 255) 
+            (nl_ui_label renderer font (+ "Description: " ex.desc) (+ RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255) 
+            (nl_ui_label renderer font (+ "File: " ex.file) (+ RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255) 
             
             # Source code area
             let source_y: int = (+ info_y 90)
             let source_h: int = (- (- WINDOW_HEIGHT source_y) 100)
-            
             (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) 
             
-            # Use syntax-highlighted code display widget
-            # Clamp scroll to valid range
             if (< source_scroll 0) {
                 set source_scroll 0
-            } else {}
+            }
             
             let code_display_x: int = (+ RIGHT_PANEL_X 20)
             let code_display_y: int = (+ source_y 35)
             let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
             let code_display_h: int = (- source_h 65)
             
-            (nl_ui_code_display renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
+            (nl_ui_code_display_ansi renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
             
-            # Draw scroll indicator if scrolled
             if (> source_scroll 0) {
                 let scroll_text: string = (+ "Line " (+ (int_to_string (+ source_scroll 1)) " ↑↓"))
-                let scroll_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120)
-                let scroll_y: int = (- (+ source_y source_h) 20)
-                (nl_draw_text_blended renderer small_font scroll_text scroll_x scroll_y 180 180 200 255) 
-            } else {}
+                (nl_draw_text_blended renderer small_font scroll_text (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120) (- (+ source_y source_h) 20) 180 180 200 255) 
+            }
             
-            # Launch button - drawn manually
-            let launch_btn_x: int = (+ RIGHT_PANEL_X 20)
-            let launch_btn_y: int = (- WINDOW_HEIGHT 60)
-            let launch_btn_w: int = 180
-            let launch_btn_h: int = 36
-            (SDL_SetRenderDrawColor renderer 50 100 50 255) 
-            (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y launch_btn_w launch_btn_h) 
-            (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 8) 220 240 220 255) 
+            # Launch button
+            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+            let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
+            let pid_draw: int = (at example_pids ex_idx)
+            
+            if (> pid_draw 0) {
+                (SDL_SetRenderDrawColor renderer 180 50 50 255) 
+                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28) 
+                (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 6) 255 255 255 255) 
+            } else {
+                (SDL_SetRenderDrawColor renderer 50 100 50 255) 
+                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28) 
+                (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255) 
+            }
         } else {
-            # No selection message
             (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) 
             (nl_ui_label renderer font "to preview its source code." (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 124) 160 160 180 255) 
-            (nl_ui_label renderer font "Click again to launch!" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 160) 140 140 160 255) 
         }
 
         (SDL_RenderPresent renderer) 
         
-        # Launch example if requested (non-blocking spawn so launcher stays responsive)
-        if should_launch {
-            (println (+ "🚀 Launching: " launch_cmd))
-            let pid: int = (spawn launch_cmd)
-            if (> pid 0) {
-                let pid_str: string = (int_to_string pid)
-                (println (+ "✅ Launched with PID: " pid_str))
-            } else {
-                (println "❌ Failed to launch example")
+        # Launch example if requested
+        if (>= launch_request_idx 0) {
+            let ex: Example = (at examples launch_request_idx)
+            let pid: int = (at example_pids launch_request_idx)
+            if (== pid 0) {
+                (println (+ "Launching: " ex.command))
+                let new_pid: int = (spawn ex.command)
+                if (> new_pid 0) {
+                    (array_set example_pids launch_request_idx new_pid)
+                    (println (+ "Launched with PID: " (int_to_string new_pid)))
+                } else {
+                    (println "Failed to launch example")
+                }
             }
-            set should_launch false
-        } else {}
+            set launch_request_idx -1
+        }
+
+        # Kill example if requested
+        if (>= kill_request_idx 0) {
+            let pid: int = (at example_pids kill_request_idx)
+            if (> pid 0) {
+                (println (+ "Force quitting PID: " (int_to_string pid)))
+                (exec (+ "kill -9 " (int_to_string pid)))
+            }
+            set kill_request_idx -1
+        }
     }
 
     # Cleanup
-    # Destroy icon textures
     let mut cleanup_idx: int = 0
-    while (< cleanup_idx icon_count) {
+    while (< cleanup_idx example_count) {
         let tex: int = (at icon_textures cleanup_idx)
         if (!= tex 0) {
             (nl_img_destroy_texture tex) 
-        } else {}
+        }
         set cleanup_idx (+ cleanup_idx 1)
     }
     

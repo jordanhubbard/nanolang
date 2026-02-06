@@ -141,10 +141,10 @@ fn main() -> int {
     # Example 2: Validation with multiple assertions
     (println "2. Testing user input validation...")
     let valid1: bool = (validate_user_input 25 "Alice")
-    (println (+ "   validate_user_input(25, 'Alice') = " (if valid1 "valid" "invalid")))
+    (println (+ "   validate_user_input(25, 'Alice') = " (cond ((== valid1 true) "valid") (else "invalid"))))
     
     let valid2: bool = (validate_user_input -5 "")
-    (println (+ "   validate_user_input(-5, '') = " (if valid2 "valid" "invalid")))
+    (println (+ "   validate_user_input(-5, '') = " (cond ((== valid2 true) "valid") (else "invalid"))))
     (println "   (If invalid, beads were created for the failures)")
     (println "")
     
@@ -161,7 +161,7 @@ fn main() -> int {
     # Example 4: Config validation
     (println "4. Testing config validation...")
     let config_valid: bool = (validate_config 100 1000 3)
-    (println (+ "   validate_config(100, 1000, 3) = " (if config_valid "valid" "invalid")))
+    (println (+ "   validate_config(100, 1000, 3) = " (cond ((== config_valid true) "valid") (else "invalid"))))
     (println "")
     
     (println "✓ Example complete!")

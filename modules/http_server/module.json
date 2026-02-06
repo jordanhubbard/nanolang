@@ -1,7 +1,7 @@
 {
   "name": "http_server",
   "version": "1.0.0",
-  "description": "HTTP/1.1 server with routing, static files, and REST API support",
+  "description": "HTTP/1.1 server with routing, static files, REST API support, and code execution",
   "author": "NanoLang Contributors",
   "license": "MIT",
   "dependencies": {
@@ -28,6 +28,6 @@
     "nl_http_response_send_html",
     "nl_http_response_send_text"
   ],
-  "tags": ["http", "server", "web", "rest", "api"]
+  "tags": ["http", "server", "web", "rest", "api", "playground"]
 }
 

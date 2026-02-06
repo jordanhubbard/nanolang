@@ -150,7 +150,10 @@ shadow calculate_total_price {
     let p2: Product = (create_product 2 "Gadget" 200)
     let p3: Product = (create_product 3 "Tool" 50)
     
-    let products: array<Product> = [p1, p2, p3]
+    let mut products: array<Product> = []
+    set products (array_push products p1)
+    set products (array_push products p2)
+    set products (array_push products p3)
     assert (== (calculate_total_price products) 350)
 }
 
@@ -284,7 +287,9 @@ fn main() -> int {
     
     # Part 3: Business Logic Layer
     (println "=== Business Logic Layer ===")
-    let products: array<Product> = [product1, product2]
+    let mut products: array<Product> = []
+    set products (array_push products product1)
+    set products (array_push products product2)
     let total: int = (calculate_total_price products)
     (println "Total price:")
     (println total)

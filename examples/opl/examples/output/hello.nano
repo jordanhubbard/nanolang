@@ -6,7 +6,7 @@ module "modules/std/fs.nano"
 fn json_equals(a: Json, b: Json) -> bool {
     let sa: string = (stringify a)
     let sb: string = (stringify b)
-    return (str_equals sa sb)
+    return (== sa sb)
 }
 shadow json_equals {
     let a: Json = (new_int 1)
@@ -31,19 +31,19 @@ shadow value_to_bool {
 
 fn eval_expr(env: Json, expr: Json) -> Json {
     let k: string = (get_string expr "kind")
-    if (str_equals k "id") {
+    if (== k "id") {
         return (get env (get_string expr "name"))
     } else {}
-    if (str_equals k "lit") {
+    if (== k "lit") {
         return (get expr "v")
     } else {}
-    if (str_equals k "bin") {
+    if (== k "bin") {
         let op: string = (get_string expr "op")
         let a: Json = (eval_expr env (get expr "a"))
         let b: Json = (eval_expr env (get expr "b"))
         let mut res: bool = false
-        if (str_equals op "==") { set res (json_equals a b) } else {}
-        if (str_equals op "!=") { set res (not (json_equals a b)) } else {}
+        if (== op "==") { set res (json_equals a b) } else {}
+        if (== op "!=") { set res (not (json_equals a b)) } else {}
         (free a)
         (free b)
         return (new_bool res)
@@ -85,7 +85,7 @@ fn run_plan(plan: Json) -> int {
         while (< si sn) {
             let st: Json = (get_index steps si)
             let op: string = (get_string st "op")
-            if (str_equals op "call") {
+            if (== op "call") {
                 let tool: string = (get_string st "tool")
                 let args_obj: Json = (get st "args")
                 let args_out: Json = (new_object)
@@ -109,7 +109,7 @@ fn run_plan(plan: Json) -> int {
                 (free args_out)
                 (free args_obj)
             } else {}
-            if (str_equals op "assert") {
+            if (== op "assert") {
                 let csrc: Json = (get st "cond")
                 let c: Json = (eval_value env csrc)
                 (free csrc)
@@ -120,7 +120,7 @@ fn run_plan(plan: Json) -> int {
                     return 1
                 } else {}
             } else {}
-            if (str_equals op "emit") {
+            if (== op "emit") {
                 let nm: string = (get_string st "name")
                 let vsrc: Json = (get st "value")
                 let v: Json = (eval_value env vsrc)
@@ -129,7 +129,7 @@ fn run_plan(plan: Json) -> int {
                 (println (stringify v))
                 (free v)
             } else {}
-            if (str_equals op "if") {
+            if (== op "if") {
                 let csrc: Json = (get st "cond")
                 let c: Json = (eval_value env csrc)
                 (free csrc)

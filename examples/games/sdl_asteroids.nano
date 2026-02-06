@@ -45,15 +45,17 @@ let RESPAWN_DELAY: float = 2.0
 # === HELPER FUNCTIONS ===
 
 fn wrap_position(pos: float, max: float) -> float {
-    if (< pos 0.0) {
-        return max
-    } else {
-        if (> pos max) {
-            return 0.0
-        } else {
-            return pos
-        }
-    }
+    return (cond
+        ((< pos 0.0) max)
+        ((> pos max) 0.0)
+        (else pos)
+    )
+}
+
+shadow wrap_position {
+    assert (== (wrap_position -1.0 100.0) 100.0)
+    assert (== (wrap_position 101.0 100.0) 0.0)
+    assert (== (wrap_position 50.0 100.0) 50.0)
 }
 
 fn distance_squared(x1: float, y1: float, x2: float, y2: float) -> float {
@@ -82,6 +84,25 @@ fn get_asteroid_score(size: int) -> int {
         ((== size ASTEROID_SIZE_MEDIUM) SCORE_MEDIUM)
         (else SCORE_SMALL)
     )
+}
+
+shadow get_asteroid_score {
+    assert (== (get_asteroid_score ASTEROID_SIZE_LARGE) SCORE_LARGE)
+    assert (== (get_asteroid_score ASTEROID_SIZE_MEDIUM) SCORE_MEDIUM)
+    assert (== (get_asteroid_score ASTEROID_SIZE_SMALL) SCORE_SMALL)
+}
+
+fn get_asteroid_gray(size: int) -> int {
+    return (cond
+        ((== size ASTEROID_SIZE_LARGE) 180)
+        ((== size ASTEROID_SIZE_MEDIUM) 150)
+        (else 120)
+    )
+}
+
+shadow get_asteroid_gray {
+    assert (== (get_asteroid_gray ASTEROID_SIZE_LARGE) 180)
+    assert (== (get_asteroid_gray ASTEROID_SIZE_SMALL) 120)
 }
 
 # === MAIN GAME ===
@@ -572,16 +593,9 @@ fn main() -> int {
             if active {
                 let asize: int = (at asteroid_size i)
                 
-                # Color by size
-                if (== asize ASTEROID_SIZE_LARGE) {
-                    (SDL_SetRenderDrawColor renderer 180 180 180 255) 
-                } else {
-                    if (== asize ASTEROID_SIZE_MEDIUM) {
-                        (SDL_SetRenderDrawColor renderer 150 150 150 255) 
-                    } else {
-                        (SDL_SetRenderDrawColor renderer 120 120 120 255) 
-                    }
-                }
+                # Color by size using helper
+                let gray: int = (get_asteroid_gray asize)
+                (SDL_SetRenderDrawColor renderer gray gray gray 255)
                 
                 let ax: int = (cast_int (at asteroid_x i))
                 let ay: int = (cast_int (at asteroid_y i))

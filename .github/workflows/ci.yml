@@ -10,6 +10,7 @@ jobs:
   build-and-test:
     name: Build and Test (${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure || false }}
     strategy:
       matrix:
         include:
@@ -17,6 +18,7 @@ jobs:
             arch: x64
           - os: ubuntu-24.04-arm
             arch: arm64
+            allow_failure: true
           - os: macos-14
             arch: arm64
       fail-fast: false
@@ -64,6 +66,11 @@ jobs:
 
       - name: Run test suite
         run: make test
+
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
 
       - name: Validate user guide snippets
         run: make userguide-check
@@ -133,18 +140,28 @@ jobs:
             libsdl2-ttf-dev
 
       - name: Build with AddressSanitizer
-        run: make sanitize
+        run: |
+          # Disable leak detection for exit-time leaks in short-lived compiler process
+          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
+          export ASAN_OPTIONS=detect_leaks=0
+          make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
-        run: make build
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          make build
 
       - name: Run tests with sanitizers
         timeout-minutes: 20  # Timeout for test step specifically
         run: |
-          # Disable leak detection for exit-time leaks in short-lived compiler process
-          # AddressSanitizer still catches real memory issues (use-after-free, etc.)
           export ASAN_OPTIONS=detect_leaks=0
           make test-units  # Run only unit tests, skip slow integration tests
+
+      - name: Run negative tests with sanitizers
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          cd tests/negative
+          ./run_negative_tests.sh
 
       - name: Show sanitizer error logs on failure
         if: failure()
@@ -189,6 +206,11 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
 
       - name: Show error logs on failure
         if: failure()

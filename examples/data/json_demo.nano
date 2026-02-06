@@ -1,33 +1,33 @@
-// JSON Library Demo
-module "std/json/json.nano as JSON" as JSON
+# JSON Library Demo
+import "modules/std/json/json.nano" as JSON
 
 fn parse_example() -> int {
-    // Parse JSON string
+    # Parse JSON string
     let json_str: string = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}"
-    let obj: opaque = (JSON.parse json_str)
+    let obj: JSON.Json = (JSON.parse json_str)
     
-    if (== obj (null_opaque)) {
+    if (== obj 0) {
         (println "Failed to parse JSON")
         return 1
     }
     
-    // Extract values
-    let name_item: opaque = (JSON.get_field obj "name")
-    let age_item: opaque = (JSON.get_field obj "age")
-    let active_item: opaque = (JSON.get_field obj "active")
+    # Extract values
+    let name_item: JSON.Json = (JSON.get obj "name")
+    let age_item: JSON.Json = (JSON.get obj "age")
+    let active_item: JSON.Json = (JSON.get obj "active")
     
     if (JSON.is_string name_item) {
-        let name: string = (JSON.get_string name_item)
-        (println (string_concat "Name: " name))
+        let name: string = (JSON.as_string name_item)
+        (println (+ "Name: " name))
     }
     
     if (JSON.is_number age_item) {
-        let age: float = (JSON.get_number age_item)
-        (println (string_concat "Age: " (float_to_string age)))
+        let age: int = (JSON.as_int age_item)
+        (println (+ "Age: " (int_to_string age)))
     }
     
     if (JSON.is_bool active_item) {
-        let active: bool = (JSON.get_bool active_item)
+        let active: bool = (JSON.as_bool active_item)
         if active {
             (println "Status: Active")
         } else {
@@ -35,64 +35,82 @@ fn parse_example() -> int {
         }
     }
     
-    // Clean up
+    # Clean up
+    (JSON.free name_item)
+    (JSON.free age_item)
+    (JSON.free active_item)
     (JSON.free obj)
     return 0
 }
 
+shadow parse_example {
+    # Uses JSON module helpers
+    assert true
+}
+
 fn create_example() -> int {
-    // Create JSON object
-    let obj: opaque = (JSON.new_object)
+    # Create JSON object
+    let obj: JSON.Json = (JSON.new_object)
     
-    // Add fields
-    (JSON.add_field obj "name" (JSON.new_string "Bob"))
-    (JSON.add_field obj "age" (JSON.new_number 25.0))
-    (JSON.add_field obj "active" (JSON.new_bool true))
+    # Add fields
+    (JSON.object_set obj "name" (JSON.new_string "Bob"))
+    (JSON.object_set obj "age" (JSON.new_int 25))
+    (JSON.object_set obj "active" (JSON.new_bool true))
     
-    // Create array
-    let arr: opaque = (JSON.new_array)
-    (JSON.add_to_array arr (JSON.new_string "foo"))
-    (JSON.add_to_array arr (JSON.new_string "bar"))
-    (JSON.add_to_array arr (JSON.new_string "baz"))
-    (JSON.add_field obj "tags" arr)
+    # Create array
+    let arr: JSON.Json = (JSON.new_array)
+    (JSON.json_array_push arr (JSON.new_string "foo"))
+    (JSON.json_array_push arr (JSON.new_string "bar"))
+    (JSON.json_array_push arr (JSON.new_string "baz"))
+    (JSON.object_set obj "tags" arr)
     
-    // Convert to string
+    # Convert to string
     let json_str: string = (JSON.stringify obj)
     (println "Generated JSON:")
     (println json_str)
     
-    // Clean up
+    # Clean up
     (JSON.free obj)
     return 0
 }
 
+shadow create_example {
+    # Uses JSON module helpers
+    assert true
+}
+
 fn array_example() -> int {
-    // Parse array
+    # Parse array
     let json_str: string = "[1, 2, 3, 4, 5]"
-    let arr: opaque = (JSON.parse json_str)
+    let arr: JSON.Json = (JSON.parse json_str)
     
-    if (== arr (null_opaque)) {
+    if (== arr 0) {
         (println "Failed to parse JSON array")
         return 1
     }
     
-    // Iterate array
-    let len: int = (JSON.array_length arr)
-    (println (string_concat "Array length: " (int_to_string len)))
+    # Iterate array
+    let len: int = (JSON.array_size arr)
+    (println (+ "Array length: " (int_to_string len)))
     
     let mut i: int = 0
     while (< i len) {
-        let item: opaque = (JSON.array_get arr i)
+        let item: JSON.Json = (JSON.get_index arr i)
         if (JSON.is_number item) {
-            let num: float = (JSON.get_number item)
-            (println (string_concat "  [" (string_concat (int_to_string i) 
-                     (string_concat "] = " (float_to_string num)))))
+            let num: int = (JSON.as_int item)
+            (println (+ "  [" (+ (int_to_string i) (+ "] = " (int_to_string num)))))
         }
+        (JSON.free item)
         set i (+ i 1)
     }
     
     (JSON.free arr)
     return 0
+}
+
+shadow array_example {
+    # Uses JSON module helpers
+    assert true
 }
 
 fn main() -> int {
@@ -108,5 +126,9 @@ fn main() -> int {
     (array_example)
     
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
 

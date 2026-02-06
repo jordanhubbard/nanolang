@@ -14,16 +14,53 @@ fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
 }
 
+shadow is_identifier_start {
+    assert (is_identifier_start 65)  /* A */
+    assert (is_identifier_start 90)  /* Z */
+    assert (is_identifier_start 97)  /* a */
+    assert (is_identifier_start 122) /* z */
+    assert (is_identifier_start 95)  /* _ */
+    assert (not (is_identifier_start 48)) /* 0 */
+    assert (not (is_identifier_start 32)) /* space */
+}
+
 fn is_identifier_char(c: int) -> bool {
     return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
+}
+
+shadow is_identifier_char {
+    assert (is_identifier_char 65)  /* A */
+    assert (is_identifier_char 97)  /* a */
+    assert (is_identifier_char 95)  /* _ */
+    assert (is_identifier_char 48)  /* 0 */
+    assert (is_identifier_char 57)  /* 9 */
+    assert (not (is_identifier_char 32))  /* space */
+    assert (not (is_identifier_char 45))  /* - */
 }
 
 fn is_whitespace_char(c: int) -> bool {
     return (or (or (or (== c 32) (== c 9)) (== c 10)) (== c 13))
 }
 
+shadow is_whitespace_char {
+    assert (is_whitespace_char 32)  /* space */
+    assert (is_whitespace_char 9)   /* tab */
+    assert (is_whitespace_char 10)  /* newline */
+    assert (is_whitespace_char 13)  /* carriage return */
+    assert (not (is_whitespace_char 65))  /* A */
+}
+
 fn is_digit_char(c: int) -> bool {
     return (and (>= c 48) (<= c 57))
+}
+
+shadow is_digit_char {
+    assert (is_digit_char 48)  /* 0 */
+    assert (is_digit_char 57)  /* 9 */
+    assert (is_digit_char 53)  /* 5 */
+    assert (not (is_digit_char 65))  /* A */
+    assert (not (is_digit_char 47))  /* / (before 0) */
+    assert (not (is_digit_char 58))  /* : (after 9) */
 }
 
 fn keyword_group1(s: string) -> int {
@@ -36,6 +73,14 @@ fn keyword_group1(s: string) -> int {
             }
         }
     }
+}
+
+shadow keyword_group1 {
+    assert (== (keyword_group1 "module") 19)  /* TOKEN_MODULE */
+    assert (== (keyword_group1 "pub") 20)     /* TOKEN_PUB */
+    assert (== (keyword_group1 "from") 21)    /* TOKEN_FROM */
+    assert (== (keyword_group1 "use") 22)     /* TOKEN_USE */
+    assert (== (keyword_group1 "unknown") (- 0 1))  /* not a keyword */
 }
 
 fn keyword_group2(s: string) -> int {
@@ -94,6 +139,17 @@ fn keyword_group2(s: string) -> int {
     }
 }
 
+shadow keyword_group2 {
+    assert (== (keyword_group2 "fn") 24)       /* TOKEN_FN */
+    assert (== (keyword_group2 "let") 25)      /* TOKEN_LET */
+    assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
+    assert (== (keyword_group2 "return") 34)   /* TOKEN_RETURN */
+    assert (== (keyword_group2 "struct") 43)   /* TOKEN_STRUCT */
+    assert (== (keyword_group2 "true") 5)      /* TOKEN_TRUE */
+    assert (== (keyword_group2 "false") 6)     /* TOKEN_FALSE */
+    assert (== (keyword_group2 "unknown") (- 0 1))
+}
+
 fn keyword_group3(s: string) -> int {
     if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
         if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
@@ -110,6 +166,15 @@ fn keyword_group3(s: string) -> int {
     }
 }
 
+shadow keyword_group3 {
+    assert (== (keyword_group3 "int") 50)      /* TOKEN_TYPE_INT */
+    assert (== (keyword_group3 "float") 52)    /* TOKEN_TYPE_FLOAT */
+    assert (== (keyword_group3 "bool") 53)     /* TOKEN_TYPE_BOOL */
+    assert (== (keyword_group3 "string") 54)   /* TOKEN_TYPE_STRING */
+    assert (== (keyword_group3 "void") 56)     /* TOKEN_TYPE_VOID */
+    assert (== (keyword_group3 "unknown") (- 0 1))
+}
+
 fn keyword_group4(s: string) -> int {
     if (== s "and") { return LexerTokenType.TOKEN_AND } else {
         if (== s "or") { return LexerTokenType.TOKEN_OR } else {
@@ -118,6 +183,13 @@ fn keyword_group4(s: string) -> int {
             }
         }
     }
+}
+
+shadow keyword_group4 {
+    assert (== (keyword_group4 "and") 68)   /* TOKEN_AND */
+    assert (== (keyword_group4 "or") 69)    /* TOKEN_OR */
+    assert (== (keyword_group4 "not") 70)   /* TOKEN_NOT */
+    assert (== (keyword_group4 "unknown") (- 0 1))
 }
 
 fn keyword_or_identifier(s: string) -> int {
@@ -144,9 +216,26 @@ fn keyword_or_identifier(s: string) -> int {
     }
 }
 
+shadow keyword_or_identifier {
+    assert (== (keyword_or_identifier "fn") 24)     /* keyword from group2 */
+    assert (== (keyword_or_identifier "int") 50)    /* keyword from group3 */
+    assert (== (keyword_or_identifier "and") 68)    /* keyword from group4 */
+    assert (== (keyword_or_identifier "myvar") 4)   /* TOKEN_IDENTIFIER */
+}
+
 fn push_tok(tokens: List<LexerToken>, token_type: int, value: string, line: int, column: int) -> void {
     let tok: LexerToken = LexerToken { token_type: token_type, value: value, line: line, column: column }
     (list_LexerToken_push tokens tok)
+}
+
+shadow push_tok {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    (push_tok tokens 24 "fn" 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 24)
+    assert (== tok.line 1)
+    assert (== tok.column 1)
 }
 
 fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
@@ -167,6 +256,14 @@ fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, li
         (push_tok tokens LexerTokenType.TOKEN_STRING str_value line column)
         return (+ pos 1)
     }
+}
+
+shadow process_string {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "\"hello\""
+    let new_pos: int = (process_string src 0 7 tokens 1 1)
+    assert (== new_pos 7)  /* position after closing quote */
+    assert (== (list_LexerToken_length tokens) 1)
 }
 
 fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
@@ -199,6 +296,16 @@ fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, li
     }
 }
 
+shadow process_number {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "123"
+    let new_pos: int = (process_number src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER */
+}
+
 fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
@@ -210,6 +317,16 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>
     let token_type: int = (keyword_or_identifier id_value)
     (push_tok tokens token_type id_value line column)
     return pos
+}
+
+shadow process_identifier {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "myvar"
+    let new_pos: int = (process_identifier src 0 5 tokens 1 1)
+    assert (== new_pos 5)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 4)  /* TOKEN_IDENTIFIER */
 }
 
 fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
@@ -256,6 +373,16 @@ fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToke
         (push_tok tokens LexerTokenType.TOKEN_NUMBER value_str line column)
         return (+ pos 1)
     }
+}
+
+shadow process_char_literal {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "'A'"
+    let new_pos: int = (process_char_literal src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER (char as int) */
 }
 
 pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
@@ -467,6 +594,14 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
 pub fn tokenize_file(path: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
     let source: string = (read path)
     return (tokenize_string source path diags)
+}
+
+shadow tokenize_file {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* Test on a known file that exists in the repository */
+    let toks: List<LexerToken> = (tokenize_file "examples/language/nl_hello.nano" diags)
+    assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
 }
 
 shadow tokenize_string {

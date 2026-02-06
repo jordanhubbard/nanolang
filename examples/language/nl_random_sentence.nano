@@ -1,6 +1,8 @@
 # Example 24: Random Nonsense Sentence Generator
 # Reads words from /usr/share/dict/words and generates random sentences
 
+from "modules/std/fs.nano" import file_read
+
 # External C functions for random numbers and time
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
@@ -20,7 +22,7 @@ fn random_range(min: int, max: int) -> int {
 
 shadow random_range {
     # Seed for consistent testing
-    (srand 12345)
+    unsafe { (srand 12345) }
     let r1: int = (random_range 0 10)
     let r2: int = (random_range 5 15)
     assert (>= r1 0)
@@ -71,10 +73,10 @@ fn get_word_at_index(content: string, index: int) -> string {
 
 shadow get_word_at_index {
     let test_content: string = "apple\nbanana\ncherry\ndate\n"
-    assert (str_equals (get_word_at_index test_content 0) "apple")
-    assert (str_equals (get_word_at_index test_content 1) "banana")
-    assert (str_equals (get_word_at_index test_content 2) "cherry")
-    assert (str_equals (get_word_at_index test_content 3) "date")
+    assert (== (get_word_at_index test_content 0) "apple")
+    assert (== (get_word_at_index test_content 1) "banana")
+    assert (== (get_word_at_index test_content 2) "cherry")
+    assert (== (get_word_at_index test_content 3) "date")
 }
 
 # Count words in content (count newlines)
@@ -139,7 +141,7 @@ fn generate_sentence(content: string, word_count: int) -> string {
 
 shadow generate_sentence {
     let test_content: string = "apple\nbanana\ncherry\ndate\negg\nfig\n"
-    (srand 42)
+    unsafe { (srand 42) }
     let sentence: string = (generate_sentence test_content 5)
     assert (> (strlen sentence) 0)
     # Sentence should end with period
@@ -156,7 +158,7 @@ fn main() -> int {
     
     # Initialize random seed with current time
     let seed: int = (time 0)
-    (srand seed)
+    unsafe { (srand seed) }
     
     # Try to read dictionary file
     let dict_path: string = "/usr/share/dict/words"

@@ -1,3 +1,4 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 import "examples/opl/opl_parser.nano"
 import "examples/opl/opl_compile.nano"
 import "examples/opl/opl_validate.nano"
@@ -11,8 +12,7 @@ fn errors_have_code(errors: Json, code: string) -> bool {
     while (< i n) {
         let e: Json = (get_index errors i)
         let c: string = (get_string e "code")
-        (free e)
-        if (str_equals c code) {
+        if (== c code) {
             return true
         } else {}
         set i (+ i 1)
@@ -25,10 +25,8 @@ shadow errors_have_code {
     let e: Json = (new_object)
     (object_set e "code" (new_string "E_X"))
     (json_array_push errs e)
-    (free e)
     assert (errors_have_code errs "E_X")
     assert (not (errors_have_code errs "E_Y"))
-    (free errs)
 }
 
 fn run_golden_ast(input_path: string, expected_path: string) -> bool {
@@ -43,9 +41,7 @@ fn run_golden_ast(input_path: string, expected_path: string) -> bool {
     let exp_json: Json = (parse exp_src)
     let exp: string = (stringify exp_json)
 
-    let ok: bool = (str_equals got exp)
-    (free exp_json)
-    (free r.ast)
+    let ok: bool = (== got exp)
     return ok
 }
 
@@ -65,9 +61,7 @@ fn run_golden_plan(input_path: string, expected_path: string) -> bool {
     let exp_json: Json = (parse exp_src)
     let exp: string = (stringify exp_json)
 
-    let ok: bool = (str_equals got exp)
-    (free exp_json)
-    (free plan)
+    let ok: bool = (== got exp)
     return ok
 }
 
@@ -79,9 +73,7 @@ fn run_validate_error(input_src: string, codes: Json) -> bool {
     let r: Json = (opl_validate input_src)
     let okv: Json = (get r "ok")
     let ok: bool = (as_bool okv)
-    (free okv)
     if ok {
-        (free r)
         return false
     } else {}
 
@@ -91,17 +83,12 @@ fn run_validate_error(input_src: string, codes: Json) -> bool {
     while (< i n) {
         let c: Json = (get_index codes i)
         let code: string = (as_string c)
-        (free c)
         if (not (errors_have_code errs code)) {
-            (free errs)
-            (free r)
             return false
         } else {}
         set i (+ i 1)
     }
 
-    (free errs)
-    (free r)
     return true
 }
 
@@ -109,7 +96,6 @@ shadow run_validate_error {
     let codes: Json = (new_array)
     (json_array_push codes (new_string "E_UNRESOLVED_ID"))
     assert (run_validate_error "agent a { uses web.search call web.search { query: q } }" codes)
-    (free codes)
 }
 
 fn run_cases() -> int {
@@ -128,45 +114,38 @@ fn run_cases() -> int {
         let name: string = (get_string c "name")
         let kind: string = (get_string c "kind")
 
-        if (str_equals kind "golden_ast") {
+        if (== kind "golden_ast") {
             let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
             let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
             if (not (run_golden_ast inp exp)) {
                 (println (+ "FAIL golden_ast " name))
-                if (str_equals first_fail "") { set first_fail (+ "golden_ast:" name) } else {}
+                if (== first_fail "") { set first_fail (+ "golden_ast:" name) } else {}
                 set failures (+ failures 1)
             } else {}
         } else {}
 
-        if (str_equals kind "golden_plan") {
+        if (== kind "golden_plan") {
             let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
             let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
             if (not (run_golden_plan inp exp)) {
                 (println (+ "FAIL golden_plan " name))
-                if (str_equals first_fail "") { set first_fail (+ "golden_plan:" name) } else {}
+                if (== first_fail "") { set first_fail (+ "golden_plan:" name) } else {}
                 set failures (+ failures 1)
             } else {}
         } else {}
 
-        if (str_equals kind "validate_error") {
+        if (== kind "validate_error") {
             let inp: string = (get_string c "input")
             let expect: Json = (get c "expect")
             let codes: Json = (get expect "errorsContainCodes")
             if (not (run_validate_error inp codes)) {
                 (println (+ "FAIL validate_error " name))
-                if (str_equals first_fail "") { set first_fail (+ "validate_error:" name) } else {}
+                if (== first_fail "") { set first_fail (+ "validate_error:" name) } else {}
                 set failures (+ failures 1)
             } else {}
-            (free codes)
-            (free expect)
         } else {}
-
-        (free c)
         set i (+ i 1)
     }
-
-    (free cases)
-    (free root)
 
     if (!= failures 0) {
         (println (+ "OPL_CASES_FAILED " (+ first_fail (+ " count=" (int_to_string failures)))))

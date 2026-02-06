@@ -193,8 +193,6 @@ const char* path_dirname(const char* path) {
     return result;
 }
 
-
-
 static void path_append(char* out, size_t out_size, const char* part) {
     if (!out || !part) return;
     if (out[0] != '\0') {
@@ -264,7 +262,6 @@ const char* path_relpath(const char* target, const char* base) {
     return result;
 }
 
-
 /* Read file content as string */
 const char* file_read(const char* path) {
     FILE* f = fopen(path, "r");
@@ -318,7 +315,6 @@ bool file_exists(const char* path) {
 int64_t file_delete(const char* path) {
     return remove(path);
 }
-
 
 /* Create directory and parents (mkdir -p) */
 int64_t fs_mkdir_p(const char* path) {
@@ -427,4 +423,3 @@ int64_t dir_copy(const char* src, const char* dst) {
     closedir(dir);
     return 0;
 }
-

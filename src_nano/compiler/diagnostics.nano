@@ -185,6 +185,8 @@ shadow diag_list_has_errors {
 pub fn diag_make_type_error(expected_type: string, found_type: string) -> string {
     # For now, just return a simple error message
     # In the future, this could use string formatting
+    let _expected_type: string = expected_type
+    let _found_type: string = found_type
     return "NSType mismatch"
 }
 

@@ -26,8 +26,8 @@ fn test_diagnostic_creation() -> int {
     /* Validate diagnostic fields */
     assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
     assert (== diag.phase CompilerPhase.PHASE_PARSER)
-    assert (str_equals diag.code "E001")
-    assert (str_equals diag.message "Unexpected token")
+    assert (== diag.code "E001")
+    assert (== diag.message "Unexpected token")
     assert (== diag.location.line 10)
     assert (== diag.location.column 5)
     
@@ -156,15 +156,15 @@ fn test_source_locations() -> int {
         column: 13
     }
     
-    assert (str_equals loc1.file "main.nano")
+    assert (== loc1.file "main.nano")
     assert (== loc1.line 1)
     assert (== loc1.column 1)
     
-    assert (str_equals loc2.file "utils.nano")
+    assert (== loc2.file "utils.nano")
     assert (== loc2.line 100)
     assert (== loc2.column 50)
     
-    assert (str_equals loc3.file "test.nano")
+    assert (== loc3.file "test.nano")
     assert (== loc3.line 42)
     assert (== loc3.column 13)
     
@@ -192,7 +192,7 @@ fn test_error_codes() -> int {
         message: "Test error",
         location: loc
     }
-    assert (str_equals diag1.code "E001")
+    assert (== diag1.code "E001")
     
     let diag2: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
@@ -201,7 +201,7 @@ fn test_error_codes() -> int {
         message: "Test warning",
         location: loc
     }
-    assert (str_equals diag2.code "W001")
+    assert (== diag2.code "W001")
     
     return 0
 }
@@ -227,7 +227,7 @@ fn test_message_formats() -> int {
         message: "Unexpected token",
         location: loc
     }
-    assert (str_equals diag1.message "Unexpected token")
+    assert (== diag1.message "Unexpected token")
     
     let diag2: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,

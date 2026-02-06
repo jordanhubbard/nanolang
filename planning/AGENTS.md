@@ -1,3 +1,37 @@
+# NanoLang Agent Rules
+
+## Module MVP Requirements
+
+Every module MUST include a minimal, standalone MVP program and snippet:
+
+- `modules/<name>/mvp.nano` - runnable smoke test
+- `modules/<name>/mvp.md` - snippet wrapper for the user guide
+
+The MVP should:
+
+- compile without user input
+- avoid long-running loops
+- include shadow tests for all functions it defines
+- use `unsafe { ... }` for extern calls
+
+## Documentation Integration
+
+Module MVP snippets are appended to the Modules chapter during HTML build.
+The user guide does not compile module MVP snippets during doc generation.
+
+## Testing & Build Targets
+
+- `make test` runs user guide snippets that are not module MVPs
+- `make module-mvp` compiles each module MVP as a smoke test
+- `make examples` should not be required to compile module MVPs
+
+## Future Module Checklist
+
+When adding a new module, include:
+
+- `mvp.nano` and `mvp.md`
+- at least one example under `examples/`
+- a `module.manifest.json` entry that references the example
 # AGENTS.md - LLM Agent Training Protocol
 
 > **For LLM Agents:** This is your single canonical onboarding document. Follow this protocol exactly.
@@ -176,6 +210,63 @@ fn main() -> int {
 
 **See:** `stdlib/README.md`, `examples/coverage_demo.nano`
 
+#### Layer 4: Performance Profiling (-pg flag)
+Use when you need to identify performance bottlenecks or optimize slow code.
+
+**Cross-platform profiling with `-pg` flag:**
+```bash
+# Compile with -pg to enable automatic profiling
+./bin/nanoc myprogram.nano -o bin/myprogram -pg
+
+# Run the program - profiling runs AUTOMATICALLY!
+./bin/myprogram
+
+# Output is OS-neutral JSON suitable for LLM analysis:
+# {
+#   "profile_type": "sampling",
+#   "platform": "Linux",  # or "macOS"
+#   "tool": "gprofng",    # or "sample"
+#   "hotspots": [
+#     {"function": "expensive_work", "samples": 452, "pct_time": 45.2},
+#     ...
+#   ],
+#   "analysis_hints": [...]
+# }
+```
+
+**Platform-specific tools used:**
+- **Linux:** `gprofng collect` (from binutils) - automatic, no special permissions
+- **macOS:** `sample` command - automatic, no special permissions required
+
+**How it works:**
+When you run a `-pg` compiled binary, it automatically:
+1. Forks a child process to run your actual program
+2. Runs the appropriate profiling tool (`sample` on macOS, `gprofng` on Linux)
+3. Waits for your program to complete
+4. Parses the profiling output and emits structured JSON
+
+No user interaction required - profiling is fully automatic and transparent.
+
+**The `-pg` flag adds these C compiler flags:**
+- `-pg` - Enable profiling instrumentation
+- `-g` - Debug symbols for readable function names
+- `-fno-omit-frame-pointer` - Accurate stack traces
+- `-fno-optimize-sibling-calls` - Clearer call traces
+
+**When to use profiling:**
+- UI freezes or beachballs (blocking main thread)
+- Unexpectedly slow operations
+- O(n²) or worse algorithmic complexity suspicion
+- Before/after optimization verification
+
+**Common patterns to look for in output:**
+- Functions with high `pct_time` or `samples` - direct time consumers
+- Functions appearing frequently in hot paths
+- `nl_str_*` and `nl_array_*` functions often indicate algorithmic issues
+- Deep nesting in call stacks may indicate recursion problems
+
+**See:** `docs/DEBUGGING_GUIDE.md` for complete profiling workflow
+
 ### Error Recovery Protocol
 
 When compilation fails:
@@ -188,6 +279,11 @@ When compilation fails:
 **Structured JSON errors** available via C API (see `src/json_diagnostics.h`)
 
 **Complete workflow:** `docs/SELF_VALIDATING_CODE_GENERATION.md`
+
+### Compiler Inspection Flags
+
+- Use `-fshow-intermediate-code` to print generated C to stdout.
+- Prefer this over `--keep-c` when you only need to inspect output.
 
 ---
 
@@ -464,6 +560,165 @@ perl -e 'alarm 30; exec @ARGV' ./bin/nanoc bouncing_ball.nano -o bin/bouncing_ba
 6. **Never invent syntax** - Verify in docs
 7. **Minimal fixes** - One error at a time
 8. **Deterministic builds** - Log all installs
+9. **Always create beads for issues** - Any bug, technical debt, or future work you identify must be documented as a bead using `bd create`. Never just mention issues in responses - track them systematically
+10. **Documentation is MANDATORY** - Features are not complete until documented. Update all relevant docs when behavior changes
+
+---
+
+## Issue Tracking Protocol (CRITICAL)
+
+**MANDATORY RULE:** Every issue you discover, defer, or recommend for later MUST be tracked as a bead.
+
+### When to Create Beads
+
+**ALWAYS create a bead for:**
+- Bugs you discover but don't fix immediately
+- Pre-existing issues you identify during work
+- Technical debt you notice
+- Performance problems
+- Missing features or improvements
+- Follow-up work needed after current task
+- Architectural limitations
+- Code that needs refactoring
+- Missing tests or documentation
+- Any "TODO" or "FIXME" items
+
+**NEVER:**
+- Just mention issues in responses without creating beads
+- Say "this should be fixed later" without filing a bead
+- Document issues only in commit messages
+- Leave issues untracked for "someone else" to handle
+
+### How to Create Beads
+
+```bash
+~/.local/bin/bd create \
+  --title "Clear, actionable title" \
+  --description "Detailed description with:
+  - Root cause analysis
+  - Impact/symptoms
+  - Technical scope
+  - Evidence/logs/line numbers
+  - Suggested approach (if known)" \
+  --type [bug|feature|task|chore] \
+  --priority [0-4] \
+  --labels "relevant,tags,here"
+```
+
+### Priority Guidelines
+
+- **P0 (Critical):** Blocks all work, data loss, security
+- **P1 (High):** Blocks major features, significant bugs
+- **P2 (Medium):** Important but not blocking (default for most issues)
+- **P3 (Low):** Nice-to-have improvements
+- **P4 (Backlog):** Future considerations
+
+### Example: Good Issue Documentation
+
+```bash
+# ❌ BAD: Just mentioning in response
+"The module system has transitive visibility issues that prevent 
+self-hosting, but we can work around it for now."
+
+# ✅ GOOD: Creating a bead
+~/.local/bin/bd create \
+  --title "Fix module system transitive type visibility for self-hosted compiler" \
+  --description "Detailed root cause, impact, scope, evidence..." \
+  --type bug --priority 2 --labels "self-hosting,modules,typechecker"
+```
+
+### After Creating Beads
+
+1. Run `bd sync` to push to remote
+2. Reference the bead ID in your response: "Created nanolang-abc123 to track this"
+3. Continue with current work - the issue is now tracked
+
+**Remember:** If you think it, document it. Beads are cheap, lost context is expensive.
+
+---
+
+## Documentation Hygiene (MANDATORY)
+
+**CRITICAL RULE:** Documentation must be updated whenever behavior changes or features are added.
+
+### When to Update Documentation
+
+**ALWAYS update docs when:**
+- Adding new features or capabilities
+- Changing existing behavior
+- Adding new modules or examples
+- Modifying command-line flags or compiler options
+- Adding new standard library functions
+- Changing syntax or language semantics
+- Adding new error messages or diagnostics
+
+**NEVER:**
+- Add features without documenting them
+- Change behavior without updating affected docs
+- Leave documentation stale after implementation
+- Document features that don't exist yet (docs reflect reality)
+
+### Which Documents to Update
+
+**For Language Features:**
+- `docs/QUICK_REFERENCE.md` - Syntax cheat sheet
+- `docs/SPECIFICATION.md` - Complete language reference
+- `MEMORY.md` - Patterns and idioms for LLMs
+- `spec.json` - Formal specification (if types/stdlib changed)
+
+**For User-Facing Features:**
+- `README.md` - Main entry point, quick start, key features
+- `docs/GETTING_STARTED.md` - Tutorial walkthrough
+- `userguide/` - Progressive tutorial with examples
+- Relevant topic-specific docs in `docs/`
+
+**For Standard Library:**
+- `docs/STDLIB.md` - Complete function reference
+- `spec.json` - Function signatures and metadata
+- Module-specific README files
+
+**For Modules:**
+- `modules/<name>/README.md` - Module documentation
+- `modules/<name>/mvp.md` - Minimal viable snippet
+- `docs/MODULE_SYSTEM.md` - If module system changed
+
+**For Development:**
+- `AGENTS.md` - If agent protocols changed
+- `CONTRIBUTING.md` - If contribution process changed
+- `docs/ROADMAP.md` - If project direction changed
+
+### Documentation Standards
+
+**Example Quality:**
+- Every code example must compile and run
+- Examples should be minimal but complete
+- Include expected output where relevant
+- Test examples during CI builds
+
+**Clarity:**
+- Use concrete examples, not just abstract descriptions
+- Show both correct usage and common mistakes
+- Include "Why?" context for non-obvious decisions
+- Cross-reference related documentation
+
+**Completeness:**
+- Document all parameters and return values
+- Include type signatures
+- Note error conditions and edge cases
+- Link to working examples in `examples/`
+
+### Documentation Workflow
+
+```bash
+# After implementing feature:
+1. Identify affected docs (see "Which Documents" above)
+2. Update each relevant file
+3. Test examples: make userguide-check
+4. Commit docs with implementation
+5. Never leave docs for "later"
+```
+
+**Rule:** Features are not complete until documented. Documentation is part of the feature, not an afterthought.
 
 ---
 
@@ -497,6 +752,7 @@ Working program ✓
 6. ✅ Copies examples rather than writing from scratch
 7. ✅ Makes minimal fixes (no large refactors per error)
 8. ✅ Produces reproducible builds (logs deps)
+9. ✅ Updates documentation with every feature (docs are part of the feature)
 
 ---
 
@@ -542,3 +798,29 @@ Working program ✓
 | **Examples** | `examples/` directory |
 
 **Start here. Follow the algorithm. Write canonical code. Use debugging tools when stuck.**
+
+## Landing the Plane (Session Completion)
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds

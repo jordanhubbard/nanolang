@@ -1,16 +1,16 @@
-from "std/regex/regex.nano" import compile, groups, free
+from "std/regex/regex.nano" import compile, groups, free, Regex
 
 fn regex_groups_uaf_regression() -> int {
-    let re: opaque = (compile "(a)(b)")
+    let re: Regex = (compile "(a)(b)")
     if (== re (null_opaque)) {
         return 1
     }
 
     let gs: array<string> = (groups re "ab")
     assert (>= (array_length gs) 3)
-    assert (str_equals (at gs 0) "ab")
-    assert (str_equals (at gs 1) "a")
-    assert (str_equals (at gs 2) "b")
+    assert (== (at gs 0) "ab")
+    assert (== (at gs 1) "a")
+    assert (== (at gs 2) "b")
 
     (free re)
     return 0

@@ -32,6 +32,83 @@ struct CodeGenState {
     has_error: bool
 }
 
+let mut module_aliases: array<string> = []
+let mut module_alias_targets: array<string> = []
+let mut func_aliases: array<string> = []
+let mut func_alias_targets: array<string> = []
+
+fn reset_module_aliases() -> int {
+    set module_aliases []
+    set module_alias_targets []
+    return 0
+}
+
+shadow reset_module_aliases {
+    (reset_module_aliases)
+    assert (== (array_length module_aliases) 0)
+}
+
+fn reset_func_aliases() -> int {
+    set func_aliases []
+    set func_alias_targets []
+    return 0
+}
+
+shadow reset_func_aliases {
+    (reset_func_aliases)
+    assert (== (array_length func_aliases) 0)
+}
+
+fn add_module_alias(alias: string, module_name: string) -> int {
+    set module_aliases (array_push module_aliases alias)
+    set module_alias_targets (array_push module_alias_targets module_name)
+    return 0
+}
+
+fn add_func_alias(alias: string, target: string) -> int {
+    set func_aliases (array_push func_aliases alias)
+    set func_alias_targets (array_push func_alias_targets target)
+    return 0
+}
+
+fn resolve_module_alias(name: string) -> string {
+    let mut i: int = 0
+    let n: int = (array_length module_aliases)
+    while (< i n) {
+        if (== (at module_aliases i) name) {
+            return (at module_alias_targets i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return name
+}
+
+shadow resolve_module_alias {
+    (reset_module_aliases)
+    (add_module_alias "io" "std/io")
+    assert (== (resolve_module_alias "io") "std/io")
+    assert (== (resolve_module_alias "unknown") "unknown")
+}
+
+fn resolve_func_alias(name: string) -> string {
+    let mut i: int = 0
+    let n: int = (array_length func_aliases)
+    while (< i n) {
+        if (== (at func_aliases i) name) {
+            return (at func_alias_targets i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow resolve_func_alias {
+    (reset_func_aliases)
+    (add_func_alias "f" "module::func")
+    assert (== (resolve_func_alias "f") "module::func")
+    assert (== (resolve_func_alias "unknown") "")
+}
+
 fn codegen_new() -> CodeGenState {
     return CodeGenState {
         indent_level: 0,
@@ -61,6 +138,60 @@ fn gen_indent(level: int) -> string {
 shadow gen_indent {
     assert (== (gen_indent 0) "")
     assert (== (gen_indent 1) "    ")
+}
+
+/* =============================================================================
+ * STRINGBUILDER - O(n) string accumulation instead of O(n²) concatenation
+ * ============================================================================= */
+
+/* StringBuilder: Array-based string accumulator for O(n) performance
+ * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
+ * Use: (sb_append parts "text")              // O(n) - just appends to array
+ */
+fn sb_append(parts: array<string>, text: string) -> array<string> {
+    (array_push parts text)
+    return parts
+}
+
+fn sb_build(parts: array<string>) -> string {
+    /* Join all parts with empty separator */
+    let count: int = (array_length parts)
+    if (== count 0) {
+        return ""
+    } else {
+        if (== count 1) {
+            return (at parts 0)
+        } else {
+            /* Iteratively join all parts */
+            let mut result: string = (at parts 0)
+            let mut i: int = 1
+            while (< i count) {
+                set result (+ result (at parts i))
+                set i (+ i 1)
+            }
+            return result
+        }
+    }
+}
+
+shadow sb_append {
+    let mut parts: array<string> = []
+    set parts (sb_append parts "hello")
+    set parts (sb_append parts " ")
+    set parts (sb_append parts "world")
+    assert (== (array_length parts) 3)
+    assert (== (at parts 0) "hello")
+    assert (== (at parts 1) " ")
+    assert (== (at parts 2) "world")
+}
+
+shadow sb_build {
+    let mut parts: array<string> = []
+    set parts (sb_append parts "hello")
+    set parts (sb_append parts " ")
+    set parts (sb_append parts "world")
+    let result: string = (sb_build parts)
+    assert (== result "hello world")
 }
 
 /* Generate a fresh temporary variable name */
@@ -101,9 +232,9 @@ fn mangle_name(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "_")
                 set i (+ i 2)
             } else {
@@ -111,8 +242,8 @@ fn mangle_name(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (or (or (str_equals ch ".") (str_equals ch "<"))
-                    (or (str_equals ch ">") (str_equals ch ","))) {
+            if (or (or (== ch ".") (== ch "<"))
+                    (or (== ch ">") (== ch ","))) {
                 set out (+ out "_")
             } else {
                 set out (+ out ch)
@@ -135,8 +266,13 @@ fn transp_str_starts_with(s: string, prefix: string) -> bool {
     if (< ls lp) {
         return false
     } else {
-        return (str_equals (str_substring s 0 lp) prefix)
+        return (== (str_substring s 0 lp) prefix)
     }
+}
+
+shadow transp_str_starts_with {
+    assert (transp_str_starts_with "array<int>" "array")
+    assert (not (transp_str_starts_with "int" "array"))
 }
 
 fn transp_str_index_of(s: string, ch: string) -> int {
@@ -156,6 +292,12 @@ fn transp_str_index_of(s: string, ch: string) -> int {
     return -1
 }
 
+shadow transp_str_index_of {
+    assert (== (transp_str_index_of "array<int>" "<") 5)
+    assert (== (transp_str_index_of "test" "e") 1)
+    assert (== (transp_str_index_of "test" "z") -1)
+}
+
 fn transp_extract_list_element_type(s: string) -> string {
     /* "List<Point>" -> "Point" */
     let start: int = (+ (transp_str_index_of s "<") 1)
@@ -167,14 +309,62 @@ fn transp_extract_list_element_type(s: string) -> string {
     }
 }
 
-fn str_ends_with(s: string, suffix: string) -> bool {
+shadow transp_extract_list_element_type {
+    assert (== (transp_extract_list_element_type "List<Point>") "Point")
+    assert (== (transp_extract_list_element_type "List<int>") "int")
+    assert (== (transp_extract_list_element_type "invalid") "")
+}
+
+fn hashset_new_string() -> HashMap<string, int> {
+    let s: HashMap<string, int> = (map_new)
+    return s
+}
+
+shadow hashset_new_string {
+    let s: HashMap<string, int> = (hashset_new_string)
+    assert (!= s 0)
+    assert (not (hashset_has_string s "test"))
+}
+
+fn hashset_has_string(map: HashMap<string, int>, key: string) -> bool {
+    return (map_has map key)
+}
+
+shadow hashset_has_string {
+    let m: HashMap<string, int> = (hashset_new_string)
+    assert (not (hashset_has_string m "a"))
+    (map_put m "a" 1)
+    assert (hashset_has_string m "a")
+}
+
+fn hashset_add_string(map: HashMap<string, int>, key: string) -> HashMap<string, int> {
+    if (not (map_has map key)) {
+        (map_put map key 1)
+    } else { (print "") }
+    return map
+}
+
+shadow hashset_add_string {
+    let m: HashMap<string, int> = (hashset_new_string)
+    let m2: HashMap<string, int> = (hashset_add_string m "a")
+    assert (hashset_has_string m2 "a")
+    let m3: HashMap<string, int> = (hashset_add_string m2 "a")
+    assert (hashset_has_string m3 "a")
+}
+
+pub fn str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
     if (< ls lf) {
         return false
     } else {
-        return (str_equals (str_substring s (- ls lf) lf) suffix)
+        return (== (str_substring s (- ls lf) lf) suffix)
     }
+}
+
+shadow str_ends_with {
+    assert (str_ends_with "hello.nano" ".nano")
+    assert (not (str_ends_with "test.c" ".nano"))
 }
 
 fn last_double_colon_index(s: string) -> int {
@@ -184,7 +374,7 @@ fn last_double_colon_index(s: string) -> int {
     while (< (+ i 1) len) {
         let c1: string = (str_substring s i 1)
         let c2: string = (str_substring s (+ i 1) 1)
-        if (and (str_equals c1 ":") (str_equals c2 ":")) {
+        if (and (== c1 ":") (== c2 ":")) {
             set last i
             set i (+ i 2)
         } else {
@@ -194,17 +384,108 @@ fn last_double_colon_index(s: string) -> int {
     return last
 }
 
+shadow last_double_colon_index {
+    assert (== (last_double_colon_index "module::function") 6)
+    assert (== (last_double_colon_index "a::b::c") 4)
+    assert (== (last_double_colon_index "test") -1)
+}
+
 fn last_dot_index(s: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
     let mut last: int = -1
     while (< i len) {
-        if (str_equals (str_substring s i 1) ".") {
+        if (== (str_substring s i 1) ".") {
             set last i
         } else { (print "") }
         set i (+ i 1)
     }
     return last
+}
+
+shadow last_dot_index {
+    assert (== (last_dot_index "file.nano") 4)
+    assert (== (last_dot_index "a.b.c") 3)
+    assert (== (last_dot_index "test") -1)
+}
+
+fn last_slash_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< i len) {
+        if (== (str_substring s i 1) "/") {
+            set last i
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return last
+}
+
+shadow last_slash_index {
+    assert (== (last_slash_index "/path/to/file.nano") 8)
+    assert (== (last_slash_index "dir/file") 3)
+    assert (== (last_slash_index "test") -1)
+}
+
+fn module_name_from_path(path: string) -> string {
+    let last_slash: int = (last_slash_index path)
+    let last_dot: int = (last_dot_index path)
+    let start: int = (cond ((>= last_slash 0) (+ last_slash 1)) (else 0))
+    let end: int = (cond ((>= last_dot 0) last_dot) (else (str_length path)))
+    let len: int = (- end start)
+    if (<= len 0) {
+        return path
+    } else {
+        return (str_substring path start len)
+    }
+}
+
+shadow module_name_from_path {
+    assert (== (module_name_from_path "src/lexer.nano") "lexer")
+    assert (== (module_name_from_path "file.nano") "file")
+    assert (== (module_name_from_path "test") "test")
+}
+
+fn build_module_alias_map(parser: Parser) -> int {
+    (reset_module_aliases)
+    (reset_func_aliases)
+    let import_count: int = (parser_get_import_count parser)
+    let mut i: int = 0
+    while (< i import_count) {
+        let imp: ASTImport = (parser_get_import parser i)
+        if (> (str_length imp.module_name) 0) {
+            let module_name: string = (module_name_from_path imp.module_path)
+            (add_module_alias imp.module_name module_name)
+        } else { (print "") }
+        if (and imp.is_selective (not imp.is_wildcard)) {
+            if (> imp.import_symbol_count 0) {
+                let module_name: string = (module_name_from_path imp.module_path)
+                let mut si: int = 0
+                while (< si imp.import_symbol_count) {
+                    let sym: string = (at imp.import_symbols si)
+                    let mut alias_name: string = ""
+                    if (< si (array_length imp.import_aliases)) {
+                        set alias_name (at imp.import_aliases si)
+                    } else { (print "") }
+                    if (== (str_length alias_name) 0) {
+                        set alias_name sym
+                    } else { (print "") }
+                    if (> (str_length alias_name) 0) {
+                        let mut target_parts: array<string> = []
+                        set target_parts (sb_append target_parts module_name)
+                        set target_parts (sb_append target_parts ".")
+                        set target_parts (sb_append target_parts sym)
+                        let target: string = (sb_build target_parts)
+                        (add_func_alias alias_name target)
+                    } else { (print "") }
+                    set si (+ si 1)
+                }
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return 0
 }
 
 fn mangle_module_ident(name: string) -> string {
@@ -215,9 +496,9 @@ fn mangle_module_ident(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "__")
                 set i (+ i 2)
             } else {
@@ -225,14 +506,14 @@ fn mangle_module_ident(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (str_equals ch ".") {
+            if (== ch ".") {
                 set out (+ out "__")
             } else {
-                if (or (or (str_equals ch "<") (str_equals ch ">"))
-                        (or (str_equals ch ",") (str_equals ch "("))) {
+                if (or (or (== ch "<") (== ch ">"))
+                        (or (== ch ",") (== ch "("))) {
                     set out (+ out "_")
                 } else {
-                    if (str_equals ch ")") {
+                    if (== ch ")") {
                         set out (+ out "_")
                     } else {
                         set out (+ out ch)
@@ -246,12 +527,30 @@ fn mangle_module_ident(name: string) -> string {
     return out
 }
 
+shadow mangle_module_ident {
+    assert (== (mangle_module_ident "module::function") "module__function")
+    assert (== (mangle_module_ident "std.io") "std__io")
+    assert (== (mangle_module_ident "List<int>") "List_int_")
+}
+
 fn is_builtin_list_runtime_fn(name: string) -> bool {
     return (or (transp_str_starts_with name "list_int_") (transp_str_starts_with name "list_string_"))
 }
 
+shadow is_builtin_list_runtime_fn {
+    assert (is_builtin_list_runtime_fn "list_int_new")
+    assert (is_builtin_list_runtime_fn "list_string_push")
+    assert (not (is_builtin_list_runtime_fn "list_Point_new"))
+}
+
 fn is_generic_list_runtime_fn(name: string) -> bool {
     return (and (transp_str_starts_with name "list_") (not (is_builtin_list_runtime_fn name)))
+}
+
+shadow is_generic_list_runtime_fn {
+    assert (is_generic_list_runtime_fn "list_Point_new")
+    assert (not (is_generic_list_runtime_fn "list_int_new"))
+    assert (not (is_generic_list_runtime_fn "some_other_fn"))
 }
 
 fn c_name_for_qualified_function(func_name: string) -> string {
@@ -260,22 +559,106 @@ fn c_name_for_qualified_function(func_name: string) -> string {
     if (>= dc 0) {
         let mod_part: string = (str_substring func_name 0 dc)
         let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
-        let mm: string = (mangle_module_ident mod_part)
-        return (+ (+ mm "__") (mangle_name base))
+        let resolved: string = (resolve_module_alias mod_part)
+        let mm: string = (mangle_module_ident resolved)
+        let mut parts: array<string> = []
+        set parts (sb_append parts mm)
+        set parts (sb_append parts "__")
+        set parts (sb_append parts (mangle_name base))
+        return (sb_build parts)
     } else {
         let dot: int = (last_dot_index func_name)
         if (>= dot 0) {
             let mod_part: string = (str_substring func_name 0 dot)
             let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
-            let mm: string = (mangle_module_ident mod_part)
-            return (+ (+ mm "__") (mangle_name base))
+            let resolved: string = (resolve_module_alias mod_part)
+            let mm: string = (mangle_module_ident resolved)
+            let mut parts: array<string> = []
+            set parts (sb_append parts mm)
+            set parts (sb_append parts "__")
+            set parts (sb_append parts (mangle_name base))
+            return (sb_build parts)
         } else {
             return func_name
         }
     }
 }
 
+shadow c_name_for_qualified_function {
+    (reset_module_aliases)
+    assert (== (c_name_for_qualified_function "std::io::print") "std__io__nl_print")
+    assert (== (c_name_for_qualified_function "file.read") "file__nl_read")
+}
+
+/* Map builtin function names to their C implementation names */
+fn map_builtin_func_name(func_name: string) -> string {
+    /* Math builtins that need nl_ prefix */
+    if (== func_name "abs") { return "nl_abs" } else { (print "") }
+    if (== func_name "min") { return "nl_min" } else { (print "") }
+    if (== func_name "max") { return "nl_max" } else { (print "") }
+    
+    /* C math library functions (no prefix) */
+    if (== func_name "sqrt") { return "sqrt" } else { (print "") }
+    if (== func_name "pow") { return "pow" } else { (print "") }
+    if (== func_name "floor") { return "floor" } else { (print "") }
+    if (== func_name "ceil") { return "ceil" } else { (print "") }
+    if (== func_name "round") { return "round" } else { (print "") }
+    if (== func_name "sin") { return "sin" } else { (print "") }
+    if (== func_name "cos") { return "cos" } else { (print "") }
+    if (== func_name "tan") { return "tan" } else { (print "") }
+    if (== func_name "atan2") { return "atan2" } else { (print "") }
+    
+    /* String builtins */
+    if (== func_name "str_length") { return "strlen" } else { (print "") }
+    if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
+    if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
+    if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
+    if (== func_name "str_equals") { return "nl_str_equals" } else { (print "") }
+    
+    /* Character/string conversion builtins (runtime functions with nl_ prefix) */
+    if (== func_name "char_at") { return "nl_char_at" } else { (print "") }
+    if (== func_name "string_from_char") { return "nl_string_from_char" } else { (print "") }
+    if (== func_name "int_to_string") { return "nl_int_to_string" } else { (print "") }
+    if (== func_name "string_to_int") { return "nl_string_to_int" } else { (print "") }
+    if (== func_name "float_to_string") { return "nl_float_to_string" } else { (print "") }
+    if (== func_name "string_to_float") { return "nl_string_to_float" } else { (print "") }
+    if (== func_name "bool_to_string") { return "nl_bool_to_string" } else { (print "") }
+    
+    /* Character classification builtins (runtime functions with nl_ prefix) */
+    if (== func_name "is_digit") { return "nl_is_digit" } else { (print "") }
+    if (== func_name "is_alpha") { return "nl_is_alpha" } else { (print "") }
+    if (== func_name "is_alnum") { return "nl_is_alnum" } else { (print "") }
+    if (== func_name "is_whitespace") { return "nl_is_whitespace" } else { (print "") }
+    if (== func_name "is_upper") { return "nl_is_upper" } else { (print "") }
+    if (== func_name "is_lower") { return "nl_is_lower" } else { (print "") }
+    if (== func_name "digit_value") { return "nl_digit_value" } else { (print "") }
+    if (== func_name "char_to_lower") { return "nl_char_to_lower" } else { (print "") }
+    if (== func_name "char_to_upper") { return "nl_char_to_upper" } else { (print "") }
+    
+    /* No mapping found - return empty string */
+    return ""
+}
+
+shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "abs") "nl_abs")
+    assert (== (map_builtin_func_name "sqrt") "sqrt")
+    assert (== (map_builtin_func_name "str_length") "strlen")
+    assert (== (map_builtin_func_name "int_to_string") "nl_int_to_string")
+    assert (== (map_builtin_func_name "is_digit") "nl_is_digit")
+    assert (== (map_builtin_func_name "unknown_func") "")
+}
+
 fn c_func_name_for_call(func_name: string) -> string {
+    /* Check for builtin function mapping first */
+    let builtin_mapped: string = (map_builtin_func_name func_name)
+    if (!= builtin_mapped "") {
+        return builtin_mapped
+    } else { (print "") }
+    
+    let alias_target: string = (resolve_func_alias func_name)
+    if (> (str_length alias_target) 0) {
+        return (c_name_for_qualified_function alias_target)
+    } else { (print "") }
     if (is_builtin_list_runtime_fn func_name) {
         return func_name
     } else {
@@ -315,15 +698,15 @@ struct TypeCParseResult {
 }
 
 fn is_schema_struct_name(name: string) -> bool {
-    if (str_equals name "Parser") { return true } else { (print "") }
-    if (str_equals name "NSType") { return true } else { (print "") }
-    if (str_equals name "OptionType") { return true } else { (print "") }
-    if (str_equals name "CompilerSourceLocation") { return true } else { (print "") }
-    if (str_equals name "CompilerDiagnostic") { return true } else { (print "") }
-    if (str_equals name "LexPhaseOutput") { return true } else { (print "") }
-    if (str_equals name "TypeEnvironment") { return true } else { (print "") }
-    if (str_equals name "TypecheckPhaseOutput") { return true } else { (print "") }
-    if (str_equals name "TranspilePhaseOutput") { return true } else { (print "") }
+    if (== name "Parser") { return true } else { (print "") }
+    if (== name "NSType") { return true } else { (print "") }
+    if (== name "OptionType") { return true } else { (print "") }
+    if (== name "CompilerSourceLocation") { return true } else { (print "") }
+    if (== name "CompilerDiagnostic") { return true } else { (print "") }
+    if (== name "LexPhaseOutput") { return true } else { (print "") }
+    if (== name "TypeEnvironment") { return true } else { (print "") }
+    if (== name "TypecheckPhaseOutput") { return true } else { (print "") }
+    if (== name "TranspilePhaseOutput") { return true } else { (print "") }
     return false
 }
 
@@ -354,16 +737,20 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
         let name: string = t0.value
 
         /* List<T> */
-        if (str_equals name "List") {
+        if (== name "List") {
             if (< (+ start_pos 3) n) {
                 let t1: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
                 let t2: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 2))
                 let t3: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 3))
                 if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER) (== t3.token_type LexerTokenType.TOKEN_GT))) {
                     let elem: string = t2.value
-                    if (str_equals elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
-                    if (str_equals elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
-                    return TypeCParseResult { ok: true, c_type: (+ (+ "List_" (mangle_type_name elem)) "*"), next_pos: (+ start_pos 4) }
+                    if (== elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    if (== elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
+                    let mut list_parts: array<string> = []
+                    set list_parts (sb_append list_parts "List_")
+                    set list_parts (sb_append list_parts (mangle_type_name elem))
+                    set list_parts (sb_append list_parts "*")
+                    return TypeCParseResult { ok: true, c_type: (sb_build list_parts), next_pos: (+ start_pos 4) }
                 } else { (print "") }
             } else { (print "") }
         } else { (print "") }
@@ -374,7 +761,10 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
         } else { (print "") }
 
         /* Fallback: treat as user-defined struct */
-        return TypeCParseResult { ok: true, c_type: (+ "nl_" (mangle_name name)), next_pos: (+ start_pos 1) }
+        let mut struct_parts: array<string> = []
+        set struct_parts (sb_append struct_parts "nl_")
+        set struct_parts (sb_append struct_parts (mangle_name name))
+        return TypeCParseResult { ok: true, c_type: (sb_build struct_parts), next_pos: (+ start_pos 1) }
     } else { (print "") }
 
     return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
@@ -499,7 +889,7 @@ fn has_function_named(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     while (< i n) {
         let f: ASTFunction = (parser_get_function parser i)
-        if (str_equals f.name name) { return true } else { (print "") }
+        if (== f.name name) { return true } else { (print "") }
         set i (+ i 1)
     }
     return false
@@ -552,7 +942,7 @@ fn is_extern_function(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     while (< i n) {
         let f: ASTFunction = (parser_get_function parser i)
-        if (and (str_equals f.name name) (< f.body 0)) { return true } else { (print "") }
+        if (and (== f.name name) (< f.body 0)) { return true } else { (print "") }
         set i (+ i 1)
     }
     return false
@@ -568,10 +958,24 @@ fn genenv_new() -> GenEnv {
     return GenEnv { names: [], types: [] }
 }
 
+shadow genenv_new {
+    let env: GenEnv = (genenv_new)
+    assert (== (array_length env.names) 0)
+    assert (== (array_length env.types) 0)
+}
+
 fn genenv_put(env: GenEnv, name: string, t: string) -> GenEnv {
     let new_names: array<string> = (array_push env.names name)
     let new_types: array<string> = (array_push env.types t)
     return GenEnv { names: new_names, types: new_types }
+}
+
+shadow genenv_put {
+    let env: GenEnv = (genenv_new)
+    let env2: GenEnv = (genenv_put env "x" "int")
+    assert (== (array_length env2.names) 1)
+    assert (== (at env2.names 0) "x")
+    assert (== (at env2.types 0) "int")
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -586,8 +990,24 @@ fn genenv_get(env: GenEnv, name: string) -> string {
     return ""
 }
 
+shadow genenv_get {
+    let env: GenEnv = (genenv_new)
+    let env2: GenEnv = (genenv_put env "x" "int")
+    let env3: GenEnv = (genenv_put env2 "y" "bool")
+    assert (== (genenv_get env3 "x") "int")
+    assert (== (genenv_get env3 "y") "bool")
+    assert (== (genenv_get env3 "unknown") "")
+}
+
 fn is_array_type(t: string) -> bool {
     return (str_contains t "array<")
+}
+
+shadow is_array_type {
+    assert (is_array_type "array<int>")
+    assert (is_array_type "array<Point>")
+    assert (not (is_array_type "int"))
+    assert (not (is_array_type "List<int>"))
 }
 
 fn array_elem_type_from_array_type(t: string) -> string {
@@ -614,12 +1034,28 @@ fn array_elem_type_from_array_type(t: string) -> string {
     }
 }
 
+shadow array_elem_type_from_array_type {
+    assert (== (array_elem_type_from_array_type "array<int>") "int")
+    assert (== (array_elem_type_from_array_type "array<float>") "float")
+    assert (== (array_elem_type_from_array_type "array<string>") "string")
+    assert (== (array_elem_type_from_array_type "array<bool>") "bool")
+    assert (== (array_elem_type_from_array_type "array<array<int>>") "array")
+}
+
 fn elem_enum_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "ELEM_FLOAT" }
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
     else { if (== elem_type "array") { return "ELEM_ARRAY" }
     else { return "ELEM_INT" } } } }
+}
+
+shadow elem_enum_from_elem_type {
+    assert (== (elem_enum_from_elem_type "float") "ELEM_FLOAT")
+    assert (== (elem_enum_from_elem_type "string") "ELEM_STRING")
+    assert (== (elem_enum_from_elem_type "bool") "ELEM_BOOL")
+    assert (== (elem_enum_from_elem_type "array") "ELEM_ARRAY")
+    assert (== (elem_enum_from_elem_type "int") "ELEM_INT")
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
@@ -630,12 +1066,24 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
     else { return "dyn_array_get_int" } } } }
 }
 
+shadow get_fn_from_elem_type {
+    assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
+    assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
+    assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
+}
+
 fn push_fn_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "dyn_array_push_float" }
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
     else { if (== elem_type "array") { return "dyn_array_push_array" }
     else { return "dyn_array_push_int" } } } }
+}
+
+shadow push_fn_from_elem_type {
+    assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
+    assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
+    assert (== (push_fn_from_elem_type "int") "dyn_array_push_int")
 }
 
 fn set_fn_from_elem_type(elem_type: string) -> string {
@@ -646,12 +1094,25 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
     else { return "dyn_array_set_int" } } } }
 }
 
+shadow set_fn_from_elem_type {
+    assert (== (set_fn_from_elem_type "string") "dyn_array_set_string")
+    assert (== (set_fn_from_elem_type "array") "dyn_array_set_array")
+    assert (== (set_fn_from_elem_type "int") "dyn_array_set_int")
+}
+
 fn c_type_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "double" }
     else { if (== elem_type "string") { return "const char*" }
     else { if (== elem_type "bool") { return "bool" }
     else { if (== elem_type "array") { return "DynArray*" }
     else { return "int64_t" } } } }
+}
+
+shadow c_type_from_elem_type {
+    assert (== (c_type_from_elem_type "float") "double")
+    assert (== (c_type_from_elem_type "string") "const char*")
+    assert (== (c_type_from_elem_type "bool") "bool")
+    assert (== (c_type_from_elem_type "int") "int64_t")
 }
 
 /* Helper: convert nanolang type to C type */
@@ -662,8 +1123,15 @@ fn is_tuple_type(nano_type: string) -> bool {
     } else {
         let first: string = (str_substring nano_type 0 1)
         let last: string = (str_substring nano_type (- len 1) 1)
-        return (and (str_equals first "(") (str_equals last ")"))
+        return (and (== first "(") (== last ")"))
     }
+}
+
+shadow is_tuple_type {
+    assert (is_tuple_type "(int, string)")
+    assert (is_tuple_type "()")
+    assert (not (is_tuple_type "int"))
+    assert (not (is_tuple_type "("))
 }
 
 fn mangle_type_name(name: string) -> string {
@@ -674,9 +1142,9 @@ fn mangle_type_name(name: string) -> string {
     while (< i len) {
         let ch: string = (str_substring name i 1)
 
-        if (and (str_equals ch ":") (< (+ i 1) len)) {
+        if (and (== ch ":") (< (+ i 1) len)) {
             let ch2: string = (str_substring name (+ i 1) 1)
-            if (str_equals ch2 ":") {
+            if (== ch2 ":") {
                 set out (+ out "_")
                 set i (+ i 2)
             } else {
@@ -684,13 +1152,13 @@ fn mangle_type_name(name: string) -> string {
                 set i (+ i 1)
             }
         } else {
-            if (or (str_equals ch ".")
-                    (or (str_equals ch "<")
-                        (or (str_equals ch ">")
-                            (or (str_equals ch ",")
-                                (or (str_equals ch "(")
-                                    (or (str_equals ch ")")
-                                        (str_equals ch " "))))))) {
+            if (or (== ch ".")
+                    (or (== ch "<")
+                        (or (== ch ">")
+                            (or (== ch ",")
+                                (or (== ch "(")
+                                    (or (== ch ")")
+                                        (== ch " "))))))) {
                 set out (+ out "_")
             } else {
                 set out (+ out ch)
@@ -700,6 +1168,12 @@ fn mangle_type_name(name: string) -> string {
     }
 
     return out
+}
+
+shadow mangle_type_name {
+    assert (== (mangle_type_name "List<Point>") "List_Point_")
+    assert (== (mangle_type_name "Option::Some") "Option_Some")
+    assert (== (mangle_type_name "(int, string)") "_int__string_")
 }
 
 fn tuple_typedef_name(tuple_type: string) -> string {
@@ -712,44 +1186,52 @@ fn tuple_typedef_name(tuple_type: string) -> string {
     }
 }
 
+shadow tuple_typedef_name {
+    assert (== (tuple_typedef_name "(int,string)") "Tuple_int_string")
+}
+
 fn type_to_c(nano_type: string) -> string {
-    if (str_equals nano_type "int") {
+    if (== nano_type "int") {
         return "int64_t"
     } else {
-        if (str_equals nano_type "float") {
+        if (== nano_type "float") {
             return "double"
         } else {
-            if (str_equals nano_type "bool") {
+            if (== nano_type "bool") {
                 return "int"
             } else {
-                if (str_equals nano_type "string") {
+                if (== nano_type "string") {
                     return "char*"
                 } else {
-                    if (str_equals nano_type "void") {
+                    if (== nano_type "void") {
                         return "void"
                     } else {
                         /* Schema enums are not nl_-prefixed in generated/compiler_schema.h */
-                        if (str_equals nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
-                        if (str_equals nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
-                        if (str_equals nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
+                        if (== nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
+                        if (== nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
+                        if (== nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
                         /* Token enum is named TokenType in C schema; Nano uses LexerTokenType in places */
-                        if (or (str_equals nano_type "LexerTokenType") (str_equals nano_type "TokenType")) { return "TokenType" } else { (print "") }
+                        if (or (== nano_type "LexerTokenType") (== nano_type "TokenType")) { return "TokenType" } else { (print "") }
 
                         if (transp_str_starts_with nano_type "List<") {
                             let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
-                            if (str_equals elem "int") {
+                            if (== elem "int") {
                                 return "List_int*"
                             } else {
-                                if (str_equals elem "string") {
+                                if (== elem "string") {
                                     return "List_string*"
                                 } else {
-                                    if (str_equals elem "LexerToken") {
+                                    if (== elem "LexerToken") {
                                         return "List_LexerToken*"
                                     } else {
-                                        if (or (str_equals elem "token") (str_equals elem "Token")) {
+                                        if (or (== elem "token") (== elem "Token")) {
                                             return "List_Token*"
                                         } else {
-                                            return (+ (+ "List_" (mangle_type_name elem)) "*")
+                                            let mut list_parts: array<string> = []
+                                            set list_parts (sb_append list_parts "List_")
+                                            set list_parts (sb_append list_parts (mangle_type_name elem))
+                                            set list_parts (sb_append list_parts "*")
+                                            return (sb_build list_parts)
                                         }
                                     }
                                 }
@@ -795,19 +1277,19 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
         while (< i inner_len) {
             let ch: string = (str_substring inner i 1)
             let mut is_sep: bool = false
-            if (str_equals ch "<") {
+            if (== ch "<") {
                 set depth_angle (+ depth_angle 1)
             } else {
-                if (str_equals ch ">") {
+                if (== ch ">") {
                     set depth_angle (- depth_angle 1)
                 } else {
-                    if (str_equals ch "(") {
+                    if (== ch "(") {
                         set depth_paren (+ depth_paren 1)
                     } else {
-                        if (str_equals ch ")") {
+                        if (== ch ")") {
                             set depth_paren (- depth_paren 1)
                         } else {
-                            if (and (str_equals ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
+                            if (and (== ch ",") (and (== depth_angle 0) (== depth_paren 0))) {
                                 set parts (array_push parts cur)
                                 set cur ""
                                 set is_sep true
@@ -830,7 +1312,14 @@ fn tuple_split_types(tuple_type: string) -> array<string> {
     }
 }
 
-fn collect_tuple_types_from_type(t: string, acc: array<string>) -> array<string> {
+shadow tuple_split_types {
+    let parts: array<string> = (tuple_split_types "(int,string)")
+    assert (== (array_length parts) 2)
+    assert (== (at parts 0) "int")
+    assert (== (at parts 1) "string")
+}
+
+fn collect_tuple_types_from_type(t: string, acc: array<string>, seen: HashMap<string, int>) -> array<string> {
     if (not (is_tuple_type t)) {
         return acc
     } else {
@@ -839,16 +1328,25 @@ fn collect_tuple_types_from_type(t: string, acc: array<string>) -> array<string>
 
         let mut i: int = 0
         while (< i (array_length elems)) {
-            set acc2 (collect_tuple_types_from_type (at elems i) acc2)
+            set acc2 (collect_tuple_types_from_type (at elems i) acc2 seen)
             set i (+ i 1)
         }
 
-        if (array_contains_string acc2 t) {
+        if (map_has seen t) {
             return acc2
         } else {
+            (map_put seen t 1)
             return (array_push acc2 t)
         }
     }
+}
+
+shadow collect_tuple_types_from_type {
+    let acc: array<string> = []
+    let seen: HashMap<string, int> = (hashset_new_string)
+    let out: array<string> = (collect_tuple_types_from_type "(int,string)" acc seen)
+    assert (== (array_length out) 1)
+    assert (== (at out 0) "(int,string)")
 }
 
 fn gen_tuple_typedef(tuple_type: string) -> string {
@@ -875,15 +1373,22 @@ fn gen_tuple_typedef(tuple_type: string) -> string {
     return out
 }
 
+shadow gen_tuple_typedef {
+    let code: string = (gen_tuple_typedef "(int,string)")
+    assert (str_contains code "Tuple_int_string")
+    assert (str_contains code "int64_t _0")
+}
+
 fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut tuple_types: array<string> = []
+    let tuple_seen: HashMap<string, int> = (hashset_new_string)
 
     /* Walk all lets (params and locals) */
     let let_count: int = (parser_get_let_count parser)
     let mut i: int = 0
     while (< i let_count) {
         let l: ASTLet = (parser_get_let parser i)
-        set tuple_types (collect_tuple_types_from_type l.var_type tuple_types)
+        set tuple_types (collect_tuple_types_from_type l.var_type tuple_types tuple_seen)
         set i (+ i 1)
     }
 
@@ -892,7 +1397,7 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
     let mut j: int = 0
     while (< j fn_count) {
         let f: ASTFunction = (parser_get_function parser j)
-        set tuple_types (collect_tuple_types_from_type f.return_type tuple_types)
+        set tuple_types (collect_tuple_types_from_type f.return_type tuple_types tuple_seen)
         set j (+ j 1)
     }
 
@@ -908,6 +1413,14 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
     } else {
         return (+ "/* Tuple typedefs */\n" out)
     }
+}
+
+shadow gen_tuple_typedefs {
+    let source: string = (+ "f" "n main() -> (int,int) { return (1, 2) }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (gen_tuple_typedefs p)
+    assert (str_contains code "Tuple_int_int")
 }
 
 /* Note: For Phase 1, we avoid complex array<string> type inference issues */
@@ -929,7 +1442,11 @@ shadow gen_number {
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
     /* For now, return as-is. In production, need to escape special chars */
-    return (+ "\"" (+ value "\""))
+    let mut parts: array<string> = []
+    set parts (sb_append parts "\"")
+    set parts (sb_append parts value)
+    set parts (sb_append parts "\"")
+    return (sb_build parts)
 }
 
 shadow gen_string {
@@ -980,15 +1497,16 @@ fn gen_binary_op(op: string, left: string, right: string) -> string {
         }
     }
     
-    let mut result: string = "("
-    set result (+ result left)
-    set result (+ result " ")
-    set result (+ result c_op)
-    set result (+ result " ")
-    set result (+ result right)
-    set result (+ result ")")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "(")
+    set parts (sb_append parts left)
+    set parts (sb_append parts " ")
+    set parts (sb_append parts c_op)
+    set parts (sb_append parts " ")
+    set parts (sb_append parts right)
+    set parts (sb_append parts ")")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_binary_op {
@@ -998,9 +1516,10 @@ shadow gen_binary_op {
 
 /* Generate code for a function call */
 fn gen_call(func_name: string, args: array<string>) -> string {
-    let mut result: string = "nl_"
-    set result (+ result (mangle_name func_name))
-    set result (+ result "(")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name func_name))
+    set parts (sb_append parts "(")
     
     /* Add arguments */
     let arg_count: int = (array_length args)
@@ -1008,18 +1527,18 @@ fn gen_call(func_name: string, args: array<string>) -> string {
     
     while (< i arg_count) {
         if (> i 0) {
-            set result (+ result ", ")
+            set parts (sb_append parts ", ")
         } else {
             (print "")
         }
         
         /* Directly use (at args i) to avoid type inference issue */
-        set result (+ result (at args i))
+        set parts (sb_append parts (at args i))
         set i (+ i 1)
     }
     
-    set result (+ result ")")
-    return result
+    set parts (sb_append parts ")")
+    return (sb_build parts)
 }
 
 shadow gen_call {
@@ -1040,19 +1559,20 @@ shadow gen_call {
 
 /* Generate code for a let statement */
 fn gen_let(name: string, type_name: string, value_expr: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     
     /* Convert nanolang type to C type using helper */
     let c_type: string = (type_to_c type_name)
     
-    set result (+ result c_type)
-    set result (+ result " nl_")
-    set result (+ result name)
-    set result (+ result " = ")
-    set result (+ result value_expr)
-    set result (+ result ";\n")
+    set parts (sb_append parts c_type)
+    set parts (sb_append parts " nl_")
+    set parts (sb_append parts name)
+    set parts (sb_append parts " = ")
+    set parts (sb_append parts value_expr)
+    set parts (sb_append parts ";\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_let {
@@ -1063,26 +1583,27 @@ shadow gen_let {
 
 /* Generate code for an if statement */
 fn gen_if(condition: string, then_body: string, else_body: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "if (")
-    set result (+ result condition)
-    set result (+ result ") {\n")
-    set result (+ result then_body)
-    set result (+ result (gen_indent indent))
-    set result (+ result "}")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "if (")
+    set parts (sb_append parts condition)
+    set parts (sb_append parts ") {\n")
+    set parts (sb_append parts then_body)
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}")
     
     /* Add else clause if present */
     if (!= else_body "") {
-        set result (+ result " else {\n")
-        set result (+ result else_body)
-        set result (+ result (gen_indent indent))
-        set result (+ result "}")
+        set parts (sb_append parts " else {\n")
+        set parts (sb_append parts else_body)
+        set parts (sb_append parts (gen_indent indent))
+        set parts (sb_append parts "}")
     } else {
         (print "")
     }
     
-    set result (+ result "\n")
-    return result
+    set parts (sb_append parts "\n")
+    return (sb_build parts)
 }
 
 shadow gen_if {
@@ -1093,15 +1614,16 @@ shadow gen_if {
 
 /* Generate code for a while loop */
 fn gen_while(condition: string, body: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "while (")
-    set result (+ result condition)
-    set result (+ result ") {\n")
-    set result (+ result body)
-    set result (+ result (gen_indent indent))
-    set result (+ result "}\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "while (")
+    set parts (sb_append parts condition)
+    set parts (sb_append parts ") {\n")
+    set parts (sb_append parts body)
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_while {
@@ -1112,12 +1634,13 @@ shadow gen_while {
 
 /* Generate code for a return statement */
 fn gen_return(value_expr: string, indent: int) -> string {
-    let mut result: string = (gen_indent indent)
-    set result (+ result "return ")
-    set result (+ result value_expr)
-    set result (+ result ";\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "return ")
+    set parts (sb_append parts value_expr)
+    set parts (sb_append parts ";\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_return {
@@ -1132,15 +1655,15 @@ shadow gen_return {
 
 /* Generate function signature */
 fn gen_function_signature(name: string, params: array<string>, param_types: array<string>, return_type: string) -> string {
-    let mut result: string = ""
+    let mut parts: array<string> = []
     
     /* Convert return type using helper */
     let c_ret_type: string = (type_to_c return_type)
     
-    set result (+ result c_ret_type)
-    set result (+ result " nl_")
-    set result (+ result (mangle_name name))
-    set result (+ result "(")
+    set parts (sb_append parts c_ret_type)
+    set parts (sb_append parts " nl_")
+    set parts (sb_append parts (mangle_name name))
+    set parts (sb_append parts "(")
     
     /* Add parameters */
     let param_count: int = (array_length params)
@@ -1148,23 +1671,23 @@ fn gen_function_signature(name: string, params: array<string>, param_types: arra
     
     while (< i param_count) {
         if (> i 0) {
-            set result (+ result ", ")
+            set parts (sb_append parts ", ")
         } else {
             (print "")
         }
         
         /* Use param type directly - caller should pre-convert to C types */
         /* This avoids array<string> type inference issues */
-        set result (+ result (at param_types i))
-        set result (+ result " nl_")
+        set parts (sb_append parts (at param_types i))
+        set parts (sb_append parts " nl_")
         /* Use param name directly */
-        set result (+ result (mangle_name (at params i)))
+        set parts (sb_append parts (mangle_name (at params i)))
         
         set i (+ i 1)
     }
     
-    set result (+ result ")")
-    return result
+    set parts (sb_append parts ")")
+    return (sb_build parts)
 }
 
 shadow gen_function_signature {
@@ -1180,12 +1703,13 @@ shadow gen_function_signature {
 
 /* Generate complete function definition */
 fn gen_function(name: string, params: array<string>, param_types: array<string>, return_type: string, body: string) -> string {
-    let mut result: string = (gen_function_signature name params param_types return_type)
-    set result (+ result " {\n")
-    set result (+ result body)
-    set result (+ result "}\n\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_function_signature name params param_types return_type))
+    set parts (sb_append parts " {\n")
+    set parts (sb_append parts body)
+    set parts (sb_append parts "}\n\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_function {
@@ -1202,58 +1726,59 @@ shadow gen_function {
 
 /* Generate C includes and runtime support */
 fn gen_c_includes() -> string {
-    let mut result: string = "/* Generated by nanolang self-hosted compiler */\n"
-    set result (+ result "#include <stdio.h>\n")
-    set result (+ result "#include <stdlib.h>\n")
-    set result (+ result "#include <stdint.h>\n")
-    set result (+ result "#include <stdbool.h>\n")
-    set result (+ result "#include <string.h>\n")
-    set result (+ result "#include <assert.h>\n")
-    set result (+ result "#include \"nanolang.h\"\n")
-    set result (+ result "#include \"runtime/dyn_array.h\"\n")
-    set result (+ result "#include \"runtime/list_int.h\"\n")
-    set result (+ result "#include \"runtime/list_string.h\"\n")
-    set result (+ result "#include \"runtime/list_token.h\"\n")
-    set result (+ result "#include \"runtime/list_LexerToken.h\"\n")
-    set result (+ result "#include \"runtime/list_CompilerDiagnostic.h\"\n")
-    set result (+ result "#include \"runtime/list_CompilerSourceLocation.h\"\n")
-    set result (+ result "#include \"runtime/token_helpers.h\"\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "/* Generated by nanolang self-hosted compiler */\n")
+    set parts (sb_append parts "#include <stdio.h>\n")
+    set parts (sb_append parts "#include <stdlib.h>\n")
+    set parts (sb_append parts "#include <stdint.h>\n")
+    set parts (sb_append parts "#include <stdbool.h>\n")
+    set parts (sb_append parts "#include <string.h>\n")
+    set parts (sb_append parts "#include <assert.h>\n")
+    set parts (sb_append parts "#include \"nanolang.h\"\n")
+    set parts (sb_append parts "#include \"runtime/dyn_array.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_int.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_string.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_token.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_LexerToken.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_CompilerDiagnostic.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_CompilerSourceLocation.h\"\n")
+    set parts (sb_append parts "#include \"runtime/token_helpers.h\"\n")
     /* Include all AST list type headers for compiler support */
-    set result (+ result "#include \"runtime/list_ASTLet.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTFunction.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTNumber.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTFloat.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTString.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTBool.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTIdentifier.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTBinaryOp.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTCall.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTArrayLiteral.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTSet.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTIf.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTWhile.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTFor.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTReturn.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTStmtRef.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTBlock.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTUnsafeBlock.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTPrint.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTAssert.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTShadow.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTStruct.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTStructLiteral.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTFieldAccess.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTEnum.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTUnion.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTUnionConstruct.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTMatch.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTImport.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTOpaqueType.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTTupleLiteral.h\"\n")
-    set result (+ result "#include \"runtime/list_ASTTupleIndex.h\"\n")
-    set result (+ result "\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTLet.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTFunction.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTNumber.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTFloat.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTString.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTBool.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTIdentifier.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTBinaryOp.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTCall.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTArrayLiteral.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTSet.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTIf.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTWhile.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTFor.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTReturn.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTStmtRef.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTBlock.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTUnsafeBlock.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTPrint.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTAssert.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTShadow.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTStruct.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTStructLiteral.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTFieldAccess.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTEnum.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTUnion.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTUnionConstruct.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTMatch.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTImport.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTTupleLiteral.h\"\n")
+    set parts (sb_append parts "#include \"runtime/list_ASTTupleIndex.h\"\n")
+    set parts (sb_append parts "\n")
     
-    return result
+    return (sb_build parts)
 }
 
 shadow gen_c_includes {
@@ -1264,81 +1789,173 @@ shadow gen_c_includes {
 
 /* Generate runtime helper functions */
 fn gen_c_runtime() -> string {
-    let mut result: string = "/* Runtime helper functions */\n"
+    let mut sb: array<string> = []
     
-    /* print function */
-    set result (+ result "void nl_print(char* s) {\n")
-    set result (+ result "    printf(\"%s\", s);\n")
-    set result (+ result "}\n\n")
+    set sb (sb_append sb "/* ========== Math and Utility Built-in Functions ========== */\n\n")
     
-    /* println function */
-    set result (+ result "void nl_println(char* s) {\n")
-    set result (+ result "    printf(\"%s\\n\", s);\n")
-    set result (+ result "}\n\n")
+    /* Math macros (abs, min, max) - use _Generic for type safety */
+    set sb (sb_append sb "#define nl_abs(x) _Generic((x), \\\n")
+    set sb (sb_append sb "    double: (double)((x) < 0.0 ? -(x) : (x)), \\\n")
+    set sb (sb_append sb "    default: (int64_t)((x) < 0 ? -(x) : (x)))\n\n")
     
-    /* int_to_string function */
-    set result (+ result "char* nl_int_to_string(int64_t n) {\n")
-    set result (+ result "    char* buf = malloc(32);\n")
-    set result (+ result "    snprintf(buf, 32, \"%lld\", n);\n")
-    set result (+ result "    return buf;\n")
-    set result (+ result "}\n\n")
-
-    /* string concat helper */
-    set result (+ result "char* nl_str_concat(const char* a, const char* b) {\n")
-    set result (+ result "    size_t la = strlen(a);\n")
-    set result (+ result "    size_t lb = strlen(b);\n")
-    set result (+ result "    char* out = (char*)malloc(la + lb + 1);\n")
-    set result (+ result "    memcpy(out, a, la);\n")
-    set result (+ result "    memcpy(out + la, b, lb);\n")
-    set result (+ result "    out[la + lb] = 0;\n")
-    set result (+ result "    return out;\n")
-    set result (+ result "}\n\n")
+    set sb (sb_append sb "#define nl_min(a, b) _Generic((a), \\\n")
+    set sb (sb_append sb "    double: (double)((a) < (b) ? (a) : (b)), \\\n")
+    set sb (sb_append sb "    default: (int64_t)((a) < (b) ? (a) : (b)))\n\n")
     
-    /* string length function */
-    set result (+ result "int64_t nl_str_length(const char* s) {\n")
-    set result (+ result "    return (int64_t)strlen(s);\n")
-    set result (+ result "}\n\n")
-
-    /* char_at: return byte at index (ASCII-safe) */
-    set result (+ result "int64_t nl_char_at(const char* s, int64_t i) {\n")
-    set result (+ result "    return (int64_t)((unsigned char)s[i]);\n")
-    set result (+ result "}\n\n")
-
-    /* substring: allocate a new null-terminated slice */
-    set result (+ result "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
-    set result (+ result "    if (!s) return NULL;\n")
-    set result (+ result "    int64_t n = (int64_t)strlen(s);\n")
-    set result (+ result "    if (start < 0) start = 0;\n")
-    set result (+ result "    if (len < 0) len = 0;\n")
-    set result (+ result "    if (start > n) start = n;\n")
-    set result (+ result "    if (start + len > n) len = n - start;\n")
-    set result (+ result "    char* out = (char*)malloc((size_t)len + 1);\n")
-    set result (+ result "    if (!out) return NULL;\n")
-    set result (+ result "    memcpy(out, s + start, (size_t)len);\n")
-    set result (+ result "    out[len] = 0;\n")
-    set result (+ result "    return out;\n")
-    set result (+ result "}\n\n")
-
+    set sb (sb_append sb "#define nl_max(a, b) _Generic((a), \\\n")
+    set sb (sb_append sb "    double: (double)((a) > (b) ? (a) : (b)), \\\n")
+    set sb (sb_append sb "    default: (int64_t)((a) > (b) ? (a) : (b)))\n\n")
+    
+    /* Print functions */
+    set sb (sb_append sb "/* Print functions */\n")
+    set sb (sb_append sb "void nl_print(char* s) {\n")
+    set sb (sb_append sb "    printf(\"%s\", s);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "void nl_println(char* s) {\n")
+    set sb (sb_append sb "    printf(\"%s\\n\", s);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    /* Type conversion functions */
+    set sb (sb_append sb "/* Type conversions */\n")
+    set sb (sb_append sb "char* nl_int_to_string(int64_t n) {\n")
+    set sb (sb_append sb "    char* buffer = malloc(32);\n")
+    set sb (sb_append sb "    if (!buffer) return \"\";\n")
+    set sb (sb_append sb "    snprintf(buffer, 32, \"%lld\", (long long)n);\n")
+    set sb (sb_append sb "    return buffer;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "char* nl_float_to_string(double x) {\n")
+    set sb (sb_append sb "    char* buffer = malloc(64);\n")
+    set sb (sb_append sb "    if (!buffer) return \"\";\n")
+    set sb (sb_append sb "    snprintf(buffer, 64, \"%g\", x);\n")
+    set sb (sb_append sb "    return buffer;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "char* nl_bool_to_string(bool b) {\n")
+    set sb (sb_append sb "    return b ? \"true\" : \"false\";\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "int64_t nl_string_to_int(const char* s) {\n")
+    set sb (sb_append sb "    return strtoll(s, NULL, 10);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "double nl_string_to_float(const char* s) {\n")
+    set sb (sb_append sb "    return strtod(s, NULL);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    /* String operations */
+    set sb (sb_append sb "/* String operations */\n")
+    set sb (sb_append sb "char* nl_str_concat(const char* a, const char* b) {\n")
+    set sb (sb_append sb "    size_t la = strlen(a);\n")
+    set sb (sb_append sb "    size_t lb = strlen(b);\n")
+    set sb (sb_append sb "    char* out = (char*)malloc(la + lb + 1);\n")
+    set sb (sb_append sb "    if (!out) return \"\";\n")
+    set sb (sb_append sb "    memcpy(out, a, la);\n")
+    set sb (sb_append sb "    memcpy(out + la, b, lb);\n")
+    set sb (sb_append sb "    out[la + lb] = 0;\n")
+    set sb (sb_append sb "    return out;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "char* nl_str_substring(const char* s, int64_t start, int64_t len) {\n")
+    set sb (sb_append sb "    if (!s) return \"\";\n")
+    set sb (sb_append sb "    int64_t n = (int64_t)strlen(s);\n")
+    set sb (sb_append sb "    if (start < 0) start = 0;\n")
+    set sb (sb_append sb "    if (len < 0) len = 0;\n")
+    set sb (sb_append sb "    if (start > n) start = n;\n")
+    set sb (sb_append sb "    if (start + len > n) len = n - start;\n")
+    set sb (sb_append sb "    char* out = (char*)malloc((size_t)len + 1);\n")
+    set sb (sb_append sb "    if (!out) return \"\";\n")
+    set sb (sb_append sb "    memcpy(out, s + start, (size_t)len);\n")
+    set sb (sb_append sb "    out[len] = 0;\n")
+    set sb (sb_append sb "    return out;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_str_contains(const char* str, const char* substr) {\n")
+    set sb (sb_append sb "    return strstr(str, substr) != NULL;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_str_equals(const char* s1, const char* s2) {\n")
+    set sb (sb_append sb "    return strcmp(s1, s2) == 0;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    /* Character operations */
+    set sb (sb_append sb "/* Character operations */\n")
+    set sb (sb_append sb "int64_t nl_char_at(const char* s, int64_t i) {\n")
+    set sb (sb_append sb "    return (int64_t)((unsigned char)s[i]);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "char* nl_string_from_char(int64_t c) {\n")
+    set sb (sb_append sb "    char* buffer = malloc(2);\n")
+    set sb (sb_append sb "    if (!buffer) return \"\";\n")
+    set sb (sb_append sb "    buffer[0] = (char)c;\n")
+    set sb (sb_append sb "    buffer[1] = 0;\n")
+    set sb (sb_append sb "    return buffer;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    /* Character classification */
+    set sb (sb_append sb "/* Character classification */\n")
+    set sb (sb_append sb "bool nl_is_digit(int64_t c) {\n")
+    set sb (sb_append sb "    return c >= '0' && c <= '9';\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_is_alpha(int64_t c) {\n")
+    set sb (sb_append sb "    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_is_alnum(int64_t c) {\n")
+    set sb (sb_append sb "    return nl_is_digit(c) || nl_is_alpha(c);\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_is_whitespace(int64_t c) {\n")
+    set sb (sb_append sb "    return c == ' ' || c == '\\t' || c == '\\n' || c == '\\r';\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_is_upper(int64_t c) {\n")
+    set sb (sb_append sb "    return c >= 'A' && c <= 'Z';\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "bool nl_is_lower(int64_t c) {\n")
+    set sb (sb_append sb "    return c >= 'a' && c <= 'z';\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "int64_t nl_digit_value(int64_t c) {\n")
+    set sb (sb_append sb "    if (c >= '0' && c <= '9') {\n")
+    set sb (sb_append sb "        return c - '0';\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return -1;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "int64_t nl_char_to_lower(int64_t c) {\n")
+    set sb (sb_append sb "    if (c >= 'A' && c <= 'Z') {\n")
+    set sb (sb_append sb "        return c + 32;\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return c;\n")
+    set sb (sb_append sb "}\n\n")
+    
+    set sb (sb_append sb "int64_t nl_char_to_upper(int64_t c) {\n")
+    set sb (sb_append sb "    if (c >= 'a' && c <= 'z') {\n")
+    set sb (sb_append sb "        return c - 32;\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return c;\n")
+    set sb (sb_append sb "}\n\n")
+    
     /* Module std_fs FFI (unprefixed symbols when sources are merged directly) */
-    set result (+ result "/* std_fs externs (provided by modules/std/fs.c) */\n")
-    set result (+ result "extern DynArray* fs_walkdir(const char* root);\n")
-    set result (+ result "extern const char* path_normalize(const char* path);\n")
-    set result (+ result "extern const char* path_join(const char* a, const char* b);\n")
-    set result (+ result "extern const char* path_basename(const char* path);\n")
-    set result (+ result "extern const char* path_dirname(const char* path);\n")
-    set result (+ result "extern char* file_read(const char* path);\n")
-    set result (+ result "extern int64_t file_write(const char* path, const char* content);\n")
-    set result (+ result "extern int64_t file_append(const char* path, const char* content);\n")
-    set result (+ result "extern bool file_exists(const char* path);\n")
-    set result (+ result "extern int64_t file_delete(const char* path);\n\n")
+    set sb (sb_append sb "/* std_fs externs (provided by modules/std/fs.c) */\n")
+    set sb (sb_append sb "extern DynArray* fs_walkdir(const char* root);\n")
+    set sb (sb_append sb "extern const char* path_normalize(const char* path);\n")
+    set sb (sb_append sb "extern const char* path_join(const char* a, const char* b);\n")
+    set sb (sb_append sb "extern const char* path_basename(const char* path);\n")
+    set sb (sb_append sb "extern const char* path_dirname(const char* path);\n")
+    set sb (sb_append sb "extern char* file_read(const char* path);\n")
+    set sb (sb_append sb "extern int64_t file_write(const char* path, const char* content);\n")
+    set sb (sb_append sb "extern int64_t file_append(const char* path, const char* content);\n")
+    set sb (sb_append sb "extern bool file_exists(const char* path);\n")
+    set sb (sb_append sb "extern int64_t file_delete(const char* path);\n\n")
     
-    /* min function */
-    set result (+ result "#define nl_min(a, b) ((a) < (b) ? (a) : (b))\n\n")
+    set sb (sb_append sb "/* ========== End Math and Utility Built-in Functions ========== */\n\n")
     
-    /* max function */
-    set result (+ result "#define nl_max(a, b) ((a) > (b) ? (a) : (b))\n\n")
-    
-    return result
+    return (sb_build sb)
 }
 
 shadow gen_c_runtime {
@@ -1381,58 +1998,75 @@ fn generate_module_forward_declarations(parser: Parser) -> string {
     }
 }
 
+shadow generate_module_forward_declarations {
+    let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (generate_module_forward_declarations p)
+    assert (str_contains code "Module forward declarations")
+}
+
 /* Generate complete C program */
 fn gen_c_program(functions: string) -> string {
-    let mut result: string = (gen_c_includes)
-    set result (+ result (gen_c_runtime))
-    set result (+ result "/* User functions */\n")
-    set result (+ result functions)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_c_includes))
+    set parts (sb_append parts (gen_c_runtime))
+    set parts (sb_append parts "/* User functions */\n")
+    set parts (sb_append parts functions)
     
-    return result
+    return (sb_build parts)
 }
 
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
-    let mut result: string = (gen_c_includes)
-    set result (+ result (gen_c_runtime))
-    set result (+ result (generate_module_forward_declarations parser))
+    let mut sb: array<string> = []
+    
+    set sb (sb_append sb (gen_c_includes))
+    set sb (sb_append sb (gen_c_runtime))
+    set sb (sb_append sb (generate_module_forward_declarations parser))
     
     /* Generate union definitions */
-    let union_defs: string = (generate_union_definitions parser)
-    set result (+ result union_defs)
+    set sb (sb_append sb (generate_union_definitions parser))
     
     /* Generate List<T> specializations */
-    let list_specs: string = (generate_list_specializations parser)
-    set result (+ result list_specs)
+    set sb (sb_append sb (generate_list_specializations parser))
 
     /* Generate user-defined struct definitions by scanning tokens */
-    let struct_defs: string = (generate_struct_definitions_from_tokens parser)
-    set result (+ result struct_defs)
+    set sb (sb_append sb (generate_struct_definitions_from_tokens parser))
     
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
-    let protos: string = (generate_function_prototypes parser)
-    set result (+ result protos)
+    set sb (sb_append sb (generate_function_prototypes parser))
 
-    set result (+ result "/* User functions */\n")
-    set result (+ result functions)
+    set sb (sb_append sb "/* User functions */\n")
+    set sb (sb_append sb functions)
 
     /* If module has no Nano main(), provide a stub so the C wrapper can link. */
     if (not (has_function_named parser "main")) {
-        set result (+ result "\nint64_t nl_main() { return 0; }\n")
+        set sb (sb_append sb "\nint64_t nl_main() { return 0; }\n")
     } else { (print "") }
     
     /* Add C main() wrapper that calls nl_main() */
-    set result (+ result "\n/* C main() entry point - calls nanolang main */\n")
-    set result (+ result "/* Global argc/argv for CLI runtime support */\n")
-    set result (+ result "int g_argc = 0;\n")
-    set result (+ result "char **g_argv = NULL;\n\n")
-    set result (+ result "int main(int argc, char **argv) {\n")
-    set result (+ result "    g_argc = argc;\n")
-    set result (+ result "    g_argv = argv;\n")
-    set result (+ result "    return (int)nl_main();\n")
-    set result (+ result "}\n")
+    set sb (sb_append sb "\n/* C main() entry point - calls nanolang main */\n")
+    set sb (sb_append sb "/* Global argc/argv for CLI runtime support */\n")
+    set sb (sb_append sb "int g_argc = 0;\n")
+    set sb (sb_append sb "char **g_argv = NULL;\n\n")
+    set sb (sb_append sb "int main(int argc, char **argv) {\n")
+    set sb (sb_append sb "    g_argc = argc;\n")
+    set sb (sb_append sb "    g_argv = argv;\n")
+    set sb (sb_append sb "    return (int)nl_main();\n")
+    set sb (sb_append sb "}\n")
     
-    return result
+    return (sb_build sb)
+}
+
+shadow gen_c_program_with_modules {
+    let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n helper() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (gen_c_program_with_modules p "int64_t nl_helper() { return 0; }\n")
+    assert (str_contains code "Module forward declarations")
+    assert (str_contains code "int main(")
+    assert (str_contains code "nl_main")
 }
 
 shadow gen_c_program {
@@ -1452,6 +2086,7 @@ shadow gen_c_program {
  */
 fn detect_list_types(parser: Parser) -> array<string> {
     let mut list_types: array<string> = []
+    let list_seen: HashMap<string, int> = (hashset_new_string)
     let func_count: int = (parser_get_function_count parser)
     
     let mut i: int = 0
@@ -1460,7 +2095,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
         
         /* Scan function body for let statements with List<T> types */
         if (>= func.body 0) {
-            set list_types (scan_block_for_lists parser func.body list_types)
+            set list_types (scan_block_for_lists parser func.body list_types list_seen)
         }
         
         set i (+ i 1)
@@ -1469,8 +2104,17 @@ fn detect_list_types(parser: Parser) -> array<string> {
     return list_types
 }
 
+shadow detect_list_types {
+    let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let types: array<string> = (detect_list_types p)
+    assert (== (array_length types) 1)
+    assert (== (at types 0) "Point")
+}
+
 /* Recursively scan a block for List<T> declarations */
-fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>) -> array<string> {
+fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>, list_seen: HashMap<string, int>) -> array<string> {
     let block: ASTBlock = (parser_get_block parser block_id)
     let mut result: array<string> = list_types
     
@@ -1487,7 +2131,8 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
                 let elem_type: string = (transp_extract_list_element_type let_node.var_type)
                 
                 /* Add to list if not already present */
-                if (not (array_contains_string result elem_type)) {
+                if (not (map_has list_seen elem_type)) {
+                    (map_put list_seen elem_type 1)
                     set result (array_push result elem_type)
                 } else {
                     (print "")
@@ -1500,16 +2145,16 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
             if (== stmt.node_type ParseNodeType.PNODE_IF) {
                 let if_node: ASTIf = (parser_get_if parser stmt.node_id)
                 if (>= if_node.then_body 0) {
-                    set result (scan_block_for_lists parser if_node.then_body result)
+                    set result (scan_block_for_lists parser if_node.then_body result list_seen)
                 } else { (print "") }
                 if (>= if_node.else_body 0) {
-                    set result (scan_block_for_lists parser if_node.else_body result)
+                    set result (scan_block_for_lists parser if_node.else_body result list_seen)
                 } else { (print "") }
             } else {
                 if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
                     let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
                     if (>= while_node.body 0) {
-                        set result (scan_block_for_lists parser while_node.body result)
+                        set result (scan_block_for_lists parser while_node.body result list_seen)
                     } else { (print "") }
                 } else {
                     (print "")
@@ -1523,27 +2168,15 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
     return result
 }
 
-/* Check if array contains a string */
-fn array_contains_string(arr: array<string>, s: string) -> bool {
-    let len: int = (array_length arr)
-    let mut i: int = 0
-    
-    while (< i len) {
-        if (== (at arr i) s) {
-            return true
-        } else {
-            (print "")
-        }
-        set i (+ i 1)
-    }
-    
-    return false
-}
-
-shadow array_contains_string {
-    let arr: array<string> = ["hello", "world"]
-    assert (array_contains_string arr "hello")
-    assert (not (array_contains_string arr "foo"))
+shadow scan_block_for_lists {
+    let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let seen: HashMap<string, int> = (hashset_new_string)
+    let types: array<string> = (scan_block_for_lists p func.body [] seen)
+    assert (== (array_length types) 1)
+    assert (== (at types 0) "Point")
 }
 
 /* Generate List<T> specializations for all detected types */
@@ -1554,7 +2187,8 @@ fn generate_list_specializations(parser: Parser) -> string {
     if (<= type_count 0) {
         return ""
     } else {
-        let mut result: string = "\n/* ========== Generic List Specializations ========== */\n\n"
+        let mut parts: array<string> = []
+        set parts (sb_append parts "\n/* ========== Generic List Specializations ========== */\n\n")
         
         let mut i: int = 0
         while (< i type_count) {
@@ -1564,16 +2198,24 @@ fn generate_list_specializations(parser: Parser) -> string {
             if (or (== elem_type "int") (or (== elem_type "string") (== elem_type "LexerToken"))) {
                 (print "")
             } else {
-                set result (+ result (generate_list_for_type elem_type))
-                set result (+ result "\n")
+                set parts (sb_append parts (generate_list_for_type elem_type))
+                set parts (sb_append parts "\n")
             }
             
             set i (+ i 1)
         }
         
-        set result (+ result "/* ========== End Generic List Specializations ========== */\n\n")
-        return result
+        set parts (sb_append parts "/* ========== End Generic List Specializations ========== */\n\n")
+        return (sb_build parts)
     }
+}
+
+shadow generate_list_specializations {
+    let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (generate_list_specializations p)
+    assert (str_contains code "List_Point")
 }
 
 /* Generate List<T> struct and functions for a specific type T */
@@ -1581,82 +2223,87 @@ fn generate_list_for_type(elem_type: string) -> string {
     let c_elem_type: string = (type_to_c elem_type)
     let list_name: string = (+ "List_" elem_type)
     
-    let mut code: string = ""
+    let mut sb: array<string> = []
     
     /* Struct definition */
-    set code (+ code "typedef struct ")
-    set code (+ code list_name)
-    set code (+ code " {\n")
-    set code (+ code "    ")
-    set code (+ code c_elem_type)
-    set code (+ code " *data;\n")
-    set code (+ code "    int count;\n")
-    set code (+ code "    int capacity;\n")
-    set code (+ code "} ")
-    set code (+ code list_name)
-    set code (+ code ";\n\n")
+    set sb (sb_append sb "typedef struct ")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb " {\n")
+    set sb (sb_append sb "    ")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb " *data;\n")
+    set sb (sb_append sb "    int count;\n")
+    set sb (sb_append sb "    int capacity;\n")
+    set sb (sb_append sb "} ")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb ";\n\n")
     
     /* Constructor: list_T_new() */
-    set code (+ code list_name)
-    set code (+ code "* list_")
-    set code (+ code elem_type)
-    set code (+ code "_new() {\n")
-    set code (+ code "    ")
-    set code (+ code list_name)
-    set code (+ code " *list = malloc(sizeof(")
-    set code (+ code list_name)
-    set code (+ code "));\n")
-    set code (+ code "    if (!list) return NULL;\n")
-    set code (+ code "    list->data = malloc(sizeof(")
-    set code (+ code c_elem_type)
-    set code (+ code ") * 4);\n")
-    set code (+ code "    if (!list->data) { free(list); return NULL; }\n")
-    set code (+ code "    list->count = 0;\n")
-    set code (+ code "    list->capacity = 4;\n")
-    set code (+ code "    return list;\n")
-    set code (+ code "}\n\n")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb "* list_")
+    set sb (sb_append sb elem_type)
+    set sb (sb_append sb "_new() {\n")
+    set sb (sb_append sb "    ")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb " *list = malloc(sizeof(")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb "));\n")
+    set sb (sb_append sb "    if (!list) return NULL;\n")
+    set sb (sb_append sb "    list->data = malloc(sizeof(")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb ") * 4);\n")
+    set sb (sb_append sb "    if (!list->data) { free(list); return NULL; }\n")
+    set sb (sb_append sb "    list->count = 0;\n")
+    set sb (sb_append sb "    list->capacity = 4;\n")
+    set sb (sb_append sb "    return list;\n")
+    set sb (sb_append sb "}\n\n")
     
     /* Push: list_T_push(list, value) */
-    set code (+ code "void list_")
-    set code (+ code elem_type)
-    set code (+ code "_push(")
-    set code (+ code list_name)
-    set code (+ code " *list, ")
-    set code (+ code c_elem_type)
-    set code (+ code " value) {\n")
-    set code (+ code "    if (list->count >= list->capacity) {\n")
-    set code (+ code "        list->capacity *= 2;\n")
-    set code (+ code "        ")
-    set code (+ code c_elem_type)
-    set code (+ code " *new_data = realloc(list->data, sizeof(")
-    set code (+ code c_elem_type)
-    set code (+ code ") * list->capacity);\n")
-    set code (+ code "        if (!new_data) return;\n")
-    set code (+ code "        list->data = new_data;\n")
-    set code (+ code "    }\n")
-    set code (+ code "    list->data[list->count++] = value;\n")
-    set code (+ code "}\n\n")
+    set sb (sb_append sb "void list_")
+    set sb (sb_append sb elem_type)
+    set sb (sb_append sb "_push(")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb " *list, ")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb " value) {\n")
+    set sb (sb_append sb "    if (list->count >= list->capacity) {\n")
+    set sb (sb_append sb "        list->capacity *= 2;\n")
+    set sb (sb_append sb "        ")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb " *new_data = realloc(list->data, sizeof(")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb ") * list->capacity);\n")
+    set sb (sb_append sb "        if (!new_data) return;\n")
+    set sb (sb_append sb "        list->data = new_data;\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    list->data[list->count++] = value;\n")
+    set sb (sb_append sb "}\n\n")
     
     /* Get: list_T_get(list, index) */
-    set code (+ code c_elem_type)
-    set code (+ code " list_")
-    set code (+ code elem_type)
-    set code (+ code "_get(")
-    set code (+ code list_name)
-    set code (+ code " *list, int index) {\n")
-    set code (+ code "    return list->data[index];\n")
-    set code (+ code "}\n\n")
+    set sb (sb_append sb c_elem_type)
+    set sb (sb_append sb " list_")
+    set sb (sb_append sb elem_type)
+    set sb (sb_append sb "_get(")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb " *list, int index) {\n")
+    set sb (sb_append sb "    return list->data[index];\n")
+    set sb (sb_append sb "}\n\n")
     
     /* Length: list_T_length(list) */
-    set code (+ code "int list_")
-    set code (+ code elem_type)
-    set code (+ code "_length(")
-    set code (+ code list_name)
-    set code (+ code " *list) {\n")
-    set code (+ code "    return list->count;\n")
-    set code (+ code "}\n")
+    set sb (sb_append sb "int list_")
+    set sb (sb_append sb elem_type)
+    set sb (sb_append sb "_length(")
+    set sb (sb_append sb list_name)
+    set sb (sb_append sb " *list) {\n")
+    set sb (sb_append sb "    return list->count;\n")
+    set sb (sb_append sb "}\n")
     
-    return code
+    return (sb_build sb)
+}
+
+shadow generate_list_for_type {
+    let code: string = (generate_list_for_type "Point")
+    assert (str_contains code "List_Point")
 }
 
 /* =============================================================================
@@ -1674,6 +2321,12 @@ fn generate_union_definitions(parser: Parser) -> string {
     
     /* Union definitions generated by C reference compiler */
     return "/* Union definitions: generated by C compiler */\n\n"
+}
+
+shadow generate_union_definitions {
+    let parser: Parser = (parser_init_ast_lists)
+    let code: string = (generate_union_definitions parser)
+    assert (== code "/* Union definitions: generated by C compiler */\n\n")
 }
 
 /* Module System Integration
@@ -1717,6 +2370,122 @@ fn operator_to_string(op: int) -> string {
     }}}}}}}}}}}}
 }
 
+shadow operator_to_string {
+    assert (== (operator_to_string LexerTokenType.TOKEN_PLUS) "+")
+    assert (== (operator_to_string LexerTokenType.TOKEN_MINUS) "-")
+    assert (== (operator_to_string LexerTokenType.TOKEN_EQ) "==")
+    assert (== (operator_to_string LexerTokenType.TOKEN_AND) "&&")
+}
+
+/* Helper to build array binary operation expressions using StringBuilder */
+fn build_array_binop_expr(left_code: string, right_code: string, elem_t: string, elem_enum: string, get_fn: string, push_fn: string, c_elem: string, op_str2: string, left_is_arr: bool, right_is_arr: bool, is_plus: bool, is_string: bool) -> string {
+    let mut sb: array<string> = []
+    
+    if (and left_is_arr right_is_arr) {
+        set sb (sb_append sb "({ DynArray* _a = ")
+        set sb (sb_append sb left_code)
+        set sb (sb_append sb "; DynArray* _b = ")
+        set sb (sb_append sb right_code)
+        set sb (sb_append sb "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
+        set sb (sb_append sb elem_enum)
+        set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+        set sb (sb_append sb c_elem)
+        set sb (sb_append sb " _x = ")
+        set sb (sb_append sb get_fn)
+        set sb (sb_append sb "(_a, _i); ")
+        set sb (sb_append sb c_elem)
+        set sb (sb_append sb " _y = ")
+        set sb (sb_append sb get_fn)
+        set sb (sb_append sb "(_b, _i); ")
+        set sb (sb_append sb push_fn)
+        set sb (sb_append sb "(_out, ")
+        
+        if is_string {
+            if is_plus {
+                set sb (sb_append sb "nl_str_concat(_x, _y)")
+            } else {
+                set sb (sb_append sb "0")
+            }
+        } else {
+            set sb (sb_append sb "(_x ")
+            set sb (sb_append sb op_str2)
+            set sb (sb_append sb " _y)")
+        }
+        
+        set sb (sb_append sb "); } _out; })")
+        return (sb_build sb)
+    } else {
+        if (and left_is_arr (not right_is_arr)) {
+            set sb (sb_append sb "({ DynArray* _a = ")
+            set sb (sb_append sb left_code)
+            set sb (sb_append sb "; ")
+            set sb (sb_append sb c_elem)
+            set sb (sb_append sb " _s = ")
+            set sb (sb_append sb right_code)
+            set sb (sb_append sb "; DynArray* _out = dyn_array_new(")
+            set sb (sb_append sb elem_enum)
+            set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+            set sb (sb_append sb c_elem)
+            set sb (sb_append sb " _x = ")
+            set sb (sb_append sb get_fn)
+            set sb (sb_append sb "(_a, _i); ")
+            set sb (sb_append sb push_fn)
+            set sb (sb_append sb "(_out, ")
+            if is_string {
+                if is_plus {
+                    set sb (sb_append sb "nl_str_concat(_x, _s)")
+                } else {
+                    set sb (sb_append sb "0")
+                }
+            } else {
+                set sb (sb_append sb "(_x ")
+                set sb (sb_append sb op_str2)
+                set sb (sb_append sb " _s)")
+            }
+            set sb (sb_append sb "); } _out; })")
+            return (sb_build sb)
+        } else {
+            if (and (not left_is_arr) right_is_arr) {
+                set sb (sb_append sb "({ DynArray* _a = ")
+                set sb (sb_append sb right_code)
+                set sb (sb_append sb "; ")
+                set sb (sb_append sb c_elem)
+                set sb (sb_append sb " _s = ")
+                set sb (sb_append sb left_code)
+                set sb (sb_append sb "; DynArray* _out = dyn_array_new(")
+                set sb (sb_append sb elem_enum)
+                set sb (sb_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
+                set sb (sb_append sb c_elem)
+                set sb (sb_append sb " _x = ")
+                set sb (sb_append sb get_fn)
+                set sb (sb_append sb "(_a, _i); ")
+                set sb (sb_append sb push_fn)
+                set sb (sb_append sb "(_out, ")
+                if is_string {
+                    if is_plus {
+                        set sb (sb_append sb "nl_str_concat(_s, _x)")
+                    } else {
+                        set sb (sb_append sb "0")
+                    }
+                } else {
+                    set sb (sb_append sb "(_s ")
+                    set sb (sb_append sb op_str2)
+                    set sb (sb_append sb " _x)")
+                }
+                set sb (sb_append sb "); } _out; })")
+                return (sb_build sb)
+            } else {
+                return ""
+            }
+        }
+    }
+}
+
+shadow build_array_binop_expr {
+    let result: string = (build_array_binop_expr "a" "b" "int" "ELEM_INT" "get" "push" "int64_t" "+" true true false false)
+    assert (> (str_length result) 0)
+}
+
 /* Generate C code for an expression node (RECURSIVE)
  * 
  * Args:
@@ -1738,7 +2507,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            return (+ "\"" (+ s.value "\""))
+            let mut parts: array<string> = []
+            set parts (sb_append parts "\"")
+            set parts (sb_append parts s.value)
+            set parts (sb_append parts "\"")
+            return (sb_build parts)
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -1798,104 +2571,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let c_elem: string = (c_type_from_elem_type elem_t)
                     let op_str2: string = (operator_to_string binop.op)
 
-                    if (and left_is_arr right_is_arr) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result left_code)
-                        set result (+ result "; DynArray* _b = ")
-                        set result (+ result right_code)
-                        set result (+ result "; assert(dyn_array_length(_a) == dyn_array_length(_b)); DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result c_elem)
-                        set result (+ result " _y = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_b, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_x, _y)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_x ")
-                            set result (+ result op_str2)
-                            set result (+ result " _y)")
-                        }
-
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else {
-                        (print "")
-                    }
-
-                    if (and left_is_arr (not right_is_arr)) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result left_code)
-                        set result (+ result "; ")
-                        set result (+ result c_elem)
-                        set result (+ result " _s = ")
-                        set result (+ result right_code)
-                        set result (+ result "; DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_x, _s)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_x ")
-                            set result (+ result op_str2)
-                            set result (+ result " _s)")
-                        }
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else { (print "") }
-
-                    if (and (not left_is_arr) right_is_arr) {
-                        let mut result: string = "({ DynArray* _a = "
-                        set result (+ result right_code)
-                        set result (+ result "; ")
-                        set result (+ result c_elem)
-                        set result (+ result " _s = ")
-                        set result (+ result left_code)
-                        set result (+ result "; DynArray* _out = dyn_array_new(")
-                        set result (+ result elem_enum)
-                        set result (+ result "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
-                        set result (+ result c_elem)
-                        set result (+ result " _x = ")
-                        set result (+ result get_fn)
-                        set result (+ result "(_a, _i); ")
-                        set result (+ result push_fn)
-                        set result (+ result "(_out, ")
-                        if (== elem_t "string") {
-                            if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                                set result (+ result "nl_str_concat(_s, _x)")
-                            } else {
-                                set result (+ result "0")
-                            }
-                        } else {
-                            set result (+ result "(_s ")
-                            set result (+ result op_str2)
-                            set result (+ result " _x)")
-                        }
-                        set result (+ result "); } _out; })")
-                        return result
-                    } else { (print "") }
+                    let is_plus: bool = (== binop.op LexerTokenType.TOKEN_PLUS)
+                    let is_string: bool = (== elem_t "string")
+                    return (build_array_binop_expr left_code right_code elem_t elem_enum get_fn push_fn c_elem op_str2 left_is_arr right_is_arr is_plus is_string)
                 } else {
                     (print "")
                 }
@@ -1907,13 +2585,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
 
                     /* Only emit nl_str_concat when string context is expected. */
-                    if (or (str_equals expected_type "string") (or left_is_str right_is_str)) {
-                        let mut result: string = "nl_str_concat("
-                        set result (+ result left_code)
-                        set result (+ result ", ")
-                        set result (+ result right_code)
-                        set result (+ result ")")
-                        return result
+                    if (or (== expected_type "string") (or left_is_str right_is_str)) {
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts "nl_str_concat(")
+                        set parts (sb_append parts left_code)
+                        set parts (sb_append parts ", ")
+                        set parts (sb_append parts right_code)
+                        set parts (sb_append parts ")")
+                        return (sb_build parts)
                     } else {
                         (print "")
                     }
@@ -1925,15 +2604,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 let op_str: string = (operator_to_string binop.op)
                 
                 /* Build expression: (left op right) */
-                let mut result: string = "("
-                set result (+ result left_code)
-                set result (+ result " ")
-                set result (+ result op_str)
-                set result (+ result " ")
-                set result (+ result right_code)
-                set result (+ result ")")
+                let mut parts: array<string> = []
+                set parts (sb_append parts "(")
+                set parts (sb_append parts left_code)
+                set parts (sb_append parts " ")
+                set parts (sb_append parts op_str)
+                set parts (sb_append parts " ")
+                set parts (sb_append parts right_code)
+                set parts (sb_append parts ")")
                 
-                return result
+                return (sb_build parts)
             } else {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     /* Function call */
@@ -1948,7 +2628,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (+ "(!" (+ a0_code ")"))
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "(!")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "(!0)"
                         }
@@ -1961,7 +2645,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            return (+ "dyn_array_length(" (+ a0_code ")"))
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "dyn_array_length(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -1975,12 +2663,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
                             let a1_code: string = (generate_expression parser a1.node_id a1.node_type env "")
-                            let mut out: string = "dyn_array_remove_at("
-                            set out (+ out a0_code)
-                            set out (+ out ", ")
-                            set out (+ out a1_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "dyn_array_remove_at(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts a1_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2006,16 +2695,17 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let elem_enum: string = (elem_enum_from_elem_type elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
-                            let mut out: string = "({ DynArray* _arr = dyn_array_new("
-                            set out (+ out elem_enum)
-                            set out (+ out "); int64_t _n = ")
-                            set out (+ out size_code)
-                            set out (+ out "; for (int64_t _i = 0; _i < _n; _i++) { ")
-                            set out (+ out push_fn)
-                            set out (+ out "(_arr, ")
-                            set out (+ out def_code)
-                            set out (+ out "); } _arr; })")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts "({ DynArray* _arr = dyn_array_new(")
+                            set parts (sb_append parts elem_enum)
+                            set parts (sb_append parts "); int64_t _n = ")
+                            set parts (sb_append parts size_code)
+                            set parts (sb_append parts "; for (int64_t _i = 0; _i < _n; _i++) { ")
+                            set parts (sb_append parts push_fn)
+                            set parts (sb_append parts "(_arr, ")
+                            set parts (sb_append parts def_code)
+                            set parts (sb_append parts "); } _arr; })")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2046,14 +2736,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             if (== elem_t "") { set elem_t "int" } else { (print "") }
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
-                            let mut out: string = ""
-                            set out (+ out push_fn)
-                            set out (+ out "(")
-                            set out (+ out arr_code)
-                            set out (+ out ", ")
-                            set out (+ out val_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts push_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts arr_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts val_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2081,16 +2771,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             let set_fn: string = (set_fn_from_elem_type elem_t)
-                            let mut out: string = ""
-                            set out (+ out set_fn)
-                            set out (+ out "(")
-                            set out (+ out arr_code)
-                            set out (+ out ", ")
-                            set out (+ out idx_code)
-                            set out (+ out ", ")
-                            set out (+ out val_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts set_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts arr_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts idx_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts val_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2126,14 +2816,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             let get_fn: string = (get_fn_from_elem_type elem_t)
-                            let mut out: string = ""
-                            set out (+ out get_fn)
-                            set out (+ out "(")
-                            set out (+ out a0_code)
-                            set out (+ out ", ")
-                            set out (+ out a1_code)
-                            set out (+ out ")")
-                            return out
+                            let mut parts: array<string> = []
+                            set parts (sb_append parts get_fn)
+                            set parts (sb_append parts "(")
+                            set parts (sb_append parts a0_code)
+                            set parts (sb_append parts ", ")
+                            set parts (sb_append parts a1_code)
+                            set parts (sb_append parts ")")
+                            return (sb_build parts)
                         } else {
                             return "0"
                         }
@@ -2147,32 +2837,63 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         (else (c_func_name_for_call func_name))
                     )
                     
-                    let mut result: string = c_func_name
-                    set result (+ result "(")
+                    let mut parts: array<string> = []
+                    set parts (sb_append parts c_func_name)
+                    set parts (sb_append parts "(")
 
                     /* Generate arguments */
                     let mut i: int = 0
                     while (< i call.arg_count) {
                         if (> i 0) {
-                            set result (+ result ", ")
+                            set parts (sb_append parts ", ")
                         } else {
                             (print "")
                         }
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
                         let mut arg_expected: string = ""
-                        if (or (str_equals func_name "print") (str_equals func_name "println")) {
+                        if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
                         let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
-                        set result (+ result arg_code)
+                        set parts (sb_append parts arg_code)
                         set i (+ i 1)
                     }
                     
-                    set result (+ result ")")
-                    return result
+                    set parts (sb_append parts ")")
+                    return (sb_build parts)
                 } else {
-                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                        /* Module-qualified function call: Module.function(args...) */
+                        let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+                        
+                        /* Use function_name which contains full qualified name */
+                        let qualified_name: string = mqc.function_name
+                        let c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts c_func_name)
+                        set parts (sb_append parts "(")
+                        
+                        /* Generate arguments */
+                        let mut i: int = 0
+                        while (< i mqc.arg_count) {
+                            if (> i 0) {
+                                set parts (sb_append parts ", ")
+                            } else {
+                                (print "")
+                            }
+                            
+                            let aref: ASTStmtRef = (parser_get_call_arg parser (+ mqc.arg_start i))
+                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                            set parts (sb_append parts arg_code)
+                            set i (+ i 1)
+                        }
+                        
+                        set parts (sb_append parts ")")
+                        return (sb_build parts)
+                    } else {
+                        if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         /* Field access */
                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
                         /* If the object is an enum identifier (e.g. DiagnosticSeverity.DIAG_ERROR),
@@ -2180,21 +2901,26 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
                             let ident: ASTIdentifier = (parser_get_identifier parser fa.object)
                             /* Self-hosted MVP: recognize schema enums by name. */
-                            if (or (str_equals ident.name "DiagnosticSeverity") (str_equals ident.name "CompilerPhase")) {
-                                return (+ ident.name (+ "_" (mangle_name fa.field_name)))
+                            if (or (== ident.name "DiagnosticSeverity") (== ident.name "CompilerPhase")) {
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts ident.name)
+                                set parts (sb_append parts "_")
+                                set parts (sb_append parts (mangle_name fa.field_name))
+                                return (sb_build parts)
                             } else {
-                                if (or (str_equals ident.name "TokenType") (or (str_equals ident.name "ParseNodeType") (str_equals ident.name "LexerTokenType"))) {
+                                if (or (== ident.name "TokenType") (or (== ident.name "ParseNodeType") (== ident.name "LexerTokenType"))) {
                                     return (mangle_name fa.field_name)
                                 } else { (print "") }
                             }
                         } else { (print "") }
 
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
-                        let mut result: string = "("
-                        set result (+ result obj_code)
-                        set result (+ result ").")
-                        set result (+ result (mangle_name fa.field_name))
-                        return result
+                        let mut parts: array<string> = []
+                        set parts (sb_append parts "(")
+                        set parts (sb_append parts obj_code)
+                        set parts (sb_append parts ").")
+                        set parts (sb_append parts (mangle_name fa.field_name))
+                        return (sb_build parts)
                     } else {
                         if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                             /* Array literal -> DynArray* */
@@ -2243,37 +2969,44 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 }
                             }
 
-                            let mut result: string = "({ DynArray* _arr = dyn_array_new("
-                            set result (+ result elem_enum)
-                            set result (+ result "); ")
+                            let mut arr_parts: array<string> = []
+                            set arr_parts (sb_append arr_parts "({ DynArray* _arr = dyn_array_new(")
+                            set arr_parts (sb_append arr_parts elem_enum)
+                            set arr_parts (sb_append arr_parts "); ")
 
                             let mut i: int = 0
                             while (< i arr.element_count) {
                                 let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
                                 let ecode: string = (generate_expression parser eref.node_id eref.node_type env "")
 
-                                set result (+ result push_fn)
-                                set result (+ result "(_arr, ")
-                                set result (+ result ecode)
-                                set result (+ result "); ")
+                                set arr_parts (sb_append arr_parts push_fn)
+                                set arr_parts (sb_append arr_parts "(_arr, ")
+                                set arr_parts (sb_append arr_parts ecode)
+                                set arr_parts (sb_append arr_parts "); ")
                                 set i (+ i 1)
                             }
 
-                            set result (+ result "_arr; })")
-                            return result
+                            set arr_parts (sb_append arr_parts "_arr; })")
+                            return (sb_build arr_parts)
                         } else {
                             if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
                                 /* Struct literal -> compound literal */
                                 let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
-                                let c_type: string = (+ "nl_" (mangle_name sl.struct_name))
-                                let mut result: string = "(("
-                                set result (+ result c_type)
-                                set result (+ result "){ ")
+                                
+                                let mut c_type_parts: array<string> = []
+                                set c_type_parts (sb_append c_type_parts "nl_")
+                                set c_type_parts (sb_append c_type_parts (mangle_name sl.struct_name))
+                                let c_type: string = (sb_build c_type_parts)
+                                
+                                let mut struct_parts: array<string> = []
+                                set struct_parts (sb_append struct_parts "((")
+                                set struct_parts (sb_append struct_parts c_type)
+                                set struct_parts (sb_append struct_parts "){ ")
 
                                 let mut i: int = 0
                                 while (< i sl.field_count) {
                                     if (> i 0) {
-                                        set result (+ result ", ")
+                                        set struct_parts (sb_append struct_parts ", ")
                                     } else { (print "") }
 
                                     let fname: string = (at sl.field_names i)
@@ -2281,39 +3014,50 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     let vty: int = (at sl.field_value_types i)
                                     let vcode: string = (generate_expression parser vid vty env "")
 
-                                    set result (+ result ".")
-                                    set result (+ result (mangle_name fname))
-                                    set result (+ result " = ")
-                                    set result (+ result vcode)
+                                    set struct_parts (sb_append struct_parts ".")
+                                    set struct_parts (sb_append struct_parts (mangle_name fname))
+                                    set struct_parts (sb_append struct_parts " = ")
+                                    set struct_parts (sb_append struct_parts vcode)
 
                                     set i (+ i 1)
                                 }
 
-                                set result (+ result " })")
-                                return result
+                                set struct_parts (sb_append struct_parts " })")
+                                return (sb_build struct_parts)
                             } else {
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-                                    let union_c: string = (+ "nl_" (mangle_name uc.union_name))
-                                    let tag_name: string = (+ (+ "nl_" (mangle_name uc.union_name)) (+ "_TAG_" uc.variant_name))
+                                    
+                                    let mut union_parts: array<string> = []
+                                    set union_parts (sb_append union_parts "nl_")
+                                    set union_parts (sb_append union_parts (mangle_name uc.union_name))
+                                    let union_c: string = (sb_build union_parts)
+                                    
+                                    let mut tag_parts: array<string> = []
+                                    set tag_parts (sb_append tag_parts "nl_")
+                                    set tag_parts (sb_append tag_parts (mangle_name uc.union_name))
+                                    set tag_parts (sb_append tag_parts "_TAG_")
+                                    set tag_parts (sb_append tag_parts uc.variant_name)
+                                    let tag_name: string = (sb_build tag_parts)
 
-                                    let mut result: string = "(("
-                                    set result (+ result union_c)
-                                    set result (+ result "){ .tag = ")
-                                    set result (+ result tag_name)
-                                    set result (+ result ", .data.")
-                                    set result (+ result uc.variant_name)
-                                    set result (+ result " = ")
+                                    let mut union_construct_parts: array<string> = []
+                                    set union_construct_parts (sb_append union_construct_parts "((")
+                                    set union_construct_parts (sb_append union_construct_parts union_c)
+                                    set union_construct_parts (sb_append union_construct_parts "){ .tag = ")
+                                    set union_construct_parts (sb_append union_construct_parts tag_name)
+                                    set union_construct_parts (sb_append union_construct_parts ", .data.")
+                                    set union_construct_parts (sb_append union_construct_parts uc.variant_name)
+                                    set union_construct_parts (sb_append union_construct_parts " = ")
 
                                     if (== uc.field_count 0) {
-                                        set result (+ result "{0}")
+                                        set union_construct_parts (sb_append union_construct_parts "{0}")
                                     } else {
-                                        set result (+ result "{")
+                                        set union_construct_parts (sb_append union_construct_parts "{")
                                         let mut i: int = 0
                                         while (< i uc.field_count) {
                                             if (> i 0) {
-                                                set result (+ result ", ")
+                                                set union_construct_parts (sb_append union_construct_parts ", ")
                                             } else { (print "") }
 
                                             let fname: string = (at uc.field_names i)
@@ -2321,17 +3065,17 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let vty: int = (at uc.field_value_types i)
                                             let vcode: string = (generate_expression parser vid vty env "")
 
-                                            set result (+ result ".")
-                                            set result (+ result (mangle_name fname))
-                                            set result (+ result " = ")
-                                            set result (+ result vcode)
+                                            set union_construct_parts (sb_append union_construct_parts ".")
+                                            set union_construct_parts (sb_append union_construct_parts (mangle_name fname))
+                                            set union_construct_parts (sb_append union_construct_parts " = ")
+                                            set union_construct_parts (sb_append union_construct_parts vcode)
                                             set i (+ i 1)
                                         }
-                                        set result (+ result "}")
+                                        set union_construct_parts (sb_append union_construct_parts "}")
                                     }
 
-                                    set result (+ result " })")
-                                    return result
+                                    set union_construct_parts (sb_append union_construct_parts " })")
+                                    return (sb_build union_construct_parts)
                                 } else {
                                     if (== node_type ParseNodeType.PNODE_MATCH) {
                                         let m: ASTMatch = (parser_get_match parser node_id)
@@ -2349,14 +3093,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                                             let elem_expected: array<string> = (tuple_split_types tuple_t)
 
-                                            let mut result: string = "(("
-                                            set result (+ result tuple_name)
-                                            set result (+ result "){ ")
+                                            let mut tuple_parts: array<string> = []
+                                            set tuple_parts (sb_append tuple_parts "((")
+                                            set tuple_parts (sb_append tuple_parts tuple_name)
+                                            set tuple_parts (sb_append tuple_parts "){ ")
 
                                             let mut i: int = 0
                                             while (< i tl.element_count) {
                                                 if (> i 0) {
-                                                    set result (+ result ", ")
+                                                    set tuple_parts (sb_append tuple_parts ", ")
                                                 } else { (print "") }
 
                                                 let vid: int = (at tl.element_ids i)
@@ -2367,25 +3112,26 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 } else { (print "") }
 
                                                 let vcode: string = (generate_expression parser vid vty env exp_i)
-                                                set result (+ result "._")
-                                                set result (+ result (int_to_string i))
-                                                set result (+ result " = ")
-                                                set result (+ result vcode)
+                                                set tuple_parts (sb_append tuple_parts "._")
+                                                set tuple_parts (sb_append tuple_parts (int_to_string i))
+                                                set tuple_parts (sb_append tuple_parts " = ")
+                                                set tuple_parts (sb_append tuple_parts vcode)
                                                 set i (+ i 1)
                                             }
 
-                                            set result (+ result " })")
-                                            return result
+                                            set tuple_parts (sb_append tuple_parts " })")
+                                            return (sb_build tuple_parts)
                                         } else {
                                             if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
                                                 let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
                                                 let tcode: string = (generate_expression parser ti.tuple ti.tuple_type env "")
-                                                let mut result: string = "(("
-                                                set result (+ result tcode)
-                                                set result (+ result ")._")
-                                                set result (+ result (int_to_string ti.index))
-                                                set result (+ result ")")
-                                                return result
+                                                let mut tuple_index_parts: array<string> = []
+                                                set tuple_index_parts (sb_append tuple_index_parts "((")
+                                                set tuple_index_parts (sb_append tuple_index_parts tcode)
+                                                set tuple_index_parts (sb_append tuple_index_parts ")._")
+                                                set tuple_index_parts (sb_append tuple_index_parts (int_to_string ti.index))
+                                                set tuple_index_parts (sb_append tuple_index_parts ")")
+                                                return (sb_build tuple_index_parts)
                                             } else {
                                                 /* Unknown type - return 0 */
                                                 return "0"
@@ -2405,6 +3151,18 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
     }
 }
 
+}
+
+shadow generate_expression {
+    let source: string = (+ "f" "n main() -> int { return 42 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let ret: ASTReturn = (parser_get_return p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_expression p ret.value ret.value_type env "int")
+    assert (== code "42")
+}
+
 /* Generate C code for a return statement
  * 
  * Args:
@@ -2415,21 +3173,32 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
  * Returns: C code for return statement with indentation
  */
 fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv, expected_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "return")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "return")
     
     if (< ret.value 0) {
         /* No return value - void return */
-        set code (+ code "")
+        (print "")
     } else {
         /* Has return value - generate expression */
-        set code (+ code " ")
+        set parts (sb_append parts " ")
         let expr_code: string = (generate_expression parser ret.value ret.value_type env expected_type)
-        set code (+ code expr_code)
+        set parts (sb_append parts expr_code)
     }
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
+}
+
+shadow generate_return_stmt {
+    let source: string = (+ "f" "n main() -> int { return 42 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let ret: ASTReturn = (parser_get_return p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_return_stmt p ret 0 env "int")
+    assert (== code "return 42;\n")
 }
 
 /* Generate C code for a let statement
@@ -2442,38 +3211,60 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv
  * Returns: C code for variable declaration with initialization
  */
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
 
     let c_type: string = (type_to_c let_stmt.var_type)
-    set code (+ code c_type)
-    set code (+ code " ")
+    set parts (sb_append parts c_type)
+    set parts (sb_append parts " ")
     
     /* Add variable name with nl_ prefix */
-    set code (+ code "nl_")
-    set code (+ code (mangle_name let_stmt.name))
-    set code (+ code " = ")
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name let_stmt.name))
+    set parts (sb_append parts " = ")
     
     /* Generate initialization expression */
     if (< let_stmt.value 0) {
         /* No initialization - use default */
-        set code (+ code "0")
+        set parts (sb_append parts "0")
     } else {
         /* Generate expression */
         let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-        set code (+ code expr_code)
+        set parts (sb_append parts expr_code)
     }
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
+}
+
+shadow generate_let_stmt {
+    let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let l: ASTLet = (parser_get_let p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_let_stmt p l 0 env)
+    assert (== code "int64_t nl_x = 1;\n")
 }
 
 fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     let cond_code: string = (generate_expression parser a.condition a.condition_type env "bool")
-    set code (+ code "assert(")
-    set code (+ code cond_code)
-    set code (+ code ");\n")
-    return code
+    set parts (sb_append parts "assert(")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ");\n")
+    return (sb_build parts)
+}
+
+shadow generate_assert_stmt {
+    let source: string = (+ "f" "n main() -> int { assert true return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let a: ASTAssert = (parser_get_assert p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_assert_stmt p a 0 env)
+    assert (== code "assert(1);\n")
 }
 
 fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
@@ -2497,19 +3288,23 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (+ "nl_" (mangle_name union_name))
+    let mut union_parts: array<string> = []
+    set union_parts (sb_append union_parts "nl_")
+    set union_parts (sb_append union_parts (mangle_name union_name))
+    let union_c: string = (sb_build union_parts)
     let mut out_c: string = "int64_t"
     if (!= expected_type "") {
         set out_c (type_to_c expected_type)
     } else { (print "") }
 
-    let mut code: string = "({ "
-    set code (+ code union_c)
-    set code (+ code " _m = ")
-    set code (+ code scr_code)
-    set code (+ code "; ")
-    set code (+ code out_c)
-    set code (+ code " _out = 0; switch (_m.tag) { ")
+    let mut parts: array<string> = []
+    set parts (sb_append parts "({ ")
+    set parts (sb_append parts union_c)
+    set parts (sb_append parts " _m = ")
+    set parts (sb_append parts scr_code)
+    set parts (sb_append parts "; ")
+    set parts (sb_append parts out_c)
+    set parts (sb_append parts " _out = 0; switch (_m.tag) { ")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -2518,38 +3313,63 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
-        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
+        let mut tag_parts: array<string> = []
+        set tag_parts (sb_append tag_parts "nl_")
+        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts "_TAG_")
+        set tag_parts (sb_append tag_parts variant)
+        let tag_name: string = (sb_build tag_parts)
+        
+        let mut var_type_parts: array<string> = []
+        set var_type_parts (sb_append var_type_parts "nl_")
+        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts "_")
+        set var_type_parts (sb_append var_type_parts variant)
+        let variant_type: string = (sb_build var_type_parts)
 
-        set code (+ code "case ")
-        set code (+ code tag_name)
-        set code (+ code ": { ")
+        set parts (sb_append parts "case ")
+        set parts (sb_append parts tag_name)
+        set parts (sb_append parts ": { ")
 
-        set code (+ code variant_type)
-        set code (+ code " ")
-        set code (+ code (mangle_name binding))
-        set code (+ code " = _m.data.")
-        set code (+ code variant)
-        set code (+ code "; ")
+        set parts (sb_append parts variant_type)
+        set parts (sb_append parts " ")
+        set parts (sb_append parts (mangle_name binding))
+        set parts (sb_append parts " = _m.data.")
+        set parts (sb_append parts variant)
+        set parts (sb_append parts "; ")
 
-        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
+        let mut type_name_parts: array<string> = []
+        set type_name_parts (sb_append type_name_parts union_name)
+        set type_name_parts (sb_append type_name_parts ".")
+        set type_name_parts (sb_append type_name_parts variant)
+        let env_arm: GenEnv = (genenv_put env binding (sb_build type_name_parts))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
             /* Block bodies in expression match aren't supported here; assume they return */
-            set code (+ code "/* unsupported match arm block */ ")
+            set parts (sb_append parts "/* unsupported match arm block */ ")
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-            set code (+ code "_out = ")
-            set code (+ code expr_code)
-            set code (+ code "; ")
+            set parts (sb_append parts "_out = ")
+            set parts (sb_append parts expr_code)
+            set parts (sb_append parts "; ")
         }
 
-        set code (+ code "break; } ")
+        set parts (sb_append parts "break; } ")
         set i (+ i 1)
     }
 
-    set code (+ code "} _out; })")
-    return code
+    set parts (sb_append parts "} _out; })")
+    return (sb_build parts)
+}
+
+shadow generate_match_expr {
+    let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let m: ASTMatch = (parser_get_match p 0)
+    let env0: GenEnv = (genenv_put (genenv_new) "x" "Option")
+    let code: string = (generate_match_expr p m env0 "int")
+    assert (str_contains code "switch")
 }
 
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
@@ -2573,18 +3393,22 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set union_name "UNKNOWN"
     } else { (print "") }
 
-    let union_c: string = (+ "nl_" (mangle_name union_name))
+    let mut union_parts: array<string> = []
+    set union_parts (sb_append union_parts "nl_")
+    set union_parts (sb_append union_parts (mangle_name union_name))
+    let union_c: string = (sb_build union_parts)
 
-    let mut code: string = (gen_indent indent)
-    set code (+ code "{\n")
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code union_c)
-    set code (+ code " _m = ")
-    set code (+ code scr_code)
-    set code (+ code ";\n")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "{\n")
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts union_c)
+    set parts (sb_append parts " _m = ")
+    set parts (sb_append parts scr_code)
+    set parts (sb_append parts ";\n")
 
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "switch (_m.tag) {\n")
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts "switch (_m.tag) {\n")
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -2593,46 +3417,71 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let tag_name: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_TAG_" variant))
-        let variant_type: string = (+ (+ "nl_" (mangle_name union_name)) (+ "_" variant))
+        let mut tag_parts: array<string> = []
+        set tag_parts (sb_append tag_parts "nl_")
+        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts "_TAG_")
+        set tag_parts (sb_append tag_parts variant)
+        let tag_name: string = (sb_build tag_parts)
+        
+        let mut var_type_parts: array<string> = []
+        set var_type_parts (sb_append var_type_parts "nl_")
+        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts "_")
+        set var_type_parts (sb_append var_type_parts variant)
+        let variant_type: string = (sb_build var_type_parts)
 
-        set code (+ code (gen_indent (+ indent 2)))
-        set code (+ code "case ")
-        set code (+ code tag_name)
-        set code (+ code ": {\n")
+        set parts (sb_append parts (gen_indent (+ indent 2)))
+        set parts (sb_append parts "case ")
+        set parts (sb_append parts tag_name)
+        set parts (sb_append parts ": {\n")
 
-        set code (+ code (gen_indent (+ indent 3)))
-        set code (+ code variant_type)
-        set code (+ code " nl_")
-        set code (+ code (mangle_name binding))
-        set code (+ code " = _m.data.")
-        set code (+ code variant)
-        set code (+ code ";\n")
+        set parts (sb_append parts (gen_indent (+ indent 3)))
+        set parts (sb_append parts variant_type)
+        set parts (sb_append parts " nl_")
+        set parts (sb_append parts (mangle_name binding))
+        set parts (sb_append parts " = _m.data.")
+        set parts (sb_append parts variant)
+        set parts (sb_append parts ";\n")
 
-        let env_arm: GenEnv = (genenv_put env binding (+ union_name (+ "." variant)))
+        let mut type_name_parts: array<string> = []
+        set type_name_parts (sb_append type_name_parts union_name)
+        set type_name_parts (sb_append type_name_parts ".")
+        set type_name_parts (sb_append type_name_parts variant)
+        let env_arm: GenEnv = (genenv_put env binding (sb_build type_name_parts))
 
         if (== body_type ParseNodeType.PNODE_BLOCK) {
-            set code (+ code (generate_block parser body_id (+ indent 3) env_arm return_type))
+            set parts (sb_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
         } else {
             let expr_code: string = (generate_expression parser body_id body_type env_arm "")
-            set code (+ code (gen_indent (+ indent 3)))
-            set code (+ code expr_code)
-            set code (+ code ";\n")
+            set parts (sb_append parts (gen_indent (+ indent 3)))
+            set parts (sb_append parts expr_code)
+            set parts (sb_append parts ";\n")
         }
 
-        set code (+ code (gen_indent (+ indent 3)))
-        set code (+ code "break;\n")
+        set parts (sb_append parts (gen_indent (+ indent 3)))
+        set parts (sb_append parts "break;\n")
 
-        set code (+ code (gen_indent (+ indent 2)))
-        set code (+ code "}\n")
+        set parts (sb_append parts (gen_indent (+ indent 2)))
+        set parts (sb_append parts "}\n")
         set i (+ i 1)
     }
 
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "}\n")
-    set code (+ code (gen_indent indent))
-    set code (+ code "}\n")
-    return code
+    set parts (sb_append parts (gen_indent (+ indent 1)))
+    set parts (sb_append parts "}\n")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
+    return (sb_build parts)
+}
+
+shadow generate_match_stmt {
+    let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let m: ASTMatch = (parser_get_match p 0)
+    let env0: GenEnv = (genenv_put (genenv_new) "x" "Option")
+    let code: string = (generate_match_stmt p m 0 env0 "int")
+    assert (str_contains code "switch")
 }
 
 struct StmtGenResult {
@@ -2678,18 +3527,20 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                                 return StmtGenResult { code: code, env: env }
                             } else {
                             /* Expression statement (e.g. call) */
-                            if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+                            if (or (== stmt.node_type ParseNodeType.PNODE_CALL) (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
                                 let expr_code: string = (generate_expression parser stmt.node_id stmt.node_type env "")
-                                let mut code: string = (gen_indent indent)
-                                set code (+ code expr_code)
-                                set code (+ code ";\n")
-                                return StmtGenResult { code: code, env: env }
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts (gen_indent indent))
+                                set parts (sb_append parts expr_code)
+                                set parts (sb_append parts ";\n")
+                                return StmtGenResult { code: (sb_build parts), env: env }
                             } else {
-                                let mut code: string = (gen_indent indent)
-                                set code (+ code "/* unsupported stmt: ")
-                                set code (+ code (int_to_string stmt.node_type))
-                                set code (+ code " */\n")
-                                return StmtGenResult { code: code, env: env }
+                                let mut parts: array<string> = []
+                                set parts (sb_append parts (gen_indent indent))
+                                set parts (sb_append parts "/* unsupported stmt: ")
+                                set parts (sb_append parts (int_to_string stmt.node_type))
+                                set parts (sb_append parts " */\n")
+                                return StmtGenResult { code: (sb_build parts), env: env }
                             }
                             }
                         }
@@ -2700,24 +3551,47 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
     }
 }
 
+shadow generate_statement {
+    let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let env: GenEnv = (genenv_new)
+    let res: StmtGenResult = (generate_statement p stmt 0 env "int")
+    assert (str_contains res.code "nl_x")
+    assert (== (genenv_get res.env "x") "int")
+}
+
 fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, return_type: string) -> string {
     if (< block_id 0) {
         return ""
     } else {
         let block: ASTBlock = (parser_get_block parser block_id)
-        let mut code: string = ""
+        let mut parts: array<string> = []
         let mut env_cur: GenEnv = env
         let mut i: int = 0
         let stmt_count: int = (list_ASTStmtRef_length block.statements)
         while (< i stmt_count) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
             let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
-            set code (+ code res.code)
+            set parts (sb_append parts res.code)
             set env_cur res.env
             set i (+ i 1)
         }
-        return code
+        return (sb_build parts)
     }
+}
+
+shadow generate_block {
+    let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_block p func.body 0 env "int")
+    assert (str_contains code "return")
 }
 
 /* Generate C code for a set statement (assignment)
@@ -2730,20 +3604,31 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
  * Returns: C code for assignment statement
  */
 fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv) -> string {
-    let mut code: string = (gen_indent indent)
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
     
     /* Add target variable with nl_ prefix */
-    set code (+ code "nl_")
-    set code (+ code (mangle_name set_stmt.target))
-    set code (+ code " = ")
+    set parts (sb_append parts "nl_")
+    set parts (sb_append parts (mangle_name set_stmt.target))
+    set parts (sb_append parts " = ")
     
     /* Generate value expression */
     let target_t: string = (genenv_get env set_stmt.target)
     let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-    set code (+ code expr_code)
+    set parts (sb_append parts expr_code)
     
-    set code (+ code ";\n")
-    return code
+    set parts (sb_append parts ";\n")
+    return (sb_build parts)
+}
+
+shadow generate_set_stmt {
+    let source: string = (+ "f" "n main() -> int { let mut x: int = 1 set x 2 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let s: ASTSet = (parser_get_set p 0)
+    let env: GenEnv = (genenv_put (genenv_new) "x" "int")
+    let code: string = (generate_set_stmt p s 0 env)
+    assert (== code "nl_x = 2;\n")
 }
 
 /* Generate C code for an if statement
@@ -2756,30 +3641,42 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
  * Returns: C code for if/else statement
  */
 fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, return_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "if (")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "if (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser if_stmt.condition if_stmt.condition_type env "bool")
-    set code (+ code cond_code)
-    set code (+ code ") {\n")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ") {\n")
 
-    set code (+ code (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
+    set parts (sb_append parts (generate_block parser if_stmt.then_body (+ indent 1) env return_type))
     
-    set code (+ code (gen_indent indent))
-    set code (+ code "}")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}")
     
     /* Generate else if present */
     if (< if_stmt.else_body 0) {
-        set code (+ code "\n")
+        set parts (sb_append parts "\n")
     } else {
-        set code (+ code " else {\n")
-        set code (+ code (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
-        set code (+ code (gen_indent indent))
-        set code (+ code "}\n")
+        set parts (sb_append parts " else {\n")
+        set parts (sb_append parts (generate_block parser if_stmt.else_body (+ indent 1) env return_type))
+        set parts (sb_append parts (gen_indent indent))
+        set parts (sb_append parts "}\n")
     }
     
-    return code
+    return (sb_build parts)
+}
+
+shadow generate_if_stmt {
+    let source: string = (+ "f" "n main() -> int { if true { return 1 } else { return 0 } }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let if_stmt: ASTIf = (parser_get_if p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_if_stmt p if_stmt 0 env "int")
+    assert (str_contains code "if (1)")
+    assert (str_contains code "else")
 }
 
 /* Generate C code for a while loop
@@ -2792,24 +3689,45 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, re
  * Returns: C code for while loop
  */
 fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: GenEnv, return_type: string) -> string {
-    let mut code: string = (gen_indent indent)
-    set code (+ code "while (")
+    let mut parts: array<string> = []
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "while (")
     
     /* Generate condition expression */
     let cond_code: string = (generate_expression parser while_stmt.condition while_stmt.condition_type env "bool")
-    set code (+ code cond_code)
-    set code (+ code ") {\n")
+    set parts (sb_append parts cond_code)
+    set parts (sb_append parts ") {\n")
 
-    set code (+ code (generate_block parser while_stmt.body (+ indent 1) env return_type))
+    set parts (sb_append parts (generate_block parser while_stmt.body (+ indent 1) env return_type))
     
-    set code (+ code (gen_indent indent))
-    set code (+ code "}\n")
+    set parts (sb_append parts (gen_indent indent))
+    set parts (sb_append parts "}\n")
     
-    return code
+    return (sb_build parts)
+}
+
+shadow generate_while_stmt {
+    let source: string = (+ "f" "n main() -> int { while true { return 1 } return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let w: ASTWhile = (parser_get_while p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_while_stmt p w 0 env "int")
+    assert (str_contains code "while (1)")
 }
 
 fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type: string) -> string {
     return (generate_block parser body_id 1 env return_type)
+}
+
+shadow generate_function_body {
+    let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let env: GenEnv = (genenv_new)
+    let code: string = (generate_function_body p func.body env "int")
+    assert (str_contains code "return")
 }
 
 /* =============================================================================
@@ -2830,6 +3748,7 @@ fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type
  */
 pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
+    (build_module_alias_map parser)
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
@@ -2884,6 +3803,14 @@ pub fn transpile_parser(parser: Parser) -> string {
     
     (println "✓ Code generation complete!")
     return (gen_c_program_with_modules parser all_functions)
+}
+
+shadow transpile_parser {
+    let source: string = (+ "f" "n main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (transpile_parser p)
+    assert (str_contains code "int main(")
 }
 
 pub fn transpile_phase(parser: Parser, output_path: string, file_name: string) -> TranspilePhaseOutput {
@@ -2953,6 +3880,11 @@ fn transpile_with_count(func_count: int) -> string {
     let types: array<string> = []
     let main_func: string = (gen_function "main" params types "int" body)
     return (gen_c_program main_func)
+}
+
+shadow transpile_with_count {
+    let code: string = (transpile_with_count 2)
+    assert (str_contains code "Functions parsed:")
 }
 
 /* Wrapper for integration (no parser argument) */

@@ -169,18 +169,10 @@ fn main() -> int {
     while running {
         # Poll keyboard first
         let key: int = (nl_sdl_poll_keypress)
-        if (> key -1) {
-            # ESC or Q key to quit
-            if (== key 41) {
-                # ESC key
-                set running false
-            } else {
-                if (== key 20) {
-                    # Q key (also handles Cmd+Q on macOS)
-                    set running false
-                } else {}
-            }
-        } else {}
+        # ESC (41) or Q (20) key to quit
+        if (or (== key 41) (== key 20)) {
+            set running false
+        }
         
         # Check for quit event (window close button or menu Quit)
         let quit: int = (nl_sdl_poll_event_quit)

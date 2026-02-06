@@ -1,0 +1,19 @@
+/* Negative test: ensures clauses must be boolean expressions */
+
+fn bad_postcondition(x: int) -> int
+    ensures x
+{
+    return x
+}
+
+shadow bad_postcondition {
+    assert (== 1 1)
+}
+
+fn main() -> int {
+    return (bad_postcondition 10)
+}
+
+shadow main {
+    assert (== 1 1)
+}

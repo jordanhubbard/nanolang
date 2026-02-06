@@ -135,12 +135,12 @@ fn hex_digit(n: int) -> string {
 }
 
 shadow hex_digit {
-    assert (str_equals (hex_digit 0) "0")
-    assert (str_equals (hex_digit 5) "5")
-    assert (str_equals (hex_digit 9) "9")
-    assert (str_equals (hex_digit 10) "A")
-    assert (str_equals (hex_digit 15) "F")
-    assert (str_equals (hex_digit 16) "?")
+    assert (== (hex_digit 0) "0")
+    assert (== (hex_digit 5) "5")
+    assert (== (hex_digit 9) "9")
+    assert (== (hex_digit 10) "A")
+    assert (== (hex_digit 15) "F")
+    assert (== (hex_digit 16) "?")
 }
 
 fn byte_to_hex(b: int) -> string {
@@ -150,11 +150,11 @@ fn byte_to_hex(b: int) -> string {
 }
 
 shadow byte_to_hex {
-    assert (str_equals (byte_to_hex 0) "00")
-    assert (str_equals (byte_to_hex 15) "0F")
-    assert (str_equals (byte_to_hex 16) "10")
-    assert (str_equals (byte_to_hex 255) "FF")
-    assert (str_equals (byte_to_hex 171) "AB")
+    assert (== (byte_to_hex 0) "00")
+    assert (== (byte_to_hex 15) "0F")
+    assert (== (byte_to_hex 16) "10")
+    assert (== (byte_to_hex 255) "FF")
+    assert (== (byte_to_hex 171) "AB")
 }
 
 # Unused constant - commented out to avoid transpiler limitation
@@ -203,9 +203,9 @@ fn period_to_note(per: int) -> string {
 }
 
 shadow period_to_note {
-    assert (str_equals (period_to_note 0) "---")
-    assert (str_equals (period_to_note 1712) "C-1")
-    assert (str_equals (period_to_note 428) "C-3")
+    assert (== (period_to_note 0) "---")
+    assert (== (period_to_note 1712) "C-1")
+    assert (== (period_to_note 428) "C-3")
 }
 
 # Visualization rendering functions

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "dyn_array.h"
 
 typedef struct {
@@ -16,20 +17,36 @@ typedef struct {
     int is_valid;
 } nl_regex_t;
 
-// Compile regex pattern
+/* Cleanup function for regex (called by ARC wrapper finalizer) */
+void nl_regex_free(void* regex) {
+    if (!regex) return;
+    nl_regex_t* re = (nl_regex_t*)regex;
+    if (re->is_valid) {
+        regfree(&re->compiled);
+        re->is_valid = 0;
+    }
+    free(re);
+}
+
+// Compile regex pattern (returns raw malloc'd pointer - ARC wraps automatically)
 void* nl_regex_compile(const char* pattern) {
-    if (!pattern) return NULL;
-    
+    if (!pattern) {
+        return NULL;
+    }
+
+    /* Simple malloc - ARC wrapper will call nl_regex_free when done */
     nl_regex_t* re = (nl_regex_t*)malloc(sizeof(nl_regex_t));
-    if (!re) return NULL;
-    
+    if (!re) {
+        return NULL;
+    }
+
     // REG_EXTENDED = modern regex syntax
     int result = regcomp(&re->compiled, pattern, REG_EXTENDED);
     if (result != 0) {
         free(re);
         return NULL;
     }
-    
+
     re->is_valid = 1;
     return re;
 }
@@ -218,14 +235,5 @@ DynArray* nl_regex_split(void* regex, const char* text) {
     return parts;
 }
 
-// Free regex
-void nl_regex_free(void* regex) {
-    if (!regex) return;
-    
-    nl_regex_t* re = (nl_regex_t*)regex;
-    if (re->is_valid) {
-        regfree(&re->compiled);
-    }
-    free(re);
-}
+/* nl_regex_free is now defined above with the cleanup logic */
 

@@ -78,6 +78,27 @@ static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_
     return true;
 }
 
+static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, size_t buf_size) {
+    if (!hm_info || !buf || buf_size == 0) return NULL;
+    if (!hm_info->generic_name || strcmp(hm_info->generic_name, "HashMap") != 0) return NULL;
+    if (hm_info->type_param_count != 2) return NULL;
+
+    if (!build_monomorphized_name_from_typeinfo_iter(buf, buf_size, hm_info)) return NULL;
+    if (strncmp(buf, "HashMap_", 8) == 0) return buf + 8;
+    return buf;
+}
+
+static const char *hashmap_suffix_from_expr(ASTNode *hm_expr, Environment *env, char *buf, size_t buf_size) {
+    if (!hm_expr || !env) return NULL;
+    if (hm_expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, hm_expr->as.identifier, hm_expr->line, hm_expr->column);
+        if (sym && sym->type_info) {
+            return hashmap_suffix_from_typeinfo(sym->type_info, buf, buf_size);
+        }
+    }
+    return NULL;
+}
+
 __attribute__((unused))
 static const char *match_union_c_name(ASTNode *match, Environment *env, char *buf, size_t buf_size) {
     if (!match || !env) return NULL;
@@ -106,6 +127,7 @@ typedef enum {
     WORK_LITERAL,      /* Output a literal string */
     WORK_FORMATTED,    /* Output a formatted string */
     WORK_INDENT,       /* Output indentation */
+    WORK_GC_RELEASE,   /* Generate gc_release() call for a variable */
 } WorkItemType;
 
 typedef struct {
@@ -114,6 +136,7 @@ typedef struct {
         char *literal;           /* For WORK_LITERAL */
         char *formatted;         /* For WORK_FORMATTED (pre-formatted) */
         int indent_level;        /* For WORK_INDENT */
+        char *var_name;          /* For WORK_GC_RELEASE */
     } data;
 } WorkItem;
 
@@ -153,6 +176,9 @@ static void worklist_free(WorkList *list) {
         if (list->items[i].type == WORK_FORMATTED && list->items[i].data.formatted) {
             free(list->items[i].data.formatted);
         }
+        if (list->items[i].type == WORK_GC_RELEASE && list->items[i].data.var_name) {
+            free(list->items[i].data.var_name);
+        }
     }
     free(list->items);
     free(list);
@@ -178,6 +204,152 @@ static void worklist_append(WorkList *list, WorkItem item) {
         worklist_grow(list);
     }
     list->items[list->count++] = item;
+}
+
+/* ============================================================================
+ * FORWARD DECLARATIONS
+ * ============================================================================ */
+static void emit_indent_item(WorkList *list, int level);
+static void emit_formatted(WorkList *list, const char *fmt, ...);
+
+/* ============================================================================
+ * SCOPE TRACKING - Track GC-managed variables for automatic cleanup
+ * ============================================================================ */
+
+typedef struct {
+    char *name;
+    Type type;
+    bool needs_gc_release;  /* True for strings, opaques, hashmaps */
+} ScopeVar;
+
+typedef struct {
+    ScopeVar *vars;
+    int capacity;
+    int count;
+} Scope;
+
+typedef struct {
+    Scope *scopes;
+    int capacity;
+    int count;
+} ScopeStack;
+
+static ScopeStack *scope_stack_create() {
+    ScopeStack *stack = malloc(sizeof(ScopeStack));
+    if (!stack) {
+        fprintf(stderr, "Error: Out of memory allocating ScopeStack\n");
+        exit(1);
+    }
+    stack->capacity = 32;
+    stack->count = 0;
+    stack->scopes = malloc(sizeof(Scope) * stack->capacity);
+    if (!stack->scopes) {
+        fprintf(stderr, "Error: Out of memory allocating ScopeStack scopes\n");
+        free(stack);
+        exit(1);
+    }
+    return stack;
+}
+
+static void scope_stack_free(ScopeStack *stack) {
+    if (!stack) return;
+    for (int i = 0; i < stack->count; i++) {
+        for (int j = 0; j < stack->scopes[i].count; j++) {
+            free(stack->scopes[i].vars[j].name);
+        }
+        free(stack->scopes[i].vars);
+    }
+    free(stack->scopes);
+    free(stack);
+}
+
+static void scope_stack_push(ScopeStack *stack) {
+    if (stack->count >= stack->capacity) {
+        stack->capacity *= 2;
+        stack->scopes = realloc(stack->scopes, sizeof(Scope) * stack->capacity);
+        if (!stack->scopes) {
+            fprintf(stderr, "Error: Out of memory growing ScopeStack\n");
+            exit(1);
+        }
+    }
+    Scope *scope = &stack->scopes[stack->count++];
+    scope->capacity = 16;
+    scope->count = 0;
+    scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
+    if (!scope->vars) {
+        fprintf(stderr, "Error: Out of memory allocating Scope vars\n");
+        exit(1);
+    }
+}
+
+static void scope_add_var(ScopeStack *stack, const char *name, Type type, const char *type_name, Environment *env) {
+    if (stack->count == 0) return;  /* No scope active */
+
+    /* Check if this type needs gc_release
+     * NOTE: We do NOT release TYPE_STRING here because:
+     * 1. String literals (const char*) should never be released
+     * 2. GC-allocated strings are managed by the GC's ref counting
+     * 3. Releasing strings at scope end would break returns and cause double-frees
+     *
+     * For opaque types: gc_release() safely handles both:
+     * - Wrapped (owned) refs: Released normally
+     * - Borrowed refs: gc_release() checks gc_is_managed() and returns early
+     */
+    bool needs_cleanup = false;
+    if (type == TYPE_OPAQUE || type == TYPE_HASHMAP) {
+        needs_cleanup = true;
+    }
+    /* Opaque types are represented as TYPE_STRUCT - check if this struct is opaque */
+    else if (type == TYPE_STRUCT && type_name && env) {
+        OpaqueTypeDef *opaque = env_get_opaque_type(env, type_name);
+        if (opaque) {
+            needs_cleanup = true;
+        }
+    }
+
+    if (!needs_cleanup) return;  /* Don't track variables that don't need cleanup */
+
+    Scope *scope = &stack->scopes[stack->count - 1];
+    if (scope->count >= scope->capacity) {
+        scope->capacity *= 2;
+        scope->vars = realloc(scope->vars, sizeof(ScopeVar) * scope->capacity);
+        if (!scope->vars) {
+            fprintf(stderr, "Error: Out of memory growing Scope vars\n");
+            exit(1);
+        }
+    }
+
+    ScopeVar *var = &scope->vars[scope->count++];
+    var->name = strdup(name);
+    if (!var->name) {
+        fprintf(stderr, "Error: Out of memory duplicating variable name\n");
+        exit(1);
+    }
+    var->type = type;
+    var->needs_gc_release = true;
+}
+
+static void scope_emit_cleanup(ScopeStack *stack, WorkList *list, int indent) {
+    if (stack->count == 0) return;
+
+    Scope *scope = &stack->scopes[stack->count - 1];
+    /* Emit cleanup in reverse order (LIFO) */
+    for (int i = scope->count - 1; i >= 0; i--) {
+        if (scope->vars[i].needs_gc_release) {
+            emit_indent_item(list, indent);
+            emit_formatted(list, "gc_release(%s);\n", scope->vars[i].name);
+        }
+    }
+}
+
+static void scope_stack_pop(ScopeStack *stack) {
+    if (stack->count == 0) return;
+
+    Scope *scope = &stack->scopes[--stack->count];
+    for (int i = 0; i < scope->count; i++) {
+        free(scope->vars[i].name);
+    }
+    free(scope->vars);
 }
 
 /* ============================================================================
@@ -322,6 +494,14 @@ static const char *map_function_name(const char *name, Environment *env) {
     /* Handle legacy module-qualified names with dot notation */
     const char *dot = strchr(name, '.');
     if (dot) {
+        /* Try module-qualified lookup first to preserve module scoping */
+        Function *qualified_func = env_get_function(env, name);
+        if (qualified_func) {
+            const char *resolved_name = qualified_func->alias_of ? qualified_func->alias_of : qualified_func->name;
+            extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
+            return get_c_func_name_with_module(resolved_name, qualified_func->module_name, qualified_func->is_extern);
+        }
+        /* Fallback: treat as unqualified for builtins/mappings */
         name = dot + 1;
     }
     
@@ -337,8 +517,9 @@ static const char *map_function_name(const char *name, Environment *env) {
     
     if (func) {
         /* Use get_c_func_name_with_module for namespace mangling */
+        const char *resolved_name = func->alias_of ? func->alias_of : func->name;
         extern const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern);
-        return get_c_func_name_with_module(name, func->module_name, func->is_extern);
+        return get_c_func_name_with_module(resolved_name, func->module_name, func->is_extern);
     }
     
     return name;
@@ -385,13 +566,178 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 }
 
 /* ============================================================================
+ * HELPER: Serialize expression AST to human-readable string (for error messages)
+ * Uses static buffer - NOT thread-safe, but sufficient for single-threaded compiler
+ * ============================================================================ */
+
+static char g_expr_buf[1024];
+static int g_expr_pos;
+
+static void expr_buf_reset(void) { g_expr_pos = 0; g_expr_buf[0] = '\0'; }
+static void expr_buf_append(const char *s) {
+    int len = strlen(s);
+    if (g_expr_pos + len < (int)sizeof(g_expr_buf) - 1) {
+        strcpy(g_expr_buf + g_expr_pos, s);
+        g_expr_pos += len;
+    }
+}
+static void expr_buf_appendf(const char *fmt, ...) {
+    char tmp[256];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(tmp, sizeof(tmp), fmt, args);
+    va_end(args);
+    expr_buf_append(tmp);
+}
+
+static void expr_to_string_impl(ASTNode *expr) {
+    if (!expr) return;
+    
+    switch (expr->type) {
+        case AST_NUMBER:
+            expr_buf_appendf("%lld", expr->as.number);
+            break;
+        case AST_FLOAT:
+            expr_buf_appendf("%g", expr->as.float_val);
+            break;
+        case AST_STRING:
+            expr_buf_appendf("\\\"%s\\\"", expr->as.string_val ? expr->as.string_val : "");
+            break;
+        case AST_BOOL:
+            expr_buf_append(expr->as.bool_val ? "true" : "false");
+            break;
+        case AST_IDENTIFIER:
+            expr_buf_append(expr->as.identifier ? expr->as.identifier : "?");
+            break;
+        case AST_PREFIX_OP: {
+            expr_buf_append("(");
+            /* Map token type to operator string */
+            const char *op = "?";
+            switch (expr->as.prefix_op.op) {
+                case TOKEN_PLUS: op = "+"; break;
+                case TOKEN_MINUS: op = "-"; break;
+                case TOKEN_STAR: op = "*"; break;
+                case TOKEN_SLASH: op = "/"; break;
+                case TOKEN_PERCENT: op = "%"; break;
+                case TOKEN_EQ: op = "=="; break;
+                case TOKEN_NE: op = "!="; break;
+                case TOKEN_LT: op = "<"; break;
+                case TOKEN_LE: op = "<="; break;
+                case TOKEN_GT: op = ">"; break;
+                case TOKEN_GE: op = ">="; break;
+                case TOKEN_AND: op = "and"; break;
+                case TOKEN_OR: op = "or"; break;
+                case TOKEN_NOT: op = "not"; break;
+                default: break;
+            }
+            expr_buf_append(op);
+            for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
+                expr_buf_append(" ");
+                expr_to_string_impl(expr->as.prefix_op.args[i]);
+            }
+            expr_buf_append(")");
+            break;
+        }
+        case AST_CALL:
+            expr_buf_append("(");
+            expr_buf_append(expr->as.call.name ? expr->as.call.name : "?");
+            for (int i = 0; i < expr->as.call.arg_count; i++) {
+                expr_buf_append(" ");
+                expr_to_string_impl(expr->as.call.args[i]);
+            }
+            expr_buf_append(")");
+            break;
+        default:
+            expr_buf_append("...");
+            break;
+    }
+}
+
+/* Returns pointer to static buffer - do not free */
+static const char *expr_to_string(ASTNode *expr) {
+    expr_buf_reset();
+    expr_to_string_impl(expr);
+    return g_expr_buf;
+}
+
+/* ============================================================================
+ * HELPER: Try to evaluate condition at compile time (for contract elision)
+ * Returns: 1 = always true, 0 = always false, -1 = cannot determine
+ * ============================================================================ */
+
+static int try_eval_bool_const(ASTNode *expr) {
+    if (!expr) return -1;
+    
+    switch (expr->type) {
+        case AST_BOOL:
+            return expr->as.bool_val ? 1 : 0;
+            
+        case AST_NUMBER:
+            /* Numbers are truthy if non-zero */
+            return expr->as.number != 0 ? 1 : 0;
+            
+        case AST_PREFIX_OP: {
+            /* Handle simple comparison operators with constant operands */
+            if (expr->as.prefix_op.arg_count == 2) {
+                ASTNode *left = expr->as.prefix_op.args[0];
+                ASTNode *right = expr->as.prefix_op.args[1];
+                
+                /* Both must be constant numbers */
+                if (left->type != AST_NUMBER || right->type != AST_NUMBER)
+                    return -1;
+                    
+                long long l = left->as.number;
+                long long r = right->as.number;
+                
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_EQ: return (l == r) ? 1 : 0;
+                    case TOKEN_NE: return (l != r) ? 1 : 0;
+                    case TOKEN_LT: return (l < r) ? 1 : 0;
+                    case TOKEN_LE: return (l <= r) ? 1 : 0;
+                    case TOKEN_GT: return (l > r) ? 1 : 0;
+                    case TOKEN_GE: return (l >= r) ? 1 : 0;
+                    default: break;
+                }
+            }
+            
+            /* Handle 'not' with constant operand */
+            if (expr->as.prefix_op.op == TOKEN_NOT && expr->as.prefix_op.arg_count == 1) {
+                int inner = try_eval_bool_const(expr->as.prefix_op.args[0]);
+                if (inner >= 0) return inner ? 0 : 1;
+            }
+            
+            /* Handle 'and' / 'or' with constant operands */
+            if (expr->as.prefix_op.arg_count == 2) {
+                int left_val = try_eval_bool_const(expr->as.prefix_op.args[0]);
+                int right_val = try_eval_bool_const(expr->as.prefix_op.args[1]);
+                
+                if (expr->as.prefix_op.op == TOKEN_AND) {
+                    if (left_val == 0 || right_val == 0) return 0;  /* false and x = false */
+                    if (left_val == 1 && right_val == 1) return 1;  /* true and true = true */
+                }
+                if (expr->as.prefix_op.op == TOKEN_OR) {
+                    if (left_val == 1 || right_val == 1) return 1;  /* true or x = true */
+                    if (left_val == 0 && right_val == 0) return 0;  /* false or false = false */
+                }
+            }
+            break;
+        }
+        
+        default:
+            break;
+    }
+    
+    return -1;  /* Cannot determine */
+}
+
+/* ============================================================================
  * PASS 1: BUILD WORK ITEMS (Expression Transpiler)
  * Traverses AST and appends work items in correct output order
  * ============================================================================ */
 
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
-static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env, 
+static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
 
 static bool is_generic_list_runtime_fn(const char *name) {
@@ -954,6 +1300,115 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, expr->as.call.args[1], env);
                 emit_literal(list, "; (_r.tag == 0) ? _f(_r.data.Ok.value) : _r; })");
+            }
+
+            /* HashMap<K,V> core built-ins (only if no user-defined function exists) */
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_new") == 0 && expr->as.call.arg_count == 0) {
+                const char *mono = expr->as.call.return_struct_type_name;
+                if (!mono) {
+                    emit_literal(list, "({ assert(false && \"map_new requires HashMap<K,V> type context\"); (void*)0; })");
+                } else {
+                    const char *suffix = mono;
+                    if (strncmp(mono, "HashMap_", 8) == 0) suffix = mono + 8;
+                    emit_formatted(list, "nl_hashmap_%s_new()", suffix);
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_put") == 0 || strcmp(func_name, "map_set") == 0) &&
+                     expr->as.call.arg_count == 3) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_put\"); (void)0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_put(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[2], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_get") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_get\"); 0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_get(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_has") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_has\"); false; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_has(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL && strcmp(func_name, "map_remove") == 0 && expr->as.call.arg_count == 2) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_remove\"); (void)0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_remove(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.call.args[1], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_length") == 0 || strcmp(func_name, "map_size") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_length\"); 0; })");
+                } else {
+                    emit_formatted(list, "nl_hashmap_%s_length(", suffix);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_clear") == 0 || strcmp(func_name, "map_free") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_clear\"); (void)0; })");
+                } else {
+                    const char *op = (strcmp(func_name, "map_free") == 0) ? "free" : "clear";
+                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
+            }
+            else if (env_get_function(env, func_name) == NULL &&
+                     (strcmp(func_name, "map_keys") == 0 || strcmp(func_name, "map_values") == 0) &&
+                     expr->as.call.arg_count == 1) {
+                char buf[256];
+                const char *suffix = hashmap_suffix_from_expr(expr->as.call.args[0], env, buf, sizeof(buf));
+                if (!suffix) {
+                    emit_literal(list, "({ assert(false && \"cannot infer HashMap<K,V> for map_keys\"); (DynArray*)0; })");
+                } else {
+                    const char *op = (strcmp(func_name, "map_values") == 0) ? "values" : "keys";
+                    emit_formatted(list, "nl_hashmap_%s_%s(", suffix, op);
+                    build_expr(list, expr->as.call.args[0], env);
+                    emit_literal(list, ")");
+                }
             }
 
             /* Special handling for filter() - compiled lowering */
@@ -1581,14 +2036,75 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     mapped_name = buf;
                 }
                 mapped_name = map_function_name(mapped_name, env);
-                
+
+                /* ARC: Check if function returns opaque type requiring manual free
+                 * Be very defensive - only apply to extern functions we can safely lookup */
+                bool needs_wrapping = false;
+                bool needs_unwrap_check = false;
+                Function *func_info = NULL;
+
+                /* Only attempt lookup if we have a valid function name and environment
+                 * Skip for built-in/special functions that might not be in env */
+                if (func_name && env &&
+                    strcmp(func_name, "println") != 0 &&
+                    strcmp(func_name, "print") != 0 &&
+                    !is_generic_list_runtime_fn(func_name)) {
+
+                    func_info = env_get_function(env, func_name);
+
+                    /* Only wrap extern functions with explicit cleanup that aren't borrowed refs */
+                    if (func_info && func_info->is_extern && func_info->requires_manual_free && !func_info->returns_borrowed) {
+                        if (func_info->cleanup_function && func_info->cleanup_function[0] != '\0') {
+                            needs_wrapping = true;
+                            needs_unwrap_check = true;
+                        }
+                    }
+                }
+
+                /* If wrapping needed, emit gc_wrap_external( */
+                if (needs_wrapping) {
+                    emit_literal(list, "gc_wrap_external(");
+                }
+
                 emit_literal(list, mapped_name);
                 emit_literal(list, "(");
+
+                /* Emit arguments - unwrap if opaque type */
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     if (i > 0) emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[i], env);
+
+                    /* ARC: Check if parameter is opaque type that needs unwrapping */
+                    bool needs_unwrap = false;
+                    if (needs_unwrap_check && func_info && i < func_info->param_count && env) {
+                        Type param_type = func_info->params[i].type;
+                        /* Check if it's an opaque type */
+                        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
+                            OpaqueTypeDef *opaque = env_get_opaque_type(env, func_info->params[i].struct_type_name);
+                            if (opaque) {
+                                needs_unwrap = true;
+                            }
+                        } else if (param_type == TYPE_OPAQUE) {
+                            needs_unwrap = true;
+                        }
+                    }
+
+                    if (needs_unwrap) {
+                        emit_literal(list, "gc_unwrap(");
+                        build_expr(list, expr->as.call.args[i], env);
+                        emit_literal(list, ")");
+                    } else {
+                        build_expr(list, expr->as.call.args[i], env);
+                    }
                 }
+
                 emit_literal(list, ")");
+
+                /* If wrapping needed, close gc_wrap_external with finalizer */
+                if (needs_wrapping) {
+                    emit_literal(list, ", ");
+                    emit_literal(list, func_info->cleanup_function);
+                    emit_literal(list, ")");
+                }
             }
             break;
         }
@@ -2165,17 +2681,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
  * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
  * ============================================================================ */
 
-static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *env,
+static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
-    
+
     switch (stmt->type) {
         case AST_BLOCK:
             emit_indent_item(list, indent);
             emit_literal(list, "{\n");
+
+            /* Push new scope for this block */
+            scope_stack_push(scopes);
+
             for (int i = 0; i < stmt->as.block.count; i++) {
-                build_stmt(list, stmt->as.block.statements[i], indent + 1, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.block.statements[i], indent + 1, env, fn_registry);
             }
+
+            /* Emit cleanup for variables in this scope */
+            scope_emit_cleanup(scopes, list, indent + 1);
+
+            /* Pop scope */
+            scope_stack_pop(scopes);
+
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
@@ -2185,7 +2712,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_indent_item(list, indent);
             emit_literal(list, "/* unsafe */ {\n");
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
-                build_stmt(list, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
             }
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
@@ -2281,7 +2808,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 if (arm_body) {
                     if (arm_body->type == AST_BLOCK) {
                         for (int j = 0; j < arm_body->as.block.count; j++) {
-                            build_stmt(list, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                            build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
                         }
                     } else {
                         emit_indent_item(list, indent + 3);
@@ -2351,6 +2878,22 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Handle List<T> (generic lists) */
             else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
                 emit_formatted(list, "List_%s* %s", stmt->as.let.type_name, stmt->as.let.name);
+                if (stmt->as.let.value) {
+                    emit_literal(list, " = ");
+                    build_expr(list, stmt->as.let.value, env);
+                }
+                emit_literal(list, ";\n");
+            }
+            /* Handle HashMap<K,V> */
+            else if (stmt->as.let.var_type == TYPE_HASHMAP && stmt->as.let.type_info &&
+                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count == 2) {
+                char monomorphized_name[256];
+                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
+                                                                stmt->as.let.type_info)) {
+                    snprintf(monomorphized_name, sizeof(monomorphized_name), "HashMap");
+                }
+
+                emit_formatted(list, "%s* %s", monomorphized_name, stmt->as.let.name);
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);
@@ -2516,9 +3059,12 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             /* Register in environment */
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
                                          stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
-            
+
+            /* Track variable for GC cleanup if needed */
+            scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);
+
             /* For array<struct>, set struct_type_name so array_push can find it */
-            if (stmt->as.let.var_type == TYPE_ARRAY && 
+            if (stmt->as.let.var_type == TYPE_ARRAY &&
                 stmt->as.let.element_type == TYPE_STRUCT &&
                 stmt->as.let.type_name) {
                 Symbol *sym = env_get_var(env, stmt->as.let.name);
@@ -2575,7 +3121,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "while (");
             build_expr(list, stmt->as.while_stmt.condition, env);
             emit_literal(list, ") ");
-            build_stmt(list, stmt->as.while_stmt.body, indent, env, fn_registry);
+            build_stmt(list, scopes, stmt->as.while_stmt.body, indent, env, fn_registry);
             break;
             
         case AST_FOR: {
@@ -2602,7 +3148,7 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
                 emit_literal(list, "; ");
                 emit_literal(list, var);
                 emit_literal(list, "++) ");
-                build_stmt(list, stmt->as.for_stmt.body, indent, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.for_stmt.body, indent, env, fn_registry);
             } else {
                 /* Fallback for non-range for loops */
                 emit_indent_item(list, indent);
@@ -2616,11 +3162,11 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             emit_literal(list, "if (");
             build_expr(list, stmt->as.if_stmt.condition, env);
             emit_literal(list, ") ");
-            build_stmt(list, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
+            build_stmt(list, scopes, stmt->as.if_stmt.then_branch, indent, env, fn_registry);
             if (stmt->as.if_stmt.else_branch) {
                 emit_indent_item(list, indent);
                 emit_literal(list, "else ");
-                build_stmt(list, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
+                build_stmt(list, scopes, stmt->as.if_stmt.else_branch, indent, env, fn_registry);
             }
             break;
 
@@ -2678,6 +3224,42 @@ static void build_stmt(WorkList *list, ASTNode *stmt, int indent, Environment *e
             break;
         }
             
+        case AST_ASSERT: {
+            /* Try to evaluate condition at compile time */
+            int const_result = try_eval_bool_const(stmt->as.assert.condition);
+            
+            if (const_result == 1) {
+                /* Condition is provably true - elide the check (emit comment) */
+                emit_indent_item(list, indent);
+                emit_formatted(list, "/* contract at line %d: always true, elided */\n", stmt->line);
+                break;
+            }
+            
+            if (const_result == 0) {
+                /* Condition is provably false - emit warning and unconditional failure */
+                fprintf(stderr, "Warning at line %d: contract condition is always false\n", stmt->line);
+                emit_indent_item(list, indent);
+                const char *cond_str = expr_to_string(stmt->as.assert.condition);
+                emit_formatted(list, "{ fprintf(stderr, \"Contract violation at line %d: %s (always false)\\n\"); exit(1); }\n",
+                              stmt->line, cond_str);
+                break;
+            }
+            
+            /* Generate runtime assertion check with informative error message */
+            emit_indent_item(list, indent);
+            emit_formatted(list, "if (!(");
+            build_expr(list, stmt->as.assert.condition, env);
+            emit_literal(list, ")) { ");
+            
+            /* Generate descriptive error message showing the condition */
+            const char *cond_str = expr_to_string(stmt->as.assert.condition);
+            emit_formatted(list, "fprintf(stderr, \"Contract violation at line %d: %s\\n\"); ",
+                          stmt->line, cond_str);
+            
+            emit_literal(list, "exit(1); }\n");
+            break;
+        }
+            
         default:
             /* Expression statement */
             emit_indent_item(list, indent);
@@ -2700,13 +3282,18 @@ static void process_worklist(StringBuilder *sb, WorkList *list) {
             case WORK_LITERAL:
                 sb_append(sb, item->data.literal);
                 break;
-                
+
             case WORK_FORMATTED:
                 sb_append(sb, item->data.formatted);
                 break;
-                
+
             case WORK_INDENT:
                 emit_indent(sb, item->data.indent_level);
+                break;
+
+            case WORK_GC_RELEASE:
+                /* Generate gc_release() call for variable */
+                sb_appendf(sb, "gc_release(%s);", item->data.var_name);
                 break;
         }
     }
@@ -2733,14 +3320,20 @@ void transpile_expression_iterative(StringBuilder *sb, ASTNode *expr, Environmen
 void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
                                   Environment *env, FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
-    
-    /* Pass 1: Build work items */
+
+    /* Pass 1: Build work items with scope tracking */
     WorkList *list = worklist_create(5000);
-    build_stmt(list, stmt, indent, env, fn_registry);
-    
+    ScopeStack *scopes = scope_stack_create();
+
+    /* Function body is already a scope, but we track variables in it */
+    scope_stack_push(scopes);
+    build_stmt(list, scopes, stmt, indent, env, fn_registry);
+    scope_stack_pop(scopes);
+
     /* Pass 2: Process and output */
     process_worklist(sb, list);
-    
+
     /* Cleanup */
     worklist_free(list);
+    scope_stack_free(scopes);
 }

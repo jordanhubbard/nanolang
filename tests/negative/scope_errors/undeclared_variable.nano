@@ -1,0 +1,18 @@
+# Expected error: Undefined variable
+# Using variable before declaration
+
+fn use_undeclared() -> int {
+    return x  # Error: x is not declared
+}
+
+shadow use_undeclared {
+    assert (== (use_undeclared) 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

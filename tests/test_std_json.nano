@@ -3,7 +3,7 @@ from "modules/std/json/json.nano" import Json, parse, free, object_has, get, get
 fn contains_str(xs: array<string>, target: string) -> bool {
     let mut i: int = 0
     while (< i (array_length xs)) {
-        if (str_equals (at xs i) target) {
+        if (== (at xs i) target) {
             return true
         }
         set i (+ i 1)
@@ -44,7 +44,7 @@ shadow json_basic {
 
     let b: Json = (get j "b")
     assert (!= b 0)
-    assert (str_equals (as_string b) "hi")
+    assert (== (as_string b) "hi")
     (free b)
 
     let ks: array<string> = (keys j)
@@ -71,8 +71,8 @@ shadow get_int {
 
 shadow get_string {
     let j: Json = (parse "{\"b\": \"hi\"}")
-    assert (str_equals (get_string j "b") "hi")
-    assert (str_equals (get_string j "missing") "")
+    assert (== (get_string j "b") "hi")
+    assert (== (get_string j "missing") "")
     (free j)
 }
 

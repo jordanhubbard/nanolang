@@ -2,6 +2,8 @@
 
 This guide teaches NanoLang in the canonical style (prefix notation, explicit types, and shadow tests).
 
+> **For comprehensive coverage** of installation, setup, and your first program, see [Chapter 1: Getting Started](part1_fundamentals/01_getting_started.md).
+
 ## Hello world
 
 <!--nl-snippet {"name":"ug_getting_started_hello","check":true,"expect_stdout":"Hello, NanoLang!\n"}-->
@@ -11,7 +13,7 @@ fn hello_message() -> string {
 }
 
 shadow hello_message {
-    assert (str_equals (hello_message) "Hello, NanoLang!")
+    assert (== (hello_message) "Hello, NanoLang!")
 }
 
 fn main() -> int {

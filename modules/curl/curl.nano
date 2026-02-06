@@ -28,6 +28,50 @@ extern fn nl_curl_easy_init() -> int
 extern fn nl_curl_easy_cleanup(_handle: int) -> void
 
 # ============================================================================
+# Safe wrappers (exported)
+# ============================================================================
+
+pub fn curl_global_init_safe() -> int {
+    unsafe {
+        return (nl_curl_global_init)
+    }
+}
+
+shadow curl_global_init_safe {
+    let code: int = (curl_global_init_safe)
+    assert (>= code -1)
+}
+
+pub fn curl_global_cleanup_safe() -> void {
+    unsafe {
+        (nl_curl_global_cleanup)
+    }
+    return
+}
+
+shadow curl_global_cleanup_safe { assert true }
+
+pub fn curl_easy_init_safe() -> int {
+    unsafe {
+        return (nl_curl_easy_init)
+    }
+}
+
+shadow curl_easy_init_safe {
+    let handle: int = (curl_easy_init_safe)
+    assert (>= handle 0)
+}
+
+pub fn curl_easy_cleanup_safe(handle: int) -> void {
+    unsafe {
+        (nl_curl_easy_cleanup handle)
+    }
+    return
+}
+
+shadow curl_easy_cleanup_safe { assert true }
+
+# ============================================================================
 # Simple HTTP functions (recommended for most use cases)
 # ============================================================================
 

@@ -102,6 +102,16 @@ def find_broken_links_in_file(repo_root: Path, md_path: Path) -> list[BrokenLink
             abs_target = (md_path.parent / target).resolve()
 
         if not abs_target.exists():
+            # If linking to .html, check if corresponding .md exists
+            # (navigation links point to .html for deployed site)
+            if target.endswith('.html'):
+                md_target = target[:-5] + '.md'
+                if target.startswith("/"):
+                    md_abs_target = (repo_root / md_target.lstrip("/")).resolve()
+                else:
+                    md_abs_target = (md_path.parent / md_target).resolve()
+                if md_abs_target.exists():
+                    continue  # .md file exists, .html will be generated
             broken.append(BrokenLink(str(rel_md_path), target))
 
     return broken

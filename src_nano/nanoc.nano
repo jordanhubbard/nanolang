@@ -63,7 +63,7 @@ fn main() -> int {
             let arg2: string = (get_argv 2)
             
             /* Check if arg2 is "-o" flag */
-            if (str_equals arg2 "-o") {
+            if (== arg2 "-o") {
                 /* nanoc input.nano -o output */
                 if (< argc 4) {
                     (println "Error: -o flag requires output filename")

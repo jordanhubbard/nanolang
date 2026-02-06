@@ -30,6 +30,105 @@ function arg1 arg2    # Haskell-style - DOES NOT EXIST
 
 ---
 
+## Parentheses: Function Calls vs Tuples vs Grouping
+
+NanoLang uses parentheses for three purposes. The parser disambiguates based on what follows the opening `(`:
+
+### The Rule: Commas Make Tuples, Spaces Make Calls
+
+| Pattern | Meaning |
+|---------|---------|
+| `(a, b, c)` | **Tuple literal** - comma-separated |
+| `(fn a b c)` | **Function call** - space-separated |
+| `(expr)` | **Grouping** - single expression, no comma |
+| `()` | **Empty tuple** |
+| `(fn)` | **Zero-arg call** - identifier alone = call |
+
+### Examples
+
+```nano
+# Function calls - arguments separated by SPACES
+(add 1 2)              # Call add with args 1 and 2
+(println "Hello")      # Call println with one arg
+(process x y z)        # Call process with three args
+
+# Tuples - elements separated by COMMAS
+(1, 2)                 # Tuple with two elements
+("a", "b", "c")        # Tuple with three strings
+(x, (y, z))            # Nested tuple
+
+# Grouping - single expression
+(+ 1 2)                # Just groups the prefix op (returns 3)
+
+# Mixed: function taking a tuple argument
+(fn_expects_tuple (1, 2))   # Call fn_expects_tuple with tuple arg
+```
+
+### Parsing `(arg (arg, arg) arg)`
+
+This parses as a **function call** because there are no commas at the top level:
+
+```nano
+(process a (x, y) b)
+#   │     │   │   └─ third argument: b
+#   │     │   └───── second argument: tuple (x, y)
+#   │     └───────── first argument: a
+#   └─────────────── function name: process
+```
+
+The nested `(x, y)` is a tuple because it contains a comma.
+
+### Type Annotations
+
+Tuple types also use comma separation:
+
+```nano
+let pair: (int, int) = (1, 2)           # Tuple type and literal
+let triple: (string, int, bool) = ("a", 1, true)
+
+fn returns_pair() -> (int, string) {
+    return (42, "answer")
+}
+```
+
+### Common Mistakes
+
+```nano
+# ❌ WRONG: This calls fn with args a, b (not a tuple)
+(fn a b)    # Function call with TWO arguments
+
+# ✅ RIGHT: To pass a single tuple argument:
+(fn (a, b)) # Function call with ONE tuple argument
+
+# ❌ WRONG: Forgetting commas creates a call, not a tuple
+let t = (1 2 3)  # ERROR: tries to call "1" as function!
+
+# ✅ RIGHT: Use commas for tuples
+let t = (1, 2, 3)  # Creates a tuple
+```
+
+---
+
+## Imports and Qualified Calls
+
+### ✅ Canonical: Module Alias + Qualified Call
+```nano
+import "modules/std/json/json.nano" as json
+
+let value: string = (json.get_string obj "name")
+```
+
+### ✅ Canonical: Import Alias for a Specific Function
+```nano
+from "modules/std/json/json.nano" import parse as json_parse
+
+let data: Json = (json_parse payload)
+```
+
+**Rule:** Prefer module aliases and qualified calls to avoid global name collisions.
+
+---
+
 ## Conditionals
 
 ### For Expressions: Use `cond`
@@ -73,12 +172,25 @@ let greeting: string = (+ "Hello, " name)
 let full_path: string = (+ (+ base "/") filename)
 ```
 
-### ❌ Deprecated: `str_concat`
+### Alternative: `str_concat`
 ```nano
-(str_concat "Hello, " name)  # OLD WAY - still works but avoid
+(str_concat "Hello, " name)  # Equivalent to (+ "Hello, " name)
 ```
 
-**Rule:** Always use `(+ string1 string2)` for concatenation.
+**Note:** `(+ s1 s2)` is syntactic shorthand for `(str_concat s1 s2)`. Both work identically; prefer `+` for consistency with numeric operations.
+
+### ✅ Canonical: String `==`
+```nano
+if (== name "Alice") { (println "Hello Alice!") }
+let same: bool = (== str1 str2)
+```
+
+### ❌ Deprecated: `str_equals`
+```nano
+(str_equals name "Alice")  # OLD WAY - still works but avoid
+```
+
+**Rule:** Always use `(== string1 string2)` for comparison.
 
 ---
 
@@ -307,7 +419,7 @@ use module::function;           # Rust-style - DOES NOT EXIST
 
 1. **Function calls:** `(f x y)` - prefix notation only
 2. **Expressions:** `(cond ((test) result) (else default))`
-3. **Strings:** `(+ "a" "b")` - not `str_concat`
+3. **Strings:** `(+ "a" "b")` - preferred over `str_concat` for consistency
 4. **Math:** `(+ a b)` - prefix notation only
 5. **Logic:** `(and a b)` - prefix notation only
 6. **Variables:** `let name: type = value` and `set name value`
@@ -328,7 +440,6 @@ use module::function;           # Rust-style - DOES NOT EXIST
 **Compiler warnings (future):**
 ```bash
 ./bin/nanoc file.nano --strict-canonical
-# Warning: Using deprecated str_concat, prefer (+ string1 string2)
 # Warning: Using if/else for expression, prefer cond
 ```
 

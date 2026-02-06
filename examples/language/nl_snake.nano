@@ -80,15 +80,17 @@ fn print_grid(snake_x: array<int>, snake_y: array<int>, food_x: int, food_y: int
             if is_food {
                 (print "◉")
             } else {
-                # Check if this is snake (modernized loop)
+                # Check if this is snake
                 let mut is_snake: bool = false
                 let snake_len: int = (array_length snake_x)
-                for i in (range 0 snake_len) {
-                    if (and (== x (at snake_x i)) (== y (at snake_y i))) {
+                let mut idx: int = 0
+                while (< idx snake_len) {
+                    if (and (== x (at snake_x idx)) (== y (at snake_y idx))) {
                         set is_snake true
                     } else {
                         (print "")
                     }
+                    set idx (+ idx 1)
                 }
                 
                 if is_snake {
@@ -119,13 +121,15 @@ fn check_self_collision(snake_x: array<int>, snake_y: array<int>) -> bool {
         let head_x: int = (at snake_x 0)
         let head_y: int = (at snake_y 0)
         
-        # Check collision with body (modern for loop)
-        for i in (range 1 len) {
-            if (and (== head_x (at snake_x i)) (== head_y (at snake_y i))) {
+        # Check collision with body
+        let mut idx: int = 1
+        while (< idx len) {
+            if (and (== head_x (at snake_x idx)) (== head_y (at snake_y idx))) {
                 return true
             } else {
                 (print "")
             }
+            set idx (+ idx 1)
         }
         return false
     }

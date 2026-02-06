@@ -100,6 +100,7 @@ typedef enum {
     TYPE_LIST_STRING,
     TYPE_LIST_TOKEN,
     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+    TYPE_HASHMAP,      /* Generic HashMap<K,V> */
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
@@ -394,6 +395,7 @@ struct ASTNode {
             bool is_wildcard;       /* true for "from...import *" syntax */
             bool is_pub_use;        /* true for "pub use" (re-export) */
             char **import_symbols;  /* NULL or array of symbol names for selective import */
+            char **import_aliases;  /* NULL or array of alias names (aligned with import_symbols) */
             int import_symbol_count;/* Number of symbols in selective import */
         } import_stmt;
         /* Module declaration: module module_name */
@@ -467,6 +469,13 @@ typedef struct {
     bool is_extern;  /* Mark external C functions */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
+    char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
+
+    /* Memory semantics annotations (for module metadata and tooling) */
+    bool returns_gc_managed;     /* True if return value is GC-tracked (e.g., strings) */
+    bool requires_manual_free;   /* True if return value needs explicit free (e.g., opaque handles) */
+    bool returns_borrowed;       /* True if return is borrowed ref (e.g., Json.get) - don't wrap/free */
+    char *cleanup_function;      /* Name of cleanup function if requires_manual_free (e.g., "regex_free") */
 } Function;
 
 /* Struct definition entry */
@@ -613,6 +622,7 @@ typedef struct {
     bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
+    bool profile_gprof;        /* Enable gprof profiling analysis at exit */
 } Environment;
 
 /* Function declarations */
@@ -636,6 +646,7 @@ void free_ast(ASTNode *node);
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
+void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
 /* Shadow-Test Runner */
@@ -677,6 +688,7 @@ void env_add_module_exported_struct(Environment *env, const char *module_name, c
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
 void env_register_list_instantiation(Environment *env, const char *element_type);
+void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);
@@ -704,6 +716,7 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+void free_type_info(TypeInfo *info);
 
 /* Tuple helpers */
 Value create_tuple(Value *elements, int element_count);

@@ -5,9 +5,9 @@ from "modules/std/env.nano" import get, set_env, unset, args
 fn test_env() -> int {
     let k: string = "NANOLANG_TEST_ENV"
     assert (== (set_env k "test_value") 0)
-    assert (str_equals (get k) "test_value")
+    assert (== (get k) "test_value")
     assert (== (unset k) 0)
-    assert (str_equals (get k) "")
+    assert (== (get k) "")
     return 0
 }
 

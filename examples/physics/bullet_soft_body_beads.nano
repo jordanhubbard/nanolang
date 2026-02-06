@@ -1,9 +1,9 @@
 /*
  * Soft Body Beads Demo - Bullet Physics + SDL2
- * 
+ *
  * Mesmerizing physics simulation showing deformable beads continuously
  * falling through a plinko-style obstacle course.
- * 
+ *
  * Features:
  * - Real-time soft body physics (Bullet3)
  * - Continuous bead spawning
@@ -12,8 +12,9 @@
  * - Performance metrics
  */
 
-unsafe module "modules/sdl/sdl.nano as SDL" as SDL
-unsafe module "modules/bullet/bullet.nano as Bullet" as Bullet
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/bullet/bullet.nano"
 
 /* Constants */
 let WINDOW_WIDTH: int = 1200
@@ -68,7 +69,7 @@ fn project_y(y: float) -> int {
 shadow project_y { assert true }
 
 /* Draw a filled circle (soft body node) */
-fn draw_filled_circle(renderer: SDL.SDL_Renderer, cx: int, cy: int, radius: int) -> int {
+fn draw_filled_circle(renderer: SDL_Renderer, cx: int, cy: int, radius: int) -> int {
     let mut y: int = (- 0 radius)
     while (<= y radius) {
         let mut x: int = (- 0 radius)
@@ -76,7 +77,7 @@ fn draw_filled_circle(renderer: SDL.SDL_Renderer, cx: int, cy: int, radius: int)
             let dist_sq: int = (+ (* x x) (* y y))
             let radius_sq: int = (* radius radius)
             if (<= dist_sq radius_sq) {
-                (SDL.SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
+                (SDL_RenderDrawPoint renderer (+ cx x) (+ cy y))
             }
             set x (+ x 1)
         }
@@ -85,19 +86,23 @@ fn draw_filled_circle(renderer: SDL.SDL_Renderer, cx: int, cy: int, radius: int)
     return 0
 }
 
-/* Draw a rotated rectangle */
-fn draw_rotated_box(
-    renderer: SDL.SDL_Renderer,
+/* Draw a filled rectangle */
+fn draw_filled_box(
+    renderer: SDL_Renderer,
     cx: int, cy: int,
-    width: int, height: int,
-    angle: float
+    width: int, height: int
 ) -> int {
     /* Simple filled rect for now - rotation handled by physics */
     let x1: int = (- cx (/ width 2))
     let y1: int = (- cy (/ height 2))
-    let rect: SDL.SDL_Rect = SDL.SDL_Rect { x: x1, y: y1, w: width, h: height }
-    (SDL.SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-    (SDL.SDL_RenderFillRect renderer rect)
+
+    /* Draw filled rectangle using lines */
+    (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
+    let mut dy: int = 0
+    while (< dy height) {
+        (SDL_RenderDrawLine renderer x1 (+ y1 dy) (+ x1 width) (+ y1 dy))
+        set dy (+ dy 1)
+    }
     return 0
 }
 
@@ -109,135 +114,104 @@ fn main() -> int {
     (println "Watch deformable beads fall through rotating obstacles!")
     (println "Press ESC to exit")
     (println "")
-    
+
     /* Initialize SDL */
-    let sdl_init: int = 0
-    set sdl_init (SDL.nl_sdl_init)
-    if (!= sdl_init 0) {
-        (println "Error: Failed to initialize SDL")
-        return 1
-    }
-    
+    (SDL_Init SDL_INIT_VIDEO)
+
     /* Create window and renderer */
-    let window: int = 0
-    let renderer: int = 0
-    set window (SDL.nl_sdl_create_window 
-        "Soft Body Beads - Bullet Physics" 
-        WINDOW_WIDTH WINDOW_HEIGHT)
-    if (== window 0) {
-        (println "Error: Failed to create window")
-        (SDL.nl_sdl_quit) 
-        return 1
-    }
-    
-    set renderer (SDL.nl_sdl_create_renderer window)
-    if (== renderer 0) {
-        (println "Error: Failed to create renderer")
-        (SDL.nl_sdl_destroy_window window)
-        (SDL.nl_sdl_quit)
-        return 1
-    }
-    
+    let window: SDL_Window = (SDL_CreateWindow
+        "Soft Body Beads - Bullet Physics"
+        SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
+        WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
+
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1
+        (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+
     /* Initialize Bullet Physics */
-    let bullet_init: int = 0
-    set bullet_init (Bullet.nl_bullet_init)
+    let bullet_init: int = (nl_bullet_init)
     if (== bullet_init 0) {
         (println "Error: Failed to initialize Bullet Physics")
-        (SDL.nl_sdl_destroy_renderer renderer)
-        (SDL.nl_sdl_destroy_window window)
-        (SDL.nl_sdl_quit)
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
         return 1
     }
-    
+
     (println "Physics world initialized!")
-    
+
     /* Create obstacle course - plinko style */
-    let mut obstacle_handles: array<int> = (array_new)
-    
+    let mut obstacle_handles: array<int> = (array_new 0 0)
+
     /* Ground */
-    let ground: int = (Bullet.nl_bullet_create_rigid_box 
+    let ground: int = (nl_bullet_create_rigid_box
         0.0 (- 0.0 50.0) 0.0 100.0 1.0 50.0 0.0 0.3)
     set obstacle_handles (array_push obstacle_handles ground)
-    
+
     /* Rotating obstacles in plinko pattern */
     let obstacle_y: float = 30.0
     let mut row: int = 0
     while (< row 6) {
-        let row_y: float = (- obstacle_y (* (int_to_float row) 12.0))
-        let offset: float = 0.0
+        let row_y: float = (- obstacle_y (* (cast_float row) 12.0))
+        let mut offset: float = 0.0
         if (== (% row 2) 0) {
             set offset 0.0
         } else {
             set offset 8.0
         }
-        
+
         let mut col: int = 0
         while (< col 5) {
-            let x: float = (+ (- 0.0 32.0) (+ (* (int_to_float col) 16.0) offset))
-            let angle: float = (+ 20.0 (* (int_to_float (% (+ row col) 3)) 10.0))
-            
-            let obs: int = (Bullet.nl_bullet_create_rigid_box_rotated 
+            let x: float = (+ (- 0.0 32.0) (+ (* (cast_float col) 16.0) offset))
+            let angle: float = (+ 20.0 (* (cast_float (% (+ row col) 3)) 10.0))
+
+            let obs: int = (nl_bullet_create_rigid_box_rotated
                 x row_y 0.0 6.0 0.8 1.0 angle 0.0 0.4)
             set obstacle_handles (array_push obstacle_handles obs)
             set col (+ col 1)
         }
         set row (+ row 1)
     }
-    
+
     (print "Created ")
     (print (array_length obstacle_handles))
     (println " obstacles")
-    
+
     /* Bead tracking */
-    let mut beads: array<BeadState> = (array_new)
+    let mut beads: array<BeadState> = (array_new 0 0)
     let mut time_since_spawn: float = 0.0
     let mut total_time: float = 0.0
     let mut frame_count: int = 0
-    
+
     /* Main loop */
     let mut running: bool = true
     while running {
-        let frame_start: int = 0
-        set frame_start (SDL.nl_sdl_get_ticks)
-        
+        let mut frame_start: int = (SDL_GetTicks)
+
         /* Handle events */
-        let mut has_event: bool = true
-        while has_event {
-            let event_type: int = 0
-            set event_type (SDL.nl_sdl_poll_event)
-            
-            if (== event_type 0) {
-                set has_event false
-            } else {
-                if (== event_type 256) {  /* SDL_QUIT */
-                    set running false
-                }
-                if (== event_type 768) {  /* SDL_KEYDOWN */
-                    let key: int = 0
-                    set key (SDL.nl_sdl_get_key_code)
-                    if (== key 27) {  /* ESC */
-                        set running false
-                    }
-                }
-            }
+        if (== (nl_sdl_poll_event_quit) 1) {
+            set running false
         }
-        
+
+        (nl_sdl_poll_keypress)
+        if (== (nl_sdl_key_state 41) 1) {  /* ESC key */
+            set running false
+        }
+
         /* Step physics */
-        (Bullet.nl_bullet_step FRAME_TIME)
-        
+        (nl_bullet_step FRAME_TIME)
+
         set total_time (+ total_time FRAME_TIME)
         set time_since_spawn (+ time_since_spawn FRAME_TIME)
-        
+
         /* Spawn new bead */
         if (and (> time_since_spawn SPAWN_INTERVAL) (< (array_length beads) MAX_BEADS)) {
-            let spawn_x: float = (+ (- 0.0 8.0) (* (% frame_count 5) 4.0))
+            let spawn_x: float = (+ (- 0.0 8.0) (* (cast_float (% frame_count 5)) 4.0))
             let spawn_y: float = 45.0
             let spawn_z: float = 0.0
-            
-            let bead_handle: int = 0
-            set bead_handle (Bullet.nl_bullet_create_soft_sphere 
+
+            let mut bead_handle: int = (nl_bullet_create_soft_sphere
                 spawn_x spawn_y spawn_z BEAD_RADIUS BEAD_RESOLUTION)
-            
+
             if (!= bead_handle (- 0 1)) {
                 let new_bead: BeadState = BeadState {
                     handle: bead_handle,
@@ -248,96 +222,90 @@ fn main() -> int {
                 set time_since_spawn 0.0
             }
         }
-        
+
         /* Clear screen */
-        (SDL.nl_sdl_set_render_draw_color renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
-        (SDL.nl_sdl_render_clear renderer)
-        
+        (SDL_SetRenderDrawColor renderer COLOR_BG_R COLOR_BG_G COLOR_BG_B 255)
+        (SDL_RenderClear renderer)
+
         /* Draw obstacles */
-        (SDL.nl_sdl_set_render_draw_color renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-        
+        (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
+
         let mut i: int = 0
         while (< i (array_length obstacle_handles)) {
             let handle: int = (at obstacle_handles i)
-            let x: float = 0.0
-            let y: float = 0.0
-            set x (Bullet.nl_bullet_get_rigid_body_x handle)
-            set y (Bullet.nl_bullet_get_rigid_body_y handle)
-            
+            let mut x: float = (nl_bullet_get_rigid_body_x handle)
+            let mut y: float = (nl_bullet_get_rigid_body_y handle)
+
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
-            
+
             /* Draw as rectangles */
             if (== i 0) {
                 /* Ground - wide */
-                (draw_rotated_box renderer screen_x screen_y (* 100 (float_to_int CAMERA_SCALE)) 10 0.0)
+                (draw_filled_box renderer screen_x screen_y (* 100 (cast_int CAMERA_SCALE)) 10)
             } else {
                 /* Obstacle - thin bars */
-                (draw_rotated_box renderer screen_x screen_y 
-                    (* 12 (float_to_int CAMERA_SCALE)) 8 0.0)
+                (draw_filled_box renderer screen_x screen_y
+                    (* 12 (cast_int CAMERA_SCALE)) 8)
             }
-            
+
             set i (+ i 1)
         }
-        
+
         /* Draw soft body beads */
-        (SDL.nl_sdl_set_render_draw_color renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
-        
+        (SDL_SetRenderDrawColor renderer COLOR_BEAD_R COLOR_BEAD_G COLOR_BEAD_B 255)
+
         set i 0
         while (< i (array_length beads)) {
             let bead: BeadState = (at beads i)
             if bead.active {
                 let bead_handle: int = bead.handle
-                let node_count: int = 0
-                set node_count (Bullet.nl_bullet_get_soft_body_node_count bead_handle)
-                
+                let mut node_count: int = (nl_bullet_get_soft_body_node_count bead_handle)
+
                 /* Draw each node as a small circle */
                 let mut node_idx: int = 0
                 while (< node_idx node_count) {
-                    let x: float = 0.0
-                    let y: float = 0.0
-                    set x (Bullet.nl_bullet_get_soft_body_node_x bead_handle node_idx)
-                    set y (Bullet.nl_bullet_get_soft_body_node_y bead_handle node_idx)
-                    
+                    let mut x: float = (nl_bullet_get_soft_body_node_x bead_handle node_idx)
+                    let mut y: float = (nl_bullet_get_soft_body_node_y bead_handle node_idx)
+
                     let screen_x: int = (project_x x)
                     let screen_y: int = (project_y y)
-                    
+
                     /* Draw node */
                     (draw_filled_circle renderer screen_x screen_y 3)
-                    
+
                     set node_idx (+ node_idx 1)
                 }
             }
             set i (+ i 1)
         }
-        
+
         /* Present */
-        (SDL.nl_sdl_render_present renderer)
-        
+        (SDL_RenderPresent renderer)
+
         set frame_count (+ frame_count 1)
-        
+
         /* Frame rate limiting */
-        let frame_end: int = 0
-        set frame_end (SDL.nl_sdl_get_ticks)
+        let mut frame_end: int = (SDL_GetTicks)
         let frame_duration: int = (- frame_end frame_start)
         let target_frame_time: int = (/ 1000 TARGET_FPS)
         if (< frame_duration target_frame_time) {
             let delay: int = (- target_frame_time frame_duration)
-            (SDL.nl_sdl_delay delay)
+            (SDL_Delay delay)
         }
     }
-    
+
     /* Cleanup */
     (println "")
     (print "Simulated ")
     (print (array_length beads))
     (println " beads total")
-    
-    (Bullet.nl_bullet_cleanup)
-    (SDL.nl_sdl_destroy_renderer renderer)
-    (SDL.nl_sdl_destroy_window window)
-    (SDL.nl_sdl_quit)
-    
+
+    (nl_bullet_cleanup)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+
     (println "Demo complete!")
     return 0
 }
@@ -346,12 +314,11 @@ shadow draw_filled_circle {
     assert (== (draw_filled_circle 0 0 0 1) 0)
 }
 
-shadow draw_rotated_box {
-    assert (== (draw_rotated_box 0 0 0 10 10 0.0) 0)
+shadow draw_filled_box {
+    assert (== (draw_filled_box 0 0 0 10 10) 0)
 }
 
 shadow main {
     /* Main is interactive - tested by running */
     assert true
 }
-

@@ -238,28 +238,28 @@ shadow fibonacci {
 # Strategy 8: Organize Tests by Category
 # ==================================================================
 
-fn string_length(s: string) -> int {
+fn demo_string_length(s: string) -> int {
     return (str_length s)
 }
 
-shadow string_length {
+shadow demo_string_length {
     # Category: Empty strings
-    assert (== (string_length "") 0)
+    assert (== (demo_string_length "") 0)
     
     # Category: Single character
-    assert (== (string_length "a") 1)
-    assert (== (string_length "X") 1)
+    assert (== (demo_string_length "a") 1)
+    assert (== (demo_string_length "X") 1)
     
     # Category: Short strings
-    assert (== (string_length "hi") 2)
-    assert (== (string_length "cat") 3)
+    assert (== (demo_string_length "hi") 2)
+    assert (== (demo_string_length "cat") 3)
     
     # Category: Longer strings
-    assert (== (string_length "hello") 5)
-    assert (== (string_length "NanoLang") 8)
+    assert (== (demo_string_length "hello") 5)
+    assert (== (demo_string_length "NanoLang") 8)
     
     # Category: Special characters
-    assert (== (string_length "hello world!") 12)
+    assert (== (demo_string_length "hello world!") 12)
 }
 
 # ==================================================================

@@ -14,6 +14,7 @@
      - 3.4.3 [Union Types](#343-union-types)
      - 3.4.4 [Generic Types](#344-generic-types)
      - 3.4.5 [First-Class Function Types](#345-first-class-function-types)
+     - 3.4.6 [HashMap<K,V>](#346-hashmapkv)
 4. [Expressions](#expressions)
 5. [Statements](#statements)
 6. [Functions](#functions)
@@ -306,6 +307,64 @@ shadow get_operation {
 ```
 
 **Important:** Function types do not expose underlying C function pointers. They are treated as opaque values that can only be called.
+
+#### 3.4.6 HashMap<K,V>
+
+HashMap provides a generic hash table data structure with key-value mappings. Like List<T>, HashMap uses **monomorphization** - the compiler generates specialized HashMap_K_V implementations for each combination of key and value types used.
+
+**Supported Key Types:**
+- `int` - 64-bit integers
+- `string` - UTF-8 strings
+
+**Supported Value Types:**
+- `int` - 64-bit integers
+- `string` - UTF-8 strings
+
+**Declaration:**
+
+```nano
+let scores: HashMap<string, int> = (map_new)
+let counts: HashMap<int, int> = (map_new)
+```
+
+**Operations:**
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `map_new` | Create empty map | `(map_new)` |
+| `map_put` | Insert/update key-value | `(map_put hm "alice" 10)` |
+| `map_get` | Retrieve value by key | `(map_get hm "alice")` |
+| `map_has` | Check if key exists | `(map_has hm "alice")` |
+| `map_size` | Get number of entries | `(map_size hm)` |
+| `map_free` | Free map memory | `(map_free hm)` |
+
+**Example:**
+
+```nano
+fn count_words(text: string) -> HashMap<string, int> {
+    let counts: HashMap<string, int> = (map_new)
+    (map_put counts "hello" 1)
+    (map_put counts "world" 2)
+    return counts
+}
+
+shadow count_words {
+    let hm: HashMap<string, int> = (count_words "test")
+    assert (== (map_has hm "hello") true)
+    assert (== (map_get hm "hello") 1)
+    (map_free hm)
+}
+```
+
+**Implementation Notes:**
+
+HashMap is supported in **both** interpreter and compiled modes:
+- **Interpreter mode**: Uses a runtime implementation in eval.c
+- **Compiled mode**: Transpiler generates specialized `HashMap_K_V` code
+
+The transpiler creates monomorphized implementations like `HashMap_string_int` with all operations (new, put, get, has, size, free) specialized for the specific key-value types.
+
+**Performance:** Hash table operations are O(1) average case with automatic rehashing when the load factor exceeds 0.75.
 
 ## 4. Expressions
 
@@ -761,7 +820,7 @@ shadow main {
 
 ### 9.5 Built-in Functions
 
-Built-in functions are provided by the runtime. The standard library includes 37 built-in functions across multiple categories:
+Built-in functions are provided by the runtime. The standard library includes **66 built-in functions** across 8 categories (see spec.json for complete list):
 
 **Core I/O (3):**
 - `print`, `println`: Output to stdout (polymorphic over printable types)

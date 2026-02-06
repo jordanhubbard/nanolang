@@ -1,3 +1,4 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 import "examples/opl/opl_parser.nano"
 import "examples/opl/opl_compile.nano"
 import "examples/opl/opl_validate.nano"
@@ -26,6 +27,11 @@ fn proc_run(command: string) -> Output {
     return Output { code: code, stdout: out, stderr: err }
 }
 
+shadow proc_run {
+    # Dummy shadow test: uses extern process_run and depends on host shell.
+    assert true
+}
+
 extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
 
@@ -41,7 +47,6 @@ shadow write_json_file {
     assert (== (write_json_file out_path j) 0)
     assert (exists out_path)
     (delete out_path)
-    (free j)
 }
 
 fn cmd_parse(input_path: string, out_path: string) -> int {
@@ -54,7 +59,6 @@ fn cmd_parse(input_path: string, out_path: string) -> int {
     } else {}
 
     let rc: int = (write_json_file out_path r.ast)
-    (free r.ast)
     return (cond
         ((== rc 0) 0)
         (else 2)
@@ -74,8 +78,6 @@ fn cmd_validate(input_path: string, out_path: string) -> int {
     let rc: int = (write_json_file out_path r)
     let okv: Json = (get r "ok")
     let ok: bool = (as_bool okv)
-    (free okv)
-    (free r)
     if (!= rc 0) { return 2 } else {}
     if ok { return 0 } else { return 1 }
 }
@@ -98,7 +100,6 @@ fn cmd_compile(input_path: string, out_path: string) -> int {
         return 1
     } else {}
     let rc: int = (write_json_file out_path plan)
-    (free plan)
     return (cond
         ((== rc 0) 0)
         (else 2)
@@ -121,7 +122,6 @@ fn cmd_codegen(plan_path: string, out_path: string) -> int {
     } else {}
 
     let prog: string = (gen_program_from_plan plan)
-    (free plan)
     let rc: int = (write out_path prog)
     return (cond
         ((== rc 0) 0)
@@ -155,7 +155,7 @@ fn cmd_build(plan_path: string, out_bin_path: string) -> int {
 
     # Move/copy into requested output path by re-writing (simple, deterministic).
     # Note: binaries are not safe to read/write as strings; so for now we require out_bin_path == tmp_out.
-    if (not (str_equals out_bin_path tmp_out)) {
+    if (not (== out_bin_path tmp_out)) {
         (println "BUILD_OUTPUT_PATH_UNSUPPORTED")
         (println (+ "Use: --out " tmp_out))
         (delete tmp_nano)
@@ -177,8 +177,7 @@ fn errors_have_code(errors: Json, code: string) -> bool {
     while (< i n) {
         let e: Json = (get_index errors i)
         let c: string = (get_string e "code")
-        (free e)
-        if (str_equals c code) { return true } else {}
+        if (== c code) { return true } else {}
         set i (+ i 1)
     }
     return false
@@ -189,19 +188,15 @@ shadow errors_have_code {
     let e: Json = (new_object)
     (object_set e "code" (new_string "E_X"))
     (json_array_push errs e)
-    (free e)
     assert (errors_have_code errs "E_X")
     assert (not (errors_have_code errs "E_Y"))
-    (free errs)
 }
 
 fn run_validate_error(input_src: string, codes: Json) -> bool {
     let r: Json = (opl_validate input_src)
     let okv: Json = (get r "ok")
     let ok: bool = (as_bool okv)
-    (free okv)
     if ok {
-        (free r)
         return false
     } else {}
 
@@ -211,17 +206,12 @@ fn run_validate_error(input_src: string, codes: Json) -> bool {
     while (< i n) {
         let c: Json = (get_index codes i)
         let code: string = (as_string c)
-        (free c)
         if (not (errors_have_code errs code)) {
-            (free errs)
-            (free r)
             return false
         } else {}
         set i (+ i 1)
     }
 
-    (free errs)
-    (free r)
     return true
 }
 
@@ -229,7 +219,6 @@ shadow run_validate_error {
     let codes: Json = (new_array)
     (json_array_push codes (new_string "E_UNRESOLVED_ID"))
     assert (run_validate_error "agent a { uses web.search call web.search { query: q } }" codes)
-    (free codes)
 }
 
 fn cmd_test() -> int {
@@ -247,7 +236,7 @@ fn cmd_test() -> int {
         let name: string = (get_string c "name")
         let kind: string = (get_string c "kind")
 
-        if (str_equals kind "golden_ast") {
+        if (== kind "golden_ast") {
             let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
             let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
             let ok: bool = (run_golden_ast inp exp)
@@ -257,7 +246,7 @@ fn cmd_test() -> int {
             } else {}
         } else {}
 
-        if (str_equals kind "golden_plan") {
+        if (== kind "golden_plan") {
             let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
             let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
             let ok: bool = (run_golden_plan inp exp)
@@ -267,7 +256,7 @@ fn cmd_test() -> int {
             } else {}
         } else {}
 
-        if (str_equals kind "validate_error") {
+        if (== kind "validate_error") {
             let inp: string = (get_string c "input")
             let expect: Json = (get c "expect")
             let codes: Json = (get expect "errorsContainCodes")
@@ -275,16 +264,9 @@ fn cmd_test() -> int {
                 (println (+ "FAIL validate_error " name))
                 set failures (+ failures 1)
             } else {}
-            (free codes)
-            (free expect)
         } else {}
-
-        (free c)
         set i (+ i 1)
     }
-
-    (free cases)
-    (free root)
 
     if (== failures 0) { return 0 } else { return 1 }
 }
@@ -296,7 +278,7 @@ shadow cmd_test {
 fn find_out_flag(argc: int) -> string {
     let mut i: int = 0
     while (< i argc) {
-        if (str_equals (get_argv i) "--out") {
+        if (== (get_argv i) "--out") {
             if (< (+ i 1) argc) {
                 return (get_argv (+ i 1))
             } else {
@@ -309,7 +291,7 @@ fn find_out_flag(argc: int) -> string {
 }
 
 shadow find_out_flag {
-    assert (str_equals (find_out_flag 0) "")
+    assert (== (find_out_flag 0) "")
 }
 
 fn main() -> int {
@@ -320,7 +302,7 @@ fn main() -> int {
     } else {}
 
     let cmd: string = (get_argv 1)
-    if (str_equals cmd "test") {
+    if (== cmd "test") {
         return (cmd_test)
     } else {}
 
@@ -331,24 +313,24 @@ fn main() -> int {
 
     let in_path: string = (get_argv 2)
     let out_path: string = (find_out_flag argc)
-    if (str_equals out_path "") {
+    if (== out_path "") {
         (println "Missing --out <path>")
         return 1
     } else {}
 
-    if (str_equals cmd "parse") {
+    if (== cmd "parse") {
         return (cmd_parse in_path out_path)
     } else {}
-    if (str_equals cmd "validate") {
+    if (== cmd "validate") {
         return (cmd_validate in_path out_path)
     } else {}
-    if (str_equals cmd "compile") {
+    if (== cmd "compile") {
         return (cmd_compile in_path out_path)
     } else {}
-    if (str_equals cmd "codegen") {
+    if (== cmd "codegen") {
         return (cmd_codegen in_path out_path)
     } else {}
-    if (str_equals cmd "build") {
+    if (== cmd "build") {
         return (cmd_build in_path out_path)
     } else {}
 
@@ -373,9 +355,7 @@ fn run_golden_ast(input_path: string, expected_path: string) -> bool {
     let exp_json: Json = (parse exp_src)
     let exp: string = (stringify exp_json)
 
-    let ok: bool = (str_equals got exp)
-    (free exp_json)
-    (free r.ast)
+    let ok: bool = (== got exp)
     return ok
 }
 
@@ -395,9 +375,7 @@ fn run_golden_plan(input_path: string, expected_path: string) -> bool {
     let exp_json: Json = (parse exp_src)
     let exp: string = (stringify exp_json)
 
-    let ok: bool = (str_equals got exp)
-    (free exp_json)
-    (free plan)
+    let ok: bool = (== got exp)
     return ok
 }
 

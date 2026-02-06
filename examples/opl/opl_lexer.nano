@@ -26,30 +26,30 @@ shadow opl_is_ident_char { assert (not (opl_is_ident_char 58)) }
 
 fn opl_keyword_kind(s: string) -> int {
     return (cond
-        ((str_equals s "agent") OplTokKind.KW_AGENT)
-        ((str_equals s "service") OplTokKind.KW_SERVICE)
-        ((str_equals s "task") OplTokKind.KW_TASK)
-        ((str_equals s "schema") OplTokKind.KW_SCHEMA)
-        ((str_equals s "uses") OplTokKind.KW_USES)
-        ((str_equals s "input") OplTokKind.KW_INPUT)
-        ((str_equals s "output") OplTokKind.KW_OUTPUT)
-        ((str_equals s "returns") OplTokKind.KW_RETURNS)
-        ((str_equals s "doc") OplTokKind.KW_DOC)
-        ((str_equals s "let") OplTokKind.KW_LET)
-        ((str_equals s "call") OplTokKind.KW_CALL)
-        ((str_equals s "as") OplTokKind.KW_AS)
-        ((str_equals s "when") OplTokKind.KW_WHEN)
-        ((str_equals s "on") OplTokKind.KW_ON)
-        ((str_equals s "assert") OplTokKind.KW_ASSERT)
-        ((str_equals s "else") OplTokKind.KW_ELSE)
-        ((str_equals s "emit") OplTokKind.KW_EMIT)
-        ((str_equals s "include") OplTokKind.KW_INCLUDE)
-        ((str_equals s "true") OplTokKind.KW_TRUE)
-        ((str_equals s "false") OplTokKind.KW_FALSE)
-        ((str_equals s "null") OplTokKind.KW_NULL)
-        ((str_equals s "and") OplTokKind.KW_AND)
-        ((str_equals s "or") OplTokKind.KW_OR)
-        ((str_equals s "not") OplTokKind.KW_NOT)
+        ((== s "agent") OplTokKind.KW_AGENT)
+        ((== s "service") OplTokKind.KW_SERVICE)
+        ((== s "task") OplTokKind.KW_TASK)
+        ((== s "schema") OplTokKind.KW_SCHEMA)
+        ((== s "uses") OplTokKind.KW_USES)
+        ((== s "input") OplTokKind.KW_INPUT)
+        ((== s "output") OplTokKind.KW_OUTPUT)
+        ((== s "returns") OplTokKind.KW_RETURNS)
+        ((== s "doc") OplTokKind.KW_DOC)
+        ((== s "let") OplTokKind.KW_LET)
+        ((== s "call") OplTokKind.KW_CALL)
+        ((== s "as") OplTokKind.KW_AS)
+        ((== s "when") OplTokKind.KW_WHEN)
+        ((== s "on") OplTokKind.KW_ON)
+        ((== s "assert") OplTokKind.KW_ASSERT)
+        ((== s "else") OplTokKind.KW_ELSE)
+        ((== s "emit") OplTokKind.KW_EMIT)
+        ((== s "include") OplTokKind.KW_INCLUDE)
+        ((== s "true") OplTokKind.KW_TRUE)
+        ((== s "false") OplTokKind.KW_FALSE)
+        ((== s "null") OplTokKind.KW_NULL)
+        ((== s "and") OplTokKind.KW_AND)
+        ((== s "or") OplTokKind.KW_OR)
+        ((== s "not") OplTokKind.KW_NOT)
         (else OplTokKind.IDENT)
     )
 }
@@ -58,14 +58,14 @@ shadow opl_keyword_kind { assert (== (opl_keyword_kind "agent") OplTokKind.KW_AG
 fn opl_sub(s: string, start: int, end_excl: int) -> string {
     return (+ "" (str_substring s start (- end_excl start)))
 }
-shadow opl_sub { assert (str_equals (opl_sub "abcd" 1 3) "bc") }
+shadow opl_sub { assert (== (opl_sub "abcd" 1 3) "bc") }
 
 pub fn opl_make_error(code: string, msg: string, line: int, col: int, path: string) -> OplError {
     return OplError { code: code, msg: msg, loc: OplLoc { line: line, col: col }, path: path }
 }
 shadow opl_make_error {
     let e: OplError = (opl_make_error "E" "m" 1 1 "")
-    assert (str_equals e.code "E")
+    assert (== e.code "E")
 }
 
 pub fn opl_lex(text: string) -> OplTokensResult {

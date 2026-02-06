@@ -8,7 +8,7 @@
   "c_sources": ["bullet_ffi.c"],
   "c_compiler": "c++",
   "pkg_config": ["bullet"],
-  "ldflags": ["-lc++"],
+  "ldflags": ["-lstdc++"],
   "install": {
     "macos": {
       "brew": "bullet",

@@ -79,7 +79,7 @@ fn repeat_string(s: string, count: int) -> string {
 }
 
 shadow repeat_string {
-    assert (str_equals (repeat_string "ab" 2) "abab")
+    assert (== (repeat_string "ab" 2) "abab")
 }
 
 fn pad_right(s: string, target_len: int) -> string {
@@ -91,7 +91,7 @@ fn pad_right(s: string, target_len: int) -> string {
 }
 
 shadow pad_right {
-    assert (str_equals (pad_right "hi" 4) "hi  ")
+    assert (== (pad_right "hi" 4) "hi  ")
 }
 
 fn wrap_backticks(value: string) -> string {
@@ -99,7 +99,7 @@ fn wrap_backticks(value: string) -> string {
 }
 
 shadow wrap_backticks {
-    assert (str_equals (wrap_backticks "value") "`value`")
+    assert (== (wrap_backticks "value") "`value`")
 }
 
 fn get_line_from_source(source: string, target_line: int) -> string {
@@ -187,15 +187,43 @@ pub fn format_error_elm_style(err: ErrorMessage, source: string) -> string {
  * CONVERT DIAGNOSTICS TO ELM ERRORS
  * ============================================================================= */
 
+fn build_error_explanations() -> HashMap<string, string> {
+    let m: HashMap<string, string> = (map_new)
+    (map_put m "E0001" "NanoLang enforces explicit types, so the expression must match the expected annotation.")
+    (map_put m "E0002" "The compiler could not find a declaration with this name in the current scope.")
+    (map_put m "E0003" "Functions require the exact number of arguments specified in their signature.")
+    (map_put m "E0004" "Each argument must match the corresponding parameter type declared in the function signature.")
+    (map_put m "E0005" "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
+    return m
+}
+
+shadow build_error_explanations {
+    let m: HashMap<string, string> = (build_error_explanations)
+    assert (map_has m "E0002")
+}
+
+fn build_error_suggestions() -> HashMap<string, string> {
+    let m: HashMap<string, string> = (map_new)
+    (map_put m "E0001" "Convert the expression to the expected type or change the annotation.")
+    (map_put m "E0002" "Check for typos or declare the identifier with `let` before using it.")
+    (map_put m "E0003" "Add the missing arguments or remove extras so the call arity matches the definition.")
+    (map_put m "E0004" "Convert the argument to the required type or update the function signature if the annotation is wrong.")
+    (map_put m "E0005" "Declare the variable with `mut` or create a new binding instead of reassigning.")
+    return m
+}
+
+shadow build_error_suggestions {
+    let m: HashMap<string, string> = (build_error_suggestions)
+    assert (map_has m "E0005")
+}
+
 fn explanation_for_code(code: string) -> string {
-    return (cond
-        ((str_equals code "E0001") "NanoLang enforces explicit types, so the expression must match the expected annotation.")
-        ((str_equals code "E0002") "The compiler could not find a declaration with this name in the current scope.")
-        ((str_equals code "E0003") "Functions require the exact number of arguments specified in their signature.")
-        ((str_equals code "E0004") "Each argument must match the corresponding parameter type declared in the function signature.")
-        ((str_equals code "E0005") "Bindings are immutable unless declared with `mut`, so you cannot reassign them.")
-        (else "")
-    )
+    let explanations: HashMap<string, string> = (build_error_explanations)
+    if (map_has explanations code) {
+        return (map_get explanations code)
+    } else {
+        return ""
+    }
 }
 
 shadow explanation_for_code {
@@ -203,14 +231,12 @@ shadow explanation_for_code {
 }
 
 fn suggestion_for_code(code: string) -> string {
-    return (cond
-        ((str_equals code "E0001") "Convert the expression to the expected type or change the annotation.")
-        ((str_equals code "E0002") "Check for typos or declare the identifier with `let` before using it.")
-        ((str_equals code "E0003") "Add the missing arguments or remove extras so the call arity matches the definition.")
-        ((str_equals code "E0004") "Convert the argument to the required type or update the function signature if the annotation is wrong.")
-        ((str_equals code "E0005") "Declare the variable with `mut` or create a new binding instead of reassigning.")
-        (else "")
-    )
+    let suggestions: HashMap<string, string> = (build_error_suggestions)
+    if (map_has suggestions code) {
+        return (map_get suggestions code)
+    } else {
+        return ""
+    }
 }
 
 shadow suggestion_for_code {
@@ -219,8 +245,8 @@ shadow suggestion_for_code {
 
 pub fn diagnostic_to_elm_error(diag: CompilerDiagnostic) -> ErrorMessage {
     let mut title: string = (cond
-        ((str_equals diag.code "E0001") "TYPE MISMATCH")
-        ((str_equals diag.code "E0002") "UNDEFINED IDENTIFIER")
+        ((== diag.code "E0001") "TYPE MISMATCH")
+        ((== diag.code "E0002") "UNDEFINED IDENTIFIER")
         ((== diag.severity 2) "ERROR")
         ((== diag.severity 1) "WARNING")
         (else "INFO")
@@ -243,7 +269,7 @@ shadow diagnostic_to_elm_error {
     let loc: CompilerSourceLocation = CompilerSourceLocation { file: "test.nano", line: 2, column: 5 }
     let diag: CompilerDiagnostic = CompilerDiagnostic { severity: DiagnosticSeverity.DIAG_ERROR, phase: CompilerPhase.PHASE_TYPECHECK, code: "E0002", message: "Undefined identifier", location: loc }
     let err: ErrorMessage = (diagnostic_to_elm_error diag)
-    assert (str_equals err.title "UNDEFINED IDENTIFIER")
+    assert (== err.title "UNDEFINED IDENTIFIER")
     assert (str_contains err.explanation "declaration")
 }
 
@@ -293,6 +319,9 @@ pub fn error_type_mismatch(
     context: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "TYPE MISMATCH" file line column)
+    let _expected: string = expected
+    let _found: string = found
+    let _context: string = context
     
     # TODO: Build problem string with expected vs found
     # "I expected a value of type `int`, but found `string`"
@@ -323,6 +352,8 @@ pub fn error_undefined_variable(
     similar_names: List<string>
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "UNDEFINED VARIABLE" file line column)
+    let _var_name: string = var_name
+    let _similar_names: List<string> = similar_names
     
     # TODO: Build problem string
     # "I cannot find a variable named `countr`"
@@ -354,6 +385,9 @@ pub fn error_arity_mismatch(
     found_args: int
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "WRONG NUMBER OF ARGUMENTS" file line column)
+    let _function_name: string = function_name
+    let _expected_args: int = expected_args
+    let _found_args: int = found_args
     
     # TODO: Build problem string
     # "The function `add` expects 2 arguments, but I see 3"
@@ -385,6 +419,8 @@ pub fn error_missing_return(
     expected_type: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "MISSING RETURN" file line column)
+    let _function_name: string = function_name
+    let _expected_type: string = expected_type
     
     # TODO: Build problem string
     # "The function `calculate` is declared to return `int`, but some branches don't return a value"
@@ -415,6 +451,7 @@ pub fn error_immutable_assignment(
     var_name: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "CANNOT ASSIGN TO IMMUTABLE VARIABLE" file line column)
+    let _var_name: string = var_name
     
     # TODO: Build problem string
     # "I cannot assign to `count` because it was declared as immutable"
@@ -499,6 +536,7 @@ pub fn error_unsafe_required(
     function_name: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "UNSAFE OPERATION" file line column)
+    let _function_name: string = function_name
     
     # TODO: Build problem string
     # "The function `malloc` is marked as unsafe and must be called inside an unsafe block"
@@ -530,6 +568,8 @@ pub fn error_use_after_consume(
     consumed_at_line: int
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "USE AFTER CONSUME" file line column)
+    let _resource_name: string = resource_name
+    let _consumed_at_line: int = consumed_at_line
     
     # TODO: Build problem string
     # "I cannot use `file` because it was already consumed at line 42"
@@ -560,6 +600,8 @@ pub fn error_resource_leak(
     resource_type: string
 ) -> ErrorMessage {
     let err: ErrorMessage = (error_message_new "RESOURCE LEAK" file line column)
+    let _resource_name: string = resource_name
+    let _resource_type: string = resource_type
     
     # TODO: Build problem string
     # "The resource `file` of type `FileHandle` was not consumed before the function returns"
@@ -586,6 +628,7 @@ shadow error_resource_leak {
 
 /* Get a friendly error template for common mistakes */
 pub fn get_error_template(error_code: string) -> string {
+    let _error_code: string = error_code
     # TODO: Return helpful templates for common errors
     # E0001: NSType mismatch
     # E0002: Undefined variable

@@ -1,0 +1,272 @@
+/* OPL AST Builder Functions  
+ * Build AST nodes as Json objects matching AST_IR.schema.json
+ * Uses direct JSON construction for compatibility with NanoLang constraints
+ */
+
+import "examples/opl/opl_ast.nano"
+import "examples/opl/opl_json.nano"
+module "modules/std/json/json.nano"
+
+/* Create AST document root */
+pub fn opl_ast_new_doc(version: string) -> Json {
+    let doc: Json = (new_object)
+    (opl_json_set_str doc "version" version)
+    let nodes: Json = (new_array)
+    (object_set doc "nodes" nodes)
+    (free nodes)
+    return doc
+}
+
+shadow opl_ast_new_doc {
+    let doc: Json = (opl_ast_new_doc "1.0")
+    assert (!= doc 0)
+    assert (== (as_string (get doc "version")) "1.0")
+    assert (== (array_size (get doc "nodes")) 0)
+    (free doc)
+}
+
+/* Create location object */
+pub fn opl_ast_loc(line: int, col: int) -> Json {
+    return (opl_json_loc line col)
+}
+
+shadow opl_ast_loc {
+    let loc: Json = (opl_ast_loc 5 10)
+    assert (!= loc 0)
+    assert (== (as_int (get loc "line")) 5)
+    assert (== (as_int (get loc "col")) 10)
+    (free loc)
+}
+
+/* Expression builders */
+
+pub fn opl_ast_lit(loc: Json, v: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "lit")
+    (object_set node "v" v)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_lit {
+    let loc: Json = (opl_ast_loc 1 1)
+    let v: Json = (new_int 42)
+    let lit: Json = (opl_ast_lit loc v)
+    assert (== (as_string (get lit "kind")) "lit")
+    assert (== (as_int (get lit "v")) 42)
+    (free lit)
+    (free loc)
+    (free v)
+}
+
+pub fn opl_ast_id(loc: Json, name: string) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "id")
+    (opl_json_set_str node "name" name)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_id {
+    let loc: Json = (opl_ast_loc 1 1)
+    let id: Json = (opl_ast_id loc "myVar")
+    assert (== (as_string (get id "kind")) "id")
+    assert (== (as_string (get id "name")) "myVar")
+    (free id)
+    (free loc)
+}
+
+pub fn opl_ast_bin(loc: Json, op: string, a: Json, b: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "bin")
+    (opl_json_set_str node "op" op)
+    (object_set node "a" a)
+    (object_set node "b" b)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_bin {
+    let loc: Json = (opl_ast_loc 1 1)
+    let a: Json = (new_int 10)
+    let b: Json = (new_int 20)
+    let a_expr: Json = (opl_ast_lit loc a)
+    let b_expr: Json = (opl_ast_lit loc b)
+    let bin: Json = (opl_ast_bin loc "+" a_expr b_expr)
+    assert (== (as_string (get bin "kind")) "bin")
+    assert (== (as_string (get bin "op")) "+")
+    (free bin)
+    (free a_expr)
+    (free b_expr)
+    (free a)
+    (free b)
+    (free loc)
+}
+
+/* Statement builders */
+
+pub fn opl_ast_block(loc: Json, block_type: string, name: string, body: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "block")
+    (opl_json_set_str node "blockType" block_type)
+    (opl_json_set_str node "name" name)
+    (object_set node "body" body)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_block {
+    let loc: Json = (opl_ast_loc 1 1)
+    let body: Json = (new_array)
+    let block: Json = (opl_ast_block loc "agent" "TestAgent" body)
+    assert (== (as_string (get block "kind")) "block")
+    assert (== (as_string (get block "blockType")) "agent")
+    assert (== (as_string (get block "name")) "TestAgent")
+    (free block)
+    (free body)
+    (free loc)
+}
+
+pub fn opl_ast_let(loc: Json, name: string, expr: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "let")
+    (opl_json_set_str node "name" name)
+    (object_set node "expr" expr)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_let {
+    let loc: Json = (opl_ast_loc 1 1)
+    let val: Json = (new_int 42)
+    let expr: Json = (opl_ast_lit loc val)
+    let let_node: Json = (opl_ast_let loc "x" expr)
+    assert (== (as_string (get let_node "kind")) "let")
+    assert (== (as_string (get let_node "name")) "x")
+    (free let_node)
+    (free expr)
+    (free val)
+    (free loc)
+}
+
+pub fn opl_ast_call(loc: Json, ref: string, args: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "call")
+    (opl_json_set_str node "ref" ref)
+    (object_set node "args" args)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_call {
+    let loc: Json = (opl_ast_loc 1 1)
+    let args: Json = (new_object)
+    let call: Json = (opl_ast_call loc "tool.action" args)
+    assert (== (as_string (get call "kind")) "call")
+    assert (== (as_string (get call "ref")) "tool.action")
+    (free call)
+    (free args)
+    (free loc)
+}
+
+pub fn opl_ast_emit(loc: Json, name: string, expr: Json) -> Json {
+    let node: Json = (new_object)
+    (opl_json_set_str node "kind" "emit")
+    (opl_json_set_str node "name" name)
+    (object_set node "expr" expr)
+    (object_set node "loc" loc)
+    return node
+}
+
+shadow opl_ast_emit {
+    let loc: Json = (opl_ast_loc 1 1)
+    let val: Json = (new_string "result")
+    let expr: Json = (opl_ast_lit loc val)
+    let emit: Json = (opl_ast_emit loc "output" expr)
+    assert (== (as_string (get emit "kind")) "emit")
+    assert (== (as_string (get emit "name")) "output")
+    (free emit)
+    (free expr)
+    (free val)
+    (free loc)
+}
+
+/* Helper to get nodes array from document */
+pub fn opl_ast_get_nodes(doc: Json) -> Json {
+    return (get doc "nodes")
+}
+
+shadow opl_ast_get_nodes {
+    let doc: Json = (opl_ast_new_doc "1.0")
+    let nodes: Json = (opl_ast_get_nodes doc)
+    assert (== (array_size nodes) 0)
+    (free doc)
+}
+
+/* Helper to add node to nodes array (modifies in place) */
+pub fn opl_ast_add_to_nodes(nodes: Json, node: Json) -> void {
+    (json_array_push nodes node)
+}
+
+shadow opl_ast_add_to_nodes {
+    let nodes: Json = (new_array)
+    let loc: Json = (opl_ast_loc 1 1)
+    let body: Json = (new_array)
+    let block: Json = (opl_ast_block loc "agent" "Test" body)
+    (opl_ast_add_to_nodes nodes block)
+    assert (== (array_size nodes) 1)
+    (free block)
+    (free body)
+    (free loc)
+    (free nodes)
+}
+
+fn main() -> int {
+    (println "OPL AST Builders Test")
+    
+    /* Create a simple AST: agent Test { let x = 42; emit result: x } */
+    let doc: Json = (opl_ast_new_doc "1.0")
+    let loc: Json = (opl_ast_loc 1 1)
+    
+    /* Create body statements */
+    let body: Json = (new_array)
+    
+    /* let x = 42 */
+    let val: Json = (new_int 42)
+    let lit_expr: Json = (opl_ast_lit loc val)
+    let let_stmt: Json = (opl_ast_let loc "x" lit_expr)
+    (json_array_push body let_stmt)
+    
+    /* emit result: x */
+    let id_expr: Json = (opl_ast_id loc "x")
+    let emit_stmt: Json = (opl_ast_emit loc "result" id_expr)
+    (json_array_push body emit_stmt)
+    
+    /* agent Test { ... } */
+    let agent: Json = (opl_ast_block loc "agent" "Test" body)
+    let nodes: Json = (opl_ast_get_nodes doc)
+    (opl_ast_add_to_nodes nodes agent)
+    
+    /* Output JSON */
+    let json_str: string = (stringify doc)
+    (println "Generated AST:")
+    (println json_str)
+    
+    (println (+ "✓ Document has " (+ (int_to_string (array_size nodes)) " top-level node(s)")))
+    
+    (free agent)
+    (free emit_stmt)
+    (free id_expr)
+    (free let_stmt)
+    (free lit_expr)
+    (free val)
+    (free body)
+    (free loc)
+    (free doc)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

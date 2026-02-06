@@ -122,8 +122,8 @@ pub fn get_string(obj: Json, key: string) -> string {
 
 shadow get_string {
     let j: Json = (parse "{\"b\": \"hi\"}")
-    assert (str_equals (get_string j "b") "hi")
-    assert (str_equals (get_string j "missing") "")
+    assert (== (get_string j "b") "hi")
+    assert (== (get_string j "missing") "")
     (free j)
 }
 

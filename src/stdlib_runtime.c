@@ -403,7 +403,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static const char* nl_str_substring(const char* str, int64_t start, int64_t length) {\n");
     sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
     sb_append(sb, "    int64_t str_len = strnlen(str, 1024*1024);\n");
-    sb_append(sb, "    if (start < 0 || start >= str_len || length < 0) return \"\";\n");
+    sb_append(sb, "    if (start < 0 || start > str_len || length < 0) return \"\";\n");
+    sb_append(sb, "    if (start == str_len) return \"\";\n");
     sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
     sb_append(sb, "    char* result = gc_alloc_string(length);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
@@ -921,14 +922,17 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_join(const char* a, const char* b) {\n");
-    sb_append(sb, "    char* buffer = malloc(2048);\n");
-    sb_append(sb, "    if (!buffer) return \"\";\n");
-    sb_append(sb, "    if (strlen(a) == 0) {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s\", b);\n");
-    sb_append(sb, "    } else if (a[strlen(a) - 1] == '/') {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s%s\", a, b);\n");
+    sb_append(sb, "    size_t len_a = strlen(a);\n");
+    sb_append(sb, "    size_t len_b = strlen(b);\n");
+    sb_append(sb, "    size_t total_len = len_a + len_b + 2; /* +1 for '/', +1 for null */\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(total_len);\n");
+    sb_append(sb, "    if (!buffer) return gc_alloc_string(0);\n");
+    sb_append(sb, "    if (len_a == 0) {\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s\", b);\n");
+    sb_append(sb, "    } else if (a[len_a - 1] == '/') {\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s%s\", a, b);\n");
     sb_append(sb, "    } else {\n");
-    sb_append(sb, "        snprintf(buffer, 2048, \"%s/%s\", a, b);\n");
+    sb_append(sb, "        snprintf(buffer, total_len, \"%s/%s\", a, b);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
@@ -936,24 +940,28 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "static char* nl_os_path_basename(const char* path) {\n");
     sb_append(sb, "    char* path_copy = strdup(path);\n");
     sb_append(sb, "    char* base = basename(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(base);\n");
+    sb_append(sb, "    size_t len = strlen(base);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (result) memcpy(result, base, len + 1);\n");
     sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
+    sb_append(sb, "    return result ? result : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_dirname(const char* path) {\n");
     sb_append(sb, "    char* path_copy = strdup(path);\n");
     sb_append(sb, "    char* dir = dirname(path_copy);\n");
-    sb_append(sb, "    char* result = strdup(dir);\n");
+    sb_append(sb, "    size_t len = strlen(dir);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (result) memcpy(result, dir, len + 1);\n");
     sb_append(sb, "    free(path_copy);\n");
-    sb_append(sb, "    return result;\n");
+    sb_append(sb, "    return result ? result : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_path_normalize(const char* path) {\n");
-    sb_append(sb, "    if (!path) return \"\";\n");
+    sb_append(sb, "    if (!path) return gc_alloc_string(0);\n");
     sb_append(sb, "    bool abs = (path[0] == '/');\n");
     sb_append(sb, "    char* copy = strdup(path);\n");
-    sb_append(sb, "    if (!copy) return \"\";\n");
+    sb_append(sb, "    if (!copy) return gc_alloc_string(0);\n");
     sb_append(sb, "\n");
     sb_append(sb, "    const char* parts[512];\n");
     sb_append(sb, "    int count = 0;\n");
@@ -974,19 +982,25 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "        tok = strtok_r(NULL, \"/\", &save);\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "\n");
+    sb_append(sb, "    /* Allocate GC string with max possible size */\n");
     sb_append(sb, "    size_t cap = strlen(path) + 3;\n");
-    sb_append(sb, "    char* out = malloc(cap);\n");
-    sb_append(sb, "    if (!out) { free(copy); return \"\"; }\n");
+    sb_append(sb, "    char* out = gc_alloc_string(cap);\n");
+    sb_append(sb, "    if (!out) { free(copy); return gc_alloc_string(0); }\n");
     sb_append(sb, "    size_t pos = 0;\n");
     sb_append(sb, "    if (abs) out[pos++] = '/';\n");
     sb_append(sb, "\n");
     sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
     sb_append(sb, "        size_t len = strlen(parts[i]);\n");
+    sb_append(sb, "        /* Check if we have enough space */\n");
     sb_append(sb, "        if (pos + len + 2 > cap) {\n");
-    sb_append(sb, "            cap = (pos + len + 2) * 2;\n");
-    sb_append(sb, "            char* n = realloc(out, cap);\n");
-    sb_append(sb, "            if (!n) { free(out); free(copy); return \"\"; }\n");
-    sb_append(sb, "            out = n;\n");
+    sb_append(sb, "            /* Need more space - allocate new GC string and copy */\n");
+    sb_append(sb, "            size_t new_cap = (pos + len + 2) * 2;\n");
+    sb_append(sb, "            char* new_out = gc_alloc_string(new_cap);\n");
+    sb_append(sb, "            if (!new_out) { gc_release(out); free(copy); return gc_alloc_string(0); }\n");
+    sb_append(sb, "            memcpy(new_out, out, pos);\n");
+    sb_append(sb, "            gc_release(out);\n");
+    sb_append(sb, "            out = new_out;\n");
+    sb_append(sb, "            cap = new_cap;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';\n");
     sb_append(sb, "        memcpy(out + pos, parts[i], len);\n");
@@ -1016,11 +1030,11 @@ void generate_dir_operations(StringBuilder *sb) {
 
     sb_append(sb, "static char* nl_os_dir_list(const char* path) {\n");
     sb_append(sb, "    DIR* dir = opendir(path);\n");
-    sb_append(sb, "    if (!dir) return \"\";\n");
+    sb_append(sb, "    if (!dir) return gc_alloc_string(0);\n");
     sb_append(sb, "    size_t capacity = 4096;\n");
     sb_append(sb, "    size_t used = 0;\n");
-    sb_append(sb, "    char* buffer = malloc(capacity);\n");
-    sb_append(sb, "    if (!buffer) { closedir(dir); return \"\"; }\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(capacity);\n");
+    sb_append(sb, "    if (!buffer) { closedir(dir); return gc_alloc_string(0); }\n");
     sb_append(sb, "    buffer[0] = '\\0';\n");
     sb_append(sb, "    struct dirent* entry;\n");
     sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
@@ -1029,8 +1043,10 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "        size_t needed = used + name_len + 2; /* +1 for newline, +1 for null */\n");
     sb_append(sb, "        if (needed > capacity) {\n");
     sb_append(sb, "            capacity = needed * 2;\n");
-    sb_append(sb, "            char* new_buffer = realloc(buffer, capacity);\n");
-    sb_append(sb, "            if (!new_buffer) { free(buffer); closedir(dir); return \"\"; }\n");
+    sb_append(sb, "            char* new_buffer = gc_alloc_string(capacity);\n");
+    sb_append(sb, "            if (!new_buffer) { gc_release(buffer); closedir(dir); return gc_alloc_string(0); }\n");
+    sb_append(sb, "            memcpy(new_buffer, buffer, used);\n");
+    sb_append(sb, "            gc_release(buffer);\n");
     sb_append(sb, "            buffer = new_buffer;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "        memcpy(buffer + used, entry->d_name, name_len);\n");
@@ -1049,11 +1065,14 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_getcwd(void) {\n");
-    sb_append(sb, "    char* buffer = malloc(1024);\n");
-    sb_append(sb, "    if (getcwd(buffer, 1024) == NULL) {\n");
-    sb_append(sb, "        buffer[0] = '\\0';\n");
+    sb_append(sb, "    char temp_buffer[1024];\n");
+    sb_append(sb, "    if (getcwd(temp_buffer, sizeof(temp_buffer)) == NULL) {\n");
+    sb_append(sb, "        return gc_alloc_string(0);\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "    size_t len = strlen(temp_buffer);\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (buffer) memcpy(buffer, temp_buffer, len + 1);\n");
+    sb_append(sb, "    return buffer ? buffer : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_chdir(const char* path) {\n");
@@ -1102,12 +1121,12 @@ void generate_file_operations(StringBuilder *sb) {
     /* File operations */
     sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
     sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
-    sb_append(sb, "    if (!f) return \"\";\n");
+    sb_append(sb, "    if (!f) return gc_alloc_string(0);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
     sb_append(sb, "    long size = ftell(f);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    char* buffer = malloc(size + 1);\n");
-    sb_append(sb, "    if (!buffer) { fclose(f); return \"\"; }\n");
+    sb_append(sb, "    char* buffer = gc_alloc_string((size_t)size);\n");
+    sb_append(sb, "    if (!buffer) { fclose(f); return gc_alloc_string(0); }\n");
     sb_append(sb, "    fread(buffer, 1, size, f);\n");
     sb_append(sb, "    buffer[size] = '\\0';\n");
     sb_append(sb, "    fclose(f);\n");
@@ -1185,8 +1204,8 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    const char* tmp = getenv(\"TMPDIR\");\n");
     sb_append(sb, "    if (!tmp || tmp[0] == '\\0') tmp = \"/tmp\";\n");
     sb_append(sb, "    size_t len = strlen(tmp);\n");
-    sb_append(sb, "    char* out = malloc(len + 1);\n");
-    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "    memcpy(out, tmp, len);\n");
     sb_append(sb, "    out[len] = '\\0';\n");
     sb_append(sb, "    return out;\n");
@@ -1199,11 +1218,11 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    char templ[1024];\n");
     sb_append(sb, "    snprintf(templ, sizeof(templ), \"%s/%sXXXXXX\", tmp, p);\n");
     sb_append(sb, "    int fd = mkstemp(templ);\n");
-    sb_append(sb, "    if (fd < 0) return \"\";\n");
+    sb_append(sb, "    if (fd < 0) return gc_alloc_string(0);\n");
     sb_append(sb, "    close(fd);\n");
     sb_append(sb, "    size_t len = strlen(templ);\n");
-    sb_append(sb, "    char* out = malloc(len + 1);\n");
-    sb_append(sb, "    if (!out) return \"\";\n");
+    sb_append(sb, "    char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "    memcpy(out, templ, len);\n");
     sb_append(sb, "    out[len] = '\\0';\n");
     sb_append(sb, "    return out;\n");
@@ -1218,14 +1237,14 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "        snprintf(path, sizeof(path), \"%s/%s%lld_%d\", tmp, p, (long long)time(NULL), i);\n");
     sb_append(sb, "        if (mkdir(path, 0700) == 0) {\n");
     sb_append(sb, "            size_t len = strlen(path);\n");
-    sb_append(sb, "            char* out = malloc(len + 1);\n");
-    sb_append(sb, "            if (!out) return \"\";\n");
+    sb_append(sb, "            char* out = gc_alloc_string(len);\n");
+    sb_append(sb, "            if (!out) return gc_alloc_string(0);\n");
     sb_append(sb, "            memcpy(out, path, len);\n");
     sb_append(sb, "            out[len] = '\\0';\n");
     sb_append(sb, "            return out;\n");
     sb_append(sb, "        }\n");
     sb_append(sb, "    }\n");
-    sb_append(sb, "    return \"\";\n");
+    sb_append(sb, "    return gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 }
 
@@ -1288,6 +1307,12 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     /* String operations */
     generate_string_operations(sb);
 
+    /* Timing utilities */
+    generate_timing_utilities(sb);
+
+    /* Console I/O utilities */
+    generate_console_io_utilities(sb);
+
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
 }
@@ -1328,3 +1353,523 @@ void generate_module_system_stubs(StringBuilder *sb) {
     sb_append(sb, "/* ========== End Module System Stubs ========== */\n\n");
 }
 
+/* =============================================================================
+ * Timing utilities for performance measurement
+ * =============================================================================
+ */
+
+void generate_timing_utilities(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Timing Utilities ========== */\n\n");
+
+    sb_append(sb, "#include <sys/time.h>\n");
+    sb_append(sb, "#ifdef __MACH__\n");
+    sb_append(sb, "#include <mach/mach_time.h>\n");
+    sb_append(sb, "#endif\n\n");
+
+    sb_append(sb, "/* Get current time in microseconds since epoch */\n");
+    sb_append(sb, "static int64_t nl_timing_get_microseconds(void) {\n");
+    sb_append(sb, "#ifdef CLOCK_REALTIME\n");
+    sb_append(sb, "    struct timespec ts;\n");
+    sb_append(sb, "    clock_gettime(CLOCK_REALTIME, &ts);\n");
+    sb_append(sb, "    return ((int64_t)ts.tv_sec * 1000000LL) + (int64_t)(ts.tv_nsec / 1000);\n");
+    sb_append(sb, "#else\n");
+    sb_append(sb, "    struct timeval tv;\n");
+    sb_append(sb, "    gettimeofday(&tv, NULL);\n");
+    sb_append(sb, "    return ((int64_t)tv.tv_sec * 1000000LL) + (int64_t)tv.tv_usec;\n");
+    sb_append(sb, "#endif\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* Get high-resolution time in nanoseconds */\n");
+    sb_append(sb, "static int64_t nl_timing_get_nanoseconds(void) {\n");
+    sb_append(sb, "#ifdef __MACH__\n");
+    sb_append(sb, "    static mach_timebase_info_data_t timebase;\n");
+    sb_append(sb, "    static int initialized = 0;\n");
+    sb_append(sb, "    if (!initialized) {\n");
+    sb_append(sb, "        mach_timebase_info(&timebase);\n");
+    sb_append(sb, "        initialized = 1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    uint64_t mach_time = mach_absolute_time();\n");
+    sb_append(sb, "    return (int64_t)((mach_time * timebase.numer) / timebase.denom);\n");
+    sb_append(sb, "#elif defined(CLOCK_MONOTONIC)\n");
+    sb_append(sb, "    struct timespec ts;\n");
+    sb_append(sb, "    clock_gettime(CLOCK_MONOTONIC, &ts);\n");
+    sb_append(sb, "    return ((int64_t)ts.tv_sec * 1000000000LL) + (int64_t)ts.tv_nsec;\n");
+    sb_append(sb, "#else\n");
+    sb_append(sb, "    return nl_timing_get_microseconds() * 1000LL;\n");
+    sb_append(sb, "#endif\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End Timing Utilities ========== */\n\n");
+}
+
+/* =============================================================================
+ * Console I/O utilities for REPL and interactive programs
+ * =============================================================================
+ */
+
+void generate_console_io_utilities(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Console I/O Utilities ========== */\n\n");
+
+    sb_append(sb, "/* Read a line from stdin, returns heap-allocated string */\n");
+    sb_append(sb, "/* Static to avoid duplicate symbols when linking multiple modules */\n");
+    sb_append(sb, "static const char* nl_read_line(void) {\n");
+    sb_append(sb, "    char buffer[4096];\n");
+    sb_append(sb, "    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {\n");
+    sb_append(sb, "        char* empty = malloc(1);\n");
+    sb_append(sb, "        if (empty) empty[0] = '\\0';\n");
+    sb_append(sb, "        return empty ? empty : \"\";\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    /* Remove trailing newline if present */\n");
+    sb_append(sb, "    size_t len = strlen(buffer);\n");
+    sb_append(sb, "    if (len > 0 && buffer[len-1] == '\\n') {\n");
+    sb_append(sb, "        buffer[len-1] = '\\0';\n");
+    sb_append(sb, "        len--;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    char* result = malloc(len + 1);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    memcpy(result, buffer, len + 1);\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* ========== End Console I/O Utilities ========== */\n\n");
+}
+
+/* =============================================================================
+ * Cross-Platform Profiling System
+ * macOS: Uses 'sample' command on child process
+ * Linux: Uses 'gprofng collect' to wrap execution
+ * Both output OS-neutral JSON for LLM analysis
+ * =============================================================================
+ */
+
+void generate_profiling_system(StringBuilder *sb) {
+    sb_append(sb, "/* ========== Cross-Platform Profiling System ========== */\n\n");
+    
+    sb_append(sb, "#include <sys/types.h>\n");
+    sb_append(sb, "#include <sys/wait.h>\n");
+    sb_append(sb, "#include <unistd.h>\n");
+    sb_append(sb, "#include <signal.h>\n\n");
+    
+    /* Common JSON output helpers */
+    sb_append(sb, "/* Output JSON header for profile results */\n");
+    sb_append(sb, "static void _nl_profile_json_header(const char* binary, const char* platform, const char* tool) {\n");
+    sb_append(sb, "    printf(\"\\n========== PROFILE ANALYSIS (LLM-READY JSON) ==========\\n\");\n");
+    sb_append(sb, "    printf(\"{\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"profile_type\\\": \\\"sampling\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"platform\\\": \\\"%s\\\",\\n\", platform);\n");
+    sb_append(sb, "    printf(\"  \\\"tool\\\": \\\"%s\\\",\\n\", tool);\n");
+    sb_append(sb, "    printf(\"  \\\"binary\\\": \\\"%s\\\",\\n\", binary);\n");
+    sb_append(sb, "    printf(\"  \\\"hotspots\\\": [\\n\");\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void _nl_profile_json_footer(void) {\n");
+    sb_append(sb, "    printf(\"\\n  ],\\n\");\n");
+    sb_append(sb, "    printf(\"  \\\"analysis_hints\\\": [\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"Functions with high sample counts are hot spots\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"Look for nl_ prefixed functions (NanoLang generated)\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"str_ and array_ functions often indicate algorithmic issues\\\",\\n\");\n");
+    sb_append(sb, "    printf(\"    \\\"Deep call stacks may indicate recursion or callback chains\\\"\\n\");\n");
+    sb_append(sb, "    printf(\"  ]\\n\");\n");
+    sb_append(sb, "    printf(\"}\\n\");\n");
+    sb_append(sb, "    printf(\"========== END PROFILE ANALYSIS ==========\\n\\n\");\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "static void _nl_profile_json_entry(int* count, const char* func, int samples, double pct) {\n");
+    sb_append(sb, "    if (*count > 0) printf(\",\\n\");\n");
+    sb_append(sb, "    printf(\"    {\\\"function\\\": \\\"%s\\\", \\\"samples\\\": %d, \\\"pct_time\\\": %.1f}\", func, samples, pct);\n");
+    sb_append(sb, "    (*count)++;\n");
+    sb_append(sb, "}\n\n");
+
+    /* macOS-specific: parse 'xctrace' output (with fallback to sample) */
+    sb_append(sb, "#ifdef __APPLE__\n\n");
+
+    sb_append(sb, "/* Parse macOS xctrace table output and convert to JSON */\n");
+    sb_append(sb, "static void _nl_parse_xctrace_output(const char* trace_file, const char* binary) {\n");
+    sb_append(sb, "    FILE* f = fopen(trace_file, \"r\");\n");
+    sb_append(sb, "    if (!f) {\n");
+    sb_append(sb, "        fprintf(stderr, \"\\n[profile] Could not read xctrace output.\\n\");\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    _nl_profile_json_header(binary, \"macOS\", \"xctrace\");\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse xctrace table output */\n");
+    sb_append(sb, "    char line[4096];\n");
+    sb_append(sb, "    int count = 0;\n");
+    sb_append(sb, "    int max_entries = 20;\n");
+    sb_append(sb, "    int in_table = 0;\n");
+    sb_append(sb, "    double total_time_ms = 0.0;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse table format: Symbol Name, Self Weight (ms), Total Weight (ms) */\n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), f) && count < max_entries) {\n");
+    sb_append(sb, "        /* Look for table header */\n");
+    sb_append(sb, "        if (strstr(line, \"Symbol Name\") && strstr(line, \"Weight\")) {\n");
+    sb_append(sb, "            in_table = 1;\n");
+    sb_append(sb, "            continue;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        if (!in_table) continue;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Parse data lines: func_name  self_ms  total_ms */\n");
+    sb_append(sb, "        char func[512] = {0};\n");
+    sb_append(sb, "        double self_ms = 0.0, total_ms = 0.0;\n");
+    sb_append(sb, "        if (sscanf(line, \"%511[^\\t]\\t%lf\\t%lf\", func, &self_ms, &total_ms) >= 2) {\n");
+    sb_append(sb, "            /* Use self time for accurate hotspot identification */\n");
+    sb_append(sb, "            if (self_ms > 0.0) {\n");
+    sb_append(sb, "                total_time_ms += self_ms;\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Second pass: emit entries with >= 1% time */\n");
+    sb_append(sb, "    if (total_time_ms == 0.0) total_time_ms = 1.0;\n");
+    sb_append(sb, "    rewind(f);\n");
+    sb_append(sb, "    in_table = 0;\n");
+    sb_append(sb, "    count = 0;\n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), f) && count < max_entries) {\n");
+    sb_append(sb, "        if (strstr(line, \"Symbol Name\") && strstr(line, \"Weight\")) {\n");
+    sb_append(sb, "            in_table = 1;\n");
+    sb_append(sb, "            continue;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        if (!in_table) continue;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        char func[512] = {0};\n");
+    sb_append(sb, "        double self_ms = 0.0, total_ms = 0.0;\n");
+    sb_append(sb, "        if (sscanf(line, \"%511[^\\t]\\t%lf\\t%lf\", func, &self_ms, &total_ms) >= 2 && self_ms > 0.0) {\n");
+    sb_append(sb, "            double pct = (100.0 * self_ms) / total_time_ms;\n");
+    sb_append(sb, "            if (pct >= 1.0) {\n");
+    sb_append(sb, "                /* Emit as call count (approximate from time) */\n");
+    sb_append(sb, "                int call_count = (int)(self_ms * 1000); /* Rough estimate */\n");
+    sb_append(sb, "                _nl_profile_json_entry(&count, func, call_count, pct);\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    _nl_profile_json_footer();\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* Parse macOS sample output and convert to JSON (fallback) */\n");
+    sb_append(sb, "static void _nl_parse_sample_output(const char* sample_file, const char* binary) {\n");
+    sb_append(sb, "    FILE* f = fopen(sample_file, \"r\");\n");
+    sb_append(sb, "    if (!f) {\n");
+    sb_append(sb, "        fprintf(stderr, \"\\n[profile] Could not read sample output.\\n\");\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] The sample command may have failed or the process exited too quickly.\\n\");\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] You can also use Instruments.app for detailed profiling.\\n\\n\");\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    _nl_profile_json_header(binary, \"macOS\", \"sample\");\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse sample output - look for heaviest stack frames */\n");
+    sb_append(sb, "    char line[4096];\n");
+    sb_append(sb, "    int count = 0;\n");
+    sb_append(sb, "    int max_entries = 20;\n");
+    sb_append(sb, "    int total_samples = 0;\n");
+    sb_append(sb, "    int in_call_graph = 0;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* First pass: count total samples */\n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), f)) {\n");
+    sb_append(sb, "        if (strstr(line, \"Total number in stack\")) {\n");
+    sb_append(sb, "            /* Parse: Total number in stack (self-sampling) = 1234 */\n");
+    sb_append(sb, "            char* eq = strchr(line, '=');\n");
+    sb_append(sb, "            if (eq) total_samples = atoi(eq + 1);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if (total_samples == 0) total_samples = 1; /* Avoid div by zero */\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Rewind and parse call graph */\n");
+    sb_append(sb, "    rewind(f);\n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), f) && count < max_entries) {\n");
+    sb_append(sb, "        /* Look for Call graph section */\n");
+    sb_append(sb, "        if (strstr(line, \"Call graph:\")) {\n");
+    sb_append(sb, "            in_call_graph = 1;\n");
+    sb_append(sb, "            continue;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        if (!in_call_graph) continue;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Parse lines like: 1234 func_name (in binary) */\n");
+    sb_append(sb, "        int samples = 0;\n");
+    sb_append(sb, "        char func[512] = {0};\n");
+    sb_append(sb, "        /* Skip leading whitespace and parse sample count + function */\n");
+    sb_append(sb, "        char* p = line;\n");
+    sb_append(sb, "        while (*p == ' ' || *p == '+' || *p == '!' || *p == '|') p++;\n");
+    sb_append(sb, "        if (sscanf(p, \"%d %511[^( \\n]\", &samples, func) == 2 && samples > 0) {\n");
+    sb_append(sb, "            double pct = (100.0 * samples) / total_samples;\n");
+    sb_append(sb, "            if (pct >= 1.0) { /* Only show functions with >= 1% time */\n");
+    sb_append(sb, "                _nl_profile_json_entry(&count, func, samples, pct);\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fclose(f);\n");
+    sb_append(sb, "    _nl_profile_json_footer();\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Check if xctrace is available AND functional (requires full Xcode) */\n");
+    sb_append(sb, "static int _nl_has_xctrace(void) {\n");
+    sb_append(sb, "    /* Check if xctrace exists */\n");
+    sb_append(sb, "    int status = system(\"which xctrace >/dev/null 2>&1\");\n");
+    sb_append(sb, "    if (!(WIFEXITED(status) && WEXITSTATUS(status) == 0)) {\n");
+    sb_append(sb, "        return 0; /* Not found */\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    /* Check if xctrace can actually run (needs Xcode, not just CLT) */\n");
+    sb_append(sb, "    status = system(\"xctrace version >/dev/null 2>&1\");\n");
+    sb_append(sb, "    return WIFEXITED(status) && WEXITSTATUS(status) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* macOS profiling wrapper using 'xctrace' (preferred) or 'sample' (fallback) */\n");
+    sb_append(sb, "static int _nl_run_with_profiling(int argc, char** argv, int64_t (*real_main)(void)) {\n");
+    sb_append(sb, "    (void)argc; /* unused */\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Try xctrace first (instrumentation-based profiling) */\n");
+    sb_append(sb, "    if (_nl_has_xctrace()) {\n");
+    sb_append(sb, "        fprintf(stderr, \"\\n[profile] Auto-profiling with xctrace (instrumentation)...\\n\\n\");\n");
+    sb_append(sb, "        fflush(stderr);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Generate unique trace file */\n");
+    sb_append(sb, "        char trace_file[256], table_file[256];\n");
+    sb_append(sb, "        pid_t pid = getpid();\n");
+    sb_append(sb, "        snprintf(trace_file, sizeof(trace_file), \"/tmp/nanolang_trace_%d.trace\", pid);\n");
+    sb_append(sb, "        snprintf(table_file, sizeof(table_file), \"/tmp/nanolang_table_%d.txt\", pid);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Run program with xctrace */\n");
+    sb_append(sb, "        pid_t child = fork();\n");
+    sb_append(sb, "        if (child == 0) {\n");
+    sb_append(sb, "            /* Child: run xctrace */\n");
+    sb_append(sb, "            freopen(\"/dev/null\", \"w\", stdout); /* Suppress xctrace output */\n");
+    sb_append(sb, "            freopen(\"/dev/null\", \"w\", stderr);\n");
+    sb_append(sb, "            execlp(\"xctrace\", \"xctrace\", \"record\",\n");
+    sb_append(sb, "                   \"--template\", \"Time Profiler\",\n");
+    sb_append(sb, "                   \"--output\", trace_file,\n");
+    sb_append(sb, "                   \"--launch\", \"--\", argv[0], (char*)NULL);\n");
+    sb_append(sb, "            _exit(1);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Parent: wait for xctrace to complete */\n");
+    sb_append(sb, "        int status = 0;\n");
+    sb_append(sb, "        waitpid(child, &status, 0);\n");
+    sb_append(sb, "        int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Export trace to table format */\n");
+    sb_append(sb, "        char export_cmd[1024];\n");
+    sb_append(sb, "        snprintf(export_cmd, sizeof(export_cmd),\n");
+    sb_append(sb, "                 \"xctrace export --input %s --toc 2>/dev/null | \"\n");
+    sb_append(sb, "                 \"grep -A 1000 'Time Profiler' | \"\n");
+    sb_append(sb, "                 \"xctrace export --input %s --xpath '/trace-toc/run[@number=\\\"1\\\"]/data/table[@schema=\\\"time-profile\\\"]' > %s 2>/dev/null\",\n");
+    sb_append(sb, "                 trace_file, trace_file, table_file);\n");
+    sb_append(sb, "        system(export_cmd);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Parse and output results */\n");
+    sb_append(sb, "        _nl_parse_xctrace_output(table_file, argv[0]);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Clean up */\n");
+    sb_append(sb, "        unlink(trace_file);\n");
+    sb_append(sb, "        unlink(table_file);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        return exit_code;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Fallback to sample (sampling-based profiling) */\n");
+    sb_append(sb, "    fprintf(stderr, \"\\n[profile] xctrace not found, falling back to sample (sampling)...\\n\\n\");\n");
+    sb_append(sb, "    fflush(stderr);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Generate unique sample output file */\n");
+    sb_append(sb, "    char sample_file[256];\n");
+    sb_append(sb, "    pid_t main_pid = getpid();\n");
+    sb_append(sb, "    snprintf(sample_file, sizeof(sample_file), \"/tmp/nanolang_sample_%d.txt\", main_pid);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    fprintf(stderr, \"\\n[profile] Auto-profiling with macOS sample(1)...\\n\\n\");\n");
+    sb_append(sb, "    fflush(stderr);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Use pipe to synchronize: child waits for sampler to attach */\n");
+    sb_append(sb, "    int sync_pipe[2];\n");
+    sb_append(sb, "    if (pipe(sync_pipe) < 0) {\n");
+    sb_append(sb, "        perror(\"pipe failed\");\n");
+    sb_append(sb, "        return (int)real_main(); /* Fall back to direct execution */\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Fork child first - it will wait for signal to start */\n");
+    sb_append(sb, "    pid_t child = fork();\n");
+    sb_append(sb, "    if (child < 0) {\n");
+    sb_append(sb, "        perror(\"fork failed\");\n");
+    sb_append(sb, "        close(sync_pipe[0]); close(sync_pipe[1]);\n");
+    sb_append(sb, "        return (int)real_main(); /* Fall back to direct execution */\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    if (child == 0) {\n");
+    sb_append(sb, "        /* Child process: wait for sampler to attach, then run */\n");
+    sb_append(sb, "        close(sync_pipe[1]); /* Close write end */\n");
+    sb_append(sb, "        char buf[1];\n");
+    sb_append(sb, "        read(sync_pipe[0], buf, 1); /* Block until parent signals */\n");
+    sb_append(sb, "        close(sync_pipe[0]);\n");
+    sb_append(sb, "        int64_t result = real_main();\n");
+    sb_append(sb, "        _exit((int)result);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parent: close read end */\n");
+    sb_append(sb, "    close(sync_pipe[0]);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Fork sampler with child's PID */\n");
+    sb_append(sb, "    pid_t sampler = fork();\n");
+    sb_append(sb, "    if (sampler < 0) {\n");
+    sb_append(sb, "        perror(\"fork failed\");\n");
+    sb_append(sb, "        close(sync_pipe[1]);\n");
+    sb_append(sb, "        waitpid(child, NULL, 0);\n");
+    sb_append(sb, "        return 1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    if (sampler == 0) {\n");
+    sb_append(sb, "        /* Sampler child: run sample on child's PID */\n");
+    sb_append(sb, "        close(sync_pipe[1]);\n");
+    sb_append(sb, "        char pid_str[32];\n");
+    sb_append(sb, "        snprintf(pid_str, sizeof(pid_str), \"%d\", child);\n");
+    sb_append(sb, "        /* sample <pid> <duration> -f <output> -mayDie */\n");
+    sb_append(sb, "        execlp(\"sample\", \"sample\", pid_str, \"60\", \"-f\", sample_file, \"-mayDie\", (char*)NULL);\n");
+    sb_append(sb, "        _exit(1); /* exec failed */\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Give sample time to attach */\n");
+    sb_append(sb, "    usleep(200000); /* 200ms */\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Signal child to start running */\n");
+    sb_append(sb, "    write(sync_pipe[1], \"g\", 1);\n");
+    sb_append(sb, "    close(sync_pipe[1]);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parent: wait for child to complete */\n");
+    sb_append(sb, "    int status = 0;\n");
+    sb_append(sb, "    waitpid(child, &status, 0);\n");
+    sb_append(sb, "    int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Give sample time to finish writing */\n");
+    sb_append(sb, "    usleep(500000); /* 500ms */\n");
+    sb_append(sb, "    kill(sampler, SIGTERM);\n");
+    sb_append(sb, "    waitpid(sampler, NULL, 0);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse and output results */\n");
+    sb_append(sb, "    _nl_parse_sample_output(sample_file, argv[0]);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Clean up */\n");
+    sb_append(sb, "    unlink(sample_file);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    return exit_code;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "#endif /* __APPLE__ */\n\n");
+    
+    /* Linux-specific: use gprofng */
+    sb_append(sb, "#ifdef __linux__\n\n");
+    
+    sb_append(sb, "/* Parse gprofng output directory and convert to JSON */\n");
+    sb_append(sb, "static void _nl_parse_gprofng_output(const char* exp_dir, const char* binary) {\n");
+    sb_append(sb, "    _nl_profile_json_header(binary, \"Linux\", \"gprofng\");\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Run gprofng display to get function list */\n");
+    sb_append(sb, "    char cmd[1024];\n");
+    sb_append(sb, "    snprintf(cmd, sizeof(cmd), \"gprofng display text -functions '%s' 2>/dev/null\", exp_dir);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
+    sb_append(sb, "    if (!pipe) {\n");
+    sb_append(sb, "        fprintf(stderr, \"[profile] Failed to run gprofng display\\n\");\n");
+    sb_append(sb, "        _nl_profile_json_footer();\n");
+    sb_append(sb, "        return;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    char line[1024];\n");
+    sb_append(sb, "    int count = 0;\n");
+    sb_append(sb, "    int max_entries = 20;\n");
+    sb_append(sb, "    int in_data = 0;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    while (fgets(line, sizeof(line), pipe) && count < max_entries) {\n");
+    sb_append(sb, "        /* Skip header lines until we see data */\n");
+    sb_append(sb, "        if (strstr(line, \"Excl.\") || strstr(line, \"-----\")) {\n");
+    sb_append(sb, "            in_data = 1;\n");
+    sb_append(sb, "            continue;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        if (!in_data) continue;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Parse: Excl_sec  Excl_%  Incl_sec  Incl_%  Name */\n");
+    sb_append(sb, "        double excl_sec = 0, excl_pct = 0, incl_sec = 0, incl_pct = 0;\n");
+    sb_append(sb, "        char func[512] = {0};\n");
+    sb_append(sb, "        if (sscanf(line, \" %lf %lf %lf %lf %511s\", &excl_sec, &excl_pct, &incl_sec, &incl_pct, func) >= 5) {\n");
+    sb_append(sb, "            if (excl_pct >= 1.0 && strlen(func) > 0) {\n");
+    sb_append(sb, "                _nl_profile_json_entry(&count, func, (int)(excl_pct * 10), excl_pct);\n");
+    sb_append(sb, "            }\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    pclose(pipe);\n");
+    sb_append(sb, "    _nl_profile_json_footer();\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "/* Linux profiling wrapper using gprofng collect */\n");
+    sb_append(sb, "static int _nl_run_with_profiling(int argc, char** argv, int64_t (*real_main)(void)) {\n");
+    sb_append(sb, "    (void)real_main; /* Not used directly - we exec through gprofng */\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Check if we're already being profiled (avoid recursion) */\n");
+    sb_append(sb, "    const char* ld_preload = getenv(\"LD_PRELOAD\");\n");
+    sb_append(sb, "    if (getenv(\"_NL_PROFILING_CHILD\") || (ld_preload && strstr(ld_preload, \"libgp-collector\"))) {\n");
+    sb_append(sb, "        /* We're already being profiled - just run normally */\n");
+    sb_append(sb, "        return (int)real_main();\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Generate unique experiment directory */\n");
+    sb_append(sb, "    char exp_dir[256];\n");
+    sb_append(sb, "    snprintf(exp_dir, sizeof(exp_dir), \"/tmp/nanolang_gprofng_%d.er\", getpid());\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    pid_t child = fork();\n");
+    sb_append(sb, "    if (child < 0) {\n");
+    sb_append(sb, "        perror(\"fork failed\");\n");
+    sb_append(sb, "        return 1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    if (child == 0) {\n");
+    sb_append(sb, "        /* Child: exec through gprofng collect */\n");
+    sb_append(sb, "        setenv(\"_NL_PROFILING_CHILD\", \"1\", 1);\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        /* Build argv for gprofng: gprofng collect app -o <dir> <binary> <args...> */\n");
+    sb_append(sb, "        char** new_argv = malloc((argc + 6) * sizeof(char*));\n");
+    sb_append(sb, "        new_argv[0] = \"gprofng\";\n");
+    sb_append(sb, "        new_argv[1] = \"collect\";\n");
+    sb_append(sb, "        new_argv[2] = \"app\";\n");
+    sb_append(sb, "        new_argv[3] = \"-o\";\n");
+    sb_append(sb, "        new_argv[4] = exp_dir;\n");
+    sb_append(sb, "        for (int i = 0; i < argc; i++) {\n");
+    sb_append(sb, "            new_argv[5 + i] = argv[i];\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        new_argv[5 + argc] = NULL;\n");
+    sb_append(sb, "        \n");
+    sb_append(sb, "        execvp(\"gprofng\", new_argv);\n");
+    sb_append(sb, "        /* If gprofng not available, just run directly */\n");
+    sb_append(sb, "        _exit((int)real_main());\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parent: wait for child and parse results */\n");
+    sb_append(sb, "    int status = 0;\n");
+    sb_append(sb, "    waitpid(child, &status, 0);\n");
+    sb_append(sb, "    int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : 1;\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Parse and output results */\n");
+    sb_append(sb, "    _nl_parse_gprofng_output(exp_dir, argv[0]);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    /* Clean up experiment directory */\n");
+    sb_append(sb, "    char rm_cmd[512];\n");
+    sb_append(sb, "    snprintf(rm_cmd, sizeof(rm_cmd), \"rm -rf '%s' 2>/dev/null\", exp_dir);\n");
+    sb_append(sb, "    system(rm_cmd);\n");
+    sb_append(sb, "    \n");
+    sb_append(sb, "    return exit_code;\n");
+    sb_append(sb, "}\n\n");
+    
+    sb_append(sb, "#endif /* __linux__ */\n\n");
+    
+    /* Fallback for other platforms */
+    sb_append(sb, "#if !defined(__APPLE__) && !defined(__linux__)\n");
+    sb_append(sb, "/* Fallback: just run the program without profiling */\n");
+    sb_append(sb, "static int _nl_run_with_profiling(int argc, char** argv, int64_t (*real_main)(void)) {\n");
+    sb_append(sb, "    (void)argc; (void)argv;\n");
+    sb_append(sb, "    fprintf(stderr, \"[profile] Profiling not supported on this platform\\n\");\n");
+    sb_append(sb, "    return (int)real_main();\n");
+    sb_append(sb, "}\n");
+    sb_append(sb, "#endif\n\n");
+    
+    sb_append(sb, "/* ========== End Cross-Platform Profiling System ========== */\n\n");
+}

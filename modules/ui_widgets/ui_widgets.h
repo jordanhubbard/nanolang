@@ -128,4 +128,11 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
                          int64_t w, int64_t h, int64_t scroll_offset,
                          int64_t line_height);
 
+// Code display widget - ANSI-colored code viewer
+// Expects ANSI color codes (e.g., "\x1b[35m") in the input string.
+void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
+                             const char* code, int64_t x, int64_t y,
+                             int64_t w, int64_t h, int64_t scroll_offset,
+                             int64_t line_height);
+
 #endif // UI_WIDGETS_H

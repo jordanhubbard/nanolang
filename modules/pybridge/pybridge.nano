@@ -1,4 +1,5 @@
 from "modules/std/json/json.nano" import Json, new_array, new_string, json_array_push, stringify, free
+from "modules/std/fs.nano" import file_exists
 
 extern fn nl_pybridge_init(_requirements_json: string, _privileged: int) -> int
 extern fn nl_pybridge_import(_module: string) -> int
@@ -12,6 +13,12 @@ extern fn nl_pybridge_deps() -> string
 extern fn nl_pybridge_shutdown() -> void
 
 pub fn pybridge_init(requirements: array<string>, privileged: bool) -> bool {
+    let dylib_path: string = "modules/pybridge/.build/libpybridge.dylib"
+    let so_path: string = "modules/pybridge/.build/libpybridge.so"
+    if (and (not (file_exists dylib_path)) (not (file_exists so_path))) {
+        return false
+    }
+
     let arr: Json = (new_array)
     let mut i: int = 0
     while (< i (array_length requirements)) {

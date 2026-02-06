@@ -43,6 +43,9 @@
 # The documentation at the top of this file is sufficient - BSD users will see
 # clear syntax errors and can read the instructions at the top.
 
+SHELL := /usr/bin/env bash
+.SHELLFLAGS := -e -o pipefail -c
+
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc
 LDFLAGS = -lm
@@ -63,7 +66,7 @@ SRC_DIR = src
 SRC_NANO_DIR = src_nano
 OBJ_DIR = obj
 BIN_DIR = bin
-BUILD_DIR = build_bootstrap
+BUILD_DIR = $(OBJ_DIR)/build_bootstrap
 COV_DIR = coverage
 RUNTIME_DIR = $(SRC_DIR)/runtime
 USERGUIDE_DIR = build/userguide
@@ -100,11 +103,19 @@ VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 BOOTSTRAP_DETERMINISTIC ?= 0
 BOOTSTRAP_ENV :=
 ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
-BOOTSTRAP_ENV := NANO_DETERMINISTIC=1
+BOOTSTRAP_ENV += NANO_DETERMINISTIC=1
+endif
+BOOTSTRAP_VERBOSE ?= 1
+ifeq ($(BOOTSTRAP_VERBOSE),1)
+BOOTSTRAP_ENV += NANO_VERBOSE_BUILD=1
+endif
+BOOTSTRAP_VERBOSE_FLAG :=
+ifeq ($(BOOTSTRAP_VERBOSE),1)
+BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -113,6 +124,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTString.c $(RUNTIME_DIR)/list_ASTBool.c \
 	$(RUNTIME_DIR)/list_ASTIdentifier.c \
 	$(RUNTIME_DIR)/list_ASTBinaryOp.c $(RUNTIME_DIR)/list_ASTCall.c \
+	$(RUNTIME_DIR)/list_ASTModuleQualifiedCall.c \
 	$(RUNTIME_DIR)/list_ASTArrayLiteral.c $(RUNTIME_DIR)/list_ASTLet.c \
 	$(RUNTIME_DIR)/list_ASTSet.c $(RUNTIME_DIR)/list_ASTStmtRef.c \
 	$(RUNTIME_DIR)/list_ASTIf.c $(RUNTIME_DIR)/list_ASTWhile.c \
@@ -150,13 +162,13 @@ HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(RUNTIME
 schema: $(SCHEMA_STAMP)
 
 schema-check:
-	@./scripts/check_compiler_schema.sh
+	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
 
 # Schema generation: Use NanoLang if compiler exists, fallback to Python for bootstrap
 bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
 	@if [ -f ./bin/nanoc ]; then \
 		echo "[schema] Compiling schema generator (NanoLang)..."; \
-		./bin/nanoc scripts/gen_compiler_schema.nano -o bin/gen_compiler_schema; \
+		$(TIMEOUT_CMD) ./bin/nanoc scripts/gen_compiler_schema.nano -o bin/gen_compiler_schema; \
 	else \
 		echo "[schema] Compiler not built yet, will use Python for bootstrap"; \
 		touch bin/gen_compiler_schema; \
@@ -169,9 +181,13 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 		./bin/gen_compiler_schema; \
 	else \
 		echo "[schema] Using Python version (bootstrap)..."; \
-		python3 scripts/gen_compiler_schema.py; \
+		$(TIMEOUT_CMD) python3 scripts/gen_compiler_schema.py; \
 	fi
 	@touch $(SCHEMA_STAMP)
+
+# Ensure generated schema headers are created before compilation
+$(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
+	@# Schema stamp ensures this file exists
 
 # ============================================================================
 # Module Index Generation
@@ -190,10 +206,19 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
 modules-index: $(GENERATE_MODULE_INDEX)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
+
+# Validate module dependencies (always run, don't cache)
+modules:
+	@echo "[modules] Generating module index from manifests..."
+	@./$(GENERATE_MODULE_INDEX)
+	@./scripts/validate-modules.sh
+
+# Install all missing module dependencies (requires sudo)
+install-deps:
+	@./scripts/install-deps.sh
 
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
@@ -206,7 +231,6 @@ PREFIX ?= /usr/local
 
 .DEFAULT_GOAL := build
 
-.PHONY: all build test examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch userguide-html
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
 build: schema modules-index $(SENTINEL_STAGE3)
@@ -252,7 +276,7 @@ test-units:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
-	@./scripts/check_compiler_schema.sh
+	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Complete Test Suite"
@@ -269,7 +293,22 @@ test-impl: test-units
 	@echo "To build examples, run: make examples"
 
 # Default test: Use most evolved compiler available (no bd dependency)
-test: build
+# NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
+TEST_TIMEOUT ?= 1800
+USERGUIDE_TIMEOUT ?= 2400
+USERGUIDE_API_TIMEOUT ?= 600
+SHADOW_CHECK_TIMEOUT ?= 120
+CMD_TIMEOUT ?= 600
+TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
+# Bootstrap2 needs extended timeout due to self-hosted compiler performance
+# See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
+BOOTSTRAP2_TIMEOUT ?= 3600
+BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
+# Release needs extended timeout since it runs tests + git/gh operations
+RELEASE_TIMEOUT ?= 2400
+RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
+USERGUIDE_BUILD_API_DOCS ?= 0
+test: build shadow-check userguide-export
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
 		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"; \
@@ -280,13 +319,17 @@ test: build
 	fi
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
-	@$(MAKE) test-impl
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(MAKE) test-impl
 
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
-	@$(USERGUIDE_CHECK_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
+
+# Export user guide snippets into tests/user_guide
+userguide-export: build $(USERGUIDE_CHECK_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
 
 # Test with beads integration (requires bd CLI to be installed)
 # Use this for local development when you want automatic issue tracking
@@ -301,14 +344,14 @@ test-with-beads: build
 	fi
 	@echo ""
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	fi
 	@echo ""
 	@# Auto-file beads on failures.
 	@# Local default: per-failure beads. CI default: summary bead.
 	@MODE=per; \
 	if [ -n "$$CI" ]; then MODE=summary; fi; \
-	python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
+	$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
 
 # Alias for backwards compatibility
 test-full: test
@@ -320,7 +363,7 @@ check-schema:
 # Performance benchmarking
 benchmark:
 	@echo "Running performance benchmarks..."
-	@./scripts/benchmark.sh
+	@$(TIMEOUT_CMD) ./scripts/benchmark.sh
 
 .PHONY: benchmark
 
@@ -333,7 +376,7 @@ test-stage1: stage1
 	@# Temporarily ensure nanoc points to nanoc_c
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -349,7 +392,7 @@ test-stage2: bootstrap1
 	@# Temporarily point nanoc to nanoc_stage1
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_stage1 $(COMPILER)
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -365,7 +408,7 @@ test-bootstrap: bootstrap
 	@echo "🎯 Testing with FULLY BOOTSTRAPPED compiler (nanoc_stage2)"
 	@echo "   Using self-hosted compiler (stage1 → nanoc_stage2)"
 	@echo ""
-	@$(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
 
 # Test only core language features (nl_* tests)
 test-lang: build
@@ -401,33 +444,75 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html: build $(USERGUIDE_BUILD_TOOL)
-	@$(USERGUIDE_BUILD_TOOL)
+userguide-html: build shadow-check $(USERGUIDE_BUILD_TOOL)
+	@if [ "$$CI" = "true" ] || [ "$(USERGUIDE_BUILD_API_DOCS)" = "1" ]; then \
+		$(MAKE) userguide-api-docs; \
+	else \
+		echo "userguide-html: skipping API doc generation (set USERGUIDE_BUILD_API_DOCS=1 to enable)"; \
+	fi
+	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
+
+.PHONY: userguide-api-docs
+userguide-api-docs: build
+	@echo "Generating API documentation..."
+	@perl -e 'alarm $(USERGUIDE_API_TIMEOUT); exec @ARGV' bash scripts/generate_all_api_docs.sh
+
+.PHONY: shadow-check
+shadow-check: build
+	@files=$$(git diff --name-only --diff-filter=AM HEAD -- '*.nano'); \
+	if [ -z "$$files" ]; then \
+		echo "shadow-check: no changed NanoLang files"; \
+	else \
+		echo "$$files" | while read -r file; do \
+			if [ -f "$$file" ]; then \
+				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV' bash scripts/check_shadow_tests.sh "$$file"; \
+			fi; \
+		done; \
+	fi
 
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
 
 $(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
-	@$(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
+	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
 
 $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
-	@$(COMPILER) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
+	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
 
-# Build all examples (primary examples target)
-examples: build check-deps-sdl
+# Build all examples (STRICT: requires all module dependencies)
+# Run 'make -B modules' first to validate dependencies
+examples: build modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
-	@echo "Building Examples"
+	@echo "Building Examples (Strict Mode)"
 	@echo "=========================================="
-	@$(MAKE) -C examples build
+	@echo "Note: This will fail if any module dependencies are missing."
+	@echo "      Run 'make -B modules' to see what's needed."
+	@echo "      Or use 'make examples-available' to skip unavailable examples."
+	@echo ""
+	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
+		$(TIMEOUT_CMD) $(MAKE) -C examples build; \
+	else \
+		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
+	fi
+
+# Build available examples (GRACEFUL: skip examples with missing dependencies)
+examples-available: build check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Available Examples"
+	@echo "=========================================="
+	@echo "Note: Examples with missing dependencies will be skipped."
+	@echo ""
+	@$(TIMEOUT_CMD) $(MAKE) -C examples examples-available
 
 # Launch example browser
-examples-launcher: build check-deps-sdl
+launcher: build check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(MAKE) -C examples launcher
+	@$(TIMEOUT_CMD) $(MAKE) -C examples launcher
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
@@ -448,6 +533,24 @@ examples-no-sdl: build
 	@echo ""
 	@echo "✅ Build complete (SDL examples skipped)"
 
+# Module self-tests (compile-only)
+module-self-test: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Module Self-Tests"
+	@echo "=========================================="
+	@mkdir -p build/module_self_tests
+	@find modules -name mvp.nano -print0 | while IFS= read -r -d '' file; do \
+		rel=$${file#modules/}; \
+		name=$$(echo $$rel | sed 's#/mvp.nano##; s#/#_#g'); \
+		out=build/module_self_tests/$$name; \
+		echo "[module-self-test] $$file -> $$out"; \
+		$(TIMEOUT_CMD) ./bin/nanoc $$file -o $$out; \
+	done
+
+# Backwards-compatible alias
+module-mvp: module-self-test
+
 # Clean: Remove all build artifacts and sentinels
 clean:
 	@echo "Cleaning all build artifacts..."
@@ -461,7 +564,7 @@ clean:
 	rm -f test.nano test_output.c test_program
 	rm -rf .test_output
 	find tests -name "*.out" -o -name "*.out.c" 2>/dev/null | xargs rm -f || true
-	@$(MAKE) -C examples clean 2>/dev/null || true
+	@$(TIMEOUT_CMD) $(MAKE) -C examples clean 2>/dev/null || true
 	@echo "✅ Clean complete - ready for fresh build"
 
 # Rebuild: Clean and build from scratch
@@ -509,8 +612,11 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 
+$(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
+	@$(TIMEOUT_CMD) $(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
+
 # Object file compilation
-$(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime
+$(COMPILER_OBJECTS): | $(OBJ_DIR) $(OBJ_DIR)/runtime $(OBJ_DIR)/eval
 
 $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
@@ -523,6 +629,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/runtime
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # ============================================================================
@@ -556,31 +665,24 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 		log="/tmp/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
 		rm -f "$$out" "$$log"; \
-		if $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
+		if $(TIMEOUT_CMD) $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
 			if [ -x "$$out" ]; then \
 				echo "    ✓ $$comp compiled successfully"; \
 				success=$$((success + 1)); \
 			else \
 				echo "    ❌ $$comp: compiler returned success but binary missing/not executable: $$out"; \
 				tail -80 "$$log" || true; \
-				fail=$$((fail + 1)); \
+				exit 1; \
 			fi; \
 		else \
 			echo "    ❌ $$comp compilation failed"; \
 			tail -80 "$$log" || true; \
-			fail=$$((fail + 1)); \
+			exit 1; \
 		fi; \
 		echo ""; \
 	done; \
-	if [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
-		echo "✓ Stage 2: $$success/3 components built successfully"; \
-		touch $(SENTINEL_STAGE2); \
-	else \
-		echo "❌ Stage 2: FAILED - $$success/3 components built (failures: $$fail)"; \
-		echo ""; \
-		echo "Fix the failing component(s) above (see /tmp/nanolang_stage2_<component>.log)."; \
-		exit 1; \
-	fi
+	echo "✓ Stage 2: $$success/3 components built successfully"; \
+	touch $(SENTINEL_STAGE2)
 
 # ============================================================================
 # Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
@@ -608,21 +710,21 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 			continue; \
 		fi; \
 		echo "  Testing $$comp..."; \
-		if "$$bin" >"$$log" 2>&1; then \
+		if $(TIMEOUT_CMD) "$$bin" >"$$log" 2>&1; then \
 			echo "    ✓ $$comp tests passed"; \
 			success=$$((success + 1)); \
 		else \
 			echo "    ❌ $$comp tests failed"; \
 			tail -120 "$$log" || true; \
-			fail=$$((fail + 1)); \
+			exit 1; \
 		fi; \
 	done; \
 	echo ""; \
-	if [ $$missing -eq 0 ] && [ $$fail -eq 0 ] && [ $$success -eq 3 ]; then \
+	if [ $$missing -eq 0 ] && [ $$success -eq 3 ]; then \
 		echo "✓ Stage 3: $$success/3 components validated"; \
 		touch $(SENTINEL_STAGE3); \
 	else \
-		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing, failures: $$fail)"; \
+		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \
 		echo "See /tmp/nanolang_stage3_<component>.log for details."; \
 		exit 1; \
 	fi
@@ -680,11 +782,11 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with C compiler..."
 	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(BOOTSTRAP_ENV) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
+		$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && $(TIMEOUT_CMD) /tmp/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \
@@ -706,11 +808,11 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "Bootstrap Stage 2: Recompilation"
 	@echo "=========================================="
 	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(NANOC_STAGE1) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
-	@if $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && /tmp/bootstrap_test2 >/dev/null 2>&1; then \
+	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && $(TIMEOUT_CMD) /tmp/bootstrap_test2 >/dev/null 2>&1; then \
 		echo "✓ Stage 2 compiler works!"; \
 		touch $(SENTINEL_BOOTSTRAP2); \
 	else \
@@ -731,19 +833,19 @@ verify-bootstrap: bootstrap
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@echo "Smoke test: stage1 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && /tmp/bootstrap_verify_stage1 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage1 >/dev/null
 	@echo "✓ stage1 ok"
 	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
-	@$(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && /tmp/bootstrap_verify_stage2 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage2 >/dev/null
 	@echo "✓ stage2 ok"
 
 .PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
 
 verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
-	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 verify-no-nanoc_c-check:
-	@$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 # Bootstrap Stage 3: Verify reproducible build
 bootstrap3: $(SENTINEL_BOOTSTRAP3)
@@ -791,7 +893,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
 	echo ""; \
 	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
+	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && $(TIMEOUT_CMD) /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
 		echo "✓ installed compiler works"; \
 	else \
 		echo "❌ installed compiler smoke test failed"; \
@@ -799,7 +901,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	fi; \
 	echo ""; \
 	echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."; \
-	$(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
+	$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
 	echo ""; \
 	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
 	echo ""; \
@@ -832,6 +934,90 @@ bootstrap-status:
 		echo "  ❌ Stage 3: Not verified"; \
 	fi
 	@echo ""
+
+# ============================================================================
+# Profiled Bootstrap (Self-Analysis)
+# ============================================================================
+# Build profiled versions of compiler components and analyze performance.
+# This creates _p suffixed binaries with profiling enabled, runs them on
+# real workloads, and outputs LLM-ready JSON for hotspot analysis.
+
+.PHONY: bootstrap-profile bootstrap-profile-macos bootstrap-profile-linux
+
+# Profiled binaries
+PARSER_P = $(BIN_DIR)/parser_p
+TYPECHECK_P = $(BIN_DIR)/typecheck_p
+TRANSPILER_P = $(BIN_DIR)/transpiler_p
+USERGUIDE_HTML_P = $(BIN_DIR)/userguide_html_p
+
+bootstrap-profile: build
+	@echo ""
+	@echo "=========================================="
+	@echo "Bootstrap Profile: Self-Analysis Mode"
+	@echo "=========================================="
+	@echo ""
+	@echo "Building profiled compiler components..."
+	@echo ""
+	@# Build profiled parser
+	@echo "  [1/4] Building parser_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/parser_driver.nano -o $(PARSER_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled typecheck
+	@echo "  [2/4] Building typecheck_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/typecheck_driver.nano -o $(TYPECHECK_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled transpiler  
+	@echo "  [3/4] Building transpiler_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/transpiler_driver.nano -o $(TRANSPILER_P) -pg 2>&1 | tail -3
+	@echo ""
+	@# Build profiled userguide_html
+	@echo "  [4/4] Building userguide_html_p..."
+	@$(TIMEOUT_CMD) $(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_HTML_P) -pg 2>&1 | tail -3
+	@echo ""
+	@echo "=========================================="
+	@echo "Running profiled components..."
+	@echo "=========================================="
+	@echo ""
+	@# Run profiled parser
+	@echo ">>> PROFILING: parser_p on self (parser.nano)"
+	@echo "-------------------------------------------"
+	@$(PARSER_P) 2>&1 || true
+	@echo ""
+	@# Run profiled typecheck
+	@echo ">>> PROFILING: typecheck_p on self (typecheck.nano)"
+	@echo "-------------------------------------------"
+	@$(TYPECHECK_P) 2>&1 || true
+	@echo ""
+	@# Run profiled transpiler
+	@echo ">>> PROFILING: transpiler_p on self (transpiler.nano)"
+	@echo "-------------------------------------------"
+	@$(TRANSPILER_P) 2>&1 || true
+	@echo ""
+	@# Run profiled userguide_html
+	@echo ">>> PROFILING: userguide_html_p"
+	@echo "-------------------------------------------"
+	@$(USERGUIDE_HTML_P) 2>&1 | head -60 || true
+	@echo ""
+	@echo "=========================================="
+	@echo "✅ Bootstrap Profile Complete"
+	@echo "=========================================="
+	@echo ""
+	@echo "Profiled binaries created:"
+	@ls -lh $(BIN_DIR)/*_p 2>/dev/null || echo "  (none found)"
+	@echo ""
+	@echo "Analysis: Look for nl_ prefixed functions with high sample counts"
+	@echo "These are NanoLang-generated hotspots that may benefit from optimization."
+	@echo ""
+
+# macOS-specific profile run
+bootstrap-profile-macos: bootstrap-profile
+	@echo "Running on macOS with sample(1)..."
+	@echo "Platform-specific profiling complete."
+
+# Linux-specific profile run  
+bootstrap-profile-linux: bootstrap-profile
+	@echo "Running on Linux with gprofng..."
+	@echo "Platform-specific profiling complete."
 
 # ============================================================================
 # Additional Targets
@@ -872,8 +1058,8 @@ $(HYBRID_COMPILER): $(HYBRID_OBJECTS) | $(BIN_DIR)
 
 $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@echo "Compiling nanolang lexer..."
-	$(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
-	sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
+	$(TIMEOUT_CMD) $(COMPILER) src_nano/lexer_main.nano -o $(OBJ_DIR)/lexer_nano.tmp --keep-c
+	$(TIMEOUT_CMD) sed -e '/\/\* C main() entry point/,/^}/d' $(OBJ_DIR)/lexer_nano.tmp.c > $(OBJ_DIR)/lexer_nano_noMain.c
 	$(CC) $(CFLAGS) -c $(OBJ_DIR)/lexer_nano_noMain.c -o $@
 	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
 
@@ -923,9 +1109,9 @@ coverage: rebuild
 # Coverage report
 coverage-report: coverage test
 	@echo "Generating coverage report..."
-	@lcov --capture --directory . --output-file coverage.info
-	@lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
-	@genhtml coverage.info --output-directory $(COV_DIR)
+	@$(TIMEOUT_CMD) lcov --capture --directory . --output-file coverage.info
+	@$(TIMEOUT_CMD) lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
+	@$(TIMEOUT_CMD) genhtml coverage.info --output-directory $(COV_DIR)
 	@echo "Coverage report generated in $(COV_DIR)/index.html"
 
 # Install binaries
@@ -944,9 +1130,32 @@ valgrind: $(COMPILER)
 	@for example in examples/*.nano; do \
 		echo "Checking $$example..."; \
 		valgrind --leak-check=full --error-exitcode=1 --quiet \
-			$(COMPILER) $$example -o .test_output/valgrind_test 2>&1 | grep -v "Conditional jump" || true; \
+			$(TIMEOUT_CMD) $(COMPILER) $$example -o .test_output/valgrind_test 2>&1 | grep -v "Conditional jump" || true; \
 	done
 	@echo "Valgrind checks complete"
+
+# Fuzzing targets
+fuzz-build:
+	@echo "Building fuzzing targets..."
+	@mkdir -p tests/fuzzing
+	@echo "Building simple lexer fuzzer..."
+	@gcc -g -O1 -fsanitize=address \
+		-Isrc \
+		tests/fuzzing/simple_fuzz_lexer.c src/lexer.c \
+		-o tests/fuzzing/simple_fuzz_lexer
+	@echo "✓ Fuzzer binaries built in tests/fuzzing/"
+	@echo "Note: For advanced fuzzing with libFuzzer or AFL++, see tests/fuzzing/README.md"
+
+fuzz-lexer: fuzz-build
+	@echo "Running lexer fuzzer on corpus..."
+	@for f in tests/fuzzing/corpus_lexer/*.nano; do \
+		echo "Testing $$f..."; \
+		tests/fuzzing/simple_fuzz_lexer "$$f" || exit 1; \
+	done
+	@echo "✓ Lexer fuzzing complete (all seed files passed)"
+
+fuzz: fuzz-lexer
+	@echo "All fuzzing runs complete"
 
 # Help
 help:
@@ -955,15 +1164,21 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Main Targets:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make build            - Build all components (default)"
-	@echo "  make bootstrap        - TRUE 3-stage bootstrap (GCC-style)"
-	@echo "  make test             - Build + run all tests (auto-detect best compiler)"
-	@echo "  make test-beads       - Run tests; on failures, auto-create/update beads"
-	@echo "  make examples         - Build all examples"
-	@echo "  make examples-beads   - Build examples; on failures, auto-create/update beads"
-	@echo "  make examples-launcher- Launch example browser"
-	@echo "  make clean            - Remove all artifacts"
-	@echo "  make rebuild          - Clean + build"
+	@echo "  make build              - Build all components (default)"
+	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
+	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
+	@echo "  make test-beads         - Run tests; on failures, auto-create/update beads"
+	@echo ""
+	@echo "Module Dependencies:"
+	@echo "  make modules            - Check what dependencies are needed (no sudo)"
+	@echo "  sudo make install-deps  - Install all missing dependencies (requires sudo)"
+	@echo ""
+	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
+	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
+	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
+	@echo "  make launcher           - Launch example browser"
+	@echo "  make clean              - Remove all artifacts"
+	@echo "  make rebuild            - Clean + build"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Testing Targets:"
@@ -976,6 +1191,8 @@ help:
 	@echo "  make test-app          - Test only application/integration tests"
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
+	@echo "  make fuzz              - Run fuzzing on seed corpus"
+	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Component Build (Stage Targets):"
@@ -997,12 +1214,16 @@ help:
 	@echo "  make verify-no-nanoc_c - Ensure self-hosted compiler never shells out to nanoc_c"
 	@echo ""
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "Development:"
+	@echo "Development & Quality:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make sanitize    - Build with sanitizers"
-	@echo "  make coverage    - Build with coverage"
-	@echo "  make valgrind    - Run memory checks"
-	@echo "  make install     - Install to $(PREFIX)/bin"
+	@echo "  make sanitize        - Build with sanitizers (AddressSanitizer + UBSan)"
+	@echo "  make coverage        - Build with coverage instrumentation"
+	@echo "  make coverage-report - Generate HTML coverage report (requires lcov)"
+	@echo "  make valgrind        - Run memory checks with valgrind"
+	@echo "  make install         - Install to $(PREFIX)/bin"
+	@echo ""
+	@echo "Coverage: Requires lcov (brew install lcov / apt-get install lcov)"
+	@echo "Report generated in: coverage/index.html"
 	@echo ""
 	@echo "Component Build Process:"
 	@echo "  Stage 1: C sources → nanoc + nano"
@@ -1021,14 +1242,14 @@ help:
 test-beads: test-with-beads
 
 examples-beads:
-	@python3 scripts/autobeads.py --examples
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples
 
 # CI-friendly: one summary bead per run (per branch), auto-closed when green
 test-beads-ci:
-	@python3 scripts/autobeads.py --tests --mode summary --close-on-success
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode summary --close-on-success
 
 examples-beads-ci:
-	@python3 scripts/autobeads.py --examples --mode summary --close-on-success
+	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples --mode summary --close-on-success
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"
@@ -1042,14 +1263,16 @@ $(OBJ_DIR):
 $(OBJ_DIR)/runtime: | $(OBJ_DIR)
 	mkdir -p $(OBJ_DIR)/runtime
 
+$(OBJ_DIR)/eval: | $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)/eval
+
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
-.PHONY: all build test test-docs examples examples-launcher examples-no-sdl clean rebuild help check-deps check-deps-sdl stage1 stage2 stage3 status sanitize coverage coverage-report install uninstall valgrind stage1.5 bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3 bootstrap-status bootstrap-install benchmark modules-index release release-major release-minor release-patch
+.PHONY: all build test test-docs examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
@@ -1062,12 +1285,12 @@ $(BUILD_DIR):
 #   make release-major        # Bump major version (X.0.0)
 release:
 	@echo "Creating patch release..."
-	@./scripts/release.sh patch
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh patch
 
 release-minor:
 	@echo "Creating minor release..."
-	@./scripts/release.sh minor
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh minor
 
 release-major:
 	@echo "Creating major release..."
-	@./scripts/release.sh major
+	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh major

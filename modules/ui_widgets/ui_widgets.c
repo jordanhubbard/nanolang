@@ -1480,3 +1480,133 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
     // Clear clipping
     SDL_RenderSetClipRect(renderer, NULL);
 }
+
+static void ansi_color_from_code(int code, int *r, int *g, int *b) {
+    switch (code) {
+        case 35: // keyword (purple)
+            *r = 180; *g = 120; *b = 255;
+            break;
+        case 36: // type (cyan)
+            *r = 100; *g = 220; *b = 255;
+            break;
+        case 32: // string (green)
+            *r = 140; *g = 220; *b = 140;
+            break;
+        case 33: // number (yellow/orange)
+            *r = 240; *g = 200; *b = 120;
+            break;
+        case 90: // comment (gray)
+            *r = 120; *g = 120; *b = 140;
+            break;
+        case 37: // operator/paren (light gray)
+            *r = 220; *g = 220; *b = 220;
+            break;
+        case 0:  // reset
+        default:
+            *r = 220; *g = 220; *b = 220;
+            break;
+    }
+}
+
+// Code display widget - ANSI-colored code viewer
+void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
+                             const char* code, int64_t x, int64_t y,
+                             int64_t w, int64_t h, int64_t scroll_offset,
+                             int64_t line_height) {
+    if (!font || !code) return;
+
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
+    SDL_RenderFillRect(renderer, &bg);
+    SDL_SetRenderDrawColor(renderer, 60, 60, 70, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+
+    SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_RenderSetClipRect(renderer, &clip);
+
+    int current_x = (int)x + 5;
+    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
+    int pos = 0;
+    int code_len = strlen(code);
+
+    int r = 220, g = 220, b = 220;
+
+    while (pos < code_len) {
+        char c = code[pos];
+
+        if (c == '\n') {
+            current_x = (int)x + 5;
+            current_y += (int)line_height;
+            pos++;
+            if (current_y > (int)y + (int)h) break;
+            continue;
+        }
+
+        if (c == ' ') {
+            int space_w;
+            TTF_SizeText(font, " ", &space_w, NULL);
+            current_x += space_w;
+            pos++;
+            continue;
+        }
+
+        if (c == '\t') {
+            int space_w;
+            TTF_SizeText(font, " ", &space_w, NULL);
+            current_x += space_w * 4;
+            pos++;
+            continue;
+        }
+
+        if (c == 27 && code[pos + 1] == '[') {
+            int seq = 0;
+            int seq_pos = pos + 2;
+            while (code[seq_pos] && code[seq_pos] != 'm') {
+                if (code[seq_pos] >= '0' && code[seq_pos] <= '9') {
+                    seq = seq * 10 + (code[seq_pos] - '0');
+                }
+                seq_pos++;
+            }
+            if (code[seq_pos] == 'm') {
+                ansi_color_from_code(seq, &r, &g, &b);
+                pos = seq_pos + 1;
+                continue;
+            }
+        }
+
+        // Render a run until whitespace/newline/escape
+        char token_text[256];
+        int token_len = 0;
+        while (pos + token_len < code_len && token_len < 255) {
+            char tc = code[pos + token_len];
+            if (tc == '\n' || tc == ' ' || tc == '\t' || (tc == 27 && code[pos + token_len + 1] == '[')) {
+                break;
+            }
+            token_text[token_len++] = tc;
+        }
+        if (token_len == 0) {
+            pos++;
+            continue;
+        }
+        token_text[token_len] = '\0';
+
+        if (current_y + (int)line_height >= (int)y) {
+            SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
+            SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
+            if (surface) {
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                if (texture) {
+                    SDL_Rect dst = {current_x, current_y, surface->w, surface->h};
+                    SDL_RenderCopy(renderer, texture, NULL, &dst);
+                    current_x += surface->w;
+                    SDL_DestroyTexture(texture);
+                }
+                SDL_FreeSurface(surface);
+            }
+        }
+
+        pos += token_len;
+    }
+
+    SDL_RenderSetClipRect(renderer, NULL);
+}

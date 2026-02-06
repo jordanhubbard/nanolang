@@ -84,14 +84,14 @@ fn parse_args() -> CompilerArgs {
     } else {
         set input (get_argv 1)
         
-        if (str_equals input "--help") {
+        if (== input "--help") {
             set help true
         } else {
             /* Parse remaining options */
             let mut i: int = 2
             while (< i argc) {
                 let arg: string = (get_argv i)
-                if (str_equals arg "-o") {
+                if (== arg "-o") {
                     set i (+ i 1)
                     if (< i argc) {
                         set output (get_argv i)
@@ -99,10 +99,10 @@ fn parse_args() -> CompilerArgs {
                         set error true
                     }
                 } else {
-                    if (str_equals arg "--keep-c") {
+                    if (== arg "--keep-c") {
                         set keep_c true
                     } else {
-                        if (str_equals arg "--verbose") {
+                        if (== arg "--verbose") {
                             set verbose true
                         } else {
                             set error true

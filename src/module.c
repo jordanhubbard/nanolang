@@ -100,7 +100,10 @@ void clear_module_cache(void) {
     if (module_cache) {
         for (int i = 0; i < module_cache->count; i++) {
             free(module_cache->loaded_paths[i]);
-            /* Don't free ASTs - they're owned by the environment */
+            /* Free ASTs - they were allocated during module loading and are no longer needed */
+            if (module_cache->loaded_asts[i]) {
+                free_ast(module_cache->loaded_asts[i]);
+            }
         }
         free(module_cache->loaded_paths);
         free(module_cache->loaded_asts);
@@ -418,6 +421,41 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
     
     /* Fallback: return module_path as-is (will fail if not found) */
     return strdup(module_path);
+}
+
+static char *module_name_from_path(const char *module_path) {
+    if (!module_path) {
+        return NULL;
+    }
+    const char *last_slash = strrchr(module_path, '/');
+    const char *last_dot = strrchr(module_path, '.');
+    if (last_slash && last_dot && last_dot > last_slash) {
+        size_t name_len = last_dot - (last_slash + 1);
+        return strndup(last_slash + 1, name_len);
+    }
+    if (last_slash) {
+        return strdup(last_slash + 1);
+    }
+    if (last_dot) {
+        size_t name_len = last_dot - module_path;
+        return strndup(module_path, name_len);
+    }
+    return strdup(module_path);
+}
+
+static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
+    if (!env || !func_name) {
+        return NULL;
+    }
+    for (int i = 0; i < env->function_count; i++) {
+        if (safe_strcmp(env->functions[i].name, func_name) == 0) {
+            if (!module_name || !env->functions[i].module_name ||
+                strcmp(env->functions[i].module_name, module_name) == 0) {
+                return &env->functions[i];
+            }
+        }
+    }
+    return NULL;
 }
 
 /* Load and parse a module file */
@@ -788,21 +826,25 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
             }
             
+            char *orig_module_name = NULL;
+            for (int j = 0; j < module_ast->as.program.count; j++) {
+                ASTNode *node = module_ast->as.program.items[j];
+                if (node->type == AST_MODULE_DECL && !orig_module_name) {
+                    orig_module_name = node->as.module_decl.name;
+                }
+            }
+            
             /* Register namespace if module has an alias */
             if (module_alias) {
                 /* Extract function names, struct names, enum names, union names from module */
                 /* Count them first */
                 int func_count = 0, struct_count = 0, enum_count = 0, union_count = 0;
-                char *orig_module_name = NULL;
                 for (int j = 0; j < module_ast->as.program.count; j++) {
                     ASTNode *node = module_ast->as.program.items[j];
                     if (node->type == AST_FUNCTION) func_count++;
                     else if (node->type == AST_STRUCT_DEF) struct_count++;
                     else if (node->type == AST_ENUM_DEF) enum_count++;
                     else if (node->type == AST_UNION_DEF) union_count++;
-                    else if (node->type == AST_MODULE_DECL && !orig_module_name) {
-                        orig_module_name = node->as.module_decl.name;
-                    }
                 }
                 
                 /* Allocate arrays */
@@ -832,6 +874,64 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                                       struct_names, struct_count,
                                       enum_names, enum_count,
                                       union_names, union_count);
+            }
+
+            /* Apply import aliases for selective imports: from "module" import foo as bar */
+            if (item->as.import_stmt.is_selective &&
+                item->as.import_stmt.import_symbols &&
+                item->as.import_stmt.import_symbol_count > 0) {
+                char *module_name_for_alias = NULL;
+                if (orig_module_name) {
+                    module_name_for_alias = strdup(orig_module_name);
+                } else {
+                    module_name_for_alias = module_name_from_path(module_path);
+                }
+                
+                for (int j = 0; j < item->as.import_stmt.import_symbol_count; j++) {
+                    const char *symbol = item->as.import_stmt.import_symbols[j];
+                    const char *alias = item->as.import_stmt.import_aliases
+                        ? item->as.import_stmt.import_aliases[j]
+                        : NULL;
+                    
+                    if (!alias || alias[0] == '\0' || strcmp(alias, symbol) == 0) {
+                        continue;
+                    }
+                    
+                    if (env_get_function(env, alias)) {
+                        fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
+                                item->line, item->column, alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) {
+                            free(unpacked_dirs[k]);
+                        }
+                        free(unpacked_dirs);
+                        return false;
+                    }
+                    
+                    Function *func = find_module_function(env, module_name_for_alias, symbol);
+                    if (!func) {
+                        fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
+                                item->line, item->column, symbol, alias);
+                        free(module_name_for_alias);
+                        free(module_path);
+                        for (int k = 0; k < unpacked_count; k++) {
+                            free(unpacked_dirs[k]);
+                        }
+                        free(unpacked_dirs);
+                        return false;
+                    }
+                    
+                    Function alias_func = *func;
+                    alias_func.name = strdup(alias);
+                    const char *orig_name = func->alias_of ? func->alias_of : func->name;
+                    alias_func.alias_of = orig_name ? strdup(orig_name) : NULL;
+                    env_define_function(env, alias_func);
+                }
+                
+                if (module_name_for_alias) {
+                    free(module_name_for_alias);
+                }
             }
             
             /* Execute module definitions (functions, structs, etc.) */
@@ -1572,6 +1672,70 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             if (env->functions[i].return_struct_type_name) {
                 meta->functions[i].return_struct_type_name = strdup(env->functions[i].return_struct_type_name);
             }
+
+            /* Auto-generate memory semantics annotations based on return type */
+            if (env->functions[i].return_type == TYPE_STRING) {
+                /* String return types are GC-managed */
+                meta->functions[i].returns_gc_managed = true;
+                meta->functions[i].requires_manual_free = false;
+                meta->functions[i].cleanup_function = NULL;
+            } else if (env->functions[i].return_type == TYPE_OPAQUE) {
+                /* Opaque types typically require manual free */
+                meta->functions[i].returns_gc_managed = false;
+                meta->functions[i].requires_manual_free = true;
+
+                /* Infer cleanup function name from function name convention */
+                /* Pattern: <type>_<action> -> <type>_free (e.g., regex_compile -> regex_free) */
+                if (env->functions[i].name) {
+                    const char *name = env->functions[i].name;
+                    /* Find last underscore to extract type prefix */
+                    const char *last_underscore = strrchr(name, '_');
+                    if (last_underscore && last_underscore > name) {
+                        /* Extract prefix (type name) */
+                        size_t prefix_len = last_underscore - name;
+                        char *cleanup_name = malloc(prefix_len + 6); /* prefix + "_free" + \0 */
+                        if (cleanup_name) {
+                            memcpy(cleanup_name, name, prefix_len);
+                            cleanup_name[prefix_len] = '\0';
+                            strcat(cleanup_name, "_free");
+                            meta->functions[i].cleanup_function = cleanup_name;
+                        } else {
+                            meta->functions[i].cleanup_function = NULL;
+                        }
+                    } else {
+                        meta->functions[i].cleanup_function = NULL;
+                    }
+                } else {
+                    meta->functions[i].cleanup_function = NULL;
+                }
+
+                /* Detect borrowed reference returns (accessors vs constructors) */
+                /* Pattern: functions with "get" in the name return borrowed refs */
+                /* Constructors (parse, new_, compile) return owned refs */
+                meta->functions[i].returns_borrowed = false;
+                if (env->functions[i].name) {
+                    const char *name = env->functions[i].name;
+                    /* Check if it's an accessor function (gets existing data) */
+                    if (strstr(name, "get") != NULL ||
+                        strstr(name, "Get") != NULL ||
+                        strstr(name, "as_") != NULL) {  /* as_string, as_bool, etc. also borrowed */
+                        meta->functions[i].returns_borrowed = true;
+                        /* Borrowed refs don't need cleanup */
+                        meta->functions[i].requires_manual_free = false;
+                        if (meta->functions[i].cleanup_function) {
+                            free(meta->functions[i].cleanup_function);
+                            meta->functions[i].cleanup_function = NULL;
+                        }
+                    }
+                }
+            } else {
+                /* Other types don't require special memory management */
+                meta->functions[i].returns_gc_managed = false;
+                meta->functions[i].requires_manual_free = false;
+                meta->functions[i].returns_borrowed = false;
+                meta->functions[i].cleanup_function = NULL;
+            }
+
             /* Clear body and shadow_test - not needed in metadata */
             meta->functions[i].body = NULL;
             meta->functions[i].shadow_test = NULL;

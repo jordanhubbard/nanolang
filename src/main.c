@@ -1,7 +1,9 @@
 #include "nanolang.h"
+#include "colors.h"
 #include "version.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
+#include "reflection.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
@@ -19,11 +21,14 @@ char **g_argv = NULL;
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool show_intermediate_code;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
+    bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
+    const char *reflect_output_path;  /* --reflect <path>: emit module API as JSON */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -289,6 +294,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->warn_unsafe_calls = opts->warn_unsafe_calls;
     env->warn_ffi = opts->warn_ffi;
     env->forbid_unsafe = opts->forbid_unsafe;
+    env->profile_gprof = opts->profile_gprof;
     
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
@@ -298,6 +304,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
@@ -313,13 +320,20 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char module_compile_flags[2048] = "";
 
     /* Phase 4: Type Checking */
-    if (!type_check(program, env)) {
+    typecheck_set_current_file(input_file);
+    /* Use type_check_module if reflection is requested (modules don't need main) */
+    bool typecheck_success = opts->reflect_output_path ? 
+        type_check_module(program, env) : 
+        type_check(program, env);
+    
+    if (!typecheck_success) {
         fprintf(stderr, "Type checking failed\n");
         diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
@@ -327,6 +341,46 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
+
+    /* Phase 4.4: Module Reflection (if requested) */
+    if (opts->reflect_output_path) {
+        /* Extract module name from input file */
+        const char *module_name = strrchr(input_file, '/');
+        module_name = module_name ? module_name + 1 : input_file;
+        /* Remove .nano extension if present */
+        char *name_copy = strdup(module_name);
+        char *dot = strrchr(name_copy, '.');
+        if (dot && strcmp(dot, ".nano") == 0) {
+            *dot = '\0';
+        }
+        
+        if (opts->verbose) printf("→ Emitting module reflection to %s\n", opts->reflect_output_path);
+        
+        if (!emit_module_reflection(opts->reflect_output_path, program, env, name_copy)) {
+            fprintf(stderr, "Error: Failed to emit module reflection\n");
+            free(name_copy);
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            free(source);
+            llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+        
+        if (opts->verbose) printf("✓ Module reflection complete\n");
+        free(name_copy);
+        
+        /* Clean up and exit - no need to compile when reflecting */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
 
     /* Phase 4.5: Build imported modules (object + shared libs) */
     if (modules->count > 0) {
@@ -339,6 +393,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             free_tokens(tokens, token_count);
             free_environment(env);
             free_module_list(modules);
+            clear_module_cache();
             free(source);
             llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
             llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
@@ -392,6 +447,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         ffi_cleanup();
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
@@ -432,6 +488,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         ffi_cleanup();
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
@@ -449,6 +506,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     if (opts->verbose) {
         printf("✓ Transpilation complete (%d lines of C, %zu bytes)\n", c_code_lines, c_code_size);
+    }
+
+    if (opts->show_intermediate_code) {
+        fwrite(c_code, 1, c_code_size, stdout);
+        fflush(stdout);
     }
     
     /* Save generated C to .genC file if -S flag is set */
@@ -487,6 +549,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
@@ -800,7 +863,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Build runtime files string */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[4096] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/list_token.c src/runtime/list_CompilerDiagnostic.c src/runtime/list_CompilerSourceLocation.c src/runtime/list_ASTNumber.c src/runtime/list_ASTFloat.c src/runtime/list_ASTString.c src/runtime/list_ASTBool.c src/runtime/list_ASTIdentifier.c src/runtime/list_ASTBinaryOp.c src/runtime/list_ASTCall.c src/runtime/list_ASTArrayLiteral.c src/runtime/list_ASTLet.c src/runtime/list_ASTSet.c src/runtime/list_ASTStmtRef.c src/runtime/list_ASTIf.c src/runtime/list_ASTWhile.c src/runtime/list_ASTFor.c src/runtime/list_ASTReturn.c src/runtime/list_ASTBlock.c src/runtime/list_ASTUnsafeBlock.c src/runtime/list_ASTPrint.c src/runtime/list_ASTAssert.c src/runtime/list_ASTFunction.c src/runtime/list_ASTShadow.c src/runtime/list_ASTStruct.c src/runtime/list_ASTStructLiteral.c src/runtime/list_ASTFieldAccess.c src/runtime/list_ASTEnum.c src/runtime/list_ASTUnion.c src/runtime/list_ASTUnionConstruct.c src/runtime/list_ASTMatch.c src/runtime/list_ASTImport.c src/runtime/list_ASTOpaqueType.c src/runtime/list_ASTTupleLiteral.c src/runtime/list_ASTTupleIndex.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/regex.c";
+    char runtime_files[4096] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/list_token.c src/runtime/list_CompilerDiagnostic.c src/runtime/list_CompilerSourceLocation.c src/runtime/list_ASTNumber.c src/runtime/list_ASTFloat.c src/runtime/list_ASTString.c src/runtime/list_ASTBool.c src/runtime/list_ASTIdentifier.c src/runtime/list_ASTBinaryOp.c src/runtime/list_ASTCall.c src/runtime/list_ASTModuleQualifiedCall.c src/runtime/list_ASTArrayLiteral.c src/runtime/list_ASTLet.c src/runtime/list_ASTSet.c src/runtime/list_ASTStmtRef.c src/runtime/list_ASTIf.c src/runtime/list_ASTWhile.c src/runtime/list_ASTFor.c src/runtime/list_ASTReturn.c src/runtime/list_ASTBlock.c src/runtime/list_ASTUnsafeBlock.c src/runtime/list_ASTPrint.c src/runtime/list_ASTAssert.c src/runtime/list_ASTFunction.c src/runtime/list_ASTShadow.c src/runtime/list_ASTStruct.c src/runtime/list_ASTStructLiteral.c src/runtime/list_ASTFieldAccess.c src/runtime/list_ASTEnum.c src/runtime/list_ASTUnion.c src/runtime/list_ASTUnionConstruct.c src/runtime/list_ASTMatch.c src/runtime/list_ASTImport.c src/runtime/list_ASTOpaqueType.c src/runtime/list_ASTTupleLiteral.c src/runtime/list_ASTTupleIndex.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/regex.c";
     strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
     
     /* Add /tmp to include path for generated list headers */
@@ -818,9 +881,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     export_dynamic_flag = "-Wl,-E";
 #endif
 
+    /* Profiling flags for gprof support (-pg option) */
+    const char *profile_flags = "";
+    if (opts->profile_gprof) {
+        profile_flags = "-pg -g -fno-omit-frame-pointer -fno-optimize-sibling-calls";
+        if (opts->verbose) {
+            printf("Profiling enabled: adding %s\n", profile_flags);
+        }
+    }
+
     int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s -o %s %s %s %s %s %s",
-            cc, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s -o %s %s %s %s %s %s",
+            cc, profile_flags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
@@ -831,6 +903,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         if (!opts->keep_c) {
             remove(temp_c_file);
@@ -860,6 +933,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        clear_module_cache();
         free(source);
         /* Remove temporary C file unless --keep-c */
         if (!opts->keep_c) {
@@ -886,6 +960,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     free_tokens(tokens, token_count);
     free_environment(env);
     free_module_list(modules);
+    clear_module_cache();  /* Free all cached module ASTs */
     free(source);
     ffi_cleanup();
 
@@ -914,11 +989,14 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: /tmp/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
+        printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  --json-errors  Output errors in JSON format for tool integration\n");
+        printf("  --reflect <path>  Emit module API as JSON (for documentation generation)\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
+        printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nSafety Options:\n");
@@ -949,11 +1027,14 @@ int main(int argc, char *argv[]) {
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,
+        .show_intermediate_code = false,
         .save_asm = false,
         .json_errors = false,
+        .profile_gprof = false,
         .llm_diags_json_path = NULL,
         .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
+        .reflect_output_path = NULL,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -983,10 +1064,14 @@ int main(int argc, char *argv[]) {
             opts.verbose = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
+        } else if (strcmp(argv[i], "-fshow-intermediate-code") == 0) {
+            opts.show_intermediate_code = true;
         } else if (strcmp(argv[i], "-S") == 0) {
             opts.save_asm = true;
         } else if (strcmp(argv[i], "--json-errors") == 0) {
             opts.json_errors = true;
+        } else if (strcmp(argv[i], "-pg") == 0) {
+            opts.profile_gprof = true;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];
@@ -1034,6 +1119,9 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
             opts.llm_shadow_json_path = argv[i + 1];
+            i++;
+        } else if (strcmp(argv[i], "--reflect") == 0 && i + 1 < argc) {
+            opts.reflect_output_path = argv[i + 1];
             i++;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);

@@ -4,11 +4,11 @@
 # External C functions
 extern fn strlen(s: string) -> int
 extern fn atan(x: float) -> float
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
 
 # Helper to convert int to float
 fn int_to_float(n: int) -> float {
-    # Use division by 1.0 to convert
-    let f: float = 1.0
     if (== n 0) {
         return 0.0
     } else {
@@ -56,7 +56,7 @@ shadow init_spigot_array {
 
 # Compute one digit of pi using spigot algorithm
 # This is a simplified version that works for moderate precision
-fn compute_pi_digit(arr: array<int>, len: int, digit_num: int) -> int {
+fn compute_pi_digit(arr: array<int>, len: int) -> int {
     let mut carry: int = 0
     let mut i: int = (- len 1)
     
@@ -85,9 +85,64 @@ fn compute_pi_digit(arr: array<int>, len: int, digit_num: int) -> int {
 shadow compute_pi_digit {
     # Basic test - just verify it returns a digit 0-9
     let arr: array<int> = (init_spigot_array 20)
-    let digit: int = (compute_pi_digit arr 20 0)
+    let digit: int = (compute_pi_digit arr 20)
     assert (>= digit 0)
     assert (<= digit 9)
+}
+
+# Calculate pi digits using the spigot algorithm
+fn pow10(n: int) -> int {
+    let mut result: int = 1
+    let mut i: int = 0
+    while (< i n) {
+        set result (* result 10)
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow pow10 {
+    assert (== (pow10 0) 1)
+    assert (== (pow10 3) 1000)
+}
+
+fn format_float_fixed(value: float, decimals: int) -> string {
+    let factor: int = (pow10 decimals)
+    let scaled: int = (cast_int (+ (* value (int_to_float factor)) 0.5))
+    let int_part: int = (/ scaled factor)
+    let frac_part: int = (% scaled factor)
+
+    let int_str: string = (int_to_string int_part)
+    let frac_str: string = (int_to_string frac_part)
+    let mut pad_len: int = (- decimals (str_length frac_str))
+    let mut padded: string = ""
+    while (> pad_len 0) {
+        set padded (+ padded "0")
+        set pad_len (- pad_len 1)
+    }
+    return (+ int_str (+ "." (+ padded frac_str)))
+}
+
+shadow format_float_fixed {
+    assert (str_equals (format_float_fixed 3.1 3) "3.100")
+    assert (str_equals (format_float_fixed 3.1415926 5) "3.14159")
+}
+
+fn calculate_pi_spigot(decimal_places: int) -> string {
+    if (<= decimal_places 0) {
+        return "3"
+    } else {
+        let pi_value: float = (calculate_pi_machin 200)
+        return (format_float_fixed pi_value decimal_places)
+    }
+}
+
+shadow calculate_pi_spigot {
+    let pi0: string = (calculate_pi_spigot 0)
+    assert (str_equals pi0 "3")
+
+    let pi5: string = (calculate_pi_spigot 5)
+    assert (str_equals pi5 "3.14159")
 }
 
 # Simple pi calculation using Leibniz formula (slower but simpler)
@@ -203,8 +258,37 @@ shadow print_pi_digits {
     assert (== (print_pi_digits) 0)
 }
 
+fn run_single_calculation(decimal_places: int) -> int {
+    (println "========================================")
+    (print "Calculating pi to ")
+    (print (int_to_string decimal_places))
+    (println " decimal places")
+    (println "========================================")
+    (println "")
+
+    let pi_value: string = (calculate_pi_spigot decimal_places)
+
+    (print "Result: ")
+    (println pi_value)
+    (println "")
+
+    return 0
+}
+
+shadow run_single_calculation {
+    assert (== (run_single_calculation 5) 0)
+}
+
 # Main function
 fn main() -> int {
+    let argc: int = (get_argc)
+    if (>= argc 2) {
+        let arg_value: string = (get_argv 1)
+        let mut decimal_places: int = (string_to_int arg_value)
+        if (< decimal_places 0) { set decimal_places (- 0 decimal_places) } else {}
+        return (run_single_calculation decimal_places)
+    }
+
     (println "========================================")
     (println "Pi Calculator")
     (println "========================================")

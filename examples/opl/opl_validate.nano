@@ -38,7 +38,7 @@ fn v_tok_text(t: OplTokensResult, i: int) -> string {
 shadow v_tok_text {
     let lr: OplTokensResult = (opl_lex "agent")
     assert lr.ok
-    assert (str_equals (v_tok_text lr 0) "agent")
+    assert (== (v_tok_text lr 0) "agent")
 }
 
 fn err_json(code: string, msg: string, line: int, col: int, path: string) -> Json {
@@ -52,7 +52,7 @@ fn err_json(code: string, msg: string, line: int, col: int, path: string) -> Jso
 
 shadow err_json {
     let e: Json = (err_json "E" "m" 1 2 "/x")
-    assert (str_equals (as_string (get e "code")) "E")
+    assert (== (as_string (get e "code")) "E")
     (free e)
 }
 
@@ -145,7 +145,7 @@ fn collect_uses(block: Json) -> Json {
 
     while (< i n) {
         let node: Json = (get_index body i)
-        if (and (str_equals (as_string (get node "kind")) "decl") (str_equals (as_string (get node "declType")) "uses")) {
+        if (and (== (as_string (get node "kind")) "decl") (== (as_string (get node "declType")) "uses")) {
             let v: Json = (get node "value")
             let ref: string = (as_string (get v "ref"))
             (object_set uses ref (new_bool true))
@@ -179,7 +179,7 @@ fn collect_inputs(block: Json) -> Json {
 
     while (< i n) {
         let node: Json = (get_index body i)
-        if (and (str_equals (as_string (get node "kind")) "decl") (str_equals (as_string (get node "declType")) "input")) {
+        if (and (== (as_string (get node "kind")) "decl") (== (as_string (get node "declType")) "input")) {
             let arr: Json = (get node "value")
             let m: int = (array_size arr)
             let mut j: int = 0
@@ -214,7 +214,7 @@ shadow collect_inputs {
 
 fn validate_unresolved_ids_in_expr(expr: Json, env: Json, errors: Json) -> void {
     let k: string = (as_string (get expr "kind"))
-    if (str_equals k "id") {
+    if (== k "id") {
         let nm: string = (as_string (get expr "name"))
         if (not (object_has env nm)) {
             let loc: Json = (get expr "loc")
@@ -257,7 +257,7 @@ fn validate_block(block: Json, src: string, errors: Json) -> void {
         let node: Json = (get_index body i)
         let kind: string = (as_string (get node "kind"))
 
-        if (str_equals kind "call") {
+        if (== kind "call") {
             let ref: string = (as_string (get node "ref"))
             if (not (object_has uses ref)) {
                 let loc: Json = (get node "loc")
@@ -281,10 +281,10 @@ fn validate_block(block: Json, src: string, errors: Json) -> void {
             } else {}
             (opl_json_free_if_not_null asv)
         } else {
-            if (str_equals kind "assert") {
+            if (== kind "assert") {
                 let condj: Json = (get node "cond")
                 # minimal boolean check: literal non-bool is rejected
-                if (str_equals (as_string (get condj "kind")) "lit") {
+                if (== (as_string (get condj "kind")) "lit") {
                     let v: Json = (get condj "v")
                     if (not (is_bool v)) {
                         let loc: Json = (get node "loc")
@@ -299,7 +299,7 @@ fn validate_block(block: Json, src: string, errors: Json) -> void {
                 (validate_unresolved_ids_in_expr condj env errors)
                 (free condj)
             } else {
-                if (str_equals kind "emit") {
+                if (== kind "emit") {
                     let nm: string = (as_string (get node "name"))
                     if (object_has emits_seen nm) {
                         let loc: Json = (get node "loc")
@@ -314,7 +314,7 @@ fn validate_block(block: Json, src: string, errors: Json) -> void {
                     (validate_unresolved_ids_in_expr ex env errors)
                     (free ex)
                 } else {
-                    if (str_equals kind "rule") {
+                    if (== kind "rule") {
                         let actions: Json = (get node "actions")
                         if (== (array_size actions) 0) {
                             let loc: Json = (get node "loc")
@@ -378,7 +378,7 @@ pub fn opl_validate(src: string) -> Json {
     let mut i: int = 0
     while (< i n) {
         let node: Json = (get_index nodes i)
-        if (str_equals (as_string (get node "kind")) "block") {
+        if (== (as_string (get node "kind")) "block") {
             let bt: string = (as_string (get node "blockType"))
             let nm: string = (as_string (get node "name"))
             let mut key: string = (+ bt ":")

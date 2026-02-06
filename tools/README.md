@@ -45,3 +45,18 @@ Features:
 
 Related to user feedback: "wait why don't you write that tool in nanolang"
 
+## NanoLang Linter
+
+Checks NanoLang files for syntax errors and canonical style violations.
+
+**File:** `nano_lint.nano`  
+**Status:** ✅ Available
+
+```bash
+./bin/nanoc tools/nano_lint.nano -o bin/nano_lint
+./bin/nano_lint path/to/file.nano
+```
+
+Current checks:
+- Lexer + parser errors (syntax)
+- Missing shadow tests for functions

@@ -2,13 +2,15 @@
 
 NanoLang uses explicit imports. Module paths are strings.
 
+> **For comprehensive coverage** see [Chapter 8: Modules & Imports](part1_fundamentals/08_modules.md).
+
 ## Importing a module
 
 This example uses the built-in `std/json` module.
 
 <!--nl-snippet {"name":"ug_modules_std_json","check":true}-->
 ```nano
-from "modules/std/json/json.nano" import Json, parse, free, get, object_has, as_string
+from "modules/std/json/json.nano" import Json, parse, get, object_has, as_string
 
 fn extract_name(json_text: string) -> string {
     let root: Json = (parse json_text)
@@ -16,23 +18,21 @@ fn extract_name(json_text: string) -> string {
         return ""
     }
     if (not (object_has root "name")) {
-        (free root)
         return ""
     }
     let v: Json = (get root "name")
     let out: string = (as_string v)
-    (free v)
-    (free root)
     return out
+    # Note: Json is automatically GC-managed - no manual free needed
 }
 
 shadow extract_name {
-    assert (str_equals (extract_name "{\"name\":\"nano\"}") "nano")
-    assert (str_equals (extract_name "{\"x\":1}") "")
+    assert (== (extract_name "{\"name\":\"nano\"}") "nano")
+    assert (== (extract_name "{\"x\":1}") "")
 }
 
 fn main() -> int {
-    assert (str_equals (extract_name "{\"name\":\"NanoLang\"}") "NanoLang")
+    assert (== (extract_name "{\"name\":\"NanoLang\"}") "NanoLang")
     return 0
 }
 
@@ -48,3 +48,9 @@ At a minimum, a module consists of:
 - NanoLang entrypoints (usually `*.nano` files)
 
 For real modules, see the existing folders under `modules/`.
+
+## Module self-tests
+
+Modules ship with minimal self-tests used as smoke checks during development. These live alongside
+each module and are exercised by `make module-mvp` and other build targets. They are not part of the
+user guide; use the API reference and the examples chapter for learning and exploration.

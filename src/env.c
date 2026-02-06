@@ -1,4 +1,6 @@
 #include "nanolang.h"
+#include "runtime/gc.h"
+#include <string.h>
 
 /* Built-in function metadata */
 typedef struct {
@@ -104,6 +106,7 @@ Environment *create_environment(void) {
     env->warn_unsafe_calls = false;
     env->warn_ffi = false;
     env->forbid_unsafe = false;
+    env->profile_gprof = false;
     
     /* Initialize import tracker */
     env->import_tracker = malloc(sizeof(ImportTracker));
@@ -118,15 +121,32 @@ Environment *create_environment(void) {
 
 static void env_free_value(Value v) {
     if (v.type == VAL_STRING) {
-        free(v.as.string_val);
+        /* Release GC-managed string if applicable */
+        if (gc_is_managed(v.as.string_val)) {
+            gc_release(v.as.string_val);
+        } else {
+            free(v.as.string_val);
+        }
         return;
     }
+    /* Note: Opaque pointers stored as VAL_INT are NOT released here in interpreter mode
+     * because interpreter function-local variables persist in global environment.
+     * GC cycle collection will clean them up when the program ends.
+     * Compiled code handles opaque lifetimes correctly via scope-based cleanup. */
     if (v.type == VAL_STRUCT) {
         StructValue *sv = v.as.struct_val;
         if (!sv) return;
         free(sv->struct_name);
         for (int j = 0; j < sv->field_count; j++) {
             free(sv->field_names[j]);
+            if (sv->field_values[j].type == VAL_STRING) {
+                /* Release GC-managed strings in struct fields */
+                if (gc_is_managed(sv->field_values[j].as.string_val)) {
+                    gc_release(sv->field_values[j].as.string_val);
+                } else {
+                    free(sv->field_values[j].as.string_val);
+                }
+            }
         }
         free(sv->field_names);
         free(sv->field_values);
@@ -325,6 +345,19 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         }
     }
     
+    /* GC refcount fix: If this string value is already referenced by another
+     * variable in the environment, increment refcount to prevent use-after-free
+     * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
+    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        for (int i = 0; i < env->symbol_count; i++) {
+            if (env->symbols[i].value.type == VAL_STRING &&
+                env->symbols[i].value.as.string_val == value.as.string_val) {
+                gc_retain(value.as.string_val);
+                break;
+            }
+        }
+    }
+
     env->symbols[env->symbol_count++] = sym;
 }
 
@@ -396,6 +429,20 @@ void env_set_var(Environment *env, const char *name, Value value) {
     if (sym) {
         env_free_value(sym->value);
         sym->value = value;
+
+        /* GC refcount fix: If the new string value is already referenced by
+         * another variable, increment refcount to prevent use-after-free.
+         * Handles: set x y where y is a string variable */
+        if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+            for (int i = 0; i < env->symbol_count; i++) {
+                if (&env->symbols[i] != sym &&
+                    env->symbols[i].value.type == VAL_STRING &&
+                    env->symbols[i].value.as.string_val == value.as.string_val) {
+                    gc_retain(value.as.string_val);
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -580,7 +627,19 @@ Value create_string(const char *val) {
     v.is_return = false;
     v.is_break = false;
     v.is_continue = false;
-    v.as.string_val = strdup(val);
+
+    /* Use GC allocation for all dynamically created strings */
+    size_t len = strlen(val);
+    char *gc_str = gc_alloc_string(len);
+    if (gc_str) {
+        memcpy(gc_str, val, len);
+        gc_str[len] = '\0';
+        v.as.string_val = gc_str;
+    } else {
+        /* Fallback to empty string on allocation failure */
+        v.as.string_val = gc_alloc_string(0);
+    }
+
     return v;
 }
 
@@ -637,7 +696,12 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     /* Allocate and copy field values */
     v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
     for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_values[i] = field_values[i];
+        if (field_values[i].type == VAL_STRING) {
+            const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
+            v.as.struct_val->field_values[i] = create_string(src);
+        } else {
+            v.as.struct_val->field_values[i] = field_values[i];
+        }
     }
     
     return v;
@@ -1126,6 +1190,46 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     env_define_function(env, func);
 }
 
+/* Register a HashMap<K,V> instantiation for code generation
+ * Example: HashMap<string, int> -> HashMap_string_int
+ */
+void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type) {
+    if (!env || !key_type || !value_type) return;
+
+    /* Check if already registered */
+    for (int i = 0; i < env->generic_instance_count; i++) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (safe_strcmp(inst->generic_name, "HashMap") == 0 &&
+            inst->type_arg_count == 2 && inst->type_arg_names &&
+            safe_strcmp(inst->type_arg_names[0], key_type) == 0 &&
+            safe_strcmp(inst->type_arg_names[1], value_type) == 0) {
+            return;
+        }
+    }
+
+    if (env->generic_instance_count >= env->generic_instance_capacity) {
+        env->generic_instance_capacity *= 2;
+        env->generic_instances = realloc(env->generic_instances,
+            sizeof(GenericInstantiation) * env->generic_instance_capacity);
+    }
+
+    GenericInstantiation inst;
+    inst.generic_name = strdup("HashMap");
+    inst.type_arg_count = 2;
+    inst.type_args = malloc(sizeof(Type) * 2);
+    inst.type_arg_names = malloc(sizeof(char*) * 2);
+    inst.type_args[0] = TYPE_UNKNOWN;
+    inst.type_args[1] = TYPE_UNKNOWN;
+    inst.type_arg_names[0] = strdup(key_type);
+    inst.type_arg_names[1] = strdup(value_type);
+
+    char specialized[512];
+    snprintf(specialized, sizeof(specialized), "HashMap_%s_%s", key_type, value_type);
+    inst.concrete_name = strdup(specialized);
+
+    env->generic_instances[env->generic_instance_count++] = inst;
+}
+
 /* Register a generic union instantiation for code generation
  * Example: Result<int, string> -> Result_int_string
  */
@@ -1240,6 +1344,41 @@ void free_function_signature(FunctionSignature *sig) {
     }
     
     free(sig);
+}
+
+void free_type_info(TypeInfo *info) {
+    if (!info) return;
+
+    if (info->element_type) {
+        free_type_info(info->element_type);
+    }
+    if (info->generic_name) {
+        free(info->generic_name);
+    }
+    if (info->type_params) {
+        for (int i = 0; i < info->type_param_count; i++) {
+            free_type_info(info->type_params[i]);
+        }
+        free(info->type_params);
+    }
+    if (info->tuple_types) {
+        free(info->tuple_types);
+    }
+    if (info->tuple_type_names) {
+        for (int i = 0; i < info->tuple_element_count; i++) {
+            if (info->tuple_type_names[i]) {
+                free(info->tuple_type_names[i]);
+            }
+        }
+        free(info->tuple_type_names);
+    }
+    if (info->opaque_type_name) {
+        free(info->opaque_type_name);
+    }
+    if (info->fn_sig) {
+        free_function_signature(info->fn_sig);
+    }
+    free(info);
 }
 
 /* Check if two function signatures are equal */

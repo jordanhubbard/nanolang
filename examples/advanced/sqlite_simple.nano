@@ -38,7 +38,10 @@ fn main() -> int {
     
     # Open database
     let db_path: string = "test.db"
-    let db: int = (nl_sqlite3_open db_path)
+    let mut db: int = 0
+    unsafe {
+        set db (nl_sqlite3_open db_path)
+    }
     
     if (== db 0) {
         (println "❌ Failed to open database")
@@ -52,24 +55,35 @@ fn main() -> int {
     (println "")
     (println "Creating table...")
     let create_sql: string = "CREATE TABLE IF NOT EXISTS contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)"
-    let create_result: int = (nl_sqlite3_exec db create_sql)
+    let mut create_result: int = 0
+    unsafe {
+        set create_result (nl_sqlite3_exec db create_sql)
+    }
     
     if (== create_result 0) {
         (println "✓ Table created")
     } else {
         (print "❌ Create failed: ")
-        (println (nl_sqlite3_errmsg db))
+        let mut create_error: string = ""
+        unsafe {
+            set create_error (nl_sqlite3_errmsg db)
+        }
+        (println create_error)
     }
     
     # Insert data
     (println "")
     (println "Inserting contacts...")
     let insert1: string = "INSERT INTO contacts (name, email) VALUES ('Alice', 'alice@example.com')"
-    (nl_sqlite3_exec db insert1)
+    unsafe {
+        (nl_sqlite3_exec db insert1)
+    }
     (println "✓ Inserted Alice")
     
     let insert2: string = "INSERT INTO contacts (name, email) VALUES ('Bob', 'bob@example.com')"
-    (nl_sqlite3_exec db insert2)
+    unsafe {
+        (nl_sqlite3_exec db insert2)
+    }
     (println "✓ Inserted Bob")
     
     # Query data
@@ -78,7 +92,10 @@ fn main() -> int {
     (println "")
     
     let select_sql: string = "SELECT id, name, email FROM contacts"
-    let stmt: int = (nl_sqlite3_prepare db select_sql)
+    let mut stmt: int = 0
+    unsafe {
+        set stmt (nl_sqlite3_prepare db select_sql)
+    }
     
     if (== stmt 0) {
         (println "❌ Failed to prepare query")
@@ -87,14 +104,22 @@ fn main() -> int {
         let mut count: int = 0
         
         while running {
-            let result: int = (nl_sqlite3_step stmt)
+            let mut result: int = 0
+            unsafe {
+                set result (nl_sqlite3_step stmt)
+            }
             
             if (== result 100) {  # SQLITE_ROW
                 set count (+ count 1)
                 
-                let id: int = (nl_sqlite3_column_int stmt 0)
-                let name: string = (nl_sqlite3_column_text stmt 1)
-                let email: string = (nl_sqlite3_column_text stmt 2)
+                let mut id: int = 0
+                let mut name: string = ""
+                let mut email: string = ""
+                unsafe {
+                    set id (nl_sqlite3_column_int stmt 0)
+                    set name (nl_sqlite3_column_text stmt 1)
+                    set email (nl_sqlite3_column_text stmt 2)
+                }
                 
                 (print "ID: ")
                 (print id)
@@ -107,7 +132,9 @@ fn main() -> int {
             }
         }
         
-        (nl_sqlite3_finalize stmt)
+        unsafe {
+            (nl_sqlite3_finalize stmt)
+        }
         
         (println "")
         (print "Total: ")
@@ -116,7 +143,9 @@ fn main() -> int {
     }
     
     # Close database
-    (nl_sqlite3_close db)
+    unsafe {
+        (nl_sqlite3_close db)
+    }
     
     (println "")
     (println "✅ Database operations completed!")

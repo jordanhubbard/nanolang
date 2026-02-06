@@ -45,7 +45,7 @@ fn main() -> int {
     (println (+ "✓ API server ready at http://localhost:" (int_to_string port)))
     (println "")
     (println "Note: Full route handlers in NanoLang coming soon!")
-    (println "For now, serving static files from " (+ static_dir "/"))
+    (println (+ "For now, serving static files from " (+ static_dir "/")))
     (println "")
     (println "Press Ctrl+C to stop")
     (println "")

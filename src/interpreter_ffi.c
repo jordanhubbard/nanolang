@@ -6,6 +6,7 @@
 
 #include "interpreter_ffi.h"
 #include "module_builder.h"
+#include "runtime/gc.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -545,10 +546,15 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                 arg_ptrs[i] = (void*)(*((const char**)(arg_buffer + arg_offsets[i])));
                 break;
 
-            case TYPE_OPAQUE:
-                /* Pass opaque pointer by value */
-                arg_ptrs[i] = (void*)(intptr_t)(*((int64_t*)(arg_buffer + arg_offsets[i])));
+            case TYPE_OPAQUE: {
+                /* Extract opaque pointer */
+                void* opaque_ptr = (void*)(intptr_t)(*((int64_t*)(arg_buffer + arg_offsets[i])));
+
+                /* ARC: Unwrap if it's a GC-managed wrapper */
+                void* unwrapped = gc_unwrap(opaque_ptr);
+                arg_ptrs[i] = unwrapped;
                 break;
+            }
             default:
                 arg_ptrs[i] = NULL;
                 break;
@@ -608,6 +614,42 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             free((void*)str);
         }
         return v;
+    }
+
+    /* ARC: Wrap opaque return values if they require manual free */
+    if (ret_type == TYPE_OPAQUE && func_info->requires_manual_free && !func_info->returns_borrowed) {
+        void* external_ptr = (void*)(intptr_t)result;
+
+        if (external_ptr && func_info->cleanup_function) {
+            /* Look up the cleanup function by name */
+            void (*cleanup_func)(void*) = NULL;
+
+            /* Try to find cleanup function in same module */
+            if (module && module->handle) {
+                cleanup_func = (void (*)(void*))dlsym(module->handle, func_info->cleanup_function);
+            }
+
+            /* Fallback: try RTLD_DEFAULT (main executable + loaded libs) */
+            if (!cleanup_func) {
+                void *self_handle = dlopen(NULL, RTLD_LAZY);
+                if (self_handle) {
+                    cleanup_func = (void (*)(void*))dlsym(self_handle, func_info->cleanup_function);
+                    dlclose(self_handle);
+                }
+            }
+
+            if (cleanup_func) {
+                /* Wrap external pointer in GC-managed object */
+                void* wrapped = gc_wrap_external(external_ptr, cleanup_func);
+
+                /* Opaque pointers stored as int64_t in interpreter */
+                return create_int((int64_t)(intptr_t)wrapped);
+            } else {
+                fprintf(stderr, "[ARC] Warning: cleanup function '%s' not found for %s\n",
+                        func_info->cleanup_function, function_name);
+                /* Return unwrapped - will leak, but prevents crash */
+            }
+        }
     }
 
     return marshal_c_to_value(result_buffer, ret_type);

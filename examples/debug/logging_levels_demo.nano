@@ -15,7 +15,10 @@ fn demonstrate_log_levels() -> int {
     return 0
 }
 
-# Shadow test skipped - demonstrates logging output visually
+shadow demonstrate_log_levels {
+    # Dummy shadow test: logging output is non-deterministic.
+    assert (== (demonstrate_log_levels) 0)
+}
 
 fn process_with_logging(input: int) -> int {
     (log_info "processor" "Starting data processing")

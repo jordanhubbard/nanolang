@@ -91,7 +91,7 @@ fn bd_list(status: string) -> array<Bead> {
     
     if (!= result.exit_code 0) {
         (println (+ "Error running bd list: " result.stderr))
-        return (array_new 0 (bead_empty))
+        return []
     }
     
     # Parse JSON output
@@ -119,7 +119,7 @@ fn bd_ready() -> array<Bead> {
     let result: CommandResult = (exec_command "bd ready --json")
     
     if (!= result.exit_code 0) {
-        return (array_new 0 (bead_empty))
+        return []
     }
     
     let json_val: JsonValue = (parse_json result.stdout)
@@ -139,7 +139,7 @@ fn bd_by_priority(priority: int) -> array<Bead> {
     let result: CommandResult = (exec_command cmd)
     
     if (!= result.exit_code 0) {
-        return (array_new 0 (bead_empty))
+        return []
     }
     
     let json_val: JsonValue = (parse_json result.stdout)
@@ -308,7 +308,7 @@ fn bead_stats_empty() -> BeadStats {
 fn beads_from_json(json_val: JsonValue) -> array<Bead> {
     # TODO: Implement JSON array parsing when json module is complete
     # For now, return empty array
-    return (array_new 0 (bead_empty))
+    return []
 }
 
 shadow beads_from_json {

@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "colors.h"
 #include <stdint.h>
 
 /* Maximum recursion depth to prevent stack overflow */
@@ -85,14 +86,14 @@ static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
         Token *tok = current_token(p);
         if (!tok || !p || p->count == 0) {
-            fprintf(stderr, "Error: Stage1Parser state invalid\n");
+            fprintf(stderr, "%sError:%s Stage1Parser state invalid\n", CSTART_ERROR, CEND);
             return false;
         }
         const char *msg_safe = msg ? msg : "(null message)";
         const char *token_name = token_type_name(tok->token_type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
-        fprintf(stderr, "Error at line %d, column %d: %s (got %s)\n",
-                tok->line, tok->column, msg_safe, token_name_safe);
+        fprintf(stderr, "%sError at line %d, column %d:%s %s (got %s)\n",
+                CSTART_ERROR, tok->line, tok->column, CEND, msg_safe, token_name_safe);
         return false;
     }
     advance(p);
@@ -386,6 +387,220 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         free(type_name);
                     return type;
                 }
+
+                    /* HashMap<K, V> (core generic type) */
+                    if (strcmp(type_name, "HashMap") == 0) {
+                        if (type_info_out) {
+                            TypeInfo *info = calloc(1, sizeof(TypeInfo));
+                            if (!info) {
+                                fprintf(stderr, "Error: Out of memory allocating HashMap TypeInfo\n");
+                                free(type_name);
+                                return TYPE_UNKNOWN;
+                            }
+                            info->base_type = TYPE_HASHMAP;
+                            info->generic_name = type_name;  /* Transfer ownership */
+                            info->type_param_count = 0;
+
+                            int capacity = 2;
+                            info->type_params = malloc(sizeof(TypeInfo*) * capacity);
+                            if (!info->type_params) {
+                                fprintf(stderr, "Error: Out of memory allocating HashMap type params\n");
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            /* Parse exactly 2 type parameters: K, V */
+                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                                if (info->type_param_count >= capacity) {
+                                    fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                            current_token(p)->line, current_token(p)->column);
+                                    /* Cleanup */
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
+                                if (!param_info) {
+                                    fprintf(stderr, "Error: Out of memory allocating HashMap param TypeInfo\n");
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                Token *param_tok = current_token(p);
+                                if (param_tok->token_type == TOKEN_TYPE_INT) {
+                                    param_info->base_type = TYPE_INT;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_U8) {
+                                    param_info->base_type = TYPE_U8;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
+                                    param_info->base_type = TYPE_STRING;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_BOOL) {
+                                    param_info->base_type = TYPE_BOOL;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                    param_info->base_type = TYPE_FLOAT;
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
+                                    param_info->base_type = TYPE_STRUCT;
+                                    param_info->generic_name = strdup(param_tok->value);
+                                    advance(p);
+                                } else if (param_tok->token_type == TOKEN_ARRAY) {
+                                    /* Support array<T> as a type parameter */
+                                    param_info->base_type = TYPE_ARRAY;
+                                    advance(p);
+                                    if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in HashMap type parameter")) {
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
+                                    if (!elem_info) {
+                                        fprintf(stderr, "Error: Out of memory allocating array elem TypeInfo\n");
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    Token *elem_tok = current_token(p);
+                                    if (elem_tok->token_type == TOKEN_TYPE_INT) {
+                                        elem_info->base_type = TYPE_INT;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
+                                        elem_info->base_type = TYPE_U8;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
+                                        elem_info->base_type = TYPE_STRING;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
+                                        elem_info->base_type = TYPE_BOOL;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
+                                        elem_info->base_type = TYPE_FLOAT;
+                                        advance(p);
+                                    } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
+                                        elem_info->base_type = TYPE_STRUCT;
+                                        elem_info->generic_name = strdup(elem_tok->value);
+                                        advance(p);
+                                    } else {
+                                        fprintf(stderr, "Error at line %d, column %d: Expected array element type in HashMap type parameter\n",
+                                                elem_tok->line, elem_tok->column);
+                                        if (elem_info->generic_name) free(elem_info->generic_name);
+                                        free(elem_info);
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    if (!expect(p, TOKEN_GT, "Expected '>' after array element type in HashMap type parameter")) {
+                                        if (elem_info->generic_name) free(elem_info->generic_name);
+                                        free(elem_info);
+                                        free(param_info);
+                                        for (int i = 0; i < info->type_param_count; i++) {
+                                            free(info->type_params[i]);
+                                        }
+                                        free(info->type_params);
+                                        free(info->generic_name);
+                                        free(info);
+                                        return TYPE_UNKNOWN;
+                                    }
+
+                                    param_info->element_type = elem_info;
+                                } else {
+                                    fprintf(stderr, "Error at line %d, column %d: Expected HashMap type parameter\n",
+                                            param_tok->line, param_tok->column);
+                                    free(param_info);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+
+                                info->type_params[info->type_param_count++] = param_info;
+
+                                if (match(p, TOKEN_COMMA)) {
+                                    advance(p);
+                                } else if (!match(p, TOKEN_GT)) {
+                                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in HashMap type parameters\n",
+                                            current_token(p)->line, current_token(p)->column);
+                                    for (int i = 0; i < info->type_param_count; i++) {
+                                        free(info->type_params[i]);
+                                    }
+                                    free(info->type_params);
+                                    free(info->generic_name);
+                                    free(info);
+                                    return TYPE_UNKNOWN;
+                                }
+                            }
+
+                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            if (info->type_param_count != 2) {
+                                fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                        tok->line, tok->column);
+                                for (int i = 0; i < info->type_param_count; i++) {
+                                    free(info->type_params[i]);
+                                }
+                                free(info->type_params);
+                                free(info->generic_name);
+                                free(info);
+                                return TYPE_UNKNOWN;
+                            }
+
+                            *type_info_out = info;
+                            return TYPE_HASHMAP;
+                        } else {
+                            /* No type_info_out provided: consume params and return TYPE_HASHMAP */
+                            while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                                advance(p);
+                            }
+                            if (!expect(p, TOKEN_GT, "Expected '>' after HashMap type parameters")) {
+                                free(type_name);
+                                return TYPE_UNKNOWN;
+                            }
+                            free(type_name);
+                            return TYPE_HASHMAP;
+                        }
+                    }
                     
                     /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
                     if (type_info_out) {
@@ -794,6 +1009,17 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
     return true;
 }
 
+/* Helper: Check if token type is an infix binary operator */
+static bool is_infix_binary_op(TokenType type) {
+    return (type == TOKEN_PLUS || type == TOKEN_MINUS ||
+            type == TOKEN_STAR || type == TOKEN_SLASH ||
+            type == TOKEN_PERCENT ||
+            type == TOKEN_EQ || type == TOKEN_NE ||
+            type == TOKEN_LT || type == TOKEN_LE ||
+            type == TOKEN_GT || type == TOKEN_GE ||
+            type == TOKEN_AND || type == TOKEN_OR);
+}
+
 /* Parse prefix operation: (op arg1 arg2 ...) */
 static ASTNode *parse_prefix_op(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -983,6 +1209,36 @@ static ASTNode *parse_primary(Stage1Parser *p) {
     ASTNode *node;
 
     switch (tok->token_type) {
+        case TOKEN_NOT: {
+            /* Unary not: not expr */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume 'not' */
+            ASTNode *operand = parse_primary(p);
+            if (!operand) return NULL;
+            ASTNode *not_node = create_node(AST_PREFIX_OP, line, column);
+            not_node->as.prefix_op.op = TOKEN_NOT;
+            not_node->as.prefix_op.args = malloc(sizeof(ASTNode*));
+            not_node->as.prefix_op.args[0] = operand;
+            not_node->as.prefix_op.arg_count = 1;
+            return not_node;
+        }
+
+        case TOKEN_MINUS: {
+            /* Unary minus: -expr */
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);  /* consume '-' */
+            ASTNode *operand = parse_primary(p);
+            if (!operand) return NULL;
+            ASTNode *neg_node = create_node(AST_PREFIX_OP, line, column);
+            neg_node->as.prefix_op.op = TOKEN_MINUS;
+            neg_node->as.prefix_op.args = malloc(sizeof(ASTNode*));
+            neg_node->as.prefix_op.args[0] = operand;
+            neg_node->as.prefix_op.arg_count = 1;
+            return neg_node;
+        }
+
         case TOKEN_NUMBER:
             node = create_node(AST_NUMBER, tok->line, tok->column);
             node->as.number = atoll(tok->value);
@@ -1338,8 +1594,11 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* This is needed for generic union construction: Result<int, string>.Ok { ... } */
                     TypeInfo *generic_type_info = NULL;
                     
-                    /* Check if followed by '<' for generic type instantiation */
-                    if (match(p, TOKEN_LT)) {
+                    /* Check if followed by '<' for generic type instantiation.
+                     * Only try this for uppercase identifiers (type names) to avoid
+                     * ambiguity with infix '<' operator on variables. */
+                    bool looks_like_type = name_parts[0][0] >= 'A' && name_parts[0][0] <= 'Z';
+                    if (looks_like_type && match(p, TOKEN_LT)) {
                         generic_type_info = parse_generic_type_args(p, name_parts[0]);
                         if (!generic_type_info) {
                             /* Error already reported by parse_generic_type_args */
@@ -1945,12 +2204,19 @@ static ASTNode *parse_if_expression(Stage1Parser *p) {
     //         if_depth, after_then ? token_type_name(after_then->type) : "NULL",
     //         after_then ? after_then->line : 0, after_then ? after_then->column : 0);
 
-    /* Check for optional 'else' clause */
+    /* Check for optional 'else' or 'else if' clause */
     ASTNode *else_branch = NULL;
     Token *current = current_token(p);
     if (current && current->token_type == TOKEN_ELSE) {
         advance(p);  /* consume 'else' */
-        else_branch = parse_block(p);
+
+        /* Check for 'else if' - parse as nested if expression */
+        Token *next = current_token(p);
+        if (next && next->token_type == TOKEN_IF) {
+            else_branch = parse_if_expression(p);
+        } else {
+            else_branch = parse_block(p);
+        }
         if (!else_branch) {
             // fprintf(stderr, "DEBUG [if_depth=%d]: Failed to parse else_branch at line %d\n", if_depth, line);
             // if_depth--;
@@ -2003,148 +2269,185 @@ static ASTNode *parse_expression(Stage1Parser *p) {
         return NULL;
     }
     
-    /* Handle field access or union construction:
-     * - obj.field -> field access
-     * - UnionName.Variant { ... } -> union construction
-     * - tuple.0, tuple.1 -> tuple index access
+    /* Outer loop handles both postfix (dot-access) and infix binary operators.
+     * For each iteration: first consume all dot-access on expr, then check
+     * for infix binary operator. If found, parse right operand and loop again.
      */
-    while (match(p, TOKEN_DOT)) {
-        Token *dot_tok = current_token(p);
-        if (!dot_tok) {
-            fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
-            p->recursion_depth--;
-            return expr;
-        }
-        int line = dot_tok->line;
-        int column = dot_tok->column;
-        advance(p);  /* consume '.' */
-        
-        /* Check if this is a tuple index: tuple.0, tuple.1, etc. */
-        if (match(p, TOKEN_NUMBER)) {
-            Token *num_tok = current_token(p);
-            int index = (int)atoll(num_tok->value);
-            advance(p);  /* consume number */
-            
-            /* Create tuple index node */
-            ASTNode *index_node = create_node(AST_TUPLE_INDEX, line, column);
-            index_node->as.tuple_index.tuple = expr;
-            index_node->as.tuple_index.index = index;
-            expr = index_node;
-            continue;
-        }
-        
-        if (!match(p, TOKEN_IDENTIFIER)) {
-            Token *err_tok = current_token(p);
-            if (err_tok) {
-                fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
-                        err_tok->line, err_tok->column);
-            } else {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
+    for (;;) {
+        /* Handle field access or union construction:
+         * - obj.field -> field access
+         * - UnionName.Variant { ... } -> union construction
+         * - tuple.0, tuple.1 -> tuple index access
+         */
+        while (match(p, TOKEN_DOT)) {
+            Token *dot_tok = current_token(p);
+            if (!dot_tok) {
+                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
+                p->recursion_depth--;
+                return expr;
             }
-            p->recursion_depth--;
-            return expr;
-        }
-        
-        Token *field_tok = current_token(p);
-        if (!field_tok || !field_tok->value) {
-            fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
-                    field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
-            return expr;
-        }
-        char *field_or_variant = strdup(field_tok->value);
-        if (!field_or_variant) {
-            fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
-            return expr;
-        }
-        advance(p);
-        
-        /* Check if this is union construction: UnionName.Variant { ... } */
-        /* Union names should start with uppercase by convention, and we need both
-         * the union name and variant name to be identifiers (not field access) */
-        bool looks_like_union = (expr->type == AST_IDENTIFIER && 
-                                 expr->as.identifier && 
-                                 expr->as.identifier[0] >= 'A' && 
-                                 expr->as.identifier[0] <= 'Z' &&
-                                 field_or_variant && 
-                                 field_or_variant[0] >= 'A' &&
-                                 field_or_variant[0] <= 'Z');
-        
-        if (match(p, TOKEN_LBRACE) && looks_like_union) {
-            /* This is union construction */
-            char *union_name = expr->as.identifier;
-            char *variant_name = field_or_variant;
-            
-            advance(p);  /* consume '{' */
-            
-            /* Parse variant fields */
-            int capacity = 4;
-            int count = 0;
-            char **field_names = malloc(sizeof(char*) * capacity);
-            ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
-            
-            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
-                if (count >= capacity) {
-                    capacity *= 2;
-                    field_names = realloc(field_names, sizeof(char*) * capacity);
-                    field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+            int line = dot_tok->line;
+            int column = dot_tok->column;
+            advance(p);  /* consume '.' */
+
+            /* Check if this is a tuple index: tuple.0, tuple.1, etc. */
+            if (match(p, TOKEN_NUMBER)) {
+                Token *num_tok = current_token(p);
+                int index = (int)atoll(num_tok->value);
+                advance(p);  /* consume number */
+
+                /* Create tuple index node */
+                ASTNode *index_node = create_node(AST_TUPLE_INDEX, line, column);
+                index_node->as.tuple_index.tuple = expr;
+                index_node->as.tuple_index.index = index;
+                expr = index_node;
+                continue;
+            }
+
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                Token *err_tok = current_token(p);
+                if (err_tok) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
+                            err_tok->line, err_tok->column);
+                } else {
+                    fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
                 }
-                
-                /* Parse field name */
-                if (!match(p, TOKEN_IDENTIFIER)) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
-                            current_token(p)->line, current_token(p)->column);
-                    break;
-                }
-                field_names[count] = strdup(current_token(p)->value);
-                advance(p);
-                
-                /* Expect colon */
-                if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
-                    break;
-                }
-                
-                /* Parse field value */
-                field_values[count] = parse_expression(p);
-                count++;
-                
-                /* Optional comma */
-                if (match(p, TOKEN_COMMA)) {
+                p->recursion_depth--;
+                return expr;
+            }
+
+            Token *field_tok = current_token(p);
+            if (!field_tok || !field_tok->value) {
+                fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
+                        field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
+                return expr;
+            }
+            char *field_or_variant = strdup(field_tok->value);
+            if (!field_or_variant) {
+                fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
+                return expr;
+            }
+            advance(p);
+
+            /* Check if this is union construction: UnionName.Variant { ... } */
+            /* Union names should start with uppercase by convention, and we need both
+             * the union name and variant name to be identifiers (not field access) */
+            bool looks_like_union = (expr->type == AST_IDENTIFIER &&
+                                     expr->as.identifier &&
+                                     expr->as.identifier[0] >= 'A' &&
+                                     expr->as.identifier[0] <= 'Z' &&
+                                     field_or_variant &&
+                                     field_or_variant[0] >= 'A' &&
+                                     field_or_variant[0] <= 'Z');
+
+            if (match(p, TOKEN_LBRACE) && looks_like_union) {
+                /* This is union construction */
+                char *union_name = expr->as.identifier;
+                char *variant_name = field_or_variant;
+
+                advance(p);  /* consume '{' */
+
+                /* Parse variant fields */
+                int capacity = 4;
+                int count = 0;
+                char **field_names = malloc(sizeof(char*) * capacity);
+                ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
+
+                while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        field_names = realloc(field_names, sizeof(char*) * capacity);
+                        field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
+                    }
+
+                    /* Parse field name */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                                current_token(p)->line, current_token(p)->column);
+                        break;
+                    }
+                    field_names[count] = strdup(current_token(p)->value);
                     advance(p);
+
+                    /* Expect colon */
+                    if (!expect(p, TOKEN_COLON, "Expected ':' after field name")) {
+                        break;
+                    }
+
+                    /* Parse field value */
+                    field_values[count] = parse_expression(p);
+                    count++;
+
+                    /* Optional comma */
+                    if (match(p, TOKEN_COMMA)) {
+                        advance(p);
+                    }
                 }
-            }
-            
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
-                free(union_name);
-                free(variant_name);
-                for (int i = 0; i < count; i++) {
-                    free(field_names[i]);
-                    free_ast(field_values[i]);
+
+                if (!expect(p, TOKEN_RBRACE, "Expected '}' after union fields")) {
+                    free(union_name);
+                    free(variant_name);
+                    for (int i = 0; i < count; i++) {
+                        free(field_names[i]);
+                        free_ast(field_values[i]);
+                    }
+                    free(field_names);
+                    free(field_values);
+                    return NULL;
                 }
-                free(field_names);
-                free(field_values);
-                return NULL;
+
+                /* Create union construction node */
+                ASTNode *union_construct = create_node(AST_UNION_CONSTRUCT, line, column);
+                union_construct->as.union_construct.union_name = strdup(union_name);
+                union_construct->as.union_construct.variant_name = variant_name;
+                union_construct->as.union_construct.field_names = field_names;
+                union_construct->as.union_construct.field_values = field_values;
+                union_construct->as.union_construct.field_count = count;
+
+                /* Free the original identifier node */
+                free_ast(expr);
+                expr = union_construct;
+            } else {
+                /* Regular field access */
+                ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
+                field_access->as.field_access.object = expr;
+                field_access->as.field_access.field_name = field_or_variant;
+                expr = field_access;
             }
-            
-            /* Create union construction node */
-            ASTNode *union_construct = create_node(AST_UNION_CONSTRUCT, line, column);
-            union_construct->as.union_construct.union_name = strdup(union_name);
-            union_construct->as.union_construct.variant_name = variant_name;
-            union_construct->as.union_construct.field_names = field_names;
-            union_construct->as.union_construct.field_values = field_values;
-            union_construct->as.union_construct.field_count = count;
-            
-            /* Free the original identifier node */
-            free_ast(expr);
-            expr = union_construct;
-        } else {
-            /* Regular field access */
-            ASTNode *field_access = create_node(AST_FIELD_ACCESS, line, column);
-            field_access->as.field_access.object = expr;
-            field_access->as.field_access.field_name = field_or_variant;
-            expr = field_access;
         }
+
+        /* Check for infix binary operator: expr op primary */
+        {
+            Token *cur = current_token(p);
+            if (cur && is_infix_binary_op(cur->token_type)) {
+                TokenType op = cur->token_type;
+                int op_line = cur->line;
+                int op_col = cur->column;
+                advance(p);  /* consume operator */
+
+                ASTNode *right = parse_primary(p);
+                if (!right) {
+                    fprintf(stderr, "Error at line %d, column %d: Expected expression after operator\n",
+                            op_line, op_col);
+                    p->recursion_depth--;
+                    return expr;
+                }
+
+                /* Create binary operation node (reuses AST_PREFIX_OP) */
+                ASTNode *bin_node = create_node(AST_PREFIX_OP, op_line, op_col);
+                bin_node->as.prefix_op.op = op;
+                bin_node->as.prefix_op.args = malloc(sizeof(ASTNode*) * 2);
+                bin_node->as.prefix_op.args[0] = expr;
+                bin_node->as.prefix_op.args[1] = right;
+                bin_node->as.prefix_op.arg_count = 2;
+                expr = bin_node;
+                continue;  /* loop back for more dot-access or infix ops */
+            }
+        }
+
+        break;  /* no more postfix or infix operators */
     }
-    
+
     p->recursion_depth--;
     return expr;
 }
@@ -3169,6 +3472,237 @@ static void free_precondition_asserts(ASTNode **nodes, int count) {
     free(nodes);
 }
 
+/* Forward declaration for clone_ast_node */
+static ASTNode *clone_ast_node(const ASTNode *node);
+
+/* Helper to clone an AST node (deep copy) */
+static ASTNode *clone_ast_node(const ASTNode *node) {
+    if (!node) {
+        return NULL;
+    }
+
+    ASTNode *cloned = create_node(node->type, node->line, node->column);
+    if (!cloned) {
+        return NULL;
+    }
+
+    switch (node->type) {
+        case AST_NUMBER:
+            cloned->as.number = node->as.number;
+            break;
+        case AST_FLOAT:
+            cloned->as.float_val = node->as.float_val;
+            break;
+        case AST_STRING:
+            cloned->as.string_val = node->as.string_val ? strdup(node->as.string_val) : NULL;
+            break;
+        case AST_BOOL:
+            cloned->as.bool_val = node->as.bool_val;
+            break;
+        case AST_IDENTIFIER:
+            cloned->as.identifier = node->as.identifier ? strdup(node->as.identifier) : NULL;
+            break;
+        case AST_PREFIX_OP:
+            cloned->as.prefix_op.op = node->as.prefix_op.op;
+            cloned->as.prefix_op.arg_count = node->as.prefix_op.arg_count;
+            cloned->as.prefix_op.args = malloc(sizeof(ASTNode*) * node->as.prefix_op.arg_count);
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                cloned->as.prefix_op.args[i] = clone_ast_node(node->as.prefix_op.args[i]);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.name) {
+                cloned->as.call.name = strdup(node->as.call.name);
+            }
+            cloned->as.call.func_expr = clone_ast_node(node->as.call.func_expr);
+            cloned->as.call.arg_count = node->as.call.arg_count;
+            cloned->as.call.args = malloc(sizeof(ASTNode*) * node->as.call.arg_count);
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                cloned->as.call.args[i] = clone_ast_node(node->as.call.args[i]);
+            }
+            break;
+        case AST_ASSERT:
+            cloned->as.assert.condition = clone_ast_node(node->as.assert.condition);
+            break;
+        /* Add more cases as needed */
+        default:
+            /* For unhandled types, just copy the node structure */
+            /* This is a simplified implementation - full implementation would handle all types */
+            break;
+    }
+
+    return cloned;
+}
+
+/* Helper to substitute an identifier in an AST (replaces old_name with new_name) */
+static void substitute_identifier(ASTNode *node, const char *old_name, const char *new_name) {
+    if (!node || !old_name || !new_name) {
+        return;
+    }
+
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            if (node->as.identifier && strcmp(node->as.identifier, old_name) == 0) {
+                free(node->as.identifier);
+                node->as.identifier = strdup(new_name);
+            }
+            break;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                substitute_identifier(node->as.prefix_op.args[i], old_name, new_name);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.func_expr) {
+                substitute_identifier(node->as.call.func_expr, old_name, new_name);
+            }
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                substitute_identifier(node->as.call.args[i], old_name, new_name);
+            }
+            break;
+        case AST_ASSERT:
+            substitute_identifier(node->as.assert.condition, old_name, new_name);
+            break;
+        /* Add more cases as needed */
+        default:
+            break;
+    }
+}
+
+/* Helper to recursively update line/column in an AST (for postcondition injection) */
+static void update_ast_location(ASTNode *node, int line, int column) {
+    if (!node) return;
+    
+    node->line = line;
+    node->column = column;
+    
+    switch (node->type) {
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
+                update_ast_location(node->as.prefix_op.args[i], line, column);
+            }
+            break;
+        case AST_CALL:
+            if (node->as.call.func_expr) {
+                update_ast_location(node->as.call.func_expr, line, column);
+            }
+            for (int i = 0; i < node->as.call.arg_count; i++) {
+                update_ast_location(node->as.call.args[i], line, column);
+            }
+            break;
+        case AST_ASSERT:
+            update_ast_location(node->as.assert.condition, line, column);
+            break;
+        case AST_IDENTIFIER:
+        case AST_NUMBER:
+        case AST_FLOAT:
+        case AST_STRING:
+        case AST_BOOL:
+            /* Leaf nodes - just update the location (already done above) */
+            break;
+        default:
+            /* For other node types, location is already updated */
+            break;
+    }
+}
+
+/* Helper to inject postconditions before a return statement */
+static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **postconditions, int postcondition_count, Type return_type) {
+    if (!return_node || return_node->type != AST_RETURN || postcondition_count == 0) {
+        return return_node;
+    }
+
+    /* For void returns, no postcondition injection needed (can't reference result) */
+    if (return_type == TYPE_VOID || !return_node->as.return_stmt.value) {
+        return return_node;
+    }
+
+    /* Create a block to hold: let __result = expr; assert...; return __result */
+    ASTNode *block = create_node(AST_BLOCK, return_node->line, return_node->column);
+    block->as.block.count = postcondition_count + 2;  /* let + asserts + return */
+    block->as.block.statements = malloc(sizeof(ASTNode*) * block->as.block.count);
+
+    /* Create: let __result = <return_value> */
+    ASTNode *let_node = create_node(AST_LET, return_node->line, return_node->column);
+    let_node->as.let.name = strdup("__result");
+    let_node->as.let.value = return_node->as.return_stmt.value;
+    let_node->as.let.is_mut = false;
+    let_node->as.let.var_type = return_type;
+    let_node->as.let.type_name = NULL;
+    let_node->as.let.element_type = TYPE_UNKNOWN;
+    let_node->as.let.fn_sig = NULL;
+    let_node->as.let.type_info = NULL;
+    block->as.block.statements[0] = let_node;
+
+    /* Clone, substitute, and update line numbers for postconditions */
+    for (int i = 0; i < postcondition_count; i++) {
+        ASTNode *postcond = clone_ast_node(postconditions[i]);
+        substitute_identifier(postcond, "result", "__result");
+        /* Update line/column to match return statement location, so typechecker 
+         * visibility checks work correctly (__result is defined at return's line) */
+        postcond->line = return_node->line;
+        postcond->column = return_node->column;
+        if (postcond->as.assert.condition) {
+            /* Also update the condition's source location */
+            update_ast_location(postcond->as.assert.condition, return_node->line, return_node->column);
+        }
+        block->as.block.statements[i + 1] = postcond;
+    }
+
+    /* Create: return __result */
+    ASTNode *new_return = create_node(AST_RETURN, return_node->line, return_node->column);
+    ASTNode *result_ref = create_node(AST_IDENTIFIER, return_node->line, return_node->column);
+    result_ref->as.identifier = strdup("__result");
+    new_return->as.return_stmt.value = result_ref;
+    block->as.block.statements[postcondition_count + 1] = new_return;
+
+    /* Free the original return node structure (but not its value, which we moved) */
+    free(return_node);
+
+    return block;
+}
+
+/* Helper to recursively transform return statements in a block */
+static void transform_returns_in_block(ASTNode *block, ASTNode **postconditions, int postcondition_count, Type return_type) {
+    if (!block || block->type != AST_BLOCK) {
+        return;
+    }
+
+    for (int i = 0; i < block->as.block.count; i++) {
+        ASTNode *stmt = block->as.block.statements[i];
+        if (!stmt) {
+            continue;
+        }
+
+        if (stmt->type == AST_RETURN) {
+            /* Transform this return statement */
+            block->as.block.statements[i] = inject_postconditions_at_return(stmt, postconditions, postcondition_count, return_type);
+        } else if (stmt->type == AST_BLOCK) {
+            /* Recursively transform nested blocks */
+            transform_returns_in_block(stmt, postconditions, postcondition_count, return_type);
+        } else if (stmt->type == AST_IF) {
+            /* Transform returns in if branches */
+            if (stmt->as.if_stmt.then_branch) {
+                transform_returns_in_block(stmt->as.if_stmt.then_branch, postconditions, postcondition_count, return_type);
+            }
+            if (stmt->as.if_stmt.else_branch) {
+                transform_returns_in_block(stmt->as.if_stmt.else_branch, postconditions, postcondition_count, return_type);
+            }
+        } else if (stmt->type == AST_WHILE) {
+            /* Transform returns in while body */
+            if (stmt->as.while_stmt.body) {
+                transform_returns_in_block(stmt->as.while_stmt.body, postconditions, postcondition_count, return_type);
+            }
+        } else if (stmt->type == AST_FOR) {
+            /* Transform returns in for body */
+            if (stmt->as.for_stmt.body) {
+                transform_returns_in_block(stmt->as.for_stmt.body, postconditions, postcondition_count, return_type);
+            }
+        }
+        /* Add more statement types as needed */
+    }
+}
+
 /* Parse function definition */
 static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
@@ -3259,13 +3793,43 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         preconditions[precondition_count++] = assert_node;
     }
 
-    if (is_extern && precondition_count > 0) {
-        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' clauses\n",
+    /* Parse optional 'ensures' clauses (postconditions) */
+    ASTNode **postconditions = NULL;
+    int postcondition_count = 0;
+    int postcondition_capacity = 0;
+
+    while (match(p, TOKEN_ENSURES)) {
+        Token *ens_tok = current_token(p);
+        advance(p);  /* consume 'ensures' */
+
+        ASTNode *condition = parse_expression(p);
+        if (!condition) {
+            free(name);
+            free(params);
+            if (return_struct_name) free(return_struct_name);
+            free_precondition_asserts(preconditions, precondition_count);
+            free_precondition_asserts(postconditions, postcondition_count);
+            return NULL;
+        }
+
+        ASTNode *assert_node = create_node(AST_ASSERT, ens_tok->line, ens_tok->column);
+        assert_node->as.assert.condition = condition;
+
+        if (postcondition_count >= postcondition_capacity) {
+            postcondition_capacity = postcondition_capacity ? postcondition_capacity * 2 : 4;
+            postconditions = realloc(postconditions, sizeof(ASTNode*) * postcondition_capacity);
+        }
+        postconditions[postcondition_count++] = assert_node;
+    }
+
+    if (is_extern && (precondition_count > 0 || postcondition_count > 0)) {
+        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' or 'ensures' clauses\n",
                 line, column);
         free(name);
         free(params);
         if (return_struct_name) free(return_struct_name);
         free_precondition_asserts(preconditions, precondition_count);
+        free_precondition_asserts(postconditions, postcondition_count);
         return NULL;
     }
 
@@ -3278,6 +3842,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             free(params);
             if (return_struct_name) free(return_struct_name);
             free_precondition_asserts(preconditions, precondition_count);
+            free_precondition_asserts(postconditions, postcondition_count);
             return NULL;
         }
 
@@ -3296,6 +3861,11 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             body->as.block.statements = new_statements;
             body->as.block.count = precondition_count + original_count;
         }
+
+        /* Inject postconditions before return statements */
+        if (postcondition_count > 0) {
+            transform_returns_in_block(body, postconditions, postcondition_count, return_type);
+        }
     }
     /* Extern functions have no body - declaration only */
 
@@ -3306,6 +3876,10 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         free_precondition_asserts(preconditions, precondition_count);
         preconditions = NULL;
     }
+
+    /* Free postconditions (they've been cloned into the AST) */
+    free_precondition_asserts(postconditions, postcondition_count);
+    postconditions = NULL;
 
     ASTNode *node = create_node(AST_FUNCTION, line, column);
     node->as.function.name = name;
@@ -3407,6 +3981,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     bool is_selective = false;
     bool is_wildcard = false;
     char **import_symbols = NULL;
+    char **import_aliases = NULL;
     int import_symbol_count = 0;
 
     if (is_from) {
@@ -3426,6 +4001,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
             is_selective = true;
             int capacity = 8;
             import_symbols = malloc(sizeof(char*) * capacity);
+            import_aliases = malloc(sizeof(char*) * capacity);
             
             while (true) {
                 if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
@@ -3434,17 +4010,46 @@ static ASTNode *parse_import(Stage1Parser *p) {
                     free(module_path);
                     for (int i = 0; i < import_symbol_count; i++) {
                         free(import_symbols[i]);
+                        if (import_aliases && import_aliases[i]) {
+                            free(import_aliases[i]);
+                        }
                     }
                     free(import_symbols);
+                    free(import_aliases);
                     return NULL;
                 }
 
                 if (import_symbol_count >= capacity) {
                     capacity *= 2;
                     import_symbols = realloc(import_symbols, sizeof(char*) * capacity);
+                    import_aliases = realloc(import_aliases, sizeof(char*) * capacity);
                 }
-                import_symbols[import_symbol_count++] = strdup(current_token(p)->value);
+                import_symbols[import_symbol_count] = strdup(current_token(p)->value);
                 advance(p);
+
+                /* Optional alias: from "module" import symbol as alias */
+                if (match(p, TOKEN_AS)) {
+                    advance(p);  /* consume "as" */
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        fprintf(stderr, "Error at line %d, column %d: Expected alias name after 'as'\n",
+                                current_token(p)->line, current_token(p)->column);
+                        free(module_path);
+                        for (int i = 0; i < import_symbol_count; i++) {
+                            free(import_symbols[i]);
+                            if (import_aliases && import_aliases[i]) {
+                                free(import_aliases[i]);
+                            }
+                        }
+                        free(import_symbols);
+                        free(import_aliases);
+                        return NULL;
+                    }
+                    import_aliases[import_symbol_count] = strdup(current_token(p)->value);
+                    advance(p);
+                } else {
+                    import_aliases[import_symbol_count] = NULL;
+                }
+                import_symbol_count++;
 
                 if (!match(p, TOKEN_COMMA)) {
                     break;
@@ -3474,6 +4079,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     node->as.import_stmt.is_wildcard = is_wildcard;
     node->as.import_stmt.is_pub_use = false;  /* Set by caller if 'pub use' */
     node->as.import_stmt.import_symbols = import_symbols;
+    node->as.import_stmt.import_aliases = import_aliases;
     node->as.import_stmt.import_symbol_count = import_symbol_count;
     return node;
 }
@@ -3771,6 +4377,9 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            if (node->as.call.return_struct_type_name) {
+                free(node->as.call.return_struct_type_name);
+            }
             if (node->as.call.func_expr) {
                 free_ast(node->as.call.func_expr);
             }
@@ -3779,10 +4388,33 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.call.args);
             break;
+        case AST_MODULE_QUALIFIED_CALL:
+            free(node->as.module_qualified_call.module_alias);
+            free(node->as.module_qualified_call.function_name);
+            if (node->as.module_qualified_call.return_struct_type_name) {
+                free(node->as.module_qualified_call.return_struct_type_name);
+            }
+            for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
+                free_ast(node->as.module_qualified_call.args[i]);
+            }
+            free(node->as.module_qualified_call.args);
+            break;
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++) {
+                free_ast(node->as.array_literal.elements[i]);
+            }
+            free(node->as.array_literal.elements);
+            break;
         case AST_LET:
             free(node->as.let.name);
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);
+            }
+            if (node->as.let.fn_sig) {
+                free_function_signature(node->as.let.fn_sig);
+            }
+            if (node->as.let.type_info) {
+                free_type_info(node->as.let.type_info);
             }
             free_ast(node->as.let.value);
             break;
@@ -3794,6 +4426,15 @@ void free_ast(ASTNode *node) {
             free_ast(node->as.if_stmt.condition);
             free_ast(node->as.if_stmt.then_branch);
             free_ast(node->as.if_stmt.else_branch);
+            break;
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+                free_ast(node->as.cond_expr.conditions[i]);
+                free_ast(node->as.cond_expr.values[i]);
+            }
+            free(node->as.cond_expr.conditions);
+            free(node->as.cond_expr.values);
+            free_ast(node->as.cond_expr.else_value);
             break;
         case AST_WHILE:
             free_ast(node->as.while_stmt.condition);
@@ -3817,8 +4458,26 @@ void free_ast(ASTNode *node) {
             free(node->as.function.name);
             for (int i = 0; i < node->as.function.param_count; i++) {
                 free(node->as.function.params[i].name);
+                if (node->as.function.params[i].struct_type_name) {
+                    free(node->as.function.params[i].struct_type_name);
+                }
+                if (node->as.function.params[i].fn_sig) {
+                    free_function_signature(node->as.function.params[i].fn_sig);
+                }
+                if (node->as.function.params[i].type_info) {
+                    free_type_info(node->as.function.params[i].type_info);
+                }
             }
             free(node->as.function.params);
+            if (node->as.function.return_struct_type_name) {
+                free(node->as.function.return_struct_type_name);
+            }
+            if (node->as.function.return_fn_sig) {
+                free_function_signature(node->as.function.return_fn_sig);
+            }
+            if (node->as.function.return_type_info) {
+                free_type_info(node->as.function.return_type_info);
+            }
             if (node->as.function.body) {  /* Extern functions have no body */
                 free_ast(node->as.function.body);
             }
@@ -3837,8 +4496,12 @@ void free_ast(ASTNode *node) {
             if (node->as.import_stmt.import_symbols) {
                 for (int i = 0; i < node->as.import_stmt.import_symbol_count; i++) {
                     free(node->as.import_stmt.import_symbols[i]);
+                    if (node->as.import_stmt.import_aliases && node->as.import_stmt.import_aliases[i]) {
+                        free(node->as.import_stmt.import_aliases[i]);
+                    }
                 }
                 free(node->as.import_stmt.import_symbols);
+                free(node->as.import_stmt.import_aliases);
             }
             break;
         case AST_MODULE_DECL:
@@ -3849,6 +4512,27 @@ void free_ast(ASTNode *node) {
                 free(node->as.qualified_name.name_parts[i]);
             }
             free(node->as.qualified_name.name_parts);
+            break;
+        case AST_OPAQUE_TYPE:
+            free(node->as.opaque_type.name);
+            break;
+        case AST_TUPLE_LITERAL:
+            for (int i = 0; i < node->as.tuple_literal.element_count; i++) {
+                free_ast(node->as.tuple_literal.elements[i]);
+            }
+            free(node->as.tuple_literal.elements);
+            if (node->as.tuple_literal.element_types) {
+                free(node->as.tuple_literal.element_types);
+            }
+            break;
+        case AST_TUPLE_INDEX:
+            free_ast(node->as.tuple_index.tuple);
+            break;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < node->as.unsafe_block.count; i++) {
+                free_ast(node->as.unsafe_block.statements[i]);
+            }
+            free(node->as.unsafe_block.statements);
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {
@@ -3866,9 +4550,18 @@ void free_ast(ASTNode *node) {
             free(node->as.struct_def.name);
             for (int i = 0; i < node->as.struct_def.field_count; i++) {
                 free(node->as.struct_def.field_names[i]);
+                if (node->as.struct_def.field_type_names && node->as.struct_def.field_type_names[i]) {
+                    free(node->as.struct_def.field_type_names[i]);
+                }
             }
             free(node->as.struct_def.field_names);
             free(node->as.struct_def.field_types);
+            if (node->as.struct_def.field_type_names) {
+                free(node->as.struct_def.field_type_names);
+            }
+            if (node->as.struct_def.field_element_types) {
+                free(node->as.struct_def.field_element_types);
+            }
             break;
         case AST_STRUCT_LITERAL:
             free(node->as.struct_literal.struct_name);
@@ -3897,14 +4590,31 @@ void free_ast(ASTNode *node) {
                 free(node->as.union_def.variant_names[i]);
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {
                     free(node->as.union_def.variant_field_names[i][j]);
+                    if (node->as.union_def.variant_field_type_names &&
+                        node->as.union_def.variant_field_type_names[i] &&
+                        node->as.union_def.variant_field_type_names[i][j]) {
+                        free(node->as.union_def.variant_field_type_names[i][j]);
+                    }
                 }
                 free(node->as.union_def.variant_field_names[i]);
                 free(node->as.union_def.variant_field_types[i]);
+                if (node->as.union_def.variant_field_type_names) {
+                    free(node->as.union_def.variant_field_type_names[i]);
+                }
             }
             free(node->as.union_def.variant_names);
             free(node->as.union_def.variant_field_counts);
             free(node->as.union_def.variant_field_names);
             free(node->as.union_def.variant_field_types);
+            if (node->as.union_def.variant_field_type_names) {
+                free(node->as.union_def.variant_field_type_names);
+            }
+            if (node->as.union_def.generic_params) {
+                for (int i = 0; i < node->as.union_def.generic_param_count; i++) {
+                    free(node->as.union_def.generic_params[i]);
+                }
+                free(node->as.union_def.generic_params);
+            }
             break;
         case AST_UNION_CONSTRUCT:
             free(node->as.union_construct.union_name);
@@ -3915,6 +4625,9 @@ void free_ast(ASTNode *node) {
             }
             free(node->as.union_construct.field_names);
             free(node->as.union_construct.field_values);
+            if (node->as.union_construct.type_info) {
+                free_type_info(node->as.union_construct.type_info);
+            }
             break;
         case AST_MATCH:
             free_ast(node->as.match_expr.expr);

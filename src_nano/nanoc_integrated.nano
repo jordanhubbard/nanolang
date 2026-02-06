@@ -5520,7 +5520,7 @@ shadow show_usage {
 
 shadow parse_args {
     let args: CompilerArgs = (parse_args)
-    assert (str_equals args.output_file "a.out")
+    assert (== args.output_file "a.out")
 }
 
 /* TEMPORARILY DISABLED: Shadow test crashes

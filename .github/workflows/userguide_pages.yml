@@ -26,6 +26,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache module objects
+        uses: actions/cache@v4
+        with:
+          path: |
+            obj/nano_modules
+            modules/*/.build
+          key: nano-modules-${{ hashFiles('modules/**/*.nano', 'stdlib/**/*.nano', 'src_nano/**/*.nano', 'modules/**/*.c') }}
+          restore-keys: |
+            nano-modules-
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -36,6 +46,9 @@ jobs:
 
       - name: Build user guide HTML
         run: make userguide-html
+        env:
+          USERGUIDE_TIMEOUT: 2400
+          USERGUIDE_BUILD_API_DOCS: 0
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

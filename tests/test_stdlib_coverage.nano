@@ -17,12 +17,12 @@ fn test_string_ops() -> bool {
     } else {}
     
     # Test str_equals
-    let equals_result: bool = (str_equals hello "hello")
+    let equals_result: bool = (== hello "hello")
     if (not equals_result) {
         return false
     } else {}
     
-    if (str_equals hello "world") {
+    if (== hello "world") {
         return false
     } else {}
     
@@ -39,14 +39,14 @@ fn test_string_ops() -> bool {
     # Test string concatenation
     let world: string = "world"
     let combined: string = (+ hello world)
-    let concat_result: bool = (str_equals combined "helloworld")
+    let concat_result: bool = (== combined "helloworld")
     if (not concat_result) {
         return false
     } else {}
     
     # Test str_substring
     let sub: string = (str_substring hello 1 3)
-    let sub_result: bool = (str_equals sub "ell")
+    let sub_result: bool = (== sub "ell")
     if (not sub_result) {
         return false
     } else {}
@@ -105,15 +105,15 @@ fn test_array_strings() -> bool {
     (array_set arr 1 "second")
     (array_set arr 2 "third")
     
-    if (not (str_equals (at arr 0) "first")) {
+    if (not (== (at arr 0) "first")) {
         return false
     } else {}
     
-    if (not (str_equals (at arr 1) "second")) {
+    if (not (== (at arr 1) "second")) {
         return false
     } else {}
     
-    if (not (str_equals (at arr 2) "third")) {
+    if (not (== (at arr 2) "third")) {
         return false
     } else {}
     
@@ -145,17 +145,17 @@ fn test_array_bools() -> bool {
 # Test int_to_string
 fn test_int_to_string() -> bool {
     let s0: string = (int_to_string 0)
-    if (not (str_equals s0 "0")) {
+    if (not (== s0 "0")) {
         return false
     } else {}
     
     let s42: string = (int_to_string 42)
-    if (not (str_equals s42 "42")) {
+    if (not (== s42 "42")) {
         return false
     } else {}
     
     let sneg: string = (int_to_string -123)
-    if (not (str_equals sneg "-123")) {
+    if (not (== sneg "-123")) {
         return false
     } else {}
     

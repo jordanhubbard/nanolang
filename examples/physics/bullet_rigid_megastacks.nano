@@ -190,7 +190,7 @@ fn format_percent(value: float) -> string {
 }
 
 shadow format_percent {
-    assert (str_equals (format_percent 0.42) "42%")
+    assert (== (format_percent 0.42) "42%")
 }
 
 fn render_overlay(renderer: SDL_Renderer, font: TTF_Font, progress: float) -> void {

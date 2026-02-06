@@ -42,27 +42,23 @@ shadow display_board {
     assert true
 }
 
-# Get display character for a cell
+# Get display character for a cell using cond
 fn get_cell_display(board: array<int>, pos: int) -> string {
     let cell: int = (at board pos)
-    if (== cell 0) {
-        return " "
-    } else {
-        if (== cell 1) {
-            return "X"
-        } else {
-            return "O"
-        }
-    }
+    return (cond
+        ((== cell 0) " ")
+        ((== cell 1) "X")
+        (else "O")
+    )
 }
 
 shadow get_cell_display {
     let board: array<int> = (create_board)
-    assert (str_equals (get_cell_display board 0) " ")
+    assert (== (get_cell_display board 0) " ")
     (array_set board 0 1)
-    assert (str_equals (get_cell_display board 0) "X")
+    assert (== (get_cell_display board 0) "X")
     (array_set board 1 2)
-    assert (str_equals (get_cell_display board 1) "O")
+    assert (== (get_cell_display board 1) "O")
 }
 
 # Check if position is valid and empty using cond
@@ -180,8 +176,8 @@ fn get_player_name(player: int) -> string {
 }
 
 shadow get_player_name {
-    assert (str_equals (get_player_name 1) "X")
-    assert (str_equals (get_player_name 2) "O")
+    assert (== (get_player_name 1) "X")
+    assert (== (get_player_name 2) "O")
 }
 
 # Simple AI: pick first available move

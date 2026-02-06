@@ -281,43 +281,18 @@ shadow explore_tile {
 # === RENDERING ===
 
 fn get_biome_color(biome: int) -> int {
-    if (== biome BiomeType.DEEP_OCEAN) {
-        return 0  # Very dark blue
-    } else {
-        if (== biome BiomeType.OCEAN) {
-            return 1  # Dark blue
-        } else {
-            if (== biome BiomeType.BEACH) {
-                return 2  # Sandy
-            } else {
-                if (== biome BiomeType.WETLANDS) {
-                    return 3  # Muddy green
-                } else {
-                    if (== biome BiomeType.PLAINS) {
-                        return 4  # Light green
-                    } else {
-                        if (== biome BiomeType.FOREST) {
-                            return 5  # Dark green
-                        } else {
-                            if (== biome BiomeType.HILLS) {
-                                return 6  # Brown
-                            } else {
-                                if (== biome BiomeType.MOUNTAIN) {
-                                    return 7  # Gray
-                                } else {
-                                    if (== biome BiomeType.HIGH_MOUNTAIN) {
-                                        return 8  # Dark gray
-                                    } else {
-                                        return 9  # White (snow)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    return (cond
+        ((== biome BiomeType.DEEP_OCEAN) 0)   # Very dark blue
+        ((== biome BiomeType.OCEAN) 1)         # Dark blue
+        ((== biome BiomeType.BEACH) 2)         # Sandy
+        ((== biome BiomeType.WETLANDS) 3)      # Muddy green
+        ((== biome BiomeType.PLAINS) 4)        # Light green
+        ((== biome BiomeType.FOREST) 5)        # Dark green
+        ((== biome BiomeType.HILLS) 6)         # Brown
+        ((== biome BiomeType.MOUNTAIN) 7)      # Gray
+        ((== biome BiomeType.HIGH_MOUNTAIN) 8) # Dark gray
+        (else 9)                               # White (snow)
+    )
 }
 
 shadow get_biome_color {

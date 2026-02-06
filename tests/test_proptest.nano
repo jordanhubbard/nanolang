@@ -57,39 +57,39 @@ fn even_only(value: int) -> string {
 }
 
 shadow always_pass {
-    assert (str_equals (always_pass 0) (prop_pass))
+    assert (== (always_pass 0) (prop_pass))
 }
 
 shadow always_fail {
     let expected: string = (prop_fail "forced failure")
-    assert (str_equals (always_fail 0) expected)
+    assert (== (always_fail 0) expected)
 }
 
 shadow pair_must_match {
-    assert (str_equals (pair_must_match 1 1) (prop_pass))
-    assert (not (str_equals (pair_must_match 1 2) (prop_pass)))
+    assert (== (pair_must_match 1 1) (prop_pass))
+    assert (not (== (pair_must_match 1 2) (prop_pass)))
 }
 
 shadow array_requires_zero {
     let empty: array<int> = []
-    assert (str_equals (array_requires_zero empty) (prop_pass))
+    assert (== (array_requires_zero empty) (prop_pass))
 }
 
 shadow fail_if_gt_three {
-    assert (str_equals (fail_if_gt_three 4) (prop_fail "gt3"))
+    assert (== (fail_if_gt_three 4) (prop_fail "gt3"))
 }
 
 shadow fail_sum_over_five {
-    assert (str_equals (fail_sum_over_five 3 3) (prop_fail "sum"))
+    assert (== (fail_sum_over_five 3 3) (prop_fail "sum"))
 }
 
 shadow fail_on_empty {
     let empty: array<int> = []
-    assert (str_equals (fail_on_empty empty) (prop_fail "empty"))
+    assert (== (fail_on_empty empty) (prop_fail "empty"))
 }
 
 shadow even_only {
-    assert (str_equals (even_only 1) (prop_discard "odd"))
+    assert (== (even_only 1) (prop_discard "odd"))
 }
 
 fn test_forall_pass() -> bool {
@@ -106,7 +106,7 @@ fn test_forall_pass() -> bool {
     if (!= report.shrink_count 0) {
         return false
     }
-    return (str_equals report.counterexample "")
+    return (== report.counterexample "")
 }
 
 shadow test_forall_pass {
@@ -125,7 +125,7 @@ fn test_forall_fail() -> bool {
     if (!= report.shrink_count 1) {
         return false
     }
-    return (str_equals report.counterexample "gt3_shrink failed with x=4 :: gt3")
+    return (== report.counterexample "gt3_shrink failed with x=4 :: gt3")
 }
 
 shadow test_forall_fail {
@@ -141,7 +141,7 @@ fn test_pair_fail() -> bool {
     if (!= report.shrink_count 0) {
         return false
     }
-    return (str_equals report.counterexample "pair_limit failed with (a=3, b=3) :: sum")
+    return (== report.counterexample "pair_limit failed with (a=3, b=3) :: sum")
 }
 
 shadow test_pair_fail {
@@ -154,7 +154,7 @@ fn test_array_fail() -> bool {
     if (report_passed report) {
         return false
     }
-    return (str_equals report.counterexample "array_empty failed with values=[] :: empty")
+    return (== report.counterexample "array_empty failed with values=[] :: empty")
 }
 
 shadow test_array_fail {

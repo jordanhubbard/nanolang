@@ -13,7 +13,7 @@ struct CommandResult {
 
 # Execute a shell command and capture output
 # Returns CommandResult with stdout, stderr, and exit code
-fn exec_command(command: string) -> CommandResult {
+pub fn exec_command(command: string) -> CommandResult {
     let mut raw: array<string> = (array_new 3 "")
     
     unsafe {

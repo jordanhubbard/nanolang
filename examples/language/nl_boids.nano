@@ -23,20 +23,25 @@ let MAX_FRAMES: int = 40
 # === BOID SIMULATION ===
 
 fn wrap_position(pos: float, max: float) -> float {
-    if (> pos max) {
-        return 0.0
-    } else {
-        if (< pos 0.0) {
-            return max
-        } else {
-            return pos
-        }
-    }
+    return (cond
+        ((> pos max) 0.0)
+        ((< pos 0.0) max)
+        (else pos)
+    )
 }
 
 shadow wrap_position {
-    let wrapped2: float = (wrap_position 50.0 200.0)
-    assert (== wrapped2 50.0)
+    assert (== (wrap_position 50.0 200.0) 50.0)
+    assert (== (wrap_position 201.0 200.0) 0.0)
+    assert (== (wrap_position -1.0 200.0) 200.0)
+}
+
+fn float_to_string(f: float) -> string {
+    return (+ (int_to_string (cast_int f)) ".0")
+}
+
+shadow float_to_string {
+    assert (> (str_length (float_to_string 3.14)) 0)
 }
 
 fn main() -> int {
@@ -112,8 +117,8 @@ fn main() -> int {
             let to_y: float = (- center_y y)
             
             # Apply cohesion force
-            let new_vx_val: float = (+ vx (* to_x 0.08))
-            let new_vy_val: float = (+ vy (* to_y 0.08))
+            let mut new_vx_val: float = (+ vx (* to_x 0.08))
+            let mut new_vy_val: float = (+ vy (* to_y 0.08))
             
             # Speed limiting using constant
             let speed: float = (vec_length (vec_new new_vx_val new_vy_val))

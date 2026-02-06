@@ -121,7 +121,7 @@ void     # No return value
 ```nano
 (+ str1 str2)              # Concatenation
 (str_length s)             # Length
-(str_equals s1 s2)         # Compare
+(== s1 s2)                 # Compare
 (char_at s index)          # Get character
 (string_from_char code)    # Char to string
 (int_to_string n)          # Int to string
@@ -276,7 +276,7 @@ shadow main {
 
 ### Step 2: Memorize Core Stdlib
 - Math: `+`, `-`, `*`, `/`, `%`
-- Strings: `+`, `str_length`, `str_equals`
+- Strings: `+`, `==`, `str_length`
 - Arrays: `array_new`, `array_get`, `array_set`
 - I/O: `print`, `println`
 

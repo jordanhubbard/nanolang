@@ -55,7 +55,34 @@ class Failure:
     summary: str
 
 
-def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None) -> subprocess.CompletedProcess[str]:
+def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[str, str] | None = None, stream: bool = False) -> subprocess.CompletedProcess[str]:
+    if stream:
+        # Stream output to terminal while capturing it
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(cwd),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=env,
+        )
+        output_lines: list[str] = []
+        try:
+            assert proc.stdout is not None
+            for line in proc.stdout:
+                print(line, end="", flush=True)
+                output_lines.append(line)
+            proc.wait(timeout=timeout_s)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+            raise
+        return subprocess.CompletedProcess(
+            args=cmd,
+            returncode=proc.returncode,
+            stdout="".join(output_lines),
+            stderr=None,
+        )
     return subprocess.run(
         cmd,
         cwd=str(cwd),
@@ -64,6 +91,7 @@ def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None) -> subproce
         stderr=subprocess.STDOUT,
         timeout=timeout_s,
         check=False,
+        env=env,
     )
 
 
@@ -380,8 +408,10 @@ def _run_examples(timeout_s: int, *, dry_run: bool) -> int:
     if dry_run:
         print("[dry-run] " + " ".join(cmd))
         return 0
-    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s)
-    (TEST_OUTPUT_DIR / "make_examples.log").write_text(proc.stdout, encoding="utf-8", errors="replace")
+    env = dict(os.environ)
+    env["NANOLANG_AUTOBEADS_EXAMPLES"] = "1"
+    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s, env=env, stream=True)
+    (TEST_OUTPUT_DIR / "make_examples.log").write_text(proc.stdout or "", encoding="utf-8", errors="replace")
     return proc.returncode
 
 

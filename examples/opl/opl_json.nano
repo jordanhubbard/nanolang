@@ -47,7 +47,7 @@ pub fn opl_json_set_str(obj: Json, key: string, v: string) -> void {
 shadow opl_json_set_str {
     let o: Json = (new_object)
     (opl_json_set_str o "k" "v")
-    assert (str_equals (as_string (get o "k")) "v")
+    assert (== (as_string (get o "k")) "v")
     (free o)
 }
 

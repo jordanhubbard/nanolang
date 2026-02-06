@@ -104,7 +104,7 @@ shadow test_str_length {
 
 fn test_str_concat() -> bool {
     let result: string = (+ "hello" " world")
-    return (str_equals result "hello world")
+    return (== result "hello world")
 }
 
 shadow test_str_concat {
@@ -113,7 +113,7 @@ shadow test_str_concat {
 
 fn test_str_substring() -> bool {
     let result: string = (str_substring "hello world" 0 5)
-    return (str_equals result "hello")
+    return (== result "hello")
 }
 
 shadow test_str_substring {
@@ -131,8 +131,8 @@ shadow test_str_contains {
 }
 
 fn test_str_equals() -> bool {
-    let a: bool = (str_equals "hello" "hello")
-    let b: bool = (str_equals "hello" "world")
+    let a: bool = (== "hello" "hello")
+    let b: bool = (== "hello" "world")
     return (and a (not b))
 }
 
@@ -153,7 +153,7 @@ shadow test_char_at {
 
 fn test_string_from_char() -> bool {
     let s: string = (string_from_char 65)  /* 'A' */
-    return (str_equals s "A")
+    return (== s "A")
 }
 
 shadow test_string_from_char {
@@ -162,7 +162,7 @@ shadow test_string_from_char {
 
 fn test_int_to_string() -> bool {
     let s: string = (int_to_string 42)
-    return (str_equals s "42")
+    return (== s "42")
 }
 
 shadow test_int_to_string {

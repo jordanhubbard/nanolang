@@ -51,7 +51,7 @@ struct Player {
     position: Point
 }
 
-struct Token {
+struct DemoToken {
     type: int,
     value: string,
     line: int,
@@ -75,7 +75,7 @@ extern fn list_string_push(list: int64_t, value: string) -> void
 extern fn list_string_get(list: int64_t, index: int) -> string
 extern fn list_string_length(list: int64_t) -> int
 
-# Note: For user-defined structs (Point, Player, Token), the compiler
+# Note: For user-defined structs (Point, Player, DemoToken), the compiler
 # automatically generates specialized functions. No extern needed!
 
 # ==============================================================================
@@ -180,14 +180,15 @@ fn demo_list_point() -> int {
     (print first.y)
     (println ")")
     
-    let last: Point = (list_Point_pop points)
-    (print "  Popped point: (")
+    let last_idx: int = (- (list_Point_length points) 1)
+    let last: Point = (list_Point_get points last_idx)
+    (print "  Last point: (")
     (print last.x)
     (print ", ")
     (print last.y)
     (println ")")
     
-    (print "  Remaining: ")
+    (print "  Total: ")
     (println (list_Point_length points))
     
     (println "  ✓ List<Point> with custom structs works!")
@@ -244,29 +245,29 @@ shadow demo_list_player {
 }
 
 # ==============================================================================
-# Example 5: List<Token> - Compiler/Lexer Use Case
+# Example 5: List<DemoToken> - Compiler/Lexer Use Case
 # ==============================================================================
 
 fn demo_list_token() -> int {
     (println "")
-    (println "=== Example 5: List<Token> - Real-World Use Case ===")
+    (println "=== Example 5: List<DemoToken> - Real-World Use Case ===")
     
     # Tokens for a simple lexer - like building a compiler!
-    let tokens: List<Token> = (list_Token_new)
+    let tokens: List<DemoToken> = (list_DemoToken_new)
     
-    let tok1: Token = Token { type: 1, value: "fn", line: 1, column: 1 }
-    let tok2: Token = Token { type: 2, value: "main", line: 1, column: 4 }
-    let tok3: Token = Token { type: 3, value: "(", line: 1, column: 8 }
+    let tok1: DemoToken = DemoToken { type: 1, value: "fn", line: 1, column: 1 }
+    let tok2: DemoToken = DemoToken { type: 2, value: "main", line: 1, column: 4 }
+    let tok3: DemoToken = DemoToken { type: 3, value: "(", line: 1, column: 8 }
     
-    (list_Token_push tokens tok1)
-    (list_Token_push tokens tok2)
-    (list_Token_push tokens tok3)
+    (list_DemoToken_push tokens tok1)
+    (list_DemoToken_push tokens tok2)
+    (list_DemoToken_push tokens tok3)
     
-    let token_count: int = (list_Token_length tokens)
+    let token_count: int = (list_DemoToken_length tokens)
     (print "  Tokens parsed: ")
     (println token_count)
     
-    let first_token: Token = (list_Token_get tokens 0)
+    let first_token: DemoToken = (list_DemoToken_get tokens 0)
     (print "  First token: '")
     (print first_token.value)
     (print "' at line ")
@@ -274,7 +275,7 @@ fn demo_list_token() -> int {
     (print ", col ")
     (println first_token.column)
     
-    (println "  ✓ List<Token> - perfect for lexer/parser!")
+    (println "  ✓ List<DemoToken> - perfect for lexer/parser!")
     return 0
 }
 

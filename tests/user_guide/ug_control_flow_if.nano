@@ -1,0 +1,19 @@
+fn describe(x: int) -> void {
+    if (< x 0) {
+        (println "negative")
+    } else {
+        (println "non-negative")
+    }
+}
+
+shadow describe {
+    (describe -5)
+    (describe 10)
+}
+
+fn main() -> int {
+    (describe 42)
+    return 0
+}
+
+shadow main { assert true }

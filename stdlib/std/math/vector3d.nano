@@ -48,11 +48,15 @@ pub fn vec3_length_squared(v: Vector3D) -> float {
     return (vec3_dot v v)
 }
 
-pub fn vec3_length(v: Vector3D) -> float {
+pub fn vec3_length(v: Vector3D) -> float
+ensures (>= result 0.0)
+{
     return (sqrt (vec3_length_squared v))
 }
 
-pub fn vec3_distance(a: Vector3D, b: Vector3D) -> float {
+pub fn vec3_distance(a: Vector3D, b: Vector3D) -> float
+ensures (>= result 0.0)
+{
     return (vec3_length (vec3_sub b a))
 }
 
@@ -78,7 +82,9 @@ pub fn vec3_reflect(v: Vector3D, normal: Vector3D) -> Vector3D {
     return (vec3_sub v (vec3_scale normal (* 2.0 d)))
 }
 
-pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
+pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D
+requires (>= max_len 0.0)
+{
     let len: float = (vec3_length v)
     if (> len max_len) {
         return (vec3_scale (vec3_normalize v) max_len)
