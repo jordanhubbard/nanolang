@@ -861,19 +861,14 @@ shadow init_theme_map {
 }
 
 /* Convert int to string with zero-padding (e.g., 5 -> "0005" with width 4) */
-/* NOTE: Uses if-else chain instead of loop to avoid GC crash with mutable string self-concat */
 fn int_to_string_padded(num: int, width: int) -> string {
-    let s: string = (int_to_string num)
-    let len: int = (str_length s)
-    if (>= len width) {
-        return s
+    let mut result: string = (int_to_string num)
+    let mut len: int = (str_length result)
+    while (< len width) {
+        set result (str_concat "0" result)
+        set len (str_length result)
     }
-    let pad: int = (- width len)
-    if (== pad 1) { return (str_concat "0" s) }
-    if (== pad 2) { return (str_concat "00" s) }
-    if (== pad 3) { return (str_concat "000" s) }
-    if (== pad 4) { return (str_concat "0000" s) }
-    return s
+    return result
 }
 
 shadow int_to_string_padded {

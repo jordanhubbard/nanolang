@@ -1,4 +1,4 @@
-# Chapter 8: LLM-Powered Profiling
+# LLM-Powered Profiling
 
 ## Overview
 

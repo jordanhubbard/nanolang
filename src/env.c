@@ -345,6 +345,19 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         }
     }
     
+    /* GC refcount fix: If this string value is already referenced by another
+     * variable in the environment, increment refcount to prevent use-after-free
+     * when one variable is later reassigned. Handles: let s = (func); let mut r = s */
+    if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+        for (int i = 0; i < env->symbol_count; i++) {
+            if (env->symbols[i].value.type == VAL_STRING &&
+                env->symbols[i].value.as.string_val == value.as.string_val) {
+                gc_retain(value.as.string_val);
+                break;
+            }
+        }
+    }
+
     env->symbols[env->symbol_count++] = sym;
 }
 
@@ -416,6 +429,20 @@ void env_set_var(Environment *env, const char *name, Value value) {
     if (sym) {
         env_free_value(sym->value);
         sym->value = value;
+
+        /* GC refcount fix: If the new string value is already referenced by
+         * another variable, increment refcount to prevent use-after-free.
+         * Handles: set x y where y is a string variable */
+        if (value.type == VAL_STRING && value.as.string_val && gc_is_managed(value.as.string_val)) {
+            for (int i = 0; i < env->symbol_count; i++) {
+                if (&env->symbols[i] != sym &&
+                    env->symbols[i].value.type == VAL_STRING &&
+                    env->symbols[i].value.as.string_val == value.as.string_val) {
+                    gc_retain(value.as.string_val);
+                    break;
+                }
+            }
+        }
     }
 }
 
