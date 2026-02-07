@@ -2,11 +2,13 @@
 
     This file defines the abstract syntax for NanoCore, a minimal subset
     of NanoLang used for formal verification. NanoCore includes:
-    - Integer and boolean literals
+    - Integer, boolean, and unit literals
     - Binary operators (arithmetic, comparison, logical)
     - Unary operators (negation, logical not)
     - If/then/else expressions
-    - Let bindings (immutable)
+    - Let bindings
+    - Mutable variable assignment (set)
+    - Sequential composition and while loops
     - Lambda abstractions and function application
 *)
 
@@ -19,6 +21,7 @@ Open Scope string_scope.
 Inductive ty : Type :=
   | TInt   : ty                    (* int *)
   | TBool  : ty                    (* bool *)
+  | TUnit  : ty                    (* unit *)
   | TArrow : ty -> ty -> ty.       (* function type: T1 -> T2 *)
 
 (** ** Binary operators *)
@@ -52,11 +55,15 @@ Inductive unop : Type :=
 Inductive expr : Type :=
   | EInt    : Z -> expr                         (* integer literal *)
   | EBool   : bool -> expr                      (* boolean literal *)
+  | EUnit   : expr                              (* unit literal *)
   | EVar    : string -> expr                     (* variable reference *)
   | EBinOp  : binop -> expr -> expr -> expr      (* binary operation *)
   | EUnOp   : unop -> expr -> expr               (* unary operation *)
   | EIf     : expr -> expr -> expr -> expr       (* if cond then e1 else e2 *)
   | ELet    : string -> expr -> expr -> expr     (* let x = e1 in e2 *)
+  | ESet    : string -> expr -> expr             (* set x = e *)
+  | ESeq    : expr -> expr -> expr               (* e1; e2 *)
+  | EWhile  : expr -> expr -> expr               (* while cond do body *)
   | ELam    : string -> ty -> expr -> expr       (* fun (x : T) => body *)
   | EApp    : expr -> expr -> expr.              (* function application *)
 
@@ -68,6 +75,7 @@ Inductive expr : Type :=
 Inductive val : Type :=
   | VInt    : Z -> val                           (* integer value *)
   | VBool   : bool -> val                        (* boolean value *)
+  | VUnit   : val                                (* unit value *)
   | VClos   : string -> expr -> env -> val       (* closure: param, body, captured env *)
 
 (** ** Environments
@@ -87,6 +95,19 @@ Fixpoint env_lookup (x : string) (e : env) : option val :=
   | ECons y v rest =>
     if String.eqb x y then Some v
     else env_lookup x rest
+  end.
+
+(** ** Environment update (for mutable variables)
+
+    Updates the most recent binding of [x] in the environment.
+    If [x] is not found, the environment is unchanged. *)
+
+Fixpoint env_update (x : string) (v : val) (e : env) : env :=
+  match e with
+  | ENil => ENil
+  | ECons y v' rest =>
+    if String.eqb x y then ECons y v rest
+    else ECons y v' (env_update x v rest)
   end.
 
 (** ** Type equality decidability *)

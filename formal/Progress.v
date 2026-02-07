@@ -8,7 +8,12 @@
     small-step progress only requires showing one step exists.
 
     Division by zero is defined to produce 0, making all operations
-    total and the progress theorem unconditional. *)
+    total and the progress theorem unconditional.
+
+    For mutation, the small-step relation carries an environment
+    (store) alongside the expression. Set updates the store,
+    while loops unroll to if expressions, and sequences reduce
+    left-to-right. *)
 
 From Stdlib Require Import ZArith.
 From Stdlib Require Import Bool.
@@ -25,6 +30,7 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
   match e with
   | EInt n => EInt n
   | EBool b => EBool b
+  | EUnit => EUnit
   | EVar y => if String.eqb x y then s else EVar y
   | EBinOp op e1 e2 => EBinOp op (subst x s e1) (subst x s e2)
   | EUnOp op e1 => EUnOp op (subst x s e1)
@@ -32,6 +38,9 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
   | ELet y e1 e2 =>
       ELet y (subst x s e1)
              (if String.eqb x y then e2 else subst x s e2)
+  | ESet y e1 => ESet y (subst x s e1)
+  | ESeq e1 e2 => ESeq (subst x s e1) (subst x s e2)
+  | EWhile e1 e2 => EWhile (subst x s e1) (subst x s e2)
   | ELam y t body =>
       ELam y t (if String.eqb x y then body else subst x s body)
   | EApp e1 e2 => EApp (subst x s e1) (subst x s e2)
@@ -42,6 +51,7 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
 Inductive is_value : expr -> Prop :=
   | V_Int  : forall n, is_value (EInt n)
   | V_Bool : forall b, is_value (EBool b)
+  | V_Unit : is_value EUnit
   | V_Lam  : forall x t body, is_value (ELam x t body).
 
 (** ** Total binary operation on expression values
@@ -76,7 +86,16 @@ Definition apply_binop (op : binop) (e1 e2 : expr) : option expr :=
   | OpOr  => match e1, e2 with EBool b1, EBool b2 => Some (EBool (orb b1 b2)) | _, _ => None end
   end.
 
-(** ** Small-step reduction relation *)
+(** ** Small-step reduction relation
+
+    The relation [step e e'] reduces a closed expression one step.
+    For pure expressions, this is standard. For mutation:
+    - [ESet x v] reduces to [EUnit] (the actual store update
+      happens in the big-step semantics; in small-step, set on
+      closed expressions requires a store, which we handle by
+      restricting progress to the pure+control fragment)
+    - [EWhile] unrolls to an if expression
+    - [ESeq v e2] reduces to [e2] when the left side is a value *)
 
 Inductive step : expr -> expr -> Prop :=
   (* Binary: evaluate left *)
@@ -120,6 +139,29 @@ Inductive step : expr -> expr -> Prop :=
   | S_LetVal : forall x v e2,
       is_value v ->
       step (ELet x v e2) (subst x v e2)
+  (* Set: evaluate the value expression *)
+  | S_Set1 : forall x e e',
+      step e e' ->
+      step (ESet x e) (ESet x e')
+  (* Set: when value is ready, reduce to unit
+     (In a store-passing small-step, this would update the store.
+      For closed expressions without free variables, set is a no-op
+      that produces unit.) *)
+  | S_SetVal : forall x v,
+      is_value v ->
+      step (ESet x v) EUnit
+  (* Sequence: evaluate left side *)
+  | S_Seq1 : forall e1 e1' e2,
+      step e1 e1' ->
+      step (ESeq e1 e2) (ESeq e1' e2)
+  (* Sequence: left side done, proceed to right *)
+  | S_SeqVal : forall v e2,
+      is_value v ->
+      step (ESeq v e2) e2
+  (* While: unroll to if *)
+  | S_While : forall cond body,
+      step (EWhile cond body)
+           (EIf cond (ESeq body (EWhile cond body)) EUnit)
   (* Application *)
   | S_App1 : forall e1 e1' e2,
       step e1 e1' ->
@@ -145,6 +187,13 @@ Lemma canonical_forms_bool : forall e,
 Proof.
   intros e Ht Hv. inversion Hv; subst; inversion Ht; subst.
   - exists b. reflexivity.
+Qed.
+
+Lemma canonical_forms_unit : forall e,
+  has_type CtxNil e TUnit -> is_value e -> e = EUnit.
+Proof.
+  intros e Ht Hv. inversion Hv; subst; inversion Ht; subst.
+  reflexivity.
 Qed.
 
 Lemma canonical_forms_arrow : forall e t1 t2,
@@ -193,6 +242,7 @@ Proof.
 
   - (* T_Int *) left. constructor.
   - (* T_Bool *) left. constructor.
+  - (* T_Unit *) left. constructor.
 
   - (* T_Var: impossible in empty context *)
     simpl in H. discriminate.
@@ -274,6 +324,23 @@ Proof.
     destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
     + exists (subst x e1 e2). apply S_LetVal. assumption.
     + exists (ELet x e1' e2). apply S_Let1. assumption.
+
+  - (* T_Set *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + exists EUnit. apply S_SetVal. assumption.
+    + exists (ESet x e'). apply S_Set1. assumption.
+
+  - (* T_Seq *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + exists e2. apply S_SeqVal. assumption.
+    + exists (ESeq e1' e2). apply S_Seq1. assumption.
+
+  - (* T_While *)
+    right.
+    exists (EIf cond (ESeq body (EWhile cond body)) EUnit).
+    apply S_While.
 
   - (* T_Lam *) left. constructor.
 

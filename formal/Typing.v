@@ -10,6 +10,8 @@
     - Logical operators require boolean operands and produce booleans
     - If-then-else requires boolean condition and matching branch types
     - Function application checks argument against parameter type
+    - Set requires variable in scope and value of matching type
+    - While requires boolean condition and unit-typed body
 *)
 
 From Stdlib Require Import ZArith.
@@ -76,6 +78,10 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   | T_Bool : forall ctx b,
       has_type ctx (EBool b) TBool
 
+  (** Unit literal *)
+  | T_Unit : forall ctx,
+      has_type ctx EUnit TUnit
+
   (** Variable *)
   | T_Var : forall ctx x t,
       ctx_lookup x ctx = Some t ->
@@ -124,6 +130,24 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
       has_type ctx e1 t1 ->
       has_type (CtxCons x t1 ctx) e2 t2 ->
       has_type ctx (ELet x e1 e2) t2
+
+  (** Set: mutable variable assignment *)
+  | T_Set : forall ctx x e t,
+      ctx_lookup x ctx = Some t ->
+      has_type ctx e t ->
+      has_type ctx (ESet x e) TUnit
+
+  (** Sequence *)
+  | T_Seq : forall ctx e1 e2 t1 t2,
+      has_type ctx e1 t1 ->
+      has_type ctx e2 t2 ->
+      has_type ctx (ESeq e1 e2) t2
+
+  (** While loop *)
+  | T_While : forall ctx cond body,
+      has_type ctx cond TBool ->
+      has_type ctx body TUnit ->
+      has_type ctx (EWhile cond body) TUnit
 
   (** Lambda abstraction *)
   | T_Lam : forall ctx x t1 body t2,

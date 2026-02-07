@@ -2,13 +2,15 @@
 
     This file defines the big-step (natural) evaluation semantics for NanoCore.
     The evaluation relation is:
-      eval env e v  ===  "expression e evaluates to value v in environment env"
+      eval env e env' v  ===  "expression e evaluates to value v,
+                               transforming environment env into env'"
 
     Key properties:
     - Eager evaluation (call-by-value)
     - Deterministic (each expression has at most one value)
-    - Pure (no side effects in this subset)
     - Lexical scoping via closures
+    - Mutable variables via environment update (store-passing style)
+    - While loops via inductive unfolding
 *)
 
 From Stdlib Require Import ZArith.
@@ -64,112 +66,150 @@ Definition is_logic_op (op : binop) : bool :=
 
 (** ** Big-step evaluation relation
 
-    [eval env e v] means that expression [e] evaluates to value [v]
-    in environment [env]. *)
+    [eval env e env' v] means that expression [e] evaluates to value [v]
+    in environment [env], producing updated environment [env'].
 
-Inductive eval : env -> expr -> val -> Prop :=
+    Pure expressions leave the environment unchanged (env' = env).
+    Mutation (set) and sequencing thread environment changes. *)
+
+Inductive eval : env -> expr -> env -> val -> Prop :=
 
   (** Integer literal *)
-  | E_Int : forall env n,
-      eval env (EInt n) (VInt n)
+  | E_Int : forall renv n,
+      eval renv (EInt n) renv (VInt n)
 
   (** Boolean literal *)
-  | E_Bool : forall env b,
-      eval env (EBool b) (VBool b)
+  | E_Bool : forall renv b,
+      eval renv (EBool b) renv (VBool b)
+
+  (** Unit literal *)
+  | E_Unit : forall renv,
+      eval renv EUnit renv VUnit
 
   (** Variable lookup *)
-  | E_Var : forall env x v,
-      env_lookup x env = Some v ->
-      eval env (EVar x) v
+  | E_Var : forall renv x v,
+      env_lookup x renv = Some v ->
+      eval renv (EVar x) renv v
 
   (** Arithmetic binary operations: int op int -> int *)
-  | E_BinArith : forall env op e1 e2 n1 n2 v,
-      eval env e1 (VInt n1) ->
-      eval env e2 (VInt n2) ->
+  | E_BinArith : forall renv renv1 renv2 op e1 e2 n1 n2 v,
+      eval renv e1 renv1 (VInt n1) ->
+      eval renv1 e2 renv2 (VInt n2) ->
       eval_arith_binop op n1 n2 = Some v ->
-      eval env (EBinOp op e1 e2) v
+      eval renv (EBinOp op e1 e2) renv2 v
 
   (** Comparison operations: int op int -> bool *)
-  | E_BinCmp : forall env op e1 e2 n1 n2 v,
-      eval env e1 (VInt n1) ->
-      eval env e2 (VInt n2) ->
+  | E_BinCmp : forall renv renv1 renv2 op e1 e2 n1 n2 v,
+      eval renv e1 renv1 (VInt n1) ->
+      eval renv1 e2 renv2 (VInt n2) ->
       eval_cmp_binop op n1 n2 = Some v ->
-      eval env (EBinOp op e1 e2) v
+      eval renv (EBinOp op e1 e2) renv2 v
 
   (** Equality on booleans: bool op bool -> bool *)
-  | E_BinEqBool : forall env op e1 e2 b1 b2,
-      eval env e1 (VBool b1) ->
-      eval env e2 (VBool b2) ->
+  | E_BinEqBool : forall renv renv1 renv2 op e1 e2 b1 b2,
+      eval renv e1 renv1 (VBool b1) ->
+      eval renv1 e2 renv2 (VBool b2) ->
       op = OpEq ->
-      eval env (EBinOp op e1 e2) (VBool (Bool.eqb b1 b2))
+      eval renv (EBinOp op e1 e2) renv2 (VBool (Bool.eqb b1 b2))
 
   (** Inequality on booleans *)
-  | E_BinNeBool : forall env op e1 e2 b1 b2,
-      eval env e1 (VBool b1) ->
-      eval env e2 (VBool b2) ->
+  | E_BinNeBool : forall renv renv1 renv2 op e1 e2 b1 b2,
+      eval renv e1 renv1 (VBool b1) ->
+      eval renv1 e2 renv2 (VBool b2) ->
       op = OpNe ->
-      eval env (EBinOp op e1 e2) (VBool (negb (Bool.eqb b1 b2)))
+      eval renv (EBinOp op e1 e2) renv2 (VBool (negb (Bool.eqb b1 b2)))
 
   (** Logical AND (short-circuit) *)
-  | E_And_True : forall env e1 e2 v2,
-      eval env e1 (VBool true) ->
-      eval env e2 (VBool v2) ->
-      eval env (EBinOp OpAnd e1 e2) (VBool v2)
+  | E_And_True : forall renv renv1 renv2 e1 e2 v2,
+      eval renv e1 renv1 (VBool true) ->
+      eval renv1 e2 renv2 (VBool v2) ->
+      eval renv (EBinOp OpAnd e1 e2) renv2 (VBool v2)
 
-  | E_And_False : forall env e1,
-      eval env e1 (VBool false) ->
-      eval env (EBinOp OpAnd e1 (EBool false)) (VBool false)
+  | E_And_False : forall renv renv1 e1,
+      eval renv e1 renv1 (VBool false) ->
+      eval renv (EBinOp OpAnd e1 (EBool false)) renv1 (VBool false)
 
   (** Short-circuit AND: if left is false, result is false regardless of right *)
-  | E_And_Short : forall env e1 e2,
-      eval env e1 (VBool false) ->
-      eval env (EBinOp OpAnd e1 e2) (VBool false)
+  | E_And_Short : forall renv renv1 e1 e2,
+      eval renv e1 renv1 (VBool false) ->
+      eval renv (EBinOp OpAnd e1 e2) renv1 (VBool false)
 
   (** Logical OR (short-circuit) *)
-  | E_Or_False : forall env e1 e2 v2,
-      eval env e1 (VBool false) ->
-      eval env e2 (VBool v2) ->
-      eval env (EBinOp OpOr e1 e2) (VBool v2)
+  | E_Or_False : forall renv renv1 renv2 e1 e2 v2,
+      eval renv e1 renv1 (VBool false) ->
+      eval renv1 e2 renv2 (VBool v2) ->
+      eval renv (EBinOp OpOr e1 e2) renv2 (VBool v2)
 
-  | E_Or_Short : forall env e1 e2,
-      eval env e1 (VBool true) ->
-      eval env (EBinOp OpOr e1 e2) (VBool true)
+  | E_Or_Short : forall renv renv1 e1 e2,
+      eval renv e1 renv1 (VBool true) ->
+      eval renv (EBinOp OpOr e1 e2) renv1 (VBool true)
 
   (** Unary negation: -n *)
-  | E_Neg : forall env e n,
-      eval env e (VInt n) ->
-      eval env (EUnOp OpNeg e) (VInt (- n))
+  | E_Neg : forall renv renv1 e n,
+      eval renv e renv1 (VInt n) ->
+      eval renv (EUnOp OpNeg e) renv1 (VInt (- n))
 
   (** Logical not *)
-  | E_Not : forall env e b,
-      eval env e (VBool b) ->
-      eval env (EUnOp OpNot e) (VBool (negb b))
+  | E_Not : forall renv renv1 e b,
+      eval renv e renv1 (VBool b) ->
+      eval renv (EUnOp OpNot e) renv1 (VBool (negb b))
 
   (** If-then-else: true branch *)
-  | E_IfTrue : forall env e1 e2 e3 v,
-      eval env e1 (VBool true) ->
-      eval env e2 v ->
-      eval env (EIf e1 e2 e3) v
+  | E_IfTrue : forall renv renv1 renv2 e1 e2 e3 v,
+      eval renv e1 renv1 (VBool true) ->
+      eval renv1 e2 renv2 v ->
+      eval renv (EIf e1 e2 e3) renv2 v
 
   (** If-then-else: false branch *)
-  | E_IfFalse : forall env e1 e2 e3 v,
-      eval env e1 (VBool false) ->
-      eval env e3 v ->
-      eval env (EIf e1 e2 e3) v
+  | E_IfFalse : forall renv renv1 renv2 e1 e2 e3 v,
+      eval renv e1 renv1 (VBool false) ->
+      eval renv1 e3 renv2 v ->
+      eval renv (EIf e1 e2 e3) renv2 v
 
-  (** Let binding: let x = e1 in e2 *)
-  | E_Let : forall env x e1 e2 v1 v2,
-      eval env e1 v1 ->
-      eval (ECons x v1 env) e2 v2 ->
-      eval env (ELet x e1 e2) v2
+  (** Let binding: let x = e1 in e2.
+      The body evaluates in the extended environment.
+      The output environment pops the let binding, preserving
+      any mutations to variables in the enclosing scope. *)
+  | E_Let : forall renv renv1 x e1 e2 v1 v2 vx renv_out,
+      eval renv e1 renv1 v1 ->
+      eval (ECons x v1 renv1) e2 (ECons x vx renv_out) v2 ->
+      eval renv (ELet x e1 e2) renv_out v2
+
+  (** Set: mutable variable update *)
+  | E_Set : forall renv renv1 x e v v_old,
+      eval renv e renv1 v ->
+      env_lookup x renv1 = Some v_old ->
+      eval renv (ESet x e) (env_update x v renv1) VUnit
+
+  (** Sequence: e1; e2 *)
+  | E_Seq : forall renv renv1 renv2 e1 e2 v1 v2,
+      eval renv e1 renv1 v1 ->
+      eval renv1 e2 renv2 v2 ->
+      eval renv (ESeq e1 e2) renv2 v2
+
+  (** While loop: condition true, execute body and loop *)
+  | E_WhileTrue : forall renv renv1 renv2 renv3 cond body v_body v,
+      eval renv cond renv1 (VBool true) ->
+      eval renv1 body renv2 v_body ->
+      eval renv2 (EWhile cond body) renv3 v ->
+      eval renv (EWhile cond body) renv3 v
+
+  (** While loop: condition false, stop *)
+  | E_WhileFalse : forall renv renv1 cond body,
+      eval renv cond renv1 (VBool false) ->
+      eval renv (EWhile cond body) renv1 VUnit
 
   (** Lambda abstraction: creates a closure *)
-  | E_Lam : forall env x t body,
-      eval env (ELam x t body) (VClos x body env)
+  | E_Lam : forall renv x t body,
+      eval renv (ELam x t body) renv (VClos x body renv)
 
-  (** Function application *)
-  | E_App : forall env e1 e2 x body clos_env v2 v,
-      eval env e1 (VClos x body clos_env) ->
-      eval env e2 v2 ->
-      eval (ECons x v2 clos_env) body v ->
-      eval env (EApp e1 e2) v.
+  (** Function application.
+      The body evaluates in the closure's environment (lexical scoping).
+      Mutations inside the body don't affect the caller's environment.
+      The output environment is the caller's env after evaluating
+      the function and argument. *)
+  | E_App : forall renv renv1 renv2 renv3 e1 e2 x body clos_env v2 v,
+      eval renv e1 renv1 (VClos x body clos_env) ->
+      eval renv1 e2 renv2 v2 ->
+      eval (ECons x v2 clos_env) body renv3 v ->
+      eval renv (EApp e1 e2) renv2 v.

@@ -3,7 +3,8 @@
     This file proves type soundness for NanoCore via preservation.
 
     - **Preservation**: If a well-typed expression evaluates to a value,
-      that value has the expected type.
+      that value has the expected type, and the environment remains
+      well-typed (env_ctx_agree preserved through mutation).
 
     This guarantees: "well-typed programs produce well-typed results."
 *)
@@ -23,6 +24,7 @@ Open Scope string_scope.
 Inductive val_has_type : val -> ty -> Prop :=
   | VT_Int : forall n, val_has_type (VInt n) TInt
   | VT_Bool : forall b, val_has_type (VBool b) TBool
+  | VT_Unit : val_has_type VUnit TUnit
   | VT_Clos : forall x body clos_env t1 t2 c,
       env_ctx_agree clos_env c ->
       has_type (CtxCons x t1 c) body t2 ->
@@ -54,6 +56,12 @@ Lemma canonical_bool : forall v,
   val_has_type v TBool -> exists b, v = VBool b.
 Proof.
   intros v H. inversion H. exists b. reflexivity.
+Qed.
+
+Lemma canonical_unit : forall v,
+  val_has_type v TUnit -> v = VUnit.
+Proof.
+  intros v H. inversion H. reflexivity.
 Qed.
 
 Lemma canonical_arrow : forall v t1 t2,
@@ -90,6 +98,26 @@ Proof.
   intros. constructor; assumption.
 Qed.
 
+(** ** Agreement preserved by update
+
+    If the environment and context agree, and we update a variable
+    with a value of the correct type, agreement is preserved. *)
+
+Lemma agree_update : forall e c x t v,
+  env_ctx_agree e c ->
+  ctx_lookup x c = Some t ->
+  val_has_type v t ->
+  env_ctx_agree (env_update x v e) c.
+Proof.
+  intros e c x t v Hagree.
+  induction Hagree; intros Hlookup Hvt.
+  - simpl in Hlookup. discriminate.
+  - simpl. simpl in Hlookup.
+    destruct (String.eqb x x0) eqn:Heq.
+    + inversion Hlookup; subst. constructor; [assumption | assumption].
+    + constructor; [assumption | apply IHHagree; assumption].
+Qed.
+
 (** ** Helper lemmas for operator typing *)
 
 Lemma eval_arith_binop_type : forall op n1 n2 v,
@@ -114,12 +142,8 @@ Proof.
     inversion Heval; subst; constructor.
 Qed.
 
-(** ** Impossible evaluation lemmas
+(** ** Inversion lemma for closure typing *)
 
-    When we know a value has a certain type but an eval rule
-    requires a different constructor, we derive a contradiction. *)
-
-(** Inversion lemma for closure typing *)
 Lemma clos_type_inv : forall x body cenv t1 t2,
   val_has_type (VClos x body cenv) (TArrow t1 t2) ->
   exists c,
@@ -133,162 +157,285 @@ Qed.
 (** ** Preservation Theorem
 
     We prove preservation by induction on the evaluation derivation.
-    This is essential because the App case evaluates the closure body,
-    which is not a syntactic subexpression of the application. Inducting
-    on the evaluation gives us IH for all sub-evaluations, including
-    the body evaluation inside the closure. *)
+    The theorem shows both:
+    1. The result value has the expected type
+    2. The output environment agrees with the typing context
 
-Theorem preservation : forall renv e result,
-  eval renv e result ->
+    Property (2) is essential for threading agreement through
+    sequential composition, while loops, and binary operators
+    whose subexpressions may contain mutations.
+
+    E_Let pops the let binding from the output environment,
+    and E_App uses the caller's environment (lexical scoping),
+    so both preserve the agreement with the original context. *)
+
+Theorem preservation : forall renv e renv' result,
+  eval renv e renv' result ->
   forall gamma t,
   has_type gamma e t ->
   env_ctx_agree renv gamma ->
-  val_has_type result t.
+  val_has_type result t /\ env_ctx_agree renv' gamma.
 Proof.
-  intros renv e result Heval.
+  intros renv e renv' result Heval.
   induction Heval; intros gamma ty0 Htype Hagree.
 
   - (* E_Int *)
-    inversion Htype; subst. constructor.
+    inversion Htype; subst. split; [constructor | assumption].
 
   - (* E_Bool *)
-    inversion Htype; subst. constructor.
+    inversion Htype; subst. split; [constructor | assumption].
+
+  - (* E_Unit *)
+    inversion Htype; subst. split; [constructor | assumption].
 
   - (* E_Var *)
     inversion Htype; subst.
     pose proof (agree_lookup _ _ _ _ Hagree H2) as [v' [Hl Hvt]].
-    rewrite H in Hl. inversion Hl; subst. assumption.
+    rewrite H in Hl. inversion Hl; subst.
+    split; [assumption | assumption].
 
   - (* E_BinArith *)
     inversion Htype; subst.
-    + eapply eval_arith_binop_type; eassumption.
-    + (* logic op - impossible *)
+    + (* T_BinOp *)
+      match goal with
+      | [ He1 : has_type _ e1 TInt, He2 : has_type _ e2 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [Hvt1 Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
+        split; [eapply eval_arith_binop_type; eassumption | assumption]
+      end.
+    + (* T_BinLogic - impossible: e1 typed as Bool but evals to Int *)
       exfalso.
-      assert (val_has_type (VInt n1) TBool) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VInt _) TBool |- _ ] => inversion H end.
-    + (* eq bool - impossible *)
+      match goal with
+      | [ Ht : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _];
+        inversion Hvt1
+      end.
+    + (* T_BinEqBool - impossible: e1 typed as Bool but evals to Int *)
       exfalso.
-      assert (val_has_type (VInt n1) TBool) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VInt _) TBool |- _ ] => inversion H end.
+      match goal with
+      | [ Ht : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _];
+        inversion Hvt1
+      end.
 
   - (* E_BinCmp *)
     inversion Htype; subst.
-    + eapply eval_cmp_binop_type; eassumption.
+    + match goal with
+      | [ He1 : has_type _ e1 TInt, He2 : has_type _ e2 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [Hvt1 Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
+        split; [eapply eval_cmp_binop_type; eassumption | assumption]
+      end.
     + exfalso.
-      assert (val_has_type (VInt n1) TBool) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VInt _) TBool |- _ ] => inversion H end.
+      match goal with
+      | [ Ht : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
     + exfalso.
-      assert (val_has_type (VInt n1) TBool) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VInt _) TBool |- _ ] => inversion H end.
+      match goal with
+      | [ Ht : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
 
   - (* E_BinEqBool *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool b1) TInt) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
     + exfalso.
       match goal with [ H : binop_arg_type _ = TBool |- _ ] => simpl in H; discriminate end.
-    + constructor.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
+        split; [constructor | assumption]
+      end.
 
   - (* E_BinNeBool *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool b1) TInt) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
     + exfalso.
       match goal with [ H : binop_arg_type _ = TBool |- _ ] => simpl in H; discriminate end.
-    + constructor.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
+        split; [constructor | assumption]
+      end.
 
   - (* E_And_True *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool true) TInt) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
-    + eapply IHHeval2; eassumption.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
+        split; [assumption | assumption]
+      end.
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
 
-  - (* E_And_False - dead rule, subsumed by E_And_Short *)
+  - (* E_And_False *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool false) TInt) by (eapply IHHeval; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
-    + constructor.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
+    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
+      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
 
   - (* E_And_Short *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool false) TInt) by (eapply IHHeval; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
-    + constructor.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
+    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
+      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
 
   - (* E_Or_False *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool false) TInt) by (eapply IHHeval1; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
-    + eapply IHHeval2; eassumption.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
+        split; [assumption | assumption]
+      end.
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
 
   - (* E_Or_Short *)
     inversion Htype; subst.
     + exfalso.
-      assert (val_has_type (VBool true) TInt) by (eapply IHHeval; eassumption).
-      match goal with [ H : val_has_type (VBool _) TInt |- _ ] => inversion H end.
-    + constructor.
+      match goal with
+      | [ Ht : has_type _ e1 TInt |- _ ] =>
+        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      end.
+    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
+      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
 
   - (* E_Neg *)
-    inversion Htype; subst. constructor.
+    inversion Htype; subst.
+    destruct (IHHeval _ _ H1 Hagree) as [_ Hagree1].
+    split; [constructor | assumption].
 
   - (* E_Not *)
-    inversion Htype; subst. constructor.
+    inversion Htype; subst.
+    destruct (IHHeval _ _ H1 Hagree) as [_ Hagree1].
+    split; [constructor | assumption].
 
   - (* E_IfTrue *)
     inversion Htype; subst.
-    eapply IHHeval2; eassumption.
+    match goal with
+    | [ Hc : has_type _ e1 TBool, Ht : has_type _ e2 _ |- _ ] =>
+      destruct (IHHeval1 _ _ Hc Hagree) as [_ Hagree1];
+      exact (IHHeval2 _ _ Ht Hagree1)
+    end.
 
   - (* E_IfFalse *)
     inversion Htype; subst.
-    eapply IHHeval2; eassumption.
+    match goal with
+    | [ Hc : has_type _ e1 TBool, Hf : has_type _ e3 _ |- _ ] =>
+      destruct (IHHeval1 _ _ Hc Hagree) as [_ Hagree1];
+      exact (IHHeval2 _ _ Hf Hagree1)
+    end.
 
   - (* E_Let *)
     inversion Htype; subst.
-    eapply IHHeval2.
-    + eassumption.
-    + apply agree_cons; [assumption | eapply IHHeval1; eassumption].
+    match goal with
+    | [ He1 : has_type _ e1 ?t1, He2 : has_type (CtxCons _ ?t1 _) e2 _ |- _ ] =>
+      destruct (IHHeval1 _ _ He1 Hagree) as [Hvt1 Hagree1];
+      assert (Hagree_ext : env_ctx_agree (ECons x v1 renv1) (CtxCons x t1 gamma))
+        by (apply agree_cons; assumption);
+      destruct (IHHeval2 _ _ He2 Hagree_ext) as [Hvt2 Hagree2];
+      (* Hagree2 : env_ctx_agree (ECons x vx renv_out) (CtxCons x t1 gamma) *)
+      inversion Hagree2; subst;
+      split; assumption
+    end.
+
+  - (* E_Set *)
+    inversion Htype; subst.
+    match goal with
+    | [ Hctx : ctx_lookup _ _ = Some ?t, He : has_type _ e ?t |- _ ] =>
+      destruct (IHHeval _ _ He Hagree) as [Hvt Hagree1];
+      split;
+      [ constructor
+      | eapply agree_update; eassumption ]
+    end.
+
+  - (* E_Seq *)
+    inversion Htype; subst.
+    match goal with
+    | [ He1 : has_type _ e1 _, He2 : has_type _ e2 _ |- _ ] =>
+      destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+      exact (IHHeval2 _ _ He2 Hagree1)
+    end.
+
+  - (* E_WhileTrue *)
+    inversion Htype; subst.
+    match goal with
+    | [ Hc : has_type _ cond TBool, Hb : has_type _ body TUnit |- _ ] =>
+      destruct (IHHeval1 _ _ Hc Hagree) as [_ Hagree1];
+      destruct (IHHeval2 _ _ Hb Hagree1) as [_ Hagree2];
+      exact (IHHeval3 _ _ Htype Hagree2)
+    end.
+
+  - (* E_WhileFalse *)
+    inversion Htype; subst.
+    match goal with
+    | [ Hc : has_type _ cond TBool |- _ ] =>
+      destruct (IHHeval _ _ Hc Hagree) as [_ Hagree1];
+      split; [constructor | assumption]
+    end.
 
   - (* E_Lam *)
     inversion Htype; subst.
-    econstructor; eassumption.
+    split; [econstructor; eassumption | assumption].
 
   - (* E_App *)
     inversion Htype; subst.
     match goal with
     | [ H1 : has_type _ e1 (TArrow ?ta ?tr),
-        H2 : has_type _ e2 ?ta |- val_has_type _ ?tr ] =>
-      assert (Hf : val_has_type (VClos x body clos_env) (TArrow ta tr))
-        by (eapply IHHeval1; eassumption);
-      assert (Harg : val_has_type v2 ta)
-        by (eapply IHHeval2; eassumption);
+        H2 : has_type _ e2 ?ta |- _ ] =>
+      destruct (IHHeval1 _ _ H1 Hagree) as [Hf Hagree1];
+      destruct (IHHeval2 _ _ H2 Hagree1) as [Harg Hagree2];
       apply clos_type_inv in Hf;
       destruct Hf as [c' [Hcenv Hbody_type]];
-      eapply IHHeval3;
-      [ exact Hbody_type | apply agree_cons; assumption ]
+      assert (Hagree_body : env_ctx_agree (ECons x v2 clos_env) (CtxCons x ta c'))
+        by (apply agree_cons; assumption);
+      destruct (IHHeval3 _ _ Hbody_type Hagree_body) as [Hvt _];
+      split; [exact Hvt | exact Hagree2]
     end.
 Qed.
 
 (** ** Type soundness corollary *)
 
-Corollary soundness : forall e t v,
+Corollary soundness : forall e t v renv',
   has_type CtxNil e t ->
-  eval ENil e v ->
+  eval ENil e renv' v ->
   val_has_type v t.
 Proof.
   intros.
