@@ -553,10 +553,9 @@ Removes a key/value pair if present.
 Returns the number of entries. Alias: `map_size`.
 
 ### `map_clear(map: HashMap<K,V>) -> void`
-Removes all entries without freeing the map. Alias: `map_free` frees memory.
+Removes all entries without freeing the map.
 
-### `map_free(map: HashMap<K,V>) -> void`
-Frees the hash map and its internal storage.
+> **Note:** `map_free` is no longer needed. HashMap is ARC-managed and automatically freed when it goes out of scope.
 
 ### `map_keys(map: HashMap<K,V>) -> array<K>`
 Returns all keys as an array.

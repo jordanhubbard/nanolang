@@ -427,7 +427,7 @@ set y 20  # OK: y is mutable
 
 ## Standard Library
 
-### ✅ Comprehensive Built-ins (37 Functions)
+### ✅ Comprehensive Built-ins (72 Functions)
 
 **Core I/O (3):**
 - `print`, `println`, `assert`
@@ -585,7 +585,7 @@ fn pythagorean(a: float, b: float) -> float {
 - ✅ Generics with monomorphization
 - ✅ First-class functions
 - ✅ Pattern matching
-- ✅ Standard library (37 functions)
+- ✅ Standard library (72 functions)
 - ✅ C transpilation with namespacing
 - ✅ Interpreter with tracing
 - ✅ Shadow-test system

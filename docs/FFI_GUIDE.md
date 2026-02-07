@@ -279,17 +279,26 @@ DynArray* nl_create_range(int64_t n) {
 
 ### Rules
 
-1. **Strings**: Nanolang manages memory. C receives `const char*` - don't free!
-2. **Return strings**: Allocate with `strdup()` or `gc_alloc()`, nanolang will manage
-3. **Opaque pointers**: C owns memory. Create with `malloc()`, free with corresponding free function
+1. **Strings**: Nanolang manages memory. C receives `const char*` — don't free!
+2. **Return strings**: Allocate with `gc_alloc_string()` (preferred) or `strdup()` — nanolang's GC will manage the result
+3. **Opaque pointers**: C allocates with `malloc()`. If the module's metadata includes `requires_manual_free=true` and a cleanup function, ARC wrapping handles deallocation automatically. Otherwise, manual free is required.
 4. **Arrays**: Use GC for DynArray allocation
 
 ### String Memory
 
-**✅ Correct: Return strdup'd string**
+**✅ Correct: Return GC-allocated string**
+```c
+#include "runtime/gc.h"
+
+const char* nl_get_name() {
+    return gc_alloc_string("Alice");  // GC-managed, no manual free needed
+}
+```
+
+**Also acceptable (legacy): Return strdup'd string**
 ```c
 const char* nl_get_name() {
-    return strdup("Alice");  // Nanolang's GC will manage this
+    return strdup("Alice");  // Works but gc_alloc_string() preferred
 }
 ```
 
@@ -327,9 +336,21 @@ int64_t nl_close_file(void* file) {
 **Nanolang usage**:
 ```nano
 let file: opaque = (nl_open_file "data.txt")
-// Use file...
-(nl_close_file file)  // Must explicitly free
+# Use file...
+(nl_close_file file)  # Must explicitly close
 ```
+
+### ARC Wrapping (Automatic)
+
+If a module's `module.json` metadata marks a function with `requires_manual_free: true` and provides a `cleanup_function`, the runtime automatically wraps the returned pointer in a GC envelope. When the variable goes out of scope, the cleanup function is called.
+
+This works transparently for types like Regex and HashMap. The C code uses plain `malloc`/`free` — the compiler inserts wrapping at call boundaries.
+
+**Memory semantics metadata** (auto-generated from return types):
+- `returns_gc_managed: true` — String returns are GC-tracked
+- `requires_manual_free: true` — Opaque returns need cleanup
+- `cleanup_function: "regex_free"` — Inferred from function name prefix
+- `returns_borrowed: true` — Return is a borrowed reference (no wrapping)
 
 ### GC Integration
 

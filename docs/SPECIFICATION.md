@@ -340,7 +340,6 @@ let counts: HashMap<int, int> = (map_new)
 | `map_get` | Retrieve value by key | `(map_get hm "alice")` |
 | `map_has` | Check if key exists | `(map_has hm "alice")` |
 | `map_size` | Get number of entries | `(map_size hm)` |
-| `map_free` | Free map memory | `(map_free hm)` |
 
 **Example:**
 
@@ -356,7 +355,7 @@ shadow count_words {
     let hm: HashMap<string, int> = (count_words "test")
     assert (== (map_has hm "hello") true)
     assert (== (map_get hm "hello") 1)
-    (map_free hm)
+    # No map_free needed - HashMap is ARC-managed
 }
 ```
 
@@ -366,7 +365,7 @@ HashMap is supported in **both** interpreter and compiled modes:
 - **Interpreter mode**: Uses a runtime implementation in eval.c
 - **Compiled mode**: Transpiler generates specialized `HashMap_K_V` code
 
-The transpiler creates monomorphized implementations like `HashMap_string_int` with all operations (new, put, get, has, size, free) specialized for the specific key-value types.
+The transpiler creates monomorphized implementations like `HashMap_string_int` with all operations (new, put, get, has, size) specialized for the specific key-value types. HashMap memory is managed automatically by ARC — no manual free is needed.
 
 **Performance:** Hash table operations are O(1) average case with automatic rehashing when the load factor exceeds 0.75.
 
@@ -867,7 +866,7 @@ shadow main {
 
 ### 9.5 Built-in Functions
 
-Built-in functions are provided by the runtime. The standard library includes **66 built-in functions** across 8 categories (see spec.json for complete list):
+Built-in functions are provided by the runtime. The standard library includes **72 built-in functions** across 9 categories (see spec.json for complete list):
 
 **Core I/O (3):**
 - `print`, `println`: Output to stdout (polymorphic over printable types)
@@ -1028,7 +1027,7 @@ Static typing catches errors at compile time:
 - ✅ Generics (List<T> with monomorphization)
 - ✅ First-class functions
 - ✅ Pattern matching (match expressions)
-- ✅ Comprehensive standard library (37 functions)
+- ✅ Comprehensive standard library (72 functions)
 - ✅ C transpilation with namespacing
 
 **In Development:**

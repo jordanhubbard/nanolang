@@ -44,13 +44,13 @@ shadow describe_number {
 
 ```nano
 fn classify_number(x: int) -> void {
-    if (> x 0) {
+    if x > 0 {
         (println "Positive")
-    } else { if (< x 0) {
+    } else if x < 0 {
         (println "Negative")
     } else {
         (println "Zero")
-    }}
+    }
 }
 
 shadow classify_number {
@@ -60,7 +60,7 @@ shadow classify_number {
 }
 ```
 
-⚠️ **Watch Out:** NanoLang doesn't have `else if` as a special keyword. Nest `if` statements in `else` blocks.
+NanoLang supports `else if` chaining for multi-way conditionals. You can also nest `if` inside `else` blocks for the same effect.
 
 ### Expressions vs Statements
 

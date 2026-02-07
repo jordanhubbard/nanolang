@@ -350,7 +350,7 @@ fn process_items(items: array<Item>) -> void {
         let data: Data = (expensive_lookup item.id)
         
         # Suspect: String concat in loop?
-        set log (str_concat log item.name)
+        set log (+ log item.name)
         
         set i (+ i 1)
     }
@@ -439,8 +439,8 @@ fn build_csv_slow(items: array<Item>) -> string {
     while (< i n) {
         let item: Item = (array_get items i)
         # Each concat copies the ENTIRE string so far
-        set result (str_concat result item.name)
-        set result (str_concat result ",")
+        set result (+ result item.name)
+        set result (+ result ",")
         set i (+ i 1)
     }
     return result
@@ -448,7 +448,7 @@ fn build_csv_slow(items: array<Item>) -> string {
 # For 10,000 items: ~50 million character copies!
 ```
 
-**Why it's slow:** Each `str_concat` creates a new string and copies all previous characters. With n items, you copy approximately n²/2 characters total.
+**Why it's slow:** Each `+` string concatenation creates a new string and copies all previous characters. With n items, you copy approximately n²/2 characters total.
 
 ```nano
 # ✅ FAST - O(n) time complexity

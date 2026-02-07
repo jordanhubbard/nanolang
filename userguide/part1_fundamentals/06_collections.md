@@ -201,7 +201,7 @@ shadow append_element {
 ```nano
 fn sum_array(arr: array<int>) -> int {
     let mut sum: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         set sum (+ sum (array_get arr i))
     }
     return sum
@@ -239,7 +239,7 @@ shadow product_array {
 ```nano
 fn find_max(arr: array<int>) -> int {
     let mut max: int = (array_get arr 0)
-    for (let i: int = 1) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 1 (array_length arr)) {
         let val: int = (array_get arr i)
         if (> val max) {
             set max val
@@ -259,7 +259,7 @@ shadow find_max {
 ```nano
 fn count_value(arr: array<int>, target: int) -> int {
     let mut count: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (== (array_get arr i) target) {
             set count (+ count 1)
         }
@@ -277,7 +277,7 @@ shadow count_value {
 
 ```nano
 fn contains(arr: array<int>, target: int) -> bool {
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (== (array_get arr i) target) {
             return true
         }
@@ -297,7 +297,7 @@ shadow contains {
 fn reverse(arr: array<int>) -> array<int> {
     let len: int = (array_length arr)
     let mut result: array<int> = (array_new len 0)
-    for (let i: int = 0) (< i len) (set i (+ i 1)) {
+    for i in (range 0 len) {
         (array_set result (- (- len i) 1) (array_get arr i))
     }
     return result
@@ -362,7 +362,7 @@ Common patterns and best practices.
 fn double_all(arr: array<int>) -> array<int> {
     let len: int = (array_length arr)
     let mut result: array<int> = (array_new len 0)
-    for (let i: int = 0) (< i len) (set i (+ i 1)) {
+    for i in (range 0 len) {
         (array_set result i (* (array_get arr i) 2))
     }
     return result
@@ -380,7 +380,7 @@ shadow double_all {
 ```nano
 fn count_positives(arr: array<int>) -> int {
     let mut count: int = 0
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         if (> (array_get arr i) 0) {
             set count (+ count 1)
         }
@@ -398,7 +398,7 @@ shadow count_positives {
 ```nano
 fn sum_with_initial(arr: array<int>, initial: int) -> int {
     let mut acc: int = initial
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 0 (array_length arr)) {
         set acc (+ acc (array_get arr i))
     }
     return acc
@@ -480,8 +480,8 @@ fn find_all_indices(arr: array<int>, target: int) -> array<int> {
     let count: int = (count_value arr target)
     let mut result: array<int> = (array_new count 0)
     let mut result_idx: int = 0
-    
-    for (let i: int = 0) (< i (array_length arr)) (set i (+ i 1)) {
+
+    for i in (range 0 (array_length arr)) {
         if (== (array_get arr i) target) {
             (array_set result result_idx i)
             set result_idx (+ result_idx 1)
@@ -503,7 +503,7 @@ shadow find_all_indices {
 
 ```nano
 fn is_sorted(arr: array<int>) -> bool {
-    for (let i: int = 1) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 1 (array_length arr)) {
         if (< (array_get arr i) (array_get arr (- i 1))) {
             return false
         }
@@ -586,10 +586,10 @@ fn unique(arr: array<int>) -> array<int> {
     
     # Count unique elements
     let mut unique_count: int = 0
-    for (let i: int = 0) (< i len) (set i (+ i 1)) {
+    for i in (range 0 len) {
         let val: int = (array_get arr i)
         let mut is_duplicate: bool = false
-        for (let j: int = 0) (< j i) (set j (+ j 1)) {
+        for j in (range 0 i) {
             if (== (array_get arr j) val) {
                 set is_duplicate true
             }
@@ -598,14 +598,14 @@ fn unique(arr: array<int>) -> array<int> {
             set unique_count (+ unique_count 1)
         }
     }
-    
+
     # Build result
     let mut result: array<int> = (array_new unique_count 0)
     let mut idx: int = 0
-    for (let i: int = 0) (< i len) (set i (+ i 1)) {
+    for i in (range 0 len) {
         let val: int = (array_get arr i)
         let mut is_duplicate: bool = false
-        for (let j: int = 0) (< j i) (set j (+ j 1)) {
+        for j in (range 0 i) {
             if (== (array_get arr j) val) {
                 set is_duplicate true
             }
@@ -628,14 +628,14 @@ fn second_largest(arr: array<int>) -> int {
     let mut largest: int = (array_get arr 0)
     let mut second: int = (array_get arr 0)
     
-    for (let i: int = 1) (< i (array_length arr)) (set i (+ i 1)) {
+    for i in (range 1 (array_length arr)) {
         let val: int = (array_get arr i)
         if (> val largest) {
             set second largest
             set largest val
-        } else { if (and (!= val largest) (> val second)) {
+        } else if (and (!= val largest) (> val second)) {
             set second val
-        }}
+        }
     }
     return second
 }
@@ -652,7 +652,7 @@ fn rotate_right(arr: array<int>, n: int) -> array<int> {
     let actual_n: int = (% n len)
     let mut result: array<int> = (array_new len 0)
     
-    for (let i: int = 0) (< i len) (set i (+ i 1)) {
+    for i in (range 0 len) {
         let new_pos: int = (% (+ i actual_n) len)
         (array_set result new_pos (array_get arr i))
     }

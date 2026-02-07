@@ -66,6 +66,8 @@ These types are automatically garbage collected:
 | **List<T>** | Generic lists | `(List_int_new)` |
 | **struct** (large) | Structs > 128 bytes | Heap-allocated |
 | **closures** | Function closures | Captured variables |
+| **HashMap<K,V>** | Hash maps | ARC-wrapped, auto-freed |
+| **Regex** | Compiled patterns | ARC-wrapped, auto-freed |
 
 ### Stack-Allocated Types ❌
 
@@ -147,6 +149,37 @@ struct GCStats {
     num_collections: int    # Number of GC cycles
 }
 ```
+
+### ARC Wrapping for Opaque Types
+
+Opaque types (Regex, HashMap, etc.) from C modules are automatically managed via **ARC-style wrapping**. When a C function returns an opaque pointer, the runtime wraps it with a GC-tracked envelope that calls the appropriate cleanup function when the object is no longer referenced.
+
+- `gc_wrap_external(ptr, finalizer)` — Wraps a malloc'd pointer with a cleanup function
+- `gc_unwrap(ptr)` — Extracts the original pointer for passing back to C functions
+
+This happens transparently at call boundaries — user code never sees the wrapping.
+
+**What's automatic:**
+- **HashMap** — `map_free` called automatically
+- **Regex** — `regex_free` called automatically
+- **Strings from modules** — `path_join`, `file_read`, etc. return GC-managed strings
+
+**What requires manual management:**
+- **Json** — Must call `json_free` manually. Json is excluded from ARC because functions like `get` and `get_index` return *borrowed references* into the parent object, which ARC cannot distinguish from owned allocations.
+
+### Scope-Based Cleanup (Compiled Mode)
+
+In compiled mode, the transpiler tracks opaque variables and generates `gc_release()` calls at the end of each block scope:
+
+```nano
+fn example() -> void {
+    let pattern: Regex = (compile "^[a-z]+$")
+    let result: int = (match pattern "hello")
+    # gc_release(pattern) generated automatically here
+}
+```
+
+This ensures opaque types created in loops and blocks are properly released without manual intervention.
 
 ### When Does Collection Happen?
 
@@ -568,6 +601,6 @@ extern fn gc_is_managed(ptr: opaque) -> bool
 
 ---
 
-**Last Updated:** January 25, 2026
+**Last Updated:** February 7, 2026
 **Status:** Complete
 **Version:** 0.2.0+

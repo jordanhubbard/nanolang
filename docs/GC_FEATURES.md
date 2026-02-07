@@ -27,7 +27,7 @@
 **All opaque types are automatically managed:**
 - ✅ **HashMap<K,V>** - Automatic, no free needed
 - ✅ **Regex** - Automatic, no free needed
-- ✅ **Json** - Automatic with borrowed/owned detection
+- ⚠️ **Json** - Manual (`json_free` required); excluded from ARC due to borrowed references
 - ✅ **Strings** - Automatic GC tracking
 - ✅ **Arrays** - Automatic GC tracking
 
@@ -46,14 +46,17 @@
 ### Zero Manual Memory Management
 
 ```nano
-from "modules/std/json/json.nano" import Json, parse, get_string
+from "modules/std/json/json.nano" import Json, parse, get_string, json_free
 
 fn extract_data(json_text: string) -> string {
-    let root: Json = (parse json_text)         # Owned - auto-freed
-    let name: string = (get_string root "name") # Borrowed - no overhead
+    let root: Json = (parse json_text)          # Owned - must free
+    let name: string = (get_string root "name") # Borrowed from root
+    (json_free root)                            # Must free manually
     return name
-    # No free() needed - ARC handles everything!
 }
+# Note: Json is excluded from ARC wrapping because it uses borrowed
+# references (get, get_index return pointers into the parent object).
+# Regex, HashMap, and other opaque types ARE fully automatic.
 ```
 
 ### Automatic Opaque Type Management

@@ -441,16 +441,65 @@ from "std/math/extended.nano" import sqrt, pow, sin
 
 ---
 
-## Additional Modules
+## All Available Modules (37)
 
-- **ncurses** - Terminal UI library
+**Standard Library:**
+- **std** - Core standard library
+- **stdio** - Standard I/O operations
+- **libc** - Direct libc bindings
+- **math_ext** - Extended math functions
+- **unicode** - Unicode text handling
+
+**Data & Storage:**
+- **sqlite** - SQLite database bindings
+- **filesystem** - File system operations
 - **preferences** - Persistent key-value storage
+
+**Graphics & UI:**
+- **sdl** - SDL2 bindings (windowing, events, rendering)
+- **sdl_helpers** - SDL convenience functions
+- **sdl_image** - Image loading (PNG, JPG, etc.)
+- **sdl_ttf** - TrueType font rendering
+- **sdl_mixer** - Audio playback
 - **glfw** - Modern OpenGL window management
 - **glew** - OpenGL extension wrangling
 - **glut** - OpenGL utility toolkit
+- **opengl** - OpenGL bindings (via `glew`/`glut`)
+- **ncurses** - Terminal UI library
+- **ui_widgets** - UI widget toolkit
+- **nano_highlight** - Syntax highlighting
+
+**Audio & Media:**
+- **audio_helpers** - Audio utility functions
+- **audio_viz** - Audio visualization
+- **pt2_audio** - ProTracker audio engine
+- **pt2_module** - ProTracker module loader
+- **pt2_state** - ProTracker playback state
+
+**Networking & Web:**
+- **curl** - HTTP client (libcurl)
+- **http_server** - HTTP server (libuv-based)
 - **uv** - libuv async I/O
 
-For detailed documentation on these modules, see their respective README.md files in `modules/<module_name>/`.
+**AI & Cloud:**
+- **openai** - OpenAI API client
+- **github** - GitHub API client
+
+**Language Interop:**
+- **pybridge** - Python interop
+- **pybridge_matplotlib** - Matplotlib plotting via Python
+
+**Math & Science:**
+- **vector2d** - 2D vector math
+- **bullet** - Bullet physics engine
+- **proptest** - Property-based testing
+
+**Developer Tools:**
+- **nano_tools** - Development utilities
+- **readline** - Line editing (GNU readline)
+- **event** - Event system
+
+For detailed documentation, see `modules/<name>/README.md`.
 
 ---
 

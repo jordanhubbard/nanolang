@@ -188,9 +188,9 @@ for var in (range start end) {
 return expression
 ```
 
-## Standard Library (66 Functions)
+## Standard Library (72 Functions)
 
-**Note:** This reference shows commonly-used functions. See [STDLIB.md](STDLIB.md) and spec.json for the complete list of all 72 functions.
+**Note:** This reference shows commonly-used functions. See [STDLIB.md](STDLIB.md) and spec.json for the complete list.
 
 ### Core I/O (3)
 ```nano
