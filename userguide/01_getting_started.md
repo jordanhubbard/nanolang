@@ -1,6 +1,6 @@
 # Getting started
 
-This guide teaches NanoLang in the canonical style (prefix notation, explicit types, and shadow tests).
+This guide teaches NanoLang in the canonical style (prefix and infix operator notation, explicit types, and shadow tests).
 
 > **For comprehensive coverage** of installation, setup, and your first program, see [Chapter 1: Getting Started](part1_fundamentals/01_getting_started.md).
 

@@ -71,13 +71,14 @@ shadow main {
 Let's break down each part:
 
 - `fn main() -> int` - Declares a function named `main` that returns an integer
-- `(println "Hello, World!")` - Calls the `println` function using prefix notation
+- `(println "Hello, World!")` - Calls the `println` function using prefix notation (function calls always use this form)
 - `return 0` - Returns 0 to indicate success
 - `shadow main { ... }` - A test block that runs at compile time
 
 **Key Points:**
 - Every program needs a `main()` function that returns `int`
 - Function calls use prefix notation: `(function arg1 arg2)`
+- Operators support both prefix `(+ a b)` and infix `a + b` notation
 - Shadow tests are mandatory for all functions (except `main` can have a trivial test)
 
 ### Compiling and Running
@@ -141,8 +142,8 @@ fn greet(name: string) -> string {
 ```nano
 return (+ "Hello, " name)
 ```
-- String concatenation uses the `+` operator in prefix notation
-- `(+ "Hello, " name)` combines two strings
+- String concatenation uses the `+` operator
+- `(+ "Hello, " name)` combines two strings using prefix notation (you could also write `"Hello, " + name`)
 
 **3. Shadow Tests**
 ```nano
@@ -154,7 +155,7 @@ shadow greet {
 - `shadow` declares a test block for the `greet` function
 - Tests run at compile time
 - `assert` checks that conditions are true
-- `(== a b)` tests equality using prefix notation
+- `(== a b)` tests equality (prefix notation; you could also write `a == b`)
 
 **4. Calling Functions**
 ```nano
@@ -249,9 +250,9 @@ Type error: Expected 'int' but got 'string'
 Parse error at line 5: unexpected token
 ```
 
-**Fix:** Check that you're using prefix notation correctly. Remember:
-- ✅ `(+ 1 2)` not `1 + 2`
-- ✅ `(println "hi")` not `println("hi")`
+**Fix:** Check your syntax. Remember:
+- ✅ `(+ 1 2)` or `1 + 2` for operators (both are valid)
+- ✅ `(println "hi")` not `println("hi")` (function calls always use prefix notation)
 
 ### Example: Complete Program
 
@@ -558,14 +559,17 @@ Despite these limitations, the REPL is an excellent tool for learning, prototypi
 ### Next Steps
 
 Now that you have NanoLang installed and understand the basics, you're ready to learn:
-- [Chapter 2: Basic Syntax & Types](02_syntax_types.md) - Master prefix notation and type system
+- [Chapter 2: Basic Syntax & Types](02_syntax_types.md) - Master operator notation and type system
 - [Chapter 3: Variables & Bindings](03_variables.md) - Learn about immutability and mutation
 - [Chapter 4: Functions](04_functions.md) - Deep dive into functions and shadow tests
 
 ### Common First-Time Questions
 
-**Q: Why prefix notation?**  
-A: Prefix notation eliminates ambiguity. There's exactly ONE way to write each operation, making code generation by LLMs more reliable.
+**Q: Why does NanoLang support both prefix and infix notation?**
+A: Prefix notation like `(+ a b)` eliminates ambiguity and is great for LLM code generation. Infix notation like `a + b` is more natural for humans. NanoLang supports both so you can use whichever is clearest. Function calls always use prefix notation: `(println "hello")`.
+
+**Q: Do infix operators have precedence (PEMDAS)?**
+A: No. All infix operators have equal precedence and evaluate left-to-right. Use parentheses to group: `a * (b + c)`.
 
 **Q: What if my shadow tests fail?**  
 A: The compiler will show you which assertion failed. Fix your function or your test.

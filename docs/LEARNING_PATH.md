@@ -92,7 +92,8 @@ let flag: bool = true
 Learn:
 - Function declaration
 - Parameters and return types
-- Prefix notation for operators: `(+ a b)` not `a + b`
+- Both infix `a + b` and prefix `(+ a b)` notation for operators
+- Prefix notation for function calls: `(println "hello")`
 - Recursion basics
 
 ```nano
@@ -752,11 +753,13 @@ Launches an interactive browser to explore all examples by category.
    let x: int = 5  # Correct
    ```
 
-2. **Using infix operators**
+2. **Assuming operator precedence (PEMDAS)**
    ```nano
-   let sum = a + b  # Error: not valid syntax
-   let sum = (+ a b)  # Correct: prefix notation
+   let wrong: int = 2 + 3 * 4    # Evaluates left-to-right: (2+3)*4 = 20
+   let right: int = 2 + (3 * 4)  # Use parens to group: 2+12 = 14
    ```
+   NanoLang supports both infix `a + b` and prefix `(+ a b)` notation,
+   but all infix operators have equal precedence and evaluate left-to-right.
 
 3. **Forgetting to declare mut for mutable variables**
    ```nano

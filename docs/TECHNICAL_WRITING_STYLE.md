@@ -56,9 +56,9 @@ You can concatenate strings with `+` or `str_concat`:
 
 ✅ **Good:**
 ```markdown
-Concatenate strings using the `+` operator (prefix notation):
+Concatenate strings using the `+` operator:
 ```nano
-let greeting: string = (+ "Hello, " name)
+let greeting: string = "Hello, " + name
 ```
 ```
 
@@ -101,8 +101,8 @@ Use present tense for current behavior.
 
 Focus on what you CAN do, not just restrictions.
 
-❌ "You can't use infix operators"  
-✅ "Use prefix notation for all operations: `(+ a b)`"
+❌ "You must use prefix notation for all operations"
+✅ "Use either infix `a + b` or prefix `(+ a b)` notation for operators"
 
 ❌ "Don't forget to free memory"  
 ✅ "Free resources when done to prevent memory leaks"
@@ -117,7 +117,7 @@ Focus on what you CAN do, not just restrictions.
 2. **Types** - Always annotate types explicitly
 3. **Shadow tests** - Prove it works
 4. **Comments** - Explain non-obvious logic
-5. **Canonical syntax** - Only prefix notation
+5. **Canonical syntax** - Infix for operators, prefix for function calls
 
 ### Example Structure
 
@@ -332,7 +332,8 @@ Use these terms consistently:
 
 ### NanoLang-Specific
 
-- **prefix notation** (not "S-expressions", "Lisp-like")
+- **infix notation** for operators: `a + b` (preferred), prefix `(+ a b)` also supported
+- **prefix notation** for function calls: `(println "hello")` (not "S-expressions", "Lisp-like")
 - **shadow test** (not "unit test", "spec", "example")
 - **function** (not "procedure", "method", "subroutine")
 - **module** (not "library", "package")
@@ -408,7 +409,7 @@ Before submitting documentation, verify:
 
 ### Technical
 - [ ] Only canonical syntax shown
-- [ ] All code uses prefix notation
+- [ ] Operators use infix notation (preferred) or prefix notation
 - [ ] Imports included in examples
 - [ ] Types explicitly annotated
 - [ ] Shadow tests for all examples

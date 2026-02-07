@@ -2,38 +2,43 @@
 
 **Master NanoLang's core syntax and fundamental types.**
 
-This chapter covers NanoLang's distinctive syntax and basic type system. By the end, you'll understand prefix notation and how to work with numbers, strings, booleans, and types.
+This chapter covers NanoLang's distinctive syntax and basic type system. By the end, you'll understand how operators and function calls work, and how to work with numbers, strings, booleans, and types.
 
-## 2.1 Prefix Notation (The One True Way™)
+## 2.1 Operator Notation
 
-NanoLang uses **prefix notation** for all operations. This means the operator comes BEFORE its arguments.
+NanoLang supports **two notations** for binary operators: **prefix** and **infix**. Function calls always use prefix notation.
 
-### Why Prefix Notation?
+### Why Two Notations?
 
-**One reason: Eliminate ambiguity.**
+Prefix notation like `(+ a b)` eliminates ambiguity and is ideal for LLM code generation -- there is exactly one way to parse any expression. Infix notation like `a + b` is more natural for humans reading and writing code. NanoLang supports both so you can use whichever is clearest for the situation.
 
-When LLMs (or humans) see multiple ways to write the same thing, they make mistakes. Prefix notation gives us exactly ONE way to write each operation.
-
-### Basic Syntax Rules
-
-**Rule 1: Operator First**
+### Prefix Notation (Operator First)
 
 ```nano
 (+ 1 2)        # Addition
 (* 3 4)        # Multiplication
 (< x 10)       # Comparison
-(println "hi") # Function call
+(println "hi") # Function call (always prefix)
 ```
 
-**Rule 2: Parentheses Required**
+### Infix Notation (Operator Between)
 
 ```nano
-✅ (+ 1 2)
-❌ + 1 2      # Missing parentheses
-❌ 1 + 2      # Infix notation doesn't exist
+1 + 2          # Addition
+3 * 4          # Multiplication
+x < 10         # Comparison
 ```
 
-**Rule 3: Nesting Works Inside-Out**
+### Function Calls Are Always Prefix
+
+```nano
+(println "hi")       # Correct
+(str_length name)    # Correct
+```
+
+### Nesting and Grouping
+
+**Prefix nesting works inside-out:**
 
 ```nano
 (+ (* 2 3) 4)
@@ -41,13 +46,23 @@ When LLMs (or humans) see multiple ways to write the same thing, they make mista
 # Then: (+ 6 4) = 10
 ```
 
-### Reading Prefix Expressions
+**Infix uses parentheses for grouping:**
 
-Let's practice reading complex expressions:
+```nano
+2 * 3 + 4       # Evaluates left-to-right: (2 * 3) + 4 = 10
+2 * (3 + 4)     # Parentheses override: 2 * 7 = 14
+```
+
+**Important:** All infix operators have **equal precedence** and evaluate **left-to-right** (no PEMDAS). Use parentheses to control grouping.
+
+### Reading Expressions
+
+Let's practice reading expressions in both notations:
 
 ```nano
 fn calculate_example() -> int {
-    return (+ (* 2 3) (- 10 5))
+    return (+ (* 2 3) (- 10 5))   # prefix style
+    # equivalent infix: 2 * 3 + (10 - 5)
 }
 
 shadow calculate_example {
@@ -56,35 +71,40 @@ shadow calculate_example {
 ```
 
 Read it step by step:
-1. `(* 2 3)` → `6`
-2. `(- 10 5)` → `5`
-3. `(+ 6 5)` → `11`
+1. `(* 2 3)` or `2 * 3` --> `6`
+2. `(- 10 5)` or `10 - 5` --> `5`
+3. `(+ 6 5)` or `6 + 5` --> `11`
 
-### Common Operations in Prefix Notation
+### All Binary Operators
+
+These operators work in both prefix and infix notation:
 
 ```nano
 # Arithmetic
-(+ a b)      # Add
-(- a b)      # Subtract
-(* a b)      # Multiply
-(/ a b)      # Divide
-(% a b)      # Modulo
+(+ a b)   or   a + b      # Add
+(- a b)   or   a - b      # Subtract
+(* a b)   or   a * b      # Multiply
+(/ a b)   or   a / b      # Divide
+(% a b)   or   a % b      # Modulo
 
 # Comparison
-(== a b)     # Equal
-(!= a b)     # Not equal
-(< a b)      # Less than
-(> a b)      # Greater than
-(<= a b)     # Less than or equal
-(>= a b)     # Greater than or equal
+(== a b)  or   a == b     # Equal
+(!= a b)  or   a != b     # Not equal
+(< a b)   or   a < b      # Less than
+(> a b)   or   a > b      # Greater than
+(<= a b)  or   a <= b     # Less than or equal
+(>= a b)  or   a >= b     # Greater than or equal
 
 # Logical
-(and a b)    # Logical AND
-(or a b)     # Logical OR
-(not x)      # Logical NOT
+(and a b) or   a and b    # Logical AND
+(or a b)  or   a or b     # Logical OR
+
+# Unary (no infix form)
+(not x)   or   not x      # Logical NOT
+-x                         # Negation
 
 # String operations
-(+ s1 s2)    # Concatenate strings
+(+ s1 s2) or   s1 + s2    # Concatenate strings
 ```
 
 ### Practice Example
@@ -579,7 +599,7 @@ shadow main { assert true }
 ### Summary
 
 In this chapter, you learned:
-- ✅ Prefix notation: `(operator arg1 arg2)`
+- ✅ Operator notation: prefix `(operator arg1 arg2)` or infix `arg1 operator arg2`
 - ✅ Numbers: `int` and `float`
 - ✅ Strings: Immutable text with operations
 - ✅ Booleans: `true` and `false` with logical operators

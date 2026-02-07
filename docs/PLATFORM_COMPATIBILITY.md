@@ -393,7 +393,7 @@ if (x > 0 && x < 10) { ... }  # Wrong - use 'and'
 if (x == 5 || x == 10) { ... }  # Wrong - use 'or'
 ```
 
-This is intentional - it maintains consistency with the prefix notation philosophy.
+This is intentional - NanoLang uses spelled-out logical operators (`and`, `or`, `not`) in both prefix `(and a b)` and infix `a and b` notation, rather than C-style symbols (`&&`, `||`, `!`).
 
 ### Examples Status
 

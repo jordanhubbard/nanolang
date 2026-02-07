@@ -192,6 +192,7 @@ let len: int = source.substring(0, 10).length()
 3. **test_method_syntax.nano** - Method call syntax
    - Status: ✅ Passes
    - Tests: Zero-arg, multi-arg, comparison with prefix notation
+   [Note: NanoLang now supports both prefix `(+ a b)` and infix `a + b` notation for operators.]
 
 ### All Existing Tests
 

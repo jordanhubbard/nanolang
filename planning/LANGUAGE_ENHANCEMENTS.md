@@ -312,7 +312,7 @@ After implementation:
 
 ✅ **Quality Goals:**
 - Zero regressions in existing tests
-- Consistent with nanolang's prefix notation
+- Consistent with nanolang's prefix and infix notation
 - Clear error messages for invalid usage
 - Performance: no significant slowdown
 

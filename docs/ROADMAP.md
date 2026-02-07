@@ -7,7 +7,7 @@ This document outlines the development roadmap for nanolang.
 Build a minimal, LLM-friendly programming language that:
 - Compiles to C for performance and portability
 - Requires shadow-tests for all code
-- Uses unambiguous prefix notation
+- Supports both infix (`a + b`) and prefix (`(+ a b)`) notation for operators
 - Eventually self-hosts (compiles itself)
 
 ## Current Status: Phase 8 - Self-Hosting COMPLETE ✅ (v0.2.0)
@@ -53,7 +53,7 @@ Build a minimal, LLM-friendly programming language that:
 **Deliverables**:
 - ✅ AST node definitions (nanolang.h)
 - ✅ Recursive descent parser (src/parser.c - ~680 lines)
-- ✅ Prefix notation support
+- ✅ Prefix and infix notation support
 - ✅ Error recovery
 - ✅ Test suite for parser (all examples parse correctly)
 - ⚠️ Pretty-printer (not implemented - low priority)

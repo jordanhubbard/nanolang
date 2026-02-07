@@ -30,7 +30,7 @@ spec.json provides comprehensive language documentation but has gaps in practica
    - Historical milestones
 
 4. **Clear Syntax Specification**
-   - Prefix notation examples
+   - Prefix and infix notation examples
    - Operation arity and types
    - Pattern matching syntax
 
@@ -50,7 +50,7 @@ spec.json provides comprehensive language documentation but has gaps in practica
 
 2. **No "Common Mistakes" Section**
    - Missing: Forgetting shadow tests (most common!)
-   - Missing: Prefix notation errors
+   - Missing: Notation errors (prefix/infix usage)
    - Missing: Type mismatch examples
    - Missing: Immutability violations
 
@@ -243,7 +243,7 @@ spec.json provides comprehensive language documentation but has gaps in practica
    - Pure functions marked
 
 4. **Syntax Examples** ⭐⭐⭐⭐☆
-   - Prefix notation examples
+   - Prefix and infix notation examples
    - Type syntax clear
    - Could use more complete programs
 

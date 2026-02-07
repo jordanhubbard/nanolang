@@ -12,7 +12,7 @@
 
 **Quick Rules:**
 - ✅ **ONE syntax per operation** - No alternatives
-- ✅ **Prefix notation ONLY** - `(f x y)` never `f(x, y)` or `x + y`
+- ✅ **Prefix and infix notation** - `(+ a b)` or `a + b` for operators; `(f x y)` for function calls
 - ✅ **Explicit types** - Always annotate
 - ✅ **Core subset first** - Advanced features only when asked
 - ✅ **Use `(+ str1 str2)`** not `str_concat` (deprecated)
@@ -24,18 +24,30 @@
 
 ## Critical First Principles
 
-### 1. ALWAYS Use Prefix Notation
+### 1. Operator Notation: Prefix and Infix
+NanoLang supports both prefix and infix notation for binary operators. Function calls always use prefix notation.
+
 ```nano
-# CORRECT
-(+ a b)
-(* (+ x 1) (- y 2))
+# Both are valid for operators
+(+ a b)           # Prefix notation
+a + b             # Infix notation
+
+# Both are valid for nested expressions
+(* (+ x 1) (- y 2))   # Prefix nested
+(x + 1) * (y - 2)     # Infix with grouping parens
+
+# Function calls are ALWAYS prefix
 (println "hello")
 
-# WRONG - This is not valid nanolang!
-a + b
-x * y
+# WRONG - C-style function calls are not valid!
 println("hello")
 ```
+
+**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+
+**Important:** All infix operators have equal precedence, evaluated left-to-right (no PEMDAS). Use parentheses to control grouping: `a * (b + c)`.
+
+**Unary operators:** `not` and `-` work without parens: `not flag`, `-x`
 
 ### 2. ALWAYS Include Shadow Tests ⚠️ MANDATORY ⚠️
 **Every function MUST have a shadow test. This is a CORE DESIGN PRINCIPLE of NanoLang.**
@@ -211,23 +223,36 @@ unsafe {
 }
 ```
 
-### Operators (Always Prefix!)
+### Operators (Prefix or Infix)
 ```nano
-# Arithmetic
+# Arithmetic - prefix
 (+ a b)  (- a b)  (* a b)  (/ a b)  (% a b)
 
+# Arithmetic - infix
+a + b    a - b    a * b    a / b    a % b
+
 # String concatenation (+ works for strings too!)
-(+ "hello" " world")  # Returns "hello world"
-(+ (+ "nano" "lang") "!")  # Returns "nanolang!"
+(+ "hello" " world")      # Prefix: "hello world"
+"hello" + " world"        # Infix: "hello world"
 
-# Comparison
+# Comparison - both notations
 (== a b)  (!= a b)  (< a b)  (<= a b)  (> a b)  (>= a b)
+a == b    a != b    a < b    a <= b    a > b    a >= b
 
-# Logical
+# Logical - both notations
 (and p q)  (or p q)  (not p)
+p and q    p or q    not p
 
-# Nested operations
-(+ (* a b) (/ c d))  # (a*b) + (c/d)
+# Nested operations - prefix
+(+ (* a b) (/ c d))       # (a*b) + (c/d)
+
+# Nested operations - infix (use parens for grouping)
+(a * b) + (c / d)         # Same result
+
+# NOTE: All infix operators have equal precedence (left-to-right).
+# Use parentheses to control evaluation order:
+a * (b + c)               # Multiply a by (b+c)
+a * b + c                 # Same as (a * b) + c (left-to-right)
 ```
 
 ### Types
@@ -412,19 +437,25 @@ let x: float = 3.14
 let y: int = 42
 ```
 
-### Error 3: Forgetting Prefix Notation
+### Error 3: Using C-Style Function Calls
 ```
 Error: Unexpected token
 ```
-**Fix:** All operations use prefix notation:
+**Fix:** Function calls use prefix notation (operators can use either prefix or infix):
 ```nano
-# Wrong
-if x > 5 { ... }
-let result = a + b
+# Wrong - C-style function calls
+println("hello")
+add(a, b)
 
-# Right
-if (> x 5) { ... }
-let result: int = (+ a b)
+# Right - Prefix function calls
+(println "hello")
+(add a b)
+
+# Right - Both work for operators
+let result: int = (+ a b)    # Prefix
+let result: int = a + b      # Infix
+if (> x 5) { ... }           # Prefix
+if x > 5 { ... }             # Infix
 ```
 
 ### Error 4: Immutability Violation
@@ -1055,7 +1086,7 @@ fn is_valid_range(x: int, min: int, max: int) -> bool {
 Before generating nanolang code, verify:
 
 - [ ] All functions have shadow tests
-- [ ] All operations use prefix notation: `(+ a b)` not `a + b`
+- [ ] Operators use prefix `(+ a b)` or infix `a + b` notation (both valid)
 - [ ] All variables have explicit types: `let x: int = 5`
 - [ ] All if statements have else branches
 - [ ] Mutable variables declared with `mut` keyword
@@ -1278,7 +1309,7 @@ NanoLang is designed for **clarity over cleverness**:
 
 1. **Explicit everything** - No hidden behavior, no inference, no magic
 2. **Test-driven** - Shadow tests force you to think about correctness
-3. **Prefix notation** - One syntax rule eliminates precedence confusion
+3. **Dual notation** - Both prefix `(+ a b)` and infix `a + b` for operators; equal precedence eliminates ambiguity
 4. **Immutable by default** - Mutability is explicit with `mut`
 5. **Static typing** - Catch errors at compile time
 6. **Simple but complete** - Minimalist syntax, powerful features
@@ -1287,7 +1318,7 @@ When generating nanolang code:
 - Think "What would the simplest, clearest version look like?"
 - Make types explicit
 - Write shadow tests that verify correctness
-- Use prefix notation for all operations
+- Use prefix or infix notation for operators (both are valid); function calls are always prefix
 - Leverage the type system to catch errors early
 
 ---
@@ -1465,7 +1496,7 @@ When generating NanoLang code, remember:
 - Think "What would the simplest, clearest version look like?"
 - Make types explicit
 - **Write shadow tests that verify correctness** (MANDATORY)
-- Use prefix notation for all operations
+- Use prefix or infix notation for operators (both are valid); function calls are always prefix
 - Leverage the type system to catch errors early
 - **Use `resource struct` for types that require cleanup**
 - **Wrap FFI calls in `unsafe { ... }` blocks**

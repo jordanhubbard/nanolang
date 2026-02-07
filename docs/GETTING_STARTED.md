@@ -36,23 +36,37 @@ shadow main {
 
 ## Core Concepts
 
-### 1. Prefix Notation
+### 1. Dual Notation: Prefix and Infix
 
-nanolang uses prefix notation (like Lisp) to eliminate ambiguity:
+nanolang supports **both** prefix notation (like Lisp) and conventional infix notation for operators:
 
 ```nano
-# Traditional math:  2 + 3 * 4 = ?  (precedence unclear)
-# nanolang:         (+ 2 (* 3 4))  (unambiguous)
-
-# More examples:
-(+ 1 2)              # 1 + 2 = 3
-(* 3 4)              # 3 * 4 = 12
+# Prefix notation (S-expression style):
+(+ 1 2)              # 3
+(* 3 4)              # 12
 (== x 5)             # x == 5
-(> a b)              # a > b
-(and true false)     # true && false
+(and true false)     # false
+
+# Infix notation (conventional style):
+1 + 2                # 3
+3 * 4                # 12
+x == 5               # x == 5
+true and false       # false
+
+# Both styles work - use whichever is clearer!
 ```
 
-**Why?** No need to memorize operator precedence. The structure is always clear.
+**Important:** All infix operators have **equal precedence** and evaluate **left-to-right** (no PEMDAS). Use parentheses to control grouping:
+
+```nano
+# Without parens: evaluated left-to-right
+a + b * c            # means (a + b) * c, NOT a + (b * c)
+
+# Use parens for explicit grouping
+a * (b + c)          # multiply a by the sum of b and c
+```
+
+**Note:** Function calls still use prefix notation: `(println "hello")`, `(add 2 3)`. Unary operators `not` and `-` work without parens: `not flag`, `-x`.
 
 ### 2. Explicit Types
 
@@ -179,28 +193,31 @@ shadow factorial {
 
 ### Arithmetic Operators
 ```nano
-(+ a b)    # Addition
-(- a b)    # Subtraction
-(* a b)    # Multiplication
-(/ a b)    # Division
-(% a b)    # Modulo
+# Prefix         # Infix
+(+ a b)          # a + b     Addition
+(- a b)          # a - b     Subtraction
+(* a b)          # a * b     Multiplication
+(/ a b)          # a / b     Division
+(% a b)          # a % b     Modulo
 ```
 
 ### Comparison Operators
 ```nano
-(== a b)   # Equal
-(!= a b)   # Not equal
-(< a b)    # Less than
-(<= a b)   # Less or equal
-(> a b)    # Greater than
-(>= a b)   # Greater or equal
+# Prefix         # Infix
+(== a b)         # a == b    Equal
+(!= a b)         # a != b    Not equal
+(< a b)          # a < b     Less than
+(<= a b)         # a <= b    Less or equal
+(> a b)          # a > b     Greater than
+(>= a b)         # a >= b    Greater or equal
 ```
 
 ### Logical Operators
 ```nano
-(and a b)  # Logical AND
-(or a b)   # Logical OR
-(not a)    # Logical NOT
+# Prefix         # Infix
+(and a b)        # a and b   Logical AND
+(or a b)         # a or b    Logical OR
+(not a)          # not a     Logical NOT (unary, no parens needed)
 ```
 
 ### Keywords
@@ -213,14 +230,15 @@ true     false    print    and      or       not
 
 ## Common Mistakes
 
-### ❌ Wrong: Infix notation
+### Both notations work for operators
 ```nano
-let sum: int = a + b
+let sum: int = (+ a b)    # Prefix notation
+let sum: int = a + b       # Infix notation (also valid!)
 ```
 
-### ✅ Correct: Prefix notation
+**Note:** All infix operators have equal precedence (left-to-right). Use parentheses to group:
 ```nano
-let sum: int = (+ a b)
+let result: int = a * (b + c)   # Parens needed: no PEMDAS
 ```
 
 ---

@@ -303,7 +303,7 @@ shadow main {
 **An LLM has mastered the core subset when it can:**
 
 1. ✅ Write functions with shadow tests
-2. ✅ Use only prefix notation for operations
+2. ✅ Use infix `a + b` or prefix `(+ a b)` notation for operators (both are valid)
 3. ✅ Implement basic algorithms (factorial, fibonacci, etc.)
 4. ✅ Manipulate strings and arrays
 5. ✅ Use `cond` for expressions, `if/else` for statements

@@ -41,7 +41,8 @@ This document tracks all NanoLang language features and their documentation stat
 
 | Feature | Documented | Location |
 |---------|------------|----------|
-| Prefix notation `(f x y)` | ✅ Yes | userguide/06_canonical_syntax.md, docs/CANONICAL_STYLE.md |
+| Prefix notation `(f x y)` for function calls | ✅ Yes | userguide/06_canonical_syntax.md, docs/CANONICAL_STYLE.md |
+| Infix notation `a + b` for binary operators | ✅ Yes | userguide/06_canonical_syntax.md |
 | S-expression function calls | ✅ Yes | userguide/06_canonical_syntax.md |
 
 ---

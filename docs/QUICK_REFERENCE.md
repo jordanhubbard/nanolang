@@ -113,33 +113,49 @@ fn get_doubler() -> fn(int) -> int {
 let op: fn(int) -> int = (get_doubler)
 ```
 
-## Operators (Prefix Notation)
+## Operators (Prefix and Infix)
+
+NanoLang supports both **prefix** `(+ a b)` and **infix** `a + b` notation for all operators.
 
 ### Arithmetic
 ```nano
-(+ a b)    # a + b
-(- a b)    # a - b
-(* a b)    # a * b
-(/ a b)    # a / b
-(% a b)    # a % b
+# Prefix              # Infix
+(+ a b)               a + b
+(- a b)               a - b
+(* a b)               a * b
+(/ a b)               a / b
+(% a b)               a % b
 ```
 
 ### Comparison
 ```nano
-(== a b)   # a == b
-(!= a b)   # a != b
-(< a b)    # a < b
-(<= a b)   # a <= b
-(> a b)    # a > b
-(>= a b)   # a >= b
+# Prefix              # Infix
+(== a b)              a == b
+(!= a b)              a != b
+(< a b)               a < b
+(<= a b)              a <= b
+(> a b)               a > b
+(>= a b)              a >= b
 ```
 
 ### Logical
 ```nano
-(and a b)  # a && b
-(or a b)   # a || b
-(not a)    # !a
+# Prefix              # Infix
+(and a b)             a and b
+(or a b)              a or b
+(not a)               not a
 ```
+
+### Precedence
+
+All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS). Use parentheses to group:
+
+```nano
+a * (b + c)           # Parentheses required for non-left-to-right evaluation
+2 + 3 * 4             # Evaluates as (2 + 3) * 4 = 20
+```
+
+Unary `not` and `-` work without parentheses: `not flag`, `-x`
 
 ## Control Flow
 
@@ -353,11 +369,15 @@ shadow is_even {
 ### Nested Operations
 ```nano
 # Calculate: (a + b) * (c - d)
-let result: int = (* (+ a b) (- c d))
+let result: int = (* (+ a b) (- c d))       # Prefix
+let result: int = (a + b) * (c - d)          # Infix (parens for grouping)
 
 # Calculate: (x > 0) && (x < 10)
-if (and (> x 0) (< x 10)) {
+if (and (> x 0) (< x 10)) {                 # Prefix
     # x is between 0 and 10
+}
+if x > 0 and x < 10 {                       # Infix
+    # same thing - equal precedence, left-to-right
 }
 ```
 
@@ -440,14 +460,20 @@ pub fn main() -> int {
 
 ## Common Mistakes
 
-❌ **Infix notation**
+Both prefix and infix notation are valid for operators:
 ```nano
-let x: int = a + b  # WRONG
+let x: int = (+ a b)  # Prefix - CORRECT
+let x: int = a + b    # Infix - ALSO CORRECT
 ```
 
-✅ **Prefix notation**
+❌ **Assuming PEMDAS precedence**
 ```nano
-let x: int = (+ a b)  # CORRECT
+let x: int = 2 + 3 * 4  # Evaluates as (2+3)*4 = 20, NOT 2+(3*4)
+```
+
+✅ **Use parentheses when precedence matters**
+```nano
+let x: int = 2 + (3 * 4)  # Explicit grouping: 14
 ```
 
 ---
@@ -520,9 +546,9 @@ if (> x 0) {
 
 ## Tips
 
-1. **Think prefix**: Convert math to prefix before writing
-   - `a + b * c` → `(+ a (* b c))`
-   - `x == 5 && y < 10` → `(and (== x 5) (< y 10))`
+1. **Mind the precedence**: All infix operators have equal precedence (left-to-right). Use parentheses or prefix notation to clarify:
+   - Infix: `a + (b * c)` (parens needed) or prefix: `(+ a (* b c))`
+   - Infix: `x == 5 and y < 10` or prefix: `(and (== x 5) (< y 10))`
 
 2. **Test edge cases**: Always test 0, negatives, boundaries
 

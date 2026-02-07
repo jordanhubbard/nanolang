@@ -48,7 +48,7 @@ When writing example programs:
 2. **Include shadow-tests** - Every function needs tests
 3. **Test edge cases** - Cover 0, negatives, boundaries
 4. **Comment sparingly** - Code should be self-explanatory
-5. **Use prefix notation** - Always use `(+ a b)` not `a + b`
+5. **Use consistent notation** - Both prefix `(+ a b)` and infix `a + b` are valid; prefer whichever is clearest. Note: all infix operators have equal precedence (left-to-right, no PEMDAS), so use parentheses to group: `a * (b + c)`
 
 Example:
 ```nano

@@ -10,21 +10,34 @@ NanoLang has exactly ONE canonical way to write each construct. This eliminates 
 
 When LLMs see multiple equivalent forms, they guess wrong ~50% of the time. NanoLang solves this by having exactly one way to write everything.
 
-## 22.2 Prefix Notation ONLY
+## 22.2 Operator Notation: Prefix and Infix
+
+NanoLang supports **both prefix and infix** notation for binary operators:
 
 ```nano
-# ✅ ALWAYS DO THIS
-(+ a b)
-(* x 2)
-(== result 42)
+# Both are valid and equivalent:
+(+ a b)         # Prefix notation
+a + b           # Infix notation
 
-# ❌ NEVER DO THIS
-a + b       # No infix operators!
-x * 2       # Infix doesn't exist
-result == 42  # No infix comparison
+(* x 2)         # Prefix
+x * 2           # Infix
+
+(== result 42)  # Prefix
+result == 42    # Infix
 ```
 
-**Rule:** ALL operations use prefix notation `(operator arg1 arg2 ...)`
+**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+
+**Important:** All infix operators have **equal precedence**, evaluated **left-to-right** (no PEMDAS). Use parentheses to control grouping:
+
+```nano
+a * (b + c)    # Parentheses required for addition-first
+a + b * c      # Evaluates as (a + b) * c
+```
+
+**Unary operators** (`not`, `-`) work without parens: `not flag`, `-x`
+
+**Rule:** Function calls always use prefix notation `(function_name arg1 arg2 ...)`
 
 ## 22.3 Expressions vs Statements
 
@@ -87,12 +100,14 @@ let items: array<int> = [1, 2, 3]
 ## 22.7 Function Calls
 
 ```nano
-# ✅ ALWAYS use prefix notation
+# ✅ ALWAYS use prefix notation for function calls
 (my_function arg1 arg2)
 
 # ❌ NO parentheses-free calls
 # my_function arg1 arg2  # Invalid!
 ```
+
+**Note:** Infix notation is for **operators only**, not function calls.
 
 ## 22.8 Loops
 
@@ -135,12 +150,13 @@ shadow calculate_sum {
 ## Summary
 
 **Canonical Rules:**
-- ✅ Prefix notation ONLY
-- ✅ `cond` for expressions, `if/else` for statements
-- ✅ `+` for string concatenation
-- ✅ Explicit type annotations
-- ✅ `array_get`, never subscripts
-- ✅ ONE way per operation
+- Operators support both prefix `(+ a b)` and infix `a + b` notation
+- All infix operators have equal precedence (left-to-right, no PEMDAS)
+- Function calls always use prefix notation: `(function_name arg1 arg2)`
+- `cond` for expressions, `if/else` (with `else if` chaining) for statements
+- `+` for string concatenation
+- Explicit type annotations
+- `array_get`, never subscripts
 
 **See also:** `docs/CANONICAL_STYLE.md` for complete reference
 

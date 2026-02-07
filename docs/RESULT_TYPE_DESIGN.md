@@ -845,7 +845,7 @@ match (read_file "config.json") {
 - Composable with map/and_then
 
 **Differences**:
-- NanoLang: Simpler syntax (prefix notation)
+- NanoLang: Simpler syntax (prefix and infix notation)
 - Rust: `?` operator for error propagation
 - Rust: More sophisticated trait system (Error, From, Into)
 

@@ -8,11 +8,11 @@ Language support for [NanoLang](https://github.com/jordanhubbard/nanolang) - a m
 
 - **Keywords**: `fn`, `let`, `mut`, `if`, `while`, `for`, `match`, `return`, etc.
 - **Types**: `int`, `float`, `string`, `bool`, `void`, `array<T>`, `List<T>`, etc.
-- **Operators**: Prefix notation operators: `+`, `-`, `*`, `/`, `==`, `<`, `>`, etc.
+- **Operators**: Both prefix `(+ a b)` and infix `a + b` notation for operators: `+`, `-`, `*`, `/`, `==`, `<`, `>`, etc.
 - **Comments**: `# comment` style
 - **Strings**: Double-quoted strings with escape sequences
 - **Numbers**: Integers, floats, hex literals
-- **Functions**: Function definitions and calls in prefix notation
+- **Functions**: Function definitions and calls in prefix notation `(f x y)`
 
 ### Language Configuration
 
@@ -58,7 +58,7 @@ Type the prefix and press `Tab` to expand:
 - `none` - Option::None variant
 
 **Common Operations:**
-- `+`, `-`, `*`, `/` - Arithmetic in prefix notation
+- `+`, `-`, `*`, `/` - Arithmetic (prefix or infix notation)
 - `==` - Equality comparison
 - `print` - Print statement
 

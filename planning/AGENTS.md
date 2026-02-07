@@ -44,7 +44,7 @@ NanoLang is a **compiled systems programming language** designed specifically fo
 
 **Key Properties:**
 - **LLM-First:** Exactly ONE canonical way to write each construct
-- **Prefix Notation:** All operations use `(f x y)` form - no infix operators
+- **Dual Notation:** Function calls use prefix `(f x y)` form; binary operators support both prefix `(+ a b)` and infix `a + b`
 - **Explicit Types:** Always annotate types, minimal inference
 - **Shadow Tests:** Every function has compile-time tests (mandatory)
 - **C Interop:** Full FFI for calling C libraries
@@ -65,14 +65,15 @@ Read these FIRST:
 
 **Quick Rules:**
 ```nano
-# ✅ ALWAYS DO THIS
+# ✅ BOTH ARE VALID
 (+ a b)                    # Prefix notation
+a + b                      # Infix notation (also valid!)
 (cond ((< x 0) -1) (else 0))  # Expressions use cond
-(+ "hello" " world")       # String concatenation
+(+ "hello" " world")       # String concatenation (prefix)
+"hello" + " world"         # String concatenation (infix)
 (array_get arr 0)          # Array access
 
 # ❌ NEVER DO THIS
-a + b                      # No infix operators
 if/else for expressions    # Use cond instead
 (str_concat "a" "b")       # Deprecated, use + instead
 arr[0]                     # No subscript syntax
@@ -732,7 +733,7 @@ User request
 [3] Identify capabilities (verbs)
 [4] Search modules/index.json
 [5] Pick best module (check use_when, avoid_when, examples)
-[6] Write canonical NanoLang (prefix notation, core subset)
+[6] Write canonical NanoLang (prefix or infix notation, core subset)
 [7] Add shadow tests
 [8] Iterate (compile → fix → test)
     ↓

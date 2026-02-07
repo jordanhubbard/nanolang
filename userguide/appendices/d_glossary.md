@@ -38,7 +38,7 @@
 
 ## P
 
-**Prefix Notation** - Function calls of form `(f x y)` instead of `f(x, y)`
+**Prefix Notation** - Function calls and operator expressions of the form `(f x y)` instead of `f(x, y)`. NanoLang uses prefix notation for function calls and supports both prefix `(+ a b)` and infix `a + b` notation for binary operators
 
 **Property Testing** - Testing with randomly generated inputs
 

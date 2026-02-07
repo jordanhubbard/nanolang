@@ -7,7 +7,7 @@
 
 ## Overview
 
-Implemented Lisp-style `cond` expressions to replace nested if/else chains in NanoLang, providing cleaner multi-branch conditionals that fit the language's prefix notation philosophy.
+Implemented Lisp-style `cond` expressions to replace nested if/else chains in NanoLang, providing cleaner multi-branch conditionals that fit the language's expression-oriented philosophy.
 
 ---
 
@@ -22,7 +22,7 @@ Implemented Lisp-style `cond` expressions to replace nested if/else chains in Na
 ```
 
 **Key Features:**
-- Pure S-expression syntax (fully prefix notation)
+- Pure S-expression syntax (prefix notation; binary operators also support infix)
 - Mandatory `else` clause (exhaustiveness checking)
 - Expression-based (returns a value)
 - Can be used as statement or expression
@@ -195,8 +195,8 @@ fn day_of_week(n: int) -> string {
 - **After**: Flat structure, easy to scan top-to-bottom
 
 ### Consistency
-- Pure prefix notation (no mixing of styles)
-- Fits NanoLang's S-expression philosophy
+- Clean notation (prefix or infix for operators, prefix for function calls)
+- Fits NanoLang's expression-oriented philosophy
 - All conditions and values are expressions
 
 ### Safety

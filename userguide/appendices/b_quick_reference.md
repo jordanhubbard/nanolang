@@ -2,24 +2,39 @@
 
 **Single-page cheat sheet for NanoLang syntax and built-in functions.**
 
-## B.1 Operator Precedence
+## B.1 Operator Notation and Precedence
 
-NanoLang uses prefix notation, so there's no operator precedence ambiguity. All operators are function-like:
+NanoLang supports **both prefix and infix** notation for binary operators:
 
 ```nano
+# Prefix notation (Lisp-style)
 (+ a b)      # Addition
 (- a b)      # Subtraction
 (* a b)      # Multiplication
 (/ a b)      # Division
 (% a b)      # Modulo
+
+# Infix notation
+a + b        # Addition
+a - b        # Subtraction
+a * b        # Multiplication
+a / b        # Division
+a % b        # Modulo
 ```
 
-For nested operations, parentheses make order explicit:
+**Infix precedence:** All infix operators have **equal precedence**, evaluated **left-to-right** (no PEMDAS). Use parentheses to control grouping:
 
 ```nano
+# Prefix: nesting makes order explicit
 (+ (* a b) (/ c d))    # (a*b) + (c/d)
 (* (+ a 1) (- b 2))    # (a+1) * (b-2)
+
+# Infix: use parentheses for grouping
+a * b + c / d           # Evaluates as ((a * b) + c) / d
+a * (b + c) / d         # Parentheses control order
 ```
+
+**Unary operators:** `not flag`, `-x` (no parentheses needed)
 
 ### Comparison Operators
 

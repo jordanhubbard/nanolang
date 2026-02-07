@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Infix notation for binary operators (`a + b` in addition to prefix `(+ a b)`)
+  - Supported operators: +, -, *, /, %, ==, !=, <, <=, >, >=, and, or
+  - All infix operators have equal precedence, evaluated left-to-right
+  - Use parentheses to group: `a * (b + c)`
+  - Unary `not` and `-` work without parens: `not flag`, `-x`
+  - `else if` chaining supported
+  - Function calls remain prefix notation: `(println "hello")`
+  - Prefix notation fully preserved for backward compatibility
+
 ## [2.4.1] - 2026-02-05
 
 ### Fixed
@@ -455,7 +465,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive standard library
 
 ### Language Features
-- Prefix notation syntax
+- Both prefix and infix notation syntax for operators
 - Type annotations
 - Pattern matching
 - Generic types (List<T>, Result<T,E>, Option<T>)

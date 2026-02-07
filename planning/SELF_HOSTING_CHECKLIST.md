@@ -272,7 +272,7 @@ let exit_code: int = (system "gcc -o prog prog.c")
 - [ ] Implement parse_function
 - [ ] Implement parse_statement
 - [ ] Implement parse_expression
-- [ ] Handle prefix notation
+- [ ] Handle both prefix and infix notation
 - [ ] Error recovery
 - [ ] Write comprehensive shadow tests
 - [ ] Compare output with C parser
@@ -503,7 +503,7 @@ let exit_code: int = (system "gcc -o prog prog.c")
 ### Design Metrics
 - ✅ Language stays minimal (< 25 keywords)
 - ✅ Language stays unambiguous
-- ✅ Prefix notation maintained
+- ✅ Both prefix and infix notation supported
 - ✅ Shadow tests still mandatory
 - ✅ LLM-friendly (measured by LLM code gen success)
 

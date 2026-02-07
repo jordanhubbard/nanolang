@@ -10,15 +10,34 @@ When LLMs see multiple equivalent forms, they guess wrong ~50% of the time. Nano
 
 | ❌ Avoided | ✅ Canonical |
 |-----------|-------------|
-| `a + b` | `(+ a b)` |
 | `arr[i]` | `(at arr i)` |
-| `str1 + str2` | `(+ str1 str2)` |
-| `if x > 0 then ...` | `if (> x 0) { ... }` |
+| `if x > 0 then ...` | `if (> x 0) { ... }` or `if x > 0 { ... }` |
 | `x == y ? a : b` | `(cond ((== x y) a) (else b))` |
 
-## Prefix operators
+## Operators: Prefix and Infix
 
-All arithmetic, comparison, and logical operators use prefix notation:
+NanoLang supports **both prefix and infix** notation for binary operators:
+
+```nano
+# Both are equivalent:
+(+ a b)      # Prefix notation
+a + b        # Infix notation
+```
+
+**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+
+**Important:** All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS). Use parentheses to control grouping:
+
+```nano
+a * (b + c)    # Parentheses needed: addition first
+a + b * c      # Evaluates as (a + b) * c, NOT a + (b*c)
+```
+
+**Unary operators** (`not`, `-`) work without parentheses: `not flag`, `-x`
+
+**Function calls** still use prefix notation: `(println "hello")`
+
+Prefix notation remains fully supported for backward compatibility:
 
 <!--nl-snippet {"name":"ug_canonical_prefix","check":true}-->
 ```nano
@@ -193,7 +212,17 @@ fn main() -> int {
 shadow main { assert true }
 ```
 
-**Note:** NanoLang doesn't have `else if` - nest `if` statements in `else` blocks.
+**Note:** NanoLang also supports `else if` chaining:
+
+```nano
+if (< n 0) {
+    (println "negative")
+} else if (== n 0) {
+    (println "zero")
+} else {
+    (println "positive")
+}
+```
 
 ## Loops
 
@@ -408,11 +437,11 @@ Common mistake:
 
 ## Summary: The Canonical Forms
 
-| Construct | Canonical Form |
-|-----------|---------------|
-| Arithmetic | `(+ a b)`, `(- a b)`, `(* a b)`, `(/ a b)` |
-| Comparison | `(== a b)`, `(< a b)`, `(> a b)` |
-| Logic | `(and a b)`, `(or a b)`, `(not a)` |
+| Construct | Prefix Form | Infix Form |
+|-----------|------------|------------|
+| Arithmetic | `(+ a b)`, `(- a b)`, `(* a b)`, `(/ a b)` | `a + b`, `a - b`, `a * b`, `a / b` |
+| Comparison | `(== a b)`, `(< a b)`, `(> a b)` | `a == b`, `a < b`, `a > b` |
+| Logic | `(and a b)`, `(or a b)`, `(not a)` | `a and b`, `a or b`, `not a` |
 | Strings | `(+ s1 s2)`, `(str_length s)` |
 | Arrays | `(at arr i)`, `(array_set arr i v)` |
 | Expression conditional | `(cond ((test) value) (else default))` |
@@ -424,4 +453,4 @@ Common mistake:
 | Mutable variable | `let mut x: Type = value` |
 | Assignment | `set x new_value` |
 
-When in doubt, use prefix notation and explicit types. There is exactly ONE way.
+Both prefix and infix notation are valid for operators. Function calls always use prefix notation. When in doubt, use explicit types and parentheses for grouping.

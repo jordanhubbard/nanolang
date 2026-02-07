@@ -17,7 +17,7 @@ Work through these 5 examples in order:
 
 2. **[nl_calculator.nano](language/nl_calculator.nano)**
    - Basic arithmetic and functions
-   - Demonstrates: prefix notation, multiple functions, parameters
+   - Demonstrates: prefix and infix notation, multiple functions, parameters
    - Time: 10 minutes
 
 3. **[nl_mutable.nano](language/nl_mutable.nano)**
@@ -235,7 +235,7 @@ cd examples && make
   - Shadow tests demonstration
 
 - **calculator.nano** - Basic arithmetic
-  - Prefix notation for operations
+  - Prefix and infix notation for operations
   - Multiple function definitions
   - Integer arithmetic (+, -, *, /, %)
 
@@ -380,13 +380,20 @@ shadow main {
 
 ## Key Language Features
 
-### Prefix Notation
-All operations use prefix (Polish) notation:
+### Operator Notation
+NanoLang supports both prefix and infix notation for binary operators:
 ```nano
+# Prefix (Lisp-style)
 (+ a b)         # Addition
 (* (+ 2 3) 4)   # (2 + 3) * 4
 (< x 10)        # x < 10
+
+# Infix
+a + b           # Addition
+(2 + 3) * 4     # Use parens for grouping (no PEMDAS)
+x < 10          # Comparison
 ```
+Function calls always use prefix notation: `(println "hello")`
 
 ### Type System
 - Explicit type annotations required

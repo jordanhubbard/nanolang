@@ -101,6 +101,7 @@ is_lower(c: int) -> bool
 
 #### 1. Method Syntax for Strings & Lists
 **Problem:** Prefix notation is verbose for chains
+[Note: NanoLang now supports both prefix `(+ a b)` and infix `a + b` notation for operators. Function calls still use prefix notation. Infix operators: +, -, *, /, %, ==, !=, <, <=, >, >=, and, or. All infix operators have equal precedence (left-to-right); use parentheses to group: `a * (b + c)`.]
 ```nanolang
 /* Current: nested prefix */
 (str_length (str_substring source 0 10))

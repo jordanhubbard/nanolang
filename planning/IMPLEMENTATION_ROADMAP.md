@@ -352,7 +352,7 @@ Start Here
 - ✅ No pointers introduced
 - ✅ Immutability by default maintained
 - ✅ Shadow tests still mandatory
-- ✅ Prefix notation unchanged
+- ✅ Both prefix and infix notation supported (prefix remains for backward compatibility)
 - ✅ LLM-friendly verified
 
 ### Community Success

@@ -33,7 +33,7 @@ The current user guide has **bare API references with no examples** and **incons
    1.4. Compilation & Execution
 
 2. Basic Syntax & Types
-   2.1. Prefix Notation (The One True Way™)
+   2.1. Prefix & Infix Notation
    2.2. Numbers & Arithmetic
    2.3. Strings & Characters
    2.4. Booleans & Comparisons
@@ -363,7 +363,7 @@ Part I: Language Fundamentals
   │   ├─ 1.2. Your First Program
   │   └─ 1.3. Hello World
   ├─ 2. Basic Syntax & Types
-  │   ├─ 2.1. Prefix Notation
+  │   ├─ 2.1. Prefix & Infix Notation
   │   ├─ 2.2. Numbers
   │   └─ ...
 
@@ -442,7 +442,7 @@ Appendices
 ### Voice & Tone
 - **Active voice**: "You compile the program" not "The program is compiled"
 - **Second person**: "You" not "we" or "one"
-- **Present tense**: "NanoLang uses prefix notation"
+- **Present tense**: "NanoLang supports both prefix and infix notation"
 - **Encouraging**: Focus on what you CAN do
 
 ### Example Structure
@@ -471,7 +471,7 @@ Appendices
 ```
 
 ### Terminology
-- "prefix notation" (not "S-expressions" or "Lisp-like")
+- "prefix notation" for function calls; "prefix or infix notation" for operators
 - "function" (not "procedure" or "method")
 - "module" (not "library" or "package")
 - "shadow test" (not "unit test" or "spec")

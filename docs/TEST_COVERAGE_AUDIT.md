@@ -123,7 +123,7 @@
 **Current Status**: 1,179 lines, comprehensive but needs updates
 
 **Coverage**:
-- ✅ Prefix notation rules
+- ✅ Prefix and infix notation rules
 - ✅ Shadow test requirements
 - ✅ Type system (primitives, structs, enums, unions, tuples)
 - ✅ Generics (`List<T>` monomorphization)

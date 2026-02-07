@@ -16,7 +16,6 @@ When LLMs see multiple equivalent forms, they guess wrong ~50% of the time. This
 ```nano
 (function arg1 arg2 arg3)
 (println "Hello")
-(+ 1 2)
 (str_concat "a" "b")
 ```
 
@@ -27,6 +26,8 @@ function arg1 arg2    # Haskell-style - DOES NOT EXIST
 ```
 
 **Rule:** ALL function calls use prefix notation `(f x y)`. No exceptions.
+
+> **Note:** Operators like `+`, `-`, `*`, etc. support both prefix and infix notation. See the [Arithmetic](#arithmetic), [Boolean Logic](#boolean-logic), and [Comparisons](#comparisons) sections below.
 
 ---
 
@@ -58,7 +59,8 @@ NanoLang uses parentheses for three purposes. The parser disambiguates based on 
 (x, (y, z))            # Nested tuple
 
 # Grouping - single expression
-(+ 1 2)                # Just groups the prefix op (returns 3)
+(+ 1 2)                # Groups the prefix op (returns 3)
+(3 + 4)                # Groups the infix op (returns 7)
 
 # Mixed: function taking a tuple argument
 (fn_expects_tuple (1, 2))   # Call fn_expects_tuple with tuple arg
@@ -147,20 +149,22 @@ let result: int = (cond
 let result: int = if (< x 0) { -1 } else { if (> x 0) { 1 } else { 0 } }
 ```
 
-### For Statements: Use `if/else`
+### For Statements: Use `if/else` (with `else if` chaining)
 
 ✅ **Canonical:**
 ```nano
 if (< x 0) {
     (println "negative")
+} else if (== x 0) {
+    (println "zero")
 } else {
-    (println "non-negative")
+    (println "positive")
 }
 ```
 
-**Rule:** 
+**Rule:**
 - **Expressions** (returns a value): Use `cond`
-- **Statements** (side effects only): Use `if/else`
+- **Statements** (side effects only): Use `if/else` (with `else if` chaining as needed)
 
 ---
 
@@ -177,7 +181,7 @@ let full_path: string = (+ (+ base "/") filename)
 (str_concat "Hello, " name)  # Equivalent to (+ "Hello, " name)
 ```
 
-**Note:** `(+ s1 s2)` is syntactic shorthand for `(str_concat s1 s2)`. Both work identically; prefer `+` for consistency with numeric operations.
+**Note:** `(+ s1 s2)` and `s1 + s2` are syntactic shorthand for `(str_concat s1 s2)`. All three work identically; prefer `+` for consistency with numeric operations.
 
 ### ✅ Canonical: String `==`
 ```nano
@@ -196,7 +200,9 @@ let same: bool = (== str1 str2)
 
 ## Arithmetic
 
-### ✅ Canonical: Prefix Operators
+NanoLang supports **both prefix and infix** notation for arithmetic operators.
+
+### ✅ Prefix Notation
 ```nano
 (+ a b)
 (- a b)
@@ -205,23 +211,50 @@ let same: bool = (== str1 str2)
 (% a b)
 ```
 
-### ❌ Never Use
-```
-a + b   # Infix - DOES NOT EXIST
-a - b   # Infix - DOES NOT EXIST
+### ✅ Infix Notation
+```nano
+a + b
+a - b
+a * b
+a / b
+a % b
 ```
 
-**Rule:** All arithmetic uses prefix notation. No operator precedence ambiguity.
+### Precedence and Grouping
+
+All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS). Use parentheses to control evaluation order:
+
+```nano
+# Without parens: evaluated left-to-right
+let x: int = 2 + 3 * 4    # (2 + 3) * 4 = 20, NOT 2 + 12
+
+# With parens: explicit grouping
+let y: int = 2 + (3 * 4)  # 2 + 12 = 14
+let z: int = (2 + 3) * 4  # 5 * 4 = 20
+```
+
+Unary `-` works without parentheses: `-x`
+
+**Rule:** Both prefix `(+ a b)` and infix `a + b` are valid. Prefix notation avoids precedence ambiguity; infix notation is more readable for simple expressions. Use parentheses to group infix operations when precedence matters.
 
 ---
 
 ## Boolean Logic
 
-### ✅ Canonical: Prefix Logic
+NanoLang supports **both prefix and infix** notation for boolean operators.
+
+### ✅ Prefix Notation
 ```nano
 (and condition1 condition2)
 (or condition1 condition2)
 (not condition)
+```
+
+### ✅ Infix Notation
+```nano
+condition1 and condition2
+condition1 or condition2
+not condition
 ```
 
 ### ❌ Never Use
@@ -231,13 +264,17 @@ condition1 || condition2  # C-style - DOES NOT EXIST
 !condition                # C-style - DOES NOT EXIST
 ```
 
-**Rule:** All boolean logic uses prefix notation.
+Unary `not` works without parentheses: `not flag`
+
+**Rule:** Both prefix `(and a b)` and infix `a and b` are valid. C-style `&&`, `||`, `!` do not exist.
 
 ---
 
 ## Comparisons
 
-### ✅ Canonical: Prefix Comparisons
+NanoLang supports **both prefix and infix** notation for comparison operators.
+
+### ✅ Prefix Notation
 ```nano
 (== a b)
 (!= a b)
@@ -247,13 +284,17 @@ condition1 || condition2  # C-style - DOES NOT EXIST
 (>= a b)
 ```
 
-### ❌ Never Use
-```
-a == b  # Infix - DOES NOT EXIST
-a < b   # Infix - DOES NOT EXIST
+### ✅ Infix Notation
+```nano
+a == b
+a != b
+a < b
+a > b
+a <= b
+a >= b
 ```
 
-**Rule:** All comparisons use prefix notation.
+**Rule:** Both prefix `(== a b)` and infix `a == b` are valid. Same equal-precedence, left-to-right evaluation applies as with arithmetic operators.
 
 ---
 
@@ -269,7 +310,7 @@ set counter (+ counter 1)           # Mutation
 ### ❌ Never Use
 ```
 var name = value        # JavaScript-style - DOES NOT EXIST
-counter = counter + 1   # Assignment syntax - DOES NOT EXIST
+counter = counter + 1   # Assignment with = - DOES NOT EXIST (use set)
 counter += 1            # Compound assignment - DOES NOT EXIST
 ```
 
@@ -419,16 +460,23 @@ use module::function;           # Rust-style - DOES NOT EXIST
 
 1. **Function calls:** `(f x y)` - prefix notation only
 2. **Expressions:** `(cond ((test) result) (else default))`
-3. **Strings:** `(+ "a" "b")` - preferred over `str_concat` for consistency
-4. **Math:** `(+ a b)` - prefix notation only
-5. **Logic:** `(and a b)` - prefix notation only
-6. **Variables:** `let name: type = value` and `set name value`
-7. **Arrays:** `(array_get arr i)` - function calls only
-8. **Types:** Always explicit, never infer
-9. **Shadow tests:** MANDATORY for every function (except `extern`)
+3. **Strings:** `(+ "a" "b")` or `"a" + "b"` - preferred over `str_concat`
+4. **Math:** `(+ a b)` or `a + b` - both prefix and infix are valid
+5. **Logic:** `(and a b)` or `a and b` - both prefix and infix are valid
+6. **Comparisons:** `(== a b)` or `a == b` - both prefix and infix are valid
+7. **Variables:** `let name: type = value` and `set name value`
+8. **Arrays:** `(array_get arr i)` - function calls only
+9. **Types:** Always explicit, never infer
+10. **Shadow tests:** MANDATORY for every function (except `extern`)
+
+**Infix operator notes:**
+- All infix operators have equal precedence, evaluated left-to-right
+- Use parentheses to group: `a * (b + c)`
+- Unary `not` and `-` work without parens: `not flag`, `-x`
 
 **Never use:**
-- C-style syntax: `a + b`, `arr[i]`, `f(x, y)`
+- C-style function calls: `arr[i]`, `f(x, y)`
+- C-style boolean operators: `&&`, `||`, `!`
 - Property access: `obj.prop` (except structs)
 - Method calls: `obj.method()`
 - Type inference: `let x = 5` (prefer `let x: int = 5`)
@@ -457,5 +505,5 @@ use module::function;           # Rust-style - DOES NOT EXIST
 
 **For LLMs:** Eliminates guessing. Every operation has ONE correct form. Model reliability improves dramatically.
 
-**Principle:** When there's only one way to do it, LLMs can't get it wrong.
+**Principle:** When forms are well-defined and documented, LLMs produce correct code reliably.
 

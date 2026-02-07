@@ -8,7 +8,7 @@ Nanolang is a minimal, LLM-friendly programming language that:
 - Compiles to native code via C
 - Has an interpreter for rapid development
 - Features mandatory testing (shadow tests)
-- Uses unambiguous prefix notation
+- Supports both prefix `(+ a b)` and infix `a + b` notation for operators
 - Supports modern features (generics, pattern matching, FFI)
 
 ## Installation
@@ -79,25 +79,31 @@ Same output, but now it's a native executable!
 
 ## Understanding the Syntax
 
-### Prefix Notation
+### Prefix and Infix Notation
 
-Nanolang uses prefix notation (like Lisp):
+Nanolang supports both prefix notation (like Lisp) and infix notation for operators:
 
 ```nano
-// Arithmetic
+// Prefix notation (original style)
 (+ 2 3)          // 5
 (* (+ 1 2) 4)    // 12
 
-// Comparison
-(< 5 10)         // true
-(== x y)         // equality check
+// Infix notation (also valid!)
+2 + 3             // 5
+(1 + 2) * 4      // 12
 
-// Function calls
+// Comparison (both styles work)
+(< 5 10)         // true
+5 < 10           // true
+(== x y)         // equality check
+x == y           // equality check
+
+// Function calls always use prefix
 (println "Hello")
 (string_concat "Hello" " World")
 ```
 
-**Why prefix?** It's unambiguous for both humans and LLMs. No operator precedence rules to remember!
+**Note:** All infix operators have equal precedence and are evaluated left-to-right. Use parentheses to group: `a * (b + c)`. Unary `not` and `-` work without parens: `not flag`, `-x`.
 
 ### Type System
 
@@ -259,14 +265,15 @@ make test
 
 ## Common Pitfalls
 
-❌ **Wrong: Using infix notation**
+❌ **Wrong: Missing type annotation**
 ```nano
-let x = 2 + 3  // ERROR: Not valid syntax
+let x = 2 + 3  // ERROR: Missing type annotation
 ```
 
-✅ **Correct: Use prefix notation**
+✅ **Correct: Both prefix and infix work with type annotations**
 ```nano
-let x: int = (+ 2 3)
+let x: int = (+ 2 3)   // prefix notation
+let y: int = 2 + 3     // infix notation (also valid!)
 ```
 
 ---

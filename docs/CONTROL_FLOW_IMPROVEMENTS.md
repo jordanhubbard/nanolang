@@ -96,7 +96,7 @@ fn classify_with_guards(n: int) -> int {
 
 ### Option A: `cond` Expression (Lisp-Inspired)
 
-**Syntax** (prefix notation, fitting NanoLang style):
+**Syntax** (prefix notation, fitting NanoLang style; note that operators also support infix):
 
 ```nano
 fn classify_cond(n: int) -> int {
@@ -117,7 +117,7 @@ fn classify_cond(n: int) -> int {
 - No need for explicit `return` in each branch
 
 **Pros**:
-- ✅ Pure prefix notation (fits NanoLang perfectly)
+- ✅ Clean notation (fits NanoLang's style; operators also support infix)
 - ✅ Flat structure (no nesting)
 - ✅ Familiar to Lisp/Scheme developers
 - ✅ Can be used as an expression (returns a value)
@@ -171,7 +171,7 @@ fn classify_when(n: int) -> int {
 
 **Pros**:
 - ✅ Simpler than `cond` (just syntactic sugar for `if`)
-- ✅ Prefix notation
+- ✅ Prefix notation (operators also support infix)
 - ✅ Can be used with guard clauses pattern
 - ✅ Smaller implementation (transform to existing `if`)
 
@@ -237,7 +237,7 @@ fn classify_switch(n: int) -> int {
 - Similar to `cond` but with explicit value binding
 
 **Pros**:
-- ✅ Prefix notation
+- ✅ Prefix notation (operators also support infix)
 - ✅ Explicit value binding (clearer than `cond`)
 - ✅ Familiar to C/Java developers
 
@@ -252,10 +252,9 @@ fn classify_switch(n: int) -> int {
 
 ### Why `cond`?
 
-1. **Best Fit for Prefix Notation**
-   - Pure S-expression syntax
-   - No mixing of infix/prefix styles
-   - Consistent with NanoLang's philosophy
+1. **Best Fit for NanoLang's Style**
+   - Clean S-expression syntax for multi-branch conditionals
+   - Consistent with NanoLang's philosophy (function calls use prefix; operators support both prefix and infix)
 
 2. **Proven Design**
    - Used in Lisp/Scheme for decades
@@ -457,7 +456,7 @@ fn classify(n: int) -> string {
 
 | Principle | `cond` | Guard Clauses | Helper Functions |
 |-----------|--------|---------------|------------------|
-| **Prefix notation** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Prefix/infix notation** | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Explicit types** | ✅ Yes | ✅ Yes | ✅ Yes |
 | **No implicit behavior** | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Simple grammar** | ⚠️ New syntax | ✅ Existing | ✅ Existing |

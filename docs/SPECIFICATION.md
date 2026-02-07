@@ -29,7 +29,7 @@
 
 nanolang is a minimal, statically-typed programming language designed for clarity and LLM-friendliness. Its design prioritizes:
 
-- **Unambiguity**: One syntax for each semantic concept
+- **Unambiguity**: Clear, unambiguous syntax for each semantic concept
 - **Explicitness**: No implicit conversions or hidden behavior
 - **Testability**: Mandatory shadow-tests for all functions
 - **Simplicity**: Minimal feature set with clear semantics
@@ -98,7 +98,11 @@ false
 
 ```
 (  )  {  }  ,  :  =  ->
++  -  *  /  %  ==  !=  <  <=  >  >=
+and  or  not
 ```
+
+Operators can be used in both prefix notation (`(+ a b)`) and infix notation (`a + b`). See Section 4.3 for details.
 
 ### 2.6 Whitespace
 
@@ -388,16 +392,45 @@ let x: int = 42
 let y: int = x  # y = 42
 ```
 
-### 4.3 Prefix Operations
+### 4.3 Operations (Prefix and Infix)
 
-All operations use prefix notation (S-expressions) to eliminate ambiguity:
+nanolang supports **both** prefix notation (S-expressions) and infix notation for binary operators.
+
+**Prefix notation** uses parenthesized S-expressions:
 
 ```nano
-(+ 2 3)              # Addition: 2 + 3 = 5
-(* (+ 2 3) 4)        # Multiplication: (2 + 3) * 4 = 20
-(== x 5)             # Comparison: x == 5
-(and (> x 0) (< x 10))  # Logical: x > 0 && x < 10
+(+ 2 3)              # Addition: 5
+(* (+ 2 3) 4)        # Multiplication: 20
+(== x 5)             # Comparison
+(and (> x 0) (< x 10))  # Logical AND
 ```
+
+**Infix notation** uses conventional operator placement:
+
+```nano
+2 + 3                # Addition: 5
+(2 + 3) * 4          # Multiplication: 20
+x == 5               # Comparison
+x > 0 and x < 10    # Logical AND
+```
+
+**Infix operators**: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+
+**Precedence**: All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS/BODMAS rules). Use parentheses to control grouping:
+
+```nano
+a * (b + c)          # Parentheses required to add before multiplying
+a + b * c            # Evaluates as (a + b) * c, NOT a + (b * c)
+```
+
+**Unary operators**: `not` and unary `-` work without parentheses:
+
+```nano
+not flag             # Logical negation
+-x                   # Numeric negation
+```
+
+Both notations can be freely mixed. Prefix notation remains fully supported for backward compatibility.
 
 ### 4.4 Arithmetic Operations
 
@@ -432,12 +465,13 @@ All comparison operations return `bool`:
 
 ### 4.7 Function Calls
 
-Functions are called using prefix notation:
+Functions are called using prefix notation (unlike operators, function calls always use prefix form):
 
 ```nano
 (add 2 3)
 (multiply (add 1 2) 4)
 (is_prime 17)
+(println "hello")
 ```
 
 ### 4.8 If Expressions
@@ -454,12 +488,25 @@ let x: int = if (> a 0) {
 
 Both branches must return the same type. Both branches are required (no optional `else`).
 
+**`else if` chaining** is supported for multi-way conditionals:
+
+```nano
+if x > 10 {
+    (println "big")
+} else if x > 5 {
+    (println "medium")
+} else {
+    (println "small")
+}
+```
+
 ### 4.9 Evaluation Order
 
-Expressions are evaluated left-to-right within each prefix operation:
+Expressions are evaluated left-to-right, in both prefix and infix forms:
 
 ```nano
 (+ (f x) (g y))  # f(x) is evaluated before g(y)
+(f x) + (g y)    # Same: f(x) is evaluated before g(y)
 ```
 
 ## 5. Statements
@@ -924,21 +971,29 @@ shadow main {
 
 ## 11. Design Rationale
 
-### 11.1 Why Prefix Notation?
+### 11.1 Why Both Prefix and Infix Notation?
 
-Traditional infix notation requires memorizing operator precedence:
+nanolang supports both prefix (S-expression) and infix notation for operators.
 
-```
-a + b * c    # Is this (a + b) * c or a + (b * c)?
-```
-
-Prefix notation makes nesting explicit:
+**Prefix notation** makes nesting explicit and eliminates all precedence ambiguity:
 
 ```nano
-(+ a (* b c))  # Unambiguous
+(+ a (* b c))  # Unambiguous: multiply first, then add
 ```
 
 This is especially valuable for LLMs, which may not consistently apply precedence rules.
+
+**Infix notation** provides familiarity for developers accustomed to conventional syntax:
+
+```nano
+a + b * c      # Familiar, but note: equal precedence, left-to-right
+```
+
+To avoid the pitfalls of traditional precedence rules, all infix operators in nanolang share **equal precedence** and evaluate strictly **left-to-right**. This means `a + b * c` evaluates as `(a + b) * c`, not `a + (b * c)`. Parentheses must be used to override this: `a + (b * c)`.
+
+**Function calls remain prefix-only** (`(println "hello")`), keeping the distinction between operators and function application clear.
+
+This dual approach gives users a choice: prefix for unambiguous nesting, infix for readability in simple expressions.
 
 ### 11.2 Why Mandatory Shadow-Tests?
 

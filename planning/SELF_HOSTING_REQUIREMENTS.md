@@ -17,7 +17,7 @@ This document outlines the additional features nanolang needs to implement itsel
 - Functions with parameters and return types
 - Control flow (if/else, while, for)
 - Variables (immutable by default, mutable with `mut`)
-- Prefix notation (eliminates precedence issues)
+- Both prefix `(+ a b)` and infix `a + b` notation for operators (infix operators have equal precedence, left-to-right)
 - Shadow tests (mandatory testing)
 
 **Standard Library (24 functions):**

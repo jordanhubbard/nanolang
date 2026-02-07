@@ -86,7 +86,7 @@ For contributors and language designers:
     - Maintainer-facing design docs live in [planning/](../planning/)
 
 11. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
-    - Why prefix notation?
+    - Why prefix notation for function calls? Why dual notation for operators?
     - LLM-friendly design
     - Comparison to other languages
     - Design trade-offs

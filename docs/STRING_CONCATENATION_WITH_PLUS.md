@@ -323,7 +323,7 @@ fn main() -> int {
 
 ### Why This Fits NanoLang
 
-1. **Prefix Notation**: `(+ "a" "b")` maintains prefix style
+1. **Dual Notation**: `(+ "a" "b")` prefix or `"a" + "b"` infix -- both work
 2. **Type Safety**: Compile-time type checking prevents errors
 3. **Explicit Types**: All operands must be the same type
 4. **No Magic**: Clear semantics (same as numeric `+`)

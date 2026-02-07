@@ -9,7 +9,7 @@ Comprehensive step-by-step guides to master nanolang from beginner to advanced.
 **[1. Getting Started](01-getting-started.md)** ⏱️ 30 mins
 - Installation and setup
 - Your first program
-- Understanding prefix notation
+- Understanding prefix and infix notation
 - Basic syntax and types
 - Shadow tests introduction
 
@@ -83,7 +83,7 @@ cd examples && ls *.nano
 ```
 
 Key differences from other languages:
-- **Prefix notation**: `(+ 1 2)` not `1 + 2`
+- **Dual notation**: Both `(+ 1 2)` and `1 + 2` work for operators; function calls use prefix `(println x)`
 - **Mandatory testing**: Shadow tests required
 - **Explicit types**: Return types always specified
 - **Immutable by default**: Use `mut` for mutation

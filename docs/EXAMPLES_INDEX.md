@@ -12,7 +12,7 @@
 ### 🌱 Beginner Path (Start Here!)
 Follow this sequence to learn NanoLang basics:
 1. `nl_hello.nano` - Hello World, basic syntax
-2. `nl_calculator.nano` - Functions and prefix notation
+2. `nl_calculator.nano` - Functions and prefix/infix notation
 3. `nl_operators.nano` - Arithmetic operators
 4. `nl_comparisons.nano` - Comparison operators
 5. `nl_types.nano` - Type system basics

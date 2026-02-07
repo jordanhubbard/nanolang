@@ -213,23 +213,23 @@ error: syntax error: unbalanced parentheses
 let result: int = (+ 1 2)  # Add closing paren
 ```
 
-### Invalid Prefix Expression
+### Unbalanced Grouping in Infix Expressions
 
 **Error:**
 ```
-error: syntax error: expected prefix expression
-  --> code.nano:1:19
+error: syntax error: unbalanced parentheses
+  --> code.nano:1:30
    |
- 1 | let sum: int = 1 + 2
-   |                    ^ unexpected `+` in expression context
-   |
-   = help: NanoLang uses prefix notation: (+ 1 2) instead of 1 + 2
+ 1 | let sum: int = a * (b + c
+   |                              ^ expected `)`
 ```
 
 **Fix:**
 ```nano
-let sum: int = (+ 1 2)  # Prefix notation
+let sum: int = a * (b + c)  # Close the grouping parentheses
 ```
+
+**Note:** NanoLang supports both prefix `(+ 1 2)` and infix `1 + 2` notation. All infix operators have equal precedence and evaluate left-to-right, so use parentheses to control grouping: `a * (b + c)`.
 
 ---
 
@@ -523,16 +523,21 @@ error: circular import detected
 
 ## Common Mistakes
 
-### Mistake: Infix Notation
+### Note: Both Notations Work
 
-❌ **Wrong:**
+Both prefix and infix are valid:
 ```nano
-let x: int = 5 + 3
+let x: int = (+ 5 3)   # Prefix notation
+let x: int = 5 + 3     # Infix notation (also valid!)
 ```
 
-✅ **Correct:**
+**Watch out for precedence!** All infix operators have equal precedence (left-to-right, no PEMDAS):
 ```nano
-let x: int = (+ 5 3)
+# This evaluates as (5 + 3) * 2, NOT 5 + (3 * 2)
+let x: int = 5 + 3 * 2     # Result: 16
+
+# Use parentheses to get the grouping you want:
+let x: int = 5 + (3 * 2)   # Result: 11
 ```
 
 ### Mistake: Missing Parentheses in Function Call

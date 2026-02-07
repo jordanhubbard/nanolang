@@ -33,20 +33,35 @@ See [Automatic Memory Management Guide](../userguide/03_basic_types.md#automatic
 
 ---
 
-### ✅ Prefix Notation (S-Expressions)
+### ✅ Dual Notation: Prefix and Infix
 
-All operations use prefix notation for unambiguous parsing:
+Operators support both prefix (S-expression) and infix notation:
 
 ```nano
-(+ a b)           # Addition
-(* (+ 2 3) 4)     # (2 + 3) * 4
-(and (> x 0) (< x 10))  # x > 0 && x < 10
+# Prefix notation (S-expression style):
+(+ a b)                      # Addition
+(* (+ 2 3) 4)                # (2 + 3) * 4
+(and (> x 0) (< x 10))      # x > 0 && x < 10
+
+# Infix notation (conventional style):
+a + b                        # Addition
+(2 + 3) * 4                  # Use parens to group
+x > 0 and x < 10            # Logical operators too
 ```
 
+**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+
+**Infix rules:**
+- All infix operators have **equal precedence**, evaluated **left-to-right** (no PEMDAS)
+- Use parentheses to control grouping: `a * (b + c)`
+- Unary `not` and `-` work without parens: `not flag`, `-x`
+- Function calls remain prefix: `(println "hello")`
+
 **Benefits:**
-- No operator precedence ambiguity
+- Choose the clearest notation for each situation
+- Prefix style eliminates all ambiguity
+- Infix style reads naturally for simple expressions
 - LLM-friendly syntax
-- Consistent function call syntax
 
 ---
 

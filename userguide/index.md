@@ -51,15 +51,17 @@ fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
-# All operations use prefix notation
-(+ a b)           # Addition
-(== x 5)          # Comparison
-(println "Hi")    # Function call
+# Operators work in prefix or infix notation
+(+ a b)           # Prefix: addition
+a + b             # Infix: addition (same result)
+(== x 5)          # Prefix: comparison
+x == 5            # Infix: comparison (same result)
+(println "Hi")    # Function calls are always prefix
 ```
 
 **Benefits for LLM code generation:**
 - ✅ **Consistent output** - Same prompt always produces same style
-- ✅ **Predictable structure** - Prefix notation is unambiguous
+- ✅ **Predictable structure** - Consistent notation with no precedence surprises
 - ✅ **Easy to validate** - Only one correct form
 - ✅ **Better training** - Less noise in training data
 - ✅ **Composable** - Uniform syntax makes code generation reliable
@@ -72,7 +74,7 @@ NanoLang is a compiled systems programming language designed specifically for LL
 - **Automatic Memory Management (ARC):** Zero-overhead reference counting, no manual free() calls ⭐ NEW in v2.3.0
 - **LLM-Powered Autonomous Optimization:** Continuous profiling and automatic code optimization ⭐ NEW in v2.3.0
 - **LLM-First Design:** Exactly ONE canonical way to write each construct
-- **Prefix Notation:** All operations use `(f x y)` form
+- **Dual Notation:** Operators support both prefix `(+ a b)` and infix `a + b`; function calls use `(f x y)`
 - **Explicit Types:** Always annotate types, minimal inference
 - **Shadow Tests:** Every function has compile-time tests (mandatory)
 - **C Interop:** Full FFI for calling C libraries
@@ -139,7 +141,7 @@ Quick references, troubleshooting, and comprehensive examples.
 
 **Absolute Beginners:** Start with Part I and work through sequentially.
 
-**Experienced Programmers:** Skim Chapters 1-5, focus on NanoLang-specific features (shadow tests, prefix notation, modules).
+**Experienced Programmers:** Skim Chapters 1-5, focus on NanoLang-specific features (shadow tests, operator notation, modules).
 
 **Looking for Specific Features:** Use the Quick Reference (Appendix B) or search functionality.
 

@@ -21,13 +21,18 @@ NanoLang is a **Lisp-inspired, statically-typed systems programming language** w
 
 ## 1. Syntax & Semantics Design
 
-### 1.1 Prefix Notation (S-Expression Style)
+### 1.1 Notation (S-Expression Style with Infix Support)
 
-**Decision**: Uniform prefix notation for all operations
+**Decision**: Prefix notation for function calls; both prefix and infix for binary operators
 ```nano
+# Prefix notation (original style)
 (+ a b)
 (* (+ x 1) (- y 2))
 (println "hello")
+
+# Infix notation (also supported for operators)
+a + b
+(x + 1) * (y - 2)
 ```
 
 **Analysis**:
@@ -38,13 +43,11 @@ NanoLang is a **Lisp-inspired, statically-typed systems programming language** w
   - Zero ambiguity in AST construction
   
 - ⚠️ **Cons**:
-  - Higher cognitive load for C/Java/Python developers
-  - More verbose for complex arithmetic
-  - May limit mainstream adoption
-  
-- 🎯 **Verdict**: **EXCELLENT for a teaching/research language**. The consistency benefits outweigh familiarity costs. Similar to Lisp, Scheme, Clojure - proven approach.
+  - All infix operators have equal precedence (left-to-right, no PEMDAS); use parentheses to group: `a * (b + c)`
 
-**Recommendation**: Keep as-is. Consider optional infix sugar in future tooling (like Racket's `#lang` variations).
+- 🎯 **Verdict**: **EXCELLENT**. Dual notation provides the consistency of prefix for function calls while allowing familiar infix for operators. The equal-precedence rule avoids operator precedence confusion.
+
+**Note**: Infix operators supported: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`. Unary `not` and `-` also work. Function calls remain prefix: `(println "hello")`.
 
 ---
 
@@ -446,7 +449,7 @@ let content = (await (fetch "https://example.com"))
 - ✅ Compiles to native code (fast)
 - ⚠️ GC overhead (pause times)
 - ⚠️ No inline optimization hints
-- ⚠️ Prefix notation may inhibit loop optimizations
+- ⚠️ Equal-precedence infix operators require explicit grouping for complex arithmetic
 
 **Recommendation**: Add performance annotations:
 ```nano
@@ -601,7 +604,7 @@ Based on observed patterns:
 
 1. **Simplicity over expressiveness** (no type inference, explicit syntax)
 2. **Safety over performance** (GC, immutability-default)
-3. **Consistency over familiarity** (prefix notation everywhere)
+3. **Consistency over familiarity** (prefix for function calls, prefix or infix for operators)
 4. **Quality enforcement** (mandatory shadow tests)
 5. **C interop** (FFI as first-class citizen)
 
@@ -612,7 +615,7 @@ This philosophy is **coherent and well-executed**.
 ### B. References & Inspirations
 
 NanoLang draws from:
-- **Lisp/Scheme**: Prefix notation, S-expressions
+- **Lisp/Scheme**: Prefix notation, S-expressions (NanoLang extends with infix operator support)
 - **Rust**: Mutability model, systems focus
 - **Go**: Simplicity, GC in systems language
 - **C**: Direct FFI, manual control where needed

@@ -310,7 +310,7 @@ Before submitting API documentation, verify:
 
 - [ ] Function signature is correct and compilable
 - [ ] All examples have shadow tests
-- [ ] All examples use canonical syntax (prefix notation only)
+- [ ] All examples use canonical syntax (prefix notation for function calls; prefix or infix for operators)
 - [ ] Parameters have contextual descriptions (not just types)
 - [ ] At least 2 examples provided (minimal + practical)
 - [ ] "See Also" section includes related functions
