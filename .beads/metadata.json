@@ -1,4 +1,5 @@
 {
-  "database": "beads.db",
-  "jsonl_export": "issues.jsonl"
+  "database": "dolt",
+  "jsonl_export": "issues.jsonl",
+  "backend": "dolt"
 }
