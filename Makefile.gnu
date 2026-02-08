@@ -256,9 +256,32 @@ all: build
 # - test-bootstrap: Forces full bootstrap + nanoc_stage2
 # ============================================================================
 
+# ============================================================================
+# NanoISA - Virtual Machine ISA, Assembler, and Disassembler
+# ============================================================================
+
+NANOISA_DIR = $(SRC_DIR)/nanoisa
+NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c \
+	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c
+NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES))
+
+$(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
+
+$(OBJ_DIR)/nanoisa:
+	mkdir -p $(OBJ_DIR)/nanoisa
+
+.PHONY: test-nanoisa
+test-nanoisa: $(NANOISA_OBJECTS)
+	@echo "Running NanoISA tests..."
+	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nanoisa \
+		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanoisa/test_nanoisa
+	@rm -f tests/nanoisa/test_nanoisa
+
 # Unit tests for C components
 .PHONY: test-units
-test-units:
+test-units: test-nanoisa
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1273,7 +1296,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs test-nanoisa examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
