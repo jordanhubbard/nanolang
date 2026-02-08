@@ -53,6 +53,12 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
                    | e0 :: rest => subst x s e0 :: subst_list rest
                    end) es)
   | EIndex e1 e2 => EIndex (subst x s e1) (subst x s e2)
+  | ERecord fes => ERecord ((fix subst_fields (l : list (string * expr)) : list (string * expr) :=
+                     match l with
+                     | [] => []
+                     | (f, e0) :: rest => (f, subst x s e0) :: subst_fields rest
+                     end) fes)
+  | EField e1 f => EField (subst x s e1) f
   end.
 
 (** ** Value predicate on expressions *)
@@ -63,7 +69,8 @@ Inductive is_value : expr -> Prop :=
   | V_String : forall s, is_value (EString s)
   | V_Unit   : is_value EUnit
   | V_Lam    : forall x t body, is_value (ELam x t body)
-  | V_Array  : forall es, Forall is_value es -> is_value (EArray es).
+  | V_Array  : forall es, Forall is_value es -> is_value (EArray es)
+  | V_Record : forall fes, Forall (fun fe => is_value (snd fe)) fes -> is_value (ERecord fes).
 
 (** ** Total binary operation on expression values
 
@@ -215,7 +222,28 @@ Inductive step : expr -> expr -> Prop :=
   (* Array length *)
   | S_ArrayLen : forall es,
       Forall is_value es ->
-      step (EUnOp OpArrayLen (EArray es)) (EInt (Z.of_nat (length es))).
+      step (EUnOp OpArrayLen (EArray es)) (EInt (Z.of_nat (length es)))
+  (* Record: evaluate head field *)
+  | S_RecordHead : forall f e e' fes,
+      step e e' ->
+      step (ERecord ((f, e) :: fes)) (ERecord ((f, e') :: fes))
+  (* Record: head field is value, step tail *)
+  | S_RecordTail : forall f v fes fes',
+      is_value v ->
+      step (ERecord fes) (ERecord fes') ->
+      step (ERecord ((f, v) :: fes)) (ERecord ((f, v) :: fes'))
+  (* Field: evaluate record expression *)
+  | S_Field1 : forall e e' f,
+      step e e' ->
+      step (EField e f) (EField e' f)
+  (* Field: extract from record value *)
+  | S_FieldVal : forall fes f,
+      Forall (fun fe => is_value (snd fe)) fes ->
+      step (EField (ERecord fes) f)
+           (match assoc_lookup f fes with
+            | Some v => v
+            | None => EUnit
+            end).
 
 (** ** Canonical forms for expressions *)
 
@@ -253,6 +281,14 @@ Lemma canonical_forms_arrow : forall e t1 t2,
 Proof.
   intros e t1 t2 Ht Hv. inversion Hv; subst; inversion Ht; subst.
   - exists x, body. reflexivity.
+Qed.
+
+Lemma canonical_forms_record : forall e fts,
+  has_type CtxNil e (TRecord fts) -> is_value e ->
+  exists fes, e = ERecord fes /\ Forall (fun fe => is_value (snd fe)) fes.
+Proof.
+  intros e fts Ht Hv. inversion Hv; subst; try solve [inversion Ht].
+  exists fes. split; [reflexivity | assumption].
 Qed.
 
 Lemma canonical_forms_array : forall e t,
@@ -309,6 +345,15 @@ Lemma step_array_form : forall es e',
   step (EArray es) e' -> exists es', e' = EArray es'.
 Proof.
   intros es e' Hstep.
+  inversion Hstep; subst; eexists; reflexivity.
+Qed.
+
+(** ** Record step form: stepping a record produces a record *)
+
+Lemma step_record_form : forall fes e',
+  step (ERecord fes) e' -> exists fes', e' = ERecord fes'.
+Proof.
+  intros fes e' Hstep.
   inversion Hstep; subst; eexists; reflexivity.
 Qed.
 
@@ -501,4 +546,31 @@ Proof.
     + apply canonical_forms_array in Htype as [es [? HF]]; [| assumption]; subst.
       exists (EInt (Z.of_nat (length es))). apply S_ArrayLen. assumption.
     + exists (EUnOp OpArrayLen e'). apply S_UnOp1. assumption.
+
+  - (* T_RecordNil *)
+    left. constructor. constructor.
+
+  - (* T_RecordCons *)
+    destruct IHHtype1 as [Hv1 | [e' Hs1]]; [reflexivity | |].
+    + (* e is a value *)
+      destruct IHHtype2 as [Hv2 | [e'' Hs2]]; [reflexivity | |].
+      * (* ERecord es is also a value *)
+        left. inversion Hv2; subst.
+        constructor. constructor; [simpl; assumption | assumption].
+      * (* ERecord es steps *)
+        right.
+        destruct (step_record_form _ _ Hs2) as [fes' Heq]; subst.
+        exists (ERecord ((f, e) :: fes')). apply S_RecordTail; assumption.
+    + (* e steps *)
+      right. exists (ERecord ((f, e') :: es)). apply S_RecordHead. assumption.
+
+  - (* T_Field *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + (* e is a value *)
+      apply canonical_forms_record in Htype as [fes [? HF]]; [| assumption]; subst.
+      exists (match assoc_lookup f fes with Some v => v | None => EUnit end).
+      apply S_FieldVal. assumption.
+    + (* e steps *)
+      exists (EField e' f). apply S_Field1. assumption.
 Qed.

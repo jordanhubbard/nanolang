@@ -11,6 +11,7 @@
     - Sequential composition and while loops
     - Lambda abstractions and function application
     - Array literals, indexing, and length
+    - Record (struct) literals and field access
 *)
 
 From Stdlib Require Import ZArith.
@@ -27,7 +28,8 @@ Inductive ty : Type :=
   | TString : ty                    (* string *)
   | TUnit   : ty                    (* unit *)
   | TArrow  : ty -> ty -> ty        (* function type: T1 -> T2 *)
-  | TArray  : ty -> ty.             (* array type: array<T> *)
+  | TArray  : ty -> ty              (* array type: array<T> *)
+  | TRecord : list (string * ty) -> ty.  (* record type: {f1: T1, ..., fn: Tn} *)
 
 (** ** Binary operators *)
 
@@ -77,7 +79,9 @@ Inductive expr : Type :=
   | ELam    : string -> ty -> expr -> expr       (* fun (x : T) => body *)
   | EApp    : expr -> expr -> expr               (* function application *)
   | EArray  : list expr -> expr                  (* array literal: [e1, ..., en] *)
-  | EIndex  : expr -> expr -> expr.              (* array indexing: (at arr i) *)
+  | EIndex  : expr -> expr -> expr               (* array indexing: (at arr i) *)
+  | ERecord : list (string * expr) -> expr       (* record literal: {f1: e1, ..., fn: en} *)
+  | EField  : expr -> string -> expr.            (* field access: e.f *)
 
 (** ** Values
 
@@ -91,6 +95,7 @@ Inductive val : Type :=
   | VUnit   : val                                (* unit value *)
   | VClos   : string -> expr -> env -> val       (* closure: param, body, captured env *)
   | VArray  : list val -> val                    (* array value *)
+  | VRecord : list (string * val) -> val         (* record value *)
 
 (** ** Environments
 
@@ -124,11 +129,40 @@ Fixpoint env_update (x : string) (v : val) (e : env) : env :=
     else ECons y v' (env_update x v rest)
   end.
 
+(** ** Association list lookup (polymorphic) *)
+
+Fixpoint assoc_lookup {A : Type} (x : string) (l : list (string * A)) : option A :=
+  match l with
+  | [] => None
+  | (y, v) :: rest => if String.eqb x y then Some v else assoc_lookup x rest
+  end.
+
 (** ** Type equality decidability *)
 
 Lemma ty_eq_dec : forall (t1 t2 : ty), {t1 = t2} + {t1 <> t2}.
 Proof.
-  decide equality.
+  fix IH 1.
+  intros [| | | | ta tb | ta | fs1] [| | | | ta' tb' | ta' | fs2];
+    try (left; reflexivity); try (right; discriminate).
+  - (* TArrow *)
+    destruct (IH ta ta'); [| right; congruence].
+    destruct (IH tb tb'); [| right; congruence].
+    left; congruence.
+  - (* TArray *)
+    destruct (IH ta ta'); [| right; congruence].
+    left; congruence.
+  - (* TRecord *)
+    enough ({fs1 = fs2} + {fs1 <> fs2}) as [->|];
+      [left; reflexivity | right; congruence |].
+    revert fs2.
+    induction fs1 as [|[s1 t1] fs1' IHfs]; intros [|[s2 t2] fs2'].
+    + left; reflexivity.
+    + right; discriminate.
+    + right; discriminate.
+    + destruct (string_dec s1 s2); [subst | right; congruence].
+      destruct (IH t1 t2); [subst | right; congruence].
+      destruct (IHfs fs2'); [subst | right; congruence].
+      left; reflexivity.
 Defined.
 
 (** ** Decidable equality for binop *)

@@ -213,4 +213,20 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   (** Array length *)
   | T_ArrayLen : forall ctx e t,
       has_type ctx e (TArray t) ->
-      has_type ctx (EUnOp OpArrayLen e) TInt.
+      has_type ctx (EUnOp OpArrayLen e) TInt
+
+  (** Empty record literal *)
+  | T_RecordNil : forall ctx,
+      has_type ctx (ERecord []) (TRecord [])
+
+  (** Non-empty record literal *)
+  | T_RecordCons : forall ctx f e es t fts,
+      has_type ctx e t ->
+      has_type ctx (ERecord es) (TRecord fts) ->
+      has_type ctx (ERecord ((f, e) :: es)) (TRecord ((f, t) :: fts))
+
+  (** Record field access *)
+  | T_Field : forall ctx e f fts t,
+      has_type ctx e (TRecord fts) ->
+      assoc_lookup f fts = Some t ->
+      has_type ctx (EField e f) t.

@@ -271,4 +271,20 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
   (** Array length *)
   | E_ArrayLen : forall renv renv1 e vs,
       eval renv e renv1 (VArray vs) ->
-      eval renv (EUnOp OpArrayLen e) renv1 (VInt (Z.of_nat (length vs))).
+      eval renv (EUnOp OpArrayLen e) renv1 (VInt (Z.of_nat (length vs)))
+
+  (** Record literal: empty *)
+  | E_RecordNil : forall renv,
+      eval renv (ERecord []) renv (VRecord [])
+
+  (** Record literal: evaluate fields left-to-right *)
+  | E_RecordCons : forall renv renv1 renv2 f e es v vs,
+      eval renv e renv1 v ->
+      eval renv1 (ERecord es) renv2 (VRecord vs) ->
+      eval renv (ERecord ((f, e) :: es)) renv2 (VRecord ((f, v) :: vs))
+
+  (** Record field access *)
+  | E_Field : forall renv renv1 e f fvs v,
+      eval renv e renv1 (VRecord fvs) ->
+      assoc_lookup f fvs = Some v ->
+      eval renv (EField e f) renv1 v.

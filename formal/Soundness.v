@@ -35,6 +35,9 @@ Inductive val_has_type : val -> ty -> Prop :=
   | VT_Array : forall vs t,
       Forall (fun v => val_has_type v t) vs ->
       val_has_type (VArray vs) (TArray t)
+  | VT_Record : forall fvs fts,
+      Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts ->
+      val_has_type (VRecord fvs) (TRecord fts)
 
 (** Agreement between runtime environments and typing contexts *)
 
@@ -80,6 +83,12 @@ Lemma canonical_array : forall v t,
   val_has_type v (TArray t) -> exists vs, v = VArray vs.
 Proof.
   intros v t H. inversion H. exists vs. reflexivity.
+Qed.
+
+Lemma canonical_record : forall v fts,
+  val_has_type v (TRecord fts) -> exists fvs, v = VRecord fvs.
+Proof.
+  intros v fts H. inversion H. exists fvs. reflexivity.
 Qed.
 
 Lemma canonical_arrow : forall v t1 t2,
@@ -202,6 +211,47 @@ Proof.
   apply array_type_inv in Hvt.
   rewrite Forall_forall in Hvt.
   apply Hvt. eapply nth_error_In. exact Hnth.
+Qed.
+
+(** ** Inversion lemma for record typing *)
+
+Lemma record_type_inv : forall fvs fts,
+  val_has_type (VRecord fvs) (TRecord fts) ->
+  Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts.
+Proof.
+  intros. inversion H; subst. assumption.
+Qed.
+
+(** ** Record field lookup preserves types *)
+
+Lemma record_field_type : forall fvs fts f v,
+  Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts ->
+  assoc_lookup f fvs = Some v ->
+  exists t, assoc_lookup f fts = Some t /\ val_has_type v t.
+Proof.
+  intros fvs fts f v HF2 Hlookup.
+  induction HF2 as [| [f1 v1] [f2 t2] fvs' fts' [Hname Hvt] HF2' IH].
+  - simpl in Hlookup. discriminate.
+  - simpl in *. subst.
+    destruct (String.eqb f f2) eqn:Heq.
+    + inversion Hlookup; subst. exists t2. split; [reflexivity | assumption].
+    + apply IH. assumption.
+Qed.
+
+(** Record field lookup: type-directed version *)
+
+Lemma record_field_lookup : forall fvs fts f t,
+  Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts ->
+  assoc_lookup f fts = Some t ->
+  exists v, assoc_lookup f fvs = Some v /\ val_has_type v t.
+Proof.
+  intros fvs fts f t HF2 Hlookup.
+  induction HF2 as [| [f1 v1] [f2 t2] fvs' fts' [Hname Hvt] HF2' IH].
+  - simpl in Hlookup. discriminate.
+  - simpl in *. subst.
+    destruct (String.eqb f f2) eqn:Heq.
+    + inversion Hlookup; subst. exists v1. split; [reflexivity | assumption].
+    + apply IH. assumption.
 Qed.
 
 (** ** Tactic for impossible type cases
@@ -559,6 +609,33 @@ Proof.
     | [ He : has_type _ e (TArray _) |- _ ] =>
       destruct (IHHeval _ _ He Hagree) as [_ Hagree1];
       split; [constructor | assumption]
+    end.
+
+  - (* E_RecordNil *)
+    inversion Htype; subst.
+    split; [constructor; constructor | assumption].
+
+  - (* E_RecordCons *)
+    inversion Htype; subst.
+    match goal with
+    | [ He : has_type _ e ?t, Hes : has_type _ (ERecord es) (TRecord ?fts) |- _ ] =>
+      destruct (IHHeval1 _ _ He Hagree) as [Hvt1 Hagree1];
+      destruct (IHHeval2 _ _ Hes Hagree1) as [Hvt2 Hagree2];
+      apply record_type_inv in Hvt2;
+      split; [constructor; constructor; [simpl; split; [reflexivity | assumption] | assumption] | assumption]
+    end.
+
+  - (* E_Field *)
+    inversion Htype; subst.
+    destruct (IHHeval _ _ ltac:(eassumption) Hagree) as [Hvt1 Hagree1].
+    apply record_type_inv in Hvt1.
+    split; [| assumption].
+    match goal with
+    | [ Hval : assoc_lookup f fvs = Some v,
+        Htyp : assoc_lookup f ?fts = Some ty0 |- _ ] =>
+      destruct (record_field_type _ _ _ _ Hvt1 Hval) as [t' [Ht' Hvt']];
+      rewrite Htyp in Ht'; inversion Ht'; subst;
+      assumption
     end.
 Qed.
 

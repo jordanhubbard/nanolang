@@ -1,4 +1,4 @@
-# NanoCore: Formal Verification (Phase 3)
+# NanoCore: Formal Verification (Phase 4)
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
 formalized in the Rocq Prover (Coq).
@@ -63,7 +63,8 @@ Theorem eval_deterministic : forall renv e renv' v renv'' v',
 | Array literals (`[e1, ..., en]`) | Yes |
 | Array indexing (`at`) | Yes |
 | Array length (`array_length`) | Yes |
-| Structs | No (Phase 4+) |
+| Record (struct) literals | Yes |
+| Record field access (`.f`) | Yes |
 
 ## File structure
 
@@ -123,12 +124,22 @@ make
   / `S_ArrayTail` rules. Out-of-bounds indexing defaults to `unit`
   in small-step (total), while big-step uses `nth_error` (partial).
 - **Nested inductive handling**: `subst` uses a local fixpoint for
-  the `EArray (list expr)` case to satisfy the guard checker
+  the `EArray (list expr)` and `ERecord (list (string * expr))` cases
+  to satisfy the guard checker
+- **Structural record typing**: Records use structural typing
+  (`TRecord : list (string * ty) -> ty`) rather than nominal typing,
+  keeping the formalization simple without a separate struct environment
+- **Forall2-based record agreement**: `VT_Record` uses `Forall2` to
+  relate value fields to type fields, ensuring field names match and
+  values have the correct types
+- **Polymorphic assoc_lookup**: Used for both type-level and value-level
+  field lookup in records, with `ty_eq_dec` extended via `fix` to handle
+  the nested `TRecord(list (string * ty))` case
 
 ## Phases
 
 - **Phase 0:** Pure NanoCore (int, bool, unit, arithmetic, comparison, logic, if/let, lambda/app)
 - **Phase 1:** Mutation and while loops (set, seq, while, store-passing semantics)
 - **Phase 2:** Strings (string literals, concatenation, length, equality)
-- **Phase 3:** Arrays (array literals, indexing, length) -- current
-- **Phase 4:** Structs (future)
+- **Phase 3:** Arrays (array literals, indexing, length)
+- **Phase 4:** Records/structs (record literals, field access) -- current
