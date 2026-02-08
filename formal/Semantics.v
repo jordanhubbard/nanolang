@@ -16,6 +16,8 @@
 From Stdlib Require Import ZArith.
 From Stdlib Require Import Bool.
 From Stdlib Require Import String.
+From Stdlib Require Import List.
+Import ListNotations.
 From NanoCore Require Import Syntax.
 Open Scope Z_scope.
 
@@ -247,4 +249,26 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
       eval renv e1 renv1 (VClos x body clos_env) ->
       eval renv1 e2 renv2 v2 ->
       eval (ECons x v2 clos_env) body renv3 v ->
-      eval renv (EApp e1 e2) renv2 v.
+      eval renv (EApp e1 e2) renv2 v
+
+  (** Array literal: empty *)
+  | E_ArrayNil : forall renv,
+      eval renv (EArray []) renv (VArray [])
+
+  (** Array literal: evaluate elements left-to-right *)
+  | E_ArrayCons : forall renv renv1 renv2 e es v vs,
+      eval renv e renv1 v ->
+      eval renv1 (EArray es) renv2 (VArray vs) ->
+      eval renv (EArray (e :: es)) renv2 (VArray (v :: vs))
+
+  (** Array indexing: (at arr i) *)
+  | E_Index : forall renv renv1 renv2 e1 e2 vs n v,
+      eval renv e1 renv1 (VArray vs) ->
+      eval renv1 e2 renv2 (VInt n) ->
+      nth_error vs (Z.to_nat n) = Some v ->
+      eval renv (EIndex e1 e2) renv2 v
+
+  (** Array length *)
+  | E_ArrayLen : forall renv renv1 e vs,
+      eval renv e renv1 (VArray vs) ->
+      eval renv (EUnOp OpArrayLen e) renv1 (VInt (Z.of_nat (length vs))).

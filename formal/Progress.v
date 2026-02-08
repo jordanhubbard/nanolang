@@ -18,6 +18,8 @@
 From Stdlib Require Import ZArith.
 From Stdlib Require Import Bool.
 From Stdlib Require Import String.
+From Stdlib Require Import List.
+Import ListNotations.
 From NanoCore Require Import Syntax.
 From NanoCore Require Import Semantics.
 From NanoCore Require Import Typing.
@@ -45,6 +47,12 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
   | ELam y t body =>
       ELam y t (if String.eqb x y then body else subst x s body)
   | EApp e1 e2 => EApp (subst x s e1) (subst x s e2)
+  | EArray es => EArray ((fix subst_list (l : list expr) : list expr :=
+                   match l with
+                   | [] => []
+                   | e0 :: rest => subst x s e0 :: subst_list rest
+                   end) es)
+  | EIndex e1 e2 => EIndex (subst x s e1) (subst x s e2)
   end.
 
 (** ** Value predicate on expressions *)
@@ -54,7 +62,8 @@ Inductive is_value : expr -> Prop :=
   | V_Bool   : forall b, is_value (EBool b)
   | V_String : forall s, is_value (EString s)
   | V_Unit   : is_value EUnit
-  | V_Lam    : forall x t body, is_value (ELam x t body).
+  | V_Lam    : forall x t body, is_value (ELam x t body)
+  | V_Array  : forall es, Forall is_value es -> is_value (EArray es).
 
 (** ** Total binary operation on expression values
 
@@ -181,7 +190,32 @@ Inductive step : expr -> expr -> Prop :=
       step (EApp v1 e2) (EApp v1 e2')
   | S_AppBeta : forall x t body v,
       is_value v ->
-      step (EApp (ELam x t body) v) (subst x v body).
+      step (EApp (ELam x t body) v) (subst x v body)
+  (* Array: evaluate head element *)
+  | S_ArrayHead : forall e e' es,
+      step e e' ->
+      step (EArray (e :: es)) (EArray (e' :: es))
+  (* Array: head is value, step tail *)
+  | S_ArrayTail : forall v es es',
+      is_value v ->
+      step (EArray es) (EArray es') ->
+      step (EArray (v :: es)) (EArray (v :: es'))
+  (* Index: evaluate array expression *)
+  | S_Index1 : forall e1 e1' e2,
+      step e1 e1' ->
+      step (EIndex e1 e2) (EIndex e1' e2)
+  (* Index: evaluate index expression *)
+  | S_Index2 : forall v1 e2 e2',
+      is_value v1 -> step e2 e2' ->
+      step (EIndex v1 e2) (EIndex v1 e2')
+  (* Index: extract element (out-of-bounds defaults to unit) *)
+  | S_IndexVal : forall es n,
+      Forall is_value es ->
+      step (EIndex (EArray es) (EInt n)) (nth (Z.to_nat n) es EUnit)
+  (* Array length *)
+  | S_ArrayLen : forall es,
+      Forall is_value es ->
+      step (EUnOp OpArrayLen (EArray es)) (EInt (Z.of_nat (length es))).
 
 (** ** Canonical forms for expressions *)
 
@@ -219,6 +253,14 @@ Lemma canonical_forms_arrow : forall e t1 t2,
 Proof.
   intros e t1 t2 Ht Hv. inversion Hv; subst; inversion Ht; subst.
   - exists x, body. reflexivity.
+Qed.
+
+Lemma canonical_forms_array : forall e t,
+  has_type CtxNil e (TArray t) -> is_value e ->
+  exists es, e = EArray es /\ Forall is_value es.
+Proof.
+  intros e t Ht Hv. inversion Hv; subst; try solve [inversion Ht].
+  exists es. split; [reflexivity | assumption].
 Qed.
 
 (** ** Totality of apply_binop on well-typed inputs *)
@@ -259,6 +301,15 @@ Lemma apply_binop_string_eq_total : forall op s1 s2,
 Proof.
   intros op s1 s2 Hallow.
   destruct op; simpl in *; try discriminate; eexists; reflexivity.
+Qed.
+
+(** ** Array step form: stepping an array produces an array *)
+
+Lemma step_array_form : forall es e',
+  step (EArray es) e' -> exists es', e' = EArray es'.
+Proof.
+  intros es e' Hstep.
+  inversion Hstep; subst; eexists; reflexivity.
 Qed.
 
 (** ** Progress Theorem *)
@@ -413,4 +464,41 @@ Proof.
         exists (subst x e2 body). apply S_AppBeta. assumption.
       * exists (EApp e1 e2'). apply S_App2; assumption.
     + exists (EApp e1' e2). apply S_App1. assumption.
+
+  - (* T_ArrayNil *)
+    left. constructor. constructor.
+
+  - (* T_ArrayCons *)
+    destruct IHHtype1 as [Hv1 | [e' Hs1]]; [reflexivity | |].
+    + (* e is a value *)
+      destruct IHHtype2 as [Hv2 | [e'' Hs2]]; [reflexivity | |].
+      * (* EArray es is also a value *)
+        left. inversion Hv2; subst.
+        constructor. constructor; assumption.
+      * (* EArray es steps *)
+        right.
+        destruct (step_array_form _ _ Hs2) as [es' Heq]; subst.
+        exists (EArray (e :: es')). apply S_ArrayTail; assumption.
+    + (* e steps *)
+      right. exists (EArray (e' :: es)). apply S_ArrayHead. assumption.
+
+  - (* T_Index *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * (* both values *)
+        apply canonical_forms_array in Htype1 as [es [? HF]]; [| assumption]; subst.
+        apply canonical_forms_int in Htype2 as [n ?]; [| assumption]; subst.
+        exists (nth (Z.to_nat n) es EUnit). apply S_IndexVal. assumption.
+      * (* e2 steps *)
+        exists (EIndex e1 e2'). apply S_Index2; assumption.
+    + (* e1 steps *)
+      exists (EIndex e1' e2). apply S_Index1. assumption.
+
+  - (* T_ArrayLen *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + apply canonical_forms_array in Htype as [es [? HF]]; [| assumption]; subst.
+      exists (EInt (Z.of_nat (length es))). apply S_ArrayLen. assumption.
+    + exists (EUnOp OpArrayLen e'). apply S_UnOp1. assumption.
 Qed.

@@ -1,4 +1,4 @@
-# NanoCore: Formal Verification (Phase 2)
+# NanoCore: Formal Verification (Phase 3)
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
 formalized in the Rocq Prover (Coq).
@@ -50,7 +50,10 @@ Theorem progress : forall e t,
 | Sequential composition (`;`) | Yes |
 | While loops | Yes |
 | Lambda / application | Yes |
-| Arrays, structs | No (Phase 3+) |
+| Array literals (`[e1, ..., en]`) | Yes |
+| Array indexing (`at`) | Yes |
+| Array length (`array_length`) | Yes |
+| Structs | No (Phase 4+) |
 
 ## File structure
 
@@ -104,10 +107,17 @@ make
 - **Set as unit producer** in small-step: `set x v` steps to `unit`
   (store update is modeled in big-step; small-step progress only
   requires showing one step exists)
+- **Immutable array values** modeled as `list val` / `list expr`.
+  Left-to-right element evaluation in small-step via `S_ArrayHead`
+  / `S_ArrayTail` rules. Out-of-bounds indexing defaults to `unit`
+  in small-step (total), while big-step uses `nth_error` (partial).
+- **Nested inductive handling**: `subst` uses a local fixpoint for
+  the `EArray (list expr)` case to satisfy the guard checker
 
 ## Phases
 
 - **Phase 0:** Pure NanoCore (int, bool, unit, arithmetic, comparison, logic, if/let, lambda/app)
 - **Phase 1:** Mutation and while loops (set, seq, while, store-passing semantics)
-- **Phase 2:** Strings (string literals, concatenation, length, equality) -- current
-- **Phase 3:** Arrays, structs (future)
+- **Phase 2:** Strings (string literals, concatenation, length, equality)
+- **Phase 3:** Arrays (array literals, indexing, length) -- current
+- **Phase 4:** Structs (future)

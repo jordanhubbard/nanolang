@@ -10,10 +10,13 @@
     - Mutable variable assignment (set)
     - Sequential composition and while loops
     - Lambda abstractions and function application
+    - Array literals, indexing, and length
 *)
 
 From Stdlib Require Import ZArith.
 From Stdlib Require Import String.
+From Stdlib Require Import List.
+Import ListNotations.
 Open Scope string_scope.
 
 (** ** Types *)
@@ -23,7 +26,8 @@ Inductive ty : Type :=
   | TBool   : ty                    (* bool *)
   | TString : ty                    (* string *)
   | TUnit   : ty                    (* unit *)
-  | TArrow  : ty -> ty -> ty.       (* function type: T1 -> T2 *)
+  | TArrow  : ty -> ty -> ty        (* function type: T1 -> T2 *)
+  | TArray  : ty -> ty.             (* array type: array<T> *)
 
 (** ** Binary operators *)
 
@@ -52,7 +56,8 @@ Inductive binop : Type :=
 Inductive unop : Type :=
   | OpNeg    : unop     (* unary minus *)
   | OpNot    : unop     (* not *)
-  | OpStrLen : unop.    (* string length: str_length *)
+  | OpStrLen : unop     (* string length: str_length *)
+  | OpArrayLen : unop.  (* array length: array_length *)
 
 (** ** Expressions *)
 
@@ -70,7 +75,9 @@ Inductive expr : Type :=
   | ESeq    : expr -> expr -> expr               (* e1; e2 *)
   | EWhile  : expr -> expr -> expr               (* while cond do body *)
   | ELam    : string -> ty -> expr -> expr       (* fun (x : T) => body *)
-  | EApp    : expr -> expr -> expr.              (* function application *)
+  | EApp    : expr -> expr -> expr               (* function application *)
+  | EArray  : list expr -> expr                  (* array literal: [e1, ..., en] *)
+  | EIndex  : expr -> expr -> expr.              (* array indexing: (at arr i) *)
 
 (** ** Values
 
@@ -83,6 +90,7 @@ Inductive val : Type :=
   | VString : string -> val                      (* string value *)
   | VUnit   : val                                (* unit value *)
   | VClos   : string -> expr -> env -> val       (* closure: param, body, captured env *)
+  | VArray  : list val -> val                    (* array value *)
 
 (** ** Environments
 

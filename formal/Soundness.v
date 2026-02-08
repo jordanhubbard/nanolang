@@ -12,6 +12,8 @@
 From Stdlib Require Import ZArith.
 From Stdlib Require Import Bool.
 From Stdlib Require Import String.
+From Stdlib Require Import List.
+Import ListNotations.
 From NanoCore Require Import Syntax.
 From NanoCore Require Import Semantics.
 From NanoCore Require Import Typing.
@@ -30,6 +32,9 @@ Inductive val_has_type : val -> ty -> Prop :=
       env_ctx_agree clos_env c ->
       has_type (CtxCons x t1 c) body t2 ->
       val_has_type (VClos x body clos_env) (TArrow t1 t2)
+  | VT_Array : forall vs t,
+      Forall (fun v => val_has_type v t) vs ->
+      val_has_type (VArray vs) (TArray t)
 
 (** Agreement between runtime environments and typing contexts *)
 
@@ -69,6 +74,12 @@ Lemma canonical_unit : forall v,
   val_has_type v TUnit -> v = VUnit.
 Proof.
   intros v H. inversion H. reflexivity.
+Qed.
+
+Lemma canonical_array : forall v t,
+  val_has_type v (TArray t) -> exists vs, v = VArray vs.
+Proof.
+  intros v t H. inversion H. exists vs. reflexivity.
 Qed.
 
 Lemma canonical_arrow : forall v t1 t2,
@@ -159,6 +170,38 @@ Lemma clos_type_inv : forall x body cenv t1 t2,
 Proof.
   intros. inversion H; subst.
   exists c. split; assumption.
+Qed.
+
+(** ** Helper: Forall and nth_error *)
+
+Lemma Forall_nth_error : forall (A : Type) (P : A -> Prop) (l : list A) (n : nat) (x : A),
+  Forall P l -> nth_error l n = Some x -> P x.
+Proof.
+  intros A P l n x HF Hnth.
+  rewrite Forall_forall in HF.
+  apply HF. eapply nth_error_In. eassumption.
+Qed.
+
+(** ** Inversion lemma for array typing *)
+
+Lemma array_type_inv : forall vs t,
+  val_has_type (VArray vs) (TArray t) ->
+  Forall (fun v => val_has_type v t) vs.
+Proof.
+  intros. inversion H; subst. assumption.
+Qed.
+
+(** ** Array indexing preserves types *)
+
+Lemma array_nth_type : forall vs t n v,
+  val_has_type (VArray vs) (TArray t) ->
+  nth_error vs n = Some v ->
+  val_has_type v t.
+Proof.
+  intros vs t n v Hvt Hnth.
+  apply array_type_inv in Hvt.
+  rewrite Forall_forall in Hvt.
+  apply Hvt. eapply nth_error_In. exact Hnth.
 Qed.
 
 (** ** Tactic for impossible type cases
@@ -487,6 +530,35 @@ Proof.
         by (apply agree_cons; assumption);
       destruct (IHHeval3 _ _ Hbody_type Hagree_body) as [Hvt _];
       split; [exact Hvt | exact Hagree2]
+    end.
+
+  - (* E_ArrayNil *)
+    inversion Htype; subst.
+    split; [constructor; constructor | assumption].
+
+  - (* E_ArrayCons *)
+    inversion Htype; subst.
+    match goal with
+    | [ He : has_type _ e ?t, Hes : has_type _ (EArray es) (TArray ?t) |- _ ] =>
+      destruct (IHHeval1 _ _ He Hagree) as [Hvt1 Hagree1];
+      destruct (IHHeval2 _ _ Hes Hagree1) as [Hvt2 Hagree2];
+      apply array_type_inv in Hvt2;
+      split; [constructor; constructor; assumption | assumption]
+    end.
+
+  - (* E_Index *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hvt1 Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [_ Hagree2].
+    split; [| assumption].
+    eapply array_nth_type; eassumption.
+
+  - (* E_ArrayLen *)
+    inversion Htype; subst.
+    match goal with
+    | [ He : has_type _ e (TArray _) |- _ ] =>
+      destruct (IHHeval _ _ He Hagree) as [_ Hagree1];
+      split; [constructor | assumption]
     end.
 Qed.
 

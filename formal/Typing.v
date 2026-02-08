@@ -16,6 +16,8 @@
 
 From Stdlib Require Import ZArith.
 From Stdlib Require Import String.
+From Stdlib Require Import List.
+Import ListNotations.
 From NanoCore Require Import Syntax.
 Open Scope string_scope.
 
@@ -190,4 +192,25 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   | T_App : forall ctx e1 e2 t1 t2,
       has_type ctx e1 (TArrow t1 t2) ->
       has_type ctx e2 t1 ->
-      has_type ctx (EApp e1 e2) t2.
+      has_type ctx (EApp e1 e2) t2
+
+  (** Empty array literal: [] has type array<T> for any T *)
+  | T_ArrayNil : forall ctx t,
+      has_type ctx (EArray []) (TArray t)
+
+  (** Non-empty array literal: [e, ...es] *)
+  | T_ArrayCons : forall ctx e es t,
+      has_type ctx e t ->
+      has_type ctx (EArray es) (TArray t) ->
+      has_type ctx (EArray (e :: es)) (TArray t)
+
+  (** Array indexing: (at arr i) *)
+  | T_Index : forall ctx e1 e2 t,
+      has_type ctx e1 (TArray t) ->
+      has_type ctx e2 TInt ->
+      has_type ctx (EIndex e1 e2) t
+
+  (** Array length *)
+  | T_ArrayLen : forall ctx e t,
+      has_type ctx e (TArray t) ->
+      has_type ctx (EUnOp OpArrayLen e) TInt.
