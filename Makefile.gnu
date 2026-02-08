@@ -279,9 +279,37 @@ test-nanoisa: $(NANOISA_OBJECTS)
 	@./tests/nanoisa/test_nanoisa
 	@rm -f tests/nanoisa/test_nanoisa
 
+# ============================================================================
+# NanoVM - Virtual Machine Execution Engine
+# ============================================================================
+
+NANOVM_DIR = $(SRC_DIR)/nanovm
+NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/vm.c
+NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES))
+
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h | $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/nanovm:
+	mkdir -p $(OBJ_DIR)/nanovm
+
+.PHONY: test-nanovm
+test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)
+	@echo "Running NanoVM tests..."
+	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
+		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_vm
+	@rm -f tests/nanovm/test_vm
+
+nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(OBJ_DIR)/nanovm/main.o
+	$(CC) $(CFLAGS) -o $@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(OBJ_DIR)/nanovm/main.o $(LDFLAGS)
+
+$(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h | $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Unit tests for C components
 .PHONY: test-units
-test-units: test-nanoisa
+test-units: test-nanoisa test-nanovm
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1296,7 +1324,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs test-nanoisa examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs test-nanoisa test-nanovm nano_vm examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
