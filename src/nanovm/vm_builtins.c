@@ -99,21 +99,17 @@ int64_t vm_setenv(const char *name, const char *value) {
     return setenv(name, value, 1) == 0 ? 0 : -1;
 }
 
-/* ── String operations ────────────────────────────────────────────── */
+/* ── String operations (delegate to nl_cstr_* shared primitives) ── */
+#include "runtime/nl_string.h"
 
 int64_t vm_str_index_of(const char *haystack, const char *needle) {
-    if (!haystack || !needle) return -1;
-    const char *p = strstr(haystack, needle);
-    return p ? (int64_t)(p - haystack) : -1;
+    return nl_cstr_index_of(haystack, needle);
 }
 
 /* ── String building ──────────────────────────────────────────────── */
 
 char *vm_string_from_char(int64_t code) {
-    char buf[2];
-    buf[0] = (char)code;
-    buf[1] = '\0';
-    return strdup(buf);
+    return nl_cstr_from_char(code);
 }
 
 /* ── Character classification ────────────────────────────────────── */

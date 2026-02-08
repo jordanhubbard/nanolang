@@ -169,4 +169,34 @@ void nl_string_shrink_to_fit(nl_string_t *str);
  */
 nl_string_t* nl_string_clone(const nl_string_t *str);
 
+/* ============================================================================
+ * C String Convenience Wrappers
+ *
+ * These operate on plain `const char *` strings, delegating to the
+ * nl_string_t implementation internally.  They provide a single shared
+ * implementation that the interpreter (eval_string.c), VM (vm.c), and
+ * VM builtins (vm_builtins.c) can all call, eliminating duplication.
+ * ============================================================================ */
+
+/** Byte length of a C string (NULL-safe, returns 0 for NULL). */
+int64_t     nl_cstr_length(const char *s);
+
+/** Concatenate two C strings. Caller must free() the result. */
+char       *nl_cstr_concat(const char *a, const char *b);
+
+/** Substring [start, start+len). Caller must free() the result. */
+char       *nl_cstr_substring(const char *s, int64_t start, int64_t len);
+
+/** True if haystack contains needle. */
+bool        nl_cstr_contains(const char *haystack, const char *needle);
+
+/** Index of needle in haystack, or -1. */
+int64_t     nl_cstr_index_of(const char *haystack, const char *needle);
+
+/** ASCII code of character at byte index, or -1 if out of range. */
+int64_t     nl_cstr_char_at(const char *s, int64_t index);
+
+/** Single-character string from ASCII code. Caller must free(). */
+char       *nl_cstr_from_char(int64_t code);
+
 #endif /* NL_STRING_H */

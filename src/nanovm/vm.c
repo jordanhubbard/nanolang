@@ -113,69 +113,56 @@ static inline const char *str_at(const VmState *vm, uint32_t idx) {
     return nvm_get_string(vm->module, idx);
 }
 
-VmResult vm_execute(VmState *vm) {
-    if (!(vm->module->header.flags & NVM_FLAG_HAS_MAIN)) {
-        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "No entry point defined");
-    }
-
-    uint32_t entry = vm->module->header.entry_point;
-    if (entry >= vm->module->function_count) {
-        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Entry point %u out of range", entry);
-    }
-
-    return vm_call_function(vm, entry, NULL, 0);
-}
-
 NanoValue vm_get_result(VmState *vm) {
     if (vm->stack_size == 0) return val_void();
     return vm->stack[vm->stack_size - 1];
 }
 
-VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
-    if (fn_idx >= vm->module->function_count) {
-        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u out of range", fn_idx);
-    }
+/* ========================================================================
+ * Trap helpers
+ * ======================================================================== */
 
-    const NvmFunctionEntry *fn = &vm->module->functions[fn_idx];
+static inline VmTrap trap_none(void) {
+    return (VmTrap){ .type = TRAP_NONE };
+}
 
-    /* Push a call frame */
-    if (vm->frame_count >= VM_MAX_FRAMES) {
-        return vm_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
-    }
+static inline VmTrap trap_halt(void) {
+    return (VmTrap){ .type = TRAP_HALT };
+}
 
-    uint32_t stack_base = vm->stack_size;
+static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
+    vm->last_error = err;
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(vm->error_msg, sizeof(vm->error_msg), fmt, ap);
+    va_end(ap);
+    VmTrap t = { .type = TRAP_ERROR };
+    t.data.error.code = err;
+    return t;
+}
 
-    /* Push args as first locals */
-    for (uint16_t i = 0; i < arg_count; i++) {
-        VmResult r = stack_push(vm, args[i]);
-        if (r != VM_OK) return r;
-    }
+/* ========================================================================
+ * Core Execution Engine (the "processor")
+ *
+ * Runs pure NanoISA instructions.  Returns a VmTrap when it hits an
+ * external operation (I/O, FFI, halt) or completes / errors.
+ * ======================================================================== */
 
-    /* Push remaining locals as void */
-    for (uint16_t i = arg_count; i < fn->local_count; i++) {
-        VmResult r = stack_push(vm, val_void());
-        if (r != VM_OK) return r;
-    }
-
-    VmCallFrame *frame = &vm->frames[vm->frame_count++];
-    frame->fn_idx = fn_idx;
-    frame->return_ip = vm->ip;
-    frame->stack_base = stack_base;
-    frame->local_count = fn->local_count;
-    frame->closure = NULL;
-
-    vm->current_fn = fn_idx;
-    vm->ip = fn->code_offset;
-
+VmTrap vm_core_execute(VmState *vm) {
     const uint8_t *code = vm->module->code;
-    uint32_t code_end = fn->code_offset + fn->code_length;
+
+    /* Derive code_end from current function */
+    const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
+    uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
+
+    VmCallFrame *frame = &vm->frames[vm->frame_count - 1];
 
     /* Main dispatch loop */
     while (vm->ip < code_end) {
         DecodedInstruction instr;
         uint32_t consumed = isa_decode(code + vm->ip, code_end - vm->ip, &instr);
         if (consumed == 0) {
-            return vm_error(vm, VM_ERR_DECODE, "Bad instruction at offset %u", vm->ip);
+            return trap_error(vm, VM_ERR_DECODE, "Bad instruction at offset %u", vm->ip);
         }
 
         uint32_t instr_start = vm->ip;
@@ -259,7 +246,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             uint16_t idx = instr.operands[0].u16;
             uint32_t abs_idx = frame->stack_base + idx;
             if (abs_idx >= vm->stack_size) {
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
             NanoValue v = vm->stack[abs_idx];
             vm_retain(v);
@@ -271,7 +258,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             uint16_t idx = instr.operands[0].u16;
             uint32_t abs_idx = frame->stack_base + idx;
             if (abs_idx >= vm->stack_size) {
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, vm->stack[abs_idx]);
@@ -282,7 +269,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         case OP_LOAD_GLOBAL: {
             uint32_t idx = instr.operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = vm->globals[idx];
             vm_retain(v);
@@ -293,7 +280,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         case OP_STORE_GLOBAL: {
             uint32_t idx = instr.operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, vm->globals[idx]);
@@ -426,7 +413,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             } else {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ADD: incompatible types %s + %s",
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ADD: incompatible types %s + %s",
                                 isa_tag_name(a.tag), isa_tag_name(b.tag));
             }
             break;
@@ -497,7 +484,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 rv.as.array = result;
                 stack_push(vm, rv);
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "SUB: type error");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "SUB: type error");
             }
             break;
         }
@@ -566,7 +553,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 rv.as.array = result;
                 stack_push(vm, rv);
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "MUL: type error");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "MUL: type error");
             }
             break;
         }
@@ -641,7 +628,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 rv.as.array = result;
                 stack_push(vm, rv);
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "DIV: type error");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "DIV: type error");
             }
             break;
         }
@@ -652,7 +639,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
                 stack_push(vm, val_int(b.as.i64 == 0 ? 0 : a.as.i64 % b.as.i64));
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "MOD: type error");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "MOD: type error");
             }
             break;
         }
@@ -664,7 +651,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             } else if (a.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(-a.as.f64));
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "NEG: type error");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "NEG: type error");
             }
             break;
         }
@@ -787,13 +774,13 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         case OP_CALL: {
             uint32_t callee_idx = instr.operands[0].u32;
             if (callee_idx >= vm->module->function_count) {
-                return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
+                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
             }
 
             const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
-                return vm_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+                return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
 
             /* Arguments are already on the stack, pop them into the new frame */
@@ -835,13 +822,13 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 }
 
                 if (callee_idx >= vm->module->function_count) {
-                    return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Indirect call: fn %u not found", callee_idx);
+                    return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Indirect call: fn %u not found", callee_idx);
                 }
 
                 const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
 
                 if (vm->frame_count >= VM_MAX_FRAMES) {
-                    return vm_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+                    return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
                 }
 
                 uint32_t new_base = vm->stack_size - callee->arity;
@@ -861,7 +848,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm->ip = callee->code_offset;
                 code_end = callee->code_offset + callee->code_length;
             } else {
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "CALL_INDIRECT: not a function");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "CALL_INDIRECT: not a function");
             }
             break;
         }
@@ -888,7 +875,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (vm->frame_count == 0) {
                 /* Return from top-level function - push result and exit */
                 stack_push(vm, result);
-                return VM_OK;
+                return trap_none();
             }
 
             /* Restore caller's frame context, but use callee's return_ip */
@@ -908,37 +895,24 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 
             /* Determine arg count from import table */
             if (import_idx >= vm->module->import_count) {
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                 "Import index %u out of range", import_idx);
             }
             int ext_argc = vm->module->imports[import_idx].param_count;
 
             /* Pop arguments from stack (they were pushed left-to-right,
              * so pop in reverse to get them in order) */
-            NanoValue ext_args[16];
-            if (ext_argc > 16) ext_argc = 16;
-            for (int i = ext_argc - 1; i >= 0; i--) {
-                ext_args[i] = stack_pop(vm);
+            VmTrap t = { .type = TRAP_EXTERN_CALL };
+            t.data.extern_call.import_idx = import_idx;
+            t.data.extern_call.argc = ext_argc > 16 ? 16 : ext_argc;
+            for (int i = t.data.extern_call.argc - 1; i >= 0; i--) {
+                t.data.extern_call.args[i] = stack_pop(vm);
             }
-
-            /* Call via FFI bridge */
-            NanoValue ext_result;
-            char ext_err[256];
-            if (!vm_ffi_call(vm->module, import_idx,
-                             ext_args, ext_argc,
-                             &ext_result, &vm->heap,
-                             ext_err, sizeof(ext_err))) {
-                return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
-                                "FFI call failed: %s", ext_err);
-            }
-
-            /* Push result onto stack */
-            stack_push(vm, ext_result);
-            break;
+            return t;
         }
 
         case OP_CALL_MODULE:
-            return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
+            return trap_error(vm, VM_ERR_NOT_IMPLEMENTED,
                             "Module calls not yet implemented");
 
         /* ============================================================
@@ -949,7 +923,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_LEN: not a string");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_LEN: not a string");
             }
             int64_t len = vmstring_len(s.as.string);
             vm_release(&vm->heap, s);
@@ -963,7 +937,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (a.tag != TAG_STRING || b.tag != TAG_STRING) {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_CONCAT: not strings");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_CONCAT: not strings");
             }
             VmString *result = vm_string_concat(&vm->heap, a.as.string, b.as.string);
             vm_release(&vm->heap, a);
@@ -978,7 +952,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_SUBSTR: not a string");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_SUBSTR: not a string");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t len = (uint32_t)(len_v.tag == TAG_INT ? len_v.as.i64 : 0);
@@ -994,7 +968,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (haystack.tag != TAG_STRING || needle.tag != TAG_STRING) {
                 vm_release(&vm->heap, haystack);
                 vm_release(&vm->heap, needle);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_CONTAINS: not strings");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_CONTAINS: not strings");
             }
             bool result = vmstring_contains(haystack.as.string, needle.as.string);
             vm_release(&vm->heap, haystack);
@@ -1009,7 +983,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (a.tag != TAG_STRING || b.tag != TAG_STRING) {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_EQ: not strings");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_EQ: not strings");
             }
             bool result = vmstring_equal(a.as.string, b.as.string);
             vm_release(&vm->heap, a);
@@ -1023,7 +997,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_CHAR_AT: not a string");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_CHAR_AT: not a string");
             }
             int64_t idx = (idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             const char *str = vmstring_cstr(s.as.string);
@@ -1065,7 +1039,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
                 vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_PUSH: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_PUSH: not an array");
             }
             vm_array_push(arr.as.array, v);
             vm_release(&vm->heap, v); /* push retains */
@@ -1077,7 +1051,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_POP: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_POP: not an array");
             }
             NanoValue v = vm_array_pop(arr.as.array);
             stack_push(vm, v);
@@ -1090,7 +1064,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_GET: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_GET: not an array");
             }
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             NanoValue v = vm_array_get(arr.as.array, idx);
@@ -1107,7 +1081,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
                 vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_SET: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_SET: not an array");
             }
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             vm_release(&vm->heap, vm_array_get(arr.as.array, idx));
@@ -1120,7 +1094,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_LEN: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_LEN: not an array");
             }
             int64_t len = arr.as.array->length;
             vm_release(&vm->heap, arr);
@@ -1134,7 +1108,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_SLICE: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_SLICE: not an array");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t end = (uint32_t)(end_v.tag == TAG_INT ? end_v.as.i64 : arr.as.array->length);
@@ -1149,7 +1123,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "ARR_REMOVE: not an array");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_REMOVE: not an array");
             }
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             vm_array_remove(arr.as.array, idx);
@@ -1186,11 +1160,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue sv = stack_pop(vm);
             if (sv.tag != TAG_STRUCT || !sv.as.sval) {
                 vm_release(&vm->heap, sv);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STRUCT_GET: not a struct");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STRUCT_GET: not a struct");
             }
             if (field_idx >= sv.as.sval->field_count) {
                 vm_release(&vm->heap, sv);
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_GET: field %u out of range", field_idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_GET: field %u out of range", field_idx);
             }
             NanoValue v = sv.as.sval->fields[field_idx];
             vm_retain(v);
@@ -1206,12 +1180,12 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (sv.tag != TAG_STRUCT || !sv.as.sval) {
                 vm_release(&vm->heap, sv);
                 vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "STRUCT_SET: not a struct");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STRUCT_SET: not a struct");
             }
             if (field_idx >= sv.as.sval->field_count) {
                 vm_release(&vm->heap, sv);
                 vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_SET: field %u out of range", field_idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_SET: field %u out of range", field_idx);
             }
             vm_release(&vm->heap, sv.as.sval->fields[field_idx]);
             sv.as.sval->fields[field_idx] = v;
@@ -1251,7 +1225,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue uv = stack_pop(vm);
             if (uv.tag != TAG_UNION || !uv.as.uval) {
                 vm_release(&vm->heap, uv);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "UNION_TAG: not a union");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "UNION_TAG: not a union");
             }
             int64_t tag = uv.as.uval->variant;
             vm_release(&vm->heap, uv);
@@ -1264,11 +1238,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue uv = stack_pop(vm);
             if (uv.tag != TAG_UNION || !uv.as.uval) {
                 vm_release(&vm->heap, uv);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "UNION_FIELD: not a union");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "UNION_FIELD: not a union");
             }
             if (field_idx >= uv.as.uval->field_count) {
                 vm_release(&vm->heap, uv);
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "UNION_FIELD: field %u out of range", field_idx);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "UNION_FIELD: field %u out of range", field_idx);
             }
             NanoValue v = uv.as.uval->fields[field_idx];
             vm_retain(v);
@@ -1316,11 +1290,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue tv = stack_pop(vm);
             if (tv.tag != TAG_TUPLE || !tv.as.tuple) {
                 vm_release(&vm->heap, tv);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "TUPLE_GET: not a tuple");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "TUPLE_GET: not a tuple");
             }
             if (index >= tv.as.tuple->count) {
                 vm_release(&vm->heap, tv);
-                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS, "TUPLE_GET: index %u out of range", index);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "TUPLE_GET: index %u out of range", index);
             }
             NanoValue v = tv.as.tuple->elements[index];
             vm_retain(v);
@@ -1347,7 +1321,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
                 vm_release(&vm->heap, key);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_GET: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_GET: not a hashmap");
             }
             NanoValue v = vm_hashmap_get(map.as.hashmap, key);
             vm_retain(v);
@@ -1365,7 +1339,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_release(&vm->heap, map);
                 vm_release(&vm->heap, key);
                 vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_SET: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_SET: not a hashmap");
             }
             vm_hashmap_set(&vm->heap, map.as.hashmap, key, v);
             vm_release(&vm->heap, key);
@@ -1380,7 +1354,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
                 vm_release(&vm->heap, key);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_HAS: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_HAS: not a hashmap");
             }
             bool has = vm_hashmap_has(map.as.hashmap, key);
             vm_release(&vm->heap, map);
@@ -1395,7 +1369,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
                 vm_release(&vm->heap, key);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_DELETE: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_DELETE: not a hashmap");
             }
             vm_hashmap_delete(&vm->heap, map.as.hashmap, key);
             vm_release(&vm->heap, key);
@@ -1407,7 +1381,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_KEYS: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_KEYS: not a hashmap");
             }
             VmArray *keys = vm_hashmap_keys(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
@@ -1419,7 +1393,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_VALUES: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_VALUES: not a hashmap");
             }
             VmArray *vals = vm_hashmap_values(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
@@ -1431,7 +1405,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "HM_LEN: not a hashmap");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_LEN: not a hashmap");
             }
             int64_t len = map.as.hashmap->count;
             vm_release(&vm->heap, map);
@@ -1573,16 +1547,16 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue fn_val = stack_pop(vm);
             if (fn_val.tag != TAG_FUNCTION || !fn_val.as.closure) {
                 vm_release(&vm->heap, fn_val);
-                return vm_error(vm, VM_ERR_TYPE_ERROR, "CLOSURE_CALL: not a closure");
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "CLOSURE_CALL: not a closure");
             }
             VmClosure *closure = fn_val.as.closure;
             uint32_t callee_idx = closure->fn_idx;
             if (callee_idx >= vm->module->function_count) {
-                return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Closure fn %u not found", callee_idx);
+                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Closure fn %u not found", callee_idx);
             }
             const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
             if (vm->frame_count >= VM_MAX_FRAMES) {
-                return vm_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+                return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
 
             uint32_t new_base = vm->stack_size - callee->arity;
@@ -1609,21 +1583,15 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
          * ============================================================ */
 
         case OP_PRINT: {
-            NanoValue v = stack_pop(vm);
-            val_print(v, vm_out(vm));
-            fprintf(vm_out(vm), "\n");
-            vm_release(&vm->heap, v);
-            break;
+            VmTrap t = { .type = TRAP_PRINT };
+            t.data.print.value = stack_pop(vm);
+            return t;
         }
 
         case OP_ASSERT: {
-            NanoValue v = stack_pop(vm);
-            if (!val_truthy(v)) {
-                vm_release(&vm->heap, v);
-                return vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
-            }
-            vm_release(&vm->heap, v);
-            break;
+            VmTrap t = { .type = TRAP_ASSERT };
+            t.data.assert_check.condition = stack_pop(vm);
+            return t;
         }
 
         case OP_DEBUG_LINE:
@@ -1631,7 +1599,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             break;
 
         case OP_HALT:
-            return VM_OK;
+            return trap_halt();
 
         /* ============================================================
          * Opaque Proxy
@@ -1652,7 +1620,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         }
 
         default:
-            return vm_error(vm, VM_ERR_INVALID_OPCODE, "Unknown opcode 0x%02x", instr.opcode);
+            return trap_error(vm, VM_ERR_INVALID_OPCODE, "Unknown opcode 0x%02x", instr.opcode);
 
         } /* switch */
     } /* while */
@@ -1671,7 +1639,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         vm->frame_count--;
         if (vm->frame_count == 0) {
             stack_push(vm, result);
-            return VM_OK;
+            return trap_none();
         }
         frame = &vm->frames[vm->frame_count - 1];
         vm->current_fn = frame->fn_idx;
@@ -1679,5 +1647,109 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         stack_push(vm, result);
     }
 
-    return VM_OK;
+    return trap_none();
+}
+
+/* ========================================================================
+ * Runtime Harness (the "co-processor")
+ *
+ * Calls vm_core_execute() in a loop, handling each trap that the
+ * NanoISA core returns.  In the software VM both layers run in the
+ * same process.  On an FPGA the harness would run on the host CPU
+ * and communicate with the core over PCIe/AXI.
+ * ======================================================================== */
+
+VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    if (fn_idx >= vm->module->function_count) {
+        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u out of range", fn_idx);
+    }
+
+    const NvmFunctionEntry *fn = &vm->module->functions[fn_idx];
+
+    /* Push a call frame */
+    if (vm->frame_count >= VM_MAX_FRAMES) {
+        return vm_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+    }
+
+    uint32_t stack_base = vm->stack_size;
+
+    /* Push args as first locals */
+    for (uint16_t i = 0; i < arg_count; i++) {
+        VmResult r = stack_push(vm, args[i]);
+        if (r != VM_OK) return r;
+    }
+
+    /* Push remaining locals as void */
+    for (uint16_t i = arg_count; i < fn->local_count; i++) {
+        VmResult r = stack_push(vm, val_void());
+        if (r != VM_OK) return r;
+    }
+
+    VmCallFrame *frame = &vm->frames[vm->frame_count++];
+    frame->fn_idx = fn_idx;
+    frame->return_ip = vm->ip;
+    frame->stack_base = stack_base;
+    frame->local_count = fn->local_count;
+    frame->closure = NULL;
+
+    vm->current_fn = fn_idx;
+    vm->ip = fn->code_offset;
+
+    /* Run the core in a loop, handling traps */
+    for (;;) {
+        VmTrap trap = vm_core_execute(vm);
+
+        switch (trap.type) {
+        case TRAP_NONE:
+            return VM_OK;
+
+        case TRAP_HALT:
+            return VM_OK;
+
+        case TRAP_PRINT:
+            val_print(trap.data.print.value, vm_out(vm));
+            fprintf(vm_out(vm), "\n");
+            vm_release(&vm->heap, trap.data.print.value);
+            break;
+
+        case TRAP_ASSERT:
+            if (!val_truthy(trap.data.assert_check.condition)) {
+                vm_release(&vm->heap, trap.data.assert_check.condition);
+                return vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
+            }
+            vm_release(&vm->heap, trap.data.assert_check.condition);
+            break;
+
+        case TRAP_EXTERN_CALL: {
+            NanoValue ext_result;
+            char ext_err[256];
+            if (!vm_ffi_call(vm->module, trap.data.extern_call.import_idx,
+                             trap.data.extern_call.args, trap.data.extern_call.argc,
+                             &ext_result, &vm->heap,
+                             ext_err, sizeof(ext_err))) {
+                return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
+                                "FFI call failed: %s", ext_err);
+            }
+            /* Push result back onto the VM stack for the core to consume */
+            stack_push(vm, ext_result);
+            break;
+        }
+
+        case TRAP_ERROR:
+            return trap.data.error.code;
+        }
+    }
+}
+
+VmResult vm_execute(VmState *vm) {
+    if (!(vm->module->header.flags & NVM_FLAG_HAS_MAIN)) {
+        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "No entry point defined");
+    }
+
+    uint32_t entry = vm->module->header.entry_point;
+    if (entry >= vm->module->function_count) {
+        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Entry point %u out of range", entry);
+    }
+
+    return vm_call_function(vm, entry, NULL, 0);
 }

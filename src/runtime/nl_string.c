@@ -390,6 +390,64 @@ nl_string_t* nl_string_clone(const nl_string_t *str) {
     clone->length = str->length;
     clone->is_utf8 = str->is_utf8;
     clone->null_terminated = str->null_terminated;
-    
+
     return clone;
+}
+
+/* ============================================================================
+ * C String Convenience Wrappers
+ * ============================================================================ */
+
+int64_t nl_cstr_length(const char *s) {
+    return s ? (int64_t)strlen(s) : 0;
+}
+
+char *nl_cstr_concat(const char *a, const char *b) {
+    if (!a) a = "";
+    if (!b) b = "";
+    size_t la = strlen(a), lb = strlen(b);
+    char *r = malloc(la + lb + 1);
+    if (!r) return NULL;
+    memcpy(r, a, la);
+    memcpy(r + la, b, lb);
+    r[la + lb] = '\0';
+    return r;
+}
+
+char *nl_cstr_substring(const char *s, int64_t start, int64_t len) {
+    if (!s) return strdup("");
+    int64_t slen = (int64_t)strlen(s);
+    if (start < 0) start = 0;
+    if (start >= slen || len <= 0) return strdup("");
+    if (start + len > slen) len = slen - start;
+    char *r = malloc((size_t)len + 1);
+    if (!r) return strdup("");
+    memcpy(r, s + start, (size_t)len);
+    r[len] = '\0';
+    return r;
+}
+
+bool nl_cstr_contains(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return false;
+    return strstr(haystack, needle) != NULL;
+}
+
+int64_t nl_cstr_index_of(const char *haystack, const char *needle) {
+    if (!haystack || !needle) return -1;
+    const char *p = strstr(haystack, needle);
+    return p ? (int64_t)(p - haystack) : -1;
+}
+
+int64_t nl_cstr_char_at(const char *s, int64_t index) {
+    if (!s || index < 0) return -1;
+    int64_t len = (int64_t)strlen(s);
+    if (index >= len) return -1;
+    return (unsigned char)s[index];
+}
+
+char *nl_cstr_from_char(int64_t code) {
+    char buf[2];
+    buf[0] = (char)code;
+    buf[1] = '\0';
+    return strdup(buf);
 }

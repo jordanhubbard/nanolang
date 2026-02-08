@@ -1,116 +1,47 @@
 /**
  * interpreter_ffi.c - Foreign Function Interface for Interpreter
- * 
+ *
  * Enables the interpreter to call extern functions from compiled modules.
+ * Module loading and symbol resolution are delegated to the shared
+ * ffi_loader; this file handles interpreter-specific marshaling,
+ * metadata parsing, and module introspection.
  */
 
 #include "interpreter_ffi.h"
 #include "module_builder.h"
 #include "runtime/gc.h"
+#include "runtime/ffi_loader.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 
-/* Loaded module tracking */
-typedef struct {
-    char *name;
-    char *path;
-    void *handle;  /* dlopen handle */
-    ModuleBuildMetadata *meta; /* parsed module.json (optional) */
-} LoadedModule;
-
-static LoadedModule *loaded_modules = NULL;
-static int loaded_module_count = 0;
-static int loaded_module_capacity = 0;
-static bool ffi_initialized = false;
 static bool ffi_verbose = false;
 
 /* Initialize FFI system */
 bool ffi_init(bool verbose) {
-    if (ffi_initialized) {
-        return true;  /* Already initialized */
-    }
-    
     ffi_verbose = verbose;
-    loaded_modules = calloc(16, sizeof(LoadedModule));
-    if (!loaded_modules) {
-        fprintf(stderr, "Error: Failed to allocate FFI module tracking\n");
-        return false;
-    }
-    loaded_module_capacity = 16;
-    loaded_module_count = 0;
-    ffi_initialized = true;
-    
-    if (ffi_verbose) {
-        printf("[FFI] Initialized\n");
-    }
-    
-    return true;
+    return ffi_loader_init(verbose);
 }
 
 /* Cleanup FFI system */
 void ffi_cleanup(void) {
-    if (!ffi_initialized) return;
-    
-    for (int i = 0; i < loaded_module_count; i++) {
-        if (loaded_modules[i].handle) {
-            dlclose(loaded_modules[i].handle);
-        }
-        free(loaded_modules[i].name);
-        free(loaded_modules[i].path);
-        if (loaded_modules[i].meta) {
-            module_metadata_free(loaded_modules[i].meta);
+    /* Free interpreter-specific user_data (ModuleBuildMetadata) before shutdown */
+    int count = 0;
+    FfiModule *mods = ffi_loader_get_modules(&count);
+    for (int i = 0; i < count; i++) {
+        if (mods[i].user_data) {
+            module_metadata_free((ModuleBuildMetadata *)mods[i].user_data);
+            mods[i].user_data = NULL;
         }
     }
-    
-    free(loaded_modules);
-    loaded_modules = NULL;
-    loaded_module_count = 0;
-    loaded_module_capacity = 0;
-    ffi_initialized = false;
-    
-    if (ffi_verbose) {
-        printf("[FFI] Cleaned up\n");
-    }
+    ffi_loader_shutdown();
 }
 
 /* Check if FFI is available */
 bool ffi_is_available(void) {
-    return ffi_initialized;
-}
-
-/* Find a loaded module by name */
-static LoadedModule *find_loaded_module(const char *name) {
-    for (int i = 0; i < loaded_module_count; i++) {
-        if (strcmp(loaded_modules[i].name, name) == 0) {
-            return &loaded_modules[i];
-        }
-    }
-    return NULL;
-}
-
-/* Add a loaded module to tracking */
-static bool add_loaded_module(const char *name, const char *path, void *handle) {
-    if (loaded_module_count >= loaded_module_capacity) {
-        int new_capacity = loaded_module_capacity * 2;
-        LoadedModule *new_modules = realloc(loaded_modules, 
-                                            new_capacity * sizeof(LoadedModule));
-        if (!new_modules) {
-            return false;
-        }
-        loaded_modules = new_modules;
-        loaded_module_capacity = new_capacity;
-    }
-    
-    loaded_modules[loaded_module_count].name = strdup(name);
-    loaded_modules[loaded_module_count].path = strdup(path);
-    loaded_modules[loaded_module_count].handle = handle;
-    loaded_modules[loaded_module_count].meta = NULL;
-    loaded_module_count++;
-    
-    return true;
+    return ffi_loader_is_initialized();
 }
 
 static bool module_owns_string_return(const ModuleBuildMetadata *meta, const char *function_name) {
@@ -251,99 +182,71 @@ static char* derive_module_dir_from_path(const char *module_path, const char *li
     return NULL;
 }
 
-/* Build shared library path for a module */
-static bool get_module_library_path(const char *module_name, const char *module_path,
-                                   char *out_path, size_t path_size) {
-    /* Prefer module_path (supports nested modules like modules/std/collections/...) */
-    if (module_path && module_path[0] != '\0') {
-        char dir[512];
-        snprintf(dir, sizeof(dir), "%s", module_path);
-
-        /* If it's a .nano file path, strip to directory */
-        if (strstr(dir, ".nano") != NULL) {
-            char *last_slash = strrchr(dir, '/');
-            if (last_slash) *last_slash = '\0';
-        }
-
-        #ifdef __APPLE__
-        snprintf(out_path, path_size, "%s/.build/lib%s.dylib", dir, module_name);
-        if (access(out_path, F_OK) == 0) return true;
-        #endif
-
-        snprintf(out_path, path_size, "%s/.build/lib%s.so", dir, module_name);
-        if (access(out_path, F_OK) == 0) return true;
+/* Derive the module_dir that ffi_loader_find_library wants from
+ * the interpreter's module_path (which may be a .nano file path). */
+static char *interp_module_dir(const char *module_path) {
+    if (!module_path || module_path[0] == '\0') return NULL;
+    char *dir = strdup(module_path);
+    if (!dir) return NULL;
+    if (strstr(dir, ".nano") != NULL) {
+        char *last_slash = strrchr(dir, '/');
+        if (last_slash) *last_slash = '\0';
     }
-
-    /* Back-compat: modules/<name>/.build/lib<name>.(so|dylib) */
-    #ifdef __APPLE__
-    snprintf(out_path, path_size, "modules/%s/.build/lib%s.dylib", module_name, module_name);
-    if (access(out_path, F_OK) == 0) return true;
-    #endif
-
-    snprintf(out_path, path_size, "modules/%s/.build/lib%s.so", module_name, module_name);
-    if (access(out_path, F_OK) == 0) return true;
-
-    return false;
+    return dir;
 }
 
 /* Load a module's shared library */
-bool ffi_load_module(const char *module_name, const char *module_path, 
+bool ffi_load_module(const char *module_name, const char *module_path,
                      Environment *env, bool verbose) {
-    (void)env;          /* Reserved for future use */
-    
-    if (!ffi_initialized) {
-        fprintf(stderr, "Error: FFI not initialized\n");
-        return false;
+    (void)env;
+
+    if (!ffi_loader_is_initialized()) {
+        if (!ffi_loader_init(verbose)) {
+            fprintf(stderr, "Error: FFI not initialized\n");
+            return false;
+        }
     }
-    
-    /* Check if already loaded */
-    if (find_loaded_module(module_name)) {
+
+    /* Already loaded? */
+    if (ffi_loader_find(module_name)) {
         if (verbose) {
             printf("[FFI] Module '%s' already loaded\n", module_name);
         }
         return true;
     }
-    
-    /* Get shared library path */
+
+    /* Find library on disk */
     char lib_path[512];
-    if (!get_module_library_path(module_name, module_path, lib_path, sizeof(lib_path))) {
+    char *mod_dir = interp_module_dir(module_path);
+    bool found = ffi_loader_find_library(module_name, mod_dir,
+                                         lib_path, sizeof(lib_path));
+    free(mod_dir);
+
+    if (!found) {
         if (verbose) {
             printf("[FFI] No shared library found for module '%s'\n", module_name);
         }
-        return false;  /* Not an error - module may not have C code */
-    }
-    
-    /* Load the shared library.
-     * Use RTLD_GLOBAL so module-to-module symbol dependencies can resolve
-     * (e.g. adapter modules calling into base modules). */
-    void *handle = dlopen(lib_path, RTLD_LAZY | RTLD_GLOBAL);
-    if (!handle) {
-        if (verbose) {
-            fprintf(stderr, "[FFI] Failed to load %s: %s\n", lib_path, dlerror());
-        }
         return false;
     }
-    
-    /* Add to tracking */
-    if (!add_loaded_module(module_name, lib_path, handle)) {
-        dlclose(handle);
+
+    /* Open via shared loader */
+    if (!ffi_loader_open(module_name, lib_path)) {
         return false;
     }
 
     /* Parse module.json for FFI ownership metadata (optional) */
-    LoadedModule *m = find_loaded_module(module_name);
+    FfiModule *m = ffi_loader_find(module_name);
     if (m) {
-        char *module_dir = derive_module_dir_from_path(module_path, lib_path);
-        if (module_dir) {
-            m->meta = module_load_metadata(module_dir);
-            free(module_dir);
+        char *metadata_dir = derive_module_dir_from_path(module_path, lib_path);
+        if (metadata_dir) {
+            m->user_data = module_load_metadata(metadata_dir);
+            free(metadata_dir);
         }
     }
-    
+
     if (verbose) {
         printf("[FFI] Loaded module '%s' from %s\n", module_name, lib_path);
     }
-    
     return true;
 }
 
@@ -432,39 +335,18 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
 /* Call an extern function via FFI */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                       Function *func_info, Environment *env) {
-    if (!ffi_initialized) {
+    if (!ffi_loader_is_initialized()) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return create_void();
     }
-    
-    /* Find which module this function belongs to */
-    /* For now, try all loaded modules */
-    void *func_ptr = NULL;
-    LoadedModule *module = NULL;
-    
-    for (int i = 0; i < loaded_module_count; i++) {
-        func_ptr = dlsym(loaded_modules[i].handle, function_name);
-        if (func_ptr) {
-            module = &loaded_modules[i];
-            break;
-        }
-    }
 
-    /* Fallback: allow extern functions linked into the main executable or already-loaded libraries */
-    if (!func_ptr) {
-        void *self_handle = dlopen(NULL, RTLD_LAZY);
-        if (self_handle) {
-            func_ptr = dlsym(self_handle, function_name);
-            dlclose(self_handle);
-            if (func_ptr) {
-                module = NULL;
-            }
-        }
-    }
-    
+    /* Resolve the function through the shared loader */
+    FfiModule *module = NULL;
+    void *func_ptr = ffi_loader_resolve_in(function_name, &module);
+
     if (!func_ptr) {
         if (ffi_verbose) {
-            fprintf(stderr, "[FFI] Function '%s' not found in loaded modules\n", 
+            fprintf(stderr, "[FFI] Function '%s' not found in loaded modules\n",
                     function_name);
         }
         Value v;
@@ -473,7 +355,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         }
         return create_void();
     }
-    
+
     if (ffi_verbose) {
         if (module) {
             printf("[FFI] Calling %s from module %s\n", function_name, module->name);
@@ -610,7 +492,8 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     if (ret_type == TYPE_STRING) {
         const char *str = (const char*)(intptr_t)result;
         Value v = str ? create_string(str) : create_void();
-        if (module && str && module_owns_string_return(module->meta, function_name)) {
+        ModuleBuildMetadata *meta = module ? (ModuleBuildMetadata *)module->user_data : NULL;
+        if (str && module_owns_string_return(meta, function_name)) {
             free((void*)str);
         }
         return v;
@@ -621,22 +504,9 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         void* external_ptr = (void*)(intptr_t)result;
 
         if (external_ptr && func_info->cleanup_function) {
-            /* Look up the cleanup function by name */
+            /* Look up the cleanup function through the shared resolver */
             void (*cleanup_func)(void*) = NULL;
-
-            /* Try to find cleanup function in same module */
-            if (module && module->handle) {
-                cleanup_func = (void (*)(void*))dlsym(module->handle, func_info->cleanup_function);
-            }
-
-            /* Fallback: try RTLD_DEFAULT (main executable + loaded libs) */
-            if (!cleanup_func) {
-                void *self_handle = dlopen(NULL, RTLD_LAZY);
-                if (self_handle) {
-                    cleanup_func = (void (*)(void*))dlsym(self_handle, func_info->cleanup_function);
-                    dlclose(self_handle);
-                }
-            }
+            cleanup_func = (void (*)(void*))ffi_loader_resolve(func_info->cleanup_function);
 
             if (cleanup_func) {
                 /* Wrap external pointer in GC-managed object */

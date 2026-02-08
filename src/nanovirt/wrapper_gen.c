@@ -262,7 +262,8 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
     };
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
-        "stdlib_runtime.o", "env.o", "module.o", "module_metadata.o",
+        "stdlib_runtime.o", "env.o", "builtins_registry.o",
+        "module.o", "module_metadata.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
         "resource_tracking.o", "eval.o", "interpreter_ffi.o",
         "json_diagnostics.o", "reflection.o",
@@ -292,8 +293,8 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
         "runtime/list_ASTOpaqueType.o", "runtime/list_ASTTupleLiteral.o",
         "runtime/list_ASTTupleIndex.o",
         "runtime/token_helpers.o", "runtime/gc.o", "runtime/dyn_array.o",
-        "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/cli.o",
-        "runtime/regex.o", NULL
+        "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/ffi_loader.o",
+        "runtime/cli.o", "runtime/regex.o", NULL
     };
 
     buf[0] = '\0';

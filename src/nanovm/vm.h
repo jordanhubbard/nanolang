@@ -90,6 +90,38 @@ typedef struct {
 } VmState;
 
 /* ========================================================================
+ * Co-Processor Trap Model
+ *
+ * The NanoISA core (vm_core_execute) handles all pure computation.
+ * When it encounters an external operation — I/O, FFI, or halt — it
+ * returns a VmTrap descriptor.  The runtime harness (vm_execute /
+ * vm_call_function) handles the trap and resumes the core.
+ *
+ * This separation defines the hardware interface contract: the 83+
+ * pure-compute opcodes run on the FPGA; the 5 trap types are bus
+ * transactions between the FPGA and the host co-processor.
+ * ======================================================================== */
+
+typedef enum {
+    TRAP_NONE = 0,          /* Normal completion (RET from top frame) */
+    TRAP_EXTERN_CALL,       /* OP_CALL_EXTERN — FFI request */
+    TRAP_PRINT,             /* OP_PRINT — stdout output */
+    TRAP_ASSERT,            /* OP_ASSERT — assertion check */
+    TRAP_HALT,              /* OP_HALT — explicit stop */
+    TRAP_ERROR              /* Runtime error */
+} VmTrapType;
+
+typedef struct {
+    VmTrapType type;
+    union {
+        struct { uint32_t import_idx; NanoValue args[16]; int argc; } extern_call;
+        struct { NanoValue value; } print;
+        struct { NanoValue condition; } assert_check;
+        struct { VmResult code; } error;
+    } data;
+} VmTrap;
+
+/* ========================================================================
  * VM API
  * ======================================================================== */
 
@@ -99,11 +131,18 @@ void vm_init(VmState *vm, const NvmModule *module);
 /* Destroy VM state (free stack, heap, etc.) */
 void vm_destroy(VmState *vm);
 
-/* Execute from the module's entry point. Returns VM_OK on success. */
+/* Execute from the module's entry point. Returns VM_OK on success.
+ * This is the runtime harness that calls vm_core_execute() in a loop
+ * and handles each trap. */
 VmResult vm_execute(VmState *vm);
 
 /* Execute a specific function by index. Returns VM_OK on success. */
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count);
+
+/* Run pure NanoISA instructions until a trap occurs.
+ * This is the "processor" — no I/O, no dlopen, no stdout.
+ * On an FPGA, this would be implemented in RTL. */
+VmTrap vm_core_execute(VmState *vm);
 
 /* Get the return value (top of stack after execution) */
 NanoValue vm_get_result(VmState *vm);

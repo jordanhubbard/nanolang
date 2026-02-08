@@ -1,11 +1,14 @@
 /* eval_string.c - String operation built-in functions for interpreter
  * Extracted from eval.c for better organization
+ *
+ * Now delegates to nl_cstr_* shared primitives in runtime/nl_string.c.
  */
 
 #define _POSIX_C_SOURCE 200809L
 
 #include "eval_string.h"
 #include "../nanolang.h"
+#include "../runtime/nl_string.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -20,7 +23,7 @@ Value builtin_str_length(Value *args) {
         return create_void();
     }
     assert(args[0].as.string_val != NULL);
-    return create_int(safe_strlen(args[0].as.string_val));
+    return create_int(nl_cstr_length(args[0].as.string_val));
 }
 
 Value builtin_str_concat(Value *args) {
@@ -31,16 +34,11 @@ Value builtin_str_concat(Value *args) {
 
     assert(args[0].as.string_val != NULL);
     assert(args[1].as.string_val != NULL);
-    size_t len1 = safe_strlen(args[0].as.string_val);
-    size_t len2 = safe_strlen(args[1].as.string_val);
-    char *result = malloc(len1 + len2 + 1);
+    char *result = nl_cstr_concat(args[0].as.string_val, args[1].as.string_val);
     if (!result) {
-        safe_fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
+        fprintf(stderr, "Error: Memory allocation failed in str_concat\n");
         return create_void();
     }
-
-    safe_strncpy(result, args[0].as.string_val, len1 + len2 + 1);
-    safe_strncat(result, args[1].as.string_val, len1 + len2 + 1);
 
     return create_string(result);
 }
@@ -59,7 +57,7 @@ Value builtin_str_substring(Value *args) {
     assert(str != NULL);
     long long start = args[1].as.int_val;
     long long length = args[2].as.int_val;
-    long long str_len = safe_strlen(str);
+    long long str_len = nl_cstr_length(str);
 
     if (start < 0 || start > str_len) {
         fprintf(stderr, "Error: str_substring start index out of bounds\n");
@@ -79,20 +77,7 @@ Value builtin_str_substring(Value *args) {
         return create_void();
     }
 
-    /* Adjust length if it exceeds string bounds */
-    if (start + length > str_len) {
-        length = str_len - start;
-    }
-
-    char *result = malloc(length + 1);
-    if (!result) {
-        fprintf(stderr, "Error: Memory allocation failed in str_substring\n");
-        return create_void();
-    }
-
-    strncpy(result, str + start, length);
-    result[length] = '\0';
-
+    char *result = nl_cstr_substring(str, start, length);
     return create_string(result);
 }
 
@@ -102,10 +87,7 @@ Value builtin_str_contains(Value *args) {
         return create_void();
     }
 
-    const char *str = args[0].as.string_val;
-    const char *substr = args[1].as.string_val;
-
-    return create_bool(strstr(str, substr) != NULL);
+    return create_bool(nl_cstr_contains(args[0].as.string_val, args[1].as.string_val));
 }
 
 Value builtin_str_equals(Value *args) {
