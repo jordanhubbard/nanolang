@@ -1739,6 +1739,13 @@ Proof.
     injection H as Hcons. simpl. f_equal. congruence.
 Qed.
 
+Lemma eclosed_match_scrutinee_inv : forall e brs,
+  eclosed (EMatch e brs) -> eclosed e.
+Proof.
+  unfold eclosed. intros e brs H x s.
+  specialize (H x s). simpl in H. congruence.
+Qed.
+
 Lemma eclosed_match_branch : forall e brs tag x body,
   eclosed (EMatch e brs) ->
   find_branch tag brs = Some (x, body) ->
@@ -1779,6 +1786,100 @@ Qed.
 
 (** ** eclosed substitution lemmas *)
 
+(** Key helper: if substituting y→t into e is identity,
+    then substituting y→t into (subst x s e) is also identity
+    (provided s is eclosed and y ≠ x). *)
+Lemma subst_preserves_subst_inv : forall e y t x s,
+  y <> x -> eclosed s -> subst y t e = e ->
+  subst y t (subst x s e) = subst x s e.
+Proof.
+  fix IH 1.
+  intros e y t x s Hyx Hcs Hinv.
+  destruct e; try reflexivity.
+  (* Helper tactic for simple compound cases *)
+  (* EVar *)
+  - simpl in Hinv |- *. destruct (String.eqb x s0); [apply Hcs | exact Hinv].
+  (* EBinOp *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EUnOp *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EIf *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ELet *)
+  - simpl in |- *. simpl in Hinv. injection Hinv. intros Hinv_body Hinv_e1.
+    f_equal.
+    + apply IH; [exact Hyx | exact Hcs | exact Hinv_e1].
+    + destruct (String.eqb x s0) eqn:Hxs.
+      * exact Hinv_body.
+      * destruct (String.eqb y s0) eqn:Hys; [reflexivity |].
+        apply IH; [exact Hyx | exact Hcs | exact Hinv_body].
+  (* ESet *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ESeq *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EWhile *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ELam *)
+  - simpl in |- *. simpl in Hinv. injection Hinv as Hinv_body.
+    f_equal.
+    destruct (String.eqb x s0) eqn:Hxs.
+    + exact Hinv_body.
+    + destruct (String.eqb y s0) eqn:Hys; [reflexivity |].
+      apply IH; [exact Hyx | exact Hcs | exact Hinv_body].
+  (* EApp *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EFix *)
+  - simpl in |- *. simpl in Hinv. injection Hinv as Hinv_body.
+    f_equal.
+    destruct (String.eqb x s0 || String.eqb x s1)%bool eqn:Hxf.
+    + exact Hinv_body.
+    + destruct (String.eqb y s0 || String.eqb y s1)%bool eqn:Hyf;
+        [reflexivity |].
+      apply IH; [exact Hyx | exact Hcs | exact Hinv_body].
+  (* EArray *)
+  - simpl in Hinv. injection Hinv as Hlist. simpl. f_equal.
+    revert Hlist. induction l as [|e0 rest IHl]; intro Hlist; simpl in *.
+    + reflexivity.
+    + injection Hlist as He Hrest. f_equal;
+        [apply IH; [exact Hyx | exact Hcs | exact He]
+        |apply IHl; exact Hrest].
+  (* EIndex *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EArraySet *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EArrayPush *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ERecord *)
+  - simpl in Hinv. injection Hinv as Hlist. simpl. f_equal.
+    revert Hlist. induction l as [|[fn e0] rest IHl]; intro Hlist; simpl in *.
+    + reflexivity.
+    + injection Hlist as Hpair Hrest. f_equal;
+        [f_equal; apply IH; [exact Hyx | exact Hcs | congruence]
+        |apply IHl; exact Hrest].
+  (* EField *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ESetField *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EConstruct *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* EMatch *)
+  - simpl in Hinv. injection Hinv as He Hbrs. simpl. f_equal.
+    + apply IH; [exact Hyx | exact Hcs | exact He].
+    + revert Hbrs. induction l as [|[[tag z] b] rest IHl]; intro Hbrs; simpl in *.
+      * reflexivity.
+      * injection Hbrs as Htriple Hrest.
+        assert (Hbody : (if String.eqb y z then b else subst y t b) = b)
+          by congruence.
+        f_equal; [| apply IHl; exact Hrest].
+        f_equal.
+        destruct (String.eqb y z) eqn:Hyz; [reflexivity |].
+        (* After destruct, Hbody is already: subst y t b = b *)
+        destruct (String.eqb x z); [exact Hbody |].
+        apply IH; [exact Hyx | exact Hcs | exact Hbody].
+  (* EStrIndex *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+Qed.
+
 Lemma eclosed_subst_closed : forall x s e,
   eclosed s -> eclosed_except x e -> eclosed (subst x s e).
 Proof.
@@ -1787,19 +1888,19 @@ Proof.
   - apply String.eqb_eq in Hyx. subst y.
     rewrite subst_subst_same. f_equal. apply Hcs.
   - apply eqb_neq in Hyx.
-    rewrite subst_comm_closed; auto. f_equal. apply Hex. assumption.
+    apply subst_preserves_subst_inv; auto.
 Qed.
 
 Lemma eclosed_except2_subst : forall f x sx e,
   eclosed sx -> eclosed_except2 f x e -> eclosed_except f (subst x sx e).
 Proof.
-  unfold eclosed, eclosed_except, eclosed_except2.
+  unfold eclosed_except, eclosed_except2.
   intros f x sx e Hcsx Hex y s Hyf.
   destruct (String.eqb y x) eqn:Hyx.
   - apply String.eqb_eq in Hyx. subst y.
-    rewrite subst_subst_same. f_equal. apply Hcsx.
+    unfold eclosed in Hcsx. rewrite subst_subst_same. f_equal. apply Hcsx.
   - apply eqb_neq in Hyx.
-    rewrite subst_comm_closed; auto. f_equal. apply Hex; assumption.
+    apply subst_preserves_subst_inv; [exact Hyx | exact Hcsx | apply Hex; assumption].
 Qed.
 
 Lemma eclosed_subst_closed2 : forall f x sf sx e,
@@ -2187,6 +2288,55 @@ Ltac inv_record_equiv H :=
   | [ H2 : Forall2 _ ?x (map _ _) |- _ ] => rename x into fes'
   end.
 
+(** Helper: decompose eclosed hypothesis for common expression forms *)
+Ltac eclosed_prep :=
+  match goal with
+  | [ H : eclosed (close ?r (EBinOp _ _ _)) |- _ ] =>
+    rewrite close_binop in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_binop_inv _ _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (EUnOp _ _)) |- _ ] =>
+    rewrite close_unop in H;
+    let H1 := fresh "Hecl" in
+    pose proof (eclosed_unop_inv _ _ H) as H1; clear H
+  | [ H : eclosed (close ?r (EIf _ _ _)) |- _ ] =>
+    rewrite close_if in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in let H3 := fresh "Hecl" in
+    destruct (eclosed_if_inv _ _ _ H) as [H1 [H2 H3]]; clear H
+  | [ H : eclosed (close ?r (ESeq _ _)) |- _ ] =>
+    rewrite close_seq in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_seq_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (EApp _ _)) |- _ ] =>
+    rewrite close_app in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_app_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (EIndex _ _)) |- _ ] =>
+    rewrite close_index in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_index_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (EArraySet _ _ _)) |- _ ] =>
+    rewrite close_arrayset in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in let H3 := fresh "Hecl" in
+    destruct (eclosed_arrayset_inv _ _ _ H) as [H1 [H2 H3]]; clear H
+  | [ H : eclosed (close ?r (EArrayPush _ _)) |- _ ] =>
+    rewrite close_arraypush in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_arraypush_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (EField _ _)) |- _ ] =>
+    rewrite close_field in H;
+    let H1 := fresh "Hecl" in
+    pose proof (eclosed_field_inv _ _ H) as H1; clear H
+  | [ H : eclosed (close ?r (EConstruct _ _ _)) |- _ ] =>
+    rewrite close_construct in H;
+    let H1 := fresh "Hecl" in
+    pose proof (eclosed_construct_inv _ _ _ H) as H1; clear H
+  | [ H : eclosed (close ?r (EStrIndex _ _)) |- _ ] =>
+    rewrite close_strindex in H;
+    let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
+    destruct (eclosed_strindex_inv _ _ H) as [H1 H2]; clear H
+  end.
+
 (** Helper: apply an IH to get multi_step_equiv and val_good.
     We use `pose proof` to mark the IH as used, then clear the original.
     The match picks the most recent unused IH (bottom-up = last subexpr first).
@@ -2196,9 +2346,10 @@ Ltac inv_record_equiv H :=
 Ltac apply_IH :=
   match goal with
   | [ IH : pure ?e -> env_good ?renv -> all_vals_closed ?renv ->
+           eclosed (close ?renv ?e) ->
            multi_step_equiv (close ?renv ?e) (val_to_expr ?v) /\ val_good ?v |- _ ] =>
     let H := fresh "IH_result" in
-    pose proof (IH ltac:(assumption) ltac:(assumption) ltac:(assumption)) as H;
+    pose proof (IH ltac:(assumption) ltac:(assumption) ltac:(assumption) ltac:(assumption)) as H;
     clear IH;
     let Hms := fresh "Hms" in
     let Hvg := fresh "Hvg" in
@@ -2223,12 +2374,13 @@ Ltac solve_binop_mse :=
 Theorem eval_to_multistep_gen : forall renv e renv' v,
   pure e -> eval renv e renv' v ->
   env_good renv -> all_vals_closed renv ->
+  eclosed (close renv e) ->
   multi_step_equiv (close renv e) (val_to_expr v)
   /\ val_good v.
 Proof.
-  intros renv e renv' v Hpure Heval Hgood Havc.
-  revert Hpure Hgood Havc.
-  induction Heval; intros Hpure Hgood Havc; inversion Hpure; subst;
+  intros renv e renv' v Hpure Heval Hgood Havc Hecl.
+  revert Hpure Hgood Havc Hecl.
+  induction Heval; intros Hpure Hgood Havc Hecl; inversion Hpure; subst;
     try (pure_env_eq).
 
   (* E_Int *)
@@ -2253,7 +2405,7 @@ Proof.
     apply multi_step_to_equiv. apply MS_Refl.
 
   (* E_BinArith: eval_arith_binop op n1 n2 = Some v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     destruct (eval_arith_binop_int _ _ _ _ H) as [nr ?]; subst.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
@@ -2269,7 +2421,7 @@ Proof.
       apply arith_binop_apply. assumption.
 
   (* E_BinCmp: eval_cmp_binop op n1 n2 = Some v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     destruct (eval_cmp_binop_bool _ _ _ _ H) as [br ?]; subst.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
@@ -2285,7 +2437,7 @@ Proof.
       apply cmp_binop_apply. assumption.
 
   (* E_BinEqBool: op = OpEq, result = VBool (Bool.eqb b1 b2) *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2298,7 +2450,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_BinNeBool: op = OpNe, result = VBool (negb (Bool.eqb b1 b2)) *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2311,7 +2463,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_StrCat: result = VString (append s1 s2) *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2324,7 +2476,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_BinEqStr: op = OpEq, result = VBool (String.eqb s1 s2) *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2337,7 +2489,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_BinNeStr: op = OpNe, result = VBool (negb (String.eqb s1 s2)) *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2350,7 +2502,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_And_True: eval e1 => true, eval e2 => VBool v2 *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2363,7 +2515,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_And_False: eval e1 => false, e2 = EBool false, result = VBool false *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms as [e1' [Hms1' Heq1']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2373,7 +2525,7 @@ Proof.
     + eapply MS_Step; [apply S_AndFalse | apply MS_Refl].
 
   (* E_And_Short: eval e1 => false, result = VBool false *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms as [e1' [Hms1' Heq1']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2383,7 +2535,7 @@ Proof.
     + eapply MS_Step; [apply S_AndFalse | apply MS_Refl].
 
   (* E_Or_False: eval e1 => false, eval e2 => VBool v2 *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2396,7 +2548,7 @@ Proof.
       apply S_BinOp; [constructor | constructor |]. simpl. reflexivity.
 
   (* E_Or_Short: eval e1 => true, result = VBool true *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_binop.
     destruct Hms as [e1' [Hms1' Heq1']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2406,7 +2558,7 @@ Proof.
     + eapply MS_Step; [apply S_OrTrue | apply MS_Refl].
 
   (* E_Neg: eval e => VInt n, result = VInt (- n) *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_unop.
     destruct Hms as [e' [Hms' Heq']].
     simpl in Heq'. inversion Heq'; subst.
@@ -2416,7 +2568,7 @@ Proof.
     + eapply MS_Step; [apply S_Neg | apply MS_Refl].
 
   (* E_Not: eval e => VBool b, result = VBool (negb b) *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_unop.
     destruct Hms as [e' [Hms' Heq']].
     simpl in Heq'. inversion Heq'; subst.
@@ -2426,7 +2578,7 @@ Proof.
     + eapply MS_Step; [apply S_Not | apply MS_Refl].
 
   (* E_StrLen: eval e => VString s, result = VInt (length s) *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_unop.
     destruct Hms as [e' [Hms' Heq']].
     simpl in Heq'. inversion Heq'; subst.
@@ -2436,7 +2588,7 @@ Proof.
     + eapply MS_Step; [apply S_StrLen | apply MS_Refl].
 
   (* E_IfTrue: eval e1 => true, eval e2 => v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| assumption]. rewrite close_if.
     destruct Hms0 as [e1' [Hms1' Heq1']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2451,7 +2603,7 @@ Proof.
       * exact Hms.
 
   (* E_IfFalse: eval e1 => false, eval e3 => v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| assumption]. rewrite close_if.
     destruct Hms0 as [e1' [Hms1' Heq1']].
     simpl in Heq1'. inversion Heq1'; subst.
@@ -2466,14 +2618,21 @@ Proof.
       * exact Hms.
 
   (* E_Let: eval e1 => v1, eval (ECons x v1 renv) e2 => v2 *)
-  - apply_IH.
+  - rewrite close_let in Hecl.
+    destruct (eclosed_let_inv _ _ _ Hecl) as [Hecl1 Heclex].
+    apply_IH.
     assert (Hcv1 : eclosed (val_to_expr v1)) by (apply val_good_eclosed; assumption).
     assert (Havc2 : all_vals_closed (ECons x v1 renv)).
     { simpl. split; [exact Hcv1 | assumption]. }
+    assert (Hecl2 : eclosed (close (ECons x v1 renv) e2)).
+    { change (eclosed (close renv (subst x (val_to_expr v1) e2))).
+      rewrite <- subst_close_except; [| assumption | exact Hcv1].
+      apply eclosed_subst_closed; [exact Hcv1 | exact Heclex]. }
     match goal with
     | [ IH2 : pure ?e2 -> env_good (ECons x v1 renv) -> all_vals_closed (ECons x v1 renv) ->
+              eclosed (close (ECons x v1 renv) ?e2) ->
               multi_step_equiv (close (ECons x v1 renv) ?e2) (val_to_expr ?v2) /\ val_good ?v2 |- _ ] =>
-      destruct (IH2 ltac:(assumption) ltac:(constructor; assumption) Havc2) as [Hms2 Hvg2]
+      destruct (IH2 ltac:(assumption) ltac:(constructor; assumption) Havc2 Hecl2) as [Hms2 Hvg2]
     end.
     split; [| assumption]. rewrite close_let.
     assert (Hkey : close (ECons x v1 renv) e2 =
@@ -2495,7 +2654,7 @@ Proof.
       * apply subst_expr_equiv; [exact Heq1' | apply expr_equiv_refl].
 
   (* E_Seq: eval e1 => v1, eval e2 => v2 *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| assumption]. rewrite close_seq.
     destruct Hms0 as [e1' [Hms1' Heq1']].
     assert (Hv1' : is_value e1').
@@ -2511,21 +2670,31 @@ Proof.
       * exact Hms.
 
   (* E_Lam: result = VClos x body renv *)
-  - split; [| constructor; assumption].
+  - rewrite close_lam in Hecl.
+    split; [| constructor; [assumption | assumption | eapply eclosed_lam_type_irrel; exact Hecl]].
     rewrite close_lam.
     exists (ELam x t (close_except x renv body)). split.
     + apply MS_Refl.
     + apply EQ_Lam. apply expr_equiv_refl.
 
   (* E_App: eval e1 => VClos x body clos_env, eval e2 => v2, eval body => v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     inversion Hvg0; subst.
     assert (Hcv2 : eclosed (val_to_expr v2)) by (apply val_good_eclosed; assumption).
     assert (Havc_clos : all_vals_closed clos_env) by (apply env_good_all_vals_closed; assumption).
+    assert (Hecl3 : eclosed (close (ECons x v2 clos_env) body)).
+    { change (eclosed (close clos_env (subst x (val_to_expr v2) body))).
+      rewrite <- subst_close_except; [| exact Havc_clos | exact Hcv2].
+      apply eclosed_subst_closed; [exact Hcv2 |].
+      match goal with
+      | [ H : eclosed (val_to_expr (VClos _ _ _)) |- _ ] =>
+        simpl in H; eapply eclosed_lam_inv; exact H
+      end. }
     match goal with
     | [ IH3 : pure body -> env_good (ECons x v2 clos_env) -> all_vals_closed (ECons x v2 clos_env) ->
+              eclosed (close (ECons x v2 clos_env) body) ->
               multi_step_equiv (close (ECons x v2 clos_env) body) (val_to_expr ?vr) /\ val_good ?vr |- _ ] =>
-      destruct (IH3 ltac:(assumption) ltac:(constructor; assumption) ltac:(simpl; split; [exact Hcv2 | exact Havc_clos])) as [Hms3 Hvg3]
+      destruct (IH3 ltac:(assumption) ltac:(constructor; assumption) ltac:(simpl; split; [exact Hcv2 | exact Havc_clos]) Hecl3) as [Hms3 Hvg3]
     end.
     split; [| assumption]. rewrite close_app.
     assert (Hkey : subst x (val_to_expr v2) (close_except x clos_env body) =
@@ -2556,7 +2725,12 @@ Proof.
     apply multi_step_to_equiv. apply MS_Refl.
 
   (* E_ArrayCons: eval e => v, eval (EArray es) => VArray vs *)
-  - match goal with
+  - rewrite close_array in Hecl. simpl in Hecl.
+    pose proof (eclosed_array_inv _ Hecl) as Hecl_all.
+    inversion Hecl_all as [| ? ? Hecl_hd Hecl_tl]; subst.
+    assert (Hecl_tail : eclosed (close renv (EArray es))).
+    { rewrite close_array. apply eclosed_array. exact Hecl_tl. }
+    match goal with
     | [ H : Forall pure (_ :: _) |- _ ] => inversion H; subst; clear H
     end.
     (* Manually equate environments since pure_env_eq couldn't *)
@@ -2571,8 +2745,9 @@ Proof.
     apply_IH.
     match goal with
     | [ IH2 : pure (EArray ?es) -> env_good ?renv -> all_vals_closed ?renv ->
+              eclosed (close ?renv (EArray ?es)) ->
               multi_step_equiv (close ?renv (EArray ?es)) (val_to_expr (VArray ?vs)) /\ val_good (VArray ?vs) |- _ ] =>
-      destruct (IH2 ltac:(constructor; assumption) ltac:(assumption) ltac:(assumption)) as [Hms2 Hvg2]
+      destruct (IH2 ltac:(constructor; assumption) ltac:(assumption) ltac:(assumption) Hecl_tail) as [Hms2 Hvg2]
     end.
     inversion Hvg2; subst.
     split.
@@ -2597,7 +2772,7 @@ Proof.
       constructor. constructor; assumption.
 
   (* E_Index: eval e1 => VArray vs, eval e2 => VInt n, nth_error vs n = Some v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split.
     + rewrite close_index.
       destruct Hms0 as [e1' [Hms1' Heq1']]. destruct Hms as [e2' [Hms2' Heq2']].
@@ -2622,7 +2797,7 @@ Proof.
       * eassumption.
 
   (* E_ArrayLen: eval e => VArray vs, result = VInt (length vs) *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split; [| constructor]. rewrite close_unop.
     destruct Hms as [e' [Hms' Heq']].
     simpl in Heq'. inv_array_equiv Heq'.
@@ -2644,7 +2819,15 @@ Proof.
     apply multi_step_to_equiv. apply MS_Refl.
 
   (* E_RecordCons: eval e => v, eval (ERecord es) => VRecord vs *)
-  - match goal with
+  - rewrite close_record in Hecl. simpl in Hecl.
+    pose proof (eclosed_record_inv _ Hecl) as Hecl_all.
+    inversion Hecl_all as [| ? ? Hecl_hd Hecl_tl]; subst. simpl in Hecl_hd.
+    match type of Hecl_tl with
+    | Forall _ (map _ ?rest) =>
+      assert (Hecl_tail : eclosed (close renv (ERecord rest)));
+      [ rewrite close_record; apply eclosed_record; exact Hecl_tl | ]
+    end.
+    match goal with
     | [ H : Forall (fun fe => pure (snd fe)) ((_ , _) :: _) |- _ ] => inversion H; subst; clear H
     end.
     (* Manually equate environments *)
@@ -2659,11 +2842,12 @@ Proof.
     apply_IH.
     match goal with
     | [ IH2 : Forall (fun fe => pure (snd fe)) ?es0 -> env_good ?r -> all_vals_closed ?r ->
+              eclosed (close ?r (ERecord ?es0)) ->
               multi_step_equiv (close ?r (ERecord ?es0)) (val_to_expr (VRecord ?vs0)) /\ val_good (VRecord ?vs0) |- _ ] =>
-      destruct (IH2 ltac:(assumption) ltac:(assumption) ltac:(assumption)) as [Hms2 Hvg2]
-    | [ IH2 : ?P -> env_good ?r -> all_vals_closed ?r ->
+      destruct (IH2 ltac:(assumption) ltac:(assumption) ltac:(assumption) Hecl_tail) as [Hms2 Hvg2]
+    | [ IH2 : ?P -> env_good ?r -> all_vals_closed ?r -> ?Q ->
               multi_step_equiv _ (val_to_expr (VRecord ?vs0)) /\ val_good (VRecord ?vs0) |- _ ] =>
-      destruct (IH2 ltac:(try assumption; try (constructor; assumption)) ltac:(assumption) ltac:(assumption)) as [Hms2 Hvg2]
+      destruct (IH2 ltac:(try assumption; try (constructor; assumption)) ltac:(assumption) ltac:(assumption) Hecl_tail) as [Hms2 Hvg2]
     end.
     inversion Hvg2; subst.
     split.
@@ -2684,7 +2868,7 @@ Proof.
     + constructor. constructor; [simpl; assumption | assumption].
 
   (* E_Field: eval e => VRecord fvs, assoc_lookup f fvs = Some v *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split.
     + rewrite close_field.
       destruct Hms as [e' [Hms' Heq']].
@@ -2707,26 +2891,38 @@ Proof.
       * eassumption.
 
   (* E_Fix: result = VFixClos f x body renv *)
-  - split; [| constructor; assumption].
+  - rewrite close_fix in Hecl.
+    split; [| constructor; [assumption | assumption | eapply eclosed_fix_type_irrel; exact Hecl]].
     rewrite close_fix.
     exists (EFix f x t1 t2 (close_except2 f x renv body)). split.
     + apply MS_Refl.
     + apply EQ_Fix. apply expr_equiv_refl.
 
   (* E_AppFix: eval e1 => VFixClos f x body clos_env, eval e2 => v2, eval body => v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     inversion Hvg0; subst.
     assert (Hvgfix : val_good (VFixClos f x body clos_env)) by (constructor; assumption).
     assert (Hcv2 : eclosed (val_to_expr v2)) by (apply val_good_eclosed; assumption).
     assert (Hcfix : eclosed (val_to_expr (VFixClos f x body clos_env))) by (apply val_good_eclosed; assumption).
     assert (Havc_clos : all_vals_closed clos_env) by (apply env_good_all_vals_closed; assumption).
+    assert (Hecl3 : eclosed (close (ECons x v2 (ECons f (VFixClos f x body clos_env) clos_env)) body)).
+    { change (eclosed (close clos_env (subst f (val_to_expr (VFixClos f x body clos_env))
+                                         (subst x (val_to_expr v2) body)))).
+      rewrite <- subst_close_except2; [| exact Havc_clos | exact Hcfix | exact Hcv2].
+      apply eclosed_subst_closed2; [exact Hcfix | exact Hcv2 |].
+      match goal with
+      | [ H : eclosed (val_to_expr (VFixClos _ _ _ _)) |- _ ] =>
+        simpl in H; eapply eclosed_fix_inv; exact H
+      end. }
     match goal with
     | [ IH3 : pure body -> env_good (ECons x v2 (ECons f (VFixClos f x body clos_env) clos_env)) ->
               all_vals_closed (ECons x v2 (ECons f (VFixClos f x body clos_env) clos_env)) ->
+              eclosed (close (ECons x v2 (ECons f (VFixClos f x body clos_env) clos_env)) body) ->
               multi_step_equiv _ (val_to_expr ?vr) /\ val_good ?vr |- _ ] =>
       destruct (IH3 ltac:(assumption)
                     ltac:(constructor; [assumption | constructor; [exact Hvgfix | assumption]])
-                    ltac:(simpl; split; [exact Hcv2 | split; [exact Hcfix | exact Havc_clos]])) as [Hms3 Hvg3]
+                    ltac:(simpl; split; [exact Hcv2 | split; [exact Hcfix | exact Havc_clos]])
+                    Hecl3) as [Hms3 Hvg3]
     end.
     split; [| assumption]. rewrite close_app.
     assert (Hkey : subst f (val_to_expr (VFixClos f x body clos_env))
@@ -2755,7 +2951,7 @@ Proof.
         -- apply subst_expr_equiv; [exact Heq2' | exact Hbody'eq].
 
   (* E_Construct: eval e => v, result = VConstruct tag v *)
-  - apply_IH.
+  - eclosed_prep. apply_IH.
     split.
     + rewrite close_construct.
       destruct Hms as [e' [Hms' Heq']].
@@ -2765,15 +2961,27 @@ Proof.
     + constructor. assumption.
 
   (* E_Match: eval e => VConstruct tag v, find_branch => body, eval body => v_result *)
-  - apply_IH.
+  - rewrite close_match in Hecl.
+    pose proof (eclosed_match_scrutinee_inv _ _ Hecl) as Hecl_scr.
+    apply_IH.
     inversion Hvg; subst.
     assert (Hcv : eclosed (val_to_expr v)) by (apply val_good_eclosed; assumption).
     assert (Havc2 : all_vals_closed (ECons x v renv)).
     { simpl. split; [exact Hcv | assumption]. }
+    assert (Hecl2 : eclosed (close (ECons x v renv) body)).
+    { change (eclosed (close renv (subst x (val_to_expr v) body))).
+      rewrite <- subst_close_except; [| assumption | exact Hcv].
+      apply eclosed_subst_closed; [exact Hcv |].
+      eapply eclosed_match_branch; [exact Hecl |].
+      match goal with
+      | [ Hfb : find_branch _ _ = Some (_, _) |- _ ] =>
+        eapply find_branch_close; exact Hfb
+      end. }
     match goal with
     | [ IH2 : pure body -> env_good (ECons x v renv) -> all_vals_closed (ECons x v renv) ->
+              eclosed (close (ECons x v renv) body) ->
               multi_step_equiv (close (ECons x v renv) body) (val_to_expr ?vr) /\ val_good ?vr |- _ ] =>
-      destruct (IH2 ltac:(eapply find_branch_pure; eassumption) ltac:(constructor; assumption) Havc2) as [Hms2 Hvg2]
+      destruct (IH2 ltac:(eapply find_branch_pure; eassumption) ltac:(constructor; assumption) Havc2 Hecl2) as [Hms2 Hvg2]
     end.
     split; [| assumption]. rewrite close_match.
     assert (Hkey : close (ECons x v renv) body =
@@ -2812,7 +3020,7 @@ Proof.
         end.
 
   (* E_ArraySet: eval e1 => VArray vs, eval e2 => VInt n, eval e3 => v *)
-  - apply_IH. apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH. apply_IH.
     split.
     + rewrite close_arrayset.
       (* IH order: Hms=e2(VInt n), Hms0=e3(v), Hms1=e1(VArray vs) *)
@@ -2838,7 +3046,7 @@ Proof.
       apply list_update_forall; [inversion Hvg1; subst; eassumption | exact Hvg0].
 
   (* E_ArrayPush: eval e1 => VArray vs, eval e2 => v *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split.
     + rewrite close_arraypush.
       destruct Hms0 as [e1' [Hms1' Heq1']].
@@ -2861,7 +3069,7 @@ Proof.
       apply Forall_app. split; [eassumption | constructor; [assumption | constructor]].
 
   (* E_StrIndex: eval e1 => VString s, eval e2 => VInt n *)
-  - apply_IH. apply_IH.
+  - eclosed_prep. apply_IH. apply_IH.
     split; [| constructor]. rewrite close_strindex.
     destruct Hms0 as [e1' [Hms1' Heq1']].
     destruct Hms as [e2' [Hms2' Heq2']].
@@ -2877,13 +3085,14 @@ Qed.
 (** ** Wrapper: the original theorem follows from the generalized one *)
 
 Theorem eval_to_multistep : forall e v,
-  pure e ->
+  pure e -> eclosed e ->
   eval ENil e ENil v ->
   multi_step_equiv e (val_to_expr v).
 Proof.
-  intros e v Hpure Heval.
+  intros e v Hpure Hecl Heval.
   assert (env_good ENil) by constructor.
   assert (all_vals_closed ENil) by (simpl; exact I).
+  assert (eclosed (close ENil e)) by (rewrite close_nil; exact Hecl).
   rewrite <- (close_nil e).
   eapply eval_to_multistep_gen; eassumption.
 Qed.
