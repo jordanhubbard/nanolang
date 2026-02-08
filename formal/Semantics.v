@@ -287,4 +287,55 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
   | E_Field : forall renv renv1 e f fvs v,
       eval renv e renv1 (VRecord fvs) ->
       assoc_lookup f fvs = Some v ->
-      eval renv (EField e f) renv1 v.
+      eval renv (EField e f) renv1 v
+
+  (** Record field update: set x.f = e *)
+  | E_SetField : forall renv renv1 x f e v fvs v_old,
+      eval renv e renv1 v ->
+      env_lookup x renv1 = Some (VRecord fvs) ->
+      assoc_lookup f fvs = Some v_old ->
+      eval renv (ESetField x f e)
+           (env_update x (VRecord (assoc_update f v fvs)) renv1) VUnit
+
+  (** Fix: recursive function creates a fix closure *)
+  | E_Fix : forall renv f x t1 t2 body,
+      eval renv (EFix f x t1 t2 body) renv (VFixClos f x body renv)
+
+  (** Application of fix closure: unrolls one step *)
+  | E_AppFix : forall renv renv1 renv2 renv3 e1 e2 f x body clos_env v2 v,
+      eval renv e1 renv1 (VFixClos f x body clos_env) ->
+      eval renv1 e2 renv2 v2 ->
+      eval (ECons x v2 (ECons f (VFixClos f x body clos_env) clos_env)) body renv3 v ->
+      eval renv (EApp e1 e2) renv2 v
+
+  (** Variant constructor *)
+  | E_Construct : forall renv renv1 tag e v t,
+      eval renv e renv1 v ->
+      eval renv (EConstruct tag e t) renv1 (VConstruct tag v)
+
+  (** Pattern matching *)
+  | E_Match : forall renv renv1 e branches tag v x body vx renv_out v_result,
+      eval renv e renv1 (VConstruct tag v) ->
+      find_branch tag branches = Some (x, body) ->
+      eval (ECons x v renv1) body (ECons x vx renv_out) v_result ->
+      eval renv (EMatch e branches) renv_out v_result
+
+  (** Array functional update *)
+  | E_ArraySet : forall renv renv1 renv2 renv3 e1 e2 e3 vs n v,
+      eval renv e1 renv1 (VArray vs) ->
+      eval renv1 e2 renv2 (VInt n) ->
+      eval renv2 e3 renv3 v ->
+      eval renv (EArraySet e1 e2 e3) renv3 (VArray (list_update (Z.to_nat n) v vs))
+
+  (** Array push *)
+  | E_ArrayPush : forall renv renv1 renv2 e1 e2 vs v,
+      eval renv e1 renv1 (VArray vs) ->
+      eval renv1 e2 renv2 v ->
+      eval renv (EArrayPush e1 e2) renv2 (VArray (vs ++ [v]))
+
+  (** String indexing: total, out-of-bounds returns "" *)
+  | E_StrIndex : forall renv renv1 renv2 e1 e2 s n,
+      eval renv e1 renv1 (VString s) ->
+      eval renv1 e2 renv2 (VInt n) ->
+      eval renv (EStrIndex e1 e2) renv2
+           (VString (String.substring (Z.to_nat n) 1 s)).

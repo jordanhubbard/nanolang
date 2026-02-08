@@ -47,18 +47,37 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
   | ELam y t body =>
       ELam y t (if String.eqb x y then body else subst x s body)
   | EApp e1 e2 => EApp (subst x s e1) (subst x s e2)
+  | EFix f y t1 t2 body =>
+      EFix f y t1 t2
+        (if (String.eqb x f || String.eqb x y)%bool then body
+         else subst x s body)
   | EArray es => EArray ((fix subst_list (l : list expr) : list expr :=
                    match l with
                    | [] => []
                    | e0 :: rest => subst x s e0 :: subst_list rest
                    end) es)
   | EIndex e1 e2 => EIndex (subst x s e1) (subst x s e2)
+  | EArraySet e1 e2 e3 => EArraySet (subst x s e1) (subst x s e2) (subst x s e3)
+  | EArrayPush e1 e2 => EArrayPush (subst x s e1) (subst x s e2)
   | ERecord fes => ERecord ((fix subst_fields (l : list (string * expr)) : list (string * expr) :=
                      match l with
                      | [] => []
                      | (f, e0) :: rest => (f, subst x s e0) :: subst_fields rest
                      end) fes)
   | EField e1 f => EField (subst x s e1) f
+  | ESetField y f e1 => ESetField y f (subst x s e1)
+  | EConstruct tag e1 t => EConstruct tag (subst x s e1) t
+  | EMatch e1 branches =>
+      EMatch (subst x s e1)
+             ((fix subst_branches (bs : list (string * string * expr)) :
+                   list (string * string * expr) :=
+                match bs with
+                | [] => []
+                | (tag, y, body) :: rest =>
+                    (tag, y, if String.eqb x y then body else subst x s body)
+                    :: subst_branches rest
+                end) branches)
+  | EStrIndex e1 e2 => EStrIndex (subst x s e1) (subst x s e2)
   end.
 
 (** ** Value predicate on expressions *)
@@ -69,8 +88,10 @@ Inductive is_value : expr -> Prop :=
   | V_String : forall s, is_value (EString s)
   | V_Unit   : is_value EUnit
   | V_Lam    : forall x t body, is_value (ELam x t body)
+  | V_Fix    : forall f x t1 t2 body, is_value (EFix f x t1 t2 body)
   | V_Array  : forall es, Forall is_value es -> is_value (EArray es)
-  | V_Record : forall fes, Forall (fun fe => is_value (snd fe)) fes -> is_value (ERecord fes).
+  | V_Record : forall fes, Forall (fun fe => is_value (snd fe)) fes -> is_value (ERecord fes)
+  | V_Construct : forall tag v t, is_value v -> is_value (EConstruct tag v t).
 
 (** ** Total binary operation on expression values
 
@@ -110,16 +131,7 @@ Definition apply_binop (op : binop) (e1 e2 : expr) : option expr :=
                 | _, _ => None end
   end.
 
-(** ** Small-step reduction relation
-
-    The relation [step e e'] reduces a closed expression one step.
-    For pure expressions, this is standard. For mutation:
-    - [ESet x v] reduces to [EUnit] (the actual store update
-      happens in the big-step semantics; in small-step, set on
-      closed expressions requires a store, which we handle by
-      restricting progress to the pure+control fragment)
-    - [EWhile] unrolls to an if expression
-    - [ESeq v e2] reduces to [e2] when the left side is a value *)
+(** ** Small-step reduction relation *)
 
 Inductive step : expr -> expr -> Prop :=
   (* Binary: evaluate left *)
@@ -169,18 +181,13 @@ Inductive step : expr -> expr -> Prop :=
   | S_Set1 : forall x e e',
       step e e' ->
       step (ESet x e) (ESet x e')
-  (* Set: when value is ready, reduce to unit
-     (In a store-passing small-step, this would update the store.
-      For closed expressions without free variables, set is a no-op
-      that produces unit.) *)
   | S_SetVal : forall x v,
       is_value v ->
       step (ESet x v) EUnit
-  (* Sequence: evaluate left side *)
+  (* Sequence *)
   | S_Seq1 : forall e1 e1' e2,
       step e1 e1' ->
       step (ESeq e1 e2) (ESeq e1' e2)
-  (* Sequence: left side done, proceed to right *)
   | S_SeqVal : forall v e2,
       is_value v ->
       step (ESeq v e2) e2
@@ -198,6 +205,10 @@ Inductive step : expr -> expr -> Prop :=
   | S_AppBeta : forall x t body v,
       is_value v ->
       step (EApp (ELam x t body) v) (subst x v body)
+  | S_AppFixBeta : forall f x t1 t2 body v,
+      is_value v ->
+      step (EApp (EFix f x t1 t2 body) v)
+           (subst f (EFix f x t1 t2 body) (subst x v body))
   (* Array: evaluate head element *)
   | S_ArrayHead : forall e e' es,
       step e e' ->
@@ -223,6 +234,30 @@ Inductive step : expr -> expr -> Prop :=
   | S_ArrayLen : forall es,
       Forall is_value es ->
       step (EUnOp OpArrayLen (EArray es)) (EInt (Z.of_nat (length es)))
+  (* Array functional update *)
+  | S_ArraySet1 : forall e1 e1' e2 e3,
+      step e1 e1' ->
+      step (EArraySet e1 e2 e3) (EArraySet e1' e2 e3)
+  | S_ArraySet2 : forall v1 e2 e2' e3,
+      is_value v1 -> step e2 e2' ->
+      step (EArraySet v1 e2 e3) (EArraySet v1 e2' e3)
+  | S_ArraySet3 : forall v1 v2 e3 e3',
+      is_value v1 -> is_value v2 -> step e3 e3' ->
+      step (EArraySet v1 v2 e3) (EArraySet v1 v2 e3')
+  | S_ArraySetVal : forall es n v,
+      Forall is_value es -> is_value v ->
+      step (EArraySet (EArray es) (EInt n) v)
+           (EArray (list_update (Z.to_nat n) v es))
+  (* Array push *)
+  | S_ArrayPush1 : forall e1 e1' e2,
+      step e1 e1' ->
+      step (EArrayPush e1 e2) (EArrayPush e1' e2)
+  | S_ArrayPush2 : forall v1 e2 e2',
+      is_value v1 -> step e2 e2' ->
+      step (EArrayPush v1 e2) (EArrayPush v1 e2')
+  | S_ArrayPushVal : forall es v,
+      Forall is_value es -> is_value v ->
+      step (EArrayPush (EArray es) v) (EArray (es ++ [v]))
   (* Record: evaluate head field *)
   | S_RecordHead : forall f e e' fes,
       step e e' ->
@@ -243,7 +278,38 @@ Inductive step : expr -> expr -> Prop :=
            (match assoc_lookup f fes with
             | Some v => v
             | None => EUnit
-            end).
+            end)
+  (* SetField: evaluate value expression *)
+  | S_SetField1 : forall x f e e',
+      step e e' ->
+      step (ESetField x f e) (ESetField x f e')
+  (* SetField: reduce to unit *)
+  | S_SetFieldVal : forall x f v,
+      is_value v ->
+      step (ESetField x f v) EUnit
+  (* Construct: evaluate payload *)
+  | S_Construct1 : forall tag e e' t,
+      step e e' ->
+      step (EConstruct tag e t) (EConstruct tag e' t)
+  (* Match: evaluate scrutinee *)
+  | S_Match1 : forall e e' branches,
+      step e e' ->
+      step (EMatch e branches) (EMatch e' branches)
+  (* Match: beta reduction *)
+  | S_MatchBeta : forall tag v t branches x body,
+      is_value v ->
+      find_branch tag branches = Some (x, body) ->
+      step (EMatch (EConstruct tag v t) branches) (subst x v body)
+  (* String indexing *)
+  | S_StrIndex1 : forall e1 e1' e2,
+      step e1 e1' ->
+      step (EStrIndex e1 e2) (EStrIndex e1' e2)
+  | S_StrIndex2 : forall v1 e2 e2',
+      is_value v1 -> step e2 e2' ->
+      step (EStrIndex v1 e2) (EStrIndex v1 e2')
+  | S_StrIndexVal : forall s n,
+      step (EStrIndex (EString s) (EInt n))
+           (EString (String.substring (Z.to_nat n) 1 s)).
 
 (** ** Canonical forms for expressions *)
 
@@ -277,10 +343,12 @@ Qed.
 
 Lemma canonical_forms_arrow : forall e t1 t2,
   has_type CtxNil e (TArrow t1 t2) -> is_value e ->
-  exists x body, e = ELam x t1 body.
+  (exists x body, e = ELam x t1 body) \/
+  (exists f x body, e = EFix f x t1 t2 body).
 Proof.
   intros e t1 t2 Ht Hv. inversion Hv; subst; inversion Ht; subst.
-  - exists x, body. reflexivity.
+  - left. exists x, body. reflexivity.
+  - right. exists f, x, body. reflexivity.
 Qed.
 
 Lemma canonical_forms_record : forall e fts,
@@ -297,6 +365,14 @@ Lemma canonical_forms_array : forall e t,
 Proof.
   intros e t Ht Hv. inversion Hv; subst; try solve [inversion Ht].
   exists es. split; [reflexivity | assumption].
+Qed.
+
+Lemma canonical_forms_variant : forall e fts,
+  has_type CtxNil e (TVariant fts) -> is_value e ->
+  exists tag v t, e = EConstruct tag v t /\ is_value v.
+Proof.
+  intros e fts Ht Hv. inversion Hv; subst; try solve [inversion Ht].
+  eexists _, _, _. split; [reflexivity | assumption].
 Qed.
 
 (** ** Totality of apply_binop on well-typed inputs *)
@@ -355,6 +431,21 @@ Lemma step_record_form : forall fes e',
 Proof.
   intros fes e' Hstep.
   inversion Hstep; subst; eexists; reflexivity.
+Qed.
+
+(** ** Branch lookup for variants *)
+
+Lemma branches_type_find : forall ctx branches fts t tag t_payload,
+  branches_type ctx branches fts t ->
+  assoc_lookup tag fts = Some t_payload ->
+  exists x body, find_branch tag branches = Some (x, body).
+Proof.
+  intros ctx branches fts t tag t_payload Hbt Hlookup.
+  induction Hbt.
+  - simpl in Hlookup. discriminate.
+  - simpl in *. destruct (String.eqb tag tag0) eqn:Heq.
+    + exists x, body. reflexivity.
+    + apply IHHbt. assumption.
 Qed.
 
 (** ** Progress Theorem *)
@@ -505,10 +596,16 @@ Proof.
     right.
     destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
     + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
-      * apply canonical_forms_arrow in Htype1 as [x [body ?]]; [| assumption]; subst.
-        exists (subst x e2 body). apply S_AppBeta. assumption.
+      * apply canonical_forms_arrow in Htype1 as Hcan; [| assumption].
+        destruct Hcan as [[x [body Heq]] | [f [x0 [body Heq]]]]; subst.
+        -- exists (subst x e2 body). apply S_AppBeta. assumption.
+        -- exists (subst f (EFix f x0 t1 t2 body) (subst x0 e2 body)).
+           apply S_AppFixBeta. assumption.
       * exists (EApp e1 e2'). apply S_App2; assumption.
     + exists (EApp e1' e2). apply S_App1. assumption.
+
+  - (* T_Fix *)
+    left. constructor.
 
   - (* T_ArrayNil *)
     left. constructor. constructor.
@@ -547,6 +644,34 @@ Proof.
       exists (EInt (Z.of_nat (length es))). apply S_ArrayLen. assumption.
     + exists (EUnOp OpArrayLen e'). apply S_UnOp1. assumption.
 
+  - (* T_ArraySet *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * destruct IHHtype3 as [Hv3 | [e3' Hs3]]; [reflexivity | |].
+        -- (* all values *)
+           apply canonical_forms_array in Htype1 as [es [? HF]]; [| assumption]; subst.
+           apply canonical_forms_int in Htype2 as [n ?]; [| assumption]; subst.
+           exists (EArray (list_update (Z.to_nat n) e3 es)). apply S_ArraySetVal; assumption.
+        -- (* e3 steps *)
+           exists (EArraySet e1 e2 e3'). apply S_ArraySet3; assumption.
+      * (* e2 steps *)
+        exists (EArraySet e1 e2' e3). apply S_ArraySet2; assumption.
+    + (* e1 steps *)
+      exists (EArraySet e1' e2 e3). apply S_ArraySet1. assumption.
+
+  - (* T_ArrayPush *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * (* both values *)
+        apply canonical_forms_array in Htype1 as [es [? HF]]; [| assumption]; subst.
+        exists (EArray (es ++ [e2])). apply S_ArrayPushVal; assumption.
+      * (* e2 steps *)
+        exists (EArrayPush e1 e2'). apply S_ArrayPush2; assumption.
+    + (* e1 steps *)
+      exists (EArrayPush e1' e2). apply S_ArrayPush1. assumption.
+
   - (* T_RecordNil *)
     left. constructor. constructor.
 
@@ -573,4 +698,48 @@ Proof.
       apply S_FieldVal. assumption.
     + (* e steps *)
       exists (EField e' f). apply S_Field1. assumption.
+
+  - (* T_SetField *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + exists EUnit. apply S_SetFieldVal. assumption.
+    + exists (ESetField x f e'). apply S_SetField1. assumption.
+
+  - (* T_Construct *)
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + left. constructor. assumption.
+    + right. exists (EConstruct tag e' (TVariant fts)). apply S_Construct1. assumption.
+
+  - (* T_Match *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + (* e is a value *)
+      assert (Hcan : exists tag v0 t0, e = EConstruct tag v0 t0 /\ is_value v0)
+        by (eapply canonical_forms_variant; eassumption).
+      destruct Hcan as [tag0 [v0 [t0 [Heq Hval]]]]. subst.
+      (* Invert T_Construct typing to get assoc_lookup *)
+      match goal with
+      | [ Ht : has_type _ (EConstruct _ _ _) _ |- _ ] =>
+        inversion Ht; subst
+      end.
+      (* Find the branch using branches_type_find *)
+      assert (Hfind : exists x0 body0, find_branch tag0 branches = Some (x0, body0))
+        by (eapply branches_type_find; eassumption).
+      destruct Hfind as [x0 [body0 Hfind]].
+      exists (subst x0 v0 body0). apply S_MatchBeta; assumption.
+    + (* e steps *)
+      exists (EMatch e' branches). apply S_Match1. assumption.
+
+  - (* T_StrIndex *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * (* both values *)
+        apply canonical_forms_string in Htype1 as [s ?]; [| assumption]; subst.
+        apply canonical_forms_int in Htype2 as [n ?]; [| assumption]; subst.
+        exists (EString (String.substring (Z.to_nat n) 1 s)). apply S_StrIndexVal.
+      * (* e2 steps *)
+        exists (EStrIndex e1 e2'). apply S_StrIndex2; assumption.
+    + (* e1 steps *)
+      exists (EStrIndex e1' e2). apply S_StrIndex1. assumption.
 Qed.

@@ -12,6 +12,7 @@
     - Function application checks argument against parameter type
     - Set requires variable in scope and value of matching type
     - While requires boolean condition and unit-typed body
+    - Pattern matching requires exhaustive, type-consistent branches
 *)
 
 From Stdlib Require Import ZArith.
@@ -78,7 +79,11 @@ Definition binop_allows_string_args (op : binop) : bool :=
   | _ => false
   end.
 
-(** ** Typing relation *)
+(** ** Typing relation
+
+    [has_type] and [branches_type] are mutually inductive:
+    match expressions require branches to be well-typed with
+    respect to the variant's constructor types. *)
 
 Inductive has_type : ctx -> expr -> ty -> Prop :=
 
@@ -194,6 +199,11 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
       has_type ctx e2 t1 ->
       has_type ctx (EApp e1 e2) t2
 
+  (** Recursive function *)
+  | T_Fix : forall ctx f x t1 t2 body,
+      has_type (CtxCons x t1 (CtxCons f (TArrow t1 t2) ctx)) body t2 ->
+      has_type ctx (EFix f x t1 t2 body) (TArrow t1 t2)
+
   (** Empty array literal: [] has type array<T> for any T *)
   | T_ArrayNil : forall ctx t,
       has_type ctx (EArray []) (TArray t)
@@ -215,6 +225,19 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
       has_type ctx e (TArray t) ->
       has_type ctx (EUnOp OpArrayLen e) TInt
 
+  (** Array functional update *)
+  | T_ArraySet : forall ctx e1 e2 e3 t,
+      has_type ctx e1 (TArray t) ->
+      has_type ctx e2 TInt ->
+      has_type ctx e3 t ->
+      has_type ctx (EArraySet e1 e2 e3) (TArray t)
+
+  (** Array push *)
+  | T_ArrayPush : forall ctx e1 e2 t,
+      has_type ctx e1 (TArray t) ->
+      has_type ctx e2 t ->
+      has_type ctx (EArrayPush e1 e2) (TArray t)
+
   (** Empty record literal *)
   | T_RecordNil : forall ctx,
       has_type ctx (ERecord []) (TRecord [])
@@ -229,4 +252,42 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   | T_Field : forall ctx e f fts t,
       has_type ctx e (TRecord fts) ->
       assoc_lookup f fts = Some t ->
-      has_type ctx (EField e f) t.
+      has_type ctx (EField e f) t
+
+  (** Record field update *)
+  | T_SetField : forall ctx x f fts t e,
+      ctx_lookup x ctx = Some (TRecord fts) ->
+      assoc_lookup f fts = Some t ->
+      has_type ctx e t ->
+      has_type ctx (ESetField x f e) TUnit
+
+  (** Variant constructor *)
+  | T_Construct : forall ctx tag e fts t,
+      assoc_lookup tag fts = Some t ->
+      has_type ctx e t ->
+      has_type ctx (EConstruct tag e (TVariant fts)) (TVariant fts)
+
+  (** Pattern matching *)
+  | T_Match : forall ctx e branches fts t,
+      has_type ctx e (TVariant fts) ->
+      branches_type ctx branches fts t ->
+      has_type ctx (EMatch e branches) t
+
+  (** String indexing *)
+  | T_StrIndex : forall ctx e1 e2,
+      has_type ctx e1 TString ->
+      has_type ctx e2 TInt ->
+      has_type ctx (EStrIndex e1 e2) TString
+
+(** ** Branch typing for pattern matching
+
+    Branches must cover all constructors in order, with each branch
+    body well-typed under the payload binding. *)
+
+with branches_type : ctx -> list (string * string * expr) -> list (string * ty) -> ty -> Prop :=
+  | BT_Nil : forall ctx t,
+      branches_type ctx [] [] t
+  | BT_Cons : forall ctx tag x body branches fts t t_payload,
+      has_type (CtxCons x t_payload ctx) body t ->
+      branches_type ctx branches fts t ->
+      branches_type ctx ((tag, x, body) :: branches) ((tag, t_payload) :: fts) t.

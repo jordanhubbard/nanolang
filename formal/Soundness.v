@@ -32,12 +32,20 @@ Inductive val_has_type : val -> ty -> Prop :=
       env_ctx_agree clos_env c ->
       has_type (CtxCons x t1 c) body t2 ->
       val_has_type (VClos x body clos_env) (TArrow t1 t2)
+  | VT_FixClos : forall f x body clos_env t1 t2 c,
+      env_ctx_agree clos_env c ->
+      has_type (CtxCons x t1 (CtxCons f (TArrow t1 t2) c)) body t2 ->
+      val_has_type (VFixClos f x body clos_env) (TArrow t1 t2)
   | VT_Array : forall vs t,
       Forall (fun v => val_has_type v t) vs ->
       val_has_type (VArray vs) (TArray t)
   | VT_Record : forall fvs fts,
       Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts ->
       val_has_type (VRecord fvs) (TRecord fts)
+  | VT_Construct : forall tag v fts t,
+      assoc_lookup tag fts = Some t ->
+      val_has_type v t ->
+      val_has_type (VConstruct tag v) (TVariant fts)
 
 (** Agreement between runtime environments and typing contexts *)
 
@@ -79,24 +87,32 @@ Proof.
   intros v H. inversion H. reflexivity.
 Qed.
 
-Lemma canonical_array : forall v t,
-  val_has_type v (TArray t) -> exists vs, v = VArray vs.
-Proof.
-  intros v t H. inversion H. exists vs. reflexivity.
-Qed.
-
 Lemma canonical_record : forall v fts,
   val_has_type v (TRecord fts) -> exists fvs, v = VRecord fvs.
 Proof.
   intros v fts H. inversion H. exists fvs. reflexivity.
 Qed.
 
+Lemma canonical_array : forall v t,
+  val_has_type v (TArray t) -> exists vs, v = VArray vs.
+Proof.
+  intros v t H. inversion H. exists vs. reflexivity.
+Qed.
+
 Lemma canonical_arrow : forall v t1 t2,
   val_has_type v (TArrow t1 t2) ->
-  exists x body clos_env, v = VClos x body clos_env.
+  (exists x body clos_env, v = VClos x body clos_env) \/
+  (exists f x body clos_env, v = VFixClos f x body clos_env).
 Proof.
-  intros v t1 t2 H. inversion H. subst.
-  exists x, body, clos_env. reflexivity.
+  intros v t1 t2 H. inversion H; subst.
+  - left. exists x, body, clos_env. reflexivity.
+  - right. exists f, x, body, clos_env. reflexivity.
+Qed.
+
+Lemma canonical_variant : forall v fts,
+  val_has_type v (TVariant fts) -> exists tag v', v = VConstruct tag v'.
+Proof.
+  intros v fts H. inversion H. exists tag, v0. reflexivity.
 Qed.
 
 (** ** Environment lookup agrees with context lookup *)
@@ -181,6 +197,18 @@ Proof.
   exists c. split; assumption.
 Qed.
 
+(** ** Inversion lemma for fix closure typing *)
+
+Lemma fix_clos_type_inv : forall f x body cenv t1 t2,
+  val_has_type (VFixClos f x body cenv) (TArrow t1 t2) ->
+  exists c,
+    env_ctx_agree cenv c /\
+    has_type (CtxCons x t1 (CtxCons f (TArrow t1 t2) c)) body t2.
+Proof.
+  intros. inversion H; subst.
+  exists c. split; assumption.
+Qed.
+
 (** ** Helper: Forall and nth_error *)
 
 Lemma Forall_nth_error : forall (A : Type) (P : A -> Prop) (l : list A) (n : nat) (x : A),
@@ -211,6 +239,26 @@ Proof.
   apply array_type_inv in Hvt.
   rewrite Forall_forall in Hvt.
   apply Hvt. eapply nth_error_In. exact Hnth.
+Qed.
+
+(** ** List update preserves Forall *)
+
+Lemma list_update_Forall : forall (A : Type) (P : A -> Prop) (l : list A) n v,
+  Forall P l -> P v -> Forall P (list_update n v l).
+Proof.
+  intros A P l. induction l as [|x rest IH]; intros n v HF Hv.
+  - destruct n; exact HF.
+  - destruct n.
+    + constructor; [assumption |]. inversion HF; assumption.
+    + inversion HF; subst. constructor; [assumption | apply IH; assumption].
+Qed.
+
+(** ** App preserves Forall *)
+
+Lemma app_Forall : forall (A : Type) (P : A -> Prop) (l : list A) v,
+  Forall P l -> P v -> Forall P (l ++ [v]).
+Proof.
+  intros. apply Forall_app. split; [assumption | constructor; [assumption | constructor]].
 Qed.
 
 (** ** Inversion lemma for record typing *)
@@ -252,6 +300,64 @@ Proof.
     destruct (String.eqb f f2) eqn:Heq.
     + inversion Hlookup; subst. exists v1. split; [reflexivity | assumption].
     + apply IH. assumption.
+Qed.
+
+(** ** Record field update preserves typing *)
+
+Lemma assoc_update_preserves_type : forall fvs fts f v t,
+  Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft)) fvs fts ->
+  assoc_lookup f fts = Some t ->
+  val_has_type v t ->
+  Forall2 (fun fv ft => fst fv = fst ft /\ val_has_type (snd fv) (snd ft))
+          (assoc_update f v fvs) fts.
+Proof.
+  intros fvs fts f v t HF2.
+  induction HF2 as [| [f1 v1] [f2 t2] fvs' fts' [Hname Hvt] HF2' IH];
+    intros Hlookup Hvnew.
+  - simpl in Hlookup. discriminate.
+  - simpl in *. subst.
+    destruct (String.eqb f f2) eqn:Heq.
+    + inversion Hlookup; subst.
+      constructor; [simpl; split; [reflexivity | assumption] | assumption].
+    + constructor; [simpl; split; [reflexivity | assumption] | apply IH; assumption].
+Qed.
+
+(** ** Variant inversion *)
+
+Lemma construct_type_inv : forall tag v fts,
+  val_has_type (VConstruct tag v) (TVariant fts) ->
+  exists t, assoc_lookup tag fts = Some t /\ val_has_type v t.
+Proof.
+  intros. inversion H; subst. exists t. split; assumption.
+Qed.
+
+(** ** Branch typing helpers *)
+
+Lemma branches_type_find : forall ctx branches fts t tag t_payload,
+  branches_type ctx branches fts t ->
+  assoc_lookup tag fts = Some t_payload ->
+  exists x body, find_branch tag branches = Some (x, body).
+Proof.
+  intros ctx branches fts t tag t_payload Hbt Hlookup.
+  induction Hbt.
+  - simpl in Hlookup. discriminate.
+  - simpl in *. destruct (String.eqb tag tag0) eqn:Heq.
+    + exists x, body. reflexivity.
+    + apply IHHbt. assumption.
+Qed.
+
+Lemma branches_type_payload : forall ctx branches fts t tag x body t_payload,
+  branches_type ctx branches fts t ->
+  assoc_lookup tag fts = Some t_payload ->
+  find_branch tag branches = Some (x, body) ->
+  has_type (CtxCons x t_payload ctx) body t.
+Proof.
+  intros ctx branches fts t tag x body t_payload Hbt Hlookup Hfind.
+  induction Hbt.
+  - simpl in Hlookup. discriminate.
+  - simpl in *. destruct (String.eqb tag tag0) eqn:Heq.
+    + inversion Hlookup; subst. inversion Hfind; subst. assumption.
+    + apply IHHbt; assumption.
 Qed.
 
 (** ** Tactic for impossible type cases
@@ -567,7 +673,7 @@ Proof.
     inversion Htype; subst.
     split; [econstructor; eassumption | assumption].
 
-  - (* E_App *)
+  - (* E_App: non-recursive closure *)
     inversion Htype; subst.
     match goal with
     | [ H1 : has_type _ e1 (TArrow ?ta ?tr),
@@ -637,6 +743,76 @@ Proof.
       rewrite Htyp in Ht'; inversion Ht'; subst;
       assumption
     end.
+
+  - (* E_SetField *)
+    inversion Htype; subst.
+    destruct (IHHeval _ _ ltac:(eassumption) Hagree) as [Hvt_new Hagree1].
+    split; [constructor |].
+    eapply agree_update; [exact Hagree1 | eassumption |].
+    (* Need: val_has_type (VRecord (assoc_update f v fvs)) (TRecord fts) *)
+    pose proof (agree_lookup _ _ _ _ Hagree1 ltac:(eassumption)) as [vrec [Hlookup_rec Hvt_rec]].
+    rewrite H in Hlookup_rec. inversion Hlookup_rec; subst.
+    apply record_type_inv in Hvt_rec.
+    constructor.
+    eapply assoc_update_preserves_type; eassumption.
+
+  - (* E_Fix *)
+    inversion Htype; subst.
+    split; [econstructor; eassumption | assumption].
+
+  - (* E_AppFix: recursive closure application *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hf Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [Harg Hagree2].
+    split; [| exact Hagree2].
+    apply fix_clos_type_inv in Hf.
+    destruct Hf as [c' [Hcenv Hbody_type]].
+    eapply IHHeval3; [exact Hbody_type |].
+    constructor; [assumption |].
+    constructor; [| assumption].
+    econstructor; eassumption.
+
+  - (* E_Construct *)
+    inversion Htype; subst.
+    destruct (IHHeval _ _ ltac:(eassumption) Hagree) as [Hvt Hagree1].
+    split; [| assumption].
+    econstructor; eassumption.
+
+  - (* E_Match *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hvt_scr Hagree1].
+    apply construct_type_inv in Hvt_scr.
+    destruct Hvt_scr as [t_payload [Htag Hvt_payload]].
+    assert (Hbody_type : has_type (CtxCons x t_payload gamma) body ty0).
+    { eapply branches_type_payload; eassumption. }
+    assert (Hagree_ext : env_ctx_agree (ECons x v renv1) (CtxCons x t_payload gamma))
+      by (apply agree_cons; assumption).
+    destruct (IHHeval2 _ _ Hbody_type Hagree_ext) as [Hvt_result Hagree_out].
+    inversion Hagree_out; subst.
+    split; assumption.
+
+  - (* E_ArraySet *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hvt1 Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [_ Hagree2].
+    destruct (IHHeval3 _ _ ltac:(eassumption) Hagree2) as [Hvt3 Hagree3].
+    apply array_type_inv in Hvt1.
+    split; [| assumption].
+    constructor. apply list_update_Forall; assumption.
+
+  - (* E_ArrayPush *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hvt1 Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [Hvt2 Hagree2].
+    apply array_type_inv in Hvt1.
+    split; [| assumption].
+    constructor. apply app_Forall; assumption.
+
+  - (* E_StrIndex *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [_ Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [_ Hagree2].
+    split; [constructor | assumption].
 Qed.
 
 (** ** Type soundness corollary *)

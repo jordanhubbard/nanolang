@@ -50,10 +50,25 @@ Ltac det_arith_cmp_contra :=
     destruct op; simpl in *; discriminate
   end.
 
+(** Inject constructor equalities *)
+Ltac det_inject :=
+  repeat match goal with
+  | [ H : ?C ?a ?b ?c ?d = ?C ?a' ?b' ?c' ?d' |- _ ] =>
+      injection H; intros; subst; clear H
+  | [ H : ?C ?a ?b ?c = ?C ?a' ?b' ?c' |- _ ] =>
+      injection H; intros; subst; clear H
+  | [ H : ?C ?a ?b = ?C ?a' ?b' |- _ ] =>
+      injection H; intros; subst; clear H
+  | [ H : ?C ?a = ?C ?a' |- _ ] =>
+      injection H; intros; subst; clear H
+  end.
+
 (** Combined solver *)
 Ltac det_solve :=
   det_IHs;
-  try det_func;
+  repeat det_func;
+  det_inject;
+  repeat det_func;
   try det_arith_cmp_contra;
   try (split; reflexivity);
   try (split; congruence).
