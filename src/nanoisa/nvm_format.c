@@ -230,6 +230,42 @@ void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset, uint32_t sour
 }
 
 /* ========================================================================
+ * Import Table
+ * ======================================================================== */
+
+uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
+                        uint32_t function_name_idx, uint16_t param_count,
+                        uint8_t return_type, const uint8_t *param_types) {
+    if (mod->import_count >= mod->import_capacity) {
+        uint32_t new_cap = mod->import_capacity * 2;
+        NvmImportEntry *new_imp = realloc(mod->imports, new_cap * sizeof(NvmImportEntry));
+        uint8_t **new_pt = realloc(mod->import_param_types, new_cap * sizeof(uint8_t *));
+        if (!new_imp || !new_pt) return 0;
+        mod->imports = new_imp;
+        mod->import_param_types = new_pt;
+        mod->import_capacity = new_cap;
+    }
+
+    uint32_t idx = mod->import_count;
+    mod->imports[idx].module_name_idx = module_name_idx;
+    mod->imports[idx].function_name_idx = function_name_idx;
+    mod->imports[idx].param_count = param_count;
+    mod->imports[idx].return_type = return_type;
+
+    if (param_count > 0 && param_types) {
+        mod->import_param_types[idx] = malloc(param_count);
+        if (mod->import_param_types[idx]) {
+            memcpy(mod->import_param_types[idx], param_types, param_count);
+        }
+    } else {
+        mod->import_param_types[idx] = NULL;
+    }
+
+    mod->import_count++;
+    return idx;
+}
+
+/* ========================================================================
  * Header Validation
  * ======================================================================== */
 

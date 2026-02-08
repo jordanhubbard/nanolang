@@ -196,6 +196,11 @@ bool nvm_validate_header(const NvmHeader *header);
 /* Compute CRC32 over a byte range */
 uint32_t nvm_crc32(const uint8_t *data, uint32_t size);
 
+/* Add an import entry. Returns the import table index. */
+uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
+                        uint32_t function_name_idx, uint16_t param_count,
+                        uint8_t return_type, const uint8_t *param_types);
+
 /* Get a string from the module by index. Returns NULL if out of range. */
 const char *nvm_get_string(const NvmModule *mod, uint32_t index);
 

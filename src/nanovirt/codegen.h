@@ -28,8 +28,10 @@ typedef struct {
  *
  * @param program  AST root (must be AST_PROGRAM)
  * @param env      Post-typechecked environment
+ * @param modules  Module list from process_imports (NULL = no modules)
  * @return         CodegenResult with module or error info
  */
-CodegenResult codegen_compile(ASTNode *program, Environment *env);
+CodegenResult codegen_compile(ASTNode *program, Environment *env,
+                              ModuleList *modules);
 
 #endif /* NANOVIRT_CODEGEN_H */

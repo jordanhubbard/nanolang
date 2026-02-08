@@ -31,6 +31,7 @@
 #define MAX_ENUM_DEFS   64
 #define MAX_UNION_DEFS  64
 #define MAX_GLOBALS     128
+#define MAX_EXTERNS     256
 #define CODE_INITIAL    4096
 
 /* ── Internal structures ────────────────────────────────────────── */
@@ -86,6 +87,14 @@ typedef struct {
 } GlobalVar;
 
 typedef struct {
+    char *name;              /* C function name (e.g., "nl_regex_compile" or "path_normalize") */
+    char *module_name;       /* Module name (e.g., "regex" or "") */
+    uint32_t import_idx;     /* Index into NVM import table */
+    uint16_t param_count;
+    uint8_t return_tag;      /* NanoValueTag for return type */
+} ExternFn;
+
+typedef struct {
     /* Module being built */
     NvmModule *module;
     Environment *env;
@@ -119,6 +128,10 @@ typedef struct {
     /* Global variables (top-level let bindings) */
     GlobalVar globals[MAX_GLOBALS];
     uint16_t global_count;
+
+    /* Extern functions (populated in pass 1 from extern fn + imports) */
+    ExternFn externs[MAX_EXTERNS];
+    uint16_t extern_count;
 
     /* Error state */
     bool had_error;
@@ -288,6 +301,63 @@ static int16_t global_find(CG *cg, const char *name) {
             return (int16_t)cg->globals[i].slot;
     }
     return -1;
+}
+
+/* ── Extern function lookup ────────────────────────────────────── */
+
+static int32_t extern_find(CG *cg, const char *name) {
+    for (int i = 0; i < cg->extern_count; i++) {
+        if (strcmp(cg->externs[i].name, name) == 0)
+            return (int32_t)cg->externs[i].import_idx;
+    }
+    return -1;
+}
+
+/* Also search by qualified name "Module.function" */
+static int32_t extern_find_qualified(CG *cg, const char *module_alias, const char *func_name) {
+    char qualified[512];
+    snprintf(qualified, sizeof(qualified), "%s.%s", module_alias, func_name);
+    return extern_find(cg, qualified);
+}
+
+/* Convert nanolang Type enum to NanoValueTag */
+static uint8_t type_to_tag(Type t) {
+    switch (t) {
+        case TYPE_INT:     return TAG_INT;
+        case TYPE_FLOAT:   return TAG_FLOAT;
+        case TYPE_BOOL:    return TAG_BOOL;
+        case TYPE_STRING:  return TAG_STRING;
+        case TYPE_VOID:    return TAG_VOID;
+        case TYPE_ARRAY:   return TAG_ARRAY;
+        case TYPE_STRUCT:  return TAG_STRUCT;
+        case TYPE_ENUM:    return TAG_ENUM;
+        case TYPE_TUPLE:   return TAG_TUPLE;
+        case TYPE_HASHMAP: return TAG_HASHMAP;
+        case TYPE_OPAQUE:  return TAG_OPAQUE;
+        default:           return TAG_VOID;
+    }
+}
+
+/* Register an extern function in the codegen extern table and NVM import table */
+static void register_extern(CG *cg, const char *name, const char *module_name,
+                           uint16_t param_count, uint8_t return_tag,
+                           const uint8_t *param_tags) {
+    if (cg->extern_count >= MAX_EXTERNS) return;
+
+    /* Add to NVM import table */
+    uint32_t mod_str = nvm_add_string(cg->module, module_name, (uint32_t)strlen(module_name));
+    uint32_t fn_str = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+    uint32_t imp_idx = nvm_add_import(cg->module, mod_str, fn_str,
+                                       param_count, return_tag, param_tags);
+
+    /* Add to codegen extern table */
+    ExternFn *ef = &cg->externs[cg->extern_count];
+    ef->name = (char *)name;
+    ef->module_name = (char *)module_name;
+    ef->import_idx = imp_idx;
+    ef->param_count = param_count;
+    ef->return_tag = return_tag;
+    cg->extern_count++;
 }
 
 /* ── Expression compilation ─────────────────────────────────────── */
@@ -877,18 +947,51 @@ static void compile_expr(CG *cg, ASTNode *node) {
         if (fn_idx >= 0) {
             emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
-            /* Check if callee is a variable holding a function reference */
-            int16_t slot = name ? local_find(cg, name) : -1;
-            if (slot >= 0) {
-                emit_op(cg, OP_LOAD_LOCAL, (int)slot);
-                emit_op(cg, OP_CALL_INDIRECT);
-            } else if (node->as.call.func_expr) {
-                /* Computed function expression: ((get_fn) args) */
-                compile_expr(cg, node->as.call.func_expr);
-                emit_op(cg, OP_CALL_INDIRECT);
+            /* Check if it's an extern function */
+            int32_t ext_idx = name ? extern_find(cg, name) : -1;
+            if (ext_idx >= 0) {
+                emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
             } else {
-                cg_error(cg, node->line, "undefined function '%s'",
-                         name ? name : "(null)");
+                /* Check if callee is a variable holding a function reference */
+                int16_t slot = name ? local_find(cg, name) : -1;
+                if (slot >= 0) {
+                    emit_op(cg, OP_LOAD_LOCAL, (int)slot);
+                    emit_op(cg, OP_CALL_INDIRECT);
+                } else if (node->as.call.func_expr) {
+                    /* Computed function expression: ((get_fn) args) */
+                    compile_expr(cg, node->as.call.func_expr);
+                    emit_op(cg, OP_CALL_INDIRECT);
+                } else {
+                    cg_error(cg, node->line, "undefined function '%s'",
+                             name ? name : "(null)");
+                }
+            }
+        }
+        break;
+    }
+
+    case AST_MODULE_QUALIFIED_CALL: {
+        const char *mod_alias = node->as.module_qualified_call.module_alias;
+        const char *func_name = node->as.module_qualified_call.function_name;
+        int argc = node->as.module_qualified_call.arg_count;
+
+        /* Emit arguments left-to-right */
+        for (int i = 0; i < argc; i++) {
+            compile_expr(cg, node->as.module_qualified_call.args[i]);
+        }
+
+        /* Look up as qualified extern: "Module.function" */
+        int32_t ext_idx = extern_find_qualified(cg, mod_alias, func_name);
+        if (ext_idx >= 0) {
+            emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        } else {
+            /* Try unqualified name (maybe imported with from...import) */
+            ext_idx = extern_find(cg, func_name);
+            if (ext_idx >= 0) {
+                emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+            } else {
+                cg_error(cg, node->line, "undefined module function '%s.%s'",
+                         mod_alias, func_name);
             }
         }
         break;
@@ -1456,7 +1559,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         emit_op(cg, OP_POP);
         break;
 
-    case AST_CALL: {
+    case AST_CALL:
+    case AST_MODULE_QUALIFIED_CALL: {
         /* Function call as statement: compile and discard result */
         compile_expr(cg, node);
         /* Check if function returns void - if so, no POP needed
@@ -1465,7 +1569,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         break;
     }
 
-    /* Skip these in Phase 3 */
+    /* Skip these - handled in Pass 1 */
     case AST_SHADOW:
     case AST_IMPORT:
     case AST_MODULE_DECL:
@@ -1553,7 +1657,8 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 
 /* ── Main compilation entry point ───────────────────────────────── */
 
-CodegenResult codegen_compile(ASTNode *program, Environment *env) {
+CodegenResult codegen_compile(ASTNode *program, Environment *env,
+                              ModuleList *modules) {
     CodegenResult result = {0};
 
     if (!program || program->type != AST_PROGRAM) {
@@ -1636,6 +1741,201 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env) {
             cg.union_count++;
         }
 
+        /* Register extern function declarations */
+        if (item->type == AST_FUNCTION && item->as.function.is_extern) {
+            const char *name = item->as.function.name;
+            uint16_t pc = (uint16_t)item->as.function.param_count;
+            uint8_t ret_tag = type_to_tag(item->as.function.return_type);
+
+            /* Build param type tags */
+            uint8_t param_tags[16] = {0};
+            for (int p = 0; p < pc && p < 16; p++) {
+                param_tags[p] = type_to_tag(item->as.function.params[p].type);
+            }
+
+            register_extern(&cg, name, "", pc, ret_tag, param_tags);
+        }
+
+        /* Process import statements - load module ASTs and register their contents */
+        if (item->type == AST_IMPORT) {
+            const char *mod_path = item->as.import_stmt.module_path;
+            const char *mod_alias = item->as.import_stmt.module_alias;
+
+            /* Try to get the module AST from the cache (loaded by process_imports) */
+            ASTNode *mod_ast = mod_path ? get_cached_module_ast(mod_path) : NULL;
+
+            if (mod_ast && mod_ast->type == AST_PROGRAM) {
+                /* Register ALL module functions (public + private) so internal
+                 * calls within module functions resolve correctly. */
+                for (int m = 0; m < mod_ast->as.program.count; m++) {
+                    ASTNode *mitem = mod_ast->as.program.items[m];
+
+                    /* Register all non-extern functions as bytecode functions */
+                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                        const char *fname = mitem->as.function.name;
+
+                        /* Check for alias: selective import may rename */
+                        const char *use_name = fname;
+                        if (item->as.import_stmt.is_selective) {
+                            for (int s = 0; s < item->as.import_stmt.import_symbol_count; s++) {
+                                if (strcmp(item->as.import_stmt.import_symbols[s], fname) == 0 &&
+                                    item->as.import_stmt.import_aliases[s]) {
+                                    use_name = item->as.import_stmt.import_aliases[s];
+                                    break;
+                                }
+                            }
+                        } else if (mod_alias) {
+                            /* module import with alias: register as Alias.func */
+                            /* Only for public functions */
+                            if (mitem->as.function.is_pub) {
+                                char qname[512];
+                                snprintf(qname, sizeof(qname), "%s.%s", mod_alias, fname);
+                                /* Also register as qualified name */
+                                bool already = false;
+                                for (int f = 0; f < cg.fn_count; f++) {
+                                    if (strcmp(cg.functions[f].name, qname) == 0) {
+                                        already = true;
+                                        break;
+                                    }
+                                }
+                                if (!already && cg.fn_count < MAX_FUNCTIONS) {
+                                    uint32_t qi = nvm_add_string(cg.module, qname,
+                                                                 (uint32_t)strlen(qname));
+                                    NvmFunctionEntry qfn = {0};
+                                    qfn.name_idx = qi;
+                                    qfn.arity = (uint16_t)mitem->as.function.param_count;
+                                    uint32_t qidx = nvm_add_function(cg.module, &qfn);
+                                    cg.functions[cg.fn_count].name = strdup(qname);
+                                    cg.functions[cg.fn_count].fn_idx = qidx;
+                                    cg.fn_count++;
+                                }
+                            }
+                        }
+
+                        /* Register under original name (always needed for internal calls) */
+                        bool already = false;
+                        for (int f = 0; f < cg.fn_count; f++) {
+                            if (strcmp(cg.functions[f].name, use_name) == 0) {
+                                already = true;
+                                break;
+                            }
+                        }
+                        if (already) continue;
+
+                        uint32_t name_idx = nvm_add_string(cg.module, use_name,
+                                                           (uint32_t)strlen(use_name));
+                        NvmFunctionEntry fn = {0};
+                        fn.name_idx = name_idx;
+                        fn.arity = (uint16_t)mitem->as.function.param_count;
+                        uint32_t idx = nvm_add_function(cg.module, &fn);
+                        if (cg.fn_count < MAX_FUNCTIONS) {
+                            cg.functions[cg.fn_count].name = (char *)use_name;
+                            cg.functions[cg.fn_count].fn_idx = idx;
+                            cg.fn_count++;
+                        }
+                    }
+
+                    /* Register module's extern function declarations */
+                    if (mitem->type == AST_FUNCTION && mitem->as.function.is_extern) {
+                        const char *ename = mitem->as.function.name;
+                        if (extern_find(&cg, ename) < 0) {
+                            uint16_t pc = (uint16_t)mitem->as.function.param_count;
+                            uint8_t ret_tag = type_to_tag(mitem->as.function.return_type);
+                            uint8_t param_tags[16] = {0};
+                            for (int p = 0; p < pc && p < 16; p++) {
+                                param_tags[p] = type_to_tag(mitem->as.function.params[p].type);
+                            }
+                            register_extern(&cg, ename, mod_path ? mod_path : "",
+                                           pc, ret_tag, param_tags);
+                        }
+                    }
+
+                    /* Register module struct definitions */
+                    if (mitem->type == AST_STRUCT_DEF && cg.struct_count < MAX_STRUCT_DEFS) {
+                        bool dup = false;
+                        for (int s = 0; s < cg.struct_count; s++) {
+                            if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                                dup = true;
+                                break;
+                            }
+                        }
+                        if (!dup) {
+                            CgStructDef *sd = &cg.structs[cg.struct_count];
+                            sd->name = mitem->as.struct_def.name;
+                            sd->field_names = mitem->as.struct_def.field_names;
+                            sd->field_count = mitem->as.struct_def.field_count;
+                            sd->def_idx = cg.struct_count;
+                            cg.struct_count++;
+                        }
+                    }
+
+                    /* Register module enum definitions */
+                    if (mitem->type == AST_ENUM_DEF && cg.enum_count < MAX_ENUM_DEFS) {
+                        bool dup = false;
+                        for (int e = 0; e < cg.enum_count; e++) {
+                            if (strcmp(cg.enums[e].name, mitem->as.enum_def.name) == 0) {
+                                dup = true;
+                                break;
+                            }
+                        }
+                        if (!dup) {
+                            CgEnumDef *ed = &cg.enums[cg.enum_count];
+                            ed->name = mitem->as.enum_def.name;
+                            ed->variant_names = mitem->as.enum_def.variant_names;
+                            ed->variant_values = mitem->as.enum_def.variant_values;
+                            ed->variant_count = mitem->as.enum_def.variant_count;
+                            ed->def_idx = cg.enum_count;
+                            cg.enum_count++;
+                        }
+                    }
+                }
+            } else {
+                /* Module AST not available - fall back to registering as externs */
+                const char *mod_name = mod_alias ? mod_alias : mod_path;
+                if (item->as.import_stmt.is_selective) {
+                    for (int s = 0; s < item->as.import_stmt.import_symbol_count; s++) {
+                        const char *sym = item->as.import_stmt.import_symbols[s];
+                        const char *alias = item->as.import_stmt.import_aliases[s];
+                        const char *local_name = alias ? alias : sym;
+                        Function *fn = env_get_function(cg.env, sym);
+                        if (!fn) {
+                            char qname[512];
+                            snprintf(qname, sizeof(qname), "%s.%s", mod_name, sym);
+                            fn = env_get_function(cg.env, qname);
+                        }
+                        if (fn) {
+                            uint16_t pc = (uint16_t)fn->param_count;
+                            uint8_t ret_tag = type_to_tag(fn->return_type);
+                            uint8_t param_tags[16] = {0};
+                            for (int p = 0; p < pc && p < 16; p++) {
+                                param_tags[p] = type_to_tag(fn->params[p].type);
+                            }
+                            register_extern(&cg, local_name, mod_name ? mod_name : "",
+                                           pc, ret_tag, param_tags);
+                        }
+                    }
+                } else {
+                    if (mod_name && cg.env) {
+                        for (int f = 0; f < cg.env->function_count; f++) {
+                            Function *fn = &cg.env->functions[f];
+                            size_t prefix_len = strlen(mod_name);
+                            if (fn->name && strncmp(fn->name, mod_name, prefix_len) == 0 &&
+                                fn->name[prefix_len] == '.') {
+                                uint16_t pc = (uint16_t)fn->param_count;
+                                uint8_t ret_tag = type_to_tag(fn->return_type);
+                                uint8_t param_tags[16] = {0};
+                                for (int p = 0; p < pc && p < 16; p++) {
+                                    param_tags[p] = type_to_tag(fn->params[p].type);
+                                }
+                                register_extern(&cg, fn->name, mod_name,
+                                               pc, ret_tag, param_tags);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         /* Register top-level let bindings as globals */
         if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
             cg.globals[cg.global_count].name = item->as.let.name;
@@ -1689,10 +1989,30 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env) {
         }
     }
 
-    /* Set entry point */
+    /* ── Pass 2b: Compile imported module function bodies ──────── */
+    if (modules && !cg.had_error) {
+        for (int mi = 0; mi < modules->count; mi++) {
+            ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
+            if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+
+            for (int m = 0; m < mod_ast->as.program.count; m++) {
+                ASTNode *mitem = mod_ast->as.program.items[m];
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                    compile_function(&cg, mitem);
+                    if (cg.had_error) break;
+                }
+            }
+            if (cg.had_error) break;
+        }
+    }
+
+    /* Set entry point and flags */
     if (main_fn_idx >= 0) {
         cg.module->header.flags = NVM_FLAG_HAS_MAIN;
         cg.module->header.entry_point = (uint32_t)main_fn_idx;
+    }
+    if (cg.extern_count > 0) {
+        cg.module->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     }
 
     free(cg.code);

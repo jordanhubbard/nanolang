@@ -5,6 +5,7 @@
  */
 
 #include "vm.h"
+#include "vm_ffi.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -668,10 +669,43 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             break;
         }
 
-        case OP_CALL_EXTERN:
+        case OP_CALL_EXTERN: {
+            uint32_t import_idx = instr.operands[0].u32;
+
+            /* Determine arg count from import table */
+            if (import_idx >= vm->module->import_count) {
+                return vm_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                "Import index %u out of range", import_idx);
+            }
+            int ext_argc = vm->module->imports[import_idx].param_count;
+
+            /* Pop arguments from stack (they were pushed left-to-right,
+             * so pop in reverse to get them in order) */
+            NanoValue ext_args[16];
+            if (ext_argc > 16) ext_argc = 16;
+            for (int i = ext_argc - 1; i >= 0; i--) {
+                ext_args[i] = stack_pop(vm);
+            }
+
+            /* Call via FFI bridge */
+            NanoValue ext_result;
+            char ext_err[256];
+            if (!vm_ffi_call(vm->module, import_idx,
+                             ext_args, ext_argc,
+                             &ext_result, &vm->heap,
+                             ext_err, sizeof(ext_err))) {
+                return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
+                                "FFI call failed: %s", ext_err);
+            }
+
+            /* Push result onto stack */
+            stack_push(vm, ext_result);
+            break;
+        }
+
         case OP_CALL_MODULE:
             return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
-                            "External/module calls not available (Phase 5)");
+                            "Module calls not yet implemented");
 
         /* ============================================================
          * String Ops

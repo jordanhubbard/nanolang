@@ -11,11 +11,16 @@
 #include "nanovirt/codegen.h"
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
+#include "nanovm/vm_ffi.h"
 #include "nanovm/value.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* Forward declaration for interpreter FFI module loading (already linked) */
+extern bool ffi_load_module(const char *module_name, const char *module_path,
+                            Environment *env, bool verbose);
 
 /* Globals expected by runtime/cli.c */
 int g_argc = 0;
@@ -85,24 +90,44 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* Environment + Type Checking */
+    /* Environment + Module Resolution */
+    clear_module_cache();
     Environment *env = create_environment();
+
+    ModuleList *modules = create_module_list();
+    if (!process_imports(program, env, modules, input)) {
+        fprintf(stderr, "error: module loading failed\n");
+        free_ast(program);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free_tokens(tokens, token_count);
+        free(source);
+        return 1;
+    }
+
+    /* Type Checking */
+    typecheck_set_current_file(input);
     if (!type_check(program, env)) {
         fprintf(stderr, "error: type check failed\n");
         free_ast(program);
         free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
         free_tokens(tokens, token_count);
         free(source);
         return 1;
     }
 
     /* Codegen */
-    CodegenResult cg = codegen_compile(program, env);
+    CodegenResult cg = codegen_compile(program, env, modules);
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);
         free_ast(program);
         free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
         free_tokens(tokens, token_count);
         free(source);
         return 1;
@@ -117,6 +142,8 @@ int main(int argc, char **argv) {
             nvm_module_free(cg.module);
             free_ast(program);
             free_environment(env);
+            free_module_list(modules);
+            clear_module_cache();
             free_tokens(tokens, token_count);
             free(source);
             return 1;
@@ -129,6 +156,8 @@ int main(int argc, char **argv) {
             nvm_module_free(cg.module);
             free_ast(program);
             free_environment(env);
+            free_module_list(modules);
+            clear_module_cache();
             free_tokens(tokens, token_count);
             free(source);
             return 1;
@@ -136,6 +165,63 @@ int main(int argc, char **argv) {
         fwrite(blob, 1, size, f);
         fclose(f);
         free(blob);
+    }
+
+    /* Preload modules for FFI if the module has imports */
+    if (cg.module->import_count > 0) {
+        vm_ffi_init();
+
+        /* Load modules referenced in import table */
+        for (uint32_t i = 0; i < cg.module->import_count; i++) {
+            const char *mod_name = nvm_get_string(cg.module,
+                                                   cg.module->imports[i].module_name_idx);
+            if (mod_name && mod_name[0] != '\0') {
+                vm_ffi_load_module(mod_name);
+            }
+        }
+
+        /* Also scan for AST_IMPORT nodes to load modules by path.
+         * This handles the case where extern fns have empty module names
+         * but the .nano file has module/import statements. */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type == AST_IMPORT) {
+                const char *mod_path = item->as.import_stmt.module_path;
+                if (mod_path) {
+                    vm_ffi_load_module(mod_path);
+                }
+            }
+        }
+
+        /* Try loading well-known standard modules for bare extern fns.
+         * Map function name prefixes to module paths. */
+        static const struct { const char *prefix; const char *module; } known_modules[] = {
+            {"path_",    "std/fs"},
+            {"fs_",      "std/fs"},
+            {"file_",    "std/fs"},
+            {"dir_",     "std/fs"},
+            {"regex_",   "std/regex"},
+            {"process_", "std/process"},
+            {"json_",    "std/json"},
+            {"bstr_",    "std/bstring"},
+            {NULL, NULL}
+        };
+
+        for (uint32_t i = 0; i < cg.module->import_count; i++) {
+            const char *fn_name = nvm_get_string(cg.module,
+                                                  cg.module->imports[i].function_name_idx);
+            const char *mod_name = nvm_get_string(cg.module,
+                                                   cg.module->imports[i].module_name_idx);
+            if (fn_name && (!mod_name || mod_name[0] == '\0')) {
+                for (int k = 0; known_modules[k].prefix; k++) {
+                    if (strncmp(fn_name, known_modules[k].prefix,
+                               strlen(known_modules[k].prefix)) == 0) {
+                        vm_ffi_load_module(known_modules[k].module);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     int exit_code = 0;
@@ -158,6 +244,8 @@ int main(int argc, char **argv) {
                     nvm_module_free(cg.module);
                     free_ast(program);
                     free_environment(env);
+                    free_module_list(modules);
+                    clear_module_cache();
                     free_tokens(tokens, token_count);
                     free(source);
                     return 1;
@@ -179,9 +267,12 @@ int main(int argc, char **argv) {
         vm_destroy(&vm);
     }
 
+    vm_ffi_shutdown();
     nvm_module_free(cg.module);
     free_ast(program);
     free_environment(env);
+    free_module_list(modules);
+    clear_module_cache();
     free_tokens(tokens, token_count);
     free(source);
     return exit_code;
