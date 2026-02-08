@@ -64,6 +64,12 @@ Definition is_logic_op (op : binop) : bool :=
   | _ => false
   end.
 
+Definition is_string_op (op : binop) : bool :=
+  match op with
+  | OpStrCat => true
+  | _ => false
+  end.
+
 (** ** Big-step evaluation relation
 
     [eval env e env' v] means that expression [e] evaluates to value [v]
@@ -81,6 +87,10 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
   (** Boolean literal *)
   | E_Bool : forall renv b,
       eval renv (EBool b) renv (VBool b)
+
+  (** String literal *)
+  | E_String : forall renv s,
+      eval renv (EString s) renv (VString s)
 
   (** Unit literal *)
   | E_Unit : forall renv,
@@ -119,6 +129,26 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
       op = OpNe ->
       eval renv (EBinOp op e1 e2) renv2 (VBool (negb (Bool.eqb b1 b2)))
 
+  (** String concatenation *)
+  | E_StrCat : forall renv renv1 renv2 e1 e2 s1 s2,
+      eval renv e1 renv1 (VString s1) ->
+      eval renv1 e2 renv2 (VString s2) ->
+      eval renv (EBinOp OpStrCat e1 e2) renv2 (VString (String.append s1 s2))
+
+  (** String equality *)
+  | E_BinEqStr : forall renv renv1 renv2 op e1 e2 s1 s2,
+      eval renv e1 renv1 (VString s1) ->
+      eval renv1 e2 renv2 (VString s2) ->
+      op = OpEq ->
+      eval renv (EBinOp op e1 e2) renv2 (VBool (String.eqb s1 s2))
+
+  (** String inequality *)
+  | E_BinNeStr : forall renv renv1 renv2 op e1 e2 s1 s2,
+      eval renv e1 renv1 (VString s1) ->
+      eval renv1 e2 renv2 (VString s2) ->
+      op = OpNe ->
+      eval renv (EBinOp op e1 e2) renv2 (VBool (negb (String.eqb s1 s2)))
+
   (** Logical AND (short-circuit) *)
   | E_And_True : forall renv renv1 renv2 e1 e2 v2,
       eval renv e1 renv1 (VBool true) ->
@@ -153,6 +183,11 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
   | E_Not : forall renv renv1 e b,
       eval renv e renv1 (VBool b) ->
       eval renv (EUnOp OpNot e) renv1 (VBool (negb b))
+
+  (** String length *)
+  | E_StrLen : forall renv renv1 e s,
+      eval renv e renv1 (VString s) ->
+      eval renv (EUnOp OpStrLen e) renv1 (VInt (Z.of_nat (String.length s)))
 
   (** If-then-else: true branch *)
   | E_IfTrue : forall renv renv1 renv2 e1 e2 e3 v,

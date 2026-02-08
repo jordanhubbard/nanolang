@@ -2,9 +2,9 @@
 
     This file defines the abstract syntax for NanoCore, a minimal subset
     of NanoLang used for formal verification. NanoCore includes:
-    - Integer, boolean, and unit literals
-    - Binary operators (arithmetic, comparison, logical)
-    - Unary operators (negation, logical not)
+    - Integer, boolean, string, and unit literals
+    - Binary operators (arithmetic, comparison, logical, string)
+    - Unary operators (negation, logical not, string length)
     - If/then/else expressions
     - Let bindings
     - Mutable variable assignment (set)
@@ -19,10 +19,11 @@ Open Scope string_scope.
 (** ** Types *)
 
 Inductive ty : Type :=
-  | TInt   : ty                    (* int *)
-  | TBool  : ty                    (* bool *)
-  | TUnit  : ty                    (* unit *)
-  | TArrow : ty -> ty -> ty.       (* function type: T1 -> T2 *)
+  | TInt    : ty                    (* int *)
+  | TBool   : ty                    (* bool *)
+  | TString : ty                    (* string *)
+  | TUnit   : ty                    (* unit *)
+  | TArrow  : ty -> ty -> ty.       (* function type: T1 -> T2 *)
 
 (** ** Binary operators *)
 
@@ -42,19 +43,23 @@ Inductive binop : Type :=
   | OpGe    : binop    (* >= *)
   (* Logical *)
   | OpAnd   : binop    (* and *)
-  | OpOr    : binop.   (* or *)
+  | OpOr    : binop    (* or *)
+  (* String *)
+  | OpStrCat : binop.  (* string concatenation: + on strings *)
 
 (** ** Unary operators *)
 
 Inductive unop : Type :=
-  | OpNeg   : unop     (* unary minus *)
-  | OpNot   : unop.    (* not *)
+  | OpNeg    : unop     (* unary minus *)
+  | OpNot    : unop     (* not *)
+  | OpStrLen : unop.    (* string length: str_length *)
 
 (** ** Expressions *)
 
 Inductive expr : Type :=
   | EInt    : Z -> expr                         (* integer literal *)
   | EBool   : bool -> expr                      (* boolean literal *)
+  | EString : string -> expr                    (* string literal *)
   | EUnit   : expr                              (* unit literal *)
   | EVar    : string -> expr                     (* variable reference *)
   | EBinOp  : binop -> expr -> expr -> expr      (* binary operation *)
@@ -75,6 +80,7 @@ Inductive expr : Type :=
 Inductive val : Type :=
   | VInt    : Z -> val                           (* integer value *)
   | VBool   : bool -> val                        (* boolean value *)
+  | VString : string -> val                      (* string value *)
   | VUnit   : val                                (* unit value *)
   | VClos   : string -> expr -> env -> val       (* closure: param, body, captured env *)
 

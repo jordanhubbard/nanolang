@@ -49,6 +49,7 @@ Definition binop_arg_type (op : binop) : ty :=
   | OpAdd | OpSub | OpMul | OpDiv | OpMod => TInt
   | OpEq | OpNe | OpLt | OpLe | OpGt | OpGe => TInt
   | OpAnd | OpOr => TBool
+  | OpStrCat => TString
   end.
 
 Definition binop_res_type (op : binop) : ty :=
@@ -56,11 +57,20 @@ Definition binop_res_type (op : binop) : ty :=
   | OpAdd | OpSub | OpMul | OpDiv | OpMod => TInt
   | OpEq | OpNe | OpLt | OpLe | OpGt | OpGe => TBool
   | OpAnd | OpOr => TBool
+  | OpStrCat => TString
   end.
 
 (** For equality on booleans, we need a separate rule *)
 
 Definition binop_allows_bool_args (op : binop) : bool :=
+  match op with
+  | OpEq | OpNe => true
+  | _ => false
+  end.
+
+(** For equality on strings, we need a separate rule *)
+
+Definition binop_allows_string_args (op : binop) : bool :=
   match op with
   | OpEq | OpNe => true
   | _ => false
@@ -77,6 +87,10 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   (** Boolean literal *)
   | T_Bool : forall ctx b,
       has_type ctx (EBool b) TBool
+
+  (** String literal *)
+  | T_String : forall ctx s,
+      has_type ctx (EString s) TString
 
   (** Unit literal *)
   | T_Unit : forall ctx,
@@ -108,6 +122,19 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
       has_type ctx e2 TBool ->
       has_type ctx (EBinOp op e1 e2) TBool
 
+  (** String concatenation *)
+  | T_StrCat : forall ctx e1 e2,
+      has_type ctx e1 TString ->
+      has_type ctx e2 TString ->
+      has_type ctx (EBinOp OpStrCat e1 e2) TString
+
+  (** Equality/inequality on strings *)
+  | T_BinEqStr : forall ctx op e1 e2,
+      binop_allows_string_args op = true ->
+      has_type ctx e1 TString ->
+      has_type ctx e2 TString ->
+      has_type ctx (EBinOp op e1 e2) TBool
+
   (** Unary negation *)
   | T_Neg : forall ctx e,
       has_type ctx e TInt ->
@@ -117,6 +144,11 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
   | T_Not : forall ctx e,
       has_type ctx e TBool ->
       has_type ctx (EUnOp OpNot e) TBool
+
+  (** String length *)
+  | T_StrLen : forall ctx e,
+      has_type ctx e TString ->
+      has_type ctx (EUnOp OpStrLen e) TInt
 
   (** If-then-else *)
   | T_If : forall ctx e1 e2 e3 t,

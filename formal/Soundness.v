@@ -24,6 +24,7 @@ Open Scope string_scope.
 Inductive val_has_type : val -> ty -> Prop :=
   | VT_Int : forall n, val_has_type (VInt n) TInt
   | VT_Bool : forall b, val_has_type (VBool b) TBool
+  | VT_String : forall s, val_has_type (VString s) TString
   | VT_Unit : val_has_type VUnit TUnit
   | VT_Clos : forall x body clos_env t1 t2 c,
       env_ctx_agree clos_env c ->
@@ -56,6 +57,12 @@ Lemma canonical_bool : forall v,
   val_has_type v TBool -> exists b, v = VBool b.
 Proof.
   intros v H. inversion H. exists b. reflexivity.
+Qed.
+
+Lemma canonical_string : forall v,
+  val_has_type v TString -> exists s, v = VString s.
+Proof.
+  intros v H. inversion H. exists s. reflexivity.
 Qed.
 
 Lemma canonical_unit : forall v,
@@ -154,6 +161,21 @@ Proof.
   exists c. split; assumption.
 Qed.
 
+(** ** Tactic for impossible type cases
+
+    When an expression evaluates to a value of one type (e.g., VInt)
+    but the typing rule requires a different type (e.g., TString),
+    we derive a contradiction via the IH. *)
+
+Ltac type_contradiction :=
+  exfalso;
+  match goal with
+  | [ IH : forall _ _, has_type _ ?e _ -> _ -> _,
+      Ht : has_type _ ?e ?T,
+      Hagr : env_ctx_agree _ _ |- _ ] =>
+    destruct (IH _ _ Ht Hagr) as [?Hvt _]; inversion Hvt
+  end.
+
 (** ** Preservation Theorem
 
     We prove preservation by induction on the evaluation derivation.
@@ -185,6 +207,9 @@ Proof.
   - (* E_Bool *)
     inversion Htype; subst. split; [constructor | assumption].
 
+  - (* E_String *)
+    inversion Htype; subst. split; [constructor | assumption].
+
   - (* E_Unit *)
     inversion Htype; subst. split; [constructor | assumption].
 
@@ -194,7 +219,7 @@ Proof.
     rewrite H in Hl. inversion Hl; subst.
     split; [assumption | assumption].
 
-  - (* E_BinArith *)
+  - (* E_BinArith: int op int -> int *)
     inversion Htype; subst.
     + (* T_BinOp *)
       match goal with
@@ -203,22 +228,16 @@ Proof.
         destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
         split; [eapply eval_arith_binop_type; eassumption | assumption]
       end.
-    + (* T_BinLogic - impossible: e1 typed as Bool but evals to Int *)
-      exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TBool |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _];
-        inversion Hvt1
-      end.
-    + (* T_BinEqBool - impossible: e1 typed as Bool but evals to Int *)
-      exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TBool |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _];
-        inversion Hvt1
-      end.
+    + (* T_BinLogic - impossible: e1 typed Bool but evals to Int *)
+      type_contradiction.
+    + (* T_BinEqBool - impossible *)
+      type_contradiction.
+    + (* T_StrCat - impossible: e1 typed String but evals to Int *)
+      type_contradiction.
+    + (* T_BinEqStr - impossible *)
+      type_contradiction.
 
-  - (* E_BinCmp *)
+  - (* E_BinCmp: int op int -> bool *)
     inversion Htype; subst.
     + match goal with
       | [ He1 : has_type _ e1 TInt, He2 : has_type _ e2 TInt |- _ ] =>
@@ -226,44 +245,86 @@ Proof.
         destruct (IHHeval2 _ _ He2 Hagree1) as [Hvt2 Hagree2];
         split; [eapply eval_cmp_binop_type; eassumption | assumption]
       end.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TBool |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
-      end.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TBool |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
-      end.
+    + type_contradiction.
+    + type_contradiction.
+    + type_contradiction.
+    + type_contradiction.
 
-  - (* E_BinEqBool *)
+  - (* E_BinEqBool: bool == bool -> bool *)
     inversion Htype; subst.
-    + exfalso.
+    + (* T_BinOp: impossible - e1 typed Int but evals to Bool *)
+      type_contradiction.
+    + (* T_BinLogic: impossible - OpEq not a logic op *)
+      exfalso.
+      match goal with [ H : binop_arg_type _ = TBool |- _ ] => subst; simpl in H; discriminate end.
+    + (* T_BinEqBool: the real case *)
       match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
+        split; [constructor | assumption]
       end.
+    + (* T_StrCat: impossible - OpEq is not OpStrCat *)
+      exfalso. subst. discriminate.
+    + (* T_BinEqStr: impossible - e1 typed String but evals to Bool *)
+      type_contradiction.
+
+  - (* E_BinNeBool: bool != bool -> bool *)
+    inversion Htype; subst.
+    + type_contradiction.
     + exfalso.
-      match goal with [ H : binop_arg_type _ = TBool |- _ ] => simpl in H; discriminate end.
+      match goal with [ H : binop_arg_type _ = TBool |- _ ] => subst; simpl in H; discriminate end.
     + match goal with
       | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
         destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
         destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
         split; [constructor | assumption]
       end.
+    + exfalso. subst. discriminate.
+    + type_contradiction.
 
-  - (* E_BinNeBool *)
+  - (* E_StrCat: string ++ string -> string *)
     inversion Htype; subst.
-    + exfalso.
+    + (* T_BinOp: impossible - e1 typed Int but evals to String *)
+      type_contradiction.
+    + (* T_BinLogic: impossible *)
+      type_contradiction.
+    + (* T_BinEqBool: impossible *)
+      type_contradiction.
+    + (* T_StrCat: the real case *)
       match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+      | [ He1 : has_type _ e1 TString, He2 : has_type _ e2 TString |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
+        split; [constructor | assumption]
       end.
-    + exfalso.
-      match goal with [ H : binop_arg_type _ = TBool |- _ ] => simpl in H; discriminate end.
+    + (* T_BinEqStr: impossible - OpStrCat not eq/ne *)
+      exfalso.
+      match goal with [ H : binop_allows_string_args OpStrCat = true |- _ ] => simpl in H; discriminate end.
+
+  - (* E_BinEqStr: string == string -> bool *)
+    inversion Htype; subst.
+    + type_contradiction.
+    + type_contradiction.
+    + type_contradiction.
+    + (* T_StrCat: impossible - OpEq not OpStrCat *)
+      exfalso. subst. discriminate.
+    + (* T_BinEqStr: the real case *)
+      match goal with
+      | [ He1 : has_type _ e1 TString, He2 : has_type _ e2 TString |- _ ] =>
+        destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
+        destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
+        split; [constructor | assumption]
+      end.
+
+  - (* E_BinNeStr: string != string -> bool *)
+    inversion Htype; subst.
+    + type_contradiction.
+    + type_contradiction.
+    + type_contradiction.
+    + exfalso. subst. discriminate.
     + match goal with
-      | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
+      | [ He1 : has_type _ e1 TString, He2 : has_type _ e2 TString |- _ ] =>
         destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
         destruct (IHHeval2 _ _ He2 Hagree1) as [_ Hagree2];
         split; [constructor | assumption]
@@ -271,11 +332,7 @@ Proof.
 
   - (* E_And_True *)
     inversion Htype; subst.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
-      end.
+    + type_contradiction.
     + match goal with
       | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
         destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
@@ -284,38 +341,35 @@ Proof.
       end.
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
+    + type_contradiction.
 
   - (* E_And_False *)
     inversion Htype; subst.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+    + type_contradiction.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval _ _ He1 Hagree) as [_ Hagree1];
+        split; [constructor | assumption]
       end.
-    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
-      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
+    + type_contradiction.
 
   - (* E_And_Short *)
     inversion Htype; subst.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+    + type_contradiction.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval _ _ He1 Hagree) as [_ Hagree1];
+        split; [constructor | assumption]
       end.
-    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
-      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
+    + type_contradiction.
 
   - (* E_Or_False *)
     inversion Htype; subst.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval1 _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
-      end.
+    + type_contradiction.
     + match goal with
       | [ He1 : has_type _ e1 TBool, He2 : has_type _ e2 TBool |- _ ] =>
         destruct (IHHeval1 _ _ He1 Hagree) as [_ Hagree1];
@@ -324,18 +378,19 @@ Proof.
       end.
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
+    + type_contradiction.
 
   - (* E_Or_Short *)
     inversion Htype; subst.
-    + exfalso.
-      match goal with
-      | [ Ht : has_type _ e1 TInt |- _ ] =>
-        destruct (IHHeval _ _ Ht Hagree) as [Hvt1 _]; inversion Hvt1
+    + type_contradiction.
+    + match goal with
+      | [ He1 : has_type _ e1 TBool |- _ ] =>
+        destruct (IHHeval _ _ He1 Hagree) as [_ Hagree1];
+        split; [constructor | assumption]
       end.
-    + destruct (IHHeval _ _ H5 Hagree) as [_ Hagree1].
-      split; [constructor | assumption].
     + exfalso.
       match goal with [ H : binop_allows_bool_args _ = true |- _ ] => simpl in H; discriminate end.
+    + type_contradiction.
 
   - (* E_Neg *)
     inversion Htype; subst.
@@ -343,6 +398,11 @@ Proof.
     split; [constructor | assumption].
 
   - (* E_Not *)
+    inversion Htype; subst.
+    destruct (IHHeval _ _ H1 Hagree) as [_ Hagree1].
+    split; [constructor | assumption].
+
+  - (* E_StrLen *)
     inversion Htype; subst.
     destruct (IHHeval _ _ H1 Hagree) as [_ Hagree1].
     split; [constructor | assumption].
@@ -371,7 +431,6 @@ Proof.
       assert (Hagree_ext : env_ctx_agree (ECons x v1 renv1) (CtxCons x t1 gamma))
         by (apply agree_cons; assumption);
       destruct (IHHeval2 _ _ He2 Hagree_ext) as [Hvt2 Hagree2];
-      (* Hagree2 : env_ctx_agree (ECons x vx renv_out) (CtxCons x t1 gamma) *)
       inversion Hagree2; subst;
       split; assumption
     end.

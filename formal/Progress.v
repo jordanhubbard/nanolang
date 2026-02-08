@@ -30,6 +30,7 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
   match e with
   | EInt n => EInt n
   | EBool b => EBool b
+  | EString str => EString str
   | EUnit => EUnit
   | EVar y => if String.eqb x y then s else EVar y
   | EBinOp op e1 e2 => EBinOp op (subst x s e1) (subst x s e2)
@@ -49,15 +50,17 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
 (** ** Value predicate on expressions *)
 
 Inductive is_value : expr -> Prop :=
-  | V_Int  : forall n, is_value (EInt n)
-  | V_Bool : forall b, is_value (EBool b)
-  | V_Unit : is_value EUnit
-  | V_Lam  : forall x t body, is_value (ELam x t body).
+  | V_Int    : forall n, is_value (EInt n)
+  | V_Bool   : forall b, is_value (EBool b)
+  | V_String : forall s, is_value (EString s)
+  | V_Unit   : is_value EUnit
+  | V_Lam    : forall x t body, is_value (ELam x t body).
 
 (** ** Total binary operation on expression values
 
     Division and modulo by zero produce 0, making this total
-    on well-typed inputs. *)
+    on well-typed inputs. String concatenation and equality
+    are total on string inputs. *)
 
 Definition apply_binop (op : binop) (e1 e2 : expr) : option expr :=
   match op with
@@ -73,10 +76,12 @@ Definition apply_binop (op : binop) (e1 e2 : expr) : option expr :=
   | OpEq  => match e1, e2 with
              | EInt n1, EInt n2 => Some (EBool (Z.eqb n1 n2))
              | EBool b1, EBool b2 => Some (EBool (Bool.eqb b1 b2))
+             | EString s1, EString s2 => Some (EBool (String.eqb s1 s2))
              | _, _ => None end
   | OpNe  => match e1, e2 with
              | EInt n1, EInt n2 => Some (EBool (negb (Z.eqb n1 n2)))
              | EBool b1, EBool b2 => Some (EBool (negb (Bool.eqb b1 b2)))
+             | EString s1, EString s2 => Some (EBool (negb (String.eqb s1 s2)))
              | _, _ => None end
   | OpLt  => match e1, e2 with EInt n1, EInt n2 => Some (EBool (Z.ltb n1 n2)) | _, _ => None end
   | OpLe  => match e1, e2 with EInt n1, EInt n2 => Some (EBool (Z.leb n1 n2)) | _, _ => None end
@@ -84,6 +89,9 @@ Definition apply_binop (op : binop) (e1 e2 : expr) : option expr :=
   | OpGe  => match e1, e2 with EInt n1, EInt n2 => Some (EBool (Z.leb n2 n1)) | _, _ => None end
   | OpAnd => match e1, e2 with EBool b1, EBool b2 => Some (EBool (andb b1 b2)) | _, _ => None end
   | OpOr  => match e1, e2 with EBool b1, EBool b2 => Some (EBool (orb b1 b2)) | _, _ => None end
+  | OpStrCat => match e1, e2 with
+                | EString s1, EString s2 => Some (EString (String.append s1 s2))
+                | _, _ => None end
   end.
 
 (** ** Small-step reduction relation
@@ -124,6 +132,8 @@ Inductive step : expr -> expr -> Prop :=
       step (EUnOp OpNeg (EInt n)) (EInt (- n))
   | S_Not : forall b,
       step (EUnOp OpNot (EBool b)) (EBool (negb b))
+  | S_StrLen : forall s,
+      step (EUnOp OpStrLen (EString s)) (EInt (Z.of_nat (String.length s)))
   (* If *)
   | S_IfCond : forall e1 e1' e2 e3,
       step e1 e1' ->
@@ -189,6 +199,13 @@ Proof.
   - exists b. reflexivity.
 Qed.
 
+Lemma canonical_forms_string : forall e,
+  has_type CtxNil e TString -> is_value e -> exists s, e = EString s.
+Proof.
+  intros e Ht Hv. inversion Hv; subst; inversion Ht; subst.
+  - exists s. reflexivity.
+Qed.
+
 Lemma canonical_forms_unit : forall e,
   has_type CtxNil e TUnit -> is_value e -> e = EUnit.
 Proof.
@@ -230,6 +247,20 @@ Proof.
   destruct op; simpl in *; try discriminate; eexists; reflexivity.
 Qed.
 
+Lemma apply_binop_strcat_total : forall s1 s2,
+  exists e', apply_binop OpStrCat (EString s1) (EString s2) = Some e'.
+Proof.
+  intros. eexists. reflexivity.
+Qed.
+
+Lemma apply_binop_string_eq_total : forall op s1 s2,
+  binop_allows_string_args op = true ->
+  exists e', apply_binop op (EString s1) (EString s2) = Some e'.
+Proof.
+  intros op s1 s2 Hallow.
+  destruct op; simpl in *; try discriminate; eexists; reflexivity.
+Qed.
+
 (** ** Progress Theorem *)
 
 Theorem progress : forall e t,
@@ -242,6 +273,7 @@ Proof.
 
   - (* T_Int *) left. constructor.
   - (* T_Bool *) left. constructor.
+  - (* T_String *) left. constructor.
   - (* T_Unit *) left. constructor.
 
   - (* T_Var: impossible in empty context *)
@@ -296,6 +328,28 @@ Proof.
       * exists (EBinOp op e1 e2'). apply S_BinOp2; assumption.
     + exists (EBinOp op e1' e2). apply S_BinOp1. assumption.
 
+  - (* T_StrCat: string concatenation *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * apply canonical_forms_string in Htype1 as [s1 ?]; [| assumption]; subst.
+        apply canonical_forms_string in Htype2 as [s2 ?]; [| assumption]; subst.
+        destruct (apply_binop_strcat_total s1 s2) as [e' He'].
+        exists e'. apply S_BinOp; try constructor; assumption.
+      * exists (EBinOp OpStrCat e1 e2'). apply S_BinOp2; assumption.
+    + exists (EBinOp OpStrCat e1' e2). apply S_BinOp1. assumption.
+
+  - (* T_BinEqStr: equality/inequality on strings *)
+    right.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + destruct IHHtype2 as [Hv2 | [e2' Hs2]]; [reflexivity | |].
+      * apply canonical_forms_string in Htype1 as [s1 ?]; [| assumption]; subst.
+        apply canonical_forms_string in Htype2 as [s2 ?]; [| assumption]; subst.
+        destruct (apply_binop_string_eq_total op s1 s2 H) as [e' He'].
+        exists e'. apply S_BinOp; try constructor; assumption.
+      * exists (EBinOp op e1 e2'). apply S_BinOp2; assumption.
+    + exists (EBinOp op e1' e2). apply S_BinOp1. assumption.
+
   - (* T_Neg *)
     right.
     destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
@@ -309,6 +363,13 @@ Proof.
     + apply canonical_forms_bool in Htype as [b ?]; [| assumption]; subst.
       exists (EBool (negb b)). apply S_Not.
     + exists (EUnOp OpNot e'). apply S_UnOp1. assumption.
+
+  - (* T_StrLen *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + apply canonical_forms_string in Htype as [s ?]; [| assumption]; subst.
+      exists (EInt (Z.of_nat (String.length s))). apply S_StrLen.
+    + exists (EUnOp OpStrLen e'). apply S_UnOp1. assumption.
 
   - (* T_If *)
     right.

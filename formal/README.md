@@ -1,4 +1,4 @@
-# NanoCore: Formal Verification (Phase 1)
+# NanoCore: Formal Verification (Phase 2)
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
 formalized in the Rocq Prover (Coq).
@@ -36,17 +36,21 @@ Theorem progress : forall e t,
 | Feature | Included |
 |---------|----------|
 | Integer and boolean literals | Yes |
+| String literals | Yes |
 | Unit type and literal | Yes |
 | Arithmetic (`+`, `-`, `*`, `/`, `%`) | Yes |
 | Comparison (`==`, `!=`, `<`, `<=`, `>`, `>=`) | Yes |
 | Logical (`and`, `or`, `not`) | Yes |
+| String concatenation (`+`) | Yes |
+| String length (`str_length`) | Yes |
+| String equality (`==`, `!=`) | Yes |
 | If/then/else | Yes |
 | Let bindings | Yes |
 | Mutable variables (`set`) | Yes |
 | Sequential composition (`;`) | Yes |
 | While loops | Yes |
 | Lambda / application | Yes |
-| Strings, arrays, structs | No (Phase 2+) |
+| Arrays, structs | No (Phase 3+) |
 
 ## File structure
 
@@ -101,6 +105,9 @@ make
   (store update is modeled in big-step; small-step progress only
   requires showing one step exists)
 
-## Future phases
+## Phases
 
-- **Phase 2:** Structs, unions, arrays
+- **Phase 0:** Pure NanoCore (int, bool, unit, arithmetic, comparison, logic, if/let, lambda/app)
+- **Phase 1:** Mutation and while loops (set, seq, while, store-passing semantics)
+- **Phase 2:** Strings (string literals, concatenation, length, equality) -- current
+- **Phase 3:** Arrays, structs (future)
