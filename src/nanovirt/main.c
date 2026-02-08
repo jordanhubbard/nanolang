@@ -1,14 +1,17 @@
 /*
- * nano_virt main.c - CLI for compiling .nano to .nvm bytecode
+ * nano_virt main.c - CLI for compiling .nano to .nvm bytecode or native binary
  *
- * Usage: nano_virt input.nano [-o output.nvm] [--run]
+ * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [-v]
  *
  * Pipeline: .nano → lexer → parser → typechecker → codegen → .nvm
- * With --run: also executes the .nvm via the embedded VM
+ * With -o:        writes .nvm bytecode (if .nvm extension or --emit-nvm)
+ *                 or native executable (otherwise, via wrapper_gen)
+ * With --run:     executes the .nvm via the embedded VM
  */
 
 #include "nanolang.h"
 #include "nanovirt/codegen.h"
+#include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
 #include "nanovm/vm_ffi.h"
@@ -42,19 +45,37 @@ static char *read_file(const char *path) {
 }
 
 static void usage(const char *prog) {
-    fprintf(stderr, "Usage: %s <input.nano> [-o output.nvm] [--run]\n", prog);
+    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [-v]\n", prog);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -o <path>     Output file (native binary, or .nvm if --emit-nvm)\n");
+    fprintf(stderr, "  --run         Execute after compilation (in-process VM)\n");
+    fprintf(stderr, "  --emit-nvm    Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "  -v            Verbose output\n");
+}
+
+/* Check if path ends with .nvm extension */
+static bool has_nvm_extension(const char *path) {
+    size_t len = strlen(path);
+    return (len >= 4 && strcmp(path + len - 4, ".nvm") == 0);
 }
 
 int main(int argc, char **argv) {
     const char *input = NULL;
     const char *output = NULL;
     bool run = false;
+    bool emit_nvm = false;
+    bool verbose = false;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
         } else if (strcmp(argv[i], "--run") == 0) {
             run = true;
+        } else if (strcmp(argv[i], "--emit-nvm") == 0) {
+            emit_nvm = true;
+        } else if (strcmp(argv[i], "-v") == 0) {
+            verbose = true;
         } else if (argv[i][0] != '-') {
             input = argv[i];
         } else {
@@ -133,7 +154,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* Write .nvm if requested */
+    /* Write output if requested */
     if (output) {
         uint32_t size = 0;
         uint8_t *blob = nvm_serialize(cg.module, &size);
@@ -149,21 +170,49 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        FILE *f = fopen(output, "wb");
-        if (!f) {
-            fprintf(stderr, "error: cannot write '%s'\n", output);
-            free(blob);
-            nvm_module_free(cg.module);
-            free_ast(program);
-            free_environment(env);
-            free_module_list(modules);
-            clear_module_cache();
-            free_tokens(tokens, token_count);
-            free(source);
-            return 1;
+        bool want_nvm = emit_nvm || has_nvm_extension(output);
+
+        if (want_nvm) {
+            /* Write raw .nvm bytecode */
+            FILE *f = fopen(output, "wb");
+            if (!f) {
+                fprintf(stderr, "error: cannot write '%s'\n", output);
+                free(blob);
+                nvm_module_free(cg.module);
+                free_ast(program);
+                free_environment(env);
+                free_module_list(modules);
+                clear_module_cache();
+                free_tokens(tokens, token_count);
+                free(source);
+                return 1;
+            }
+            fwrite(blob, 1, size, f);
+            fclose(f);
+            if (verbose) {
+                printf("Wrote %u bytes of NVM bytecode to %s\n", size, output);
+            }
+        } else {
+            /* Generate native executable */
+            if (verbose) {
+                printf("Generating native executable: %s\n", output);
+            }
+            if (!wrapper_generate(cg.module, blob, size, output, input,
+                                  program, verbose)) {
+                free(blob);
+                nvm_module_free(cg.module);
+                free_ast(program);
+                free_environment(env);
+                free_module_list(modules);
+                clear_module_cache();
+                free_tokens(tokens, token_count);
+                free(source);
+                return 1;
+            }
+            if (verbose) {
+                printf("Native executable generated: %s\n", output);
+            }
         }
-        fwrite(blob, 1, size, f);
-        fclose(f);
         free(blob);
     }
 

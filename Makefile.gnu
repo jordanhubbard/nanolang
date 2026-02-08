@@ -309,10 +309,10 @@ $(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h | $(OBJ_DIR)/n
 
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
-NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c
+NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
 NANOVIRT_OBJECTS = $(patsubst $(NANOVIRT_DIR)/%.c,$(OBJ_DIR)/nanovirt/%.o,$(NANOVIRT_SOURCES))
 
-$(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+$(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/wrapper_gen.h | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovirt:
