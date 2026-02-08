@@ -1,4 +1,4 @@
-# NanoCore: Formal Verification (Phase 4)
+# NanoCore: Formal Verification (Phase 5)
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
 formalized in the Rocq Prover (Coq).
@@ -65,14 +65,21 @@ Theorem eval_deterministic : forall renv e renv' v renv'' v',
 | Array length (`array_length`) | Yes |
 | Record (struct) literals | Yes |
 | Record field access (`.f`) | Yes |
+| Record field update (`set x.f = e`) | Yes |
+| Recursive functions (`fix`/`letrec`) | Yes |
+| Variant types / sum types | Yes |
+| Pattern matching (`match`) | Yes |
+| Array functional update | Yes |
+| Array push (append) | Yes |
+| String indexing | Yes |
 
 ## File structure
 
 | File | Contents |
 |------|----------|
-| `Syntax.v` | Types, operators, expressions, values, environments, env_update |
+| `Syntax.v` | Types, operators, expressions, values, environments, env_update, assoc_update, list_update, find_branch |
 | `Semantics.v` | Big-step operational semantics with store-passing |
-| `Typing.v` | Typing rules and contexts |
+| `Typing.v` | Typing rules, contexts, mutual inductive `has_type`/`branches_type` |
 | `Soundness.v` | Preservation theorem (value typing + env agreement) |
 | `Progress.v` | Small-step semantics, substitution, progress theorem |
 | `Determinism.v` | Determinism of evaluation (eval is a partial function) |
@@ -135,6 +142,17 @@ make
 - **Polymorphic assoc_lookup**: Used for both type-level and value-level
   field lookup in records, with `ty_eq_dec` extended via `fix` to handle
   the nested `TRecord(list (string * ty))` case
+- **Recursive closures via VFixClos**: `fix f (x:T1):T2 = body` creates
+  a `VFixClos f x body env` closure. Application unrolls by binding
+  both the argument and the recursive reference in the closure's env
+- **Variant types with exhaustive matching**: `TVariant` carries an
+  ordered list of constructor tags with payload types. `branches_type`
+  (mutual inductive with `has_type`) enforces exhaustive, ordered
+  branch coverage
+- **Interleaved IH tactic for determinism**: `det_step_full` applies
+  one IH then immediately resolves non-eval premises (like `find_branch`).
+  This handles rules where variables introduced by non-eval premises
+  appear in subsequent eval premises (E_Match pattern)
 
 ## Phases
 
@@ -142,4 +160,5 @@ make
 - **Phase 1:** Mutation and while loops (set, seq, while, store-passing semantics)
 - **Phase 2:** Strings (string literals, concatenation, length, equality)
 - **Phase 3:** Arrays (array literals, indexing, length)
-- **Phase 4:** Records/structs (record literals, field access) -- current
+- **Phase 4:** Records/structs (record literals, field access)
+- **Phase 5:** Recursive functions (fix), variants + pattern matching, mutable record fields, array update/push, string indexing -- current

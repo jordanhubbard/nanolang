@@ -32,9 +32,6 @@ Ltac det_step :=
     try subst
   end.
 
-(** Apply all available IHs *)
-Ltac det_IHs := repeat det_step.
-
 (** Resolve identical function applications producing Some *)
 Ltac det_func :=
   match goal with
@@ -63,13 +60,18 @@ Ltac det_inject :=
       injection H; intros; subst; clear H
   end.
 
+(** One IH step + resolve non-eval premises.
+    Interleaving is needed for rules like E_Match where
+    find_branch introduces variables between eval premises:
+    the second IH cannot match until find_branch is resolved. *)
+Ltac det_step_full :=
+  det_step; repeat det_func; det_inject; repeat det_func.
+
 (** Combined solver *)
 Ltac det_solve :=
-  det_IHs;
-  repeat det_func;
-  det_inject;
-  repeat det_func;
+  repeat det_step_full;
   try det_arith_cmp_contra;
+  try (exfalso; congruence);
   try (split; reflexivity);
   try (split; congruence).
 
