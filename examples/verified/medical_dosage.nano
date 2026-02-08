@@ -1,0 +1,280 @@
+/* =============================================================================
+ * Verified Medical Dosage Calculator
+ * =============================================================================
+ * Purpose: Safe drug dosage computation with verified safety interlocks
+ * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ *
+ * Industry Context:
+ *   The Therac-25 radiation therapy machine (1985-1987) killed patients due to
+ *   race conditions and missing safety interlocks. A formally verified state
+ *   machine would have caught the error. This example demonstrates the
+ *   "verified critical path" pattern: safety-critical dosage logic stays in the
+ *   NanoCore subset where Coq proofs guarantee type soundness and determinism.
+ *
+ * What the Coq proofs guarantee for this code:
+ *   - Type soundness: if it typechecks, evaluation never produces a wrong type
+ *   - Determinism: same patient data always produces the same dosage decision
+ *   - No stuck states: well-typed expressions always reduce to a value
+ *
+ * Run: nanoc --trust-report examples/verified/medical_dosage.nano
+ *      (all functions should show [verified])
+ *
+ * Features: unions, pattern matching, structs, integer arithmetic, safety checks
+ * Difficulty: Intermediate
+ * ============================================================================= */
+
+/* ── Patient weight categories (kg) ── */
+
+struct PatientData {
+    weight_kg: int,
+    age_years: int,
+    creatinine_umol: int
+}
+
+/* ── Dosage result: either a safe dose or a rejection ── */
+
+union DosageResult {
+    Safe { dose_mg: int, max_rate_ml_hr: int },
+    Rejected { reason: string }
+}
+
+/* ── Kidney function estimate (simplified Cockcroft-Gault) ──
+ * Real formula: CrCl = ((140 - age) * weight) / (72 * creatinine)
+ * We use integer arithmetic (mg/dL conversion built in).
+ * The Coq proofs guarantee this always returns an int, never gets stuck. */
+
+fn estimate_kidney_clearance(patient: PatientData) -> int {
+    let numerator: int = (* (- 140 patient.age_years) patient.weight_kg)
+    /* Creatinine in umol/L; convert to dL scale: divide by 88 */
+    let creatinine_dl: int = (/ patient.creatinine_umol 88)
+    if (== creatinine_dl 0) {
+        /* Guard against division by zero — Coq semantics: div-by-0 is stuck.
+         * We return a safe conservative estimate instead. */
+        return 0
+    }
+    let denominator: int = (* 72 creatinine_dl)
+    return (/ numerator denominator)
+}
+
+shadow estimate_kidney_clearance {
+    /* 70kg, 40yo, creatinine 88 umol/L (1.0 mg/dL) */
+    let p1: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
+    assert (> (estimate_kidney_clearance p1) 0)
+
+    /* Edge: creatinine = 0 should not crash, returns conservative 0 */
+    let p2: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 0 }
+    assert (== (estimate_kidney_clearance p2) 0)
+}
+
+/* ── Safety interlock: is this patient eligible for treatment? ── */
+
+union EligibilityCheck {
+    Eligible { clearance: int },
+    Ineligible { reason: string }
+}
+
+fn check_eligibility(patient: PatientData) -> EligibilityCheck {
+    /* Interlock 1: weight must be positive and reasonable */
+    if (<= patient.weight_kg 0) {
+        return EligibilityCheck.Ineligible { reason: "invalid weight" }
+    }
+    if (> patient.weight_kg 300) {
+        return EligibilityCheck.Ineligible { reason: "weight exceeds safe range" }
+    }
+
+    /* Interlock 2: age must be positive */
+    if (<= patient.age_years 0) {
+        return EligibilityCheck.Ineligible { reason: "invalid age" }
+    }
+    if (> patient.age_years 120) {
+        return EligibilityCheck.Ineligible { reason: "age exceeds valid range" }
+    }
+
+    /* Interlock 3: kidney function must be adequate */
+    let clearance: int = (estimate_kidney_clearance patient)
+    if (< clearance 15) {
+        return EligibilityCheck.Ineligible { reason: "kidney function too low" }
+    }
+
+    return EligibilityCheck.Eligible { clearance: clearance }
+}
+
+shadow check_eligibility {
+    let healthy: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
+    let result: EligibilityCheck = (check_eligibility healthy)
+    let is_eligible: bool = match result {
+        Eligible(e) => true,
+        Ineligible(r) => false
+    }
+    assert is_eligible
+
+    /* Zero weight → rejected */
+    let bad: PatientData = PatientData { weight_kg: 0, age_years: 40, creatinine_umol: 88 }
+    let result2: EligibilityCheck = (check_eligibility bad)
+    let rejected: bool = match result2 {
+        Eligible(e) => false,
+        Ineligible(r) => true
+    }
+    assert rejected
+}
+
+/* ── Dosage calculation with safety bounds ──
+ *
+ * Weight-based dosing: base_dose = weight_kg * dose_per_kg
+ * Adjusted for kidney function.
+ * Clamped to [min_dose, max_dose] range.
+ *
+ * Key invariant (guaranteed by determinism proof):
+ *   Given the same PatientData, this always returns the same DosageResult. */
+
+fn calculate_dosage(patient: PatientData, dose_per_kg: int,
+                     min_dose_mg: int, max_dose_mg: int) -> DosageResult {
+    /* Step 1: eligibility gate */
+    let eligibility: EligibilityCheck = (check_eligibility patient)
+    let mut clearance: int = 0
+    let mut elig_reason: string = ""
+    match eligibility {
+        Eligible(e) => {
+            set clearance e.clearance
+        },
+        Ineligible(r) => {
+            set clearance -1
+            set elig_reason r.reason
+        }
+    }
+    if (< clearance 0) {
+        return DosageResult.Rejected { reason: elig_reason }
+    }
+
+    /* Step 2: base dose from weight */
+    let base_dose: int = (* patient.weight_kg dose_per_kg)
+
+    /* Step 3: adjust for kidney function
+     * If clearance < 30: reduce dose to 50%
+     * If clearance < 60: reduce dose to 75%
+     * Otherwise: full dose */
+    let mut adjusted_dose: int = base_dose
+    if (< clearance 30) {
+        set adjusted_dose (/ base_dose 2)
+    } else {
+        if (< clearance 60) {
+            set adjusted_dose (/ (* base_dose 3) 4)
+        }
+    }
+
+    /* Step 4: clamp to safe range */
+    let mut clamped: int = adjusted_dose
+    if (< adjusted_dose min_dose_mg) {
+        set clamped min_dose_mg
+    }
+    if (> adjusted_dose max_dose_mg) {
+        set clamped max_dose_mg
+    }
+
+    /* Step 5: calculate infusion rate (simple: 1 mL per 10 mg, per hour) */
+    let rate: int = (/ clamped 10)
+    let mut safe_rate: int = rate
+    if (< rate 1) {
+        set safe_rate 1
+    }
+
+    return DosageResult.Safe { dose_mg: clamped, max_rate_ml_hr: safe_rate }
+}
+
+shadow calculate_dosage {
+    /* Normal patient, 5mg/kg, range 100-500mg */
+    let patient: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
+    let result: DosageResult = (calculate_dosage patient 5 100 500)
+    let dose: int = match result {
+        Safe(s) => s.dose_mg,
+        Rejected(r) => -1
+    }
+    /* 70 * 5 = 350mg, within range */
+    assert (== dose 350)
+
+    /* Heavy patient: dose clamped to max */
+    let heavy: PatientData = PatientData { weight_kg: 150, age_years: 50, creatinine_umol: 88 }
+    let result2: DosageResult = (calculate_dosage heavy 5 100 500)
+    let dose2: int = match result2 {
+        Safe(s) => s.dose_mg,
+        Rejected(r) => -1
+    }
+    assert (== dose2 500)
+
+    /* Ineligible patient: rejected */
+    let sick: PatientData = PatientData { weight_kg: 70, age_years: 85, creatinine_umol: 800 }
+    let result3: DosageResult = (calculate_dosage sick 5 100 500)
+    let rejected: bool = match result3 {
+        Safe(s) => false,
+        Rejected(r) => true
+    }
+    assert rejected
+}
+
+/* ── Multi-dose schedule validator ──
+ * Validates that a sequence of doses doesn't exceed daily limits.
+ * Demonstrates array operations within the verified subset. */
+
+fn validate_daily_schedule(doses_mg: array<int>, max_daily_mg: int) -> bool {
+    let mut total: int = 0
+    let mut i: int = 0
+    while (< i (array_length doses_mg)) {
+        let dose: int = (at doses_mg i)
+        /* Each individual dose must be positive */
+        if (<= dose 0) {
+            return false
+        }
+        set total (+ total dose)
+        /* Running total must never exceed daily max */
+        if (> total max_daily_mg) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow validate_daily_schedule {
+    assert (validate_daily_schedule [100, 100, 100] 500)
+    assert (validate_daily_schedule [200, 200, 100] 500)
+    assert (not (validate_daily_schedule [200, 200, 200] 500))
+    assert (not (validate_daily_schedule [100, -50, 100] 500))
+    assert (validate_daily_schedule [] 500)
+}
+
+/* ── Determinism verification ──
+ * The Coq proofs guarantee this, but we demonstrate it empirically. */
+
+fn verify_dosage_determinism(patient: PatientData) -> bool {
+    let r1: DosageResult = (calculate_dosage patient 5 100 500)
+    let r2: DosageResult = (calculate_dosage patient 5 100 500)
+    let d1: int = match r1 { Safe(s) => s.dose_mg, Rejected(r) => -1 }
+    let d2: int = match r2 { Safe(s) => s.dose_mg, Rejected(r) => -1 }
+    return (== d1 d2)
+}
+
+shadow verify_dosage_determinism {
+    let p: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
+    assert (verify_dosage_determinism p)
+    let p2: PatientData = PatientData { weight_kg: 0, age_years: 40, creatinine_umol: 88 }
+    assert (verify_dosage_determinism p2)
+}
+
+/* ── Main ── */
+
+fn main() -> int {
+    let patient: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
+    let result: DosageResult = (calculate_dosage patient 5 100 500)
+    let dose: int = match result {
+        Safe(s) => s.dose_mg,
+        Rejected(r) => -1
+    }
+    assert (== dose 350)
+    assert (verify_dosage_determinism patient)
+    assert (validate_daily_schedule [100, 100, 100] 500)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

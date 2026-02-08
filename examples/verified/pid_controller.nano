@@ -1,0 +1,268 @@
+/* =============================================================================
+ * Verified PID Controller with Safety Bounds
+ * =============================================================================
+ * Purpose: Proportional-Integral-Derivative control loop with formal guarantees
+ * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ *
+ * Industry Context:
+ *   PID controllers are used in industrial process control, automotive cruise
+ *   control, drone flight controllers, and HVAC systems. A bug in the control
+ *   law can cause physical damage (oscillation, overshoot, thermal runaway).
+ *
+ *   The SPARK/Ada approach to safety-critical embedded systems is to formally
+ *   verify the core control logic while leaving I/O and UI to conventional
+ *   testing. This example follows that pattern.
+ *
+ *   All arithmetic uses integers (fixed-point scaling by 1000) to avoid
+ *   floating-point non-determinism — matching the Coq integer semantics exactly.
+ *
+ * What the Coq proofs guarantee:
+ *   - Determinism: same state + input always produces the same output
+ *   - Type soundness: the controller never produces a wrong-typed output
+ *   - Bounded output: the clamp function guarantees output stays in range
+ *
+ * Run: nanoc --trust-report examples/verified/pid_controller.nano
+ *
+ * Features: structs, integer fixed-point arithmetic, while loops, arrays
+ * Difficulty: Advanced
+ * ============================================================================= */
+
+/* ── Fixed-point arithmetic helpers ──
+ * We use a scale factor of 1000 (3 decimal places).
+ * So "1.5" is represented as 1500, "0.001" as 1. */
+
+fn fixed_mul(a: int, b: int) -> int {
+    /* (a/1000) * (b/1000) = (a*b)/1000000, but we want result in /1000 scale */
+    return (/ (* a b) 1000)
+}
+
+shadow fixed_mul {
+    /* 1.5 * 2.0 = 3.0 → 1500 * 2000 / 1000 = 3000 */
+    assert (== (fixed_mul 1500 2000) 3000)
+    /* 0.5 * 0.5 = 0.25 → 500 * 500 / 1000 = 250 */
+    assert (== (fixed_mul 500 500) 250)
+    /* 1.0 * 1.0 = 1.0 → 1000 * 1000 / 1000 = 1000 */
+    assert (== (fixed_mul 1000 1000) 1000)
+}
+
+fn clamp(value: int, min_val: int, max_val: int) -> int {
+    if (< value min_val) {
+        return min_val
+    }
+    if (> value max_val) {
+        return max_val
+    }
+    return value
+}
+
+shadow clamp {
+    assert (== (clamp 50 0 100) 50)
+    assert (== (clamp -10 0 100) 0)
+    assert (== (clamp 150 0 100) 100)
+}
+
+/* ── PID controller state ── */
+
+struct PIDConfig {
+    kp: int,              /* Proportional gain (x1000) */
+    ki: int,              /* Integral gain (x1000) */
+    kd: int,              /* Derivative gain (x1000) */
+    output_min: int,      /* Minimum output (x1000) */
+    output_max: int,      /* Maximum output (x1000) */
+    integral_min: int,    /* Anti-windup: integral lower bound */
+    integral_max: int     /* Anti-windup: integral upper bound */
+}
+
+struct PIDState {
+    integral: int,        /* Accumulated error (x1000) */
+    prev_error: int,      /* Previous error for derivative (x1000) */
+    output: int           /* Current output (x1000) */
+}
+
+/* ── Single PID update step ──
+ * Given the current state, setpoint, and measurement, compute new output.
+ *
+ * PID formula (all in fixed-point x1000):
+ *   error = setpoint - measurement
+ *   P = Kp * error
+ *   I = Ki * integral(error)
+ *   D = Kd * (error - prev_error)
+ *   output = clamp(P + I + D, min, max)
+ *
+ * The clamp guarantees output stays within safe bounds regardless of
+ * accumulated integral or derivative spikes. */
+
+fn pid_update(config: PIDConfig, state: PIDState,
+              setpoint: int, measurement: int) -> PIDState {
+    let error: int = (- setpoint measurement)
+
+    /* Proportional term */
+    let p_term: int = (fixed_mul config.kp error)
+
+    /* Integral term with anti-windup */
+    let new_integral: int = (clamp (+ state.integral error)
+                                    config.integral_min config.integral_max)
+    let i_term: int = (fixed_mul config.ki new_integral)
+
+    /* Derivative term */
+    let d_term: int = (fixed_mul config.kd (- error state.prev_error))
+
+    /* Sum and clamp */
+    let raw_output: int = (+ p_term (+ i_term d_term))
+    let clamped_output: int = (clamp raw_output config.output_min config.output_max)
+
+    return PIDState {
+        integral: new_integral,
+        prev_error: error,
+        output: clamped_output
+    }
+}
+
+shadow pid_update {
+    let config: PIDConfig = PIDConfig {
+        kp: 1000, ki: 100, kd: 50,
+        output_min: -10000, output_max: 10000,
+        integral_min: -5000, integral_max: 5000
+    }
+    let state: PIDState = PIDState { integral: 0, prev_error: 0, output: 0 }
+
+    /* Error of 1000 (1.0 in fixed-point), Kp=1.0 → P=1000 */
+    let new_state: PIDState = (pid_update config state 2000 1000)
+    assert (== new_state.prev_error 1000)
+    assert (> new_state.output 0)
+}
+
+/* ── Run a simulation for N steps ──
+ * Simulates a simple first-order plant: measurement += (output - measurement) / time_constant
+ * This demonstrates determinism over a sequence of operations. */
+
+fn simulate_pid(config: PIDConfig, setpoint: int,
+                initial_measurement: int, steps: int,
+                time_constant: int) -> array<int> {
+    let mut state: PIDState = PIDState { integral: 0, prev_error: 0, output: 0 }
+    let mut measurement: int = initial_measurement
+    let mut history: array<int> = []
+    let mut i: int = 0
+
+    while (< i steps) {
+        set state (pid_update config state setpoint measurement)
+
+        /* Simple first-order plant model:
+         * measurement += (output - measurement) / time_constant
+         * All in fixed-point x1000 */
+        let plant_delta: int = (/ (- state.output measurement) time_constant)
+        set measurement (+ measurement plant_delta)
+
+        set history (array_push history measurement)
+        set i (+ i 1)
+    }
+    return history
+}
+
+shadow simulate_pid {
+    let config: PIDConfig = PIDConfig {
+        kp: 500, ki: 50, kd: 100,
+        output_min: -10000, output_max: 10000,
+        integral_min: -5000, integral_max: 5000
+    }
+
+    /* Setpoint = 1000 (1.0), start at 0, 20 steps, time constant 3 */
+    let history: array<int> = (simulate_pid config 1000 0 20 3)
+    assert (== (array_length history) 20)
+
+    /* After 20 steps, measurement should be approaching setpoint */
+    let final_val: int = (at history 19)
+    assert (> final_val 0)  /* Should have moved toward setpoint */
+}
+
+/* ── Safety property: output is always bounded ──
+ * Verifies the key safety invariant: no matter what the input sequence,
+ * the PID output stays within [output_min, output_max].
+ * This follows from the clamp, but we verify it empirically too. */
+
+fn verify_output_bounded(config: PIDConfig, setpoints: array<int>,
+                          measurement: int) -> bool {
+    let mut state: PIDState = PIDState { integral: 0, prev_error: 0, output: 0 }
+    let mut meas: int = measurement
+    let mut i: int = 0
+    while (< i (array_length setpoints)) {
+        set state (pid_update config state (at setpoints i) meas)
+        /* Check bound invariant */
+        if (< state.output config.output_min) {
+            return false
+        }
+        if (> state.output config.output_max) {
+            return false
+        }
+        /* Crude plant model */
+        set meas (+ meas (/ (- state.output meas) 3))
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow verify_output_bounded {
+    let config: PIDConfig = PIDConfig {
+        kp: 2000, ki: 500, kd: 200,
+        output_min: -10000, output_max: 10000,
+        integral_min: -5000, integral_max: 5000
+    }
+
+    /* Wildly varying setpoints */
+    assert (verify_output_bounded config [10000, -10000, 5000, -5000, 0, 10000, -10000] 0)
+
+    /* Constant high setpoint (tests integral windup protection) */
+    assert (verify_output_bounded config [99999, 99999, 99999, 99999, 99999] 0)
+
+    /* Constant low setpoint */
+    assert (verify_output_bounded config [-99999, -99999, -99999, -99999] 0)
+}
+
+/* ── Determinism verification ── */
+
+fn verify_pid_determinism(config: PIDConfig, setpoint: int) -> bool {
+    let h1: array<int> = (simulate_pid config setpoint 0 10 3)
+    let h2: array<int> = (simulate_pid config setpoint 0 10 3)
+    let mut i: int = 0
+    while (< i (array_length h1)) {
+        if (!= (at h1 i) (at h2 i)) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow verify_pid_determinism {
+    let config: PIDConfig = PIDConfig {
+        kp: 500, ki: 50, kd: 100,
+        output_min: -10000, output_max: 10000,
+        integral_min: -5000, integral_max: 5000
+    }
+    assert (verify_pid_determinism config 1000)
+    assert (verify_pid_determinism config -500)
+    assert (verify_pid_determinism config 0)
+}
+
+/* ── Main ── */
+
+fn main() -> int {
+    let config: PIDConfig = PIDConfig {
+        kp: 500, ki: 50, kd: 100,
+        output_min: -10000, output_max: 10000,
+        integral_min: -5000, integral_max: 5000
+    }
+
+    assert (verify_pid_determinism config 1000)
+    assert (verify_output_bounded config [10000, -10000, 5000, -5000, 0] 0)
+
+    let history: array<int> = (simulate_pid config 1000 0 20 3)
+    let final_val: int = (at history 19)
+    assert (> final_val 0)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

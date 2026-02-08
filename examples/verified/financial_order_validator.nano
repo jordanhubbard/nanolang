@@ -1,0 +1,383 @@
+/* =============================================================================
+ * Verified Financial Order Validator
+ * =============================================================================
+ * Purpose: Pre-trade order validation with formally verified safety checks
+ * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ *
+ * Industry Context:
+ *   Knight Capital (2012) lost $440M in 45 minutes when dormant code on one
+ *   of 8 servers was accidentally reactivated. The root cause was a deployment
+ *   invariant violation — not all nodes had the same code version.
+ *
+ *   Aesthetic Integration / Imandra formally verify matching logics for
+ *   exchanges and dark pools using Coq, proving fairness and uniformity.
+ *
+ *   This example demonstrates the "verified critical path" pattern: order
+ *   validation logic that gates every trade is in the NanoCore subset where
+ *   the Coq proofs guarantee it behaves deterministically and type-safely.
+ *
+ * What the Coq proofs guarantee:
+ *   - Determinism: same order always gets the same accept/reject decision
+ *   - Type soundness: validation never produces a wrong-typed result
+ *   - No stuck states: every well-typed order gets a definitive answer
+ *
+ * Run: nanoc --trust-report examples/verified/financial_order_validator.nano
+ *
+ * Features: unions, pattern matching, structs, integer arithmetic, bounds
+ * Difficulty: Intermediate
+ * ============================================================================= */
+
+/* ── Order representation ── */
+
+struct Order {
+    order_id: int,
+    side: int,           /* 0 = buy, 1 = sell */
+    quantity: int,       /* number of shares */
+    price_cents: int,    /* price in cents (avoids float) */
+    account_id: int
+}
+
+/* ── Validation result ── */
+
+union ValidationResult {
+    Accepted { order_id: int },
+    Rejected { order_id: int, reason: string }
+}
+
+/* ── Risk limits (per-account, per-order) ── */
+
+struct RiskLimits {
+    max_order_quantity: int,
+    max_order_value_cents: int,
+    max_daily_orders: int,
+    max_daily_value_cents: int,
+    min_price_cents: int,
+    max_price_cents: int
+}
+
+/* ── Single order structural validation ── */
+
+fn validate_order_structure(order: Order) -> ValidationResult {
+    /* Side must be 0 (buy) or 1 (sell) */
+    if (and (!= order.side 0) (!= order.side 1)) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "invalid side (must be 0=buy or 1=sell)"
+        }
+    }
+
+    /* Quantity must be positive */
+    if (<= order.quantity 0) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "quantity must be positive"
+        }
+    }
+
+    /* Price must be positive */
+    if (<= order.price_cents 0) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "price must be positive"
+        }
+    }
+
+    /* Account ID must be positive */
+    if (<= order.account_id 0) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "invalid account ID"
+        }
+    }
+
+    return ValidationResult.Accepted { order_id: order.order_id }
+}
+
+shadow validate_order_structure {
+    let good: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
+    let r: ValidationResult = (validate_order_structure good)
+    let mut accepted: bool = false
+    match r { Accepted(a) => { set accepted true }, Rejected(rj) => {} }
+    assert accepted
+
+    /* Bad side */
+    let bad_side: Order = Order { order_id: 2, side: 3, quantity: 100, price_cents: 5000, account_id: 42 }
+    let r2: ValidationResult = (validate_order_structure bad_side)
+    let mut rejected: bool = false
+    match r2 { Accepted(a) => {}, Rejected(rj) => { set rejected true } }
+    assert rejected
+
+    /* Zero quantity */
+    let zero_qty: Order = Order { order_id: 3, side: 0, quantity: 0, price_cents: 5000, account_id: 42 }
+    let r3: ValidationResult = (validate_order_structure zero_qty)
+    let mut rej2: bool = false
+    match r3 { Accepted(a) => {}, Rejected(rj) => { set rej2 true } }
+    assert rej2
+}
+
+/* ── Risk limit validation ──
+ * Checks order against position limits (the "circuit breaker"). */
+
+fn validate_risk_limits(order: Order, limits: RiskLimits) -> ValidationResult {
+    /* Check structural validity first */
+    let structural: ValidationResult = (validate_order_structure order)
+    let mut struct_ok: bool = false
+    match structural { Accepted(a) => { set struct_ok true }, Rejected(rj) => {} }
+    if (not struct_ok) {
+        return structural
+    }
+
+    /* Quantity limit */
+    if (> order.quantity limits.max_order_quantity) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "quantity exceeds single-order limit"
+        }
+    }
+
+    /* Price range (circuit breaker) */
+    if (< order.price_cents limits.min_price_cents) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "price below minimum (circuit breaker)"
+        }
+    }
+    if (> order.price_cents limits.max_price_cents) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "price above maximum (circuit breaker)"
+        }
+    }
+
+    /* Notional value check: quantity * price */
+    let notional: int = (* order.quantity order.price_cents)
+    if (> notional limits.max_order_value_cents) {
+        return ValidationResult.Rejected {
+            order_id: order.order_id,
+            reason: "order notional value exceeds limit"
+        }
+    }
+
+    return ValidationResult.Accepted { order_id: order.order_id }
+}
+
+shadow validate_risk_limits {
+    let limits: RiskLimits = RiskLimits {
+        max_order_quantity: 10000,
+        max_order_value_cents: 100000000,
+        max_daily_orders: 1000,
+        max_daily_value_cents: 500000000,
+        min_price_cents: 100,
+        max_price_cents: 100000
+    }
+
+    /* Normal order: accepted */
+    let good: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
+    let r: ValidationResult = (validate_risk_limits good limits)
+    let mut ok: bool = false
+    match r { Accepted(a) => { set ok true }, Rejected(rj) => {} }
+    assert ok
+
+    /* Too many shares */
+    let big: Order = Order { order_id: 2, side: 0, quantity: 50000, price_cents: 5000, account_id: 42 }
+    let r2: ValidationResult = (validate_risk_limits big limits)
+    let mut rej: bool = false
+    match r2 { Accepted(a) => {}, Rejected(rj) => { set rej true } }
+    assert rej
+
+    /* Price below circuit breaker */
+    let cheap: Order = Order { order_id: 3, side: 0, quantity: 100, price_cents: 1, account_id: 42 }
+    let r3: ValidationResult = (validate_risk_limits cheap limits)
+    let mut rej2: bool = false
+    match r3 { Accepted(a) => {}, Rejected(rj) => { set rej2 true } }
+    assert rej2
+}
+
+/* ── Daily aggregate tracker ──
+ * Tracks cumulative order count and value within a day.
+ * Returns the number of rejected orders out of a sequence. */
+
+struct DailyTracker {
+    order_count: int,
+    total_value: int,
+    rejected_count: int
+}
+
+fn track_order(tracker: DailyTracker, order: Order, limits: RiskLimits) -> DailyTracker {
+    /* First check per-order limits */
+    let result: ValidationResult = (validate_risk_limits order limits)
+    let mut per_ok: bool = false
+    match result { Accepted(a) => { set per_ok true }, Rejected(rj) => {} }
+
+    if (not per_ok) {
+        return DailyTracker {
+            order_count: tracker.order_count,
+            total_value: tracker.total_value,
+            rejected_count: (+ tracker.rejected_count 1)
+        }
+    }
+
+    /* Check daily aggregate limits */
+    let new_count: int = (+ tracker.order_count 1)
+    let notional: int = (* order.quantity order.price_cents)
+    let new_value: int = (+ tracker.total_value notional)
+
+    if (> new_count limits.max_daily_orders) {
+        return DailyTracker {
+            order_count: tracker.order_count,
+            total_value: tracker.total_value,
+            rejected_count: (+ tracker.rejected_count 1)
+        }
+    }
+
+    if (> new_value limits.max_daily_value_cents) {
+        return DailyTracker {
+            order_count: tracker.order_count,
+            total_value: tracker.total_value,
+            rejected_count: (+ tracker.rejected_count 1)
+        }
+    }
+
+    return DailyTracker {
+        order_count: new_count,
+        total_value: new_value,
+        rejected_count: tracker.rejected_count
+    }
+}
+
+shadow track_order {
+    let limits: RiskLimits = RiskLimits {
+        max_order_quantity: 10000,
+        max_order_value_cents: 100000000,
+        max_daily_orders: 2,
+        max_daily_value_cents: 500000000,
+        min_price_cents: 100,
+        max_price_cents: 100000
+    }
+
+    let tracker: DailyTracker = DailyTracker { order_count: 0, total_value: 0, rejected_count: 0 }
+    let o1: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 1 }
+    let o2: Order = Order { order_id: 2, side: 1, quantity: 200, price_cents: 6000, account_id: 1 }
+    let o3: Order = Order { order_id: 3, side: 0, quantity: 50, price_cents: 4000, account_id: 1 }
+
+    let t1: DailyTracker = (track_order tracker o1 limits)
+    assert (== t1.order_count 1)
+    assert (== t1.rejected_count 0)
+
+    let t2: DailyTracker = (track_order t1 o2 limits)
+    assert (== t2.order_count 2)
+    assert (== t2.rejected_count 0)
+
+    /* Third order exceeds daily limit of 2 */
+    let t3: DailyTracker = (track_order t2 o3 limits)
+    assert (== t3.order_count 2)
+    assert (== t3.rejected_count 1)
+}
+
+/* ── Cross-validation: buy/sell balance check ──
+ * Uses parallel arrays of order sides and quantities. */
+
+fn check_side_balance(sides: array<int>, count: int) -> bool {
+    let mut buys: int = 0
+    let mut sells: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        if (== (at sides i) 0) {
+            set buys (+ buys 1)
+        } else {
+            set sells (+ sells 1)
+        }
+        set i (+ i 1)
+    }
+    /* At least one of each side, or the batch is empty */
+    let total: int = (+ buys sells)
+    if (== total 0) {
+        return true
+    }
+    return (and (> buys 0) (> sells 0))
+}
+
+shadow check_side_balance {
+    assert (check_side_balance [0, 1, 0, 1] 4)
+    assert (not (check_side_balance [0, 0, 0] 3))
+    assert (not (check_side_balance [1, 1] 2))
+    assert (check_side_balance [] 0)
+}
+
+/* ── Price band validator ──
+ * Checks that a new order price is within N% of a reference price.
+ * This is a simplified circuit breaker / limit-up-limit-down check. */
+
+fn price_within_band(price_cents: int, reference_cents: int, band_percent: int) -> bool {
+    if (<= reference_cents 0) {
+        return false
+    }
+    /* band = reference * percent / 100 */
+    let band: int = (/ (* reference_cents band_percent) 100)
+    let lower: int = (- reference_cents band)
+    let upper: int = (+ reference_cents band)
+    return (and (>= price_cents lower) (<= price_cents upper))
+}
+
+shadow price_within_band {
+    /* $50 reference, 10% band = $45-$55 */
+    assert (price_within_band 5000 5000 10)
+    assert (price_within_band 4500 5000 10)
+    assert (price_within_band 5500 5000 10)
+    assert (not (price_within_band 4000 5000 10))
+    assert (not (price_within_band 6000 5000 10))
+}
+
+/* ── Determinism verification ── */
+
+fn verify_validation_determinism(order: Order, limits: RiskLimits) -> bool {
+    let r1: ValidationResult = (validate_risk_limits order limits)
+    let r2: ValidationResult = (validate_risk_limits order limits)
+    let mut v1: int = 0
+    let mut v2: int = 0
+    match r1 { Accepted(a) => { set v1 a.order_id }, Rejected(rj) => { set v1 (- 0 rj.order_id) } }
+    match r2 { Accepted(a) => { set v2 a.order_id }, Rejected(rj) => { set v2 (- 0 rj.order_id) } }
+    return (== v1 v2)
+}
+
+shadow verify_validation_determinism {
+    let limits: RiskLimits = RiskLimits {
+        max_order_quantity: 10000,
+        max_order_value_cents: 100000000,
+        max_daily_orders: 1000,
+        max_daily_value_cents: 500000000,
+        min_price_cents: 100,
+        max_price_cents: 100000
+    }
+    let o: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
+    assert (verify_validation_determinism o limits)
+
+    let bad: Order = Order { order_id: 2, side: 5, quantity: 1, price_cents: 1, account_id: 1 }
+    assert (verify_validation_determinism bad limits)
+}
+
+/* ── Main ── */
+
+fn main() -> int {
+    let limits: RiskLimits = RiskLimits {
+        max_order_quantity: 10000,
+        max_order_value_cents: 100000000,
+        max_daily_orders: 1000,
+        max_daily_value_cents: 500000000,
+        min_price_cents: 100,
+        max_price_cents: 100000
+    }
+
+    let order: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
+    let result: ValidationResult = (validate_risk_limits order limits)
+    let mut accepted: bool = false
+    match result { Accepted(a) => { set accepted true }, Rejected(rj) => {} }
+    assert accepted
+    assert (verify_validation_determinism order limits)
+    assert (price_within_band 5000 5000 10)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
