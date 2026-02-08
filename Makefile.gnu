@@ -307,9 +307,36 @@ nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(OBJ_DIR)/nanovm/main.o
 $(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
+NANOVIRT_DIR = $(SRC_DIR)/nanovirt
+NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c
+NANOVIRT_OBJECTS = $(patsubst $(NANOVIRT_DIR)/%.c,$(OBJ_DIR)/nanovirt/%.o,$(NANOVIRT_SOURCES))
+
+$(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/nanovirt:
+	mkdir -p $(OBJ_DIR)/nanovirt
+
+.PHONY: test-nanovirt
+test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running NanoVirt codegen tests..."
+	@$(CC) $(CFLAGS) -o tests/nanovirt/test_codegen \
+		tests/nanovirt/test_codegen.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovirt/test_codegen
+	@rm -f tests/nanovirt/test_codegen
+
+nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o
+	$(CC) $(CFLAGS) -o $@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(LDFLAGS)
+
+$(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Unit tests for C components
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm
+test-units: test-nanoisa test-nanovm test-nanovirt
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1324,7 +1351,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs test-nanoisa test-nanovm nano_vm examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_virt examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
