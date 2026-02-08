@@ -6,6 +6,7 @@
 #include "reflection.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
+#include "nanocore_subset.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 
 #ifdef __APPLE__
@@ -40,6 +41,7 @@ typedef struct {
     bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
+    bool trust_report;         /* --trust-report: print formal verification trust levels */
 } CompilerOptions;
 
 static void json_escape(FILE *out, const char *s) {
@@ -338,6 +340,24 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
+
+    /* Phase 4.1: Trust Report (if requested) */
+    if (opts->trust_report) {
+        TrustReport *report = nanocore_trust_report(program, env);
+        if (report) {
+            nanocore_print_trust_report(report, input_file);
+            nanocore_free_trust_report(report);
+        }
+        /* Clean up and exit - trust report is an analysis-only mode */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
 
     /* Phase 4.4: Module Reflection (if requested) */
     if (opts->reflect_output_path) {
@@ -996,6 +1016,8 @@ int main(int argc, char *argv[]) {
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
+        printf("\nVerification Options:\n");
+        printf("  --trust-report         Show formal verification trust levels for all functions\n");
         printf("\nSafety Options:\n");
         printf("  --warn-unsafe-imports  Warn when importing unsafe modules\n");
         printf("  --warn-unsafe-calls    Warn when calling functions from unsafe modules\n");
@@ -1041,7 +1063,8 @@ int main(int argc, char *argv[]) {
         .warn_unsafe_imports = false,
         .warn_unsafe_calls = false,
         .warn_ffi = false,
-        .forbid_unsafe = false
+        .forbid_unsafe = false,
+        .trust_report = false
     };
     
     /* Allocate arrays for flags */
@@ -1107,6 +1130,8 @@ int main(int argc, char *argv[]) {
             opts.warn_ffi = true;
         } else if (strcmp(argv[i], "--forbid-unsafe") == 0) {
             opts.forbid_unsafe = true;
+        } else if (strcmp(argv[i], "--trust-report") == 0) {
+            opts.trust_report = true;
         } else if (strcmp(argv[i], "--llm-diags-json") == 0 && i + 1 < argc) {
             opts.llm_diags_json_path = argv[i + 1];
             i++;

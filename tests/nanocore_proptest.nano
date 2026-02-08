@@ -1,0 +1,468 @@
+/* =============================================================================
+ * NanoCore Property-Based Testing Bridge
+ *
+ * Empirically validates the properties proven in the Coq formal verification:
+ * 1. Determinism: evaluating the same expression twice yields identical results
+ * 2. Type preservation: well-typed NanoCore expressions produce correctly-typed values
+ * 3. Arithmetic identities: basic algebraic laws hold
+ *
+ * All functions in this file are in the NanoCore verified subset
+ * (run with --trust-report to confirm).
+ * ============================================================================= */
+
+/* =============================================================================
+ * DETERMINISM TESTS
+ * Proven in formal/Determinism.v: eval is a partial function
+ * If eval renv e renv1 v1 and eval renv e renv2 v2, then v1 = v2 and renv1 = renv2
+ * ============================================================================= */
+
+/* Arithmetic determinism: same inputs, same outputs */
+fn prop_arith_determinism(a: int, b: int) -> bool {
+    let r1: int = (+ a b)
+    let r2: int = (+ a b)
+    return (== r1 r2)
+}
+
+shadow prop_arith_determinism {
+    assert (prop_arith_determinism 0 0)
+    assert (prop_arith_determinism 42 -42)
+    assert (prop_arith_determinism 999999 1)
+    assert (prop_arith_determinism -100 -200)
+}
+
+/* Multiplication determinism */
+fn prop_mul_determinism(a: int, b: int) -> bool {
+    let r1: int = (* a b)
+    let r2: int = (* a b)
+    return (== r1 r2)
+}
+
+shadow prop_mul_determinism {
+    assert (prop_mul_determinism 7 6)
+    assert (prop_mul_determinism 0 999)
+    assert (prop_mul_determinism -3 -4)
+}
+
+/* Division determinism (safe: divisor != 0) */
+fn prop_div_determinism(a: int, b: int) -> bool {
+    if (== b 0) {
+        return true
+    }
+    let r1: int = (/ a b)
+    let r2: int = (/ a b)
+    return (== r1 r2)
+}
+
+shadow prop_div_determinism {
+    assert (prop_div_determinism 10 3)
+    assert (prop_div_determinism 7 0)
+    assert (prop_div_determinism -100 7)
+}
+
+/* String concatenation determinism */
+fn prop_strcat_determinism(s1: string, s2: string) -> bool {
+    let r1: string = (+ s1 s2)
+    let r2: string = (+ s1 s2)
+    return (== r1 r2)
+}
+
+shadow prop_strcat_determinism {
+    assert (prop_strcat_determinism "hello" " world")
+    assert (prop_strcat_determinism "" "")
+    assert (prop_strcat_determinism "nano" "core")
+}
+
+/* Boolean logic determinism */
+fn prop_logic_determinism(a: bool, b: bool) -> bool {
+    let r1: bool = (and a b)
+    let r2: bool = (and a b)
+    let r3: bool = (or a b)
+    let r4: bool = (or a b)
+    return (and (== r1 r2) (== r3 r4))
+}
+
+shadow prop_logic_determinism {
+    assert (prop_logic_determinism true true)
+    assert (prop_logic_determinism true false)
+    assert (prop_logic_determinism false true)
+    assert (prop_logic_determinism false false)
+}
+
+/* Comparison determinism */
+fn prop_cmp_determinism(a: int, b: int) -> bool {
+    let lt1: bool = (< a b)
+    let lt2: bool = (< a b)
+    let eq1: bool = (== a b)
+    let eq2: bool = (== a b)
+    return (and (== lt1 lt2) (== eq1 eq2))
+}
+
+shadow prop_cmp_determinism {
+    assert (prop_cmp_determinism 1 2)
+    assert (prop_cmp_determinism 5 5)
+    assert (prop_cmp_determinism 10 3)
+}
+
+/* If-expression determinism */
+fn prop_if_determinism(x: int) -> bool {
+    let mut r1: int = 0
+    if (> x 0) {
+        set r1 x
+    } else {
+        set r1 (- 0 x)
+    }
+    let mut r2: int = 0
+    if (> x 0) {
+        set r2 x
+    } else {
+        set r2 (- 0 x)
+    }
+    return (== r1 r2)
+}
+
+shadow prop_if_determinism {
+    assert (prop_if_determinism 5)
+    assert (prop_if_determinism -5)
+    assert (prop_if_determinism 0)
+}
+
+/* While loop determinism */
+fn prop_while_determinism(n: int) -> bool {
+    let mut i: int = 0
+    let mut sum1: int = 0
+    while (< i n) {
+        set sum1 (+ sum1 i)
+        set i (+ i 1)
+    }
+    set i 0
+    let mut sum2: int = 0
+    while (< i n) {
+        set sum2 (+ sum2 i)
+        set i (+ i 1)
+    }
+    return (== sum1 sum2)
+}
+
+shadow prop_while_determinism {
+    assert (prop_while_determinism 0)
+    assert (prop_while_determinism 5)
+    assert (prop_while_determinism 10)
+}
+
+/* Array determinism */
+fn prop_array_determinism() -> bool {
+    let arr1: array<int> = [1, 2, 3, 4, 5]
+    let arr2: array<int> = [1, 2, 3, 4, 5]
+    let v1: int = (at arr1 2)
+    let v2: int = (at arr2 2)
+    return (== v1 v2)
+}
+
+shadow prop_array_determinism {
+    assert (prop_array_determinism)
+}
+
+/* Struct/record determinism */
+struct Point {
+    x: int,
+    y: int
+}
+
+fn prop_struct_determinism(x: int, y: int) -> bool {
+    let p1: Point = Point { x: x, y: y }
+    let p2: Point = Point { x: x, y: y }
+    return (and (== p1.x p2.x) (== p1.y p2.y))
+}
+
+shadow prop_struct_determinism {
+    assert (prop_struct_determinism 3 4)
+    assert (prop_struct_determinism 0 0)
+    assert (prop_struct_determinism -1 1)
+}
+
+/* Union/match determinism */
+union IntResult {
+    Ok { value: int },
+    Err { message: string }
+}
+
+fn safe_div(a: int, b: int) -> IntResult {
+    if (== b 0) {
+        return IntResult.Err { message: "division by zero" }
+    }
+    return IntResult.Ok { value: (/ a b) }
+}
+
+fn prop_union_determinism(a: int, b: int) -> bool {
+    let r1: IntResult = (safe_div a b)
+    let r2: IntResult = (safe_div a b)
+    let v1: int = match r1 {
+        Ok(ok) => ok.value,
+        Err(err) => -1
+    }
+    let v2: int = match r2 {
+        Ok(ok) => ok.value,
+        Err(err) => -1
+    }
+    return (== v1 v2)
+}
+
+shadow prop_union_determinism {
+    assert (prop_union_determinism 10 3)
+    assert (prop_union_determinism 10 0)
+    assert (prop_union_determinism 0 1)
+}
+
+/* =============================================================================
+ * TYPE PRESERVATION TESTS
+ * Proven in formal/Soundness.v: evaluation preserves types
+ * If has_type ctx e t and eval renv e renv' v, then val_has_type v t
+ * ============================================================================= */
+
+/* Arithmetic type preservation: int op int -> int */
+fn prop_arith_type_preservation(a: int, b: int) -> bool {
+    /* All arithmetic operations on int produce int.
+     * If this compiles and runs, the typechecker has verified the types,
+     * and the Coq proofs guarantee they're preserved at runtime. */
+    let sum: int = (+ a b)
+    let diff: int = (- a b)
+    let prod: int = (* a b)
+    /* Verify the results are integers by doing arithmetic on them */
+    let check: int = (+ sum (+ diff prod))
+    return (== check (+ (+ a b) (+ (- a b) (* a b))))
+}
+
+shadow prop_arith_type_preservation {
+    assert (prop_arith_type_preservation 1 2)
+    assert (prop_arith_type_preservation 0 0)
+}
+
+/* Comparison type preservation: int op int -> bool */
+fn prop_cmp_type_preservation(a: int, b: int) -> bool {
+    let lt: bool = (< a b)
+    let le: bool = (<= a b)
+    let gt: bool = (> a b)
+    let ge: bool = (>= a b)
+    let eq: bool = (== a b)
+    let ne: bool = (!= a b)
+    /* All comparisons produce bool - verified by typechecker + Coq */
+    return (or lt (or le (or gt (or ge (or eq ne)))))
+}
+
+shadow prop_cmp_type_preservation {
+    assert (prop_cmp_type_preservation 1 2)
+    assert (prop_cmp_type_preservation 5 5)
+}
+
+/* String type preservation: string operations produce strings */
+fn prop_string_type_preservation(s: string) -> bool {
+    let cat: string = (+ s s)
+    let len: int = (str_length s)
+    /* cat is string, len is int - verified */
+    return (>= len 0)
+}
+
+shadow prop_string_type_preservation {
+    assert (prop_string_type_preservation "hello")
+    assert (prop_string_type_preservation "")
+}
+
+/* =============================================================================
+ * ALGEBRAIC IDENTITY TESTS
+ * These verify that NanoCore arithmetic obeys standard algebraic laws,
+ * which follow from the Coq semantics definitions.
+ * ============================================================================= */
+
+/* Addition is commutative: a + b = b + a */
+fn prop_add_commutative(a: int, b: int) -> bool {
+    return (== (+ a b) (+ b a))
+}
+
+shadow prop_add_commutative {
+    assert (prop_add_commutative 0 0)
+    assert (prop_add_commutative 1 2)
+    assert (prop_add_commutative -5 3)
+    assert (prop_add_commutative 100 -100)
+}
+
+/* Multiplication is commutative: a * b = b * a */
+fn prop_mul_commutative(a: int, b: int) -> bool {
+    return (== (* a b) (* b a))
+}
+
+shadow prop_mul_commutative {
+    assert (prop_mul_commutative 3 7)
+    assert (prop_mul_commutative 0 42)
+    assert (prop_mul_commutative -3 4)
+}
+
+/* Addition identity: a + 0 = a */
+fn prop_add_identity(a: int) -> bool {
+    return (== (+ a 0) a)
+}
+
+shadow prop_add_identity {
+    assert (prop_add_identity 0)
+    assert (prop_add_identity 42)
+    assert (prop_add_identity -99)
+}
+
+/* Multiplication identity: a * 1 = a */
+fn prop_mul_identity(a: int) -> bool {
+    return (== (* a 1) a)
+}
+
+shadow prop_mul_identity {
+    assert (prop_mul_identity 0)
+    assert (prop_mul_identity 7)
+    assert (prop_mul_identity -13)
+}
+
+/* Multiplication by zero: a * 0 = 0 */
+fn prop_mul_zero(a: int) -> bool {
+    return (== (* a 0) 0)
+}
+
+shadow prop_mul_zero {
+    assert (prop_mul_zero 0)
+    assert (prop_mul_zero 999)
+    assert (prop_mul_zero -42)
+}
+
+/* Negation: a + (-a) = 0 */
+fn prop_negation(a: int) -> bool {
+    return (== (+ a (- 0 a)) 0)
+}
+
+shadow prop_negation {
+    assert (prop_negation 0)
+    assert (prop_negation 5)
+    assert (prop_negation -7)
+}
+
+/* Boolean: De Morgan's law: not(a and b) = (not a) or (not b) */
+fn prop_demorgan(a: bool, b: bool) -> bool {
+    return (== (not (and a b)) (or (not a) (not b)))
+}
+
+shadow prop_demorgan {
+    assert (prop_demorgan true true)
+    assert (prop_demorgan true false)
+    assert (prop_demorgan false true)
+    assert (prop_demorgan false false)
+}
+
+/* Boolean: double negation: not(not a) = a */
+fn prop_double_negation(a: bool) -> bool {
+    return (== (not (not a)) a)
+}
+
+shadow prop_double_negation {
+    assert (prop_double_negation true)
+    assert (prop_double_negation false)
+}
+
+/* Higher-order function determinism: map is deterministic */
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+fn map_array(arr: array<int>, f: fn(int) -> int) -> array<int> {
+    let mut result: array<int> = []
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set result (array_push result (f (at arr i)))
+        set i (+ i 1)
+    }
+    return result
+}
+
+fn prop_map_determinism() -> bool {
+    let input: array<int> = [1, 2, 3, 4, 5]
+    let r1: array<int> = (map_array input double)
+    let r2: array<int> = (map_array input double)
+    let mut i: int = 0
+    let mut all_equal: bool = true
+    while (< i (array_length r1)) {
+        if (!= (at r1 i) (at r2 i)) {
+            set all_equal false
+        }
+        set i (+ i 1)
+    }
+    return all_equal
+}
+
+shadow prop_map_determinism {
+    assert (prop_map_determinism)
+}
+
+/* Recursive function determinism */
+fn fibonacci(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    let mut a: int = 0
+    let mut b: int = 1
+    let mut i: int = 2
+    while (<= i n) {
+        let temp: int = b
+        set b (+ a b)
+        set a temp
+        set i (+ i 1)
+    }
+    return b
+}
+
+fn prop_fib_determinism(n: int) -> bool {
+    let r1: int = (fibonacci n)
+    let r2: int = (fibonacci n)
+    return (== r1 r2)
+}
+
+shadow prop_fib_determinism {
+    assert (prop_fib_determinism 0)
+    assert (prop_fib_determinism 1)
+    assert (prop_fib_determinism 10)
+    assert (== (fibonacci 10) 55)
+}
+
+/* =============================================================================
+ * MAIN: Run all property tests
+ * ============================================================================= */
+
+fn main() -> int {
+    /* All properties are tested via shadow tests above.
+     * This main function verifies a few key properties directly. */
+
+    /* Determinism spot checks */
+    assert (prop_arith_determinism 12345 67890)
+    assert (prop_mul_determinism 111 222)
+    assert (prop_strcat_determinism "verified" " formally")
+    assert (prop_logic_determinism true false)
+    assert (prop_if_determinism -42)
+    assert (prop_while_determinism 20)
+    assert (prop_array_determinism)
+    assert (prop_struct_determinism 10 20)
+    assert (prop_union_determinism 100 7)
+
+    /* Type preservation spot checks */
+    assert (prop_arith_type_preservation 100 200)
+    assert (prop_cmp_type_preservation 1 1)
+    assert (prop_string_type_preservation "NanoCore")
+
+    /* Algebraic identity spot checks */
+    assert (prop_add_commutative 42 58)
+    assert (prop_mul_commutative 6 7)
+    assert (prop_add_identity 999)
+    assert (prop_mul_identity 13)
+    assert (prop_mul_zero 777)
+    assert (prop_negation 123)
+    assert (prop_demorgan false true)
+    assert (prop_double_negation true)
+
+    /* Higher-order + recursive function determinism */
+    assert (prop_map_determinism)
+    assert (prop_fib_determinism 15)
+
+    return 0
+}

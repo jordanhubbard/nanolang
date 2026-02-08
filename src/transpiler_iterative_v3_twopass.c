@@ -395,81 +395,8 @@ static void emit_indent_item(WorkList *list, int level) {
  * HELPER FUNCTIONS
  * ============================================================================ */
 
-/* Function name mapping table */
-typedef struct {
-    const char *nano_name;
-    const char *c_name;
-} FunctionMapping;
-
-static const FunctionMapping function_map[] = {
-    {"println", "println"},
-    {"print", "print"},
-    {"cast_int", "nl_cast_int"},
-    {"cast_float", "nl_cast_float"},
-    {"null_opaque", "nl_null_opaque"},
-    {"file_read", "nl_os_file_read"},
-    {"file_read_bytes", "nl_os_file_read_bytes"},
-    {"file_write", "nl_os_file_write"},
-    {"file_append", "nl_os_file_append"},
-    {"file_remove", "nl_os_file_remove"},
-    {"file_rename", "nl_os_file_rename"},
-    {"file_exists", "nl_os_file_exists"},
-    {"file_size", "nl_os_file_size"},
-    {"tmp_dir", "nl_os_tmp_dir"},
-    {"mktemp", "nl_os_mktemp"},
-    {"mktemp_dir", "nl_os_mktemp_dir"},
-    {"dir_create", "nl_os_dir_create"},
-    {"dir_remove", "nl_os_dir_remove"},
-    {"dir_list", "nl_os_dir_list"},
-    {"dir_exists", "nl_os_dir_exists"},
-    {"getcwd", "nl_os_getcwd"},
-    {"chdir", "nl_os_chdir"},
-    {"fs_walkdir", "nl_os_walkdir"},
-    {"path_isfile", "nl_os_path_isfile"},
-    {"path_isdir", "nl_os_path_isdir"},
-    {"path_join", "nl_os_path_join"},
-    {"path_basename", "nl_os_path_basename"},
-    {"path_dirname", "nl_os_path_dirname"},
-    {"path_normalize", "nl_os_path_normalize"},
-    {"system", "nl_os_system"},
-    {"exit", "nl_os_exit"},
-    {"getenv", "nl_os_getenv"},
-    {"process_run", "nl_os_process_run"},
-    {"abs", "nl_abs"},
-    {"min", "nl_min"},
-    {"max", "nl_max"},
-    {"sqrt", "sqrt"},
-    {"pow", "pow"},
-    {"floor", "floor"},
-    {"ceil", "ceil"},
-    {"round", "round"},
-    {"str_length", "strlen"},
-    {"str_concat", "nl_str_concat"},
-    {"str_substring", "nl_str_substring"},
-    {"str_contains", "nl_str_contains"},
-    {"str_equals", "nl_str_equals"},
-    {"bytes_from_string", "nl_bytes_from_string"},
-    {"string_from_bytes", "nl_string_from_bytes"},
-    {"array_slice", "nl_array_slice"},
-    {"char_at", "char_at"},                     /* Generated inline, no prefix */
-    {"string_from_char", "string_from_char"},   /* Generated inline, no prefix */
-    {"int_to_string", "int_to_string"},         /* Generated inline, no prefix */
-    {"string_to_int", "string_to_int"},         /* Generated inline, no prefix */
-    {"is_digit", "is_digit"},                   /* Generated inline, no prefix */
-    {"is_alpha", "is_alpha"},                   /* Generated inline, no prefix */
-    {"is_alnum", "is_alnum"},                   /* Generated inline, no prefix */
-    {"is_whitespace", "is_whitespace"},         /* Generated inline, no prefix */
-    {"is_upper", "is_upper"},                   /* Generated inline, no prefix */
-    {"is_lower", "is_lower"},                   /* Generated inline, no prefix */
-    {"digit_value", "digit_value"},             /* Generated inline, no prefix */
-    {"char_to_lower", "char_to_lower"},         /* Generated inline, no prefix */
-    {"char_to_upper", "char_to_upper"},         /* Generated inline, no prefix */
-    {"array_length", "dyn_array_length"},
-    {"at", "dyn_array_get"},      /* Legacy - consider deprecating */
-    {"array_set", "dyn_array_put"},
-    /* array_get removed - has special handling for type-specific accessors */
-    {"array_remove_at", "dyn_array_remove_at"},
-};
+/* Function name mapping now uses the unified builtin registry */
+#include "builtins_registry.h"
 
 static const char *map_function_name(const char *name, Environment *env) {
     /* Handle qualified names: module::func or nested::module::func */
@@ -505,11 +432,10 @@ static const char *map_function_name(const char *name, Environment *env) {
         name = dot + 1;
     }
     
-    /* Check mapping table */
-    for (size_t i = 0; i < sizeof(function_map)/sizeof(function_map[0]); i++) {
-        if (strcmp(name, function_map[i].nano_name) == 0) {
-            return function_map[i].c_name;
-        }
+    /* Check unified builtin registry */
+    const char *c_name = builtin_c_name(name);
+    if (c_name) {
+        return c_name;
     }
     
     /* User-defined function? Look up to get module context */

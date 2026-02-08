@@ -1,68 +1,7 @@
 #include "nanolang.h"
+#include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
-
-/* Built-in function metadata */
-typedef struct {
-    const char *name;
-    int param_count;
-    Type param_types[3];  /* Max 3 params for now */
-    Type return_type;
-} BuiltinFuncInfo;
-
-/* Built-in function definitions */
-static BuiltinFuncInfo builtin_functions[] = {
-    /* Core functions */
-    {"range", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
-    
-    /* Math and utility functions */
-    {"abs", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
-    {"min", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
-    {"max", 2, {TYPE_INT, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
-    {"print", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
-    {"println", 1, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_VOID},
-    {"sqrt", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"pow", 2, {TYPE_FLOAT, TYPE_FLOAT, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"floor", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"ceil", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"round", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"sin", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"cos", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"tan", 1, {TYPE_FLOAT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"atan2", 2, {TYPE_FLOAT, TYPE_FLOAT, TYPE_UNKNOWN}, TYPE_FLOAT},
-    
-    /* Type casting */
-    {"cast_int", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
-    {"cast_float", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_FLOAT},
-    {"cast_bool", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
-    {"cast_string", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
-    {"to_string", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_STRING},
-    {"null_opaque", 0, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_OPAQUE},
-    
-    /* String operations */
-    {"str_length", 1, {TYPE_STRING, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
-    {"str_concat", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_STRING},
-    {"str_substring", 3, {TYPE_STRING, TYPE_INT, TYPE_INT}, TYPE_STRING},
-    {"str_contains", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_BOOL},
-    {"str_equals", 2, {TYPE_STRING, TYPE_STRING, TYPE_UNKNOWN}, TYPE_BOOL},
-    
-    /* Array operations */
-    {"array_length", 1, {TYPE_ARRAY, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_INT},
-    {"array_new", 2, {TYPE_INT, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_ARRAY},
-    {"array_set", 3, {TYPE_ARRAY, TYPE_INT, TYPE_INT}, TYPE_VOID},
-    {"at", 2, {TYPE_ARRAY, TYPE_INT, TYPE_UNKNOWN}, TYPE_INT},
-
-    /* Result<T, E> helpers (type-checked specially) */
-    {"result_is_ok", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
-    {"result_is_err", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_BOOL},
-    {"result_unwrap", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_UNKNOWN},
-    {"result_unwrap_err", 1, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_UNKNOWN},
-    {"result_unwrap_or", 2, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_UNKNOWN},
-    {"result_map", 2, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_UNION},
-    {"result_and_then", 2, {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN}, TYPE_UNION},
-};
-
-static const int builtin_function_count = sizeof(builtin_functions) / sizeof(BuiltinFuncInfo);
 
 /* Create environment */
 Environment *create_environment(void) {
@@ -446,17 +385,13 @@ void env_set_var(Environment *env, const char *name, Value value) {
     }
 }
 
-/* Check if a name is a built-in function */
+/* Check if a name is a built-in function (known to the typechecker) */
 bool is_builtin_function(const char *name) {
     if (!name) {
         return false;
     }
-    for (int i = 0; i < builtin_function_count; i++) {
-        if (safe_strcmp(builtin_functions[i].name, name) == 0) {
-            return true;
-        }
-    }
-    return false;
+    const BuiltinEntry *e = builtin_find(name);
+    return e && (e->flags & BUILTIN_LANG);
 }
 
 /* Helper function to check if a string is in a list */
@@ -542,17 +477,18 @@ Function *env_get_function(Environment *env, const char *name) {
         return NULL;
     }
 
-    /* Check built-in functions first */
-    for (int i = 0; i < builtin_function_count; i++) {
-        if (safe_strcmp(builtin_functions[i].name, name) == 0) {
+    /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
+    for (int i = 0; i < builtin_registry_count; i++) {
+        if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
+        if (safe_strcmp(builtin_registry[i].name, name) == 0) {
             /* Create static function objects for built-ins */
-            static Function func_cache[64];  /* Should match builtin_function_count */
-            static bool initialized[64] = {false};
+            static Function func_cache[256];
+            static bool initialized[256] = {false};
 
             if (!initialized[i]) {
-                func_cache[i].name = (char *)builtin_functions[i].name;
-                func_cache[i].param_count = builtin_functions[i].param_count;
-                func_cache[i].return_type = builtin_functions[i].return_type;
+                func_cache[i].name = (char *)builtin_registry[i].name;
+                func_cache[i].param_count = builtin_registry[i].arity;
+                func_cache[i].return_type = builtin_registry[i].return_type;
                 func_cache[i].params = NULL;  /* Built-ins don't need param names */
                 func_cache[i].body = NULL;
                 func_cache[i].shadow_test = NULL;
