@@ -107,6 +107,7 @@ static int64_t clamp_i64(int64_t v, int64_t lo, int64_t hi) {
 }
 
 static GLuint gen_single_id(void (*gen_fn)(GLsizei, GLuint*)) {
+    if (!gen_fn) return 0;
     GLuint id = 0;
     gen_fn(1, &id);
     return id;
@@ -198,11 +199,27 @@ void nl_gl3_uniform1i(int64_t location, int64_t v) {
 }
 
 int64_t nl_gl3_gen_vertex_array(void) {
-    return (int64_t)gen_single_id(glGenVertexArrays);
+    GLuint id = 0;
+    if (glGenVertexArrays) {
+        glGenVertexArrays(1, &id);
+        return (int64_t)id;
+    }
+    if (glGenVertexArraysAPPLE) {
+        glGenVertexArraysAPPLE(1, &id);
+        return (int64_t)id;
+    }
+    return 0;
 }
 
 void nl_gl3_bind_vertex_array(int64_t vao) {
-    glBindVertexArray((GLuint)vao);
+    if (glBindVertexArray) {
+        glBindVertexArray((GLuint)vao);
+        return;
+    }
+    if (glBindVertexArrayAPPLE) {
+        glBindVertexArrayAPPLE((GLuint)vao);
+        return;
+    }
 }
 
 int64_t nl_gl3_gen_buffer(void) {
@@ -267,7 +284,14 @@ void nl_gl3_vertex_attrib_pointer_f32(int64_t index, int64_t size, int64_t norma
 }
 
 void nl_gl3_vertex_attrib_divisor(int64_t index, int64_t divisor) {
-    glVertexAttribDivisor((GLuint)index, (GLuint)divisor);
+    if (glVertexAttribDivisor) {
+        glVertexAttribDivisor((GLuint)index, (GLuint)divisor);
+        return;
+    }
+    if (glVertexAttribDivisorARB) {
+        glVertexAttribDivisorARB((GLuint)index, (GLuint)divisor);
+        return;
+    }
 }
 
 void nl_gl3_draw_arrays(int64_t mode, int64_t first, int64_t count) {
@@ -275,7 +299,14 @@ void nl_gl3_draw_arrays(int64_t mode, int64_t first, int64_t count) {
 }
 
 void nl_gl3_draw_arrays_instanced(int64_t mode, int64_t first, int64_t count, int64_t instance_count) {
-    glDrawArraysInstanced((GLenum)mode, (GLint)first, (GLsizei)count, (GLsizei)instance_count);
+    if (glDrawArraysInstanced) {
+        glDrawArraysInstanced((GLenum)mode, (GLint)first, (GLsizei)count, (GLsizei)instance_count);
+        return;
+    }
+    if (glDrawArraysInstancedARB) {
+        glDrawArraysInstancedARB((GLenum)mode, (GLint)first, (GLsizei)count, (GLsizei)instance_count);
+        return;
+    }
 }
 
 int64_t nl_gl3_gen_texture(void) {
@@ -326,17 +357,35 @@ void nl_gl3_tex_image_2d_checker_rgba8(int64_t target, int64_t width, int64_t he
 }
 
 int64_t nl_gl3_gen_framebuffer(void) {
-    return (int64_t)gen_single_id(glGenFramebuffers);
+    if (glGenFramebuffers) return (int64_t)gen_single_id(glGenFramebuffers);
+    if (glGenFramebuffersEXT) return (int64_t)gen_single_id(glGenFramebuffersEXT);
+    return 0;
 }
 
 void nl_gl3_bind_framebuffer(int64_t target, int64_t fbo) {
-    glBindFramebuffer((GLenum)target, (GLuint)fbo);
+    if (glBindFramebuffer) {
+        glBindFramebuffer((GLenum)target, (GLuint)fbo);
+        return;
+    }
+    if (glBindFramebufferEXT) {
+        glBindFramebufferEXT((GLenum)target, (GLuint)fbo);
+        return;
+    }
 }
 
 void nl_gl3_framebuffer_texture_2d(int64_t target, int64_t attachment, int64_t textarget, int64_t texture, int64_t level) {
-    glFramebufferTexture2D((GLenum)target, (GLenum)attachment, (GLenum)textarget, (GLuint)texture, (GLint)level);
+    if (glFramebufferTexture2D) {
+        glFramebufferTexture2D((GLenum)target, (GLenum)attachment, (GLenum)textarget, (GLuint)texture, (GLint)level);
+        return;
+    }
+    if (glFramebufferTexture2DEXT) {
+        glFramebufferTexture2DEXT((GLenum)target, (GLenum)attachment, (GLenum)textarget, (GLuint)texture, (GLint)level);
+        return;
+    }
 }
 
 int64_t nl_gl3_check_framebuffer_status(int64_t target) {
-    return (int64_t)glCheckFramebufferStatus((GLenum)target);
+    if (glCheckFramebufferStatus) return (int64_t)glCheckFramebufferStatus((GLenum)target);
+    if (glCheckFramebufferStatusEXT) return (int64_t)glCheckFramebufferStatusEXT((GLenum)target);
+    return 0;
 }
