@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
     }
 
     /* Codegen */
-    CodegenResult cg = codegen_compile(program, env, modules);
+    CodegenResult cg = codegen_compile(program, env, modules, input);
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);

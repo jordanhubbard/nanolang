@@ -437,7 +437,48 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
-    /* Math */
+    /* Math library functions - handled as extern FFI calls */
+    {
+        static const char *math_fns_1arg[] = {
+            "sqrt", "sin", "cos", "tan", "asin", "acos", "atan",
+            "floor", "ceil", "round", "log", "log2", "log10", "exp",
+            NULL
+        };
+        static const char *math_fns_2arg[] = {
+            "pow", "atan2", "fmod",
+            NULL
+        };
+        for (int mi = 0; math_fns_1arg[mi]; mi++) {
+            if (strcmp(name, math_fns_1arg[mi]) == 0 && argc == 1) {
+                compile_expr(cg, args[0]);
+                /* Look up or auto-register as extern */
+                int32_t ext_idx = extern_find(cg, name);
+                if (ext_idx < 0) {
+                    uint8_t ptags[1] = {TAG_FLOAT};
+                    register_extern(cg, name, "", 1, TAG_FLOAT, ptags);
+                    ext_idx = extern_find(cg, name);
+                }
+                if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+                return true;
+            }
+        }
+        for (int mi = 0; math_fns_2arg[mi]; mi++) {
+            if (strcmp(name, math_fns_2arg[mi]) == 0 && argc == 2) {
+                compile_expr(cg, args[0]);
+                compile_expr(cg, args[1]);
+                int32_t ext_idx = extern_find(cg, name);
+                if (ext_idx < 0) {
+                    uint8_t ptags[2] = {TAG_FLOAT, TAG_FLOAT};
+                    register_extern(cg, name, "", 2, TAG_FLOAT, ptags);
+                    ext_idx = extern_find(cg, name);
+                }
+                if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+                return true;
+            }
+        }
+    }
+
+    /* Math (inline implementations) */
     if (strcmp(name, "abs") == 0 && argc == 1) {
         /* abs(x) = if x < 0 then -x else x */
         compile_expr(cg, args[0]);
@@ -499,7 +540,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_ARR_LEN);
         return true;
     }
-    if (strcmp(name, "at") == 0 && argc == 2) {
+    if ((strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) && argc == 2) {
         compile_expr(cg, args[0]);
         compile_expr(cg, args[1]);
         emit_op(cg, OP_ARR_GET);
@@ -577,9 +618,16 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_ARR_REMOVE);
         return true;
     }
+    if (strcmp(name, "array_slice") == 0 && argc == 3) {
+        compile_expr(cg, args[0]); /* array */
+        compile_expr(cg, args[1]); /* start */
+        compile_expr(cg, args[2]); /* end */
+        emit_op(cg, OP_ARR_SLICE);
+        return true;
+    }
 
     /* String char_at */
-    if (strcmp(name, "str_char_at") == 0 && argc == 2) {
+    if ((strcmp(name, "str_char_at") == 0 || strcmp(name, "char_at") == 0) && argc == 2) {
         compile_expr(cg, args[0]);
         compile_expr(cg, args[1]);
         emit_op(cg, OP_STR_CHAR_AT);
@@ -820,6 +868,156 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    /* Hashmap operations */
+    if (strcmp(name, "hashmap_new") == 0 && argc == 0) {
+        emit_op(cg, OP_HM_NEW, TAG_STRING, TAG_INT);
+        return true;
+    }
+    if (strcmp(name, "hashmap_get") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_GET);
+        return true;
+    }
+    if (strcmp(name, "hashmap_set") == 0 && argc == 3) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        compile_expr(cg, args[2]);
+        emit_op(cg, OP_HM_SET);
+        return true;
+    }
+    if (strcmp(name, "hashmap_has") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_HAS);
+        return true;
+    }
+    if (strcmp(name, "hashmap_delete") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_DELETE);
+        return true;
+    }
+    if (strcmp(name, "hashmap_keys") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_KEYS);
+        return true;
+    }
+    if (strcmp(name, "hashmap_values") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_VALUES);
+        return true;
+    }
+    if (strcmp(name, "hashmap_length") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_LEN);
+        return true;
+    }
+
+    /* Array concat */
+    if (strcmp(name, "array_concat") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        /* Concatenate arrays: iterate second array and push each to first */
+        uint16_t arr1 = local_add(cg, "__concat_a__", 0);
+        emit_op(cg, OP_STORE_LOCAL, (int)arr1);
+        uint16_t arr2 = local_add(cg, "__concat_b__", 0);
+        emit_op(cg, OP_STORE_LOCAL, (int)arr2);
+        /* Copy arr1 into result (in-place for now) */
+        emit_op(cg, OP_LOAD_LOCAL, (int)arr2);
+        emit_op(cg, OP_ARR_LEN);
+        uint16_t len2 = local_add(cg, "__concat_len__", 0);
+        emit_op(cg, OP_STORE_LOCAL, (int)len2);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        uint16_t idx = local_add(cg, "__concat_i__", 0);
+        emit_op(cg, OP_STORE_LOCAL, (int)idx);
+        uint32_t loop_top = cg->code_size;
+        emit_op(cg, OP_LOAD_LOCAL, (int)idx);
+        emit_op(cg, OP_LOAD_LOCAL, (int)len2);
+        emit_op(cg, OP_LT);
+        uint32_t jf_instr = cg->code_size;
+        uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_LOAD_LOCAL, (int)arr1);
+        emit_op(cg, OP_LOAD_LOCAL, (int)arr2);
+        emit_op(cg, OP_LOAD_LOCAL, (int)idx);
+        emit_op(cg, OP_ARR_GET);
+        emit_op(cg, OP_ARR_PUSH);
+        emit_op(cg, OP_STORE_LOCAL, (int)arr1);
+        emit_op(cg, OP_LOAD_LOCAL, (int)idx);
+        emit_op(cg, OP_PUSH_I64, (int64_t)1);
+        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_STORE_LOCAL, (int)idx);
+        uint32_t jmp_instr = cg->code_size;
+        emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, jmp_instr + 1, jmp_instr, loop_top);
+        patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
+        emit_op(cg, OP_LOAD_LOCAL, (int)arr1);
+        return true;
+    }
+
+    /* Result type helpers */
+    if (strcmp(name, "result_is_ok") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_EQ);
+        return true;
+    }
+    if (strcmp(name, "result_is_err") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_PUSH_I64, (int64_t)1);
+        emit_op(cg, OP_EQ);
+        return true;
+    }
+    if (strcmp(name, "result_unwrap") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_UNION_FIELD, 0);
+        return true;
+    }
+    if (strcmp(name, "result_unwrap_err") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_UNION_FIELD, 0);
+        return true;
+    }
+
+    /* OS/IO builtins - map nanolang names to vm_* C functions */
+    {
+        static const struct { const char *nano_name; const char *c_name; int arity; uint8_t ret_tag; } os_builtins[] = {
+            {"getcwd",     "vm_getcwd",      0, TAG_STRING},
+            {"chdir",      "vm_chdir",       1, TAG_INT},
+            {"file_read",  "vm_file_read",   1, TAG_STRING},
+            {"file_write", "vm_file_write",  2, TAG_INT},
+            {"file_exists","vm_file_exists",  1, TAG_BOOL},
+            {"dir_exists", "vm_dir_exists",   1, TAG_BOOL},
+            {"dir_create", "vm_dir_create",   1, TAG_INT},
+            {"dir_list",   "vm_dir_list",     1, TAG_ARRAY},
+            {"mktemp_dir", "vm_mktemp_dir",   1, TAG_STRING},
+            {"getenv",     "vm_getenv",       1, TAG_STRING},
+            {"setenv",     "vm_setenv",       2, TAG_INT},
+            {"str_index_of","vm_str_index_of",2, TAG_INT},
+            {"process_run","vm_process_run",  1, TAG_INT},
+            {NULL, NULL, 0, 0}
+        };
+        for (int bi = 0; os_builtins[bi].nano_name; bi++) {
+            if (strcmp(name, os_builtins[bi].nano_name) == 0 &&
+                argc == os_builtins[bi].arity) {
+                for (int a = 0; a < argc; a++) compile_expr(cg, args[a]);
+                /* Register the C function name as extern */
+                int32_t ext_idx = extern_find(cg, os_builtins[bi].c_name);
+                if (ext_idx < 0) {
+                    uint8_t ptags[4] = {TAG_STRING, TAG_STRING, TAG_STRING, TAG_STRING};
+                    register_extern(cg, os_builtins[bi].c_name, "",
+                                   (uint16_t)os_builtins[bi].arity,
+                                   os_builtins[bi].ret_tag, ptags);
+                    ext_idx = extern_find(cg, os_builtins[bi].c_name);
+                }
+                if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
@@ -980,18 +1178,31 @@ static void compile_expr(CG *cg, ASTNode *node) {
             compile_expr(cg, node->as.module_qualified_call.args[i]);
         }
 
-        /* Look up as qualified extern: "Module.function" */
-        int32_t ext_idx = extern_find_qualified(cg, mod_alias, func_name);
-        if (ext_idx >= 0) {
-            emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        /* Try qualified name "Module.function" in bytecode functions first */
+        char qname[512];
+        snprintf(qname, sizeof(qname), "%s.%s", mod_alias, func_name);
+        int32_t fn_idx = fn_find(cg, qname);
+        if (fn_idx >= 0) {
+            emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
-            /* Try unqualified name (maybe imported with from...import) */
-            ext_idx = extern_find(cg, func_name);
-            if (ext_idx >= 0) {
-                emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+            /* Try unqualified name in bytecode functions */
+            fn_idx = fn_find(cg, func_name);
+            if (fn_idx >= 0) {
+                emit_op(cg, OP_CALL, (uint32_t)fn_idx);
             } else {
-                cg_error(cg, node->line, "undefined module function '%s.%s'",
-                         mod_alias, func_name);
+                /* Try as extern (qualified then unqualified) */
+                int32_t ext_idx = extern_find_qualified(cg, mod_alias, func_name);
+                if (ext_idx >= 0) {
+                    emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+                } else {
+                    ext_idx = extern_find(cg, func_name);
+                    if (ext_idx >= 0) {
+                        emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+                    } else {
+                        cg_error(cg, node->line, "undefined module function '%s.%s'",
+                                 mod_alias, func_name);
+                    }
+                }
             }
         }
         break;
@@ -1658,7 +1869,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 /* ── Main compilation entry point ───────────────────────────────── */
 
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
-                              ModuleList *modules) {
+                              ModuleList *modules, const char *input_file) {
     CodegenResult result = {0};
 
     if (!program || program->type != AST_PROGRAM) {
@@ -1761,8 +1972,17 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             const char *mod_path = item->as.import_stmt.module_path;
             const char *mod_alias = item->as.import_stmt.module_alias;
 
+            /* Resolve the module path (process_imports caches with resolved paths,
+             * but item->as.import_stmt.module_path is the original unresolved path) */
+            const char *resolved_path = mod_path ? resolve_module_path(mod_path, input_file) : NULL;
+            const char *lookup_path = resolved_path ? resolved_path : mod_path;
+
             /* Try to get the module AST from the cache (loaded by process_imports) */
-            ASTNode *mod_ast = mod_path ? get_cached_module_ast(mod_path) : NULL;
+            ASTNode *mod_ast = lookup_path ? get_cached_module_ast(lookup_path) : NULL;
+            if (!mod_ast && mod_path) {
+                /* Fallback: try the original unresolved path */
+                mod_ast = get_cached_module_ast(mod_path);
+            }
 
             if (mod_ast && mod_ast->type == AST_PROGRAM) {
                 /* Register ALL module functions (public + private) so internal
@@ -1888,6 +2108,22 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                             cg.enum_count++;
                         }
                     }
+
+                    /* Register module-level let bindings as globals */
+                    if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
+                        bool dup = false;
+                        for (int g = 0; g < cg.global_count; g++) {
+                            if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
+                                dup = true;
+                                break;
+                            }
+                        }
+                        if (!dup) {
+                            cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].slot = cg.global_count;
+                            cg.global_count++;
+                        }
+                    }
                 }
             } else {
                 /* Module AST not available - fall back to registering as externs */
@@ -1934,6 +2170,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                     }
                 }
             }
+            if (resolved_path) free((char *)resolved_path);
         }
 
         /* Register top-level let bindings as globals */
@@ -1941,6 +2178,97 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             cg.globals[cg.global_count].name = item->as.let.name;
             cg.globals[cg.global_count].slot = cg.global_count;
             cg.global_count++;
+        }
+    }
+
+    /* ── Pass 1b: Register transitive module dependencies ──────── */
+    /* process_imports collects all modules (including transitive deps) in the
+     * modules list. Pass 1 above only processes direct imports from the program.
+     * Here we register any remaining modules not yet handled. */
+    if (modules) {
+        for (int mi = 0; mi < modules->count; mi++) {
+            ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
+            if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+            for (int m = 0; m < mod_ast->as.program.count; m++) {
+                ASTNode *mitem = mod_ast->as.program.items[m];
+
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                    const char *fname = mitem->as.function.name;
+                    if (fn_find(&cg, fname) < 0 && cg.fn_count < MAX_FUNCTIONS) {
+                        uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
+                        NvmFunctionEntry fn = {0};
+                        fn.name_idx = ni;
+                        fn.arity = (uint16_t)mitem->as.function.param_count;
+                        uint32_t idx = nvm_add_function(cg.module, &fn);
+                        cg.functions[cg.fn_count].name = (char *)fname;
+                        cg.functions[cg.fn_count].fn_idx = idx;
+                        cg.fn_count++;
+                    }
+                }
+
+                if (mitem->type == AST_FUNCTION && mitem->as.function.is_extern) {
+                    const char *ename = mitem->as.function.name;
+                    if (extern_find(&cg, ename) < 0) {
+                        uint16_t pc = (uint16_t)mitem->as.function.param_count;
+                        uint8_t ret_tag = type_to_tag(mitem->as.function.return_type);
+                        uint8_t param_tags[16] = {0};
+                        for (int p = 0; p < pc && p < 16; p++) {
+                            param_tags[p] = type_to_tag(mitem->as.function.params[p].type);
+                        }
+                        register_extern(&cg, ename, modules->module_paths[mi],
+                                       pc, ret_tag, param_tags);
+                    }
+                }
+
+                if (mitem->type == AST_STRUCT_DEF && cg.struct_count < MAX_STRUCT_DEFS) {
+                    bool dup = false;
+                    for (int s = 0; s < cg.struct_count; s++) {
+                        if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                            dup = true; break;
+                        }
+                    }
+                    if (!dup) {
+                        CgStructDef *sd = &cg.structs[cg.struct_count];
+                        sd->name = mitem->as.struct_def.name;
+                        sd->field_names = mitem->as.struct_def.field_names;
+                        sd->field_count = mitem->as.struct_def.field_count;
+                        sd->def_idx = cg.struct_count;
+                        cg.struct_count++;
+                    }
+                }
+
+                if (mitem->type == AST_ENUM_DEF && cg.enum_count < MAX_ENUM_DEFS) {
+                    bool dup = false;
+                    for (int e = 0; e < cg.enum_count; e++) {
+                        if (strcmp(cg.enums[e].name, mitem->as.enum_def.name) == 0) {
+                            dup = true; break;
+                        }
+                    }
+                    if (!dup) {
+                        CgEnumDef *ed = &cg.enums[cg.enum_count];
+                        ed->name = mitem->as.enum_def.name;
+                        ed->variant_names = mitem->as.enum_def.variant_names;
+                        ed->variant_values = mitem->as.enum_def.variant_values;
+                        ed->variant_count = mitem->as.enum_def.variant_count;
+                        ed->def_idx = cg.enum_count;
+                        cg.enum_count++;
+                    }
+                }
+
+                if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
+                    bool dup = false;
+                    for (int g = 0; g < cg.global_count; g++) {
+                        if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
+                            dup = true; break;
+                        }
+                    }
+                    if (!dup) {
+                        cg.globals[cg.global_count].name = mitem->as.let.name;
+                        cg.globals[cg.global_count].slot = cg.global_count;
+                        cg.global_count++;
+                    }
+                }
+            }
         }
     }
 
@@ -1957,6 +2285,24 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         cg.local_count = 0;
         cg.loop_depth = 0;
 
+        /* Initialize module globals first (they may be referenced by module functions) */
+        if (modules) {
+            for (int mi = 0; mi < modules->count; mi++) {
+                ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
+                if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+                for (int m = 0; m < mod_ast->as.program.count; m++) {
+                    ASTNode *mitem = mod_ast->as.program.items[m];
+                    if (mitem->type == AST_LET) {
+                        compile_expr(&cg, mitem->as.let.value);
+                        int16_t gslot = global_find(&cg, mitem->as.let.name);
+                        if (gslot >= 0) {
+                            emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);
+                        }
+                    }
+                }
+            }
+        }
+        /* Then initialize program globals */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
             if (item->type == AST_LET) {

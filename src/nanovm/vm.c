@@ -351,6 +351,27 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
                 stack_push(vm, val_string(s));
+            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
+                /* Array concatenation */
+                VmArray *arr_a = a.as.array;
+                VmArray *arr_b = b.as.array;
+                VmArray *result = vm_array_new(&vm->heap, TAG_INT, 0);
+                if (arr_a) {
+                    for (uint32_t ai = 0; ai < arr_a->length; ai++) {
+                        vm_array_push(result, arr_a->elements[ai]);
+                    }
+                }
+                if (arr_b) {
+                    for (uint32_t bi = 0; bi < arr_b->length; bi++) {
+                        vm_array_push(result, arr_b->elements[bi]);
+                    }
+                }
+                vm_release(&vm->heap, a);
+                vm_release(&vm->heap, b);
+                NanoValue rv = {0};
+                rv.tag = TAG_ARRAY;
+                rv.as.array = result;
+                stack_push(vm, rv);
             } else {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);

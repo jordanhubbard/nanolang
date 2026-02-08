@@ -6,6 +6,7 @@
  */
 
 #include "vm_ffi.h"
+#include "runtime/dyn_array.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -255,10 +256,41 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
             return v;
         }
         case TAG_ARRAY: {
-            /* Some C functions return DynArray* - for now treat as opaque */
+            /* C functions return DynArray* - convert to VmArray */
+            DynArray *darr = (DynArray *)(intptr_t)raw_result;
+            if (!darr) return val_void();
+            VmArray *varr = vm_array_new(heap, TAG_INT, (uint32_t)darr->length);
+            for (int64_t ai = 0; ai < darr->length; ai++) {
+                NanoValue elem;
+                switch (darr->elem_type) {
+                    case ELEM_INT:
+                        elem = val_int(dyn_array_get_int(darr, ai));
+                        break;
+                    case ELEM_FLOAT:
+                        elem = val_float(dyn_array_get_float(darr, ai));
+                        break;
+                    case ELEM_BOOL:
+                        elem = val_bool(dyn_array_get_bool(darr, ai));
+                        break;
+                    case ELEM_STRING: {
+                        const char *s = dyn_array_get_string(darr, ai);
+                        if (s) {
+                            VmString *vs = vm_string_new(heap, s, (uint32_t)strlen(s));
+                            elem = val_string(vs);
+                        } else {
+                            elem = val_void();
+                        }
+                        break;
+                    }
+                    default:
+                        elem = val_int(dyn_array_get_int(darr, ai));
+                        break;
+                }
+                vm_array_push(varr, elem);
+            }
             NanoValue v = {0};
-            v.tag = TAG_OPAQUE;
-            v.as.i64 = raw_result;
+            v.tag = TAG_ARRAY;
+            v.as.array = varr;
             return v;
         }
         default:

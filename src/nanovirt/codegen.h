@@ -32,6 +32,6 @@ typedef struct {
  * @return         CodegenResult with module or error info
  */
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
-                              ModuleList *modules);
+                              ModuleList *modules, const char *input_file);
 
 #endif /* NANOVIRT_CODEGEN_H */
