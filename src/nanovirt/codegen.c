@@ -39,6 +39,7 @@
 typedef struct {
     char *name;
     uint16_t slot;
+    char *struct_type;  /* Struct type name for field resolution (NULL if not a struct) */
 } Local;
 
 typedef struct {
@@ -60,6 +61,7 @@ typedef struct {
 typedef struct {
     char *name;
     char **field_names;
+    char **field_type_names;  /* Struct type names for struct-typed fields (NULL entries for non-struct) */
     int field_count;
     uint32_t def_idx;
 } CgStructDef;
@@ -231,8 +233,18 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     uint16_t slot = cg->local_count;
     cg->locals[slot].name = (char *)name;
     cg->locals[slot].slot = slot;
+    cg->locals[slot].struct_type = NULL;
     cg->local_count++;
     return slot;
+}
+
+/* Find the struct type name for a local variable (for field access resolution) */
+static const char *local_struct_type(CG *cg, const char *name) {
+    for (int i = cg->local_count - 1; i >= 0; i--) {
+        if (strcmp(cg->locals[i].name, name) == 0)
+            return cg->locals[i].struct_type;
+    }
+    return NULL;
 }
 
 /* ── Function lookup ────────────────────────────────────────────── */
@@ -261,6 +273,48 @@ static int16_t struct_field_index(CgStructDef *sd, const char *field) {
             return (int16_t)i;
     }
     return -1;
+}
+
+/*
+ * Infer the struct type name of an expression node.
+ * Used for chained field access like `a.b.c` where we need to know
+ * the type of intermediate expressions.
+ */
+static const char *infer_expr_struct_type(CG *cg, ASTNode *node) {
+    if (!node) return NULL;
+
+    if (node->type == AST_IDENTIFIER) {
+        const char *lt = local_struct_type(cg, node->as.identifier);
+        if (lt) return lt;
+        Symbol *sym = env_get_var(cg->env, node->as.identifier);
+        if (sym && sym->struct_type_name) return sym->struct_type_name;
+        return NULL;
+    }
+
+    if (node->type == AST_STRUCT_LITERAL) {
+        return node->as.struct_literal.struct_name;
+    }
+
+    if (node->type == AST_CALL && node->as.call.return_struct_type_name) {
+        return node->as.call.return_struct_type_name;
+    }
+
+    if (node->type == AST_FIELD_ACCESS) {
+        /* Recursively determine: what struct type does the object have? */
+        const char *obj_type = infer_expr_struct_type(cg, node->as.field_access.object);
+        if (obj_type) {
+            CgStructDef *sd = struct_find(cg, obj_type);
+            if (sd) {
+                int16_t fi = struct_field_index(sd, node->as.field_access.field_name);
+                if (fi >= 0 && sd->field_type_names && sd->field_type_names[fi]) {
+                    return sd->field_type_names[fi];
+                }
+            }
+        }
+        return NULL;
+    }
+
+    return NULL;
 }
 
 static CgEnumDef *enum_find(CG *cg, const char *name) {
@@ -1712,19 +1766,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         compile_expr(cg, obj);
 
         /* Resolve field index from the struct type */
-        const char *type_name = NULL;
-
-        /* Try to determine struct type from the object expression */
-        if (obj->type == AST_IDENTIFIER) {
-            Symbol *sym = env_get_var(cg->env, obj->as.identifier);
-            if (sym && sym->struct_type_name) {
-                type_name = sym->struct_type_name;
-            }
-        } else if (obj->type == AST_STRUCT_LITERAL) {
-            type_name = obj->as.struct_literal.struct_name;
-        } else if (obj->type == AST_CALL && obj->as.call.return_struct_type_name) {
-            type_name = obj->as.call.return_struct_type_name;
-        }
+        const char *type_name = infer_expr_struct_type(cg, obj);
 
         if (type_name) {
             CgStructDef *sd = struct_find(cg, type_name);
@@ -1905,6 +1947,10 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_LET: {
         compile_expr(cg, node->as.let.value);
         uint16_t slot = local_add(cg, node->as.let.name, node->line);
+        /* Track struct type for field access resolution */
+        if (node->as.let.type_name) {
+            cg->locals[slot].struct_type = node->as.let.type_name;
+        }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;
     }
@@ -2197,7 +2243,11 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
-        local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
+        uint16_t slot = local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
+        /* Track struct type for field access resolution */
+        if (fn_node->as.function.params[i].struct_type_name) {
+            cg->locals[slot].struct_type = fn_node->as.function.params[i].struct_type_name;
+        }
     }
 
     /* Compile function body */
@@ -2292,6 +2342,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             CgStructDef *sd = &cg.structs[cg.struct_count];
             sd->name = item->as.struct_def.name;
             sd->field_names = item->as.struct_def.field_names;
+            sd->field_type_names = item->as.struct_def.field_type_names;
             sd->field_count = item->as.struct_def.field_count;
             sd->def_idx = cg.struct_count;
             cg.struct_count++;
@@ -2465,6 +2516,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                             CgStructDef *sd = &cg.structs[cg.struct_count];
                             sd->name = mitem->as.struct_def.name;
                             sd->field_names = mitem->as.struct_def.field_names;
+                            sd->field_type_names = mitem->as.struct_def.field_type_names;
                             sd->field_count = mitem->as.struct_def.field_count;
                             sd->def_idx = cg.struct_count;
                             cg.struct_count++;
@@ -2634,6 +2686,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                         CgStructDef *sd = &cg.structs[cg.struct_count];
                         sd->name = mitem->as.struct_def.name;
                         sd->field_names = mitem->as.struct_def.field_names;
+                        sd->field_type_names = mitem->as.struct_def.field_type_names;
                         sd->field_count = mitem->as.struct_def.field_count;
                         sd->def_idx = cg.struct_count;
                         cg.struct_count++;
@@ -2772,6 +2825,28 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             }
             if (cg.had_error) break;
         }
+    }
+
+    /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
+    if (main_fn_idx < 0 && !cg.had_error) {
+        NvmFunctionEntry syn_fn = {0};
+        uint32_t syn_name = nvm_add_string(cg.module, "main", 4);
+        syn_fn.name_idx = syn_name;
+        syn_fn.arity = 0;
+        uint32_t syn_idx = nvm_add_function(cg.module, &syn_fn);
+
+        cg.code_size = 0;
+        cg.local_count = 0;
+        cg.loop_depth = 0;
+        emit_op(&cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(&cg, OP_RET);
+
+        uint32_t code_off = nvm_append_code(cg.module, cg.code, cg.code_size);
+        NvmFunctionEntry *entry = &cg.module->functions[syn_idx];
+        entry->code_offset = code_off;
+        entry->code_length = cg.code_size;
+        entry->local_count = 0;
+        main_fn_idx = (int)syn_idx;
     }
 
     /* Set entry point and flags */

@@ -21,7 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Forward declaration for interpreter FFI module loading (already linked) */
+/* Forward declarations for interpreter FFI (already linked) */
+extern bool ffi_init(bool verbose);
 extern bool ffi_load_module(const char *module_name, const char *module_path,
                             Environment *env, bool verbose);
 
