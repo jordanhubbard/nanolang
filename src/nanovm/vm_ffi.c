@@ -215,6 +215,38 @@ static int marshal_args(NanoValue *args, int arg_count,
                 /* Opaque values stored as raw pointer in i64 */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
+            case TAG_ARRAY: {
+                /* Convert VmArray to DynArray for C functions */
+                VmArray *va = args[i].as.array;
+                if (!va) {
+                    arg_ptrs[i] = (void *)dyn_array_new(ELEM_INT);
+                } else {
+                    ElementType et = ELEM_INT;
+                    if (va->elem_type == TAG_STRING) et = ELEM_STRING;
+                    else if (va->elem_type == TAG_FLOAT) et = ELEM_FLOAT;
+                    else if (va->elem_type == TAG_BOOL) et = ELEM_BOOL;
+                    DynArray *da = dyn_array_new(et);
+                    for (uint32_t j = 0; j < va->length; j++) {
+                        NanoValue elem = va->elements[j];
+                        switch (et) {
+                            case ELEM_INT:   dyn_array_push_int(da, elem.as.i64); break;
+                            case ELEM_FLOAT: dyn_array_push_float(da, elem.as.f64); break;
+                            case ELEM_BOOL:  dyn_array_push_bool(da, elem.as.boolean); break;
+                            case ELEM_STRING:
+                                if (elem.as.string)
+                                    dyn_array_push_string(da, vmstring_cstr(elem.as.string));
+                                else
+                                    dyn_array_push_string(da, "");
+                                break;
+                            default:
+                                dyn_array_push_int(da, elem.as.i64);
+                                break;
+                        }
+                    }
+                    arg_ptrs[i] = (void *)da;
+                }
+                break;
+            }
             default:
                 /* Pass as raw int64 (best effort) */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;

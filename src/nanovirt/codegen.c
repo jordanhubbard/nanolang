@@ -955,6 +955,297 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    /* null_opaque() - returns a null opaque pointer (0) */
+    if (strcmp(name, "null_opaque") == 0 && argc == 0) {
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        return true;
+    }
+
+    /* map_* aliases for hashmap_* operations */
+    if (strcmp(name, "map_new") == 0 && argc == 0) {
+        emit_op(cg, OP_HM_NEW, TAG_STRING, TAG_INT);
+        return true;
+    }
+    if ((strcmp(name, "map_get") == 0 || strcmp(name, "hashmap_get") == 0) && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_GET);
+        return true;
+    }
+    if ((strcmp(name, "map_set") == 0 || strcmp(name, "map_put") == 0) && argc == 3) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        compile_expr(cg, args[2]);
+        emit_op(cg, OP_HM_SET);
+        return true;
+    }
+    if (strcmp(name, "map_has") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_HAS);
+        return true;
+    }
+    if (strcmp(name, "map_delete") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_HM_DELETE);
+        return true;
+    }
+    if (strcmp(name, "map_keys") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_KEYS);
+        return true;
+    }
+    if (strcmp(name, "map_values") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_VALUES);
+        return true;
+    }
+    if (strcmp(name, "map_length") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_HM_LEN);
+        return true;
+    }
+
+    /* string_to_int / string_to_float - parse string to number */
+    if (strcmp(name, "string_to_int") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_CAST_INT);
+        return true;
+    }
+    if (strcmp(name, "string_to_float") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_CAST_FLOAT);
+        return true;
+    }
+
+    /* string_from_char(code) - convert char code to 1-char string */
+    if (strcmp(name, "string_from_char") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_string_from_char");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_INT};
+            register_extern(cg, "vm_string_from_char", "", 1, TAG_STRING, ptags);
+            ext_idx = extern_find(cg, "vm_string_from_char");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
+    /* string_from_bytes(arr) - convert byte array to string */
+    if (strcmp(name, "string_from_bytes") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_string_from_bytes");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_ARRAY};
+            register_extern(cg, "vm_string_from_bytes", "", 1, TAG_STRING, ptags);
+            ext_idx = extern_find(cg, "vm_string_from_bytes");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
+    /* digit_value(c) - convert char to digit 0-9 or -1 */
+    if (strcmp(name, "digit_value") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_digit_value");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_INT};
+            register_extern(cg, "vm_digit_value", "", 1, TAG_INT, ptags);
+            ext_idx = extern_find(cg, "vm_digit_value");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
+    /* bstr_validate_utf8(str) - check if string is valid UTF-8 */
+    if (strcmp(name, "bstr_validate_utf8") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_STRING};
+            register_extern(cg, "vm_bstr_validate_utf8", "", 1, TAG_BOOL, ptags);
+            ext_idx = extern_find(cg, "vm_bstr_validate_utf8");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
+    /* Character classification builtins */
+    if ((strcmp(name, "is_digit") == 0 || strcmp(name, "is_alpha") == 0 ||
+         strcmp(name, "is_alnum") == 0 || strcmp(name, "is_space") == 0 ||
+         strcmp(name, "is_upper") == 0 || strcmp(name, "is_lower") == 0 ||
+         strcmp(name, "is_whitespace") == 0) && argc == 1) {
+        compile_expr(cg, args[0]);
+        char c_name[64];
+        snprintf(c_name, sizeof(c_name), "vm_%s", name);
+        int32_t ext_idx = extern_find(cg, c_name);
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_INT};
+            register_extern(cg, c_name, "", 1, TAG_BOOL, ptags);
+            ext_idx = extern_find(cg, c_name);
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
+    /* Generic list operations: list_T_new, list_T_push, list_T_get, list_T_length, list_T_set */
+    if (strncmp(name, "list_", 5) == 0 || strncmp(name, "List_", 5) == 0) {
+        /* Find the operation suffix */
+        const char *suffix = strrchr(name, '_');
+        if (suffix) {
+            if (strcmp(suffix, "_new") == 0 && argc == 0) {
+                /* list_T_new() -> create empty array */
+                emit_op(cg, OP_ARR_NEW, (int)TAG_INT);
+                return true;
+            }
+            if (strcmp(suffix, "_push") == 0 && argc == 2) {
+                /* list_T_push(list, value) -> array_push */
+                compile_expr(cg, args[0]);
+                compile_expr(cg, args[1]);
+                emit_op(cg, OP_ARR_PUSH);
+                return true;
+            }
+            if (strcmp(suffix, "_get") == 0 && argc == 2) {
+                /* list_T_get(list, index) -> array_get */
+                compile_expr(cg, args[0]);
+                compile_expr(cg, args[1]);
+                emit_op(cg, OP_ARR_GET);
+                return true;
+            }
+            if (strcmp(suffix, "_length") == 0 && argc == 1) {
+                /* list_T_length(list) -> array_length */
+                compile_expr(cg, args[0]);
+                emit_op(cg, OP_ARR_LEN);
+                return true;
+            }
+            if (strcmp(suffix, "_set") == 0 && argc == 3) {
+                /* list_T_set(list, index, value) -> array_set */
+                compile_expr(cg, args[0]);
+                compile_expr(cg, args[1]);
+                compile_expr(cg, args[2]);
+                emit_op(cg, OP_ARR_SET);
+                return true;
+            }
+        }
+    }
+
+    /* bstring operations */
+    if (strcmp(name, "bstr_new") == 0 && argc == 1) {
+        /* bstr_new(str) - for now, just pass through as string */
+        compile_expr(cg, args[0]);
+        return true;
+    }
+    if (strcmp(name, "bstr_length") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_STR_LEN);
+        return true;
+    }
+    if (strcmp(name, "bstr_concat") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_CONCAT);
+        return true;
+    }
+    if (strcmp(name, "bstr_substring") == 0 && argc == 3) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        compile_expr(cg, args[2]);
+        emit_op(cg, OP_STR_SUBSTR);
+        return true;
+    }
+    if (strcmp(name, "bstr_to_string") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        return true;
+    }
+    if ((strcmp(name, "bstr_get_byte") == 0 || strcmp(name, "bstr_byte_at") == 0) && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_CHAR_AT);
+        /* STR_CHAR_AT returns a string, we need the byte value */
+        emit_op(cg, OP_CAST_INT);
+        return true;
+    }
+    if (strcmp(name, "bstr_new_binary") == 0 && argc == 1) {
+        /* bstr_new_binary(bytes_array) - create bstring from byte array */
+        compile_expr(cg, args[0]);
+        return true;
+    }
+    if ((strcmp(name, "bstr_to_cstr") == 0 || strcmp(name, "bstr_to_str") == 0) && argc == 1) {
+        /* bstr_to_cstr/bstr_to_str - identity operation in VM (strings are strings) */
+        compile_expr(cg, args[0]);
+        return true;
+    }
+    if (strcmp(name, "bstr_equals") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_EQ);
+        return true;
+    }
+    if (strcmp(name, "bstr_free") == 0 && argc == 1) {
+        /* No-op in VM - GC handles memory */
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_POP);
+        return true;
+    }
+    if (strcmp(name, "bstr_utf8_length") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_length");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_STRING};
+            register_extern(cg, "vm_bstr_utf8_length", "", 1, TAG_INT, ptags);
+            ext_idx = extern_find(cg, "vm_bstr_utf8_length");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+    if (strcmp(name, "bstr_utf8_char_at") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        int32_t ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
+        if (ext_idx < 0) {
+            uint8_t ptags[2] = {TAG_STRING, TAG_INT};
+            register_extern(cg, "vm_bstr_utf8_char_at", "", 2, TAG_INT, ptags);
+            ext_idx = extern_find(cg, "vm_bstr_utf8_char_at");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+    if (strcmp(name, "char_to_lower") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_char_to_lower");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_INT};
+            register_extern(cg, "vm_char_to_lower", "", 1, TAG_INT, ptags);
+            ext_idx = extern_find(cg, "vm_char_to_lower");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+    if (strcmp(name, "char_to_upper") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_char_to_upper");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_INT};
+            register_extern(cg, "vm_char_to_upper", "", 1, TAG_INT, ptags);
+            ext_idx = extern_find(cg, "vm_char_to_upper");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+    if (strcmp(name, "bytes_from_string") == 0 && argc == 1) {
+        /* bytes_from_string(str) - convert string to byte array */
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_bytes_from_string");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_STRING};
+            register_extern(cg, "vm_bytes_from_string", "", 1, TAG_ARRAY, ptags);
+            ext_idx = extern_find(cg, "vm_bytes_from_string");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
     /* Result type helpers */
     if (strcmp(name, "result_is_ok") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
@@ -1549,12 +1840,18 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_SET: {
         int16_t slot = local_find(cg, node->as.set.name);
-        if (slot < 0) {
-            cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
-            break;
+        if (slot >= 0) {
+            compile_expr(cg, node->as.set.value);
+            emit_op(cg, OP_STORE_LOCAL, (int)slot);
+        } else {
+            int16_t gslot = global_find(cg, node->as.set.name);
+            if (gslot >= 0) {
+                compile_expr(cg, node->as.set.value);
+                emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
+            } else {
+                cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
+            }
         }
-        compile_expr(cg, node->as.set.value);
-        emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;
     }
 
@@ -1983,6 +2280,21 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                 /* Fallback: try the original unresolved path */
                 mod_ast = get_cached_module_ast(mod_path);
             }
+            if (!mod_ast && modules) {
+                /* Fallback: try matching by suffix against cached module paths */
+                for (int mi = 0; mi < modules->count; mi++) {
+                    const char *mp = modules->module_paths[mi];
+                    if (mod_path) {
+                        size_t mp_len = strlen(mp);
+                        size_t path_len = strlen(mod_path);
+                        if (mp_len >= path_len &&
+                            strcmp(mp + mp_len - path_len, mod_path) == 0) {
+                            mod_ast = get_cached_module_ast(mp);
+                            if (mod_ast) break;
+                        }
+                    }
+                }
+            }
 
             if (mod_ast && mod_ast->type == AST_PROGRAM) {
                 /* Register ALL module functions (public + private) so internal
@@ -2106,6 +2418,27 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                             ed->variant_count = mitem->as.enum_def.variant_count;
                             ed->def_idx = cg.enum_count;
                             cg.enum_count++;
+                        }
+                    }
+
+                    /* Register module union definitions */
+                    if (mitem->type == AST_UNION_DEF && cg.union_count < MAX_UNION_DEFS) {
+                        bool dup = false;
+                        for (int u = 0; u < cg.union_count; u++) {
+                            if (strcmp(cg.unions[u].name, mitem->as.union_def.name) == 0) {
+                                dup = true;
+                                break;
+                            }
+                        }
+                        if (!dup) {
+                            CgUnionDef *ud = &cg.unions[cg.union_count];
+                            ud->name = mitem->as.union_def.name;
+                            ud->variant_count = mitem->as.union_def.variant_count;
+                            ud->variant_names = mitem->as.union_def.variant_names;
+                            ud->variant_field_counts = mitem->as.union_def.variant_field_counts;
+                            ud->variant_field_names = mitem->as.union_def.variant_field_names;
+                            ud->def_idx = cg.union_count;
+                            cg.union_count++;
                         }
                     }
 
@@ -2252,6 +2585,25 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                         ed->variant_count = mitem->as.enum_def.variant_count;
                         ed->def_idx = cg.enum_count;
                         cg.enum_count++;
+                    }
+                }
+
+                if (mitem->type == AST_UNION_DEF && cg.union_count < MAX_UNION_DEFS) {
+                    bool dup = false;
+                    for (int u = 0; u < cg.union_count; u++) {
+                        if (strcmp(cg.unions[u].name, mitem->as.union_def.name) == 0) {
+                            dup = true; break;
+                        }
+                    }
+                    if (!dup) {
+                        CgUnionDef *ud = &cg.unions[cg.union_count];
+                        ud->name = mitem->as.union_def.name;
+                        ud->variant_count = mitem->as.union_def.variant_count;
+                        ud->variant_names = mitem->as.union_def.variant_names;
+                        ud->variant_field_counts = mitem->as.union_def.variant_field_counts;
+                        ud->variant_field_names = mitem->as.union_def.variant_field_names;
+                        ud->def_idx = cg.union_count;
+                        cg.union_count++;
                     }
                 }
 

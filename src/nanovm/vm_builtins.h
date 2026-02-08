@@ -23,6 +23,26 @@ int64_t vm_setenv(const char *name, const char *value);
 
 /* String */
 int64_t vm_str_index_of(const char *haystack, const char *needle);
+char *vm_string_from_char(int64_t code);
+
+/* Binary string */
+DynArray *vm_bytes_from_string(const char *str);
+char *vm_string_from_bytes(DynArray *arr);
+
+/* Character classification */
+int64_t vm_is_digit(int64_t c);
+int64_t vm_is_alpha(int64_t c);
+int64_t vm_is_alnum(int64_t c);
+int64_t vm_is_space(int64_t c);
+int64_t vm_is_upper(int64_t c);
+int64_t vm_is_lower(int64_t c);
+int64_t vm_is_whitespace(int64_t c);
+int64_t vm_digit_value(int64_t c);
+int64_t vm_char_to_lower(int64_t c);
+int64_t vm_char_to_upper(int64_t c);
+int64_t vm_bstr_utf8_length(const char *str);
+int64_t vm_bstr_utf8_char_at(const char *str, int64_t char_index);
+int64_t vm_bstr_validate_utf8(const char *str);
 
 /* Process */
 int64_t vm_process_run(const char *cmd);

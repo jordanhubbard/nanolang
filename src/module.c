@@ -296,10 +296,11 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
         return strdup(module_path);
     }
     
-    /* Check if this is a project-relative path (common prefixes like std/, examples/, src/) */
+    /* Check if this is a project-relative path (common prefixes like std/, stdlib/, examples/, src/) */
     if (strncmp(module_path, "examples/", 9) == 0 ||
         strncmp(module_path, "src/", 4) == 0 ||
-        strncmp(module_path, "std/", 4) == 0) {
+        strncmp(module_path, "std/", 4) == 0 ||
+        strncmp(module_path, "stdlib/", 7) == 0) {
         /* Try to find project root by walking up from current_file */
         if (current_file) {
             char current_dir[1024];

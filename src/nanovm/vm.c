@@ -352,19 +352,53 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_release(&vm->heap, b);
                 stack_push(vm, val_string(s));
             } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                /* Array concatenation */
+                /* Element-wise array addition */
                 VmArray *arr_a = a.as.array;
                 VmArray *arr_b = b.as.array;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, 0);
-                if (arr_a) {
-                    for (uint32_t ai = 0; ai < arr_a->length; ai++) {
-                        vm_array_push(result, arr_a->elements[ai]);
-                    }
+                uint32_t len = arr_a && arr_b ?
+                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
+                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                for (uint32_t ai = 0; ai < len; ai++) {
+                    NanoValue ea = arr_a->elements[ai];
+                    NanoValue eb = arr_b->elements[ai];
+                    NanoValue ev;
+                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
+                        ev = val_int(ea.as.i64 + eb.as.i64);
+                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_FLOAT)
+                        ev = val_float(ea.as.f64 + eb.as.f64);
+                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_INT)
+                        ev = val_float(ea.as.f64 + (double)eb.as.i64);
+                    else if (ea.tag == TAG_INT && eb.tag == TAG_FLOAT)
+                        ev = val_float((double)ea.as.i64 + eb.as.f64);
+                    else
+                        ev = val_int(ea.as.i64 + eb.as.i64);
+                    vm_array_push(result, ev);
                 }
-                if (arr_b) {
-                    for (uint32_t bi = 0; bi < arr_b->length; bi++) {
-                        vm_array_push(result, arr_b->elements[bi]);
-                    }
+                vm_release(&vm->heap, a);
+                vm_release(&vm->heap, b);
+                NanoValue rv = {0};
+                rv.tag = TAG_ARRAY;
+                rv.as.array = result;
+                stack_push(vm, rv);
+            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
+                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
+                /* Scalar broadcast: array + scalar or scalar + array */
+                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
+                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
+                uint32_t len = arr ? arr->length : 0;
+                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                for (uint32_t ai = 0; ai < len; ai++) {
+                    NanoValue ea = arr->elements[ai];
+                    NanoValue ev;
+                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
+                        ev = val_int(ea.as.i64 + scalar.as.i64);
+                    else if (ea.tag == TAG_FLOAT || scalar.tag == TAG_FLOAT) {
+                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
+                        double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
+                        ev = val_float(da + ds);
+                    } else
+                        ev = val_int(ea.as.i64 + scalar.as.i64);
+                    vm_array_push(result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
