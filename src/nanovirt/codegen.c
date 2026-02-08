@@ -360,6 +360,63 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
     cg->extern_count++;
 }
 
+/* ── Module introspection inline compilation ───────────────────── */
+
+/* Handle ___module_* calls inline instead of FFI so wrapper binaries work.
+ * Returns true if the call was handled, false if not a ___module_ pattern. */
+static bool compile_module_introspection(CG *cg, const char *name) {
+    if (!name || strncmp(name, "___module_", 10) != 0 || !cg->env)
+        return false;
+
+    const char *rest = name + 10;
+
+    /* Extract the pattern and module name from function name */
+    const char *mname = NULL;
+    ModuleInfo *mi = NULL;
+
+    if (strncmp(rest, "is_unsafe_", 10) == 0) {
+        mname = rest + 10;
+        mi = env_get_module(cg->env, mname);
+        emit_op(cg, OP_PUSH_BOOL, mi ? (uint32_t)mi->is_unsafe : 0);
+        return true;
+    }
+    if (strncmp(rest, "has_ffi_", 8) == 0) {
+        mname = rest + 8;
+        mi = env_get_module(cg->env, mname);
+        emit_op(cg, OP_PUSH_BOOL, mi ? (uint32_t)mi->has_ffi : 0);
+        return true;
+    }
+    if (strncmp(rest, "function_count_", 15) == 0) {
+        mname = rest + 15;
+        mi = env_get_module(cg->env, mname);
+        emit_op(cg, OP_PUSH_I64, (uint32_t)(mi ? mi->function_count : 0));
+        return true;
+    }
+    if (strncmp(rest, "struct_count_", 13) == 0) {
+        mname = rest + 13;
+        mi = env_get_module(cg->env, mname);
+        emit_op(cg, OP_PUSH_I64, (uint32_t)(mi ? mi->struct_count : 0));
+        return true;
+    }
+    if (strncmp(rest, "name_", 5) == 0) {
+        mname = rest + 5;
+        uint32_t sidx = nvm_add_string(cg->module, mname, (uint32_t)strlen(mname));
+        emit_op(cg, OP_PUSH_STR, sidx);
+        return true;
+    }
+    if (strncmp(rest, "path_", 5) == 0) {
+        mname = rest + 5;
+        mi = env_get_module(cg->env, mname);
+        const char *path = (mi && mi->path) ? mi->path : "";
+        uint32_t sidx = nvm_add_string(cg->module, path, (uint32_t)strlen(path));
+        emit_op(cg, OP_PUSH_STR, sidx);
+        return true;
+    }
+    /* function_name_ and struct_name_ take an index arg - skip for now,
+     * those are rare and still work via FFI in --run mode */
+    return false;
+}
+
 /* ── Expression compilation ─────────────────────────────────────── */
 
 static void compile_expr(CG *cg, ASTNode *node);
@@ -1183,9 +1240,11 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "bstr_free") == 0 && argc == 1) {
-        /* No-op in VM - GC handles memory */
+        /* No-op in VM - GC handles memory.
+         * Evaluate arg, discard it, push void so caller can POP. */
         compile_expr(cg, args[0]);
         emit_op(cg, OP_POP);
+        emit_op(cg, OP_PUSH_VOID);
         return true;
     }
     if (strcmp(name, "bstr_utf8_length") == 0 && argc == 1) {
@@ -1287,7 +1346,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"getenv",     "vm_getenv",       1, TAG_STRING},
             {"setenv",     "vm_setenv",       2, TAG_INT},
             {"str_index_of","vm_str_index_of",2, TAG_INT},
-            {"process_run","vm_process_run",  1, TAG_INT},
+            {"process_run","vm_process_run",  1, TAG_ARRAY},
             {NULL, NULL, 0, 0}
         };
         for (int bi = 0; os_builtins[bi].nano_name; bi++) {
@@ -1429,6 +1488,11 @@ static void compile_expr(CG *cg, ASTNode *node) {
         /* Emit arguments left-to-right */
         for (int i = 0; i < argc; i++) {
             compile_expr(cg, node->as.call.args[i]);
+        }
+
+        /* Handle module introspection inline (no FFI needed) */
+        if (name && compile_module_introspection(cg, name)) {
+            break;
         }
 
         /* Look up function index */
@@ -1794,6 +1858,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
             /* Compile arm body */
             compile_expr(cg, node->as.match_expr.arm_bodies[i]);
+
+            /* Statement-block arm bodies don't leave a value on the stack.
+             * Push void so match consistently produces exactly one value,
+             * preventing the statement-level POP from eating local slots. */
+            if (node->as.match_expr.arm_bodies[i]->type == AST_BLOCK) {
+                emit_op(cg, OP_PUSH_VOID);
+            }
 
             /* Jump to end */
             if (end_count < 64) {
@@ -2316,54 +2387,53 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                                     break;
                                 }
                             }
-                        } else if (mod_alias) {
-                            /* module import with alias: register as Alias.func */
-                            /* Only for public functions */
-                            if (mitem->as.function.is_pub) {
-                                char qname[512];
-                                snprintf(qname, sizeof(qname), "%s.%s", mod_alias, fname);
-                                /* Also register as qualified name */
-                                bool already = false;
-                                for (int f = 0; f < cg.fn_count; f++) {
-                                    if (strcmp(cg.functions[f].name, qname) == 0) {
-                                        already = true;
-                                        break;
-                                    }
-                                }
-                                if (!already && cg.fn_count < MAX_FUNCTIONS) {
-                                    uint32_t qi = nvm_add_string(cg.module, qname,
-                                                                 (uint32_t)strlen(qname));
-                                    NvmFunctionEntry qfn = {0};
-                                    qfn.name_idx = qi;
-                                    qfn.arity = (uint16_t)mitem->as.function.param_count;
-                                    uint32_t qidx = nvm_add_function(cg.module, &qfn);
-                                    cg.functions[cg.fn_count].name = strdup(qname);
-                                    cg.functions[cg.fn_count].fn_idx = qidx;
-                                    cg.fn_count++;
-                                }
-                            }
                         }
 
-                        /* Register under original name (always needed for internal calls) */
+                        /* Register under original/aliased name first (needed for internal calls
+                         * and for compile_function to find the entry by AST name) */
                         bool already = false;
+                        uint32_t idx = 0;
                         for (int f = 0; f < cg.fn_count; f++) {
                             if (strcmp(cg.functions[f].name, use_name) == 0) {
                                 already = true;
+                                idx = cg.functions[f].fn_idx;
                                 break;
                             }
                         }
-                        if (already) continue;
+                        if (!already) {
+                            uint32_t name_idx = nvm_add_string(cg.module, use_name,
+                                                               (uint32_t)strlen(use_name));
+                            NvmFunctionEntry fn = {0};
+                            fn.name_idx = name_idx;
+                            fn.arity = (uint16_t)mitem->as.function.param_count;
+                            idx = nvm_add_function(cg.module, &fn);
+                            if (cg.fn_count < MAX_FUNCTIONS) {
+                                cg.functions[cg.fn_count].name = (char *)use_name;
+                                cg.functions[cg.fn_count].fn_idx = idx;
+                                cg.fn_count++;
+                            }
+                        }
 
-                        uint32_t name_idx = nvm_add_string(cg.module, use_name,
-                                                           (uint32_t)strlen(use_name));
-                        NvmFunctionEntry fn = {0};
-                        fn.name_idx = name_idx;
-                        fn.arity = (uint16_t)mitem->as.function.param_count;
-                        uint32_t idx = nvm_add_function(cg.module, &fn);
-                        if (cg.fn_count < MAX_FUNCTIONS) {
-                            cg.functions[cg.fn_count].name = (char *)use_name;
-                            cg.functions[cg.fn_count].fn_idx = idx;
-                            cg.fn_count++;
+                        /* For module imports with alias, register qualified name
+                         * (e.g. "Math.add") as an alias sharing the SAME fn_idx.
+                         * This ensures compile_function fills in one entry and both
+                         * qualified and unqualified calls resolve to it. */
+                        if (!item->as.import_stmt.is_selective && mod_alias &&
+                            mitem->as.function.is_pub) {
+                            char qname[512];
+                            snprintf(qname, sizeof(qname), "%s.%s", mod_alias, fname);
+                            bool qalready = false;
+                            for (int f = 0; f < cg.fn_count; f++) {
+                                if (strcmp(cg.functions[f].name, qname) == 0) {
+                                    qalready = true;
+                                    break;
+                                }
+                            }
+                            if (!qalready && cg.fn_count < MAX_FUNCTIONS) {
+                                cg.functions[cg.fn_count].name = strdup(qname);
+                                cg.functions[cg.fn_count].fn_idx = idx; /* same fn_idx! */
+                                cg.fn_count++;
+                            }
                         }
                     }
 

@@ -11,10 +11,14 @@
 #include "value.h"
 #include "heap.h"
 #include "../nanoisa/nvm_format.h"
+#include "../nanolang.h"
 #include <stdbool.h>
 
 /* Initialize the VM FFI subsystem */
 void vm_ffi_init(void);
+
+/* Set the environment for module introspection (___module_* functions) */
+void vm_ffi_set_env(Environment *env);
 
 /* Shutdown and unload all modules */
 void vm_ffi_shutdown(void);

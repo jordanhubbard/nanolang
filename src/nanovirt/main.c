@@ -219,6 +219,7 @@ int main(int argc, char **argv) {
     /* Preload modules for FFI if the module has imports */
     if (cg.module->import_count > 0) {
         vm_ffi_init();
+        vm_ffi_set_env(env);
 
         /* Load modules referenced in import table */
         for (uint32_t i = 0; i < cg.module->import_count; i++) {

@@ -27,6 +27,11 @@ typedef struct {
 static VmLoadedModule loaded_modules[VM_FFI_MAX_MODULES];
 static int loaded_module_count = 0;
 static bool ffi_initialized = false;
+static Environment *ffi_env = NULL;  /* For module introspection */
+
+void vm_ffi_set_env(Environment *env) {
+    ffi_env = env;
+}
 
 void vm_ffi_init(void) {
     if (ffi_initialized) return;
@@ -341,6 +346,24 @@ typedef int64_t (*FFI_Fn3)(void *, void *, void *);
 typedef int64_t (*FFI_Fn4)(void *, void *, void *, void *);
 typedef int64_t (*FFI_Fn5)(void *, void *, void *, void *, void *);
 
+/* Float-specific dispatch: on arm64, doubles use FP registers, not GP.
+ * Using void-ptr and int64_t types puts args in wrong registers for C math fns. */
+typedef double (*FFI_DFn0)(void);
+typedef double (*FFI_DFn1)(double);
+typedef double (*FFI_DFn2)(double, double);
+typedef double (*FFI_DFn3)(double, double, double);
+
+/* Check if all params and return are float */
+static bool is_all_float_signature(const NvmImportEntry *imp,
+                                   const uint8_t *param_types, int arg_count) {
+    if (imp->return_type != TAG_FLOAT) return false;
+    for (int i = 0; i < arg_count; i++) {
+        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i] : TAG_FLOAT;
+        if (tag != TAG_FLOAT) return false;
+    }
+    return true;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
@@ -359,6 +382,74 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     if (!func_name) {
         snprintf(error_msg, error_msg_size, "NULL function name for import %u", import_idx);
         return false;
+    }
+
+    /* Handle module introspection functions (___module_*) */
+    if (func_name && strncmp(func_name, "___module_", 10) == 0 && ffi_env) {
+        const char *rest = func_name + 10;
+
+        if (strncmp(rest, "is_unsafe_", 10) == 0) {
+            const char *mname = rest + 10;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            *result = val_bool(mi ? mi->is_unsafe : false);
+            return true;
+        }
+        if (strncmp(rest, "has_ffi_", 8) == 0) {
+            const char *mname = rest + 8;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            *result = val_bool(mi ? mi->has_ffi : false);
+            return true;
+        }
+        if (strncmp(rest, "name_", 5) == 0) {
+            const char *mname = rest + 5;
+            VmString *vs = vm_string_new(heap, mname, (uint32_t)strlen(mname));
+            *result = val_string(vs);
+            return true;
+        }
+        if (strncmp(rest, "path_", 5) == 0) {
+            const char *mname = rest + 5;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            const char *path = (mi && mi->path) ? mi->path : "";
+            VmString *vs = vm_string_new(heap, path, (uint32_t)strlen(path));
+            *result = val_string(vs);
+            return true;
+        }
+        if (strncmp(rest, "function_count_", 15) == 0) {
+            const char *mname = rest + 15;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            *result = val_int(mi ? mi->function_count : 0);
+            return true;
+        }
+        if (strncmp(rest, "function_name_", 14) == 0) {
+            const char *mname = rest + 14;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+            const char *fn = "";
+            if (mi && mi->exported_functions && idx >= 0 && idx < mi->function_count) {
+                fn = mi->exported_functions[idx] ? mi->exported_functions[idx] : "";
+            }
+            VmString *vs = vm_string_new(heap, fn, (uint32_t)strlen(fn));
+            *result = val_string(vs);
+            return true;
+        }
+        if (strncmp(rest, "struct_count_", 13) == 0) {
+            const char *mname = rest + 13;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            *result = val_int(mi ? mi->struct_count : 0);
+            return true;
+        }
+        if (strncmp(rest, "struct_name_", 12) == 0) {
+            const char *mname = rest + 12;
+            ModuleInfo *mi = env_get_module(ffi_env, mname);
+            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+            const char *sn = "";
+            if (mi && mi->exported_structs && idx >= 0 && idx < mi->struct_count) {
+                sn = mi->exported_structs[idx] ? mi->exported_structs[idx] : "";
+            }
+            VmString *vs = vm_string_new(heap, sn, (uint32_t)strlen(sn));
+            *result = val_string(vs);
+            return true;
+        }
     }
 
     /* Try to load the module if we have a module name */
@@ -381,9 +472,35 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         snprintf(error_msg, error_msg_size, "Too many FFI arguments (%d > 16)", arg_count);
         return false;
     }
-    marshal_args(args, arg_count, imp,
-                 module->import_param_types ? module->import_param_types[import_idx] : NULL,
-                 arg_ptrs);
+
+    const uint8_t *param_types = module->import_param_types
+                                 ? module->import_param_types[import_idx] : NULL;
+
+    /* Fast path: all-float signatures use properly typed dispatch so
+     * doubles go through FP registers (critical on arm64). */
+    if (is_all_float_signature(imp, param_types, arg_count)) {
+        double dargs[16];
+        for (int i = 0; i < arg_count; i++) {
+            dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
+                      : (args[i].tag == TAG_INT)   ? (double)args[i].as.i64
+                      : 0.0;
+        }
+        double dresult = 0.0;
+        switch (arg_count) {
+            case 0: dresult = ((FFI_DFn0)func_ptr)(); break;
+            case 1: dresult = ((FFI_DFn1)func_ptr)(dargs[0]); break;
+            case 2: dresult = ((FFI_DFn2)func_ptr)(dargs[0], dargs[1]); break;
+            case 3: dresult = ((FFI_DFn3)func_ptr)(dargs[0], dargs[1], dargs[2]); break;
+            default:
+                snprintf(error_msg, error_msg_size,
+                         "FFI: unsupported float arg count %d (max 3)", arg_count);
+                return false;
+        }
+        *result = val_float(dresult);
+        return true;
+    }
+
+    marshal_args(args, arg_count, imp, param_types, arg_ptrs);
 
     /* Call the function */
     int64_t raw_result = 0;

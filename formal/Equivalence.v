@@ -1554,6 +1554,262 @@ Proof.
   intros x s e Hcl. apply Hcl.
 Qed.
 
+(** ** eclosed_except: closed except for one or two variables *)
+
+Definition eclosed_except (x : string) (e : expr) : Prop :=
+  forall y s, y <> x -> subst y s e = e.
+
+Definition eclosed_except2 (x1 x2 : string) (e : expr) : Prop :=
+  forall y s, y <> x1 -> y <> x2 -> subst y s e = e.
+
+(** ** eclosed construction lemmas *)
+
+Lemma eclosed_int : forall n, eclosed (EInt n).
+Proof. unfold eclosed; intros; reflexivity. Qed.
+
+Lemma eclosed_bool : forall b, eclosed (EBool b).
+Proof. unfold eclosed; intros; reflexivity. Qed.
+
+Lemma eclosed_string : forall s, eclosed (EString s).
+Proof. unfold eclosed; intros; reflexivity. Qed.
+
+Lemma eclosed_unit : eclosed EUnit.
+Proof. unfold eclosed; intros; reflexivity. Qed.
+
+Lemma eclosed_array : forall es, Forall eclosed es -> eclosed (EArray es).
+Proof.
+  unfold eclosed. intros es Hall x s. simpl. f_equal.
+  induction es as [|e0 rest IH]; simpl; auto.
+  inversion Hall; subst. f_equal; auto.
+Qed.
+
+Lemma eclosed_record : forall fes,
+  Forall (fun fe => eclosed (snd fe)) fes -> eclosed (ERecord fes).
+Proof.
+  unfold eclosed. intros fes Hall x s. simpl. f_equal.
+  induction fes as [|[f0 e0] rest IH]; simpl; auto.
+  inversion Hall; subst. simpl in *. f_equal; [f_equal |]; auto.
+Qed.
+
+Lemma eclosed_construct : forall tag e t, eclosed e -> eclosed (EConstruct tag e t).
+Proof.
+  unfold eclosed. intros tag e t He x s. simpl. f_equal. apply He.
+Qed.
+
+(** ** eclosed inversion lemmas *)
+
+Lemma eclosed_binop_inv : forall op e1 e2,
+  eclosed (EBinOp op e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros op e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_unop_inv : forall op e,
+  eclosed (EUnOp op e) -> eclosed e.
+Proof.
+  unfold eclosed. intros op e H x s.
+  specialize (H x s). simpl in H. congruence.
+Qed.
+
+Lemma eclosed_if_inv : forall e1 e2 e3,
+  eclosed (EIf e1 e2 e3) -> eclosed e1 /\ eclosed e2 /\ eclosed e3.
+Proof.
+  unfold eclosed. intros e1 e2 e3 H.
+  split; [| split]; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_app_inv : forall e1 e2,
+  eclosed (EApp e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_seq_inv : forall e1 e2,
+  eclosed (ESeq e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_index_inv : forall e1 e2,
+  eclosed (EIndex e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_arrayset_inv : forall e1 e2 e3,
+  eclosed (EArraySet e1 e2 e3) -> eclosed e1 /\ eclosed e2 /\ eclosed e3.
+Proof.
+  unfold eclosed. intros e1 e2 e3 H.
+  split; [| split]; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_arraypush_inv : forall e1 e2,
+  eclosed (EArrayPush e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_field_inv : forall e f,
+  eclosed (EField e f) -> eclosed e.
+Proof.
+  unfold eclosed. intros e f H x s.
+  specialize (H x s). simpl in H. congruence.
+Qed.
+
+Lemma eclosed_construct_inv : forall tag e t,
+  eclosed (EConstruct tag e t) -> eclosed e.
+Proof.
+  unfold eclosed. intros tag e t H x s.
+  specialize (H x s). simpl in H. congruence.
+Qed.
+
+Lemma eclosed_strindex_inv : forall e1 e2,
+  eclosed (EStrIndex e1 e2) -> eclosed e1 /\ eclosed e2.
+Proof.
+  unfold eclosed. intros e1 e2 H. split; intros x s;
+    specialize (H x s); simpl in H; congruence.
+Qed.
+
+Lemma eclosed_let_inv : forall x e1 e2,
+  eclosed (ELet x e1 e2) -> eclosed e1 /\ eclosed_except x e2.
+Proof.
+  unfold eclosed, eclosed_except. intros x e1 e2 H.
+  split.
+  - intros y s. specialize (H y s). simpl in H. congruence.
+  - intros y s Hyx. specialize (H y s). simpl in H.
+    injection H as _ H2.
+    destruct (String.eqb y x) eqn:Hyx'.
+    + apply String.eqb_eq in Hyx'. subst. exfalso. apply Hyx. reflexivity.
+    + exact H2.
+Qed.
+
+Lemma eclosed_lam_inv : forall x t body,
+  eclosed (ELam x t body) -> eclosed_except x body.
+Proof.
+  unfold eclosed, eclosed_except. intros x t body H y s Hyx.
+  specialize (H y s). simpl in H. injection H as H1.
+  destruct (String.eqb y x) eqn:Hyx'.
+  - apply String.eqb_eq in Hyx'. subst. exfalso. apply Hyx. reflexivity.
+  - exact H1.
+Qed.
+
+Lemma eclosed_fix_inv : forall f x t1 t2 body,
+  eclosed (EFix f x t1 t2 body) -> eclosed_except2 f x body.
+Proof.
+  unfold eclosed, eclosed_except2. intros f x t1 t2 body H y s Hyf Hyx.
+  specialize (H y s). simpl in H. injection H as H1.
+  destruct (String.eqb y f || String.eqb y x)%bool eqn:Hor.
+  - rewrite Bool.orb_true_iff in Hor. destruct Hor as [Hf | Hx].
+    + apply String.eqb_eq in Hf. subst. exfalso. apply Hyf. reflexivity.
+    + apply String.eqb_eq in Hx. subst. exfalso. apply Hyx. reflexivity.
+  - exact H1.
+Qed.
+
+Lemma eclosed_array_inv : forall es, eclosed (EArray es) -> Forall eclosed es.
+Proof.
+  intros es Hecl.
+  induction es as [|e rest IH]; [constructor |].
+  constructor.
+  - unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. congruence.
+  - apply IH. unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. simpl. f_equal. congruence.
+Qed.
+
+Lemma eclosed_record_inv : forall fes,
+  eclosed (ERecord fes) -> Forall (fun fe => eclosed (snd fe)) fes.
+Proof.
+  intros fes Hecl.
+  induction fes as [|[f0 e0] rest IH]; [constructor |].
+  constructor.
+  - simpl. unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. congruence.
+  - apply IH. unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. simpl. f_equal. congruence.
+Qed.
+
+Lemma eclosed_match_branch : forall e brs tag x body,
+  eclosed (EMatch e brs) ->
+  find_branch tag brs = Some (x, body) ->
+  eclosed_except x body.
+Proof.
+  intros e brs. revert e.
+  induction brs as [|[[t0 z] b] rest IH]; intros e tag x body Hecl Hfb.
+  - discriminate.
+  - simpl in Hfb. destruct (String.eqb tag t0) eqn:Htag.
+    + injection Hfb; intros; subst.
+      unfold eclosed_except. intros y s Hneq.
+      destruct (String.eqb y x) eqn:Hyx.
+      * apply String.eqb_eq in Hyx. subst. exfalso. exact (Hneq eq_refl).
+      * pose proof (Hecl y s) as H. simpl in H.
+        injection H as He Hbrs. rewrite Hyx in Hbrs. congruence.
+    + eapply IH with (e := e). 2: exact Hfb.
+      unfold eclosed. intros y s.
+      pose proof (Hecl y s) as H. simpl in H.
+      injection H as He Hbrs.
+      simpl. f_equal; [exact He | congruence].
+Qed.
+
+(** ** eclosed type annotation irrelevance *)
+
+Lemma eclosed_lam_type_irrel : forall x t1 t2 body,
+  eclosed (ELam x t1 body) -> eclosed (ELam x t2 body).
+Proof.
+  unfold eclosed. intros x t1 t2 body H y s.
+  specialize (H y s). simpl in *. congruence.
+Qed.
+
+Lemma eclosed_fix_type_irrel : forall f x t1 t2 t1' t2' body,
+  eclosed (EFix f x t1 t2 body) -> eclosed (EFix f x t1' t2' body).
+Proof.
+  unfold eclosed. intros f x t1 t2 t1' t2' body H y s.
+  specialize (H y s). simpl in *. congruence.
+Qed.
+
+(** ** eclosed substitution lemmas *)
+
+Lemma eclosed_subst_closed : forall x s e,
+  eclosed s -> eclosed_except x e -> eclosed (subst x s e).
+Proof.
+  unfold eclosed, eclosed_except. intros x s e Hcs Hex y t.
+  destruct (String.eqb y x) eqn:Hyx.
+  - apply String.eqb_eq in Hyx. subst y.
+    rewrite subst_subst_same. f_equal. apply Hcs.
+  - apply eqb_neq in Hyx.
+    rewrite subst_comm_closed; auto. f_equal. apply Hex. assumption.
+Qed.
+
+Lemma eclosed_except2_subst : forall f x sx e,
+  eclosed sx -> eclosed_except2 f x e -> eclosed_except f (subst x sx e).
+Proof.
+  unfold eclosed, eclosed_except, eclosed_except2.
+  intros f x sx e Hcsx Hex y s Hyf.
+  destruct (String.eqb y x) eqn:Hyx.
+  - apply String.eqb_eq in Hyx. subst y.
+    rewrite subst_subst_same. f_equal. apply Hcsx.
+  - apply eqb_neq in Hyx.
+    rewrite subst_comm_closed; auto. f_equal. apply Hex; assumption.
+Qed.
+
+Lemma eclosed_subst_closed2 : forall f x sf sx e,
+  eclosed sf -> eclosed sx -> eclosed_except2 f x e ->
+  eclosed (subst f sf (subst x sx e)).
+Proof.
+  intros. apply eclosed_subst_closed; auto.
+  apply eclosed_except2_subst; auto.
+Qed.
+
 (** ** val_good / env_good — well-formedness invariants *)
 
 Inductive val_good : val -> Prop :=
@@ -1562,9 +1818,13 @@ Inductive val_good : val -> Prop :=
   | VG_String : forall s, val_good (VString s)
   | VG_Unit : val_good VUnit
   | VG_Clos : forall x body cenv,
-      pure body -> env_good cenv -> val_good (VClos x body cenv)
+      pure body -> env_good cenv ->
+      eclosed (val_to_expr (VClos x body cenv)) ->
+      val_good (VClos x body cenv)
   | VG_FixClos : forall f x body cenv,
-      pure body -> env_good cenv -> val_good (VFixClos f x body cenv)
+      pure body -> env_good cenv ->
+      eclosed (val_to_expr (VFixClos f x body cenv)) ->
+      val_good (VFixClos f x body cenv)
   | VG_Array : forall vs, Forall val_good vs -> val_good (VArray vs)
   | VG_Record : forall fvs,
       Forall (fun fv => val_good (snd fv)) fvs -> val_good (VRecord fvs)
@@ -1860,12 +2120,36 @@ Proof.
   intros. eapply MS_Step; [apply S_AppFixBeta; assumption | apply MS_Refl].
 Qed.
 
-(** ** val_good implies eclosed (val_to_expr v)
-    For closure values, this requires knowing close renv body is closed
-    when env_good renv and body only uses variables from renv.
-    We admit this for now — it's a property of well-scoped programs. *)
+(** ** val_good implies eclosed (val_to_expr v) *)
 
-Axiom val_good_eclosed : forall v, val_good v -> eclosed (val_to_expr v).
+Lemma val_good_eclosed : forall v, val_good v -> eclosed (val_to_expr v).
+Proof.
+  fix IH 2.
+  intros v Hvg. destruct Hvg as
+    [ n
+    | b
+    | s
+    |
+    | x body cenv Hpure Hgood Hecl
+    | f x body cenv Hpure Hgood Hecl
+    | vs Hall
+    | fvs Hall
+    | tag v0 Hvg0
+    ].
+  - apply eclosed_int.
+  - apply eclosed_bool.
+  - apply eclosed_string.
+  - apply eclosed_unit.
+  - exact Hecl.
+  - exact Hecl.
+  - simpl. apply eclosed_array.
+    induction Hall; constructor; [apply IH; assumption | assumption].
+  - simpl. apply eclosed_record.
+    induction Hall as [|[f0 v0] rest Hval Hrest IHr]; constructor.
+    + simpl. apply IH. exact Hval.
+    + exact IHr.
+  - simpl. apply eclosed_construct. apply IH. exact Hvg0.
+Qed.
 
 Lemma env_good_all_vals_closed : forall renv,
   env_good renv -> all_vals_closed renv.

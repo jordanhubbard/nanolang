@@ -122,6 +122,16 @@ void val_println(NanoValue v) {
  * ======================================================================== */
 
 bool val_equal(NanoValue a, NanoValue b) {
+    /* Allow enum ↔ int comparison (enum values are integers) */
+    if (a.tag == TAG_ENUM && b.tag == TAG_INT)
+        return (int64_t)a.as.enum_val == b.as.i64;
+    if (a.tag == TAG_INT && b.tag == TAG_ENUM)
+        return a.as.i64 == (int64_t)b.as.enum_val;
+    /* Allow int ↔ float cross-type comparison */
+    if (a.tag == TAG_INT && b.tag == TAG_FLOAT)
+        return (double)a.as.i64 == b.as.f64;
+    if (a.tag == TAG_FLOAT && b.tag == TAG_INT)
+        return a.as.f64 == (double)b.as.i64;
     if (a.tag != b.tag) return false;
     switch (a.tag) {
         case TAG_VOID:   return true;
@@ -141,6 +151,23 @@ bool val_equal(NanoValue a, NanoValue b) {
 }
 
 int val_compare(NanoValue a, NanoValue b) {
+    /* Cross-type comparisons */
+    if (a.tag == TAG_ENUM && b.tag == TAG_INT) {
+        int64_t av = (int64_t)a.as.enum_val;
+        return av < b.as.i64 ? -1 : av > b.as.i64 ? 1 : 0;
+    }
+    if (a.tag == TAG_INT && b.tag == TAG_ENUM) {
+        int64_t bv = (int64_t)b.as.enum_val;
+        return a.as.i64 < bv ? -1 : a.as.i64 > bv ? 1 : 0;
+    }
+    if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
+        double da = (double)a.as.i64;
+        return da < b.as.f64 ? -1 : da > b.as.f64 ? 1 : 0;
+    }
+    if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
+        double db = (double)b.as.i64;
+        return a.as.f64 < db ? -1 : a.as.f64 > db ? 1 : 0;
+    }
     if (a.tag != b.tag) return (int)a.tag - (int)b.tag;
     switch (a.tag) {
         case TAG_INT:

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <ctype.h>
 #include <math.h>
@@ -225,6 +226,76 @@ char *vm_string_from_bytes(DynArray *arr) {
 
 /* ── Process ──────────────────────────────────────────────────────── */
 
-int64_t vm_process_run(const char *cmd) {
-    return (int64_t)system(cmd);
+DynArray *vm_process_run(const char *cmd) {
+    DynArray *result = dyn_array_new_with_capacity(ELEM_STRING, 3);
+    if (!result) return NULL;
+
+    char stdout_file[] = "/tmp/nanovm_stdout_XXXXXX";
+    char stderr_file[] = "/tmp/nanovm_stderr_XXXXXX";
+    int stdout_fd = mkstemp(stdout_file);
+    int stderr_fd = mkstemp(stderr_file);
+
+    if (stdout_fd == -1 || stderr_fd == -1) {
+        if (stdout_fd != -1) { close(stdout_fd); unlink(stdout_file); }
+        if (stderr_fd != -1) { close(stderr_fd); unlink(stderr_file); }
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "");
+        dyn_array_push_string_copy(result, "Failed to create temp files");
+        return result;
+    }
+    close(stdout_fd);
+    close(stderr_fd);
+
+    char full_command[4096];
+    snprintf(full_command, sizeof(full_command), "%s > %s 2> %s",
+             cmd, stdout_file, stderr_file);
+
+    int exit_code = system(full_command);
+    int actual_exit = -1;
+    if (exit_code != -1) {
+        actual_exit = WIFEXITED(exit_code) ? WEXITSTATUS(exit_code) : -1;
+    }
+
+    /* Read stdout */
+    char *stdout_content = NULL;
+    FILE *fp = fopen(stdout_file, "r");
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        long sz = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+        stdout_content = (char *)malloc((size_t)sz + 1);
+        if (stdout_content) {
+            size_t rd = fread(stdout_content, 1, (size_t)sz, fp);
+            stdout_content[rd] = '\0';
+        }
+        fclose(fp);
+    }
+
+    /* Read stderr */
+    char *stderr_content = NULL;
+    fp = fopen(stderr_file, "r");
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        long sz = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+        stderr_content = (char *)malloc((size_t)sz + 1);
+        if (stderr_content) {
+            size_t rd = fread(stderr_content, 1, (size_t)sz, fp);
+            stderr_content[rd] = '\0';
+        }
+        fclose(fp);
+    }
+
+    unlink(stdout_file);
+    unlink(stderr_file);
+
+    char exit_str[32];
+    snprintf(exit_str, sizeof(exit_str), "%d", actual_exit);
+    dyn_array_push_string_copy(result, exit_str);
+    dyn_array_push_string_copy(result, stdout_content ? stdout_content : "");
+    dyn_array_push_string_copy(result, stderr_content ? stderr_content : "");
+
+    free(stdout_content);
+    free(stderr_content);
+    return result;
 }
