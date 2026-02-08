@@ -144,6 +144,28 @@ int main(int argc, char **argv) {
     if (run) {
         VmState vm;
         vm_init(&vm, cg.module);
+
+        /* Call __init__ to initialize globals before main */
+        for (uint32_t i = 0; i < cg.module->function_count; i++) {
+            const char *fn_name = nvm_get_string(cg.module,
+                                                  cg.module->functions[i].name_idx);
+            if (fn_name && strcmp(fn_name, "__init__") == 0) {
+                VmResult ir = vm_call_function(&vm, i, NULL, 0);
+                if (ir != VM_OK) {
+                    fprintf(stderr, "runtime error in __init__: %s\n",
+                            vm.error_msg[0] ? vm.error_msg : vm_error_string(ir));
+                    vm_destroy(&vm);
+                    nvm_module_free(cg.module);
+                    free_ast(program);
+                    free_environment(env);
+                    free_tokens(tokens, token_count);
+                    free(source);
+                    return 1;
+                }
+                break;
+            }
+        }
+
         VmResult r = vm_execute(&vm);
         if (r != VM_OK) {
             fprintf(stderr, "runtime error: %s\n", vm.error_msg[0] ? vm.error_msg : vm_error_string(r));

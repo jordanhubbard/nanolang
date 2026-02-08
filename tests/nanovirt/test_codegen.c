@@ -113,6 +113,17 @@ static TestResult compile_and_run(const char *source) {
 
     VmState vm;
     vm_init(&vm, cg.module);
+
+    /* Call __init__ to initialize globals before main */
+    for (uint32_t i = 0; i < cg.module->function_count; i++) {
+        const char *fn_name = nvm_get_string(cg.module,
+                                              cg.module->functions[i].name_idx);
+        if (fn_name && strcmp(fn_name, "__init__") == 0) {
+            vm_call_function(&vm, i, NULL, 0);
+            break;
+        }
+    }
+
     tr.vm_result = vm_execute(&vm);
     tr.result = vm_get_result(&vm);
     if (tr.result.tag == TAG_STRING || tr.result.tag == TAG_ARRAY) {
@@ -1027,6 +1038,208 @@ static void test_int_to_string(void) {
 
 /* ── Main ───────────────────────────────────────────────────────── */
 
+/* ── Phase 4: Complex Types Tests ──────────────────────────────── */
+
+static void test_struct_literal(void) {
+    fprintf(stderr, "  test_struct_literal...");
+    TestResult tr = compile_and_run(
+        "struct Point { x: int, y: int }\n"
+        "fn main() -> int {\n"
+        "  let p: Point = Point { x: 10, y: 20 }\n"
+        "  return p.x\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 10);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_struct_field_access(void) {
+    fprintf(stderr, "  test_struct_field_access...");
+    TestResult tr = compile_and_run(
+        "struct Point { x: int, y: int }\n"
+        "fn main() -> int {\n"
+        "  let p: Point = Point { x: 3, y: 7 }\n"
+        "  return (+ p.x p.y)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 10);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_tuple_literal(void) {
+    fprintf(stderr, "  test_tuple_literal...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let t: (int, int) = (42, 99)\n"
+        "  return t.0\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_tuple_index(void) {
+    fprintf(stderr, "  test_tuple_index...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let t: (int, int, int) = (10, 20, 30)\n"
+        "  return (+ t.0 (+ t.1 t.2))\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 60);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_enum_variant(void) {
+    fprintf(stderr, "  test_enum_variant...");
+    TestResult tr = compile_and_run(
+        "enum Color { Red, Green, Blue }\n"
+        "fn main() -> int {\n"
+        "  let c: Color = Color.Green\n"
+        "  return 42\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_union_construct_match(void) {
+    fprintf(stderr, "  test_union_construct_match...");
+    TestResult tr = compile_and_run(
+        "union MyResult {\n"
+        "  Ok { value: int },\n"
+        "  Err { error: string }\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let r: MyResult = MyResult.Ok { value: 42 }\n"
+        "  match r {\n"
+        "    Ok(v) => { return v.value }\n"
+        "    Err(e) => { return 0 }\n"
+        "  }\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_union_match_err_path(void) {
+    fprintf(stderr, "  test_union_match_err_path...");
+    TestResult tr = compile_and_run(
+        "union MyResult {\n"
+        "  Ok { value: int },\n"
+        "  Err { error: string }\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let r: MyResult = MyResult.Err { error: \"bad\" }\n"
+        "  match r {\n"
+        "    Ok(v) => { return v.value }\n"
+        "    Err(e) => { return -1 }\n"
+        "  }\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, -1);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_global_constant(void) {
+    fprintf(stderr, "  test_global_constant...");
+    TestResult tr = compile_and_run(
+        "let MAX: int = 100\n"
+        "fn main() -> int {\n"
+        "  return MAX\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 100);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_function_as_value(void) {
+    fprintf(stderr, "  test_function_as_value...");
+    TestResult tr = compile_and_run(
+        "fn double(x: int) -> int { return (* x 2) }\n"
+        "fn apply(f: fn(int) -> int, x: int) -> int {\n"
+        "  return (f x)\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  return (apply double 21)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_filter_builtin(void) {
+    fprintf(stderr, "  test_filter_builtin...");
+    TestResult tr = compile_and_run(
+        "fn is_even(x: int) -> bool { return (== (% x 2) 0) }\n"
+        "fn main() -> int {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5, 6]\n"
+        "  let evens: array<int> = (filter nums is_even)\n"
+        "  return (array_length evens)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 3);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_map_builtin(void) {
+    fprintf(stderr, "  test_map_builtin...");
+    TestResult tr = compile_and_run(
+        "fn double(x: int) -> int { return (* x 2) }\n"
+        "fn main() -> int {\n"
+        "  let nums: array<int> = [1, 2, 3]\n"
+        "  let doubled: array<int> = (map nums double)\n"
+        "  return (at doubled 1)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, "compile/run failed");
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 4);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
@@ -1104,6 +1317,29 @@ int main(void) {
 
     fprintf(stderr, "\nType Cast Builtins:\n");
     test_int_to_string();
+
+    fprintf(stderr, "\nComplex Types - Structs:\n");
+    test_struct_literal();
+    test_struct_field_access();
+
+    fprintf(stderr, "\nComplex Types - Tuples:\n");
+    test_tuple_literal();
+    test_tuple_index();
+
+    fprintf(stderr, "\nComplex Types - Enums:\n");
+    test_enum_variant();
+
+    fprintf(stderr, "\nComplex Types - Unions/Match:\n");
+    test_union_construct_match();
+    test_union_match_err_path();
+
+    fprintf(stderr, "\nComplex Types - Globals:\n");
+    test_global_constant();
+
+    fprintf(stderr, "\nHigher-Order Functions:\n");
+    test_function_as_value();
+    test_filter_builtin();
+    test_map_builtin();
 
     fprintf(stderr, "\nRound-Trip:\n");
     test_serialize_and_run();
