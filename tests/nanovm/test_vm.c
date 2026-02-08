@@ -22,6 +22,10 @@
 #include <stdarg.h>
 #include <math.h>
 
+/* Globals expected by runtime/cli.c */
+int g_argc = 0;
+char **g_argv = NULL;
+
 /* ========================================================================
  * Test Framework (same as test_nanoisa.c)
  * ======================================================================== */

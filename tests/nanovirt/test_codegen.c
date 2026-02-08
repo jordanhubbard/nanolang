@@ -101,7 +101,7 @@ static TestResult compile_and_run(const char *source) {
         return tr;
     }
 
-    CodegenResult cg = codegen_compile(program, env);
+    CodegenResult cg = codegen_compile(program, env, NULL, NULL);
     free_ast(program);
     free_environment(env);
     free_tokens(tokens, token_count);
@@ -164,7 +164,7 @@ static TestResult compile_and_call(const char *source, const char *fn_name,
         return tr;
     }
 
-    CodegenResult cg = codegen_compile(program, env);
+    CodegenResult cg = codegen_compile(program, env, NULL, NULL);
     free_ast(program);
     free_environment(env);
     free_tokens(tokens, token_count);
@@ -889,7 +889,7 @@ static void test_serialize_and_run(void) {
     ASSERT(program != NULL, "parser failed");
     Environment *env = create_environment();
     ASSERT(type_check(program, env), "typecheck failed");
-    CodegenResult cg = codegen_compile(program, env);
+    CodegenResult cg = codegen_compile(program, env, NULL, NULL);
     ASSERT(cg.ok, cg.error_msg);
 
     uint32_t size = 0;

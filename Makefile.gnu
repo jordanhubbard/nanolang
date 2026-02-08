@@ -294,10 +294,11 @@ $(OBJ_DIR)/nanovm:
 	mkdir -p $(OBJ_DIR)/nanovm
 
 .PHONY: test-nanovm
-test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)
+test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
-		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovm/test_vm
 	@rm -f tests/nanovm/test_vm
 
