@@ -1,0 +1,670 @@
+/* =============================================================================
+ * PROOF TRACE: Watch Formal Verification Unfold
+ * =============================================================================
+ * This demo makes the invisible visible. It traces the exact evaluation
+ * rules and typing judgments that the Coq proofs reason about — showing
+ * you the "machinery" behind formal verification in real time.
+ *
+ * Each step shows:
+ *   1. The expression being evaluated
+ *   2. The Coq evaluation rule applied (from Semantics.v)
+ *   3. The typing judgment (from Typing.v)
+ *   4. The result and its type
+ *
+ * The Coq proofs guarantee that these rules are sound (Soundness.v),
+ * deterministic (Determinism.v), and always make progress (Progress.v).
+ *
+ * Run:  nanoc examples/verified/proof_trace.nano
+ * Then: nanoc --trust-report examples/verified/proof_trace.nano
+ *
+ * Difficulty: Intermediate (to read), Advanced (to understand the proofs)
+ * ============================================================================= */
+
+/* =============================================================================
+ * VERIFIED UTILITIES
+ * ============================================================================= */
+
+fn itos(n: int) -> string {
+    if (== n 0) { return "0" }
+    let mut neg: bool = false
+    let mut v: int = n
+    if (< n 0) {
+        set neg true
+        set v (- 0 n)
+    }
+    let mut s: string = ""
+    while (> v 0) {
+        let d: int = (% v 10)
+        let mut c: string = "0"
+        if (== d 1) { set c "1" }
+        if (== d 2) { set c "2" }
+        if (== d 3) { set c "3" }
+        if (== d 4) { set c "4" }
+        if (== d 5) { set c "5" }
+        if (== d 6) { set c "6" }
+        if (== d 7) { set c "7" }
+        if (== d 8) { set c "8" }
+        if (== d 9) { set c "9" }
+        set s (+ c s)
+        set v (/ v 10)
+    }
+    if neg { set s (+ "-" s) }
+    return s
+}
+
+shadow itos {
+    assert (== (itos 0) "0")
+    assert (== (itos 42) "42")
+    assert (== (itos -7) "-7")
+    assert (== (itos 1000000) "1000000")
+}
+
+fn pad(s: string, w: int) -> string {
+    let mut r: string = s
+    let mut len: int = (str_length r)
+    while (< len w) {
+        set r (+ r " ")
+        set len (+ len 1)
+    }
+    return r
+}
+
+shadow pad {
+    assert (== (str_length (pad "hi" 10)) 10)
+    assert (== (pad "hello" 3) "hello")
+}
+
+fn repeat_char(ch: string, n: int) -> string {
+    let mut s: string = ""
+    let mut i: int = 0
+    while (< i n) {
+        set s (+ s ch)
+        set i (+ i 1)
+    }
+    return s
+}
+
+shadow repeat_char {
+    assert (== (repeat_char "=" 5) "=====")
+    assert (== (repeat_char "x" 0) "")
+}
+
+fn btos(b: bool) -> string {
+    if b { return "true" }
+    return "false"
+}
+
+shadow btos {
+    assert (== (btos true) "true")
+    assert (== (btos false) "false")
+}
+
+/* =============================================================================
+ * TRACE 1: Arithmetic Expression Evaluation
+ *
+ * We trace: (+ (* 3 4) (- 10 5))
+ * This involves 5 evaluation steps and 5 typing judgments.
+ * ============================================================================= */
+
+fn trace_arithmetic() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 1: Arithmetic Expression Evaluation")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: (+ (* 3 4) (- 10 5))")
+    (println "  This is an EBinOp(Add, EBinOp(Mul, 3, 4), EBinOp(Sub, 10, 5))")
+    (println "")
+    (println "  The Coq evaluator processes this bottom-up, left-to-right.")
+    (println "  At each step we show the rule from Semantics.v.")
+    (println "")
+
+    let mut step: int = 1
+
+    /* Step 1: Evaluate literal 3 */
+    (println (+ "  Step " (+ (itos step) ":")))
+    (println "    Expr:  3")
+    (println "    Rule:  E_Int (eval renv (EInt 3) renv (VInt 3))")
+    (println "    Type:  T_Int (has_type ctx (EInt 3) TInt)")
+    let v1: int = 3
+    (println (+ "    Result: " (+ (itos v1) " : int")))
+    (println "")
+    set step (+ step 1)
+
+    /* Step 2: Evaluate literal 4 */
+    (println (+ "  Step " (+ (itos step) ":")))
+    (println "    Expr:  4")
+    (println "    Rule:  E_Int (eval renv (EInt 4) renv (VInt 4))")
+    (println "    Type:  T_Int (has_type ctx (EInt 4) TInt)")
+    let v2: int = 4
+    (println (+ "    Result: " (+ (itos v2) " : int")))
+    (println "")
+    set step (+ step 1)
+
+    /* Step 3: Apply multiplication */
+    (println (+ "  Step " (+ (itos step) ":")))
+    (println "    Expr:  (* 3 4)")
+    (println "    Rule:  E_BinOp(Mul)")
+    (println "           eval renv (EInt 3) renv (VInt 3)")
+    (println "           eval renv (EInt 4) renv (VInt 4)")
+    (println "           eval_arith_binop Mul 3 4 = Some 12")
+    (println "    Type:  T_BinOp(Mul, TInt, TInt, TInt)")
+    let v3: int = (* v1 v2)
+    (println (+ "    Result: " (+ (itos v3) " : int")))
+    (println "")
+    set step (+ step 1)
+
+    /* Step 4: Evaluate (- 10 5) */
+    (println (+ "  Step " (+ (itos step) ":")))
+    (println "    Expr:  (- 10 5)")
+    (println "    Rule:  E_BinOp(Sub)")
+    (println "           eval renv (EInt 10) renv (VInt 10)")
+    (println "           eval renv (EInt 5) renv (VInt 5)")
+    (println "           eval_arith_binop Sub 10 5 = Some 5")
+    (println "    Type:  T_BinOp(Sub, TInt, TInt, TInt)")
+    let v4: int = (- 10 5)
+    (println (+ "    Result: " (+ (itos v4) " : int")))
+    (println "")
+    set step (+ step 1)
+
+    /* Step 5: Apply addition */
+    (println (+ "  Step " (+ (itos step) ":")))
+    (println "    Expr:  (+ 12 5)")
+    (println "    Rule:  E_BinOp(Add)")
+    (println "           eval renv (EBinOp Mul ...) renv (VInt 12)")
+    (println "           eval renv (EBinOp Sub ...) renv (VInt 5)")
+    (println "           eval_arith_binop Add 12 5 = Some 17")
+    (println "    Type:  T_BinOp(Add, TInt, TInt, TInt)")
+    let v5: int = (+ v3 v4)
+    (println (+ "    Result: " (+ (itos v5) " : int")))
+    (println "")
+
+    (println (+ "  Final: (+ (* 3 4) (- 10 5)) = " (itos v5)))
+    (println "  Typing derivation depth: 5 rules")
+    (println "  Soundness: T_BinOp guarantees int + int -> int at every step")
+    (println "  Determinism: same expression -> same 17, always")
+    assert (== v5 17)
+
+    return v5
+}
+
+shadow trace_arithmetic {
+    assert (== (trace_arithmetic) 17)
+}
+
+/* =============================================================================
+ * TRACE 2: Let Binding and Variable Lookup
+ *
+ * We trace: let x = 10 in let y = 20 in (+ x y)
+ * Shows how the environment grows and variable lookup works.
+ * ============================================================================= */
+
+fn trace_let_binding() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 2: Let Binding and Environment Growth")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: let x = 10 in let y = 20 in (+ x y)")
+    (println "  This is ELet(x, EInt 10, ELet(y, EInt 20, EBinOp(Add, x, y)))")
+    (println "")
+    (println "  The environment (renv) maps variable names to values.")
+    (println "  Each 'let' extends the environment with a new binding.")
+    (println "")
+
+    /* Step 1: Evaluate 10 */
+    (println "  Step 1:")
+    (println "    Expr:  10")
+    (println "    Rule:  E_Int")
+    (println "    Env:   renv = {}")
+    let x: int = 10
+    (println (+ "    Result: VInt " (itos x)))
+    (println "")
+
+    /* Step 2: Bind x = 10 */
+    (println "  Step 2:")
+    (println "    Expr:  let x = 10 in ...")
+    (println "    Rule:  E_Let")
+    (println "           eval {} (EInt 10) {} (VInt 10)")
+    (println "           Bind x := VInt 10")
+    (println "    Env:   renv = {x -> 10}")
+    (println "    Type:  T_Let (ctx, x:TInt |- body : TInt)")
+    (println "")
+
+    /* Step 3: Evaluate 20 */
+    (println "  Step 3:")
+    (println "    Expr:  20")
+    (println "    Rule:  E_Int")
+    let y: int = 20
+    (println (+ "    Result: VInt " (itos y)))
+    (println "")
+
+    /* Step 4: Bind y = 20 */
+    (println "  Step 4:")
+    (println "    Expr:  let y = 20 in ...")
+    (println "    Rule:  E_Let")
+    (println "           eval {x->10} (EInt 20) {x->10} (VInt 20)")
+    (println "           Bind y := VInt 20")
+    (println "    Env:   renv = {x -> 10, y -> 20}")
+    (println "")
+
+    /* Step 5: Lookup x */
+    (println "  Step 5:")
+    (println "    Expr:  x")
+    (println "    Rule:  E_Var (lookup \"x\" {x->10, y->20} = Some (VInt 10))")
+    (println (+ "    Result: VInt " (itos x)))
+    (println "")
+
+    /* Step 6: Lookup y */
+    (println "  Step 6:")
+    (println "    Expr:  y")
+    (println "    Rule:  E_Var (lookup \"y\" {x->10, y->20} = Some (VInt 20))")
+    (println (+ "    Result: VInt " (itos y)))
+    (println "")
+
+    /* Step 7: Add */
+    (println "  Step 7:")
+    (println "    Expr:  (+ x y)")
+    (println "    Rule:  E_BinOp(Add)")
+    (println "           eval {x->10,y->20} (EVar x) ... (VInt 10)")
+    (println "           eval {x->10,y->20} (EVar y) ... (VInt 20)")
+    (println "           eval_arith_binop Add 10 20 = Some 30")
+    let result: int = (+ x y)
+    (println (+ "    Result: VInt " (itos result)))
+    (println "")
+
+    (println (+ "  Final: let x = 10 in let y = 20 in (+ x y) = " (itos result)))
+    (println "  Key insight: E_Let extends the environment, E_Var looks up in it.")
+    (println "  The Soundness proof tracks types through every environment extension.")
+    assert (== result 30)
+
+    return result
+}
+
+shadow trace_let_binding {
+    assert (== (trace_let_binding) 30)
+}
+
+/* =============================================================================
+ * TRACE 3: Conditional Evaluation (If-Then-Else)
+ *
+ * Shows how the proof handles branching — only one branch evaluates.
+ * ============================================================================= */
+
+fn trace_conditional() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 3: Conditional Evaluation (Branching)")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: IF (< 3 5) THEN 100 ELSE 200")
+    (println "  AST: EIf(EBinOp(Lt, 3, 5), EInt 100, EInt 200)")
+    (println "")
+    (println "  Coq has TWO rules for IF: E_IfTrue and E_IfFalse.")
+    (println "  The determinism proof shows at most one can apply.")
+    (println "")
+
+    /* Step 1: Evaluate condition */
+    (println "  Step 1:")
+    (println "    Expr:  (< 3 5)")
+    (println "    Rule:  E_BinOp(Lt)")
+    (println "           eval renv (EInt 3) renv (VInt 3)")
+    (println "           eval renv (EInt 5) renv (VInt 5)")
+    (println "           eval_cmp_binop Lt 3 5 = Some True")
+    let mut cond_str: string = "false"
+    if (< 3 5) { set cond_str "true" }
+    (println (+ "    Result: VBool " cond_str))
+    (println "")
+
+    /* Step 2: Choose branch */
+    (println "  Step 2:")
+    (println "    Expr:  if true then 100 else 200")
+    (println "    Rule:  E_IfTrue (because condition = VBool true)")
+    (println "           -> evaluate the THEN branch only")
+    (println "           The ELSE branch (200) is NEVER evaluated.")
+    (println "")
+
+    /* Step 3: Evaluate chosen branch */
+    (println "  Step 3:")
+    (println "    Expr:  100")
+    (println "    Rule:  E_Int")
+    let mut result: int = 0
+    if (< 3 5) { set result 100 } else { set result 200 }
+    (println (+ "    Result: VInt " (itos result)))
+    (println "")
+
+    (println (+ "  Final: if (< 3 5) then 100 else 200 = " (itos result)))
+    (println "")
+    (println "  Why this matters for determinism:")
+    (println "    Determinism.v proves: if cond evaluates to true,")
+    (println "    then E_IfTrue is the ONLY rule that can fire.")
+    (println "    E_IfFalse requires cond = false, which contradicts")
+    (println "    cond = true. So the result is unique.")
+    (println "")
+
+    /* Now trace the false case */
+    (println "  Now with a false condition: if (> 3 5) then 100 else 200")
+    (println "")
+    (println "  Step 1: (> 3 5) -> E_BinOp(Gt) -> VBool false")
+    (println "  Step 2: E_IfFalse -> evaluate ELSE branch")
+    (println "  Step 3: 200 -> E_Int -> VInt 200")
+    let mut result2: int = 0
+    if (> 3 5) { set result2 100 } else { set result2 200 }
+    (println (+ "  Final: " (itos result2)))
+    (println "")
+    (println "  Both paths are deterministic. The condition determines which.")
+    assert (== result 100)
+    assert (== result2 200)
+
+    return result
+}
+
+shadow trace_conditional {
+    assert (== (trace_conditional) 100)
+}
+
+/* =============================================================================
+ * TRACE 4: While Loop Evaluation
+ *
+ * Shows how the proof handles loops — unfolds one iteration at a time.
+ * Traces: let mut x = 0 in while (< x 3) { set x (+ x 1) }
+ * ============================================================================= */
+
+fn trace_while_loop() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 4: While Loop (Iterative Unfolding)")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: let mut x = 0 in while (< x 3) { set x (+ x 1) }")
+    (println "")
+    (println "  Coq has TWO rules for while:")
+    (println "    E_WhileTrue:  condition is true  -> execute body, then loop again")
+    (println "    E_WhileFalse: condition is false -> stop, return VUnit")
+    (println "")
+    (println "  The evaluation unfolds like a recursive proof:")
+    (println "")
+
+    let mut x: int = 0
+    let mut iteration: int = 0
+
+    while (< x 3) {
+        set iteration (+ iteration 1)
+        (println (+ "  Iteration " (+ (itos iteration) ":")))
+        (println (+ "    Env:  x = " (itos x)))
+        (println (+ "    Cond: (< " (+ (itos x) (+ " 3) -> " (btos (< x 3))))))
+        (println "    Rule: E_WhileTrue")
+        (println (+ "    Body: set x (+ " (+ (itos x) (+ " 1) -> x = " (itos (+ x 1))))))
+        set x (+ x 1)
+        (println (+ "    Env after: x = " (itos x)))
+        (println "    -> recurse: evaluate while again with updated env")
+        (println "")
+    }
+
+    (println (+ "  Iteration " (+ (itos (+ iteration 1)) ":")))
+    (println (+ "    Env:  x = " (itos x)))
+    (println (+ "    Cond: (< " (+ (itos x) (+ " 3) -> " (btos (< x 3))))))
+    (println "    Rule: E_WhileFalse")
+    (println "    Result: VUnit (loop terminates)")
+    (println "")
+
+    (println (+ "  Final: x = " (itos x)))
+    (println (+ "  Iterations: " (itos iteration)))
+    (println "")
+    (println "  Key insight: Coq unfolds the loop as a chain of E_WhileTrue")
+    (println "  steps, terminated by E_WhileFalse. Each step is independently")
+    (println "  deterministic (Determinism.v), so the whole loop is.")
+    assert (== x 3)
+
+    return x
+}
+
+shadow trace_while_loop {
+    assert (== (trace_while_loop) 3)
+}
+
+/* =============================================================================
+ * TRACE 5: Pattern Matching on Variants
+ *
+ * Shows how the proof handles union types and match expressions.
+ * ============================================================================= */
+
+union Shape {
+    Circle { radius: int },
+    Rect { width: int, height: int }
+}
+
+fn area(s: Shape) -> int {
+    let mut result: int = 0
+    match s {
+        Circle(c) => { set result (* (* c.radius c.radius) 314) },
+        Rect(r) => { set result (* r.width r.height) }
+    }
+    return result
+}
+
+shadow area {
+    assert (== (area Shape.Circle { radius: 10 }) 31400)
+    assert (== (area Shape.Rect { width: 5, height: 3 }) 15)
+}
+
+fn trace_match() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 5: Pattern Matching on Variants")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: match (Circle {radius: 10}) { Circle(c) => ..., Rect(r) => ... }")
+    (println "  This is EMatch(EVariant(\"Circle\", ...), [(\"Circle\", ...), (\"Rect\", ...)])")
+    (println "")
+    (println "  Coq rule: E_Match")
+    (println "    1. Evaluate the scrutinee to a VVariant(tag, fields)")
+    (println "    2. Find the branch whose tag matches")
+    (println "    3. Bind pattern variables to field values")
+    (println "    4. Evaluate the branch body in the extended environment")
+    (println "")
+
+    let s: Shape = Shape.Circle { radius: 10 }
+
+    (println "  Step 1: Evaluate scrutinee")
+    (println "    Expr:  Circle { radius: 10 }")
+    (println "    Rule:  E_Variant(\"Circle\")")
+    (println "    Result: VVariant(\"Circle\", {radius -> VInt 10})")
+    (println "")
+
+    (println "  Step 2: Match tag \"Circle\" against branches")
+    (println "    Branch 1: Circle(c) => ...  TAG MATCHES")
+    (println "    Branch 2: Rect(r) => ...    (skipped)")
+    (println "")
+
+    (println "  Step 3: Bind pattern variable")
+    (println "    c := {radius -> VInt 10}")
+    (println "    Env extended: renv' = renv + {c.radius -> 10}")
+    (println "")
+
+    (println "  Step 4: Evaluate branch body")
+    (println "    Expr:  (* (* c.radius c.radius) 314)")
+    (println "    Rule:  E_BinOp(Mul)")
+    (println "           c.radius -> E_FieldAccess -> VInt 10")
+    (println "           (* 10 10) -> 100")
+    (println "           (* 100 314) -> 31400")
+
+    let result: int = (area s)
+    (println (+ "    Result: " (itos result)))
+    (println "")
+
+    (println (+ "  Final: area(Circle{radius:10}) = " (itos result)))
+    (println "")
+    (println "  Now with a different variant: Rect{width:5, height:3}")
+    (println "")
+
+    let s2: Shape = Shape.Rect { width: 5, height: 3 }
+
+    (println "  Step 1: Evaluate scrutinee -> VVariant(\"Rect\", {w->5, h->3})")
+    (println "  Step 2: Match tag \"Rect\"")
+    (println "    Branch 1: Circle(c) => ...  (skipped)")
+    (println "    Branch 2: Rect(r) => ...    TAG MATCHES")
+    (println "  Step 3: Bind r := {width->5, height->3}")
+    (println "  Step 4: (* 5 3) -> 15")
+
+    let result2: int = (area s2)
+    (println (+ "  Final: area(Rect{5,3}) = " (itos result2)))
+    (println "")
+    (println "  Key insight: Determinism.v proves the matched branch is unique")
+    (println "  (tags are distinct). Soundness.v proves the branch body has")
+    (println "  the correct type given the pattern bindings.")
+    assert (== result 31400)
+    assert (== result2 15)
+
+    return result
+}
+
+shadow trace_match {
+    assert (== (trace_match) 31400)
+}
+
+/* =============================================================================
+ * TRACE 6: Array Operations
+ *
+ * Shows how the proof handles array literals, indexing, and updates.
+ * ============================================================================= */
+
+fn trace_arrays() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  TRACE 6: Array Operations")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Expression: let arr = [10, 20, 30] in (at arr 1)")
+    (println "  This is ELet(arr, EArrayLit([10,20,30]), EArrayIndex(arr, 1))")
+    (println "")
+    (println "  Arrays are values in NanoCore — immutable by default.")
+    (println "  Coq models them as lists of values.")
+    (println "")
+
+    /* Step 1: Evaluate array literal */
+    (println "  Step 1: Evaluate [10, 20, 30]")
+    (println "    Rule:  E_ArrayLit")
+    (println "           eval renv (EInt 10) renv (VInt 10)")
+    (println "           eval renv (EInt 20) renv (VInt 20)")
+    (println "           eval renv (EInt 30) renv (VInt 30)")
+    (println "    Type:  T_ArrayLit (all elements : TInt => array<int>)")
+    let arr: array<int> = [10, 20, 30]
+    (println "    Result: VArray [VInt 10, VInt 20, VInt 30]")
+    (println "")
+
+    /* Step 2: Bind arr */
+    (println "  Step 2: Bind arr = [10, 20, 30]")
+    (println "    Rule:  E_Let")
+    (println "    Env:   renv = {arr -> VArray [10, 20, 30]}")
+    (println "")
+
+    /* Step 3: Evaluate index */
+    (println "  Step 3: Evaluate (at arr 1)")
+    (println "    Rule:  E_ArrayIndex")
+    (println "    a. Lookup arr -> VArray [10, 20, 30]")
+    (println "    b. Evaluate index: 1 -> VInt 1")
+    (println "    c. nth_error [10, 20, 30] 1 = Some (VInt 20)")
+    let val: int = (at arr 1)
+    (println (+ "    Result: VInt " (itos val)))
+    (println "")
+
+    /* Step 4: Array length */
+    (println "  Step 4: Evaluate (array_length arr)")
+    (println "    Rule:  E_PrefixOp(ArrayLength)")
+    (println "    a. Lookup arr -> VArray [10, 20, 30]")
+    (println "    b. length [10, 20, 30] = 3")
+    let len: int = (array_length arr)
+    (println (+ "    Result: VInt " (itos len)))
+    (println "")
+
+    /* Step 5: Iterate with while */
+    (println "  Step 5: Sum array elements with while loop")
+    (println "    This combines E_While + E_ArrayIndex + E_BinOp(Add)")
+    let mut sum: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        let elem: int = (at arr i)
+        (println (+ "    Iteration " (+ (itos (+ i 1)) (+ ": (at arr " (+ (itos i) (+ ") -> " (itos elem)))))))
+        set sum (+ sum elem)
+        set i (+ i 1)
+    }
+    (println (+ "    Sum: " (itos sum)))
+    (println "")
+
+    (println (+ "  Final: sum of [10, 20, 30] = " (itos sum)))
+    (println "")
+    (println "  Key insight: Arrays are pure values in the Coq model.")
+    (println "  The proofs reason about them as lists of values.")
+    (println "  This purity is what makes the proofs work —")
+    (println "  no aliasing, no shared mutable state.")
+    assert (== val 20)
+    assert (== sum 60)
+
+    return sum
+}
+
+shadow trace_arrays {
+    assert (== (trace_arrays) 60)
+}
+
+/* =============================================================================
+ * SUMMARY: How It All Fits Together
+ * ============================================================================= */
+
+fn print_summary() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  HOW THE PROOFS FIT TOGETHER")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  You just watched 6 traces through the formal semantics.")
+    (println "  Here's what each Coq file proves about what you saw:")
+    (println "")
+    (println "  Syntax.v       Defines the AST: EInt, EBinOp, ELet, EIf, ...")
+    (println "  Semantics.v    Defines evaluation: E_Int, E_BinOp, E_Let, ...")
+    (println "  Typing.v       Defines typing: T_Int, T_BinOp, T_Let, ...")
+    (println "  Soundness.v    If has_type ctx e t and eval renv e renv' v,")
+    (println "                 then val_has_type v t. (Types are preserved.)")
+    (println "  Progress.v     If has_type ctx e t, then either e is a value")
+    (println "                 or e can take a step. (No stuck states.)")
+    (println "  Determinism.v  If eval renv e renv1 v1 and eval renv e renv2 v2,")
+    (println "                 then v1 = v2. (Results are unique.)")
+    (println "  Equivalence.v  Big-step eval <==> small-step multistep.")
+    (println "                 (Two ways of defining semantics agree.)")
+    (println "")
+    (println "  Total: 5,635 lines of proof. Zero axioms. Zero Admitted.")
+    (println "  Every property is proved from first principles.")
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "")
+    return 0
+}
+
+/* ── Main ── */
+
+fn main() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  PROOF TRACE: Watch Formal Verification Unfold")
+    (println "  Tracing the exact Coq evaluation rules in real time")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Each trace shows the Coq rules from Semantics.v,")
+    (println "  the typing judgments from Typing.v, and how")
+    (println "  Soundness.v + Determinism.v guarantee correctness.")
+
+    (trace_arithmetic)
+    (trace_let_binding)
+    (trace_conditional)
+    (trace_while_loop)
+    (trace_match)
+    (trace_arrays)
+    (print_summary)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

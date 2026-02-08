@@ -1,0 +1,660 @@
+/* =============================================================================
+ * VERIFIED vs UNVERIFIED: The Trust Boundary
+ * =============================================================================
+ * This demo shows the same problem solved two ways:
+ *   1. Using only NanoCore (formally verified)
+ *   2. Using full NanoLang (typechecked but unproven)
+ *
+ * Both produce the same results — but one comes with mathematical
+ * guarantees and the other relies on testing alone.
+ *
+ * After running the demo, run:
+ *   nanoc --trust-report examples/verified/verified_vs_unverified.nano
+ * to see which functions are [verified] and which are [typechecked].
+ *
+ * Run:  nanoc examples/verified/verified_vs_unverified.nano
+ *
+ * Difficulty: Beginner
+ * ============================================================================= */
+
+/* =============================================================================
+ * UTILITIES
+ * ============================================================================= */
+
+fn itos(n: int) -> string {
+    if (== n 0) { return "0" }
+    let mut neg: bool = false
+    let mut v: int = n
+    if (< n 0) {
+        set neg true
+        set v (- 0 n)
+    }
+    let mut s: string = ""
+    while (> v 0) {
+        let d: int = (% v 10)
+        let mut c: string = "0"
+        if (== d 1) { set c "1" }
+        if (== d 2) { set c "2" }
+        if (== d 3) { set c "3" }
+        if (== d 4) { set c "4" }
+        if (== d 5) { set c "5" }
+        if (== d 6) { set c "6" }
+        if (== d 7) { set c "7" }
+        if (== d 8) { set c "8" }
+        if (== d 9) { set c "9" }
+        set s (+ c s)
+        set v (/ v 10)
+    }
+    if neg { set s (+ "-" s) }
+    return s
+}
+
+shadow itos {
+    assert (== (itos 0) "0")
+    assert (== (itos 42) "42")
+    assert (== (itos -7) "-7")
+}
+
+fn repeat_char(ch: string, n: int) -> string {
+    let mut s: string = ""
+    let mut i: int = 0
+    while (< i n) {
+        set s (+ s ch)
+        set i (+ i 1)
+    }
+    return s
+}
+
+shadow repeat_char {
+    assert (== (repeat_char "=" 3) "===")
+}
+
+fn pad(s: string, w: int) -> string {
+    let mut r: string = s
+    let mut len: int = (str_length r)
+    while (< len w) {
+        set r (+ r " ")
+        set len (+ len 1)
+    }
+    return r
+}
+
+shadow pad {
+    assert (== (str_length (pad "hi" 10)) 10)
+}
+
+fn bool_to_str(b: bool) -> string {
+    if b { return "true" }
+    return "false"
+}
+
+shadow bool_to_str {
+    assert (== (bool_to_str true) "true")
+}
+
+/* =============================================================================
+ * SCENARIO 1: Safe Division
+ *
+ * The verified version handles all edge cases through the type system.
+ * The unverified version uses assert (which is outside NanoCore).
+ * ============================================================================= */
+
+/* --- VERIFIED version: uses union type to handle errors --- */
+
+union DivResult {
+    DivOk { val: int },
+    DivErr { msg: string }
+}
+
+fn safe_divide_v(a: int, b: int) -> DivResult {
+    if (== b 0) {
+        return DivResult.DivErr { msg: "division by zero" }
+    }
+    return DivResult.DivOk { val: (/ a b) }
+}
+
+shadow safe_divide_v {
+    let r1: DivResult = (safe_divide_v 10 3)
+    let mut v: int = 0
+    match r1 { DivOk(o) => { set v o.val }, DivErr(e) => { set v -1 } }
+    assert (== v 3)
+
+    let r2: DivResult = (safe_divide_v 10 0)
+    let mut is_err: bool = false
+    match r2 { DivOk(o) => {}, DivErr(e) => { set is_err true } }
+    assert is_err
+}
+
+/* --- UNVERIFIED version: uses assert (crashes on error) --- */
+
+fn safe_divide_u(a: int, b: int) -> int {
+    assert (!= b 0)
+    return (/ a b)
+}
+
+shadow safe_divide_u {
+    assert (== (safe_divide_u 10 3) 3)
+    assert (== (safe_divide_u 100 10) 10)
+}
+
+fn show_scenario_1() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SCENARIO 1: Safe Division")
+    (println (repeat_char "=" 66))
+    (println "")
+
+    (println "  VERIFIED (safe_divide_v):                  [verified]")
+    (println "    Uses a union type to represent success or failure.")
+    (println "    The Coq proofs guarantee this function:")
+    (println "      - Always returns a DivResult (Progress)")
+    (println "      - Returns the same result for the same inputs (Determinism)")
+    (println "      - Never produces a type error at runtime (Soundness)")
+    (println "    It CANNOT crash. Division by zero returns DivErr.")
+    (println "")
+
+    (println "  UNVERIFIED (safe_divide_u):                [typechecked]")
+    (println "    Uses assert to check for zero.")
+    (println "    assert is outside NanoCore -- no Coq proofs apply.")
+    (println "    If b == 0, the program ABORTS. No graceful handling.")
+    (println "")
+
+    (println "  Test: 10 / 3")
+    let r_v: DivResult = (safe_divide_v 10 3)
+    let mut val_v: int = 0
+    match r_v { DivOk(o) => { set val_v o.val }, DivErr(e) => {} }
+    let val_u: int = (safe_divide_u 10 3)
+    (println (+ "    Verified:   " (+ (itos val_v) "  (DivOk)")))
+    (println (+ "    Unverified: " (itos val_u)))
+    (println "    Both give 3. So far, identical.")
+    (println "")
+
+    (println "  Test: 10 / 0")
+    let r_v2: DivResult = (safe_divide_v 10 0)
+    let mut err_msg: string = ""
+    match r_v2 { DivOk(o) => {}, DivErr(e) => { set err_msg e.msg } }
+    (println (+ "    Verified:   DivErr(\"" (+ err_msg "\")")))
+    (println "    Unverified: [would abort -- assert fails]")
+    (println "")
+    (println "  The verified version handles EVERY input gracefully.")
+    (println "  The unverified version works for most inputs but can crash.")
+    (println "  The Coq proofs guarantee the verified version never crashes.")
+
+    return 0
+}
+
+/* =============================================================================
+ * SCENARIO 2: Bounded Arithmetic
+ *
+ * Safety-critical systems need arithmetic that stays in bounds.
+ * The verified version guarantees output is always in [lo, hi].
+ * ============================================================================= */
+
+/* --- VERIFIED version: explicit bounds checking --- */
+
+fn clamp_v(val: int, lo: int, hi: int) -> int {
+    if (< val lo) { return lo }
+    if (> val hi) { return hi }
+    return val
+}
+
+fn safe_add_v(a: int, b: int, lo: int, hi: int) -> int {
+    return (clamp_v (+ a b) lo hi)
+}
+
+fn safe_mul_v(a: int, b: int, lo: int, hi: int) -> int {
+    return (clamp_v (* a b) lo hi)
+}
+
+shadow clamp_v {
+    assert (== (clamp_v 50 0 100) 50)
+    assert (== (clamp_v -10 0 100) 0)
+    assert (== (clamp_v 999 0 100) 100)
+}
+
+shadow safe_add_v {
+    assert (== (safe_add_v 50 60 0 100) 100)
+    assert (== (safe_add_v 50 30 0 100) 80)
+    assert (== (safe_add_v -50 -60 0 100) 0)
+}
+
+shadow safe_mul_v {
+    assert (== (safe_mul_v 10 20 0 100) 100)
+    assert (== (safe_mul_v 3 4 0 100) 12)
+}
+
+/* --- UNVERIFIED version: uses assert to check bounds --- */
+
+fn safe_add_u(a: int, b: int, lo: int, hi: int) -> int {
+    let result: int = (+ a b)
+    assert (>= result lo)
+    assert (<= result hi)
+    return result
+}
+
+shadow safe_add_u {
+    assert (== (safe_add_u 50 30 0 100) 80)
+    assert (== (safe_add_u 10 20 0 100) 30)
+}
+
+fn show_scenario_2() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SCENARIO 2: Bounded Arithmetic")
+    (println (repeat_char "=" 66))
+    (println "")
+
+    (println "  Safety-critical systems (medical devices, avionics) need")
+    (println "  arithmetic that NEVER exceeds specified bounds.")
+    (println "")
+
+    (println "  VERIFIED (safe_add_v, safe_mul_v):         [verified]")
+    (println "    Clamps output to [lo, hi]. Always returns a value.")
+    (println "    The Coq proofs guarantee: output is always an int,")
+    (println "    computed deterministically from the inputs.")
+    (println "")
+
+    (println "  UNVERIFIED (safe_add_u):                   [typechecked]")
+    (println "    Uses assert to crash if result is out of bounds.")
+    (println "    No graceful handling — program aborts on overflow.")
+    (println "")
+
+    (println "  Test: 50 + 60, bounds [0, 100]")
+    let v_result: int = (safe_add_v 50 60 0 100)
+    (println (+ "    Verified:   " (+ (itos v_result) "  (clamped to 100)")))
+    (println "    Unverified: [would abort -- 110 > 100]")
+    (println "")
+
+    (println "  Test: 50 + 30, bounds [0, 100]")
+    let v_result2: int = (safe_add_v 50 30 0 100)
+    let u_result2: int = (safe_add_u 50 30 0 100)
+    (println (+ "    Verified:   " (itos v_result2)))
+    (println (+ "    Unverified: " (itos u_result2)))
+    (println "    Both give 80. In bounds, they agree.")
+    (println "")
+
+    (println "  Test: 10 * 20, bounds [0, 100]")
+    let v_result3: int = (safe_mul_v 10 20 0 100)
+    (println (+ "    Verified:   " (+ (itos v_result3) "  (clamped to 100)")))
+    (println "    Unverified: [no safe_mul_u -- hard to assert before computing]")
+    (println "")
+
+    (println "  The verified version is TOTAL: it returns a valid result")
+    (println "  for every possible input. The unverified version is PARTIAL:")
+    (println "  it only works when the result happens to be in bounds.")
+
+    return 0
+}
+
+/* =============================================================================
+ * SCENARIO 3: Array Lookup
+ *
+ * Out-of-bounds access is one of the most common bugs (buffer overflow).
+ * The verified version returns a default. The unverified one asserts.
+ * ============================================================================= */
+
+/* --- VERIFIED version: returns default value on out-of-bounds --- */
+
+fn safe_lookup_v(arr: array<int>, idx: int, default_val: int) -> int {
+    if (< idx 0) { return default_val }
+    if (>= idx (array_length arr)) { return default_val }
+    return (at arr idx)
+}
+
+shadow safe_lookup_v {
+    let a: array<int> = [10, 20, 30]
+    assert (== (safe_lookup_v a 0 -1) 10)
+    assert (== (safe_lookup_v a 2 -1) 30)
+    assert (== (safe_lookup_v a 5 -1) -1)
+    assert (== (safe_lookup_v a -1 -1) -1)
+}
+
+/* --- UNVERIFIED version: uses assert to check bounds --- */
+
+fn safe_lookup_u(arr: array<int>, idx: int) -> int {
+    assert (>= idx 0)
+    assert (< idx (array_length arr))
+    return (at arr idx)
+}
+
+shadow safe_lookup_u {
+    let a: array<int> = [10, 20, 30]
+    assert (== (safe_lookup_u a 0) 10)
+    assert (== (safe_lookup_u a 2) 30)
+}
+
+fn show_scenario_3() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SCENARIO 3: Array Lookup (Buffer Safety)")
+    (println (repeat_char "=" 66))
+    (println "")
+
+    (println "  Buffer overflows are the #1 source of security vulnerabilities")
+    (println "  (CWE-787). How should we handle out-of-bounds access?")
+    (println "")
+
+    (println "  VERIFIED (safe_lookup_v):                  [verified]")
+    (println "    Returns a default value on out-of-bounds access.")
+    (println "    The Coq proofs guarantee it always returns an int,")
+    (println "    never crashes, and is deterministic.")
+    (println "")
+
+    (println "  UNVERIFIED (safe_lookup_u):                [typechecked]")
+    (println "    Uses assert to crash if index is out of bounds.")
+    (println "    Provides no graceful fallback.")
+    (println "")
+
+    let arr: array<int> = [10, 20, 30, 40, 50]
+
+    (println "  Array: [10, 20, 30, 40, 50]")
+    (println "")
+
+    (println "  Test: index 2 (in bounds)")
+    let v1: int = (safe_lookup_v arr 2 -1)
+    let u1: int = (safe_lookup_u arr 2)
+    (println (+ "    Verified:   " (itos v1)))
+    (println (+ "    Unverified: " (itos u1)))
+    (println "    Both give 30. In bounds, they agree.")
+    (println "")
+
+    (println "  Test: index 99 (out of bounds)")
+    let v2: int = (safe_lookup_v arr 99 -1)
+    (println (+ "    Verified:   " (+ (itos v2) "  (default value)")))
+    (println "    Unverified: [would abort -- assert fails]")
+    (println "")
+
+    (println "  Test: index -1 (negative)")
+    let v3: int = (safe_lookup_v arr -1 -1)
+    (println (+ "    Verified:   " (+ (itos v3) "  (default value)")))
+    (println "    Unverified: [would abort -- assert fails]")
+    (println "")
+
+    (println "  The verified version turns a crash into a recoverable value.")
+    (println "  In a medical device or flight controller, a crash kills people.")
+    (println "  A default value lets the system degrade gracefully.")
+
+    return 0
+}
+
+/* =============================================================================
+ * SCENARIO 4: State Validation
+ *
+ * Verifying that a state machine transition is valid.
+ * The verified version returns a union; the unverified asserts.
+ * ============================================================================= */
+
+/* --- VERIFIED version: returns a union result --- */
+
+union StateResult {
+    StateOk { next: int, action: string },
+    StateErr { reason: string }
+}
+
+fn transition_v(state: int, event: int) -> StateResult {
+    /* IDLE(0) + START(0) -> RUNNING(1) */
+    if (and (== state 0) (== event 0)) {
+        return StateResult.StateOk { next: 1, action: "started" }
+    }
+    /* RUNNING(1) + STOP(1) -> IDLE(0) */
+    if (and (== state 1) (== event 1)) {
+        return StateResult.StateOk { next: 0, action: "stopped" }
+    }
+    /* RUNNING(1) + ERROR(2) -> FAULT(2) */
+    if (and (== state 1) (== event 2)) {
+        return StateResult.StateOk { next: 2, action: "faulted" }
+    }
+    /* FAULT(2) + RESET(3) -> IDLE(0) */
+    if (and (== state 2) (== event 3)) {
+        return StateResult.StateOk { next: 0, action: "reset" }
+    }
+    return StateResult.StateErr { reason: "invalid transition" }
+}
+
+shadow transition_v {
+    let r1: StateResult = (transition_v 0 0)
+    let mut n: int = -1
+    match r1 { StateOk(s) => { set n s.next }, StateErr(e) => {} }
+    assert (== n 1)
+
+    let r2: StateResult = (transition_v 0 1)
+    let mut is_err: bool = false
+    match r2 { StateOk(s) => {}, StateErr(e) => { set is_err true } }
+    assert is_err
+}
+
+/* --- UNVERIFIED version: uses assert to enforce valid transitions --- */
+
+fn transition_u(state: int, event: int) -> int {
+    if (and (== state 0) (== event 0)) { return 1 }
+    if (and (== state 1) (== event 1)) { return 0 }
+    if (and (== state 1) (== event 2)) { return 2 }
+    if (and (== state 2) (== event 3)) { return 0 }
+    /* Invalid transition: crash */
+    assert false
+    return -1
+}
+
+shadow transition_u {
+    assert (== (transition_u 0 0) 1)
+    assert (== (transition_u 1 1) 0)
+}
+
+fn state_name(s: int) -> string {
+    if (== s 0) { return "IDLE" }
+    if (== s 1) { return "RUNNING" }
+    if (== s 2) { return "FAULT" }
+    return "UNKNOWN"
+}
+
+shadow state_name {
+    assert (== (state_name 0) "IDLE")
+    assert (== (state_name 1) "RUNNING")
+}
+
+fn show_scenario_4() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SCENARIO 4: State Machine Validation")
+    (println (repeat_char "=" 66))
+    (println "")
+
+    (println "  State machines control safety-critical systems.")
+    (println "  What happens when an invalid event arrives?")
+    (println "")
+
+    (println "  States: IDLE(0), RUNNING(1), FAULT(2)")
+    (println "  Events: START(0), STOP(1), ERROR(2), RESET(3)")
+    (println "")
+
+    (println "  VERIFIED (transition_v):                   [verified]")
+    (println "    Returns StateOk or StateErr. Handles every combination.")
+    (println "    Cannot crash. Deterministic for all 12+ combinations.")
+    (println "")
+
+    (println "  UNVERIFIED (transition_u):                 [typechecked]")
+    (println "    Returns next state directly, but asserts on invalid input.")
+    (println "    Crashes if an unexpected event arrives.")
+    (println "")
+
+    /* Valid transition */
+    (println "  Test: IDLE + START (valid)")
+    let r_v: StateResult = (transition_v 0 0)
+    let mut next_v: int = -1
+    let mut action_v: string = ""
+    match r_v { StateOk(s) => { set next_v s.next
+        set action_v s.action }, StateErr(e) => {} }
+    let next_u: int = (transition_u 0 0)
+    (println (+ "    Verified:   -> " (+ (state_name next_v) (+ " (\"" (+ action_v "\")")))))
+    (println (+ "    Unverified: -> " (state_name next_u)))
+    (println "    Both transition to RUNNING.")
+    (println "")
+
+    /* Invalid transition */
+    (println "  Test: IDLE + STOP (invalid)")
+    let r_v2: StateResult = (transition_v 0 1)
+    let mut err_reason: string = ""
+    match r_v2 { StateOk(s) => {}, StateErr(e) => { set err_reason e.reason } }
+    (println (+ "    Verified:   StateErr(\"" (+ err_reason "\")")))
+    (println "    Unverified: [would abort -- assert false]")
+    (println "")
+
+    /* Another invalid transition */
+    (println "  Test: FAULT + START (invalid)")
+    let r_v3: StateResult = (transition_v 2 0)
+    let mut err_reason2: string = ""
+    match r_v3 { StateOk(s) => {}, StateErr(e) => { set err_reason2 e.reason } }
+    (println (+ "    Verified:   StateErr(\"" (+ err_reason2 "\")")))
+    (println "    Unverified: [would abort]")
+    (println "")
+
+    (println "  In a real system (Therac-25, Knight Capital), an unexpected")
+    (println "  event WILL arrive eventually. The verified version handles it.")
+    (println "  The unverified version crashes — and crashes kill.")
+
+    return 0
+}
+
+/* =============================================================================
+ * SCENARIO 5: The Spectrum of Trust
+ *
+ * Shows a single computation flowing through different trust levels.
+ * ============================================================================= */
+
+fn compute_verified(x: int, y: int) -> int {
+    let sum: int = (+ x y)
+    let product: int = (* x y)
+    let mut result: int = 0
+    if (> sum product) {
+        set result sum
+    } else {
+        set result product
+    }
+    return result
+}
+
+shadow compute_verified {
+    assert (== (compute_verified 2 3) 6)
+    assert (== (compute_verified 10 1) 11)
+}
+
+fn show_scenario_5() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SCENARIO 5: The Spectrum of Trust")
+    (println (repeat_char "=" 66))
+    (println "")
+
+    (println "  Real programs mix verified and unverified code.")
+    (println "  This is the same pattern used by:")
+    (println "    - Amazon s2n: verified HMAC + unverified TLS wrapper")
+    (println "    - seL4: verified kernel + unverified user applications")
+    (println "    - HACL*: verified crypto + unverified Firefox browser")
+    (println "")
+
+    (println "  In this file, the functions have different trust levels:")
+    (println "")
+    (println "    [verified]    compute_verified, safe_divide_v, clamp_v,")
+    (println "                  safe_lookup_v, transition_v, itos, pad, ...")
+    (println "                  -> Coq proofs: sound, deterministic, total")
+    (println "")
+    (println "    [typechecked] safe_divide_u, safe_add_u, safe_lookup_u,")
+    (println "                  transition_u, show_scenario_*")
+    (println "                  -> NanoLang typechecker: types correct")
+    (println "                  -> No Coq proofs: could have runtime errors")
+    (println "")
+
+    (println "  Example: a computation flowing through both levels:")
+    (println "")
+
+    let x: int = 7
+    let y: int = 3
+
+    /* Verified computation */
+    let v_result: int = (compute_verified x y)
+    (println (+ "  1. [verified]    compute_verified(7, 3) = " (itos v_result)))
+
+    /* Verified division */
+    let d_result: DivResult = (safe_divide_v v_result y)
+    let mut d_val: int = 0
+    match d_result { DivOk(o) => { set d_val o.val }, DivErr(e) => {} }
+    (println (+ "  2. [verified]    safe_divide_v(21, 3) = " (+ "DivOk(" (+ (itos d_val) ")"))))
+
+    /* Verified bounds check */
+    let bounded: int = (clamp_v d_val 0 5)
+    (println (+ "  3. [verified]    clamp_v(7, 0, 5) = " (itos bounded)))
+
+    /* Verified array lookup */
+    let table: array<int> = [100, 200, 300, 400, 500, 600]
+    let looked_up: int = (safe_lookup_v table bounded -1)
+    (println (+ "  4. [verified]    safe_lookup_v(table, 5, -1) = " (itos looked_up)))
+
+    /* Unverified: printing (uses println, outside NanoCore) */
+    (println (+ "  5. [typechecked] println(\"Final: " (+ (itos looked_up) "\")")))
+
+    (println "")
+    (println "  Steps 1-4 are mathematically verified. Step 5 is not.")
+    (println "  The critical computation is inside the trust boundary.")
+    (println "  The I/O (printing) is outside — and that's fine.")
+    (println "  This is how real verified systems work.")
+
+    return 0
+}
+
+/* =============================================================================
+ * SUMMARY
+ * ============================================================================= */
+
+fn show_summary() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  SUMMARY: Why Verified Code Matters")
+    (println (repeat_char "=" 66))
+    (println "")
+    (println "  Pattern      | Verified          | Unverified")
+    (println "  -------------|-------------------|-------------------")
+    (println "  Division     | Returns DivErr    | Crashes (assert)")
+    (println "  Overflow     | Clamps to range   | Crashes (assert)")
+    (println "  Out-of-bounds| Returns default   | Crashes (assert)")
+    (println "  Bad state    | Returns StateErr  | Crashes (assert)")
+    (println "")
+    (println "  The verified versions are TOTAL: they handle every input.")
+    (println "  The unverified versions are PARTIAL: they crash on edge cases.")
+    (println "")
+    (println "  What you give up: assert (fast-fail error checking)")
+    (println "  What you get:     mathematical proof of correctness")
+    (println "")
+    (println "  For most code, 'typechecked' is fine.")
+    (println "  For code that must not fail — the 1% that controls a reactor,")
+    (println "  flies a plane, or calculates a drug dose — 'verified' matters.")
+    (println "")
+    (println "  See the trust levels with:")
+    (println "    nanoc --trust-report examples/verified/verified_vs_unverified.nano")
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "")
+    return 0
+}
+
+/* ── Main ── */
+
+fn main() -> int {
+    (println "")
+    (println (repeat_char "=" 66))
+    (println "  VERIFIED vs UNVERIFIED: The Trust Boundary")
+    (println "  Side-by-side comparison of proven and unproven code")
+    (println (repeat_char "=" 66))
+
+    (show_scenario_1)
+    (show_scenario_2)
+    (show_scenario_3)
+    (show_scenario_4)
+    (show_scenario_5)
+    (show_summary)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
