@@ -5,7 +5,7 @@ formalized in the Rocq Prover (Coq).
 
 ## What's proved
 
-**Type soundness** via preservation + progress:
+**Type soundness** via preservation + progress, plus **determinism**:
 
 **Preservation:** If a well-typed expression evaluates to a value,
 that value has the expected type, and environment agreement is
@@ -29,6 +29,16 @@ to produce 0.)
 Theorem progress : forall e t,
   has_type CtxNil e t ->
   is_value e \/ (exists e', step e e').
+```
+
+**Determinism:** The big-step evaluation relation is a partial function:
+if an expression evaluates to two results, they are identical.
+
+```
+Theorem eval_deterministic : forall renv e renv' v renv'' v',
+  eval renv e renv' v ->
+  eval renv e renv'' v' ->
+  v = v' /\ renv' = renv''.
 ```
 
 ## NanoCore subset
@@ -64,6 +74,7 @@ Theorem progress : forall e t,
 | `Typing.v` | Typing rules and contexts |
 | `Soundness.v` | Preservation theorem (value typing + env agreement) |
 | `Progress.v` | Small-step semantics, substitution, progress theorem |
+| `Determinism.v` | Determinism of evaluation (eval is a partial function) |
 
 ## Building
 
