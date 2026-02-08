@@ -1025,10 +1025,12 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_release(&vm->heap, s);
                 return vm_error(vm, VM_ERR_TYPE_ERROR, "STR_CHAR_AT: not a string");
             }
-            uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
-            VmString *result = vmstring_char_at(&vm->heap, s.as.string, idx);
+            int64_t idx = (idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
+            const char *str = vmstring_cstr(s.as.string);
+            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t ch = (idx >= 0 && idx < len) ? (unsigned char)str[idx] : -1;
             vm_release(&vm->heap, s);
-            stack_push(vm, val_string(result));
+            stack_push(vm, val_int(ch));
             break;
         }
 
@@ -1472,6 +1474,14 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 case TAG_FLOAT: stack_push(vm, val_int((int64_t)v.as.f64)); break;
                 case TAG_BOOL:  stack_push(vm, val_int(v.as.boolean ? 1 : 0)); break;
                 case TAG_U8:    stack_push(vm, val_int(v.as.u8)); break;
+                case TAG_ENUM:  stack_push(vm, val_int(v.as.i64)); break;
+                case TAG_STRING: {
+                    const char *str = vmstring_cstr(v.as.string);
+                    int64_t result = str ? strtoll(str, NULL, 10) : 0;
+                    vm_release(&vm->heap, v);
+                    stack_push(vm, val_int(result));
+                    break;
+                }
                 default:
                     vm_release(&vm->heap, v);
                     stack_push(vm, val_int(0));
@@ -1486,6 +1496,13 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 case TAG_FLOAT: stack_push(vm, v); break;
                 case TAG_INT:   stack_push(vm, val_float((double)v.as.i64)); break;
                 case TAG_BOOL:  stack_push(vm, val_float(v.as.boolean ? 1.0 : 0.0)); break;
+                case TAG_STRING: {
+                    const char *str = vmstring_cstr(v.as.string);
+                    double result = str ? strtod(str, NULL) : 0.0;
+                    vm_release(&vm->heap, v);
+                    stack_push(vm, val_float(result));
+                    break;
+                }
                 default:
                     vm_release(&vm->heap, v);
                     stack_push(vm, val_float(0.0));
