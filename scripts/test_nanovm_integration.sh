@@ -184,6 +184,29 @@ else
     SKIP=$((SKIP + 1))
 fi
 
+# ── Native Wrapper Generation ───────────────────────────────────────
+echo "Native Wrapper (compile to standalone binary):"
+
+for name in nl_factorial nl_fibonacci nl_comparisons; do
+    source="$PROJECT_DIR/examples/language/${name}.nano"
+    [ -f "$source" ] || continue
+
+    if "$BIN/nano_virt" "$source" -o "$TMPDIR/${name}_native" 2>/dev/null; then
+        native_out=$(timeout $TIMEOUT_SEC "$TMPDIR/${name}_native" 2>&1)
+        native_exit=$?
+        if [ $native_exit -eq 0 ]; then
+            echo "  PASS: ${name}_native"
+            PASS=$((PASS + 1))
+        else
+            echo "  FAIL: ${name}_native (exit=$native_exit)"
+            FAIL=$((FAIL + 1))
+        fi
+    else
+        echo "  FAIL: ${name}_native (compile error)"
+        FAIL=$((FAIL + 1))
+    fi
+done
+
 echo ""
 echo "=== Results: $PASS passed, $FAIL failed, $SKIP skipped ==="
 

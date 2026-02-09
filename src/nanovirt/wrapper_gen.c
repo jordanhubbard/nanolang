@@ -254,7 +254,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
      * minus nanovirt/main.o and nanovirt/codegen.o (not needed at runtime) */
     static const char *nanovm_objs[] = {
         "nanovm/value.o", "nanovm/heap.o", "nanovm/vm.o",
-        "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", NULL
+        "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o", NULL
     };
     static const char *nanoisa_objs[] = {
         "nanoisa/isa.o", "nanoisa/nvm_format.o",
