@@ -5,6 +5,8 @@
  * Reconstructs labels from jump targets for readability.
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For open_memstream() */
+
 #include "disassembler.h"
 #include "isa.h"
 #include <stdlib.h>
