@@ -47,7 +47,7 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc -D_POSIX_C_SOURCE=200809L
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE
 LDFLAGS = -lm
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols

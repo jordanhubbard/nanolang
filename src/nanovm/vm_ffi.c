@@ -6,7 +6,7 @@
  * NanoValue and C function signatures, plus module introspection.
  */
 
-#define _GNU_SOURCE  /* For usleep(), kill(), fork(), pipe(), exec*() */
+/* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "vm_ffi.h"
 #include "runtime/dyn_array.h"

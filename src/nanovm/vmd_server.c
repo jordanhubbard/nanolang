@@ -12,7 +12,7 @@
  * path is completely unchanged — validating the co-processor trap model.
  */
 
-#define _GNU_SOURCE  /* For kill(), signal(), pthread_*, poll() */
+/* kill(), signal(), pthread_*, poll() need _GNU_SOURCE (provided by CFLAGS) */
 
 #include "vmd_server.h"
 #include "vmd_protocol.h"
