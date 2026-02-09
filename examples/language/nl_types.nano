@@ -92,13 +92,13 @@ shadow mixed_types {
     assert (== (mixed_types 10 3.14 false "hello") 0)
 }
 
-fn bool_to_string(b: bool) -> string {
+fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }
 
-shadow bool_to_string {
-    assert (== (bool_to_string true) "true")
-    assert (== (bool_to_string false) "false")
+shadow btos {
+    assert (== (btos true) "true")
+    assert (== (btos false) "false")
 }
 
 fn float_to_string(f: float) -> string {
@@ -119,12 +119,12 @@ fn main() -> int {
 
     (println (+ "int: " (int_to_string my_int)))
     (println (+ "float: " (float_to_string my_float)))
-    (println (+ "bool: " (bool_to_string my_bool)))
+    (println (+ "bool: " (btos my_bool)))
     (println (+ "string: " my_string))
 
     (println (+ "\nprocess_int(25) = " (int_to_string (process_int 25))))
     (println (+ "process_float(50.0) = " (float_to_string (process_float 50.0))))
-    (println (+ "process_bool(false) = " (bool_to_string (process_bool false))))
+    (println (+ "process_bool(false) = " (btos (process_bool false))))
     (println (+ "process_string(\"types\") = " (process_string "types")))
 
     (println "")

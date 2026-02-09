@@ -2,13 +2,13 @@
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 module "std/http/http.nano" as HTTP
 
-fn bool_to_string(b: bool) -> string {
+fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }
 
-shadow bool_to_string {
-    assert (== (bool_to_string true) "true")
-    assert (== (bool_to_string false) "false")
+shadow btos {
+    assert (== (btos true) "true")
+    assert (== (btos false) "false")
 }
 
 fn simple_get_example() -> void {
@@ -82,16 +82,16 @@ fn status_codes_example() -> void {
     
     # Test 200 OK
     let response_200: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/200")
-    (println (+ "200 OK - is_ok: " (bool_to_string (HTTP.is_ok response_200))))
+    (println (+ "200 OK - is_ok: " (btos (HTTP.is_ok response_200))))
 
     # Test 404 Not Found
     let response_404: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/404")
-    (println (+ "404 Not Found - is_ok: " (bool_to_string (HTTP.is_ok response_404))))
+    (println (+ "404 Not Found - is_ok: " (btos (HTTP.is_ok response_404))))
     (println (+ "Status code: " (int_to_string (HTTP.status response_404))))
 
     # Test 500 Server Error
     let response_500: HTTP.HttpResponse = (HTTP.get "https://httpbin.org/status/500")
-    (println (+ "500 Server Error - is_ok: " (bool_to_string (HTTP.is_ok response_500))))
+    (println (+ "500 Server Error - is_ok: " (btos (HTTP.is_ok response_500))))
     (println (+ "Status code: " (int_to_string (HTTP.status response_500))))
 }
 

@@ -75,23 +75,23 @@ shadow xor_sim {
     assert (== (xor_sim false false) false)
 }
 
-fn bool_to_string(b: bool) -> string {
+fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }
 
-shadow bool_to_string {
-    assert (== (bool_to_string true) "true")
-    assert (== (bool_to_string false) "false")
+shadow btos {
+    assert (== (btos true) "true")
+    assert (== (btos false) "false")
 }
 
 fn main() -> int {
     (println "=== Logical Operations ===")
-    (println (+ "and(true, false): " (bool_to_string (and_op true false))))
-    (println (+ "or(true, false): " (bool_to_string (or_op true false))))
-    (println (+ "not(true): " (bool_to_string (not_op true))))
-    (println (+ "complex_logic(true, true, false): " (bool_to_string (complex_logic true true false))))
-    (println (+ "is_in_range(7, 5, 10): " (bool_to_string (is_in_range 7 5 10))))
-    (println (+ "xor_sim(true, false): " (bool_to_string (xor_sim true false))))
+    (println (+ "and(true, false): " (btos (and_op true false))))
+    (println (+ "or(true, false): " (btos (or_op true false))))
+    (println (+ "not(true): " (btos (not_op true))))
+    (println (+ "complex_logic(true, true, false): " (btos (complex_logic true true false))))
+    (println (+ "is_in_range(7, 5, 10): " (btos (is_in_range 7 5 10))))
+    (println (+ "xor_sim(true, false): " (btos (xor_sim true false))))
     return 0
 }
 
