@@ -21,6 +21,14 @@ Run `nanoc --trust-report <file>` on any example to confirm all functions show `
 | `state_machine.nano` | Industrial | Therac-25/Nuclear: unsafe state transitions. Verified state machine where illegal transitions are impossible. |
 | `checksum_validator.nano` | Data Integrity | Amazon s2n pattern: verified checksum library called by unverified code. Fletcher, polynomial, and block-wise checksums. |
 
+## Interactive Demos
+
+| File | What It Shows |
+|------|---------------|
+| `break_the_proof.nano` | **"Can You Break It?"** — Throws 280 adversarial inputs at verified functions (fibonacci, gcd, safe_divide, checksum, clamp) and checks determinism, type soundness, and progress. Shows the actual Coq theorem statements alongside live test results. |
+| `proof_trace.nano` | **"Proof Trace"** — Step-by-step visualization of how the Coq evaluation rules work. Traces 6 expression types (arithmetic, let bindings, conditionals, while loops, pattern matching, arrays) showing the exact `E_*` rules from `Semantics.v` and `T_*` judgments from `Typing.v`. |
+| `verified_vs_unverified.nano` | **"Verified vs Unverified"** — Side-by-side comparison across 5 scenarios (division, bounded arithmetic, array lookup, state machines, trust boundaries). Shows how verified code is *total* (handles all inputs) while unverified code *crashes* on edge cases. |
+
 ## Design Patterns Used
 
 These examples follow industry best practices for mixing verified and unverified code:
