@@ -13,6 +13,7 @@
 #include "vm.h"
 #include "vm_ffi.h"
 #include "vmd_client.h"
+#include "../nanoisa/verifier.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +73,15 @@ static int run_standalone(const char *path) {
 
     if (!module) {
         fprintf(stderr, "Error: Failed to load '%s' (invalid .nvm format)\n", path);
+        return 1;
+    }
+
+    /* Verify bytecode safety before execution */
+    NvmVerifyResult vr = nvm_verify(module);
+    if (!vr.ok) {
+        fprintf(stderr, "Error: Bytecode verification failed for '%s': %s\n",
+                path, vr.error_msg);
+        nvm_module_free(module);
         return 1;
     }
 

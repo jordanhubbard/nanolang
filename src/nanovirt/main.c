@@ -13,6 +13,7 @@
 #include "nanovirt/codegen.h"
 #include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
+#include "nanoisa/verifier.h"
 #include "nanovm/vm.h"
 #include "nanovm/vm_ffi.h"
 #include "nanovm/value.h"
@@ -302,6 +303,14 @@ int main(int argc, char **argv) {
 
     /* Execute if requested */
     if (run) {
+        /* Verify bytecode safety (catches codegen bugs) */
+        NvmVerifyResult vr = nvm_verify(cg.module);
+        if (!vr.ok) {
+            fprintf(stderr, "internal error: bytecode verification failed: %s\n", vr.error_msg);
+            nvm_module_free(cg.module);
+            return 1;
+        }
+
         VmState vm;
         vm_init(&vm, cg.module);
 

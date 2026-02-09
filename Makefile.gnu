@@ -267,7 +267,8 @@ vm: nano_virt nano_vm nano_cop nano_vmd
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c \
-	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c
+	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
+	$(NANOISA_DIR)/verifier.c
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES))
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
