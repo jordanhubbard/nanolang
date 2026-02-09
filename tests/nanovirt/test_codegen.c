@@ -1240,6 +1240,92 @@ static void test_map_builtin(void) {
     fprintf(stderr, " ok\n");
 }
 
+/* ── Closure capture tests ──────────────────────────────────────── */
+
+static void test_closure_single_capture(void) {
+    fprintf(stderr, "  test_closure_single_capture...");
+    TestResult tr = compile_and_run(
+        "fn make_adder(n: int) -> fn(int) -> int {\n"
+        "  fn adder(x: int) -> int { return (+ x n) }\n"
+        "  return adder\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let add5: fn(int) -> int = (make_adder 5)\n"
+        "  return (add5 10)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 15);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_closure_multiple_captures(void) {
+    fprintf(stderr, "  test_closure_multiple_captures...");
+    TestResult tr = compile_and_run(
+        "fn make_linear(a: int, b: int) -> fn(int) -> int {\n"
+        "  fn linear(x: int) -> int {\n"
+        "    return (+ (* a x) b)\n"
+        "  }\n"
+        "  return linear\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let f: fn(int) -> int = (make_linear 3 5)\n"
+        "  return (f 10)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 35);  /* 3*10 + 5 */
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_closure_two_closures(void) {
+    fprintf(stderr, "  test_closure_two_closures...");
+    TestResult tr = compile_and_run(
+        "fn make_adder(n: int) -> fn(int) -> int {\n"
+        "  fn adder(x: int) -> int { return (+ x n) }\n"
+        "  return adder\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let add3: fn(int) -> int = (make_adder 3)\n"
+        "  let add7: fn(int) -> int = (make_adder 7)\n"
+        "  return (+ (add3 10) (add7 10))\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 30);  /* 13 + 17 */
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_closure_capture_local_var(void) {
+    fprintf(stderr, "  test_closure_capture_local_var...");
+    TestResult tr = compile_and_run(
+        "fn make_multiplier(factor: int) -> fn(int) -> int {\n"
+        "  let f: int = factor\n"
+        "  fn mul(x: int) -> int { return (* x f) }\n"
+        "  return mul\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let triple: fn(int) -> int = (make_multiplier 3)\n"
+        "  return (triple 7)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 21);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
@@ -1340,6 +1426,12 @@ int main(void) {
     test_function_as_value();
     test_filter_builtin();
     test_map_builtin();
+
+    fprintf(stderr, "\nClosure Captures:\n");
+    test_closure_single_capture();
+    test_closure_multiple_captures();
+    test_closure_two_closures();
+    test_closure_capture_local_var();
 
     fprintf(stderr, "\nRound-Trip:\n");
     test_serialize_and_run();

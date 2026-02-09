@@ -107,6 +107,7 @@ static ASTNode *parse_block(Stage1Parser *p);
 static ASTNode *parse_struct_def(Stage1Parser *p);
 static ASTNode *parse_enum_def(Stage1Parser *p);
 static ASTNode *parse_union_def(Stage1Parser *p);
+static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub);
 static ASTNode *parse_opaque_type(Stage1Parser *p);
 static ASTNode *parse_match_expr(Stage1Parser *p);
 
@@ -2824,6 +2825,11 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             fprintf(stderr, "Error at line %d, column %d: 'else' without matching 'if'\n",
                     tok->line, tok->column);
             return NULL;
+        }
+
+        case TOKEN_FN: {
+            /* Nested function definition (for closures) */
+            return parse_function(p, false, false);
         }
 
         default: {

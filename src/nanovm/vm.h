@@ -30,6 +30,7 @@ typedef struct {
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */
+    const NvmModule *module;  /* Module this frame belongs to (for cross-module calls) */
 } VmCallFrame;
 
 /* ========================================================================
@@ -81,8 +82,16 @@ typedef struct {
     /* GC Heap */
     VmHeap heap;
 
+    /* Linked modules for cross-module calls */
+    const NvmModule **linked_modules;
+    uint32_t linked_module_count;
+    uint32_t linked_module_capacity;
+
     /* Output capture (NULL = stdout) */
     FILE *output;
+
+    /* FFI isolation: if true, use co-process for extern calls */
+    bool isolate_ffi;
 
     /* Error info */
     VmResult last_error;
@@ -149,5 +158,9 @@ NanoValue vm_get_result(VmState *vm);
 
 /* Get error message string */
 const char *vm_error_string(VmResult result);
+
+/* Link a module for cross-module calls (OP_CALL_MODULE).
+ * Returns the module index, or (uint32_t)-1 on error. */
+uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
 
 #endif /* NANOVM_VM_H */

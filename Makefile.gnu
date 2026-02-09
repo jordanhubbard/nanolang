@@ -284,7 +284,7 @@ test-nanoisa: $(NANOISA_OBJECTS)
 # ============================================================================
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
-NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c
+NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
 NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES))
 
 $(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h | $(OBJ_DIR)/nanovm
@@ -315,10 +315,18 @@ nano_vmd: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJEC
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
 		$(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o $(LDFLAGS) -lpthread
 
-$(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/vmd_client.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/vm_ffi.h $(NANOVM_DIR)/vmd_client.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm/vmd_main.o: $(NANOVM_DIR)/vmd_main.c $(NANOVM_DIR)/vmd_server.h | $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# ── Co-Process FFI (nano_cop) ────────────────────────────────────────────────
+nano_cop: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/cop_main.o | bin
+	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
+		$(OBJ_DIR)/nanovm/cop_main.o $(LDFLAGS)
+
+$(OBJ_DIR)/nanovm/cop_main.o: $(NANOVM_DIR)/cop_main.c $(NANOVM_DIR)/cop_protocol.h $(NANOVM_DIR)/vm_ffi.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: test-nanovm-daemon

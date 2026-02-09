@@ -3617,6 +3617,37 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_FUNCTION: {
+            /* Nested function definition (for closures).
+             * Register it in the environment and type-check its body. */
+            if (!stmt->as.function.is_extern) {
+                Function func = {0};
+                func.name = (char *)stmt->as.function.name;
+                func.params = stmt->as.function.params;
+                func.param_count = stmt->as.function.param_count;
+                func.return_type = stmt->as.function.return_type;
+                func.return_element_type = stmt->as.function.return_element_type;
+                func.return_struct_type_name = stmt->as.function.return_struct_type_name;
+                func.return_fn_sig = stmt->as.function.return_fn_sig;
+                func.return_type_info = stmt->as.function.return_type_info;
+                func.body = stmt->as.function.body;
+                func.is_extern = false;
+                func.is_pub = false;
+                env_define_function(tc->env, func);
+
+                /* Type-check the function body */
+                if (stmt->as.function.body) {
+                    for (int p = 0; p < stmt->as.function.param_count; p++) {
+                        Value dummy_val = {0};
+                        env_define_var(tc->env, stmt->as.function.params[p].name,
+                                      stmt->as.function.params[p].type, true, dummy_val);
+                    }
+                    check_statement(tc, stmt->as.function.body);
+                }
+            }
+            return TYPE_VOID;
+        }
+
         default:
             /* Literals and identifiers as statements */
             check_expression(stmt, tc->env);

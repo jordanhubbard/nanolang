@@ -1648,6 +1648,199 @@ static void test_assemble_loop(void) {
 }
 
 /* ========================================================================
+ * Cross-Module Linking Tests
+ * ======================================================================== */
+
+static void test_call_module(void) {
+    /*
+     * Module B has a function "add_10" that adds 10 to its argument.
+     * Module A's main calls add_10(5) via OP_CALL_MODULE.
+     * Expected result: 15
+     */
+
+    /* Build Module B: fn add_10(x) -> x + 10 */
+    NvmModule *mod_b = nvm_module_new();
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_LOAD_LOCAL, 0);     /* load param x */
+        n += emit(code + n, OP_PUSH_I64, (int64_t)10);
+        n += emit(code + n, OP_ADD);
+        n += emit(code + n, OP_RET);
+
+        uint32_t name_idx = nvm_add_string(mod_b, "add_10", 6);
+        uint32_t code_off = nvm_append_code(mod_b, code, n);
+        NvmFunctionEntry fn = {0};
+        fn.name_idx = name_idx;
+        fn.arity = 1;
+        fn.code_offset = code_off;
+        fn.code_length = n;
+        fn.local_count = 1;
+        fn.upvalue_count = 0;
+        nvm_add_function(mod_b, &fn);
+    }
+
+    /* Build Module A: fn main() -> call_module(0, 0, arg=5) */
+    NvmModule *mod_a = nvm_module_new();
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_PUSH_I64, (int64_t)5);  /* arg */
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);  /* mod 0, fn 0 */
+        n += emit(code + n, OP_RET);
+
+        uint32_t name_idx = nvm_add_string(mod_a, "main", 4);
+        uint32_t code_off = nvm_append_code(mod_a, code, n);
+        NvmFunctionEntry fn = {0};
+        fn.name_idx = name_idx;
+        fn.arity = 0;
+        fn.code_offset = code_off;
+        fn.code_length = n;
+        fn.local_count = 0;
+        fn.upvalue_count = 0;
+        uint32_t fn_idx = nvm_add_function(mod_a, &fn);
+        mod_a->header.flags = NVM_FLAG_HAS_MAIN;
+        mod_a->header.entry_point = fn_idx;
+    }
+
+    /* Link and execute */
+    VmState vm;
+    vm_init(&vm, mod_a);
+    uint32_t link_idx = vm_link_module(&vm, mod_b);
+    ASSERT_EQ_INT(link_idx, 0, "call_module: link idx == 0");
+
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "call_module: VM_OK");
+
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.as.i64, 15, "call_module: 5 + 10 == 15");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod_a);
+    nvm_module_free(mod_b);
+}
+
+static void test_call_module_bad_idx(void) {
+    /* Test error on invalid module index */
+    NvmModule *mod = nvm_module_new();
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)99, (uint32_t)0);
+        n += emit(code + n, OP_RET);
+
+        uint32_t name_idx = nvm_add_string(mod, "main", 4);
+        uint32_t code_off = nvm_append_code(mod, code, n);
+        NvmFunctionEntry fn = {0};
+        fn.name_idx = name_idx;
+        fn.arity = 0;
+        fn.code_offset = code_off;
+        fn.code_length = n;
+        fn.local_count = 0;
+        fn.upvalue_count = 0;
+        uint32_t fn_idx = nvm_add_function(mod, &fn);
+        mod->header.flags = NVM_FLAG_HAS_MAIN;
+        mod->header.entry_point = fn_idx;
+    }
+
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
+    ASSERT(r != VM_OK, "call_module_bad: should fail on invalid module idx");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_call_module_chain(void) {
+    /*
+     * Module C: fn double(x) -> x * 2
+     * Module B: fn add_then_double(x) -> call_module(C, double, x + 1)
+     * Module A: fn main() -> call_module(B, add_then_double, 4)
+     * Expected: double(4 + 1) = 10
+     *
+     * But this requires module B to also link module C. For simplicity,
+     * test a two-module chain: A calls B which calls a local function.
+     */
+
+    /* Module B: fn calc(x) -> (x + 3) * 2
+     * Uses two local functions: add3 and double_it */
+    NvmModule *mod_b = nvm_module_new();
+    {
+        /* fn add3(x) -> x + 3 */
+        uint8_t code1[64];
+        uint32_t n1 = 0;
+        n1 += emit(code1 + n1, OP_LOAD_LOCAL, 0);
+        n1 += emit(code1 + n1, OP_PUSH_I64, (int64_t)3);
+        n1 += emit(code1 + n1, OP_ADD);
+        n1 += emit(code1 + n1, OP_RET);
+
+        uint32_t name1 = nvm_add_string(mod_b, "add3", 4);
+        uint32_t off1 = nvm_append_code(mod_b, code1, n1);
+        NvmFunctionEntry fn1 = {0};
+        fn1.name_idx = name1;
+        fn1.arity = 1;
+        fn1.code_offset = off1;
+        fn1.code_length = n1;
+        fn1.local_count = 1;
+        nvm_add_function(mod_b, &fn1);
+
+        /* fn calc(x) -> call add3(x), then * 2 */
+        uint8_t code2[64];
+        uint32_t n2 = 0;
+        n2 += emit(code2 + n2, OP_LOAD_LOCAL, 0);
+        n2 += emit(code2 + n2, OP_CALL, (uint32_t)0);  /* call add3 */
+        n2 += emit(code2 + n2, OP_PUSH_I64, (int64_t)2);
+        n2 += emit(code2 + n2, OP_MUL);
+        n2 += emit(code2 + n2, OP_RET);
+
+        uint32_t name2 = nvm_add_string(mod_b, "calc", 4);
+        uint32_t off2 = nvm_append_code(mod_b, code2, n2);
+        NvmFunctionEntry fn2 = {0};
+        fn2.name_idx = name2;
+        fn2.arity = 1;
+        fn2.code_offset = off2;
+        fn2.code_length = n2;
+        fn2.local_count = 1;
+        nvm_add_function(mod_b, &fn2);
+    }
+
+    /* Module A: fn main() -> call_module(0, 1, 4)  (mod B, fn "calc", arg 4) */
+    NvmModule *mod_a = nvm_module_new();
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_PUSH_I64, (int64_t)4);
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)1);
+        n += emit(code + n, OP_RET);
+
+        uint32_t name = nvm_add_string(mod_a, "main", 4);
+        uint32_t off = nvm_append_code(mod_a, code, n);
+        NvmFunctionEntry fn = {0};
+        fn.name_idx = name;
+        fn.arity = 0;
+        fn.code_offset = off;
+        fn.code_length = n;
+        fn.local_count = 0;
+        uint32_t fn_idx = nvm_add_function(mod_a, &fn);
+        mod_a->header.flags = NVM_FLAG_HAS_MAIN;
+        mod_a->header.entry_point = fn_idx;
+    }
+
+    VmState vm;
+    vm_init(&vm, mod_a);
+    vm_link_module(&vm, mod_b);
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "call_module_chain: VM_OK");
+
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.as.i64, 14, "call_module_chain: (4+3)*2 == 14");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod_a);
+    nvm_module_free(mod_b);
+}
+
+/* ========================================================================
  * Main
  * ======================================================================== */
 
@@ -1760,6 +1953,11 @@ int main(void) {
     RUN_TEST(test_assemble_and_run);
     RUN_TEST(test_assemble_function_call);
     RUN_TEST(test_assemble_loop);
+
+    printf("\n[Cross-Module Linking]\n");
+    RUN_TEST(test_call_module);
+    RUN_TEST(test_call_module_bad_idx);
+    RUN_TEST(test_call_module_chain);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);

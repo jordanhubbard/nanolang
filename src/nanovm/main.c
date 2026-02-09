@@ -11,6 +11,7 @@
  */
 
 #include "vm.h"
+#include "vm_ffi.h"
 #include "vmd_client.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
@@ -20,6 +21,9 @@
 /* Required by runtime/cli.c */
 int g_argc = 0;
 char **g_argv = NULL;
+
+/* Global flag for co-process FFI isolation */
+static bool g_isolate_ffi = false;
 
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -74,6 +78,15 @@ static int run_standalone(const char *path) {
     VmState vm;
     vm_init(&vm, module);
 
+    /* Start co-process FFI isolation if requested */
+    if (g_isolate_ffi) {
+        if (vm_ffi_cop_start(module)) {
+            vm.isolate_ffi = true;
+        } else {
+            fprintf(stderr, "Warning: Failed to start FFI co-process, using in-process FFI\n");
+        }
+    }
+
     VmResult result = vm_execute(&vm);
 
     int exit_code = 0;
@@ -83,6 +96,11 @@ static int run_standalone(const char *path) {
             fprintf(stderr, "  %s\n", vm.error_msg);
         }
         exit_code = 1;
+    }
+
+    /* Stop co-process if running */
+    if (g_isolate_ffi) {
+        vm_ffi_cop_stop();
     }
 
     vm_destroy(&vm);
@@ -131,6 +149,8 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
             daemon_mode = true;
+        } else if (strcmp(argv[i], "--isolate-ffi") == 0 || strcmp(argv[i], "--cop") == 0) {
+            g_isolate_ffi = true;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             return 1;

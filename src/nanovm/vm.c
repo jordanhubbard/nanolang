@@ -67,7 +67,23 @@ void vm_destroy(VmState *vm) {
         vm_release(&vm->heap, vm->stack[i]);
     }
     free(vm->stack);
+    free(vm->linked_modules);
     vm_heap_destroy(&vm->heap);
+}
+
+uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
+    if (!mod) return (uint32_t)-1;
+    if (vm->linked_module_count >= vm->linked_module_capacity) {
+        uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
+        const NvmModule **new_arr = realloc(vm->linked_modules,
+                                            new_cap * sizeof(const NvmModule *));
+        if (!new_arr) return (uint32_t)-1;
+        vm->linked_modules = new_arr;
+        vm->linked_module_capacity = new_cap;
+    }
+    uint32_t idx = vm->linked_module_count++;
+    vm->linked_modules[idx] = mod;
+    return idx;
 }
 
 /* ========================================================================
@@ -797,6 +813,7 @@ VmTrap vm_core_execute(VmState *vm) {
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
+            new_frame->module = vm->module;
 
             /* Save current execution context */
             frame = new_frame;
@@ -842,6 +859,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
+                new_frame->module = vm->module;
 
                 frame = new_frame;
                 vm->current_fn = callee_idx;
@@ -882,6 +900,8 @@ VmTrap vm_core_execute(VmState *vm) {
             frame = &vm->frames[vm->frame_count - 1];
             vm->current_fn = frame->fn_idx;
             vm->ip = ret_ip;
+            vm->module = frame->module;  /* Restore caller's module */
+            code = vm->module->code;     /* Re-derive code pointer */
             const NvmFunctionEntry *caller_fn = &vm->module->functions[frame->fn_idx];
             code_end = caller_fn->code_offset + caller_fn->code_length;
 
@@ -911,9 +931,53 @@ VmTrap vm_core_execute(VmState *vm) {
             return t;
         }
 
-        case OP_CALL_MODULE:
-            return trap_error(vm, VM_ERR_NOT_IMPLEMENTED,
-                            "Module calls not yet implemented");
+        case OP_CALL_MODULE: {
+            uint32_t mod_idx = instr.operands[0].u32;
+            uint32_t fn_idx_m = instr.operands[1].u32;
+
+            /* Bounds check module index */
+            if (mod_idx >= vm->linked_module_count) {
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                    "Module index %u out of range (have %u)", mod_idx, vm->linked_module_count);
+            }
+            const NvmModule *target = vm->linked_modules[mod_idx];
+
+            /* Bounds check function index in target module */
+            if (fn_idx_m >= target->function_count) {
+                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION,
+                    "Function %u not found in module %u", fn_idx_m, mod_idx);
+            }
+            const NvmFunctionEntry *callee = &target->functions[fn_idx_m];
+
+            if (vm->frame_count >= VM_MAX_FRAMES) {
+                return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+            }
+
+            uint32_t new_base = vm->stack_size - callee->arity;
+            for (uint16_t i = callee->arity; i < callee->local_count; i++) {
+                stack_push(vm, val_void());
+            }
+
+            /* Create frame for the callee in the target module.
+             * frame->module stores the module the callee runs in, so that
+             * OP_RET can correctly restore vm->module to the caller's module. */
+            VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
+            new_frame->fn_idx = fn_idx_m;
+            new_frame->return_ip = vm->ip;
+            new_frame->stack_base = new_base;
+            new_frame->local_count = callee->local_count;
+            new_frame->closure = NULL;
+            new_frame->module = target;  /* This frame runs in the target module */
+
+            /* Switch to target module */
+            vm->module = target;
+            code = target->code;
+            frame = new_frame;
+            vm->current_fn = fn_idx_m;
+            vm->ip = callee->code_offset;
+            code_end = callee->code_offset + callee->code_length;
+            break;
+        }
 
         /* ============================================================
          * String Ops
@@ -1570,6 +1634,7 @@ VmTrap vm_core_execute(VmState *vm) {
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = closure;
+            new_frame->module = vm->module;
 
             frame = new_frame;
             vm->current_fn = callee_idx;
@@ -1691,6 +1756,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
     frame->closure = NULL;
+    frame->module = vm->module;
 
     vm->current_fn = fn_idx;
     vm->ip = fn->code_offset;
@@ -1723,10 +1789,19 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         case TRAP_EXTERN_CALL: {
             NanoValue ext_result;
             char ext_err[256];
-            if (!vm_ffi_call(vm->module, trap.data.extern_call.import_idx,
-                             trap.data.extern_call.args, trap.data.extern_call.argc,
-                             &ext_result, &vm->heap,
-                             ext_err, sizeof(ext_err))) {
+            bool ffi_ok;
+            if (vm->isolate_ffi) {
+                ffi_ok = vm_ffi_call_cop(vm->module, trap.data.extern_call.import_idx,
+                                         trap.data.extern_call.args, trap.data.extern_call.argc,
+                                         &ext_result, &vm->heap,
+                                         ext_err, sizeof(ext_err));
+            } else {
+                ffi_ok = vm_ffi_call(vm->module, trap.data.extern_call.import_idx,
+                                     trap.data.extern_call.args, trap.data.extern_call.argc,
+                                     &ext_result, &vm->heap,
+                                     ext_err, sizeof(ext_err));
+            }
+            if (!ffi_ok) {
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                 "FFI call failed: %s", ext_err);
             }

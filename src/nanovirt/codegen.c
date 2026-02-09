@@ -32,6 +32,7 @@
 #define MAX_UNION_DEFS  64
 #define MAX_GLOBALS     128
 #define MAX_EXTERNS     256
+#define MAX_UPVALUES    64
 #define CODE_INITIAL    4096
 
 /* ── Internal structures ────────────────────────────────────────── */
@@ -96,7 +97,15 @@ typedef struct {
     uint8_t return_tag;      /* NanoValueTag for return type */
 } ExternFn;
 
+/* Upvalue descriptor: a captured variable from a parent scope */
 typedef struct {
+    char *name;              /* Variable name */
+    uint16_t parent_slot;    /* Slot in parent's locals (or parent's upvalues) */
+    bool is_local;           /* true = parent local, false = parent upvalue */
+} Upvalue;
+
+typedef struct CG CG;
+struct CG {
     /* Module being built */
     NvmModule *module;
     Environment *env;
@@ -135,11 +144,16 @@ typedef struct {
     ExternFn externs[MAX_EXTERNS];
     uint16_t extern_count;
 
+    /* Upvalue tracking for closure captures */
+    Upvalue upvalues[MAX_UPVALUES];
+    uint16_t upvalue_count;
+    CG *parent;              /* Parent scope for nested function compilation */
+
     /* Error state */
     bool had_error;
     int error_line;
     char error_msg[256];
-} CG;
+};
 
 /* ── Error reporting ────────────────────────────────────────────── */
 
@@ -254,6 +268,57 @@ static int32_t fn_find(CG *cg, const char *name) {
         if (strcmp(cg->functions[i].name, name) == 0)
             return (int32_t)cg->functions[i].fn_idx;
     }
+    return -1;
+}
+
+/* ── Upvalue resolution ─────────────────────────────────────────── */
+
+/* Check if this CG already has an upvalue for 'name' */
+static int16_t upvalue_find(CG *cg, const char *name) {
+    for (int i = 0; i < cg->upvalue_count; i++) {
+        if (strcmp(cg->upvalues[i].name, name) == 0)
+            return (int16_t)i;
+    }
+    return -1;
+}
+
+/* Add an upvalue entry. Returns index or -1 on overflow. */
+static int16_t upvalue_add(CG *cg, const char *name, uint16_t parent_slot, bool is_local) {
+    if (cg->upvalue_count >= MAX_UPVALUES) return -1;
+    int16_t idx = (int16_t)cg->upvalue_count;
+    cg->upvalues[idx].name = (char *)name;
+    cg->upvalues[idx].parent_slot = parent_slot;
+    cg->upvalues[idx].is_local = is_local;
+    cg->upvalue_count++;
+    return idx;
+}
+
+/*
+ * Resolve a variable as an upvalue by walking the parent CG chain.
+ * Returns the upvalue index in cg->upvalues[], or -1 if not found.
+ *
+ * If found in parent's locals: is_local=true, parent_slot = local slot
+ * If found in parent's upvalues: is_local=false, parent_slot = upvalue index
+ */
+static int16_t upvalue_resolve(CG *cg, const char *name) {
+    if (!cg->parent) return -1;
+
+    /* Already resolved? */
+    int16_t existing = upvalue_find(cg, name);
+    if (existing >= 0) return existing;
+
+    /* Check parent's locals */
+    int16_t parent_local = local_find(cg->parent, name);
+    if (parent_local >= 0) {
+        return upvalue_add(cg, name, (uint16_t)parent_local, true);
+    }
+
+    /* Check parent's upvalues (recursive capture through grandparent) */
+    int16_t parent_upval = upvalue_resolve(cg->parent, name);
+    if (parent_upval >= 0) {
+        return upvalue_add(cg, name, (uint16_t)parent_upval, false);
+    }
+
     return -1;
 }
 
@@ -1464,7 +1529,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     /* Push function reference as a TAG_FUNCTION value */
                     emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, 0);
                 } else {
-                    cg_error(cg, node->line, "undefined variable '%s'", id);
+                    /* Check if it's a captured variable from parent scope */
+                    int16_t uv = upvalue_resolve(cg, id);
+                    if (uv >= 0) {
+                        emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
+                    } else {
+                        cg_error(cg, node->line, "undefined variable '%s'", id);
+                    }
                 }
             }
         }
@@ -1564,13 +1635,20 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 if (slot >= 0) {
                     emit_op(cg, OP_LOAD_LOCAL, (int)slot);
                     emit_op(cg, OP_CALL_INDIRECT);
-                } else if (node->as.call.func_expr) {
-                    /* Computed function expression: ((get_fn) args) */
-                    compile_expr(cg, node->as.call.func_expr);
-                    emit_op(cg, OP_CALL_INDIRECT);
                 } else {
-                    cg_error(cg, node->line, "undefined function '%s'",
-                             name ? name : "(null)");
+                    /* Check if callee is a captured upvalue */
+                    int16_t uv = name ? upvalue_resolve(cg, name) : -1;
+                    if (uv >= 0) {
+                        emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
+                        emit_op(cg, OP_CALL_INDIRECT);
+                    } else if (node->as.call.func_expr) {
+                        /* Computed function expression: ((get_fn) args) */
+                        compile_expr(cg, node->as.call.func_expr);
+                        emit_op(cg, OP_CALL_INDIRECT);
+                    } else {
+                        cg_error(cg, node->line, "undefined function '%s'",
+                                 name ? name : "(null)");
+                    }
                 }
             }
         }
@@ -1966,7 +2044,14 @@ static void compile_stmt(CG *cg, ASTNode *node) {
                 compile_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
             } else {
-                cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
+                /* Check upvalues for captured mutable variables */
+                int16_t uv = upvalue_resolve(cg, node->as.set.name);
+                if (uv >= 0) {
+                    compile_expr(cg, node->as.set.value);
+                    emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
+                } else {
+                    cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
+                }
             }
         }
         break;
@@ -2204,9 +2289,131 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_UNION_DEF:
         break;
 
-    case AST_FUNCTION:
-        /* Functions are compiled in a separate pass, not inline */
+    case AST_FUNCTION: {
+        /* Nested function definition: compile with parent context for captures */
+        if (node->as.function.is_extern) break;
+
+        const char *name = node->as.function.name;
+
+        /* Register nested function in module function table if not already there */
+        int32_t fn_idx = fn_find(cg, name);
+        if (fn_idx < 0) {
+            uint32_t name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+            NvmFunctionEntry fn = {0};
+            fn.name_idx = name_idx;
+            fn.arity = (uint16_t)node->as.function.param_count;
+            fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
+            if (cg->fn_count < MAX_FUNCTIONS) {
+                cg->functions[cg->fn_count].name = (char *)name;
+                cg->functions[cg->fn_count].fn_idx = (uint32_t)fn_idx;
+                cg->fn_count++;
+            }
+        }
+
+        /* Save parent's compilation state */
+        uint8_t *saved_code = cg->code;
+        uint32_t saved_code_size = cg->code_size;
+        uint32_t saved_code_cap = cg->code_cap;
+        Local saved_locals[MAX_LOCALS];
+        memcpy(saved_locals, cg->locals, sizeof(cg->locals));
+        uint16_t saved_local_count = cg->local_count;
+        uint16_t saved_param_count = cg->param_count;
+        LoopCtx saved_loops[MAX_LOOP_DEPTH];
+        memcpy(saved_loops, cg->loops, sizeof(cg->loops));
+        int saved_loop_depth = cg->loop_depth;
+        Upvalue saved_upvalues[MAX_UPVALUES];
+        memcpy(saved_upvalues, cg->upvalues, sizeof(cg->upvalues));
+        uint16_t saved_upvalue_count = cg->upvalue_count;
+        CG *saved_parent = cg->parent;
+
+        /* Set up child compilation context using same CG struct */
+        CG parent_snapshot;
+        memcpy(&parent_snapshot, cg, sizeof(CG));
+        /* Restore parent's locals for upvalue resolution */
+        memcpy(parent_snapshot.locals, saved_locals, sizeof(saved_locals));
+        parent_snapshot.local_count = saved_local_count;
+        parent_snapshot.upvalues[0].name = NULL; /* sentinel */
+        parent_snapshot.upvalue_count = saved_upvalue_count;
+        parent_snapshot.parent = saved_parent;
+
+        cg->parent = &parent_snapshot;
+        cg->code = malloc(CODE_INITIAL);
+        cg->code_size = 0;
+        cg->code_cap = CODE_INITIAL;
+        cg->local_count = 0;
+        cg->param_count = (uint16_t)node->as.function.param_count;
+        cg->loop_depth = 0;
+        cg->upvalue_count = 0;
+
+        /* Parameters become the first locals of nested function */
+        for (int i = 0; i < node->as.function.param_count; i++) {
+            uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
+            if (node->as.function.params[i].struct_type_name) {
+                cg->locals[slot].struct_type = node->as.function.params[i].struct_type_name;
+            }
+        }
+
+        /* Compile nested function body */
+        ASTNode *body = node->as.function.body;
+        if (body) {
+            if (body->type == AST_BLOCK) {
+                for (int i = 0; i < body->as.block.count; i++) {
+                    compile_stmt(cg, body->as.block.statements[i]);
+                }
+            } else {
+                compile_expr(cg, body);
+                emit_op(cg, OP_RET);
+            }
+        }
+        if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
+            emit_op(cg, OP_PUSH_VOID);
+            emit_op(cg, OP_RET);
+        }
+
+        /* Save nested function's upvalue info before restoring parent state */
+        uint16_t child_upvalue_count = cg->upvalue_count;
+        Upvalue child_upvalues[MAX_UPVALUES];
+        memcpy(child_upvalues, cg->upvalues, sizeof(Upvalue) * child_upvalue_count);
+
+        /* Finalize nested function in module */
+        if (!cg->had_error) {
+            uint32_t code_off = nvm_append_code(cg->module, cg->code, cg->code_size);
+            NvmFunctionEntry *entry = &cg->module->functions[fn_idx];
+            entry->code_offset = code_off;
+            entry->code_length = cg->code_size;
+            entry->local_count = cg->local_count;
+            entry->upvalue_count = child_upvalue_count;
+        }
+
+        /* Free child code buffer and restore parent state */
+        free(cg->code);
+        cg->code = saved_code;
+        cg->code_size = saved_code_size;
+        cg->code_cap = saved_code_cap;
+        memcpy(cg->locals, saved_locals, sizeof(cg->locals));
+        cg->local_count = saved_local_count;
+        cg->param_count = saved_param_count;
+        memcpy(cg->loops, saved_loops, sizeof(cg->loops));
+        cg->loop_depth = saved_loop_depth;
+        memcpy(cg->upvalues, saved_upvalues, sizeof(cg->upvalues));
+        cg->upvalue_count = saved_upvalue_count;
+        cg->parent = saved_parent;
+
+        /* At the definition site: push captured values, then emit CLOSURE_NEW */
+        for (int i = 0; i < child_upvalue_count; i++) {
+            if (child_upvalues[i].is_local) {
+                emit_op(cg, OP_LOAD_LOCAL, (int)child_upvalues[i].parent_slot);
+            } else {
+                emit_op(cg, OP_LOAD_UPVALUE, 0, (int)child_upvalues[i].parent_slot);
+            }
+        }
+        emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, (int)child_upvalue_count);
+
+        /* Store closure in a local variable named after the function */
+        uint16_t closure_slot = local_add(cg, name, node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)closure_slot);
         break;
+    }
 
     case AST_UNSAFE_BLOCK: {
         for (int i = 0; i < node->as.block.count; i++) {
@@ -2240,6 +2447,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     cg->local_count = 0;
     cg->param_count = (uint16_t)fn_node->as.function.param_count;
     cg->loop_depth = 0;
+    cg->upvalue_count = 0;
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
@@ -2282,6 +2490,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     entry->code_offset = code_off;
     entry->code_length = cg->code_size;
     entry->local_count = cg->local_count;
+    entry->upvalue_count = cg->upvalue_count;
 }
 
 /* ── Main compilation entry point ───────────────────────────────── */

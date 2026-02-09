@@ -38,8 +38,16 @@ typedef enum {
     NVM_SECTION_GLOBALS   = 0x0007,  /* Global variable declarations */
     NVM_SECTION_IMPORTS   = 0x0008,  /* Extern function stubs */
     NVM_SECTION_DEBUG     = 0x0009,  /* Source maps */
-    NVM_SECTION_METADATA  = 0x000A   /* Module name, version */
+    NVM_SECTION_METADATA  = 0x000A,  /* Module name, version */
+    NVM_SECTION_MODULE_REFS = 0x000B /* Referenced module names for linking */
 } NvmSectionType;
+
+/* Module Reference Entry (serialized in MODULE_REFS section) */
+typedef struct {
+    uint32_t module_name_idx;  /* String pool index of referenced module name */
+} NvmModuleRefEntry;
+
+#define NVM_MODULE_REF_ENTRY_SIZE 4
 
 /* ========================================================================
  * Header (32 bytes)

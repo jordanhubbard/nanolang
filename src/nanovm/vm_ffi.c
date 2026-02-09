@@ -387,3 +387,188 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     *result = marshal_result(raw_result, imp->return_type, heap);
     return true;
 }
+
+/* ========================================================================
+ * Co-Process FFI Isolation
+ * ======================================================================== */
+
+#include "cop_protocol.h"
+#include <signal.h>
+#include <sys/wait.h>
+
+static pid_t cop_pid = -1;
+static int cop_in_fd = -1;   /* Write to co-process stdin */
+static int cop_out_fd = -1;  /* Read from co-process stdout */
+
+bool vm_ffi_cop_start(const NvmModule *module) {
+    if (cop_pid > 0) return true;  /* Already running */
+
+    /* Serialize the module to send to co-process */
+    uint32_t blob_size = 0;
+    uint8_t *blob = nvm_serialize(module, &blob_size);
+    if (!blob) return false;
+
+    /* Create pipes: parent writes to child stdin, reads from child stdout */
+    int pipe_to_child[2];    /* parent writes [1], child reads [0] */
+    int pipe_from_child[2];  /* child writes [1], parent reads [0] */
+
+    if (pipe(pipe_to_child) != 0 || pipe(pipe_from_child) != 0) {
+        free(blob);
+        return false;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        free(blob);
+        close(pipe_to_child[0]); close(pipe_to_child[1]);
+        close(pipe_from_child[0]); close(pipe_from_child[1]);
+        return false;
+    }
+
+    if (pid == 0) {
+        /* Child: set up stdin/stdout from pipes, exec nano_cop */
+        close(pipe_to_child[1]);
+        close(pipe_from_child[0]);
+        dup2(pipe_to_child[0], STDIN_FILENO);
+        dup2(pipe_from_child[1], STDOUT_FILENO);
+        close(pipe_to_child[0]);
+        close(pipe_from_child[1]);
+
+        /* Try to find nano_cop next to the current executable */
+        execlp("nano_cop", "nano_cop", (char *)NULL);
+        /* If execlp fails, try ./bin/nano_cop */
+        execl("bin/nano_cop", "nano_cop", (char *)NULL);
+        _exit(127);
+    }
+
+    /* Parent */
+    close(pipe_to_child[0]);
+    close(pipe_from_child[1]);
+    cop_pid = pid;
+    cop_in_fd = pipe_to_child[1];
+    cop_out_fd = pipe_from_child[0];
+
+    /* Send INIT with serialized module */
+    if (!cop_send(cop_in_fd, COP_MSG_INIT, blob, blob_size)) {
+        free(blob);
+        vm_ffi_cop_stop();
+        return false;
+    }
+    free(blob);
+
+    /* Wait for READY */
+    CopMsgHeader hdr;
+    if (!cop_recv_header(cop_out_fd, &hdr) || hdr.msg_type != COP_MSG_READY) {
+        vm_ffi_cop_stop();
+        return false;
+    }
+
+    return true;
+}
+
+void vm_ffi_cop_stop(void) {
+    if (cop_pid <= 0) return;
+
+    /* Try graceful shutdown */
+    if (cop_in_fd >= 0) {
+        cop_send_simple(cop_in_fd, COP_MSG_SHUTDOWN);
+        close(cop_in_fd);
+        cop_in_fd = -1;
+    }
+    if (cop_out_fd >= 0) {
+        close(cop_out_fd);
+        cop_out_fd = -1;
+    }
+
+    /* Wait for child with timeout */
+    int status;
+    pid_t w = waitpid(cop_pid, &status, WNOHANG);
+    if (w == 0) {
+        /* Child still running, give it a moment then kill */
+        usleep(50000); /* 50ms */
+        w = waitpid(cop_pid, &status, WNOHANG);
+        if (w == 0) {
+            kill(cop_pid, SIGTERM);
+            waitpid(cop_pid, &status, 0);
+        }
+    }
+
+    cop_pid = -1;
+}
+
+bool vm_ffi_cop_active(void) {
+    return cop_pid > 0;
+}
+
+bool vm_ffi_call_cop(const NvmModule *module, uint32_t import_idx,
+                     NanoValue *args, int arg_count,
+                     NanoValue *result, VmHeap *heap,
+                     char *error_msg, size_t error_msg_size) {
+    if (cop_pid <= 0) {
+        /* Fallback to in-process */
+        return vm_ffi_call(module, import_idx, args, arg_count,
+                           result, heap, error_msg, error_msg_size);
+    }
+
+    /* Build request payload: u32 import_idx + u16 argc + serialized args */
+    uint8_t payload[8192];
+    uint32_t pos = 0;
+    memcpy(payload + pos, &import_idx, 4);
+    pos += 4;
+    uint16_t argc = (uint16_t)arg_count;
+    memcpy(payload + pos, &argc, 2);
+    pos += 2;
+
+    for (int i = 0; i < arg_count && i < 16; i++) {
+        uint32_t n = cop_serialize_value(&args[i], payload + pos, sizeof(payload) - pos);
+        if (n == 0) {
+            snprintf(error_msg, error_msg_size, "COP: failed to serialize arg %d", i);
+            return false;
+        }
+        pos += n;
+    }
+
+    /* Send request */
+    if (!cop_send(cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
+        snprintf(error_msg, error_msg_size, "COP: failed to send FFI request");
+        vm_ffi_cop_stop();
+        return false;
+    }
+
+    /* Receive response */
+    CopMsgHeader hdr;
+    if (!cop_recv_header(cop_out_fd, &hdr)) {
+        snprintf(error_msg, error_msg_size, "COP: failed to receive response");
+        vm_ffi_cop_stop();
+        return false;
+    }
+
+    if (hdr.msg_type == COP_MSG_FFI_RESULT) {
+        if (hdr.payload_len > 0 && hdr.payload_len < sizeof(payload)) {
+            if (!cop_recv_payload(cop_out_fd, payload, hdr.payload_len)) {
+                snprintf(error_msg, error_msg_size, "COP: failed to receive result payload");
+                return false;
+            }
+            if (cop_deserialize_value(payload, hdr.payload_len, result, heap) == 0) {
+                snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
+                return false;
+            }
+        } else {
+            *result = val_void();
+        }
+        return true;
+    } else if (hdr.msg_type == COP_MSG_FFI_ERROR) {
+        uint32_t err_len = hdr.payload_len < (uint32_t)(error_msg_size - 1)
+                           ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
+        if (err_len > 0) {
+            cop_recv_payload(cop_out_fd, error_msg, err_len);
+            error_msg[err_len] = '\0';
+        }
+        return false;
+    } else {
+        /* Unexpected message type */
+        snprintf(error_msg, error_msg_size, "COP: unexpected response type 0x%02x",
+                 hdr.msg_type);
+        return false;
+    }
+}
