@@ -155,7 +155,7 @@ jobs:
         timeout-minutes: 20  # Timeout for test step specifically
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make test-units  # Run only unit tests, skip slow integration tests
+          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -fsanitize=address,undefined"
 
       - name: Run negative tests with sanitizers
         run: |
@@ -205,7 +205,7 @@ jobs:
         run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
 
       - name: Run tests
-        run: make test
+        run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
         run: |
