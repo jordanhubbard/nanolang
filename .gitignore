@@ -120,3 +120,4 @@ tests/fuzzing/fuzz_*
 tests/fuzzing/findings_*/
 tests/fuzzing/crash-*
 tests/fuzzing/*.log
+.vibe/
