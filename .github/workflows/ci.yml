@@ -149,7 +149,7 @@ jobs:
       - name: Complete 3-stage bootstrap with sanitizers
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make clean && make build
+          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
         timeout-minutes: 20  # Timeout for test step specifically
@@ -202,7 +202,7 @@ jobs:
         run: make coverage
 
       - name: Complete 3-stage bootstrap with coverage
-        run: make clean && make build
+        run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
 
       - name: Run tests
         run: make test
