@@ -53,6 +53,12 @@ DATA_SOURCES := $(wildcard data/*.nano)
 DATA_EXAMPLES := $(patsubst data/%.nano,$(BIN_DIR)/%,$(DATA_SOURCES))
 DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
 
+# === Verified Examples (formally proven NanoCore programs) ===
+
+VERIFIED_SOURCES := $(wildcard verified/*.nano)
+VERIFIED_EXAMPLES := $(patsubst verified/%.nano,$(BIN_DIR)/%,$(VERIFIED_SOURCES))
+VERIFIED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(VERIFIED_EXAMPLES)))
+
 # === Debugging & Validation Examples ===
 
 DEBUG_SOURCES := $(wildcard debug/*.nano)
@@ -127,6 +133,7 @@ ALL_EXAMPLES = \
 	$(REPL_EXAMPLES) \
 	$(ADVANCED_EXAMPLES) \
 	$(DATA_EXAMPLES) \
+	$(VERIFIED_EXAMPLES) \
 	$(DEBUG_EXAMPLES) \
 	$(NETWORK_EXAMPLES) \
 	$(PHYSICS_EXAMPLES) \
@@ -139,7 +146,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build examples-available nl opl sdl ncurses opengl debug clean help launcher
+.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher
 
 # Default: build all examples
 all: build
@@ -163,6 +170,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "Data examples:"
 	@$(if $(strip $(DATA_NAMES)),$(foreach ex,$(DATA_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
+	@echo "Verified examples (formally proven):"
+	@$(if $(strip $(VERIFIED_NAMES)),$(foreach ex,$(VERIFIED_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "Debugging & Validation examples:"
 	@$(if $(strip $(DEBUG_NAMES)),$(foreach ex,$(DEBUG_NAMES),echo "  ./bin/$(ex)";),:)
@@ -218,6 +228,12 @@ launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
+verified: $(COMPILER) $(VERIFIED_EXAMPLES)
+	@echo ""
+	@echo "Verified examples built successfully!"
+	@echo "Run them:"
+	@$(if $(strip $(VERIFIED_NAMES)),$(foreach ex,$(VERIFIED_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
 debug: $(COMPILER) $(DEBUG_EXAMPLES)
 	@echo ""
 	@echo "Debugging & Validation examples built successfully!"
@@ -240,6 +256,11 @@ $(INTERPRETER):
 	@cd .. && $(MAKE) bin/nano
 
 # === Build Rules ===
+
+# Verified examples (in verified/ subdirectory)
+$(BIN_DIR)/%: verified/%.nano $(COMPILER)
+	@echo "Building $@..."
+	cd .. && ./bin/nanoc examples/$< -o bin/$(notdir $@)
 
 # Debugging & validation examples (in debug/ subdirectory)
 $(BIN_DIR)/logging_%: debug/logging_%.nano $(COMPILER)
