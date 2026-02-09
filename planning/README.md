@@ -50,7 +50,6 @@ These documents represent current or upcoming work:
 
 ### NanoISA Virtual Machine (Phase 10) ✅ Complete
 - **[../docs/NANOISA.md](../docs/NANOISA.md)** - Complete architecture reference
-- **[../nanoisa.txt](../nanoisa.txt)** - Original design vision
 
 ### Formal Verification (Phase 11) ✅ Complete
 - **[../formal/README.md](../formal/README.md)** - Coq proof suite (6,170 LOC, 0 axioms)

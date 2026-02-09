@@ -6,6 +6,8 @@
  * nl_os_* functions but are actual callable symbols.
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

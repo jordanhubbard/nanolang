@@ -2,6 +2,8 @@
  * nl_string.c - Nanolang String Implementation
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include "nl_string.h"
 #include <stdlib.h>
 #include <string.h>
