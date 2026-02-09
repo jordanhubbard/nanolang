@@ -107,7 +107,7 @@ static TestResult compile_and_run(const char *source) {
     free_tokens(tokens, token_count);
 
     if (!cg.ok) {
-        snprintf(tr.error, sizeof(tr.error), "codegen: %s", cg.error_msg);
+        snprintf(tr.error, sizeof(tr.error), "codegen: %.240s", cg.error_msg);
         return tr;
     }
 
@@ -170,7 +170,7 @@ static TestResult compile_and_call(const char *source, const char *fn_name,
     free_tokens(tokens, token_count);
 
     if (!cg.ok) {
-        snprintf(tr.error, sizeof(tr.error), "codegen: %s", cg.error_msg);
+        snprintf(tr.error, sizeof(tr.error), "codegen: %.240s", cg.error_msg);
         return tr;
     }
 

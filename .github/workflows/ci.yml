@@ -149,7 +149,7 @@ jobs:
       - name: Complete 3-stage bootstrap with sanitizers
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make build
+          make clean && make build
 
       - name: Run tests with sanitizers
         timeout-minutes: 20  # Timeout for test step specifically
@@ -202,7 +202,7 @@ jobs:
         run: make coverage
 
       - name: Complete 3-stage bootstrap with coverage
-        run: make build
+        run: make clean && make build
 
       - name: Run tests
         run: make test
