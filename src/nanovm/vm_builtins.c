@@ -6,7 +6,7 @@
  * nl_os_* functions but are actual callable symbols.
  */
 
-#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+#define _POSIX_C_SOURCE 200809L  /* For strdup(), mkdtemp() */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +18,11 @@
 #include <ctype.h>
 #include <math.h>
 #include "runtime/dyn_array.h"
+
+/* mkdtemp declaration (not exposed on macOS with -std=c99) */
+#ifndef _DARWIN_C_SOURCE
+char *mkdtemp(char *);
+#endif
 
 /* ── OS / File System ─────────────────────────────────────────────── */
 

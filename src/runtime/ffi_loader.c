@@ -11,6 +11,8 @@
  * - The daemon runs concurrent threads (read lock allows parallel symbol resolution)
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup(), pthread_rwlock_t */
+
 #include "ffi_loader.h"
 #include <dlfcn.h>
 #include <stdlib.h>

@@ -6,6 +6,8 @@
  * socket to appear (with flock-based race protection).
  */
 
+#define _GNU_SOURCE  /* For strdup(), readlink(), flock() */
+
 #include "vmd_client.h"
 #include "vmd_protocol.h"
 

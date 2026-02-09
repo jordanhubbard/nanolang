@@ -2,6 +2,8 @@
  * NanoVM Value operations
  */
 
+#define _POSIX_C_SOURCE 200809L  /* For strdup() */
+
 #include "value.h"
 #include "heap.h"
 #include <stdio.h>
