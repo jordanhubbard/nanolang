@@ -461,6 +461,60 @@ See [`STDLIB.md`](STDLIB.md) for full reference.
 
 ## Compilation & Tooling
 
+### ✅ Dual Compilation: C Transpilation + NanoISA Virtual Machine
+
+nanolang offers two compilation backends:
+
+**C Transpilation** (default, maximum performance):
+```bash
+nanoc program.nano -o program    # Transpile to C, compile to native binary
+./program
+```
+
+**NanoISA Virtual Machine** (sandboxed, portable):
+```bash
+nano_virt program.nano --run          # Compile to bytecode + execute in VM
+nano_virt program.nano -o program     # Compile to native binary (embeds VM)
+nano_virt program.nano --emit-nvm -o program.nvm  # Emit raw bytecode
+nano_vm program.nvm                   # Execute bytecode
+nano_vm --isolate-ffi program.nvm     # Execute with FFI in separate process
+```
+
+**When to use which:**
+
+| | C Backend (`nanoc`) | VM Backend (`nano_virt`) |
+|-|---------------------|--------------------------|
+| **Performance** | Native speed | Interpreted (slower) |
+| **FFI safety** | In-process (shared address space) | Process-isolated (crash-safe) |
+| **Dependencies** | Needs gcc/clang | Self-contained |
+| **Debugging** | GDB/LLDB on C output | Source-line debug info in bytecode |
+| **Formal grounding** | Semantics verified in Coq | Semantics verified in Coq + differential testing |
+
+**VM Architecture:**
+- 178-opcode stack machine with reference-counted GC
+- Co-process FFI: external calls run in a separate `nano_cop` process via RPC — FFI crashes cannot take down the VM
+- Optional daemon mode (`nano_vmd`): persistent VM process for reduced startup latency
+- Trap model: pure-compute core separated from I/O, enabling potential FPGA acceleration
+
+See [NanoISA Architecture Reference](NANOISA.md) for the complete specification.
+
+---
+
+### ✅ Formally Verified Semantics
+
+NanoLang's core language (NanoCore) has mechanically verified metatheory in the Rocq Prover (Coq):
+
+- **Type Soundness** - Well-typed programs don't go wrong (preservation + progress)
+- **Determinism** - Each expression evaluates to at most one result
+- **Semantic Equivalence** - Big-step and small-step semantics agree
+- **Computable Evaluator** - Fuel-based reference interpreter extracted to OCaml
+
+All proofs are **axiom-free**: ~6,170 lines of Coq, 193 theorems, 0 `Admitted`, 0 axioms.
+
+See [formal/README.md](../formal/README.md) for the full proof suite.
+
+---
+
 ### ✅ C Transpilation
 
 nanolang transpiles to C99:

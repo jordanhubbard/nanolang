@@ -306,6 +306,33 @@ if (> x 0) {
 }
 ```
 
+## Alternative: NanoISA Virtual Machine
+
+In addition to compiling to C, nanolang can compile to its own virtual machine:
+
+```bash
+# Build the VM backend
+make vm
+
+# Compile and run directly in the VM
+./bin/nano_virt hello.nano --run
+
+# Or compile to a native binary that embeds the VM
+./bin/nano_virt hello.nano -o hello
+./hello
+
+# Or emit bytecode and run it separately
+./bin/nano_virt hello.nano --emit-nvm -o hello.nvm
+./bin/nano_vm hello.nvm
+```
+
+**Why use the VM backend?**
+- **Sandboxed execution** - All external function calls are isolated in a separate co-process via RPC. If an FFI call crashes, the VM survives.
+- **No C compiler needed** - The VM runs bytecode directly, no gcc/clang required at runtime.
+- **Formally grounded** - NanoLang's core semantics are verified in Coq; the VM's behavior can be validated against a provably correct reference interpreter.
+
+Both backends produce identical results for the same NanoLang program. See [docs/NANOISA.md](NANOISA.md) for the full architecture reference.
+
 ## Next Steps
 
 1. **Read the examples** - Check out the `examples/` directory

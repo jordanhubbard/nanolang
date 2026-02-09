@@ -458,6 +458,33 @@ pub fn main() -> int {
 - `from "path" import symbols` - Selective imports
 - See `docs/NAMESPACE_USAGE.md` for complete guide
 
+## Compilation
+
+### C Backend (default)
+```bash
+nanoc program.nano -o program       # Compile to native binary
+nanoc program.nano --keep-c -o prog # Keep generated C source
+```
+
+### NanoISA VM Backend
+```bash
+nano_virt program.nano --run              # Compile + run in VM
+nano_virt program.nano -o program         # Native binary (embeds VM)
+nano_virt program.nano --emit-nvm -o p.nvm  # Raw bytecode
+nano_vm p.nvm                             # Execute bytecode
+nano_vm --isolate-ffi p.nvm              # FFI in separate process
+nano_vm --daemon p.nvm                    # Run via VM daemon
+```
+
+### Build Targets
+```bash
+make build        # Build C compiler (nanoc)
+make vm           # Build VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)
+make test         # Run tests with C backend
+make test-vm      # Run tests with VM backend
+make install      # Install all binaries
+```
+
 ## Common Mistakes
 
 Both prefix and infix notation are valid for operators:
