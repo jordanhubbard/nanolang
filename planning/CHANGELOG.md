@@ -7,15 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-02-09
+
 ### Added
+
+#### NanoISA Virtual Machine
+- Complete bytecode VM backend (NanoVM) - 7-phase implementation
+  - Phase 1: ISA specification, assembler (`nano_asm`), and disassembler (`nano_dasm`)
+  - Phase 2: VM core execution engine with register-based architecture
+  - Phase 3: Compiler backend (`nano_virt`) - NanoLang to NanoISA bytecode
+  - Phase 4: Complex types codegen (structs, arrays, strings, maps)
+  - Phase 5: Module/extern support, closure captures, cross-module linking
+  - Phase 6: Native binary generation from bytecode
+  - Phase 7: Runtime fixes - all 191/191 tests pass (100%)
+- NanoVM daemon (`nano_vmd`) for persistent bytecode execution
+- NVM bytecode verifier for pre-execution safety validation
+- Co-process FFI isolation with lazy launch and crash recovery
+- Unified FFI loader + co-processor trap model
+- Backend-agnostic test suite supporting both C transpiler and VM backends
+- Differential testing framework: Coq reference interpreter vs NanoVM
+- `make vm` build target for VM components
+
+#### Formal Verification (Coq)
+- Complete axiom-free formal verification of NanoCore semantics
+  - `Syntax.v` - Abstract syntax definitions
+  - `Semantics.v` - Big-step and small-step operational semantics
+  - `Typing.v` - Type system specification
+  - `Soundness.v` - Type soundness (well-typed programs don't get stuck)
+  - `Progress.v` - Progress theorem (well-typed terms can step)
+  - `Determinism.v` - Deterministic evaluation
+  - `Equivalence.v` - Semantic equivalence proof (big-step ↔ small-step), ~3100 LOC
+- Proofs cover: mutation, while loops, strings, arrays, records, variants, pattern matching
+- Zero axioms, zero Admitted lemmas - fully machine-checked
+- Practical verification deliverables: interactive demos, adversarial stress tests
+- 6 real-world verified examples demonstrating Coq guarantees
+- OCaml extraction for reference interpreter
+
+#### Language
 - Infix notation for binary operators (`a + b` in addition to prefix `(+ a b)`)
   - Supported operators: +, -, *, /, %, ==, !=, <, <=, >, >=, and, or
   - All infix operators have equal precedence, evaluated left-to-right
   - Use parentheses to group: `a * (b + c)`
   - Unary `not` and `-` work without parens: `not flag`, `-x`
   - `else if` chaining supported
-  - Function calls remain prefix notation: `(println "hello")`
   - Prefix notation fully preserved for backward compatibility
+
+### Fixed
+- POSIX/GNU portability across all platforms (`_POSIX_C_SOURCE`, `_GNU_SOURCE`)
+- Coverage/sanitizer CFLAGS properly passed through CI bootstrap
+- Format-truncation warning + stale object files in CI
+- Transpiler name collision (`bool_to_string` renamed to `btos`)
+- OpenGL extension fallbacks and error checks (GLEW)
+
+### Changed
+- Per-VM co-process state with lazy launch and crash recovery
+- Documentation updated for NanoISA VM backend
 
 ## [2.4.1] - 2026-02-05
 
