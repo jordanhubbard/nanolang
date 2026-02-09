@@ -56,6 +56,36 @@ static bool handle_init(int in_fd, uint32_t payload_len) {
         }
     }
 
+    /* For imports with empty module names (bare extern fn declarations),
+     * try loading well-known standard modules by function name prefix. */
+    static const struct { const char *prefix; const char *module; } known_modules[] = {
+        {"path_",    "std/fs"},
+        {"fs_",      "std/fs"},
+        {"file_",    "std/fs"},
+        {"dir_",     "std/fs"},
+        {"regex_",   "std/regex"},
+        {"process_", "std/process"},
+        {"json_",    "std/json"},
+        {"bstr_",    "std/bstring"},
+        {NULL, NULL}
+    };
+
+    for (uint32_t i = 0; i < g_module->import_count; i++) {
+        const char *fn_name = nvm_get_string(g_module,
+                                              g_module->imports[i].function_name_idx);
+        const char *mod_name = nvm_get_string(g_module,
+                                               g_module->imports[i].module_name_idx);
+        if (fn_name && (!mod_name || mod_name[0] == '\0')) {
+            for (int k = 0; known_modules[k].prefix; k++) {
+                if (strncmp(fn_name, known_modules[k].prefix,
+                           strlen(known_modules[k].prefix)) == 0) {
+                    vm_ffi_load_module(known_modules[k].module);
+                    break;
+                }
+            }
+        }
+    }
+
     /* Signal ready */
     cop_send_simple(STDOUT_FILENO, COP_MSG_READY);
     return true;
@@ -103,10 +133,26 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
         uint32_t err_len = (uint32_t)strlen(error_msg);
         cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, error_msg, err_len);
     } else {
-        /* Serialize and send result */
-        uint8_t result_buf[4096];
-        uint32_t result_len = cop_serialize_value(&result, result_buf, sizeof(result_buf));
-        cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, result_buf, result_len);
+        /* Serialize and send result.
+         * Use a small stack buffer for simple values, dynamically
+         * allocate for large results (arrays, deeply nested structs). */
+        uint8_t stack_buf[4096];
+        uint32_t result_len = cop_serialize_value(&result, stack_buf, sizeof(stack_buf));
+        if (result_len > 0) {
+            cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, stack_buf, result_len);
+        } else {
+            /* Stack buffer too small — retry with a larger heap buffer */
+            uint32_t big_size = 1024 * 1024;  /* 1 MB */
+            uint8_t *big_buf = malloc(big_size);
+            if (big_buf) {
+                result_len = cop_serialize_value(&result, big_buf, big_size);
+                cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, big_buf, result_len);
+                free(big_buf);
+            } else {
+                cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR,
+                         "OOM serializing result", 22);
+            }
+        }
         vm_release(&g_heap, result);
     }
 

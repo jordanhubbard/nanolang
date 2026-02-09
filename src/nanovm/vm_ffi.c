@@ -569,12 +569,25 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
 
     if (hdr.msg_type == COP_MSG_FFI_RESULT) {
-        if (hdr.payload_len > 0 && hdr.payload_len < sizeof(payload)) {
-            if (!cop_recv_payload(vm->cop_out_fd, payload, hdr.payload_len)) {
+        if (hdr.payload_len > 0) {
+            /* Use stack buffer for small payloads, heap for large (arrays) */
+            uint8_t *recv_buf = (hdr.payload_len <= sizeof(payload))
+                                ? payload
+                                : malloc(hdr.payload_len);
+            if (!recv_buf) {
+                snprintf(error_msg, error_msg_size, "COP: OOM for result (%u bytes)",
+                         hdr.payload_len);
+                return false;
+            }
+            bool ok = cop_recv_payload(vm->cop_out_fd, recv_buf, hdr.payload_len);
+            if (!ok) {
+                if (recv_buf != payload) free(recv_buf);
                 snprintf(error_msg, error_msg_size, "COP: failed to receive result payload");
                 return false;
             }
-            if (cop_deserialize_value(payload, hdr.payload_len, result, heap) == 0) {
+            uint32_t consumed = cop_deserialize_value(recv_buf, hdr.payload_len, result, heap);
+            if (recv_buf != payload) free(recv_buf);
+            if (consumed == 0) {
                 snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
                 return false;
             }

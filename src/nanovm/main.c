@@ -75,6 +75,50 @@ static int run_standalone(const char *path) {
         return 1;
     }
 
+    /* Preload FFI modules if the .nvm has imports */
+    if (module->import_count > 0) {
+        vm_ffi_init();
+
+        /* Load modules referenced by name in the import table */
+        for (uint32_t i = 0; i < module->import_count; i++) {
+            const char *mod_name = nvm_get_string(module,
+                                                   module->imports[i].module_name_idx);
+            if (mod_name && mod_name[0] != '\0') {
+                vm_ffi_load_module(mod_name);
+            }
+        }
+
+        /* For imports with empty module names (bare extern fn declarations),
+         * try loading well-known standard modules by function name prefix. */
+        static const struct { const char *prefix; const char *module; } known_modules[] = {
+            {"path_",    "std/fs"},
+            {"fs_",      "std/fs"},
+            {"file_",    "std/fs"},
+            {"dir_",     "std/fs"},
+            {"regex_",   "std/regex"},
+            {"process_", "std/process"},
+            {"json_",    "std/json"},
+            {"bstr_",    "std/bstring"},
+            {NULL, NULL}
+        };
+
+        for (uint32_t i = 0; i < module->import_count; i++) {
+            const char *fn_name = nvm_get_string(module,
+                                                  module->imports[i].function_name_idx);
+            const char *mod_name = nvm_get_string(module,
+                                                   module->imports[i].module_name_idx);
+            if (fn_name && (!mod_name || mod_name[0] == '\0')) {
+                for (int k = 0; known_modules[k].prefix; k++) {
+                    if (strncmp(fn_name, known_modules[k].prefix,
+                               strlen(known_modules[k].prefix)) == 0) {
+                        vm_ffi_load_module(known_modules[k].module);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     VmState vm;
     vm_init(&vm, module);
 
@@ -101,6 +145,7 @@ static int run_standalone(const char *path) {
     }
 
     vm_destroy(&vm);
+    vm_ffi_shutdown();
     nvm_module_free(module);
 
     return exit_code;

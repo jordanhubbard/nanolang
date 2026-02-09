@@ -15,6 +15,11 @@
 #   ./tests/run_all_tests.sh --app     # Run only application tests
 #   ./tests/run_all_tests.sh --unit    # Run only unit tests
 #
+# Backend selection (env var):
+#   NANOLANG_BACKEND=c       ./tests/run_all_tests.sh   # C transpiler (default)
+#   NANOLANG_BACKEND=vm      ./tests/run_all_tests.sh   # NanoVM bytecode
+#   NANOLANG_BACKEND=daemon  ./tests/run_all_tests.sh   # NanoVM daemon mode
+#
 # ============================================================================
 
 set +e
@@ -22,6 +27,9 @@ set +e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
+
+# Backend selection: c (default), vm, daemon
+BACKEND="${NANOLANG_BACKEND:-c}"
 
 mkdir -p .test_output
 rm -f .test_output/*.compile.log
@@ -69,6 +77,17 @@ fi
 EXPECTED_FAILURES=(
 )
 
+# Per-backend expected failures
+VM_EXPECTED_FAILURES=(
+    # Add tests here only for features that are INTENTIONALLY unsupported,
+    # not for gaps that should be fixed.
+)
+
+DAEMON_EXPECTED_FAILURES=(
+    # get_argc() returns 0 in co-process isolation (no command-line context)
+    ug_patterns_unsafe_extern.nano
+)
+
 is_expected_failure() {
     local test_name="$1"
     for exp in "${EXPECTED_FAILURES[@]}"; do
@@ -76,6 +95,23 @@ is_expected_failure() {
             return 0
         fi
     done
+    # Check backend-specific expected failures
+    case "$BACKEND" in
+        vm|nanovm)
+            for exp in "${VM_EXPECTED_FAILURES[@]}"; do
+                if [ "$test_name" = "$exp" ]; then
+                    return 0
+                fi
+            done
+            ;;
+        daemon)
+            for exp in "${DAEMON_EXPECTED_FAILURES[@]}"; do
+                if [ "$test_name" = "$exp" ]; then
+                    return 0
+                fi
+            done
+            ;;
+    esac
     return 1
 }
 
@@ -101,9 +137,24 @@ run_test() {
     local out_file=".test_output/${category}_${test_name}.out"
     local run_log=".test_output/${category}_${test_name}.run.log"
     
-    # Compile the test
-    perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
-    
+    # Compile the test (backend-dependent)
+    case "$BACKEND" in
+        c|native)
+            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
+            ;;
+        vm|nanovm)
+            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nano_virt "$test_file" --emit-nvm -o "${out_file}.nvm" >"$log_file" 2>&1
+            ;;
+        daemon)
+            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nano_virt "$test_file" --emit-nvm -o "${out_file}.nvm" >"$log_file" 2>&1
+            ;;
+        *)
+            echo -e "${RED}❌${NC} $test_name ${RED}(unknown backend: $BACKEND)${NC}"
+            TOTAL_FAIL=$((TOTAL_FAIL + 1))
+            return 1
+            ;;
+    esac
+
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
@@ -114,13 +165,30 @@ run_test() {
         esac
         return 1
     fi
-    
-    # Run the compiled binary (shadow tests execute at runtime now)
-    if [ -f "$out_file" ]; then
-        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" "$out_file" >"$run_log" 2>&1
+
+    # Determine the artifact to check and run command
+    local run_artifact run_cmd
+    case "$BACKEND" in
+        c|native)
+            run_artifact="$out_file"
+            run_cmd="$out_file"
+            ;;
+        vm|nanovm)
+            run_artifact="${out_file}.nvm"
+            run_cmd="./bin/nano_vm ${out_file}.nvm"
+            ;;
+        daemon)
+            run_artifact="${out_file}.nvm"
+            run_cmd="./bin/nano_vm --daemon ${out_file}.nvm"
+            ;;
+    esac
+
+    # Run the compiled artifact
+    if [ -f "$run_artifact" ]; then
+        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" $run_cmd >"$run_log" 2>&1
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}✅${NC} $test_name"
-            rm -f "$log_file" "$out_file" "$run_log"
+            rm -f "$log_file" "$out_file" "${out_file}.nvm" "$run_log"
             TOTAL_PASS=$((TOTAL_PASS + 1))
             case "$category" in
                 "nl") NL_PASS=$((NL_PASS + 1)) ;;
@@ -139,7 +207,7 @@ run_test() {
             return 1
         fi
     else
-        echo -e "${RED}❌${NC} $test_name ${RED}(binary not created)${NC}"
+        echo -e "${RED}❌${NC} $test_name ${RED}(output not created)${NC}"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
             "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
@@ -154,6 +222,7 @@ echo ""
 echo -e "${BOLD}========================================"
 echo "NANOLANG COMPREHENSIVE TEST SUITE"
 echo -e "========================================${NC}"
+echo -e "Backend: ${CYAN}${BACKEND}${NC}"
 echo ""
 
 # ============================================================================
@@ -264,8 +333,9 @@ fi
 
 # ============================================================================
 # CATEGORY 4: Integration Tests (compiler flags, tooling)
+# These tests are C-transpiler-specific (--llm-diags-json, --llm-diags-toon)
 # ============================================================================
-if [ "$RUN_APP" = true ]; then
+if [ "$RUN_APP" = true ] && [ "$BACKEND" = "c" -o "$BACKEND" = "native" ]; then
     echo -e "${CYAN}=== INTEGRATION TESTS ===${NC}"
     echo ""
     

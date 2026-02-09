@@ -1829,5 +1829,16 @@ VmResult vm_execute(VmState *vm) {
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Entry point %u out of range", entry);
     }
 
+    /* Call __init__ to initialize globals before the entry point */
+    for (uint32_t i = 0; i < vm->module->function_count; i++) {
+        const char *fn_name = nvm_get_string(vm->module,
+                                              vm->module->functions[i].name_idx);
+        if (fn_name && strcmp(fn_name, "__init__") == 0) {
+            VmResult ir = vm_call_function(vm, i, NULL, 0);
+            if (ir != VM_OK) return ir;
+            break;
+        }
+    }
+
     return vm_call_function(vm, entry, NULL, 0);
 }

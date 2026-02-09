@@ -62,6 +62,22 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         pos += 8;
         break;
     }
+    case TAG_ARRAY: {
+        VmArray *arr = val->as.array;
+        uint32_t count = arr ? arr->length : 0;
+        uint8_t etype = arr ? arr->elem_type : 0;
+        if (pos + 5 > buf_size) return 0;
+        buf[pos++] = etype;
+        memcpy(buf + pos, &count, 4);
+        pos += 4;
+        for (uint32_t i = 0; i < count; i++) {
+            uint32_t n = cop_serialize_value(&arr->elements[i],
+                                              buf + pos, buf_size - pos);
+            if (n == 0) return 0;
+            pos += n;
+        }
+        break;
+    }
     case TAG_VOID:
     default:
         /* No payload for void */
@@ -120,6 +136,24 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
         ov.tag = TAG_OPAQUE;
         ov.as.i64 = v;
         *out = ov;
+        break;
+    }
+    case TAG_ARRAY: {
+        if (pos + 5 > buf_size) return 0;
+        uint8_t etype = buf[pos++];
+        uint32_t count;
+        memcpy(&count, buf + pos, 4);
+        pos += 4;
+        VmArray *arr = vm_array_new(heap, etype, count > 0 ? count : 4);
+        for (uint32_t i = 0; i < count; i++) {
+            NanoValue elem;
+            uint32_t n = cop_deserialize_value(buf + pos, buf_size - pos,
+                                                &elem, heap);
+            if (n == 0) { *out = val_void(); return 0; }
+            pos += n;
+            vm_array_push(arr, elem);
+        }
+        *out = val_array(arr);
         break;
     }
     case TAG_VOID:

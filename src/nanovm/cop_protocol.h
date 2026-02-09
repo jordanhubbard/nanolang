@@ -53,6 +53,7 @@ typedef struct {
  *   TAG_BOOL:   u8 (0 or 1)
  *   TAG_STRING: len(u32) + data (UTF-8 bytes)
  *   TAG_OPAQUE: i64 (proxy ID)
+ *   TAG_ARRAY:  elem_type(u8) + count(u32) + [serialized elements...]
  *   TAG_VOID:   nothing (0 extra bytes)
  * ======================================================================== */
 

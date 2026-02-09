@@ -344,6 +344,22 @@ test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running co-process lifecycle tests..."
 	@scripts/test_cop_lifecycle.sh
 
+# Backend-agnostic test suite: run all .nano tests through NanoVM
+.PHONY: test-vm test-daemon
+test-vm: nano_vm nano_virt
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Test Suite (NanoVM backend)"
+	@echo "=========================================="
+	@NANOLANG_BACKEND=vm ./tests/run_all_tests.sh
+
+test-daemon: nano_vm nano_virt nano_vmd
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Test Suite (NanoVM daemon backend)"
+	@echo "=========================================="
+	@NANOLANG_BACKEND=daemon ./tests/run_all_tests.sh
+
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
 NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
@@ -1307,6 +1323,8 @@ help:
 	@echo "  make test-app          - Test only application/integration tests"
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
+	@echo "  make test-vm           - Run all tests through NanoVM backend"
+	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make fuzz              - Run fuzzing on seed corpus"
 	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""
@@ -1388,7 +1406,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt test-nanovm-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt test-nanovm-daemon test-vm test-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
