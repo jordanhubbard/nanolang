@@ -58,7 +58,7 @@ typedef enum {
  * VM State
  * ======================================================================== */
 
-typedef struct {
+typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
 
@@ -92,6 +92,9 @@ typedef struct {
 
     /* FFI isolation: if true, use co-process for extern calls */
     bool isolate_ffi;
+    int cop_in_fd;            /* Pipe to co-process stdin (-1 if none) */
+    int cop_out_fd;           /* Pipe from co-process stdout (-1 if none) */
+    int cop_pid;              /* Co-process PID (-1 if none) */
 
     /* Error info */
     VmResult last_error;

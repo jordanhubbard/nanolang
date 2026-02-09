@@ -36,7 +36,6 @@
  * ======================================================================== */
 
 static volatile sig_atomic_t g_shutdown = 0;
-static pthread_mutex_t g_ffi_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t g_client_count_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int g_active_clients = 0;
 
@@ -212,27 +211,21 @@ static void *client_thread(void *arg) {
                     hdr.payload_len, module->function_count);
         }
 
-        /* Initialize FFI for this module's imports */
-        if (module->header.flags & NVM_FLAG_NEEDS_EXTERN) {
-            pthread_mutex_lock(&g_ffi_mutex);
-            vm_ffi_init();
-            for (uint32_t i = 0; i < module->import_count; i++) {
-                const char *mod_name = nvm_get_string(module,
-                                        module->imports[i].module_name_idx);
-                if (mod_name && mod_name[0]) {
-                    vm_ffi_load_module(mod_name);
-                }
-            }
-            pthread_mutex_unlock(&g_ffi_mutex);
-        }
-
         /* Create socket-backed FILE* for output streaming */
         FILE *sock_out = socket_fopen(fd);
 
-        /* Execute — vm_execute uses vm_out(vm) which returns vm->output */
+        /* Initialize VM state */
         VmState vm;
         vm_init(&vm, module);
         vm.output = sock_out;  /* Redirect output over socket */
+
+        /* Enable co-process FFI isolation if module needs extern calls.
+         * The cop is launched lazily on first TRAP_EXTERN_CALL, not here.
+         * Each client thread gets its own cop (1:1 thread-to-cop mapping).
+         * If the cop crashes, it's relaunched on the next FFI call. */
+        if (module->header.flags & NVM_FLAG_NEEDS_EXTERN) {
+            vm.isolate_ffi = true;
+        }
 
         VmResult result = vm_execute(&vm);
 
@@ -256,6 +249,7 @@ static void *client_thread(void *arg) {
 
         vmd_msg_send_exit(fd, exit_code);
 
+        if (vm.isolate_ffi) vm_ffi_cop_stop(&vm);
         vm_destroy(&vm);
         if (sock_out) fclose(sock_out);
         nvm_module_free(module);

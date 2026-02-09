@@ -54,6 +54,9 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm->stack_capacity = VM_STACK_INITIAL;
     vm->stack = calloc(vm->stack_capacity, sizeof(NanoValue));
     vm->output = NULL; /* default stdout */
+    vm->cop_in_fd = -1;
+    vm->cop_out_fd = -1;
+    vm->cop_pid = -1;
     vm_heap_init(&vm->heap);
 }
 
@@ -1791,7 +1794,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             char ext_err[256];
             bool ffi_ok;
             if (vm->isolate_ffi) {
-                ffi_ok = vm_ffi_call_cop(vm->module, trap.data.extern_call.import_idx,
+                ffi_ok = vm_ffi_call_cop(vm, vm->module, trap.data.extern_call.import_idx,
                                          trap.data.extern_call.args, trap.data.extern_call.argc,
                                          &ext_result, &vm->heap,
                                          ext_err, sizeof(ext_err));

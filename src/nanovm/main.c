@@ -78,13 +78,10 @@ static int run_standalone(const char *path) {
     VmState vm;
     vm_init(&vm, module);
 
-    /* Start co-process FFI isolation if requested */
+    /* Enable co-process FFI isolation if requested.
+     * The cop is launched lazily on first extern call, not here. */
     if (g_isolate_ffi) {
-        if (vm_ffi_cop_start(module)) {
-            vm.isolate_ffi = true;
-        } else {
-            fprintf(stderr, "Warning: Failed to start FFI co-process, using in-process FFI\n");
-        }
+        vm.isolate_ffi = true;
     }
 
     VmResult result = vm_execute(&vm);
@@ -98,9 +95,9 @@ static int run_standalone(const char *path) {
         exit_code = 1;
     }
 
-    /* Stop co-process if running */
-    if (g_isolate_ffi) {
-        vm_ffi_cop_stop();
+    /* Stop co-process if it was launched */
+    if (vm.cop_pid > 0) {
+        vm_ffi_cop_stop(&vm);
     }
 
     vm_destroy(&vm);

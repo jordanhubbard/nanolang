@@ -396,12 +396,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 #include <signal.h>
 #include <sys/wait.h>
 
-static pid_t cop_pid = -1;
-static int cop_in_fd = -1;   /* Write to co-process stdin */
-static int cop_out_fd = -1;  /* Read from co-process stdout */
-
-bool vm_ffi_cop_start(const NvmModule *module) {
-    if (cop_pid > 0) return true;  /* Already running */
+bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
+    if (vm->cop_pid > 0) return true;  /* Already running */
 
     /* Serialize the module to send to co-process */
     uint32_t blob_size = 0;
@@ -434,9 +430,7 @@ bool vm_ffi_cop_start(const NvmModule *module) {
         close(pipe_to_child[0]);
         close(pipe_from_child[1]);
 
-        /* Try to find nano_cop next to the current executable */
         execlp("nano_cop", "nano_cop", (char *)NULL);
-        /* If execlp fails, try ./bin/nano_cop */
         execl("bin/nano_cop", "nano_cop", (char *)NULL);
         _exit(127);
     }
@@ -444,68 +438,95 @@ bool vm_ffi_cop_start(const NvmModule *module) {
     /* Parent */
     close(pipe_to_child[0]);
     close(pipe_from_child[1]);
-    cop_pid = pid;
-    cop_in_fd = pipe_to_child[1];
-    cop_out_fd = pipe_from_child[0];
+    vm->cop_pid = pid;
+    vm->cop_in_fd = pipe_to_child[1];
+    vm->cop_out_fd = pipe_from_child[0];
 
     /* Send INIT with serialized module */
-    if (!cop_send(cop_in_fd, COP_MSG_INIT, blob, blob_size)) {
+    if (!cop_send(vm->cop_in_fd, COP_MSG_INIT, blob, blob_size)) {
         free(blob);
-        vm_ffi_cop_stop();
+        vm_ffi_cop_stop(vm);
         return false;
     }
     free(blob);
 
     /* Wait for READY */
     CopMsgHeader hdr;
-    if (!cop_recv_header(cop_out_fd, &hdr) || hdr.msg_type != COP_MSG_READY) {
-        vm_ffi_cop_stop();
+    if (!cop_recv_header(vm->cop_out_fd, &hdr) || hdr.msg_type != COP_MSG_READY) {
+        vm_ffi_cop_stop(vm);
         return false;
     }
 
     return true;
 }
 
-void vm_ffi_cop_stop(void) {
-    if (cop_pid <= 0) return;
+void vm_ffi_cop_stop(VmState *vm) {
+    if (vm->cop_pid <= 0) return;
 
     /* Try graceful shutdown */
-    if (cop_in_fd >= 0) {
-        cop_send_simple(cop_in_fd, COP_MSG_SHUTDOWN);
-        close(cop_in_fd);
-        cop_in_fd = -1;
+    if (vm->cop_in_fd >= 0) {
+        cop_send_simple(vm->cop_in_fd, COP_MSG_SHUTDOWN);
+        close(vm->cop_in_fd);
+        vm->cop_in_fd = -1;
     }
-    if (cop_out_fd >= 0) {
-        close(cop_out_fd);
-        cop_out_fd = -1;
+    if (vm->cop_out_fd >= 0) {
+        close(vm->cop_out_fd);
+        vm->cop_out_fd = -1;
     }
 
     /* Wait for child with timeout */
     int status;
-    pid_t w = waitpid(cop_pid, &status, WNOHANG);
+    pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
     if (w == 0) {
-        /* Child still running, give it a moment then kill */
         usleep(50000); /* 50ms */
-        w = waitpid(cop_pid, &status, WNOHANG);
+        w = waitpid(vm->cop_pid, &status, WNOHANG);
         if (w == 0) {
-            kill(cop_pid, SIGTERM);
-            waitpid(cop_pid, &status, 0);
+            kill(vm->cop_pid, SIGTERM);
+            waitpid(vm->cop_pid, &status, 0);
         }
     }
 
-    cop_pid = -1;
+    vm->cop_pid = -1;
 }
 
-bool vm_ffi_cop_active(void) {
-    return cop_pid > 0;
+/* Check if the co-process is still alive. Reaps zombie if dead. */
+static bool cop_is_alive(VmState *vm) {
+    if (vm->cop_pid <= 0) return false;
+    int status;
+    pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
+    if (w > 0) {
+        /* Child exited (crash or normal exit) — reap it */
+        vm->cop_pid = -1;
+        if (vm->cop_in_fd >= 0) { close(vm->cop_in_fd); vm->cop_in_fd = -1; }
+        if (vm->cop_out_fd >= 0) { close(vm->cop_out_fd); vm->cop_out_fd = -1; }
+        return false;
+    }
+    return true;  /* Still running (w == 0) or error (w < 0, treat as alive) */
 }
 
-bool vm_ffi_call_cop(const NvmModule *module, uint32_t import_idx,
+/* Ensure the co-process is running. Launches on demand or relaunches
+ * after a crash. Blocks until the cop is initialized and ready. */
+static bool cop_ensure(VmState *vm, const NvmModule *module,
+                       char *error_msg, size_t error_msg_size) {
+    /* Already running? */
+    if (cop_is_alive(vm)) return true;
+
+    /* Launch (or relaunch after crash) */
+    if (!vm_ffi_cop_start(vm, module)) {
+        snprintf(error_msg, error_msg_size,
+                 "COP: failed to launch co-process");
+        return false;
+    }
+    return true;
+}
+
+bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
-    if (cop_pid <= 0) {
-        /* Fallback to in-process */
+    /* Lazy launch: start cop on first FFI call, or relaunch after crash */
+    if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
+        /* Could not start cop — fall back to in-process FFI */
         return vm_ffi_call(module, import_idx, args, arg_count,
                            result, heap, error_msg, error_msg_size);
     }
@@ -529,23 +550,27 @@ bool vm_ffi_call_cop(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Send request */
-    if (!cop_send(cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
-        snprintf(error_msg, error_msg_size, "COP: failed to send FFI request");
-        vm_ffi_cop_stop();
+    if (!cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
+        /* Pipe broken — cop crashed during our call */
+        vm_ffi_cop_stop(vm);
+        snprintf(error_msg, error_msg_size,
+                 "COP: co-process died during FFI request (will relaunch on next call)");
         return false;
     }
 
     /* Receive response */
     CopMsgHeader hdr;
-    if (!cop_recv_header(cop_out_fd, &hdr)) {
-        snprintf(error_msg, error_msg_size, "COP: failed to receive response");
-        vm_ffi_cop_stop();
+    if (!cop_recv_header(vm->cop_out_fd, &hdr)) {
+        /* Pipe broken — cop crashed while we waited for response */
+        vm_ffi_cop_stop(vm);
+        snprintf(error_msg, error_msg_size,
+                 "COP: co-process died during FFI response (will relaunch on next call)");
         return false;
     }
 
     if (hdr.msg_type == COP_MSG_FFI_RESULT) {
         if (hdr.payload_len > 0 && hdr.payload_len < sizeof(payload)) {
-            if (!cop_recv_payload(cop_out_fd, payload, hdr.payload_len)) {
+            if (!cop_recv_payload(vm->cop_out_fd, payload, hdr.payload_len)) {
                 snprintf(error_msg, error_msg_size, "COP: failed to receive result payload");
                 return false;
             }
@@ -561,12 +586,11 @@ bool vm_ffi_call_cop(const NvmModule *module, uint32_t import_idx,
         uint32_t err_len = hdr.payload_len < (uint32_t)(error_msg_size - 1)
                            ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
         if (err_len > 0) {
-            cop_recv_payload(cop_out_fd, error_msg, err_len);
+            cop_recv_payload(vm->cop_out_fd, error_msg, err_len);
             error_msg[err_len] = '\0';
         }
         return false;
     } else {
-        /* Unexpected message type */
         snprintf(error_msg, error_msg_size, "COP: unexpected response type 0x%02x",
                  hdr.msg_type);
         return false;

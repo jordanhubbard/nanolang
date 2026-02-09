@@ -45,21 +45,22 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
  * via pipes, providing complete address-space isolation.
  * ======================================================================== */
 
+/* VmState is needed for per-VM co-process state */
+#include "vm.h"
+
 /* Start the co-process for FFI isolation.
  * Forks, pipes, and execs nano_cop, then sends COP_MSG_INIT.
+ * Stores cop_pid/cop_in_fd/cop_out_fd in vm.
  * Returns true on success. */
-bool vm_ffi_cop_start(const NvmModule *module);
+bool vm_ffi_cop_start(VmState *vm, const NvmModule *module);
 
 /* Stop the co-process (send shutdown, close pipes, waitpid). */
-void vm_ffi_cop_stop(void);
-
-/* Check if the co-process is running. */
-bool vm_ffi_cop_active(void);
+void vm_ffi_cop_stop(VmState *vm);
 
 /* Call an extern function via the co-process.
  * Same signature as vm_ffi_call() but dispatches over pipes.
  * Falls back to in-process vm_ffi_call() if cop is not active. */
-bool vm_ffi_call_cop(const NvmModule *module, uint32_t import_idx,
+bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size);
