@@ -1177,7 +1177,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_HM_VALUES);
         return true;
     }
-    if (strcmp(name, "map_length") == 0 && argc == 1) {
+    if ((strcmp(name, "map_length") == 0 || strcmp(name, "map_size") == 0) && argc == 1) {
         compile_expr(cg, args[0]);
         emit_op(cg, OP_HM_LEN);
         return true;

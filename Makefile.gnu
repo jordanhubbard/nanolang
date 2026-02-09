@@ -334,6 +334,11 @@ test-nanovm-daemon: nano_vm nano_vmd
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
 
+.PHONY: test-nanovm-integration
+test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
+	@echo "Running NanoVM end-to-end integration tests..."
+	@scripts/test_nanovm_integration.sh
+
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
 NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
