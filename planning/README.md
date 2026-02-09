@@ -48,6 +48,13 @@ These documents represent current or upcoming work:
 - **[EXAMPLES_MODERNIZATION.md](EXAMPLES_MODERNIZATION.md)** - Example updates
 - **[EXAMPLES_AUDIT_PROGRESS.md](EXAMPLES_AUDIT_PROGRESS.md)** - Audit status
 
+### NanoISA Virtual Machine (Phase 10) ✅ Complete
+- **[../docs/NANOISA.md](../docs/NANOISA.md)** - Complete architecture reference
+- **[../nanoisa.txt](../nanoisa.txt)** - Original design vision
+
+### Formal Verification (Phase 11) ✅ Complete
+- **[../formal/README.md](../formal/README.md)** - Coq proof suite (6,170 LOC, 0 axioms)
+
 ### Compiler Implementation
 - **[PARSER_SELF_HOSTED_PLAN.md](PARSER_SELF_HOSTED_PLAN.md)** - Self-hosted parser
 - **[PHASE2_PARSER_DESIGN.md](PHASE2_PARSER_DESIGN.md)** - Phase 2 parser

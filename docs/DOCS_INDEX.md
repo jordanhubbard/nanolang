@@ -16,6 +16,12 @@ This page is a stable entrypoint for older links.
 - [Standard Library](STDLIB.md)
 - [Shadow Tests](SHADOW_TESTS.md)
 
+### Virtual Machine
+- [NanoISA Architecture](NANOISA.md) - Complete VM backend reference (ISA, bytecode format, co-process FFI, daemon)
+
+### Formal Verification
+- [NanoCore Proofs](../formal/README.md) - Coq mechanized metatheory (preservation, progress, determinism, semantic equivalence)
+
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)
 - [Extern FFI](EXTERN_FFI.md)

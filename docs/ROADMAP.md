@@ -10,21 +10,24 @@ Build a minimal, LLM-friendly programming language that:
 - Supports both infix (`a + b`) and prefix (`(+ a b)`) notation for operators
 - Eventually self-hosts (compiles itself)
 
-## Current Status: Phase 8 - Self-Hosting COMPLETE ✅ (v0.2.0)
+## Current Status: Phase 11 Complete - Formally Verified + Virtual Machine ✅
 
-**Status**: **PRODUCTION-READY** - Full self-hosting achieved, 100% bootstrap working
+**Status**: **PRODUCTION-READY** - Self-hosting, VM backend, and formal verification all complete
 
 **Current Capabilities**:
 - ✅ **100% Self-Hosting** - NanoLang compiler compiles itself (3-stage bootstrap verified)
-- ✅ Complete compilation pipeline (lexer → parser → type checker → transpiler)
+- ✅ **NanoISA Virtual Machine** - Custom 178-opcode ISA with .nvm bytecode format, process-isolated FFI
+- ✅ **Formally Verified** - Type soundness, progress, determinism, semantic equivalence proved in Coq (0 axioms)
+- ✅ Complete compilation pipeline (lexer → parser → type checker → transpiler / VM codegen)
 - ✅ Shadow-test execution during compilation (compile-time evaluator)
-- ✅ Multiple executables: `bin/nanoc` (compiler), `bin/nanorepl` (REPL prototypes)
+- ✅ Multiple executables: `bin/nanoc` (C compiler), `bin/nano_virt` (VM compiler), `bin/nano_vm` (executor)
 - ✅ **Type System** - Primitives, arrays, structs, enums, unions, generics, tuples, first-class functions, affine types
 - ✅ **66 Standard Library Functions** - Math, strings, binary strings, arrays, I/O, OS, checked math, generics
 - ✅ **30+ FFI Modules** - SDL, ncurses, OpenGL, curl, readline, Python bridge, etc.
 - ✅ **90+ Working Examples** - Games, graphics, simulations, data analytics, etc.
-- ✅ **221 Test Files** - Unit, integration, regression, negative, performance tests
+- ✅ **221+ Test Files** - Unit, integration, regression, negative, performance, ISA, VM tests
 - ✅ Extensive documentation (121+ markdown files)
+- ✅ ~6,170 lines of Coq proofs, ~11,000 lines of VM implementation
 
 ## Phase 1 - Lexer ✅ Complete
 
@@ -207,6 +210,50 @@ Build a minimal, LLM-friendly programming language that:
 - ✅ All tests pass (shadow tests + examples + 221 test files)
 - ✅ Documentation complete (121+ docs)
 
+## Phase 10 - NanoISA Virtual Machine ✅ COMPLETE
+
+**Completion Date**: February 2026
+
+**Goal**: Custom virtual machine backend with process-isolated FFI - **ACHIEVED**
+
+**Deliverables** - ALL COMPLETE:
+- ✅ **NanoISA Instruction Set** - 178 opcodes, stack machine with RISC/CISC hybrid design
+- ✅ **.nvm Binary Format** - Sections for code, strings, functions, types, imports, debug info, module refs
+- ✅ **Assembler & Disassembler** - Two-pass text assembler, disassembler with label reconstruction
+- ✅ **NanoVM Interpreter** - Switch-dispatch execution engine with trap model (~1,844 lines)
+- ✅ **Reference-Counted GC** - Scope-based auto-release with OP_GC_SCOPE_ENTER/EXIT
+- ✅ **Compiler Backend (nano_virt)** - Three-pass AST-to-bytecode codegen (~3,083 lines)
+- ✅ **Co-Process FFI (nano_cop)** - External calls isolated in separate process via binary RPC protocol
+- ✅ **VM Daemon (nano_vmd)** - Persistent VM process for reduced startup latency
+- ✅ **Native Binary Generation** - Wrapper system embeds .nvm + VM runtime into standalone executables
+- ✅ **Cross-Module Linking** - OP_CALL_MODULE with per-frame module tracking
+- ✅ **Closure Support** - OP_CLOSURE_NEW/CALL with upvalue capture
+- ✅ **Comprehensive Test Suite** - 470 ISA tests + 150 VM tests + 62 codegen tests
+
+**Architecture**: Trap model separates pure-compute core (83+ opcodes) from I/O operations, enabling potential FPGA acceleration. See [docs/NANOISA.md](NANOISA.md) for complete reference.
+
+**Total**: ~11,000 lines of C across ISA, VM, compiler, and co-process components.
+
+## Phase 11 - Formal Verification ✅ COMPLETE
+
+**Completion Date**: February 2026
+
+**Goal**: Mechanized metatheory for NanoCore in the Rocq Prover (Coq) - **ACHIEVED (AXIOM-FREE)**
+
+**Deliverables** - ALL COMPLETE:
+- ✅ **Type Soundness (Preservation)** - Well-typed expressions evaluate to well-typed values
+- ✅ **Progress** - Well-typed closed expressions are values or can take a step
+- ✅ **Determinism** - Evaluation is a partial function
+- ✅ **Semantic Equivalence** - Big-step and small-step semantics agree (Equivalence.v, ~3,100 LOC)
+- ✅ **Computable Evaluator** - Fuel-based reference interpreter with soundness proof
+- ✅ **OCaml Extraction** - Reference interpreter extractable for testing against C implementation
+
+**Statistics**: ~6,170 lines of Coq, 193 theorems/lemmas, 0 axioms, 0 Admitted.
+
+**Verified Language Features**: Integers, booleans, strings, arrays, records, variants with pattern matching, closures, recursive functions (fix), mutable variables, while loops, sequential composition.
+
+See [formal/README.md](../formal/README.md) for complete details.
+
 ## Phase 9 - Ecosystem & Polish (Current - v0.3.0 target)
 
 **Goal**: Polish the project for 1.0 release and build ecosystem
@@ -280,7 +327,7 @@ These features may be added after self-hosting:
 - [ ] Constant folding
 - [ ] Dead code elimination
 - [ ] Inlining
-- [ ] LLVM backend (alternative to C)
+- [x] ✅ NanoISA VM backend (alternative to C) - Complete (Feb 2026)
 
 ### Ecosystem
 - [ ] VS Code extension
@@ -303,6 +350,8 @@ These features may be added after self-hosting:
 | Phase 6: Standard Library | 3-4 weeks | - | ⚠️ Minimal |
 | Phase 7: CLI Tools | 2 weeks | 1 day | ✅ Complete |
 | Phase 8: Self-Hosting | 8-12 weeks | 3 months | ✅ Complete (Jan 2026) |
+| Phase 10: NanoISA VM | - | 1 month | ✅ Complete (Feb 2026) |
+| Phase 11: Formal Verification | - | 1 month | ✅ Complete (Feb 2026) |
 
 **Total Actual Time (Phases 0-7)**: 2 days (September 29-30, 2025)
 **Efficiency**: Much faster than estimated due to focused development and AI assistance
@@ -429,10 +478,12 @@ Following semantic versioning (semver):
 nanolang aims to be:
 
 1. **Reference implementation** for LLM-friendly language design
-2. **Teaching tool** for programming language concepts
-3. **Practical language** for systems programming
-4. **Proof of concept** for shadow-test methodology
-5. **Community project** with active contributors
+2. **Formally verified language** with mechanized proofs of type soundness and semantic correctness
+3. **Sandboxed execution platform** via NanoISA VM with process-isolated FFI
+4. **Teaching tool** for programming language concepts
+5. **Practical language** for systems programming
+6. **Proof of concept** for shadow-test methodology
+7. **Community project** with active contributors
 
 ## Questions?
 
@@ -443,7 +494,7 @@ For questions about the roadmap:
 
 ---
 
-**Last Updated**: January 25, 2026 (Post-Self-Hosting Update)
-**Current Phase**: Phase 9 - Ecosystem & Polish
+**Last Updated**: February 9, 2026 (Post-VM + Formal Verification Update)
+**Current Phase**: Phase 9 - Ecosystem & Polish (Phases 10-11 complete in parallel)
 **Next Major Milestone**: v1.0 Release (target: Q3 2026)
 **Next Review**: After Phase 9 completion

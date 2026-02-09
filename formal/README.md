@@ -1,11 +1,13 @@
-# NanoCore: Formal Verification (Phase 5)
+# NanoCore: Formal Verification (Phase 5) - AXIOM-FREE
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
-formalized in the Rocq Prover (Coq).
+formalized in the Rocq Prover (Coq). All proofs are **axiom-free**
+(0 `Admitted`, 0 `axiom` declarations) across ~6,170 lines of Coq.
 
 ## What's proved
 
-**Type soundness** via preservation + progress, plus **determinism**:
+**Type soundness** via preservation + progress, **determinism**,
+and **semantic equivalence** between big-step and small-step semantics:
 
 **Preservation:** If a well-typed expression evaluates to a value,
 that value has the expected type, and environment agreement is
@@ -39,6 +41,38 @@ Theorem eval_deterministic : forall renv e renv' v renv'' v',
   eval renv e renv' v ->
   eval renv e renv'' v' ->
   v = v' /\ renv' = renv''.
+```
+
+**Semantic Equivalence:** Big-step evaluation and small-step reduction
+agree for the pure (mutation-free) fragment. Type annotations on lambdas,
+fix-points, and constructors are treated as computationally irrelevant.
+
+```
+Theorem eval_to_multistep : forall e v,
+  pure e -> eclosed e ->
+  eval ENil e ENil v ->
+  multi_step_equiv e (val_to_expr v).
+```
+
+The generalized version handles environments and proves closure
+well-formedness (`val_good`) throughout:
+
+```
+Theorem eval_to_multistep_gen : forall renv e renv' v,
+  pure e -> env_good renv -> all_vals_closed renv ->
+  eclosed (close renv e) ->
+  eval renv e renv' v ->
+  multi_step_equiv (close renv e) (val_to_expr v) /\ val_good v.
+```
+
+**Computable Evaluator:** A fuel-based reference interpreter with a
+soundness proof linking it to the relational semantics, extractable
+to OCaml:
+
+```
+Theorem eval_fn_sound : forall fuel renv e renv' v,
+  eval_fn fuel renv e = Some (renv', v) ->
+  eval renv e renv' v.
 ```
 
 ## NanoCore subset
@@ -75,14 +109,17 @@ Theorem eval_deterministic : forall renv e renv' v renv'' v',
 
 ## File structure
 
-| File | Contents |
-|------|----------|
-| `Syntax.v` | Types, operators, expressions, values, environments, env_update, assoc_update, list_update, find_branch |
-| `Semantics.v` | Big-step operational semantics with store-passing |
-| `Typing.v` | Typing rules, contexts, mutual inductive `has_type`/`branches_type` |
-| `Soundness.v` | Preservation theorem (value typing + env agreement) |
-| `Progress.v` | Small-step semantics, substitution, progress theorem |
-| `Determinism.v` | Determinism of evaluation (eval is a partial function) |
+| File | Lines | Contents |
+|------|-------|----------|
+| `Syntax.v` | 235 | Types, operators, expressions, values, environments, env_update, assoc_update, list_update, find_branch |
+| `Semantics.v` | 341 | Big-step operational semantics with store-passing |
+| `Typing.v` | 293 | Typing rules, contexts, mutual inductive `has_type`/`branches_type` |
+| `Soundness.v` | 834 | Preservation theorem (value typing + env agreement) |
+| `Progress.v` | 745 | Small-step semantics, substitution, progress theorem |
+| `Determinism.v` | 89 | Determinism of evaluation (eval is a partial function) |
+| `Equivalence.v` | 3,098 | Big-step / small-step semantic equivalence (133 lemmas, 0 axioms) |
+| `EvalFn.v` | 503 | Computable fuel-based evaluator with soundness proof |
+| `Extract.v` | 32 | OCaml extraction configuration for reference interpreter |
 
 ## Building
 
@@ -97,7 +134,9 @@ Then:
 
 ```
 cd formal/
-make
+make             # Compile all proofs
+make extract     # Extract OCaml reference interpreter
+make nanocore-ref  # Build reference interpreter binary
 ```
 
 ## Design choices
@@ -153,6 +192,20 @@ make
   one IH then immediately resolves non-eval premises (like `find_branch`).
   This handles rules where variables introduced by non-eval premises
   appear in subsequent eval premises (E_Match pattern)
+- **Expression equivalence modulo type annotations**: `expr_equiv` relates
+  expressions that differ only in type annotations on lambdas, fix-points,
+  and constructors (computationally irrelevant)
+- **Closure environment substitution**: `close renv e` substitutes all
+  environment bindings into an expression; `close_except x renv e`
+  preserves variable `x` unsubstituted (for lambda bodies)
+- **val_good predicate**: Ensures closure environments are well-formed
+  (`env_good` + `all_vals_closed`), with VG_Clos/VG_FixClos strengthened
+  with `eclosed` hypothesis
+- **subst_preserves_subst_inv**: Key commutativity lemma—if
+  `subst y t e = e`, then `subst y t (subst x s e) = subst x s e`
+- **Fuel-based computable evaluator**: `eval_fn` uses standard decreasing
+  fuel technique (as in CompCert/CertiCoq) with `Some/None` return type;
+  soundness proved by induction on fuel
 
 ## Phases
 
@@ -161,4 +214,17 @@ make
 - **Phase 2:** Strings (string literals, concatenation, length, equality)
 - **Phase 3:** Arrays (array literals, indexing, length)
 - **Phase 4:** Records/structs (record literals, field access)
-- **Phase 5:** Recursive functions (fix), variants + pattern matching, mutable record fields, array update/push, string indexing -- current
+- **Phase 5:** Recursive functions (fix), variants + pattern matching, mutable record fields, array update/push, string indexing, semantic equivalence, computable evaluator -- current
+
+## Statistics
+
+- **Total lines of Coq:** ~6,170
+- **Total theorems/lemmas:** 193
+  - Equivalence.v: 133 (69%)
+  - Soundness.v: 29 (15%)
+  - Progress.v: 17 (9%)
+  - EvalFn.v: 9 (5%)
+  - Other: 5 (2%)
+- **Axioms:** 0 (fully axiom-free)
+- **Admitted:** 0
+- **Main results:** Preservation, Progress, Determinism, Semantic Equivalence, Evaluator Soundness

@@ -82,10 +82,25 @@ Understanding nanolang's testing philosophy:
 
 For contributors and language designers:
 
-10. **Design + implementation notes**
+10. **[NanoISA Virtual Machine](NANOISA.md)** - Complete VM backend
+    - 178-opcode stack machine ISA
+    - .nvm binary format specification
+    - Co-process FFI isolation protocol
+    - VM daemon for distributed execution
+    - Trap model (pure-compute core + I/O handlers)
+    - Native binary generation from bytecode
+
+10.5. **[Formal Verification](../formal/README.md)** - Mechanized proofs in Coq
+    - Type soundness (preservation + progress)
+    - Determinism of evaluation
+    - Big-step / small-step semantic equivalence
+    - Computable reference interpreter with soundness proof
+    - ~6,170 lines of Coq, 193 theorems, 0 axioms
+
+11. **Design + implementation notes**
     - Maintainer-facing design docs live in [planning/](../planning/)
 
-11. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
+12. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
     - Why prefix notation for function calls? Why dual notation for operators?
     - LLM-friendly design
     - Comparison to other languages
@@ -152,6 +167,8 @@ Help make nanolang better:
 - [Shadow Tests](SHADOW_TESTS.md)
 
 **🔴 Advanced (Deep understanding)**
+- [NanoISA Virtual Machine](NANOISA.md)
+- [Formal Verification](../formal/README.md)
 - [Planning / design notes](../planning/README.md)
 - [Module System](MODULE_SYSTEM.md)
 - [Language Design Review](LANGUAGE_DESIGN_REVIEW.md)
@@ -162,7 +179,7 @@ Help make nanolang better:
 → [Getting Started](GETTING_STARTED.md) → [Examples](../examples/README.md) → [Quick Reference](QUICK_REFERENCE.md)
 
 **I want to understand the design:**
-→ [Language Design Review](LANGUAGE_DESIGN_REVIEW.md) → [planning/](../planning/)
+→ [Language Design Review](LANGUAGE_DESIGN_REVIEW.md) → [NanoISA VM](NANOISA.md) → [Formal Proofs](../formal/README.md) → [planning/](../planning/)
 
 **I want to contribute:**
 → [Contributing Guide](CONTRIBUTING.md) → [planning/](../planning/) → [Roadmap](ROADMAP.md)
