@@ -244,6 +244,11 @@ build: schema modules-index $(SENTINEL_STAGE3)
 # Alias for build
 all: build
 
+# Build NanoISA virtual machine backend (nano_virt compiler, nano_vm executor, co-process, daemon)
+vm: nano_virt nano_vm nano_cop nano_vmd
+	@echo ""
+	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd"
+
 # ============================================================================
 # Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
 # ============================================================================
@@ -1247,13 +1252,17 @@ coverage-report: coverage test
 	@echo "Coverage report generated in $(COV_DIR)/index.html"
 
 # Install binaries
-install: $(COMPILER)
+install: $(COMPILER) vm
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
-	@echo "Installed to $(PREFIX)/bin"
+	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
+	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
+	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
+	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
+	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd)"
 
 uninstall:
-	rm -f $(PREFIX)/bin/nanoc
+	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd
 	@echo "Uninstalled from $(PREFIX)/bin"
 
 # Valgrind checks
@@ -1296,7 +1305,8 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Main Targets:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  make build              - Build all components (default)"
+	@echo "  make build              - Build compiler (3-stage bootstrap)"
+	@echo "  make vm                 - Build NanoISA VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)"
 	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
 	@echo "  make test-beads         - Run tests; on failures, auto-create/update beads"
@@ -1325,6 +1335,10 @@ help:
 	@echo "  make test-quick        - Quick test (language tests only)"
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
+	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
+	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
+	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
+	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
 	@echo "  make fuzz              - Run fuzzing on seed corpus"
 	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""
@@ -1406,7 +1420,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt test-nanovm-daemon test-vm test-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION

@@ -141,9 +141,9 @@ cd formal/ && make    # Build all proofs (requires Rocq Prover >= 9.0)
 
 ```bash
 make build          # Build compiler (bin/nanoc)
-make nano_virt      # Build VM compiler (bin/nano_virt)
-make nano_vm        # Build VM executor (bin/nano_vm)
+make vm             # Build VM backend (bin/nano_virt, bin/nano_vm, bin/nano_cop, bin/nano_vmd)
 make test           # Run full test suite
+make test-vm        # Run tests through NanoVM backend
 make test-quick     # Quick language tests only
 make examples       # Build all examples
 ```
