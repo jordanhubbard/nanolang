@@ -339,6 +339,11 @@ test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."
 	@scripts/test_nanovm_integration.sh
 
+.PHONY: test-cop-lifecycle
+test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
+	@echo "Running co-process lifecycle tests..."
+	@scripts/test_cop_lifecycle.sh
+
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
 NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
