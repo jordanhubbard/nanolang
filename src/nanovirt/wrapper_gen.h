@@ -31,4 +31,16 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
                       const char *output_path, const char *source_path,
                       const ASTNode *program, bool verbose);
 
+/*
+ * Generate a daemon-mode native executable.
+ * The resulting binary embeds the .nvm blob but is much smaller because it
+ * only links the VMD client library (vmd_protocol.o + vmd_client.o).
+ * At runtime it connects to the nano_vmd daemon (lazy-launching if needed)
+ * and sends the blob for execution.
+ *
+ * Returns true on success.
+ */
+bool wrapper_generate_daemon(const uint8_t *blob, uint32_t blob_size,
+                              const char *output_path, bool verbose);
+
 #endif /* NANOVIRT_WRAPPER_GEN_H */

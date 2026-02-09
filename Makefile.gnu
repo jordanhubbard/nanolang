@@ -302,11 +302,29 @@ test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@./tests/nanovm/test_vm
 	@rm -f tests/nanovm/test_vm
 
-nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(OBJ_DIR)/nanovm/main.o | bin
-	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(OBJ_DIR)/nanovm/main.o $(LDFLAGS)
+# ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
+VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
+VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
 
-$(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h | $(OBJ_DIR)/nanovm
+nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o | bin
+	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
+		$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o \
+		$(OBJ_DIR)/nanovm/main.o $(LDFLAGS)
+
+nano_vmd: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o | bin
+	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
+		$(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o $(LDFLAGS) -lpthread
+
+$(OBJ_DIR)/nanovm/main.o: $(NANOVM_DIR)/main.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/vmd_client.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/nanovm/vmd_main.o: $(NANOVM_DIR)/vmd_main.c $(NANOVM_DIR)/vmd_server.h | $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PHONY: test-nanovm-daemon
+test-nanovm-daemon: nano_vm nano_vmd
+	@echo "Running NanoVM daemon integration tests..."
+	@scripts/test_nanovm_daemon.sh
 
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
@@ -1352,7 +1370,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_virt examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt test-nanovm-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION

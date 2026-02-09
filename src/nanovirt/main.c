@@ -1,7 +1,7 @@
 /*
  * nano_virt main.c - CLI for compiling .nano to .nvm bytecode or native binary
  *
- * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [-v]
+ * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [--daemon-wrapper] [-v]
  *
  * Pipeline: .nano → lexer → parser → typechecker → codegen → .nvm
  * With -o:        writes .nvm bytecode (if .nvm extension or --emit-nvm)
@@ -46,13 +46,14 @@ static char *read_file(const char *path) {
 }
 
 static void usage(const char *prog) {
-    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [-v]\n", prog);
+    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -o <path>     Output file (native binary, or .nvm if --emit-nvm)\n");
-    fprintf(stderr, "  --run         Execute after compilation (in-process VM)\n");
-    fprintf(stderr, "  --emit-nvm    Write raw .nvm bytecode instead of native binary\n");
-    fprintf(stderr, "  -v            Verbose output\n");
+    fprintf(stderr, "  -o <path>          Output file (native binary, or .nvm if --emit-nvm)\n");
+    fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
+    fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
+    fprintf(stderr, "  -v                 Verbose output\n");
 }
 
 /* Check if path ends with .nvm extension */
@@ -66,6 +67,7 @@ int main(int argc, char **argv) {
     const char *output = NULL;
     bool run = false;
     bool emit_nvm = false;
+    bool daemon_wrapper = false;
     bool verbose = false;
 
     for (int i = 1; i < argc; i++) {
@@ -75,6 +77,8 @@ int main(int argc, char **argv) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
             emit_nvm = true;
+        } else if (strcmp(argv[i], "--daemon-wrapper") == 0) {
+            daemon_wrapper = true;
         } else if (strcmp(argv[i], "-v") == 0) {
             verbose = true;
         } else if (argv[i][0] != '-') {
@@ -173,7 +177,26 @@ int main(int argc, char **argv) {
 
         bool want_nvm = emit_nvm || has_nvm_extension(output);
 
-        if (want_nvm) {
+        if (daemon_wrapper) {
+            /* Generate thin daemon-mode binary */
+            if (verbose) {
+                printf("Generating daemon-mode wrapper: %s\n", output);
+            }
+            if (!wrapper_generate_daemon(blob, size, output, verbose)) {
+                free(blob);
+                nvm_module_free(cg.module);
+                free_ast(program);
+                free_environment(env);
+                free_module_list(modules);
+                clear_module_cache();
+                free_tokens(tokens, token_count);
+                free(source);
+                return 1;
+            }
+            if (verbose) {
+                printf("Daemon-mode wrapper generated: %s\n", output);
+            }
+        } else if (want_nvm) {
             /* Write raw .nvm bytecode */
             FILE *f = fopen(output, "wb");
             if (!f) {

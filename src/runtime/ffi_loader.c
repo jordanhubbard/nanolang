@@ -3,6 +3,12 @@
  *
  * Shared dlopen/dlsym plumbing for both the interpreter and VM.
  * See ffi_loader.h for the public API.
+ *
+ * Thread safety: protected by a pthread_rwlock_t.
+ * - ffi_loader_open() / ffi_loader_shutdown() take a write lock
+ * - ffi_loader_resolve() / ffi_loader_find() take a read lock
+ * - The interpreter is single-threaded (lock has zero contention)
+ * - The daemon runs concurrent threads (read lock allows parallel symbol resolution)
  */
 
 #include "ffi_loader.h"
@@ -11,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
 
 /* ── Internal state ──────────────────────────────────────────────── */
 
@@ -22,15 +29,23 @@ static int module_capacity = 0;
 static bool initialized = false;
 static bool verbose_mode = false;
 
+static pthread_rwlock_t ffi_lock = PTHREAD_RWLOCK_INITIALIZER;
+
 /* ── Lifecycle ───────────────────────────────────────────────────── */
 
 bool ffi_loader_init(bool verbose) {
-    if (initialized) return true;
+    pthread_rwlock_wrlock(&ffi_lock);
+
+    if (initialized) {
+        pthread_rwlock_unlock(&ffi_lock);
+        return true;
+    }
 
     verbose_mode = verbose;
     modules = calloc(FFI_INITIAL_CAPACITY, sizeof(FfiModule));
     if (!modules) {
         fprintf(stderr, "ffi_loader: allocation failed\n");
+        pthread_rwlock_unlock(&ffi_lock);
         return false;
     }
     module_capacity = FFI_INITIAL_CAPACITY;
@@ -40,11 +55,18 @@ bool ffi_loader_init(bool verbose) {
     if (verbose_mode) {
         fprintf(stderr, "[ffi_loader] Initialized\n");
     }
+
+    pthread_rwlock_unlock(&ffi_lock);
     return true;
 }
 
 void ffi_loader_shutdown(void) {
-    if (!initialized) return;
+    pthread_rwlock_wrlock(&ffi_lock);
+
+    if (!initialized) {
+        pthread_rwlock_unlock(&ffi_lock);
+        return;
+    }
 
     for (int i = 0; i < module_count; i++) {
         if (modules[i].handle) {
@@ -64,9 +86,12 @@ void ffi_loader_shutdown(void) {
     if (verbose_mode) {
         fprintf(stderr, "[ffi_loader] Shut down\n");
     }
+
+    pthread_rwlock_unlock(&ffi_lock);
 }
 
 bool ffi_loader_is_initialized(void) {
+    /* Reading a bool is atomic on all supported platforms */
     return initialized;
 }
 
@@ -74,27 +99,55 @@ bool ffi_loader_is_initialized(void) {
 
 FfiModule *ffi_loader_find(const char *module_name) {
     if (!module_name) return NULL;
+
+    pthread_rwlock_rdlock(&ffi_lock);
+
     for (int i = 0; i < module_count; i++) {
         if (strcmp(modules[i].name, module_name) == 0) {
-            return &modules[i];
+            FfiModule *result = &modules[i];
+            pthread_rwlock_unlock(&ffi_lock);
+            return result;
         }
     }
+
+    pthread_rwlock_unlock(&ffi_lock);
     return NULL;
 }
 
 bool ffi_loader_open(const char *module_name, const char *lib_path) {
+    pthread_rwlock_wrlock(&ffi_lock);
+
     if (!initialized) {
-        if (!ffi_loader_init(false)) return false;
+        /* Init under write lock */
+        if (!modules) {
+            verbose_mode = false;
+            modules = calloc(FFI_INITIAL_CAPACITY, sizeof(FfiModule));
+            if (!modules) {
+                pthread_rwlock_unlock(&ffi_lock);
+                return false;
+            }
+            module_capacity = FFI_INITIAL_CAPACITY;
+            module_count = 0;
+            initialized = true;
+        }
     }
 
-    /* Idempotent */
-    if (ffi_loader_find(module_name)) return true;
+    /* Idempotent check (under lock) */
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, module_name) == 0) {
+            pthread_rwlock_unlock(&ffi_lock);
+            return true;
+        }
+    }
 
     /* Grow array if needed */
     if (module_count >= module_capacity) {
         int new_cap = module_capacity * 2;
         FfiModule *new_arr = realloc(modules, (size_t)new_cap * sizeof(FfiModule));
-        if (!new_arr) return false;
+        if (!new_arr) {
+            pthread_rwlock_unlock(&ffi_lock);
+            return false;
+        }
         modules = new_arr;
         module_capacity = new_cap;
     }
@@ -106,6 +159,7 @@ bool ffi_loader_open(const char *module_name, const char *lib_path) {
             fprintf(stderr, "[ffi_loader] Failed to load %s: %s\n",
                     lib_path, dlerror());
         }
+        pthread_rwlock_unlock(&ffi_lock);
         return false;
     }
 
@@ -119,10 +173,13 @@ bool ffi_loader_open(const char *module_name, const char *lib_path) {
     if (verbose_mode) {
         fprintf(stderr, "[ffi_loader] Loaded '%s' from %s\n", module_name, lib_path);
     }
+
+    pthread_rwlock_unlock(&ffi_lock);
     return true;
 }
 
 FfiModule *ffi_loader_get_modules(int *out_count) {
+    /* Caller must hold their own lock or ensure single-threaded access */
     if (out_count) *out_count = module_count;
     return modules;
 }
@@ -136,16 +193,21 @@ void *ffi_loader_resolve(const char *symbol_name) {
 void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
     if (out_module) *out_module = NULL;
 
+    pthread_rwlock_rdlock(&ffi_lock);
+
     /* Search loaded modules */
     for (int i = 0; i < module_count; i++) {
         void *ptr = dlsym(modules[i].handle, symbol_name);
         if (ptr) {
             if (out_module) *out_module = &modules[i];
+            pthread_rwlock_unlock(&ffi_lock);
             return ptr;
         }
     }
 
-    /* Fallback: main executable + already-loaded libraries */
+    pthread_rwlock_unlock(&ffi_lock);
+
+    /* Fallback: main executable + already-loaded libraries (no lock needed) */
     void *self = dlopen(NULL, RTLD_LAZY);
     if (self) {
         void *ptr = dlsym(self, symbol_name);

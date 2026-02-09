@@ -3,13 +3,23 @@
  *
  * Loads an .nvm file and executes it via the VM.
  *
- * Usage: nano_vm <file.nvm>
+ * Usage: nano_vm [--daemon] <file.nvm>
+ *
+ * With --daemon: sends the .nvm blob to the nano_vmd daemon for execution
+ *                (lazy-launches the daemon if not running).
+ * Without:       executes directly in-process (original behavior).
  */
 
 #include "vm.h"
+#include "vmd_client.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+/* Required by runtime/cli.c */
+int g_argc = 0;
+char **g_argv = NULL;
 
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -48,27 +58,19 @@ static uint8_t *read_file(const char *path, uint32_t *out_size) {
     return data;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <file.nvm>\n", argv[0]);
-        return 1;
-    }
-
-    /* Load the .nvm file */
+static int run_standalone(const char *path) {
     uint32_t file_size = 0;
-    uint8_t *data = read_file(argv[1], &file_size);
+    uint8_t *data = read_file(path, &file_size);
     if (!data) return 1;
 
-    /* Deserialize into a module */
     NvmModule *module = nvm_deserialize(data, file_size);
     free(data);
 
     if (!module) {
-        fprintf(stderr, "Error: Failed to load '%s' (invalid .nvm format)\n", argv[1]);
+        fprintf(stderr, "Error: Failed to load '%s' (invalid .nvm format)\n", path);
         return 1;
     }
 
-    /* Execute */
     VmState vm;
     vm_init(&vm, module);
 
@@ -87,4 +89,64 @@ int main(int argc, char *argv[]) {
     nvm_module_free(module);
 
     return exit_code;
+}
+
+static int run_daemon(const char *path) {
+    uint32_t file_size = 0;
+    uint8_t *data = read_file(path, &file_size);
+    if (!data) return 1;
+
+    VmdClient *client = vmd_connect(5000);  /* 5 second timeout */
+    if (!client) {
+        fprintf(stderr, "Error: Cannot connect to nano_vmd daemon\n");
+        free(data);
+        return 1;
+    }
+
+    int exit_code = vmd_execute(client, data, file_size);
+    free(data);
+
+    vmd_disconnect(client);
+
+    if (exit_code < 0) {
+        fprintf(stderr, "Error: Communication error with daemon\n");
+        return 1;
+    }
+
+    return exit_code;
+}
+
+int main(int argc, char *argv[]) {
+    g_argc = argc;
+    g_argv = argv;
+
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s [--daemon] <file.nvm>\n", argv[0]);
+        return 1;
+    }
+
+    bool daemon_mode = false;
+    const char *nvm_path = NULL;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
+            daemon_mode = true;
+        } else if (argv[i][0] == '-') {
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            return 1;
+        } else {
+            nvm_path = argv[i];
+        }
+    }
+
+    if (!nvm_path) {
+        fprintf(stderr, "Error: No .nvm file specified\n");
+        return 1;
+    }
+
+    if (daemon_mode) {
+        return run_daemon(nvm_path);
+    } else {
+        return run_standalone(nvm_path);
+    }
 }

@@ -435,3 +435,140 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
 
     return true;
 }
+
+/* ========================================================================
+ * Daemon-Mode Wrapper Generation
+ *
+ * Produces a thin binary that embeds the .nvm blob and uses the VMD client
+ * library to connect to nano_vmd for execution. Links only:
+ *   - vmd_protocol.o
+ *   - vmd_client.o
+ * ======================================================================== */
+
+static bool write_daemon_wrapper_c(FILE *f, const uint8_t *blob, uint32_t blob_size) {
+    fprintf(f, "/* Auto-generated NVM daemon wrapper - do not edit */\n");
+    fprintf(f, "#include \"nanovm/vmd_client.h\"\n");
+    fprintf(f, "#include <stdio.h>\n");
+    fprintf(f, "#include <stdint.h>\n\n");
+
+    /* Embedded blob */
+    fprintf(f, "static const unsigned char nvm_blob[%u] = {\n", blob_size);
+    for (uint32_t i = 0; i < blob_size; i++) {
+        if (i % 16 == 0) fprintf(f, "    ");
+        fprintf(f, "0x%02x", blob[i]);
+        if (i + 1 < blob_size) fprintf(f, ",");
+        if (i % 16 == 15 || i + 1 == blob_size) fprintf(f, "\n");
+    }
+    fprintf(f, "};\n\n");
+
+    fprintf(f, "int main(int argc, char **argv) {\n");
+    fprintf(f, "    (void)argc; (void)argv;\n\n");
+
+    fprintf(f, "    VmdClient *client = vmd_connect(5000);\n");
+    fprintf(f, "    if (!client) {\n");
+    fprintf(f, "        fprintf(stderr, \"error: cannot connect to nano_vmd daemon\\n\");\n");
+    fprintf(f, "        return 1;\n");
+    fprintf(f, "    }\n\n");
+
+    fprintf(f, "    int exit_code = vmd_execute(client, nvm_blob, %u);\n", blob_size);
+    fprintf(f, "    vmd_disconnect(client);\n\n");
+
+    fprintf(f, "    if (exit_code < 0) {\n");
+    fprintf(f, "        fprintf(stderr, \"error: communication error with daemon\\n\");\n");
+    fprintf(f, "        return 1;\n");
+    fprintf(f, "    }\n\n");
+
+    fprintf(f, "    return exit_code;\n");
+    fprintf(f, "}\n");
+
+    return true;
+}
+
+bool wrapper_generate_daemon(const uint8_t *blob, uint32_t blob_size,
+                              const char *output_path, bool verbose) {
+    /* Find object directory */
+    char *obj_dir = find_obj_dir();
+    if (!obj_dir) {
+        fprintf(stderr, "error: cannot find obj/ directory for linking\n");
+        return false;
+    }
+
+    /* Verify the VMD client object exists */
+    char test_obj[4096];
+    snprintf(test_obj, sizeof(test_obj), "%s/nanovm/vmd_client.o", obj_dir);
+    if (access(test_obj, R_OK) != 0) {
+        fprintf(stderr, "error: cannot find %s\n", test_obj);
+        fprintf(stderr, "  Run 'make -f Makefile.gnu nano_vm' first to build VMD client objects\n");
+        free(obj_dir);
+        return false;
+    }
+
+    /* Generate temp C file */
+    char temp_c[256];
+    snprintf(temp_c, sizeof(temp_c), "/tmp/nanovirt_daemon_%d.c", getpid());
+
+    FILE *f = fopen(temp_c, "w");
+    if (!f) {
+        fprintf(stderr, "error: cannot create temp file %s\n", temp_c);
+        free(obj_dir);
+        return false;
+    }
+
+    if (!write_daemon_wrapper_c(f, blob, blob_size)) {
+        fprintf(stderr, "error: failed to generate daemon wrapper C code\n");
+        fclose(f);
+        remove(temp_c);
+        free(obj_dir);
+        return false;
+    }
+    fclose(f);
+
+    /* Daemon wrappers need only: vmd_protocol.o + vmd_client.o */
+    char obj_list[4096];
+    snprintf(obj_list, sizeof(obj_list), "%s/nanovm/vmd_protocol.o %s/nanovm/vmd_client.o",
+             obj_dir, obj_dir);
+
+    /* Find the src/ include directory */
+    char src_dir[4096];
+    snprintf(src_dir, sizeof(src_dir), "%s/../src", obj_dir);
+    char *real_src = realpath(src_dir, NULL);
+    if (!real_src) {
+        real_src = realpath("src", NULL);
+        if (!real_src) {
+            fprintf(stderr, "error: cannot find src/ include directory\n");
+            remove(temp_c);
+            free(obj_dir);
+            return false;
+        }
+    }
+
+    /* Select compiler */
+    const char *cc = getenv("NANO_CC");
+    if (!cc) cc = getenv("CC");
+    if (!cc) cc = "cc";
+
+    /* Compile command — much simpler than full wrapper */
+    char cmd[8192];
+    snprintf(cmd, sizeof(cmd),
+             "%s -std=c99 -Wall -Wextra -Werror "
+             "-Wno-error=unused-parameter "
+             "-I%s -o %s %s %s",
+             cc, real_src, output_path, temp_c, obj_list);
+
+    if (verbose) {
+        printf("Compiling daemon wrapper: %s\n", cmd);
+    }
+
+    int result = system(cmd);
+
+    remove(temp_c);
+    free(real_src);
+    free(obj_dir);
+
+    if (result != 0) {
+        fprintf(stderr, "error: daemon wrapper compilation failed (exit code %d)\n", result);
+        return false;
+    }
+
+    return true;
+}
