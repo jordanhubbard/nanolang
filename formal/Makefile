@@ -30,7 +30,25 @@ Equivalence.vo: Equivalence.v Syntax.vo Semantics.vo Typing.vo Progress.vo
 EvalFn.vo: EvalFn.v Syntax.vo Semantics.vo
 	$(COQC) $(COQFLAGS) $<
 
+# ── OCaml Extraction ──────────────────────────────────────────────────
+# Extract the computable evaluator to OCaml source code.
+# Generated files go to extracted/ and are used by tools/nanocore_ref/.
+
+Extract.vo: Extract.v EvalFn.vo Syntax.vo Semantics.vo
+	$(COQC) $(COQFLAGS) -output-directory extracted $<
+
+extract: Extract.vo
+
+# Build the reference interpreter from extracted OCaml code
+nanocore-ref: extract
+	$(MAKE) -C ../tools/nanocore_ref all
+
+# Install the reference interpreter to bin/
+install-ref: nanocore-ref
+	$(MAKE) -C ../tools/nanocore_ref install
+
 clean:
 	rm -f *.vo *.vok *.vos *.glob .*.aux
+	rm -rf extracted/*.ml extracted/*.mli extracted/*.cmx extracted/*.cmi extracted/*.o
 
-.PHONY: all clean
+.PHONY: all clean extract nanocore-ref install-ref

@@ -6,9 +6,14 @@
  * 2. Type preservation: well-typed NanoCore expressions produce correctly-typed values
  * 3. Arithmetic identities: basic algebraic laws hold
  *
+ * Uses the proptest module to randomly test these properties across many inputs,
+ * bridging the gap between formal proofs and empirical validation.
+ *
  * All functions in this file are in the NanoCore verified subset
  * (run with --trust-report to confirm).
  * ============================================================================= */
+
+from "modules/proptest/proptest.nano" import int_range, int_pair, forall_int_with_config, forall_int_pair_with_config, prop_pass, prop_fail, config, report_passed, report_summary, RunConfig, PropertyReport, IntPairGenerator, IntRangeGenerator
 
 /* =============================================================================
  * DETERMINISM TESTS
@@ -193,16 +198,22 @@ fn safe_div(a: int, b: int) -> IntResult {
     return IntResult.Ok { value: (/ a b) }
 }
 
+shadow safe_div {
+    let ok: IntResult = (safe_div 10 2)
+    let v: int = match ok { Ok(o) => o.value, Err(_e) => -1 }
+    assert (== v 5)
+}
+
 fn prop_union_determinism(a: int, b: int) -> bool {
     let r1: IntResult = (safe_div a b)
     let r2: IntResult = (safe_div a b)
     let v1: int = match r1 {
         Ok(ok) => ok.value,
-        Err(err) => -1
+        Err(_err) => -1
     }
     let v2: int = match r2 {
         Ok(ok) => ok.value,
-        Err(err) => -1
+        Err(_err) => -1
     }
     return (== v1 v2)
 }
@@ -256,9 +267,9 @@ shadow prop_cmp_type_preservation {
 
 /* String type preservation: string operations produce strings */
 fn prop_string_type_preservation(s: string) -> bool {
-    let cat: string = (+ s s)
+    let _cat: string = (+ s s)
     let len: int = (str_length s)
-    /* cat is string, len is int - verified */
+    /* _cat is string, len is int - verified */
     return (>= len 0)
 }
 
@@ -363,6 +374,8 @@ shadow prop_double_negation {
 }
 
 /* Higher-order function determinism: map is deterministic */
+shadow double { assert (== (double 3) 6) }
+
 fn double(x: int) -> int {
     return (* x 2)
 }
@@ -375,6 +388,12 @@ fn map_array(arr: array<int>, f: fn(int) -> int) -> array<int> {
         set i (+ i 1)
     }
     return result
+}
+
+shadow map_array {
+    let r: array<int> = (map_array [1, 2] double)
+    assert (== (at r 0) 2)
+    assert (== (at r 1) 4)
 }
 
 fn prop_map_determinism() -> bool {
@@ -413,6 +432,8 @@ fn fibonacci(n: int) -> int {
     return b
 }
 
+shadow fibonacci { assert (== (fibonacci 10) 55) }
+
 fn prop_fib_determinism(n: int) -> bool {
     let r1: int = (fibonacci n)
     let r2: int = (fibonacci n)
@@ -427,42 +448,213 @@ shadow prop_fib_determinism {
 }
 
 /* =============================================================================
- * MAIN: Run all property tests
+ * PROPTEST WRAPPERS
+ * Adapt bool-returning properties to proptest's string-encoded protocol
  * ============================================================================= */
 
+/* --- Determinism properties (pair) --- */
+fn pt_arith_determinism(a: int, b: int) -> string {
+    if (prop_arith_determinism a b) { return (prop_pass) }
+    return (prop_fail "add not deterministic")
+}
+
+fn pt_mul_determinism(a: int, b: int) -> string {
+    if (prop_mul_determinism a b) { return (prop_pass) }
+    return (prop_fail "mul not deterministic")
+}
+
+fn pt_div_determinism(a: int, b: int) -> string {
+    if (prop_div_determinism a b) { return (prop_pass) }
+    return (prop_fail "div not deterministic")
+}
+
+fn pt_cmp_determinism(a: int, b: int) -> string {
+    if (prop_cmp_determinism a b) { return (prop_pass) }
+    return (prop_fail "cmp not deterministic")
+}
+
+fn pt_struct_determinism(a: int, b: int) -> string {
+    if (prop_struct_determinism a b) { return (prop_pass) }
+    return (prop_fail "struct not deterministic")
+}
+
+fn pt_union_determinism(a: int, b: int) -> string {
+    if (prop_union_determinism a b) { return (prop_pass) }
+    return (prop_fail "union/match not deterministic")
+}
+
+/* --- Determinism properties (unary) --- */
+fn pt_if_determinism(x: int) -> string {
+    if (prop_if_determinism x) { return (prop_pass) }
+    return (prop_fail "if not deterministic")
+}
+
+fn pt_while_determinism(n: int) -> string {
+    if (< n 0) { return (prop_pass) }
+    if (> n 100) { return (prop_pass) }
+    if (prop_while_determinism n) { return (prop_pass) }
+    return (prop_fail "while not deterministic")
+}
+
+fn pt_fib_determinism(n: int) -> string {
+    if (< n 0) { return (prop_pass) }
+    if (> n 30) { return (prop_pass) }
+    if (prop_fib_determinism n) { return (prop_pass) }
+    return (prop_fail "fib not deterministic")
+}
+
+/* --- Algebraic properties (pair) --- */
+fn pt_add_commutative(a: int, b: int) -> string {
+    if (prop_add_commutative a b) { return (prop_pass) }
+    return (prop_fail "add not commutative")
+}
+
+fn pt_mul_commutative(a: int, b: int) -> string {
+    if (prop_mul_commutative a b) { return (prop_pass) }
+    return (prop_fail "mul not commutative")
+}
+
+/* --- Algebraic properties (unary) --- */
+fn pt_add_identity(a: int) -> string {
+    if (prop_add_identity a) { return (prop_pass) }
+    return (prop_fail "add identity failed")
+}
+
+fn pt_mul_identity(a: int) -> string {
+    if (prop_mul_identity a) { return (prop_pass) }
+    return (prop_fail "mul identity failed")
+}
+
+fn pt_mul_zero(a: int) -> string {
+    if (prop_mul_zero a) { return (prop_pass) }
+    return (prop_fail "mul zero failed")
+}
+
+fn pt_negation(a: int) -> string {
+    if (prop_negation a) { return (prop_pass) }
+    return (prop_fail "negation failed")
+}
+
+/* --- Type preservation properties (pair) --- */
+fn pt_arith_type_preservation(a: int, b: int) -> string {
+    if (prop_arith_type_preservation a b) { return (prop_pass) }
+    return (prop_fail "arith type not preserved")
+}
+
+fn pt_cmp_type_preservation(a: int, b: int) -> string {
+    if (prop_cmp_type_preservation a b) { return (prop_pass) }
+    return (prop_fail "cmp type not preserved")
+}
+
+shadow pt_arith_determinism { assert (== (prop_pass) (pt_arith_determinism 1 2)) }
+shadow pt_mul_determinism { assert (== (prop_pass) (pt_mul_determinism 3 4)) }
+shadow pt_div_determinism { assert (== (prop_pass) (pt_div_determinism 10 3)) }
+shadow pt_cmp_determinism { assert (== (prop_pass) (pt_cmp_determinism 1 2)) }
+shadow pt_struct_determinism { assert (== (prop_pass) (pt_struct_determinism 5 6)) }
+shadow pt_union_determinism { assert (== (prop_pass) (pt_union_determinism 10 3)) }
+shadow pt_if_determinism { assert (== (prop_pass) (pt_if_determinism 5)) }
+shadow pt_while_determinism { assert (== (prop_pass) (pt_while_determinism 5)) }
+shadow pt_fib_determinism { assert (== (prop_pass) (pt_fib_determinism 10)) }
+shadow pt_add_commutative { assert (== (prop_pass) (pt_add_commutative 1 2)) }
+shadow pt_mul_commutative { assert (== (prop_pass) (pt_mul_commutative 3 4)) }
+shadow pt_add_identity { assert (== (prop_pass) (pt_add_identity 42)) }
+shadow pt_mul_identity { assert (== (prop_pass) (pt_mul_identity 7)) }
+shadow pt_mul_zero { assert (== (prop_pass) (pt_mul_zero 99)) }
+shadow pt_negation { assert (== (prop_pass) (pt_negation 5)) }
+shadow pt_arith_type_preservation { assert (== (prop_pass) (pt_arith_type_preservation 1 2)) }
+shadow pt_cmp_type_preservation { assert (== (prop_pass) (pt_cmp_type_preservation 1 2)) }
+
+/* --- Division consistency: a == (a/b)*b + (a%b) when b != 0 --- */
+fn pt_div_mod_consistency(a: int, b: int) -> string {
+    if (== b 0) { return (prop_pass) }
+    let q: int = (/ a b)
+    let r: int = (% a b)
+    if (== a (+ (* q b) r)) { return (prop_pass) }
+    return (prop_fail "div/mod inconsistent")
+}
+
+shadow pt_div_mod_consistency {
+    assert (== (prop_pass) (pt_div_mod_consistency 10 3))
+    assert (== (prop_pass) (pt_div_mod_consistency -7 2))
+    assert (== (prop_pass) (pt_div_mod_consistency 5 0))
+}
+
+/* =============================================================================
+ * MAIN: Run random property tests via proptest module
+ * ============================================================================= */
+
+shadow check_prop { assert true }
+
+fn check_prop(report: PropertyReport) -> bool {
+    print (report_summary report)
+    return (report_passed report)
+}
+
 fn main() -> int {
-    /* All properties are tested via shadow tests above.
-     * This main function verifies a few key properties directly. */
+    print "=== NanoCore Property-Based Testing Bridge ==="
+    print "Empirically validating Coq-proven properties with random inputs"
+    print ""
 
-    /* Determinism spot checks */
-    assert (prop_arith_determinism 12345 67890)
-    assert (prop_mul_determinism 111 222)
-    assert (prop_strcat_determinism "verified" " formally")
-    assert (prop_logic_determinism true false)
-    assert (prop_if_determinism -42)
-    assert (prop_while_determinism 20)
+    let wide: IntRangeGenerator = (int_range -10000 10000)
+    let small: IntRangeGenerator = (int_range -100 100)
+    let positive: IntRangeGenerator = (int_range 0 100)
+    let cfg: RunConfig = (config 200 10 400 42)
+    let wide_pair: IntPairGenerator = (int_pair wide wide)
+    let small_pair: IntPairGenerator = (int_pair small small)
+
+    let mut all_passed: bool = true
+
+    /* --- Determinism (proven in Determinism.v) --- */
+    print "--- Determinism Properties (Determinism.v) ---"
+    if (not (check_prop (forall_int_pair_with_config "arith_determinism" wide_pair pt_arith_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "mul_determinism" wide_pair pt_mul_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "div_determinism" wide_pair pt_div_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "cmp_determinism" wide_pair pt_cmp_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "struct_determinism" small_pair pt_struct_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "union_determinism" small_pair pt_union_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "if_determinism" wide pt_if_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "while_determinism" positive pt_while_determinism cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "fib_determinism" (int_range 0 30) pt_fib_determinism cfg))) { set all_passed false }
+
+    print ""
+    print "--- Algebraic Properties (follows from Semantics.v) ---"
+    if (not (check_prop (forall_int_pair_with_config "add_commutative" wide_pair pt_add_commutative cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "mul_commutative" wide_pair pt_mul_commutative cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "add_identity" wide pt_add_identity cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "mul_identity" wide pt_mul_identity cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "mul_zero" wide pt_mul_zero cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_with_config "negation" wide pt_negation cfg))) { set all_passed false }
+
+    print ""
+    print "--- Type Preservation (Soundness.v) ---"
+    if (not (check_prop (forall_int_pair_with_config "arith_type_preservation" wide_pair pt_arith_type_preservation cfg))) { set all_passed false }
+    if (not (check_prop (forall_int_pair_with_config "cmp_type_preservation" wide_pair pt_cmp_type_preservation cfg))) { set all_passed false }
+
+    print ""
+    print "--- Division/Modulus Consistency ---"
+    if (not (check_prop (forall_int_pair_with_config "div_mod_consistency" wide_pair pt_div_mod_consistency cfg))) { set all_passed false }
+
+    print ""
+    /* Manual spot checks from shadow tests still hold */
     assert (prop_array_determinism)
-    assert (prop_struct_determinism 10 20)
-    assert (prop_union_determinism 100 7)
-
-    /* Type preservation spot checks */
-    assert (prop_arith_type_preservation 100 200)
-    assert (prop_cmp_type_preservation 1 1)
-    assert (prop_string_type_preservation "NanoCore")
-
-    /* Algebraic identity spot checks */
-    assert (prop_add_commutative 42 58)
-    assert (prop_mul_commutative 6 7)
-    assert (prop_add_identity 999)
-    assert (prop_mul_identity 13)
-    assert (prop_mul_zero 777)
-    assert (prop_negation 123)
-    assert (prop_demorgan false true)
-    assert (prop_double_negation true)
-
-    /* Higher-order + recursive function determinism */
     assert (prop_map_determinism)
-    assert (prop_fib_determinism 15)
+    assert (prop_demorgan true true)
+    assert (prop_demorgan true false)
+    assert (prop_demorgan false true)
+    assert (prop_demorgan false false)
+    assert (prop_double_negation true)
+    assert (prop_double_negation false)
+    print "Manual spot checks: PASS"
 
+    print ""
+    if all_passed {
+        print "ALL PROPERTY TESTS PASSED"
+    } else {
+        print "SOME PROPERTY TESTS FAILED"
+    }
+
+    assert all_passed
     return 0
 }
+
+shadow main { assert true }

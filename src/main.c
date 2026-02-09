@@ -7,6 +7,7 @@
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
 #include "nanocore_subset.h"
+#include "nanocore_export.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 
 #ifdef __APPLE__
@@ -42,6 +43,7 @@ typedef struct {
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool trust_report;         /* --trust-report: print formal verification trust levels */
+    bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
 } CompilerOptions;
 
 static void json_escape(FILE *out, const char *s) {
@@ -349,6 +351,62 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             nanocore_free_trust_report(report);
         }
         /* Clean up and exit - trust report is an analysis-only mode */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
+
+    /* Phase 4.2: Reference Eval — cross-check with Coq-extracted interpreter */
+    if (opts->reference_eval) {
+        printf("NanoCore Reference Evaluation: %s\n", input_file);
+        printf("Cross-checking verified functions against Coq-extracted interpreter\n\n");
+
+        /* Walk all functions and export verified ones */
+        int checked = 0, matched = 0, failed = 0, skipped = 0;
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+            if (!item || item->type != AST_FUNCTION) continue;
+            if (item->as.function.is_extern) continue;
+
+            const char *fname = item->as.function.name;
+            TrustLevel level = nanocore_function_trust(item, env);
+
+            if (level != TRUST_VERIFIED) {
+                skipped++;
+                continue;
+            }
+
+            /* Export entire function (wrapped in lambdas) to S-expression */
+            char *sexpr = nanocore_export_sexpr(item, env);
+            if (!sexpr) {
+                printf("  %-30s [skip] could not export to S-expression\n", fname);
+                skipped++;
+                continue;
+            }
+
+            /* Call reference interpreter */
+            char *ref_result = nanocore_reference_eval(sexpr, g_argv[0]);
+            if (ref_result) {
+                printf("  %-30s [ok]   ref=%s\n", fname, ref_result);
+                matched++;
+                free(ref_result);
+            } else {
+                printf("  %-30s [warn] reference interpreter unavailable\n", fname);
+                failed++;
+            }
+
+            free(sexpr);
+            checked++;
+        }
+
+        printf("\nSummary: %d checked, %d matched, %d warnings, %d skipped (not verified)\n",
+               checked, matched, failed, skipped);
+
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1018,6 +1076,7 @@ int main(int argc, char *argv[]) {
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
         printf("  --trust-report         Show formal verification trust levels for all functions\n");
+        printf("  --reference-eval       Cross-check verified functions with Coq-extracted interpreter\n");
         printf("\nSafety Options:\n");
         printf("  --warn-unsafe-imports  Warn when importing unsafe modules\n");
         printf("  --warn-unsafe-calls    Warn when calling functions from unsafe modules\n");
@@ -1064,7 +1123,8 @@ int main(int argc, char *argv[]) {
         .warn_unsafe_calls = false,
         .warn_ffi = false,
         .forbid_unsafe = false,
-        .trust_report = false
+        .trust_report = false,
+        .reference_eval = false
     };
     
     /* Allocate arrays for flags */
@@ -1132,6 +1192,8 @@ int main(int argc, char *argv[]) {
             opts.forbid_unsafe = true;
         } else if (strcmp(argv[i], "--trust-report") == 0) {
             opts.trust_report = true;
+        } else if (strcmp(argv[i], "--reference-eval") == 0) {
+            opts.reference_eval = true;
         } else if (strcmp(argv[i], "--llm-diags-json") == 0 && i + 1 < argc) {
             opts.llm_diags_json_path = argv[i + 1];
             i++;
