@@ -1,0 +1,5 @@
+KNOWN DIVERGENCE: Division by zero
+- Coq big-step evaluator (eval_fn): returns None (no evaluation rule for div-by-zero)
+- VM (small-step semantics): returns 0 (total division, proved in Progress.v)
+- Both behaviors are correct for their respective semantic models
+- The VM follows the small-step "total division" design choice (Coq S_Div rule)

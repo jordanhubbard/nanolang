@@ -1,0 +1,9 @@
+fn main() -> int {
+    if (> 10 5) {
+        (println "yes")
+    } else {
+        (println "no")
+    }
+    return 0
+}
+shadow main { assert true }

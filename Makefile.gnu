@@ -350,6 +350,15 @@ test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running co-process lifecycle tests..."
 	@scripts/test_cop_lifecycle.sh
 
+# Differential testing: Coq-extracted reference interpreter vs NanoVM
+.PHONY: test-differential
+test-differential: nano_virt
+	@echo ""
+	@echo "=========================================="
+	@echo "Differential Testing: Coq Reference vs VM"
+	@echo "=========================================="
+	@scripts/test_differential.sh
+
 # Backend-agnostic test suite: run all .nano tests through NanoVM
 .PHONY: test-vm test-daemon
 test-vm: nano_vm nano_virt

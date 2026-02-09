@@ -1,0 +1,9 @@
+fn main() -> int {
+    if true {
+        (println "1")
+    } else {
+        (println "0")
+    }
+    return 0
+}
+shadow main { assert true }
