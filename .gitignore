@@ -109,6 +109,11 @@ formal/*.vos
 formal/*.glob
 formal/.*.aux
 
+# OCaml build artifacts (Coq extraction)
+*.cmi
+*.cmx
+tools/nanocore_ref/nanocore-ref
+
 # Fuzzing artifacts
 tests/fuzzing/fuzz_*
 !tests/fuzzing/fuzz_*.c
