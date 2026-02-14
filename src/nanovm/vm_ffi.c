@@ -211,6 +211,11 @@ typedef int64_t (*FFI_Fn2)(void *, void *);
 typedef int64_t (*FFI_Fn3)(void *, void *, void *);
 typedef int64_t (*FFI_Fn4)(void *, void *, void *, void *);
 typedef int64_t (*FFI_Fn5)(void *, void *, void *, void *, void *);
+typedef int64_t (*FFI_Fn6)(void *, void *, void *, void *, void *, void *);
+typedef int64_t (*FFI_Fn7)(void *, void *, void *, void *, void *, void *, void *);
+typedef int64_t (*FFI_Fn8)(void *, void *, void *, void *, void *, void *, void *, void *);
+typedef int64_t (*FFI_Fn9)(void *, void *, void *, void *, void *, void *, void *, void *, void *);
+typedef int64_t (*FFI_Fn10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* Float-specific dispatch: on arm64, doubles use FP registers, not GP.
  * Using void-ptr and int64_t types puts args in wrong registers for C math fns. */
@@ -218,6 +223,13 @@ typedef double (*FFI_DFn0)(void);
 typedef double (*FFI_DFn1)(double);
 typedef double (*FFI_DFn2)(double, double);
 typedef double (*FFI_DFn3)(double, double, double);
+typedef double (*FFI_DFn4)(double, double, double, double);
+typedef double (*FFI_DFn5)(double, double, double, double, double);
+typedef double (*FFI_DFn6)(double, double, double, double, double, double);
+typedef double (*FFI_DFn7)(double, double, double, double, double, double, double);
+typedef double (*FFI_DFn8)(double, double, double, double, double, double, double, double);
+typedef double (*FFI_DFn9)(double, double, double, double, double, double, double, double, double);
+typedef double (*FFI_DFn10)(double, double, double, double, double, double, double, double, double, double);
 
 /* Check if all params and return are float */
 static bool is_all_float_signature(const NvmImportEntry *imp,
@@ -357,9 +369,16 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
             case 1: dresult = ((FFI_DFn1)func_ptr)(dargs[0]); break;
             case 2: dresult = ((FFI_DFn2)func_ptr)(dargs[0], dargs[1]); break;
             case 3: dresult = ((FFI_DFn3)func_ptr)(dargs[0], dargs[1], dargs[2]); break;
+            case 4: dresult = ((FFI_DFn4)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3]); break;
+            case 5: dresult = ((FFI_DFn5)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4]); break;
+            case 6: dresult = ((FFI_DFn6)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5]); break;
+            case 7: dresult = ((FFI_DFn7)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6]); break;
+            case 8: dresult = ((FFI_DFn8)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7]); break;
+            case 9: dresult = ((FFI_DFn9)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8]); break;
+            case 10: dresult = ((FFI_DFn10)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8], dargs[9]); break;
             default:
                 snprintf(error_msg, error_msg_size,
-                         "FFI: unsupported float arg count %d (max 3)", arg_count);
+                         "FFI: unsupported float arg count %d (max 10)", arg_count);
                 return false;
         }
         *result = val_float(dresult);
@@ -379,9 +398,19 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                                                   arg_ptrs[2], arg_ptrs[3]); break;
         case 5: raw_result = ((FFI_Fn5)func_ptr)(arg_ptrs[0], arg_ptrs[1],
                                                   arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]); break;
+        case 6: raw_result = ((FFI_Fn6)func_ptr)(arg_ptrs[0], arg_ptrs[1],
+                                                  arg_ptrs[2], arg_ptrs[3], arg_ptrs[4], arg_ptrs[5]); break;
+        case 7: raw_result = ((FFI_Fn7)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6]); break;
+        case 8: raw_result = ((FFI_Fn8)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7]); break;
+        case 9: raw_result = ((FFI_Fn9)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8]); break;
+        case 10: raw_result = ((FFI_Fn10)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                   arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8], arg_ptrs[9]); break;
         default:
             snprintf(error_msg, error_msg_size,
-                     "FFI: unsupported arg count %d (max 5)", arg_count);
+                     "FFI: unsupported arg count %d (max 10)", arg_count);
             return false;
     }
 
