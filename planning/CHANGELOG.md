@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-02-16
+
+### Added
+- extend FFI to support up to 10 arguments
+
+### Fixed
+- stabilize self-hosted std import and runtime support
+- convert cond expressions to if/else for proper type inference
+
 ## [3.0.0] - 2026-02-09
 
 ### Added
