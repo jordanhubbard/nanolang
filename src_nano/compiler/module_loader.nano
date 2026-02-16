@@ -1,15 +1,15 @@
 /* =============================================================================
  * Module Loader - Recursive Import Processing for Self-Hosted Compiler
  * =============================================================================
- * 
+ *
  * Implements recursive import loading to match C compiler behavior.
  * Critical for proper transitive type visibility.
- * 
+ *
  * Key functions:
  * - process_imports_recursive() - Main entry point for recursive loading
  * - resolve_module_path() - Find .nano files from import paths
  * - extract_type_symbols() - Build symbol table from Parser AST
- * 
+ *
  * Related: nanolang-zmwa
  */
 
@@ -163,6 +163,14 @@ shadow module_path_join {
 
 /* Resolve module import path to actual file path */
 fn resolve_module_path(import_path: string, current_file: string) -> string {
+    /* Case 0: Special handling for std library - MUST come first to avoid circular dependency
+     * When resolving std/X.nano, we need to find it at modules/std/X.nano
+     * but we can't call exists() because that function comes FROM std/fs.nano!
+     * So we hardcode the path and let later code verify it exists */
+    if (str_starts_with import_path "std/") {
+        return (module_path_join "modules" import_path)
+    } else { (print "") }
+
     /* Case 1: Absolute path starting with / */
     if (str_starts_with import_path "/") {
         if (exists import_path) {
@@ -188,12 +196,19 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
         } else { (print "") }
     } else { (print "") }
 
-    /* Case 4: Relative to current working directory */
+    /* Case 4: Check modules/ directory (for std library and user modules) */
+    let modules_path: string = (module_path_join "modules" import_path)
+    if (exists modules_path) {
+        return modules_path
+    } else { (print "") }
+
+    /* Case 5: Relative to current working directory - DISABLED to avoid std/fs dependency
     let working_dir: string = (cwd)
     let from_cwd: string = (module_path_join working_dir import_path)
     if (exists from_cwd) {
         return from_cwd
     } else { (print "") }
+    */
 
     /* Not found */
     return ""

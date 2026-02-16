@@ -101,7 +101,7 @@ VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
 # When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
 BOOTSTRAP_DETERMINISTIC ?= 0
-BOOTSTRAP_ENV :=
+BOOTSTRAP_ENV := NANO_MODULE_PATH=modules
 ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
 BOOTSTRAP_ENV += NANO_DETERMINISTIC=1
 endif

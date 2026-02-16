@@ -8,7 +8,7 @@
 
 import "src_nano/compiler/ir.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
-from "modules/std/fs.nano" import read
+from "std/fs.nano" import read
 
 fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))

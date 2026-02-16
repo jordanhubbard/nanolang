@@ -530,16 +530,21 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
     if (== import_path "") {
         return ""
     } else {
-        if (nlc_str_starts_with import_path "/") {
-            return import_path
+        /* Special case for std library - check modules/ directory first */
+        if (nlc_str_starts_with import_path "std/") {
+            return (nl_path_join "modules" import_path)
         } else {
-            if (or (nlc_str_starts_with import_path "./") (nlc_str_starts_with import_path "../")) {
-                return (nl_path_join (nl_path_dirname current_file) import_path)
+            if (nlc_str_starts_with import_path "/") {
+                return import_path
             } else {
-                if (!= repo_root "") {
-                    return (nl_path_join repo_root import_path)
+                if (or (nlc_str_starts_with import_path "./") (nlc_str_starts_with import_path "../")) {
+                    return (nl_path_join (nl_path_dirname current_file) import_path)
                 } else {
-                    return import_path
+                    if (!= repo_root "") {
+                        return (nl_path_join repo_root import_path)
+                    } else {
+                        return import_path
+                    }
                 }
             }
         }
@@ -1124,6 +1129,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "dyn_array.c"))
             set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "hashmap_bootstrap.c"))
+            set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc_struct.c"))
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "nl_string.c"))
@@ -1150,6 +1157,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBinaryOp.c"))
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTCall.c"))
+            set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTModuleQualifiedCall.c"))
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTArrayLiteral.c"))
             set cc_cmd (+ cc_cmd " ")
