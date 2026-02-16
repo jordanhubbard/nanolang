@@ -223,13 +223,19 @@ shadow ansi_escape {
 }
 
 fn html_entity_to_char(entity: string) -> string {
-    return (cond
-        ((== entity "&lt;") "<")
-        ((== entity "&gt;") ">")
-        ((== entity "&amp;") "&")
-        ((== entity "&quot;") "\"")
-        (else entity)
-    )
+    if (== entity "&lt;") {
+        return "<"
+    }
+    if (== entity "&gt;") {
+        return ">"
+    }
+    if (== entity "&amp;") {
+        return "&"
+    }
+    if (== entity "&quot;") {
+        return "\""
+    }
+    return entity
 }
 
 shadow html_entity_to_char {
@@ -238,17 +244,31 @@ shadow html_entity_to_char {
 }
 
 fn ansi_for_class(cls: string) -> string {
-    return (cond
-        ((== cls "tok-keyword") "35")
-        ((== cls "tok-type") "36")
-        ((== cls "tok-string") "32")
-        ((== cls "tok-number") "33")
-        ((== cls "tok-comment") "90")
-        ((== cls "tok-operator") "37")
-        ((== cls "tok-paren") "37")
-        ((== cls "tok-identifier") "0")
-        (else "")
-    )
+    if (== cls "tok-keyword") {
+        return "35"
+    }
+    if (== cls "tok-type") {
+        return "36"
+    }
+    if (== cls "tok-string") {
+        return "32"
+    }
+    if (== cls "tok-number") {
+        return "33"
+    }
+    if (== cls "tok-comment") {
+        return "90"
+    }
+    if (== cls "tok-operator") {
+        return "37"
+    }
+    if (== cls "tok-paren") {
+        return "37"
+    }
+    if (== cls "tok-identifier") {
+        return "0"
+    }
+    return ""
 }
 
 shadow ansi_for_class {

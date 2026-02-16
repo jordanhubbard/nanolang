@@ -431,8 +431,18 @@ shadow last_slash_index {
 fn module_name_from_path(path: string) -> string {
     let last_slash: int = (last_slash_index path)
     let last_dot: int = (last_dot_index path)
-    let start: int = (cond ((>= last_slash 0) (+ last_slash 1)) (else 0))
-    let end: int = (cond ((>= last_dot 0) last_dot) (else (str_length path)))
+    let mut start: int = 0
+    if (>= last_slash 0) {
+        set start (+ last_slash 1)
+    } else {
+        (print "")
+    }
+    let mut end: int = (str_length path)
+    if (>= last_dot 0) {
+        set end last_dot
+    } else {
+        (print "")
+    }
     let len: int = (- end start)
     if (<= len 0) {
         return path
@@ -2832,11 +2842,13 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     }
                     
                     /* Build call: proper function name (handles list runtime) */
-                    let c_func_name: string = (cond
-                        ((is_extern_function parser func_name) func_name)
-                        (else (c_func_name_for_call func_name))
-                    )
-                    
+                    let mut c_func_name: string = func_name
+                    if (is_extern_function parser func_name) {
+                        (print "")
+                    } else {
+                        set c_func_name (c_func_name_for_call func_name)
+                    }
+
                     let mut parts: array<string> = []
                     set parts (sb_append parts c_func_name)
                     set parts (sb_append parts "(")

@@ -4486,15 +4486,15 @@ fn parse_if_statement(p: Parser) -> Parser {
                                 return (parser_with_error p4 true)
                             } else {
                                 let tok3: LexerToken = (parser_current p4)
-                                let p5: Parser = (cond
-                                    ((== tok3.token_type (token_if))
-                                        /* else if - parse as if statement */
-                                        (parse_if_statement p4))
-                                    (else
-                                        /* else { block } - parse as block */
-                                        (parse_block p4))
-                                )
-                                
+                                let mut p5: Parser = p4
+                                if (== tok3.token_type (token_if)) {
+                                    /* else if - parse as if statement */
+                                    set p5 (parse_if_statement p4)
+                                } else {
+                                    /* else { block } - parse as block */
+                                    set p5 (parse_block p4)
+                                }
+
                                 if (parser_has_error p5) {
                                     return p5
                                 } else {

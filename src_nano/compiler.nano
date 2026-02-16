@@ -190,10 +190,13 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     
     /* Build command to use C compiler */
     let base_cmd: string = (+ (+ (+ "bin/nanoc " input) " -o ") output)
-    let final_cmd: string = (cond
-        (keep_c (+ base_cmd " --keep-c"))
-        (else base_cmd))
-    
+    let mut final_cmd: string = base_cmd
+    if keep_c {
+        set final_cmd (+ base_cmd " --keep-c")
+    } else {
+        (print "")
+    }
+
     return (system final_cmd)
 }
 

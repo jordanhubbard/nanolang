@@ -103,17 +103,31 @@ shadow is_type_word {
 }
 
 fn token_class(kind: int) -> string {
-    return (cond
-        ((== kind HL_TOKEN_KEYWORD) "tok-keyword")
-        ((== kind HL_TOKEN_TYPE) "tok-type")
-        ((== kind HL_TOKEN_STRING) "tok-string")
-        ((== kind HL_TOKEN_NUMBER) "tok-number")
-        ((== kind HL_TOKEN_COMMENT) "tok-comment")
-        ((== kind HL_TOKEN_OPERATOR) "tok-operator")
-        ((== kind HL_TOKEN_PAREN) "tok-paren")
-        ((== kind HL_TOKEN_IDENTIFIER) "tok-identifier")
-        (else "tok-text")
-    )
+    if (== kind HL_TOKEN_KEYWORD) {
+        return "tok-keyword"
+    }
+    if (== kind HL_TOKEN_TYPE) {
+        return "tok-type"
+    }
+    if (== kind HL_TOKEN_STRING) {
+        return "tok-string"
+    }
+    if (== kind HL_TOKEN_NUMBER) {
+        return "tok-number"
+    }
+    if (== kind HL_TOKEN_COMMENT) {
+        return "tok-comment"
+    }
+    if (== kind HL_TOKEN_OPERATOR) {
+        return "tok-operator"
+    }
+    if (== kind HL_TOKEN_PAREN) {
+        return "tok-paren"
+    }
+    if (== kind HL_TOKEN_IDENTIFIER) {
+        return "tok-identifier"
+    }
+    return "tok-text"
 }
 
 shadow token_class {
@@ -344,17 +358,31 @@ shadow highlight_html {
 
 fn ansi_for_token_kind(kind: int) -> string {
     # Return ANSI color code for token kind (empty string means no color)
-    return (cond
-        ((== kind HL_TOKEN_KEYWORD) "35")    # Magenta
-        ((== kind HL_TOKEN_TYPE) "36")        # Cyan
-        ((== kind HL_TOKEN_STRING) "32")      # Green
-        ((== kind HL_TOKEN_NUMBER) "33")      # Yellow
-        ((== kind HL_TOKEN_COMMENT) "90")     # Bright black (gray)
-        ((== kind HL_TOKEN_OPERATOR) "37")    # White
-        ((== kind HL_TOKEN_PAREN) "37")       # White
-        ((== kind HL_TOKEN_IDENTIFIER) "0")   # Reset (default)
-        (else "")
-    )
+    if (== kind HL_TOKEN_KEYWORD) {
+        return "35"    # Magenta
+    }
+    if (== kind HL_TOKEN_TYPE) {
+        return "36"    # Cyan
+    }
+    if (== kind HL_TOKEN_STRING) {
+        return "32"    # Green
+    }
+    if (== kind HL_TOKEN_NUMBER) {
+        return "33"    # Yellow
+    }
+    if (== kind HL_TOKEN_COMMENT) {
+        return "90"    # Bright black (gray)
+    }
+    if (== kind HL_TOKEN_OPERATOR) {
+        return "37"    # White
+    }
+    if (== kind HL_TOKEN_PAREN) {
+        return "37"    # White
+    }
+    if (== kind HL_TOKEN_IDENTIFIER) {
+        return "0"    # Reset (default)
+    }
+    return ""
 }
 
 shadow ansi_for_token_kind {

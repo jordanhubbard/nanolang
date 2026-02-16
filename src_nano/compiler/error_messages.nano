@@ -244,14 +244,25 @@ shadow suggestion_for_code {
 }
 
 pub fn diagnostic_to_elm_error(diag: CompilerDiagnostic) -> ErrorMessage {
-    let mut title: string = (cond
-        ((== diag.code "E0001") "TYPE MISMATCH")
-        ((== diag.code "E0002") "UNDEFINED IDENTIFIER")
-        ((== diag.severity 2) "ERROR")
-        ((== diag.severity 1) "WARNING")
-        (else "INFO")
-    )
-    
+    let mut title: string = "INFO"
+    if (== diag.code "E0001") {
+        set title "TYPE MISMATCH"
+    } else {
+        if (== diag.code "E0002") {
+            set title "UNDEFINED IDENTIFIER"
+        } else {
+            if (== diag.severity 2) {
+                set title "ERROR"
+            } else {
+                if (== diag.severity 1) {
+                    set title "WARNING"
+                } else {
+                    (print "")
+                }
+            }
+        }
+    }
+
     let loc: CompilerSourceLocation = diag.location
     return ErrorMessage {
         title: title,
