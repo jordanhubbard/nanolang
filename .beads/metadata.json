@@ -1,5 +1,6 @@
 {
   "database": "dolt",
   "jsonl_export": "issues.jsonl",
-  "backend": "dolt"
+  "backend": "dolt",
+  "dolt_database": "beads_nanolang"
 }

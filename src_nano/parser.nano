@@ -2385,9 +2385,11 @@ fn parse_primary(p: Parser) -> Parser {
             return (parser_with_error pcur true)
         } else {
             if (== tok.token_type (token_number)) {
-            /* Check for float (contains decimal point) - simplified check */
-            /* For MVP: treat all as numbers, floats need string contains "." */
             let p1: Parser = (parser_store_number p tok.value tok.line tok.column)
+            return (parser_advance p1)
+        } else {
+            if (== tok.token_type LexerTokenType.TOKEN_FLOAT) {
+            let p1: Parser = (parser_store_float p tok.value tok.line tok.column)
             return (parser_advance p1)
         } else {
             /* String literal */
@@ -2454,6 +2456,23 @@ fn parse_primary(p: Parser) -> Parser {
                                         let left_id: int = p_left.last_expr_node_id
                                         let left_type: int = p_left.last_expr_node_type
 
+                                        /* Check for unary operator: (- expr) with only one operand */
+                                        if (not (parser_is_at_end p_left)) {
+                                            let peek_tok: LexerToken = (parser_current p_left)
+                                            if (== peek_tok.token_type (token_rparen)) {
+                                                /* Unary: (- expr) -> (- 0 expr) */
+                                                if (== op_type (token_minus)) {
+                                                    let p_zero: Parser = (parser_store_number p_left "0" tok.line tok.column)
+                                                    let zero_id: int = p_zero.last_expr_node_id
+                                                    let zero_type: int = p_zero.last_expr_node_type
+                                                    let p_bin: Parser = (parser_store_binary_op p_zero op_type zero_id left_id zero_type left_type tok.line tok.column)
+                                                    return (parser_expect p_bin (token_rparen))
+                                                } else {
+                                                    return (parser_with_error p_left true)
+                                                }
+                                            } else { (print "") }
+                                        } else { (print "") }
+
                                         let p_right: Parser = (parse_expression p_left)
                                         if (parser_has_error p_right) {
                                             return p_right
@@ -2510,8 +2529,12 @@ fn parse_primary(p: Parser) -> Parser {
                                                     (print "")
                                                 }
                                                 
-                                                /* arg_start will be set after parsing first argument */
-                                                let mut arg_start: int = (- 0 1)
+                                                /* Collect arg references in temp arrays, then store
+                                                   them contiguously AFTER all args are parsed.
+                                                   This prevents nested calls from interleaving their
+                                                   args into the flat call_args list. */
+                                                let mut arg_ids: array<int> = []
+                                                let mut arg_types: array<int> = []
 
                                                 /* Parse arguments until ')' */
                                                 let mut arg_count: int = 0
@@ -2520,37 +2543,33 @@ fn parse_primary(p: Parser) -> Parser {
                                                     let tcur: LexerToken = (parser_current pcur)
                                                     if (== tcur.token_type (token_rparen)) {
                                                         let p4: Parser = (parser_advance pcur)
-                                                        /* Handle zero-argument calls */
-                                                        if (== arg_count 0) {
-                                                            set arg_start (list_ASTStmtRef_length p4.call_args)
-                                                        } else {
-                                                            (print "")
+                                                        /* Set arg_start to current end of call_args,
+                                                           then store all collected args contiguously */
+                                                        let arg_start: int = (list_ASTStmtRef_length p4.call_args)
+                                                        let mut p5: Parser = p4
+                                                        let mut j: int = 0
+                                                        while (< j arg_count) {
+                                                            set p5 (parser_store_call_arg p5 (at arg_ids j) (at arg_types j))
+                                                            set j (+ j 1)
                                                         }
                                                         /* Store appropriate call type */
                                                         if is_module_call {
                                                             /* For now, store full qualified name in function_name, empty module_name */
                                                             /* String splitting will be handled in C where proper string functions exist */
-                                                            return (parser_store_module_qualified_call p4 "" func_name arg_start arg_count tok.line tok.column)
+                                                            return (parser_store_module_qualified_call p5 "" func_name arg_start arg_count tok.line tok.column)
                                                         } else {
-                                                            return (parser_store_call p4 func_id arg_start arg_count tok.line tok.column)
+                                                            return (parser_store_call p5 func_id arg_start arg_count tok.line tok.column)
                                                         }
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
                                                         if (parser_has_error parg) {
                                                             return parg
                                                         } else {
-                                                            /* Set arg_start AFTER parsing nested expression, BEFORE storing arg */
-                                                            if (== arg_count 0) {
-                                                                set arg_start (list_ASTStmtRef_length parg.call_args)
-                                                            } else {
-                                                                (print "")
-                                                            }
-                                                            
-                                                            let arg_id: int = parg.last_expr_node_id
-                                                            let arg_type: int = parg.last_expr_node_type
-                                                            let pcur2: Parser = (parser_store_call_arg parg arg_id arg_type)
+                                                            /* Buffer the arg reference; don't store yet */
+                                                            set arg_ids (array_push arg_ids parg.last_expr_node_id)
+                                                            set arg_types (array_push arg_types parg.last_expr_node_type)
                                                             set arg_count (+ arg_count 1)
-                                                            set pcur pcur2
+                                                            set pcur parg
                                                         }
                                                     }
                                                 }
@@ -2621,6 +2640,7 @@ fn parse_primary(p: Parser) -> Parser {
                     }
                 }
             }
+        }
         }
         }
     }
@@ -3801,7 +3821,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
         numbers_count: p.numbers_count,
-        floats_count: p.floats_count,
+        floats_count: (+ p.floats_count 1),
         strings_count: p.strings_count,
         bools_count: p.bools_count,
         identifiers_count: p.identifiers_count,
@@ -3834,7 +3854,7 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: 6
+        last_expr_node_type: ParseNodeType.PNODE_FLOAT
     }
 }
 
