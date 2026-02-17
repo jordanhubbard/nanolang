@@ -710,6 +710,38 @@ shadow type_is_float {
     assert (not (type_is_float "int"))
 }
 
+fn func_returns_float(name: string) -> bool {
+    if (== name "sqrt") { return true } else { (print "") }
+    if (== name "pow") { return true } else { (print "") }
+    if (== name "floor") { return true } else { (print "") }
+    if (== name "ceil") { return true } else { (print "") }
+    if (== name "round") { return true } else { (print "") }
+    if (== name "sin") { return true } else { (print "") }
+    if (== name "cos") { return true } else { (print "") }
+    if (== name "tan") { return true } else { (print "") }
+    if (== name "atan2") { return true } else { (print "") }
+    if (== name "cast_float") { return true } else { (print "") }
+    if (== name "float_to_string") { return false } else { (print "") }
+    if (== name "int_to_float") { return true } else { (print "") }
+    return false
+}
+
+fn func_returns_string(name: string) -> bool {
+    if (== name "int_to_string") { return true } else { (print "") }
+    if (== name "float_to_string") { return true } else { (print "") }
+    if (== name "bool_to_string") { return true } else { (print "") }
+    if (== name "str_substring") { return true } else { (print "") }
+    if (== name "str_concat") { return true } else { (print "") }
+    if (== name "string_from_char") { return true } else { (print "") }
+    return false
+}
+
+shadow func_returns_float {
+    assert (func_returns_float "sqrt")
+    assert (func_returns_float "sin")
+    assert (not (func_returns_float "print"))
+}
+
 struct TypeCParseResult {
     ok: bool,
     c_type: string,
@@ -1943,12 +1975,14 @@ fn gen_c_runtime() -> string {
     set sb (sb_append sb "    return buffer;\n")
     set sb (sb_append sb "}\n\n")
     
+    set sb (sb_append sb "#ifndef NL_HAS_USER_FLOAT_TO_STRING\n")
     set sb (sb_append sb "char* nl_float_to_string(double x) {\n")
     set sb (sb_append sb "    char* buffer = malloc(64);\n")
     set sb (sb_append sb "    if (!buffer) return \"\";\n")
     set sb (sb_append sb "    snprintf(buffer, 64, \"%g\", x);\n")
     set sb (sb_append sb "    return buffer;\n")
-    set sb (sb_append sb "}\n\n")
+    set sb (sb_append sb "}\n")
+    set sb (sb_append sb "#endif\n\n")
 
     
     set sb (sb_append sb "char* nl_bool_to_string(bool b) {\n")
@@ -2146,6 +2180,10 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     let mut sb: array<string> = []
     
     set sb (sb_append sb (gen_c_includes))
+    /* Check if user defines builtin names to avoid redefinition */
+    if (has_function_named parser "float_to_string") {
+        set sb (sb_append sb "#define NL_HAS_USER_FLOAT_TO_STRING 1\n")
+    } else { (print "") }
     set sb (sb_append sb (gen_c_runtime))
     set sb (sb_append sb (generate_module_forward_declarations parser))
     
@@ -2160,6 +2198,9 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
     set sb (sb_append sb (generate_function_prototypes parser))
+
+    /* Emit top-level constant declarations */
+    set sb (sb_append sb (generate_global_constants parser))
 
     set sb (sb_append sb "/* User functions */\n")
     set sb (sb_append sb functions)
@@ -3072,13 +3113,35 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== aref.node_type ParseNodeType.PNODE_CALL) {
                                     let arg_call: ASTCall = (parser_get_call parser aref.node_id)
                                     let arg_call_id: ASTIdentifier = (parser_get_identifier parser arg_call.function)
-                                    if (== arg_call_id.name "cast_float") {
+                                    let call_ret_t: string = (lookup_func_return_type_in_parser parser arg_call_id.name)
+                                    if (or (func_returns_float arg_call_id.name) (== call_ret_t "float")) {
                                         set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
-                                    } else { (print "") }
+                                    } else {
+                                        if (== call_ret_t "int") {
+                                            set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                        } else {
+                                            if (== call_ret_t "bool") {
+                                                set arg_code (+ "nl_bool_to_string(" (+ arg_code ")"))
+                                            } else { (print "") }
+                                        }
+                                    }
                                 } else {
                                     if (== aref.node_type ParseNodeType.PNODE_NUMBER) {
                                         set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
-                                    } else { (print "") }
+                                    } else {
+                                        if (== aref.node_type ParseNodeType.PNODE_FLOAT) {
+                                            set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                        } else {
+                                            if (== aref.node_type ParseNodeType.PNODE_BINARY_OP) {
+                                                let binop: ASTBinaryOp = (parser_get_binary_op parser aref.node_id)
+                                                let op: int = binop.op
+                                                /* Don't wrap + since it may be string concat (already handled) */
+                                                if (or (== op LexerTokenType.TOKEN_MINUS) (or (== op LexerTokenType.TOKEN_STAR) (or (== op LexerTokenType.TOKEN_SLASH) (== op LexerTokenType.TOKEN_PERCENT)))) {
+                                                    set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                                } else { (print "") }
+                                            } else { (print "") }
+                                        }
+                                    }
                                 }
                             }
                         } else { (print "") }
@@ -3988,6 +4051,140 @@ shadow generate_function_body {
  * 
  * Returns: Generated C code as a string
  */
+/* Check if a let index is referenced by a block (or its nested blocks) */
+fn is_let_in_block(parser: Parser, block_id: int, let_idx: int) -> bool {
+    if (< block_id 0) {
+        return false
+    } else {
+        let block: ASTBlock = (parser_get_block parser block_id)
+        let stmt_count: int = (list_ASTStmtRef_length block.statements)
+        let mut i: int = 0
+        while (< i stmt_count) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            if (and (== stmt.node_type ParseNodeType.PNODE_LET) (== stmt.node_id let_idx)) {
+                return true
+            } else { (print "") }
+            if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                let if_stmt: ASTIf = (parser_get_if parser stmt.node_id)
+                if (is_let_in_block parser if_stmt.then_body let_idx) {
+                    return true
+                } else { (print "") }
+                if (is_let_in_block parser if_stmt.else_body let_idx) {
+                    return true
+                } else { (print "") }
+            } else { (print "") }
+            if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+                let while_stmt: ASTWhile = (parser_get_while parser stmt.node_id)
+                if (is_let_in_block parser while_stmt.body let_idx) {
+                    return true
+                } else { (print "") }
+            } else { (print "") }
+            set i (+ i 1)
+        }
+        return false
+    }
+}
+
+/* Check if a let is a function parameter, inside a function body, or inside a shadow block */
+fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
+    let func_count: int = (parser_get_function_count parser)
+    let mut fi: int = 0
+    while (< fi func_count) {
+        let func: ASTFunction = (parser_get_function parser fi)
+        if (and (>= let_idx func.param_start) (< let_idx (+ func.param_start func.param_count))) {
+            return true
+        } else { (print "") }
+        if (>= func.body 0) {
+            if (is_let_in_block parser func.body let_idx) {
+                return true
+            } else { (print "") }
+        } else { (print "") }
+        set fi (+ fi 1)
+    }
+    /* Also check shadow blocks */
+    let shd_count: int = parser.shadows_count
+    let mut si: int = 0
+    while (< si shd_count) {
+        let shd: ASTShadow = (list_ASTShadow_get parser.shadows si)
+        if (>= shd.body 0) {
+            if (is_let_in_block parser shd.body let_idx) {
+                return true
+            } else { (print "") }
+        } else { (print "") }
+        set si (+ si 1)
+    }
+    return false
+}
+
+/* Generate global constant declarations for top-level let statements */
+fn generate_global_constants(parser: Parser) -> string {
+    let total_lets: int = (parser_get_let_count parser)
+    let mut sb: array<string> = []
+    let mut has_globals: bool = false
+    
+    let mut li: int = 0
+    while (< li total_lets) {
+        let let_node: ASTLet = (parser_get_let parser li)
+        if (not (is_let_in_function parser li)) {
+            if (not has_globals) {
+                set sb (sb_append sb "/* Global constants */\n")
+                set has_globals true
+            } else { (print "") }
+            let c_type: string = (type_to_c let_node.var_type)
+            set sb (sb_append sb c_type)
+            set sb (sb_append sb " nl_")
+            set sb (sb_append sb (mangle_name let_node.name))
+            set sb (sb_append sb " = ")
+            if (== let_node.value_type ParseNodeType.PNODE_NUMBER) {
+                let num: ASTNumber = (parser_get_number parser let_node.value)
+                set sb (sb_append sb num.value)
+            } else {
+                if (== let_node.value_type ParseNodeType.PNODE_FLOAT) {
+                    let flt: ASTFloat = (parser_get_float parser let_node.value)
+                    set sb (sb_append sb flt.value)
+                } else {
+                    if (== let_node.value_type ParseNodeType.PNODE_STRING) {
+                        let str_node: ASTString = (parser_get_string parser let_node.value)
+                        set sb (sb_append sb "\"")
+                        set sb (sb_append sb str_node.value)
+                        set sb (sb_append sb "\"")
+                    } else {
+                        if (== let_node.value_type ParseNodeType.PNODE_BOOL) {
+                            let bool_node: ASTBool = (parser_get_bool parser let_node.value)
+                            if bool_node.value {
+                                set sb (sb_append sb "true")
+                            } else {
+                                set sb (sb_append sb "false")
+                            }
+                        } else {
+                            set sb (sb_append sb "0")
+                        }
+                    }
+                }
+            }
+            set sb (sb_append sb ";\n")
+        } else { (print "") }
+        set li (+ li 1)
+    }
+    if has_globals {
+        set sb (sb_append sb "\n")
+    } else { (print "") }
+    return (sb_build sb)
+}
+
+fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
+    let func_count: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    while (< i func_count) {
+        let func: ASTFunction = (parser_get_function parser i)
+        if (== func.name name) {
+            return func.return_type
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return ""
+}
+
 pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
     (build_module_alias_map parser)
@@ -4026,6 +4223,16 @@ pub fn transpile_parser(parser: Parser) -> string {
             set func_code (+ sig ";\n\n")
         } else {
             let mut env0: GenEnv = (genenv_new)
+            /* Seed env with top-level constants */
+            let all_lets: int = (parser_get_let_count parser)
+            let mut gi: int = 0
+            while (< gi all_lets) {
+                let glet: ASTLet = (parser_get_let parser gi)
+                if (not (is_let_in_function parser gi)) {
+                    set env0 (genenv_put env0 glet.name glet.var_type)
+                } else { (print "") }
+                set gi (+ gi 1)
+            }
             /* Seed env with parameters */
             let mut k: int = 0
             while (< k func.param_count) {

@@ -265,13 +265,12 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
         return modules_path
     } else { (print "") }
 
-    /* Case 5: Relative to current working directory - DISABLED to avoid std/fs dependency
+    /* Case 5: Relative to current working directory */
     let working_dir: string = (cwd)
     let from_cwd: string = (module_path_join working_dir import_path)
     if (exists from_cwd) {
         return from_cwd
     } else { (print "") }
-    */
 
     let from_cwd_stdlib: string = (module_path_join working_dir (module_path_join "stdlib" import_path))
     if (exists from_cwd_stdlib) {

@@ -530,8 +530,25 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
     if (== import_path "") {
         return ""
     } else {
-        /* Special case for std library - check modules/ directory first */
+        /* Special case for std library - check NANO_MODULE_PATH and modules/ directory */
         if (nlc_str_starts_with import_path "std/") {
+            let module_path_env: string = (getenv "NANO_MODULE_PATH")
+            if (not (== module_path_env "")) {
+                let candidate: string = (nl_path_join module_path_env import_path)
+                if (file_exists candidate) {
+                    return candidate
+                } else { (print "") }
+            } else { (print "") }
+            let modules_candidate: string = (nl_path_join "modules" import_path)
+            if (file_exists modules_candidate) {
+                return modules_candidate
+            } else { (print "") }
+            if (!= repo_root "") {
+                let repo_candidate: string = (nl_path_join repo_root (nl_path_join "modules" import_path))
+                if (file_exists repo_candidate) {
+                    return repo_candidate
+                } else { (print "") }
+            } else { (print "") }
             return (nl_path_join "modules" import_path)
         } else {
             if (nlc_str_starts_with import_path "/") {
