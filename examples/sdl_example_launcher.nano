@@ -820,7 +820,7 @@ fn main() -> int {
             } else {
                 # Check Edit button
                 if (>= selected_index 0) {
-                    let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 450)
+                    let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 560)
                     let edit_btn_y: int = (+ RIGHT_PANEL_Y 14)
                     if (and (>= click_x edit_btn_x) (and (< click_x (+ edit_btn_x 100))
                         (and (>= click_y edit_btn_y) (< click_y (+ edit_btn_y 28))))) {
@@ -863,7 +863,7 @@ fn main() -> int {
 
                 # Check Launch button
                 if (>= selected_index 0) {
-                    let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 330)
+                    let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 445)
                     let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
                     if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x 160))
                         (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y 28))))) {
@@ -966,7 +966,7 @@ fn main() -> int {
         (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255)
 
         # Mode indicator
-        let mode_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 280)
+        let mode_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 270)
         let mode_btn_y: int = (+ RIGHT_PANEL_Y 14)
         let mode_r: int = (/ mode.color 65536)
         let mode_g: int = (/ (% mode.color 65536) 256)
@@ -1054,7 +1054,7 @@ fn main() -> int {
             }
             
             # Edit button
-            let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 450)
+            let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 560)
             let edit_btn_y: int = (+ RIGHT_PANEL_Y 14)
             if (== editor.active true) {
                 (SDL_SetRenderDrawColor renderer 180 180 50 255)
@@ -1065,7 +1065,7 @@ fn main() -> int {
             (nl_draw_text_blended renderer font "Edit" (+ edit_btn_x 30) (+ edit_btn_y 6) 255 255 255 255)
 
             # Launch button
-            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 330)
+            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 445)
             let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
             let pid_draw: int = (at example_pids ex_idx)
 
@@ -1100,62 +1100,69 @@ fn main() -> int {
             let ex: Example = (at examples launch_request_idx)
             let pid: int = (at example_pids launch_request_idx)
             if (== pid 0) {
-                # Simple extraction: command contains "./bin/foo", extract "foo" and apply mode suffix
-                # For commands like "make -C examples ../bin/sdl_pong && ./bin/sdl_pong"
-                # We want just the binary name "sdl_pong"
-                # Find the last occurrence of "/bin/" and extract what follows
-                let cmd: string = ex.command
+                # Extract binary name from file path (e.g. "examples/graphics/sdl_particles.nano" -> "sdl_particles")
+                let file_path: string = ex.file
+                let file_len: int = (str_length file_path)
                 let mut binary_name: string = "unknown"
-
-                # Look for pattern "./bin/" or "../bin/"
-                let cmd_len: int = (str_length cmd)
-                if (> cmd_len 6) {
-                    # Simplified: just use the binary name from command if it contains "sdl_" or "ncurses_" or "opengl_"
-                    # This works for the current examples
-                    let mut i: int = 0
-                    while (< i cmd_len) {
-                        if (== (char_at cmd i) 47) {
-                            if (and (< (+ i 4) cmd_len) (== (str_substring cmd (+ i 1) (+ i 5)) "bin/")) {
-                                # Found "/bin/", extract rest
-                                set binary_name (str_substring cmd (+ i 5) cmd_len)
-                                # Stop at first space if any
-                                let mut j: int = 0
-                                let mut bn_len: int = (str_length binary_name)
-                                while (< j bn_len) {
-                                    if (== (char_at binary_name j) 32) {
-                                        set binary_name (str_substring binary_name 0 j)
-                                        set bn_len j
-                                    }
-                                    set j (+ j 1)
-                                }
-                                set i cmd_len
-                            }
-                        }
-                        set i (+ i 1)
+                # Find last '/' to get filename
+                let mut last_slash: int = -1
+                let mut fi: int = 0
+                while (< fi file_len) {
+                    if (== (char_at file_path fi) 47) {
+                        set last_slash fi
+                    }
+                    set fi (+ fi 1)
+                }
+                if (>= last_slash 0) {
+                    let filename: string = (str_substring file_path (+ last_slash 1) file_len)
+                    # Strip .nano extension
+                    let fname_len: int = (str_length filename)
+                    if (and (> fname_len 5) (== (str_substring filename (- fname_len 5) fname_len) ".nano")) {
+                        set binary_name (str_substring filename 0 (- fname_len 5))
+                    } else {
+                        set binary_name filename
                     }
                 }
 
-                # Construct mode-aware path
-                let launch_path: string = (get_binary_path binary_name mode)
-                (println (+ "Launching [" (+ mode.name (+ "]: " launch_path))))
+                let output_path: string = (get_binary_path binary_name mode)
 
-                # Choose launch method based on mode
+                # Structured JSON diagnostic output
+                let j1: string = (+ "{\"event\":\"launch\",\"example\":\"" (+ ex.name "\","))
+                let j2: string = (+ "\"file\":\"" (+ file_path "\","))
+                let j3: string = (+ "\"binary\":\"" (+ binary_name "\","))
+                let j4: string = (+ "\"output\":\"" (+ output_path "\","))
+                let j5: string = (+ "\"mode\":\"" (+ mode.name "\"}"))
+                (println (+ j1 (+ j2 (+ j3 (+ j4 j5)))))
+
                 if (== mode.name "vm") {
-                    # VM mode: start as thread in VM
-                    (println "Using VM thread mode...")
-                    set vm_state (start_vm_thread vm_state launch_request_idx launch_path)
-                    # Store VM indicator in example_pids (using -1 to indicate VM thread)
+                    # VM mode: start as thread
+                    (println (+ "{\"event\":\"vm_thread_start\",\"binary\":\"" (+ binary_name "\"}") ))
+                    set vm_state (start_vm_thread vm_state launch_request_idx output_path)
                     (array_set example_pids launch_request_idx -1)
                 } else {
-                    # Stage 1/3 mode: spawn as regular process
-                    let new_pid: int = (spawn launch_path)
-                    if (> new_pid 0) {
-                        (array_set example_pids launch_request_idx new_pid)
-                        (println (+ "Launched with PID: " (int_to_string new_pid)))
+                    # Stage 1/3: build from repo root, then spawn
+                    let build_cmd: string = (+ "bin/nanoc " (+ file_path (+ " -o " output_path)))
+                    (println (+ "{\"event\":\"build\",\"command\":\"" (+ build_cmd "\"}")))
+                    let build_result: int = (exec build_cmd)
+                    (println (+ "{\"event\":\"build_result\",\"exit_code\":" (+ (int_to_string build_result) "}")))
+
+                    if (== build_result 0) {
+                        let new_pid: int = (spawn output_path)
+                        if (> new_pid 0) {
+                            (array_set example_pids launch_request_idx new_pid)
+                            let spawn_msg: string = (+ "{\"event\":\"spawned\",\"pid\":" (int_to_string new_pid))
+                            (println (+ spawn_msg (+ ",\"path\":\"" (+ output_path "\"}"))))
+                        } else {
+                            (println (+ "{\"event\":\"spawn_failed\",\"path\":\"" (+ output_path "\"}")))
+                        }
                     } else {
-                        (println (+ "Failed to launch: " launch_path))
+                        let fail_msg: string = (+ "{\"event\":\"build_failed\",\"command\":\"" build_cmd)
+                        (println (+ fail_msg (+ "\",\"exit_code\":" (+ (int_to_string build_result) "}"))))
                     }
                 }
+            } else {
+                let skip_msg: string = (+ "{\"event\":\"launch_skipped\",\"reason\":\"already_running\",\"pid\":" (int_to_string pid))
+                (println (+ skip_msg "}"))
             }
             set launch_request_idx -1
         }
@@ -1167,14 +1174,14 @@ fn main() -> int {
             if (== mode.name "vm") {
                 # VM mode: stop thread gracefully
                 if (== pid -1) {
-                    (println (+ "Stopping VM thread for example " (int_to_string kill_request_idx)))
+                    (println (+ "{\"event\":\"vm_thread_stop\",\"example_idx\":" (+ (int_to_string kill_request_idx) "}")))
                     set vm_state (stop_vm_thread vm_state kill_request_idx)
                     (array_set example_pids kill_request_idx 0)
                 }
             } else {
                 # Stage 1/3 mode: kill regular process
                 if (> pid 0) {
-                    (println (+ "Force quitting PID: " (int_to_string pid)))
+                    (println (+ "{\"event\":\"kill\",\"pid\":" (+ (int_to_string pid) "}")))
                     (exec (+ "kill -9 " (int_to_string pid)))
                     (array_set example_pids kill_request_idx 0)
                 }
@@ -1185,7 +1192,7 @@ fn main() -> int {
         # Edit example if requested
         if (>= edit_request_idx 0) {
             let ex: Example = (at examples edit_request_idx)
-            (println (+ "Opening editor for: " ex.file))
+            (println (+ "{\"event\":\"edit\",\"file\":\"" (+ ex.file "\"}")))
             set editor (load_file_to_editor ex.file edit_request_idx)
             set edit_request_idx -1
         }
