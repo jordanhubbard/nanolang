@@ -298,7 +298,9 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
     
     /* Check if this is a project-relative path (common prefixes like std/, stdlib/, examples/, src/) */
     if (strncmp(module_path, "examples/", 9) == 0 ||
+        strncmp(module_path, "modules/", 8) == 0 ||
         strncmp(module_path, "src/", 4) == 0 ||
+        strncmp(module_path, "src_nano/", 9) == 0 ||
         strncmp(module_path, "std/", 4) == 0 ||
         strncmp(module_path, "stdlib/", 7) == 0) {
         /* Try to find project root by walking up from current_file */
@@ -402,6 +404,24 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
         }
     }
     
+    /* If import path starts with "modules/", try NANO_MODULE_PATH with prefix stripped */
+    if (strncmp(module_path, "modules/", 8) == 0) {
+        const char *stripped = module_path + 8;  /* skip "modules/" */
+        int path_count = 0;
+        char **search_paths = get_module_search_paths(&path_count);
+        for (int i = 0; i < path_count; i++) {
+            char test_path[2048];
+            snprintf(test_path, sizeof(test_path), "%s/%s", search_paths[i], stripped);
+            FILE *test = fopen(test_path, "r");
+            if (test) {
+                fclose(test);
+                free_module_search_paths(search_paths, path_count);
+                return strdup(test_path);
+            }
+        }
+        free_module_search_paths(search_paths, path_count);
+    }
+
     /* If not found relative to current file, try module search paths */
     /* Extract module name (remove .nano extension if present) */
     char module_name[256];

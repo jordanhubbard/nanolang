@@ -21,20 +21,22 @@ from "src_nano/typecheck.nano" import str_starts_with, symbol_new, Symbol, NSTyp
 from "src_nano/transpiler.nano" import str_ends_with
 from "std/fs.nano" import exists, read, cwd
 
+extern fn nl_os_getenv(_name: string) -> string
+
 /* =============================================================================
  * MODULE CACHE - Prevent duplicate loading
  * ============================================================================= */
 
 pub struct ModuleCache {
     paths: array<string>,
-    parsers: array<Parser>,
+    parsers: array<string>,
     count: int
 }
 
 pub fn module_cache_new() -> ModuleCache {
     return ModuleCache {
         paths: [],
-        parsers: [],
+        parsers: (array_new 0 ""),
         count: 0
     }
 }
@@ -60,7 +62,7 @@ shadow module_cache_contains {
     assert (not (module_cache_contains cache "test.nano"))
     set cache ModuleCache {
         paths: ["test.nano"],
-        parsers: cache.parsers,
+        parsers: ["test.nano"],
         count: 1
     }
     assert (module_cache_contains cache "test.nano")
@@ -70,8 +72,8 @@ fn module_cache_add(cache: ModuleCache, path: string, parser: Parser) -> ModuleC
     let mut new_paths: array<string> = cache.paths
     set new_paths (array_push new_paths path)
     
-    let mut new_parsers: array<Parser> = cache.parsers
-    set new_parsers (array_push new_parsers parser)
+    let mut new_parsers: array<string> = cache.parsers
+    set new_parsers (array_push new_parsers path)
     
     return ModuleCache {
         paths: new_paths,
@@ -87,13 +89,23 @@ shadow module_cache_add {
     let updated: ModuleCache = (module_cache_add cache "test.nano" dummy_parser)
     assert (== updated.count 1)
     assert (module_cache_contains updated "test.nano")
+    let retrieved: Parser = (module_cache_get updated "test.nano")
+    assert (== retrieved.token_count 0)
 }
 
 fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
     let mut i: int = 0
     while (< i cache.count) {
         if (== (at cache.paths i) path) {
-            return (at cache.parsers i)
+            let module_source: string = (read path)
+            let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+            let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+            let token_count: int = (list_LexerToken_length module_tokens)
+            if (> token_count 0) {
+                return (parse_program module_tokens token_count module_source)
+            } else {
+                (print "")
+            }
         } else { (print "") }
         set i (+ i 1)
     }
@@ -180,19 +192,70 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
         }
     } else { (print "") }
 
-    /* Case 2: Relative to current file */
+    /* Case 2: Try module search path env (NANO_MODULE_PATH) */
+    let module_env: string = (nl_os_getenv "NANO_MODULE_PATH")
+    if (not (== module_env "")) {
+        let mut start: int = 0
+        let mut i: int = 0
+        let env_len: int = (str_length module_env)
+        while (<= i env_len) {
+            if (or (== i env_len) (== (str_substring module_env i 1) ":")) {
+                let seg_len: int = (- i start)
+                if (> seg_len 0) {
+                    let seg: string = (str_substring module_env start seg_len)
+                    let cand: string = (module_path_join seg import_path)
+                    if (exists cand) { return cand } else { (print "") }
+                    let seg_stdlib: string = (module_path_join seg (module_path_join "stdlib" import_path))
+                    if (exists seg_stdlib) { return seg_stdlib } else { (print "") }
+                    if (not (str_ends_with import_path ".nano")) {
+                        let cand_ext: string = (+ cand ".nano")
+                        if (exists cand_ext) { return cand_ext } else { (print "") }
+                        let seg_stdlib_ext: string = (+ seg_stdlib ".nano")
+                        if (exists seg_stdlib_ext) { return seg_stdlib_ext } else { (print "") }
+                    } else { (print "") }
+
+                    if (str_starts_with import_path "modules/") {
+                        let trimmed: string = (str_substring import_path 8 (- (str_length import_path) 8))
+                        let trimmed_cand: string = (module_path_join seg trimmed)
+                        if (exists trimmed_cand) { return trimmed_cand } else { (print "") }
+                        let trimmed_stdlib: string = (module_path_join seg (module_path_join "stdlib" trimmed))
+                        if (exists trimmed_stdlib) { return trimmed_stdlib } else { (print "") }
+                        if (not (str_ends_with trimmed ".nano")) {
+                            let trimmed_ext: string = (+ trimmed_cand ".nano")
+                            if (exists trimmed_ext) { return trimmed_ext } else { (print "") }
+                            let trimmed_stdlib_ext: string = (+ trimmed_stdlib ".nano")
+                            if (exists trimmed_stdlib_ext) { return trimmed_stdlib_ext } else { (print "") }
+                        } else { (print "") }
+                    } else { (print "") }
+                } else { (print "") }
+                set start (+ i 1)
+            } else { (print "") }
+            set i (+ i 1)
+        }
+    } else { (print "") }
+
+    /* Case 3: Relative to current file */
     let current_dir: string = (module_path_dirname current_file)
     let relative_path: string = (module_path_join current_dir import_path)
     if (exists relative_path) {
         return relative_path
     } else { (print "") }
 
-    /* Case 3: Try adding .nano extension if not present */
+    let relative_stdlib: string = (module_path_join current_dir (module_path_join "stdlib" import_path))
+    if (exists relative_stdlib) {
+        return relative_stdlib
+    } else { (print "") }
+
+    /* Case 4: Try adding .nano extension if not present */
     if (not (str_ends_with import_path ".nano")) {
         let with_ext: string = (+ import_path ".nano")
         let relative_with_ext: string = (module_path_join current_dir with_ext)
         if (exists relative_with_ext) {
             return relative_with_ext
+        } else { (print "") }
+        let relative_stdlib_with_ext: string = (module_path_join current_dir (module_path_join "stdlib" with_ext))
+        if (exists relative_stdlib_with_ext) {
+            return relative_stdlib_with_ext
         } else { (print "") }
     } else { (print "") }
 
@@ -209,6 +272,32 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
         return from_cwd
     } else { (print "") }
     */
+
+    let from_cwd_stdlib: string = (module_path_join working_dir (module_path_join "stdlib" import_path))
+    if (exists from_cwd_stdlib) {
+        return from_cwd_stdlib
+    } else { (print "") }
+
+    /* Case 6: Relative to repo modules directory when import is modules/... */
+    if (str_starts_with import_path "modules/") {
+        let trimmed: string = (str_substring import_path 8 (- (str_length import_path) 8))
+        let modules_relative: string = (module_path_join working_dir (module_path_join "modules" trimmed))
+        if (exists modules_relative) {
+            return modules_relative
+        } else { (print "") }
+
+        let modules_stdlib_relative: string = (module_path_join working_dir (module_path_join "modules" (module_path_join "stdlib" trimmed)))
+        if (exists modules_stdlib_relative) {
+            return modules_stdlib_relative
+        } else { (print "") }
+
+        if (not (str_ends_with trimmed ".nano")) {
+            let modules_relative_ext: string = (+ modules_relative ".nano")
+            if (exists modules_relative_ext) { return modules_relative_ext } else { (print "") }
+            let modules_stdlib_relative_ext: string = (+ modules_stdlib_relative ".nano")
+            if (exists modules_stdlib_relative_ext) { return modules_stdlib_relative_ext } else { (print "") }
+        } else { (print "") }
+    } else { (print "") }
 
     /* Not found */
     return ""

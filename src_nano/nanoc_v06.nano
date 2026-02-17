@@ -646,8 +646,11 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
 }
 
 fn merge_with_imports(input_file: string) -> string {
-    let repo_root: string = (find_repo_root (nl_path_dirname input_file))
-    let start: string = input_file
+    let mut start: string = input_file
+    if (not (nlc_str_starts_with input_file "/")) {
+        set start (nl_path_join (getcwd) input_file)
+    } else { (print "") }
+    let repo_root: string = (find_repo_root (nl_path_dirname start))
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
     let max_lines_per_file: int = (parse_env_int "NANO_IMPORT_MAX_LINES_PER_FILE" 20000)
