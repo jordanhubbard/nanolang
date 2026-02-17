@@ -1,5 +1,5 @@
-# STARFIELD - 3D Space Travel Effect
-# Classic effect from every 80s/90s game intro
+# STARFIELD - Star Wars Hyperspace Effect
+# Stars fly from center outward with motion trails
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
@@ -9,8 +9,9 @@ unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
-let NUM_STARS: int = 200
-let STAR_SPEED: float = 100.0
+let NUM_STARS: int = 1500
+let STAR_SPEED: float = 600.0
+let MAX_Z: float = 1000.0
 
 # === EXTERNAL FUNCTIONS ===
 extern fn rand() -> int
@@ -18,34 +19,26 @@ extern fn srand(seed: int) -> void
 extern fn time(t: int) -> int
 
 # === STAR STRUCTURE ===
-# Stars have X, Y, Z coordinates
-# Z controls depth and speed
+# Flat array: [x1, y1, z1, x2, y2, z2, ...]
+# Stars exist in 3D space centered at origin, camera at z=0 looking toward +z
 
 fn init_stars(count: int) -> array<float> {
-    # Returns flat array: [x1, y1, z1, x2, y2, z2, ...]
     let mut stars: array<float> = []
-    
     let mut i: int = 0
     while (< i count) {
-        # Random X (-400 to 400)
-        let rx: int = (- (% (rand) 800) 400)
+        # Spread stars across a wide field
+        let rx: int = (- (% (rand) 2000) 1000)
         let x: float = (cast_float rx)
-        
-        # Random Y (-300 to 300)
-        let ry: int = (- (% (rand) 600) 300)
+        let ry: int = (- (% (rand) 1500) 750)
         let y: float = (cast_float ry)
-        
-        # Random Z (1 to 800)
-        let rz: int = (+ (% (rand) 800) 1)
+        # Spread across full depth so they don't all appear at once
+        let rz: int = (+ (% (rand) (cast_int MAX_Z)) 1)
         let z: float = (cast_float rz)
-        
         set stars (array_push stars x)
         set stars (array_push stars y)
         set stars (array_push stars z)
-        
         set i (+ i 1)
     }
-    
     return stars
 }
 
@@ -116,167 +109,168 @@ shadow set_star_z {
 }
 
 fn reset_star(stars: array<float>, idx: int) -> array<float> {
-    # Reset star to far distance
-    let rx: int = (- (% (rand) 800) 400)
+    # Respawn star at far distance with random position
+    let rx: int = (- (% (rand) 2000) 1000)
     let x: float = (cast_float rx)
-    
-    let ry: int = (- (% (rand) 600) 300)
+    let ry: int = (- (% (rand) 1500) 750)
     let y: float = (cast_float ry)
-    
-    let rz: int = (+ (% (rand) 400) 600)
+    # Start at maximum depth
+    let rz: int = (+ (% (rand) 200) (cast_int (- MAX_Z 200.0)))
     let z: float = (cast_float rz)
-    
     let mut result: array<float> = (set_star_x stars idx x)
     set result (set_star_y result idx y)
     set result (set_star_z result idx z)
-    
     return result
 }
 
-fn update_stars(stars: array<float>, count: int, dt: float) -> array<float> {
+fn update_stars(stars: array<float>, count: int, dt: float, speed: float) -> array<float> {
     let mut i: int = 0
     let mut result: array<float> = stars
-    
     while (< i count) {
         let z: float = (get_star_z result i)
-        let new_z: float = (- z (* STAR_SPEED dt))
-        
-        # If star passes camera, reset it
+        let new_z: float = (- z (* speed dt))
         if (< new_z 1.0) {
             set result (reset_star result i)
         } else {
             set result (set_star_z result i new_z)
         }
-        
         set i (+ i 1)
     }
-    
     return result
 }
 
 shadow update_stars {
-    /* update_stars may call reset_star(), which uses rand(); keep shadow test side-effect free. */
     assert true
+}
+
+# Clamp integer to range
+fn clamp(val: int, lo: int, hi: int) -> int {
+    if (< val lo) { return lo }
+    if (> val hi) { return hi }
+    return val
+}
+
+shadow clamp {
+    assert (== (clamp 5 0 10) 5)
+    assert (== (clamp -1 0 10) 0)
+    assert (== (clamp 15 0 10) 10)
 }
 
 # === MAIN ===
 
 fn main() -> int {
-    (println "╔════════════════════════════════════════════╗")
-    (println "║          STARFIELD - Space Travel         ║")
-    (println "╚════════════════════════════════════════════╝")
-    (println "")
-    (println "")
-    
+    (println "STARFIELD - Star Wars Hyperspace Effect")
+    (println "Press ESC to exit, UP/DOWN to change speed")
+
     # Seed random
     let t: int = (time 0)
-    (srand t) 
-    
+    (srand t)
+
     # Initialize SDL
-    (SDL_Init SDL_INIT_VIDEO) 
-    (TTF_Init) 
+    (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
     let window: SDL_Window = (SDL_CreateWindow "Starfield" 100 100 WINDOW_WIDTH WINDOW_HEIGHT SDL_WINDOW_SHOWN)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
-    
-    # Load font for help text
-    let font: TTF_Font = (nl_open_font_portable "Arial" 12)
-    
+
     # Initialize stars
     let mut stars: array<float> = (init_stars NUM_STARS)
-    
+
     # Timing
     let mut last_time: int = (SDL_GetTicks)
     let mut running: bool = true
-    
-    # Center of screen (calculated once for projection, used every frame)
-    let center_x: float = (/ (cast_float WINDOW_WIDTH) 2.0)
-    let center_y: float = (/ (cast_float WINDOW_HEIGHT) 2.0)
-    
-    # Main loop
+    let mut speed: float = STAR_SPEED
+
+    # Center of screen
+    let cx: float = (/ (cast_float WINDOW_WIDTH) 2.0)
+    let cy: float = (/ (cast_float WINDOW_HEIGHT) 2.0)
+
     while running {
         # Delta time
         let current_time: int = (SDL_GetTicks)
-        let dt: float = (/ (cast_float (- current_time last_time)) 1000.0)
+        let dt_ms: int = (- current_time last_time)
+        let dt: float = (/ (cast_float dt_ms) 1000.0)
         set last_time current_time
-        
-        # Check for quit events and keyboard input
+
+        # Input
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
         } else {
-            let mut key: int = -1
-            set key (nl_sdl_poll_keypress) 
+            let key: int = (nl_sdl_poll_keypress)
             if (== key 41) {
-                # ESC key
                 set running false
-            } else {}
+            }
+            # UP arrow = faster
+            if (== key 82) {
+                set speed (+ speed 200.0)
+                if (> speed 3000.0) { set speed 3000.0 }
+            }
+            # DOWN arrow = slower
+            if (== key 81) {
+                set speed (- speed 200.0)
+                if (< speed 100.0) { set speed 100.0 }
+            }
         }
-        
-        # Update stars
-        set stars (update_stars stars NUM_STARS dt)
-        
-        # Render
-        # Clear screen (black)
-        (SDL_SetRenderDrawColor renderer 0 0 0 255) 
-        (SDL_RenderClear renderer) 
-        
-        # Draw stars
+
+        # Update star positions
+        set stars (update_stars stars NUM_STARS dt speed)
+
+        # Clear to black
+        (SDL_SetRenderDrawColor renderer 0 0 0 255)
+        (SDL_RenderClear renderer)
+
+        # Draw stars with motion streaks
         let mut i: int = 0
         while (< i NUM_STARS) {
             let x: float = (get_star_x stars i)
+            let y: float = (get_star_y stars i)
             let z: float = (get_star_z stars i)
-            
-            # Size based on distance (closer = bigger) - clamped 1-2 for sharper look
-            let size_raw: int = (cast_int (/ 250.0 z))
-            let size: int = (cond
-                ((< size_raw 1) 1)
-                ((> size_raw 2) 2)
-                (else size_raw)
-            )
-            
-            # Brightness based on distance (closer = brighter) - clamped 50-255
-            let brightness_raw: int = (cast_int (* (/ 400.0 z) 255.0))
-            let brightness: int = (cond
-                ((> brightness_raw 255) 255)
-                ((< brightness_raw 50) 50)
-                (else brightness_raw)
-            )
-            
-            # 3D projection X - check if star is visible horizontally
-            let screen_x: float = (+ center_x (/ x z))
-            let sx: int = (cast_int screen_x)
-            
-            if (>= sx 0) {
-                if (< sx WINDOW_WIDTH) {
-                    # Only get Y and project if X is on screen (optimization)
-                    let y: float = (get_star_y stars i)
-                    let screen_y: float = (+ center_y (/ y z))
-                    let sy: int = (cast_int screen_y)
-                    if (>= sy 0) {
-                        if (< sy WINDOW_HEIGHT) {
-                            (SDL_SetRenderDrawColor renderer brightness brightness brightness 255) 
-                            (nl_sdl_render_fill_rect renderer sx sy size size) 
-                        } else {}
-                    } else {}
-                } else {}
-            } else {}
-            
+
+            # Current projected position
+            let proj_x: int = (cast_int (+ cx (/ (* x 400.0) z)))
+            let proj_y: int = (cast_int (+ cy (/ (* y 400.0) z)))
+
+            # Previous Z position (where star was last frame) for streak
+            let prev_z: float = (+ z (* speed dt))
+            let prev_x: int = (cast_int (+ cx (/ (* x 400.0) prev_z)))
+            let prev_y: int = (cast_int (+ cy (/ (* y 400.0) prev_z)))
+
+            # Only draw if current position is on screen
+            if (and (>= proj_x 0) (and (< proj_x WINDOW_WIDTH) (and (>= proj_y 0) (< proj_y WINDOW_HEIGHT)))) {
+                # Brightness: closer stars are brighter
+                let bright_raw: int = (cast_int (/ 300.0 (/ z MAX_Z)))
+                let bright: int = (clamp bright_raw 40 255)
+
+                # Blue-white tint for closer stars, dimmer ones are slightly blue
+                let r: int = (clamp (- bright 20) 30 255)
+                let g: int = (clamp (- bright 10) 35 255)
+                let b: int = bright
+
+                (SDL_SetRenderDrawColor renderer r g b 255)
+
+                # Draw streak line from previous to current position
+                (SDL_RenderDrawLine renderer prev_x prev_y proj_x proj_y)
+
+                # Draw bright point at current position for close stars
+                if (< z 300.0) {
+                    (nl_sdl_render_fill_rect renderer (- proj_x 1) (- proj_y 1) 3 3)
+                }
+                if (< z 100.0) {
+                    (nl_sdl_render_fill_rect renderer (- proj_x 2) (- proj_y 2) 5 5)
+                }
+            }
+
             set i (+ i 1)
         }
-        
-        # Draw on-screen help
-        
-        (SDL_RenderPresent renderer) 
-        
-        # Small delay
-        (SDL_Delay 16) 
+
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
     }
-    
+
     # Cleanup
-    (TTF_CloseFont font) 
-    (SDL_DestroyRenderer renderer) 
-    (SDL_DestroyWindow window) 
-    (TTF_Quit) 
-    (SDL_Quit) 
-    
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (TTF_Quit)
+    (SDL_Quit)
+
     return 0
 }
