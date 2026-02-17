@@ -488,8 +488,16 @@ DynArray* dyn_array_clone(DynArray* arr) {
 DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size) {
     assert(arr != NULL && "DynArray: NULL array");
     assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
+    /* Auto-promote empty arrays to ELEM_STRUCT on first struct push.
+     * This handles empty array literals [] whose element type couldn't
+     * be inferred at compile time (e.g. bare [] passed as function args). */
+    if (arr->length == 0 && arr->elem_type != ELEM_STRUCT) {
+        arr->elem_type = ELEM_STRUCT;
+        if (arr->data) { free(arr->data); arr->data = NULL; }
+        arr->elem_size = 0;
+    }
     assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
-    
+
     /* Set struct size and allocate on first push */
     if (arr->elem_size == 0) {
         arr->elem_size = struct_size;

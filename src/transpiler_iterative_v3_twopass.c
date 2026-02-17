@@ -2974,8 +2974,16 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 /* Regular types (int, float, string, bool, etc.) */
                 const char *c_type = type_to_c(stmt->as.let.var_type);
                 emit_formatted(list, "%s %s", c_type, stmt->as.let.name);
-                
+
                 if (stmt->as.let.value) {
+                    /* Propagate element type from let to empty array literals */
+                    if (stmt->as.let.var_type == TYPE_ARRAY &&
+                        stmt->as.let.value->type == AST_ARRAY_LITERAL &&
+                        stmt->as.let.value->as.array_literal.element_count == 0 &&
+                        stmt->as.let.value->as.array_literal.element_type == TYPE_UNKNOWN &&
+                        stmt->as.let.element_type != TYPE_UNKNOWN) {
+                        stmt->as.let.value->as.array_literal.element_type = stmt->as.let.element_type;
+                    }
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);
                 }

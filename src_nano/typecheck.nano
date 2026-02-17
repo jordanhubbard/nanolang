@@ -2932,7 +2932,8 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
 
 /* Typecheck a parsed program with full AST walking */
 pub fn typecheck_phase(parser: Parser, file_name: string) -> TypecheckPhaseOutput {
-    return (typecheck_phase_with_symbols parser file_name [])
+    let empty_symbols: array<Symbol> = []
+    return (typecheck_phase_with_symbols parser file_name empty_symbols)
 }
 
 /* NSType check with initial symbol table (for transitive imports) */
