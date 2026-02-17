@@ -12,6 +12,12 @@ from "modules/std/process.nano" import spawn, is_running, exec
 from "modules/std/env.nano" import get as env_get
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 
+# Helper to println + flush (for JSON diagnostics)
+fn diag(msg: string) -> void {
+    (println msg)
+    (nl_flush_stdout)
+}
+
 # Example categories
 enum Category {
     ALL = 0,
@@ -36,9 +42,13 @@ struct Example {
 # Mode configuration for multi-mode support
 struct ModeConfig {
     name: string,           # "stage1", "stage3", "vm"
-    binary_suffix: string,  # "", "_stage3", ".nvm"
+    binary_suffix: string,  # "", "_stage3", "_vm"
     display_name: string,   # "Stage 1 (C Ref)", etc.
-    color: int              # Display color for mode indicator
+    color: int,             # Display color for mode indicator
+    compiler: string,       # "bin/nanoc", "bin/nanoc_stage2", "bin/nano_virt"
+    compiler_flags: string, # "", "", "--emit-nvm"
+    extension: string,      # "", "", ".nvm"
+    runner: string          # "", "", "bin/nano_vm" (empty = run directly)
 }
 
 # Editor state for in-launcher editing
@@ -182,7 +192,11 @@ fn init_mode() -> ModeConfig {
             name: "stage1",
             binary_suffix: "",
             display_name: "Stage 1 (C Ref)",
-            color: (rgb 100 150 255)
+            color: (rgb 100 150 255),
+            compiler: "bin/nanoc",
+            compiler_flags: "",
+            extension: "",
+            runner: ""
         }
     }
     return (parse_mode mode_str)
@@ -195,19 +209,31 @@ fn parse_mode(mode_str: string) -> ModeConfig {
             name: "stage3",
             binary_suffix: "_stage3",
             display_name: "Stage 3 (Self-Hosted)",
-            color: (rgb 100 255 150)
+            color: (rgb 100 255 150),
+            compiler: "bin/nanoc_stage2",
+            compiler_flags: "",
+            extension: "",
+            runner: ""
         })
         ((== mode_str "vm") ModeConfig {
             name: "vm",
-            binary_suffix: ".nvm",
+            binary_suffix: "_vm",
             display_name: "VM (Bytecode)",
-            color: (rgb 200 100 255)
+            color: (rgb 200 100 255),
+            compiler: "bin/nano_virt",
+            compiler_flags: "--emit-nvm",
+            extension: ".nvm",
+            runner: "bin/nano_vm"
         })
         (else ModeConfig {
             name: "stage1",
             binary_suffix: "",
             display_name: "Stage 1 (C Ref)",
-            color: (rgb 100 150 255)
+            color: (rgb 100 150 255),
+            compiler: "bin/nanoc",
+            compiler_flags: "",
+            extension: "",
+            runner: ""
         })
     )
 }
@@ -216,24 +242,32 @@ shadow parse_mode {
     let config: ModeConfig = (parse_mode "stage3")
     assert (== config.name "stage3")
     assert (== config.binary_suffix "_stage3")
+    assert (== config.compiler "bin/nanoc_stage2")
 
     let config_vm: ModeConfig = (parse_mode "vm")
-    assert (== config_vm.binary_suffix ".nvm")
+    assert (== config_vm.binary_suffix "_vm")
+    assert (== config_vm.extension ".nvm")
+    assert (== config_vm.runner "bin/nano_vm")
+    assert (== config_vm.compiler "bin/nano_virt")
 }
 
 # Get binary path for an example based on current mode
 fn get_binary_path(example_name: string, config: ModeConfig) -> string {
-    return (+ "./bin/" (+ example_name config.binary_suffix))
+    return (+ "bin/" (+ example_name (+ config.binary_suffix config.extension)))
 }
 
 shadow get_binary_path {
     let config: ModeConfig = (parse_mode "stage1")
     let path: string = (get_binary_path "sdl_pong" config)
-    assert (== path "./bin/sdl_pong")
+    assert (== path "bin/sdl_pong")
 
     let config3: ModeConfig = (parse_mode "stage3")
     let path3: string = (get_binary_path "sdl_pong" config3)
-    assert (== path3 "./bin/sdl_pong_stage3")
+    assert (== path3 "bin/sdl_pong_stage3")
+
+    let config_vm: ModeConfig = (parse_mode "vm")
+    let path_vm: string = (get_binary_path "sdl_pong" config_vm)
+    assert (== path_vm "bin/sdl_pong_vm.nvm")
 }
 
 # Create empty editor state
@@ -273,26 +307,21 @@ fn save_editor_file(editor: EditorState) -> bool {
 }
 
 # Compile example after editing
-fn compile_example_for_editor(example_name: string, mode: ModeConfig) -> EditorState {
-    # Build command based on mode
-    let compiler: string = (cond
-        ((== mode.name "stage1") "../bin/nanoc_stage1")
-        ((== mode.name "stage3") "../bin/nanoc_stage2")
-        ((== mode.name "vm") "../bin/nano_virt")
-        (else "../bin/nanoc_stage1")
-    )
+fn compile_example_for_editor(example_file: string, mode: ModeConfig) -> EditorState {
+    let output_path: string = (get_binary_path example_file mode)
+    let base_cmd: string = (+ mode.compiler (+ " " (+ example_file (+ " -o " output_path))))
+    let mut cmd: string = base_cmd
+    if (> (str_length mode.compiler_flags) 0) {
+        set cmd (+ mode.compiler (+ " " (+ mode.compiler_flags (+ " " (+ example_file (+ " -o " output_path))))))
+    }
+    (diag (+ "{\"event\":\"editor_build\",\"command\":\"" (+ cmd "\"}")))
 
-    # Simple compile command
-    let cmd: string = (+ compiler (+ " " (+ example_name (+ " -o " (get_binary_path example_name mode)))))
-    (println (+ "Building: " cmd))
-
-    # Execute compilation (this is simplified - real version would capture output)
     let result: int = (exec cmd)
 
     if (== result 0) {
         return EditorState {
             active: true,
-            file_path: example_name,
+            file_path: example_file,
             content: "",
             modified: false,
             example_index: -1,
@@ -302,7 +331,7 @@ fn compile_example_for_editor(example_name: string, mode: ModeConfig) -> EditorS
     } else {
         return EditorState {
             active: true,
-            file_path: example_name,
+            file_path: example_file,
             content: "",
             modified: false,
             example_index: -1,
@@ -331,17 +360,17 @@ fn ensure_vm_running(vm_state: VMState) -> VMState {
     }
 
     # Start new VM process
-    (println "Starting nano_vm...")
+    (diag "Starting nano_vm...")
     let vm_pid: int = (spawn "./bin/nano_vm")
     if (> vm_pid 0) {
-        (println (+ "VM started with PID: " (int_to_string vm_pid)))
+        (diag (+ "VM started with PID: " (int_to_string vm_pid)))
         return VMState {
             vm_pid: vm_pid,
             active: true,
             threads: vm_state.threads
         }
     } else {
-        (println "Failed to start VM!")
+        (diag "Failed to start VM!")
         return vm_state
     }
 }
@@ -361,7 +390,7 @@ fn start_vm_thread(vm_state: VMState, example_index: int, bytecode_path: string)
     # For now, we'll simulate by running the bytecode directly
     # This is a simplification - actual VM integration would be more complex
 
-    (println (+ "Starting VM thread for: " bytecode_path))
+    (diag (+ "Starting VM thread for: " bytecode_path))
 
     # Simplified: just spawn the bytecode file directly
     # Real version would communicate with nano_vm via IPC
@@ -375,7 +404,7 @@ fn start_vm_thread(vm_state: VMState, example_index: int, bytecode_path: string)
             cop_pids: []
         }
 
-        (println (+ "VM thread started: " (int_to_string thread_pid)))
+        (diag (+ "VM thread started: " (int_to_string thread_pid)))
 
         return VMState {
             vm_pid: updated_vm.vm_pid,
@@ -383,7 +412,7 @@ fn start_vm_thread(vm_state: VMState, example_index: int, bytecode_path: string)
             threads: (array_push updated_vm.threads thread_info)
         }
     } else {
-        (println "Failed to start VM thread!")
+        (diag "Failed to start VM thread!")
         return updated_vm
     }
 }
@@ -406,7 +435,7 @@ fn stop_vm_thread(vm_state: VMState, example_index: int) -> VMState {
             let mut cop_idx: int = 0
             while (< cop_idx (array_length thread.cop_pids)) {
                 let cop_pid: int = (at thread.cop_pids cop_idx)
-                (println (+ "Killing COP: " (int_to_string cop_pid)))
+                (diag (+ "Killing COP: " (int_to_string cop_pid)))
                 (exec (+ "kill " (int_to_string cop_pid)))
                 set cop_idx (+ cop_idx 1)
             }
@@ -421,7 +450,7 @@ fn stop_vm_thread(vm_state: VMState, example_index: int) -> VMState {
     if thread_found {
         # Gracefully stop the thread (in real VM, would send stop signal)
         # For simplified version, we kill the process
-        (println (+ "Stopping VM thread: " (int_to_string thread_to_stop)))
+        (diag (+ "Stopping VM thread: " (int_to_string thread_to_stop)))
         (exec (+ "kill " (int_to_string thread_to_stop)))
     }
 
@@ -445,6 +474,27 @@ fn is_vm_thread_running(vm_state: VMState, example_index: int) -> bool {
     return false
 }
 
+# Cycle to the next mode: stage1 -> stage3 -> vm -> stage1
+fn next_mode(current: ModeConfig) -> ModeConfig {
+    if (== current.name "stage1") {
+        return (parse_mode "stage3")
+    }
+    if (== current.name "stage3") {
+        return (parse_mode "vm")
+    }
+    return (parse_mode "stage1")
+}
+
+shadow next_mode {
+    let m1: ModeConfig = (parse_mode "stage1")
+    let m2: ModeConfig = (next_mode m1)
+    assert (== m2.name "stage3")
+    let m3: ModeConfig = (next_mode m2)
+    assert (== m3.name "vm")
+    let m4: ModeConfig = (next_mode m3)
+    assert (== m4.name "stage1")
+}
+
 # Create example helper
 fn make_example(name: string, desc: string, cat: int, cmd: string, file: string, icon: string) -> Example {
     return Example {
@@ -464,8 +514,8 @@ shadow make_example {
 
 fn main() -> int {
     # Initialize mode configuration from environment
-    let mode: ModeConfig = (init_mode)
-    (println (+ "Launcher Mode: " mode.display_name))
+    let mut mode: ModeConfig = (init_mode)
+    (diag (+ "Launcher Mode: " mode.display_name))
 
     (SDL_Init SDL_INIT_VIDEO)
     (TTF_Init)
@@ -772,6 +822,15 @@ fn main() -> int {
                 set btn_idx (+ btn_idx 1)
             }
             
+            # Check Mode button (click to cycle mode)
+            let mode_click_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 270)
+            let mode_click_y: int = (+ RIGHT_PANEL_Y 14)
+            if (and (>= click_x mode_click_x) (and (< click_x (+ mode_click_x 170))
+                (and (>= click_y mode_click_y) (< click_y (+ mode_click_y 28))))) {
+                set mode (next_mode mode)
+                (diag (+ "{\"event\":\"mode_switch\",\"mode\":\"" (+ mode.name (+ "\",\"compiler\":\"" (+ mode.compiler "\"}")))))
+            }
+
             # Check Quit button
             let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
             let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
@@ -779,7 +838,7 @@ fn main() -> int {
                 (and (>= click_y quit_btn_y) (< click_y (+ quit_btn_y 28))))) {
                 set running false
             }
-            
+
             # Check icon clicks
             let mut clicked_icon: int = -1
             let mut check_idx: int = 0
@@ -1132,39 +1191,59 @@ fn main() -> int {
                 let j3: string = (+ "\"binary\":\"" (+ binary_name "\","))
                 let j4: string = (+ "\"output\":\"" (+ output_path "\","))
                 let j5: string = (+ "\"mode\":\"" (+ mode.name "\"}"))
-                (println (+ j1 (+ j2 (+ j3 (+ j4 j5)))))
+                (diag (+ j1 (+ j2 (+ j3 (+ j4 j5)))))
 
-                if (== mode.name "vm") {
-                    # VM mode: start as thread
-                    (println (+ "{\"event\":\"vm_thread_start\",\"binary\":\"" (+ binary_name "\"}") ))
-                    set vm_state (start_vm_thread vm_state launch_request_idx output_path)
-                    (array_set example_pids launch_request_idx -1)
-                } else {
-                    # Stage 1/3: build from repo root, then spawn
-                    let build_cmd: string = (+ "bin/nanoc " (+ file_path (+ " -o " output_path)))
-                    (println (+ "{\"event\":\"build\",\"command\":\"" (+ build_cmd "\"}")))
-                    let build_result: int = (exec build_cmd)
-                    (println (+ "{\"event\":\"build_result\",\"exit_code\":" (+ (int_to_string build_result) "}")))
+                # Build command: COMPILER [FLAGS] FILE -o OUTPUT
+                let mut build_cmd: string = (+ mode.compiler (+ " " (+ file_path (+ " -o " output_path))))
+                if (> (str_length mode.compiler_flags) 0) {
+                    set build_cmd (+ mode.compiler (+ " " (+ mode.compiler_flags (+ " " (+ file_path (+ " -o " output_path))))))
+                }
+                (diag (+ "{\"event\":\"build\",\"command\":\"" (+ build_cmd "\"}")))
+                let build_result: int = (exec build_cmd)
+                (diag (+ "{\"event\":\"build_result\",\"exit_code\":" (+ (int_to_string build_result) "}")))
 
-                    if (== build_result 0) {
-                        let new_pid: int = (spawn output_path)
+                if (== build_result 0) {
+                    # Determine run command: use runner if set (VM), else run directly
+                    let mut run_cmd: string = output_path
+                    if (> (str_length mode.runner) 0) {
+                        set run_cmd (+ mode.runner (+ " " output_path))
+                    }
+
+                    if (== mode.name "vm") {
+                        # VM mode: start as thread via VM process
+                        (diag (+ "{\"event\":\"vm_launch\",\"run_cmd\":\"" (+ run_cmd "\"}")))
+                        set vm_state (start_vm_thread vm_state launch_request_idx output_path)
+                        (array_set example_pids launch_request_idx -1)
+                    } else {
+                        # Stage 1/3: spawn the binary directly
+                        let new_pid: int = (spawn run_cmd)
                         if (> new_pid 0) {
                             (array_set example_pids launch_request_idx new_pid)
                             let spawn_msg: string = (+ "{\"event\":\"spawned\",\"pid\":" (int_to_string new_pid))
-                            (println (+ spawn_msg (+ ",\"path\":\"" (+ output_path "\"}"))))
+                            (diag (+ spawn_msg (+ ",\"path\":\"" (+ output_path "\"}"))))
                         } else {
-                            (println (+ "{\"event\":\"spawn_failed\",\"path\":\"" (+ output_path "\"}")))
+                            (diag (+ "{\"event\":\"spawn_failed\",\"path\":\"" (+ output_path "\"}")))
                         }
-                    } else {
-                        let fail_msg: string = (+ "{\"event\":\"build_failed\",\"command\":\"" build_cmd)
-                        (println (+ fail_msg (+ "\",\"exit_code\":" (+ (int_to_string build_result) "}"))))
                     }
+                } else {
+                    let fail_msg: string = (+ "{\"event\":\"build_failed\",\"command\":\"" build_cmd)
+                    (diag (+ fail_msg (+ "\",\"exit_code\":" (+ (int_to_string build_result) "}"))))
                 }
             } else {
                 let skip_msg: string = (+ "{\"event\":\"launch_skipped\",\"reason\":\"already_running\",\"pid\":" (int_to_string pid))
-                (println (+ skip_msg "}"))
+                (diag (+ skip_msg "}"))
             }
             set launch_request_idx -1
+
+            # Drain stale SDL events that accumulated during synchronous build
+            # Without this, queued clicks during exec() would trigger "Force Quit"
+            let mut drain: int = 0
+            while (< drain 50) {
+                (nl_sdl_poll_mouse_click)
+                (nl_sdl_poll_event_quit)
+                (nl_sdl_poll_keypress)
+                set drain (+ drain 1)
+            }
         }
 
         # Kill example if requested
@@ -1174,14 +1253,14 @@ fn main() -> int {
             if (== mode.name "vm") {
                 # VM mode: stop thread gracefully
                 if (== pid -1) {
-                    (println (+ "{\"event\":\"vm_thread_stop\",\"example_idx\":" (+ (int_to_string kill_request_idx) "}")))
+                    (diag (+ "{\"event\":\"vm_thread_stop\",\"example_idx\":" (+ (int_to_string kill_request_idx) "}")))
                     set vm_state (stop_vm_thread vm_state kill_request_idx)
                     (array_set example_pids kill_request_idx 0)
                 }
             } else {
                 # Stage 1/3 mode: kill regular process
                 if (> pid 0) {
-                    (println (+ "{\"event\":\"kill\",\"pid\":" (+ (int_to_string pid) "}")))
+                    (diag (+ "{\"event\":\"kill\",\"pid\":" (+ (int_to_string pid) "}")))
                     (exec (+ "kill -9 " (int_to_string pid)))
                     (array_set example_pids kill_request_idx 0)
                 }
@@ -1192,7 +1271,7 @@ fn main() -> int {
         # Edit example if requested
         if (>= edit_request_idx 0) {
             let ex: Example = (at examples edit_request_idx)
-            (println (+ "{\"event\":\"edit\",\"file\":\"" (+ ex.file "\"}")))
+            (diag (+ "{\"event\":\"edit\",\"file\":\"" (+ ex.file "\"}")))
             set editor (load_file_to_editor ex.file edit_request_idx)
             set edit_request_idx -1
         }

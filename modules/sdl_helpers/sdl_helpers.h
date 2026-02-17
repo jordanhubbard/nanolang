@@ -51,4 +51,7 @@ int64_t nl_sdl_save_png(SDL_Renderer* renderer, int64_t w, int64_t h, const char
 /* Execute a shell command via system(3) */
 int64_t nl_system(const char* cmd);
 
+/* Flush stdout - ensures diagnostic output is visible when redirected */
+void nl_flush_stdout(void);
+
 #endif /* SDL_HELPERS_H */

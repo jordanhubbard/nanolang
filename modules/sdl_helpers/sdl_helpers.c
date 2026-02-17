@@ -460,3 +460,8 @@ int64_t nl_sdl_save_png(int64_t renderer_ptr, int64_t w, int64_t h, const char* 
     return ok ? 0 : -4;
 }
 
+/* Flush stdout - useful for ensuring diagnostic output is visible when redirected */
+void nl_flush_stdout(void) {
+    fflush(stdout);
+}
+

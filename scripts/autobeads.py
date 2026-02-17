@@ -130,6 +130,52 @@ def _load_bd_issues() -> list[dict[str, Any]]:
     except Exception as e:
         raise RuntimeError(f"Failed parsing bd list --json output: {e}\nRaw:\n{proc.stdout[:2000]}")
 
+
+def _beads_cli_healthy() -> bool:
+    proc = _run([BD, "list", "--json"], cwd=PROJECT_ROOT, timeout_s=30)
+    return proc.returncode == 0
+
+
+def _repair_beads_backend() -> bool:
+    print("Warning: Beads CLI backend appears unhealthy; attempting automatic backend upgrade/repair.", file=sys.stderr)
+    repair_cmds: list[list[str]] = [
+        [BD, "migrate", "--to-dolt", "--yes"],
+    ]
+    if os.environ.get("NANOLANG_AUTOBEADS_AGGRESSIVE_REPAIR") == "1":
+        repair_cmds.extend(
+            [
+                [BD, "doctor", "--fix", "--yes"],
+                [BD, "doctor", "--fix", "--yes", "--force", "--source", "jsonl"],
+            ]
+        )
+    else:
+        repair_cmds.append([BD, "doctor", "--dry-run"])
+    for cmd in repair_cmds:
+        proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=120)
+        if proc.returncode == 0 and _beads_cli_healthy():
+            print("Info: Beads backend repaired successfully.", file=sys.stderr)
+            return True
+        tail = (proc.stdout or "").strip()
+        if tail:
+            print(f"Warning: Repair step failed: {' '.join(cmd)}\n{tail[-1200:]}", file=sys.stderr)
+    return False
+
+
+def _ensure_beads_cli_operational() -> bool:
+    if _beads_cli_healthy():
+        return True
+    if _repair_beads_backend() and _beads_cli_healthy():
+        return True
+    proc = _run([BD, "list", "--json"], cwd=PROJECT_ROOT, timeout_s=30)
+    msg = (proc.stdout or "").strip()
+    print(
+        "Warning: Beads CLI is installed but still not operational after auto-repair; "
+        "continuing without filing beads.\n"
+        f"bd output:\n{msg}",
+        file=sys.stderr,
+    )
+    return False
+
 def _find_existing_issue_by_title(issues: list[dict[str, Any]], title: str) -> dict[str, Any] | None:
     for issue in issues:
         if issue.get("status") != "open":
@@ -436,6 +482,8 @@ def main(argv: list[str]) -> int:
         # CLI installed. We still want CI to run the full test suite even when we
         # can't file issues.
         print(f"Warning: Beads CLI not found at {BD}; running without filing beads.", file=sys.stderr)
+    elif not args.dry_run:
+        beads_enabled = _ensure_beads_cli_operational()
 
     exit_code = 0
 
