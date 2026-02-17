@@ -627,20 +627,56 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 
 # Build all examples (STRICT: requires all module dependencies)
 # Run 'make -B modules' first to validate dependencies
-examples: build modules-index check-deps-sdl
+examples:
 	@echo ""
 	@echo "=========================================="
-	@echo "Building Examples (Strict Mode)"
+	@echo "Building Examples (All Compilers)"
 	@echo "=========================================="
 	@echo "Note: This will fail if any module dependencies are missing."
 	@echo "      Run 'make -B modules' to see what's needed."
 	@echo "      Or use 'make examples-available' to skip unavailable examples."
 	@echo ""
 	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
-		$(TIMEOUT_CMD) $(MAKE) -C examples build; \
+		$(TIMEOUT_CMD) $(MAKE) examples-core; \
 	else \
 		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
+		$(TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=; \
 	fi
+
+.PHONY: examples-core examples-stage1 examples-stage3 examples-vm
+
+examples-core: examples-stage1 examples-stage3 examples-vm
+	@echo "✅ Examples built successfully!"
+
+examples-stage1: bootstrap1 modules-index check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples (Stage 1 Compiler)"
+	@echo "=========================================="
+	@$(TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
+	@echo ""
+	@echo "🚀 Launching Example Browser (Stage 1 Mode)..."
+	@NANO_MODE=stage1 ./bin/sdl_example_launcher || true
+
+examples-stage3: bootstrap3 modules-index check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples (Stage 3 Compiler)"
+	@echo "=========================================="
+	@$(TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3
+	@echo ""
+	@echo "🚀 Launching Example Browser (Stage 3 Mode)..."
+	@NANO_MODE=stage3 ./bin/sdl_example_launcher_stage3 || true
+
+examples-vm: vm modules-index check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples (NanoVM Bytecode)"
+	@echo "=========================================="
+	@$(TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm
+	@echo ""
+	@echo "🚀 Launching Example Browser (VM Mode)..."
+	@NANO_MODE=vm ./bin/sdl_example_launcher || true
 
 # Build available examples (GRACEFUL: skip examples with missing dependencies)
 examples-available: build check-deps-sdl
@@ -1430,7 +1466,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION

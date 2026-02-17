@@ -2737,7 +2737,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                             
                                             /* Check if this could be a union construction */
                                             let mut is_union_construct: bool = false
-                                            if (and (== tok_brace.token_type (token_lbrace)) (== obj_type 1)) {
+                                            if (and (== tok_brace.token_type (token_lbrace)) (== obj_type ParseNodeType.PNODE_IDENTIFIER)) {
                                                 let obj_ident: ASTIdentifier = (parser_get_identifier p_postfix obj_id)
                                                 let first_char: int = (char_at obj_ident.name 0)
                                                 /* Union type names start with uppercase (65-90 = A-Z) */
@@ -6218,7 +6218,35 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                                     }
                             }
                         } else {
-                            return (parser_with_error p2 true)
+                            if (== tok2.token_type (token_lbrace)) {
+                                /* Modern union variant syntax: Variant { field: Type, ... } */
+                                let mut p3: Parser = (parser_advance p2)  /* consume '{' */
+
+                                /* Skip variant field declarations until matching '}' */
+                                while (and (not (parser_is_at_end p3)) (!= (parser_current p3).token_type (token_rbrace))) {
+                                    set p3 (parser_advance p3)
+                                }
+
+                                if (parser_is_at_end p3) {
+                                    return (parser_with_error p3 true)
+                                } else {
+                                    let p4: Parser = (parser_advance p3)  /* consume '}' */
+
+                                    if (parser_is_at_end p4) {
+                                        return (parser_with_error p4 true)
+                                    } else {
+                                        let tok4: LexerToken = (parser_current p4)
+                                        if (== tok4.token_type (token_comma)) {
+                                            let p5: Parser = (parser_advance p4)  /* consume ',' */
+                                            return (parse_union_variants p5 (+ variant_count 1) name start_line start_column)
+                                        } else {
+                                            return (parse_union_variants p4 (+ variant_count 1) name start_line start_column)
+                                        }
+                                    }
+                                }
+                            } else {
+                                return (parser_with_error p2 true)
+                            }
                         }
                     }
                 } else {
@@ -6310,9 +6338,59 @@ fn parse_import(p: Parser) -> Parser {
                 return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
             }
         } else {
+            if (== tok2.token_type (token_identifier)) {
+                let module_path: string = tok2.value
+                let p2: Parser = (parser_advance p1)
+                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
+            } else {
+                return (parser_with_error p1 true)
+            }
+        }
+    }
+}
+
+/* Parse module import: module "path" [as alias] */
+/* Parse unsafe module import: unsafe module "path" [as alias] */
+fn parse_module_import(p: Parser, is_unsafe: bool) -> Parser {
+    let tok: LexerToken = (parser_current p)
+    let mut p1: Parser = (parser_advance p)  /* consume 'module' */
+
+    if (parser_is_at_end p1) {
+        return (parser_with_error p1 true)
+    } else {
+        let tok2: LexerToken = (parser_current p1)
+        if (== tok2.token_type (token_string)) {
+            let module_path: string = tok2.value
+            let p2: Parser = (parser_advance p1)
+
+            /* Optional 'as alias' clause */
+            if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_as))) {
+                let p3: Parser = (parser_advance p2)
+
+                if (parser_is_at_end p3) {
+                    return (parser_with_error p3 true)
+                } else {
+                    let tok4: LexerToken = (parser_current p3)
+                    if (== tok4.token_type (token_identifier)) {
+                        let module_name: string = tok4.value
+                        let p4: Parser = (parser_advance p3)
+                        return (parser_store_import p4 module_path module_name is_unsafe false false [] [] 0 tok.line tok.column)
+                    } else {
+                        return (parser_with_error p3 true)
+                    }
+                }
+            } else {
+                /* No 'as' clause - store with empty module_name */
+                return (parser_store_import p2 module_path "" is_unsafe false false [] [] 0 tok.line tok.column)
+            }
+        } else {
             return (parser_with_error p1 true)
         }
     }
+}
+
+shadow parse_module_import {
+    assert (== 1 1)
 }
 
 shadow parse_import {
@@ -6491,6 +6569,21 @@ fn parse_definition(p: Parser) -> Parser {
             (print "")
         }
         
+        /* Module imports: module "path" ... */
+        if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
+            if (== (parser_peek p_work 1) (token_string)) {
+                return (parse_module_import p_work false)
+            } else { (print "") }
+        } else { (print "") }
+
+        /* Unsafe module imports: unsafe module "path" ... */
+        if (== tok.token_type (token_unsafe)) {
+            if (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_string))) {
+                let p1: Parser = (parser_advance p_work)
+                return (parse_module_import p1 true)
+            } else { (print "") }
+        } else { (print "") }
+
         /* Handle module declaration: module name */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             let p1: Parser = (parser_advance p_work)  /* consume 'module' */
@@ -6554,7 +6647,11 @@ fn parse_definition(p: Parser) -> Parser {
                                 if (== tok.token_type (token_shadow)) {
                                     return (parse_shadow p_work)
                                 } else {
-                                    return (parser_with_error p_work true)
+                                    if (== tok.token_type (token_let)) {
+                                        return (parse_let_statement p_work)
+                                    } else {
+                                        return (parser_with_error p_work true)
+                                    }
                                 }
                             }
                         }

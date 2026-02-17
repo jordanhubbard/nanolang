@@ -608,15 +608,15 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "max") { return "nl_max" } else { (print "") }
     
     /* C math library functions (no prefix) */
-    if (== func_name "sqrt") { return "sqrt" } else { (print "") }
-    if (== func_name "pow") { return "pow" } else { (print "") }
-    if (== func_name "floor") { return "floor" } else { (print "") }
-    if (== func_name "ceil") { return "ceil" } else { (print "") }
-    if (== func_name "round") { return "round" } else { (print "") }
-    if (== func_name "sin") { return "sin" } else { (print "") }
-    if (== func_name "cos") { return "cos" } else { (print "") }
-    if (== func_name "tan") { return "tan" } else { (print "") }
-    if (== func_name "atan2") { return "atan2" } else { (print "") }
+    if (== func_name "sqrt") { return "nl_sqrt" } else { (print "") }
+    if (== func_name "pow") { return "nl_pow" } else { (print "") }
+    if (== func_name "floor") { return "nl_floor" } else { (print "") }
+    if (== func_name "ceil") { return "nl_ceil" } else { (print "") }
+    if (== func_name "round") { return "nl_round" } else { (print "") }
+    if (== func_name "sin") { return "nl_sin" } else { (print "") }
+    if (== func_name "cos") { return "nl_cos" } else { (print "") }
+    if (== func_name "tan") { return "nl_tan" } else { (print "") }
+    if (== func_name "atan2") { return "nl_atan2" } else { (print "") }
     
     /* String builtins */
     if (== func_name "str_length") { return "strlen" } else { (print "") }
@@ -699,6 +699,15 @@ fn c_func_name_for_definition(func_name: string) -> string {
 struct GenEnv {
     names: array<string>,
     types: array<string>
+}
+
+fn type_is_float(t: string) -> bool {
+    return (== t "float")
+}
+
+shadow type_is_float {
+    assert (type_is_float "float")
+    assert (not (type_is_float "int"))
 }
 
 struct TypeCParseResult {
@@ -1036,7 +1045,18 @@ fn array_elem_type_from_array_type(t: string) -> string {
                     if (str_contains t "array<array<") {
                         return "array"
                     } else {
-                        return ""
+                        if (str_contains t "array<") {
+                            /* Extract struct element types from array<Struct>. */
+                            let start: int = (+ (transp_str_index_of t "array<") 6)
+                            let end: int = (transp_str_index_of t ">")
+                            if (and (>= start 6) (> end start)) {
+                                return (str_substring t start (- end start))
+                            } else {
+                                return ""
+                            }
+                        } else {
+                            return ""
+                        }
                     }
                 }
             }
@@ -1050,6 +1070,7 @@ shadow array_elem_type_from_array_type {
     assert (== (array_elem_type_from_array_type "array<string>") "string")
     assert (== (array_elem_type_from_array_type "array<bool>") "bool")
     assert (== (array_elem_type_from_array_type "array<array<int>>") "array")
+    assert (== (array_elem_type_from_array_type "array<Point>") "Point")
 }
 
 fn elem_enum_from_elem_type(elem_type: string) -> string {
@@ -1057,7 +1078,8 @@ fn elem_enum_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
     else { if (== elem_type "array") { return "ELEM_ARRAY" }
-    else { return "ELEM_INT" } } } }
+    else { if (type_is_struct elem_type) { return "ELEM_POINTER" }
+    else { return "ELEM_INT" } } } } }
 }
 
 shadow elem_enum_from_elem_type {
@@ -1066,6 +1088,7 @@ shadow elem_enum_from_elem_type {
     assert (== (elem_enum_from_elem_type "bool") "ELEM_BOOL")
     assert (== (elem_enum_from_elem_type "array") "ELEM_ARRAY")
     assert (== (elem_enum_from_elem_type "int") "ELEM_INT")
+    assert (== (elem_enum_from_elem_type "Point") "ELEM_POINTER")
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
@@ -1073,13 +1096,15 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "dyn_array_get_string" }
     else { if (== elem_type "bool") { return "dyn_array_get_bool" }
     else { if (== elem_type "array") { return "dyn_array_get_array" }
-    else { return "dyn_array_get_int" } } } }
+    else { if (type_is_struct elem_type) { return "dyn_array_get_int" }
+    else { return "dyn_array_get_int" } } } } }
 }
 
 shadow get_fn_from_elem_type {
     assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
     assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
     assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
+    assert (== (get_fn_from_elem_type "Point") "dyn_array_get_int")
 }
 
 fn push_fn_from_elem_type(elem_type: string) -> string {
@@ -1087,13 +1112,28 @@ fn push_fn_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
     else { if (== elem_type "array") { return "dyn_array_push_array" }
-    else { return "dyn_array_push_int" } } } }
+    else { if (type_is_struct elem_type) { return "dyn_array_push_int" }
+    else { return "dyn_array_push_int" } } } } }
+}
+
+fn is_array_of_struct(t: string) -> bool {
+    if (and (str_contains t "array<") (str_contains t ">")) {
+        let elem_t: string = (array_elem_type_from_array_type t)
+        if (!= elem_t "") {
+            return (type_is_struct elem_t)
+        } else {
+            return false
+        }
+    } else {
+        return false
+    }
 }
 
 shadow push_fn_from_elem_type {
     assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
     assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
     assert (== (push_fn_from_elem_type "int") "dyn_array_push_int")
+    assert (== (push_fn_from_elem_type "Point") "dyn_array_push_int")
 }
 
 fn set_fn_from_elem_type(elem_type: string) -> string {
@@ -1101,13 +1141,57 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "dyn_array_set_string" }
     else { if (== elem_type "bool") { return "dyn_array_set_bool" }
     else { if (== elem_type "array") { return "dyn_array_set_array" }
-    else { return "dyn_array_set_int" } } } }
+    else { if (type_is_struct elem_type) { return "dyn_array_set_int" }
+    else { return "dyn_array_set_int" } } } } }
 }
 
 shadow set_fn_from_elem_type {
     assert (== (set_fn_from_elem_type "string") "dyn_array_set_string")
     assert (== (set_fn_from_elem_type "array") "dyn_array_set_array")
     assert (== (set_fn_from_elem_type "int") "dyn_array_set_int")
+    assert (== (set_fn_from_elem_type "Point") "dyn_array_set_int")
+}
+
+fn type_is_struct(t: string) -> bool {
+    if (or (is_array_type t) (str_contains t "List<")) {
+        return false
+    } else {
+        (print "")
+    }
+    if (or (transp_str_starts_with t "fn(") (is_tuple_type t)) {
+        return false
+    } else {
+        (print "")
+    }
+    if (or (== t "")
+           (or (== t "int")
+               (or (== t "float")
+                   (or (== t "string")
+                       (or (== t "bool")
+                           (or (== t "array")
+                               (or (== t "unknown") (== t "void")))))))) {
+        return false
+    } else {
+        return true
+    }
+}
+
+fn box_struct_expr(elem_type: string, value_expr: string) -> string {
+    let c_struct: string = (+ "nl_" (mangle_type_name elem_type))
+    let mut parts: array<string> = []
+    set parts (sb_append parts "({ ")
+    set parts (sb_append parts c_struct)
+    set parts (sb_append parts "* _box = malloc(sizeof(")
+    set parts (sb_append parts c_struct)
+    set parts (sb_append parts ")); *_box = ")
+    set parts (sb_append parts value_expr)
+    set parts (sb_append parts "; (int64_t)_box; })")
+    return (sb_build parts)
+}
+
+shadow type_is_struct {
+    assert (type_is_struct "Point")
+    assert (not (type_is_struct "int"))
 }
 
 fn c_type_from_elem_type(elem_type: string) -> string {
@@ -1115,7 +1199,9 @@ fn c_type_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "const char*" }
     else { if (== elem_type "bool") { return "bool" }
     else { if (== elem_type "array") { return "DynArray*" }
-    else { return "int64_t" } } } }
+    else { if (== elem_type "int") { return "int64_t" }
+    else { if (type_is_struct elem_type) { return (+ "nl_" (mangle_type_name elem_type)) }
+    else { return "int64_t" } } } } } }
 }
 
 shadow c_type_from_elem_type {
@@ -1123,6 +1209,7 @@ shadow c_type_from_elem_type {
     assert (== (c_type_from_elem_type "string") "const char*")
     assert (== (c_type_from_elem_type "bool") "bool")
     assert (== (c_type_from_elem_type "int") "int64_t")
+    assert (== (c_type_from_elem_type "Point") "nl_Point")
 }
 
 /* Helper: convert nanolang type to C type */
@@ -1743,6 +1830,7 @@ fn gen_c_includes() -> string {
     set parts (sb_append parts "#include <stdint.h>\n")
     set parts (sb_append parts "#include <stdbool.h>\n")
     set parts (sb_append parts "#include <string.h>\n")
+    set parts (sb_append parts "#include <math.h>\n")
     set parts (sb_append parts "#include <assert.h>\n")
     set parts (sb_append parts "#include \"nanolang.h\"\n")
     set parts (sb_append parts "#include \"runtime/dyn_array.h\"\n")
@@ -1816,6 +1904,18 @@ fn gen_c_runtime() -> string {
     set sb (sb_append sb "    double: (double)((a) > (b) ? (a) : (b)), \\\n")
     set sb (sb_append sb "    default: (int64_t)((a) > (b) ? (a) : (b)))\n\n")
     
+    /* Math functions */
+    set sb (sb_append sb "/* Math functions */\n")
+    set sb (sb_append sb "double nl_sqrt(double x) { return sqrt(x); }\n")
+    set sb (sb_append sb "double nl_pow(double base, double exp) { return pow(base, exp); }\n")
+    set sb (sb_append sb "double nl_floor(double x) { return floor(x); }\n")
+    set sb (sb_append sb "double nl_ceil(double x) { return ceil(x); }\n")
+    set sb (sb_append sb "double nl_round(double x) { return round(x); }\n")
+    set sb (sb_append sb "double nl_sin(double x) { return sin(x); }\n")
+    set sb (sb_append sb "double nl_cos(double x) { return cos(x); }\n")
+    set sb (sb_append sb "double nl_tan(double x) { return tan(x); }\n")
+    set sb (sb_append sb "double nl_atan2(double y, double x) { return atan2(y, x); }\n\n")
+
     /* Print functions */
     set sb (sb_append sb "/* Print functions */\n")
     set sb (sb_append sb "void nl_print(char* s) {\n")
@@ -1824,6 +1924,14 @@ fn gen_c_runtime() -> string {
     
     set sb (sb_append sb "void nl_println(char* s) {\n")
     set sb (sb_append sb "    printf(\"%s\\n\", s);\n")
+    set sb (sb_append sb "}\n\n")
+
+    set sb (sb_append sb "void nl_print_float(double v) {\n")
+    set sb (sb_append sb "    printf(\"%g\", v);\n")
+    set sb (sb_append sb "}\n\n")
+
+    set sb (sb_append sb "void nl_println_float(double v) {\n")
+    set sb (sb_append sb "    printf(\"%g\\n\", v);\n")
     set sb (sb_append sb "}\n\n")
     
     /* Type conversion functions */
@@ -1841,6 +1949,7 @@ fn gen_c_runtime() -> string {
     set sb (sb_append sb "    snprintf(buffer, 64, \"%g\", x);\n")
     set sb (sb_append sb "    return buffer;\n")
     set sb (sb_append sb "}\n\n")
+
     
     set sb (sb_append sb "char* nl_bool_to_string(bool b) {\n")
     set sb (sb_append sb "    return b ? \"true\" : \"false\";\n")
@@ -1853,6 +1962,11 @@ fn gen_c_runtime() -> string {
     set sb (sb_append sb "double nl_string_to_float(const char* s) {\n")
     set sb (sb_append sb "    return strtod(s, NULL);\n")
     set sb (sb_append sb "}\n\n")
+
+    set sb (sb_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
+    set sb (sb_append sb "double nl_cast_float_from_float(double x) { return x; }\n")
+    set sb (sb_append sb "int64_t nl_cast_int(double x) { return (int64_t)x; }\n")
+    set sb (sb_append sb "int64_t nl_cast_int_from_int(int64_t x) { return x; }\n\n")
     
     /* String operations */
     set sb (sb_append sb "/* String operations */\n")
@@ -2698,12 +2812,22 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             if (is_array_type expected_type) {
                                 let inferred: string = (array_elem_type_from_array_type expected_type)
                                 if (!= inferred "") { set elem_t inferred } else { (print "") }
+                                if (and (== elem_t "array") (str_contains expected_type "array<")) {
+                                    let inner_t: string = (array_elem_type_from_array_type expected_type)
+                                    if (type_is_struct inner_t) {
+                                        set elem_t ""
+                                    } else { (print "") }
+                                } else { (print "") }
                             } else {
                                 (print "")
                             }
 
                             let elem_enum: string = (elem_enum_from_elem_type elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
+                            let mut elem_struct: string = ""
+                            if (type_is_struct elem_t) {
+                                set elem_struct (+ "nl_" (mangle_type_name elem_t))
+                            } else { (print "") }
 
                             let mut parts: array<string> = []
                             set parts (sb_append parts "({ DynArray* _arr = dyn_array_new(")
@@ -2711,10 +2835,17 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             set parts (sb_append parts "); int64_t _n = ")
                             set parts (sb_append parts size_code)
                             set parts (sb_append parts "; for (int64_t _i = 0; _i < _n; _i++) { ")
-                            set parts (sb_append parts push_fn)
-                            set parts (sb_append parts "(_arr, ")
-                            set parts (sb_append parts def_code)
-                            set parts (sb_append parts "); } _arr; })")
+                            if (type_is_struct elem_t) {
+                                set parts (sb_append parts "dyn_array_push_int(_arr, ")
+                                set parts (sb_append parts (box_struct_expr elem_t def_code))
+                                set parts (sb_append parts "); ")
+                            } else {
+                                set parts (sb_append parts push_fn)
+                                set parts (sb_append parts "(_arr, ")
+                                set parts (sb_append parts def_code)
+                                set parts (sb_append parts "); ")
+                            }
+                            set parts (sb_append parts "} _arr; })")
                             return (sb_build parts)
                         } else {
                             return "0"
@@ -2737,21 +2868,42 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== a0.node_type 1) {
                                     let id0: ASTIdentifier = (parser_get_identifier parser a0.node_id)
                                     set arr_t (genenv_get env id0.name)
-                                } else {
-                                    (print "")
-                                }
+                                } else { (print "") }
                             }
 
                             let mut elem_t: string = (array_elem_type_from_array_type arr_t)
                             if (== elem_t "") { set elem_t "int" } else { (print "") }
+                            if (== elem_t "int") {
+                                if (== a1.node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+                                    let sl: ASTStructLiteral = (parser_get_struct_literal parser a1.node_id)
+                                    set elem_t sl.struct_name
+                                } else {
+                                    if (== a1.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                        let id1: ASTIdentifier = (parser_get_identifier parser a1.node_id)
+                                        let inferred_t: string = (genenv_get env id1.name)
+                                        if (type_is_struct inferred_t) {
+                                            set elem_t inferred_t
+                                        } else { (print "") }
+                                    } else { (print "") }
+                                }
+                            } else { (print "") }
                             let push_fn: string = (push_fn_from_elem_type elem_t)
+                            let mut elem_struct: string = (cond
+                                ((type_is_struct elem_t) (+ "nl_" (mangle_type_name elem_t)))
+                                (else "")
+                            )
 
                             let mut parts: array<string> = []
                             set parts (sb_append parts push_fn)
                             set parts (sb_append parts "(")
                             set parts (sb_append parts arr_code)
-                            set parts (sb_append parts ", ")
-                            set parts (sb_append parts val_code)
+                            if (type_is_struct elem_t) {
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts (box_struct_expr elem_t val_code))
+                            } else {
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts val_code)
+                            }
                             set parts (sb_append parts ")")
                             return (sb_build parts)
                         } else {
@@ -2780,15 +2932,40 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 (print "")
                             }
 
+                            if (== elem_t "int") {
+                                if (== a2.node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+                                    let sl2: ASTStructLiteral = (parser_get_struct_literal parser a2.node_id)
+                                    set elem_t sl2.struct_name
+                                } else {
+                                    if (== a2.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                        let id2: ASTIdentifier = (parser_get_identifier parser a2.node_id)
+                                        let inferred_t2: string = (genenv_get env id2.name)
+                                        if (type_is_struct inferred_t2) {
+                                            set elem_t inferred_t2
+                                        } else { (print "") }
+                                    } else { (print "") }
+                                }
+                            } else { (print "") }
+
                             let set_fn: string = (set_fn_from_elem_type elem_t)
                             let mut parts: array<string> = []
+                            let mut elem_struct: string = ""
+                            if (type_is_struct elem_t) {
+                                set elem_struct (+ "nl_" (mangle_type_name elem_t))
+                            } else { (print "") }
+
                             set parts (sb_append parts set_fn)
                             set parts (sb_append parts "(")
                             set parts (sb_append parts arr_code)
                             set parts (sb_append parts ", ")
                             set parts (sb_append parts idx_code)
-                            set parts (sb_append parts ", ")
-                            set parts (sb_append parts val_code)
+                            if (type_is_struct elem_t) {
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts (box_struct_expr elem_t val_code))
+                            } else {
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts val_code)
+                            }
                             set parts (sb_append parts ")")
                             return (sb_build parts)
                         } else {
@@ -2827,12 +3004,25 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let get_fn: string = (get_fn_from_elem_type elem_t)
                             let mut parts: array<string> = []
-                            set parts (sb_append parts get_fn)
-                            set parts (sb_append parts "(")
-                            set parts (sb_append parts a0_code)
-                            set parts (sb_append parts ", ")
-                            set parts (sb_append parts a1_code)
-                            set parts (sb_append parts ")")
+                            if (type_is_struct elem_t) {
+                                let elem_struct: string = (+ "nl_" (mangle_type_name elem_t))
+                                set parts (sb_append parts "*(")
+                                set parts (sb_append parts elem_struct)
+                                set parts (sb_append parts "*)((void*)")
+                                set parts (sb_append parts get_fn)
+                                set parts (sb_append parts "(")
+                                set parts (sb_append parts a0_code)
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts a1_code)
+                                set parts (sb_append parts "))")
+                            } else {
+                                set parts (sb_append parts get_fn)
+                                set parts (sb_append parts "(")
+                                set parts (sb_append parts a0_code)
+                                set parts (sb_append parts ", ")
+                                set parts (sb_append parts a1_code)
+                                set parts (sb_append parts ")")
+                            }
                             return (sb_build parts)
                         } else {
                             return "0"
@@ -2867,7 +3057,31 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
-                        let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
+                        let mut arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
+                        if (== arg_expected "string") {
+                            if (== aref.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let arg_id: ASTIdentifier = (parser_get_identifier parser aref.node_id)
+                                let arg_t: string = (genenv_get env arg_id.name)
+                                if (type_is_float arg_t) {
+                                    set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                } else { (print "") }
+                                if (and (and (!= arg_t "") (!= arg_t "string")) (not (type_is_float arg_t))) {
+                                    set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                } else { (print "") }
+                            } else {
+                                if (== aref.node_type ParseNodeType.PNODE_CALL) {
+                                    let arg_call: ASTCall = (parser_get_call parser aref.node_id)
+                                    let arg_call_id: ASTIdentifier = (parser_get_identifier parser arg_call.function)
+                                    if (== arg_call_id.name "cast_float") {
+                                        set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                    } else { (print "") }
+                                } else {
+                                    if (== aref.node_type ParseNodeType.PNODE_NUMBER) {
+                                        set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                    } else { (print "") }
+                                }
+                            }
+                        } else { (print "") }
                         set parts (sb_append parts arg_code)
                         set i (+ i 1)
                     }
@@ -2948,10 +3162,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let mut elem_enum: string = "ELEM_INT"
                             let mut push_fn: string = "dyn_array_push_int"
+                            let mut elem_struct: string = ""
 
                             if (!= elem_t "") {
                                 set elem_enum (elem_enum_from_elem_type elem_t)
                                 set push_fn (push_fn_from_elem_type elem_t)
+                                if (type_is_struct elem_t) {
+                                    set elem_struct (+ "nl_" (mangle_type_name elem_t))
+                                } else { (print "") }
                             } else {
                                 /* Infer element type from first element expression kind (fallback to int) */
                                 let mut elem_type: int = 0
@@ -2963,19 +3181,25 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== elem_type 6) {
                                     set elem_enum "ELEM_FLOAT"
                                     set push_fn "dyn_array_push_float"
+                                    set elem_t "float"
                                 } else {
                                     if (== elem_type 4) {
                                         set elem_enum "ELEM_STRING"
                                         set push_fn "dyn_array_push_string"
+                                        set elem_t "string"
                                     } else {
                                         if (== elem_type 5) {
                                             set elem_enum "ELEM_BOOL"
                                             set push_fn "dyn_array_push_bool"
+                                            set elem_t "bool"
                                         } else {
                                             if (== elem_type 8) {
                                                 set elem_enum "ELEM_ARRAY"
                                                 set push_fn "dyn_array_push_array"
-                                            } else { (print "") }
+                                                set elem_t "array"
+                                            } else {
+                                                set elem_t "int"
+                                            }
                                         }
                                     }
                                 }
@@ -2991,9 +3215,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 let eref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
                                 let ecode: string = (generate_expression parser eref.node_id eref.node_type env "")
 
-                                set arr_parts (sb_append arr_parts push_fn)
-                                set arr_parts (sb_append arr_parts "(_arr, ")
-                                set arr_parts (sb_append arr_parts ecode)
+                                if (type_is_struct elem_t) {
+                                    set arr_parts (sb_append arr_parts "dyn_array_push_int(_arr, ")
+                                    set arr_parts (sb_append arr_parts (box_struct_expr elem_t ecode))
+                                } else {
+                                    set arr_parts (sb_append arr_parts push_fn)
+                                    set arr_parts (sb_append arr_parts "(_arr, ")
+                                    set arr_parts (sb_append arr_parts ecode)
+                                    (print "")
+                                }
                                 set arr_parts (sb_append arr_parts "); ")
                                 set i (+ i 1)
                             }

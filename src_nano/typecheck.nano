@@ -154,6 +154,7 @@ fn type_from_kind(kind: int) -> NSType {
     else { if (== kind TypeKind.TYPE_BOOL) { return (type_bool) }
     else { if (== kind TypeKind.TYPE_STRING) { return (type_string) }
     else { if (== kind TypeKind.TYPE_VOID) { return (type_void) }
+    else { if (== kind TypeKind.TYPE_LIST_GENERIC) { return (type_list_generic "list") }
     else {
         return NSType {
             kind: kind,
@@ -161,7 +162,7 @@ fn type_from_kind(kind: int) -> NSType {
             element_type_kind: TypeKind.TYPE_UNKNOWN,
             element_type_name: ""
         }
-    } } } } }
+    } } } } } }
 }
 
 shadow type_from_kind {
@@ -181,7 +182,8 @@ struct FieldMetadata {
     struct_name: string,
     field_name: string,
     field_type_kind: int,  /* TypeKind value */
-    field_type_is_list: bool
+    field_type_is_list: bool,
+    field_type_name: string
 }
 
 /* Initialize struct metadata registry with common compiler structs */
@@ -189,321 +191,321 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     let mut m: array<FieldMetadata> = []
     
     /* Parser fields (most common) */
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tokens", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "file_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "token_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "has_error", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tokens", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "LexerToken" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "file_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "position", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "token_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "has_error", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTLet" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTFunction" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTNumber" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTIdentifier" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTBinaryOp" })
     
     /* ASTFunction fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "return_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "return_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTLet fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "var_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "is_mut", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "var_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "is_mut", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     
     /* ASTIdentifier fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTCall fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTBinaryOp fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "op", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "op", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTStmtRef fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStmtRef", field_name: "node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTUnionConstruct fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "union_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "union_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTBlock fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTFieldAccess fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "field_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "object_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "field_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     
     /* LexerToken fields */
-    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "token_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "token_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "LexerToken", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* CompilerDiagnostic fields */
-    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "phase", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "severity", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "code", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "message", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "location", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "phase", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "severity", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "code", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "message", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerDiagnostic", field_name: "location", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false, field_type_name: "CompilerSourceLocation" })
 
     /* CompilerSourceLocation fields */
-    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "CompilerSourceLocation", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ErrorMessage fields (from error_messages.nano) */
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "title", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "problem", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "code_snippet", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "explanation", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "suggestion", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "title", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "file", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "problem", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "code_snippet", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "explanation", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    (array_push m FieldMetadata { struct_name: "ErrorMessage", field_name: "suggestion", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     
     /* NSType fields */
-    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_kind", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "NSType", field_name: "element_type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     
     /* ASTIf fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "then_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "else_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "then_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTIf", field_name: "else_body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTWhile fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "condition_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTWhile", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTMatch fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTStructLiteral fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "struct_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "struct_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_names", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_ids", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_value_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTArrayLiteral fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_type", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTArrayLiteral", field_name: "element_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* Symbol fields */
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "sym_type", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_mutable", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_function", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "defined", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "sym_type", field_type_kind: TypeKind.TYPE_STRUCT, field_type_is_list: false, field_type_name: "NSType" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_mutable", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "is_function", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "defined", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Symbol", field_name: "param_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "NSType" })
     
     /* Add node_id for ALL AST types (critical for transpiler) */
-    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnsafeBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTLet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTIdentifier", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFieldAccess", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnsafeBlock", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* GenEnv fields (transpiler environment) */
-    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: true, field_type_name: "string" })
+    set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTSet fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "target", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "target", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTReturn fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTReturn", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTNumber/Float/String/Bool extra fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTNumber", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFloat", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTString", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBool", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     
     /* ASTBlock complete fields (schema) */
-    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "statement_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTTupleLiteral fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleLiteral", field_name: "elem_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTTupleIndex fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "tuple", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "index", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "tuple", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTTupleIndex", field_name: "index", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTAssert fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTAssert", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTStruct fields (struct definitions) */
-    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "field_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTStruct", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTEnum fields (enum definitions) */
-    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTUnion fields (union definitions) */
-    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTUnion", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTFor fields (for loops) */
-    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "init", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "update", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "init", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "condition", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "update", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTFor", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTImport fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_path", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_unsafe", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_selective", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_wildcard", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_pub_use", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbols", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_aliases", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbol_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_path", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "module_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_unsafe", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_selective", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_wildcard", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "is_pub_use", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbols", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "string" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_aliases", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "string" })
+    set m (array_push m FieldMetadata { struct_name: "ASTImport", field_name: "import_symbol_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
 
     /* ASTPrint fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTPrint", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
 
     /* ASTShadow fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "target_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "target_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "body", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTShadow", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
 
     /* ASTOpaqueType fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "type_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTOpaqueType", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
 
     /* ASTMatchArm fields */
-    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "binding_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "variant_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "binding_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatchArm", field_name: "body_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* Parser count fields (critical for iteration) */
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "call_args", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_elements", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTFloat" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTString" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTBool" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "call_args", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTStmtRef" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_elements", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTStmtRef" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTArrayLiteral" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTPrint" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTShadow" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTMatch" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTImport" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTOpaqueType" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTTupleLiteral" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTTupleIndex" })
 
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "calls_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "ifs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "whiles_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "fors_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "returns_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "asserts_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "sets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "structs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "struct_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "field_accesses_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "union_constructs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "enums_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unsafe_blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "next_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
-    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "floats_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "strings_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "bools_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "lets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "functions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "numbers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "identifiers_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "calls_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "array_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "ifs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "whiles_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "fors_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "returns_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "prints_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "asserts_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "sets_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "structs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "struct_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "field_accesses_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unions_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "union_constructs_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "enums_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "shadows_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "unsafe_blocks_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "matches_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "imports_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "opaque_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_literals_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "tuple_indices_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "next_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "last_expr_node_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     return m
 }
 
 shadow init_struct_metadata {
     let m: array<FieldMetadata> = (init_struct_metadata)
-    let idx: HashMap<string, int> = (build_field_metadata_index m)
+    let idx: HashMap<string, string> = (build_field_metadata_index m)
     assert (> (array_length m) 0)
     assert (== (lookup_field_type_kind idx "ASTMatchArm" "body_id") TypeKind.TYPE_INT)
     assert (== (lookup_field_type_kind idx "ASTPrint" "value") TypeKind.TYPE_INT)
@@ -567,12 +569,13 @@ fn extract_user_struct_metadata(parser: Parser) -> array<FieldMetadata> {
             let field_type: string = (at s.field_types j)
             let field_type_kind: int = (type_kind_from_string field_type)
             
-            set metadata (array_push metadata FieldMetadata {
-                struct_name: struct_name,
-                field_name: field_name,
-                field_type_kind: field_type_kind,
-                field_type_is_list: false
-            })
+    set metadata (array_push metadata FieldMetadata {
+        struct_name: struct_name,
+        field_name: field_name,
+        field_type_kind: field_type_kind,
+        field_type_is_list: false,
+        field_type_name: field_type
+    })
             
             set j (+ j 1)
         }
@@ -607,13 +610,47 @@ shadow field_metadata_key {
     assert (== (field_metadata_key "Parser" "tokens") "Parser.tokens")
 }
 
-fn build_field_metadata_index(metadata: array<FieldMetadata>) -> HashMap<string, int> {
-    let idx: HashMap<string, int> = (map_new)
+fn field_metadata_type_string(entry: FieldMetadata) -> string {
+    if entry.field_type_is_list {
+        let mut elem_name: string = entry.field_type_name
+        if (== elem_name "") {
+            set elem_name (type_kind_to_string entry.field_type_kind "")
+        } else { (print "") }
+        return (+ "List<" (+ elem_name ">"))
+    } else { (print "") }
+
+    if (== entry.field_type_kind TypeKind.TYPE_ARRAY) {
+        let mut elem_name: string = entry.field_type_name
+        if (== elem_name "") { set elem_name "int" } else { (print "") }
+        return (+ "array<" (+ elem_name ">"))
+    } else { (print "") }
+
+    if (== entry.field_type_kind TypeKind.TYPE_STRUCT) {
+        if (!= entry.field_type_name "") {
+            return entry.field_type_name
+        } else {
+            return "unknown"
+        }
+    } else { (print "") }
+
+    if (== entry.field_type_kind TypeKind.TYPE_VOID) {
+        if (!= entry.field_type_name "") {
+            return entry.field_type_name
+        } else {
+            return "void"
+        }
+    } else { (print "") }
+
+    return (type_kind_to_string entry.field_type_kind "")
+}
+
+fn build_field_metadata_index(metadata: array<FieldMetadata>) -> HashMap<string, string> {
+    let idx: HashMap<string, string> = (map_new)
     let mut i: int = 0
     while (< i (array_length metadata)) {
         let entry: FieldMetadata = (at metadata i)
         let key: string = (field_metadata_key entry.struct_name entry.field_name)
-        (map_put idx key entry.field_type_kind)
+        (map_put idx key (field_metadata_type_string entry))
         set i (+ i 1)
     }
     return idx
@@ -621,31 +658,45 @@ fn build_field_metadata_index(metadata: array<FieldMetadata>) -> HashMap<string,
 
 shadow build_field_metadata_index {
     let m: array<FieldMetadata> = (init_struct_metadata)
-    let idx: HashMap<string, int> = (build_field_metadata_index m)
+    let idx: HashMap<string, string> = (build_field_metadata_index m)
     assert (== (map_has idx "Parser.tokens") true)
 }
 
 /* Lookup field type given struct name and field name */
-fn lookup_field_type_kind(index: HashMap<string, int>, struct_name: string, field_name: string) -> int {
+fn lookup_field_type_kind(index: HashMap<string, string>, struct_name: string, field_name: string) -> int {
     let key: string = (field_metadata_key struct_name field_name)
     if (map_has index key) {
-        return (map_get index key)
+        let type_str: string = (map_get index key)
+        return (type_from_string type_str).kind
     }
     
     /* Try capitalized version (parser → Parser) */
     let capitalized: string = (capitalize_first struct_name)
     let cap_key: string = (field_metadata_key capitalized field_name)
     if (map_has index cap_key) {
-        return (map_get index cap_key)
+        let type_str: string = (map_get index cap_key)
+        return (type_from_string type_str).kind
     }
     
     return TypeKind.TYPE_UNKNOWN
 }
 
 fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
-    let idx: HashMap<string, int> = (build_field_metadata_index metadata)
-    let kind: int = (lookup_field_type_kind idx struct_name field_name)
-    return (type_from_kind kind)
+    let idx: HashMap<string, string> = (build_field_metadata_index metadata)
+    let key: string = (field_metadata_key struct_name field_name)
+    if (map_has idx key) {
+        let type_str: string = (map_get idx key)
+        return (type_from_string type_str)
+    } else { (print "") }
+
+    let capitalized: string = (capitalize_first struct_name)
+    let cap_key: string = (field_metadata_key capitalized field_name)
+    if (map_has idx cap_key) {
+        let type_str: string = (map_get idx cap_key)
+        return (type_from_string type_str)
+    } else { (print "") }
+
+    return (type_unknown_named "field_type")
 }
 
 shadow lookup_field_type {
@@ -1088,7 +1139,11 @@ fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
     /* Determine operation: _new, _push, _get, _length */
     if (tc_str_ends_with fn_name "_new") {
         /* list_T_new() -> List<T> */
-        return (type_list_generic elem_type)
+        if (or (== elem_type "string") (or (== elem_type "int") (or (== elem_type "float") (== elem_type "bool")))) {
+            return (type_list_generic elem_type)
+        } else {
+            return (type_list_generic elem_type)
+        }
     } else {
         if (tc_str_ends_with fn_name "_push") {
             /* list_T_push(list, elem) -> void */
@@ -1236,6 +1291,13 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "cos") { return true } else { (print "") }
     if (== fn_name "tan") { return true } else { (print "") }
     if (== fn_name "atan2") { return true } else { (print "") }
+
+    /* Checked arithmetic module helpers */
+    if (== fn_name "checked_add") { return true } else { (print "") }
+    if (== fn_name "checked_sub") { return true } else { (print "") }
+    if (== fn_name "checked_mul") { return true } else { (print "") }
+    if (== fn_name "checked_div") { return true } else { (print "") }
+    if (== fn_name "checked_mod") { return true } else { (print "") }
     
     /* Additional type casts */
     if (== fn_name "cast_bstring") { return true } else { (print "") }
@@ -1395,18 +1457,33 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     if (== fn_name "cos") { return (type_float) } else { (print "") }
     if (== fn_name "tan") { return (type_float) } else { (print "") }
     if (== fn_name "atan2") { return (type_float) } else { (print "") }
+
+    /* Checked arithmetic module helpers */
+    if (== fn_name "checked_add") { return (type_from_string "Result<int,string>") } else { (print "") }
+    if (== fn_name "checked_sub") { return (type_from_string "Result<int,string>") } else { (print "") }
+    if (== fn_name "checked_mul") { return (type_from_string "Result<int,string>") } else { (print "") }
+    if (== fn_name "checked_div") { return (type_from_string "Result<int,string>") } else { (print "") }
+    if (== fn_name "checked_mod") { return (type_from_string "Result<int,string>") } else { (print "") }
     
     /* Additional type casts */
     if (== fn_name "cast_bstring") { return (type_string) } else { (print "") }
     if (== fn_name "null_opaque") { return (type_int) } else { (print "") }
+
+    /* Collections: HashMap */
+    if (== fn_name "map_new") { return (type_from_string "HashMap<string,string>") } else { (print "") }
+    if (== fn_name "map_put") { return (type_from_string "HashMap<string,string>") } else { (print "") }
+    if (== fn_name "map_has") { return (type_bool) } else { (print "") }
+    if (== fn_name "map_get") { return (type_string) } else { (print "") }
     
     /* Diagnostics module functions (workaround for module qualification) */
     if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
-    if (== fn_name "diag_list_new") { return (type_unknown_named "list") } else { (print "") }
+    if (== fn_name "diag_list_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
+    if (== fn_name "list_CompilerDiagnostic_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
     if (== fn_name "diag_list_add") { return (type_void) } else { (print "") }
     if (== fn_name "diag_list_count") { return (type_int) } else { (print "") }
+    if (== fn_name "diag_list_get") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_list_has_errors") { return (type_bool) } else { (print "") }
     
     /* Default: unknown */
@@ -1446,9 +1523,6 @@ shadow extract_list_type_from_function {
 
 /* Create type from element name (for list element types) */
 fn type_from_element_name(elem_name: string) -> NSType {
-    if (== elem_name "CompilerDiagnostic") {
-        (println "DBG type_from_element_name: CompilerDiagnostic")
-    } else { (print "") }
     if (== elem_name "int") {
         return (type_int)
     } else {
@@ -1468,10 +1542,6 @@ fn type_from_element_name(elem_name: string) -> NSType {
                         element_type_kind: TypeKind.TYPE_UNKNOWN,
                         element_type_name: ""
                     }
-                    if (== elem_name "CompilerDiagnostic") {
-                        (println (+ "DBG type_from_element_name kind=" (int_to_string t.kind)))
-                        (println (+ "DBG type_from_element_name name=" t.name))
-                    } else { (print "") }
                     return t
                 }
             }
@@ -1849,8 +1919,12 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
             if (or (== left_type.kind TypeKind.TYPE_FLOAT) (== right_type.kind TypeKind.TYPE_FLOAT)) {
                 return (type_float)
             } else {
-                /* NSType error */
-                return (type_unknown_named "error")
+                if (or (== left_type.kind TypeKind.TYPE_UNKNOWN) (== right_type.kind TypeKind.TYPE_UNKNOWN)) {
+                    return (type_float)
+                } else {
+                    /* NSType error */
+                    return (type_unknown_named "error")
+                }
             }
         }
     } else {
@@ -2096,9 +2170,72 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)
+        let mut i: int = 0
+        while (< i call_node.arg_count) {
+            let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start i))
+            let arg_t: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
+            if (== arg_t.kind TypeKind.TYPE_FUNCTION) {
+                let msg: string = (encode_type_mismatch_message "call" "int" "function" "argument")
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                (Diagnostics.diag_list_add diags diag)
+            } else { (print "") }
+            set i (+ i 1)
+        }
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = fn_id_node.name
+        if (or (== fn_name "sb_new") (or (== fn_name "sb_with_capacity") (or (== fn_name "sb_append") (or (== fn_name "sb_append_line") (or (== fn_name "sb_append_int") (or (== fn_name "sb_append_char") (or (== fn_name "sb_clear") (or (== fn_name "sb_free") (or (== fn_name "sb_is_empty") (or (== fn_name "sb_length") (or (== fn_name "sb_capacity") (== fn_name "sb_to_string")))))))))))) {
+            if (or (== fn_name "sb_to_string") (or (== fn_name "sb_length") (== fn_name "sb_capacity"))) {
+                if (or (== fn_name "sb_length") (== fn_name "sb_capacity")) {
+                    return (type_int)
+                } else {
+                    return (type_string)
+                }
+            } else {
+                if (or (== fn_name "sb_free") (== fn_name "sb_is_empty")) {
+                    if (== fn_name "sb_is_empty") { return (type_bool) } else { return (type_void) }
+                } else {
+                    return (type_from_string "StringBuilder")
+                }
+            }
+        } else { (print "") }
+        if (or (== fn_name "at") (== fn_name "array_get")) {
+            if (>= call_node.arg_count 1) {
+                let first_arg: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+                if (== first_arg.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                    let arr: ASTArrayLiteral = (parser_get_array_literal parser first_arg.node_id)
+                    if (== arr.element_type "") {
+                        let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
+                        if (== arr_t.kind TypeKind.TYPE_ARRAY) {
+                            return NSType {
+                                kind: arr_t.element_type_kind,
+                                name: arr_t.element_type_name,
+                                element_type_kind: TypeKind.TYPE_UNKNOWN,
+                                element_type_name: ""
+                            }
+                        } else { (print "") }
+                    } else {
+                        let elem_t: NSType = (type_from_string_with_parser parser arr.element_type)
+                        return NSType {
+                            kind: elem_t.kind,
+                            name: elem_t.name,
+                            element_type_kind: TypeKind.TYPE_UNKNOWN,
+                            element_type_name: ""
+                        }
+                    }
+                } else {
+                    let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
+                    if (== arr_t.kind TypeKind.TYPE_ARRAY) {
+                        return NSType {
+                            kind: arr_t.element_type_kind,
+                            name: arr_t.element_type_name,
+                            element_type_kind: TypeKind.TYPE_UNKNOWN,
+                            element_type_name: ""
+                        }
+                    } else { (print "") }
+                }
+            } else { (print "") }
+        } else { (print "") }
         /* Check if it's a builtin function/operator */
         let builtin_type: NSType = (check_builtin_function fn_name call_node.arg_count)
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -2132,6 +2269,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let mqc_node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
         /* Use function_name which contains full qualified name (Module.function) */
         let qualified_name: string = mqc_node.function_name
+        let short_name: string = (module_qualified_suffix qualified_name)
+        /* Allow builtin/mapped helpers for module-qualified calls (e.g., Diagnostics.*) */
+        let builtin_type: NSType = (check_builtin_function short_name mqc_node.arg_count)
+        if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
+            return builtin_type
+        } else { (print "") }
         /* Look up function in symbol table using qualified name */
         let idx: int = (env_lookup symbols qualified_name)
         if (>= idx 0) {
@@ -2155,6 +2298,56 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else {
                 return (type_unknown_named qualified_name)
             }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+        let obj_t: NSType = (check_expr_node parser fa.object fa.object_type symbols diags file_name)
+        if (== obj_t.kind TypeKind.TYPE_STRUCT) {
+            let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
+            let field_t: NSType = (lookup_field_type metadata obj_t.name fa.field_name)
+            return field_t
+        } else {
+            if (== obj_t.kind TypeKind.TYPE_UNION) {
+                let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
+                let variant_t: NSType = (lookup_field_type metadata obj_t.name fa.field_name)
+                return variant_t
+            } else {
+                return (type_unknown_named "field_access")
+            }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+        let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        if (and (== arr.element_count 0) (== arr.element_type "")) {
+            return (type_array TypeKind.TYPE_UNKNOWN "")
+        } else {
+            if (== arr.element_type "") {
+                let first_ref: ASTStmtRef = (parser_get_array_element parser arr.element_start)
+                let first_t: NSType = (check_expr_node parser first_ref.node_id first_ref.node_type symbols diags file_name)
+                let mut i: int = 1
+                while (< i arr.element_count) {
+                    let elem_ref: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
+                    let elem_t: NSType = (check_expr_node parser elem_ref.node_id elem_ref.node_type symbols diags file_name)
+                    if (not (types_equal elem_t first_t)) {
+                        return (type_array TypeKind.TYPE_UNKNOWN "")
+                    } else { (print "") }
+                    set i (+ i 1)
+                }
+                return (type_array first_t.kind first_t.name)
+            } else {
+                let elem_t: NSType = (type_from_string_with_parser parser arr.element_type)
+                return (type_array elem_t.kind elem_t.name)
+            }
+        }
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        return NSType {
+            kind: TypeKind.TYPE_STRUCT,
+            name: sl.struct_name,
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
         }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
@@ -2377,7 +2570,8 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
     let declared_type: NSType = (type_from_string_with_parser parser let_node.var_type)
 
     if (>= let_node.value 0) {
-        let init_type: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+        let init_type_raw: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+        let init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
         if (not (types_equal init_type declared_type)) {
             let detail: string = (+ "Variable " let_node.name)
             let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string declared_type) (type_to_string init_type) detail)
@@ -2419,7 +2613,8 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
             (println (int_to_string ret_node.value_type))
         } else { (print "") }
         
-        let expr_t: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
+        let expr_t: NSType = (apply_return_type_hint expr_t_raw expected_type)
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
             let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
@@ -2447,7 +2642,8 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             (Diagnostics.diag_list_add diags diag)
             return false
         } else {
-            let rhs_t: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
+            let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
+            let rhs_t: NSType = (apply_return_type_hint rhs_t_raw sym.sym_type)
             if (not (types_equal rhs_t sym.sym_type)) {
                 let detail: string = (+ "Assignment to " set_node.target)
                 let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string sym.sym_type) (type_to_string rhs_t) detail)
@@ -2524,7 +2720,8 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_IF) {
             let if_node: ASTIf = (parser_get_if parser stmt.node_id)
-            let cond_t: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
+            let cond_raw: NSType = (check_expr_node parser if_node.condition if_node.condition_type local_symbols diags file_name)
+            let cond_t: NSType = (apply_return_type_hint cond_raw (type_bool))
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "if condition must be bool" (Diagnostics.diag_location file_name if_node.line if_node.column))
                 (Diagnostics.diag_list_add diags diag)
@@ -2540,7 +2737,8 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
             let while_node: ASTWhile = (parser_get_while parser stmt.node_id)
-            let cond_t: NSType = (check_expr_node parser while_node.condition while_node.condition_type local_symbols diags file_name)
+            let cond_raw: NSType = (check_expr_node parser while_node.condition while_node.condition_type local_symbols diags file_name)
+            let cond_t: NSType = (apply_return_type_hint cond_raw (type_bool))
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "while condition must be bool" (Diagnostics.diag_location file_name while_node.line while_node.column))
                 (Diagnostics.diag_list_add diags diag)
@@ -2567,7 +2765,8 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
             let a: ASTAssert = (parser_get_assert parser stmt.node_id)
-            let cond_t: NSType = (check_expr_node parser a.condition a.condition_type local_symbols diags file_name)
+            let cond_raw: NSType = (check_expr_node parser a.condition a.condition_type local_symbols diags file_name)
+            let cond_t: NSType = (apply_return_type_hint cond_raw (type_bool))
             if (!= cond_t.kind TypeKind.TYPE_BOOL) {
                 let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "assert condition must be bool" (Diagnostics.diag_location file_name a.line a.column))
                 (Diagnostics.diag_list_add diags diag)
@@ -2671,7 +2870,20 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         /* extern fn */
         return true
     } else {
-        return (check_block parser func.body func_symbols return_type diags file_name func.name)
+        let mut local_symbols: array<Symbol> = func_symbols
+        if (== func.return_type "float") {
+            let mut param_types: array<NSType> = []
+            let mut pidx: int = 0
+            while (< pidx func.param_count) {
+                let param_let: ASTLet = (parser_get_let parser (+ func.param_start pidx))
+                let param_type: NSType = (type_from_string_with_parser parser param_let.var_type)
+                set param_types (array_push param_types param_type)
+                set pidx (+ pidx 1)
+            }
+            let float_sym: Symbol = (symbol_new func.name (type_float) false true func.param_count param_types (type_float))
+            set local_symbols (env_add_symbol (env_new) local_symbols float_sym)
+        } else { (print "") }
+        return (check_block parser func.body local_symbols return_type diags file_name func.name)
     }
 }
 
@@ -2690,6 +2902,32 @@ fn typecheck_output(diagnostics: List<CompilerDiagnostic>, error_count: int, had
         diagnostics: diagnostics,
         had_error: had_error
     }
+}
+
+fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
+    if (== expected_type.kind TypeKind.TYPE_FLOAT) {
+        if (or (== expr_type.kind TypeKind.TYPE_FLOAT) (or (== expr_type.kind TypeKind.TYPE_INT) (== expr_type.kind TypeKind.TYPE_UNKNOWN))) {
+            return expected_type
+        } else { (print "") }
+    } else { (print "") }
+    if (== expected_type.kind TypeKind.TYPE_ARRAY) {
+        if (== expr_type.kind TypeKind.TYPE_ARRAY) {
+            if (or (== expr_type.element_type_kind TypeKind.TYPE_UNKNOWN) (== expr_type.element_type_name "")) {
+                return expected_type
+            } else { (print "") }
+        } else { (print "") }
+    } else { (print "") }
+    if (== expected_type.kind TypeKind.TYPE_INT) {
+        if (or (== expr_type.kind TypeKind.TYPE_INT) (== expr_type.kind TypeKind.TYPE_UNKNOWN)) {
+            return expected_type
+        } else { (print "") }
+    } else { (print "") }
+    if (== expected_type.kind TypeKind.TYPE_BOOL) {
+        if (or (== expr_type.kind TypeKind.TYPE_BOOL) (== expr_type.kind TypeKind.TYPE_UNKNOWN)) {
+            return expected_type
+        } else { (print "") }
+    } else { (print "") }
+    return expr_type
 }
 
 /* Typecheck a parsed program with full AST walking */

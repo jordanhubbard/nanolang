@@ -7,8 +7,9 @@ unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 unsafe module "modules/sdl_image/sdl_image.nano"
 module "modules/ui_widgets/ui_widgets.nano"
-from "modules/std/fs.nano" import file_read
+from "modules/std/fs.nano" import file_read, file_write
 from "modules/std/process.nano" import spawn, is_running, exec
+from "modules/std/env.nano" import get as env_get
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 
 # Example categories
@@ -30,6 +31,40 @@ struct Example {
     command: string,
     file: string,
     icon: string
+}
+
+# Mode configuration for multi-mode support
+struct ModeConfig {
+    name: string,           # "stage1", "stage3", "vm"
+    binary_suffix: string,  # "", "_stage3", ".nvm"
+    display_name: string,   # "Stage 1 (C Ref)", etc.
+    color: int              # Display color for mode indicator
+}
+
+# Editor state for in-launcher editing
+struct EditorState {
+    active: bool,           # Is editor currently active?
+    file_path: string,      # Path to file being edited
+    content: string,        # File content
+    modified: bool,         # Has content been modified?
+    example_index: int,     # Which example is being edited
+    build_status: string,   # "", "building", "success", "error"
+    build_output: string    # Build error messages
+}
+
+# VM thread information for VM mode
+struct VMThreadInfo {
+    example_index: int,     # Which example this thread runs
+    thread_id: int,         # VM thread ID
+    status: int,            # 0=none, 1=running, 2=stopped
+    cop_pids: array<int>    # Associated COP process IDs
+}
+
+# VM state tracking
+struct VMState {
+    vm_pid: int,            # Main nano_vm process PID (0 if not running)
+    active: bool,           # Is VM currently active?
+    threads: array<VMThreadInfo>  # Active VM threads
 }
 
 # Window layout constants
@@ -138,6 +173,278 @@ shadow str_truncate {
     assert (== (str_truncate "hello world" 5) "hello...")
 }
 
+# Initialize mode configuration from NANO_MODE environment variable
+fn init_mode() -> ModeConfig {
+    let mode_str: string = (env_get "NANO_MODE")
+    if (== (str_length mode_str) 0) {
+        # Default to stage1
+        return ModeConfig {
+            name: "stage1",
+            binary_suffix: "",
+            display_name: "Stage 1 (C Ref)",
+            color: (rgb 100 150 255)
+        }
+    }
+    return (parse_mode mode_str)
+}
+
+# Parse mode string into ModeConfig
+fn parse_mode(mode_str: string) -> ModeConfig {
+    return (cond
+        ((== mode_str "stage3") ModeConfig {
+            name: "stage3",
+            binary_suffix: "_stage3",
+            display_name: "Stage 3 (Self-Hosted)",
+            color: (rgb 100 255 150)
+        })
+        ((== mode_str "vm") ModeConfig {
+            name: "vm",
+            binary_suffix: ".nvm",
+            display_name: "VM (Bytecode)",
+            color: (rgb 200 100 255)
+        })
+        (else ModeConfig {
+            name: "stage1",
+            binary_suffix: "",
+            display_name: "Stage 1 (C Ref)",
+            color: (rgb 100 150 255)
+        })
+    )
+}
+
+shadow parse_mode {
+    let config: ModeConfig = (parse_mode "stage3")
+    assert (== config.name "stage3")
+    assert (== config.binary_suffix "_stage3")
+
+    let config_vm: ModeConfig = (parse_mode "vm")
+    assert (== config_vm.binary_suffix ".nvm")
+}
+
+# Get binary path for an example based on current mode
+fn get_binary_path(example_name: string, config: ModeConfig) -> string {
+    return (+ "./bin/" (+ example_name config.binary_suffix))
+}
+
+shadow get_binary_path {
+    let config: ModeConfig = (parse_mode "stage1")
+    let path: string = (get_binary_path "sdl_pong" config)
+    assert (== path "./bin/sdl_pong")
+
+    let config3: ModeConfig = (parse_mode "stage3")
+    let path3: string = (get_binary_path "sdl_pong" config3)
+    assert (== path3 "./bin/sdl_pong_stage3")
+}
+
+# Create empty editor state
+fn create_editor_state() -> EditorState {
+    return EditorState {
+        active: false,
+        file_path: "",
+        content: "",
+        modified: false,
+        example_index: -1,
+        build_status: "",
+        build_output: ""
+    }
+}
+
+# Load file into editor
+fn load_file_to_editor(file_path: string, example_index: int) -> EditorState {
+    let content: string = (file_read file_path)
+    return EditorState {
+        active: true,
+        file_path: file_path,
+        content: content,
+        modified: false,
+        example_index: example_index,
+        build_status: "",
+        build_output: ""
+    }
+}
+
+# Save editor content to file
+fn save_editor_file(editor: EditorState) -> bool {
+    if (not editor.active) {
+        return false
+    }
+    let result: int = (file_write editor.file_path editor.content)
+    return (== result 0)
+}
+
+# Compile example after editing
+fn compile_example_for_editor(example_name: string, mode: ModeConfig) -> EditorState {
+    # Build command based on mode
+    let compiler: string = (cond
+        ((== mode.name "stage1") "../bin/nanoc_stage1")
+        ((== mode.name "stage3") "../bin/nanoc_stage2")
+        ((== mode.name "vm") "../bin/nano_virt")
+        (else "../bin/nanoc_stage1")
+    )
+
+    # Simple compile command
+    let cmd: string = (+ compiler (+ " " (+ example_name (+ " -o " (get_binary_path example_name mode)))))
+    (println (+ "Building: " cmd))
+
+    # Execute compilation (this is simplified - real version would capture output)
+    let result: int = (exec cmd)
+
+    if (== result 0) {
+        return EditorState {
+            active: true,
+            file_path: example_name,
+            content: "",
+            modified: false,
+            example_index: -1,
+            build_status: "success",
+            build_output: "Build successful!"
+        }
+    } else {
+        return EditorState {
+            active: true,
+            file_path: example_name,
+            content: "",
+            modified: false,
+            example_index: -1,
+            build_status: "error",
+            build_output: "Build failed. Check console for errors."
+        }
+    }
+}
+
+# Create empty VM state
+fn create_vm_state() -> VMState {
+    return VMState {
+        vm_pid: 0,
+        active: false,
+        threads: []
+    }
+}
+
+# Ensure VM is running, start if needed
+fn ensure_vm_running(vm_state: VMState) -> VMState {
+    if (> vm_state.vm_pid 0) {
+        # Check if still running
+        if (== (is_running vm_state.vm_pid) 1) {
+            return vm_state
+        }
+    }
+
+    # Start new VM process
+    (println "Starting nano_vm...")
+    let vm_pid: int = (spawn "./bin/nano_vm")
+    if (> vm_pid 0) {
+        (println (+ "VM started with PID: " (int_to_string vm_pid)))
+        return VMState {
+            vm_pid: vm_pid,
+            active: true,
+            threads: vm_state.threads
+        }
+    } else {
+        (println "Failed to start VM!")
+        return vm_state
+    }
+}
+
+# Start a VM thread for an example (simplified - real version would use VM API)
+fn start_vm_thread(vm_state: VMState, example_index: int, bytecode_path: string) -> VMState {
+    # Ensure VM is running
+    let updated_vm: VMState = (ensure_vm_running vm_state)
+    if (== updated_vm.vm_pid 0) {
+        return updated_vm
+    }
+
+    # In a real implementation, we would:
+    # 1. Load bytecode into VM via IPC
+    # 2. Get thread ID from VM
+    # 3. Track the thread
+    # For now, we'll simulate by running the bytecode directly
+    # This is a simplification - actual VM integration would be more complex
+
+    (println (+ "Starting VM thread for: " bytecode_path))
+
+    # Simplified: just spawn the bytecode file directly
+    # Real version would communicate with nano_vm via IPC
+    let thread_pid: int = (spawn (+ "./bin/nano_vm " bytecode_path))
+
+    if (> thread_pid 0) {
+        let thread_info: VMThreadInfo = VMThreadInfo {
+            example_index: example_index,
+            thread_id: thread_pid,  # Using PID as thread ID for now
+            status: 1,
+            cop_pids: []
+        }
+
+        (println (+ "VM thread started: " (int_to_string thread_pid)))
+
+        return VMState {
+            vm_pid: updated_vm.vm_pid,
+            active: true,
+            threads: (array_push updated_vm.threads thread_info)
+        }
+    } else {
+        (println "Failed to start VM thread!")
+        return updated_vm
+    }
+}
+
+# Stop a VM thread gracefully (do NOT kill entire VM)
+fn stop_vm_thread(vm_state: VMState, example_index: int) -> VMState {
+    # Find the thread for this example
+    let mut new_threads: array<VMThreadInfo> = []
+    let mut thread_found: bool = false
+    let mut thread_to_stop: int = 0
+
+    let mut i: int = 0
+    while (< i (array_length vm_state.threads)) {
+        let thread: VMThreadInfo = (at vm_state.threads i)
+        if (== thread.example_index example_index) {
+            set thread_found true
+            set thread_to_stop thread.thread_id
+
+            # Kill associated COPs (safe to kill)
+            let mut cop_idx: int = 0
+            while (< cop_idx (array_length thread.cop_pids)) {
+                let cop_pid: int = (at thread.cop_pids cop_idx)
+                (println (+ "Killing COP: " (int_to_string cop_pid)))
+                (exec (+ "kill " (int_to_string cop_pid)))
+                set cop_idx (+ cop_idx 1)
+            }
+
+            # Don't add this thread to new_threads (removing it)
+        } else {
+            set new_threads (array_push new_threads thread)
+        }
+        set i (+ i 1)
+    }
+
+    if thread_found {
+        # Gracefully stop the thread (in real VM, would send stop signal)
+        # For simplified version, we kill the process
+        (println (+ "Stopping VM thread: " (int_to_string thread_to_stop)))
+        (exec (+ "kill " (int_to_string thread_to_stop)))
+    }
+
+    return VMState {
+        vm_pid: vm_state.vm_pid,
+        active: vm_state.active,
+        threads: new_threads
+    }
+}
+
+# Check if an example is running in VM mode
+fn is_vm_thread_running(vm_state: VMState, example_index: int) -> bool {
+    let mut i: int = 0
+    while (< i (array_length vm_state.threads)) {
+        let thread: VMThreadInfo = (at vm_state.threads i)
+        if (and (== thread.example_index example_index) (== thread.status 1)) {
+            return true
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
 # Create example helper
 fn make_example(name: string, desc: string, cat: int, cmd: string, file: string, icon: string) -> Example {
     return Example {
@@ -156,9 +463,13 @@ shadow make_example {
 }
 
 fn main() -> int {
-    (SDL_Init SDL_INIT_VIDEO) 
-    (TTF_Init) 
-    
+    # Initialize mode configuration from environment
+    let mode: ModeConfig = (init_mode)
+    (println (+ "Launcher Mode: " mode.display_name))
+
+    (SDL_Init SDL_INIT_VIDEO)
+    (TTF_Init)
+
     let img_result: int = (IMG_Init IMG_INIT_PNG)
     if (== img_result 0) {
         (println "Failed to initialize SDL_image")
@@ -179,11 +490,11 @@ fn main() -> int {
 
     if (== font 0) {
         (println "Failed to load font")
-        (SDL_DestroyRenderer renderer) 
-        (SDL_DestroyWindow window) 
-        (IMG_Quit) 
-        (TTF_Quit) 
-        (SDL_Quit) 
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (IMG_Quit)
+        (TTF_Quit)
+        (SDL_Quit)
         return 1
     }
 
@@ -349,8 +660,12 @@ fn main() -> int {
     let mut source_scroll: int = 0
     let mut icon_scroll: int = 0
     let mut running: bool = true
+    let mut editor: EditorState = (create_editor_state)
+    let mut edit_request_idx: int = -1
+    let mut vm_state: VMState = (create_vm_state)
     let mut launch_request_idx: int = -1
     let mut kill_request_idx: int = -1
+    let mut frame_count: int = 0
 
     # Category button layout
     let cat_y1: int = (+ LEFT_PANEL_Y 10)
@@ -503,9 +818,52 @@ fn main() -> int {
                 }
                 set source_scroll 0
             } else {
+                # Check Edit button
+                if (>= selected_index 0) {
+                    let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 450)
+                    let edit_btn_y: int = (+ RIGHT_PANEL_Y 14)
+                    if (and (>= click_x edit_btn_x) (and (< click_x (+ edit_btn_x 100))
+                        (and (>= click_y edit_btn_y) (< click_y (+ edit_btn_y 28))))) {
+                        let ex_idx: int = (at indices selected_index)
+                        set edit_request_idx ex_idx
+                    }
+                }
+
+                # Check editor buttons if editor is active
+                if (and editor.active (>= selected_index 0)) {
+                    let ex_idx: int = (at indices selected_index)
+                    if (== editor.example_index ex_idx) {
+                        let info_y: int = (+ RIGHT_PANEL_Y 60)
+                        let source_y: int = (+ info_y 90)
+                        let source_h: int = (- (- WINDOW_HEIGHT source_y) 100)
+                        let code_display_x: int = (+ RIGHT_PANEL_X 20)
+                        let code_display_y: int = (+ source_y 35)
+                        let code_display_h: int = (- source_h 110)
+                        let btn_y: int = (+ (+ code_display_y code_display_h) 10)
+
+                        # Close button
+                        if (and (>= click_x (+ code_display_x 10)) (and (< click_x (+ code_display_x 110))
+                            (and (>= click_y btn_y) (< click_y (+ btn_y 28))))) {
+                            set editor (create_editor_state)
+                        }
+
+                        # Build & Run button
+                        if (and (>= click_x (+ code_display_x 120)) (and (< click_x (+ code_display_x 240))
+                            (and (>= click_y btn_y) (< click_y (+ btn_y 28))))) {
+                            # Trigger rebuild
+                            let ex: Example = (at examples ex_idx)
+                            set editor (compile_example_for_editor ex.file mode)
+                            # If successful, launch the example
+                            if (== editor.build_status "success") {
+                                set launch_request_idx ex_idx
+                            }
+                        }
+                    }
+                }
+
                 # Check Launch button
                 if (>= selected_index 0) {
-                    let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+                    let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 330)
                     let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
                     if (and (>= click_x launch_btn_x) (and (< click_x (+ launch_btn_x 160))
                         (and (>= click_y launch_btn_y) (< click_y (+ launch_btn_y 28))))) {
@@ -595,20 +953,37 @@ fn main() -> int {
                 
                 # Label
                 let truncated: string = (str_truncate ex.name 10)
-                (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255) 
+                (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255)
+
+                # Status indicator badge - TODO: re-enable after fixing parse error
+                # Temporarily commented out
             }
             set grid_idx (+ grid_idx 1)
         }
 
         # Right panel
-        (nl_ui_panel renderer RIGHT_PANEL_X RIGHT_PANEL_Y RIGHT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240) 
-        (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255) 
-        
+        (nl_ui_panel renderer RIGHT_PANEL_X RIGHT_PANEL_Y RIGHT_PANEL_WIDTH (- WINDOW_HEIGHT 20) 28 28 38 240)
+        (nl_ui_label renderer title_font "Example Preview" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 18) 240 240 255 255)
+
+        # Mode indicator
+        let mode_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 280)
+        let mode_btn_y: int = (+ RIGHT_PANEL_Y 14)
+        let mode_r: int = (/ mode.color 65536)
+        let mode_g: int = (/ (% mode.color 65536) 256)
+        let mode_b: int = (% mode.color 256)
+        (SDL_SetRenderDrawColor renderer mode_r mode_g mode_b 255)
+        (nl_sdl_render_fill_rect renderer mode_btn_x mode_btn_y 170 28)
+        let mode_text: string = (cond
+            ((== mode.name "vm") (+ mode.display_name (+ " (" (+ (int_to_string (array_length vm_state.threads)) " threads)"))))
+            (else mode.display_name)
+        )
+        (nl_draw_text_blended renderer font (+ "Mode: " mode_text) (+ mode_btn_x 10) (+ mode_btn_y 6) 255 255 255 255)
+
         # Quit button
         let quit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 90)
         let quit_btn_y: int = (+ RIGHT_PANEL_Y 14)
-        (SDL_SetRenderDrawColor renderer 100 50 50 255) 
-        (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y 70 28) 
+        (SDL_SetRenderDrawColor renderer 100 50 50 255)
+        (nl_sdl_render_fill_rect renderer quit_btn_x quit_btn_y 70 28)
         (nl_draw_text_blended renderer font "Quit" (+ quit_btn_x 15) (+ quit_btn_y 6) 240 220 220 255) 
 
         if (>= selected_index 0) {
@@ -621,40 +996,97 @@ fn main() -> int {
             (nl_ui_label renderer font (+ "Description: " ex.desc) (+ RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255) 
             (nl_ui_label renderer font (+ "File: " ex.file) (+ RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255) 
             
-            # Source code area
+            # Source code area OR Editor
             let source_y: int = (+ info_y 90)
             let source_h: int = (- (- WINDOW_HEIGHT source_y) 100)
-            (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255) 
-            
-            if (< source_scroll 0) {
-                set source_scroll 0
+
+            if (and editor.active (== editor.example_index ex_idx)) {
+                # Editor mode - show editable content
+                (nl_ui_label renderer font "Editor (view-only for now):" (+ RIGHT_PANEL_X 30) (+ source_y 10) 255 200 100 255)
+
+                if (< source_scroll 0) {
+                    set source_scroll 0
+                }
+
+                let code_display_x: int = (+ RIGHT_PANEL_X 20)
+                let code_display_y: int = (+ source_y 35)
+                let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
+                let code_display_h: int = (- source_h 110)
+
+                # Display editor content (using pretty_print_ansi for syntax highlighting)
+                let highlighted: string = (pretty_print_ansi editor.content)
+                (nl_ui_code_display_ansi renderer font highlighted code_display_x code_display_y code_display_w code_display_h source_scroll 18)
+
+                # Editor buttons
+                let btn_y: int = (+ (+ code_display_y code_display_h) 10)
+
+                # Close Editor button
+                (SDL_SetRenderDrawColor renderer 100 50 50 255)
+                (nl_sdl_render_fill_rect renderer (+ code_display_x 10) btn_y 100 28)
+                (nl_draw_text_blended renderer font "Close" (+ code_display_x 35) (+ btn_y 6) 255 255 255 255)
+
+                # Build & Run button
+                (SDL_SetRenderDrawColor renderer 50 100 50 255)
+                (nl_sdl_render_fill_rect renderer (+ code_display_x 120) btn_y 120 28)
+                (nl_draw_text_blended renderer font "Build & Run" (+ code_display_x 135) (+ btn_y 6) 255 255 255 255)
+
+                # Status indicator with enhanced feedback - TODO: re-enable after fixing parse error
+                # Temporarily commented out
+            } else {
+                # Normal source preview mode
+                (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255)
+
+                if (< source_scroll 0) {
+                    set source_scroll 0
+                }
+
+                let code_display_x: int = (+ RIGHT_PANEL_X 20)
+                let code_display_y: int = (+ source_y 35)
+                let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
+                let code_display_h: int = (- source_h 65)
+
+                (nl_ui_code_display_ansi renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
             }
-            
-            let code_display_x: int = (+ RIGHT_PANEL_X 20)
-            let code_display_y: int = (+ source_y 35)
-            let code_display_w: int = (- RIGHT_PANEL_WIDTH 40)
-            let code_display_h: int = (- source_h 65)
-            
-            (nl_ui_code_display_ansi renderer font source_code code_display_x code_display_y code_display_w code_display_h source_scroll 18)
             
             if (> source_scroll 0) {
                 let scroll_text: string = (+ "Line " (+ (int_to_string (+ source_scroll 1)) " ↑↓"))
                 (nl_draw_text_blended renderer small_font scroll_text (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 120) (- (+ source_y source_h) 20) 180 180 200 255) 
             }
             
+            # Edit button
+            let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 450)
+            let edit_btn_y: int = (+ RIGHT_PANEL_Y 14)
+            if (== editor.active true) {
+                (SDL_SetRenderDrawColor renderer 180 180 50 255)
+            } else {
+                (SDL_SetRenderDrawColor renderer 50 100 180 255)
+            }
+            (nl_sdl_render_fill_rect renderer edit_btn_x edit_btn_y 100 28)
+            (nl_draw_text_blended renderer font "Edit" (+ edit_btn_x 30) (+ edit_btn_y 6) 255 255 255 255)
+
             # Launch button
-            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 260)
+            let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 330)
             let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
             let pid_draw: int = (at example_pids ex_idx)
-            
-            if (> pid_draw 0) {
-                (SDL_SetRenderDrawColor renderer 180 50 50 255) 
-                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28) 
-                (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 6) 255 255 255 255) 
+
+            # Check if example is running (either as process or VM thread)
+            let is_running_flag: bool = (cond
+                ((== mode.name "vm") (or (== pid_draw -1) (is_vm_thread_running vm_state ex_idx)))
+                (else (> pid_draw 0))
+            )
+
+            if is_running_flag {
+                (SDL_SetRenderDrawColor renderer 180 50 50 255)
+                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28)
+                if (== mode.name "vm") {
+                    (nl_draw_text_blended renderer font "Stop Thread" (+ launch_btn_x 38) (+ launch_btn_y 6) 255 255 255 255)
+                } else {
+                    (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 6) 255 255 255 255)
+                }
             } else {
-                (SDL_SetRenderDrawColor renderer 50 100 50 255) 
-                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28) 
-                (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255) 
+                (SDL_SetRenderDrawColor renderer 50 100 50 255)
+                (nl_sdl_render_fill_rect renderer launch_btn_x launch_btn_y 160 28)
+                (nl_draw_text_blended renderer font "Launch Example" (+ launch_btn_x 15) (+ launch_btn_y 6) 220 240 220 255)
             }
         } else {
             (nl_ui_label renderer font "Select an example from the left panel" (+ RIGHT_PANEL_X 20) (+ RIGHT_PANEL_Y 100) 180 180 200 255) 
@@ -668,13 +1100,61 @@ fn main() -> int {
             let ex: Example = (at examples launch_request_idx)
             let pid: int = (at example_pids launch_request_idx)
             if (== pid 0) {
-                (println (+ "Launching: " ex.command))
-                let new_pid: int = (spawn ex.command)
-                if (> new_pid 0) {
-                    (array_set example_pids launch_request_idx new_pid)
-                    (println (+ "Launched with PID: " (int_to_string new_pid)))
+                # Simple extraction: command contains "./bin/foo", extract "foo" and apply mode suffix
+                # For commands like "make -C examples ../bin/sdl_pong && ./bin/sdl_pong"
+                # We want just the binary name "sdl_pong"
+                # Find the last occurrence of "/bin/" and extract what follows
+                let cmd: string = ex.command
+                let mut binary_name: string = "unknown"
+
+                # Look for pattern "./bin/" or "../bin/"
+                let cmd_len: int = (str_length cmd)
+                if (> cmd_len 6) {
+                    # Simplified: just use the binary name from command if it contains "sdl_" or "ncurses_" or "opengl_"
+                    # This works for the current examples
+                    let mut i: int = 0
+                    while (< i cmd_len) {
+                        if (== (char_at cmd i) 47) {
+                            if (and (< (+ i 4) cmd_len) (== (str_substring cmd (+ i 1) (+ i 5)) "bin/")) {
+                                # Found "/bin/", extract rest
+                                set binary_name (str_substring cmd (+ i 5) cmd_len)
+                                # Stop at first space if any
+                                let mut j: int = 0
+                                let mut bn_len: int = (str_length binary_name)
+                                while (< j bn_len) {
+                                    if (== (char_at binary_name j) 32) {
+                                        set binary_name (str_substring binary_name 0 j)
+                                        set bn_len j
+                                    }
+                                    set j (+ j 1)
+                                }
+                                set i cmd_len
+                            }
+                        }
+                        set i (+ i 1)
+                    }
+                }
+
+                # Construct mode-aware path
+                let launch_path: string = (get_binary_path binary_name mode)
+                (println (+ "Launching [" (+ mode.name (+ "]: " launch_path))))
+
+                # Choose launch method based on mode
+                if (== mode.name "vm") {
+                    # VM mode: start as thread in VM
+                    (println "Using VM thread mode...")
+                    set vm_state (start_vm_thread vm_state launch_request_idx launch_path)
+                    # Store VM indicator in example_pids (using -1 to indicate VM thread)
+                    (array_set example_pids launch_request_idx -1)
                 } else {
-                    (println "Failed to launch example")
+                    # Stage 1/3 mode: spawn as regular process
+                    let new_pid: int = (spawn launch_path)
+                    if (> new_pid 0) {
+                        (array_set example_pids launch_request_idx new_pid)
+                        (println (+ "Launched with PID: " (int_to_string new_pid)))
+                    } else {
+                        (println (+ "Failed to launch: " launch_path))
+                    }
                 }
             }
             set launch_request_idx -1
@@ -683,12 +1163,35 @@ fn main() -> int {
         # Kill example if requested
         if (>= kill_request_idx 0) {
             let pid: int = (at example_pids kill_request_idx)
-            if (> pid 0) {
-                (println (+ "Force quitting PID: " (int_to_string pid)))
-                (exec (+ "kill -9 " (int_to_string pid)))
+
+            if (== mode.name "vm") {
+                # VM mode: stop thread gracefully
+                if (== pid -1) {
+                    (println (+ "Stopping VM thread for example " (int_to_string kill_request_idx)))
+                    set vm_state (stop_vm_thread vm_state kill_request_idx)
+                    (array_set example_pids kill_request_idx 0)
+                }
+            } else {
+                # Stage 1/3 mode: kill regular process
+                if (> pid 0) {
+                    (println (+ "Force quitting PID: " (int_to_string pid)))
+                    (exec (+ "kill -9 " (int_to_string pid)))
+                    (array_set example_pids kill_request_idx 0)
+                }
             }
             set kill_request_idx -1
         }
+
+        # Edit example if requested
+        if (>= edit_request_idx 0) {
+            let ex: Example = (at examples edit_request_idx)
+            (println (+ "Opening editor for: " ex.file))
+            set editor (load_file_to_editor ex.file edit_request_idx)
+            set edit_request_idx -1
+        }
+
+        # Increment frame counter for animations
+        set frame_count (+ frame_count 1)
     }
 
     # Cleanup
