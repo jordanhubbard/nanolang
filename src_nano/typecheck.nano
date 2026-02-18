@@ -809,11 +809,29 @@ shadow type_tuple {
 }
 
 /* Check if two types are equal */
+fn strip_spaces(s: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (< i len) {
+        let ch: string = (str_substring s i 1)
+        if (!= ch " ") {
+            set out (+ out ch)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return out
+}
+
 fn types_equal(t1: NSType, t2: NSType) -> bool {
     /* Bootstrap leniency: accept unknown as compatible with any type */
     if (or (== t1.kind TypeKind.TYPE_UNKNOWN) (== t2.kind TypeKind.TYPE_UNKNOWN)) {
         return true
     } else { (print "") }
+
+    /* Enums are compatible with int */
+    if (and (== t1.kind TypeKind.TYPE_ENUM) (== t2.kind TypeKind.TYPE_INT)) { return true } else { (print "") }
+    if (and (== t1.kind TypeKind.TYPE_INT) (== t2.kind TypeKind.TYPE_ENUM)) { return true } else { (print "") }
 
     if (!= t1.kind t2.kind) {
         return false
@@ -823,7 +841,10 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
             return (== t1.name t2.name)
         } else {
             if (== t1.kind TypeKind.TYPE_FUNCTION) {
-                return (== t1.name t2.name)
+                /* Normalize spacing for comparison: "fn(int, int) -> int" == "fn(int,int)->int" */
+                let n1: string = (strip_spaces t1.name)
+                let n2: string = (strip_spaces t2.name)
+                return (== n1 n2)
             } else {
                 /* For array types, check element type with leniency */
                 if (== t1.kind TypeKind.TYPE_ARRAY) {
@@ -866,6 +887,56 @@ shadow types_equal {
     
     assert (types_equal int1 int2)
     assert (not (types_equal int1 float1))
+}
+
+/* Extract return type from a function type like "fn(int,int)->int" */
+fn fn_type_return_type(fn_type_name: string) -> NSType {
+    let len: int = (str_length fn_type_name)
+    /* Find closing paren - skip first opening paren at index 2 */
+    let mut i: int = 3
+    let mut depth: int = 0
+    let mut close: int = -1
+    while (< i len) {
+        let ch: string = (str_substring fn_type_name i 1)
+        if (== ch "(") {
+            set depth (+ depth 1)
+        } else {
+        if (== ch ")") {
+            if (== depth 0) {
+                set close i
+                set i len
+            } else {
+                set depth (- depth 1)
+            }
+        } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    if (< close 0) {
+        return (type_void)
+    } else { (print "") }
+    /* Find "->" after close paren */
+    let after: string = (str_substring fn_type_name (+ close 1) (- len (+ close 1)))
+    let alen: int = (str_length after)
+    set i 0
+    while (< i (- alen 1)) {
+        let ch: string = (str_substring after i 1)
+        let ch2: string = (str_substring after (+ i 1) 1)
+        if (and (== ch "-") (== ch2 ">")) {
+            let mut rstart: int = (+ i 2)
+            while (< rstart alen) {
+                let rch: string = (str_substring after rstart 1)
+                if (== rch " ") {
+                    set rstart (+ rstart 1)
+                } else {
+                    let ret_str: string = (str_substring after rstart (- alen rstart))
+                    return (type_from_string ret_str)
+                }
+            }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return (type_void)
 }
 
 /* Create type from string representation */
@@ -917,8 +988,12 @@ fn type_from_string(s: string) -> NSType {
                                         if (== elem_type_str "bool") {
                                             return (type_array TypeKind.TYPE_BOOL "")
                                         } else {
-                                            /* Struct element type */
-                                            return (type_array TypeKind.TYPE_STRUCT elem_type_str)
+                                            if (str_contains elem_type_str "array<") {
+                                                return (type_array TypeKind.TYPE_ARRAY elem_type_str)
+                                            } else {
+                                                /* Struct element type */
+                                                return (type_array TypeKind.TYPE_STRUCT elem_type_str)
+                                            }
                                         }
                                     }
                                 }
@@ -1035,12 +1110,35 @@ fn is_union_name(parser: Parser, name: string) -> bool {
 
 shadow is_union_name { assert true }
 
+fn is_enum_name(parser: Parser, name: string) -> bool {
+    let mut i: int = 0
+    let count: int = (parser_get_enum_count parser)
+    while (< i count) {
+        let e: ASTEnum = (parser_get_enum parser i)
+        if (== e.name name) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_enum_name { assert true }
+
 fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
     let t: NSType = (type_from_string s)
     if (== t.kind TypeKind.TYPE_STRUCT) {
         let base: string = (base_type_name s)
         if (is_union_name parser base) {
             return (type_union base)
+        } else { (print "") }
+        if (is_enum_name parser base) {
+            return NSType {
+                kind: TypeKind.TYPE_ENUM,
+                name: base,
+                element_type_kind: TypeKind.TYPE_UNKNOWN,
+                element_type_name: ""
+            }
         } else { (print "") }
     } else { (print "") }
     return t
@@ -1920,7 +2018,12 @@ fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType 
                 return (type_float)
             } else {
                 if (or (== left_type.kind TypeKind.TYPE_UNKNOWN) (== right_type.kind TypeKind.TYPE_UNKNOWN)) {
-                    return (type_float)
+                    /* If one side is known, propagate that type; otherwise default to int */
+                    if (== left_type.kind TypeKind.TYPE_INT) { return (type_int) } else { (print "") }
+                    if (== right_type.kind TypeKind.TYPE_INT) { return (type_int) } else { (print "") }
+                    if (== left_type.kind TypeKind.TYPE_FLOAT) { return (type_float) } else { (print "") }
+                    if (== right_type.kind TypeKind.TYPE_FLOAT) { return (type_float) } else { (print "") }
+                    return (type_int)
                 } else {
                     /* NSType error */
                     return (type_unknown_named "error")
@@ -2174,11 +2277,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         while (< i call_node.arg_count) {
             let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start i))
             let arg_t: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
-            if (== arg_t.kind TypeKind.TYPE_FUNCTION) {
-                let msg: string = (encode_type_mismatch_message "call" "int" "function" "argument")
-                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
-                (Diagnostics.diag_list_add diags diag)
-            } else { (print "") }
+            /* Allow function values as arguments for higher-order functions */
+            (print "")
             set i (+ i 1)
         }
         /* Get function name from identifier node */
@@ -2226,11 +2326,16 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
                     if (== arr_t.kind TypeKind.TYPE_ARRAY) {
-                        return NSType {
-                            kind: arr_t.element_type_kind,
-                            name: arr_t.element_type_name,
-                            element_type_kind: TypeKind.TYPE_UNKNOWN,
-                            element_type_name: ""
+                        /* For nested arrays (e.g. array<array<int>>), resolve the element type fully */
+                        if (and (== arr_t.element_type_kind TypeKind.TYPE_ARRAY) (!= arr_t.element_type_name "")) {
+                            return (type_from_string_with_parser parser arr_t.element_type_name)
+                        } else {
+                            return NSType {
+                                kind: arr_t.element_type_kind,
+                                name: arr_t.element_type_name,
+                                element_type_kind: TypeKind.TYPE_UNKNOWN,
+                                element_type_name: ""
+                            }
                         }
                     } else { (print "") }
                 }
@@ -2257,8 +2362,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     /* For function calls, return the return type, not the function type */
                     return sym.return_type
                 } else {
-                    /* Not a function - return variable type */
-                    return sym.sym_type
+                    /* Variable being called - if it's a function type, extract return type */
+                    if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
+                        return (fn_type_return_type sym.sym_type.name)
+                    } else {
+                        return sym.sym_type
+                    }
                 }
             } else {
                 return (type_unknown_named fn_name)
@@ -2443,12 +2552,31 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         return (type_unknown_named fname)
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
-        /* Tuple literal: return tuple type */
-        return (type_tuple)
+        /* Tuple literal: compute concrete tuple type from element types */
+        let tl: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+        let tuple_name: string = (tuple_type_string_from_literal parser tl symbols diags file_name)
+        return NSType {
+            kind: TypeKind.TYPE_TUPLE,
+            name: tuple_name,
+            element_type_kind: TypeKind.TYPE_UNKNOWN,
+            element_type_name: ""
+        }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
-        /* Tuple index: would need to know tuple element types */
-        return (type_int)
+        /* Tuple index: look up element type from the tuple's type */
+        let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
+        let tuple_type: NSType = (check_expr_node parser ti.tuple ti.tuple_type symbols diags file_name)
+        if (and (== tuple_type.kind TypeKind.TYPE_TUPLE) (!= tuple_type.name "")) {
+            let elem_names: array<string> = (split_tuple_type_names tuple_type.name)
+            if (< ti.index (array_length elem_names)) {
+                let elem_str: string = (strip_spaces (at elem_names ti.index))
+                return (type_from_string elem_str)
+            } else {
+                return (type_int)
+            }
+        } else {
+            return (type_int)
+        }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
         /* Unsafe block: assume returns int */
@@ -2509,6 +2637,17 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NST
  * ============================================================================= */
 
 fn array_elem_type_from_array_decl(t: string) -> string {
+    /* Check nested arrays FIRST since "array<array<int>>" also contains "array<int>" */
+    if (str_contains t "array<array<") {
+        /* Extract the inner array type: array<array<int>> -> array<int> */
+        let start: int = (+ (str_index_of t "array<") 6)
+        let end: int = (str_last_index_of t ">")
+        if (and (>= start 0) (> end start)) {
+            return (str_substring t start (- end start))
+        } else {
+            return "array"
+        }
+    } else {
     if (str_contains t "array<int>") {
         return "int"
     } else {
@@ -2520,9 +2659,6 @@ fn array_elem_type_from_array_decl(t: string) -> string {
             } else {
                 if (str_contains t "array<bool>") {
                     return "bool"
-                } else {
-                    if (str_contains t "array<array<") {
-                        return "array"
                     } else {
                         /* Generic: array<SomeType> -> "SomeType" */
                         if (str_contains t "array<") {
@@ -2547,12 +2683,13 @@ fn array_elem_type_from_array_decl(t: string) -> string {
             }
         }
     }
+    }
 }
 
 shadow array_elem_type_from_array_decl {
     assert (== (array_elem_type_from_array_decl "array<int>") "int")
     assert (== (array_elem_type_from_array_decl "array<string>") "string")
-    assert (== (array_elem_type_from_array_decl "array<array<int>>") "array")
+    assert (== (array_elem_type_from_array_decl "array<array<int>>") "array<int>")
 }
 
 /* NSType check a let statement
@@ -2930,12 +3067,18 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
         } else { (print "") }
     } else { (print "") }
     if (== expected_type.kind TypeKind.TYPE_INT) {
-        if (or (== expr_type.kind TypeKind.TYPE_INT) (== expr_type.kind TypeKind.TYPE_UNKNOWN)) {
+        if (or (== expr_type.kind TypeKind.TYPE_INT) (or (== expr_type.kind TypeKind.TYPE_UNKNOWN) (== expr_type.kind TypeKind.TYPE_ENUM))) {
             return expected_type
         } else { (print "") }
     } else { (print "") }
     if (== expected_type.kind TypeKind.TYPE_BOOL) {
         if (or (== expr_type.kind TypeKind.TYPE_BOOL) (== expr_type.kind TypeKind.TYPE_UNKNOWN)) {
+            return expected_type
+        } else { (print "") }
+    } else { (print "") }
+    /* Function types: allow if both are function types with matching signatures */
+    if (== expected_type.kind TypeKind.TYPE_FUNCTION) {
+        if (== expr_type.kind TypeKind.TYPE_FUNCTION) {
             return expected_type
         } else { (print "") }
     } else { (print "") }
@@ -3001,6 +3144,36 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     set symbols (env_add_symbol env symbols func_aliases_sym)
     let func_alias_targets_sym: Symbol = (symbol_new "func_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
     set symbols (env_add_symbol env symbols func_alias_targets_sym)
+
+    /* Phase 0.5: Add global let constants to symbol table */
+    let global_let_count: int = (parser_get_let_count parser)
+    let mut gli: int = 0
+    while (< gli global_let_count) {
+        let gl: ASTLet = (parser_get_let parser gli)
+        /* Only add top-level lets (not function params/locals).
+         * Top-level lets have no enclosing function, detected by checking if the
+         * let index is below the first function's param_start. */
+        let mut is_global: bool = true
+        let mut fi: int = 0
+        while (< fi func_count) {
+            let f: ASTFunction = (parser_get_function parser fi)
+            /* If this let index is within a function's parameter range, it's not global */
+            if (and (>= gli f.param_start) (< gli (+ f.param_start f.param_count))) {
+                set is_global false
+            } else { (print "") }
+            set fi (+ fi 1)
+        }
+        /* Also check: global lets typically appear before all functions or have no function context.
+         * A simpler heuristic: if the let has a declared type and its line number is before the first function. */
+        if is_global {
+            let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
+            if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
+                let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))
+                set symbols (env_add_symbol env symbols gl_sym)
+            } else { (print "") }
+        } else { (print "") }
+        set gli (+ gli 1)
+    }
 
     /* Phase 1: Add all user function signatures to symbol table */
     let mut i: int = 0

@@ -2515,7 +2515,71 @@ fn parse_primary(p: Parser) -> Parser {
                                             } else {
                                                 let func_name: string = name_res.name
                                                 let p_after_name: Parser = name_res.p
-                                                
+
+                                                /* Check if this is actually a tuple literal (identifier followed by comma) */
+                                                if (not (parser_is_at_end p_after_name)) {
+                                                    let tok_peek: LexerToken = (parser_current p_after_name)
+                                                    if (== tok_peek.token_type (token_comma)) {
+                                                        /* Tuple literal: (ident, expr, ...) */
+                                                        let p_id: Parser = (parser_store_identifier p_after_name func_name tok2.line tok2.column)
+                                                        let mut elem_ids: array<int> = []
+                                                        let mut elem_types: array<int> = []
+                                                        let mut elem_count: int = 1
+                                                        set elem_ids (array_push elem_ids p_id.last_expr_node_id)
+                                                        set elem_types (array_push elem_types p_id.last_expr_node_type)
+                                                        let mut ptup: Parser = (parser_advance p_id) /* consume ',' */
+
+                                                        while (not (parser_is_at_end ptup)) {
+                                                            let ttup: LexerToken = (parser_current ptup)
+                                                            if (== ttup.token_type (token_rparen)) {
+                                                                let p_end: Parser = (parser_advance ptup)
+                                                                return (parser_store_tuple_literal p_end elem_ids elem_types elem_count tok.line tok.column)
+                                                            } else {
+                                                                let pelem: Parser = (parse_expression ptup)
+                                                                if (parser_has_error pelem) {
+                                                                    return pelem
+                                                                } else {
+                                                                    set elem_ids (array_push elem_ids pelem.last_expr_node_id)
+                                                                    set elem_types (array_push elem_types pelem.last_expr_node_type)
+                                                                    set elem_count (+ elem_count 1)
+                                                                    set ptup pelem
+
+                                                                    let tnext: LexerToken = (parser_current ptup)
+                                                                    if (== tnext.token_type (token_comma)) {
+                                                                        set ptup (parser_advance ptup)
+                                                                    } else {
+                                                                        if (== tnext.token_type (token_rparen)) {
+                                                                            let p_end: Parser = (parser_advance ptup)
+                                                                            return (parser_store_tuple_literal p_end elem_ids elem_types elem_count tok.line tok.column)
+                                                                        } else {
+                                                                            return (parser_with_error ptup true)
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        return (parser_with_error ptup true)
+                                                    } else { (print "") }
+                                                } else { (print "") }
+
+                                                /* Check if this is a struct literal in parentheses: (StructName { field: val }) */
+                                                if (not (parser_is_at_end p_after_name)) {
+                                                    let tok_peek2: LexerToken = (parser_current p_after_name)
+                                                    if (== tok_peek2.token_type (token_lbrace)) {
+                                                        let first_char: int = (char_at func_name 0)
+                                                        if (and (>= first_char 65) (<= first_char 90)) {
+                                                            let p_lbrace: Parser = (parser_advance p_after_name)
+                                                            let p_struct: Parser = (parse_struct_literal p_lbrace func_name tok2.line tok2.column)
+                                                            if (parser_has_error p_struct) {
+                                                                return p_struct
+                                                            } else {
+                                                                return (parser_expect p_struct (token_rparen))
+                                                            }
+                                                        } else { (print "") }
+                                                    } else { (print "") }
+                                                } else { (print "") }
+
                                                 /* Check if this is a module-qualified call (Module.function) */
                                                 let is_module_call: bool = (name_contains_dot func_name)
                                                 
@@ -6968,6 +7032,11 @@ pub fn parser_get_while_count(p: Parser) -> int {
     return (list_ASTWhile_length p.whiles)
 }
 
+/* Get a for loop by index */
+pub fn parser_get_for(p: Parser, idx: int) -> ASTFor {
+    return (list_ASTFor_get p.fors idx)
+}
+
 /* Get an unsafe block by index */
 pub fn parser_get_unsafe_block(p: Parser, idx: int) -> ASTUnsafeBlock {
     return (list_ASTUnsafeBlock_get p.unsafe_blocks idx)
@@ -7090,6 +7159,16 @@ pub fn parser_get_array_element(p: Parser, idx: int) -> ASTStmtRef {
     return (list_ASTStmtRef_get p.array_elements idx)
 }
 
+/* Get number of struct definitions */
+pub fn parser_get_struct_def_count(p: Parser) -> int {
+    return (list_ASTStruct_length p.structs)
+}
+
+/* Get a struct definition by index */
+pub fn parser_get_struct_def(p: Parser, idx: int) -> ASTStruct {
+    return (list_ASTStruct_get p.structs idx)
+}
+
 /* Get number of struct literals */
 pub fn parser_get_struct_literal_count(p: Parser) -> int {
     return (list_ASTStructLiteral_length p.struct_literals)
@@ -7098,6 +7177,16 @@ pub fn parser_get_struct_literal_count(p: Parser) -> int {
 /* Get a struct literal by index */
 pub fn parser_get_struct_literal(p: Parser, idx: int) -> ASTStructLiteral {
     return (list_ASTStructLiteral_get p.struct_literals idx)
+}
+
+/* Get number of enum definitions */
+pub fn parser_get_enum_count(p: Parser) -> int {
+    return (list_ASTEnum_length p.enums)
+}
+
+/* Get an enum definition by index */
+pub fn parser_get_enum(p: Parser, idx: int) -> ASTEnum {
+    return (list_ASTEnum_get p.enums idx)
 }
 
 /* Get number of union definitions */

@@ -37,6 +37,10 @@ let mut module_alias_targets: array<string> = []
 let mut func_aliases: array<string> = []
 let mut func_alias_targets: array<string> = []
 
+/* Function pointer typedef tracking */
+let mut fn_type_originals: array<string> = []
+let mut fn_type_names: array<string> = []
+
 fn reset_module_aliases() -> int {
     set module_aliases []
     set module_alias_targets []
@@ -107,6 +111,195 @@ shadow resolve_func_alias {
     (add_func_alias "f" "module::func")
     assert (== (resolve_func_alias "f") "module::func")
     assert (== (resolve_func_alias "unknown") "")
+}
+
+fn reset_fn_types() -> int {
+    set fn_type_originals []
+    set fn_type_names []
+    return 0
+}
+
+fn is_fn_type(t: string) -> bool {
+    return (transp_str_starts_with t "fn(")
+}
+
+fn register_fn_type(t: string) -> string {
+    /* Check if already registered */
+    let mut i: int = 0
+    let n: int = (array_length fn_type_originals)
+    while (< i n) {
+        if (== (at fn_type_originals i) t) {
+            return (at fn_type_names i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    /* Register new function type */
+    let idx: int = (array_length fn_type_originals)
+    let mut name_parts: array<string> = []
+    set name_parts (sb_append name_parts "nl_FnPtr_")
+    set name_parts (sb_append name_parts (int_to_string idx))
+    let name: string = (sb_build name_parts)
+    set fn_type_originals (array_push fn_type_originals t)
+    set fn_type_names (array_push fn_type_names name)
+    return name
+}
+
+fn parse_fn_type_params(t: string) -> array<string> {
+    /* Parse fn(int,int)->int to get parameter types */
+    /* Opening paren is at index 2, scan from index 3 for closing paren */
+    let len: int = (str_length t)
+    let mut depth: int = 0
+    let mut close: int = -1
+    let mut i: int = 3
+    while (< i len) {
+        let ch: string = (str_substring t i 1)
+        if (== ch "(") {
+            set depth (+ depth 1)
+        } else {
+        if (== ch ")") {
+            if (== depth 0) {
+                set close i
+                set i len
+            } else {
+                set depth (- depth 1)
+            }
+        } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    if (< close 0) {
+        let empty: array<string> = []
+        return empty
+    } else { (print "") }
+    let params_str: string = (str_substring t 3 (- close 3))
+    if (== (str_length params_str) 0) {
+        let empty: array<string> = []
+        return empty
+    } else { (print "") }
+    /* Split by comma (simple - no nested generics for now) */
+    let mut result: array<string> = []
+    let mut start: int = 0
+    let plen: int = (str_length params_str)
+    set i 0
+    set depth 0
+    while (< i plen) {
+        let ch: string = (str_substring params_str i 1)
+        if (or (== ch "(") (== ch "<")) {
+            set depth (+ depth 1)
+        } else {
+        if (or (== ch ")") (== ch ">")) {
+            set depth (- depth 1)
+        } else {
+        if (and (== ch ",") (== depth 0)) {
+            let param: string = (str_substring params_str start (- i start))
+            set result (array_push result param)
+            set start (+ i 1)
+        } else { (print "") }
+        } }
+        set i (+ i 1)
+    }
+    if (< start plen) {
+        let param: string = (str_substring params_str start (- plen start))
+        set result (array_push result param)
+    } else { (print "") }
+    return result
+}
+
+fn parse_fn_type_return(t: string) -> string {
+    /* Parse fn(...)->RetType to get return type */
+    let len: int = (str_length t)
+    let mut i: int = 3
+    let mut depth: int = 0
+    let mut close: int = -1
+    while (< i len) {
+        let ch: string = (str_substring t i 1)
+        if (== ch "(") {
+            set depth (+ depth 1)
+        } else {
+        if (== ch ")") {
+            if (== depth 0) {
+                set close i
+                set i len
+            } else {
+                set depth (- depth 1)
+            }
+        } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    if (< close 0) {
+        return "void"
+    } else { (print "") }
+    /* After close paren, expect "->RetType" or " -> RetType" */
+    let after: string = (str_substring t (+ close 1) (- len (+ close 1)))
+    /* Find "->" */
+    let alen: int = (str_length after)
+    set i 0
+    while (< i (- alen 1)) {
+        let ch: string = (str_substring after i 1)
+        let ch2: string = (str_substring after (+ i 1) 1)
+        if (and (== ch "-") (== ch2 ">")) {
+            /* Return type starts after "->" possibly with spaces */
+            let mut rstart: int = (+ i 2)
+            while (< rstart alen) {
+                let rch: string = (str_substring after rstart 1)
+                if (== rch " ") {
+                    set rstart (+ rstart 1)
+                } else {
+                    set i alen
+                    let ret: string = (str_substring after rstart (- alen rstart))
+                    return ret
+                }
+            }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return "void"
+}
+
+fn generate_fn_type_typedefs() -> string {
+    let n: int = (array_length fn_type_originals)
+    if (== n 0) {
+        return ""
+    } else { (print "") }
+    let mut sb: array<string> = []
+    set sb (sb_append sb "/* Function pointer typedefs */\n")
+    let mut i: int = 0
+    while (< i n) {
+        let t: string = (at fn_type_originals i)
+        let name: string = (at fn_type_names i)
+        let ret_type: string = (parse_fn_type_return t)
+        let params: array<string> = (parse_fn_type_params t)
+        let c_ret: string = (type_to_c ret_type)
+        set sb (sb_append sb "typedef ")
+        set sb (sb_append sb c_ret)
+        set sb (sb_append sb " (*")
+        set sb (sb_append sb name)
+        set sb (sb_append sb ")(")
+        let pcount: int = (array_length params)
+        let mut pi: int = 0
+        while (< pi pcount) {
+            if (> pi 0) {
+                set sb (sb_append sb ", ")
+            } else { (print "") }
+            set sb (sb_append sb (type_to_c (at params pi)))
+            set pi (+ pi 1)
+        }
+        if (== pcount 0) {
+            set sb (sb_append sb "void")
+        } else { (print "") }
+        set sb (sb_append sb ");\n")
+        set i (+ i 1)
+    }
+    set sb (sb_append sb "\n")
+    return (sb_build sb)
+}
+
+shadow is_fn_type {
+    assert (is_fn_type "fn(int,int)->int")
+    assert (is_fn_type "fn()->void")
+    assert (not (is_fn_type "int"))
+    assert (not (is_fn_type "string"))
 }
 
 fn codegen_new() -> CodeGenState {
@@ -699,6 +892,10 @@ fn c_name_for_qualified_function(func_name: string) -> string {
             let mod_part: string = (str_substring func_name 0 dot)
             let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
             let resolved: string = (resolve_module_alias mod_part)
+            if (== resolved mod_part) {
+                /* Module alias not found - module was merged, treat as local call */
+                return (+ "nl_" (mangle_name base))
+            } else { (print "") }
             let mm: string = (mangle_module_ident resolved)
             let mut parts: array<string> = []
             set parts (sb_append parts mm)
@@ -790,7 +987,7 @@ fn c_func_name_for_call(func_name: string) -> string {
         return func_name
     } else {
         if (is_generic_list_runtime_fn func_name) {
-            return (+ "nl_" func_name)
+            return func_name
         } else {
             if (or (str_contains func_name "::") (str_contains func_name ".")) {
                 return (c_name_for_qualified_function func_name)
@@ -946,6 +1143,82 @@ shadow parse_type_c_from_tokens {
     assert r.ok
 }
 
+/* Generate C enum typedefs and variant #defines by scanning tokens */
+fn generate_enum_definitions_from_tokens(parser: Parser) -> string {
+    let mut out: string = ""
+    let n: int = parser.token_count
+    let mut i: int = 0
+
+    while (< i n) {
+        let tok: LexerToken = (list_LexerToken_get parser.tokens i)
+
+        if (== tok.token_type LexerTokenType.TOKEN_ENUM) {
+            if (>= (+ i 2) n) { return out } else { (print "") }
+
+            let name_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 1))
+            let brace_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 2))
+            if (and (== name_tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== brace_tok.token_type LexerTokenType.TOKEN_LBRACE)) {
+                let ename: string = name_tok.value
+                let c_name: string = (+ "nl_" (mangle_name ename))
+
+                /* Emit typedef */
+                set out (+ out "typedef int64_t ")
+                set out (+ out c_name)
+                set out (+ out ";\n")
+
+                /* Parse variants and emit #defines */
+                let mut j: int = (+ i 3)
+                let mut ordinal: int = 0
+                while (< j n) {
+                    let tcur: LexerToken = (list_LexerToken_get parser.tokens j)
+                    if (== tcur.token_type LexerTokenType.TOKEN_RBRACE) {
+                        break
+                    } else { (print "") }
+
+                    if (== tcur.token_type LexerTokenType.TOKEN_IDENTIFIER) {
+                        let vname: string = tcur.value
+                        /* Check for = value */
+                        let mut explicit_val: int = ordinal
+                        if (< (+ j 1) n) {
+                            let tnext: LexerToken = (list_LexerToken_get parser.tokens (+ j 1))
+                            if (== tnext.token_type LexerTokenType.TOKEN_ASSIGN) {
+                                if (< (+ j 2) n) {
+                                    let tval: LexerToken = (list_LexerToken_get parser.tokens (+ j 2))
+                                    if (== tval.token_type LexerTokenType.TOKEN_NUMBER) {
+                                        set explicit_val (string_to_int tval.value)
+                                        set j (+ j 2)  /* skip = and number */
+                                    } else { (print "") }
+                                } else { (print "") }
+                            } else { (print "") }
+                        } else { (print "") }
+
+                        set out (+ out "#define ")
+                        set out (+ out c_name)
+                        set out (+ out "_")
+                        set out (+ out vname)
+                        set out (+ out " ")
+                        set out (+ out (int_to_string explicit_val))
+                        set out (+ out "\n")
+                        set ordinal (+ explicit_val 1)
+                    } else { (print "") }
+
+                    set j (+ j 1)
+                }
+
+                set i j
+            } else { (print "") }
+        } else { (print "") }
+
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+shadow generate_enum_definitions_from_tokens {
+    assert (== 1 1)
+}
+
 fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
     let mut out: string = ""
     let n: int = parser.token_count
@@ -1076,6 +1349,11 @@ fn generate_function_prototypes(parser: Parser) -> string {
 
     while (< i n) {
         let f: ASTFunction = (parser_get_function parser i)
+
+        /* Skip extern functions - they have no body and shouldn't get nl_ prefix */
+        if (< f.body 0) {
+            set i (+ i 1)
+        } else {
         let mut names: array<string> = []
         let mut ctypes: array<string> = []
 
@@ -1092,6 +1370,7 @@ fn generate_function_prototypes(parser: Parser) -> string {
         set out (+ out ";\n")
 
         set i (+ i 1)
+        }
     }
 
     set out (+ out "\n")
@@ -1103,6 +1382,26 @@ shadow generate_function_prototypes {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_function_prototypes p)
     assert (> (str_length c) 0)
+}
+
+fn lookup_struct_field_type(parser: Parser, struct_name: string, field_name: string) -> string {
+    let sc: int = (parser_get_struct_def_count parser)
+    let mut si: int = 0
+    while (< si sc) {
+        let s: ASTStruct = (parser_get_struct_def parser si)
+        if (== s.name struct_name) {
+            let fc: int = (array_length s.field_names)
+            let mut fi: int = 0
+            while (< fi fc) {
+                if (== (at s.field_names fi) field_name) {
+                    return (at s.field_types fi)
+                } else { (print "") }
+                set fi (+ fi 1)
+            }
+        } else { (print "") }
+        set si (+ si 1)
+    }
+    return ""
 }
 
 fn is_extern_function(parser: Parser, name: string) -> bool {
@@ -1179,6 +1478,10 @@ shadow is_array_type {
 }
 
 fn array_elem_type_from_array_type(t: string) -> string {
+    /* Check nested arrays FIRST since "array<array<int>>" also contains "array<int>" */
+    if (str_contains t "array<array<") {
+        return "array"
+    } else {
     if (str_contains t "array<int>") {
         return "int"
     } else {
@@ -1191,9 +1494,6 @@ fn array_elem_type_from_array_type(t: string) -> string {
                 if (str_contains t "array<bool>") {
                     return "bool"
                 } else {
-                    if (str_contains t "array<array<") {
-                        return "array"
-                    } else {
                         if (str_contains t "array<") {
                             /* Extract struct element types from array<Struct>. */
                             let start: int = (+ (transp_str_index_of t "array<") 6)
@@ -1211,6 +1511,7 @@ fn array_elem_type_from_array_type(t: string) -> string {
             }
         }
     }
+    }
 }
 
 shadow array_elem_type_from_array_type {
@@ -1227,7 +1528,7 @@ fn elem_enum_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
     else { if (== elem_type "array") { return "ELEM_ARRAY" }
-    else { if (type_is_struct elem_type) { return "ELEM_POINTER" }
+    else { if (type_is_struct elem_type) { return "ELEM_INT" }
     else { return "ELEM_INT" } } } } }
 }
 
@@ -1428,16 +1729,40 @@ fn tuple_typedef_name(tuple_type: string) -> string {
         return "Tuple"
     } else {
         let inner: string = (str_substring tuple_type 1 (- len 2))
-        return (+ "Tuple_" (mangle_type_name inner))
+        /* Strip spaces to normalize "(int, int)" and "(int,int)" to same name */
+        let mut stripped: string = ""
+        let slen: int = (str_length inner)
+        let mut si: int = 0
+        while (< si slen) {
+            let ch: string = (str_substring inner si 1)
+            if (!= ch " ") {
+                set stripped (+ stripped ch)
+            } else { (print "") }
+            set si (+ si 1)
+        }
+        return (+ "Tuple_" (mangle_type_name stripped))
     }
 }
 
 shadow tuple_typedef_name {
     assert (== (tuple_typedef_name "(int,string)") "Tuple_int_string")
+    assert (== (tuple_typedef_name "(int, string)") "Tuple_int_string")
 }
 
 fn type_to_c(nano_type: string) -> string {
+    /* Function pointer types: fn(int,int)->int */
+    if (is_fn_type nano_type) {
+        return (register_fn_type nano_type)
+    } else { (print "") }
+    /* HashMap opaque types */
+    if (== nano_type "HashMap<string,int>") { return "HashMap_string_int*" } else { (print "") }
+    if (== nano_type "HashMap<string, int>") { return "HashMap_string_int*" } else { (print "") }
+    if (== nano_type "HashMap<string,string>") { return "HashMap_string_string*" } else { (print "") }
+    if (== nano_type "HashMap<string, string>") { return "HashMap_string_string*" } else { (print "") }
     if (== nano_type "int") {
+        return "int64_t"
+    } else {
+    if (== nano_type "int64_t") {
         return "int64_t"
     } else {
         if (== nano_type "float") {
@@ -1501,6 +1826,7 @@ fn type_to_c(nano_type: string) -> string {
                 }
             }
         }
+    }
     }
 }
 
@@ -1986,7 +2312,13 @@ fn gen_c_includes() -> string {
     set parts (sb_append parts "#include <string.h>\n")
     set parts (sb_append parts "#include <math.h>\n")
     set parts (sb_append parts "#include <assert.h>\n")
+    set parts (sb_append parts "#include <time.h>\n")
+    set parts (sb_append parts "#include <sys/time.h>\n")
+    set parts (sb_append parts "#ifdef __MACH__\n")
+    set parts (sb_append parts "#include <mach/mach_time.h>\n")
+    set parts (sb_append parts "#endif\n")
     set parts (sb_append parts "#include \"nanolang.h\"\n")
+    set parts (sb_append parts "#include \"runtime/hashmap_bootstrap.h\"\n")
     set parts (sb_append parts "#include \"runtime/dyn_array.h\"\n")
     set parts (sb_append parts "#include \"runtime/list_int.h\"\n")
     set parts (sb_append parts "#include \"runtime/list_string.h\"\n")
@@ -2233,8 +2565,83 @@ fn gen_c_runtime() -> string {
     set sb (sb_append sb "extern bool file_exists(const char* path);\n")
     set sb (sb_append sb "extern int64_t file_delete(const char* path);\n\n")
     
+    set sb (sb_append sb "/* CLI argument access (defined in runtime/cli.c) */\n")
+    set sb (sb_append sb "int g_argc = 0;\n")
+    set sb (sb_append sb "char **g_argv = NULL;\n")
+    set sb (sb_append sb "extern int64_t get_argc(void);\n")
+    set sb (sb_append sb "extern const char* get_argv(int64_t index);\n\n")
+
+    /* Higher-order array functions (map, reduce, filter) */
+    set sb (sb_append sb "/* Higher-order array functions */\n")
+    set sb (sb_append sb "static DynArray* nl_map(DynArray* arr, int64_t (*fn)(int64_t)) {\n")
+    set sb (sb_append sb "    DynArray* result = dyn_array_new(ELEM_INT);\n")
+    set sb (sb_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (sb_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (sb_append sb "        dyn_array_push_int(result, fn(dyn_array_get_int(arr, i)));\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return result;\n")
+    set sb (sb_append sb "}\n\n")
+    set sb (sb_append sb "static int64_t nl_reduce(DynArray* arr, int64_t initial, int64_t (*fn)(int64_t, int64_t)) {\n")
+    set sb (sb_append sb "    int64_t acc = initial;\n")
+    set sb (sb_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (sb_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (sb_append sb "        acc = fn(acc, dyn_array_get_int(arr, i));\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return acc;\n")
+    set sb (sb_append sb "}\n\n")
+    set sb (sb_append sb "static DynArray* nl_filter(DynArray* arr, int (*fn)(int64_t)) {\n")
+    set sb (sb_append sb "    DynArray* result = dyn_array_new(ELEM_INT);\n")
+    set sb (sb_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (sb_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (sb_append sb "        int64_t val = dyn_array_get_int(arr, i);\n")
+    set sb (sb_append sb "        if (fn(val)) dyn_array_push_int(result, val);\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    return result;\n")
+    set sb (sb_append sb "}\n\n")
+
+    /* HashMap wrappers (generic API over type-specific implementations) */
+    set sb (sb_append sb "/* HashMap wrappers */\n")
+    set sb (sb_append sb "static inline HashMap_string_int* nl_map_new(void) { return nl_hashmap_string_int_alloc(16); }\n")
+    set sb (sb_append sb "static inline void nl_map_put(HashMap_string_int* hm, char* key, int64_t val) { nl_hashmap_string_int_put(hm, key, val); }\n")
+    set sb (sb_append sb "static inline int64_t nl_map_get(HashMap_string_int* hm, char* key) { return nl_hashmap_string_int_get(hm, key); }\n")
+    set sb (sb_append sb "static inline int nl_map_has(HashMap_string_int* hm, char* key) { return nl_hashmap_string_int_has(hm, key); }\n")
+    set sb (sb_append sb "static inline int64_t nl_map_size(HashMap_string_int* hm) { return hm->size; }\n\n")
+
+    /* Timing utilities */
+    set sb (sb_append sb "/* Timing utilities */\n")
+    set sb (sb_append sb "static int64_t nl_timing_get_microseconds(void) {\n")
+    set sb (sb_append sb "#ifdef CLOCK_REALTIME\n")
+    set sb (sb_append sb "    struct timespec ts;\n")
+    set sb (sb_append sb "    clock_gettime(CLOCK_REALTIME, &ts);\n")
+    set sb (sb_append sb "    return ((int64_t)ts.tv_sec * 1000000LL) + (int64_t)(ts.tv_nsec / 1000);\n")
+    set sb (sb_append sb "#else\n")
+    set sb (sb_append sb "    struct timeval tv;\n")
+    set sb (sb_append sb "    gettimeofday(&tv, NULL);\n")
+    set sb (sb_append sb "    return ((int64_t)tv.tv_sec * 1000000LL) + (int64_t)tv.tv_usec;\n")
+    set sb (sb_append sb "#endif\n")
+    set sb (sb_append sb "}\n\n")
+
+    set sb (sb_append sb "static int64_t nl_timing_get_nanoseconds(void) {\n")
+    set sb (sb_append sb "#ifdef __MACH__\n")
+    set sb (sb_append sb "    static mach_timebase_info_data_t timebase;\n")
+    set sb (sb_append sb "    static int initialized = 0;\n")
+    set sb (sb_append sb "    if (!initialized) {\n")
+    set sb (sb_append sb "        mach_timebase_info(&timebase);\n")
+    set sb (sb_append sb "        initialized = 1;\n")
+    set sb (sb_append sb "    }\n")
+    set sb (sb_append sb "    uint64_t mach_time = mach_absolute_time();\n")
+    set sb (sb_append sb "    return (int64_t)((mach_time * timebase.numer) / timebase.denom);\n")
+    set sb (sb_append sb "#elif defined(CLOCK_MONOTONIC)\n")
+    set sb (sb_append sb "    struct timespec ts;\n")
+    set sb (sb_append sb "    clock_gettime(CLOCK_MONOTONIC, &ts);\n")
+    set sb (sb_append sb "    return ((int64_t)ts.tv_sec * 1000000000LL) + (int64_t)ts.tv_nsec;\n")
+    set sb (sb_append sb "#else\n")
+    set sb (sb_append sb "    return nl_timing_get_microseconds() * 1000LL;\n")
+    set sb (sb_append sb "#endif\n")
+    set sb (sb_append sb "}\n\n")
+
     set sb (sb_append sb "/* ========== End Math and Utility Built-in Functions ========== */\n\n")
-    
+
     return (sb_build sb)
 }
 
@@ -2312,14 +2719,23 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     /* Generate union definitions */
     set sb (sb_append sb (generate_union_definitions parser))
     
-    /* Generate List<T> specializations */
-    set sb (sb_append sb (generate_list_specializations parser))
+    /* Generate enum definitions */
+    set sb (sb_append sb (generate_enum_definitions_from_tokens parser))
 
-    /* Generate user-defined struct definitions by scanning tokens */
+    /* Generate user-defined struct definitions by scanning tokens (before List specializations) */
     set sb (sb_append sb (generate_struct_definitions_from_tokens parser))
+
+    /* Generate List<T> specializations (after struct defs so types are available) */
+    set sb (sb_append sb (generate_list_specializations parser))
     
+    /* Tuple typedefs must come before function prototypes that reference them */
+    set sb (sb_append sb (gen_tuple_typedefs parser))
+
     /* Forward declarations for all functions (avoid implicit declarations in C99) */
-    set sb (sb_append sb (generate_function_prototypes parser))
+    let protos: string = (generate_function_prototypes parser)
+    /* Emit function pointer typedefs before prototypes (collected during type_to_c calls) */
+    set sb (sb_append sb (generate_fn_type_typedefs))
+    set sb (sb_append sb protos)
 
     /* Emit top-level constant declarations */
     set sb (sb_append sb (generate_global_constants parser))
@@ -2334,9 +2750,6 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     
     /* Add C main() wrapper that calls nl_main() */
     set sb (sb_append sb "\n/* C main() entry point - calls nanolang main */\n")
-    set sb (sb_append sb "/* Global argc/argv for CLI runtime support */\n")
-    set sb (sb_append sb "int g_argc = 0;\n")
-    set sb (sb_append sb "char **g_argv = NULL;\n\n")
     set sb (sb_append sb "int main(int argc, char **argv) {\n")
     set sb (sb_append sb "    g_argc = argc;\n")
     set sb (sb_append sb "    g_argv = argv;\n")
@@ -3041,12 +3454,28 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 
                 /* Special case: + for string concatenation */
                 if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                    /* Check if either operand looks like a string (starts with ") */
+                    /* Check if either operand looks like a string */
                     let left_is_str: bool = (and (> (str_length left_code) 0) (== (char_at left_code 0) 34))
                     let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
+                    /* Also check if either operand is a string-returning function call */
+                    let left_is_str_fn: bool = (or (str_contains left_code "nl_str_concat") (or (str_contains left_code "nl_int_to_string") (or (str_contains left_code "nl_float_to_string") (str_contains left_code "nl_bool_to_string"))))
+                    let right_is_str_fn: bool = (or (str_contains right_code "nl_str_concat") (or (str_contains right_code "nl_int_to_string") (or (str_contains right_code "nl_float_to_string") (str_contains right_code "nl_bool_to_string"))))
+                    /* Also check if either identifier operand has string type in GenEnv */
+                    let mut left_is_str_var: bool = false
+                    let mut right_is_str_var: bool = false
+                    if (== binop.left_type ParseNodeType.PNODE_IDENTIFIER) {
+                        let lid: ASTIdentifier = (parser_get_identifier parser binop.left)
+                        let lt: string = (genenv_get env lid.name)
+                        if (== lt "string") { set left_is_str_var true } else { (print "") }
+                    } else { (print "") }
+                    if (== binop.right_type ParseNodeType.PNODE_IDENTIFIER) {
+                        let rid: ASTIdentifier = (parser_get_identifier parser binop.right)
+                        let rt: string = (genenv_get env rid.name)
+                        if (== rt "string") { set right_is_str_var true } else { (print "") }
+                    } else { (print "") }
 
-                    /* Only emit nl_str_concat when string context is expected. */
-                    if (or (== expected_type "string") (or left_is_str right_is_str)) {
+                    let either_is_str: bool = (or (or left_is_str right_is_str) (or (or left_is_str_fn right_is_str_fn) (or left_is_str_var right_is_str_var)))
+                    if either_is_str {
                         let mut parts: array<string> = []
                         set parts (sb_append parts "nl_str_concat(")
                         set parts (sb_append parts left_code)
@@ -3202,7 +3631,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             if (is_array_type expected_type) {
                                 set arr_t expected_type
                             } else {
-                                if (== a0.node_type 1) {
+                                if (== a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
                                     let id0: ASTIdentifier = (parser_get_identifier parser a0.node_id)
                                     set arr_t (genenv_get env id0.name)
                                 } else { (print "") }
@@ -3260,7 +3689,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             let val_code: string = (generate_expression parser a2.node_id a2.node_type env "")
 
                             let mut elem_t: string = "int"
-                            if (== a0.node_type 1) {
+                            if (== a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
                                 let id0: ASTIdentifier = (parser_get_identifier parser a0.node_id)
                                 let arr_t: string = (genenv_get env id0.name)
                                 let inferred: string = (array_elem_type_from_array_type arr_t)
@@ -3327,7 +3756,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
 
                             if (== elem_t "") {
-                                if (== a0.node_type 1) {
+                                if (== a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
                                     let id0: ASTIdentifier = (parser_get_identifier parser a0.node_id)
                                     let arr_t: string = (genenv_get env id0.name)
                                     let inferred: string = (array_elem_type_from_array_type arr_t)
@@ -3418,7 +3847,40 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                         } else {
                                             if (== call_ret_t "bool") {
                                                 set arg_code (+ "nl_bool_to_string(" (+ arg_code ")"))
-                                            } else { (print "") }
+                                            } else {
+                                                /* Polymorphic builtins (abs, min, max): check first arg type */
+                                                if (or (== arg_call_id.name "abs") (or (== arg_call_id.name "min") (== arg_call_id.name "max"))) {
+                                                    let mut is_float_call: bool = false
+                                                    if (> arg_call.arg_count 0) {
+                                                        let first_arg: ASTStmtRef = (parser_get_call_arg parser arg_call.arg_start)
+                                                        if (== first_arg.node_type ParseNodeType.PNODE_FLOAT) {
+                                                            set is_float_call true
+                                                        } else { (print "") }
+                                                    } else { (print "") }
+                                                    if is_float_call {
+                                                        set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                                    } else {
+                                                        set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                                    }
+                                                } else {
+                                                    /* Known int-returning builtins (including list_*_length) */
+                                                    let is_known_int_fn: bool = (or (== arg_call_id.name "array_length") (or (== arg_call_id.name "str_length") (or (== arg_call_id.name "char_at") (or (== arg_call_id.name "string_to_int") (or (== arg_call_id.name "digit_value") (== arg_call_id.name "cast_int"))))))
+                                                    let is_list_length: bool = (and (transp_str_starts_with arg_call_id.name "list_") (str_contains arg_call_id.name "_length"))
+                                                    if (or is_known_int_fn is_list_length) {
+                                                        set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                                    } else {
+                                                        /* Known string-returning builtins */
+                                                        if (or (== arg_call_id.name "int_to_string") (or (== arg_call_id.name "float_to_string") (or (== arg_call_id.name "bool_to_string") (or (== arg_call_id.name "str_substring") (== arg_call_id.name "string_from_char"))))) {
+                                                            (print "")
+                                                        } else {
+                                                            /* Known bool-returning builtins */
+                                                            if (or (== arg_call_id.name "str_contains") (or (== arg_call_id.name "str_equals") (or (== arg_call_id.name "is_digit") (or (== arg_call_id.name "is_alpha") (== arg_call_id.name "is_whitespace"))))) {
+                                                                set arg_code (+ "nl_bool_to_string(" (+ arg_code ")"))
+                                                            } else { (print "") }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 } else {
@@ -3431,11 +3893,47 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             if (== aref.node_type ParseNodeType.PNODE_BINARY_OP) {
                                                 let binop: ASTBinaryOp = (parser_get_binary_op parser aref.node_id)
                                                 let op: int = binop.op
-                                                /* Don't wrap + since it may be string concat (already handled) */
-                                                if (or (== op LexerTokenType.TOKEN_MINUS) (or (== op LexerTokenType.TOKEN_STAR) (or (== op LexerTokenType.TOKEN_SLASH) (== op LexerTokenType.TOKEN_PERCENT)))) {
+                                                /* Wrap arithmetic ops with int_to_string (including + when it's not string concat) */
+                                                let is_arith_op: bool = (or (== op LexerTokenType.TOKEN_MINUS) (or (== op LexerTokenType.TOKEN_STAR) (or (== op LexerTokenType.TOKEN_SLASH) (== op LexerTokenType.TOKEN_PERCENT))))
+                                                /* + is int arithmetic if result doesn't look like str_concat */
+                                                let is_plus_int: bool = (and (== op LexerTokenType.TOKEN_PLUS) (not (str_contains arg_code "nl_str_concat")))
+                                                if (or is_arith_op is_plus_int) {
                                                     set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
                                                 } else { (print "") }
+                                            } else {
+                                            if (== aref.node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                                                /* Struct field access in print - look up actual field type */
+                                                let fa_arg: ASTFieldAccess = (parser_get_field_access parser aref.node_id)
+                                                let mut fa_owner_type: string = ""
+                                                if (== fa_arg.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                                                    let fa_owner_id: ASTIdentifier = (parser_get_identifier parser fa_arg.object)
+                                                    set fa_owner_type (genenv_get env fa_owner_id.name)
+                                                } else {
+                                                    /* Handle nested field access: obj.inner.field */
+                                                    if (== fa_arg.object_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                                                        let inner_fa: ASTFieldAccess = (parser_get_field_access parser fa_arg.object)
+                                                        if (== inner_fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                                                            let inner_id: ASTIdentifier = (parser_get_identifier parser inner_fa.object)
+                                                            let inner_owner: string = (genenv_get env inner_id.name)
+                                                            set fa_owner_type (lookup_struct_field_type parser inner_owner inner_fa.field_name)
+                                                        } else { (print "") }
+                                                    } else { (print "") }
+                                                }
+                                                let fa_field_type: string = (lookup_struct_field_type parser fa_owner_type fa_arg.field_name)
+                                                if (== fa_field_type "int") {
+                                                    set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                                } else {
+                                                if (== fa_field_type "float") {
+                                                    set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                                } else {
+                                                if (== fa_field_type "bool") {
+                                                    set arg_code (+ "nl_bool_to_string(" (+ arg_code ")"))
+                                                } else {
+                                                    /* string or unknown - no wrapping needed */
+                                                    (print "")
+                                                } } }
                                             } else { (print "") }
+                                            }
                                         }
                                     }
                                 }
@@ -3493,9 +3991,29 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 set parts (sb_append parts (mangle_name fa.field_name))
                                 return (sb_build parts)
                             } else {
-                                if (or (== ident.name "TokenType") (or (== ident.name "ParseNodeType") (== ident.name "LexerTokenType"))) {
+                                if (or (== ident.name "TokenType") (or (== ident.name "ParseNodeType") (or (== ident.name "LexerTokenType") (== ident.name "TypeKind")))) {
                                     return (mangle_name fa.field_name)
-                                } else { (print "") }
+                                } else {
+                                    /* Check if this is a user-defined enum */
+                                    let mut ei: int = 0
+                                    let enum_count: int = (parser_get_enum_count parser)
+                                    let mut found_enum: bool = false
+                                    while (< ei enum_count) {
+                                        let e: ASTEnum = (parser_get_enum parser ei)
+                                        if (== e.name ident.name) {
+                                            set found_enum true
+                                        } else { (print "") }
+                                        set ei (+ ei 1)
+                                    }
+                                    if found_enum {
+                                        let mut eparts: array<string> = []
+                                        set eparts (sb_append eparts "nl_")
+                                        set eparts (sb_append eparts ident.name)
+                                        set eparts (sb_append eparts "_")
+                                        set eparts (sb_append eparts fa.field_name)
+                                        return (sb_build eparts)
+                                    } else { (print "") }
+                                }
                             }
                         } else { (print "") }
 
@@ -3537,22 +4055,22 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     set elem_type first.node_type
                                 } else { (print "") }
 
-                                if (== elem_type 6) {
+                                if (== elem_type ParseNodeType.PNODE_FLOAT) {
                                     set elem_enum "ELEM_FLOAT"
                                     set push_fn "dyn_array_push_float"
                                     set elem_t "float"
                                 } else {
-                                    if (== elem_type 4) {
+                                    if (== elem_type ParseNodeType.PNODE_STRING) {
                                         set elem_enum "ELEM_STRING"
                                         set push_fn "dyn_array_push_string"
                                         set elem_t "string"
                                     } else {
-                                        if (== elem_type 5) {
+                                        if (== elem_type ParseNodeType.PNODE_BOOL) {
                                             set elem_enum "ELEM_BOOL"
                                             set push_fn "dyn_array_push_bool"
                                             set elem_t "bool"
                                         } else {
-                                            if (== elem_type 8) {
+                                            if (== elem_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                                                 set elem_enum "ELEM_ARRAY"
                                                 set push_fn "dyn_array_push_array"
                                                 set elem_t "array"
@@ -4422,6 +4940,28 @@ fn is_let_in_block(parser: Parser, block_id: int, let_idx: int) -> bool {
                     return true
                 } else { (print "") }
             } else { (print "") }
+            if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+                let for_stmt: ASTFor = (parser_get_for parser stmt.node_id)
+                if (is_let_in_block parser for_stmt.body let_idx) {
+                    return true
+                } else { (print "") }
+            } else { (print "") }
+            if (== stmt.node_type ParseNodeType.PNODE_MATCH) {
+                let match_stmt: ASTMatch = (parser_get_match parser stmt.node_id)
+                let mut ai: int = 0
+                while (< ai match_stmt.arm_count) {
+                    let arm_body_id: int = (at match_stmt.arm_body_ids ai)
+                    if (is_let_in_block parser arm_body_id let_idx) {
+                        return true
+                    } else { (print "") }
+                    set ai (+ ai 1)
+                }
+            } else { (print "") }
+            if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
+                if (is_let_in_block parser stmt.node_id let_idx) {
+                    return true
+                } else { (print "") }
+            } else { (print "") }
             set i (+ i 1)
         }
         return false
@@ -4531,6 +5071,7 @@ fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
 pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
     (build_module_alias_map parser)
+    (reset_fn_types)
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
@@ -4539,7 +5080,7 @@ pub fn transpile_parser(parser: Parser) -> string {
     (println " functions")
     
     /* Generate all functions */
-    let mut all_functions: string = (gen_tuple_typedefs parser)
+    let mut all_functions: string = ""
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
@@ -4562,8 +5103,8 @@ pub fn transpile_parser(parser: Parser) -> string {
 
         let mut func_code: string = ""
         if (< func.body 0) {
-            let sig: string = (gen_function_signature func.name params types func.return_type)
-            set func_code (+ sig ";\n\n")
+            /* Extern function - skip, already declared in runtime */
+            (print "")
         } else {
             let mut env0: GenEnv = (genenv_new)
             /* Seed env with top-level constants */
