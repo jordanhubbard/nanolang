@@ -432,3 +432,47 @@ shadow process_imports_recursive {
     let symbols: array<Symbol> = (process_imports_recursive empty_parser [] cache "test.nano" diags)
     assert (== (array_length symbols) 0)
 }
+
+/* Merge union definitions from imported modules into the main parser.
+ * This pushes module union ASTUnion entries directly into main_parser.unions
+ * (List is mutable) so the transpiler can find and emit them.
+ * Returns the number of unions merged. */
+pub fn merge_module_unions(main_parser: Parser, current_file: string, diags: List<CompilerDiagnostic>) -> int {
+    let import_count: int = (parser_get_import_count main_parser)
+    let mut merged: int = 0
+    let mut i: int = 0
+
+    while (< i import_count) {
+        let import_node: ASTImport = (parser_get_import main_parser i)
+        let module_path: string = (resolve_module_path import_node.module_path current_file)
+
+        if (!= module_path "") {
+            let module_source: string = (read module_path)
+            let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+            let token_count: int = (list_LexerToken_length module_tokens)
+
+            if (> token_count 0) {
+                let module_parser: Parser = (parse_program module_tokens token_count module_source)
+                let union_count: int = (parser_get_union_count module_parser)
+                let mut ui: int = 0
+                while (< ui union_count) {
+                    let u: ASTUnion = (parser_get_union module_parser ui)
+                    (list_ASTUnion_push main_parser.unions u)
+                    set merged (+ merged 1)
+                    set ui (+ ui 1)
+                }
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    return merged
+}
+
+shadow merge_module_unions {
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let empty_parser: Parser = (parser_new empty_tokens 0 "")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let merged: int = (merge_module_unions empty_parser "" diags)
+    assert (== merged 0)
+}

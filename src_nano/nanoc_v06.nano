@@ -20,7 +20,7 @@ import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
-from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new
+from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -475,11 +475,13 @@ shadow split_lines {
 }
 
 fn parse_import_path_from_line(line: string) -> string {
-    /* Handle both: import "path" and from "path" import ... */
+    /* Handle: import "path", from "path" import ..., module "path" */
     let has_import: bool = (nlc_str_starts_with line "import \"")
     let has_from: bool = (nlc_str_starts_with line "from \"")
-    
-    if (or has_import has_from) {
+    let has_module: bool = (nlc_str_starts_with line "module \"")
+    let has_unsafe_module: bool = (nlc_str_starts_with line "unsafe module \"")
+
+    if (or (or has_import has_from) (or has_module has_unsafe_module)) {
         let first_q: int = (nlc_str_index_of line "\"")
         let last_q: int = (nlc_str_last_index_of line "\"")
         if (and (>= first_q 0) (> last_q first_q)) {
@@ -1059,13 +1061,23 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
+            /* Step 3.5: Merge module union definitions into main parser */
+            if (> import_count 0) {
+                let unions_merged: int = (merge_module_unions parser source_to_compile diags)
+                if (and verbose (> unions_merged 0)) {
+                    (print "  ✓ Merged ")
+                    (print (int_to_string unions_merged))
+                    (println " union definitions from modules")
+                } else { (print "") }
+            } else { (print "") }
+
             /* Step 4: Transpiler - Generate C code */
             if verbose {
                 (println "[4/5] Generating C code...")
             } else {
                 (print "")
             }
-            
+
             let c_code: string = (transpile_parser parser)
             
             if verbose {

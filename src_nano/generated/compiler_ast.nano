@@ -245,7 +245,13 @@ extern struct ASTUnion {
     line: int,
     column: int,
     name: string,
-    variant_count: int
+    variant_count: int,
+    variant_names: array<string>,
+    variant_field_counts: array<int>,
+    variant_field_names: array<string>,
+    variant_field_types: array<string>,
+    generic_params: array<string>,
+    generic_param_count: int
 }
 
 extern struct ASTUnionConstruct {

@@ -1458,12 +1458,12 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
     if (== fn_name "tan") { return (type_float) } else { (print "") }
     if (== fn_name "atan2") { return (type_float) } else { (print "") }
 
-    /* Checked arithmetic module helpers */
-    if (== fn_name "checked_add") { return (type_from_string "Result<int,string>") } else { (print "") }
-    if (== fn_name "checked_sub") { return (type_from_string "Result<int,string>") } else { (print "") }
-    if (== fn_name "checked_mul") { return (type_from_string "Result<int,string>") } else { (print "") }
-    if (== fn_name "checked_div") { return (type_from_string "Result<int,string>") } else { (print "") }
-    if (== fn_name "checked_mod") { return (type_from_string "Result<int,string>") } else { (print "") }
+    /* Checked arithmetic module helpers - return union type, not struct */
+    if (== fn_name "checked_add") { return (type_union "Result") } else { (print "") }
+    if (== fn_name "checked_sub") { return (type_union "Result") } else { (print "") }
+    if (== fn_name "checked_mul") { return (type_union "Result") } else { (print "") }
+    if (== fn_name "checked_div") { return (type_union "Result") } else { (print "") }
+    if (== fn_name "checked_mod") { return (type_union "Result") } else { (print "") }
     
     /* Additional type casts */
     if (== fn_name "cast_bstring") { return (type_string) } else { (print "") }

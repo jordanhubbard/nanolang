@@ -315,6 +315,123 @@ shadow transp_extract_list_element_type {
     assert (== (transp_extract_list_element_type "invalid") "")
 }
 
+/* Check if a type string is a generic type (contains '<') */
+fn is_generic_type(type_str: string) -> bool {
+    return (str_contains type_str "<")
+}
+
+shadow is_generic_type {
+    assert (is_generic_type "Result<int,string>")
+    assert (not (is_generic_type "int"))
+    assert (is_generic_type "List<Point>")
+}
+
+/* Extract base type name from a generic type string */
+fn extract_base_type_name(type_str: string) -> string {
+    let idx: int = (transp_str_index_of type_str "<")
+    if (< idx 0) {
+        return type_str
+    } else {
+        return (str_substring type_str 0 idx)
+    }
+}
+
+shadow extract_base_type_name {
+    assert (== (extract_base_type_name "Result<int,string>") "Result")
+    assert (== (extract_base_type_name "List<Point>") "List")
+    assert (== (extract_base_type_name "int") "int")
+}
+
+/* Extract type arguments from a generic type string */
+fn extract_type_args(type_str: string) -> array<string> {
+    let lt: int = (transp_str_index_of type_str "<")
+    if (< lt 0) {
+        return []
+    } else {
+        let len: int = (str_length type_str)
+        /* inner = everything between < and > */
+        let inner: string = (str_substring type_str (+ lt 1) (- (- len lt) 2))
+        let inner_len: int = (str_length inner)
+        let mut args: array<string> = []
+        let mut cur: string = ""
+        let mut i: int = 0
+        let mut depth: int = 0
+        while (< i inner_len) {
+            let ch: string = (str_substring inner i 1)
+            if (== ch "<") {
+                set depth (+ depth 1)
+                set cur (+ cur ch)
+            } else {
+                if (== ch ">") {
+                    set depth (- depth 1)
+                    set cur (+ cur ch)
+                } else {
+                    if (and (== ch ",") (== depth 0)) {
+                        /* Trim leading spaces from cur */
+                        let mut trimmed: string = cur
+                        while (and (> (str_length trimmed) 0) (== (str_substring trimmed 0 1) " ")) {
+                            set trimmed (str_substring trimmed 1 (- (str_length trimmed) 1))
+                        }
+                        set args (array_push args trimmed)
+                        set cur ""
+                    } else {
+                        set cur (+ cur ch)
+                    }
+                }
+            }
+            set i (+ i 1)
+        }
+        /* Push last arg */
+        let mut trimmed_last: string = cur
+        while (and (> (str_length trimmed_last) 0) (== (str_substring trimmed_last 0 1) " ")) {
+            set trimmed_last (str_substring trimmed_last 1 (- (str_length trimmed_last) 1))
+        }
+        if (> (str_length trimmed_last) 0) {
+            set args (array_push args trimmed_last)
+        } else { (print "") }
+        return args
+    }
+}
+
+shadow extract_type_args {
+    let args1: array<string> = (extract_type_args "Result<int,string>")
+    assert (== (array_length args1) 2)
+    assert (== (at args1 0) "int")
+    assert (== (at args1 1) "string")
+    let args2: array<string> = (extract_type_args "List<Point>")
+    assert (== (array_length args2) 1)
+    assert (== (at args2 0) "Point")
+}
+
+/* Convert a generic type string to a monomorphized name.
+ * "Result<int,string>" -> "Result_int_string"
+ */
+fn monomorphize_type_name(type_str: string) -> string {
+    let base: string = (extract_base_type_name type_str)
+    let args: array<string> = (extract_type_args type_str)
+    let mut result: string = base
+    let mut i: int = 0
+    let n: int = (array_length args)
+    while (< i n) {
+        set result (+ result "_")
+        let arg: string = (at args i)
+        /* Recursively monomorphize nested generic args */
+        if (str_contains arg "<") {
+            set result (+ result (monomorphize_type_name arg))
+        } else {
+            set result (+ result arg)
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow monomorphize_type_name {
+    assert (== (monomorphize_type_name "Result<int,string>") "Result_int_string")
+    assert (== (monomorphize_type_name "List<Point>") "List_Point")
+    assert (== (monomorphize_type_name "Option<int>") "Option_int")
+}
+
 fn hashset_new_string() -> HashMap<string, int> {
     let s: HashMap<string, int> = (map_new)
     return s
@@ -1372,7 +1489,11 @@ fn type_to_c(nano_type: string) -> string {
                             if (is_tuple_type nano_type) {
                                 return (tuple_typedef_name nano_type)
                             } else {
-                                return (+ "nl_" (mangle_name nano_type))
+                                if (is_generic_type nano_type) {
+                                    return (+ "nl_" (monomorphize_type_name nano_type))
+                                } else {
+                                    return (+ "nl_" (mangle_name nano_type))
+                                }
                             }
                         }
                         }
@@ -1387,6 +1508,7 @@ shadow type_to_c {
     assert (== (type_to_c "int") "int64_t")
     assert (== (type_to_c "bool") "int")
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
+    assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
 }
 
 fn tuple_split_types(tuple_type: string) -> array<string> {
@@ -2475,23 +2597,197 @@ shadow generate_list_for_type {
  * UNION TYPE DEFINITIONS
  * ============================================================================= */
 
-/* Generate union definitions from AST
- * Note: For self-hosted MVP, union definitions are handled by the C compiler.
- * This is a placeholder to allow the transpiler pipeline to compile.
- * Full union codegen will be added in a future iteration.
- */
+/* Substitute a union field type: if the field type matches a generic param,
+ * replace with the concrete type's C representation */
+fn substitute_union_field_type(field_type: string, generic_params: array<string>, type_args: array<string>) -> string {
+    let mut i: int = 0
+    let n: int = (array_length generic_params)
+    while (< i n) {
+        if (== field_type (at generic_params i)) {
+            return (type_to_c (at type_args i))
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return (type_to_c field_type)
+}
+
+shadow substitute_union_field_type {
+    let params: array<string> = (array_push (array_push [] "T") "E")
+    let args: array<string> = (array_push (array_push [] "int") "string")
+    assert (== (substitute_union_field_type "T" params args) "int64_t")
+    assert (== (substitute_union_field_type "E" params args) "char*")
+    assert (== (substitute_union_field_type "bool" params args) "int")
+}
+
+/* Find all unique instantiations of a generic union in the codebase */
+fn find_union_instantiations(parser: Parser, base_name: string) -> array<string> {
+    let mut seen: HashMap<string, int> = (map_new)
+    let mut results: array<string> = []
+    let search: string = (+ base_name "<")
+
+    /* Scan let statements */
+    let let_count: int = (parser_get_let_count parser)
+    let mut i: int = 0
+    while (< i let_count) {
+        let l: ASTLet = (parser_get_let parser i)
+        if (str_contains l.var_type search) {
+            if (not (map_has seen l.var_type)) {
+                (map_put seen l.var_type 1)
+                set results (array_push results l.var_type)
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    /* Scan function return types */
+    let func_count: int = (parser_get_function_count parser)
+    set i 0
+    while (< i func_count) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (str_contains f.return_type search) {
+            if (not (map_has seen f.return_type)) {
+                (map_put seen f.return_type 1)
+                set results (array_push results f.return_type)
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    return results
+}
+
+shadow find_union_instantiations {
+    let parser: Parser = (parser_init_ast_lists)
+    let results: array<string> = (find_union_instantiations parser "Result")
+    assert (== (array_length results) 0)
+}
+
+/* Emit C typedefs for one union instantiation (or non-generic union) */
+fn emit_union_typedefs(u: ASTUnion, mono_name: string, generic_params: array<string>, type_args: array<string>) -> string {
+    let mut sb: array<string> = []
+    let c_prefix: string = (+ "nl_" mono_name)
+
+    /* Emit variant structs */
+    let mut vi: int = 0
+    let mut field_offset: int = 0
+    while (< vi u.variant_count) {
+        let vname: string = (at u.variant_names vi)
+        let fcount: int = (at u.variant_field_counts vi)
+
+        set sb (sb_append sb "typedef struct { ")
+        if (== fcount 0) {
+            set sb (sb_append sb "int _placeholder; ")
+        } else {
+            let mut fi: int = 0
+            while (< fi fcount) {
+                let fname: string = (at u.variant_field_names (+ field_offset fi))
+                let ftype: string = (at u.variant_field_types (+ field_offset fi))
+                let c_ftype: string = (substitute_union_field_type ftype generic_params type_args)
+                set sb (sb_append sb c_ftype)
+                set sb (sb_append sb " ")
+                set sb (sb_append sb (mangle_name fname))
+                set sb (sb_append sb "; ")
+                set fi (+ fi 1)
+            }
+        }
+        set sb (sb_append sb "} ")
+        set sb (sb_append sb c_prefix)
+        set sb (sb_append sb "_")
+        set sb (sb_append sb vname)
+        set sb (sb_append sb ";\n")
+
+        set field_offset (+ field_offset fcount)
+        set vi (+ vi 1)
+    }
+
+    /* Emit tag enum */
+    set sb (sb_append sb "typedef enum { ")
+    set vi 0
+    while (< vi u.variant_count) {
+        if (> vi 0) {
+            set sb (sb_append sb ", ")
+        } else { (print "") }
+        let vname2: string = (at u.variant_names vi)
+        set sb (sb_append sb c_prefix)
+        set sb (sb_append sb "_TAG_")
+        set sb (sb_append sb vname2)
+        set sb (sb_append sb " = ")
+        set sb (sb_append sb (int_to_string vi))
+        set vi (+ vi 1)
+    }
+    set sb (sb_append sb " } ")
+    set sb (sb_append sb c_prefix)
+    set sb (sb_append sb "_Tag;\n")
+
+    /* Emit main union struct */
+    set sb (sb_append sb "typedef struct ")
+    set sb (sb_append sb c_prefix)
+    set sb (sb_append sb " { ")
+    set sb (sb_append sb c_prefix)
+    set sb (sb_append sb "_Tag tag; union { ")
+    set vi 0
+    while (< vi u.variant_count) {
+        let vname3: string = (at u.variant_names vi)
+        set sb (sb_append sb c_prefix)
+        set sb (sb_append sb "_")
+        set sb (sb_append sb vname3)
+        set sb (sb_append sb " ")
+        set sb (sb_append sb vname3)
+        set sb (sb_append sb "; ")
+        set vi (+ vi 1)
+    }
+    set sb (sb_append sb "} data; } ")
+    set sb (sb_append sb c_prefix)
+    set sb (sb_append sb ";\n")
+
+    return (sb_build sb)
+}
+
+shadow emit_union_typedefs {
+    assert (== 1 1)
+}
+
+/* Generate union definitions from AST */
 fn generate_union_definitions(parser: Parser) -> string {
-    /* Suppress unused parameter warning */
-    let _p: int = (parser_get_function_count parser)
-    
-    /* Union definitions generated by C reference compiler */
-    return "/* Union definitions: generated by C compiler */\n\n"
+    let union_count: int = (parser_get_union_count parser)
+    if (== union_count 0) {
+        return ""
+    } else { (print "") }
+
+    let mut sb: array<string> = []
+    set sb (sb_append sb "/* Union definitions */\n")
+
+    let mut ui: int = 0
+    while (< ui union_count) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        if (== u.generic_param_count 0) {
+            /* Non-generic union: emit directly */
+            let code: string = (emit_union_typedefs u u.name u.generic_params [])
+            set sb (sb_append sb code)
+        } else {
+            /* Generic union: find and emit all instantiations */
+            let instantiations: array<string> = (find_union_instantiations parser u.name)
+            let mut ii: int = 0
+            while (< ii (array_length instantiations)) {
+                let inst_type: string = (at instantiations ii)
+                let mono_name: string = (monomorphize_type_name inst_type)
+                let inst_args: array<string> = (extract_type_args inst_type)
+                let code: string = (emit_union_typedefs u mono_name u.generic_params inst_args)
+                set sb (sb_append sb code)
+                set ii (+ ii 1)
+            }
+        }
+        set ui (+ ui 1)
+    }
+
+    set sb (sb_append sb "\n")
+    return (sb_build sb)
 }
 
 shadow generate_union_definitions {
     let parser: Parser = (parser_init_ast_lists)
     let code: string = (generate_union_definitions parser)
-    assert (== code "/* Union definitions: generated by C compiler */\n\n")
+    assert (== code "")
 }
 
 /* Module System Integration
@@ -3333,15 +3629,21 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                     /* Union construction -> compound literal */
                                     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-                                    
+
+                                    /* Derive monomorphized union name from expected_type for generics */
+                                    let mut actual_union_name: string = uc.union_name
+                                    if (and (!= expected_type "") (is_generic_type expected_type)) {
+                                        set actual_union_name (monomorphize_type_name expected_type)
+                                    } else { (print "") }
+
                                     let mut union_parts: array<string> = []
                                     set union_parts (sb_append union_parts "nl_")
-                                    set union_parts (sb_append union_parts (mangle_name uc.union_name))
+                                    set union_parts (sb_append union_parts (mangle_name actual_union_name))
                                     let union_c: string = (sb_build union_parts)
-                                    
+
                                     let mut tag_parts: array<string> = []
                                     set tag_parts (sb_append tag_parts "nl_")
-                                    set tag_parts (sb_append tag_parts (mangle_name uc.union_name))
+                                    set tag_parts (sb_append tag_parts (mangle_name actual_union_name))
                                     set tag_parts (sb_append tag_parts "_TAG_")
                                     set tag_parts (sb_append tag_parts uc.variant_name)
                                     let tag_name: string = (sb_build tag_parts)
@@ -3577,11 +3879,11 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
     /* Infer union name from scrutinee identifier type in env (common case). */
     let mut union_name: string = ""
-    if (== m.scrutinee_type 1) {
+    if (== m.scrutinee_type ParseNodeType.PNODE_IDENTIFIER) {
         let sid: ASTIdentifier = (parser_get_identifier parser m.scrutinee)
         set union_name (genenv_get env sid.name)
     } else {
-        if (== m.scrutinee_type 24) {
+        if (== m.scrutinee_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
             let uc: ASTUnionConstruct = (parser_get_union_construct parser m.scrutinee)
             set union_name uc.union_name
         } else {
@@ -3593,9 +3895,14 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set union_name "UNKNOWN"
     } else { (print "") }
 
+    /* Monomorphize generic union names */
+    if (is_generic_type union_name) {
+        set union_name (monomorphize_type_name union_name)
+    } else { (print "") }
+
     let mut union_parts: array<string> = []
     set union_parts (sb_append union_parts "nl_")
-    set union_parts (sb_append union_parts (mangle_name union_name))
+    set union_parts (sb_append union_parts union_name)
     let union_c: string = (sb_build union_parts)
     let mut out_c: string = "int64_t"
     if (!= expected_type "") {
@@ -3620,14 +3927,14 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
         let mut tag_parts: array<string> = []
         set tag_parts (sb_append tag_parts "nl_")
-        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts union_name)
         set tag_parts (sb_append tag_parts "_TAG_")
         set tag_parts (sb_append tag_parts variant)
         let tag_name: string = (sb_build tag_parts)
-        
+
         let mut var_type_parts: array<string> = []
         set var_type_parts (sb_append var_type_parts "nl_")
-        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts union_name)
         set var_type_parts (sb_append var_type_parts "_")
         set var_type_parts (sb_append var_type_parts variant)
         let variant_type: string = (sb_build var_type_parts)
@@ -3682,11 +3989,11 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
 
     /* Infer union name from scrutinee identifier type in env (common case). */
     let mut union_name: string = ""
-    if (== m.scrutinee_type 1) {
+    if (== m.scrutinee_type ParseNodeType.PNODE_IDENTIFIER) {
         let sid: ASTIdentifier = (parser_get_identifier parser m.scrutinee)
         set union_name (genenv_get env sid.name)
     } else {
-        if (== m.scrutinee_type 24) {
+        if (== m.scrutinee_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
             let uc: ASTUnionConstruct = (parser_get_union_construct parser m.scrutinee)
             set union_name uc.union_name
         } else {
@@ -3698,9 +4005,14 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         set union_name "UNKNOWN"
     } else { (print "") }
 
+    /* Monomorphize generic union names */
+    if (is_generic_type union_name) {
+        set union_name (monomorphize_type_name union_name)
+    } else { (print "") }
+
     let mut union_parts: array<string> = []
     set union_parts (sb_append union_parts "nl_")
-    set union_parts (sb_append union_parts (mangle_name union_name))
+    set union_parts (sb_append union_parts union_name)
     let union_c: string = (sb_build union_parts)
 
     let mut parts: array<string> = []
@@ -3724,14 +4036,14 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
 
         let mut tag_parts: array<string> = []
         set tag_parts (sb_append tag_parts "nl_")
-        set tag_parts (sb_append tag_parts (mangle_name union_name))
+        set tag_parts (sb_append tag_parts union_name)
         set tag_parts (sb_append tag_parts "_TAG_")
         set tag_parts (sb_append tag_parts variant)
         let tag_name: string = (sb_build tag_parts)
-        
+
         let mut var_type_parts: array<string> = []
         set var_type_parts (sb_append var_type_parts "nl_")
-        set var_type_parts (sb_append var_type_parts (mangle_name union_name))
+        set var_type_parts (sb_append var_type_parts union_name)
         set var_type_parts (sb_append var_type_parts "_")
         set var_type_parts (sb_append var_type_parts variant)
         let variant_type: string = (sb_build var_type_parts)

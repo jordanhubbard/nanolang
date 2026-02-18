@@ -5076,13 +5076,19 @@ shadow parser_store_enum {
 /* Helper: Store union definition node */
 
 /* Helper: Store union node */
-fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
+fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int, variant_names: array<string>, variant_field_counts: array<int>, variant_field_names: array<string>, variant_field_types: array<string>, generic_params: array<string>, generic_param_count: int) -> Parser {
     let node: ASTUnion = ASTUnion {
         node_type: ParseNodeType.PNODE_UNION_DEF,
         line: line,
         column: column,
         name: name,
-        variant_count: variant_count
+        variant_count: variant_count,
+        variant_names: variant_names,
+        variant_field_counts: variant_field_counts,
+        variant_field_names: variant_field_names,
+        variant_field_types: variant_field_types,
+        generic_params: generic_params,
+        generic_param_count: generic_param_count
     }
     let node_id: int = p.unions_count
     (list_ASTUnion_push p.unions node)
@@ -6183,7 +6189,7 @@ shadow parse_enum_definition {
 }
 
 /* Helper: Parse union variants recursively */
-fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int) -> Parser {
+fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int, variant_names: array<string>, variant_field_counts: array<int>, variant_field_names: array<string>, variant_field_types: array<string>, generic_params: array<string>, generic_param_count: int) -> Parser {
     if (parser_has_error p) {
         return p
     } else {
@@ -6191,30 +6197,35 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
             return (parser_with_error p true)
         } else {
             let tok: LexerToken = (parser_current p)
-            
+
             if (== tok.token_type (token_rbrace)) {
                 /* End of union */
                 let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_union p1 name variant_count start_line start_column)
+                return (parser_store_union p1 name variant_count start_line start_column variant_names variant_field_counts variant_field_names variant_field_types generic_params generic_param_count)
             } else {
                 if (== tok.token_type (token_identifier)) {
                     /* Variant name */
+                    let vname: string = tok.value
                     let p2: Parser = (parser_advance p)  /* consume variant */
-                    
-                    /* Check for '(' type ')' */
+                    let new_variant_names: array<string> = (array_push variant_names vname)
+
+                    /* Check for '(' type ')' or '{ field: type }' */
                     if (parser_is_at_end p2) {
                         return (parser_with_error p2 true)
                     } else {
                         let tok2: LexerToken = (parser_current p2)
                         if (== tok2.token_type (token_lparen)) {
                             let p3: Parser = (parser_advance p2)  /* consume '(' */
-                            
+
                             /* Parse type */
                             let t: TypeParseResult = (parse_type_string p3)
                             if (not t.ok) {
                                 return (parser_with_error t.p true)
                             } else {
                                 let p4: Parser = t.p
+                                let new_field_counts: array<int> = (array_push variant_field_counts 1)
+                                let new_field_names: array<string> = (array_push variant_field_names "_0")
+                                let new_field_types: array<string> = (array_push variant_field_types t.type_name)
 
                                 /* Expect ')' */
                                 let p5: Parser = (parser_expect p4 (token_rparen))
@@ -6228,11 +6239,9 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                                             let tok4: LexerToken = (parser_current p5)
                                             if (== tok4.token_type (token_comma)) {
                                                 let p6: Parser = (parser_advance p5)  /* consume ',' */
-                                                /* Continue parsing more variants */
-                                                return (parse_union_variants p6 (+ variant_count 1) name start_line start_column)
+                                                return (parse_union_variants p6 (+ variant_count 1) name start_line start_column new_variant_names new_field_counts new_field_names new_field_types generic_params generic_param_count)
                                             } else {
-                                                /* Expect '}' next - continue to parse it */
-                                                return (parse_union_variants p5 (+ variant_count 1) name start_line start_column)
+                                                return (parse_union_variants p5 (+ variant_count 1) name start_line start_column new_variant_names new_field_counts new_field_names new_field_types generic_params generic_param_count)
                                             }
                                         }
                                     }
@@ -6241,16 +6250,48 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                             if (== tok2.token_type (token_lbrace)) {
                                 /* Modern union variant syntax: Variant { field: Type, ... } */
                                 let mut p3: Parser = (parser_advance p2)  /* consume '{' */
+                                let mut field_count: int = 0
+                                let mut fnames: array<string> = variant_field_names
+                                let mut ftypes: array<string> = variant_field_types
 
-                                /* Skip variant field declarations until matching '}' */
+                                /* Parse field declarations: name: Type [, name: Type ...] */
                                 while (and (not (parser_is_at_end p3)) (!= (parser_current p3).token_type (token_rbrace))) {
-                                    set p3 (parser_advance p3)
+                                    /* Expect field name (identifier) */
+                                    let ftok: LexerToken = (parser_current p3)
+                                    if (!= ftok.token_type (token_identifier)) {
+                                        return (parser_with_error p3 true)
+                                    } else { (print "") }
+                                    let fname: string = ftok.value
+                                    set p3 (parser_advance p3)  /* consume field name */
+
+                                    /* Expect ':' */
+                                    set p3 (parser_expect p3 (token_colon))
+                                    if (parser_has_error p3) {
+                                        return p3
+                                    } else { (print "") }
+
+                                    /* Parse field type */
+                                    let ft: TypeParseResult = (parse_type_string p3)
+                                    if (not ft.ok) {
+                                        return (parser_with_error ft.p true)
+                                    } else { (print "") }
+                                    set p3 ft.p
+
+                                    set fnames (array_push fnames fname)
+                                    set ftypes (array_push ftypes ft.type_name)
+                                    set field_count (+ field_count 1)
+
+                                    /* Optional comma between fields */
+                                    if (and (not (parser_is_at_end p3)) (== (parser_current p3).token_type (token_comma))) {
+                                        set p3 (parser_advance p3)
+                                    } else { (print "") }
                                 }
 
                                 if (parser_is_at_end p3) {
                                     return (parser_with_error p3 true)
                                 } else {
                                     let p4: Parser = (parser_advance p3)  /* consume '}' */
+                                    let new_field_counts: array<int> = (array_push variant_field_counts field_count)
 
                                     if (parser_is_at_end p4) {
                                         return (parser_with_error p4 true)
@@ -6258,9 +6299,9 @@ fn parse_union_variants(p: Parser, variant_count: int, name: string, start_line:
                                         let tok4: LexerToken = (parser_current p4)
                                         if (== tok4.token_type (token_comma)) {
                                             let p5: Parser = (parser_advance p4)  /* consume ',' */
-                                            return (parse_union_variants p5 (+ variant_count 1) name start_line start_column)
+                                            return (parse_union_variants p5 (+ variant_count 1) name start_line start_column new_variant_names new_field_counts fnames ftypes generic_params generic_param_count)
                                         } else {
-                                            return (parse_union_variants p4 (+ variant_count 1) name start_line start_column)
+                                            return (parse_union_variants p4 (+ variant_count 1) name start_line start_column new_variant_names new_field_counts fnames ftypes generic_params generic_param_count)
                                         }
                                     }
                                 }
@@ -6281,16 +6322,16 @@ shadow parse_union_variants {
     assert (== 1 1)
 }
 
-/* Parse union definition: union Name { Variant1(type), Variant2(type) } */
+/* Parse union definition: union Name<T, E> { Variant1(type), Variant2 { field: type } } */
 fn parse_union_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
         let tok: LexerToken = (parser_current p)
-        
+
         if (== tok.token_type (token_union)) {
             let p1: Parser = (parser_advance p)  /* consume 'union' */
-            
+
             /* Parse union name */
             if (parser_is_at_end p1) {
                 return (parser_with_error p1 true)
@@ -6298,15 +6339,45 @@ fn parse_union_definition(p: Parser) -> Parser {
                 let tok2: LexerToken = (parser_current p1)
                 if (== tok2.token_type (token_identifier)) {
                     let name: string = tok2.value
-                    let p2: Parser = (parser_advance p1)  /* consume name */
-                    
+                    let mut p2: Parser = (parser_advance p1)  /* consume name */
+
+                    /* Parse optional generic params: <T, E> */
+                    let mut generic_params: array<string> = []
+                    let mut generic_param_count: int = 0
+                    if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_lt))) {
+                        set p2 (parser_advance p2)  /* consume '<' */
+                        while (and (not (parser_is_at_end p2)) (!= (parser_current p2).token_type (token_gt))) {
+                            let ptok: LexerToken = (parser_current p2)
+                            if (== ptok.token_type (token_identifier)) {
+                                set generic_params (array_push generic_params ptok.value)
+                                set generic_param_count (+ generic_param_count 1)
+                                set p2 (parser_advance p2)  /* consume param name */
+                                /* Optional comma */
+                                if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_comma))) {
+                                    set p2 (parser_advance p2)  /* consume ',' */
+                                } else { (print "") }
+                            } else {
+                                return (parser_with_error p2 true)
+                            }
+                        }
+                        if (parser_is_at_end p2) {
+                            return (parser_with_error p2 true)
+                        } else {
+                            set p2 (parser_advance p2)  /* consume '>' */
+                        }
+                    } else { (print "") }
+
                     /* Expect '{' */
                     let p3: Parser = (parser_expect p2 (token_lbrace))
                     if (parser_has_error p3) {
                         return p3
                     } else {
-                        /* Parse variants recursively */
-                        return (parse_union_variants p3 0 name tok.line tok.column)
+                        /* Parse variants recursively - use typed empty arrays */
+                        let init_vnames: array<string> = []
+                        let init_fcounts: array<int> = []
+                        let init_fnames: array<string> = []
+                        let init_ftypes: array<string> = []
+                        return (parse_union_variants p3 0 name tok.line tok.column init_vnames init_fcounts init_fnames init_ftypes generic_params generic_param_count)
                     }
                 } else {
                     return (parser_with_error p1 true)
@@ -7027,6 +7098,16 @@ pub fn parser_get_struct_literal_count(p: Parser) -> int {
 /* Get a struct literal by index */
 pub fn parser_get_struct_literal(p: Parser, idx: int) -> ASTStructLiteral {
     return (list_ASTStructLiteral_get p.struct_literals idx)
+}
+
+/* Get number of union definitions */
+pub fn parser_get_union_count(p: Parser) -> int {
+    return (list_ASTUnion_length p.unions)
+}
+
+/* Get a union definition by index */
+pub fn parser_get_union(p: Parser, idx: int) -> ASTUnion {
+    return (list_ASTUnion_get p.unions idx)
 }
 
 /* Get number of union constructions */

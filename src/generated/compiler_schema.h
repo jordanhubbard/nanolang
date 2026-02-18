@@ -646,6 +646,12 @@ typedef struct nl_ASTUnion {
     int column;
     const char * name;
     int variant_count;
+    DynArray * variant_names;
+    DynArray * variant_field_counts;
+    DynArray * variant_field_names;
+    DynArray * variant_field_types;
+    DynArray * generic_params;
+    int generic_param_count;
 } nl_ASTUnion;
 typedef nl_ASTUnion ASTUnion;
 #endif
