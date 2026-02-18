@@ -3740,8 +3740,39 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 set tuple_index_parts (sb_append tuple_index_parts ")")
                                                 return (sb_build tuple_index_parts)
                                             } else {
+                                            if (== node_type ParseNodeType.PNODE_IF) {
+                                                /* If-expression: generate C ternary (cond ? then : else) */
+                                                let if_expr: ASTIf = (parser_get_if parser node_id)
+                                                let cond_code: string = (generate_expression parser if_expr.condition if_expr.condition_type env "bool")
+                                                /* Extract then value from single-statement then block */
+                                                let then_blk: ASTBlock = (parser_get_block parser if_expr.then_body)
+                                                let then_len: int = (list_ASTStmtRef_length then_blk.statements)
+                                                let mut then_code: string = "0"
+                                                if (> then_len 0) {
+                                                    let then_s: ASTStmtRef = (list_ASTStmtRef_get then_blk.statements (- then_len 1))
+                                                    set then_code (generate_expression parser then_s.node_id then_s.node_type env expected_type)
+                                                } else { (print "") }
+                                                /* Extract else value from single-statement else block */
+                                                let else_blk: ASTBlock = (parser_get_block parser if_expr.else_body)
+                                                let else_len: int = (list_ASTStmtRef_length else_blk.statements)
+                                                let mut else_code: string = "0"
+                                                if (> else_len 0) {
+                                                    let else_s: ASTStmtRef = (list_ASTStmtRef_get else_blk.statements (- else_len 1))
+                                                    set else_code (generate_expression parser else_s.node_id else_s.node_type env expected_type)
+                                                } else { (print "") }
+                                                let mut tern_parts: array<string> = []
+                                                set tern_parts (sb_append tern_parts "(")
+                                                set tern_parts (sb_append tern_parts cond_code)
+                                                set tern_parts (sb_append tern_parts " ? ")
+                                                set tern_parts (sb_append tern_parts then_code)
+                                                set tern_parts (sb_append tern_parts " : ")
+                                                set tern_parts (sb_append tern_parts else_code)
+                                                set tern_parts (sb_append tern_parts ")")
+                                                return (sb_build tern_parts)
+                                            } else {
                                                 /* Unknown type - return 0 */
                                                 return "0"
+                                            }
                                             }
                                         }
                                     }

@@ -2363,14 +2363,26 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             (Diagnostics.diag_list_add diags diag)
         } else { (print "") }
 
-        /* For if-expressions used in return position, assume they return int for now */
-        /* Full implementation would need to infer from block return values */
-        return (type_int)
+        /* Infer type from the then-branch block's last expression */
+        let then_block: ASTBlock = (parser_get_block parser if_node.then_body)
+        let then_stmts_len: int = (list_ASTStmtRef_length then_block.statements)
+        if (> then_stmts_len 0) {
+            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get then_block.statements (- then_stmts_len 1))
+            return (check_expr_node parser last_stmt.node_id last_stmt.node_type symbols diags file_name)
+        } else {
+            return (type_int)
+        }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
-        /* Block expression: for now assume it returns int */
-        /* Full implementation would track the block's return type */
-        return (type_int)
+        /* Block expression: infer type from last statement */
+        let blk: ASTBlock = (parser_get_block parser node_id)
+        let blk_stmts_len: int = (list_ASTStmtRef_length blk.statements)
+        if (> blk_stmts_len 0) {
+            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get blk.statements (- blk_stmts_len 1))
+            return (check_expr_node parser last_stmt.node_id last_stmt.node_type symbols diags file_name)
+        } else {
+            return (type_int)
+        }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         /* Struct literal: get struct name and return struct type */
