@@ -932,7 +932,8 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                                 set cur2 arg1.p
                             }
 
-                            while (not (parser_is_at_end cur2)) {
+                            let mut parse_args_done: bool = false
+                            while (and (not (parser_is_at_end cur2)) (not parse_args_done)) {
                                 let tc: LexerToken = (parser_current cur2)
                                 if (== tc.token_type (token_comma)) {
                                     set type_name (+ type_name ",")
@@ -948,7 +949,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                                     if (== tc.token_type (token_rparen)) {
                                         set type_name (+ type_name ")")
                                         set cur2 (parser_advance cur2)
-                                        break
+                                        set parse_args_done true
                                     } else {
                                         return TypeParseResult { p: cur2, type_name: type_name, ok: false }
                                     }
@@ -4379,7 +4380,7 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: (+ p.next_node_id 1),
         last_expr_node_id: node_id,
-        last_expr_node_type: -1
+        last_expr_node_type: ParseNodeType.PNODE_UNSAFE_BLOCK
     }
 }
 shadow parser_store_unsafe_block {

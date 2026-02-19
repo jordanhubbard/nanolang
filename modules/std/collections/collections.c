@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "collections.h"
 
 #include <assert.h>

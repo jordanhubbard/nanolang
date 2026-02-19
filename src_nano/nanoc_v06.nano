@@ -30,6 +30,10 @@ extern fn get_argv(index: int) -> string
 extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
+extern fn file_append(path: string, content: string) -> int
+
+/* Path operations */
+extern fn path_normalize(path: string) -> string
 
 /* System commands - wrapper to avoid stdlib.h system() conflict */
 extern fn nl_exec_shell(cmd: string) -> int
@@ -248,7 +252,14 @@ fn nlc_str_starts_with(s: string, prefix: string) -> bool {
     if (< len_s len_p) {
         return false
     } else {
-        return (== (str_substring s 0 len_p) prefix)
+        let mut i: int = 0
+        while (< i len_p) {
+            if (!= (char_at s i) (char_at prefix i)) {
+                return false
+            } else { (print "") }
+            set i (+ i 1)
+        }
+        return true
     }
 }
 
@@ -256,6 +267,8 @@ shadow nlc_str_starts_with {
     assert (nlc_str_starts_with "hello world" "hello")
     assert (not (nlc_str_starts_with "hello" "hello world"))
     assert (not (nlc_str_starts_with "world" "hello"))
+    assert (nlc_str_starts_with "" "")
+    assert (nlc_str_starts_with "a" "")
 }
 
 fn nlc_str_ends_with(s: string, suffix: string) -> bool {
@@ -264,7 +277,15 @@ fn nlc_str_ends_with(s: string, suffix: string) -> bool {
     if (< len_s len_x) {
         return false
     } else {
-        return (== (str_substring s (- len_s len_x) len_x) suffix)
+        let offset: int = (- len_s len_x)
+        let mut i: int = 0
+        while (< i len_x) {
+            if (!= (char_at s (+ offset i)) (char_at suffix i)) {
+                return false
+            } else { (print "") }
+            set i (+ i 1)
+        }
+        return true
     }
 }
 
@@ -272,6 +293,8 @@ shadow nlc_str_ends_with {
     assert (nlc_str_ends_with "hello world" "world")
     assert (not (nlc_str_ends_with "world" "hello world"))
     assert (not (nlc_str_ends_with "hello" "world"))
+    assert (nlc_str_ends_with "" "")
+    assert (nlc_str_ends_with "a" "")
 }
 
 fn nlc_str_index_of(s: string, needle: string) -> int {
@@ -282,11 +305,19 @@ fn nlc_str_index_of(s: string, needle: string) -> int {
     } else {
         let mut i: int = 0
         while (<= (+ i len_n) len_s) {
-            if (== (str_substring s i len_n) needle) {
-                return i
-            } else {
-                (print "")
+            let mut j: int = 0
+            let mut found: bool = true
+            while (< j len_n) {
+                if (!= (char_at s (+ i j)) (char_at needle j)) {
+                    set found false
+                    set j len_n
+                } else {
+                    set j (+ j 1)
+                }
             }
+            if found {
+                return i
+            } else { (print "") }
             set i (+ i 1)
         }
         return -1
@@ -308,11 +339,20 @@ fn nlc_str_last_index_of(s: string, needle: string) -> int {
     } else {
         let mut i: int = (- len_s len_n)
         while (>= i 0) {
-            if (== (str_substring s i len_n) needle) {
-                return i
-            } else {
-                set i (- i 1)
+            let mut j: int = 0
+            let mut found: bool = true
+            while (< j len_n) {
+                if (!= (char_at s (+ i j)) (char_at needle j)) {
+                    set found false
+                    set j len_n
+                } else {
+                    set j (+ j 1)
+                }
             }
+            if found {
+                return i
+            } else { (print "") }
+            set i (- i 1)
         }
         return -1
     }
@@ -588,12 +628,19 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
     } else { (print "") }
 
-    if (nlc_hashset_has_string visited_set path) {
+    /* Normalize to absolute canonical path so dedup works */
+    let mut norm_path: string = path
+    if (not (nlc_str_starts_with path "/")) {
+        set norm_path (nl_path_join (getcwd) path)
+    } else { (print "") }
+    set norm_path (path_normalize norm_path)
+
+    if (nlc_hashset_has_string visited_set norm_path) {
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
     } else {
-        let mut visited2: array<string> = (array_push visited path)
+        let mut visited2: array<string> = (array_push visited norm_path)
         let mut visited_set2: HashMap<string, int> = visited_set
-        set visited_set2 (nlc_hashset_add_string visited_set2 path)
+        set visited_set2 (nlc_hashset_add_string visited_set2 norm_path)
         if (> (array_length visited2) max_files) {
             (print "Error: import scan exceeded max files (")
             (print max_files)
@@ -601,7 +648,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
             (println path)
             return CollectResult { visited: visited2, visited_set: visited_set2, order: order, ok: false, lines_scanned: lines_scanned }
         } else { (print "") }
-        let src: string = (file_read path)
+        let src: string = (file_read norm_path)
         let lines: array<string> = (split_lines src)
 
         let mut order2: array<string> = order
@@ -610,7 +657,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         let mut lines_scanned2: int = lines_scanned
         if trace {
             (print "[import] ")
-            (println path)
+            (println norm_path)
         } else { (print "") }
         while (< i (array_length lines)) {
             set lines_scanned2 (+ lines_scanned2 1)
@@ -618,14 +665,14 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (print "Error: import scan exceeded max lines (")
                 (print max_lines)
                 (print ") while scanning: ")
-                (println path)
+                (println norm_path)
                 return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
             if (> i max_lines_per_file) {
                 (print "Error: import scan exceeded max lines per file (")
                 (print max_lines_per_file)
                 (print ") while scanning: ")
-                (println path)
+                (println norm_path)
                 return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
             if (and trace (== (% lines_scanned2 500) 0)) {
@@ -634,10 +681,10 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
             } else { (print "") }
             let imp: string = (parse_import_path_from_line (at lines i))
             if (!= imp "") {
-                let dep: string = (resolve_import_path path imp repo_root)
+                let dep: string = (resolve_import_path norm_path imp repo_root)
                 if (== dep "") {
                     (print "Error: bad import path in ")
-                    (println path)
+                    (println norm_path)
                     set ok2 false
                 } else {
                     if (file_exists dep) {
@@ -658,7 +705,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         }
 
         if ok2 {
-            set order2 (array_push order2 path)
+            set order2 (array_push order2 norm_path)
         } else { (print "") }
         return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2, lines_scanned: lines_scanned2 }
     }
@@ -690,9 +737,10 @@ fn merge_with_imports(input_file: string) -> string {
     if (not res.ok) {
         return ""
     } else { (print "") }
-
-    /* Use StringBuilder pattern for O(n) instead of O(n²) string concatenation */
-    let mut parts: array<string> = []
+    /* Write merged source directly to temp file - avoids O(n²) string concat */
+    let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
+    let dummy: int = (file_write merge_tmp "")
+    (print "")
     let mut i: int = 0
     while (< i (array_length files)) {
         let src: string = (file_read (at files i))
@@ -701,9 +749,13 @@ fn merge_with_imports(input_file: string) -> string {
         while (< j (array_length lines)) {
             let line: string = (at lines j)
             let imp: string = (parse_import_path_from_line line)
-            if (== imp "") {
-                set parts (sb_append parts (strip_pub_decl line))
-                set parts (sb_append parts "\n")
+            let is_module_decl: bool = (nlc_str_starts_with line "module ")
+            let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
+            let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
+            if (and (== imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
+                let w1: int = (file_append merge_tmp (strip_pub_decl line))
+                let w2: int = (file_append merge_tmp "\n")
+                (print "")
             } else {
                 (print "")
             }
@@ -711,7 +763,7 @@ fn merge_with_imports(input_file: string) -> string {
         }
         set i (+ i 1)
     }
-    return (sb_build parts)
+    return (file_read merge_tmp)
 }
 
 /* =============================================================================
@@ -1242,6 +1294,16 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let modules_std: string = (nl_path_join repo_root "modules/std")
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join modules_std "fs.c"))
+            set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections/collections.c"))
+            set cc_cmd (+ cc_cmd " -I")
+            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections"))
+            set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json/json.c"))
+            set cc_cmd (+ cc_cmd " -I")
+            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json"))
+            set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
             set cc_cmd (+ cc_cmd " -lm")
             let extra_ldflags: string = (getenv "NANO_LDFLAGS")
             if (!= extra_ldflags "") {

@@ -642,7 +642,7 @@ examples:
 		$(TIMEOUT_CMD) $(MAKE) examples-core; \
 	else \
 		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
-		$(TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=; \
+		$(TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= || echo "⚠️  Launcher build failed (optional - requires SDL and nano_tools modules)"; \
 	fi
 
 .PHONY: examples-core examples-stage1 examples-stage3 examples-vm

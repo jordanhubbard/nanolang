@@ -16,6 +16,11 @@
 char *mkdtemp(char *template);
 #endif
 
+/* Weak default so binaries that don't define get_project_root() still link */
+__attribute__((weak)) const char *get_project_root(void) {
+    return ".";
+}
+
 /* Module cache to prevent duplicate imports and preserve ASTs */
 typedef struct {
     char **loaded_paths;
@@ -1232,7 +1237,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
     
     /* Compile and capture errors */
-    char error_cmd[1152];
+    char error_cmd[2064];
     snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
     FILE *pipe = popen(error_cmd, "r");
     char error_output[4096] = {0};

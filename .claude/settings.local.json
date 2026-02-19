@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__responsible-vibe-mcp__whats_next",
+      "mcp__responsible-vibe-mcp__resume_workflow",
+      "mcp__responsible-vibe-mcp__start_development",
+      "mcp__responsible-vibe-mcp__reset_development",
+      "mcp__responsible-vibe-mcp__setup_project_docs",
+      "mcp__responsible-vibe-mcp__proceed_to_phase"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "responsible-vibe-mcp"
+  ]
+}

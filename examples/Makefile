@@ -43,6 +43,11 @@ NL_SOURCES := $(filter-out \
 	language/nl_first_class_functions.nano \
 	language/nl_function_%.nano,\
 	$(wildcard language/nl_*.nano))
+# VM backend cannot resolve module imports
+ifeq ($(EXAMPLES_BACKEND),vm)
+NL_SOURCES := $(filter-out language/nl_boids.nano language/nl_random_sentence.nano language/nl_demo_selfhosting.nano,$(NL_SOURCES))
+endif
+
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
@@ -59,9 +64,23 @@ endif
 REPL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(REPL_SOURCES))
 REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
 
+# === Detect compilers with limited linking support ===
+# nanoc_stage1/stage2 and nano_virt can only link built-in modules
+
+IS_SELFHOSTED := $(or $(findstring nanoc_stage1,$(COMPILER)),$(findstring nanoc_stage2,$(COMPILER)),$(findstring nano_virt,$(COMPILER)))
+
 # === Advanced Examples ===
 
-ADVANCED_SOURCES := $(filter-out advanced/math_helper.nano,$(wildcard advanced/*.nano))
+# Always exclude: helpers, beads, datetime
+ADVANCED_EXCLUDE := advanced/math_helper.nano $(wildcard advanced/beads_*.nano) advanced/datetime_demo.nano
+# Missing modules (regex)
+ADVANCED_EXCLUDE += advanced/regex_demo.nano advanced/regex_demo_simple.nano
+# External C libraries needed (libevent, libuv, libc module, sqlite3, unicode FFI)
+ADVANCED_EXCLUDE += advanced/event_example.nano advanced/uv_example.nano advanced/libc_demo.nano advanced/sqlite_simple.nano advanced/unicode_demo.nano
+# SDL module dependencies
+ADVANCED_EXCLUDE += advanced/module_introspection_demo.nano advanced/ui_code_display_demo.nano
+
+ADVANCED_SOURCES := $(filter-out $(ADVANCED_EXCLUDE),$(wildcard advanced/*.nano))
 ADVANCED_EXAMPLES := $(patsubst advanced/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ADVANCED_SOURCES))
 ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
 
@@ -85,7 +104,13 @@ DEBUG_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DEBUG_EXAMPLES)))
 
 # === Network Examples ===
 
-NETWORK_SOURCES := $(wildcard network/*.nano)
+# Exclude: curl_example (needs libcurl), http_demo (missing std/http module)
+NETWORK_EXCLUDE := network/curl_example.nano network/http_demo.nano
+NETWORK_SOURCES := $(filter-out $(NETWORK_EXCLUDE),$(wildcard network/*.nano))
+# Self-hosted compiler can't link http_server.c; exclude all network examples
+ifneq ($(IS_SELFHOSTED),)
+NETWORK_SOURCES :=
+endif
 NETWORK_EXAMPLES := $(patsubst network/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NETWORK_SOURCES))
 NETWORK_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NETWORK_EXAMPLES)))
 
@@ -143,6 +168,46 @@ NCURSES_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NCURSES_EXAMPLES)))
 OPENGL_SOURCES := $(wildcard opengl/*.nano)
 OPENGL_EXAMPLES := $(patsubst opengl/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(OPENGL_SOURCES))
 OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
+
+# === Self-hosted compiler restrictions ===
+# Self-hosted compiler can only link: fs.c, collections.c, json.c, cJSON.c, -lm
+# It cannot link SDL2, ncurses, OpenGL, libevent, libuv, libcurl, or other external libs
+
+ifneq ($(IS_SELFHOSTED),)
+SDL_EXAMPLES :=
+SDL_NAMES :=
+NCURSES_SOURCES :=
+NCURSES_EXAMPLES :=
+NCURSES_NAMES :=
+OPENGL_SOURCES :=
+OPENGL_EXAMPLES :=
+OPENGL_NAMES :=
+ROOT_SOURCES :=
+ROOT_EXAMPLES :=
+ROOT_NAMES :=
+PLAYGROUND_SOURCES :=
+PLAYGROUND_EXAMPLES :=
+PLAYGROUND_NAMES :=
+REPL_SOURCES :=
+REPL_EXAMPLES :=
+REPL_NAMES :=
+OPL_SOURCES :=
+OPL_EXAMPLES :=
+OPL_NAMES :=
+endif
+
+# VM backend cannot resolve module imports
+ifeq ($(EXAMPLES_BACKEND),vm)
+ADVANCED_SOURCES := $(filter-out advanced/stdlib_ast_demo.nano advanced/vector2d_demo.nano,$(ADVANCED_SOURCES))
+ADVANCED_EXAMPLES := $(patsubst advanced/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ADVANCED_SOURCES))
+ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
+DATA_SOURCES := $(filter-out data/json_demo.nano,$(DATA_SOURCES))
+DATA_EXAMPLES := $(patsubst data/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(DATA_SOURCES))
+DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
+DEBUG_SOURCES :=
+DEBUG_EXAMPLES :=
+DEBUG_NAMES :=
+endif
 
 # === All Default Examples ===
 

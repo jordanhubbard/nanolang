@@ -1,8 +1,7 @@
 # Demonstration of all log levels and when to use them
 # Run this to see the hierarchy and filtering in action
 
-from "stdlib/log.nano" import log_trace, log_debug, log_info, 
-                                log_warn, log_error, log_fatal
+from "stdlib/log.nano" import log_trace, log_debug, log_info, log_warn, log_error, log_fatal
 
 fn demonstrate_log_levels() -> int {
     (log_trace "demo" "This is TRACE - most verbose, for detailed execution flow")

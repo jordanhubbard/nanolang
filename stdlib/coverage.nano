@@ -38,7 +38,7 @@ fn coverage_record(file: string, line: int, column: int) -> void {
             if (and (== point.file file)
                     (and (== point.line line) (== point.column column))) {
                 # Increment hit count (struct values are immutable; rebuild the struct)
-                let updated: CoveragePoint = {
+                let updated: CoveragePoint = CoveragePoint {
                     file: point.file,
                     line: point.line,
                     column: point.column,
@@ -54,7 +54,7 @@ fn coverage_record(file: string, line: int, column: int) -> void {
         
         if (not found) {
             # Add new coverage point
-            let new_point: CoveragePoint = {
+            let new_point: CoveragePoint = CoveragePoint {
                 file: file,
                 line: line,
                 column: column,
@@ -195,7 +195,7 @@ fn timing_end(label: string, start_time: int) -> void {
     while (< i (array_length g_timing_points)) {
         let point: TimingPoint = (at g_timing_points i)
         if (== point.label label) {
-            let updated: TimingPoint = {
+            let updated: TimingPoint = TimingPoint {
                 label: point.label,
                 start_time_ms: point.start_time_ms,
                 total_time_ms: (+ point.total_time_ms elapsed),
@@ -210,7 +210,7 @@ fn timing_end(label: string, start_time: int) -> void {
     }
     
     if (not found) {
-        let new_point: TimingPoint = {
+        let new_point: TimingPoint = TimingPoint {
             label: label,
             start_time_ms: start_time,
             total_time_ms: elapsed,
@@ -312,8 +312,8 @@ shadow trace_init_with_limit {
 fn trace_record(event_type: string, location: string, details: string) -> void {
     if g_trace_enabled {
         if (< (array_length g_trace_events) g_trace_max_events) {
-            let event: TraceEvent = {
-                timestamp_ms: 0,  # TODO: Implement with actual clock
+            let event: TraceEvent = TraceEvent {
+                timestamp_ms: 0,
                 event_type: event_type,
                 location: location,
                 details: details

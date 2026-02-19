@@ -51,7 +51,7 @@ static struct {
 } gc_state = {
     .all_objects = NULL,
     .stats = {0},
-    .threshold = 10 * 1024 * 1024,  /* 10MB default */
+    .threshold = 256 * 1024 * 1024,  /* 256MB default - batch-friendly */
     .last_collection_usage = 0,
     .cycle_detection_enabled = true,
     .initialized = false
@@ -171,7 +171,12 @@ void gc_init(void) {
     memset(&gc_state.stats, 0, sizeof(GCStats));
     memset(gc_state.hash_table, 0, sizeof(gc_state.hash_table));
     gc_state.all_objects = NULL;
-    gc_state.threshold = 10 * 1024 * 1024;
+    gc_state.threshold = 256 * 1024 * 1024;  /* 256MB - compilers are batch processes */
+    const char *gc_thresh = getenv("NANO_GC_THRESHOLD_MB");
+    if (gc_thresh) {
+        long val = strtol(gc_thresh, NULL, 10);
+        if (val > 0) gc_state.threshold = (size_t)val * 1024 * 1024;
+    }
     gc_state.last_collection_usage = 0;
     gc_state.cycle_detection_enabled = true;
     gc_state.initialized = true;
