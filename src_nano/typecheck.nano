@@ -2684,7 +2684,6 @@ fn array_elem_type_from_array_decl(t: string) -> string {
         }
     }
     }
-}
 
 shadow array_elem_type_from_array_decl {
     assert (== (array_elem_type_from_array_decl "array<int>") "int")
