@@ -33,7 +33,7 @@ fn main() -> int {
     
     /* Self-hosting test: compile itself! */
     let input: string = "src_nano/nanoc_stage0.nano"
-    let output: string = "/tmp/nanoc_stage1"
+    let output: string = (+ (tmp_dir) "/nanoc_stage1")
     
     (print "Compiling: ")
     (println input)

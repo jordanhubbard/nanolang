@@ -128,7 +128,7 @@ fn main() -> int {
     (println "Compiling test program...")
     (println "")
     
-    let result: int = (compile_with_c_compiler "examples/hello.nano" "/tmp/test_from_selfhost" true)
+    let result: int = (compile_with_c_compiler "examples/hello.nano" (+ (tmp_dir) "/test_from_selfhost") true)
     
     if (== result 0) {
         (println "")

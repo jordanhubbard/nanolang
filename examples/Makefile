@@ -295,15 +295,15 @@ $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): verified/%.nano $(COMPILER)
 # Debugging & validation examples (in debug/ subdirectory)
 $(BIN_DIR)/logging_%$(BIN_SUFFIX)$(BIN_EXT): debug/logging_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/coverage_demo$(BIN_SUFFIX)$(BIN_EXT): debug/coverage_demo.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/property_test_%$(BIN_SUFFIX)$(BIN_EXT): debug/property_test_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # OPL toolchain CLI (in opl/ subdirectory)
 $(BIN_DIR)/opl$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/opl_cli$(BIN_SUFFIX)$(BIN_EXT)
@@ -312,41 +312,41 @@ $(BIN_DIR)/opl$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/opl_cli$(BIN_SUFFIX)$(BIN_EXT)
 
 $(BIN_DIR)/opl_%$(BIN_SUFFIX)$(BIN_EXT): opl/opl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Nanolang-only examples (now in language/ subdirectory)
 $(BIN_DIR)/nl_%$(BIN_SUFFIX)$(BIN_EXT): language/nl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/%_repl$(BIN_SUFFIX)$(BIN_EXT): language/%_repl.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Advanced examples (in advanced/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): advanced/%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Data examples (in data/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): data/%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Network examples (in network/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): network/%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Physics examples (in physics/ subdirectory)
 $(BIN_DIR)/bullet_%$(BIN_SUFFIX)$(BIN_EXT): physics/bullet_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Playground examples
 $(BIN_DIR)/playground_server$(BIN_SUFFIX)$(BIN_EXT): playground/playground_server.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/playground_server$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Linking $@..."
@@ -355,77 +355,36 @@ $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/playground_server$(BIN_
 # Root examples
 $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(COMPILER)
 	@echo "Building $@..."
 	cd .. && NANO_MODULE_PATH=modules bin/nanoc $(COMPILER_FLAGS) examples/$< -o bin/$(notdir $@)
 
-$(BIN_DIR)/sdl_asteroids$(BIN_SUFFIX)$(BIN_EXT): games/sdl_asteroids.nano $(COMPILER)
+# Games (in games/ subdirectory)
+$(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): games/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
-$(BIN_DIR)/sdl_checkers$(BIN_SUFFIX)$(BIN_EXT): games/sdl_checkers.nano $(COMPILER)
-	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/sdl_pong$(BIN_SUFFIX)$(BIN_EXT): games/sdl_pong.nano $(COMPILER)
-	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-# Graphics (pattern rule for remaining SDL graphics examples)
+# Graphics (pattern rule for SDL graphics examples)
 $(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): graphics/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
-# Audio (pattern rule with fallback)
-$(BIN_DIR)/sdl_nanoamp$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_nanoamp.nano $(COMPILER)
-	@echo "Building SDL NanoAmp - Pixel-perfect Winamp tribute..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-	@echo "✓ SDL NanoAmp built: $@"
-
-$(BIN_DIR)/sdl_mod_visualizer$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_mod_visualizer.nano $(COMPILER)
+# Audio (pattern rule for SDL audio examples)
+$(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/sdl_tracker_shell$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_tracker_shell.nano $(COMPILER)
-	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/sdl_audio_%$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_audio_%.nano $(COMPILER)
-	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # NCurses examples (in terminal/ subdirectory)
 $(BIN_DIR)/ncurses_%$(BIN_SUFFIX)$(BIN_EXT): terminal/ncurses_%.nano $(COMPILER)
 	@echo "Building $@..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # OpenGL examples (in opengl/ subdirectory)
-$(BIN_DIR)/opengl_cube$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_cube.nano $(COMPILER)
-	@echo "Building OpenGL Cube..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/opengl_teapot$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_teapot.nano $(COMPILER)
-	@echo "Building OpenGL Teapot..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-	@echo "✓ OpenGL Teapot built: $@"
-
-$(BIN_DIR)/opengl_solar_system$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_solar_system.nano $(COMPILER)
-	@echo "Building OpenGL Solar System..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/opengl_particle_fountain$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_particle_fountain.nano $(COMPILER)
-	@echo "Building OpenGL Particle Fountain..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/opengl_modern_hello_triangle$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_modern_hello_triangle.nano $(COMPILER)
-	@echo "Building Modern OpenGL Hello Triangle..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
-
-$(BIN_DIR)/opengl_modern_postprocess$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_modern_postprocess.nano $(COMPILER)
-	@echo "Building Modern OpenGL Postprocess..."
-	NANO_MODULE_PATH=../modules $(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+$(BIN_DIR)/opengl_%$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_%.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # === Clean ===
 

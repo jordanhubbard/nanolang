@@ -46,6 +46,13 @@ typedef struct {
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
 } CompilerOptions;
 
+/* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
+static const char *get_tmp_dir(void) {
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+    return tmp;
+}
+
 static void json_escape(FILE *out, const char *s) {
     if (!s) return;
     for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
@@ -610,9 +617,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         /* Keep in output directory if --keep-c is set */
         snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_file);
     } else {
-        /* Use /tmp for temporary files */
-        snprintf(temp_c_file, sizeof(temp_c_file), "/tmp/nanoc_%d_%s.c", 
-                 (int)getpid(), strrchr(output_file, '/') ? strrchr(output_file, '/') + 1 : output_file);
+        /* Use TMPDIR (or /tmp) for temporary files */
+        snprintf(temp_c_file, sizeof(temp_c_file), "%s/nanoc_%d_%s.c",
+                 get_tmp_dir(), (int)getpid(), strrchr(output_file, '/') ? strrchr(output_file, '/') + 1 : output_file);
     }
 
     FILE *c_file = fopen(temp_c_file, "w");
@@ -822,9 +829,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 }
                 
                 char gen_cmd[512];
-                snprintf(gen_cmd, sizeof(gen_cmd), 
-                        "./scripts/generate_list.sh %s /tmp %s > /dev/null 2>&1", 
-                        type_name, c_type);
+                snprintf(gen_cmd, sizeof(gen_cmd),
+                        "./scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
+                        type_name, get_tmp_dir(), c_type);
                 if (opts->verbose) {
                     printf("Generating List<%s> runtime...\n", type_name);
                 }
@@ -835,7 +842,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 
                 /* Create wrapper that includes struct definition */
                 char wrapper_file[512];
-                snprintf(wrapper_file, sizeof(wrapper_file), "/tmp/list_%s_wrapper.c", type_name);
+                snprintf(wrapper_file, sizeof(wrapper_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
                 FILE *wrapper = fopen(wrapper_file, "w");
                 if (wrapper) {
                     /* Extract struct definition from generated C code */
@@ -904,7 +911,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "\n/* Guard macro set - typedef already defined above */\n");
                         fprintf(wrapper, "#define NL_%s_DEFINED\n\n", type_upper);
                         fprintf(wrapper, "/* Include list implementation */\n");
-                        fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
+                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
                     } else {
                         /* Fallback: just include the list file.
                          * We include schema headers in case it's a schema type. */
@@ -915,14 +922,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "#include <string.h>\n\n");
                         fprintf(wrapper, "#include \"nanolang.h\"\n");
                         fprintf(wrapper, "#include \"generated/compiler_schema.h\"\n\n");
-                        fprintf(wrapper, "#include \"/tmp/list_%s.c\"\n", type_name);
+                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
                     }
                     fclose(wrapper);
                 }
                 
                 /* Add wrapper to compile list */
                 char list_file[256];
-                snprintf(list_file, sizeof(list_file), " /tmp/list_%s_wrapper.c", type_name);
+                snprintf(list_file, sizeof(list_file), " %s/list_%s_wrapper.c", get_tmp_dir(), type_name);
                 strncat(generated_lists, list_file, sizeof(generated_lists) - strlen(generated_lists) - 1);
             }
         }
@@ -1061,7 +1068,7 @@ int main(int argc, char *argv[]) {
         printf("nanoc - Compiler for the nanolang programming language\n\n");
         printf("Usage: %s <input.nano> [OPTIONS]\n\n", argv[0]);
         printf("Options:\n");
-        printf("  -o <file>      Specify output file (default: /tmp/nanoc_a.out)\n");
+        printf("  -o <file>      Specify output file (default: $TMPDIR/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
@@ -1101,7 +1108,10 @@ int main(int argc, char *argv[]) {
     }
 
     const char *input_file = argv[1];
-    const char *output_file = "/tmp/nanoc_a.out";  /* Default to /tmp to avoid polluting project dir */
+    /* Default output to TMPDIR (or /tmp) to avoid polluting project dir */
+    char default_output[512];
+    snprintf(default_output, sizeof(default_output), "%s/nanoc_a.out", get_tmp_dir());
+    const char *output_file = default_output;
     CompilerOptions opts = {
         .verbose = false,
         .keep_c = false,

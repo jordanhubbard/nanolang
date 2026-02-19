@@ -101,6 +101,8 @@ VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
 # When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
 BOOTSTRAP_DETERMINISTIC ?= 0
+# TMPDIR-aware temp directory for bootstrap test artifacts
+BOOTSTRAP_TMPDIR := $(or $(TMPDIR),/tmp)
 BOOTSTRAP_ENV := NANO_MODULE_PATH=modules
 ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
 BOOTSTRAP_ENV += NANO_DETERMINISTIC=1
@@ -845,7 +847,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
 		if [ "$$comp" = "typecheck" ]; then src="typecheck_driver"; fi; \
 		if [ "$$comp" = "transpiler" ]; then src="transpiler_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
-		log="/tmp/nanolang_stage2_$$comp.log"; \
+		log="$(BOOTSTRAP_TMPDIR)/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
 		rm -f "$$out" "$$log"; \
 		if $(TIMEOUT_CMD) $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
@@ -886,7 +888,7 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 	@success=0; fail=0; missing=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		bin="$(BIN_DIR)/$$comp"; \
-		log="/tmp/nanolang_stage3_$$comp.log"; \
+		log="$(BOOTSTRAP_TMPDIR)/nanolang_stage3_$$comp.log"; \
 		if [ ! -x "$$bin" ]; then \
 			echo "  ❌ Missing component binary: $$bin"; \
 			missing=$$((missing + 1)); \
@@ -908,7 +910,7 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 		touch $(SENTINEL_STAGE3); \
 	else \
 		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \
-		echo "See /tmp/nanolang_stage3_<component>.log for details."; \
+		echo "See $(BOOTSTRAP_TMPDIR)/nanolang_stage3_<component>.log for details."; \
 		exit 1; \
 	fi
 
@@ -969,7 +971,7 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
 		echo "" && \
 		echo "Testing stage 1 compiler..." && \
-		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_test && $(TIMEOUT_CMD) /tmp/bootstrap_test >/dev/null 2>&1; then \
+		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test >/dev/null 2>&1; then \
 			echo "✓ Stage 1 compiler works!"; \
 			touch $(SENTINEL_BOOTSTRAP1); \
 		else \
@@ -995,7 +997,7 @@ $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
 	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
 	@echo "Testing stage 2 compiler..."
-	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_test2 && $(TIMEOUT_CMD) /tmp/bootstrap_test2 >/dev/null 2>&1; then \
+	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test2 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test2 >/dev/null 2>&1; then \
 		echo "✓ Stage 2 compiler works!"; \
 		touch $(SENTINEL_BOOTSTRAP2); \
 	else \
@@ -1016,10 +1018,10 @@ verify-bootstrap: bootstrap
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@echo "Smoke test: stage1 compiles + runs nl_hello.nano..."
-	@$(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage1 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage1 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_verify_stage1 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_verify_stage1 >/dev/null
 	@echo "✓ stage1 ok"
 	@echo "Smoke test: stage2 compiles + runs nl_hello.nano..."
-	@$(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o /tmp/bootstrap_verify_stage2 && $(TIMEOUT_CMD) /tmp/bootstrap_verify_stage2 >/dev/null
+	@$(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_verify_stage2 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_verify_stage2 >/dev/null
 	@echo "✓ stage2 ok"
 
 .PHONY: verify-no-nanoc_c verify-no-nanoc_c-check
@@ -1076,7 +1078,7 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
 	echo ""; \
 	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test && $(TIMEOUT_CMD) /tmp/bootstrap_installed_test >/dev/null 2>&1; then \
+	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test >/dev/null 2>&1; then \
 		echo "✓ installed compiler works"; \
 	else \
 		echo "❌ installed compiler smoke test failed"; \

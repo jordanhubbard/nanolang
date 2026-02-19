@@ -256,8 +256,11 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
         return NULL;
     }
     
-    /* Create temporary directory */
-    char temp_template[] = "/tmp/nanolang_module_XXXXXX";
+    /* Create temporary directory (TMPDIR-aware) */
+    const char *tmpdir = getenv("TMPDIR");
+    if (!tmpdir || tmpdir[0] == '\0') tmpdir = "/tmp";
+    char temp_template[512];
+    snprintf(temp_template, sizeof(temp_template), "%s/nanolang_module_XXXXXX", tmpdir);
     char *temp_dir = mkdtemp(temp_template);
     if (temp_dir == NULL || temp_dir != temp_template) {
         fprintf(stderr, "Error: Failed to create temporary directory\n");

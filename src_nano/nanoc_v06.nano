@@ -900,7 +900,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     }
 
     let merged_source: string = (merge_with_imports input_file)
-    let temp_source_file: string = "/tmp/nanolang_merged.nano"
+    let temp_source_file: string = (+ (tmp_dir) "/nanolang_merged.nano")
     let mut source_to_compile: string = input_file
     
     if (== merged_source "") {
@@ -916,8 +916,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             (print "")
         }
         let write_merged: int = (file_write temp_source_file merged_source)
-        /* DEBUG: Also write to /tmp/merged_debug.nano for inspection */
-        let debug_write: int = (file_write "/tmp/merged_debug.nano" merged_source)
+        /* DEBUG: Also write to $TMPDIR/merged_debug.nano for inspection */
+        let debug_write: int = (file_write (+ (tmp_dir) "/merged_debug.nano") merged_source)
         (print "")  /* Suppress unused variable warning */
         if (== write_merged 0) {
             set source_to_compile temp_source_file
@@ -1093,7 +1093,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else { (print "") }
             
             /* Write C code to temporary file */
-            let c_file: string = "/tmp/nanolang_temp.c"
+            let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
             let write_result: int = (file_write c_file c_code)
             if (!= write_result 0) {
                 (println "Error: Failed to write C file")
