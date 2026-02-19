@@ -1424,6 +1424,21 @@ All phase outputs include:
 - `had_error: bool`
 - `diagnostics: List<CompilerDiagnostic>`
 
+**Known Stage1 Issue — `from ... import` Infinite Loop (bead nl-hmt, P0)**:
+
+The self-hosted stage1 compiler (`nanoc_stage1`) enters an infinite loop / exponential
+memory blowup when compiling files that use `from ... import` with multiple modules.
+The C reference compiler handles these files in seconds.
+
+- **Trigger**: `from "module.nano" import func1, func2, func3` syntax
+- **Affected files**: `examples/language/simple_repl.nano`, `examples/language/vars_repl.nano`
+- **Symptoms**: 100% CPU, memory grows to 3.6GB+, never terminates
+- **Impact**: `make examples` fails (CMD_TIMEOUT kills it after 600s)
+- **Root cause**: Unknown — likely in `src_nano/transpiler.nano` or `src_nano/compiler/module_loader.nano`
+  module resolution / code generation for the `from ... import` syntax
+- **Workaround**: Regular `module` / `import` directives work fine in stage1
+- **Reproducer**: `timeout 120 bin/nanoc_stage1 examples/language/simple_repl.nano -o /tmp/test`
+
 ---
 
 ### Diagnostic System (Self-Hosted)
