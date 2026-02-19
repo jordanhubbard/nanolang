@@ -359,7 +359,7 @@ $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPIL
 
 $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(COMPILER)
 	@echo "Building $@..."
-	cd .. && NANO_MODULE_PATH=modules bin/nanoc $(COMPILER_FLAGS) examples/$< -o bin/$(notdir $@)
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 # Games (in games/ subdirectory)
 $(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): games/sdl_%.nano $(COMPILER)

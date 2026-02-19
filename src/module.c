@@ -1220,10 +1220,12 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
 
-    char compile_cmd[1024];
+    char compile_cmd[2048];
+    const char *root = get_project_root();
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Isrc -Imodules/std -Imodules/std/collections -Imodules/std/json -Imodules/std/io -Imodules/std/math -Imodules/std/peg -Imodules/std/string -Imodules/sdl_helpers %s -c -o %s %s",
-            cc, sdl_flags, output_obj, temp_c_file);
+            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s -c -o %s %s",
+            cc, root, root, root, root, root, root, root, root, root,
+            sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);

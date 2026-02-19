@@ -941,4 +941,7 @@ static inline void print_backtrace(void) {
     } while(0) */
 #endif
 
+/* Project root resolution (set by main.c, used by module.c for CWD-independent paths) */
+const char *get_project_root(void);
+
 #endif /* NANOLANG_H */

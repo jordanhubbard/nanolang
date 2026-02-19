@@ -129,15 +129,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
 
-    char compile_cmd[1024];
+    char compile_cmd[2048];
+    const char *root = get_project_root();
     if (opts->verbose) {
-        snprintf(compile_cmd, sizeof(compile_cmd), 
-                "%s -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm",
-                cc, output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd),
+                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_string.c -lm",
+                cc, root, output_file, temp_c_file, root, root);
     } else {
-        snprintf(compile_cmd, sizeof(compile_cmd), 
-                "%s -std=c99 -Isrc -o %s %s src/runtime/list_int.c src/runtime/list_string.c -lm 2>/dev/null",
-                cc, output_file, temp_c_file);
+        snprintf(compile_cmd, sizeof(compile_cmd),
+                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_string.c -lm 2>/dev/null",
+                cc, root, output_file, temp_c_file, root, root);
     }
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);

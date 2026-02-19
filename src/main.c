@@ -9,6 +9,7 @@
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
+#include <limits.h>  /* For PATH_MAX */
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -51,6 +52,38 @@ static const char *get_tmp_dir(void) {
     const char *tmp = getenv("TMPDIR");
     if (!tmp || tmp[0] == '\0') tmp = "/tmp";
     return tmp;
+}
+
+/* Resolve the nanolang project root from the compiler binary path.
+ * The binary lives at <root>/bin/nanoc_c, so we go up two levels.
+ * Falls back to CWD if resolution fails. */
+char g_project_root[PATH_MAX] = "";
+
+const char *get_project_root(void) {
+    return g_project_root[0] ? g_project_root : ".";
+}
+
+static void resolve_project_root(const char *argv0) {
+    char exe_path[PATH_MAX];
+    if (realpath(argv0, exe_path) == NULL) {
+        /* Fallback: use CWD */
+        if (getcwd(g_project_root, sizeof(g_project_root)) == NULL) {
+            strcpy(g_project_root, ".");
+        }
+        return;
+    }
+    /* Strip binary name: /path/to/bin/nanoc_c -> /path/to/bin */
+    char *slash = strrchr(exe_path, '/');
+    if (slash) {
+        *slash = '\0';
+        /* Strip bin/: /path/to/bin -> /path/to */
+        slash = strrchr(exe_path, '/');
+        if (slash) {
+            *slash = '\0';
+        }
+    }
+    strncpy(g_project_root, exe_path, sizeof(g_project_root) - 1);
+    g_project_root[sizeof(g_project_root) - 1] = '\0';
 }
 
 static void json_escape(FILE *out, const char *s) {
@@ -645,7 +678,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
     
     /* Build include flags */
-    char include_flags[2048] = "-Isrc";
+    char include_flags[2048];
+    snprintf(include_flags, sizeof(include_flags), "-I%s/src", get_project_root());
     for (int i = 0; i < opts->include_count; i++) {
         char temp[512];
         snprintf(temp, sizeof(temp), " -I%s", opts->include_paths[i]);
@@ -943,14 +977,43 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("\n");
     }
     
-    /* Build runtime files string */
+    /* Build runtime files string (paths relative to project root) */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
-    char runtime_files[4096] = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/list_token.c src/runtime/list_CompilerDiagnostic.c src/runtime/list_CompilerSourceLocation.c src/runtime/list_ASTNumber.c src/runtime/list_ASTFloat.c src/runtime/list_ASTString.c src/runtime/list_ASTBool.c src/runtime/list_ASTIdentifier.c src/runtime/list_ASTBinaryOp.c src/runtime/list_ASTCall.c src/runtime/list_ASTModuleQualifiedCall.c src/runtime/list_ASTArrayLiteral.c src/runtime/list_ASTLet.c src/runtime/list_ASTSet.c src/runtime/list_ASTStmtRef.c src/runtime/list_ASTIf.c src/runtime/list_ASTWhile.c src/runtime/list_ASTFor.c src/runtime/list_ASTReturn.c src/runtime/list_ASTBlock.c src/runtime/list_ASTUnsafeBlock.c src/runtime/list_ASTPrint.c src/runtime/list_ASTAssert.c src/runtime/list_ASTFunction.c src/runtime/list_ASTShadow.c src/runtime/list_ASTStruct.c src/runtime/list_ASTStructLiteral.c src/runtime/list_ASTFieldAccess.c src/runtime/list_ASTEnum.c src/runtime/list_ASTUnion.c src/runtime/list_ASTUnionConstruct.c src/runtime/list_ASTMatch.c src/runtime/list_ASTImport.c src/runtime/list_ASTOpaqueType.c src/runtime/list_ASTTupleLiteral.c src/runtime/list_ASTTupleIndex.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/regex.c";
+    static const char *runtime_basenames[] = {
+        "runtime/list_int.c", "runtime/list_string.c", "runtime/list_LexerToken.c",
+        "runtime/list_token.c", "runtime/list_CompilerDiagnostic.c",
+        "runtime/list_CompilerSourceLocation.c", "runtime/list_ASTNumber.c",
+        "runtime/list_ASTFloat.c", "runtime/list_ASTString.c", "runtime/list_ASTBool.c",
+        "runtime/list_ASTIdentifier.c", "runtime/list_ASTBinaryOp.c",
+        "runtime/list_ASTCall.c", "runtime/list_ASTModuleQualifiedCall.c",
+        "runtime/list_ASTArrayLiteral.c", "runtime/list_ASTLet.c", "runtime/list_ASTSet.c",
+        "runtime/list_ASTStmtRef.c", "runtime/list_ASTIf.c", "runtime/list_ASTWhile.c",
+        "runtime/list_ASTFor.c", "runtime/list_ASTReturn.c", "runtime/list_ASTBlock.c",
+        "runtime/list_ASTUnsafeBlock.c", "runtime/list_ASTPrint.c",
+        "runtime/list_ASTAssert.c", "runtime/list_ASTFunction.c",
+        "runtime/list_ASTShadow.c", "runtime/list_ASTStruct.c",
+        "runtime/list_ASTStructLiteral.c", "runtime/list_ASTFieldAccess.c",
+        "runtime/list_ASTEnum.c", "runtime/list_ASTUnion.c",
+        "runtime/list_ASTUnionConstruct.c", "runtime/list_ASTMatch.c",
+        "runtime/list_ASTImport.c", "runtime/list_ASTOpaqueType.c",
+        "runtime/list_ASTTupleLiteral.c", "runtime/list_ASTTupleIndex.c",
+        "runtime/token_helpers.c", "runtime/gc.c", "runtime/dyn_array.c",
+        "runtime/gc_struct.c", "runtime/nl_string.c", "runtime/cli.c", "runtime/regex.c",
+        NULL
+    };
+    char runtime_files[8192];
+    runtime_files[0] = '\0';
+    for (int i = 0; runtime_basenames[i]; i++) {
+        char entry[256];
+        snprintf(entry, sizeof(entry), "%s%s/src/%s",
+                 i > 0 ? " " : "", get_project_root(), runtime_basenames[i]);
+        strncat(runtime_files, entry, sizeof(runtime_files) - strlen(runtime_files) - 1);
+    }
     strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
-    
-    /* Add /tmp to include path for generated list headers */
+
+    /* Add TMPDIR to include path for generated list headers */
     char include_flags_with_tmp[2560];
-    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I/tmp", include_flags);
+    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I%s", include_flags, get_tmp_dir());
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -1054,6 +1117,9 @@ int main(int argc, char *argv[]) {
     /* Store argc/argv for runtime access */
     g_argc = argc;
     g_argv = argv;
+
+    /* Resolve project root from binary location (enables compilation from any CWD) */
+    resolve_project_root(argv[0]);
     
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
