@@ -1,1266 +1,1077 @@
-# MEMORY.md - NanoLang LLM Training Reference
+# MEMORY.md — NanoLang Machine Distillation
 
-> **Purpose:** This file is designed specifically for Large Language Model consumption. It contains the essential knowledge needed to generate, debug, and understand NanoLang code. Pair this with `spec.json` for complete language coverage.
-
-## 🚨 READ FIRST: LLM-First Design
-
-**NanoLang has EXACTLY ONE canonical way to write each construct.**
-
-**REQUIRED READING:**
-1. **`docs/CANONICAL_STYLE.md`** - The One True Way™ for every operation
-2. **`docs/LLM_CORE_SUBSET.md`** - The 50-primitive core to learn first
-
-**Quick Rules:**
-- ✅ **ONE syntax per operation** - No alternatives
-- ✅ **Prefix and infix notation** - `(+ a b)` or `a + b` for operators; `(f x y)` for function calls
-- ✅ **Explicit types** - Always annotate
-- ✅ **Core subset first** - Advanced features only when asked
-- ✅ **Use `(+ str1 str2)`** not `str_concat` (deprecated)
-- ✅ **Use `(cond ...)`** for expressions, `if/else` for statements
-
-**Why this matters:** When there's only one way to do it, LLMs can't get it wrong.
+> **Purpose:** Complete machine-readable knowledge base for LLMs, coding agents, and new contributors.
+> Everything an AI needs to understand, generate, debug, and extend NanoLang — in one file.
+> Pair with `spec.json` for formal grammar and `schema/compiler_schema.json` for AST definitions.
 
 ---
 
-## Critical First Principles
+## 1. PROJECT IDENTITY
 
-### 1. Operator Notation: Prefix and Infix
-NanoLang supports both prefix and infix notation for binary operators. Function calls always use prefix notation.
+**Name:** NanoLang  
+**Version:** 0.2.0  
+**License:** Apache 2.0  
+**Repo:** `github.com/jordanhubbard/nanolang`  
+**Tagline:** A minimal, LLM-friendly programming language with mandatory testing, unambiguous syntax, and formally verified semantics.
 
-```nano
-# Both are valid for operators
-(+ a b)           # Prefix notation
-a + b             # Infix notation
+**Core Differentiators:**
+- Transpiles to C for native performance
+- Custom VM backend (NanoISA) with process-isolated FFI
+- Core semantics mechanically verified in Coq (zero axioms)
+- Self-hosting compiler (bootstraps itself)
+- Mandatory shadow tests for every function
+- Dual notation (prefix and infix operators)
+- Designed specifically for LLM code generation
 
-# Both are valid for nested expressions
-(* (+ x 1) (- y 2))   # Prefix nested
-(x + 1) * (y - 2)     # Infix with grouping parens
+---
 
-# Function calls are ALWAYS prefix
-(println "hello")
+## 2. ARCHITECTURE OVERVIEW
 
-# WRONG - C-style function calls are not valid!
-println("hello")
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        NanoLang Source (.nano)                       │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+              ┌────────────┴───────────┐
+              ▼                        ▼
+   ┌────────────────────┐   ┌──────────────────────┐
+   │  C Transpile Path  │   │    NanoISA VM Path    │
+   │   (bin/nanoc)      │   │   (bin/nano_virt)     │
+   └────────┬───────────┘   └──────────┬───────────┘
+            │                          │
+  Lex → Parse → TypeCheck → Transpile  │  Lex → Parse → TypeCheck → Codegen
+            │                          │
+            ▼                          ▼
+     Generated .c file           .nvm bytecode
+            │                          │
+            ▼                     ┌────┴────┐
+     cc → native binary           │         │
+                              nano_vm    native binary
+                              (executor)  (embeds VM)
+                                  │
+                              nano_cop (isolated FFI)
+                              nano_vmd (daemon mode)
 ```
 
-**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+### Compilation Pipeline (Both Paths)
 
-**Important:** All infix operators have equal precedence, evaluated left-to-right (no PEMDAS). Use parentheses to control grouping: `a * (b + c)`.
-
-**Unary operators:** `not` and `-` work without parens: `not flag`, `-x`
-
-### 2. ALWAYS Include Shadow Tests ⚠️ MANDATORY ⚠️
-**Every function MUST have a shadow test. This is a CORE DESIGN PRINCIPLE of NanoLang.**
-
-**NO EXCEPTIONS: This applies to:**
-- ✅ Core library functions
-- ✅ Application code
-- ✅ **Example code**
-- ✅ **Utility functions**
-- ✅ **Demo programs**
-- ✅ **Test files**
-- ❌ ONLY EXCEPTION: `extern` functions (C FFI)
-
-```nano
-fn double(x: int) -> int {
-    return (* x 2)
-}
-
-shadow double {
-    assert (== (double 5) 10)
-    assert (== (double -3) -6)
-    assert (== (double 0) 0)
-}
+```
+Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) → Backend
 ```
 
-**Why Shadow Tests Are Mandatory:**
-1. **Correctness:** Code is tested at compile time, not runtime
-2. **Documentation:** Tests show how to use functions
-3. **LLM-Friendly:** Forces AI to think through edge cases
-4. **Self-Hosting:** Enables the compiler to validate itself
+**Backend A — C Transpiler:** AST → C source → `cc` → native binary  
+**Backend B — NanoISA Codegen:** AST → bytecode → .nvm file or embedded in native binary
 
-**If you forget shadow tests, compilation will show warnings. This is intentional.**
+---
 
-**For LLMs:** When generating NanoLang code, ALWAYS include shadow tests for every function you write. This is not optional - it's part of the language design.
+## 3. BUILD SYSTEM
 
-### 2.1 Examples are also stress tests (NO workarounds)
-If an example reveals a weakness (miscompile, memory/lifetime bug, nondeterminism, etc.), treat it as a **language/compiler/runtime defect**:
-- Create a bead for the defect (P0/P1 as appropriate)
-- Build a **minimal deterministic reproducer** (shadow test)
-- Fix root cause (no workarounds)
-- Add a regression test
+### Prerequisites
+- C99 compiler (`cc`)
+- GNU Make (`make` on Linux/macOS, `gmake` on BSD)
+- Python 3 (for schema generation bootstrap)
+- Optional: Rocq Prover >= 9.0 (for formal proofs), SDL2 (for graphics examples)
 
-### 2.2 Agent-only compiler flags / machine-readable diagnostics
-NanoLang is LLM-first, so the compiler supports (and will continue to add) **agent-focused** debugging/tracing outputs (preferably machine-readable).
+### Key Make Targets
 
-See `docs/LLM_AGENT_FLAGS.md`.
+| Target | Description |
+|--------|-------------|
+| `make build` | 3-stage bootstrap: compiles C compiler, self-hosted components, validates |
+| `make vm` | Build VM backend: `nano_virt`, `nano_vm`, `nano_cop`, `nano_vmd` |
+| `make test` | Full test suite (units + integration + language tests) |
+| `make test-quick` | Language tests only (fastest) |
+| `make test-vm` | Run test suite through NanoVM backend |
+| `make examples` | Build all 150+ example programs |
+| `make bootstrap` | Full GCC-style bootstrap (Stage 0 → 1 → 2 → 3) |
+| `make clean` | Remove all build artifacts |
+| `make schema` | Regenerate compiler schema from `schema/compiler_schema.json` |
+| `make modules-index` | Generate module index from manifests |
+| `make shadow-check` | Verify shadow tests on changed .nano files |
+| `make benchmark` | Run performance benchmarks |
+| `make bootstrap-profile` | Build profiled compiler components for self-analysis |
 
-### 3. ALWAYS Use Explicit Types
+### Build Sentinels
+
+The build system uses sentinel files to track progress and avoid rebuilds:
+
+| Sentinel | Stage |
+|----------|-------|
+| `.stage1.built` | C reference compiler built |
+| `.stage2.built` | Self-hosted components compiled |
+| `.stage3.built` | Bootstrap validated |
+| `.bootstrap0.built` | Bootstrap Stage 0 (C compiler) |
+| `.bootstrap1.built` | Bootstrap Stage 1 (self-hosted nanoc_v06) |
+| `.bootstrap2.built` | Bootstrap Stage 2 (recompiled by self) |
+| `.bootstrap3.built` | Bootstrap Stage 3 (verified, installed) |
+
+### Key Binaries
+
+| Binary | Location | Description |
+|--------|----------|-------------|
+| `nanoc` | `bin/nanoc` | Compiler (symlink to `nanoc_c` or `nanoc_stage2`) |
+| `nanoc_c` | `bin/nanoc_c` | C reference compiler |
+| `nanoc_stage1` | `bin/nanoc_stage1` | Self-hosted compiler (compiled by Stage 0) |
+| `nanoc_stage2` | `bin/nanoc_stage2` | Self-hosted compiler (compiled by Stage 1) |
+| `nano_virt` | `bin/nano_virt` | NanoISA compiler: .nano → .nvm or native |
+| `nano_vm` | `bin/nano_vm` | NanoVM executor: runs .nvm files |
+| `nano_cop` | `bin/nano_cop` | Co-process: isolated FFI execution |
+| `nano_vmd` | `bin/nano_vmd` | VM daemon: persistent VM process |
+| `nanoc-ffi` | `bin/nanoc-ffi` | FFI binding generator |
+
+---
+
+## 4. BOOTSTRAP PROCESS (GCC-STYLE)
+
+NanoLang achieves TRUE self-hosting through a classic 3-stage bootstrap:
+
+### Stage 0 — C Reference Compiler
+- **Input:** C source files in `src/`
+- **Output:** `bin/nanoc_c` (native binary)
+- **Method:** `cc` compiles `src/*.c` → `bin/nanoc_c`
+- **This is the "seed" compiler.**
+
+### Stage 1 — Self-Hosted Compiler (First Generation)
+- **Input:** `src_nano/nanoc_v06.nano` (the compiler written in NanoLang)
+- **Output:** `bin/nanoc_stage1`
+- **Method:** `bin/nanoc_c` compiles `nanoc_v06.nano` → `bin/nanoc_stage1`
+- **Smoke test:** Must compile and run `examples/language/nl_hello.nano`
+
+### Stage 2 — Recompiled Compiler (Second Generation)
+- **Input:** Same `src_nano/nanoc_v06.nano`
+- **Output:** `bin/nanoc_stage2`
+- **Method:** `bin/nanoc_stage1` compiles `nanoc_v06.nano` → `bin/nanoc_stage2`
+- **Smoke test:** Must compile and run `examples/language/nl_hello.nano`
+
+### Stage 3 — Verification
+- Compare `nanoc_stage1` and `nanoc_stage2`
+- If identical: reproducible build proven (TRUE SELF-HOSTING)
+- If different: still validates both work correctly
+- Installs `nanoc_stage2` as `bin/nanoc`
+
+### Component Testing (3-Stage Build)
+
+Separate from the bootstrap, the build system also validates self-hosted components:
+
+- **Stage 1:** Build C reference compiler
+- **Stage 2:** Compile self-hosted parser, typechecker, transpiler (`src_nano/*_driver.nano`)
+- **Stage 3:** Run each compiled component (execute its shadow tests)
+
+---
+
+## 5. LANGUAGE SYNTAX & SEMANTICS
+
+### 5.1 Core Design Principles
+
+1. **One canonical form per construct** — no ambiguity for LLMs
+2. **Explicit types always** — no type inference, no implicit conversions
+3. **Immutable by default** — `mut` keyword required for mutability
+4. **Mandatory shadow tests** — every function must have tests
+5. **Dual notation for operators** — both prefix `(+ a b)` and infix `a + b`
+6. **Prefix notation for function calls** — always `(f x y)`, never `f(x, y)`
+7. **Equal precedence** — all infix operators have equal precedence, left-to-right
+
+### 5.2 Lexical Structure
+
+**Comments:**
 ```nano
-# CORRECT
-let x: int = 42
-let name: string = "Alice"
-fn add(a: int, b: int) -> int { ... }
-
-# WRONG - Type inference does not exist
-let x = 42  # ERROR!
-fn add(a, b) { ... }  # ERROR!
+# Single-line comment
+/* Multi-line comment */
 ```
 
-## Quick Syntax Reference
-
-### Variables
-```nano
-let x: int = 42                    # Immutable (default)
-let mut counter: int = 0           # Mutable
-set counter (+ counter 1)          # Assignment (mut only)
+**Keywords:**
+```
+fn let mut set if else while for in return assert shadow
+extern int float bool string void true false print
+and or not array struct enum union match cond
+import module from as unsafe resource pub opaque
+break continue range requires ensures
 ```
 
-### Functions
+**Tokens (from schema/compiler_schema.json):**
+78 token types including: `TOKEN_EOF`, `TOKEN_NUMBER`, `TOKEN_FLOAT`, `TOKEN_STRING`,
+`TOKEN_IDENTIFIER`, `TOKEN_TRUE`, `TOKEN_FALSE`, `TOKEN_LPAREN`, `TOKEN_RPAREN`,
+`TOKEN_LBRACE`, `TOKEN_RBRACE`, `TOKEN_LBRACKET`, `TOKEN_RBRACKET`, `TOKEN_COMMA`,
+`TOKEN_COLON`, `TOKEN_ARROW`, `TOKEN_DOT`, `TOKEN_PLUS`, `TOKEN_MINUS`, `TOKEN_STAR`,
+`TOKEN_SLASH`, `TOKEN_PERCENT`, `TOKEN_EQ`, `TOKEN_NE`, `TOKEN_LT`, `TOKEN_LE`,
+`TOKEN_GT`, `TOKEN_GE`, `TOKEN_AND`, `TOKEN_OR`, `TOKEN_NOT`, `TOKEN_UNSAFE`,
+`TOKEN_RESOURCE`, `TOKEN_MODULE`, `TOKEN_PUB`, `TOKEN_FROM`, `TOKEN_USE`,
+`TOKEN_DOUBLE_COLON`, `TOKEN_REQUIRES`, `TOKEN_ENSURES`, `TOKEN_BREAK`,
+`TOKEN_CONTINUE`, `TOKEN_COND`
+
+### 5.3 Types
+
+**Primitive Types:**
+
+| Type | C Mapping | Size | Description |
+|------|-----------|------|-------------|
+| `int` | `int64_t` | 8 bytes | 64-bit signed integer |
+| `float` | `double` | 8 bytes | 64-bit IEEE 754 |
+| `bool` | `bool` | 1 byte | `true` or `false` |
+| `string` | `char*` | 8 bytes (pointer) | UTF-8 text |
+| `u8` | `uint8_t` | 1 byte | Unsigned byte |
+| `bstring` | `nl_string_t*` | 8 bytes (pointer) | Binary string with length |
+| `void` | `void` | 0 bytes | Absence of value |
+
+**Composite Types:**
+
+| Type | Syntax | Description |
+|------|--------|-------------|
+| `struct` | `struct Name { field: type, ... }` | Product type with named fields |
+| `enum` | `enum Name { Variant = N, ... }` | Named integer constants |
+| `union` | `union Name { Variant { field: type }, ... }` | Tagged union / sum type |
+| `array<T>` | `array<int>`, `[1, 2, 3]` | Dynamic, GC-managed array |
+| `List<T>` | `List<int>`, `List<Point>` | Generic list (monomorphized) |
+| `HashMap<K,V>` | `HashMap<string, int>` | Generic hash map |
+| `(T1, T2, ...)` | `(int, string)` | Tuple |
+| `fn(T1, T2) -> R` | `fn(int, int) -> int` | First-class function type |
+| `opaque` | `opaque type GLFWwindow` | Opaque C pointer |
+| `resource struct` | `resource struct FileHandle { fd: int }` | Affine type (use-at-most-once) |
+
+**Generic Types — Monomorphization:**
+
+NanoLang uses monomorphized generics. `List<int>` becomes `List_int` at compile time.
+
 ```nano
-fn name(param1: type1, param2: type2) -> return_type {
-    # body
-    return value
-}
+# Generic usage
+let nums: List<int> = (List_int_new)
+(List_int_push nums 42)
+let val: int = (List_int_get nums 0)
+let len: int = (List_int_length nums)
 
-shadow name {
-    assert (== (name arg1 arg2) expected)
-}
-
-# External C Functions (FFI)
-extern fn function_name(param: type) -> return_type
-
-# ⚠️ Extern calls require either:
-#    1. unsafe module import (preferred), OR
-#    2. unsafe blocks (legacy)
-
-# PREFERRED: Module-level safety
-unsafe module "modules/ffi_lib/ffi_lib.nano"
-
-fn call_extern() -> int {
-    # No unsafe block needed with 'unsafe module'!
-    return (function_name arg)
-}
-
-# LEGACY: Individual unsafe blocks
-module "modules/ffi_lib/ffi_lib.nano"
-
-fn call_extern_legacy() -> int {
-    let mut result: int = 0
-    unsafe {
-        set result (function_name arg)
-    }
-    return result
-}
-
-# Public external functions (for modules)
-pub extern fn module_function(param: type) -> return_type
-
-# Import safe module with alias
-module "modules/math_helper.nano" as Math
-let result: int = (Math.add 2 3)
-
-# Import unsafe (FFI) module
-unsafe module "modules/sdl/sdl.nano"
-
-# Import without alias
-module "modules/utilities.nano"
-(some_function arg)
-
-# Legacy syntax (still supported, will be deprecated)
-import "modules/old_module.nano"
+# Generic Result type
+let r: Result<int, string> = Result.Ok { value: 42 }
 ```
 
-### Control Flow
+**Generic Union Types:**
 ```nano
-# If-else (both branches required!)
-if condition {
-    # then branch
-} else {
-    # else branch
-}
-
-# Cond expression (multi-branch conditional - cleaner than nested if/else)
-(cond
-    (condition1 value1)
-    (condition2 value2)
-    (condition3 value3)
-    (else default_value))
-
-# Example: Number classification
-fn classify(n: int) -> string {
-    return (cond
-        ((< n 0) "negative")
-        ((== n 0) "zero")
-        ((< n 10) "small")
-        (else "large"))
-}
-
-# Example: Letter grade
-fn grade(score: int) -> string {
-    return (cond
-        ((>= score 90) "A")
-        ((>= score 80) "B")
-        ((>= score 70) "C")
-        ((>= score 60) "D")
-        (else "F"))
-}
-
-# While loop
-while condition {
-    # body
-}
-
-# For loop (range only)
-for i in (range 0 10) {
-    # i goes from 0 to 9
-}
-
-# Unsafe blocks (for FFI and unchecked operations)
-unsafe {
-    # Mark explicit trust boundaries
-    # Used for extern function calls and unchecked ops
-}
-```
-
-### Operators (Prefix or Infix)
-```nano
-# Arithmetic - prefix
-(+ a b)  (- a b)  (* a b)  (/ a b)  (% a b)
-
-# Arithmetic - infix
-a + b    a - b    a * b    a / b    a % b
-
-# String concatenation (+ works for strings too!)
-(+ "hello" " world")      # Prefix: "hello world"
-"hello" + " world"        # Infix: "hello world"
-
-# Comparison - both notations
-(== a b)  (!= a b)  (< a b)  (<= a b)  (> a b)  (>= a b)
-a == b    a != b    a < b    a <= b    a > b    a >= b
-
-# Logical - both notations
-(and p q)  (or p q)  (not p)
-p and q    p or q    not p
-
-# Nested operations - prefix
-(+ (* a b) (/ c d))       # (a*b) + (c/d)
-
-# Nested operations - infix (use parens for grouping)
-(a * b) + (c / d)         # Same result
-
-# NOTE: All infix operators have equal precedence (left-to-right).
-# Use parentheses to control evaluation order:
-a * (b + c)               # Multiply a by (b+c)
-a * b + c                 # Same as (a * b) + c (left-to-right)
-```
-
-### Types
-```nano
-# Primitives
-int, float, bool, string, void
-
-# Struct
-struct Point { x: int, y: int }
-let p: Point = Point { x: 10, y: 20 }
-let x_val: int = p.x
-
-# Enum
-enum Status { Idle = 0, Running = 1, Done = 2 }
-let s: Status = Status.Running
-
-# Union (tagged union)
-union Result { 
-    Ok { value: int }, 
-    Error { message: string } 
-}
-
-# Generic Union (NEW!)
 union Result<T, E> {
     Ok { value: T },
     Err { error: E }
 }
 
-# Using generic unions
-let success: Result<int, string> = Result.Ok { value: 42 }
-let failure: Result<int, string> = Result.Err { error: "failed" }
+union Option<T> {
+    Some { value: T },
+    None {}
+}
+```
 
-# Match on union
-match result {
-    Ok(r) => { (println r.value) }
-    Error(e) => { (println e.message) }
+**TypeKind enum (internal representation):**
+```
+TYPE_INT, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_VOID,
+TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION, TYPE_GENERIC,
+TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN, TYPE_LIST_GENERIC,
+TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE, TYPE_UNKNOWN
+```
+
+### 5.4 Variables
+
+```nano
+let x: int = 42                    # Immutable (default)
+let mut counter: int = 0           # Mutable
+set counter (+ counter 1)          # Assignment (mut only)
+set counter counter + 1            # Infix also works
+```
+
+### 5.5 Functions
+
+```nano
+fn name(param1: type1, param2: type2) -> return_type {
+    return value
 }
 
-# Array (dynamic, garbage-collected)
-array<int>  # Fixed type, dynamic size
-let arr: array<int> = [1, 2, 3, 4]          # Array literal
-let empty: array<int> = []                   # Empty array
-let first: int = (at arr 0)                  # Access element
+# External C functions (FFI)
+extern fn function_name(param: type) -> return_type
+
+# Public external (for modules)
+pub extern fn module_function(param: type) -> return_type
+```
+
+**Shadow Tests (MANDATORY):**
+```nano
+shadow name {
+    assert (== (name arg1 arg2) expected)
+    assert (condition)
+}
+```
+
+Every function MUST have a shadow test. Only exception: `extern` functions.
+Shadow tests run when the compiled binary executes.
+
+### 5.6 Control Flow
+
+```nano
+# If-else (else branch is required)
+if condition {
+    # then
+} else {
+    # else
+}
+
+# Cond expression (preferred for multi-branch)
+(cond
+    (condition1 value1)
+    (condition2 value2)
+    (else default_value))
+
+# While loop
+while condition { body }
+
+# For loop (range-based)
+for i in (range 0 10) { body }
+
+# Break and continue
+while true {
+    if done { break }
+    if skip { continue }
+}
+```
+
+### 5.7 Operators
+
+**All binary operators work in both prefix and infix notation.**
+**All infix operators have EQUAL precedence, evaluated LEFT-TO-RIGHT.**
+
+```nano
+# Arithmetic
+(+ a b)    a + b       # Addition (also string concatenation)
+(- a b)    a - b       # Subtraction
+(* a b)    a * b       # Multiplication
+(/ a b)    a / b       # Division
+(% a b)    a % b       # Modulo
+
+# Comparison
+(== a b)   a == b      # Equal
+(!= a b)   a != b      # Not equal
+(< a b)    a < b       # Less than
+(<= a b)   a <= b      # Less or equal
+(> a b)    a > b       # Greater than
+(>= a b)   a >= b      # Greater or equal
+
+# Logical
+(and p q)  p and q     # Logical AND (short-circuit)
+(or p q)   p or q      # Logical OR (short-circuit)
+(not p)    not p       # Logical NOT
+
+# Unary
+-x                     # Negation
+not flag               # Boolean negation
+```
+
+**CRITICAL:** No PEMDAS. Use parentheses: `a * (b + c)` not `a * b + c`.
+
+### 5.8 Data Structures
+
+**Structs:**
+```nano
+struct Point { x: int, y: int }
+let p: Point = Point { x: 10, y: 20 }
+let x_val: int = p.x               # Field access
+```
+
+**Enums:**
+```nano
+enum Status { Idle = 0, Running = 1, Done = 2 }
+let s: int = Status.Running        # Enums are integers
+```
+
+**Unions (Tagged Unions):**
+```nano
+union Shape {
+    Circle { radius: float },
+    Rectangle { width: float, height: float }
+}
+let s: Shape = Shape.Circle { radius: 5.0 }
+```
+
+**Pattern Matching:**
+```nano
+match shape {
+    Circle(c) => { return (* 3.14159 (* c.radius c.radius)) }
+    Rectangle(r) => { return (* r.width r.height) }
+}
+```
+
+**Arrays (PURELY FUNCTIONAL semantics — all operations return new arrays):**
+```nano
+let arr: array<int> = [1, 2, 3, 4]
+let empty: array<int> = []
+let first: int = (at arr 0)
+let len: int = (array_length arr)
 let mut nums: array<int> = []
-set nums (array_push nums 42)                # Append element
-let val: int = (array_pop nums)              # Remove last
-set nums (array_remove_at nums 0)            # Remove at index
+set nums (array_push nums 42)           # Returns new array
+set nums (array_remove_at nums 0)       # Returns new array
+let val: int = (array_pop nums)          # Returns removed element
+set nums (array_set nums 0 99)           # Returns new array
+```
 
-# Generic List
-List<int>, List<string>, List<Point>
-let nums: List<int> = (List_int_new)
-(List_int_push nums 42)
-
-# Function types
-fn(int, int) -> int
-fn(string) -> bool
-fn() -> void
-
-# Tuples
-(int, string)
-(float, float, float)
+**Tuples:**
+```nano
 let coord: (int, int) = (10, 20)
 let x: int = coord.0
 let y: int = coord.1
 ```
 
-## Common Patterns
-
-### Pattern 1: Counter Loop
+**HashMaps:**
 ```nano
-let mut i: int = 0
-while (< i 10) {
-    (println i)
-    set i (+ i 1)
+let map: HashMap<string, int> = (HashMap_new)
+(HashMap_set map "key" 42)
+let val: int = (HashMap_get map "key")
+let has: bool = (HashMap_has map "key")
+```
+
+### 5.9 Module System
+
+```nano
+# Import a safe module
+module "modules/vector2d/vector2d.nano"
+
+# Import unsafe (FFI) module — no unsafe blocks needed in code
+unsafe module "modules/sdl/sdl.nano"
+
+# Import with alias
+module "modules/math_helper.nano" as Math
+let result: int = (Math.add 2 3)
+
+# Import specific functions
+from "modules/std/json/json.nano" import parse, get_string
+
+# Legacy syntax (still supported)
+import "modules/old_module.nano"
+```
+
+**Module-level `unsafe`:** Declaring `unsafe module` at import means all FFI calls from that module work without individual `unsafe {}` blocks.
+
+### 5.10 Unsafe Blocks
+
+```nano
+# Required for extern function calls (unless module declared unsafe)
+unsafe {
+    set result (some_extern_function arg)
 }
 ```
 
-### Pattern 2: Range Loop
-```nano
-for i in (range 0 10) {
-    (println i)
-}
-```
+### 5.11 First-Class Functions
 
-### Pattern 3: Accumulator
-```nano
-fn sum_list(nums: List<int>) -> int {
-    let mut total: int = 0
-    let len: int = (List_int_length nums)
-    let mut i: int = 0
-    
-    while (< i len) {
-        let val: int = (List_int_get nums i)
-        set total (+ total val)
-        set i (+ i 1)
-    }
-    
-    return total
-}
-```
-
-### Pattern 4: Recursive Function
-```nano
-fn factorial(n: int) -> int {
-    if (<= n 1) {
-        return 1
-    }
-    return (* n (factorial (- n 1)))
-}
-
-shadow factorial {
-    assert (== (factorial 5) 120)
-    assert (== (factorial 0) 1)
-}
-```
-
-### Pattern 5: Struct Constructor
-```nano
-struct Point { x: int, y: int }
-
-fn make_point(x: int, y: int) -> Point {
-    return Point { x: x, y: y }
-}
-
-shadow make_point {
-    let p: Point = (make_point 5 10)
-    assert (== p.x 5)
-    assert (== p.y 10)
-}
-```
-
-### Pattern 6: First-Class Functions
 ```nano
 fn apply(f: fn(int) -> int, x: int) -> int {
     return (f x)
 }
 
-fn double(x: int) -> int {
-    return (* x 2)
-}
+fn double(x: int) -> int { return (* x 2) }
 
 shadow apply {
     assert (== (apply double 5) 10)
 }
 
 # Function variables
-fn get_doubler() -> fn(int) -> int {
-    return double
-}
-
-fn test() -> int {
-    let f: fn(int) -> int = (get_doubler)
-    return (f 21)  # Returns 42
-}
+let op: fn(int, int) -> int = add
+let result: int = (op 5 3)
 ```
 
-## Common Errors and Fixes
+### 5.12 Affine Types (Resource Safety)
 
-### Error 1: Missing Shadow Test
-```
-Warning: Function 'foo' is missing a shadow test
-```
-**Fix:** Add a shadow block after every function:
 ```nano
-shadow foo {
-    assert (== (foo 5) expected_value)
-}
-```
+resource struct FileHandle { fd: int }
 
-### Error 2: Type Mismatch
-```
-Error at line X: Type mismatch in let statement
-Error at line X: Return type mismatch
-```
-**Fix:** Check that types match exactly:
-```nano
-# Wrong
-let x: int = 3.14  # ERROR: float vs int
-
-# Right
-let x: float = 3.14
-let y: int = 42
-```
-
-### Error 3: Using C-Style Function Calls
-```
-Error: Unexpected token
-```
-**Fix:** Function calls use prefix notation (operators can use either prefix or infix):
-```nano
-# Wrong - C-style function calls
-println("hello")
-add(a, b)
-
-# Right - Prefix function calls
-(println "hello")
-(add a b)
-
-# Right - Both work for operators
-let result: int = (+ a b)    # Prefix
-let result: int = a + b      # Infix
-if (> x 5) { ... }           # Prefix
-if x > 5 { ... }             # Infix
-```
-
-### Error 4: Immutability Violation
-```
-Error: Cannot assign to immutable variable
-```
-**Fix:** Declare variable as mutable:
-```nano
-# Wrong
-let counter: int = 0
-set counter (+ counter 1)  # ERROR!
-
-# Right
-let mut counter: int = 0
-set counter (+ counter 1)  # OK
-```
-
-### Error 5: Missing Else Branch
-```
-Error: If statement requires else branch
-```
-**Fix:** Always include else:
-```nano
-# Wrong
-if condition {
-    do_something
-}
-
-# Right
-if condition {
-    do_something
-} else {
-    # Even if empty, else is required
-    (print "")
-}
-```
-
-### Error 6: Undefined Variable/Function
-```
-Error: Undefined variable 'x'
-Error: Undefined function 'foo'
-```
-**Fix:** Declare before use, check spelling:
-```nano
-# Wrong
-let y: int = (add x 5)  # x not declared!
-
-# Right
-let x: int = 10
-let y: int = (add x 5)
-```
-
-## Debugging Workflow
-
-### Step 1: Read Error Messages
-Errors show line and column numbers:
-```
-Error at line 42, column 15: Type mismatch
-```
-Look at line 42, character 15 to find the issue.
-
-### Step 2: Compile and Test
-```bash
-# Compile to binary
-./bin/nanoc mycode.nano -o mycode
-
-# Run the binary
-./mycode
-```
-
-### Step 3: Check Shadow Tests
-Shadow tests compile into the binary and run at runtime. If they fail, fix them first:
-```nano
-shadow factorial {
-    assert (== (factorial 5) 120)  # This runs when the binary executes!
-}
-```
-
-### Step 4: Verify Types
-Most errors are type mismatches. Check:
-1. Variable declarations match usage
-2. Function return types match return statements
-3. Function call arguments match parameter types
-
-### Step 5: Use --keep-c to See Generated Code
-```bash
-./bin/nanoc mycode.nano -o mycode --keep-c
-# Look at mycode.c to see what was generated
-```
-
-## How to Read spec.json
-
-The `spec.json` file is your authoritative reference. Here's how to navigate it:
-
-### Types Section
-```json
-"types": {
-  "primitives": [...],     # Basic types: int, float, bool, string, void
-  "composite": {           # Complex types
-    "array": {...},        # Dynamic arrays
-    "struct": {...},       # Product types
-    "enum": {...},         # Named constants
-    "union": {...},        # Tagged unions (sum types)
-    "generic": {...},      # List<T>
-    "function": {...},     # First-class functions
-    "tuple": {...}         # Multiple values
-  }
-}
-```
-
-### Stdlib Section
-All built-in functions are documented:
-```json
-"stdlib": {
-  "io": { "print": {...}, "println": {...}, "assert": {...} },
-  "math": { "abs": {...}, "sqrt": {...}, "sin": {...}, ... },
-  "string": { "str_length": {...}, "str_concat": {...}, ... },
-  "array": { "at": {...}, "array_length": {...}, ... },
-  "generics": { "List_new": {...}, "List_push": {...}, ... }
-}
-```
-
-### Operations Section
-How to use operators:
-```json
-"operations": {
-  "arithmetic": { "add": { "operator": "+", "arity": 2, ... }, ... },
-  "comparison": { "eq": { "operator": "==", ... }, ... },
-  "logical": { "and": { "operator": "and", ... }, ... }
-}
-```
-
-## Code Generation Best Practices
-
-### 1. Start with Shadow Tests
-Write the shadow test first, then implement:
-```nano
-fn process_data(x: int) -> int {
-    # TODO: implement
-    return x
-}
-
-shadow process_data {
-    assert (== (process_data 5) 10)   # Define expected behavior
-    assert (== (process_data 0) 0)
-}
-```
-
-### 2. Use Descriptive Names
-```nano
-# Good
-fn calculate_distance(p1: Point, p2: Point) -> float
-let total_count: int = 0
-let is_valid: bool = true
-
-# Avoid
-fn calc(p1: Point, p2: Point) -> float
-let tc: int = 0
-let b: bool = true
-```
-
-### 3. Keep Functions Small
-Each function should do one thing:
-```nano
-# Good - focused functions
-fn parse_input(s: string) -> int { ... }
-fn validate_input(x: int) -> bool { ... }
-fn process_input(x: int) -> int { ... }
-
-# Avoid - monolithic function
-fn do_everything(s: string) -> int {
-    # 100 lines of mixed concerns
-}
-```
-
-### 4. Use Comments for Complex Logic
-```nano
-fn complex_calculation(x: int) -> int {
-    # Step 1: Normalize input to 0-100 range
-    let normalized: int = (% x 101)
-    
-    # Step 2: Apply scaling factor
-    let scaled: int = (* normalized 3)
-    
-    # Step 3: Add offset
-    return (+ scaled 10)
-}
-```
-
-### 5. Leverage Type Safety
-Let the type system catch errors:
-```nano
-# Use distinct types instead of raw ints
-enum UserId { Value = 0 }
-enum ProductId { Value = 0 }
-
-# Now you can't mix them up by accident
-fn get_user(id: UserId) -> User { ... }
-fn get_product(id: ProductId) -> Product { ... }
-```
-
-## Module System Quick Reference
-
-### Using Modules
-```nano
-# Import a safe module (pure NanoLang)
-module "modules/vector2d/vector2d.nano"
-
-# Import an unsafe FFI module (requires 'unsafe' prefix)
-unsafe module "modules/sdl/sdl.nano"
-
-# Import with alias
-unsafe module "modules/bullet/bullet.nano" as Physics
-
-# Use module functions
-fn main() -> int {
-    # SDL functions work without unsafe {} blocks
-    # because the module was imported as 'unsafe module'
-    (SDL_Init 0)
-    
-    # stdlib functions use namespace
-    let r: Result<int, string> = Result.Ok { value: 42 }
-
-    # Result helper functions (is_ok/unwrap/etc) are planned once generic
-    # functions are supported. For now, use match on Result.
-    match r {
-        Ok(v) => {
-            (println v.value)
-        }
-        Err(e) => {
-            (println e.error)
-        }
-    }
-    
+fn safe_usage() -> int {
+    let f: FileHandle = unsafe { (open_file "data.txt") }
+    let data: string = unsafe { (read_file f) }
+    unsafe { (close_file f) }       # Consumed — can't use f again
     return 0
 }
 ```
 
-### Module Safety
-**Module-level safety eliminates scattered unsafe blocks:**
+States: `UNUSED` → `USED` → `CONSUMED`. Compile-time enforcement.
 
-```nano
-# OLD WAY (before module-level safety)
-import "modules/sdl/sdl.nano"
-
-fn render() -> void {
-    unsafe { (SDL_Init 0) }
-    unsafe { (SDL_CreateWindow "Game" 800 600) }
-    unsafe { (SDL_Quit) }
-}
-
-# NEW WAY (with module-level safety)
-unsafe module "modules/sdl/sdl.nano"
-
-fn render() -> void {
-    (SDL_Init 0)
-    (SDL_CreateWindow "Game" 800 600)
-    (SDL_Quit)
-}
-```
-
-**Key principle:** Mark modules as `unsafe` at import, not individual calls.
-
-**Benefits:**
-- ✅ 98% reduction in unsafe blocks (1,235 → 88 in examples/)
-- ✅ Clear safety declaration at module boundary
-- ✅ Cleaner, more readable code
-- ✅ Same compile-time safety guarantees
-
-### Module Installation
-Modules automatically install dependencies:
-```bash
-# First use of SDL module auto-runs:
-# brew install sdl2  (or apt-get install libsdl2-dev)
-```
-
-### Available Modules
-- **ncurses** - Terminal UI
-- **sdl** - 2D graphics and input
-- **sdl_mixer** - Audio playback
-- **sdl_ttf** - Font rendering
-- **glfw** - OpenGL windowing
-
-Check `modules/` directory for full list.
-
-## Unsafe Blocks
-
-**Purpose**: Explicitly mark code that performs potentially dangerous operations, requiring conscious safety decisions by programmers.
-
-### What Requires `unsafe`
-- **FFI calls**: All `extern` function calls MUST be inside `unsafe` blocks
-- **Future**: Unchecked arithmetic, raw pointer operations, inline assembly
-
-### Basic Syntax
-```nano
-fn call_external_function() -> int {
-    let mut result: int = 0
-    unsafe {
-        set result (some_extern_function)
-    }
-    return result
-}
-```
-
-### Multiple and Nested Unsafe Blocks
-```nano
-fn complex_operation() -> int {
-    let mut total: int = 0
-    
-    /* First unsafe operation */
-    unsafe {
-        set total (extern_func_1)
-    }
-    
-    /* Safe code in between */
-    let x: int = (+ total 10)
-    
-    /* Second unsafe operation */
-    unsafe {
-        set total (+ x (extern_func_2))
-    }
-    
-    /* Nested unsafe blocks are allowed */
-    unsafe {
-        unsafe {
-            set total (+ total 1)
-        }
-    }
-    
-    return total
-}
-```
-
-### Why Unsafe Blocks Matter
-1. **Explicit Safety Boundaries**: Clear visual markers for code review
-2. **Compiler Enforcement**: Can't call `extern` functions without `unsafe`
-3. **Audit Trail**: Easy to find all potentially dangerous operations
-4. **MISRA/JSF Alignment**: Explicit unsafe operations satisfy coding standards
-5. **Gradual Safety**: Safe by default, unsafe by choice
-
-### Example: Wrapping External Libraries
-```nano
-/* Declare external C function */
-extern fn nl_os_getpid() -> int
-
-/* Safe wrapper - encapsulates the unsafe call */
-fn get_process_id() -> int {
-    let mut pid: int = 0
-    unsafe {
-        set pid (nl_os_getpid)
-    }
-    return pid
-}
-
-/* Now users can call the safe wrapper */
-fn main() -> int {
-    let pid: int = (get_process_id)  /* Safe! */
-    (println pid)
-    return 0
-}
-```
-
-### Best Practices
-- **Minimize unsafe scope**: Keep `unsafe` blocks as small as possible
-- **Encapsulate in safe functions**: Wrap extern calls in safe interfaces
-- **Document invariants**: Comment why the unsafe operation is actually safe
-- **Validate inputs**: Check preconditions before unsafe operations
-
-## Checked Arithmetic Operations (SAFETY)
-
-**NEW**: NanoLang provides checked arithmetic operations that detect overflow, underflow, and division by zero at runtime, returning `Result<int, string>` instead of crashing or wrapping silently.
-
-**MISRA Rule 12.4 Compliance**: These functions satisfy safety-critical requirements for overflow detection.  
-**JSF AV Rule 204 Compliance**: Division operations check for zero divisor.
-
-### Available Functions
-
-Import the module:
-```nano
-module "modules/stdlib/checked_math.nano"
-```
-
-Then use:
-
-```nano
-/* Safe addition - catches overflow/underflow */
-fn example_addition() -> int {
-    let result: Result<int, string> = (checked_add 1000000 2000000)
-    match result {
-        Ok(v) => {
-            (println v.value)  /* 3000000 */
-        },
-        Err(e) => {
-            (println e.error)  /* "Integer overflow in addition" */
-        }
-    }
-    return 0
-}
-
-/* Safe division - catches division by zero */
-fn example_division() -> int {
-    let result: Result<int, string> = (checked_div 100 0)
-    match result {
-        Ok(v) => {
-            (println v.value)
-        },
-        Err(e) => {
-            (println e.error)  /* "Division by zero" */
-        }
-    }
-    return 0
-}
-```
-
-### All Checked Operations
-
-| Function | Returns | Catches |
-|----------|---------|---------|
-| `checked_add(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_sub(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_mul(a, b)` | `Result<int, string>` | Overflow, underflow |
-| `checked_div(a, b)` | `Result<int, string>` | Division by zero, INT64_MIN / -1 |
-| `checked_mod(a, b)` | `Result<int, string>` | Modulo by zero |
-
-### When to Use
-
-- **Safety-critical applications**: Avionics, medical devices, automotive
-- **Financial calculations**: Money arithmetic must not overflow silently
-- **User input validation**: Prevent malicious overflow attacks
-- **Production code**: When correctness matters more than performance
-
-### When NOT to Use
-
-- **Performance-critical inner loops**: Checked ops are slower (~2-3x)
-- **Proven-safe calculations**: E.g., loop counters with known bounds
-- **Compiler-optimized code**: When overflow is mathematically impossible
-
-### Example: Safe Calculator
-
-See `examples/nl_checked_math_demo.nano` for a complete demonstration.
+### 5.13 Checked Arithmetic
 
 ```nano
 module "modules/stdlib/checked_math.nano"
 
-fn safe_calculator(a: int, op: string, b: int) -> Result<int, string> {
-    if (== op "+") {
-        return (checked_add a b)
-    } else { if (== op "-") {
-        return (checked_sub a b)
-    } else { if (== op "*") {
-        return (checked_mul a b)
-    } else { if (== op "/") {
-        return (checked_div a b)
-    } else {
-        return Result.Err { error: "Unknown operator" }
-    }}}}
+let result: Result<int, string> = (checked_add 1000000 2000000)
+match result {
+    Ok(v) => { (println v.value) },
+    Err(e) => { (println e.error) }
 }
 ```
 
-## Performance Tips
+Functions: `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_mod`.
 
-### 1. Use Primitives Over Structs When Possible
+### 5.14 Contracts (requires/ensures)
+
 ```nano
-# Faster
-fn add_coords(x1: int, y1: int, x2: int, y2: int) -> (int, int)
-
-# Slower (struct allocation)
-fn add_points(p1: Point, p2: Point) -> Point
-```
-
-### 2. Avoid Unnecessary String Operations
-```nano
-# Expensive
-let mut result: string = ""
-for i in (range 0 1000) {
-    set result (str_concat result "x")  # Allocates each time!
-}
-
-# Better: Use array/list and join once
-```
-
-### 3. Use Lists for Dynamic Data
-```nano
-# Good for dynamic data
-let numbers: List<int> = (List_int_new)
-(List_int_push numbers 42)
-
-# Arrays are fixed-element-type but dynamic size
-let arr: array<int> = [1, 2, 3]
-```
-
-### 4. Minimize Shadow Test Complexity
-Shadow tests run at compile time, keep them fast:
-```nano
-shadow process {
-    # Good - quick checks
-    assert (== (process 5) 10)
-    assert (== (process 0) 0)
-}
-
-shadow process {
-    # Avoid - slow compile times
-    let mut i: int = 0
-    while (< i 10000) {
-        assert (== (process i) (* i 2))
-        set i (+ i 1)
-    }
+fn sqrt_safe(x: float) -> float
+    requires (>= x 0.0)
+    ensures (>= result 0.0)
+{
+    return (sqrt x)
 }
 ```
 
-## Testing Philosophy
+---
 
-### Shadow Tests Are Mandatory
-- Every function must have shadow tests
-- Shadow tests run at compile time
-- They verify correctness before runtime
+## 6. STANDARD LIBRARY
 
-### Shadow Test Coverage
-```nano
-fn divide(a: int, b: int) -> int {
-    return (/ a b)
-}
+### 6.1 Core I/O
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `print` | `(value: any) -> void` | Print without newline |
+| `println` | `(value: any) -> void` | Print with newline |
+| `assert` | `(condition: bool) -> void` | Runtime assertion |
 
-shadow divide {
-    # Test normal cases
-    assert (== (divide 10 2) 5)
-    assert (== (divide 7 3) 2)
-    
-    # Test edge cases
-    assert (== (divide 0 5) 0)
-    assert (== (divide -10 2) -5)
-    
-    # Test negative divisor
-    assert (== (divide 10 -2) -5)
-}
+### 6.2 Math
+| Function | Signature |
+|----------|-----------|
+| `abs` | `(x: int or float) -> int or float` |
+| `min` | `(a, b) -> same type` |
+| `max` | `(a, b) -> same type` |
+| `sqrt` | `(x) -> float` |
+| `pow` | `(base, exp) -> float` |
+| `floor` | `(x) -> float` |
+| `ceil` | `(x) -> float` |
+| `round` | `(x) -> float` |
+| `sin` | `(x) -> float` (radians) |
+| `cos` | `(x) -> float` |
+| `tan` | `(x) -> float` |
+| `asin` | `(x) -> float` |
+| `acos` | `(x) -> float` |
+| `atan` | `(x) -> float` |
+
+### 6.3 String Operations
+| Function | Description |
+|----------|-------------|
+| `str_length(s)` | Length in bytes |
+| `str_concat(s1, s2)` | Concatenate (or use `+`) |
+| `str_substring(s, start, len)` | Extract substring |
+| `str_contains(s, substr)` | Substring check |
+| `str_index_of(s, substr)` | Find position (-1 if not found) |
+| `str_replace(s, old, new)` | Replace occurrences |
+| `str_split(s, delim)` | Split to `array<string>` |
+| `str_trim(s)` | Trim whitespace |
+| `str_to_upper(s)` | Uppercase |
+| `str_to_lower(s)` | Lowercase |
+| `str_starts_with(s, prefix)` | Prefix check |
+| `str_ends_with(s, suffix)` | Suffix check |
+| `str_char_at(s, idx)` | Character at index |
+| `int_to_string(n)` | Int to string |
+| `float_to_string(f)` | Float to string |
+| `string_to_int(s)` | Parse integer |
+
+### 6.4 Array Operations
+| Function | Description |
+|----------|-------------|
+| `at(arr, idx)` | Get element (bounds-checked) |
+| `array_length(arr)` | Array length |
+| `array_push(arr, elem)` | Append (returns new array) |
+| `array_pop(arr)` | Remove and return last |
+| `array_set(arr, idx, val)` | Set element (returns new array) |
+| `array_remove_at(arr, idx)` | Remove at index (returns new array) |
+| `array_slice(arr, start, end)` | Slice |
+| `range(start, end)` | Range for for-loops |
+
+### 6.5 Generic List Operations
+
+Replace `T` with the concrete type: `List_int_new`, `List_string_push`, `List_Point_get`.
+
+| Function | Description |
+|----------|-------------|
+| `List_T_new()` | Create new list |
+| `List_T_push(list, val)` | Append element |
+| `List_T_get(list, idx)` | Get element |
+| `List_T_length(list)` | List length |
+
+### 6.6 System / OS
+| Function | Description |
+|----------|-------------|
+| `nl_exec_shell(cmd)` | Execute shell command |
+| `file_read(path)` | Read file to string |
+| `file_write(path, content)` | Write string to file |
+| `file_exists(path)` | Check file existence |
+| `get_argc()` / `get_argv(i)` | CLI argument access |
+| `nl_os_getpid()` | Process ID |
+| `nl_os_getenv(key)` | Environment variable |
+
+### 6.7 Stdlib Modules (in `stdlib/`)
+
+| Module | Purpose |
+|--------|---------|
+| `stdlib/log.nano` | Structured logging (6 levels: TRACE to FATAL) |
+| `stdlib/coverage.nano` | Runtime code coverage tracking |
+| `stdlib/timing.nano` | Microsecond-precision benchmarking |
+| `stdlib/process.nano` | Process management |
+| `stdlib/regex.nano` | Regular expressions |
+| `stdlib/ast.nano` | AST manipulation utilities |
+| `stdlib/beads.nano` | Issue tracking integration |
+| `stdlib/StringBuilder.nano` | Efficient string building |
+
+---
+
+## 7. NANOISA — VIRTUAL MACHINE INSTRUCTION SET
+
+### 7.1 Architecture Model
+
+- **Stack machine** with 5 virtual registers: SP, FP, IP, R0 (accumulator), R1 (scratch)
+- **Runtime-typed values:** 16 bytes each (1-byte tag + 15-byte payload)
+- **Variable-length encoding:** 1-byte opcode + 0-4 operands
+- **Little-endian** byte order
+- **178 opcodes** — RISC/CISC hybrid
+
+### 7.2 Value Tags
+
+| Tag | Code | Description |
+|-----|------|-------------|
+| `TAG_VOID` | 0x00 | No value |
+| `TAG_INT` | 0x01 | 64-bit signed integer |
+| `TAG_U8` | 0x02 | Unsigned byte |
+| `TAG_FLOAT` | 0x03 | 64-bit IEEE 754 double |
+| `TAG_BOOL` | 0x04 | true/false |
+| `TAG_STRING` | 0x05 | Heap-allocated, GC-managed, immutable |
+| `TAG_BSTRING` | 0x06 | Binary string with length |
+| `TAG_ARRAY` | 0x07 | Dynamic array, GC-managed |
+| `TAG_STRUCT` | 0x08 | Named struct with fields |
+| `TAG_ENUM` | 0x09 | Integer variant index |
+| `TAG_UNION` | 0x0A | Tagged union |
+| `TAG_FUNCTION` | 0x0B | Function table index + optional closure env |
+| `TAG_TUPLE` | 0x0C | Fixed-size heterogeneous container |
+| `TAG_HASHMAP` | 0x0D | Key-value map |
+| `TAG_OPAQUE` | 0x0E | RPC proxy ID (handle to co-process object) |
+
+### 7.3 Opcode Groups
+
+| Range | Group | Key Opcodes |
+|-------|-------|-------------|
+| 0x00-0x0F | Stack & Constants | `NOP`, `PUSH_I64`, `PUSH_F64`, `PUSH_BOOL`, `PUSH_STR`, `PUSH_VOID`, `DUP`, `POP`, `SWAP`, `ROT3` |
+| 0x10-0x1F | Variable Access | `LOAD_LOCAL`, `STORE_LOCAL`, `LOAD_GLOBAL`, `STORE_GLOBAL`, `LOAD_UPVALUE`, `STORE_UPVALUE` |
+| 0x20-0x27 | Arithmetic | `ADD`, `SUB`, `MUL`, `DIV`, `MOD`, `NEG` |
+| 0x28-0x2F | Comparison | `EQ`, `NE`, `LT`, `LE`, `GT`, `GE` |
+| 0x30-0x37 | Logic | `AND`, `OR`, `NOT` |
+| 0x38-0x3F | Control Flow | `JMP`, `JMP_TRUE`, `JMP_FALSE`, `CALL`, `CALL_INDIRECT`, `CALL_EXTERN`, `CALL_MODULE`, `RET` |
+| 0x40-0x4F | String Ops | `STR_LEN`, `STR_CONCAT`, `STR_SUBSTR`, `STR_CONTAINS`, `STR_EQ`, `STR_CHAR_AT`, `STR_FROM_INT`, `STR_FROM_FLOAT` |
+| 0x50-0x5F | Array Ops | `ARR_NEW`, `ARR_PUSH`, `ARR_POP`, `ARR_GET`, `ARR_SET`, `ARR_LEN`, `ARR_SLICE`, `ARR_REMOVE`, `ARR_LITERAL` |
+| 0x60-0x67 | Struct Ops | `STRUCT_NEW`, `STRUCT_GET`, `STRUCT_SET`, `STRUCT_LITERAL` |
+| 0x68-0x6F | Union/Enum | `UNION_CONSTRUCT`, `UNION_TAG`, `UNION_FIELD`, `MATCH_TAG`, `ENUM_VAL` |
+| 0x70-0x77 | Tuple Ops | `TUPLE_NEW`, `TUPLE_GET` |
+| 0x78-0x7F | HashMap Ops | `HM_NEW`, `HM_GET`, `HM_SET`, `HM_HAS`, `HM_DELETE`, `HM_KEYS`, `HM_VALUES`, `HM_LEN` |
+| 0x80-0x87 | GC/Memory | `GC_RETAIN`, `GC_RELEASE`, `GC_SCOPE_ENTER`, `GC_SCOPE_EXIT` |
+| 0x88-0x8F | Type Casts | `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK` |
+| 0x90-0x97 | Closures | `CLOSURE_NEW`, `CLOSURE_CALL` |
+| 0xA0-0xAF | I/O & Debug | `PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT` |
+| 0xB0-0xBF | Opaque Proxy | `OPAQUE_NULL`, `OPAQUE_VALID` |
+
+### 7.4 Trap Architecture
+
+The VM separates pure computation from side effects:
+
+**Pure core** (`vm_core_execute`) handles 83+ opcodes (arithmetic, logic, data structures, control flow).
+
+When the core encounters a side effect, it returns a **trap descriptor**:
+
+| Trap | Trigger | Handler |
+|------|---------|---------|
+| `TRAP_EXTERN_CALL` | `OP_CALL_EXTERN` | Route to co-process FFI |
+| `TRAP_PRINT` | `OP_PRINT` | Write to stdout |
+| `TRAP_ASSERT` | `OP_ASSERT` | Check boolean, abort if false |
+| `TRAP_HALT` | `OP_HALT` | Stop execution |
+| `TRAP_ERROR` | Runtime error | Report and terminate |
+
+The **harness** (`vm_execute`) dispatches traps and resumes the core.
+This enables potential FPGA acceleration of the pure-compute core.
+
+### 7.5 .nvm Binary Format
+
+**Header (32 bytes):**
+```
+[magic: "NVM\x01" (4B)] [version (4B)] [flags (4B)] [entry_point (4B)]
+[section_count (4B)] [string_pool_offset (4B)] [string_pool_length (4B)] [CRC32 (4B)]
 ```
 
-### What NOT to Test in Shadow
-- Don't test external I/O (SDL, files, network)
-- Don't test random/non-deterministic functions
-- Don't test functions that use `extern` C functions
-- Keep shadow tests pure and deterministic
+**Sections:** CODE (0x0001), STRINGS (0x0002), FUNCTIONS (0x0003), STRUCTS (0x0004), ENUMS (0x0005), UNIONS (0x0006), GLOBALS (0x0007), IMPORTS (0x0008), DEBUG (0x0009), METADATA (0x000A), MODULE_REFS (0x000B)
 
-For complex integration testing, mark functions as using extern:
-```nano
-fn render_graphics() -> void {
-    # Uses SDL - can't shadow test
-}
+### 7.6 Memory Management
 
-shadow render_graphics {
-    # Skip or keep minimal
-}
+Reference-counted GC with scope-based auto-release:
+- `OP_GC_RETAIN` / `OP_GC_RELEASE` — Manual refcount
+- `OP_GC_SCOPE_ENTER` / `OP_GC_SCOPE_EXIT` — Automatic release on scope exit
+- Compiler inserts scope markers for let-bindings
+
+---
+
+## 8. CO-PROCESS FFI (COP MODEL)
+
+The COP (Co-Process) model isolates FFI calls in a separate process for safety.
+
+### 8.1 Architecture
+
+```
+┌─────────────┐    pipes    ┌─────────────┐
+│   nano_vm   │ <---------> │  nano_cop   │
+│ (pure core) │             │ (FFI calls) │
+└─────────────┘             └─────────────┘
 ```
 
-## Idioms and Conventions
+### 8.2 Protocol
 
-### 1. Use Struct Constructors
+**Wire format:** 8-byte header: `[version (1B)] [msg_type (1B)] [reserved (2B)] [payload_len (4B)]`
+
+**VM to Co-Process:**
+- `COP_MSG_INIT` (0x01) — Send import table
+- `COP_MSG_FFI_REQ` (0x02) — Call external function
+- `COP_MSG_SHUTDOWN` (0x03) — Terminate
+
+**Co-Process to VM:**
+- `COP_MSG_FFI_RESULT` (0x10) — Return value
+- `COP_MSG_FFI_ERROR` (0x11) — Error string
+- `COP_MSG_READY` (0x12) — Init complete
+
+### 8.3 Value Serialization
+
+| Type | Encoding |
+|------|----------|
+| INT | i64 (8B, little-endian) |
+| FLOAT | f64 (8B, IEEE 754) |
+| BOOL | u8 (0 or 1) |
+| STRING | length (u32) + UTF-8 data |
+| ARRAY | elem_type (u8) + count (u32) + elements |
+| OPAQUE | i64 proxy ID |
+| VOID | 0 bytes |
+
+### 8.4 Lifecycle
+
+1. VM forks `nano_cop` (connected via pipes)
+2. VM sends `COP_MSG_INIT` with import table
+3. Co-process loads FFI modules, sends `COP_MSG_READY`
+4. For each FFI call: VM sends request, co-process returns result
+5. VM sends `COP_MSG_SHUTDOWN` on exit
+
+**Key benefit:** If the co-process crashes, the VM detects the broken pipe and recovers gracefully. FFI crashes are fully isolated from VM execution.
+
+### 8.5 VM Daemon (nano_vmd)
+
+Optional persistent VM process listening on Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`).
+Accepts .nvm blobs from clients. Reduces startup latency for repeated execution.
+
+---
+
+## 9. FORMAL VERIFICATION (NANOCORE)
+
+### 9.1 Overview
+
+NanoCore is the formally verified subset of NanoLang, mechanized in the Rocq Prover (Coq).
+
+- **~6,170 lines of Coq**
+- **193 theorems/lemmas**
+- **0 axioms** (fully axiom-free)
+- **0 Admitted** proofs
+
+### 9.2 What's Proved
+
+| Theorem | Statement |
+|---------|-----------|
+| **Preservation** | Well-typed expressions evaluate to values of the expected type |
+| **Progress** | Well-typed closed expressions are either values or can step |
+| **Determinism** | Evaluation is a partial function (unique results) |
+| **Semantic Equivalence** | Big-step and small-step semantics agree |
+| **Evaluator Soundness** | Fuel-based evaluator agrees with relational semantics |
+
+### 9.3 Verified Subset (NanoCore)
+
+Integers, booleans, strings, unit type, arithmetic, comparison, logic, string concatenation/length/equality/indexing, if/then/else, let bindings, mutable variables (set), sequential composition, while loops, lambda/application, array literals/indexing/length/push/update, record literals/field access/field update, recursive functions (fix/letrec), variant types, pattern matching.
+
+### 9.4 File Structure
+
+| File | Lines | Contents |
+|------|-------|----------|
+| `Syntax.v` | 235 | Types, operators, expressions, values, environments |
+| `Semantics.v` | 341 | Big-step operational semantics with store-passing |
+| `Typing.v` | 293 | Typing rules, contexts |
+| `Soundness.v` | 834 | Preservation theorem |
+| `Progress.v` | 745 | Small-step semantics, substitution, progress |
+| `Determinism.v` | 89 | Determinism proof |
+| `Equivalence.v` | 3,098 | Big-step / small-step equivalence (133 lemmas) |
+| `EvalFn.v` | 503 | Computable evaluator with soundness proof |
+| `Extract.v` | 32 | OCaml extraction configuration |
+
+### 9.5 Key Design Choices
+
+- Big-step semantics with store-passing for preservation
+- Scoped let bindings (pop from output environment)
+- Lexically scoped function application
+- String-based environments (association lists)
+- Short-circuit AND/OR
+- Total division (div-by-zero produces 0)
+- While loop unrolling in small-step
+- Structural record typing
+- Recursive closures via `VFixClos`
+- Exhaustive, ordered branch coverage for variants
+
+### 9.6 Building Proofs
+
+```bash
+cd formal/
+make                  # Compile all proofs (requires Rocq Prover >= 9.0)
+make extract          # Extract OCaml reference interpreter
+make nanocore-ref     # Build reference interpreter binary
+```
+
+### 9.7 Differential Testing
+
+```bash
+make test-differential    # Compare Coq reference interpreter vs NanoVM
+```
+
+---
+
+## 10. SOURCE CODE MAP
+
+### 10.1 C Compiler (Stage 0) — `src/`
+
+| File | LOC (approx) | Purpose |
+|------|-----|---------|
+| `main.c` | 1,343 | Compiler entry point, CLI, orchestration |
+| `lexer.c` | 407 | Tokenization |
+| `parser.c` | 4,656 | Recursive descent parser producing AST |
+| `typechecker.c` | 6,209 | Type checking and validation |
+| `transpiler.c` | 4,412 | AST to C code generation |
+| `transpiler_iterative_v3_twopass.c` | 3,273 | Two-pass transpilation (included by transpiler.c) |
+| `module.c` | 2,268 | Module loading, linking, namespaces |
+| `module_builder.c` | 1,716 | Module compilation, auto-instantiation |
+| `module_metadata.c` | 529 | Module metadata extraction |
+| `stdlib_runtime.c` | 1,875 | Standard library runtime bindings |
+| `eval.c` | — | Expression evaluation |
+| `nanolang.h` | 1,000+ | Master header: all types, AST nodes, value types |
+| `version.h` | 15 | Version: 0.2.0 |
+
+### 10.2 Runtime — `src/runtime/`
+
+| File | Purpose |
+|------|---------|
+| `gc.c` | Reference-counting garbage collector |
+| `gc_struct.c` | GC-managed struct allocations |
+| `dyn_array.c` | Dynamic array implementation |
+| `nl_string.c` | String operations |
+| `ffi_loader.c` | FFI/C library dynamic loading |
+| `cli.c` | CLI argument runtime |
+| `regex.c` | Regular expression support |
+| `token_helpers.c` | Token manipulation helpers |
+| `list_*.c` | Monomorphized list types (50+ files) |
+
+### 10.3 NanoISA — `src/nanoisa/`
+
+| File | LOC | Purpose |
+|------|-----|---------|
+| `isa.c` | 401 | ISA definition, encode/decode |
+| `nvm_format.c` | 618 | .nvm binary format, CRC32 |
+| `assembler.c` | 736 | Two-pass text assembler |
+| `disassembler.c` | 246 | Binary to text with label reconstruction |
+| `verifier.c` | — | Bytecode verification |
+
+### 10.4 NanoVM — `src/nanovm/`
+
+| File | LOC | Purpose |
+|------|-----|---------|
+| `vm.c` | 1,844 | Core switch-dispatch interpreter |
+| `value.c` | 225 | NanoValue constructors, type checking |
+| `heap.c` | 595 | Reference-counting GC |
+| `vm_builtins.c` | 297 | Runtime built-in functions |
+| `vm_ffi.c` | 611 | Fork/pipe/exec FFI lifecycle |
+| `cop_protocol.c` | 227 | Co-process wire protocol |
+| `cop_main.c` | 212 | `nano_cop` binary entry |
+| `vmd_protocol.c` | 150 | Daemon wire protocol |
+| `vmd_client.c` | 275 | Daemon client connector |
+| `vmd_server.c` | 430 | Daemon server handler |
+| `vmd_main.c` | 52 | `nano_vmd` entry |
+| `main.c` | 214 | `nano_vm` entry |
+
+### 10.5 NanoVirt (Bytecode Compiler) — `src/nanovirt/`
+
+| File | LOC | Purpose |
+|------|-----|---------|
+| `codegen.c` | 3,083 | AST to bytecode compiler |
+| `wrapper_gen.c` | 574 | Native executable generator |
+| `main.c` | 331 | `nano_virt` entry |
+
+### 10.6 Self-Hosted Compiler — `src_nano/`
+
+| File | Purpose |
+|------|---------|
+| `nanoc_v06.nano` | **Main self-hosted compiler driver** |
+| `compiler/lexer.nano` | Lexer implementation |
+| `parser.nano` | Parser implementation |
+| `typecheck.nano` | Type checker |
+| `transpiler.nano` | C code generator |
+| `compiler/module_loader.nano` | Module loading/resolution |
+| `compiler/diagnostics.nano` | Diagnostic system |
+| `compiler/error_messages.nano` | Error message formatting |
+| `compiler/ir.nano` | Intermediate representation |
+| `compiler/serialize.nano` | AST serialization |
+| `compiler/result.nano` | Result/error types |
+| `generated/compiler_ast.nano` | Auto-generated AST definitions |
+| `generated/compiler_schema.nano` | Auto-generated schema types |
+| `generated/compiler_contracts.nano` | Auto-generated contracts |
+| `ast_shared.nano` | Shared AST definitions |
+| `cli_args.nano` | CLI argument parsing |
+| `file_io.nano` | File I/O operations |
+| `parser_driver.nano` | Parser test driver |
+| `typecheck_driver.nano` | Type checker test driver |
+| `transpiler_driver.nano` | Transpiler test driver |
+
+### 10.7 Schema Generation
+
+| File | Purpose |
+|------|---------|
+| `schema/compiler_schema.json` | Master schema: tokens, parse nodes, types, structs |
+| `scripts/gen_compiler_schema.py` | Python schema generator (bootstrap) |
+| `scripts/gen_compiler_schema.nano` | NanoLang schema generator |
+
+Generated outputs: `src/generated/compiler_schema.h`, `src_nano/generated/compiler_schema.nano`, `src_nano/generated/compiler_ast.nano`, `src_nano/generated/compiler_contracts.nano`
+
+---
+
+## 11. MODULE ECOSYSTEM (49 modules in `modules/`)
+
+**Graphics & UI:** `sdl/`, `sdl_mixer/`, `sdl_ttf/`, `sdl_image/`, `sdl_helpers/`, `glfw/`, `glew/`, `glut/`, `opengl/`, `ncurses/`, `ui_widgets/`
+
+**System & I/O:** `filesystem/`, `stdio/`, `libc/`, `uv/`, `readline/`, `preferences/`
+
+**Data & Networking:** `curl/`, `http_server/`, `sqlite/`, `openai/`, `github/`
+
+**Audio:** `audio_helpers/`, `audio_viz/`, `pt2_audio/`, `pt2_module/`, `pt2_state/`
+
+**Standard Library:** `std/`, `stdlib/`, `vector2d/`, `math_ext/`, `unicode/`, `event/`, `proptest/`, `nano_tools/`, `nano_highlight/`, `tools/`
+
+**AI & Scripting:** `pybridge/`, `pybridge_matplotlib/`, `bullet/`
+
+### Module Structure
+```
+modules/<name>/
+  module.json        # Manifest (name, version, dependencies, platform)
+  <name>.nano        # NanoLang interface (extern fn declarations)
+  <name>.c           # C implementation (FFI bridge)
+  mvp.nano           # Self-test program
+  README.md          # Documentation
+```
+
+`modules/index.json` — auto-generated by `make modules-index`.
+
+---
+
+## 12. TESTING
+
+### 12.1 Test Architecture
+
+| Test Type | Location | Runner |
+|-----------|----------|--------|
+| Language tests | `tests/nl_*.nano`, `tests/test_*.nano` | `tests/run_all_tests.sh` |
+| C unit tests | `tests/test_transpiler.c` | `make test-units` |
+| NanoISA tests | `tests/nanoisa/test_nanoisa.c` (470 tests) | `make test-nanoisa` |
+| NanoVM tests | `tests/nanovm/test_vm.c` (150 tests) | `make test-nanovm` |
+| NanoVirt tests | `tests/nanovirt/test_codegen.c` (62 tests) | `make test-nanovirt` |
+| Self-host tests | `tests/selfhost/` | `tests/selfhost/run_selfhost_tests.sh` |
+| Negative tests | `tests/negative/` | `tests/run_negative_tests.sh` |
+| Integration tests | `tests/integration/` | Via `run_all_tests.sh` |
+| Regression tests | `tests/regression/` | Via `run_all_tests.sh` |
+| Fuzzing tests | `tests/fuzzing/` | Manual |
+| Performance tests | `tests/performance/` | `make benchmark` |
+| Differential tests | `tests/differential/` | `make test-differential` |
+| User guide tests | `tests/user_guide/` | `make test-docs` |
+
+### 12.2 Running Tests
+
+```bash
+make test              # Full suite (build + all tests)
+make test-quick        # Language tests only (fastest)
+make test-vm           # Tests through NanoVM backend
+make test-daemon       # Tests through VM daemon
+make test-stage1       # Tests with C reference compiler only
+make test-bootstrap    # Tests with fully bootstrapped compiler
+make test-lang         # Core language tests (nl_* only)
+make test-docs         # User guide snippet tests
+make test-nanoisa      # NanoISA unit tests
+make test-nanovm       # NanoVM unit tests
+make test-nanovirt     # NanoVirt codegen tests
+make test-differential # Coq reference vs NanoVM
+```
+
+### 12.3 CI/CD
+
+GitHub Actions: `.github/workflows/ci.yml`, `.github/workflows/userguide_pages.yml`
+
+---
+
+## 13. EXAMPLES (150+)
+
+### Learning Path
+
+**Level 1 (Beginner):** `nl_hello.nano` → `nl_calculator.nano` → `nl_mutable.nano` → `nl_control_if_while.nano` → `nl_control_for.nano`
+
+**Level 2 (Core):** `nl_functions_basic.nano` → `nl_array_complete.nano` → `nl_struct.nano` → `nl_string_operations.nano` → `nl_factorial.nano`
+
+**Level 3 (Intermediate):** `nl_types_union_construct.nano` → `nl_generics_demo.nano` → `nl_hashmap.nano` → `namespace_demo.nano` → `nl_extern_string.nano`
+
+**Level 4 (Advanced):** Games (Snake, Checkers, Asteroids), Graphics (Boids, Particles, Raytracer), Systems (HTTP server, AI agents)
+
+### Categories
+
+| Category | Directory | Description |
+|----------|-----------|-------------|
+| Language | `examples/language/` | 50+ core feature demos |
+| Advanced | `examples/advanced/` | FFI, modules, performance |
+| Games | `examples/games/` | SDL games (Pong, Asteroids, Checkers) |
+| Terminal | `examples/terminal/` | NCurses apps (Snake, Life, Matrix) |
+| Audio | `examples/audio/` | SDL audio, MOD player |
+| Graphics | `examples/graphics/` | Particles, boids, raytracer |
+| Network | `examples/network/` | HTTP server, REST API, curl |
+| Verified | `examples/verified/` | Formally verified patterns |
+| OpenGL | `examples/opengl/` | 3D graphics |
+| Playground | `examples/playground/` | Web-based playground server |
+| OPL | `examples/opl/` | Custom parser language (showcase) |
+
+---
+
+## 14. COMMON PATTERNS & IDIOMS
+
+### The NanoLang Pattern
+
 ```nano
+# 1. Types first
 struct Point { x: int, y: int }
 
+# 2. Constructor function
 fn Point_new(x: int, y: int) -> Point {
     return Point { x: x, y: y }
 }
 
-fn Point_zero() -> Point {
-    return Point { x: 0, y: 0 }
-}
-```
-
-### 2. Name Generic Functions with Type Suffix
-```nano
-# For List<int> use:
-List_int_new()
-List_int_push()
-List_int_get()
-
-# For List<Point> use:
-List_Point_new()
-List_Point_push()
-List_Point_get()
-```
-
-### 3. Use Enums for Status/State
-```nano
-enum GameState {
-    Menu = 0,
-    Playing = 1,
-    Paused = 2,
-    GameOver = 3
+# 3. Shadow test immediately after
+shadow Point_new {
+    let p: Point = (Point_new 5 10)
+    assert (== p.x 5)
+    assert (== p.y 10)
 }
 
-let state: GameState = GameState.Menu
-```
-
-### 4. Return Early for Clarity
-```nano
-fn validate_and_process(x: int) -> int {
-    # Early return for invalid cases
-    if (< x 0) {
-        return -1
-    }
-    if (> x 100) {
-        return -1
-    }
-    
-    # Main logic for valid case
-    return (* x 2)
-}
-```
-
-### 5. Use Bool Functions for Predicates
-```nano
-fn is_positive(x: int) -> bool {
-    return (> x 0)
+# 4. Operations on the type
+fn Point_add(a: Point, b: Point) -> Point {
+    return Point { x: (+ a.x b.x), y: (+ a.y b.y) }
 }
 
-fn is_even(x: int) -> bool {
-    return (== (% x 2) 0)
+shadow Point_add {
+    let a: Point = (Point_new 1 2)
+    let b: Point = (Point_new 3 4)
+    let c: Point = (Point_add a b)
+    assert (== c.x 4)
+    assert (== c.y 6)
 }
 
-fn is_valid_range(x: int, min: int, max: int) -> bool {
-    return (and (>= x min) (<= x max))
-}
-```
-
-## Quick Checklist for Code Generation
-
-Before generating nanolang code, verify:
-
-- [ ] All functions have shadow tests
-- [ ] Operators use prefix `(+ a b)` or infix `a + b` notation (both valid)
-- [ ] All variables have explicit types: `let x: int = 5`
-- [ ] All if statements have else branches
-- [ ] Mutable variables declared with `mut` keyword
-- [ ] Function parameters have type annotations
-- [ ] Function return type is specified
-- [ ] Struct field access uses dot notation: `point.x`
-- [ ] Function calls use prefix: `(function arg1 arg2)`
-- [ ] Range loops use proper syntax: `for i in (range 0 10)`
-
-## Dynamic Array Operations
-
-**SEMANTICS:** NanoLang arrays use **pure functional semantics** - all operations return new arrays, original arrays are unchanged. This matches the immutable-by-default philosophy.
-
-NanoLang arrays are dynamic and garbage-collected. They can grow and shrink as needed.
-
-### Creating Arrays
-```nano
-let empty: array<int> = []                   # Empty array
-let nums: array<int> = [1, 2, 3, 4, 5]       # Array literal
-let strings: array<string> = ["a", "b"]      # String array
-let nested: array<array<int>> = [[1], [2]]   # Nested arrays
-```
-
-### Adding Elements
-```nano
-let mut arr: array<int> = []
-set arr (array_push arr 42)                  # Append to end
-set arr (array_push arr 43)                  # arr is now [42, 43]
-```
-
-**Important:** `array_push` returns a new array. You must assign it back to the variable.
-
-### Removing Elements
-```nano
-let mut arr: array<int> = [10, 20, 30, 40]
-
-# Remove last element
-let val: int = (array_pop arr)               # val = 40, arr unchanged
-# Note: array_pop doesn't modify the array in place
-
-# Remove at specific index
-set arr (array_remove_at arr 1)              # Remove index 1
-# arr becomes [10, 30, 40] (removed 20)
-```
-
-### Accessing Elements
-```nano
-let first: int = (at arr 0)                  # Get element (bounds-checked)
-(array_set arr 0 100)                        # Set element (bounds-checked)
-let len: int = (array_length arr)            # Get length
-```
-
-### Complete Example
-```nano
-fn array_demo() -> int {
-    # Create empty array
-    let mut numbers: array<int> = []
-    
-    # Add elements
-    set numbers (array_push numbers 10)
-    set numbers (array_push numbers 20)
-    set numbers (array_push numbers 30)
-    # numbers = [10, 20, 30]
-    
-    # Remove last
-    let last: int = (array_pop numbers)
-    # last = 30, but numbers still [10, 20, 30]
-    
-    # Remove at index
-    set numbers (array_remove_at numbers 0)
-    # numbers = [20, 30]
-    
-    # Access and create modified version
-    let first: int = (at numbers 0)          # first = 20
-    set numbers (array_set numbers 0 99)     # numbers = [99, 30] (new array)
-    
-    return (array_length numbers)            # Returns 2
+# 5. Main entry point
+fn main() -> int {
+    let p: Point = (Point_new 10 20)
+    (println p.x)
+    return 0
 }
 
-shadow array_demo {
-    assert (== (array_demo) 2)
-}
+shadow main { assert true }
 ```
 
-### Array Operations Summary
-
-**CHOSEN SEMANTICS: Fully Functional (Immutable by Default)**
-
-All array operations return new arrays and leave the original unchanged. This matches NanoLang's immutable-by-default philosophy.
-
-| Operation | Function | Returns | Original Array | Performance |
-|-----------|----------|---------|----------------|-------------|
-| Append | `array_push(arr, elem)` | new array | unchanged | O(1) amortized |
-| Remove last | `array_pop(arr)` | removed element | unchanged | O(1) |
-| Remove at index | `array_remove_at(arr, idx)` | new array | unchanged | O(n) |
-| Get element | `at(arr, idx)` | element value | unchanged | O(1) |
-| Set element | `array_set(arr, idx, val)` | new array | unchanged | O(n) copy |
-| Get length | `array_length(arr)` | int | unchanged | O(1) |
-
-**Implementation Detail:** Under the hood, operations use structural sharing and copy-on-write for efficiency. You don't pay for full array copies unless you actually modify elements.
-
-**Best Practice:** If you need to make many modifications, collect them and create a new array. Or consider using a mutable algorithm with explicit copies:
-
-```nano
-let mut working_copy: array<int> = arr  # Shallow copy
-set working_copy (array_push working_copy 1)
-set working_copy (array_push working_copy 2)
-# Original arr is still unchanged
-```
-
-**Key Principle:** Pure functional semantics → no hidden mutations → easier to reason about → fewer bugs.
-
-## Advanced Features
-
-### First-Class Functions
-```nano
-# Function as parameter
-fn apply(f: fn(int) -> int, x: int) -> int {
-    return (f x)
-}
-
-# Function as return value
-fn get_incrementor() -> fn(int) -> int {
-    return increment
-}
-
-# Function in variable
-let operation: fn(int, int) -> int = add
-let result: int = (operation 5 3)
-```
-
-### Tuples
-```nano
-# Tuple type and literal
-let coord: (int, int) = (10, 20)
-let x: int = coord.0
-let y: int = coord.1
-
-# Function returning tuple
-fn divide_with_remainder(a: int, b: int) -> (int, int) {
-    let quotient: int = (/ a b)
-    let remainder: int = (% a b)
-    return (quotient, remainder)
-}
-
-shadow divide_with_remainder {
-    let result: (int, int) = (divide_with_remainder 10 3)
-    assert (== result.0 3)
-    assert (== result.1 1)
-}
-```
-
-### Pattern Matching on Unions
-```nano
-union Result {
-    Ok { value: int },
-    Error { code: int, message: string }
-}
-
-fn process_result(r: Result) -> int {
-    match r {
-        Ok(data) => {
-            return data.value
-        }
-        Error(err) => {
-            (println err.message)
-            return -1
-        }
-    }
-}
-```
-
-### Standard Library Result<T, E>
-NanoLang includes a standard library generic Result type for error handling:
+### Error Handling Pattern
 
 ```nano
 fn divide(a: int, b: int) -> Result<int, string> {
@@ -1270,254 +1081,169 @@ fn divide(a: int, b: int) -> Result<int, string> {
     return Result.Ok { value: (/ a b) }
 }
 
-fn main() -> int {
-    let result: Result<int, string> = (divide 10 2)
-
-    match result {
-        Ok(v) => {
-            (println v.value)  # Prints 5
-        }
-        Err(e) => {
-            (println e.error)
-        }
-    }
-    
-    return 0
-}
-
 shadow divide {
     let r1: Result<int, string> = (divide 10 2)
     match r1 {
         Ok(v) => assert (== v.value 5),
         Err(e) => assert false
     }
-    
-    let r2: Result<int, string> = (divide 10 0)
-    match r2 {
-        Ok(v) => assert false,
-        Err(e) => assert true
-    }
 }
 ```
 
-Note: Helper functions like `is_ok`, `is_err`, `unwrap`, `unwrap_or`, `map`, and
-`map_err` are planned once generic functions are supported.
+### Naming Conventions
 
-## Summary: The NanoLang Vibe
-
-NanoLang is designed for **clarity over cleverness**:
-
-1. **Explicit everything** - No hidden behavior, no inference, no magic
-2. **Test-driven** - Shadow tests force you to think about correctness
-3. **Dual notation** - Both prefix `(+ a b)` and infix `a + b` for operators; equal precedence eliminates ambiguity
-4. **Immutable by default** - Mutability is explicit with `mut`
-5. **Static typing** - Catch errors at compile time
-6. **Simple but complete** - Minimalist syntax, powerful features
-
-When generating nanolang code:
-- Think "What would the simplest, clearest version look like?"
-- Make types explicit
-- Write shadow tests that verify correctness
-- Use prefix or infix notation for operators (both are valid); function calls are always prefix
-- Leverage the type system to catch errors early
+- Functions: `snake_case` — `calculate_distance`, `parse_input`
+- Types: `PascalCase` — `Point`, `GameState`, `Result`
+- Variables: `snake_case` — `total_count`, `is_valid`
+- Generic functions: `Type_operation` — `List_int_push`, `Point_new`
+- Constants: expressed as enums — `enum Color { Red = 0, Blue = 1 }`
 
 ---
 
-## Advanced Features (v0.3+)
+## 15. COMMON ERRORS & DEBUGGING
 
-### Affine Types for Resource Safety
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Function 'foo' missing shadow test` | No shadow block | Add `shadow foo { assert ... }` |
+| `Type mismatch in let statement` | Wrong type annotation | Check types match exactly |
+| `Unexpected token` | C-style function call | Use `(f x y)` not `f(x, y)` |
+| `Cannot assign to immutable variable` | Missing `mut` | Declare with `let mut` |
+| `If statement requires else branch` | Missing else | Add `} else { ... }` |
+| `Undefined variable/function` | Not declared before use | Declare before use |
+| `Extern call outside unsafe block` | FFI safety | Wrap in `unsafe { }` or use `unsafe module` |
 
-**Affine types** ensure resources (files, sockets, etc.) are used **at most once**, preventing use-after-free/close bugs at compile time.
+### Compiler Flags
+
+| Flag | Description |
+|------|-------------|
+| `-o <path>` | Output binary path |
+| `--keep-c` | Keep generated C file |
+| `-v` | Verbose output |
+| `--llm-diags-json <path>` | Machine-readable diagnostics |
+| `-pg` | Enable profiling |
+| `--run` | (nano_virt) Execute immediately |
+| `--emit-nvm` | (nano_virt) Output .nvm bytecode |
+| `--isolate-ffi` | (nano_vm) Route FFI through co-process |
+| `--daemon` | (nano_vm) Send to daemon |
+
+---
+
+## 16. KNOWN ISSUES & LIMITATIONS
+
+### Active Known Issues
+
+- **`from ... import` infinite loop (bead nl-hmt, P0):** Self-hosted stage1 compiler infinite loops with `from ... import` + multiple modules. Workaround: use `module`/`import` instead.
+- **No closures/lambdas as expressions** — functions are first-class but no anonymous inline closures
+- **No generic functions** — only generic types (List<T>, Result<T,E>)
+- **No trait/interface system** — polymorphism via monomorphization only
+- **No REPL** — interpreter removed; all compilation is ahead-of-time
+
+### Design Limitations (by choice)
+
+- All infix operators have equal precedence (use parens)
+- `else` branch required on all `if` statements
+- No type inference — all types explicit
+- No implicit conversions
+- No operator overloading
+- No exceptions — use Result unions
+- Division by zero produces 0 (matches Coq formalization)
+
+---
+
+## 17. ISSUE TRACKING (BEADS)
+
+NanoLang uses `bd` (beads) for issue tracking, stored in `.beads/`.
+
+```bash
+bd onboard             # Get started
+bd ready               # Find available work
+bd show <id>           # View issue details
+bd update <id> --status in_progress   # Claim work
+bd close <id>          # Complete work
+bd sync                # Sync with git
+```
+
+---
+
+## 18. CODE GENERATION CHECKLIST (FOR LLMs)
+
+Before generating NanoLang code, verify:
+
+- [ ] All functions have shadow tests
+- [ ] Operators use prefix `(+ a b)` or infix `a + b` (both valid)
+- [ ] All variables have explicit types: `let x: int = 5`
+- [ ] All if statements have else branches
+- [ ] Mutable variables declared with `let mut`
+- [ ] Function parameters have type annotations
+- [ ] Function return type is specified
+- [ ] Struct field access uses dot notation: `point.x`
+- [ ] Function calls use prefix: `(function arg1 arg2)`
+- [ ] No C-style calls: never `f(x, y)`
+- [ ] Range loops: `for i in (range 0 10)`
+- [ ] String concat: `(+ str1 str2)` or `str1 + str2`
+- [ ] Array ops return new arrays: `set arr (array_push arr val)`
+- [ ] FFI calls wrapped in `unsafe {}` or module declared `unsafe module`
+- [ ] Use `cond` for multi-branch expressions, `if/else` for statements
+- [ ] Use parentheses to control operator grouping (no precedence)
+- [ ] `main` function returns `int` and has shadow test
+- [ ] Commas make tuples: `(a, b)` is tuple, `(f a b)` is call
+
+---
+
+## 19. PLATFORM SUPPORT
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Ubuntu 22.04+ (x86_64, ARM64) | Fully supported | Primary development platform |
+| macOS 14+ (Apple Silicon) | Fully supported | `make` uses GNU make by default |
+| FreeBSD | Fully supported | Use `gmake` instead of `make` |
+| Windows | WSL2 only | Use WSL2 with Ubuntu |
+
+---
+
+## 20. QUICK REFERENCE CARD
 
 ```nano
-# Declare a resource struct
-resource struct FileHandle {
-    fd: int
+# --- VARIABLES ------------------------------------------------
+let x: int = 42                    # Immutable
+let mut y: int = 0                 # Mutable
+set y (+ y 1)                      # Assign
+
+# --- FUNCTIONS ------------------------------------------------
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+shadow add {
+    assert (== (add 2 3) 5)
 }
 
-# FFI functions that work with resources
-extern fn open_file(path: string) -> FileHandle
-extern fn close_file(f: FileHandle) -> void
-extern fn read_file(f: FileHandle) -> string
+# --- CONTROL FLOW ---------------------------------------------
+if (> x 0) { ... } else { ... }
+while (< i 10) { set i (+ i 1) }
+for i in (range 0 10) { ... }
+(cond ((< x 0) "neg") ((== x 0) "zero") (else "pos"))
+match val { Ok(v) => { ... } Err(e) => { ... } }
 
-fn safe_file_usage() -> int {
-    # Create resource
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    # Use resource (can use multiple times before consuming)
-    let data: string = unsafe { (read_file f) }
-    
-    # Consume resource (transfers ownership, resource is "moved")
-    unsafe { (close_file f) }
-    
-    # ERROR: Cannot use 'f' after it has been consumed!
-    # let more: string = unsafe { (read_file f) }  # Compile error!
-    
-    return 0
-}
+# --- TYPES ----------------------------------------------------
+struct Point { x: int, y: int }
+enum State { On = 0, Off = 1 }
+union Result<T, E> { Ok { value: T }, Err { error: E } }
+let arr: array<int> = [1, 2, 3]
+let tup: (int, string) = (42, "hello")
 
-shadow safe_file_usage {
-    assert (== (safe_file_usage) 0)
-}
-```
+# --- MODULES --------------------------------------------------
+module "modules/math.nano" as Math
+unsafe module "modules/sdl/sdl.nano"
+from "modules/lib.nano" import func1, func2
 
-**Key Rules**:
-1. **Resources must be consumed** before end of scope (or compile error)
-2. **Cannot use after consume** (compile-time error)
-3. **Cannot consume twice** (compile-time error)
-4. Resources transition through states: `UNUSED` → `USED` → `CONSUMED`
-
-**When to Use**:
-- File handles
-- Network sockets
-- Database connections
-- GPU resources
-- Anything that requires cleanup
-
----
-
-### Self-Hosted Compiler Architecture
-
-NanoLang is now **self-hosted** - the compiler is written in NanoLang!
-
-**Two Compilers**:
-1. **`bin/nanoc`** (symlink to `bin/nanoc_c`) - C reference compiler (Stage 1)
-2. **`bin/nanoc_nano`** - Self-hosted NanoLang compiler (Stage 2)
-
-**Note**: NanoLang is a compiled language. The interpreter was removed to eliminate dual implementation burden.
-
-**Compilation Pipeline** (both compilers):
-```
-Source → Lex → Parse → TypeCheck → Transpile → C Compiler → Binary
-```
-
-**Bootstrap Process**:
-1. **Stage 1**: C compiler (`nanoc_c`) compiles self-hosted components
-2. **Stage 2**: Self-hosted compiler compiles itself
-3. **Stage 3**: Stage 2 compiler validates its output matches Stage 1
-
-**Compiler Phase Interfaces** (for self-hosted development):
-
-```nano
-# Phase 1: Lexer
-fn lex_phase_run(source: string, filename: string) -> LexPhaseOutput {
-    # Returns: { tokens, token_count, had_error, diagnostics }
-}
-
-# Phase 2: Parser
-fn parse_phase_run(lex_output: LexPhaseOutput) -> ParsePhaseOutput {
-    # Returns: { parser, had_error, diagnostics }
-}
-
-# Phase 3: Type Checker
-fn typecheck_phase(parser_state: Parser) -> TypecheckPhaseOutput {
-    # Returns: { had_error, diagnostics }
-}
-
-# Phase 4: Transpiler
-fn transpile_phase(parser_state: Parser, c_file: string) -> TranspilePhaseOutput {
-    # Returns: { c_source, had_error, diagnostics, output_path }
-}
-```
-
-All phase outputs include:
-- `had_error: bool`
-- `diagnostics: List<CompilerDiagnostic>`
-
-**Known Stage1 Issue — `from ... import` Infinite Loop (bead nl-hmt, P0)**:
-
-The self-hosted stage1 compiler (`nanoc_stage1`) enters an infinite loop / exponential
-memory blowup when compiling files that use `from ... import` with multiple modules.
-The C reference compiler handles these files in seconds.
-
-- **Trigger**: `from "module.nano" import func1, func2, func3` syntax
-- **Affected files**: `examples/language/simple_repl.nano`, `examples/language/vars_repl.nano`
-- **Symptoms**: 100% CPU, memory grows to 3.6GB+, never terminates
-- **Impact**: `make examples` fails (CMD_TIMEOUT kills it after 600s)
-- **Root cause**: Unknown — likely in `src_nano/transpiler.nano` or `src_nano/compiler/module_loader.nano`
-  module resolution / code generation for the `from ... import` syntax
-- **Workaround**: Regular `module` / `import` directives work fine in stage1
-- **Reproducer**: `timeout 120 bin/nanoc_stage1 examples/language/simple_repl.nano -o /tmp/test`
-
----
-
-### Diagnostic System (Self-Hosted)
-
-The self-hosted compiler uses a structured diagnostic system:
-
-```nano
-struct CompilerDiagnostic {
-    severity: int,      # DIAG_ERROR, DIAG_WARNING, DIAG_INFO
-    phase: int,         # PHASE_LEX, PHASE_PARSE, PHASE_TYPECHECK, PHASE_TRANSPILE
-    code: string,       # Error code (e.g., "E001")
-    message: string,    # Human-readable message
-    location: CompilerSourceLocation
-}
-
-struct CompilerSourceLocation {
-    file: string,
-    line: int,
-    column: int
-}
-
-# Create diagnostics
-fn diag_error(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
-fn diag_warning(phase: int, code: string, msg: string, loc: CompilerSourceLocation) -> CompilerDiagnostic
-```
-
-**Elm-Style Error Messages** (in development):
-- Show source code context
-- Highlight problematic code
-- Suggest fixes
-- Explain *why* something is wrong
-
----
-
-### Result Type Pattern (Error Handling)
-
-For functions that can fail, use the `Result` union pattern:
-
-```nano
-union ResultInt {
-    Ok { value: int },
-    Err { error: string }
-}
-
-fn divide(a: int, b: int) -> ResultInt {
-    if (== b 0) {
-        return ResultInt.Err { error: "Division by zero" }
-    }
-    return ResultInt.Ok { value: (/ a b) }
-}
-
-shadow divide {
-    match (divide 10 2) {
-        Ok(v) => { assert (== v.value 5) }
-        Err(e) => { assert false }
-    }
-    match (divide 10 0) {
-        Ok(v) => { assert false }
-        Err(e) => { assert true }
-    }
-}
+# --- OPERATORS ------------------------------------------------
+(+ a b)  a + b   # Arithmetic: + - * / %
+(== a b) a == b   # Comparison: == != < <= > >=
+(and p q) p and q # Logic: and or not
+(f x y)           # Function call (always prefix)
 ```
 
 ---
 
-## LLM Development Guidelines (Updated 2025)
-
-When generating NanoLang code, remember:
-
-- Think "What would the simplest, clearest version look like?"
-- Make types explicit
-- **Write shadow tests that verify correctness** (MANDATORY)
-- Use prefix or infix notation for operators (both are valid); function calls are always prefix
-- Leverage the type system to catch errors early
-- **Use `resource struct` for types that require cleanup**
-- **Wrap FFI calls in `unsafe { ... }` blocks**
-- Use `Result` unions for fallible operations
-- Check for resource leaks in complex functions
-
----
-
-**For complete language reference, always consult `spec.json` in the root directory.**
+*Last updated: 2026-02-20. Generated from full codebase analysis.*
+*Pair with `spec.json` for formal grammar and `schema/compiler_schema.json` for AST definitions.*
