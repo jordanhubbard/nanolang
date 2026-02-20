@@ -99,7 +99,7 @@ fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
         if (== (at cache.paths i) path) {
             let module_source: string = (read path)
             let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-            let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+            let module_tokens: List<LexerToken> = (tokenize_string module_source path diags)
             let token_count: int = (list_LexerToken_length module_tokens)
             if (> token_count 0) {
                 return (parse_program module_tokens token_count module_source)
@@ -398,9 +398,9 @@ pub fn process_imports_recursive(parser: Parser, symbols: array<Symbol>, cache: 
             } else {
                 /* Load and parse module */
                 let module_source: string = (read module_path)
-                let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+                let module_tokens: List<LexerToken> = (tokenize_string module_source module_path diags)
                 let token_count: int = (list_LexerToken_length module_tokens)
-                
+
                 if (> token_count 0) {
                     let module_parser: Parser = (parse_program module_tokens token_count module_source)
                     
@@ -448,7 +448,7 @@ pub fn merge_module_unions(main_parser: Parser, current_file: string, diags: Lis
 
         if (!= module_path "") {
             let module_source: string = (read module_path)
-            let module_tokens: List<LexerToken> = (tokenize_file module_source diags)
+            let module_tokens: List<LexerToken> = (tokenize_string module_source module_path diags)
             let token_count: int = (list_LexerToken_length module_tokens)
 
             if (> token_count 0) {
