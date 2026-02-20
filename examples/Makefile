@@ -135,7 +135,7 @@ PLAYGROUND_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(PLAYGROUND_EXAMPLES)))
 
 # === Root Examples ===
 
-ROOT_SOURCES := nano_tools_lint.nano sdl_example_launcher.nano
+ROOT_SOURCES := nano_tools_lint.nano sdl_example_launcher.nano run_examples.nano
 ROOT_EXAMPLES := $(patsubst %.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ROOT_SOURCES))
 ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
 
@@ -235,7 +235,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher
+.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher test
 
 # Default: build all examples
 all: build
@@ -314,6 +314,14 @@ examples-available: $(COMPILER)
 launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching... (ESC or Quit to exit)"
 	@$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+
+# Test: compile and run examples with output verification
+test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
+	@echo "Running example test suite..."
+	@$(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT) --compiler $(COMPILER) language
+	@$(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT) --compiler $(COMPILER) verified
+	@echo ""
+	@echo "All example tests passed!"
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
@@ -429,6 +437,10 @@ $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPIL
 	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+
+$(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT): run_examples.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 

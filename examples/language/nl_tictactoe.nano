@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_functions
-# Expected Output: ========================================
+# Expected Output: interactive
 
 # External C functions for I/O
 extern fn getchar() -> int

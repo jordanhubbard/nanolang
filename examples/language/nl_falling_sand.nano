@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_game_of_life
-# Expected Output: FALLING SAND - Physics Sim
+# Expected Output: interactive
 
 # === CONSTANTS ===
 let GRID_WIDTH: int = 40

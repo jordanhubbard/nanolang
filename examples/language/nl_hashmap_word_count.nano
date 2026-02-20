@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hashmap, nl_array_complete
-# Expected Output: (no output, exits 0 on success)
+# Expected Output: 
 
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 

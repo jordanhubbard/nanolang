@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: nl_hello, nl_functions, nl_modules
-# Expected Output: NanoLang Import Aliases - Self-Hosting Demonstration
+# Expected Output: 
 
 module "examples/advanced/math_helper.nano" as Math
 

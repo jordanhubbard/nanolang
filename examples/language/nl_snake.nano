@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_enums, nl_structs
-# Expected Output: SNAKE GAME
+# Expected Output: interactive
 
 # === ENUMS ===
 enum Direction {

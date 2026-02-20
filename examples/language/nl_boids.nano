@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_structs, nl_floats
-# Expected Output: BOIDS - Flocking Simulation
+# Expected Output: interactive
 
 from "std/math/vector2d.nano" import vec_new, vec_length
 

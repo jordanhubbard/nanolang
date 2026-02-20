@@ -1278,10 +1278,28 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
 
     char compile_cmd[2048];
     const char *root = get_project_root();
+
+    /* Extract the module's own directory for -I path (so it can find its own headers) */
+    char module_dir[512] = "";
+    {
+        char *mp_copy = strdup(module_path);
+        char *last_slash = strrchr(mp_copy, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+            /* If relative, prepend project root */
+            if (mp_copy[0] == '/') {
+                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy);
+            } else {
+                snprintf(module_dir, sizeof(module_dir), "-I%s/%s", root, mp_copy);
+            }
+        }
+        free(mp_copy);
+    }
+
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s -c -o %s %s",
+            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s -c -o %s %s",
             cc, root, root, root, root, root, root, root, root, root,
-            sdl_flags, output_obj, temp_c_file);
+            module_dir, sdl_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);

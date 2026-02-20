@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello
-# Expected Output: (no output, exits 0 on success)
+# Expected Output: 
 
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 fn build_scores() -> HashMap<string, int> {

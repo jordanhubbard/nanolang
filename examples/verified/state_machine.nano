@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: verified
 # Prerequisites: none
-# Expected Output: (no stdout, exits cleanly)
+# Expected Output: 
 
 /* =============================================================================
  * Verified Safety-Critical State Machine

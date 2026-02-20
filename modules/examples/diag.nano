@@ -76,6 +76,20 @@ shadow example_fail {
 }
 
 # Convenience: emit "metric" event with integer value
+# Public wrapper for timestamp (allows other modules to access without duplicate extern)
+pub fn timestamp_ms() -> int {
+    let mut ts: int = 0
+    unsafe {
+        set ts (nl_examples_timestamp_ms)
+    }
+    return ts
+}
+
+shadow timestamp_ms {
+    let ts: int = (timestamp_ms)
+    assert (>= ts 0)
+}
+
 pub fn example_metric(name: string, metric_key: string, metric_value: int) -> void {
     let mut ts: int = 0
     unsafe {

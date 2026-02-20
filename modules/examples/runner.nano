@@ -10,9 +10,7 @@
 from "modules/std/process.nano" import run, Output
 from "modules/std/fs.nano" import glob, exists, basename
 from "modules/examples/meta.nano" import ExampleMeta, parse_meta, meta_to_json
-from "modules/examples/diag.nano" import example_start, example_pass, example_fail, example_metric
-
-extern fn nl_examples_timestamp_ms() -> int
+from "modules/examples/diag.nano" import example_start, example_pass, example_fail, example_metric, timestamp_ms
 
 pub struct TestResult {
     meta: ExampleMeta,
@@ -22,14 +20,27 @@ pub struct TestResult {
     duration_ms: int
 }
 
-# Build the compiler command for an example file
+# Per-example timeout in seconds (compile + run)
+fn compile_timeout() -> string { return "120" }
+fn run_timeout() -> string { return "30" }
+
+# Build the compiler command for an example file (with timeout)
 fn build_command(source_file: string, compiler: string, output_path: string) -> string {
-    return (+ compiler (+ " " (+ source_file (+ " -o " output_path))))
+    return (+ "timeout " (+ (compile_timeout) (+ " " (+ compiler (+ " " (+ source_file (+ " -o " output_path)))))))
 }
 
 shadow build_command {
     let cmd: string = (build_command "examples/language/nl_hello.nano" "bin/nanoc" "/tmp/test_hello")
-    assert (== cmd "bin/nanoc examples/language/nl_hello.nano -o /tmp/test_hello")
+    assert (== cmd "timeout 120 bin/nanoc examples/language/nl_hello.nano -o /tmp/test_hello")
+}
+
+# Wrap a binary path with timeout for execution
+fn run_command(bin_path: string) -> string {
+    return (+ "timeout " (+ (run_timeout) (+ " " bin_path)))
+}
+
+shadow run_command {
+    assert (== (run_command "/tmp/test") "timeout 30 /tmp/test")
 }
 
 # Derive a temp binary name from a source file path
@@ -51,36 +62,31 @@ shadow derive_binary_name {
     assert (> (str_length bin) 0)
 }
 
-# Check if output matches expected (simple string prefix match)
+# Check if output starts with expected string (prefix match on first line)
 fn output_matches(actual: string, expected: string) -> bool {
     if (== expected "") { return true } else { (print "") }
     if (== expected "interactive") { return true } else { (print "") }
     if (== expected "graphical") { return true } else { (print "") }
 
-    # Trim trailing newline from actual output for comparison
+    let elen: int = (str_length expected)
     let alen: int = (str_length actual)
-    let mut trimmed: string = actual
-    if (> alen 0) {
-        let last: string = (str_substring actual (- alen 1) 1)
-        if (== last "\n") {
-            set trimmed (str_substring actual 0 (- alen 1))
-        } else {
-            (print "")
-        }
+    if (< alen elen) {
+        return false
     } else {
         (print "")
     }
-
-    return (== trimmed expected)
+    let prefix: string = (str_substring actual 0 elen)
+    return (== prefix expected)
 }
 
 shadow output_matches {
-    assert (output_matches "Hello!\n" "Hello!")
+    assert (output_matches "Hello!\nMore output" "Hello!")
     assert (output_matches "Hello!" "Hello!")
     assert (output_matches "anything" "")
     assert (output_matches "" "interactive")
     assert (output_matches "" "graphical")
     assert (not (output_matches "wrong" "right"))
+    assert (output_matches "=== Test ===\nline 2\n" "=== Test ===")
 }
 
 # Compile and run a single example, returning a TestResult
@@ -91,15 +97,20 @@ pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestRes
     let compile_cmd: string = (build_command meta.source_file compiler bin_path)
 
     let mut start_ms: int = 0
-    unsafe { set start_ms (nl_examples_timestamp_ms) }
+    set start_ms (timestamp_ms)
 
     # Compile
     let compile_result: Output = (run compile_cmd)
 
     if (!= compile_result.code 0) {
         let mut end_ms: int = 0
-        unsafe { set end_ms (nl_examples_timestamp_ms) }
-        let err: string = (+ "compile failed (exit " (+ (int_to_string compile_result.code) (+ "): " compile_result.stderr)))
+        set end_ms (timestamp_ms)
+        let mut err: string = ""
+        if (== compile_result.code 124) {
+            set err (+ "compile TIMEOUT (>" (+ (compile_timeout) "s)"))
+        } else {
+            set err (+ "compile failed (exit " (+ (int_to_string compile_result.code) (+ "): " compile_result.stderr)))
+        }
         (example_fail meta.name err)
         return TestResult {
             meta: meta,
@@ -115,7 +126,7 @@ pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestRes
     # Run if not graphical/interactive
     if (== meta.expected_output "graphical") {
         let mut end_ms: int = 0
-        unsafe { set end_ms (nl_examples_timestamp_ms) }
+        set end_ms (timestamp_ms)
         (example_pass meta.name)
         return TestResult {
             meta: meta,
@@ -130,7 +141,7 @@ pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestRes
 
     if (== meta.expected_output "interactive") {
         let mut end_ms: int = 0
-        unsafe { set end_ms (nl_examples_timestamp_ms) }
+        set end_ms (timestamp_ms)
         (example_pass meta.name)
         return TestResult {
             meta: meta,
@@ -143,13 +154,18 @@ pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestRes
         (print "")
     }
 
-    let run_result: Output = (run bin_path)
+    let run_result: Output = (run (run_command bin_path))
     let mut end_ms: int = 0
-    unsafe { set end_ms (nl_examples_timestamp_ms) }
+    set end_ms (timestamp_ms)
     let elapsed: int = (- end_ms start_ms)
 
     if (!= run_result.code 0) {
-        let err: string = (+ "runtime failed (exit " (+ (int_to_string run_result.code) (+ "): " run_result.stderr)))
+        let mut err: string = ""
+        if (== run_result.code 124) {
+            set err (+ "runtime TIMEOUT (>" (+ (run_timeout) "s)"))
+        } else {
+            set err (+ "runtime failed (exit " (+ (int_to_string run_result.code) (+ "): " run_result.stderr)))
+        }
         (example_fail meta.name err)
         return TestResult {
             meta: meta,

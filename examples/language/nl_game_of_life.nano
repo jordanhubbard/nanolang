@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_enums
-# Expected Output: CONWAY'S GAME OF LIFE
+# Expected Output: interactive
 
 # === ENUMS ===
 enum CellState {
