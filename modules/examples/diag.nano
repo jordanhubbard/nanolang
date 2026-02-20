@@ -1,0 +1,92 @@
+# Structured JSON Diagnostic Emitter
+#
+# All examples should use this instead of raw println for machine-parseable output.
+# Each function emits one JSON object per line to stdout and flushes immediately.
+#
+# JSON schema (one object per line):
+#   {"event":"start","example":"nl_hello","ts":1708000000}
+#   {"event":"pass","example":"nl_hello","ts":1708000001}
+#   {"event":"fail","example":"nl_calculator","reason":"assertion failed","ts":1708000002}
+#   {"event":"metric","example":"sdl_particles","key":"fps","value":60}
+
+extern fn nl_examples_flush() -> void
+extern fn nl_examples_timestamp_ms() -> int
+
+# Emit a structured JSON diagnostic line and flush
+pub fn emit_event(event_type: string, example_name: string) -> void {
+    let mut ts: int = 0
+    unsafe {
+        set ts (nl_examples_timestamp_ms)
+    }
+    let line: string = (+ "{\"event\":\"" (+ event_type (+ "\",\"example\":\"" (+ example_name (+ "\",\"ts\":" (+ (int_to_string ts) "}"))))))
+    (println line)
+    unsafe { (nl_examples_flush) }
+}
+
+shadow emit_event {
+    # Just verify it doesn't crash - output goes to stdout
+    (emit_event "test" "shadow_test")
+    assert true
+}
+
+# Emit a structured JSON diagnostic line with a key-value pair
+pub fn emit_event_kv(event_type: string, example_name: string, key: string, value: string) -> void {
+    let mut ts: int = 0
+    unsafe {
+        set ts (nl_examples_timestamp_ms)
+    }
+    let line: string = (+ "{\"event\":\"" (+ event_type (+ "\",\"example\":\"" (+ example_name (+ "\",\"" (+ key (+ "\":\"" (+ value (+ "\",\"ts\":" (+ (int_to_string ts) "}"))))))))))
+    (println line)
+    unsafe { (nl_examples_flush) }
+}
+
+shadow emit_event_kv {
+    (emit_event_kv "test" "shadow_test" "key" "val")
+    assert true
+}
+
+# Convenience: emit "start" event
+pub fn example_start(name: string) -> void {
+    (emit_event "start" name)
+}
+
+shadow example_start {
+    (example_start "shadow_test")
+    assert true
+}
+
+# Convenience: emit "pass" event
+pub fn example_pass(name: string) -> void {
+    (emit_event "pass" name)
+}
+
+shadow example_pass {
+    (example_pass "shadow_test")
+    assert true
+}
+
+# Convenience: emit "fail" event with reason
+pub fn example_fail(name: string, reason: string) -> void {
+    (emit_event_kv "fail" name "reason" reason)
+}
+
+shadow example_fail {
+    (example_fail "shadow_test" "test reason")
+    assert true
+}
+
+# Convenience: emit "metric" event with integer value
+pub fn example_metric(name: string, metric_key: string, metric_value: int) -> void {
+    let mut ts: int = 0
+    unsafe {
+        set ts (nl_examples_timestamp_ms)
+    }
+    let line: string = (+ "{\"event\":\"metric\",\"example\":\"" (+ name (+ "\",\"key\":\"" (+ metric_key (+ "\",\"value\":" (+ (int_to_string metric_value) (+ ",\"ts\":" (+ (int_to_string ts) "}"))))))))
+    (println line)
+    unsafe { (nl_examples_flush) }
+}
+
+shadow example_metric {
+    (example_metric "shadow_test" "fps" 60)
+    assert true
+}

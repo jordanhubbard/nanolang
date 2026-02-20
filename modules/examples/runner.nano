@@ -1,0 +1,351 @@
+# Example Test Runner
+#
+# Compiles and verifies nanolang examples programmatically.
+# Uses structured JSON diagnostics for machine-parseable output.
+#
+# Usage:
+#   let results: array<TestResult> = (run_all "examples/language" "bin/nanoc" "stage1")
+#   (print_report results)
+
+from "modules/std/process.nano" import run, Output
+from "modules/std/fs.nano" import glob, exists, basename
+from "modules/examples/meta.nano" import ExampleMeta, parse_meta, meta_to_json
+from "modules/examples/diag.nano" import example_start, example_pass, example_fail, example_metric
+
+extern fn nl_examples_timestamp_ms() -> int
+
+pub struct TestResult {
+    meta: ExampleMeta,
+    passed: bool,
+    output: string,
+    error_msg: string,
+    duration_ms: int
+}
+
+# Build the compiler command for an example file
+fn build_command(source_file: string, compiler: string, output_path: string) -> string {
+    return (+ compiler (+ " " (+ source_file (+ " -o " output_path))))
+}
+
+shadow build_command {
+    let cmd: string = (build_command "examples/language/nl_hello.nano" "bin/nanoc" "/tmp/test_hello")
+    assert (== cmd "bin/nanoc examples/language/nl_hello.nano -o /tmp/test_hello")
+}
+
+# Derive a temp binary name from a source file path
+fn derive_binary_name(source_file: string) -> string {
+    let base: string = (basename source_file)
+    let len: int = (str_length base)
+    # Strip .nano extension (5 chars)
+    if (> len 5) {
+        let name: string = (str_substring base 0 (- len 5))
+        return (+ (tmp_dir) (+ "/nltest_" name))
+    } else {
+        return (+ (tmp_dir) "/nltest_unknown")
+    }
+}
+
+shadow derive_binary_name {
+    let bin: string = (derive_binary_name "examples/language/nl_hello.nano")
+    # Just verify it contains the expected parts
+    assert (> (str_length bin) 0)
+}
+
+# Check if output matches expected (simple string prefix match)
+fn output_matches(actual: string, expected: string) -> bool {
+    if (== expected "") { return true } else { (print "") }
+    if (== expected "interactive") { return true } else { (print "") }
+    if (== expected "graphical") { return true } else { (print "") }
+
+    # Trim trailing newline from actual output for comparison
+    let alen: int = (str_length actual)
+    let mut trimmed: string = actual
+    if (> alen 0) {
+        let last: string = (str_substring actual (- alen 1) 1)
+        if (== last "\n") {
+            set trimmed (str_substring actual 0 (- alen 1))
+        } else {
+            (print "")
+        }
+    } else {
+        (print "")
+    }
+
+    return (== trimmed expected)
+}
+
+shadow output_matches {
+    assert (output_matches "Hello!\n" "Hello!")
+    assert (output_matches "Hello!" "Hello!")
+    assert (output_matches "anything" "")
+    assert (output_matches "" "interactive")
+    assert (output_matches "" "graphical")
+    assert (not (output_matches "wrong" "right"))
+}
+
+# Compile and run a single example, returning a TestResult
+pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestResult {
+    (example_start meta.name)
+
+    let bin_path: string = (derive_binary_name meta.source_file)
+    let compile_cmd: string = (build_command meta.source_file compiler bin_path)
+
+    let mut start_ms: int = 0
+    unsafe { set start_ms (nl_examples_timestamp_ms) }
+
+    # Compile
+    let compile_result: Output = (run compile_cmd)
+
+    if (!= compile_result.code 0) {
+        let mut end_ms: int = 0
+        unsafe { set end_ms (nl_examples_timestamp_ms) }
+        let err: string = (+ "compile failed (exit " (+ (int_to_string compile_result.code) (+ "): " compile_result.stderr)))
+        (example_fail meta.name err)
+        return TestResult {
+            meta: meta,
+            passed: false,
+            output: compile_result.stdout,
+            error_msg: err,
+            duration_ms: (- end_ms start_ms)
+        }
+    } else {
+        (print "")
+    }
+
+    # Run if not graphical/interactive
+    if (== meta.expected_output "graphical") {
+        let mut end_ms: int = 0
+        unsafe { set end_ms (nl_examples_timestamp_ms) }
+        (example_pass meta.name)
+        return TestResult {
+            meta: meta,
+            passed: true,
+            output: "",
+            error_msg: "",
+            duration_ms: (- end_ms start_ms)
+        }
+    } else {
+        (print "")
+    }
+
+    if (== meta.expected_output "interactive") {
+        let mut end_ms: int = 0
+        unsafe { set end_ms (nl_examples_timestamp_ms) }
+        (example_pass meta.name)
+        return TestResult {
+            meta: meta,
+            passed: true,
+            output: "",
+            error_msg: "",
+            duration_ms: (- end_ms start_ms)
+        }
+    } else {
+        (print "")
+    }
+
+    let run_result: Output = (run bin_path)
+    let mut end_ms: int = 0
+    unsafe { set end_ms (nl_examples_timestamp_ms) }
+    let elapsed: int = (- end_ms start_ms)
+
+    if (!= run_result.code 0) {
+        let err: string = (+ "runtime failed (exit " (+ (int_to_string run_result.code) (+ "): " run_result.stderr)))
+        (example_fail meta.name err)
+        return TestResult {
+            meta: meta,
+            passed: false,
+            output: run_result.stdout,
+            error_msg: err,
+            duration_ms: elapsed
+        }
+    } else {
+        (print "")
+    }
+
+    # Check expected output if specified
+    if (output_matches run_result.stdout meta.expected_output) {
+        (example_pass meta.name)
+        (example_metric meta.name "duration_ms" elapsed)
+        return TestResult {
+            meta: meta,
+            passed: true,
+            output: run_result.stdout,
+            error_msg: "",
+            duration_ms: elapsed
+        }
+    } else {
+        let err: string = (+ "output mismatch: expected \"" (+ meta.expected_output (+ "\" got \"" (+ run_result.stdout "\""))))
+        (example_fail meta.name err)
+        return TestResult {
+            meta: meta,
+            passed: false,
+            output: run_result.stdout,
+            error_msg: err,
+            duration_ms: elapsed
+        }
+    }
+}
+
+shadow run_example {
+    # Parse a known simple example and check structure
+    let meta: ExampleMeta = (parse_meta "examples/language/nl_hello.nano")
+    assert (== meta.source_file "examples/language/nl_hello.nano")
+    # Don't actually run it in shadow test - just verify meta parsed
+}
+
+# Run all .nano examples in a directory
+pub fn run_all(dir: string, compiler: string, mode: string) -> array<TestResult> {
+    let files: array<string> = (glob dir "*.nano")
+    let count: int = (array_length files)
+    let mut results: array<TestResult> = []
+    let mut i: int = 0
+
+    while (< i count) {
+        let file_path: string = (at files i)
+        let meta: ExampleMeta = (parse_meta file_path)
+
+        # Skip files without an Example header (not runnable examples)
+        if (!= meta.name "") {
+            let result: TestResult = (run_example meta compiler mode)
+            set results (array_push results result)
+        } else {
+            (print "")
+        }
+
+        set i (+ i 1)
+    }
+
+    return results
+}
+
+shadow run_all {
+    # Just verify the function doesn't crash on an empty/small directory
+    let results: array<TestResult> = (run_all "modules/examples" "bin/nanoc" "stage1")
+    # modules/examples/*.nano are library files, not runnable examples - expect 0 results
+    assert (== (array_length results) 0)
+}
+
+# Count passed results
+pub fn count_passed(results: array<TestResult>) -> int {
+    let mut passed: int = 0
+    let count: int = (array_length results)
+    let mut i: int = 0
+    while (< i count) {
+        let r: TestResult = (at results i)
+        if r.passed { set passed (+ passed 1) } else { (print "") }
+        set i (+ i 1)
+    }
+    return passed
+}
+
+shadow count_passed {
+    let results: array<TestResult> = []
+    assert (== (count_passed results) 0)
+}
+
+# Count failed results
+pub fn count_failed(results: array<TestResult>) -> int {
+    let mut failed: int = 0
+    let count: int = (array_length results)
+    let mut i: int = 0
+    while (< i count) {
+        let r: TestResult = (at results i)
+        if (not r.passed) { set failed (+ failed 1) } else { (print "") }
+        set i (+ i 1)
+    }
+    return failed
+}
+
+shadow count_failed {
+    let results: array<TestResult> = []
+    assert (== (count_failed results) 0)
+}
+
+# Print a human-readable summary report
+pub fn print_report(results: array<TestResult>) -> void {
+    let total: int = (array_length results)
+    let passed: int = (count_passed results)
+    let failed: int = (count_failed results)
+
+    (println (+ "Results: " (+ (int_to_string passed) (+ "/" (+ (int_to_string total) " passed")))))
+
+    if (> failed 0) {
+        (println "Failures:")
+        let mut i: int = 0
+        while (< i total) {
+            let r: TestResult = (at results i)
+            if (not r.passed) {
+                (println (+ "  FAIL " (+ r.meta.source_file (+ ": " r.error_msg))))
+            } else {
+                (print "")
+            }
+            set i (+ i 1)
+        }
+    } else {
+        (print "")
+    }
+}
+
+shadow print_report {
+    let results: array<TestResult> = []
+    (print_report results)
+    assert true
+}
+
+# Convert a TestResult to JSON
+pub fn result_to_json(r: TestResult) -> string {
+    let mut json: string = "{"
+    set json (+ json "\"source_file\":\"")
+    set json (+ json (+ r.meta.source_file "\","))
+    set json (+ json "\"name\":\"")
+    set json (+ json (+ r.meta.name "\","))
+    set json (+ json "\"passed\":")
+    if r.passed {
+        set json (+ json "true,")
+    } else {
+        set json (+ json "false,")
+    }
+    set json (+ json "\"duration_ms\":")
+    set json (+ json (+ (int_to_string r.duration_ms) ","))
+    set json (+ json "\"error_msg\":\"")
+    set json (+ json (+ r.error_msg "\""))
+    set json (+ json "}")
+    return json
+}
+
+shadow result_to_json {
+    let meta: ExampleMeta = (parse_meta "examples/language/nl_hello.nano")
+    let r: TestResult = TestResult {
+        meta: meta,
+        passed: true,
+        output: "Hello",
+        error_msg: "",
+        duration_ms: 42
+    }
+    let json: string = (result_to_json r)
+    assert (> (str_length json) 10)
+}
+
+# Convert all results to a JSON array string
+pub fn report_json(results: array<TestResult>) -> string {
+    let count: int = (array_length results)
+    let mut json: string = "["
+    let mut i: int = 0
+    while (< i count) {
+        if (> i 0) {
+            set json (+ json ",")
+        } else {
+            (print "")
+        }
+        let r: TestResult = (at results i)
+        set json (+ json (result_to_json r))
+        set i (+ i 1)
+    }
+    set json (+ json "]")
+    return json
+}
+
+shadow report_json {
+    let results: array<TestResult> = []
+    assert (== (report_json results) "[]")
+}

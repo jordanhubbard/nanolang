@@ -1,0 +1,275 @@
+# Example Metadata Parser
+#
+# Parses structured comment headers from .nano example files.
+# Header format (parsed from leading # comments):
+#
+#   # Example: Human-readable name
+#   # Purpose: One-sentence description
+#   # Features: structs, arrays, SDL
+#   # Difficulty: Beginner|Intermediate|Advanced
+#   # Category: language|graphics|audio|games|opengl|terminal|physics|debug|verified|data|network|advanced
+#   # Prerequisites: none
+#   # Expected Output: Hello from NanoLang!
+
+from "modules/std/fs.nano" import read, exists
+
+pub struct ExampleMeta {
+    name: string,
+    purpose: string,
+    features: string,
+    difficulty: string,
+    category: string,
+    prerequisites: string,
+    expected_output: string,
+    source_file: string
+}
+
+# Create an empty metadata struct
+pub fn meta_empty(source_file: string) -> ExampleMeta {
+    return ExampleMeta {
+        name: "",
+        purpose: "",
+        features: "",
+        difficulty: "",
+        category: "",
+        prerequisites: "",
+        expected_output: "",
+        source_file: source_file
+    }
+}
+
+shadow meta_empty {
+    let m: ExampleMeta = (meta_empty "test.nano")
+    assert (== m.source_file "test.nano")
+    assert (== m.name "")
+}
+
+# Check if a string starts with a prefix
+fn starts_with(s: string, prefix: string) -> bool {
+    let slen: int = (str_length s)
+    let plen: int = (str_length prefix)
+    if (< slen plen) {
+        return false
+    } else {
+        (print "")
+    }
+    let sub: string = (str_substring s 0 plen)
+    return (== sub prefix)
+}
+
+shadow starts_with {
+    assert (starts_with "# Example: Hello" "# Example:")
+    assert (starts_with "hello" "he")
+    assert (not (starts_with "he" "hello"))
+    assert (starts_with "" "")
+}
+
+# Extract value after "# Key: " prefix from a comment line
+fn extract_field(line: string, prefix: string) -> string {
+    if (not (starts_with line prefix)) {
+        return ""
+    } else {
+        (print "")
+    }
+    let plen: int = (str_length prefix)
+    let slen: int = (str_length line)
+    if (<= slen plen) {
+        return ""
+    } else {
+        (print "")
+    }
+    return (str_substring line plen (- slen plen))
+}
+
+shadow extract_field {
+    assert (== (extract_field "# Example: Hello World" "# Example: ") "Hello World")
+    assert (== (extract_field "# Purpose: Test" "# Purpose: ") "Test")
+    assert (== (extract_field "no match" "# Example: ") "")
+}
+
+# Extract the next line from content starting at position pos.
+# Returns the line (without newline). Updates pos_out to position after the newline.
+# If no newline found, returns remaining content and sets pos_out to content length.
+fn next_line(content: string, pos: int) -> string {
+    let len: int = (str_length content)
+    if (>= pos len) {
+        return ""
+    } else {
+        (print "")
+    }
+    let mut end: int = pos
+    while (< end len) {
+        let ch: int = (char_at content end)
+        # newline = 10
+        if (== ch 10) {
+            let line: string = (str_substring content pos (- end pos))
+            return line
+        } else {
+            (print "")
+        }
+        set end (+ end 1)
+    }
+    return (str_substring content pos (- len pos))
+}
+
+shadow next_line {
+    assert (== (next_line "hello\nworld" 0) "hello")
+    assert (== (next_line "hello\nworld" 6) "world")
+    assert (== (next_line "no newline" 0) "no newline")
+    assert (== (next_line "" 0) "")
+}
+
+# Find position after the next newline starting from pos
+fn skip_line(content: string, pos: int) -> int {
+    let len: int = (str_length content)
+    let mut i: int = pos
+    while (< i len) {
+        let ch: int = (char_at content i)
+        if (== ch 10) {
+            return (+ i 1)
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return len
+}
+
+shadow skip_line {
+    assert (== (skip_line "hello\nworld" 0) 6)
+    assert (== (skip_line "no newline" 0) 10)
+}
+
+# Parse metadata from file content (scans first 30 lines of # comments)
+pub fn parse_meta_from_content(content: string, source_file: string) -> ExampleMeta {
+    let content_len: int = (str_length content)
+    let mut pos: int = 0
+    let mut lines_read: int = 0
+
+    let mut name: string = ""
+    let mut purpose: string = ""
+    let mut features: string = ""
+    let mut difficulty: string = ""
+    let mut category: string = ""
+    let mut prerequisites: string = ""
+    let mut expected_output: string = ""
+
+    while (and (< pos content_len) (< lines_read 30)) {
+        let line: string = (next_line content pos)
+        set pos (skip_line content pos)
+        set lines_read (+ lines_read 1)
+
+        let v: string = (extract_field line "# Example: ")
+        if (!= v "") { set name v } else { (print "") }
+
+        let v2: string = (extract_field line "# Purpose: ")
+        if (!= v2 "") { set purpose v2 } else { (print "") }
+
+        let v3: string = (extract_field line "# Features: ")
+        if (!= v3 "") { set features v3 } else { (print "") }
+
+        let v4: string = (extract_field line "# Difficulty: ")
+        if (!= v4 "") { set difficulty v4 } else { (print "") }
+
+        let v5: string = (extract_field line "# Category: ")
+        if (!= v5 "") { set category v5 } else { (print "") }
+
+        let v6: string = (extract_field line "# Prerequisites: ")
+        if (!= v6 "") { set prerequisites v6 } else { (print "") }
+
+        let v7: string = (extract_field line "# Expected Output: ")
+        if (!= v7 "") { set expected_output v7 } else { (print "") }
+    }
+
+    return ExampleMeta {
+        name: name,
+        purpose: purpose,
+        features: features,
+        difficulty: difficulty,
+        category: category,
+        prerequisites: prerequisites,
+        expected_output: expected_output,
+        source_file: source_file
+    }
+}
+
+shadow parse_meta_from_content {
+    let content: string = "# Example: Hello World\n# Purpose: Test greeting\n# Features: println\n# Difficulty: Beginner\n# Category: language\n# Prerequisites: none\n# Expected Output: Hello!\n\nfn main() -> int {\n    return 0\n}\n"
+    let meta: ExampleMeta = (parse_meta_from_content content "test.nano")
+    assert (== meta.name "Hello World")
+    assert (== meta.purpose "Test greeting")
+    assert (== meta.features "println")
+    assert (== meta.difficulty "Beginner")
+    assert (== meta.category "language")
+    assert (== meta.prerequisites "none")
+    assert (== meta.expected_output "Hello!")
+    assert (== meta.source_file "test.nano")
+}
+
+# Parse metadata from a .nano file on disk
+pub fn parse_meta(file_path: string) -> ExampleMeta {
+    let content: string = (read file_path)
+    return (parse_meta_from_content content file_path)
+}
+
+shadow parse_meta {
+    # Use a known example file that should exist
+    let meta: ExampleMeta = (parse_meta "examples/language/nl_hello.nano")
+    assert (== meta.source_file "examples/language/nl_hello.nano")
+}
+
+# Escape a string for JSON output (minimal: quotes and backslashes)
+fn json_escape(s: string) -> string {
+    let mut result: string = ""
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (< i len) {
+        let ch: string = (str_substring s i 1)
+        if (== ch "\"") {
+            set result (+ result "\\\"")
+        } else {
+            if (== ch "\\") {
+                set result (+ result "\\\\")
+            } else {
+                set result (+ result ch)
+            }
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow json_escape {
+    assert (== (json_escape "hello") "hello")
+    assert (== (json_escape "say \"hi\"") "say \\\"hi\\\"")
+    assert (== (json_escape "a\\b") "a\\\\b")
+}
+
+# Convert metadata to a JSON string
+pub fn meta_to_json(meta: ExampleMeta) -> string {
+    let mut json: string = "{"
+    set json (+ json "\"name\":\"" )
+    set json (+ json (+ (json_escape meta.name) "\","))
+    set json (+ json "\"purpose\":\"")
+    set json (+ json (+ (json_escape meta.purpose) "\","))
+    set json (+ json "\"features\":\"")
+    set json (+ json (+ (json_escape meta.features) "\","))
+    set json (+ json "\"difficulty\":\"")
+    set json (+ json (+ (json_escape meta.difficulty) "\","))
+    set json (+ json "\"category\":\"")
+    set json (+ json (+ (json_escape meta.category) "\","))
+    set json (+ json "\"prerequisites\":\"")
+    set json (+ json (+ (json_escape meta.prerequisites) "\","))
+    set json (+ json "\"expected_output\":\"")
+    set json (+ json (+ (json_escape meta.expected_output) "\","))
+    set json (+ json "\"source_file\":\"")
+    set json (+ json (+ (json_escape meta.source_file) "\""))
+    set json (+ json "}")
+    return json
+}
+
+shadow meta_to_json {
+    let meta: ExampleMeta = (parse_meta_from_content "# Example: Test\n# Purpose: A test\n" "test.nano")
+    let json: string = (meta_to_json meta)
+    assert (starts_with json "{\"name\":\"Test\"")
+}
