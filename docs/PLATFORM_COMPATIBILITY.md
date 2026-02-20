@@ -1,89 +1,86 @@
-# Platform Compatibility Guide
+# Where I Run
 
-**Last Updated:** December 7, 2025  
-**Version:** 0.2.0
+I am designed to work across platforms with minimal friction. This document describes where I run, what I have tested, and how I handle the differences between systems.
 
 ---
-
-## Overview
-
-Nanolang is designed to work cross-platform with minimal friction. This document describes platform-specific considerations, known issues, and solutions.
 
 ## Supported Platforms
 
-### ✅ Fully Tested
+I distinguish between what I have verified and what I assume to work.
+
+### Verified Support
 
 | Platform | Architecture | Status | Notes |
 |----------|-------------|--------|-------|
-| macOS | x86_64 | ✅ Full Support | Primary development platform |
-| macOS | ARM64 (Apple Silicon) | ⚠️ Expected to Work | Should work (same fix as Linux ARM64) |
-| Ubuntu Linux | x86_64 | ✅ Full Support | Tested on Ubuntu 22.04+ |
-| Ubuntu Linux | ARM64 (aarch64) | ✅ **FIXED!** | Was broken, now works (tested on Ubuntu 24.04) |
-| Debian Linux | x86_64 | ✅ Full Support | Should work on most Debian-based distros |
-| Raspberry Pi OS | ARM64 | ✅ Expected to Work | Should work with ARM64 fix
+| macOS | x86_64 | Full Support | My primary development platform |
+| macOS | ARM64 (Apple Silicon) | Expected to Work | Should work with the same fixes as Linux ARM64 |
+| Ubuntu Linux | x86_64 | Full Support | Tested on Ubuntu 22.04+ |
+| Ubuntu Linux | ARM64 (aarch64) | Fixed | I was broken on this architecture, but I now work. Tested on Ubuntu 24.04 |
+| Debian Linux | x86_64 | Full Support | I should work on most Debian-based distributions |
+| Raspberry Pi OS | ARM64 | Expected to Work | I should work with my ARM64 fix |
 
-### 🟡 Expected to Work
+### Assumed Support
 
 | Platform | Architecture | Status | Notes |
 |----------|-------------|--------|-------|
-| Fedora/RHEL | x86_64 | 🟡 Untested | Should work with standard toolchain |
-| Arch Linux | x86_64 | 🟡 Untested | Requires gcc, make, pkg-config |
-| FreeBSD | x86_64 | 🟡 Untested | May need minor build script changes |
+| Fedora/RHEL | x86_64 | Untested | I should work with a standard toolchain |
+| Arch Linux | x86_64 | Untested | I require gcc, make, and pkg-config |
+| FreeBSD | x86_64 | Untested | I may need minor build script changes |
 
-### ❌ Not Supported
+### Unsupported
 
 | Platform | Status | Reason |
 |----------|--------|--------|
-| Windows | ❌ Not Supported | Unix-specific build system, POSIX assumptions |
-| WebAssembly | ❌ Not Planned | Architecture incompatibility |
+| Windows | Not Supported | I rely on Unix-specific build systems and POSIX assumptions |
+| WebAssembly | Not Planned | My architecture is currently incompatible |
 
 ---
 
-## Platform-Specific Issues & Solutions
+## Platform-Specific Observations
 
-### Ubuntu/Linux: GLX/OpenGL Errors
+### Ubuntu/Linux: GLX/OpenGL
 
 **Problem:**
-When running SDL applications over SSH or on headless systems, you may see:
+When you run my SDL applications over SSH or on headless systems, you may see:
 ```
 Error of failed request: BadValue (integer parameter out of range for operation)
 Major opcode of failed request: 149 (GLX)
 glx: failed to create drisw screen
 ```
 
-**Solution:**
-SDL examples now automatically fallback to software rendering if hardware acceleration fails. No action needed - this is handled by the compiler.
+**My Solution:**
+I have taught my SDL examples to automatically fallback to software rendering if hardware acceleration fails. I handle this internally; you do not need to take action.
 
 **Technical Details:**
-- Checkers, boids, and other SDL apps use `SDL_RENDERER_SOFTWARE` as fallback
-- Prevents crashes on systems without GLX/OpenGL support
-- Performance is still acceptable for 2D applications
+- I use `SDL_RENDERER_SOFTWARE` as a fallback in examples like checkers and boids.
+- This prevents me from crashing on systems without GLX/OpenGL support.
+- My performance remains acceptable for 2D applications.
 
 ---
 
 ### Ubuntu/Linux: Module Building with pkg-config
 
 **Problem:**
-On Ubuntu, some libraries (like GLFW3, GLEW) don't provide include paths via pkg-config, only link flags. This previously caused empty or corrupted compiler flags.
+On Ubuntu, some libraries like GLFW3 and GLEW do not provide include paths through pkg-config, only link flags. This previously caused me to produce empty or corrupted compiler flags.
 
-**Solution:**
-The module build system now:
-1. Validates all flags are printable ASCII (filters UTF-8/binary garbage)
-2. Skips NULL or empty flag strings
-3. Trims whitespace from pkg-config output
-4. Returns NULL instead of empty strings
+**My Solution:**
+I updated my module build system to:
+1. Validate that all flags are printable ASCII. I filter out UTF-8 or binary garbage.
+2. Skip NULL or empty flag strings.
+3. Trim whitespace from pkg-config output.
+4. Return NULL instead of empty strings.
 
-**No user action required** - this is fixed in the compiler.
+I have fixed this in my compiler. You do not need to do anything.
 
 ---
 
-### macOS: Homebrew vs System Libraries
+### macOS: Homebrew and System Libraries
 
-**Issue:**
-macOS doesn't include some development libraries by default (SDL2, OpenGL headers, etc.)
+**Observation:**
+macOS does not include some development libraries by default, such as SDL2 or OpenGL headers.
 
-**Solution:**
-Install libraries via Homebrew:
+**My Solution:**
+I recommend you install these libraries through Homebrew:
 ```bash
 # SDL2 and related
 brew install sdl2 sdl2_ttf
@@ -99,15 +96,15 @@ brew install libsndfile
 - Homebrew (ARM64): `/opt/homebrew/`
 - Homebrew (Intel): `/usr/local/`
 
-The compiler automatically checks both locations via pkg-config.
+I automatically check both locations through pkg-config.
 
 ---
 
-## Building from Source
+## Building Me From Source
 
 ### Prerequisites
 
-**All Platforms:**
+**On All Platforms:**
 - GCC or Clang (C11 compatible)
 - Make
 - pkg-config
@@ -137,49 +134,51 @@ brew install sdl2 sdl2_ttf glfw glew
 
 ---
 
-## Running Examples
+## Running My Examples
 
-### Headless/SSH Systems
+### Headless and SSH Systems
 
-If you're running on a headless server or over SSH without X11 forwarding:
+If you run me on a headless server or over SSH without X11 forwarding:
 
 **SDL Examples (2D):**
-- ✅ **Will work** with software renderer fallback
-- Examples: checkers, boids, raytracer
-- No special configuration needed
+- I will work using my software renderer fallback.
+- Examples include checkers, boids, and the raytracer.
+- You do not need special configuration.
 
 **OpenGL Examples (3D):**
-- ❌ **Will not work** without display
-- Examples: opengl_cube, opengl_teapot
-- Requires X11/Wayland display server
+- I will not work without a display.
+- Examples include opengl_cube and opengl_teapot.
+- These require an X11 or Wayland display server.
 
 **Interpreter-Only Examples:**
-- ✅ **Will work** if you have X11 forwarding or display
-- Run with: `./bin/nano examples/asteroids_sdl.nano`
+- I will work if you have X11 forwarding or a display.
+- Run me with: `./bin/nano examples/asteroids_sdl.nano`
 
-### With Display/GUI
+### With a Display or GUI
 
-All examples should work out of the box on systems with a display:
-- macOS: Works natively
-- Linux with X11/Wayland: Works natively
-- Linux over SSH: Use `ssh -X user@host` for X11 forwarding
+I should work immediately on systems with a display:
+- macOS: I work natively.
+- Linux with X11/Wayland: I work natively.
+- Linux over SSH: Use `ssh -X user@host` for X11 forwarding.
 
 ---
 
-## Known Limitations
+## My Known Limitations
+
+I am honest about what I cannot yet do.
 
 ### Compiled vs Interpreter Mode
 
-Some examples only work in **interpreter mode** due to transpiler limitations:
+Some of my examples only work in interpreter mode because my transpiler has limitations I am still addressing.
 
 | Example | Compiled | Interpreter | Reason |
-|---------|----------|-------------|--------|
-| checkers_sdl | ✅ | ✅ | Fully supported |
-| boids_sdl | ✅ | ✅ | Fully supported |
-| raytracer_simple | ✅ | ✅ | Fully supported |
-| asteroids_sdl | ❌ | ✅ | Arrays of structs not supported in transpiler |
-| particles_sdl | ❌ | ✅ | Uses dynamic array_push |
-| falling_sand_sdl | ❌ | ✅ | Uses dynamic array_push |
+|----------|----------|-------------|--------|
+| checkers_sdl | Yes | Yes | Fully supported |
+| boids_sdl | Yes | Yes | Fully supported |
+| raytracer_simple | Yes | Yes | Fully supported |
+| asteroids_sdl | No | Yes | My transpiler does not yet support arrays of structs |
+| particles_sdl | No | Yes | I do not yet support dynamic array_push in compiled mode |
+| falling_sand_sdl | No | Yes | I do not yet support dynamic array_push in compiled mode |
 
 **Interpreter Mode:**
 ```bash
@@ -195,18 +194,18 @@ Some examples only work in **interpreter mode** due to transpiler limitations:
 
 ---
 
-## Testing Platform Compatibility
+## Testing My Compatibility
 
 ### Quick Smoke Test
 
 ```bash
-# Build compiler
+# Build my compiler
 make clean && make
 
-# Run test suite
+# Run my test suite
 make test
 
-# Build examples
+# Build my examples
 cd examples && make
 
 # Test a simple program
@@ -218,21 +217,23 @@ echo 'fn main() -> int { (println "Hello from nanolang!") return 0 }' > test.nan
 ### Expected Results
 
 **Test Suite:**
-- 21+ tests should pass
-- 3 tests may fail (known issues with nested functions, first-class functions)
+- 21 or more tests should pass.
+- 3 tests may fail. I have known issues with nested functions and first-class functions.
 
 **Examples:**
-- All SDL examples should compile
-- All OpenGL examples should compile
-- Runtime success depends on display availability
+- All my SDL examples should compile.
+- All my OpenGL examples should compile.
+- Whether they run depends on your display availability.
 
 ---
 
 ## Troubleshooting
 
+I can help you resolve common issues.
+
 ### "pkg-config not found"
 
-**Solution:**
+**My Solution:**
 ```bash
 # Ubuntu/Debian
 sudo apt-get install pkg-config
@@ -243,7 +244,7 @@ brew install pkg-config
 
 ### "SDL2/SDL.h: No such file or directory"
 
-**Solution:**
+**My Solution:**
 ```bash
 # Ubuntu/Debian
 sudo apt-get install libsdl2-dev
@@ -254,31 +255,31 @@ brew install sdl2
 
 ### "undefined reference to `glXCreateContext`"
 
-This is expected on headless systems. SDL examples will fallback to software renderer automatically.
+I expect this on headless systems. My SDL examples will fallback to my software renderer automatically.
 
 ### "Parser reached invalid state" on fresh clone
 
 **Problem:**
-After `git clone` and `make examples`, you get:
+After you clone me and run `make examples`, you might see:
 ```
 Error: Parser reached invalid state
 Error: Program must define a 'main' function
 ```
 
-**Possible causes:**
-1. Uninitialized memory in parser/lexer (compiler-specific)
-2. Self-hosted components failed but build claimed success
-3. Platform-specific undefined behavior
+**Possible Causes:**
+1. Uninitialized memory in my parser or lexer.
+2. My self-hosted components failed, but the build reported success.
+3. Platform-specific undefined behavior.
 
-**Solution:**
+**My Solution:**
 ```bash
 # Try a clean rebuild
 make clean && make
 
-# If that fails, check the bootstrap status carefully
-# Look for "0/3 components built successfully" in Stage 2
+# If that fails, check my bootstrap status carefully.
+# Look for "0/3 components built successfully" in Stage 2.
 
-# The C reference compiler should still work for simple programs:
+# My C reference compiler should still work for simple programs:
 ./bin/nanoc examples/factorial.nano -o test_factorial
 ./test_factorial
 
@@ -289,27 +290,26 @@ make clean && make
 ```
 
 **Workaround:**
-If examples don't compile but the C compiler built successfully, try:
-- Simpler examples: `factorial.nano`, `fibonacci.nano`
-- Interpreter mode: `./bin/nano examples/checkers.nano`
-- Report the issue on GitHub with full build log
+If my examples do not compile but my C compiler built successfully, try:
+- Simpler examples like `factorial.nano` or `fibonacci.nano`.
+- My interpreter mode: `./bin/nano examples/checkers.nano`.
+- Report the issue on GitHub with your full build log.
 
-**Status:** This is a known bug being investigated. It appears to be a memory
-initialization or platform-specific issue that doesn't affect all systems.
+**Status:** I am investigating this bug. It appears to be a memory initialization or platform-specific issue that does not affect all systems.
 
 ### "Segmentation fault" in examples
 
-**Possible causes:**
-1. Missing display (X11/Wayland)
-2. Corrupted module cache
-3. Related to above parser issue
+**Possible Causes:**
+1. You are missing a display (X11/Wayland).
+2. My module cache is corrupted.
+3. It is related to the parser issue described above.
 
-**Solution:**
+**My Solution:**
 ```bash
-# Clean module cache
+# Clean my module cache
 make clean
 
-# Rebuild
+# Rebuild me
 make && cd examples && make
 ```
 
@@ -319,93 +319,93 @@ make && cd examples && make
 
 ### Software Renderer vs Hardware Acceleration
 
-**Hardware Renderer** (when available):
-- GPU-accelerated drawing
-- Vsync support
-- Smooth 60 FPS
+**Hardware Renderer** (when I can use it):
+- I use GPU-accelerated drawing.
+- I support Vsync.
+- I provide a smooth 60 FPS.
 
-**Software Renderer** (fallback):
-- CPU-based drawing
-- Still acceptable for 2D applications
-- May have slight frame drops on complex scenes
+**Software Renderer** (my fallback):
+- I draw using your CPU.
+- I am still acceptable for 2D applications.
+- I may drop frames in complex scenes.
 
-**Which is being used?**
-You'll see this message if falling back to software:
+**Which am I using?**
+I will show you this message if I fallback to software:
 ```
 Hardware acceleration not available, trying software renderer...
 ```
 
 ---
 
-## Transpiler Limitations (December 2025)
+## My Transpiler Limitations
 
-The current transpiler has several limitations discovered during the asteroids rewrite attempt:
+I discovered several limitations in my current transpiler while attempting to rewrite asteroids.
 
 ### Type Conversion Issues
 
-**Problem:** No built-in functions for explicit type conversion between int and float.
+**Problem:** I do not yet have built-in functions for explicit type conversion between int and float.
 
 **Missing Functions:**
-- `int_to_float()` - Convert integer to float
-- `float_to_int()` - Convert float to integer  
-- `cast_int()` - Used in boids_sdl but doesn't exist
+- `int_to_float()`
+- `float_to_int()`
+- `cast_int()`
 
-**Current Workarounds:**
-- Use `floor(x)`, `ceil(x)`, `round(x)` - but these return float, not int
-- Automatic conversion sometimes works, but is inconsistent
-- Examples like checkers avoid the issue by using int throughout
+**My Current Workarounds:**
+- I provide `floor(x)`, `ceil(x)`, and `round(x)`, but these return float, not int.
+- Automatic conversion works sometimes, but I am inconsistent here.
+- Examples like checkers avoid this by using int throughout.
 
 **Impact:**
-- Can't easily convert SDL float coordinates to int for rendering
-- Makes compiled games with physics (float) + rendering (int) difficult
+- You cannot easily convert SDL float coordinates to int for rendering.
+- This makes it difficult for me to compile games that use both physics and rendering.
 
 ### Array of Structs
 
-**Problem:** Arrays of user-defined struct types don't compile.
+**Problem:** I cannot yet compile arrays of user-defined struct types.
 
 ```nano
-# This doesn't work in compiled mode:
+# I cannot compile this yet:
 let bullets: array<Bullet> = [...]
 ```
 
-**Workaround:**  
-Use "structure of arrays" pattern (separate arrays for each field):
+**Workaround:**
+I recommend using the "structure of arrays" pattern where you use separate arrays for each field:
 ```nano
-# This works:
+# I can compile this:
 let bullet_x: array<float> = [...]
 let bullet_y: array<float> = [...]
 let bullet_active: array<bool> = [...]
 ```
 
-### Spelled-Out Operators (By Design)
+### Spelled-Out Operators
 
-**Note:** Nanolang uses spelled-out operators consistently:
+**Note:** I use spelled-out operators consistently.
 
 ```nano
-# Correct nanolang style:
+# This is my style:
 if (not condition) { ... }
 if (and (> x 0) (< x 10)) { ... }
 if (or (== x 5) (== x 10)) { ... }
 
-# NOT valid (C-style operators not supported):
-if (! condition) { ... }      # Wrong - use 'not'
-if (x > 0 && x < 10) { ... }  # Wrong - use 'and'
-if (x == 5 || x == 10) { ... }  # Wrong - use 'or'
+# I do not support C-style operators:
+if (! condition) { ... }      # I use 'not'
+if (x > 0 && x < 10) { ... }  # I use 'and'
+if (x == 5 || x == 10) { ... }  # I use 'or'
 ```
 
-This is intentional - NanoLang uses spelled-out logical operators (`and`, `or`, `not`) in both prefix `(and a b)` and infix `a and b` notation, rather than C-style symbols (`&&`, `||`, `!`).
+This is intentional. I use spelled-out logical operators in both prefix and infix notation. I do not use C-style symbols.
 
-### Examples Status
+### Example Status
 
 | Example | Compiles | Reason |
-|---------|----------|--------|
-| checkers.nano | ✅ Yes | Uses int coordinates only |
-| raytracer_simple.nano | ✅ Yes | Uses float throughout |
-| boids_sdl.nano | ❌ No | Uses undefined `cast_int` |
-| asteroids_sdl.nano | ❌ No | Arrays of structs + type conversions |
-| particles_sdl.nano | ❌ No | Dynamic `array_push` |
+|----------|----------|--------|
+| checkers.nano | Yes | I use int coordinates only |
+| raytracer_simple.nano | Yes | I use float throughout |
+| boids_sdl.nano | No | I use the undefined `cast_int` |
+| asteroids_sdl.nano | No | I don't support arrays of structs or type conversions yet |
+| particles_sdl.nano | No | I don't support dynamic `array_push` yet |
 
-**For Now:** Run these examples in interpreter mode:
+**For Now:** Run these examples in my interpreter mode:
 ```bash
 ./bin/nano examples/boids_sdl.nano
 ./bin/nano examples/asteroids_sdl.nano
@@ -413,52 +413,53 @@ This is intentional - NanoLang uses spelled-out logical operators (`and`, `or`, 
 
 ### Future Work
 
-These limitations should be addressed in future releases:
-1. Add `float_to_int()` and `int_to_float()` standard library functions
-2. Fix arrays of structs compilation  
-3. Improve type inference and automatic conversions
+I intend to address these limitations:
+1. I will add `float_to_int()` and `int_to_float()` to my standard library.
+2. I will fix my compilation of arrays of structs.
+3. I will improve my type inference and automatic conversions.
 
 ---
 
-## Contributing Platform Support
+## Contributing to My Platform Support
 
-Want to help test nanolang on other platforms?
+If you want to help me test on other platforms:
 
-1. **Try building:** Follow the build instructions above
-2. **Run tests:** `make test`
-3. **Report results:** Open a GitHub issue with:
-   - Platform and architecture
-   - Compiler version (`gcc --version`)
-   - Test results
-   - Any error messages
+1. **Try building me:** Follow my build instructions.
+2. **Run my tests:** `make test`.
+3. **Report your results:** Open a GitHub issue with:
+   - Your platform and architecture.
+   - Your compiler version.
+   - My test results.
+   - Any error messages I produced.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+I have more details in my [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## Version History
+## My History
 
 ### 0.2.0 (December 2025)
-- ✅ Fixed Ubuntu module building issues (empty pkg-config, UTF-8 corruption)
-- ✅ Added SDL software renderer fallback
-- ✅ All SDL examples work on Ubuntu
-- ✅ All OpenGL examples compile on Ubuntu
+- I fixed Ubuntu module building issues.
+- I added my SDL software renderer fallback.
+- All my SDL examples now work on Ubuntu.
+- All my OpenGL examples now compile on Ubuntu.
 
 ### 0.1.0 (November 2025)
-- Initial release
-- macOS support
-- Basic Linux support
+- My initial release.
+- I supported macOS.
+- I provided basic Linux support.
 
 ---
 
 ## Summary
 
 **TL;DR:**
-- ✅ nanolang works great on macOS and Ubuntu Linux
-- ✅ SDL examples fallback to software rendering automatically
-- ✅ Install dev libraries via package manager (`apt` or `brew`)
-- ✅ Some examples require interpreter mode (arrays of structs limitation)
-- ❌ Windows not supported
-- 🟡 Other Unix-like systems should work but are untested
+- I work well on macOS and Ubuntu Linux.
+- I fallback to software rendering automatically for SDL examples.
+- You should install dev libraries through your package manager.
+- Some of my examples require my interpreter mode.
+- I do not support Windows.
+- I should work on other Unix-like systems, but I have not tested them.
 
-Questions? See [docs/README.md](README.md) or open a GitHub issue.
+If you have questions, see my [docs/README.md](README.md) or open a GitHub issue.
+
