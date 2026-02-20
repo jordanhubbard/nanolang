@@ -1,6 +1,6 @@
-# nanolang Quick Reference
+# My Syntax at a Glance
 
-A one-page reference for nanolang syntax and features.
+I am a set of convictions expressed as syntax. This is how I am written.
 
 ## Basic Syntax
 
@@ -11,6 +11,7 @@ A one-page reference for nanolang syntax and features.
 ```
 
 ### Function Definition
+I require a shadow test for every function. If you do not provide one, I will not compile.
 ```nano
 fn name(param: type) -> return_type {
     # body
@@ -22,6 +23,7 @@ shadow name {
 ```
 
 ### Variable Declaration
+My variables are immutable by default. Use `mut` if you intend to change a value.
 ```nano
 let x: int = 42              # Immutable
 let mut y: int = 0           # Mutable
@@ -33,6 +35,8 @@ set variable_name new_value
 ```
 
 ## Types
+
+I am statically typed. I do not guess what you mean.
 
 | Type     | Description           | Example        |
 |----------|-----------------------|----------------|
@@ -58,6 +62,7 @@ let s: int = Status.Active
 ```
 
 **Unions (Tagged Unions):**
+I use `match` to ensure you handle every case.
 ```nano
 union Result {
     Ok { value: int },
@@ -73,6 +78,7 @@ match r {
 ```
 
 **Generics (Monomorphized):**
+I resolve generics at compile time.
 ```nano
 # Built-in generic: List<T>
 let numbers: List<int> = (List_int_new)
@@ -88,6 +94,7 @@ let points: List<Point> = (List_Point_new)
 ```
 
 **First-Class Functions:**
+I treat functions as values. They have specific types.
 ```nano
 # Function type: fn(param_types) -> return_type
 fn double(x: int) -> int {
@@ -115,7 +122,7 @@ let op: fn(int) -> int = (get_doubler)
 
 ## Operators (Prefix and Infix)
 
-NanoLang supports both **prefix** `(+ a b)` and **infix** `a + b` notation for all operators.
+I support both prefix `(+ a b)` and infix `a + b` notation for all operators. I evaluate everything from left to right.
 
 ### Arithmetic
 ```nano
@@ -148,18 +155,19 @@ NanoLang supports both **prefix** `(+ a b)` and **infix** `a + b` notation for a
 
 ### Precedence
 
-All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS). Use parentheses to group:
+All my infix operators have equal precedence. I evaluate them left-to-right. I do not use PEMDAS. Use parentheses if you need a different order.
 
 ```nano
 a * (b + c)           # Parentheses required for non-left-to-right evaluation
 2 + 3 * 4             # Evaluates as (2 + 3) * 4 = 20
 ```
 
-Unary `not` and `-` work without parentheses: `not flag`, `-x`
+Unary `not` and `-` do not require parentheses: `not flag`, `-x`.
 
 ## Control Flow
 
 ### If Expression
+I require both branches.
 ```nano
 if condition {
     # then branch
@@ -190,7 +198,7 @@ return expression
 
 ## Standard Library (72 Functions)
 
-**Note:** This reference shows commonly-used functions. See [STDLIB.md](STDLIB.md) and spec.json for the complete list.
+I provide 72 built-in functions. This list covers the most common ones. See `docs/STDLIB.md` and `spec.json` for the rest.
 
 ### Core I/O (3)
 ```nano
@@ -265,11 +273,11 @@ return expression
 (range start end)  # Range iterator (for loops only)
 ```
 
-📖 **Full documentation:** See [`docs/STDLIB.md`](STDLIB.md) for complete reference with examples and type signatures.
+I have documented the complete set in `docs/STDLIB.md`.
 
 ## Shadow-Tests
 
-Every function must have a shadow-test:
+I demand a shadow test for every function. If you write a function, you must say at least one true thing about what it does.
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -294,11 +302,11 @@ range    module   pub      from     import   use
 struct   enum     union    extern   as
 ```
 
-**Namespace Keywords (NEW!):**
-- `module` - Declare module namespace
-- `pub` - Make symbol public (exported)
-- `from` - Selective import syntax
-- `use` - Re-export symbols
+**Namespace Keywords:**
+- `module` - I use this to declare a namespace.
+- `pub` - I use this to export a symbol.
+- `from` - I use this for selective imports.
+- `use` - I use this to re-export symbols.
 
 ## Common Patterns
 
@@ -405,7 +413,7 @@ shadow helper2 {
 
 # 3. Define main
 fn main() -> int {
-    print (helper2 10)
+    (println (helper2 10))
     return 0
 }
 
@@ -414,7 +422,7 @@ shadow main {
 }
 ```
 
-### Module with Namespace (NEW!)
+### Module with Namespace
 ```nano
 /* Declare module namespace */
 module my_app
@@ -451,22 +459,19 @@ pub fn main() -> int {
 }
 ```
 
-**Key Namespace Features:**
-- `module name` - Declares namespace
-- `pub fn` - Public function (exported)
-- `fn` (no pub) - Private function (module-only)
-- `from "path" import symbols` - Selective imports
-- See `docs/NAMESPACE_USAGE.md` for complete guide
+I explain namespaces in detail in `docs/NAMESPACE_USAGE.md`.
 
 ## Compilation
 
 ### C Backend (default)
+I transpile to C for native performance.
 ```bash
 nanoc program.nano -o program       # Compile to native binary
 nanoc program.nano --keep-c -o prog # Keep generated C source
 ```
 
 ### NanoISA VM Backend
+I can also compile to my own virtual machine.
 ```bash
 nano_virt program.nano --run              # Compile + run in VM
 nano_virt program.nano -o program         # Native binary (embeds VM)
@@ -487,45 +492,41 @@ make install      # Install all binaries
 
 ## Common Mistakes
 
-Both prefix and infix notation are valid for operators:
+I support both prefix and infix notation for operators.
 ```nano
-let x: int = (+ a b)  # Prefix - CORRECT
-let x: int = a + b    # Infix - ALSO CORRECT
+let x: int = (+ a b)  # Prefix - I accept this
+let x: int = a + b    # Infix - I also accept this
 ```
 
-❌ **Assuming PEMDAS precedence**
+I do not use PEMDAS. I evaluate left-to-right.
 ```nano
-let x: int = 2 + 3 * 4  # Evaluates as (2+3)*4 = 20, NOT 2+(3*4)
+let x: int = 2 + 3 * 4  # I evaluate this as (2+3)*4 = 20, NOT 2+(3*4)
 ```
 
-✅ **Use parentheses when precedence matters**
+I expect you to use parentheses if you need a specific order.
 ```nano
 let x: int = 2 + (3 * 4)  # Explicit grouping: 14
 ```
 
----
-
-❌ **Missing type**
+I will refuse to compile if you omit the type.
 ```nano
-let x = 42  # WRONG
+let x = 42  # I will refuse this
 ```
 
-✅ **Explicit type**
+I require explicit types.
 ```nano
-let x: int = 42  # CORRECT
+let x: int = 42  # This is what I expect
 ```
 
----
-
-❌ **No shadow-test**
+I will not compile a function without a shadow test.
 ```nano
 fn double(x: int) -> int {
     return (* x 2)
 }
-# WRONG: Missing shadow test
+# I will refuse this: Missing shadow test
 ```
 
-✅ **With shadow-test**
+I require a test block.
 ```nano
 fn double(x: int) -> int {
     return (* x 2)
@@ -534,56 +535,52 @@ fn double(x: int) -> int {
 shadow double {
     assert (== (double 5) 10)
 }
-# CORRECT
+# I accept this
 ```
 
----
-
-❌ **Mutating immutable**
+I do not allow mutation of immutable variables.
 ```nano
 let x: int = 10
-set x 20  # WRONG
+set x 20  # I will refuse this
 ```
 
-✅ **Declare as mutable**
+I require the `mut` keyword for variables you intend to change.
 ```nano
 let mut x: int = 10
-set x 20  # CORRECT
+set x 20  # I accept this
 ```
 
----
-
-❌ **If without else**
+I require an `else` branch for every `if`.
 ```nano
 if (> x 0) {
     return 1
 }
-# WRONG: Missing else
+# I will refuse this: Missing else
 ```
 
-✅ **Complete if/else**
+I expect a complete expression.
 ```nano
 if (> x 0) {
     return 1
 } else {
     return 0
 }
-# CORRECT
+# I accept this
 ```
 
 ## Tips
 
-1. **Mind the precedence**: All infix operators have equal precedence (left-to-right). Use parentheses or prefix notation to clarify:
-   - Infix: `a + (b * c)` (parens needed) or prefix: `(+ a (* b c))`
+1. I evaluate infix operators from left to right. Use parentheses or prefix notation to be clear.
+   - Infix: `a + (b * c)` or prefix: `(+ a (* b c))`
    - Infix: `x == 5 and y < 10` or prefix: `(and (== x 5) (< y 10))`
 
-2. **Test edge cases**: Always test 0, negatives, boundaries
+2. I expect you to test edge cases. Always test 0, negatives, and boundaries in your shadow tests.
 
-3. **Keep functions small**: Easier to test and understand
+3. I find small functions easier to verify and understand.
 
-4. **Use descriptive names**: `calculate_total` not `calc`
+4. I prefer descriptive names like `calculate_total` over `calc`.
 
-5. **Immutable first**: Only use `mut` when necessary
+5. I recommend using immutable variables by default. Only use `mut` when you have no other choice.
 
 ## Complete Example
 
@@ -612,7 +609,7 @@ shadow is_prime {
 fn main() -> int {
     for n in (range 1 20) {
         if (is_prime n) {
-            print n
+            (print n)
         }
     }
     return 0
@@ -625,7 +622,7 @@ shadow main {
 
 ## Interactive REPL
 
-NanoLang includes a full-featured REPL for interactive development:
+I include a REPL for interactive development.
 
 ### Build & Launch
 ```bash
@@ -634,11 +631,11 @@ NanoLang includes a full-featured REPL for interactive development:
 ```
 
 ### Features
-- Persistent variables: `let x: int = 42`
-- Function definitions: `fn double(x: int) -> int { return (* x 2) }`
-- Multi-line input with continuation prompts (`....>`)
-- Type-specific evaluation: `:int`, `:float`, `:string`, `:bool`
-- Session management: `:vars`, `:funcs`, `:imports`, `:clear`, `:quit`
+- I maintain persistent variables: `let x: int = 42`
+- I accept function definitions: `fn double(x: int) -> int { return (* x 2) }`
+- I support multi-line input with continuation prompts (`....>`)
+- I allow type-specific evaluation: `:int`, `:float`, `:string`, `:bool`
+- I provide session management: `:vars`, `:funcs`, `:imports`, `:clear`, `:quit`
 
 ### Example Session
 ```nano
@@ -673,21 +670,15 @@ Defined functions: double(n: int) -> int
 | `:clear` | Clear session |
 | `:quit` | Exit (or Ctrl-D) |
 
-### Use Cases
-- **Learning** - Try syntax interactively
-- **Prototyping** - Test functions before writing full programs
-- **Debugging** - Experiment with expressions
-- **Quick calculations** - Use as a powerful calculator
-
-See `examples/language/full_repl.nano` for implementation.
+I designed this for learning, prototyping, and quick calculations. See `examples/language/full_repl.nano` for how I implemented it.
 
 ## Resources
 
-- Full guide: [GETTING_STARTED.md](GETTING_STARTED.md)
-- Language spec: [SPECIFICATION.md](SPECIFICATION.md)
-- Testing guide: [SHADOW_TESTS.md](SHADOW_TESTS.md)
-- Examples: [examples/](../examples/README.md)
+- I have a full guide in `docs/GETTING_STARTED.md`.
+- I have a detailed specification in `docs/SPECIFICATION.md`.
+- I explain my testing requirements in `docs/SHADOW_TESTS.md`.
+- I have many examples in the `examples/` directory.
 
 ---
 
-**nanolang** - Minimal, LLM-friendly, test-driven programming
+I say what I mean, I prove what I claim, and I compile myself.
