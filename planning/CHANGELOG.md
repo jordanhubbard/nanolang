@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-02-20
+
+### Added
+- add shared examples library with diagnostics, metadata, and runner
+- achieve 54/54 stage1 examples passing
+- implement union codegen with generic monomorphization
+- add float support, global constants, and module path resolution
+- unify build pipeline across modes and add mode cycling
+- enhance starfield with hyperspace effect and motion trails
+- add multi-mode execution, editor integration, and VM threading
+
+### Fixed
+- stop SDL launcher auto-launch and guard stale bootstrap sentinels
+- detect OpenGL availability and resolve OPL bundle paths
+- improve module resolution and list codegen for subdirectory builds
+- resolve multiple compilation and linking errors in make examples
+- resolve runtime paths from binary location, not CWD
+- make temp file paths TMPDIR-aware and DRY examples Makefile
+- remove extra closing braces in typecheck and transpiler
+- infer cond/if-expression return types instead of defaulting to int
+- auto-promote empty arrays on first struct push
+- resolve nested function call argument interleaving
+- build examples from repo root and add JSON diagnostics
+- resolve project-relative imports when compiling from subdirectories
+
 ## [3.0.1] - 2026-02-16
 
 ### Added
