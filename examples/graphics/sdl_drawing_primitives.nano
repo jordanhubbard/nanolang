@@ -1,5 +1,10 @@
-# SDL Drawing Primitives Demo
-# Demonstrates SDL_RenderDrawRect and other drawing functions
+# Example: SDL Drawing Primitives
+# Purpose: Demonstrates SDL rectangle drawing and basic rendering functions
+# Features: SDL graphics, rendering primitives, event loop, TTF fonts
+# Difficulty: Beginner
+# Category: graphics
+# Prerequisites: none
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

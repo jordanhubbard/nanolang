@@ -1,5 +1,10 @@
-# Snake Game - NCurses Version
-# Interactive terminal snake game with proper UI
+# Example: Snake Game
+# Purpose: Interactive terminal snake game with scoring, food spawning, and collision detection
+# Features: enums, arrays, ncurses, keyboard input, game state management, random generation
+# Difficulty: Intermediate
+# Category: terminal
+# Prerequisites: none
+# Expected Output: interactive
 
 module "modules/ncurses/ncurses.nano"
 

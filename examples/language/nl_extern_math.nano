@@ -1,5 +1,10 @@
-# Test 21: External C Functions - Math Library
-# This test demonstrates calling safe C math functions via extern declarations
+# Example: Extern Math Functions
+# Purpose: Demonstrates calling C math library functions via extern declarations for trig, exponential, and rounding
+# Features: extern functions, FFI, float arithmetic, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_advanced_math
+# Expected Output: ========================================
 
 # Declare external C math functions (safe - no buffer operations)
 extern fn asin(x: float) -> float

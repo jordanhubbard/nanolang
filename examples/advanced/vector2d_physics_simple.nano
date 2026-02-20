@@ -1,6 +1,10 @@
-# Vector2D Physics Example (Simplified)
-# Demonstrates physics simulation with simple 2D vectors
-# Real-world problem: Bouncing ball with gravity
+# Example: Vector2D Physics Simulation
+# Purpose: Demonstrate a simple 2D physics simulation with gravity and collision
+# Features: structs, physics simulation, gravity, collision detection, loops
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: vector2d_demo
+# Expected Output: 2D PHYSICS SIMULATION (Bouncing Ball)
 
 struct Ball {
     x: int,

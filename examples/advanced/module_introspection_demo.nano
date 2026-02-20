@@ -1,3 +1,11 @@
+# Example: Module Introspection Demo
+# Purpose: Demonstrate querying module metadata at compile-time using introspection
+# Features: module introspection, unsafe modules, extern functions, metadata
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: ffi_tutorial, namespace_demo
+# Expected Output: === Module Introspection Test ===
+
 /* Test Module Introspection - Query module metadata at compile-time */
 
 unsafe module "modules/sdl/sdl.nano" as SDL

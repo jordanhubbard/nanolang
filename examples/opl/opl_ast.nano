@@ -1,3 +1,11 @@
+# Example: OPL AST Definitions
+# Purpose: Define AST node types and shared data structures for the OPL compiler toolchain
+# Features: structs, enums, pub visibility, type definitions
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: none
+# Expected Output: none
+
 /* OPL AST + shared structs for the examples/opl toolchain */
 
 /* Source location */

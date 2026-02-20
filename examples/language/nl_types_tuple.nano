@@ -1,7 +1,10 @@
-/* nl_types_tuple.nano - Comprehensive tuple literal tests
- * Tests all aspects of tuple literals including the edge case disambiguation
- * Category: Core Language - Types
- */
+# Example: Tuple Types
+# Purpose: Comprehensive demonstration of tuple literals, field access, return values, and disambiguation
+# Features: tuples, tuple literals, field access, tuple return values, mixed types, fibonacci
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: nl_types_tuple: All tuple literal tests passed!
 
 /* ==== PART 1: Basic Tuple Literals ==== */
 

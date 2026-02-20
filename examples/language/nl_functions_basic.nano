@@ -1,7 +1,10 @@
-/* nl_functions_basic.nano - Basic function tests
- * Tests function definition, calls, parameters, return values
- * Category: Core Language - Functions
- */
+# Example: Functions (Basic)
+# Purpose: Demonstrate function definition, parameters, return values, recursion, and function composition
+# Features: functions, multiple parameter types, local variables, recursion, function composition, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello, nl_operators, nl_types
+# Expected Output: nl_functions_basic: All function tests passed!
 
 /* ==== PART 1: Simple Functions ==== */
 

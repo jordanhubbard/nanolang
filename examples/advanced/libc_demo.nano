@@ -1,5 +1,13 @@
+# Example: Libc Module Demo
+# Purpose: Demonstrate calling C standard library functions through the libc module
+# Features: unsafe modules, C FFI, libc, stdio, string, math
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: ffi_tutorial
+# Expected Output: === libc Module Demo ===
+
 /* Demonstration of using libc as a module
- * 
+ *
  * Shows the new "everything is a module" syntax.
  */
 

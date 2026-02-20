@@ -1,29 +1,10 @@
-# Full-Featured NanoLang REPL (Proof of Concept)
-#
-# This is a comprehensive REPL with persistent state, multi-type evaluation,
-# multi-line input, and function definition support.
-#
-# Features:
-# - Multi-line input: continues prompting until input is complete
-# - Persistent variables: let x: int = 42, let y: float = 3.14
-# - Function definitions: fn double(x: int) -> int { return (* x 2) }
-# - Multi-type expressions: (+ x 10), (* y 2.0), (+ "Hello" "World")
-# - Type-specific evaluation: :int, :float, :string, :bool
-# - Commands: :vars, :funcs, :clear, :quit
-#
-# Architecture:
-# - Tracks brace/paren/bracket depth to detect incomplete input
-# - Shows continuation prompt (....>) for incomplete input
-# - Buffers lines until input is complete
-# - Maintains all definitions (variables + functions) in preamble
-# - Type-specific wrappers for different result types
-#
-# Limitations:
-# - Variables cannot be reassigned (would need parser support)
-# - Doesn't handle escaped quotes in strings
-# - Doesn't ignore comments when checking completeness
-# - Expression type must be specified with :type command
-# - Re-compiles everything on each evaluation (slow)
+# Example: Full-Featured REPL
+# Purpose: Comprehensive REPL with persistent variables, function definitions, multi-line input, and multi-type evaluation
+# Features: imports, string parsing, eval, readline, StringBuilder, multi-line input, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: simple_repl, readline_repl, vars_repl, multi_type_repl, multiline_repl
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

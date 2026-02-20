@@ -1,6 +1,10 @@
-# MATRIX DIGITAL RAIN - The Matrix (1999)
-# Iconic falling green characters effect
-# Press any key to exit
+# Example: Matrix Digital Rain
+# Purpose: Iconic falling green characters effect from The Matrix rendered with ncurses
+# Features: arrays, ncurses, extern functions, animation, random generation
+# Difficulty: Intermediate
+# Category: terminal
+# Prerequisites: none
+# Expected Output: graphical
 
 module "modules/ncurses/ncurses.nano"
 

@@ -1,5 +1,10 @@
-# Mutable vs Immutable Variables
-# This example demonstrates the difference between let and let mut
+# Example: Mutable Variables
+# Purpose: Demonstrate the difference between immutable (let) and mutable (let mut) variables
+# Features: let, let mut, set, while loop, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello, nl_operators
+# Expected Output: === Mutable vs Immutable Variables ===
 
 fn immutable_example() -> int {
     let x: int = 10

@@ -1,6 +1,10 @@
-# PROCEDURAL TERRAIN EXPLORER - Infinite world with fog of war
-# Interactive terrain generation using Perlin noise with SDL UI engine
-# Demonstrates: Procedural generation, chunking, fog of war, camera systems
+# Example: Procedural Terrain Explorer
+# Purpose: Infinite procedural terrain with Perlin noise, biomes, fog of war, and camera controls
+# Features: enums, structs, procedural generation, SDL graphics, keyboard input, float arithmetic
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_texture_demo
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

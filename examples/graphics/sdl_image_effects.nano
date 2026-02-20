@@ -1,12 +1,10 @@
-# SDL_image Effects Example
-# Demonstrates various image rendering effects
-#
-# This example shows:
-# - Color tinting/modulation
-# - Alpha blending (transparency)
-# - Rotation and flipping
-# - Scaling and transformation
-# - Multiple blend modes
+# Example: SDL_image Effects Gallery
+# Purpose: Demonstrates image rendering effects including tinting, alpha blending, rotation, and blend modes
+# Features: SDL_image, color modulation, alpha blending, rotation, blend modes
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_image_test
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

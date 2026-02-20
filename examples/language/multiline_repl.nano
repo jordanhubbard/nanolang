@@ -1,28 +1,10 @@
-# NanoLang REPL with Multi-Line Input Support (Proof of Concept)
-#
-# This demonstrates persistent variables, multi-type evaluation, and
-# multi-line input support for complex expressions and function definitions.
-#
-# Features:
-# - Multi-line input: continues prompting until input is complete
-# - Persistent variables: let x: int = 42, let y: float = 3.14
-# - Multi-type expressions: (+ x 10), (* y 2.0), (+ "Hello" "World")
-# - Type-specific evaluation: :int, :float, :string, :bool
-# - Commands: :vars, :clear, :quit
-#
-# Architecture:
-# - Tracks brace/paren/bracket depth to detect incomplete input
-# - Shows continuation prompt (....>) for incomplete input
-# - Buffers lines until input is complete
-# - Maintains all variable definitions as source code in a StringBuilder
-# - Type-specific wrappers for different result types
-#
-# Limitations:
-# - Variables cannot be reassigned (would need parser support)
-# - Doesn't handle escaped quotes in strings
-# - Doesn't ignore comments when checking completeness
-# - Expression type must be specified with :type command
-# - Re-compiles everything on each evaluation (slow)
+# Example: Multi-Line REPL
+# Purpose: REPL with multi-line input support that tracks bracket depth for incomplete expressions and function definitions
+# Features: imports, string parsing, eval, readline, StringBuilder, bracket depth tracking, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: simple_repl, readline_repl, vars_repl, multi_type_repl
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

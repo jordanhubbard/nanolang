@@ -1,10 +1,11 @@
-# Modern OpenGL: Framebuffer Postprocess (Shaders + Texture + FBO)
-#
-# Demonstrates:
-# - Offscreen rendering to texture (FBO)
-# - Screen-space postprocess shader
-# - Procedural checkerboard texture upload helper
-#
+# Example: Modern OpenGL Postprocess
+# Purpose: Demonstrates offscreen rendering to a framebuffer object with a screen-space wave warp postprocess shader
+# Features: OpenGL, GLFW, GLEW, FBO, framebuffer, texture, GLSL shaders, postprocessing, uniforms
+# Difficulty: Advanced
+# Category: opengl
+# Prerequisites: opengl_modern_hello_triangle
+# Expected Output: graphical
+
 # Controls:
 #   ESC - Quit
 

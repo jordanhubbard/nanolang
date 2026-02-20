@@ -1,5 +1,10 @@
-# NanoLang Regex Demo - Pythonic API
-# Showcases one-shot operations (Tier 1) and compiled patterns (Tier 2)
+# Example: Regex Demo (Full)
+# Purpose: Showcase both one-shot and compiled regex operations with tiered API
+# Features: regex, pattern matching, compiled patterns, string manipulation
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: regex_demo_simple
+# Expected Output: NanoLang Regex - Pythonic API Demo
 
 module "std/regex/regex.nano" as Re
 

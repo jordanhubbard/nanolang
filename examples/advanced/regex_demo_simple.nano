@@ -1,5 +1,10 @@
-# Regular Expression Demo - Pythonic One-Shot API
-# No opaque handle management needed!
+# Example: Regex Demo (Simple)
+# Purpose: Demonstrate one-shot regex operations with a simple Pythonic API
+# Features: regex, pattern matching, string replacement, splitting
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: NanoLang Regex - Pythonic One-Shot API
 
 module "std/regex/regex.nano" as Re
 

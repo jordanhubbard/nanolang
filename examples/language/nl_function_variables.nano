@@ -1,8 +1,10 @@
-/* =============================================================================
- * Phase B3: Function Variables - COMPLETE DEMO
- * =============================================================================
- * Store functions in variables, call them, pass them around!
- */
+# Example: Function Variables
+# Purpose: Demonstrates storing functions in variables, calling them, and passing them around
+# Features: function variables, function factories, strategy pattern, function dispatch
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_function_return_values
+# Expected Output: Phase B3: Function Variables - COMPLETE!
 
 /* Basic arithmetic operations */
 fn add(a: int, b: int) -> int {

@@ -1,8 +1,10 @@
-/* =============================================================================
- * First-Class Functions Example
- * =============================================================================
- * Demonstrates passing functions as parameters without pointers!
- */
+# Example: First-Class Functions
+# Purpose: Demonstrates passing functions as parameters to higher-order functions
+# Features: first-class functions, higher-order functions, function parameters
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: First-Class Functions Demo
 
 /* Helper functions */
 fn double(x: int) -> int {

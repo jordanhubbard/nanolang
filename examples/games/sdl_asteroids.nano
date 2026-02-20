@@ -1,5 +1,10 @@
-# ASTEROIDS COMPLETE - Full arcade game with lives, game over, and HUD
-# Features: 3 lives, game over/restart, score display, breaking mechanics, thrust cone
+# Example: Asteroids
+# Purpose: Full arcade Asteroids game with lives, score, asteroid breaking mechanics, and thrust physics
+# Features: float arithmetic, trigonometry, arrays, SDL graphics, keyboard input, ui_widgets, collision detection
+# Difficulty: Advanced
+# Category: games
+# Prerequisites: sdl_drawing_primitives, sdl_particles
+# Expected Output: interactive
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

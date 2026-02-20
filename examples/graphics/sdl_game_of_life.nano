@@ -1,3 +1,11 @@
+# Example: Game of Life (SDL)
+# Purpose: Conway's Game of Life cellular automaton with colorful cell aging visualization
+# Features: cellular automata, arrays, SDL graphics, extern functions, shadow tests
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
+
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"

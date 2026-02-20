@@ -1,6 +1,10 @@
-# File Processor Example
-# Demonstrates stdio module for reading, filtering, transforming, and writing files
-# Real-world problem: Process log files, filter by severity, count occurrences
+# Example: File Processor
+# Purpose: Demonstrate file reading, filtering, transforming, and writing with the stdio module
+# Features: file I/O, string manipulation, text processing, modules
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: STDIO FILE PROCESSOR
 
 from "modules/std/fs.nano" import file_read, file_write, file_exists
 

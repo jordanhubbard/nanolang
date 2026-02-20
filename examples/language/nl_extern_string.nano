@@ -1,5 +1,10 @@
-# Test 23: External C Functions - String Operations (Safe)
-# This test demonstrates calling safe C string functions via extern declarations
+# Example: Extern String Functions
+# Purpose: Demonstrates calling safe C string functions (strlen, strcmp, strncmp) via extern declarations
+# Features: extern functions, FFI, string operations, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_strings
+# Expected Output: ==========================================
 
 # Declare external C string functions (read-only, safe)
 extern fn strlen(s: string) -> int

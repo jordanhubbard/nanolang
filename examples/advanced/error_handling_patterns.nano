@@ -1,9 +1,10 @@
 # Example: Error Handling Patterns
 # Purpose: Demonstrate comprehensive error handling strategies in NanoLang
-# Features: Return codes, sentinel values, early returns, validation
+# Features: return codes, sentinel values, early returns, validation
 # Difficulty: Advanced
-# Usage: ./bin/nanoc examples/advanced/error_handling_patterns.nano -o /tmp/errors && /tmp/errors
-# Expected Output: Demonstrates various error handling approaches
+# Category: advanced
+# Prerequisites: none
+# Expected Output: Error Handling Patterns Demo
 #
 # Learning Objectives:
 # 1. Use return codes for error signaling (0 = success, non-zero = error)

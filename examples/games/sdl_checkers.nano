@@ -1,13 +1,10 @@
-# Full-Featured Checkers Game in nanolang
-# Complete feature parity with C version:
-# - AI opponent with move evaluation
-# - King pieces with bidirectional movement  
-# - Mandatory jump rules
-# - Multi-jump support
-# - Visual feedback (selection highlighting)
-# - Game over detection and display
-# - Piece rendering with kings shown as gold circles
-# MODERNIZED: Uses enums, structs, top-level constants!
+# Example: Checkers
+# Purpose: Full-featured checkers game with AI opponent, king pieces, mandatory jumps, and multi-jump support
+# Features: enums, structs, arrays, SDL graphics, mouse input, AI logic, game state management
+# Difficulty: Advanced
+# Category: games
+# Prerequisites: sdl_drawing_primitives, sdl_mouse_click
+# Expected Output: interactive
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

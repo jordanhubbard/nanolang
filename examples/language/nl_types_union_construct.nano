@@ -1,7 +1,10 @@
-/* nl_types_union_construct.nano - Comprehensive union construction tests
- * Tests all aspects of union variant construction with fields
- * Category: Core Language - Types
- */
+# Example: Union Type Construction
+# Purpose: Comprehensive tests for constructing union variants with fields, computed values, and pattern matching
+# Features: union types, match, variant construction, Option, Result, Either patterns
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_union_types
+# Expected Output: nl_types_union_construct: All union construction tests passed!
 
 /* ==== PART 1: Basic Unions ==== */
 

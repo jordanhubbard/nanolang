@@ -1,23 +1,10 @@
-# ai_github_agent.nano - Autonomous GitHub Issue Agent
-#
-# Demonstrates NanoLang's ability to:
-# 1. Fetch GitHub issues
-# 2. Analyze them with an LLM (OpenAI API)
-# 3. Create responses or fixes
-#
-# This enables NanoLang programs to autonomously:
-# - Triage issues
-# - Generate responses
-# - Propose fixes
-# - Create pull requests
-#
-# Requirements:
-# - GITHUB_TOKEN environment variable
-# - OPENAI_API_KEY environment variable (or local LLM endpoint)
-#
-# For local LLMs (Ollama, LM Studio, etc.):
-#   export OPENAI_API_KEY="dummy"  # Not needed for local
-#   # The example shows how to set base URL to localhost
+# Example: AI GitHub Agent
+# Purpose: Demonstrate autonomous GitHub issue analysis and response using LLM integration
+# Features: GitHub API, OpenAI API, JSON parsing, environment variables, HTTP
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: none
+# Expected Output: NanoLang Autonomous GitHub Agent
 
 import "modules/github/github.nano"
 import "modules/openai/openai.nano"

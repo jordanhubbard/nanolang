@@ -1,11 +1,10 @@
-# HTTP Hello World - Minimal Server Example
-# The simplest possible HTTP server in NanoLang
-#
-# Usage:
-#   ./bin/nanoc examples/http_hello_world.nano -o bin/http_hello_world
-#   ./bin/http_hello_world
-#
-# Visit: http://localhost:3000
+# Example: HTTP Hello World Server
+# Purpose: Demonstrate the simplest possible HTTP server in NanoLang
+# Features: HTTP server, modules, static file serving
+# Difficulty: Beginner
+# Category: network
+# Prerequisites: none
+# Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
 

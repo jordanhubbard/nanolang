@@ -1,31 +1,21 @@
-# Simple SQLite Database Example  
-# Demonstrates SECURE database operations with SQLite3
-#
-# Concept: Safe database CRUD with prepared statements
-# Topics: SQL, database security, parameter binding
+# Example: SQLite Simple
+# Purpose: Demonstrate secure database CRUD operations with SQLite3 prepared statements
+# Features: sqlite, prepared statements, database CRUD, unsafe modules
 # Difficulty: Intermediate
-#
-# Description:
-# Shows secure database operations using prepared statements
-# to prevent SQL injection attacks. Demonstrates proper use
-# of nl_sqlite3_prepare with result iteration.
-#
-# Key Features Demonstrated:
-# - Prepared statements (nl_sqlite3_prepare) for queries
-# - Result iteration with nl_sqlite3_step
-# - Column access (nl_sqlite3_column_*)
-# - Proper resource cleanup (nl_sqlite3_finalize)
+# Category: advanced
+# Prerequisites: ffi_tutorial
+# Expected Output: SQLite Database Example
 #
 # SECURITY NOTE:
 # This example is SAFE because it uses:
-# ✅ Hardcoded SQL strings (no user input concatenation)
-# ✅ Prepared statements for queries
+# - Hardcoded SQL strings (no user input concatenation)
+# - Prepared statements for queries
 #
 # For dynamic queries with user input, ALWAYS use parameter binding:
-# ✅ SAFE:   let stmt = (nl_sqlite3_prepare db "SELECT * FROM users WHERE id = ?")
+# - SAFE:   let stmt = (nl_sqlite3_prepare db "SELECT * FROM users WHERE id = ?")
 #            (nl_sqlite3_bind_int stmt 1 user_id)
 #
-# ❌ UNSAFE: Concatenating user input into SQL string
+# - UNSAFE: Concatenating user input into SQL string
 #            This would allow SQL injection attacks!
 
 module "modules/sqlite/sqlite.nano"

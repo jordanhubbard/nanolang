@@ -1,8 +1,10 @@
-/* =============================================================================
- * Filter, Map, and Fold Patterns
- * =============================================================================
- * Classic functional programming patterns using first-class functions!
- */
+# Example: Filter, Map, and Fold
+# Purpose: Demonstrates classic functional programming patterns using first-class functions
+# Features: higher-order functions, predicates, fold, arrays, first-class functions
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_first_class_functions, nl_array_complete
+# Expected Output: Filter, Map, and Fold Demo
 
 /* ============================================================================
  * Predicates (fn(T) -> bool)

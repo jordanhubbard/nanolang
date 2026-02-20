@@ -1,3 +1,11 @@
+# Example: OPL Lexer Driver
+# Purpose: Test driver that exercises the OPL lexer with sample input
+# Features: imports, testing, lexer integration
+# Difficulty: Intermediate
+# Category: opl
+# Prerequisites: opl_lexer
+# Expected Output: none
+
 import "examples/opl/opl_lexer.nano"
 
 fn main() -> int {

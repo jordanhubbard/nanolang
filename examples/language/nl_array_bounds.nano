@@ -1,4 +1,10 @@
-# Test bounds checking in compiled code
+# Example: Array Bounds Checking
+# Purpose: Demonstrates runtime bounds checking for array access in compiled code
+# Features: arrays, at, bounds checking, runtime safety
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_array_complete
+# Expected Output: Array [10, 20, 30] at index 2 = 30
 
 fn test_bounds_valid() -> int {
     # This should work

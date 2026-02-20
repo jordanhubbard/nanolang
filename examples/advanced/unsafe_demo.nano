@@ -1,3 +1,11 @@
+# Example: Unsafe Blocks Demo
+# Purpose: Demonstrate the unsafe keyword for marking potentially dangerous operations
+# Features: unsafe blocks, nested unsafe, extern calls, safety annotations
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === NanoLang Unsafe Blocks Demo ===
+
 /* Demonstration of unsafe blocks in NanoLang
  *
  * The `unsafe` keyword marks code sections that perform operations

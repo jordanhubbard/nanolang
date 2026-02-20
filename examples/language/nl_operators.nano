@@ -1,17 +1,10 @@
 # Example: Arithmetic Operators
 # Purpose: Demonstrate all arithmetic operations in prefix notation
-# Features: +, -, *, /, % operators, prefix notation, shadow tests
+# Features: +, -, *, /, % operators, prefix notation, nested expressions, shadow tests
 # Difficulty: Beginner
-# Usage: ./bin/nanoc examples/nl_operators.nano -o /tmp/ops && /tmp/ops
-# Expected Output: Results of various arithmetic operations
-#
-# Learning Objectives:
-# 1. Master prefix notation: (+ a b) instead of a + b
-# 2. Understand operator precedence is explicit in prefix notation
-# 3. See all five arithmetic operators in action
-# 4. Learn how nested operations work: (+ (* a b) (/ c d))
-#
-# Key Point: NO operator precedence rules needed! Parentheses make everything explicit.
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: === Arithmetic Operations ===
 
 fn add(a: int, b: int) -> int {
     return (+ a b)

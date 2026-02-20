@@ -1,5 +1,10 @@
-# Basic usage example for the beads module
-# Demonstrates querying and creating beads programmatically
+# Example: Beads Basic Usage
+# Purpose: Demonstrate querying and creating beads for programmatic issue management
+# Features: beads, module imports, structs, arrays
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Beads Module Basic Usage ===
 
 from "stdlib/beads.nano" import 
     Bead, BeadStats, BeadCreateOptions,

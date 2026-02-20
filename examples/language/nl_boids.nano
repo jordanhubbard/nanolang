@@ -1,6 +1,10 @@
-# BOIDS - Complete Flocking Simulation
-# Using: Structs, Unary operators, Top-level constants, Type casting, Dynamic arrays, GC!
-# MODERNIZED: Added Boid struct for cleaner data organization
+# Example: Boids Flocking Simulation
+# Purpose: Simulates emergent flocking behavior using cohesion forces, speed limiting, and world wrapping
+# Features: structs, floats, top-level constants, type casting, dynamic arrays, imports, while loops
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_structs, nl_floats
+# Expected Output: BOIDS - Flocking Simulation
 
 from "std/math/vector2d.nano" import vec_new, vec_length
 

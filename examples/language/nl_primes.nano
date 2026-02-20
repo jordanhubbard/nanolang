@@ -1,5 +1,10 @@
-# Prime number checker and lister
-# Demonstrates loops, conditionals, and modulo operations
+# Example: Prime Numbers
+# Purpose: Checks primality and lists prime numbers using trial division with shadow tests
+# Features: loops, conditionals, modulo, bool return type, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello, nl_operators, nl_loops
+# Expected Output: Prime numbers up to 50:
 
 fn is_prime(n: int) -> bool {
     # Early returns for simple cases

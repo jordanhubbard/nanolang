@@ -1,3 +1,11 @@
+# Example: Nano Tools Lint
+# Purpose: Demonstrate source code linting and diagnostics using the nano_tools module
+# Features: linting, diagnostics, compiler integration, modules
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: none
+# Expected Output: ok
+
 import "modules/nano_tools/nano_tools.nano" as tools
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 

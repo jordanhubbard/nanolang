@@ -1,3 +1,11 @@
+# Example: Vector2D Module Demo
+# Purpose: Demonstrate 2D vector mathematics using the vector2d module
+# Features: structs, vector math, modules, normalization, rotation
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: Testing Vector2D module...
+
 /* =============================================================================
  * Vector2D Module Demo
  * =============================================================================

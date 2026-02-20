@@ -1,7 +1,14 @@
+# Example: Medical Dosage Calculator
+# Purpose: Safe drug dosage computation with verified safety interlocks and eligibility checks
+# Features: unions, pattern matching, structs, integer arithmetic, safety checks, arrays, shadow tests
+# Difficulty: Intermediate
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified Medical Dosage Calculator
  * =============================================================================
- * Purpose: Safe drug dosage computation with verified safety interlocks
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -17,10 +24,6 @@
  *   - No stuck states: well-typed expressions always reduce to a value
  *
  * Run: nanoc --trust-report examples/verified/medical_dosage.nano
- *      (all functions should show [verified])
- *
- * Features: unions, pattern matching, structs, integer arithmetic, safety checks
- * Difficulty: Intermediate
  * ============================================================================= */
 
 /* ── Patient weight categories (kg) ── */

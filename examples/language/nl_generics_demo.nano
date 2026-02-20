@@ -1,40 +1,10 @@
-# Comprehensive Generics Demo - List<T> Type System
-#
-# Concept: Demonstrates NanoLang's generic type system with List<T>
-# Topics: generics, monomorphization, type safety, polymorphism, List<T>
+# Example: Generics Demo
+# Purpose: Comprehensive demonstration of NanoLang's generic type system using List<T> with monomorphization
+# Features: generics, List<T>, monomorphization, type safety, structs, extern functions
 # Difficulty: Advanced
-#
-# Description:
-# Comprehensive demonstration of NanoLang's generic type system using List<T>.
-# Shows how the compiler performs monomorphization (generating specialized
-# code for each type), type-safe operations, and generic data structures.
-#
-# Key Features Demonstrated:
-# - Generic List<T> type with multiple specializations
-# - Monomorphization (compile-time type specialization)
-# - Type-safe operations (no casting required)
-# - Generics with primitive types (int, string)
-# - Generics with user-defined structs (Point, Player)
-# - Automatic function generation per type
-#
-# How Generics Work in NanoLang:
-# When you write `List<Point>`, the compiler automatically generates:
-#   - List_Point struct type
-#   - List_Point_new() → List<Point>
-#   - List_Point_push(list, value) → void
-#   - List_Point_get(list, index) → Point
-#   - List_Point_length(list) → int
-#
-# This is called "monomorphization" - one generic definition creates
-# multiple specialized implementations at compile time.
-#
-# Prerequisites:
-# - nl_struct.nano - User-defined types
-# - nl_types.nano - Type system basics
-# - Understanding of polymorphism
-#
-# Next Steps:
-# - Implement your own generic types
+# Category: language
+# Prerequisites: nl_union_types, nl_array_complete
+# Expected Output: ╔════════════════════════════════════════════════╗
 
 # ==============================================================================
 # User-Defined Types for Generic Examples

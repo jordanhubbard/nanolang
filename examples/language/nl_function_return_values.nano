@@ -1,9 +1,10 @@
-/* =============================================================================
- * Phase B2: Functions as Return Values - Type Checking Demo
- * =============================================================================
- * This demonstrates that functions CAN return functions.
- * Full usage requires Phase B3 (function variables).
- */
+# Example: Function Return Values
+# Purpose: Demonstrates functions that return other functions as values
+# Features: function types, return values, function factories, conditional dispatch
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_first_class_functions
+# Expected Output: Phase B2: Functions as Return Values
 
 /* Some basic functions */
 fn add(a: int, b: int) -> int {

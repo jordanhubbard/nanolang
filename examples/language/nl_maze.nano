@@ -1,6 +1,10 @@
-# MAZE GENERATOR & SOLVER
-# Demonstrates: Recursive algorithms, pathfinding, backtracking
-# MODERNIZED: Uses enums for type-safe cell states
+# Example: Maze Generator and Solver
+# Purpose: Generates a procedural maze and solves it with greedy pathfinding using grid-based data structures
+# Features: enums, structs, top-level constants, arrays, pathfinding, grid operations, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_enums, nl_structs
+# Expected Output: MAZE GENERATOR & SOLVER
 
 # === ENUMS ===
 enum CellState {

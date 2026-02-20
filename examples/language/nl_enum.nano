@@ -1,4 +1,10 @@
-# Test enum functionality
+# Example: Enums
+# Purpose: Demonstrate enum definition with auto and explicit values, and enum-to-int conversion
+# Features: enum, explicit enum values, enum field access, cond, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_types, nl_comparisons
+# Expected Output: Color value: 1
 
 # Simple enum
 enum Color {

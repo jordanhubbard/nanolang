@@ -1,3 +1,11 @@
+# Example: Unicode String Operations Demo
+# Purpose: Demonstrate grapheme-aware unicode string handling and operations
+# Features: unicode, grapheme clusters, string operations, unsafe modules
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Unicode String Operations Demo ===
+
 /* Unicode String Operations Demo
  * Demonstrates grapheme-aware string handling
  */

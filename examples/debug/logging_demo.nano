@@ -1,4 +1,10 @@
-# Demo of the structured logging API
+# Example: Logging Demo
+# Purpose: Demonstrates the structured logging API with fibonacci calculation and validation
+# Features: imports, structured logging, recursion, shadow tests
+# Difficulty: Beginner
+# Category: debug
+# Prerequisites: none
+# Expected Output: [INFO] [app] Starting logging demo
 
 from "stdlib/log.nano" import log_debug, log_info, log_trace, log_error
 

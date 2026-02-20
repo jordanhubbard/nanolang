@@ -1,5 +1,10 @@
-# Advanced String Operations Example
-# Demonstrates character access, classification, and conversion functions
+# Example: String Operations
+# Purpose: Demonstrates character access, classification, and conversion functions on strings
+# Features: char_at, string_from_char, is_digit, is_alpha, char_to_lower, int_to_string, string_to_int
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: ✓ All string operations working!
 
 fn test_char_access() -> int {
     let text: string = "Hello"

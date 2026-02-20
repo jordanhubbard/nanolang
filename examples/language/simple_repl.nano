@@ -1,23 +1,10 @@
-# NanoLang REPL - Interactive Read-Eval-Print Loop
-#
-# A full-featured REPL that demonstrates:
-# - GNU Readline for line editing and history
-# - Dynamic code evaluation using the eval function
-# - Command history with persistence to ~/.nanolang_history
-#
-# Usage:
-#   Enter NanoLang expressions to evaluate them.
-#   Results are printed automatically.
-#   Use arrow keys for history, Ctrl-A/E for line navigation.
-#   Type 'quit' or press Ctrl-D to exit.
-#
-# Examples:
-#   nano> (+ 2 3)
-#   => 5
-#   nano> (* 7 6)
-#   => 42
-#   nano> (cond ((> 5 3) 100) (else 0))
-#   => 100
+# Example: Simple REPL
+# Purpose: Interactive read-eval-print loop with readline support, command history, and help system
+# Features: imports, readline, eval, StringBuilder, string operations, ANSI escape codes, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_read_history, rl_write_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

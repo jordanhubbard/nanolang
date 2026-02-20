@@ -1,6 +1,10 @@
-# SDL Texture Demo
-# Demonstrates SDL_CreateTexture and SDL_UpdateTexture
-# Creates a dynamic texture and updates it with animated patterns
+# Example: SDL Texture Demo
+# Purpose: Demonstrates dynamic texture creation and pixel-level updates with animated patterns
+# Features: SDL textures, pixel manipulation, animation, SDL graphics
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

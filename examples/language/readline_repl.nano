@@ -1,19 +1,10 @@
-# Enhanced NanoLang REPL with Readline
-#
-# This is a simple REPL that uses GNU Readline for line editing and history.
-# It evaluates integer expressions by wrapping them in a main() function.
-#
-# Features:
-# - Line editing with arrow keys
-# - Command history (up/down arrows)
-# - History file persistence
-# - Clean error handling
-#
-# Limitations (to be addressed in full implementation):
-# - Only evaluates integer expressions
-# - No persistent variables
-# - No function definitions
-# - No multi-line input
+# Example: Readline REPL
+# Purpose: Simple REPL using GNU Readline for line editing, command history, and history file persistence
+# Features: imports, readline, eval, StringBuilder, string operations, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: simple_repl
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_read_history, rl_write_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

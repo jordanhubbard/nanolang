@@ -1,3 +1,11 @@
+# Example: OPL Parser
+# Purpose: Parse OPL token streams into abstract syntax trees
+# Features: recursive descent parsing, JSON AST, error handling, structs
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_ast, opl_lexer, opl_json
+# Expected Output: none
+
 import "examples/opl/opl_ast.nano"
 import "examples/opl/opl_lexer.nano"
 import "examples/opl/opl_json.nano"

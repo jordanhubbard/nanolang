@@ -1,5 +1,10 @@
-# MOD Player with Real-Time Audio Visualizer
-# Shows animated waveform and VU meters with real audio analysis
+# Example: MOD Audio Visualizer
+# Purpose: Plays MOD tracker files with real-time waveform, VU meters, and multiple visualization modes
+# Features: SDL_mixer, MOD playback, audio visualization, waveform rendering, VU meters, SDL_ttf, trigonometry
+# Difficulty: Advanced
+# Category: audio
+# Prerequisites: none
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_mixer/sdl_mixer.nano"

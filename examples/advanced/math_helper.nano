@@ -1,3 +1,11 @@
+# Example: Math Helper Module
+# Purpose: Provide basic arithmetic helper functions as a reusable module
+# Features: pub functions, shadow tests, modules
+# Difficulty: Beginner
+# Category: advanced
+# Prerequisites: none
+# Expected Output: none
+
 /* Math helper module for nl_demo_selfhosting.nano */
 
 pub fn add(a: int, b: int) -> int {

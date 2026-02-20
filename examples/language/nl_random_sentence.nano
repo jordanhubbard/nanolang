@@ -1,5 +1,10 @@
-# Example 24: Random Nonsense Sentence Generator
-# Reads words from /usr/share/dict/words and generates random sentences
+# Example: Random Sentence Generator
+# Purpose: Generates random nonsense sentences by reading words from the system dictionary
+# Features: extern functions, file I/O, string parsing, random numbers, imports
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions
+# Expected Output: ========================================
 
 from "modules/std/fs.nano" import file_read
 

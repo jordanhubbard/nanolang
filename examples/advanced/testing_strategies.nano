@@ -1,9 +1,10 @@
 # Example: Testing Strategies and Best Practices
 # Purpose: Comprehensive guide to writing effective shadow tests
-# Features: Shadow tests, edge cases, test organization, TDD
+# Features: shadow tests, edge cases, test organization, TDD
 # Difficulty: Advanced
-# Usage: ./bin/nanoc examples/advanced/testing_strategies.nano -o /tmp/testing && /tmp/testing
-# Expected Output: Demonstrates testing best practices
+# Category: advanced
+# Prerequisites: none
+# Expected Output: Testing Strategies Demo
 #
 # Learning Objectives:
 # 1. Write comprehensive shadow tests that cover all cases

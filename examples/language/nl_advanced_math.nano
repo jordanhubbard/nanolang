@@ -1,3 +1,11 @@
+# Example: Advanced Math Functions
+# Purpose: Demonstrates built-in math functions including sqrt, pow, rounding, and trigonometry
+# Features: float arithmetic, sqrt, pow, floor, ceil, round, sin, cos, tan, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_operators
+# Expected Output: === Advanced Math Functions ===
+
 fn test_sqrt() -> int {
     let pi_squared: float = (sqrt 9.8696044)
     (println "sqrt(9.8696044) ≈")

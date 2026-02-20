@@ -1,5 +1,10 @@
-# Demonstration of category-based logging for organizing output
-# Shows how categories help separate concerns in larger applications
+# Example: Logging Categories Demo
+# Purpose: Demonstrates category-based structured logging for organizing output by concern
+# Features: imports, structs, logging categories, string concatenation, shadow tests
+# Difficulty: Beginner
+# Category: debug
+# Prerequisites: none
+# Expected Output: [INFO] [app] === Category-Based Logging Demonstration ===
 
 from "stdlib/log.nano" import log_info, log_debug, log_error
 

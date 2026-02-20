@@ -1,50 +1,10 @@
-# NANOVIZ - 3D Music Visualizer
-# The "Best of All Modules" Integration Demo
-#
-# Concept: 3D music visualization combining multiple modules
-# Topics: SDL, OpenGL, audio, 3D graphics, FFT, real-time visualization
+# Example: NanoViz 3D Music Visualizer
+# Purpose: Comprehensive multi-module integration demo combining SDL, OpenGL, and real-time audio FFT visualization
+# Features: OpenGL, SDL, audio FFT, ui_widgets, multi-module integration, 3D graphics, event handling
 # Difficulty: Advanced
-#
-# Description:
-# Comprehensive demo integrating SDL2, OpenGL, audio analysis, and UI widgets.
-# Shows how multiple NanoLang modules work together to create a complete
-# application. "Best of all modules" showcase with demoscene aesthetics.
-#
-# Key Modules Integrated:
-#  - SDL2: Window management, events, audio playback (SDL_mixer)
-#  - OpenGL (GLFW/GLEW): 3D graphics and effects
-#  - audio_viz: Real-time FFT audio analysis
-#  - ui_widgets: Interactive control panel
-#
-# Key Features Demonstrated:
-# - Multi-module integration (SDL + OpenGL + Audio)
-# - Real-time 3D audio visualization
-# - Advanced graphics rendering
-# - Event handling (keyboard, mouse)
-# - Interactive UI controls
-# - Performance optimization
-# - FFT frequency analysis
-#
-# Real-World Applications:
-# - Music players with 3D visualization
-# - Live performance visuals (VJing)
-# - Audio analysis and monitoring tools
-# - Educational audio-visual tools
-# - Demoscene productions
-#
-# Cultural Context:
-# Inspired by: Winamp + MilkDrop, G-Force, VJing software
-# Golden age of PC demoscene and media players
-#
-# Prerequisites:
-# - sdl_audio_wav.nano - Basic audio
-# - opengl_cube.nano - OpenGL basics
-# - nl_advanced_math.nano - 3D math
-#
-# Next Steps:
-# - sdl_nanoamp.nano - Advanced audio player
-# - Add more visualization presets
-# - Implement beat detection
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_particles
+# Expected Output: graphical
 
 unsafe module "modules/glfw/glfw.nano"
 unsafe module "modules/glew/glew.nano"

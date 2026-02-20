@@ -1,5 +1,10 @@
-# Comprehensive Array Test Suite
-# Tests all array operations with shadow tests
+# Example: Array Complete
+# Purpose: Comprehensive test suite covering all array operations including literals, access, length, and creation
+# Features: arrays, array_length, at, array_new, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: === Comprehensive Array Test Suite ===
 
 # Test 1: Array literal basics
 fn test_array_literal() -> int {

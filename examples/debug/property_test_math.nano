@@ -1,5 +1,10 @@
-# Property-based testing example: Mathematical properties
-# Demonstrates testing algebraic properties with random inputs
+# Example: Property Test Math
+# Purpose: Property-based testing of algebraic properties for addition, multiplication, abs, and max
+# Features: imports, property-based testing, shadow tests, integer arithmetic, boolean logic
+# Difficulty: Intermediate
+# Category: debug
+# Prerequisites: none
+# Expected Output: === Property-Based Testing: Mathematical Properties ===
 
 from "modules/proptest/proptest.nano" import int_range, int_pair, forall_int, forall_int_pair, prop_pass, prop_fail, report_passed, PropertyReport, IntRangeGenerator, IntPairGenerator
 

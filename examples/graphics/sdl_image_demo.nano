@@ -1,12 +1,10 @@
-# SDL_image Complete Demo
-# Demonstrates all major SDL_image features:
-# - Loading PNG images as textures
-# - Rendering with scaling
-# - Rotation and flipping
-# - Alpha transparency
-# - Color modulation (tinting)
-# - Sprite sheet rendering
-# - Batch loading
+# Example: SDL_image Complete Demo
+# Purpose: Comprehensive demonstration of all major SDL_image features including loading, scaling, rotation, and tinting
+# Features: SDL_image, texture loading, alpha blending, color modulation, sprite sheets
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_image_test
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

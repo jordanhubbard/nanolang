@@ -1,5 +1,10 @@
-# Example: Using assert_with_bead for automatic issue tracking
-# This demonstrates the killer feature - assertions that create beads
+# Example: Assert With Bead
+# Purpose: Demonstrate automatic issue creation from failed assertions using beads
+# Features: beads, assertions, issue tracking, validation
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: beads_basic_usage
+# Expected Output: === assert_with_bead Example ===
 
 from "stdlib/beads.nano" import assert_with_bead, assert_with_bead_context
 

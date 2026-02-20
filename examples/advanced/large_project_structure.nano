@@ -1,9 +1,10 @@
 # Example: Large Project Structure and Organization
 # Purpose: Demonstrate how to organize a large NanoLang project
-# Features: Module imports, code organization, separation of concerns
+# Features: module imports, code organization, separation of concerns
 # Difficulty: Advanced
-# Usage: ./bin/nanoc examples/advanced/large_project_structure.nano -o /tmp/project && /tmp/project
-# Expected Output: Shows project organization patterns
+# Category: advanced
+# Prerequisites: namespace_demo
+# Expected Output: Large Project Structure Demo
 #
 # Learning Objectives:
 # 1. Organize code into logical modules

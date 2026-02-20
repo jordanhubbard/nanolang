@@ -1,18 +1,10 @@
-# Example: Fibonacci Sequence (Recursion)
-# Purpose: Classic recursive algorithm demonstration
-# Features: Recursion, multiple base cases, exponential complexity
+# Example: Fibonacci Sequence
+# Purpose: Classic recursive algorithm with multiple base cases
+# Features: recursion, if/else, shadow tests, while loop, string concatenation
 # Difficulty: Beginner
-# Usage: ./bin/nanoc examples/nl_fibonacci.nano -o /tmp/fib && /tmp/fib
-# Expected Output: Prints Fibonacci numbers: 0, 1, 1, 2, 3, 5, 8, 13...
-#
-# Learning Objectives:
-# 1. Implement algorithm with TWO base cases (n==0 and n==1)
-# 2. Understand exponential time complexity of naive recursion
-# 3. See classic Computer Science example in NanoLang
-# 4. Practice shadow testing with multiple assertions
-#
-# Note: This is the simple recursive version. For large n, consider
-# iterative or memoized versions for better performance.
+# Category: language
+# Prerequisites: nl_hello, nl_factorial
+# Expected Output: Fibonacci sequence (first 15 numbers):
 
 fn fib(n: int) -> int {
     if (<= n 1) {

@@ -1,3 +1,11 @@
+# Example: Verified vs Unverified
+# Purpose: Side-by-side comparison of formally verified NanoCore code and unverified NanoLang code
+# Features: unions, pattern matching, structs, arrays, integer arithmetic, assert, shadow tests
+# Difficulty: Beginner
+# Category: verified
+# Prerequisites: none
+# Expected Output: (blank line before header banner)
+
 /* =============================================================================
  * VERIFIED vs UNVERIFIED: The Trust Boundary
  * =============================================================================
@@ -13,8 +21,6 @@
  * to see which functions are [verified] and which are [typechecked].
  *
  * Run:  nanoc examples/verified/verified_vs_unverified.nano
- *
- * Difficulty: Beginner
  * ============================================================================= */
 
 /* =============================================================================

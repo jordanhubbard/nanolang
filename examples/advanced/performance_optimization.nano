@@ -1,9 +1,10 @@
 # Example: Performance Optimization Techniques
 # Purpose: Demonstrate performance best practices in NanoLang
-# Features: Algorithm complexity, memory efficiency, profiling tips
+# Features: algorithm complexity, memory efficiency, profiling tips
 # Difficulty: Advanced
-# Usage: ./bin/nanoc examples/advanced/performance_optimization.nano -o /tmp/perf && /tmp/perf
-# Expected Output: Compares fast vs slow implementations
+# Category: advanced
+# Prerequisites: testing_strategies
+# Expected Output: Performance Optimization Demo
 #
 # Learning Objectives:
 # 1. Understand time complexity (O(n), O(n²), O(log n))

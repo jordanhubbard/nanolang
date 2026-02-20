@@ -1,5 +1,10 @@
-# SDL_image Test - Load and display PNG icons
-# This example demonstrates loading PNG icons using SDL_image
+# Example: SDL_image Basic Test
+# Purpose: Basic test of SDL_image library loading and displaying PNG icons
+# Features: SDL_image, texture loading, PNG display
+# Difficulty: Beginner
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

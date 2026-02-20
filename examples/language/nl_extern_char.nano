@@ -1,5 +1,10 @@
-# Test 22: External C Functions - Character Classification
-# This test demonstrates calling safe C character functions via extern declarations
+# Example: Extern Character Functions
+# Purpose: Demonstrates calling C character classification and conversion functions via extern declarations
+# Features: extern functions, FFI, character classification, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions
+# Expected Output: =============================================
 
 # Declare external C character classification functions
 extern fn isalpha(c: int) -> int

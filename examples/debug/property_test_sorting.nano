@@ -1,5 +1,10 @@
-# Property-based testing example: Sorting algorithm validation
-# Demonstrates how to test sorting with universal properties
+# Example: Property Test Sorting
+# Purpose: Property-based testing of bubble sort verifying length preservation, ordering, and idempotence
+# Features: imports, property-based testing, arrays, mutable arrays, while loops, shadow tests
+# Difficulty: Intermediate
+# Category: debug
+# Prerequisites: none
+# Expected Output: === Property-Based Testing Example: Sorting ===
 
 from "modules/proptest/proptest.nano" import int_range, int_array, forall_int_array, prop_pass, prop_fail, report_passed, report_summary, PropertyReport, IntArrayGenerator, IntRangeGenerator
 

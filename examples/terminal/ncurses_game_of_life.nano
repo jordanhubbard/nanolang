@@ -1,5 +1,10 @@
-# Conway's Game of Life - NCurses Version
-# Watch cellular automata patterns evolve in real-time
+# Example: Game of Life (NCurses)
+# Purpose: Conway's Game of Life cellular automaton rendered in the terminal with ncurses
+# Features: enums, arrays, ncurses, cellular automata, extern functions, shadow tests
+# Difficulty: Intermediate
+# Category: terminal
+# Prerequisites: none
+# Expected Output: graphical
 
 module "modules/ncurses/ncurses.nano"
 

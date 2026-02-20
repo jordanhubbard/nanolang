@@ -1,3 +1,11 @@
+# Example: Proof Trace
+# Purpose: Traces Coq evaluation rules and typing judgments in real time to visualize formal verification
+# Features: unions, pattern matching, structs, arrays, while loops, string manipulation, shadow tests
+# Difficulty: Advanced
+# Category: verified
+# Prerequisites: none
+# Expected Output: (blank line before header banner)
+
 /* =============================================================================
  * PROOF TRACE: Watch Formal Verification Unfold
  * =============================================================================
@@ -16,8 +24,6 @@
  *
  * Run:  nanoc examples/verified/proof_trace.nano
  * Then: nanoc --trust-report examples/verified/proof_trace.nano
- *
- * Difficulty: Intermediate (to read), Advanced (to understand the proofs)
  * ============================================================================= */
 
 /* =============================================================================

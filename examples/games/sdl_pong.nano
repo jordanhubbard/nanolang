@@ -1,8 +1,10 @@
-# PONG - The First Video Game (1972)
-# Two-player table tennis simulation
-# Controls: W/S for left paddle, Up/Down arrows for right paddle
-# Authentic 1972 style with blocky score display (no fonts!)
-# Enhanced with UI widgets for game control
+# Example: Pong
+# Purpose: Two-player Pong game with authentic 1972 style, blocky score display, and UI widget controls
+# Features: float arithmetic, keyboard input, SDL graphics, ui_widgets, collision detection
+# Difficulty: Intermediate
+# Category: games
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: interactive
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

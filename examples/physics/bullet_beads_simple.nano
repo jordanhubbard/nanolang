@@ -1,3 +1,11 @@
+# Example: Bullet Soft Body Beads (Console)
+# Purpose: Console-only soft body physics test showing a deformable bead falling through an obstacle
+# Features: Bullet physics, soft body, rigid body, physics simulation, console output
+# Difficulty: Beginner
+# Category: physics
+# Prerequisites: none
+# Expected Output: ╔════════════════════════════════════════════════════════════╗
+
 /*
  * Simplified Bullet Soft Body Demo
  * Shows deformable beads falling through obstacles

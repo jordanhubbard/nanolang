@@ -1,5 +1,10 @@
-# Optimized version using Sieve of Eratosthenes
-# Based on profiling data showing 98% time in is_prime trial division
+# Example: Prime Sieve (Eratosthenes)
+# Purpose: Counts primes up to one million using the Sieve of Eratosthenes algorithm for optimized performance
+# Features: arrays, bool arrays, nested loops, algorithm optimization
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_loops, nl_primes
+# Expected Output: Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...
 
 fn count_primes_sieve(limit: int) -> int {
     if (< limit 2) {

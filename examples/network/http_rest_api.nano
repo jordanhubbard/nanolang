@@ -1,20 +1,10 @@
-# REST API Server Example
-# Demonstrates JSON API endpoints with NanoLang HTTP server
-#
-# Endpoints:
-#   GET  /api/status     - Server status
-#   GET  /api/time       - Current timestamp
-#   GET  /api/hello      - Hello message
-#   POST /api/echo       - Echo request body
-#
-# Usage:
-#   ./bin/nanoc examples/http_rest_api.nano -o bin/http_rest_api
-#   ./bin/http_rest_api
-#
-# Test with curl:
-#   curl http://localhost:8080/api/status
-#   curl http://localhost:8080/api/time
-#   curl -X POST -d '{"message":"test"}' http://localhost:8080/api/echo
+# Example: REST API Server
+# Purpose: Demonstrate JSON API endpoints with the NanoLang HTTP server
+# Features: HTTP server, REST API, JSON endpoints, static file serving
+# Difficulty: Intermediate
+# Category: network
+# Prerequisites: http_hello_world
+# Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
 

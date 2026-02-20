@@ -1,36 +1,10 @@
-/* =============================================================================
- * Word Frequency Counter - Practical Map/Filter/Fold Example
- * =============================================================================
- * Problem: Given text, count how many times each word appears and find the
- *          most common words. This is a fundamental text processing task used
- *          in search engines, log analysis, and natural language processing.
- * 
- * Concept: Demonstrates map/filter/fold solving a REAL problem
- * Topics: string operations, higher-order functions, data pipelines
- * Difficulty: Intermediate
- * 
- * Real-World Applications:
- * - Search engine indexing (TF-IDF scoring)
- * - Log file analysis (error pattern detection)
- * - Sentiment analysis preprocessing
- * - Spam detection
- * - Document similarity
- * 
- * Functional Programming Pipeline:
- * 1. Split text into words (map)
- * 2. Normalize words (map: lowercase, trim)
- * 3. Filter stopwords (filter: remove "the", "a", "is", etc.)
- * 4. Count frequencies (fold: accumulate counts)
- * 5. Sort by frequency (sort)
- * 6. Take top N (filter/slice)
- * 
- * Learning Objectives:
- * - See map/filter/fold solve a concrete problem
- * - Understand data transformation pipelines
- * - Learn text processing techniques
- * - Practice with higher-order functions
- * =============================================================================
- */
+# Example: Word Frequency Counter
+# Purpose: Counts word frequencies in text using a data transformation pipeline with normalization and stopword filtering
+# Features: structs, arrays, while loops, string operations, shadow tests, functions
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_arrays
+# Expected Output: ===========================================
 
 /* =============================================================================
  * Helper Functions - String Processing

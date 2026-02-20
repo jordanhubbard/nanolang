@@ -1,15 +1,10 @@
 # Example: Logical Operators
-# Purpose: Demonstrate boolean logic operators (and, or, not)
-# Features: and, or, not operators, bool type, short-circuit evaluation
+# Purpose: Demonstrate boolean logic operators (and, or, not) in prefix notation
+# Features: and, or, not operators, bool type, cond, compound predicates
 # Difficulty: Beginner
-# Usage: ./bin/nanoc examples/nl_logical.nano -o /tmp/logic && /tmp/logic
-# Expected Output: Results of logical operations
-#
-# Learning Objectives:
-# 1. Use and, or, not in prefix notation
-# 2. Understand short-circuit evaluation (and/or stop early)
-# 3. Combine multiple boolean conditions
-# 4. Write complex predicates with boolean logic
+# Category: language
+# Prerequisites: nl_hello, nl_comparisons
+# Expected Output: === Logical Operations ===
 
 fn and_op(a: bool, b: bool) -> bool {
     return (and a b)

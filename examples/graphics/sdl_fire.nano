@@ -1,5 +1,10 @@
-# FIRE EFFECT - Classic Demoscene Effect
-# Mesmerizing fire simulation with palette animation
+# Example: Fire Effect
+# Purpose: Classic demoscene fire simulation with palette-based heat propagation and cooling
+# Features: arrays, extern functions, SDL graphics, pixel manipulation, palette animation
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_texture_demo
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

@@ -1,6 +1,10 @@
-# Calculator with basic arithmetic operations
-# Demonstrates: function composition, prefix notation, cond expressions, string +
-# Modern NanoLang showcase: operation dispatcher using cond
+# Example: Calculator
+# Purpose: Arithmetic operation dispatcher demonstrating function composition and string formatting
+# Features: functions, if/else chains, string concatenation, shadow tests, prefix notation
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_operators, nl_functions_basic
+# Expected Output: === Modern Calculator Demo ===
 
 fn add(a: int, b: int) -> int {
     return (+ a b)

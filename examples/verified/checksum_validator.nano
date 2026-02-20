@@ -1,7 +1,14 @@
+# Example: Checksum Validator
+# Purpose: Verified checksum algorithms for data integrity validation with determinism guarantees
+# Features: arrays, while loops, integer arithmetic, structs, unions, shadow tests
+# Difficulty: Intermediate
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified Data Integrity / Checksum Validator
  * =============================================================================
- * Purpose: Verified checksum algorithms for data integrity validation
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -21,9 +28,6 @@
  *   - No silent corruption: well-typed programs cannot produce wrong types
  *
  * Run: nanoc --trust-report examples/verified/checksum_validator.nano
- *
- * Features: arrays, while loops, integer arithmetic, structs, unions
- * Difficulty: Intermediate
  * ============================================================================= */
 
 /* ── Simple checksum: sum of all elements mod a prime ──

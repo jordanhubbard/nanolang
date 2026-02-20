@@ -1,7 +1,11 @@
-# Real-Time Whitted-Style Ray Tracer
-# Classic recursive raytracer with reflections and shadows
-# Demonstrates NanoLang's dynamic array capabilities
-#
+# Example: Whitted-Style Ray Tracer
+# Purpose: Classic recursive raytracer with real-time reflections, shadows, and interactive camera
+# Features: structs, recursion, float arithmetic, math imports, SDL graphics, keyboard input, mouse input
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_texture_demo
+# Expected Output: graphical
+
 # Controls:
 #   Mouse click/drag: Move light position
 #   Arrow keys: Rotate camera (yaw/pitch)

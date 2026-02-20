@@ -1,7 +1,14 @@
+# Example: Safety-Critical State Machine
+# Purpose: Formally verified state machine for a reactor cooling system with safety interlocks
+# Features: unions, pattern matching, structs, arrays, state encoding, while loops, shadow tests
+# Difficulty: Advanced
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified Safety-Critical State Machine
  * =============================================================================
- * Purpose: Formally verified state machine for a reactor cooling system
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -21,9 +28,6 @@
  *   - Every event gets a definitive response (accept or reject)
  *
  * Run: nanoc --trust-report examples/verified/state_machine.nano
- *
- * Features: unions, pattern matching, structs, arrays, state encoding
- * Difficulty: Advanced
  * ============================================================================= */
 
 /* ── System states (encoded as integers for NanoCore compatibility) ──

@@ -1,7 +1,11 @@
-# Employee Data Processor
-# Demonstrates map/filter/fold for real-world data processing
-# Problem: Filter employees, transform salaries, compute aggregates
-#
+# Example: CSV Employee Processor
+# Purpose: Demonstrates a filter-map-fold pipeline on employee data for payroll processing and analytics
+# Features: structs, arrays, loops, conditionals, filter, map, fold patterns, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_functions, nl_structs
+# Expected Output: (box-drawing header: DATA PROCESSOR)
+
 # This example shows how functional programming patterns (map/filter/fold)
 # solve real business problems like payroll processing and data analysis.
 #

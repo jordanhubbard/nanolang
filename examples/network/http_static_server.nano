@@ -1,11 +1,10 @@
-# Static File Server Example
-# Serves files from ./public directory on http://localhost:8080
-#
-# Usage:
-#   mkdir -p public
-#   echo "<h1>Hello from NanoLang!</h1>" > public/index.html
-#   ./bin/nanoc examples/http_static_server.nano -o bin/http_static_server
-#   ./bin/http_static_server
+# Example: Static File Server
+# Purpose: Serve static files from a directory using the NanoLang HTTP server
+# Features: HTTP server, static file serving, modules
+# Difficulty: Beginner
+# Category: network
+# Prerequisites: http_hello_world
+# Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
 

@@ -1,7 +1,14 @@
+# Example: PID Controller
+# Purpose: Proportional-Integral-Derivative control loop with verified safety bounds and anti-windup
+# Features: structs, integer fixed-point arithmetic, while loops, arrays, shadow tests
+# Difficulty: Advanced
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified PID Controller with Safety Bounds
  * =============================================================================
- * Purpose: Proportional-Integral-Derivative control loop with formal guarantees
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -22,9 +29,6 @@
  *   - Bounded output: the clamp function guarantees output stays in range
  *
  * Run: nanoc --trust-report examples/verified/pid_controller.nano
- *
- * Features: structs, integer fixed-point arithmetic, while loops, arrays
- * Difficulty: Advanced
  * ============================================================================= */
 
 /* ── Fixed-point arithmetic helpers ──

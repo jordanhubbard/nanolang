@@ -1,9 +1,17 @@
+# Example: Bullet Bouncy Balls
+# Purpose: Interactive mouse-driven bouncy ball spawner with adjustable gravity, randomized obstacles, and a ball pit
+# Features: Bullet physics, rigid body, mouse input, gravity control, UI widgets, SDL_ttf, random generation, color packing
+# Difficulty: Intermediate
+# Category: physics
+# Prerequisites: none
+# Expected Output: graphical
+
 /*
  * Interactive Bouncy Balls - Bullet Physics + SDL2
- * 
+ *
  * Click and hold the mouse to rain down colorful bouncy balls!
  * Balls have rubber-like physics and fall into a ball pit at the bottom.
- * 
+ *
  * Controls:
  *   MOUSE      - Click and hold to spawn balls at cursor
  *   UP/DOWN    - Increase/decrease gravity (+/- 1.0)

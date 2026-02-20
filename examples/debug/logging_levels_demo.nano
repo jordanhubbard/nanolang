@@ -1,5 +1,10 @@
-# Demonstration of all log levels and when to use them
-# Run this to see the hierarchy and filtering in action
+# Example: Logging Levels Demo
+# Purpose: Demonstrates all log levels (trace, debug, info, warn, error, fatal) and threshold filtering
+# Features: imports, structured logging, log levels, conditionals, shadow tests
+# Difficulty: Beginner
+# Category: debug
+# Prerequisites: none
+# Expected Output: [INFO] [main] === Log Levels Demonstration ===
 
 from "stdlib/log.nano" import log_trace, log_debug, log_info, log_warn, log_error, log_fatal
 

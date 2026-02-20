@@ -1,6 +1,10 @@
-# examples/coverage_demo.nano - Demonstrate coverage and instrumentation APIs
-#
-# Shows how to use stdlib/coverage.nano for execution tracing and coverage tracking
+# Example: Coverage Demo
+# Purpose: Demonstrates coverage tracking and execution tracing using the stdlib coverage API
+# Features: imports, coverage instrumentation, trace recording, while loops, shadow tests
+# Difficulty: Intermediate
+# Category: debug
+# Prerequisites: none
+# Expected Output: ========================================
 
 from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report, coverage_reset
 from "stdlib/coverage.nano" import trace_init, trace_record, trace_report, trace_reset

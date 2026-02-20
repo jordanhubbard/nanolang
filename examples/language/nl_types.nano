@@ -1,5 +1,10 @@
-# All Types
-# This example demonstrates all data types in nanolang
+# Example: Type System
+# Purpose: Demonstrate all data types in nanolang (int, float, bool, string, void)
+# Features: int, float, bool, string, void, cast_int, type parameters, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: === Type Demonstration ===
 
 fn return_int() -> int {
     return 42

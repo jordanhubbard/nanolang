@@ -1,10 +1,11 @@
-# Modern OpenGL: Hello Triangle (Shaders + VAO/VBO)
-#
-# Demonstrates:
-# - GLSL vertex/fragment shaders
-# - VAO + VBO
-# - glVertexAttribPointer layout
-#
+# Example: Modern OpenGL Hello Triangle
+# Purpose: Renders a colored triangle using modern OpenGL with GLSL shaders, VAO, and VBO
+# Features: OpenGL, GLFW, GLEW, GLSL shaders, VAO, VBO, vertex attributes, modern pipeline
+# Difficulty: Intermediate
+# Category: opengl
+# Prerequisites: none
+# Expected Output: graphical
+
 # Controls:
 #   ESC - Quit
 

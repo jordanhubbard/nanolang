@@ -1,85 +1,10 @@
-# Async I/O with libuv - Event Loop and System Integration
-#
-# Concept: Asynchronous I/O using libuv event loop
-# Topics: async I/O, event loops, non-blocking operations, libuv, system APIs, C FFI
+# Example: Async I/O with libuv
+# Purpose: Demonstrate asynchronous I/O using the libuv event loop and system APIs
+# Features: libuv, async I/O, event loops, system info, high-resolution timing, C FFI
 # Difficulty: Advanced
-#
-# Description:
-# Demonstrates libuv event loop for asynchronous operations, system information
-# queries, and foundational concepts for building high-performance async I/O
-# applications. Shows practical patterns for event-driven architecture.
-#
-# Key Features Demonstrated:
-# - libuv event loop initialization and management
-# - System information queries (CPU, memory, processes)
-# - High-resolution timing (nanosecond precision)
-# - Error handling patterns with libuv error codes
-# - Non-blocking sleep operations
-# - Event loop lifecycle management
-#
-# Architecture Concepts:
-# The libuv event loop is the foundation for Node.js's async model:
-#
-#   1. **Event Loop Phases**:
-#      - Timers: Execute setTimeout/setInterval callbacks
-#      - Pending callbacks: I/O callbacks from previous cycle
-#      - Idle/Prepare: Internal use
-#      - Poll: Wait for new I/O events
-#      - Check: Execute setImmediate callbacks
-#      - Close: Handle closed resources
-#
-#   2. **Non-Blocking I/O**:
-#      - File operations execute on thread pool
-#      - Network operations use OS facilities (epoll/kqueue)
-#      - Callbacks fire when operations complete
-#
-#   3. **Handle Types** (not yet implemented in NanoLang):
-#      - uv_timer_t: Timer callbacks
-#      - uv_tcp_t: TCP streams
-#      - uv_udp_t: UDP sockets
-#      - uv_fs_t: File system operations
-#      - uv_pipe_t: IPC pipes
-#
-# Real-World Use Cases:
-# - HTTP servers (Node.js, Uvicorn)
-# - WebSocket servers (real-time chat)
-# - File watchers (build tools, IDEs)
-# - Network servers (TCP/UDP)
-# - High-throughput data pipelines
-# - Real-time applications
-#
-# Current Implementation Status:
-# ✅ Implemented:
-#    - Event loop creation and management
-#    - System information queries
-#    - High-resolution timing
-#    - Error code translation
-#    - Non-blocking sleep
-#
-# 🚧 Future Expansion (requires C helpers):
-#    - Async file I/O (uv_fs_open, uv_fs_read, uv_fs_write)
-#    - TCP server/client (uv_tcp_bind, uv_tcp_connect)
-#    - UDP sockets (uv_udp_bind, uv_udp_send)
-#    - Timers (uv_timer_init, uv_timer_start)
-#    - File watchers (uv_fs_event_init)
-#    - Process spawning (uv_spawn)
-#    - Pipes and IPC (uv_pipe_init)
-#
-# Prerequisites:
-# - Understanding of async programming concepts
-# - Event loop architecture familiarity
-# - C FFI patterns (nl_extern_*.nano)
-#
-# Next Steps:
-# - event_example.nano - Custom event loop implementation
-# - curl_example.nano - HTTP client (sync alternative)
-# - Build custom async primitives in NanoLang
-#
-# Performance Notes:
-# - libuv uses OS-level async primitives (epoll on Linux, kqueue on macOS)
-# - Thread pool size default: 4 threads (configurable via UV_THREADPOOL_SIZE)
-# - Ideal for I/O-bound workloads, not CPU-bound
-# - Callback overhead: ~10-50μs per callback
+# Category: advanced
+# Prerequisites: ffi_tutorial
+# Expected Output: ASYNC I/O WITH LIBUV - Event Loop Foundation
 
 module "modules/uv/uv.nano"
 

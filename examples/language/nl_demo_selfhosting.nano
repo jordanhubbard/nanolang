@@ -1,42 +1,10 @@
-/* =============================================================================
- * Self-Hosting Demo - Historical Milestone
- * 
- * Concept: Demonstrates NanoLang's journey to self-hosting
- * Topics: self-hosting, bootstrap, import aliases, modular compilation
- * Difficulty: Advanced
- * 
- * Description:
- * Historical example showing NanoLang's ability to compile itself through
- * modular architecture. Demonstrates import aliases which enable separating
- * compiler components - a key requirement for self-hosting.
- * 
- * Key Features Demonstrated:
- * - Import aliases (import "module.nano" as Name)
- * - Modular architecture for large programs
- * - Component separation (compiler modules)
- * - Self-hosting foundation
- * 
- * Historical Context:
- * This example represents a crucial milestone where NanoLang achieved
- * the capability to compile its own compiler through modular imports.
- * Self-hosting proves the language has sufficient expressiveness.
- * 
- * What this proves:
- * 1. Import aliases work end-to-end ✅
- * 2. Modular architecture is possible ✅
- * 3. Compiler components can be separated ✅
- * 4. Path to self-hosting is CLEAR ✅
- * 
- * Prerequisites:
- * - Understanding of module systems
- * - Knowledge of compiler architecture
- * - Familiarity with import statements
- * 
- * Next Steps:
- * - stdlib_ast_demo.nano - AST manipulation
- * - Full self-hosted compiler in src_nano/
- * =============================================================================
- */
+# Example: Self-Hosting Demo
+# Purpose: Demonstrates import aliases and modular code composition as a foundation for self-hosting compilation
+# Features: module aliases, qualified function calls, recursion, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_modules
+# Expected Output: NanoLang Import Aliases - Self-Hosting Demonstration
 
 module "examples/advanced/math_helper.nano" as Math
 

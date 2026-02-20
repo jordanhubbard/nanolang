@@ -1,5 +1,10 @@
-# Float Operations
-# This example demonstrates working with floating-point numbers
+# Example: Float Operations
+# Purpose: Demonstrates floating-point arithmetic, math functions, and circle area calculation
+# Features: float type, arithmetic operators, abs, min, max, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: === Float Operations ===
 
 fn add_floats(a: float, b: float) -> float {
     return (+ a b)

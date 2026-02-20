@@ -1,5 +1,10 @@
-# Example 26: Text-Based Tic-Tac-Toe Game
-# Two-player game with input validation and win detection
+# Example: Tic-Tac-Toe
+# Purpose: Implements a text-based tic-tac-toe game with win detection, board display, and automated demo play
+# Features: arrays, extern functions, cond expressions, game logic, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_functions
+# Expected Output: ========================================
 
 # External C functions for I/O
 extern fn getchar() -> int

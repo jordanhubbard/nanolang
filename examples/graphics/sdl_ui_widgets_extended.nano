@@ -1,5 +1,10 @@
-# Extended UI Widgets Demo
-# Showcases ALL widgets including new ones: text input, dropdown, number spinner, tooltips
+# Example: Extended UI Widgets
+# Purpose: Showcases all UI widgets including buttons, sliders, text input, dropdowns, spinners, and tooltips
+# Features: ui_widgets, SDL graphics, TTF fonts, mouse events, keyboard input
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_mouse_click
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

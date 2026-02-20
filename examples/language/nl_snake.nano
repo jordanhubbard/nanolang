@@ -1,6 +1,10 @@
-# SNAKE - Classic Snake Game (Text-based)
-# Tests: Dynamic arrays, collision detection, game logic
-# MODERNIZED: Uses enums for directions, struct for positions
+# Example: Snake Game
+# Purpose: Implements a text-based snake game with AI-controlled movement, collision detection, and scoring
+# Features: enums, structs, tuples, top-level constants, dynamic arrays, for-in loops, cond expressions, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_enums, nl_structs
+# Expected Output: SNAKE GAME
 
 # === ENUMS ===
 enum Direction {

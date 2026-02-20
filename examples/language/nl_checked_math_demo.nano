@@ -1,9 +1,17 @@
+# Example: Checked Math Demo
+# Purpose: Demonstrates safe arithmetic operations that catch overflow, underflow, and division by zero at runtime
+# Features: modules, Result type, match expressions, checked arithmetic, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_operators
+# Expected Output: (blank line)
+
 /* =============================================================================
  * Checked Arithmetic Operations Demo
  * =============================================================================
  * Demonstrates safe arithmetic that catches overflow, underflow, and division
  * by zero at runtime, returning Result<int, string> instead of crashing.
- * 
+ *
  * MISRA Rule 12.4 compliant: All arithmetic operations check for overflow
  * JSF AV Rule 204 compliant: Division operations check for zero divisor
  */

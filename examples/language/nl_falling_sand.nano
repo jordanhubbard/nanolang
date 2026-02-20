@@ -1,5 +1,10 @@
-# FALLING SAND - Cellular Automata Physics Simulation
-# Simple particle physics with gravity and collision
+# Example: Falling Sand Simulation
+# Purpose: Simulates particle physics with gravity and collision using a grid-based cellular automata approach
+# Features: top-level constants, arrays, grid indexing, boundary checking, while loops, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_game_of_life
+# Expected Output: FALLING SAND - Physics Sim
 
 # === CONSTANTS ===
 let GRID_WIDTH: int = 40

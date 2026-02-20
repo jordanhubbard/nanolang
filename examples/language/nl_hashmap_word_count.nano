@@ -1,9 +1,12 @@
-/* =============================================================================
- * HashMap Word Count
- * =============================================================================
- * Demonstrates HashMap<string, int> for counting occurrences.
- * Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
- */
+# Example: HashMap Word Count
+# Purpose: Demonstrates using HashMap to count word occurrences in an array of strings
+# Features: HashMap, map_new, map_put, map_get, map_has, arrays, while loops
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hashmap, nl_array_complete
+# Expected Output: (no output, exits 0 on success)
+
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 
 fn count_words(words: array<string>) -> HashMap<string, int> {
     let counts: HashMap<string, int> = (map_new)

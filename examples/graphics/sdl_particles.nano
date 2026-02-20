@@ -1,6 +1,10 @@
-# PARTICLE EXPLOSION - Interactive Particle System
-# Click to spawn explosions! Tests: Dynamic arrays, GC, SDL events
-# MODERNIZED: Added Particle struct for cleaner data organization
+# Example: Particle Explosions
+# Purpose: Interactive particle system where mouse clicks spawn colorful explosions with gravity
+# Features: structs, dynamic arrays, SDL graphics, mouse events, float arithmetic, ui_widgets
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_mouse_click
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

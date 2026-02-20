@@ -1,8 +1,16 @@
+# Example: Extended Math Functions Demo
+# Purpose: Demonstrate scientific calculations using extended math module functions
+# Features: trigonometry, hyperbolic functions, logarithms, rounding, float math
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Extended Math Functions Demo ===
+
 /* =============================================================================
  * Extended Math Functions Demo - Practical Scientific Calculator
  * =============================================================================
  * Problem: Perform scientific calculations using extended math functions
- * 
+ *
  * Demonstrates:
  * - Trigonometric functions (sin, cos, tan, asin, acos, atan, atan2)
  * - Hyperbolic functions (sinh, cosh, tanh)
@@ -10,7 +18,7 @@
  * - Power and root functions (pow, sqrt, cbrt)
  * - Rounding functions (ceil, floor, round, trunc)
  * - Special functions (fabs, fmod, remainder)
- * 
+ *
  * Real-World Applications:
  * - Physics calculations (projectile motion, wave equations)
  * - Financial calculations (compound interest, present value)

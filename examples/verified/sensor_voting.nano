@@ -1,7 +1,14 @@
+# Example: Sensor Voting System
+# Purpose: Triple modular redundancy majority voting for safety-critical sensor readings
+# Features: unions, pattern matching, structs, arrays, integer arithmetic, shadow tests
+# Difficulty: Intermediate
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified Triple-Redundant Sensor Voting System
  * =============================================================================
- * Purpose: Majority voting for redundant sensor readings (TMR pattern)
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -19,9 +26,6 @@
  *   - The voter CANNOT silently produce a wrong answer for well-typed inputs
  *
  * Run: nanoc --trust-report examples/verified/sensor_voting.nano
- *
- * Features: unions, pattern matching, structs, arrays, integer arithmetic
- * Difficulty: Intermediate
  * ============================================================================= */
 
 /* ── Sensor reading with bounds ── */

@@ -1,3 +1,11 @@
+# Example: HashMap
+# Purpose: Demonstrates basic HashMap creation, insertion, lookup, and size operations
+# Features: HashMap, map_new, map_put, map_get, map_has, map_size, opaque types
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: (no output, exits 0 on success)
+
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
 fn build_scores() -> HashMap<string, int> {
     let hm: HashMap<string, int> = (map_new)

@@ -1,3 +1,11 @@
+# Example: Bullet Soft Body Hourglass
+# Purpose: Streams of deformable soft body spheres squeeze through an hourglass funnel with particle lifecycle management
+# Features: Bullet physics, soft body, structs, SDL rendering, particle emitter, hourglass funnel, lifecycle tracking
+# Difficulty: Advanced
+# Category: physics
+# Prerequisites: bullet_soft_body_modern
+# Expected Output: graphical
+
 /*
  * Soft Body Hourglass Flood - Bullet Physics + SDL2
  * Inspired by large-scale particle/fluids showcases such as NVIDIA Omni Physics

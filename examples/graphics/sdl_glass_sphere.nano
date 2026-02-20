@@ -1,7 +1,11 @@
-# Glass Sphere Raytracer - Canonical Computer Graphics Example
-# Features: Refraction (Snell's law), Fresnel reflections, checkerboard plane
-# Demonstrates: Math built-ins, recursion, material system, realistic optics
-#
+# Example: Glass Sphere Raytracer
+# Purpose: Real-time raytracer with refraction, Fresnel reflections, and a checkerboard plane
+# Features: recursion, float arithmetic, math built-ins, SDL graphics, keyboard input, structs
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_raytracer
+# Expected Output: graphical
+
 # Controls:
 #   Arrow keys: Rotate camera
 #   W/S: Move forward/back

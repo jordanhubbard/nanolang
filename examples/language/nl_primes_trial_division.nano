@@ -1,4 +1,11 @@
-# Heavy computation version for profiling
+# Example: Prime Trial Division
+# Purpose: Counts primes up to one million using brute-force trial division for profiling comparison
+# Features: loops, conditionals, modulo, performance profiling
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_loops, nl_primes
+# Expected Output: Calculating primes up to 1,000,000...
+
 fn is_prime(n: int) -> bool {
     if (< n 2) { return false }
     if (== n 2) { return true }

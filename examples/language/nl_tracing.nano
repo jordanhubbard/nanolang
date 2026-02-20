@@ -1,34 +1,10 @@
-# Execution Tracing Demo
-#
-# Concept: Runtime execution tracing for debugging
-# Topics: debugging, execution flow, function tracing, shadow tests
+# Example: Execution Tracing
+# Purpose: Demonstrates basic tracing concepts through function execution and shadow tests for debugging
+# Features: functions, shadow tests, arrays, loops, arithmetic
 # Difficulty: Beginner
-#
-# Description:
-# Simple example demonstrating basic tracing concepts through function
-# execution and shadow tests. Shows how to structure code for testability
-# and debugging with clear function separation.
-#
-# Key Features Demonstrated:
-# - Function definition with shadow tests
-# - Clear execution flow
-# - Testable code structure
-# - Basic arithmetic operations
-# - Return value validation
-#
-# Use Cases:
-# - Understanding function execution
-# - Learning shadow test patterns
-# - Debugging function behavior
-# - Educational tool for beginners
-#
-# Prerequisites:
-# - nl_hello.nano - Basic syntax
-# - nl_operators.nano - Arithmetic operators
-#
-# Next Steps:
-# - stdlib_ast_demo.nano - Advanced introspection
-# - Add more complex tracing scenarios
+# Category: language
+# Prerequisites: nl_hello, nl_operators
+# Expected Output: 30
 
 fn add(a: int, b: int) -> int {
     return (+ a b)

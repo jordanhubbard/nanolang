@@ -1,15 +1,10 @@
 # Example: Comparison Operators
-# Purpose: Demonstrate all comparison operators and boolean logic
-# Features: ==, !=, <, <=, >, >= operators, bool type, prefix notation
+# Purpose: Demonstrate all comparison operators and boolean logic in prefix notation
+# Features: ==, !=, <, <=, >, >= operators, bool type, prefix notation, cond
 # Difficulty: Beginner
-# Usage: ./bin/nanoc examples/nl_comparisons.nano -o /tmp/cmp && /tmp/cmp
-# Expected Output: Results of various comparison operations
-#
-# Learning Objectives:
-# 1. Use comparison operators in prefix notation
-# 2. Understand bool return type
-# 3. See how comparisons work with integers
-# 4. Learn to write predicates (functions returning bool)
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: === Comparison Operations ===
 
 fn equals(a: int, b: int) -> bool {
     return (== a b)

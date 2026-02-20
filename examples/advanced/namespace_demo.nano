@@ -1,3 +1,11 @@
+# Example: Namespace System Demo
+# Purpose: Demonstrate NanoLang's namespace system with public/private visibility
+# Features: modules, namespaces, pub/private visibility, scope
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Namespace System Demo ===
+
 /* =============================================================================
  * Namespace System Demo
  * =============================================================================
@@ -5,7 +13,7 @@
  * - Module declarations
  * - Public/private visibility
  * - Namespace-scoped functions
- * 
+ *
  * This example shows the core namespace features without external imports.
  */
 

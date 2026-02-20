@@ -1,4 +1,10 @@
-/* Example: Union Types (Tagged Unions/Sum Types) */
+# Example: Union Types
+# Purpose: Demonstrates tagged union (sum type) definitions with generic and non-generic variants
+# Features: union types, generics, match, Result, Status, Data variants
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello
+# Expected Output: Generic Result<int, string> types created successfully
 
 /* Define a generic Result union for error handling */
 union Result<T, E> {

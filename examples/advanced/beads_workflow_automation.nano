@@ -1,5 +1,10 @@
-# Advanced example: Workflow automation with beads module
-# Demonstrates programmatic issue management and triage
+# Example: Beads Workflow Automation
+# Purpose: Demonstrate programmatic issue management and automated triage with beads
+# Features: beads, workflow automation, issue triage, priority management
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: beads_basic_usage
+# Expected Output: === Automatic Issue Triage ===
 
 from "stdlib/beads.nano" import 
     Bead, BeadStats, BeadCreateOptions,

@@ -1,3 +1,11 @@
+# Example: OPL Hello World Output
+# Purpose: Generated OPL runtime skeleton that executes plan-based workflows
+# Features: JSON manipulation, plan execution, conditional logic, code generation
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_cli
+# Expected Output: none
+
 module "modules/std/json/json.nano"
 module "modules/std/fs.nano"
 

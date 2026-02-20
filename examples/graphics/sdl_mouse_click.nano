@@ -1,6 +1,10 @@
-# Test mouse click event handling
-# This program tests that mouse clicks are properly detected
-# even when keyboard events are polled first
+# Example: Mouse Click Test
+# Purpose: Tests mouse click event detection alongside keyboard event polling
+# Features: SDL graphics, mouse events, keyboard events, event handling
+# Difficulty: Beginner
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

@@ -1,6 +1,10 @@
-# CONWAY'S GAME OF LIFE - Cellular Automata Simulation
-# Pure computation - tests arrays, logic, neighbor counting
-# MODERNIZED: Uses enums, top-level constants, dynamic arrays
+# Example: Conway's Game of Life
+# Purpose: Simulates cellular automata with birth, death, and survival rules on a 2D grid
+# Features: enums, top-level constants, dynamic arrays, extern functions, grid operations, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_enums
+# Expected Output: CONWAY'S GAME OF LIFE
 
 # === ENUMS ===
 enum CellState {

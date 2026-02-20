@@ -1,5 +1,11 @@
-# HTTP Client Demo
-# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
+# Example: HTTP Client Demo
+# Purpose: Demonstrate HTTP client operations using the std/http module
+# Features: HTTP client, GET/POST requests, JSON, headers, status codes
+# Difficulty: Intermediate
+# Category: network
+# Prerequisites: none
+# Expected Output: === Simple GET Request ===
+
 module "std/http/http.nano" as HTTP
 
 fn btos(b: bool) -> string {

@@ -1,7 +1,14 @@
+# Example: Financial Order Validator
+# Purpose: Pre-trade order validation with formally verified safety checks and risk limits
+# Features: unions, pattern matching, structs, integer arithmetic, bounds checking, shadow tests
+# Difficulty: Intermediate
+# Category: verified
+# Prerequisites: none
+# Expected Output: (no stdout, exits cleanly)
+
 /* =============================================================================
  * Verified Financial Order Validator
  * =============================================================================
- * Purpose: Pre-trade order validation with formally verified safety checks
  * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
  *
  * Industry Context:
@@ -22,9 +29,6 @@
  *   - No stuck states: every well-typed order gets a definitive answer
  *
  * Run: nanoc --trust-report examples/verified/financial_order_validator.nano
- *
- * Features: unions, pattern matching, structs, integer arithmetic, bounds
- * Difficulty: Intermediate
  * ============================================================================= */
 
 /* ── Order representation ── */

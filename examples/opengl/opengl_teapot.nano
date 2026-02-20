@@ -1,12 +1,12 @@
-# Utah Teapot - OpenGL Demo
+# Example: Utah Teapot
+# Purpose: Renders the iconic Utah teapot with six shader modes, interactive rotation, zoom, and on-screen HUD overlays
+# Features: OpenGL, GLFW, GLEW, GLUT, lighting, materials, multiple render modes, wireframe, HUD overlay, keyboard input
+# Difficulty: Advanced
+# Category: opengl
+# Prerequisites: opengl_cube
+# Expected Output: graphical
+
 # The iconic 3D test object created by Martin Newell in 1975
-#
-# Features:
-# - Authentic Utah teapot using GLUT
-# - 6 different shader/rendering modes
-# - Interactive rotation and zoom controls
-# - Auto-rotation mode
-# - On-screen status display
 #
 # Controls:
 #   1-6        - Switch shader modes

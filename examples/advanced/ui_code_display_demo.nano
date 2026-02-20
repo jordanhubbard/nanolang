@@ -1,3 +1,11 @@
+# Example: UI Code Display Demo
+# Purpose: Demonstrate a graphical code display widget using SDL and TTF rendering
+# Features: SDL, TTF fonts, UI widgets, text rendering, syntax display
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: ffi_tutorial
+# Expected Output: graphical
+
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

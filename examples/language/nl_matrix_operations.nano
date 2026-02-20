@@ -1,3 +1,11 @@
+# Example: Matrix Operations
+# Purpose: Demonstrates 2D matrix operations using nested arrays with creation, access, sum, and scaling
+# Features: nested arrays, structs, while loops, functions, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_functions
+# Expected Output: Matrix Operations with Nested Arrays
+
 /* =============================================================================
  * Matrix Operations with Nested Arrays
  * =============================================================================

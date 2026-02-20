@@ -1,16 +1,16 @@
+# Example: Bullet Soft Body Beads (Modern)
+# Purpose: Modernized soft body plinko simulation with continuous bead spawning through rotating obstacles
+# Features: Bullet physics, soft body, structs, SDL rendering, particle spawning, modern nanolang APIs
+# Difficulty: Intermediate
+# Category: physics
+# Prerequisites: bullet_beads_visual
+# Expected Output: graphical
+
 /*
  * Soft Body Beads Demo - Bullet Physics + SDL2 (MODERNIZED)
- * 
+ *
  * Mesmerizing physics simulation showing deformable beads continuously
  * falling through a plinko-style obstacle course.
- * 
- * Features:
- * - Real-time soft body physics (Bullet3)
- * - Continuous bead spawning
- * - Rotating obstacles
- * - Beautiful particle rendering
- * - Performance metrics
- * - Modern NanoLang APIs (string +, cast_int, proper SDL)
  */
 
 unsafe module "modules/sdl/sdl.nano"

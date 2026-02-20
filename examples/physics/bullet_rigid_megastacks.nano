@@ -1,3 +1,11 @@
+# Example: Bullet Mega Stack Collapse
+# Purpose: Simulates a field of leaning block towers collapsing under gravity with real-time collapse tracking
+# Features: Bullet physics, rigid body, structs, SDL rendering, SDL_ttf, tower stacking, collapse metrics
+# Difficulty: Advanced
+# Category: physics
+# Prerequisites: none
+# Expected Output: graphical
+
 /*
  * Mega Stack Collapse Demo - Bullet Physics + SDL2
  * Inspired by the "stacking 1000 Boxes using BULLET" forum thread

@@ -1,6 +1,10 @@
-# 2D Physics Simulation Demo
-# Real-time bouncing balls with gravity, collisions, and elasticity
-# Demonstrates: Physics simulation, particle systems, vector math
+# Example: 2D Physics Simulation
+# Purpose: Real-time bouncing ball simulation with gravity, collisions, and elasticity
+# Features: structs, float arithmetic, physics simulation, SDL graphics, arrays
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

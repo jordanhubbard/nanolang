@@ -1,9 +1,11 @@
-# OpenGL Particle Fountain (Classic Blending + Points Demo)
-# Demonstrates:
-# - GL_POINTS rendering
-# - Alpha blending
-# - Simple particle simulation (CPU)
-#
+# Example: OpenGL Particle Fountain
+# Purpose: Simulates a particle fountain with gravity using GL_POINTS and alpha blending
+# Features: OpenGL, GLFW, GLEW, particle system, GL_POINTS, alpha blending, arrays, physics simulation
+# Difficulty: Intermediate
+# Category: opengl
+# Prerequisites: opengl_cube
+# Expected Output: graphical
+
 # Controls:
 #   SPACE - Reset fountain
 #   ESC   - Quit

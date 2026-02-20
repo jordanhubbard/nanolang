@@ -1,8 +1,10 @@
-/* =============================================================================
- * Function Factories - Phase B2: Functions Returning Functions
- * =============================================================================
- * Simplified demo focusing on return values
- */
+# Example: Function Factories v2
+# Purpose: Demonstrates function factories that return functions and apply them via higher-order helpers
+# Features: function factories, function return types, higher-order functions, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_first_class_functions, nl_function_return_values
+# Expected Output: Function Factories Demo (Phase B2)
 
 /* Binary operations */
 fn add(a: int, b: int) -> int {

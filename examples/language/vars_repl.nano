@@ -1,23 +1,10 @@
-# NanoLang REPL with Persistent Variables (Proof of Concept)
-#
-# This demonstrates persistent variable state across REPL evaluations
-# by maintaining a source code preamble that gets prepended to each evaluation.
-#
-# Features:
-# - Persistent variables: let x: int = 42
-# - Use variables in later expressions: (+ x 10)
-# - List variables with :vars command
-# - Clear session with :clear command
-#
-# Architecture:
-# - Maintains all variable definitions as source code in a StringBuilder
-# - Each evaluation wraps the expression with the variable preamble
-# - Compiles and executes the complete program for each expression
-#
-# Limitations:
-# - Variables cannot be reassigned (would need parser support)
-# - Only simple let statements supported
-# - Re-compiles everything on each evaluation (slow)
+# Example: Variables REPL
+# Purpose: REPL with persistent variable state across evaluations using a source code preamble approach
+# Features: imports, readline, eval, StringBuilder, string parsing, variable tracking, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: simple_repl, readline_repl
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

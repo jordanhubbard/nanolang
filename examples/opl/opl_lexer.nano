@@ -1,3 +1,11 @@
+# Example: OPL Lexer
+# Purpose: Tokenize OPL source code into a stream of tokens for parsing
+# Features: lexical analysis, character classification, tokenization, enums
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_ast
+# Expected Output: none
+
 import "examples/opl/opl_ast.nano"
 
 fn opl_is_alpha(c: int) -> bool {

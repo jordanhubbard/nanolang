@@ -1,19 +1,10 @@
-# NanoLang Playground Server
-#
-# Web-based interactive playground for NanoLang inspired by Swift Playgrounds.
-# Allows users to write, run, and explore NanoLang code in their browser.
-#
-# Features:
-# - Interactive code editor
-# - Example snippets to load and run
-# - Real-time code execution
-# - Error reporting
-# - Syntax highlighting
-#
-# Usage:
-#   ./bin/nanoc examples/playground/playground_server.nano -o bin/playground
-#   ./bin/playground
-#   Open http://localhost:8080 in your browser
+# Example: NanoLang Playground Server
+# Purpose: Web-based interactive playground for writing, running, and exploring NanoLang code
+# Features: HTTP server, code execution, JSON, string escaping, web UI
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: http_hello_world
+# Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import create, set_static_dir, start
 from "modules/nano_tools/nano_tools.nano" import eval_internal

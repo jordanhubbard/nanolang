@@ -1,5 +1,10 @@
-# STARFIELD - Star Wars Hyperspace Effect
-# Stars fly from center outward with motion trails
+# Example: Starfield Hyperspace
+# Purpose: Star Wars-style hyperspace starfield with stars flying from center outward with motion trails
+# Features: arrays, float arithmetic, extern functions, SDL graphics, 3D projection
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

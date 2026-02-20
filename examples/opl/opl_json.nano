@@ -1,3 +1,11 @@
+# Example: OPL JSON Helpers
+# Purpose: Provide JSON utility functions for the OPL compiler toolchain
+# Features: JSON manipulation, pub functions, shadow tests
+# Difficulty: Intermediate
+# Category: opl
+# Prerequisites: none
+# Expected Output: none
+
 module "modules/std/json/json.nano"
 
 pub fn opl_json_loc(line: int, col: int) -> Json {

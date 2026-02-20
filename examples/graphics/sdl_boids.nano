@@ -1,6 +1,10 @@
-# BOIDS - Visual Flocking Simulation with SDL
-# Demonstrates: Vector math, steering behaviors, emergent behavior, SDL graphics
-# MODERNIZED: Added Boid struct for cleaner data organization
+# Example: Boids Flocking Simulation
+# Purpose: Visual flocking simulation demonstrating emergent behavior from simple steering rules
+# Features: structs, vector math, SDL graphics, modules, float arithmetic, arrays
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_particles
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

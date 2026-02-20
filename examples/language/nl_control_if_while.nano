@@ -1,7 +1,10 @@
-/* nl_control_if_while.nano - Control flow tests
- * Tests if/else and while loops
- * Category: Core Language - Control Flow
- */
+# Example: If/Else and While Loops
+# Purpose: Comprehensive tests of if/else branching, while loops, nested loops, and combined control flow
+# Features: if/else, while, nested conditionals, nested loops, early return, and/or conditions, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello, nl_comparisons, nl_mutable
+# Expected Output: nl_control_if_while: All if/while tests passed!
 
 /* ==== PART 1: Simple If Statements ==== */
 

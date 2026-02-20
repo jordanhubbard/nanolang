@@ -1,16 +1,10 @@
-/*
- * Data Analytics Engine - Showcase Example
- * 
- * Demonstrates:
- * - map() and reduce() built-in functions
- * - First-class functions
- * - Array processing
- * - Statistical computations
- * - Pipeline architecture
- * - Real-world data processing
- * 
- * A complete analytics system using functional programming patterns
- */
+# Example: Data Analytics Engine
+# Purpose: Builds a complete analytics pipeline using map and reduce for functional data processing
+# Features: map, reduce, first-class functions, structs, arrays, pipeline architecture, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_arrays, nl_functions, nl_structs
+# Expected Output: (blank line)
 
 /* ========== Data Structures ========== */
 

@@ -1,9 +1,11 @@
-# OpenGL Solar System (Classic Hierarchical Transform Demo)
-# Demonstrates:
-# - Perspective projection
-# - Lighting + materials
-# - Hierarchical transforms (sun/planet/moon orbits)
-#
+# Example: OpenGL Solar System
+# Purpose: Renders an animated solar system with hierarchical transforms, lighting, and materials using GLUT primitives
+# Features: OpenGL, GLFW, GLEW, GLUT, lighting, materials, hierarchical transforms, perspective projection
+# Difficulty: Intermediate
+# Category: opengl
+# Prerequisites: opengl_cube
+# Expected Output: graphical
+
 # Controls:
 #   ESC - Quit
 

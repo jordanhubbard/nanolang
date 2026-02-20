@@ -1,4 +1,12 @@
-/* OPL AST Builder Functions  
+# Example: OPL AST Builders
+# Purpose: Provide builder functions for constructing OPL AST nodes as JSON objects
+# Features: JSON construction, pub functions, shadow tests, imports
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_ast, opl_json
+# Expected Output: none
+
+/* OPL AST Builder Functions
  * Build AST nodes as Json objects matching AST_IR.schema.json
  * Uses direct JSON construction for compatibility with NanoLang constraints
  */

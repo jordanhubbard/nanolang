@@ -1,7 +1,10 @@
-/* nl_control_for.nano - FOR loop tests
- * Tests for-in loops with ranges and arrays
- * Category: Core Language - Control Flow
- */
+# Example: For Loops
+# Purpose: Demonstrate for-in loops with ranges, nested for loops, and accumulator patterns
+# Features: for-in, range, nested loops, conditionals in loops, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: nl_hello, nl_control_if_while, nl_mutable
+# Expected Output: nl_control_for: All for loop tests passed!
 
 /* ==== PART 1: Basic For-In with Range ==== */
 

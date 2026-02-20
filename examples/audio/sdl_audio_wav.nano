@@ -1,5 +1,10 @@
-# Test WAV Playback
-# Simple test to verify our converted samples play with SDL_mixer
+# Example: WAV Audio Playback
+# Purpose: Plays a user-provided WAV file using SDL_mixer to verify audio output
+# Features: SDL_mixer, WAV playback, command-line arguments, extern functions
+# Difficulty: Beginner
+# Category: audio
+# Prerequisites: none
+# Expected Output: Testing WAV playback...
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_mixer/sdl_mixer.nano"

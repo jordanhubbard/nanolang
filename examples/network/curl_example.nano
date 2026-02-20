@@ -1,57 +1,10 @@
-# Comprehensive HTTP Client with libcurl
-#
-# Concept: Complete HTTP client demonstrating REST API patterns with libcurl
-# Topics: HTTP methods (GET/POST/PUT/DELETE), JSON, headers, HTTPS, error handling, timeouts
-# Difficulty: Intermediate-Advanced
-#
-# Description:
-# Production-ready HTTP client example covering all common use cases: GET/POST/PUT/DELETE
-# requests, custom headers, JSON payloads, HTTPS certificate validation, comprehensive
-# error handling, timeout configuration, and rate limiting best practices.
-#
-# Key Features Demonstrated:
-# - All HTTP methods (GET, POST, PUT, DELETE)
-# - Custom headers (Authorization, Content-Type, User-Agent)
-# - JSON request bodies
-# - HTTPS with certificate validation
-# - Comprehensive error handling
-# - Timeout configuration (connection + request)
-# - File downloads
-# - Response code checking
-# - Rate limiting patterns
-#
-# Security Best Practices:
-# - Certificate validation enabled by default
-# - Timeout configuration to prevent hanging
-# - Error checking on all operations
-# - Safe JSON escaping
-# - User-Agent identification
-#
-# Real-World Use Cases:
-# - REST API clients (GitHub, Stripe, AWS)
-# - Web scrapers with authentication
-# - CI/CD webhook triggers
-# - Monitoring and health checks
-# - Data synchronization services
-# - OAuth client implementations
-#
-# Prerequisites:
-# - HTTP protocol fundamentals (verbs, status codes, headers)
-# - JSON format basics
-# - C FFI patterns (nl_extern_*.nano)
-#
-# Next Steps:
-# - Implement OAuth 2.0 flow
-# - Add request/response middleware
-# - Create typed API client wrapper
-# - Implement connection pooling
-# - Add retry logic with exponential backoff
-#
-# Performance Notes:
-# - Reuse curl handles when making multiple requests
-# - Consider connection pooling for high-throughput
-# - Rate limiting: 10 req/sec = sustainable, 100 req/sec = burst
-# - HTTPS adds ~10-50ms latency vs HTTP
+# Example: HTTP Client with libcurl
+# Purpose: Demonstrate production-ready HTTP client patterns using libcurl
+# Features: HTTP methods, JSON, headers, HTTPS, error handling, timeouts, C FFI
+# Difficulty: Advanced
+# Category: network
+# Prerequisites: ffi_tutorial
+# Expected Output: COMPREHENSIVE HTTP CLIENT - libcurl Examples
 
 unsafe module "modules/curl/curl.nano"
 

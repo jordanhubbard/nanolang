@@ -2,8 +2,9 @@
 # Purpose: Step-by-step guide to calling C functions from NanoLang
 # Features: extern keyword, C interop, opaque types, type mapping
 # Difficulty: Advanced
-# Usage: ./bin/nanoc examples/advanced/ffi_tutorial.nano -o /tmp/ffi && /tmp/ffi
-# Expected Output: Demonstrates various FFI patterns
+# Category: advanced
+# Prerequisites: none
+# Expected Output: FFI Tutorial Demo
 #
 # Learning Objectives:
 # 1. Declare extern functions to call C library functions

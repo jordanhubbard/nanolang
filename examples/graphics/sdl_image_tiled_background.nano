@@ -1,11 +1,10 @@
-# SDL_image Tiled Background Example
-# Demonstrates creating tiled/repeating backgrounds
-#
-# This example shows:
-# - Loading a tile texture
-# - Rendering tiles in a grid pattern
-# - Creating seamless tiled backgrounds
-# - Scrolling backgrounds
+# Example: Tiled Scrolling Background
+# Purpose: Demonstrates tiled repeating backgrounds with scrolling using SDL_image
+# Features: SDL_image, tile rendering, scrolling, grid patterns
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_image_test
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

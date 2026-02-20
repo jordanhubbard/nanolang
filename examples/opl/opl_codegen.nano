@@ -1,3 +1,11 @@
+# Example: OPL Code Generator
+# Purpose: Generate NanoLang source code from OPL AST intermediate representation
+# Features: code generation, JSON traversal, string building, indentation
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_ast, opl_parser, opl_json
+# Expected Output: none
+
 import "examples/opl/opl_json.nano"
 
 module "modules/std/json/json.nano"

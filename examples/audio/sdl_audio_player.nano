@@ -1,5 +1,10 @@
-# Simple Audio Player with SDL_mixer
-# Demonstrates: Music playback, sound effects, volume control, fade effects
+# Example: SDL Audio Player
+# Purpose: Interactive audio player with music playback, sound effects, and volume control using SDL_mixer
+# Features: SDL_mixer, music playback, sound effects, volume control, fade effects, SDL_ttf, event handling
+# Difficulty: Intermediate
+# Category: audio
+# Prerequisites: none
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

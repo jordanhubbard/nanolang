@@ -1,7 +1,15 @@
+# Example: Bullet Soft Body Beads (Visual)
+# Purpose: Visualizes continuous soft body beads falling through a plinko-style obstacle course using SDL
+# Features: Bullet physics, soft body, SDL rendering, particle spawning, circle drawing, timed simulation
+# Difficulty: Intermediate
+# Category: physics
+# Prerequisites: bullet_beads_simple
+# Expected Output: graphical
+
 /*
  * Soft Body Beads Visual Demo
  * Continuous falling beads through obstacles (Bullet + SDL)
- * 
+ *
  * Run for 10 seconds showing physics simulation
  */
 

@@ -1,10 +1,18 @@
+# Example: Unsafe Blocks Demo
+# Purpose: Demonstrates unsafe blocks for marking explicit trust boundaries around FFI and unchecked operations
+# Features: unsafe blocks, nested unsafe, FFI safety, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_extern_math
+# Expected Output: === Nanolang Unsafe Blocks Demo ===
+
 /* Demonstration of unsafe blocks in Nanolang
- * 
+ *
  * Unsafe blocks are used to mark code sections that:
  * - Call extern functions (FFI)
  * - Perform unchecked operations
  * - Require explicit acknowledgment of potential hazards
- * 
+ *
  * This is a compile-time safety feature that makes FFI calls explicit.
  */
 

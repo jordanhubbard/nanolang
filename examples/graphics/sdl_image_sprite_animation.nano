@@ -1,11 +1,10 @@
-# SDL_image Sprite Animation Example
-# Demonstrates sprite sheet animation using SDL_image
-#
-# This example shows:
-# - Loading a sprite sheet (grid of animation frames)
-# - Rendering specific frames from the sheet
-# - Frame-based animation timing
-# - Sprite positioning and movement
+# Example: Sprite Sheet Animation
+# Purpose: Demonstrates sprite sheet animation with frame timing and movement using SDL_image
+# Features: SDL_image, sprite sheets, frame animation, timing, movement
+# Difficulty: Intermediate
+# Category: graphics
+# Prerequisites: sdl_image_test
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

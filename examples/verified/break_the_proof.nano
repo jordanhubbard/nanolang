@@ -1,3 +1,11 @@
+# Example: Break the Proof
+# Purpose: Adversarial stress test of NanoLang's Coq mathematical proofs for correctness guarantees
+# Features: unions, pattern matching, structs, arrays, integer arithmetic, while loops, shadow tests
+# Difficulty: Advanced
+# Category: verified
+# Prerequisites: none
+# Expected Output: (blank line before header banner)
+
 /* =============================================================================
  * CAN YOU BREAK FORMALLY VERIFIED CODE?
  * =============================================================================
@@ -14,8 +22,6 @@
  *
  * Run:  nanoc examples/verified/break_the_proof.nano
  * Then: nanoc --trust-report examples/verified/break_the_proof.nano
- *
- * Difficulty: Beginner (to read), Advanced (to understand the proofs)
  * ============================================================================= */
 
 /* =============================================================================

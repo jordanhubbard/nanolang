@@ -1,25 +1,10 @@
-# NanoLang REPL with Multi-Type Support (Proof of Concept)
-#
-# This demonstrates persistent variable state and multi-type expression
-# evaluation by maintaining a source code preamble and type-specific wrappers.
-#
-# Features:
-# - Persistent variables: let x: int = 42, let y: float = 3.14
-# - Multi-type expressions: (+ x 10), (* y 2.0), (+ "Hello" "World")
-# - Type-specific evaluation: :int, :float, :string, :bool
-# - Commands: :vars, :clear, :quit
-#
-# Architecture:
-# - Maintains all variable definitions as source code in a StringBuilder
-# - Each evaluation wraps the expression with the variable preamble
-# - Type-specific wrappers for different result types
-# - Compiles and executes the complete program for each expression
-#
-# Limitations:
-# - Variables cannot be reassigned (would need parser support)
-# - Only simple let statements supported
-# - Expression type must be specified with :type command
-# - Re-compiles everything on each evaluation (slow)
+# Example: Multi-Type REPL
+# Purpose: REPL with persistent variables and type-specific evaluation for int, float, string, and bool expressions
+# Features: imports, string parsing, eval, readline, StringBuilder, type-specific wrappers, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: simple_repl, readline_repl, vars_repl
+# Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history
 from "modules/nano_tools/nano_tools.nano" import eval_internal

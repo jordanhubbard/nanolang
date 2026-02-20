@@ -1,4 +1,11 @@
-# JSON Library Demo
+# Example: JSON Demo
+# Purpose: Demonstrates JSON parsing, creation, and array manipulation using the json module
+# Features: imports, JSON parsing, JSON creation, arrays, while loops, shadow tests
+# Difficulty: Intermediate
+# Category: data
+# Prerequisites: none
+# Expected Output: === JSON Parse Example ===
+
 import "modules/std/json/json.nano"
 
 fn parse_example() -> int {

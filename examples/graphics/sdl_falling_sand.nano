@@ -1,6 +1,10 @@
-# FALLING SAND - Cellular Automata Physics Sandbox
-# Interactive particle simulation with SDL UI engine
-# Demonstrates: Cellular automata, state machines, pixel manipulation, optimization
+# Example: Falling Sand Simulation
+# Purpose: Interactive cellular automata physics sandbox with multiple material types
+# Features: enums, structs, cellular automata, SDL graphics, mouse input, ui_widgets
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives, sdl_mouse_click
+# Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

@@ -1,3 +1,11 @@
+# Example: ProTracker Clone
+# Purpose: Full-featured ProTracker-style MOD player with file browser, pattern viewer, and audio visualizations
+# Features: SDL_mixer, MOD playback, ProTracker format, pattern display, file browser, UI widgets, audio visualization, SDL_ttf
+# Difficulty: Advanced
+# Category: audio
+# Prerequisites: none
+# Expected Output: graphical
+
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_mixer/sdl_mixer.nano"

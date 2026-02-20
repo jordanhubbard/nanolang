@@ -1,4 +1,10 @@
-# Test struct functionality
+# Example: Structs
+# Purpose: Demonstrate struct definition, instantiation, field access, and passing structs to functions
+# Features: struct, field access, struct literals, functions with struct params, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_hello, nl_types, nl_functions_basic
+# Expected Output: Point x: 10
 
 struct Point {
     x: int,

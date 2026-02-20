@@ -1,5 +1,10 @@
-# Example 25: Pi Calculator to 500 Decimal Places
-# Uses the Spigot algorithm for computing pi digit by digit
+# Example: Pi Calculator
+# Purpose: Computes pi using multiple methods (Leibniz, Machin's formula, C math library) with configurable precision
+# Features: extern functions, float arithmetic, loops, conditionals, command-line arguments, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_advanced_math, nl_extern_math
+# Expected Output: ========================================
 
 # External C functions
 extern fn strlen(s: string) -> int

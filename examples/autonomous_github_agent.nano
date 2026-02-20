@@ -1,35 +1,10 @@
-# autonomous_github_agent.nano - Production-Ready Autonomous GitHub Agent
-#
-# A comprehensive example demonstrating autonomous GitHub issue management
-# with full configuration via environment variables.
-#
-# Environment Variables:
-#
-# GitHub Authentication (choose one):
-#   GITHUB_TOKEN="ghp_xxxxxxxxxxxx"                    # Personal access token
-#   GITHUB_APP_ID="123456"                             # GitHub App ID
-#   GITHUB_APP_INSTALLATION_ID="12345678"              # Installation ID
-#   GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
-#
-# GitHub Configuration:
-#   GITHUB_OWNER="username"                            # Repository owner
-#   GITHUB_REPO="repository"                           # Repository name
-#   GITHUB_ISSUE_LABEL="bug"                          # Label to monitor (optional)
-#
-# OpenAI/LLM Configuration:
-#   OPENAI_API_URL="https://api.openai.com/v1"        # API endpoint
-#   OPENAI_API_KEY="sk-xxxx"                          # API key (if required)
-#   OPENAI_MODEL="gpt-4"                              # Model to use
-#
-# For local LLMs (Ollama, LM Studio):
-#   OPENAI_API_URL="http://localhost:11434/v1"
-#   OPENAI_API_KEY="dummy"                            # Not needed for local
-#   OPENAI_MODEL="llama2"
-#
-# Agent Configuration:
-#   AGENT_MODE="analyze"                              # Mode: analyze, triage, fix, monitor
-#   AGENT_DRY_RUN="true"                             # If true, don't post comments
-#   AGENT_MAX_ISSUES="5"                             # Max issues to process per run
+# Example: Autonomous GitHub Agent
+# Purpose: Production-ready autonomous GitHub issue management with configurable LLM integration
+# Features: GitHub API, OpenAI API, environment config, structs, error handling
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: ai_github_agent
+# Expected Output: Autonomous GitHub Agent - Production Ready
 
 import "modules/github/github.nano"
 import "modules/openai/openai.nano"

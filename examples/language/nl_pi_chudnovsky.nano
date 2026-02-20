@@ -1,10 +1,18 @@
+# Example: High-Precision Pi (Machin's Formula)
+# Purpose: Calculates pi to up to 1000 decimal places using Machin's formula with timing and verification
+# Features: float arithmetic, imports, string manipulation, timing, extern functions, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_advanced_math, nl_pi_calculator
+# Expected Output: (blank line)
+
 # High-Precision Pi Calculator using Machin's Formula
 #
-# Machin's Formula: π/4 = 4*arctan(1/5) - arctan(1/239)
+# Machin's Formula: pi/4 = 4*arctan(1/5) - arctan(1/239)
 #
 # This formula was discovered by John Machin in 1706 and used to calculate
-# π to 100 decimal places. It's based on the arctangent Taylor series and
-# has been used in many record-breaking π calculations.
+# pi to 100 decimal places. It's based on the arctangent Taylor series and
+# has been used in many record-breaking pi calculations.
 #
 # Timing: Uses stdlib/timing.nano for high-resolution timing measurements
 

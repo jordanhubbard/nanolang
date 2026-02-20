@@ -1,4 +1,11 @@
-# Datetime Library Demo
+# Example: Datetime Library Demo
+# Purpose: Demonstrate date and time operations using the datetime module
+# Features: modules, datetime, formatting, date arithmetic
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Current Time Example ===
+
 module "std/datetime/datetime.nano" as DT
 
 fn current_time_example() -> void {

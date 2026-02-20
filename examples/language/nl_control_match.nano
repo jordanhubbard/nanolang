@@ -1,7 +1,10 @@
-/* nl_control_match.nano - Comprehensive match expression tests
- * Tests all aspects of match expressions in nanolang
- * Category: Core Language - Control Flow
- */
+# Example: Match Expressions
+# Purpose: Comprehensive demonstration of match expressions on union types for pattern matching
+# Features: union, match, variant destructuring, Option/Result patterns, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_control_if_while, nl_struct, nl_enum
+# Expected Output: nl_control_match: All match expression tests passed!
 
 /* ==== PART 1: Basic Union for Match Testing ==== */
 

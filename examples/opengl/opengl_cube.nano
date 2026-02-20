@@ -1,6 +1,11 @@
-# OpenGL Rotating Cube Demo
-# Demonstrates GLFW + GLEW integration with 3D graphics
-#
+# Example: OpenGL Rotating Cube
+# Purpose: Renders a colored rotating 3D cube using legacy OpenGL immediate mode with GLFW and GLEW
+# Features: OpenGL, GLFW, GLEW, 3D rendering, matrix transforms, depth testing, immediate mode
+# Difficulty: Beginner
+# Category: opengl
+# Prerequisites: none
+# Expected Output: graphical
+
 # Installation:
 #   macOS:  brew install glfw glew
 #   Linux:  sudo apt install libglfw3-dev libglew-dev

@@ -1,15 +1,11 @@
-# SDL NanoAmp - Pixel-Perfect Winamp Tribute
-# Ultimate Winamp aesthetic with tight layout and authentic styling
-#
-# Features:
-# - Classic Winamp layout and color scheme
-# - Compact transport controls with symbols
-# - Prominent track info display
-# - Professional visualization panel
-# - Integrated playlist with proper styling
-# - Status bar with playback info
-# - Directory browser for music discovery
-#
+# Example: NanoAmp Music Player
+# Purpose: Pixel-perfect Winamp tribute with playlist management, directory browsing, and audio visualizations
+# Features: SDL_mixer, MP3 playback, UI widgets, audio visualization, filesystem, preferences, playlists, SDL_ttf
+# Difficulty: Advanced
+# Category: audio
+# Prerequisites: none
+# Expected Output: graphical
+
 # Usage: ./bin/sdl_nanoamp [optional: path/to/music/directory]
 
 unsafe module "modules/sdl/sdl.nano"

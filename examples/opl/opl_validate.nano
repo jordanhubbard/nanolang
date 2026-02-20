@@ -1,3 +1,11 @@
+# Example: OPL Validator
+# Purpose: Validate OPL AST for semantic correctness and constraint checking
+# Features: AST validation, string comparison, JSON traversal, error reporting
+# Difficulty: Advanced
+# Category: opl
+# Prerequisites: opl_ast, opl_lexer, opl_parser, opl_json
+# Expected Output: none
+
 import "examples/opl/opl_ast.nano"
 import "examples/opl/opl_lexer.nano"
 import "examples/opl/opl_parser.nano"
