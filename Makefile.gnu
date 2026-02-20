@@ -452,6 +452,9 @@ TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
 BOOTSTRAP2_TIMEOUT ?= 3600
 BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
+# Examples need extended timeout since they build 100+ programs across multiple compilers
+EXAMPLES_TIMEOUT ?= 2400
+EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV'
 # Release needs extended timeout since it runs tests + git/gh operations
 RELEASE_TIMEOUT ?= 2400
 RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
@@ -639,10 +642,10 @@ examples:
 	@echo "      Or use 'make examples-available' to skip unavailable examples."
 	@echo ""
 	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
-		$(TIMEOUT_CMD) $(MAKE) examples-core; \
+		$(EXAMPLES_TIMEOUT_CMD) $(MAKE) examples-core; \
 	else \
-		NANOLANG_AUTOBEADS_EXAMPLES=1 $(TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
-		$(TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= || echo "⚠️  Launcher build failed (optional - requires SDL and nano_tools modules)"; \
+		NANOLANG_AUTOBEADS_EXAMPLES=1 $(EXAMPLES_TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
+		$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= || echo "⚠️  Launcher build failed (optional - requires SDL and nano_tools modules)"; \
 	fi
 
 .PHONY: examples-core examples-stage1 examples-stage3 examples-vm
@@ -655,30 +658,21 @@ examples-stage1: bootstrap1 modules-index check-deps-sdl
 	@echo "=========================================="
 	@echo "Building Examples (Stage 1 Compiler)"
 	@echo "=========================================="
-	@$(TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
-	@echo ""
-	@echo "🚀 Launching Example Browser (Stage 1 Mode)..."
-	@NANO_MODE=stage1 ./bin/sdl_example_launcher || true
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
 
 examples-stage3: bootstrap3 modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (Stage 3 Compiler)"
 	@echo "=========================================="
-	@$(TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3
-	@echo ""
-	@echo "🚀 Launching Example Browser (Stage 3 Mode)..."
-	@NANO_MODE=stage3 ./bin/sdl_example_launcher_stage3 || true
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3
 
 examples-vm: vm modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (NanoVM Bytecode)"
 	@echo "=========================================="
-	@$(TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm
-	@echo ""
-	@echo "🚀 Launching Example Browser (VM Mode)..."
-	@NANO_MODE=vm ./bin/sdl_example_launcher || true
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm
 
 # Build available examples (GRACEFUL: skip examples with missing dependencies)
 examples-available: build check-deps-sdl
@@ -688,7 +682,7 @@ examples-available: build check-deps-sdl
 	@echo "=========================================="
 	@echo "Note: Examples with missing dependencies will be skipped."
 	@echo ""
-	@$(TIMEOUT_CMD) $(MAKE) -C examples examples-available
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available
 
 # Launch example browser
 launcher: build check-deps-sdl
@@ -696,7 +690,7 @@ launcher: build check-deps-sdl
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(TIMEOUT_CMD) $(MAKE) -C examples launcher
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
@@ -957,7 +951,12 @@ $(SENTINEL_BOOTSTRAP0): $(COMPILER_C)
 	@touch $(SENTINEL_BOOTSTRAP0)
 
 # Bootstrap Stage 1: Compile nanoc_v04.nano with C compiler
-bootstrap1: $(SENTINEL_BOOTSTRAP1)
+bootstrap1:
+	@if [ -f $(SENTINEL_BOOTSTRAP1) ] && [ ! -f $(NANOC_STAGE1) ]; then \
+		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP1)"; \
+		rm -f $(SENTINEL_BOOTSTRAP1); \
+	fi
+	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
 $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
@@ -984,7 +983,12 @@ $(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
 	fi
 
 # Bootstrap Stage 2: Recompile nanoc_v04.nano with stage 1 compiler
-bootstrap2: $(SENTINEL_BOOTSTRAP2)
+bootstrap2:
+	@if [ -f $(SENTINEL_BOOTSTRAP2) ] && [ ! -f $(NANOC_STAGE2) ]; then \
+		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP2)"; \
+		rm -f $(SENTINEL_BOOTSTRAP2); \
+	fi
+	@$(MAKE) $(SENTINEL_BOOTSTRAP2)
 
 
 $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
@@ -1033,7 +1037,12 @@ verify-no-nanoc_c-check:
 	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
 # Bootstrap Stage 3: Verify reproducible build
-bootstrap3: $(SENTINEL_BOOTSTRAP3)
+bootstrap3:
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ ! -f $(NANOC_STAGE2) ]; then \
+		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP3)"; \
+		rm -f $(SENTINEL_BOOTSTRAP3); \
+	fi
+	@$(MAKE) $(SENTINEL_BOOTSTRAP3)
 
 $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	@echo ""
