@@ -7,6 +7,30 @@
 
 #define MAX_OUTPUT 65536
 
+static const char* find_nanoc(void) {
+    static char nanoc_path[1024] = "";
+    if (nanoc_path[0]) return nanoc_path;
+
+    const char *root = getenv("NANO_PROJECT_ROOT");
+    if (root) {
+        snprintf(nanoc_path, sizeof(nanoc_path), "%s/bin/nanoc", root);
+        if (access(nanoc_path, X_OK) == 0) return nanoc_path;
+    }
+
+    const char *candidates[] = {
+        "./bin/nanoc", "../bin/nanoc", "../../bin/nanoc", NULL
+    };
+    for (int i = 0; candidates[i]; i++) {
+        if (access(candidates[i], X_OK) == 0) {
+            snprintf(nanoc_path, sizeof(nanoc_path), "%s", candidates[i]);
+            return nanoc_path;
+        }
+    }
+
+    snprintf(nanoc_path, sizeof(nanoc_path), "./bin/nanoc");
+    return nanoc_path;
+}
+
 /* Helper to escape JSON strings */
 static char* json_escape_string(const char* input) {
     if (!input) return strdup("");
@@ -61,7 +85,7 @@ int64_t eval(const char *source) {
     close(bin_fd);
 
     char compile_cmd[2048];
-    snprintf(compile_cmd, sizeof(compile_cmd), "./bin/nanoc %s -o %s 2>&1", src_template, bin_template);
+    snprintf(compile_cmd, sizeof(compile_cmd), "%s %s -o %s 2>&1", find_nanoc(), src_template, bin_template);
     int compile_status = system(compile_cmd);
 
     if (compile_status != 0) {
@@ -134,8 +158,8 @@ char* eval_with_output(const char *source) {
     close(compile_out_fd);
 
     snprintf(compile_cmd, sizeof(compile_cmd), 
-             "NANO_MODULE_PATH=modules ./bin/nanoc %s -o %s >%s 2>&1", 
-             src_template, bin_template, compile_output_file);
+             "NANO_MODULE_PATH=modules %s %s -o %s >%s 2>&1", 
+             find_nanoc(), src_template, bin_template, compile_output_file);
     
     int compile_status = system(compile_cmd);
 

@@ -852,20 +852,47 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 detected_types[detected_count][63] = '\0';
                 detected_count++;
                 
+                /* Check if this type already has a runtime list implementation.
+                 * If so, skip wrapper generation to avoid duplicate symbols —
+                 * the runtime file is already linked via runtime_basenames[]. */
+                char runtime_list_path[512];
+                snprintf(runtime_list_path, sizeof(runtime_list_path),
+                         "%s/src/runtime/list_%s.c", get_project_root(), type_name);
+                if (access(runtime_list_path, F_OK) == 0) {
+                    if (opts->verbose) {
+                        printf("Skipping List<%s> wrapper — runtime implementation exists at %s\n",
+                               type_name, runtime_list_path);
+                    }
+                    continue;
+                }
+                
+                /* Check if the transpiler already generated inline list code */
+                char inline_check[128];
+                snprintf(inline_check, sizeof(inline_check), "nl_list_%s_new", type_name);
+                if (strstr(c_code, inline_check) != NULL) {
+                    if (opts->verbose) {
+                        printf("Skipping List<%s> wrapper — inline implementation in transpiled code\n",
+                               type_name);
+                    }
+                    continue;
+                }
+                
                 /* Generate list runtime files */
                 const char *c_type = type_name;
+                char nl_prefixed_type[128];
                 if (strcmp(type_name, "LexerToken") == 0) c_type = "Token";
                 else if (strcmp(type_name, "NSType") == 0) c_type = "NSType";
                 else if (strncmp(type_name, "AST", 3) == 0 || strncmp(type_name, "Compiler", 8) == 0) {
-                    /* For schema types, use the typedef name.
-                     * We'll ensure compiler_schema.h is included. */
                     c_type = type_name;
+                } else {
+                    snprintf(nl_prefixed_type, sizeof(nl_prefixed_type), "nl_%s", type_name);
+                    c_type = nl_prefixed_type;
                 }
                 
                 char gen_cmd[512];
                 snprintf(gen_cmd, sizeof(gen_cmd),
-                        "./scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
-                        type_name, get_tmp_dir(), c_type);
+                        "%s/scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
+                        get_project_root(), type_name, get_tmp_dir(), c_type);
                 if (opts->verbose) {
                     printf("Generating List<%s> runtime...\n", type_name);
                 }

@@ -947,6 +947,58 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
 
     meta->module_dir = strdup(module_dir);
 
+    /* Resolve relative include_dirs to absolute paths.
+     * Module manifests use project-root-relative paths (e.g. "src"),
+     * which break when CWD differs from project root. Walk up from
+     * module_dir to find the project root and make paths absolute. */
+    for (size_t i = 0; i < meta->include_dirs_count; i++) {
+        if (meta->include_dirs[i][0] == '/') continue;
+        if (dir_exists(meta->include_dirs[i])) continue;
+
+        char parent[1024];
+        strncpy(parent, module_dir, sizeof(parent) - 1);
+        parent[sizeof(parent) - 1] = '\0';
+        bool resolved = false;
+        for (int depth = 0; depth < 8 && !resolved; depth++) {
+            char *slash = strrchr(parent, '/');
+            if (!slash) break;
+            *slash = '\0';
+            char candidate[2048];
+            snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            if (dir_exists(candidate)) {
+                free(meta->include_dirs[i]);
+                meta->include_dirs[i] = strdup(candidate);
+                resolved = true;
+            }
+        }
+    }
+
+    /* Same resolution for -I flags in cflags */
+    for (size_t i = 0; i < meta->cflags_count; i++) {
+        if (strncmp(meta->cflags[i], "-I", 2) != 0) continue;
+        const char *inc_path = meta->cflags[i] + 2;
+        if (inc_path[0] == '/') continue;
+        if (dir_exists(inc_path)) continue;
+
+        char parent[1024];
+        strncpy(parent, module_dir, sizeof(parent) - 1);
+        parent[sizeof(parent) - 1] = '\0';
+        for (int depth = 0; depth < 8; depth++) {
+            char *slash = strrchr(parent, '/');
+            if (!slash) break;
+            *slash = '\0';
+            char candidate[2048];
+            snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            if (dir_exists(candidate)) {
+                char resolved_flag[2060];
+                snprintf(resolved_flag, sizeof(resolved_flag), "-I%s", candidate);
+                free(meta->cflags[i]);
+                meta->cflags[i] = strdup(resolved_flag);
+                break;
+            }
+        }
+    }
+
     cJSON_Delete(json);
     return meta;
 }

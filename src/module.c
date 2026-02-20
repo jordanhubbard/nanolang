@@ -370,6 +370,37 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
                 }
             }
         }
+
+        /* Fallback: try CWD-relative parent directories as project root.
+         * Handles the case where current_file is a shallow relative path
+         * (e.g. "language/foo.nano") and the walk-up from the file path
+         * runs out of parent directories before finding the project root. */
+        {
+            char test_path[2048];
+            const char *parents[] = {".", "..", "../..", NULL};
+            for (int d = 0; parents[d] != NULL; d++) {
+                char marker[2048];
+                snprintf(marker, sizeof(marker), "%s/modules", parents[d]);
+                DIR *dir = opendir(marker);
+                if (!dir) {
+                    snprintf(marker, sizeof(marker), "%s/examples", parents[d]);
+                    dir = opendir(marker);
+                }
+                if (dir) {
+                    closedir(dir);
+                    const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
+                    for (int p = 0; prefixes[p] != NULL; p++) {
+                        snprintf(test_path, sizeof(test_path), "%s/%s%s", parents[d], prefixes[p], module_path);
+                        FILE *test = fopen(test_path, "r");
+                        if (test) {
+                            fclose(test);
+                            return strdup(test_path);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
     
     /* First, try relative to current file */
@@ -410,6 +441,26 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
                 return strdup(test_path);
             }
         }
+    }
+
+    /* Try NANO_MODULE_PATH directories directly with the module path.
+     * This handles imports like "std/math/vector2d.nano" when building from
+     * a subdirectory (e.g., examples/) where NANO_MODULE_PATH=../modules
+     * resolves to the correct location. */
+    {
+        int path_count = 0;
+        char **search_paths = get_module_search_paths(&path_count);
+        for (int i = 0; i < path_count; i++) {
+            char test_path[2048];
+            snprintf(test_path, sizeof(test_path), "%s/%s", search_paths[i], module_path);
+            FILE *test = fopen(test_path, "r");
+            if (test) {
+                fclose(test);
+                free_module_search_paths(search_paths, path_count);
+                return strdup(test_path);
+            }
+        }
+        free_module_search_paths(search_paths, path_count);
     }
     
     /* If import path starts with "modules/", try NANO_MODULE_PATH with prefix stripped */
