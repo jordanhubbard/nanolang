@@ -1,53 +1,51 @@
-# NanoLang RFC Process
+# How I Evolve
 
 **RFC = Request for Comments**
 
-## Overview
+## My Evolution
 
-The NanoLang RFC (Request for Comments) process is how we make decisions about language evolution, major features, and breaking changes. It provides a transparent, collaborative way for the community to propose and discuss changes.
+My RFC process is how I evolve. It is the method I use to make decisions about my syntax, my features, and any changes that might break existing code. I use this process to remain transparent and to ensure that any growth follows my core values.
 
-## When to Use the RFC Process
+## When I Require an RFC
 
-### Requires RFC
+### I Require an RFC for:
 
-Use the RFC process for:
-
-- **Language Changes**
+- **Changes to My Language**
   - New keywords or syntax
-  - Changes to type system
+  - Changes to my type system
   - New control flow constructs
-  - Breaking changes to existing features
+  - Breaking changes to features I already have
 
 - **Major Features**
-  - New data structures (e.g., Set<T>, Map<K,V>)
-  - Standard library additions (>5 functions)
+  - New data structures, such as Set<T> or Map<K,V>
+  - Additions to my standard library of more than five functions
   - New compilation modes or targets
-  - FFI system changes
+  - Changes to my FFI system
 
-- **Tooling & Infrastructure**
+- **Tooling and Infrastructure**
   - New compiler flags or modes
-  - Build system changes affecting users
-  - Package manager design
+  - Build system changes that affect you
+  - My package manager design
   - IDE integration protocols
 
-- **Process & Policy**
-  - Changes to the RFC process itself
-  - Code of conduct updates
-  - Contribution guidelines changes
+- **Process and Policy**
+  - Changes to this RFC process
+  - Updates to my code of conduct
+  - Changes to how people contribute to me
 
-### Does NOT Require RFC
+### I Do Not Require an RFC for:
 
-These can be done via normal pull requests:
+You can handle these through normal pull requests:
 
-- Bug fixes (no behavior change)
-- Documentation improvements
-- Code refactoring (no user-facing changes)
-- Test additions
-- Performance optimizations (no API change)
-- Small stdlib additions (1-2 functions)
+- Bug fixes that do not change my behavior
+- Improvements to my documentation
+- Refactoring my code without changing how you interact with me
+- Adding tests
+- Performance optimizations that do not change my API
+- Small additions to my standard library of one or two functions
 - Examples or tutorials
 
-## RFC Lifecycle
+## My RFC Lifecycle
 
 ```
 [Draft] → [Proposed] → [Discussion] → [Final Comment] → [Decision]
@@ -57,70 +55,70 @@ These can be done via normal pull requests:
                               [Implemented] → [Stable]
 ```
 
-### Stages
+### My Stages
 
-1. **Draft** - Author is writing the RFC, not yet ready for review
-2. **Proposed** - RFC submitted as PR to rfcs/ directory
-3. **Discussion** - Community discusses, author revises
-4. **Final Comment Period (FCP)** - 10-day final review period
-5. **Decision** - Core team makes decision (Accept/Reject/Postpone)
-6. **Accepted** - RFC merged, implementation can begin
-7. **Implemented** - Feature implemented and merged
-8. **Stable** - Feature released in stable version
+1. **Draft**: The author is writing the RFC and it is not yet ready for me to see.
+2. **Proposed**: The RFC is submitted as a pull request to my `rfcs/` directory.
+3. **Discussion**: My community discusses the proposal and the author makes revisions.
+4. **Final Comment Period (FCP)**: A ten day period for final review.
+5. **Decision**: My core team decides whether to accept, reject, or postpone.
+6. **Accepted**: The RFC is merged and you can begin implementing it.
+7. **Implemented**: The feature is built and merged into my code.
+8. **Stable**: The feature is released in a stable version of me.
 
-## How to Submit an RFC
+## How to Propose a Change to Me
 
 ### Step 1: Socialize the Idea
 
-Before writing a formal RFC:
+Before you write a formal RFC:
 
-1. Open a GitHub Discussion or Issue describing the idea
-2. Gauge community interest
-3. Get early feedback on feasibility
-4. Consider alternatives
+1. Open a GitHub Discussion or Issue to describe your idea.
+2. See if others are interested.
+3. Get early feedback on whether your idea is feasible.
+4. Consider other ways to solve the same problem.
 
-**Question to answer:** "Is this worth a full RFC?"
+**The question to answer:** Is this worth a full RFC?
 
 ### Step 2: Write the RFC
 
-1. Fork the repository
-2. Copy `docs/rfcs/0000-template.md` to `docs/rfcs/0000-my-feature.md`
-3. Fill out the template (see below)
-4. Write clearly and thoroughly
-5. Include examples and rationale
+1. Fork my repository.
+2. Copy `docs/rfcs/0000-template.md` to `docs/rfcs/0000-my-feature.md`.
+3. Fill out the template.
+4. Write clearly and thoroughly.
+5. Include examples and your reasoning.
 
-### Step 3: Submit Pull Request
+### Step 3: Submit a Pull Request
 
-1. Submit PR with RFC document
-2. Title: `RFC: Brief Description`
-3. Label: `T-rfc`
-4. Ping relevant maintainers in PR description
+1. Submit a pull request with your RFC document.
+2. Title it `RFC: Brief Description`.
+3. Label it `T-rfc`.
+4. Mention relevant maintainers in your description.
 
 ### Step 4: Discussion Period
 
-- Community reviews and comments
-- Author revises based on feedback
-- Discussion can take days to weeks
-- Major changes may require new discussion period
+- My community reviews and comments on your proposal.
+- You revise the proposal based on what they say.
+- Discussion can take days or weeks.
+- If you make major changes, I might require a new discussion period.
 
 ### Step 5: Final Comment Period (FCP)
 
-When discussion settles:
+When the discussion settles:
 
-1. Core team member moves RFC to FCP
-2. Label changes to `T-rfc-fcp`
-3. 10-day countdown begins
-4. Last chance for concerns
+1. A member of my core team moves the RFC to FCP.
+2. The label changes to `T-rfc-fcp`.
+3. A ten day countdown begins.
+4. This is the last chance to raise concerns.
 
 ### Step 6: Decision
 
-After FCP, core team decides:
+After the FCP, my core team makes a choice:
 
-- **Accept** - RFC merged, implementation begins
-- **Reject** - RFC closed with explanation
-- **Postpone** - Good idea but not right time
+- **Accept**: The RFC is merged and implementation begins.
+- **Reject**: The RFC is closed and I explain why.
+- **Postpone**: The idea is good but the timing is wrong.
 
-## RFC Template
+## My RFC Template
 
 ```markdown
 # RFC: [Feature Name]
@@ -193,53 +191,52 @@ What might we add later?
 - Long-term vision
 ```
 
-## Decision Criteria
+## How I Make Decisions
 
-Core team considers:
+My core team considers these factors:
 
 ### Technical Merit
 - Does it solve a real problem?
 - Is the design sound?
-- Is it implementable?
-- Performance impact?
-- Interaction with existing features?
+- Can it be implemented?
+- What is the impact on my performance?
+- How does it interact with my existing features?
 
-### Alignment with Goals
-- Consistent with NanoLang philosophy?
-- Maintains simplicity?
-- LLM-friendly?
-- Fits mental model?
+### Alignment with My Goals
+- Is it consistent with my philosophy?
+- Does it maintain my simplicity?
+- Is it friendly to machines and LLMs?
+- Does it fit my mental model?
 
 ### Community Support
-- Do users want this?
-- Is there consensus?
-- Are maintainers willing to support it?
+- Do my users want this?
+- Is there a consensus?
+- Are my maintainers willing to support it?
 
-### Cost vs Benefit
-- Implementation effort
-- Maintenance burden
-- Documentation needed
-- Breaking changes justified?
+### Cost and Benefit
+- How much effort is needed to implement it?
+- What is the maintenance burden?
+- How much documentation is required?
+- Are breaking changes justified?
 
-## Core Team
+## My Core Team
 
-Current core team members with RFC decision authority:
+These are the people with authority to make RFC decisions for me:
 
-- Jordan Hubbard (@jordanhubbard) - Creator/Lead
+- Jordan Hubbard (@jordanhubbard) - My creator and lead
 
-**Note:** As project matures, core team will expand.
+As I mature, I will expand my core team.
 
-## RFC Numbering
+## How I Number RFCs
 
-RFCs are numbered sequentially:
+I number RFCs sequentially:
 
 - `0001-feature-name.md`
 - `0002-another-feature.md`
-- etc.
 
-Numbers assigned when RFC is accepted (not when proposed).
+I assign these numbers when I accept an RFC, not when it is proposed.
 
-## Examples of Potential RFCs
+## Examples of Changes I Might Consider
 
 ### Language Features
 - `RFC: Add 'defer' statement for cleanup`
@@ -247,82 +244,83 @@ Numbers assigned when RFC is accepted (not when proposed).
 - `RFC: Add pattern matching on integers`
 - `RFC: Support method syntax (dot notation)`
 
-### Standard Library
+### My Standard Library
 - `RFC: Add Result<T,E> helper functions`
 - `RFC: Standard JSON parsing library`
 - `RFC: Network socket API`
 - `RFC: Regular expression support`
 
-### Tooling
+### My Tooling
 - `RFC: Package manager design`
 - `RFC: Language server protocol (LSP)`
 - `RFC: Built-in testing framework`
 - `RFC: Code formatter specification`
 
-## FAQ
+## Questions You Might Have
 
-### Q: How long does the RFC process take?
+### Q: How long does my RFC process take?
 
-Varies widely:
-- Simple features: 2-4 weeks
-- Complex features: 1-3 months
-- Controversial features: 3-6 months
+It varies:
+- Simple features: two to four weeks.
+- Complex features: one to three months.
+- Controversial features: three to six months.
 
-### Q: Can I implement before RFC is accepted?
+### Q: Can I implement a feature before I accept the RFC?
 
-Yes, but:
-- Implementation may be wasted if RFC rejected
-- Proof-of-concept implementations can help discussion
-- Mark PR as "[WIP] RFC Implementation"
+You can, but:
+- Your work might be wasted if I reject the RFC.
+- A proof of concept can help the discussion.
+- You should mark your pull request as "[WIP] RFC Implementation".
 
-### Q: What if my RFC is rejected?
+### Q: What if I reject your RFC?
 
-- Not a reflection on you!
-- May be right idea, wrong time
-- Can resubmit with changes
-- Can revisit later
+- It does not mean your idea was bad.
+- It might be the right idea at the wrong time.
+- You can change it and submit it again.
+- We can look at it again later.
 
 ### Q: Can I withdraw my RFC?
 
-Yes, at any time. Add comment and close PR.
+You can withdraw your proposal at any time by adding a comment and closing the pull request.
 
 ### Q: Who makes the final decision?
 
-Core team makes decision by consensus. If no consensus, lead maintainer has final say.
+My core team decides by consensus. If they cannot agree, my lead maintainer makes the final choice.
 
-### Q: Can RFCs be amended after acceptance?
+### Q: Can an RFC be changed after I accept it?
 
-Yes, via new RFC or amendment PR. Significant changes require new RFC.
+Yes. You can submit a new RFC or a pull request to amend it. If the changes are significant, I require a new RFC.
 
-## RFC Repository Structure
+## How I Organize My RFCs
 
 ```
 docs/
 └── rfcs/
-    ├── 0000-template.md          # Template for new RFCs
+    ├── 0000-template.md          # My template for new RFCs
     ├── README.md                  # This document
     ├── accepted/
     │   ├── 0001-feature.md
     │   └── 0002-another.md
     ├── rejected/
-    │   └── 0042-bad-idea.md
+    │   ├── 0042-bad-idea.md
     └── postponed/
         └── 0123-future-idea.md
 ```
 
-## References
+## What Inspired Me
 
-This process inspired by:
-- [Rust RFC Process](https://github.com/rust-lang/rfcs)
-- [Python PEPs](https://www.python.org/dev/peps/)
-- [Swift Evolution](https://github.com/apple/swift-evolution)
+My process was inspired by:
+- The Rust RFC Process
+- Python PEPs
+- Swift Evolution
 
-## Changes to This Process
+## Changing This Process
 
-This process itself can be changed via RFC!
+You can change how I evolve by submitting an RFC for this process itself.
 
 ---
 
-**Last Updated:** January 25, 2026  
+**Last Updated:** February 20, 2026  
 **Status:** Active  
 **Version:** 1.0
+

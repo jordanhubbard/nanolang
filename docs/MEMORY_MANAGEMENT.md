@@ -1,13 +1,13 @@
-# Memory Management in NanoLang
+# My Memory Management
 
-Complete guide to NanoLang's memory management model, garbage collection, and best practices.
+I manage memory so you can focus on logic. I use automatic garbage collection with reference counting.
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Memory Management Model](#memory-management-model)
-3. [What is Garbage Collected?](#what-is-garbage-collected)
-4. [Garbage Collector Details](#garbage-collector-details)
+2. [My Memory Management Model](#my-memory-management-model)
+3. [What I Collect](#what-i-collect)
+4. [My Garbage Collector Details](#my-garbage-collector-details)
 5. [Stack vs Heap Allocation](#stack-vs-heap-allocation)
 6. [Lifetime and Ownership](#lifetime-and-ownership)
 7. [Performance Considerations](#performance-considerations)
@@ -19,24 +19,24 @@ Complete guide to NanoLang's memory management model, garbage collection, and be
 
 ## Overview
 
-NanoLang uses **automatic garbage collection** with **reference counting** for memory management. This provides:
+I use automatic garbage collection with reference counting for my memory management. This provides:
 
-✅ **No manual memory management** - No malloc/free in user code
-✅ **Deterministic cleanup** - Objects freed when last reference goes away
-✅ **Cycle detection** - Circular references are detected and collected
-✅ **Zero runtime pauses** - Reference counting has no stop-the-world pauses
-✅ **Native performance** - Compiles to C, minimal overhead
+- No manual memory management. I don't use malloc or free in my user code.
+- Deterministic cleanup. I free objects when their last reference disappears.
+- Cycle detection. I detect and collect circular references.
+- Zero runtime pauses. My reference counting has no stop-the-world pauses.
+- Native performance. I compile to C with minimal overhead.
 
 ---
 
-## Memory Management Model
+## My Memory Management Model
 
-NanoLang uses a **hybrid approach**:
+I use a hybrid approach:
 
-1. **Stack Allocation** - Primitives and small values
-2. **Garbage Collection** - Dynamic data structures
-3. **Reference Counting** - Primary GC mechanism
-4. **Cycle Collection** - Backup for circular references
+1. Stack Allocation for my primitives and small values.
+2. Garbage Collection for my dynamic data structures.
+3. Reference Counting as my primary mechanism.
+4. Cycle Collection as my backup for circular references.
 
 ```
 ┌─────────────────┬──────────────────────┐
@@ -52,11 +52,11 @@ NanoLang uses a **hybrid approach**:
 
 ---
 
-## What is Garbage Collected?
+## What I Collect
 
-### GC-Managed Types ✅
+### My GC-Managed Types
 
-These types are automatically garbage collected:
+I automatically collect these types:
 
 | Type | Description | Example |
 |------|-------------|---------|
@@ -69,9 +69,9 @@ These types are automatically garbage collected:
 | **HashMap<K,V>** | Hash maps | ARC-wrapped, auto-freed |
 | **Regex** | Compiled patterns | ARC-wrapped, auto-freed |
 
-### Stack-Allocated Types ❌
+### My Stack-Allocated Types
 
-These are NOT garbage collected (stack-allocated):
+I do not collect these (they are stack-allocated):
 
 | Type | Description | Lifetime |
 |------|-------------|----------|
@@ -85,24 +85,24 @@ These are NOT garbage collected (stack-allocated):
 
 ---
 
-## Garbage Collector Details
+## My Garbage Collector Details
 
 ### Algorithm: Reference Counting + Cycle Detection
 
-**Primary Mechanism**: Reference counting
-- Each object has a reference count
-- Count incremented on assignment/copy
-- Count decremented when reference goes out of scope
-- Object freed when count reaches zero
+My Primary Mechanism is reference counting.
+- I give each object a reference count.
+- I increment the count on assignment or copy.
+- I decrement the count when a reference goes out of scope.
+- I free the object when its count reaches zero.
 
-**Secondary Mechanism**: Mark-and-sweep cycle collection
-- Runs periodically or on demand
-- Detects and collects circular references
-- Doesn't require stop-the-world pauses
+My Secondary Mechanism is mark-and-sweep cycle collection.
+- I run this periodically or when requested.
+- I detect and collect circular references.
+- I don't require stop-the-world pauses.
 
 ### GC Operations
 
-#### Automatic Operations
+#### My Automatic Operations
 
 ```nano
 fn example() -> int {
@@ -152,24 +152,24 @@ struct GCStats {
 
 ### ARC Wrapping for Opaque Types
 
-Opaque types (Regex, HashMap, etc.) from C modules are automatically managed via **ARC-style wrapping**. When a C function returns an opaque pointer, the runtime wraps it with a GC-tracked envelope that calls the appropriate cleanup function when the object is no longer referenced.
+I automatically manage opaque types from C modules using ARC-style wrapping. When a C function returns an opaque pointer, my runtime wraps it with a GC-tracked envelope. I call the appropriate cleanup function when the object is no longer referenced.
 
-- `gc_wrap_external(ptr, finalizer)` — Wraps a malloc'd pointer with a cleanup function
-- `gc_unwrap(ptr)` — Extracts the original pointer for passing back to C functions
+- `gc_wrap_external(ptr, finalizer)` - I wrap a malloc'd pointer with a cleanup function.
+- `gc_unwrap(ptr)` - I extract the original pointer for passing back to C functions.
 
-This happens transparently at call boundaries — user code never sees the wrapping.
+This happens transparently at call boundaries. You don't see the wrapping.
 
-**What's automatic:**
-- **HashMap** — `map_free` called automatically
-- **Regex** — `regex_free` called automatically
-- **Strings from modules** — `path_join`, `file_read`, etc. return GC-managed strings
+**What I handle automatically:**
+- **HashMap** - I call `map_free` automatically.
+- **Regex** - I call `regex_free` automatically.
+- **Strings from modules** - Functions like `path_join` or `file_read` return strings I manage.
 
-**What requires manual management:**
-- **Json** — Must call `json_free` manually. Json is excluded from ARC because functions like `get` and `get_index` return *borrowed references* into the parent object, which ARC cannot distinguish from owned allocations.
+**What you manage manually:**
+- **Json** - You must call `json_free` manually. I exclude Json from ARC because functions like `get` and `get_index` return borrowed references into the parent object. I cannot distinguish these from owned allocations.
 
 ### Scope-Based Cleanup (Compiled Mode)
 
-In compiled mode, the transpiler tracks opaque variables and generates `gc_release()` calls at the end of each block scope:
+In my compiled mode, I track opaque variables and generate `gc_release()` calls at the end of each block scope:
 
 ```nano
 fn example() -> void {
@@ -179,16 +179,16 @@ fn example() -> void {
 }
 ```
 
-This ensures opaque types created in loops and blocks are properly released without manual intervention.
+I ensure that opaque types created in loops and blocks are released without your intervention.
 
-### When Does Collection Happen?
+### When I Collect
 
-1. **Reference count reaches zero** - Immediate
-2. **Explicit gc_collect_cycles()** - On demand
-3. **Heap threshold reached** - Automatic (configurable)
-4. **Program exit** - All remaining objects freed
+1. My reference count reaches zero. This is immediate.
+2. You call `gc_collect_cycles()` explicitly.
+3. My heap threshold is reached. This is automatic.
+4. My program exits. I free all remaining objects.
 
-### Tuning GC Behavior
+### Tuning My GC Behavior
 
 Set environment variables:
 
@@ -221,15 +221,15 @@ fn compute() -> int {
 ```
 
 **Benefits:**
-- ✅ Extremely fast (just stack pointer adjustment)
-- ✅ No GC overhead
-- ✅ Deterministic cleanup
-- ✅ Cache-friendly
+- Extremely fast. I only adjust the stack pointer.
+- No GC overhead.
+- Deterministic cleanup.
+- Cache-friendly.
 
 **Limitations:**
-- ❌ Limited lifetime (function scope only)
-- ❌ Can't return references to local variables
-- ❌ Stack size limited (~8MB typical)
+- Limited lifetime. Restricted to function scope.
+- I can't return references to local variables.
+- Stack size is limited (typically ~8MB).
 
 ### Heap Allocation (Flexible)
 
@@ -250,14 +250,14 @@ fn main() -> int {
 ```
 
 **Benefits:**
-- ✅ Flexible lifetime (survives function return)
-- ✅ Can grow dynamically
-- ✅ Shared across functions
+- Flexible lifetime. Survives function return.
+- I grow these dynamically.
+- Shared across functions.
 
 **Costs:**
-- ⚠️ Allocation overhead
-- ⚠️ GC overhead (reference counting)
-- ⚠️ Less cache-friendly
+- Allocation overhead.
+- GC overhead from reference counting.
+- Less cache-friendly.
 
 ---
 
@@ -325,11 +325,12 @@ fn example() -> void {
 | GC release | ~10ns | Decrement + check |
 | GC cycle collection | ~1-10ms | Periodic (depends on heap size) |
 
-### Optimization Tips
+### My Optimization Tips
 
 #### 1. Prefer Stack Allocation
 
-✅ **Good** (stack):
+I prefer stack allocation for speed:
+
 ```nano
 fn process(x: int, y: int) -> int {
     let result: int = (+ x y)
@@ -337,7 +338,8 @@ fn process(x: int, y: int) -> int {
 }
 ```
 
-❌ **Avoid** (unnecessary heap):
+Avoid unnecessary heap allocation:
+
 ```nano
 fn process(x: int, y: int) -> array<int> {
     return [x, y]  # Heap allocation for 2 ints!
@@ -346,7 +348,8 @@ fn process(x: int, y: int) -> array<int> {
 
 #### 2. Avoid Excessive String Concatenation
 
-❌ **Slow** (N allocations):
+This is slow because I must allocate each time:
+
 ```nano
 fn build_string(n: int) -> string {
     let mut s: string = ""
@@ -359,7 +362,8 @@ fn build_string(n: int) -> string {
 }
 ```
 
-✅ **Fast** (use StringBuilder - future):
+Use my StringBuilder API instead (this is a future feature):
+
 ```nano
 # Future: StringBuilder API
 fn build_string(n: int) -> string {
@@ -373,9 +377,10 @@ fn build_string(n: int) -> string {
 }
 ```
 
-#### 3. Reuse Arrays
+#### 3. Reuse My Arrays
 
-✅ **Good** (reuse):
+I recommend reusing arrays where possible:
+
 ```nano
 fn process_batches(data: array<int>) -> void {
     # Process in place - no new allocations
@@ -388,7 +393,8 @@ fn process_batches(data: array<int>) -> void {
 }
 ```
 
-❌ **Avoid** (new array each iteration):
+Avoid creating a new array in each iteration:
+
 ```nano
 fn process_batches(data: array<int>) -> void {
     let mut i: int = 0
@@ -406,8 +412,10 @@ fn process_batches(data: array<int>) -> void {
 
 ### 1. Minimize Heap Allocations in Hot Loops
 
+I suggest allocating outside the loop:
+
 ```nano
-# ✅ Good: allocation outside loop
+# Good: allocation outside loop
 fn process_data(n: int) -> void {
     let buffer: array<int> = (array_new 1000 0)
     
@@ -419,7 +427,7 @@ fn process_data(n: int) -> void {
     }
 }
 
-# ❌ Bad: allocation inside loop
+# Bad: allocation inside loop
 fn process_data(n: int) -> void {
     let mut i: int = 0
     while (< i n) {
@@ -429,39 +437,34 @@ fn process_data(n: int) -> void {
 }
 ```
 
-### 2. Be Aware of Hidden Allocations
+### 2. Be Aware of My Hidden Allocations
 
-```nano
-# String concatenation allocates
-let s: string = (str_concat "hello" "world")  # New allocation
-
-# Array literals allocate
-let arr: array<int> = [1, 2, 3]  # Heap allocation
-
-# Struct construction may allocate (if > 128 bytes)
-let p: BigStruct = BigStruct { ... }  # Heap if large
-```
+- My string concatenation allocates.
+- My array literals allocate.
+- My struct construction may allocate if the struct is larger than 128 bytes.
 
 ### 3. Use Primitives When Possible
 
+I prefer stack-allocated integers over heap-allocated arrays:
+
 ```nano
-# ✅ Prefer this (stack-allocated)
+# I prefer this (stack-allocated)
 fn calculate(x: int, y: int) -> int {
     return (+ x y)
 }
 
-# ❌ Not this (heap-allocated)
+# Not this (heap-allocated)
 fn calculate(coords: array<int>) -> int {
     return (+ (at coords 0) (at coords 1))
 }
 ```
 
-### 4. Don't Worry About Cycles (Usually)
+### 4. Don't Worry About Cycles
 
-The GC handles cycles automatically:
+I handle cycles automatically. This is fine:
 
 ```nano
-# This is fine - GC will detect and collect the cycle
+# I will detect and collect this cycle
 struct Node {
     value: int,
     next: Option<Node>  # Can form cycle
@@ -471,10 +474,10 @@ struct Node {
 ### 5. Profile Before Optimizing
 
 ```bash
-# Run with GC stats
+# Run with my GC stats enabled
 NANO_GC_DEBUG=1 ./myprogram
 
-# Check memory usage
+# Check my memory usage
 time ./myprogram
 ```
 
@@ -484,37 +487,35 @@ time ./myprogram
 
 ### Memory Leaks
 
-**Symptom**: Memory usage keeps growing
+If you notice memory usage growing, you can debug it this way:
 
-**Debug:**
 ```nano
 fn main() -> int {
-    # Enable GC stats
+    # Enable my GC stats
     (gc_print_stats)
     
     # Run your code
     (my_function)
     
-    # Force collection
+    # Force my collection
     (gc_collect_cycles)
     
-    # Check stats again
+    # Check my stats again
     (gc_print_stats)
     
     return 0
 }
 ```
 
-**Common Causes**:
-1. Circular references (should be collected automatically)
-2. Global variables (never freed)
-3. C FFI memory not freed (manual management required)
+Common causes:
+1. Circular references (I should collect these automatically).
+2. Global variables. I never free these.
+3. C FFI memory that was not freed. This requires your manual management.
 
 ### Memory Corruption
 
-**Symptom**: Segfaults, random crashes
+If I crash with a segfault or other random error, try these:
 
-**Debug:**
 ```bash
 # Run with valgrind
 valgrind --leak-check=full ./myprogram
@@ -524,10 +525,10 @@ valgrind --leak-check=full ./myprogram
 ./myprogram
 ```
 
-**Common Causes**:
-1. Unsafe FFI calls
-2. Array out-of-bounds (should be caught)
-3. Use-after-free (shouldn't happen with GC)
+Common causes:
+1. Unsafe FFI calls.
+2. Array out-of-bounds access. I should catch these.
+3. Use-after-free. This shouldn't happen with my GC.
 
 ---
 
@@ -535,7 +536,7 @@ valgrind --leak-check=full ./myprogram
 
 ### Affine Types (Resource Management)
 
-For resources that MUST be freed exactly once:
+For resources that you must free exactly once:
 
 ```nano
 affine type FileHandle
@@ -549,11 +550,11 @@ fn close_file(handle: FileHandle) -> void {
 }
 ```
 
-See [AFFINE_TYPES_GUIDE.md](AFFINE_TYPES_GUIDE.md) for details.
+I explain this in [AFFINE_TYPES_GUIDE.md](AFFINE_TYPES_GUIDE.md).
 
 ### Manual Memory Management (FFI)
 
-When calling C code that allocates:
+When you call C code that allocates:
 
 ```nano
 # C function that allocates
@@ -567,11 +568,11 @@ fn example() -> void {
     
     # Use ptr...
     
-    (c_free ptr)  # MUST call manually - GC doesn't track this!
+    (c_free ptr)  # You must call this. I don't track it.
 }
 ```
 
-### GC API Reference
+### My GC API Reference
 
 ```nano
 # Force cycle collection
@@ -596,7 +597,7 @@ extern fn gc_is_managed(ptr: opaque) -> bool
 
 - [AFFINE_TYPES_GUIDE.md](AFFINE_TYPES_GUIDE.md) - Resource management
 - [EXTERN_FFI.md](EXTERN_FFI.md) - C interop and manual memory
-- [SPECIFICATION.md](SPECIFICATION.md) - Language specification
+- [SPECIFICATION.md](SPECIFICATION.md) - My language specification
 - [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - Debugging techniques
 
 ---

@@ -1,30 +1,30 @@
-# LLM / Agent-Only Compiler Flags
+# My LLM / Agent-Only Compiler Flags
 
-NanoLang is an LLM-first language, so `nanoc` supports (and will continue to grow) a small set of **agent-focused** debugging and tracing affordances.
+I am an LLM-first language. My compiler, `nanoc`, supports a set of agent-focused debugging and tracing affordances. I will continue to expand these as I grow.
 
 ## Stable user-facing flags (today)
 
-- **`-v`, `--verbose`**: More verbose compiler output (phase prints, extra debug artifacts).
-- **`-k`, `--keep-c`**: Keep the generated C output.
-- **`-fshow-intermediate-code`**: Print generated C to stdout.
-- **`-h`, `--help`**: Help.
+- **`-v`, `--verbose`**: I provide more verbose output, including phase prints and extra debug artifacts.
+- **`-k`, `--keep-c`**: I keep the C code I generate.
+- **`-fshow-intermediate-code`**: I print the generated C code to stdout.
+- **`-h`, `--help`**: I show my help menu.
 
 ## Always-on debug artifacts (today)
 
-- **`/tmp/merged_debug.nano`**: The compiler may write the merged import graph as a single file for inspection. This is especially useful for mapping diagnostics that currently report merged line numbers.
+- **`/tmp/merged_debug.nano`**: I may write my merged import graph as a single file. You can use this to inspect how I map diagnostics that report merged line numbers.
 
 ## Reserved namespace for agent-only flags
 
-Flags prefixed with **`--llm-`** are reserved for automated agents and may change quickly.
+I reserve flags prefixed with **`--llm-`** for automated agents. These flags may change quickly as I evolve.
 
 ### Implemented
 
-- **`--llm-diags-json <path>`**: Emit machine-readable diagnostics as JSON (best-effort; does not fail compilation if the file cannot be written).
-- **`--llm-diags-toon <path>`**: Emit diagnostics in TOON format (~40% fewer tokens than JSON). See https://toonformat.dev/
-- **`--llm-shadow-json <path>`**: Emit a machine-readable summary of shadow-test failures as JSON (best-effort).
+- **`--llm-diags-json <path>`**: I emit machine-readable diagnostics as JSON. This is a best-effort operation. I do not fail compilation if I cannot write the file.
+- **`--llm-diags-toon <path>`**: I emit diagnostics in TOON format. This uses about 40% fewer tokens than JSON. See https://toonformat.dev/
+- **`--llm-shadow-json <path>`**: I emit a machine-readable summary of shadow-test failures as JSON. This is a best-effort operation.
 
 Schema (stable keys):
-- `tool`: `"nanoc_c"` or `"nanoc"` (self-hosted)
+- `tool`: `"nanoc_c"` or `"nanoc"` (my self-hosted version)
 - `success`: boolean
 - `exit_code`: int
 - `input_file`: string
@@ -45,18 +45,18 @@ Shadow-test schema (stable keys):
 
 ### Planned / expected
 
-Flags in this namespace (implement incrementally as needed):
+I will implement these flags incrementally as I need them:
 
-- **`--llm-dump-merged <path>`**: Control where the merged program is written (instead of a fixed `/tmp/...` path).
-- **`--llm-dump-ast-json <path>`**: Emit the parsed AST as JSON (debugging parser/typechecker issues).
-- **`--llm-dump-plan-json <path>`**: Emit internal compilation plan / phase outputs as JSON.
-- **`--llm-trace <topic>`**: Enable targeted trace streams (e.g. `imports`, `typecheck`, `transpile`) intended for automated consumption.
+- **`--llm-dump-merged <path>`**: I will allow you to control where I write the merged program, instead of using a fixed path.
+- **`--llm-dump-ast-json <path>`**: I will emit my parsed AST as JSON for debugging parser or typechecker issues.
+- **`--llm-dump-plan-json <path>`**: I will emit my internal compilation plan and phase outputs as JSON.
+- **`--llm-trace <topic>`**: I will enable targeted trace streams for topics like `imports`, `typecheck`, or `transpile`. These are intended for automated consumption.
 
 ## Design rule
 
-When adding a new agent-only flag:
+When I add a new agent-only flag, I follow these principles:
 
-- Prefer **machine-readable output** (JSON) over human-only text.
-- Keep outputs **deterministic** (stable ordering, stable keys).
-- Ensure outputs can be used to **auto-file beads** (fingerprintable + actionable).
+- I prefer machine-readable output like JSON over text meant only for humans.
+- I keep my outputs deterministic with stable ordering and keys.
+- I ensure my outputs can be used to auto-file beads. They are fingerprintable and actionable.
 

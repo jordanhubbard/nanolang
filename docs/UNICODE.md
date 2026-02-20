@@ -1,31 +1,31 @@
-# Unicode Support in NanoLang
+# How I Handle Unicode
 
 ## Overview
 
-NanoLang provides **UTF-8 string support** through two complementary string types:
-- **`string`** - C-compatible UTF-8 strings (null-terminated `char*`)
-- **`bstring`** - Binary strings with explicit length (UTF-8 aware)
+I provide UTF-8 string support through two complementary string types. I don't try to hide the underlying byte representation from you.
+- **`string`** - C-compatible UTF-8 strings. These are null-terminated `char*` pointers.
+- **`bstring`** - Binary strings with explicit length. I use these when I need to be UTF-8 aware or handle binary data.
 
-This document explains what Unicode features are supported, limitations, and best practices for working with international text.
+This document explains what Unicode features I support, where I have limitations, and how I expect you to work with international text.
 
 ## Quick Summary
 
 | Feature | `string` | `bstring` | Notes |
 |---------|----------|-----------|-------|
-| **UTF-8 Storage** | ✅ Yes | ✅ Yes | Both store UTF-8 bytes |
-| **Null-terminated** | ✅ Yes | ❌ No | `string` is C-compatible |
-| **Embedded Nulls** | ❌ No | ✅ Yes | `bstring` allows `\0` in data |
-| **Length = Bytes** | ✅ Yes | ✅ Yes | Both count bytes, not characters |
-| **Character Operations** | ❌ Limited | ✅ Better | `bstring` has UTF-8 helpers |
-| **FFI Compatible** | ✅ Yes | ⚠️ Conversion | `string` works directly with C |
-| **Normalization** | ❌ No | ❌ No | Not supported |
-| **Grapheme Clusters** | ❌ No | ❌ No | Not supported |
+| **UTF-8 Storage** | Yes | Yes | Both store UTF-8 bytes |
+| **Null-terminated** | Yes | No | `string` is C-compatible |
+| **Embedded Nulls** | No | Yes | `bstring` allows `\0` in data |
+| **Length = Bytes** | Yes | Yes | Both count bytes, not characters |
+| **Character Operations** | Limited | Better | `bstring` has UTF-8 helpers |
+| **FFI Compatible** | Yes | Partial | `string` works directly with C |
+| **Normalization** | No | No | I do not support this |
+| **Grapheme Clusters** | No | No | I do not support this |
 
-## String Type (`string`)
+## My String Type (`string`)
 
 ### What is `string`?
 
-The `string` type is a **null-terminated C string** (`char*`) that stores UTF-8 encoded text.
+My `string` type is a null-terminated C string (`char*`). I use it to store UTF-8 encoded text.
 
 ```nano
 let message: string = "Hello, 世界!"  # UTF-8 bytes stored
@@ -34,19 +34,19 @@ let emoji: string = "Hello 👋"       # Multi-byte emoji supported
 
 ### Capabilities
 
-✅ **Supported:**
-- Store UTF-8 text (any valid UTF-8 byte sequence)
-- Pass to C FFI functions directly
-- Concatenation (`str_concat`)
-- Comparison (`str_equals`)
-- Length in bytes (`str_length`)
-- Substring by byte index (`str_substring`)
+**What I support:**
+- Storing UTF-8 text as a sequence of bytes.
+- Passing strings to C FFI functions directly.
+- Concatenation through `str_concat`.
+- Comparison through `str_equals`.
+- Byte-length retrieval through `str_length`.
+- Substring creation by byte index through `str_substring`.
 
-❌ **Not Supported:**
-- Embedded null bytes (`\0` terminates the string)
-- Character count (only byte count via `str_length`)
-- Unicode normalization
-- Grapheme cluster operations
+**What I do not support:**
+- Embedded null bytes. A `\0` byte terminates the string.
+- Character counting. I only count bytes in `str_length`.
+- Unicode normalization.
+- Grapheme cluster operations.
 
 ### Example
 
@@ -65,22 +65,22 @@ shadow greet {
 }
 ```
 
-### When to Use `string`
+### When to use `string`
 
-Use `string` when:
-- Interfacing with C libraries (FFI)
-- Simple text that doesn't need character-level operations
-- No embedded null bytes needed
-- Maximum C compatibility required
+I recommend using `string` when you:
+- Interface with C libraries.
+- Work with simple text that doesn't need character-level operations.
+- Do not need embedded null bytes.
+- Require maximum C compatibility.
 
-## Binary String Type (`bstring`)
+## My Binary String Type (`bstring`)
 
 ### What is `bstring`?
 
-The `bstring` type is a **length-explicit string** (`nl_string_t*`) that:
-- Stores length separately (not null-terminated)
-- Allows embedded null bytes
-- Provides UTF-8 validation and character counting
+I use the `bstring` type (`nl_string_t*`) when I need more control.
+- I store the length separately, so I don't rely on null termination.
+- I allow embedded null bytes.
+- I provide UTF-8 validation and character counting.
 
 ```nano
 let data: bstring = (bstr_new "Hello, 世界!")
@@ -90,20 +90,20 @@ let chars: int = (bstr_utf8_length data)  # Character count
 
 ### Capabilities
 
-✅ **Supported:**
-- Store binary data (embedded null bytes)
-- UTF-8 validation (`bstr_validate_utf8`)
-- Character count (`bstr_utf8_length`)
-- Length in bytes (`bstr_length`)
-- Substring by byte index (`bstr_substring`)
-- Byte access (`bstr_byte_at`)
-- Convert to/from `string` (`bstr_to_cstr`, `bstr_new`)
+**What I support:**
+- Storing binary data with embedded null bytes.
+- UTF-8 validation through `bstr_validate_utf8`.
+- Character counting through `bstr_utf8_length`.
+- Byte-length retrieval through `bstr_length`.
+- Substring creation by byte index through `bstr_substring`.
+- Byte access through `bstr_byte_at`.
+- Conversion to and from `string` using `bstr_to_cstr` and `bstr_new`.
 
-❌ **Not Supported:**
-- Direct FFI use (must convert to `string`)
-- Unicode normalization
-- Grapheme cluster operations
-- Character-indexed substring
+**What I do not support:**
+- Direct FFI use. You must convert to `string` first.
+- Unicode normalization.
+- Grapheme cluster operations.
+- Character-indexed substring operations.
 
 ### Example
 
@@ -133,19 +133,19 @@ shadow analyze_text {
 }
 ```
 
-### When to Use `bstring`
+### When to use `bstring`
 
-Use `bstring` when:
-- Need to count characters (not just bytes)
-- Working with binary data or embedded nulls
-- Need UTF-8 validation
-- Don't need direct C FFI
+I recommend using `bstring` when you:
+- Need to count characters rather than just bytes.
+- Work with binary data or embedded nulls.
+- Need to validate UTF-8 sequences.
+- Do not need direct C FFI compatibility.
 
-## Byte vs Character Operations
+## Bytes and Character Operations
 
-### Important: Indexing is BYTE-BASED
+### Indexing is byte-based
 
-Both `string` and `bstring` use **byte indices**, not character indices:
+I use byte indices for both `string` and `bstring`. I do not use character indices.
 
 ```nano
 fn demonstrate_byte_indexing() -> void {
@@ -167,9 +167,9 @@ shadow demonstrate_byte_indexing {
 }
 ```
 
-### Character Counting
+### Character counting
 
-To count characters (not bytes), use `bstr_utf8_length`:
+If you want to count characters, use my `bstr_utf8_length` function.
 
 ```nano
 fn count_characters(text: string) -> int {
@@ -186,31 +186,17 @@ shadow count_characters {
 
 ## Unicode Limitations
 
-### ❌ Not Supported
+### What I do not support
 
-NanoLang does **NOT** support:
+I am honest about what I cannot do. I do not support:
 
-1. **Unicode Normalization** (NFC, NFD, NFKC, NFKD)
-   - "é" as one character vs "e" + combining accent are treated differently
-   - No automatic normalization
+1. **Unicode Normalization** (NFC, NFD, NFKC, NFKD). I treat "é" as one character and "e" with a combining accent as two different byte sequences. I do not perform automatic normalization.
+2. **Grapheme Cluster Operations**. A family emoji like "👨‍👩‍👧‍👦" consists of multiple codepoints. My `bstr_utf8_length` function counts these codepoints. It does not count grapheme clusters as a single unit.
+3. **Character-indexed Substrings**. All my substring operations use byte indices. You must calculate byte offsets yourself if you work with multi-byte characters.
+4. **Unicode Case Folding**. My `char_to_upper` and `char_to_lower` functions only work for ASCII characters. I do not support Turkish İ or German ß.
+5. **Bidirectional Text (BiDi)**. I do not support right-to-left languages like Arabic or Hebrew. I render text exactly as it is stored.
 
-2. **Grapheme Cluster Operations**
-   - "👨‍👩‍👧‍👦" (family emoji) is multiple codepoints, not one character
-   - `bstr_utf8_length` counts codepoints, not grapheme clusters
-
-3. **Character-Index Substring**
-   - All substring operations use byte indices
-   - Must manually calculate byte offsets for multi-byte characters
-
-4. **Unicode Case Folding**
-   - `char_to_upper`/`char_to_lower` only work for ASCII
-   - No support for Turkish İ, German ß, etc.
-
-5. **Bidirectional Text (BiDi)**
-   - No support for right-to-left languages like Arabic/Hebrew
-   - Text is rendered as-is
-
-### Example of Limitations
+### Examples of my limitations
 
 ```nano
 fn demonstrate_limitations() -> void {
@@ -234,22 +220,22 @@ shadow demonstrate_limitations {
 
 ## Best Practices
 
-### 1. Use `bstring` for Character Counting
+### 1. Use `bstring` for character counting
 
 ```nano
-# ✅ Good - accurate character count
+# I recommend this for accurate character counts.
 fn count_visual_length(text: string) -> int {
     let bs: bstring = (bstr_new text)
     return (bstr_utf8_length bs)
 }
 
-# ❌ Bad - counts bytes, not characters
+# I do not recommend this. It counts bytes, not characters.
 fn count_visual_length_wrong(text: string) -> int {
     return (str_length text)  # Wrong for multi-byte characters!
 }
 ```
 
-### 2. Validate UTF-8 Input
+### 2. Validate UTF-8 input
 
 ```nano
 fn safe_process(text: string) -> bool {
@@ -268,10 +254,10 @@ shadow safe_process {
 }
 ```
 
-### 3. Be Careful with Byte Indexing
+### 3. Be careful with byte indexing
 
 ```nano
-# ✅ Good - process entire string
+# This is safe because it processes the entire string.
 fn uppercase_ascii(text: string) -> string {
     let mut result: string = ""
     let len: int = (str_length text)
@@ -288,53 +274,51 @@ fn uppercase_ascii(text: string) -> string {
     return result
 }
 
-# ❌ Bad - substring at arbitrary byte index may split multi-byte character!
+# This is dangerous. Substring at an arbitrary byte index might split a character.
 fn bad_substring(text: string, start: int, end: int) -> string {
-    # If start/end are in the middle of a multi-byte character, this breaks!
     return (str_substring text start end)
 }
 ```
 
-### 4. Use `string` for FFI, Convert as Needed
+### 4. Use `string` for FFI and convert when necessary
 
 ```nano
-# FFI function expects C string
+# My FFI functions expect C strings.
 extern fn write_file(path: string, content: string) -> int
 
 fn save_data(path: string, data: bstring) -> int {
-    # Convert bstring to string for FFI
+    # I convert bstring to string for FFI calls.
     let content: string = (bstr_to_cstr data)
     return (write_file path content)
 }
 
 shadow save_data {
     let data: bstring = (bstr_new "Hello")
-    # Test would need file system access - simplified
     assert true
 }
 ```
 
 ## Common Scenarios
 
-### Working with Emoji
+### Working with emoji
 
 ```nano
 fn count_emoji(text: string) -> int {
-    # Note: This counts codepoints, not "emoji as user sees them"
+    # I count codepoints here, not visual characters.
     let bs: bstring = (bstr_new text)
     return (bstr_utf8_length bs)
 }
 
 shadow count_emoji {
-    # Simple emoji: 1 codepoint = 1 counted
+    # Simple emoji: 1 codepoint
     assert (== (count_emoji "😀") 1)
     
-    # Skin tone modifier: 2 codepoints = 2 counted
+    # Skin tone modifier: 2 codepoints
     assert (== (count_emoji "👋🏽") 2)  # Wave + skin tone
     
     # Combined emoji: multiple codepoints
     let family_count: int = (count_emoji "👨‍👩‍👧‍👦")
-    # family_count is 7, not 1!
+    # I count 7 codepoints here, not 1.
 }
 ```
 
@@ -347,7 +331,7 @@ fn greet_multilingual(lang: string, name: string) -> string {
     } else if (str_equals lang "zh") {
         return (str_concat "你好，" name)
     } else if (str_equals lang "ar") {
-        return (str_concat "مرحبا، " name)  # No BiDi support
+        return (str_concat "مرحبا، " name)  # I do not support BiDi
     } else {
         return (str_concat "Hi, " name)
     }
@@ -361,27 +345,28 @@ shadow greet_multilingual {
 
 ## Summary
 
-| Task | Recommended Approach |
-|------|----------------------|
-| Store UTF-8 text | `string` (simple) or `bstring` (advanced) |
-| Count characters | `bstr_utf8_length` |
-| Count bytes | `str_length` or `bstr_length` |
-| Substring by bytes | `str_substring` or `bstr_substring` |
-| FFI with C libraries | Use `string`, convert from `bstring` if needed |
-| Validate UTF-8 | `bstr_validate_utf8` |
-| Embedded nulls | Use `bstring` |
-| Case conversion | ASCII only (`char_to_upper`/`char_to_lower`) |
-| Normalization | Not supported - handle externally |
-| Grapheme clusters | Not supported - counts codepoints |
+| Task | My Recommended Approach |
+|------|-------------------------|
+| Store UTF-8 text | Use `string` for simplicity or `bstring` for advanced needs |
+| Count characters | Use `bstr_utf8_length` |
+| Count bytes | Use `str_length` or `bstr_length` |
+| Create substring by bytes | Use `str_substring` or `bstr_substring` |
+| Use C libraries (FFI) | Use `string`. Convert from `bstring` if needed |
+| Validate UTF-8 | Use `bstr_validate_utf8` |
+| Handle embedded nulls | Use `bstring` |
+| Case conversion | ASCII only using `char_to_upper` or `char_to_lower` |
+| Normalization | I do not support this. Handle it externally |
+| Grapheme clusters | I do not support this. I count codepoints |
 
 ## See Also
 
-- **[Standard Library](STDLIB.md)** - Complete list of string/bstring functions
-- **[Type System](SPECIFICATION.md#3-types)** - Type definitions
-- **[Memory Management](MEMORY_MANAGEMENT.md)** - String memory handling
-- **[FFI Guide](EXTERN_FFI.md)** - Using strings with C libraries
+- **[Standard Library](STDLIB.md)** - My string and bstring functions.
+- **[Type System](SPECIFICATION.md#3-types)** - My type definitions.
+- **[Memory Management](MEMORY_MANAGEMENT.md)** - How I handle string memory.
+- **[FFI Guide](EXTERN_FFI.md)** - How I use strings with C libraries.
 
 ---
 
-**Last Updated:** January 25, 2026  
-**Status:** `string` and `bstring` fully implemented and documented
+**Last Updated:** February 20, 2026  
+**Status:** I have fully implemented and documented `string` and `bstring`.
+

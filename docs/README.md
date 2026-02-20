@@ -1,34 +1,34 @@
-# Nanolang Documentation
+# My Documentation
 
-Welcome to the nanolang documentation! This guide will help you navigate all available resources.
+I organize my documentation to help you understand my structure, my syntax, and my proofs. I describe what I am and how I function. I do not use marketing language.
 
-## 📚 Table of Contents
+## Table of Contents
 
-### 🚀 Getting Started (Start Here!)
+### Getting Started
 
-Perfect for newcomers to nanolang:
+I recommend starting here if you are new to my environment:
 
-1. **[Getting Started Guide](GETTING_STARTED.md)** - Your first steps with nanolang
+1. **[Getting Started Guide](GETTING_STARTED.md)** - My first steps
    - Installation and setup
    - Your first program
-   - Core concepts explained
+   - My core concepts
    - Common patterns and mistakes
 
-2. **[Quick Reference](QUICK_REFERENCE.md)** - Handy syntax cheat sheet
-   - All operators at a glance
-   - Type system overview
+2. **[Quick Reference](QUICK_REFERENCE.md)** - Syntax cheat sheet
+   - My operators at a glance
+   - My type system
    - Common patterns
    - Quick examples
 
-3. **[Examples Directory](../examples/README.md)** - Learn by example
-   - 70+ example programs
+3. **[Examples Directory](../examples/README.md)** - Learning by example
+   - 70+ programs I can run
    - From "hello world" to games
    - Progressive complexity
-   - All with shadow-tests
+   - All with shadow tests
 
-### 📖 Language Reference
+### Language Reference
 
-Complete language documentation:
+The details of my design:
 
 4. **[Language Specification](SPECIFICATION.md)** - Complete language reference
    - Formal syntax and semantics
@@ -36,37 +36,37 @@ Complete language documentation:
    - Standard library reference
    - Compilation model
 
-5. **[Features Guide](FEATURES.md)** - Feature-by-feature breakdown
+5. **[Features Guide](FEATURES.md)** - My features
    - Data structures (structs, enums, unions, tuples)
    - Generics and type parameters
    - First-class functions
    - Module system
 
 5.5. **Type System Deep Dives**
-   - [Type Inference Rules](TYPE_INFERENCE.md) - What can/cannot be inferred
-   - [Generics Deep Dive](GENERICS_DEEP_DIVE.md) - Monomorphization explained
-   - [Error Messages Guide](ERROR_MESSAGES.md) - Understanding compiler errors
+   - [Type Inference Rules](TYPE_INFERENCE.md) - What I can and cannot infer
+   - [Generics Deep Dive](GENERICS_DEEP_DIVE.md) - How I handle monomorphization
+   - [Error Messages Guide](ERROR_MESSAGES.md) - How to read my compiler errors
 
-5.6. **Strings & Text**
+5.6. **Strings and Text**
    - [Unicode Support](UNICODE.md) - UTF-8, string vs bstring, limitations
 
 5.7. **Performance**
    - [Performance Characteristics](PERFORMANCE.md) - Speed, memory, optimization
 
-5.8. **Arrays & Memory**
+5.8. **Arrays and Memory**
    - [Array Safety](ARRAY_SAFETY.md)
    - [Dynamic Arrays](DYNAMIC_ARRAYS.md)
    - [Memory Management](MEMORY_MANAGEMENT.md)
 
-6. **[Standard Library](STDLIB.md)** - Built-in functions
+6. **[Standard Library](STDLIB.md)** - My built-in functions
 
-### 🧪 Testing & Quality
+### Testing and Quality
 
-Understanding nanolang's testing philosophy:
+My philosophy on honesty and verification:
 
 7. **[Shadow Tests](SHADOW_TESTS.md)** - Mandatory compile-time testing
-   - What are shadow-tests?
-   - Why they're mandatory
+   - What shadow tests are
+   - Why I require them
    - Writing good tests
    - Best practices
 
@@ -76,37 +76,37 @@ Understanding nanolang's testing philosophy:
    - Interpreting results
    - [Coverage Status](COVERAGE_STATUS.md)
 
-9. **[Feature Coverage](../tests/FEATURE_COVERAGE.md)** - Test suite overview
+9. **[Feature Coverage](../tests/FEATURE_COVERAGE.md)** - My test suite
 
-### 🏗️ Architecture & Design
+### Architecture and Design
 
-For contributors and language designers:
+How I am built:
 
-10. **[NanoISA Virtual Machine](NANOISA.md)** - Complete VM backend
+10. **[NanoISA Virtual Machine](NANOISA.md)** - My VM backend
     - 178-opcode stack machine ISA
     - .nvm binary format specification
     - Co-process FFI isolation protocol
     - VM daemon for distributed execution
-    - Trap model (pure-compute core + I/O handlers)
+    - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
-10.5. **[Formal Verification](../formal/README.md)** - Mechanized proofs in Coq
-    - Type soundness (preservation + progress)
+10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
+    - Type soundness (preservation and progress)
     - Determinism of evaluation
     - Big-step / small-step semantic equivalence
     - Computable reference interpreter with soundness proof
-    - ~6,170 lines of Coq, 193 theorems, 0 axioms
+    - 6,170 lines of Coq, 193 theorems, 0 axioms
 
-11. **Design + implementation notes**
-    - Maintainer-facing design docs live in [planning/](../planning/)
+11. **Design and implementation notes**
+    - Notes for those maintaining me live in [planning/](../planning/)
 
-12. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - Design philosophy
-    - Why prefix notation for function calls? Why dual notation for operators?
-    - LLM-friendly design
-    - Comparison to other languages
-    - Design trade-offs
+12. **[Language Design Review](LANGUAGE_DESIGN_REVIEW.md)** - My design philosophy
+    - Why I use prefix notation for calls and dual notation for operators
+    - My LLM-friendly design
+    - How I compare to other languages
+    - My design trade-offs
 
-### 🔧 Advanced Topics
+### Advanced Topics
 
 For experienced users:
 
@@ -123,25 +123,25 @@ For experienced users:
     - Troubleshooting platform issues
     - Known limitations
 
-14. **[Extern FFI](EXTERN_FFI.md)** - Calling C functions from nanolang
+14. **[Extern FFI](EXTERN_FFI.md)** - Calling C functions from me
     - FFI safety guidelines
     - Common vulnerabilities and fixes
 
-15. **[Building Hybrid Apps](BUILDING_HYBRID_APPS.md)** - Combining nanolang with C
+15. **[Building Hybrid Apps](BUILDING_HYBRID_APPS.md)** - Combining me with C
 
-### 📊 Roadmap & Status
+### Roadmap and Status
 
-Project status and future plans:
+My status and plans:
 
 16. **[Roadmap](ROADMAP.md)** - Future development plans
-17. **[RFC Process](RFC_PROCESS.md)** - Language evolution process
+17. **[RFC Process](RFC_PROCESS.md)** - How I evolve
 18. **[Package Manager Design](PACKAGE_MANAGER_DESIGN.md)** - Package manager proposal
-19. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps tracked for LLM/implementation parity
-20. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - Path to self-hosting
+19. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps I track for parity
+20. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - My path to self-hosting
 
-### 🤝 Contributing
+### Contributing
 
-Help make nanolang better:
+How to help me:
 
 19. **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
     - Code contributions
@@ -149,24 +149,24 @@ Help make nanolang better:
     - Bug reports
     - Feature requests
 
-20. **[Contributors List](../CONTRIBUTORS.md)** - Thank you!
+20. **[Contributors List](../CONTRIBUTORS.md)** - Those who have helped me
 
-## 📋 Documentation by Topic
+## Documentation by Topic
 
 ### By Skill Level
 
-**🟢 Beginner (New to nanolang)**
+**I am new to you**
 - [Getting Started Guide](GETTING_STARTED.md)
 - [Quick Reference](QUICK_REFERENCE.md)
 - [Examples](../examples/README.md)
 
-**🟡 Intermediate (Know the basics)**
+**You know my basics**
 - [Language Specification](SPECIFICATION.md)
 - [Features Guide](FEATURES.md)
 - [Standard Library](STDLIB.md)
 - [Shadow Tests](SHADOW_TESTS.md)
 
-**🔴 Advanced (Deep understanding)**
+**You seek deep understanding**
 - [NanoISA Virtual Machine](NANOISA.md)
 - [Formal Verification](../formal/README.md)
 - [Planning / design notes](../planning/README.md)
@@ -176,50 +176,48 @@ Help make nanolang better:
 ### By Interest
 
 **I want to learn the language:**
-→ [Getting Started](GETTING_STARTED.md) → [Examples](../examples/README.md) → [Quick Reference](QUICK_REFERENCE.md)
+[Getting Started](GETTING_STARTED.md) -> [Examples](../examples/README.md) -> [Quick Reference](QUICK_REFERENCE.md)
 
 **I want to understand the design:**
-→ [Language Design Review](LANGUAGE_DESIGN_REVIEW.md) → [NanoISA VM](NANOISA.md) → [Formal Proofs](../formal/README.md) → [planning/](../planning/)
+[Language Design Review](LANGUAGE_DESIGN_REVIEW.md) -> [NanoISA VM](NANOISA.md) -> [Formal Proofs](../formal/README.md) -> [planning/](../planning/)
 
 **I want to contribute:**
-→ [Contributing Guide](CONTRIBUTING.md) → [planning/](../planning/) → [Roadmap](ROADMAP.md)
+[Contributing Guide](CONTRIBUTING.md) -> [planning/](../planning/) -> [Roadmap](ROADMAP.md)
 
 **I want to build something:**
-→ [Examples](../examples/README.md) → [Standard Library](STDLIB.md) → [Module System](MODULE_SYSTEM.md)
+[Examples](../examples/README.md) -> [Standard Library](STDLIB.md) -> [Module System](MODULE_SYSTEM.md)
 
 **I want to use C libraries:**
-→ [Extern FFI](EXTERN_FFI.md) → [Module System](MODULE_SYSTEM.md) → [Building Hybrid Apps](BUILDING_HYBRID_APPS.md)
+[Extern FFI](EXTERN_FFI.md) -> [Module System](MODULE_SYSTEM.md) -> [Building Hybrid Apps](BUILDING_HYBRID_APPS.md)
 
-**I'm having platform/compatibility issues:**
-→ [Platform Compatibility](PLATFORM_COMPATIBILITY.md) → [Module System](MODULE_SYSTEM.md)
+**I am having platform or compatibility issues:**
+[Platform Compatibility](PLATFORM_COMPATIBILITY.md) -> [Module System](MODULE_SYSTEM.md)
 
-## 🗂️ Planning Documents
+## Planning Documents
 
-Historical design documents and implementation plans are in the [planning/](../planning/) directory. These are primarily for maintainers and contributors interested in the project's evolution.
+I keep historical design documents and implementation plans in the [planning/](../planning/) directory. I intend these for those interested in how I have evolved.
 
-## 💡 Quick Links
+## Quick Links
 
-- 🏠 [Main README](../README.md)
-- 🐛 [Report a Bug](https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md)
-- 💡 [Request a Feature](https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md)
-- 🤝 [Discussions](https://github.com/jordanhubbard/nanolang/discussions)
+- [Main README](../README.md)
+- [Report a Bug](https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md)
+- [Discussions](https://github.com/jordanhubbard/nanolang/discussions)
 
-## 📝 Documentation Style Guide
+## My Documentation Style
 
-When contributing to documentation:
-- **Be concise** - Respect the reader's time
-- **Use examples** - Show, don't just tell
-- **Be clear** - Avoid jargon where possible
-- **Be accurate** - Keep docs in sync with code
-- **Be helpful** - Think about what readers need
+When you write documentation for me, follow these principles:
+- **Be concise.** Respect the reader's time.
+- **Use examples.** Show what I do.
+- **Be clear.** Avoid jargon.
+- **Be accurate.** Keep my docs in sync with my code.
+- **Be helpful.** Provide what is needed.
+- **Use my voice.** Speak as me, in the first person.
 
-## 🔍 Can't Find What You Need?
+## Search for Content
 
-- Check the [Quick Reference](QUICK_REFERENCE.md) for syntax questions
-- Browse the [Examples](../examples/README.md) for code patterns
-- Search the [Issues](https://github.com/jordanhubbard/nanolang/issues) for discussions
-- Ask in [Discussions](https://github.com/jordanhubbard/nanolang/discussions)
+- Check the [Quick Reference](QUICK_REFERENCE.md) for syntax questions.
+- Browse the [Examples](../examples/README.md) for code patterns.
+- Search the [Issues](https://github.com/jordanhubbard/nanolang/issues) for discussions.
+- Ask in [Discussions](https://github.com/jordanhubbard/nanolang/discussions).
 
----
-
-**Happy coding with nanolang!** 🚀

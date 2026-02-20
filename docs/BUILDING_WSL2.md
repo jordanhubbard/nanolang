@@ -1,6 +1,6 @@
-# Building NanoLang on WSL2
+# Building me on WSL2
 
-This guide covers building NanoLang on Windows Subsystem for Linux 2 (WSL2).
+I provide this guide for those building me on the Windows Subsystem for Linux 2 (WSL2).
 
 ## Quick Start
 
@@ -24,7 +24,7 @@ make modules
 
 ## Installing All Module Dependencies
 
-To build **all** modules and examples (including graphics, audio, and database modules), install these packages:
+To build all my modules and examples, including graphics, audio, and database modules, I require these packages:
 
 ```bash
 sudo apt-get install -y \
@@ -45,7 +45,7 @@ sudo apt-get install -y \
   libbullet-dev
 ```
 
-Then rebuild:
+After you install these, rebuild my components:
 
 ```bash
 make clean
@@ -55,7 +55,7 @@ make examples
 
 ## Minimal Build (No External Dependencies)
 
-If you don't need graphics, audio, or database modules, you can build just the core compiler and standard library modules:
+If you do not need graphics, audio, or database modules, you can build my core compiler and standard library modules alone.
 
 ```bash
 # Only need build essentials
@@ -73,25 +73,25 @@ make examples
 
 ## Validating Module Dependencies
 
-Use `make modules` to see which modules can be built with your current system packages:
+Use `make modules` to see which of my modules can be built with your current system packages:
 
 ```bash
 make modules
 ```
 
-This will:
+This command will:
 - Show which modules are available (✓)
 - Show which modules have missing dependencies (✗)
 - Provide installation commands for missing dependencies
 
 ## Graphics and Audio on WSL2
 
-WSL2 supports:
-- **X11 forwarding**: Set up an X server (like VcXsrv or X410) on Windows
+I support graphics and audio on WSL2 through:
+- **X11 forwarding**: Set up an X server like VcXsrv or X410 on Windows
 - **WSLg**: Built-in GUI support on Windows 11
 
-For graphics examples:
-1. Windows 11: WSLg is enabled by default
+For my graphics examples:
+1. Windows 11: WSLg is enabled by default.
 2. Windows 10: Install VcXsrv and set `DISPLAY`:
    ```bash
    export DISPLAY=:0
@@ -99,27 +99,27 @@ For graphics examples:
 
 ## Platform Differences
 
-NanoLang is fully cross-platform. The same code builds on:
+I am fully cross-platform. The same code builds on:
 - WSL2 (Ubuntu, Debian)
 - Native Linux (Ubuntu, Fedora, Arch, etc.)
 - macOS (via Homebrew)
 - FreeBSD (via pkg)
 
-The build system automatically detects your platform and adjusts accordingly.
+My build system detects your platform and adjusts itself.
 
 ## Troubleshooting
 
 ### sudo requires password
 
-If you see messages about sudo requiring a password, you can either:
+If you see messages about sudo requiring a password, you can:
 
-1. **Run sudo manually**: Install packages yourself using the commands shown
-2. **Configure passwordless sudo**: Add your user to sudoers (not recommended for security)
-3. **Build without those modules**: Examples requiring unavailable modules will be skipped
+1. **Run sudo manually**: Install packages yourself using the commands I show.
+2. **Configure passwordless sudo**: Add your user to sudoers. I do not recommend this for security.
+3. **Build without those modules**: I will skip examples that require unavailable modules.
 
 ### Permission denied errors
 
-Make sure all scripts are executable:
+Ensure all my scripts are executable:
 
 ```bash
 chmod +x scripts/*.sh

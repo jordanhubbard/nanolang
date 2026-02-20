@@ -1,16 +1,18 @@
-# Shadow-Tests: The Heart of nanolang
+# Shadow Tests
 
-Shadow-tests are nanolang's unique approach to ensuring code correctness. This document explains what they are, why they exist, and how to write effective shadow-tests.
+I require shadow tests for every function I compile. This is not a suggestion or a best practice. It is a language requirement. If you write a function and do not write a test for it, I will not compile it.
 
-## What are Shadow-Tests?
+Shadow tests are how I ensure you are holding yourself accountable. They are the minimum price of honesty: if you wrote a function, you must be able to say at least one true thing about what it does.
 
-Shadow-tests are mandatory test blocks that "shadow" every function in nanolang. They:
+## What are Shadow Tests?
 
-1. **Run at compile time** - Execute during compilation, not at runtime
-2. **Are mandatory** - Code without shadow-tests won't compile
-3. **Prove correctness** - Failed tests = failed compilation
-4. **Document behavior** - Show how functions should be used
-5. **Are stripped in production** - Zero runtime overhead
+Shadow tests are mandatory blocks that "shadow" every function. They have several specific characteristics:
+
+1. **I run them at compile time.** I execute these tests during compilation. If they do not pass, I do not produce a binary.
+2. **They are mandatory.** I refuse to compile code that lacks them.
+3. **They prove correctness.** A failed test is a compilation error.
+4. **They document behavior.** They show me, and other readers, how your function is intended to work.
+5. **I strip them in production.** They have zero runtime overhead. I use them to verify the build, then I discard them.
 
 ## Basic Syntax
 
@@ -24,30 +26,32 @@ shadow function_name {
 }
 ```
 
-## Why Shadow-Tests?
+## Why I Require Shadow Tests
 
 ### 1. Immediate Feedback
 
-Traditional testing workflow:
+I do not like the traditional testing workflow where you find bugs long after you wrote the code. My workflow is direct:
+
+Traditional:
 ```
-Write code → Compile → Write tests → Run tests → Find bugs → Fix
+Write code -> Compile -> Write tests -> Run tests -> Find bugs -> Fix
 ```
 
-Shadow-test workflow:
+My way:
 ```
-Write code + tests → Compile (tests run automatically) → Done or fix
+Write code + tests -> Compile (I run tests automatically) -> Done or fix
 ```
 
 ### 2. Guaranteed Correctness
 
-Code without tests doesn't compile. This means:
-- No untested code in production
-- Tests can't fall out of sync with code
-- Refactoring is safer
+Because I refuse to compile code without tests, you gain several guarantees:
+- I never allow untested code into production.
+- Your tests cannot fall out of sync with your code.
+- You can refactor with the knowledge that I am checking your work.
 
 ### 3. Living Documentation
 
-Shadow-tests show how to use functions:
+I find that shadow tests are the most honest form of documentation. They show exactly how to use a function:
 
 ```nano
 fn divide(a: int, b: int) -> int {
@@ -63,15 +67,15 @@ shadow divide {
 }
 ```
 
-### 4. LLM-Friendly
+### 4. I Was Built for Machines
 
-When LLMs generate code, they must also generate tests, ensuring they think through edge cases and expected behavior.
+When an LLM generates code for me, it must also generate tests. This forces the machine to think through edge cases and expected behavior. It is how I ensure that what is generated is what was intended.
 
-## Writing Effective Shadow-Tests
+## Writing Effective Shadow Tests
 
 ### Cover Normal Cases
 
-Test typical usage:
+I expect you to test typical usage:
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -86,7 +90,7 @@ shadow add {
 
 ### Cover Edge Cases
 
-Test special values:
+I expect you to test special values:
 
 ```nano
 fn factorial(n: int) -> int {
@@ -110,7 +114,7 @@ shadow factorial {
 
 ### Cover Boundary Conditions
 
-Test limits and transitions:
+I expect you to test limits and transitions:
 
 ```nano
 fn is_positive(n: int) -> bool {
@@ -131,7 +135,7 @@ shadow is_positive {
 
 ### Cover Error Conditions
 
-Test how functions handle invalid input:
+I expect you to show how your functions handle invalid input:
 
 ```nano
 fn safe_divide(a: int, b: int) -> int {
@@ -151,7 +155,7 @@ shadow safe_divide {
 }
 ```
 
-## Shadow-Test Patterns
+## Shadow Test Patterns
 
 ### Pattern 1: Simple Functions
 
@@ -171,7 +175,7 @@ shadow double {
 
 ### Pattern 2: Recursive Functions
 
-Test base cases and recursion:
+I require you to test base cases and recursion:
 
 ```nano
 fn sum_to_n(n: int) -> int {
@@ -196,7 +200,7 @@ shadow sum_to_n {
 
 ### Pattern 3: Boolean Functions
 
-Test true and false cases:
+Test both outcomes:
 
 ```nano
 fn is_even(n: int) -> bool {
@@ -218,7 +222,7 @@ shadow is_even {
 
 ### Pattern 4: Void Functions
 
-For functions that don't return values:
+Even if a function returns nothing, I require a test. It proves the code can at least execute without crashing:
 
 ```nano
 fn print_greeting(name: string) -> void {
@@ -236,7 +240,7 @@ shadow print_greeting {
 
 ### Pattern 5: Multiple Related Functions
 
-When functions work together:
+When functions work together, I allow them to test each other:
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -257,26 +261,19 @@ shadow add_three {
 }
 ```
 
-## How Shadow-Tests Execute
+## How I Execute Shadow Tests
 
-### Compilation Flow
+### My Compilation Flow
 
-```
-1. Parse source code
-   ↓
-2. Extract functions and their shadow-tests
-   ↓
-3. Type check everything
-   ↓
-4. Execute shadow-tests in definition order
-   ↓
-5. If all pass: generate output
-   If any fail: stop with error
-```
+1. I parse your source code.
+2. I extract your functions and their shadow tests.
+3. I type check everything.
+4. I execute the shadow tests in the order you defined them.
+5. If all tests pass, I generate the output. If any fail, I stop.
 
 ### Execution Order
 
-Shadow-tests run after their function is defined:
+I run shadow tests immediately after the function they test is defined:
 
 ```nano
 fn helper(x: int) -> int {
@@ -284,25 +281,27 @@ fn helper(x: int) -> int {
 }
 
 shadow helper {
-    # Runs immediately after helper is defined
+    # I run this immediately after helper is defined
     assert (== (helper 5) 10)
 }
 
 fn main() -> int {
-    # Can safely use helper here
+    # You can safely use helper here because I have already verified it
     return (helper 21)
 }
 
 shadow main {
-    # Runs after main is defined
-    # Can use helper in tests
+    # I run this after main is defined
+    # I allow helper to be used in these tests
     assert (== (main) 42)
 }
 ```
 
-## Shadow-Tests vs Traditional Tests
+## Shadow Tests vs Traditional Tests
 
 ### Traditional Unit Tests
+
+In other languages, you might write tests like this:
 
 ```python
 def add(a, b):
@@ -314,13 +313,13 @@ def test_add():
     assert add(0, 0) == 0
 ```
 
-**Problems:**
-- Tests in separate files
-- Tests might not run
-- Tests can fall out of sync
-- Optional testing
+I find this approach has several problems:
+- Your tests live in separate files.
+- Your tests might not actually run.
+- Your tests can fall out of sync with your code.
+- Testing is optional.
 
-### Shadow-Tests
+### My Approach
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -333,11 +332,11 @@ shadow add {
 }
 ```
 
-**Benefits:**
-- Tests with code
-- Tests always run
-- Tests always in sync
-- Mandatory testing
+I offer these benefits:
+- Your tests live with your code.
+- I ensure your tests always run.
+- I ensure your tests are always in sync.
+- I make testing mandatory.
 
 ## Best Practices
 
@@ -363,13 +362,15 @@ shadow calculate {
 
 ### DON'T: Over-Test
 
+I do not need to see a hundred similar tests. I need to see that you understand the problem:
+
 ```nano
 shadow add {
     # Too many similar tests
     assert (== (add 1 1) 2)
     assert (== (add 2 2) 4)
     assert (== (add 3 3) 6)
-    # ... 100 more lines
+    # I stop reading after a few of these.
 }
 ```
 
@@ -385,23 +386,23 @@ shadow clamp {
 
 ### DON'T: Test Implementation
 
-Test behavior, not implementation:
+Test what your function does, not how it does it. I only care about observable behavior:
 
 ```nano
 # BAD: Testing internal state
 shadow process {
     let result: int = (process 5)
-    # Don't test "how" it calculated
+    # I do not care how you calculated this.
 }
 
 # GOOD: Testing observable behavior
 shadow process {
     assert (== (process 5) 10)
-    # Test "what" it returns
+    # I care that you returned 10.
 }
 ```
 
-## Shadow-Tests for Complex Functions
+## Shadow Tests for Complex Functions
 
 ### State-Changing Functions
 
@@ -451,36 +452,36 @@ shadow fizzbuzz {
 
 ## Philosophy
 
-Shadow-tests embody nanolang's philosophy:
+Shadow tests embody my values:
 
-1. **Correctness First** - Code must be proven correct to compile
-2. **Simplicity** - Tests are part of the code, not separate
-3. **Clarity** - Tests document expected behavior
-4. **LLM-Friendly** - Forces consideration of test cases
-5. **Zero Overhead** - Tests removed from production builds
+1. **Prove What You Claim.** Your code must be proven correct, even if only by a few assertions, before I will compile it.
+2. **One Canonical Way.** I have one way to write a test, and it is inlined with the code.
+3. **Say Exactly What You Mean.** Your tests are the specification of what you meant.
+4. **I Was Built for Machines.** Mandatory tests make automated code generation safer.
+5. **Honesty.** I remove the tests from the final binary so I am not lying to you about runtime performance.
 
 ## FAQ
 
-**Q: Can I skip shadow-tests for simple functions?**  
-A: No. All functions must have shadow-tests. This ensures consistency and catches unexpected bugs.
+**Can I skip shadow tests for simple functions?**  
+No. I require shadow tests for all functions. I do not make exceptions for "simple" code, because simple code is where many bugs start.
 
-**Q: How many tests should I write?**  
-A: Enough to cover normal operation, edge cases, and boundaries. Usually 3-7 assertions.
+**How many tests should I write?**  
+Write enough to satisfy me that you have considered the normal cases, the edge cases, and the boundaries. Usually three to seven assertions are sufficient.
 
-**Q: Can shadow-tests call other functions?**  
-A: Yes, but only functions defined before the test runs.
+**Can shadow tests call other functions?**  
+Yes, but I only allow them to call functions that have already been defined and verified.
 
-**Q: What if my function has no meaningful tests?**  
-A: Every function has tests. Even `main` should verify it returns the correct exit code.
+**What if my function has no meaningful tests?**  
+Every function has something that can be verified. Even my `main` functions usually have a shadow test to verify a basic exit code or a simple path.
 
-**Q: Do shadow-tests slow down compilation?**  
-A: Slightly, but they catch bugs before runtime, saving overall development time.
+**Do shadow tests slow down compilation?**  
+They take time to execute, yes. I find that this time is well spent, as it prevents you from running code that is already broken.
 
-**Q: Can I test for expected failures?**  
-A: In v0.1, no. Future versions may add expect-error syntax.
+**Can I test for expected failures?**  
+In my current version, no. I may add syntax for this later. For now, I expect your tests to pass.
 
 ## Conclusion
 
-Shadow-tests are not just a feature of nanolang—they're its soul. They ensure that every line of code is tested, documented, and correct. By making tests mandatory and integrated, nanolang creates a culture of quality and confidence.
+Shadow tests are my soul. They ensure that every line of code you ask me to compile has been tested, documented, and verified. By making them mandatory, I create a culture of honesty and quality.
 
-Write code. Write tests. Ship confidently. 🚀
+I am NanoLang. I say what I mean, I prove what I claim, and I require shadow tests.

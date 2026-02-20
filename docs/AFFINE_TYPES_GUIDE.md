@@ -1,4 +1,4 @@
-# Affine Types in NanoLang: A Practical Guide
+# Affine Types: A Practical Guide
 
 **Version:** 0.3.0  
 **Status:** Production-Ready  
@@ -6,20 +6,20 @@
 
 ---
 
-## What Are Affine Types?
+## What Are My Affine Types?
 
-**Affine types** ensure that resources (like file handles, sockets, or database connections) are **used at most once**. This prevents common bugs at compile time:
+My affine types ensure that you use resources, like file handles, sockets, or database connections, at most once. I prevent common bugs at compile time:
 
-- ❌ **Use-after-free**: Reading from a closed file
-- ❌ **Use-after-close**: Sending data to a closed socket
-- ❌ **Double-free**: Closing the same resource twice
-- ❌ **Resource leaks**: Forgetting to close a resource
+- Use-after-free: Reading from a closed file
+- Use-after-close: Sending data to a closed socket
+- Double-free: Closing the same resource twice
+- Resource leaks: Forgetting to close a resource
 
-In NanoLang, affine types are implemented through the `resource struct` keyword, which marks a struct as representing a managed resource with compile-time lifecycle tracking.
+I implement these through the `resource struct` keyword. This marks a struct as a managed resource, and I track its lifecycle during compilation.
 
 ---
 
-## Why Affine Types?
+## Why I Use Affine Types
 
 ### The Problem
 
@@ -31,7 +31,7 @@ fclose(f);
 fread(buffer, 1, 100, f);  // BUG: Use after close! 💥
 ```
 
-### The Solution
+### My Solution
 
 ```nano
 # NanoLang - compile-time safety!
@@ -50,7 +50,7 @@ fn example() -> int {
 }
 ```
 
-**The compiler prevents the bug** before your code ever runs!
+I prevent the bug before your code runs.
 
 ---
 
@@ -58,7 +58,7 @@ fn example() -> int {
 
 ### Step 1: Declare a Resource Struct
 
-Use the `resource` keyword before `struct`:
+Use my `resource` keyword before `struct`:
 
 ```nano
 resource struct FileHandle {
@@ -75,7 +75,7 @@ resource struct DatabaseConnection {
 }
 ```
 
-**Key Rule**: Any struct declared with `resource` becomes subject to affine type checking.
+Any struct I see declared with `resource` becomes subject to my affine type checking.
 
 ---
 
@@ -97,7 +97,7 @@ extern fn close_file(f: FileHandle) -> void
 extern fn close_socket(s: Socket) -> void
 ```
 
-**Tip**: Any function that takes a resource by value is considered to "consume" it.
+When a function takes a resource by value, I consider it consumed.
 
 ---
 
@@ -129,7 +129,7 @@ shadow safe_file_usage {
 
 ## Resource Lifecycle
 
-Every resource goes through these states:
+I track every resource through these states:
 
 ```
 UNUSED → USED → CONSUMED
@@ -139,7 +139,7 @@ Create  Use    Transfer ownership
 
 ### State 1: UNUSED
 
-The resource exists but hasn't been used yet.
+The resource exists. You have not used it yet.
 
 ```nano
 let f: FileHandle = unsafe { (open_file "file.txt") }
@@ -148,7 +148,7 @@ let f: FileHandle = unsafe { (open_file "file.txt") }
 
 ### State 2: USED
 
-The resource has been borrowed (non-consuming operations).
+You have borrowed the resource through non-consuming operations.
 
 ```nano
 let data: string = unsafe { (read_file f) }
@@ -160,7 +160,7 @@ let more: string = unsafe { (read_file f) }
 
 ### State 3: CONSUMED
 
-The resource has been moved/transferred (ownership gone).
+You have moved or transferred the resource. Its ownership is gone.
 
 ```nano
 unsafe { (close_file f) }
@@ -359,7 +359,7 @@ shadow pattern_struct {
 
 ---
 
-## Common Errors and Fixes
+## Errors I Detect
 
 ### Error 1: Use After Consume
 
@@ -375,7 +375,7 @@ let data: string = unsafe { (read_file f) }  # Use before consume
 unsafe { (close_file f) }
 ```
 
-**Error Message**:
+My error message:
 ```
 Error: Cannot use resource 'f' after it has been consumed
 ```
@@ -395,7 +395,7 @@ let f: FileHandle = unsafe { (open_file "data.txt") }
 unsafe { (close_file f) }  # Consume exactly once
 ```
 
-**Error Message**:
+My error message:
 ```
 Error: Cannot consume resource 'f' - already consumed
 ```
@@ -422,7 +422,7 @@ fn safe() -> int {
 }
 ```
 
-**Error Message**:
+My error message:
 ```
 Error: Resource 'f' was not consumed before end of scope
 ```
@@ -458,9 +458,9 @@ fn conditional_safe(x: int) -> int {
 
 ---
 
-## Best Practices
+## Things I Recommend
 
-### ✅ DO: Consume Resources as Late as Possible
+### Consume Resources as Late as Possible
 
 ```nano
 fn good_practice() -> int {
@@ -473,7 +473,7 @@ fn good_practice() -> int {
 }
 ```
 
-### ✅ DO: Use Multiple Variables for Multiple Resources
+### Use Multiple Variables for Multiple Resources
 
 ```nano
 fn good_multiple() -> int {
@@ -486,7 +486,7 @@ fn good_multiple() -> int {
 }
 ```
 
-### ✅ DO: Close in All Branches
+### Close in All Branches
 
 ```nano
 fn good_branches(flag: bool) -> int {
@@ -502,9 +502,9 @@ fn good_branches(flag: bool) -> int {
 }
 ```
 
-### ❌ DON'T: Try to Clone or Copy Resources
+### Do Not Try to Clone or Copy Resources
 
-Resources cannot be cloned - they represent unique ownership.
+Resources cannot be cloned. They represent unique ownership.
 
 ```nano
 # ✗ This won't work
@@ -512,7 +512,7 @@ let f1: FileHandle = unsafe { (open_file "data.txt") }
 let f2: FileHandle = f1  # ERROR: Resources cannot be copied!
 ```
 
-### ❌ DON'T: Store Resources in Arrays
+### Do Not Store Resources in Arrays
 
 Resources must have explicit, traceable lifetimes.
 
@@ -577,39 +577,36 @@ shadow send_request {
 
 ### Affine vs Linear Types
 
-- **Linear types**: Must be used **exactly once** (no dropping)
-- **Affine types**: Must be used **at most once** (can drop without using)
+- Linear types: Must be used exactly once. You cannot drop them.
+- Affine types: Must be used at most once. You can drop them without using them.
 
-NanoLang uses **affine types** because they're more flexible:
-- You can consume a resource without using it first
-- You can conditionally use resources
-- Early returns are easier to handle
+I use affine types because they are more flexible. You can consume a resource without using it first. You can conditionally use resources. Early returns are easier for me to handle.
 
 ### Relationship to Rust's Ownership
 
-If you know Rust, NanoLang's affine types are similar to Rust's move semantics:
+If you know Rust, my affine types are similar to Rust's move semantics:
 
-| Rust | NanoLang |
+| Rust | NanoLang (Me) |
 |------|----------|
 | `Drop` trait | Resource consumption |
 | Move semantics | Affine types |
 | `&mut` borrow | Non-consuming use |
 | Lifetime `'a` | Implicit (function scope) |
 
-**Key Difference**: NanoLang's affine types are simpler - no lifetime annotations, no complex borrowing rules.
+My affine types are simpler. I have no lifetime annotations and no complex borrowing rules.
 
 ---
 
 ## FAQ
 
-**Q: Can I return a resource from a function?**  
-A: Yes! The caller becomes responsible for consuming it.
+**Can I return a resource from a function?**  
+Yes. The caller becomes responsible for consuming it.
 
-**Q: What happens if I forget to close a resource?**  
-A: Compile error! The type checker enforces cleanup.
+**What happens if I forget to close a resource?**  
+Compile error. My type checker enforces cleanup.
 
-**Q: Can resources be optional (nullable)?**  
-A: Not yet. Consider using a union wrapper:
+**Can resources be optional (nullable)?**  
+Not yet. Consider using a union wrapper:
 ```nano
 union MaybeFile {
     Some { f: FileHandle },
@@ -617,28 +614,27 @@ union MaybeFile {
 }
 ```
 
-**Q: Do I need affine types for all structs?**  
-A: No! Only for types that represent managed resources (files, sockets, etc.).
+**Do I need affine types for all structs?**  
+No. Only for types that represent managed resources like files or sockets.
 
-**Q: Can I use GC with affine types?**  
-A: Yes! Regular values are GC'd. Affine types only track explicit resource cleanup.
+**Can I use GC with affine types?**  
+Yes. Regular values are GC'd. Affine types only track explicit resource cleanup.
 
 ---
 
 ## Summary
 
-✅ **Affine types** prevent resource bugs at compile time  
-✅ Use `resource struct` for resources that need cleanup  
-✅ **Create → Use → Consume** is the mandatory lifecycle  
-✅ Compiler enforces proper cleanup in all code paths  
-✅ **Zero runtime overhead** - all checking at compile time  
+- My affine types prevent resource bugs at compile time.
+- Use `resource struct` for resources that need cleanup.
+- Create, then Use, then Consume is the mandatory lifecycle.
+- I enforce proper cleanup in all code paths.
+- Zero runtime overhead. I do all checking at compile time.
 
-**Start using affine types today** for safer, more reliable code!
+Start using my affine types today for safer, more reliable code.
 
 ---
 
 For more details, see:
-- **MEMORY.md** - Language reference
-- **AFFINE_TYPES_DESIGN.md** - Implementation details
-- **tests/test_affine_integration.nano** - Comprehensive examples
-
+- **MEMORY.md** - My language reference
+- **AFFINE_TYPES_DESIGN.md** - My implementation details
+- **tests/test_affine_integration.nano** - My comprehensive examples

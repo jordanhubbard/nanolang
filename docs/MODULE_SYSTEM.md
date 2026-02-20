@@ -1,23 +1,23 @@
-# Nanolang Module System
+# My Module System
 
-This document describes the module build system, including automatic C compilation, dependency management, and linking.
+I use a module system to organize code, manage dependencies, and bridge the gap between my safe world and the C world. This document describes how I build modules, compile C sources automatically, and handle linking.
 
 ## Overview
 
-Nanolang modules are self-contained packages that can include:
-- Nanolang source code (`.nano` files)
+My modules are self-contained packages. They can include:
+- My source code (`.nano` files)
 - C FFI implementations (`.c` files)
 - Module metadata (`module.json`)
 
-When you import a module, the compiler automatically:
-1. Compiles any C sources (if needed)
-2. Caches compiled objects
-3. Tracks dependencies
-4. Generates correct link commands
+When you import a module, I automatically:
+1. Compile any C sources if they have changed.
+2. Cache the compiled objects in a local build directory.
+3. Track dependencies between modules.
+4. Generate the correct link commands for the final binary.
 
 ## Module Structure
 
-A typical module directory:
+I expect a typical module directory to look like this:
 
 ```
 modules/sdl_ttf/
@@ -29,7 +29,7 @@ modules/sdl_ttf/
 
 ## module.json Specification
 
-The `module.json` file describes how to build and link the module.
+I use the `module.json` file to understand how to build and link a module.
 
 ### Basic Structure
 
@@ -76,53 +76,53 @@ The `module.json` file describes how to build and link the module.
 
 #### Required Fields
 
-- **`name`** (string): Module name (should match directory name)
+- **`name`** (string): The module name. This should match the directory name.
 
 #### Optional Fields
 
-- **`version`** (string): Semantic version (e.g., "1.0.0")
-- **`description`** (string): Brief description of module purpose
-- **`c_sources`** (array of strings): C source files to compile (relative to module directory)
-- **`system_libs`** (array of strings): System libraries to link (e.g., "SDL2", "m", "pthread")
-- **`pkg_config`** (array of strings): pkg-config packages for compile and link flags
-- **`include_dirs`** (array of strings): Additional include directories
-- **`cflags`** (array of strings): Additional compiler flags
-- **`ldflags`** (array of strings): Additional linker flags
-- **`dependencies`** (array of strings): Other nanolang modules this module depends on
+- **`version`** (string): Semantic version (e.g., "1.0.0").
+- **`description`** (string): A brief description of what the module does.
+- **`c_sources`** (array of strings): C source files I should compile. These are relative to the module directory.
+- **`system_libs`** (array of strings): System libraries I need to link (e.g., "SDL2", "m", "pthread").
+- **`pkg_config`** (array of strings): pkg-config packages I should use for compile and link flags.
+- **`include_dirs`** (array of strings): Additional directories I should search for headers.
+- **`cflags`** (array of strings): Additional compiler flags I should pass to the C compiler.
+- **`ldflags`** (array of strings): Additional linker flags I should use.
+- **`dependencies`** (array of strings): Other modules this module depends on.
 
 ### Field Priority
 
-When determining build flags, the following priority applies (later overrides earlier):
+When I determine build flags, I apply this priority. Later items override earlier ones:
 
 1. Default system flags
 2. `pkg_config` flags
-3. `include_dirs` → `-I` flags
+3. `include_dirs` -> `-I` flags
 4. `cflags` (custom compile flags)
 5. `ldflags` (custom link flags)
-6. `system_libs` → `-l` flags
+6. `system_libs` -> `-l` flags
 
 ## Build Process
 
-### When a Module is Imported
+### When I Process an Import
 
-1. **Parse module.json** (if it exists)
-2. **Check dependencies** - recursively process dependent modules
-3. **Check build cache**:
+1. **I parse module.json** if it exists in the module directory.
+2. **I check dependencies** and recursively process any dependent modules.
+3. **I check my build cache**:
    - Module build directory: `modules/module_name/.build/`
    - Object file: `modules/module_name/.build/module_name.o`
    - Metadata: `modules/module_name/.build/.build_info.json`
-4. **Rebuild if needed**:
-   - Any C source is newer than object file
-   - module.json changed
-   - Dependency changed
-5. **Track for linking**:
-   - Add object file to link list
-   - Add system_libs to link list
-   - Add ldflags to link list
+4. **I rebuild if necessary**:
+   - I find a C source that is newer than the object file.
+   - The `module.json` file has changed.
+   - A dependency has been rebuilt.
+5. **I track the results for linking**:
+   - I add the object file to my link list.
+   - I add `system_libs` to my link list.
+   - I add `ldflags` to my link list.
 
 ### Build Cache
 
-Each module with C sources gets a `.build/` directory:
+I create a `.build/` directory for each module that contains C sources:
 
 ```
 modules/sdl_ttf/
@@ -149,21 +149,21 @@ modules/sdl_ttf/
 
 ### Incremental Compilation
 
-The build system only recompiles when:
-- Source file modified (mtime or size changed)
-- `module.json` modified
-- Object file missing
-- Dependency rebuilt
+I only recompile when I must. Specifically:
+- A source file has been modified (mtime or size changed).
+- The `module.json` has been modified.
+- The object file is missing.
+- A dependency was rebuilt.
 
 ### Parallel Builds
 
-Modules with no interdependencies can be compiled in parallel (future enhancement).
+I do not yet compile modules in parallel. This is a planned enhancement for when modules have no interdependencies.
 
 ## Using Modules
 
-### Pure Nanolang Modules (No C)
+### Pure Modules
 
-No `module.json` needed - just import:
+If a module contains no C code, you do not need a `module.json` file. You can simply import it:
 
 ```nano
 import "modules/my_pure_module/my_module.nano"
@@ -171,7 +171,7 @@ import "modules/my_pure_module/my_module.nano"
 
 ### Modules with C FFI
 
-Automatic compilation and linking:
+I handle compilation and linking automatically when you import a module with C code:
 
 ```nano
 import "modules/sdl_ttf/sdl_ttf.nano"
@@ -182,21 +182,21 @@ fn main() -> int {
 }
 ```
 
-Compile:
+When you compile:
 ```bash
 nanoc my_app.nano -o my_app
 ```
 
-The compiler automatically:
-1. Detects `sdl_ttf` module import
-2. Reads `modules/sdl_ttf/module.json`
-3. Compiles `sdl_ttf_helpers.c` (if needed)
-4. Links with SDL2_ttf system library
-5. Produces working binary
+I perform these steps:
+1. I detect the `sdl_ttf` module import.
+2. I read `modules/sdl_ttf/module.json`.
+3. I compile `sdl_ttf_helpers.c` if my cache indicates it is stale.
+4. I link with the `SDL2_ttf` system library.
+5. I produce the final binary.
 
 ### Module Dependencies
 
-If module A depends on module B:
+If module A depends on module B, I handle the ordering.
 
 **modules/my_module/module.json**:
 ```json
@@ -207,47 +207,47 @@ If module A depends on module B:
 }
 ```
 
-When you import `my_module`, the compiler automatically:
-1. Processes `sdl` module first
-2. Processes `sdl_helpers` module
-3. Processes `my_module`
-4. Links all three modules' objects
+When you import `my_module`, I automatically:
+1. Process the `sdl` module first.
+2. Process the `sdl_helpers` module.
+3. Process `my_module`.
+4. Link the object files from all three modules.
 
 ## Environment Variables
 
 ### NANO_MODULE_PATH
 
-Semicolon-separated list of directories to search for modules:
+I use this semicolon-separated list of directories to search for modules:
 
 ```bash
 export NANO_MODULE_PATH="/usr/local/lib/nano/modules:./modules:~/nano/modules"
 ```
 
-Default: `modules` (relative to current directory)
+If you do not set this, I default to `modules` relative to the current directory.
 
 ### NANO_BUILD_CACHE
 
-Directory for module build cache:
+I use this directory for my module build cache:
 
 ```bash
 export NANO_BUILD_CACHE="/tmp/nano_build_cache"
 ```
 
-Default: `.build/` in each module directory
+If you do not set this, I default to `.build/` within each module directory.
 
 ### NANO_CC
 
-C compiler to use:
+I use this C compiler:
 
 ```bash
 export NANO_CC=clang
 ```
 
-Default: `gcc`
+I default to `gcc` if you do not specify otherwise.
 
 ### NANO_VERBOSE_BUILD
 
-Enable verbose build output:
+If you enable this, I will provide verbose output during the build process:
 
 ```bash
 export NANO_VERBOSE_BUILD=1
@@ -268,7 +268,7 @@ nanoc my_app.nano -o my_app
 }
 ```
 
-No C sources - uses system SDL2 library directly.
+This module has no C sources. I use the system SDL2 library directly.
 
 ### Example 2: SDL Helpers with C Code
 
@@ -284,7 +284,7 @@ No C sources - uses system SDL2 library directly.
 }
 ```
 
-Has C implementation and depends on SDL module.
+This module has a C implementation and depends on my `sdl` module.
 
 ### Example 3: SDL_ttf Extension
 
@@ -304,29 +304,31 @@ Has C implementation and depends on SDL module.
 
 ### "pkg-config: command not found"
 
-Install pkg-config:
+I need `pkg-config` to find system libraries. You should install it:
 - macOS: `brew install pkg-config`
 - Linux: `sudo apt-get install pkg-config`
 
 ### "No package 'sdl2_ttf' found"
 
-Install the development package:
+I cannot find the development files for this library. You should install the development package:
 - macOS: `brew install sdl2_ttf`
 - Linux: `sudo apt-get install libsdl2-ttf-dev`
 
 ### Module not rebuilding
 
-Clear the build cache:
+If you think I should rebuild a module but I am not doing so, you can clear my build cache:
 ```bash
 rm -rf modules/*/build/
 ```
 
-Or touch the source file:
+Alternatively, you can update the timestamp on the source file:
 ```bash
 touch modules/sdl_ttf/sdl_ttf_helpers.c
 ```
 
 ### Verbose build output
+
+If you want to see exactly what I am doing during a build, set this environment variable:
 
 ```bash
 NANO_VERBOSE_BUILD=1 nanoc my_app.nano -o my_app
@@ -334,18 +336,18 @@ NANO_VERBOSE_BUILD=1 nanoc my_app.nano -o my_app
 
 ## Best Practices
 
-1. **Keep module.json minimal** - Only specify what's needed
-2. **Use pkg-config when available** - Better than hardcoded paths
-3. **Version your modules** - Use semantic versioning
-4. **Document dependencies** - List all nanolang module dependencies
-5. **Test incremental builds** - Ensure cache works correctly
-6. **Provide examples** - Show how to use the module
+1. **Keep module.json minimal.** Only specify what I need to know.
+2. **Use pkg-config when available.** This is more reliable than hardcoded paths.
+3. **Version your modules.** I recommend semantic versioning.
+4. **Document dependencies.** List all other modules your module depends on.
+5. **Test incremental builds.** Ensure my cache works as you expect.
+6. **Provide examples.** Show others how to use your module.
 
 ## Future Enhancements
 
 - [ ] Parallel module compilation
 - [ ] Cross-compilation support
-- [ ] Module registry/package manager
+- [ ] Module registry and package manager
 - [ ] Automatic dependency installation
 - [ ] Binary module distribution (.a/.so files)
 - [ ] Module versioning and compatibility checking

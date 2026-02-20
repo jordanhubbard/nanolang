@@ -1,11 +1,11 @@
-# Struct Reflection API
+# My Struct Reflection API
 
 ## Overview
 
-NanoLang provides **compile-time struct introspection** through auto-generated reflection functions. This enables runtime inspection of struct fields, types, and metadata without manual maintenance.
+I provide **compile-time struct introspection** through auto-generated reflection functions. This enables you to inspect struct fields, types, and metadata at runtime without manual maintenance.
 
 **Use Cases:**
-- JSON serializers/deserializers
+- JSON serializers and deserializers
 - Database ORMs
 - Configuration parsers
 - Debug printers
@@ -18,7 +18,7 @@ NanoLang provides **compile-time struct introspection** through auto-generated r
 
 ### Automatic Generation
 
-For every struct in your program, the compiler automatically generates 5 reflection functions:
+For every struct in your program, I automatically generate 5 reflection functions:
 
 ```nano
 struct Point {
@@ -27,7 +27,7 @@ struct Point {
     label: string
 }
 
-/* Compiler auto-generates these functions: */
+/* I auto-generate these functions: */
 
 // 1. Get field count
 fn ___reflect_Point_field_count() -> int
@@ -55,7 +55,7 @@ fn ___reflect_Point_field_type_by_name(name: string) -> string
 extern fn ___reflect_<StructName>_field_count() -> int
 ```
 
-Returns the number of fields in the struct.
+I return the number of fields in the struct.
 
 **Example:**
 ```nano
@@ -76,7 +76,7 @@ fn main() -> int {
 extern fn ___reflect_<StructName>_field_name(index: int) -> string
 ```
 
-Returns the name of the field at the given index (0-based).
+I return the name of the field at the given index (0-based).
 
 **Example:**
 ```nano
@@ -93,7 +93,7 @@ fn main() -> int {
 }
 ```
 
-**Returns:** Field name as string, or `""` if index out of bounds.
+**Returns:** Field name as string, or `""` if index is out of bounds.
 
 ---
 
@@ -103,7 +103,7 @@ fn main() -> int {
 extern fn ___reflect_<StructName>_field_type(index: int) -> string
 ```
 
-Returns the type of the field at the given index as a string.
+I return the type of the field at the given index as a string.
 
 **Type Representations:**
 - Primitives: `"int"`, `"float"`, `"bool"`, `"string"`, `"void"`
@@ -133,7 +133,7 @@ fn main() -> int {
 extern fn ___reflect_<StructName>_has_field(name: string) -> bool
 ```
 
-Checks if a field with the given name exists.
+I check if a field with the given name exists.
 
 **Example:**
 ```nano
@@ -158,7 +158,7 @@ fn main() -> int {
 extern fn ___reflect_<StructName>_field_type_by_name(name: string) -> string
 ```
 
-Returns the type of a field given its name.
+I return the type of a field given its name.
 
 **Example:**
 ```nano
@@ -175,7 +175,7 @@ fn main() -> int {
 }
 ```
 
-**Returns:** Field type as string, or `""` if field not found.
+**Returns:** Field type as string, or `""` if field is not found.
 
 ---
 
@@ -298,13 +298,13 @@ fn debug_print_config(cfg: Config) -> int {
 ## Limitations
 
 ### 1. **No Runtime Field Access**
-Reflection provides **metadata only** (field names and types). It does NOT provide runtime field value access:
+I provide **metadata only** (field names and types). I do not provide runtime field value access:
 
 ```nano
-/* ❌ NOT SUPPORTED */
+/* NOT SUPPORTED */
 fn get_field_value(obj: any, field_name: string) -> any { ... }
 
-/* ✅ SUPPORTED */
+/* SUPPORTED */
 fn get_field_type(struct_name: string, field_name: string) -> string { ... }
 ```
 
@@ -319,12 +319,12 @@ You must declare each reflection function as `extern`:
 extern fn ___reflect_Point_field_count() -> int
 ```
 
-**Future Enhancement:** Macro system could auto-generate these declarations.
+**Future Enhancement:** My macro system could auto-generate these declarations.
 
 ---
 
 ### 3. **Type Information is String-Based**
-Field types are returned as strings (`"int"`, `"string"`), not type objects.
+I return field types as strings (`"int"`, `"string"`), not type objects.
 
 **Workaround:** Parse type strings or use pattern matching.
 
@@ -332,10 +332,10 @@ Field types are returned as strings (`"int"`, `"string"`), not type objects.
 
 ## Performance
 
-- **Zero Runtime Overhead:** Reflection functions are `inline` in generated C
-- **No Memory Allocation:** Returns static string literals
-- **Compile-Time Only:** No reflection data structures in compiled binary
-- **Call Cost:** O(1) for field count/type, O(n) for field name lookup
+- **Zero Runtime Overhead:** I generate these reflection functions as `inline` in the output C code.
+- **No Memory Allocation:** I return static string literals.
+- **Compile-Time Only:** I do not include reflection data structures in the compiled binary.
+- **Call Cost:** O(1) for field count and type. O(n) for field name lookup.
 
 ---
 
@@ -343,7 +343,7 @@ Field types are returned as strings (`"int"`, `"string"`), not type objects.
 
 ### Generated C Code
 
-For `struct Point { x: int, y: int, label: string }`, the compiler generates:
+For `struct Point { x: int, y: int, label: string }`, I generate the following C:
 
 ```c
 inline int64_t ___reflect_Point_field_count(void) {
@@ -414,16 +414,16 @@ fn set_field(obj: any, field_name: string, value: any) -> void { ... }
 ## FAQ
 
 **Q: Can I iterate over all structs in my program?**  
-A: No, only per-struct reflection is provided. Use code generation for cross-struct iteration.
+A: No. I only provide per-struct reflection. Use code generation if you need cross-struct iteration.
 
 **Q: Does this work with imported modules?**  
-A: Yes! Reflection functions are generated for ALL structs, including imported ones.
+A: Yes. I generate reflection functions for all structs, including those you import.
 
 **Q: What about private fields?**  
-A: All fields are reflected, regardless of visibility. NanoLang doesn't have field-level privacy yet.
+A: I reflect all fields. I do not have field-level privacy.
 
 **Q: Can I modify reflection behavior?**  
-A: Not directly. Reflection is automatic and uniform across all structs.
+A: Not directly. My reflection is automatic and uniform across all structs.
 
 ---
 
@@ -444,5 +444,5 @@ A: Not directly. Reflection is automatic and uniform across all structs.
 
 ---
 
-**Status:** ✅ **Production Ready** (Reference Compiler)  
-**Self-Hosted:** ⚠️ **90% Complete** (128 type errors remain in self-hosted compiler, but reflection system itself works)
+**Status:** **Production Ready** (Reference Compiler)  
+**Self-Hosted:** **90% Complete** (128 type errors remain in my self-hosted compiler, but the reflection system itself works)

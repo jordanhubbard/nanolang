@@ -1,8 +1,10 @@
-# User Guide Deployment Checklist
+# My User Guide Deployment Checklist
 
-**Pre-deployment verification steps.**
+I use this checklist to verify my user guide before I deploy it. I do not deploy unless every requirement is met.
 
 ## Content Verification
+
+I check that all my chapters are present and complete.
 
 ### All Chapters Present
 - [ ] Landing page (index.md)
@@ -24,6 +26,8 @@
 
 ## Build Process
 
+I run these commands to generate my HTML output.
+
 ### HTML Generation
 ```bash
 # Clean build
@@ -37,6 +41,9 @@ make userguide
 - [ ] Assets copied (CSS, images)
 
 ### Local Testing
+
+I test my generated files locally before I push them to production.
+
 ```bash
 cd docs_html
 python3 -m http.server 8000
@@ -51,6 +58,8 @@ python3 -m http.server 8000
 
 ## Navigation Testing
 
+I ensure that my users can navigate my documentation without friction.
+
 ### Internal Links
 - [ ] Chapter-to-chapter navigation works
 - [ ] "Previous" links correct
@@ -64,6 +73,8 @@ python3 -m http.server 8000
 - [ ] API documentation links
 
 ## Visual Quality
+
+I verify that I look correct on different screen sizes.
 
 ### Desktop View (1920x1080)
 - [ ] Sidebar visible
@@ -86,6 +97,8 @@ python3 -m http.server 8000
 
 ## Accessibility
 
+I am committed to being accessible to all users.
+
 ### WCAG 2.1 AA Compliance
 - [ ] Proper heading hierarchy (H1 → H2 → H3)
 - [ ] Alt text for images
@@ -102,6 +115,8 @@ python3 -m http.server 8000
 
 ## Performance
 
+I ensure that my documentation loads quickly and remains responsive.
+
 ### Page Load
 - [ ] First contentful paint < 2s
 - [ ] Time to interactive < 3s
@@ -113,6 +128,8 @@ python3 -m http.server 8000
 - [ ] No unnecessary JavaScript
 
 ## Cross-Browser Testing
+
+I verify my documentation in these browsers.
 
 ### Desktop Browsers
 - [ ] Chrome (latest)
@@ -126,6 +143,8 @@ python3 -m http.server 8000
 - [ ] Firefox Android
 
 ## Deployment
+
+I use GitHub Pages to host my documentation.
 
 ### GitHub Pages
 ```bash
@@ -147,6 +166,8 @@ python3 -m http.server 8000
 
 ## Documentation
 
+I update my other documents to point to my new user guide.
+
 ### Update References
 - [ ] README.md links to user guide
 - [ ] CONTRIBUTING.md references docs
@@ -160,7 +181,7 @@ python3 -m http.server 8000
 
 ## Rollback Plan
 
-In case of issues:
+If I encounter issues, I revert to my previous state.
 
 ```bash
 # Revert to previous version
@@ -175,6 +196,8 @@ git push
 
 ## Sign-Off
 
+I do not consider a deployment finished until these reviews are complete.
+
 - [ ] Technical review complete
 - [ ] Content review complete
 - [ ] Quality assurance complete
@@ -183,3 +206,4 @@ git push
 **Deployed by:** _______________  
 **Date:** _______________  
 **Version:** _______________
+

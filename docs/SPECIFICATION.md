@@ -1,4 +1,4 @@
-# nanolang Language Specification v0.1
+# My Language Specification v0.1
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@
 4. [Expressions](#expressions)
 5. [Statements](#statements)
 6. [Functions](#functions)
-7. [Shadow-Tests](#shadow-tests)
+7. [Shadow Tests](#shadow-tests)
 8. [Semantics](#semantics)
 9. [Compilation Model](#compilation-model)
 10. [Example Programs](#example-programs)
@@ -27,12 +27,12 @@
 
 ## 1. Introduction
 
-nanolang is a minimal, statically-typed programming language designed for clarity and LLM-friendliness. Its design prioritizes:
+I am a minimal, statically-typed programming language. I prioritize clarity and am designed for machines to write and humans to read. My design rests on these principles:
 
-- **Unambiguity**: Clear, unambiguous syntax for each semantic concept
-- **Explicitness**: No implicit conversions or hidden behavior
-- **Testability**: Mandatory shadow-tests for all functions
-- **Simplicity**: Minimal feature set with clear semantics
+- **Unambiguity**: I provide one clear syntax for every semantic concept.
+- **Explicitness**: I do not use implicit conversions or hide my behavior.
+- **Testability**: I require shadow tests for every function I compile.
+- **Simplicity**: I maintain a minimal feature set with clear semantics.
 
 ## 2. Lexical Structure
 
@@ -45,7 +45,7 @@ nanolang is a minimal, statically-typed programming language designed for clarit
 
 ### 2.2 Identifiers
 
-Identifiers must start with a letter or underscore, followed by letters, digits, or underscores:
+My identifiers must start with a letter or underscore. They can be followed by letters, digits, or underscores.
 
 ```
 identifier = (letter | "_") { letter | digit | "_" }
@@ -55,7 +55,7 @@ Examples: `x`, `my_var`, `count2`, `_internal`
 
 ### 2.3 Keywords
 
-Reserved keywords that cannot be used as identifiers:
+These are my reserved keywords. You cannot use them as identifiers.
 
 ```
 fn       let      mut      set      if       else
@@ -67,21 +67,21 @@ array    struct   enum     union    match
 
 ### 2.4 Literals
 
-**Integer Literals**: Sequence of digits, optionally with leading `-`
+**Integer Literals**: A sequence of digits. You may use a leading `-` for negative values.
 ```nano
 42
 -17
 0
 ```
 
-**Float Literals**: Digits with decimal point
+**Float Literals**: Digits separated by a decimal point.
 ```nano
 3.14
 -0.5
 2.0
 ```
 
-**String Literals**: UTF-8 text in double quotes
+**String Literals**: UTF-8 text enclosed in double quotes.
 ```nano
 "Hello, World!"
 "nanolang"
@@ -102,11 +102,11 @@ false
 and  or  not
 ```
 
-Operators can be used in both prefix notation (`(+ a b)`) and infix notation (`a + b`). See Section 4.3 for details.
+I support both prefix notation (`(+ a b)`) and infix notation (`a + b`) for my operators. I describe this in detail in Section 4.3.
 
 ### 2.6 Whitespace
 
-Whitespace (spaces, tabs, newlines) separates tokens but is otherwise insignificant.
+I use whitespace (spaces, tabs, newlines) to separate tokens. Beyond that, I do not find it significant.
 
 ## 3. Types
 
@@ -122,7 +122,7 @@ Whitespace (spaces, tabs, newlines) separates tokens but is otherwise insignific
 
 ### 3.2 Type Annotations
 
-All variables and function parameters must have explicit type annotations:
+I require explicit type annotations for all variables and function parameters.
 
 ```nano
 let x: int = 42
@@ -135,7 +135,7 @@ fn add(a: int, b: int) -> int {
 
 ### 3.3 Type Checking
 
-nanolang is statically typed. All type errors are caught at compile time:
+I am statically typed. I catch all type errors at compile time.
 
 ```nano
 let x: int = 42
@@ -148,7 +148,7 @@ let y: string = "hello"
 
 #### 3.4.1 Structs
 
-Structs group related data together:
+I use structs to group related data.
 
 ```nano
 struct Point {
@@ -162,7 +162,7 @@ let x_coord: int = p.x
 
 #### 3.4.2 Enums
 
-Enums define a type with a fixed set of named constants:
+I define enums as a fixed set of named constants. I treat these constants as integers.
 
 ```nano
 enum Status {
@@ -171,12 +171,12 @@ enum Status {
     Complete = 2
 }
 
-let s: int = Status.Active  # Enums are treated as integers
+let s: int = Status.Active
 ```
 
 #### 3.4.3 Union Types
 
-Union types (tagged unions/sum types) represent a value that can be one of several variants:
+My union types represent a value that can be one of several variants. These are tagged unions.
 
 ```nano
 union Result {
@@ -205,6 +205,8 @@ let result: Result = Result.Error { code: 1, message: "Failed" }
 
 **Pattern Matching:**
 
+I use the `match` expression to destructure unions.
+
 ```nano
 match result {
     Ok(r) => (println "Success"),
@@ -214,7 +216,7 @@ match result {
 
 #### 3.4.4 Generic Types
 
-Generic types allow parameterization over types, enabling reusable code. nanolang uses **monomorphization** - generic types are specialized at compile time for each concrete type used.
+I use generic types to allow parameterization. I implement these using monomorphization. I specialize generic types at compile time for each concrete type you use.
 
 **Built-in Generic: List<T>**
 
@@ -236,26 +238,26 @@ let points: List<Point> = (List_Point_new)
 
 **Generic Instantiation:**
 
-When you use a generic type like `List<int>`, the compiler generates specialized functions:
-- `List_int_new()` → creates empty list
-- `List_int_push(list, value)` → pushes int to list
-- `List_int_length(list)` → returns length
-- `List_int_get(list, index)` → gets element
+When you use a generic type like `List<int>`, I generate specialized functions for that type:
+- `List_int_new()`
+- `List_int_push(list, value)`
+- `List_int_length(list)`
+- `List_int_get(list, index)`
 
 **Monomorphization:**
 
-Each concrete type used with a generic generates a separate implementation:
+I generate a separate implementation for each concrete type you use with a generic.
 
 ```nano
-let integers: List<int> = (List_int_new)     # Generates List_int functions
-let strings: List<string> = (List_string_new) # Generates List_string functions
+let integers: List<int> = (List_int_new)     # I generate List_int functions
+let strings: List<string> = (List_string_new) # I generate List_string functions
 ```
 
-The compiler generates specialized C code for each instantiation, eliminating runtime overhead.
+I generate specialized C code for each instantiation to avoid runtime overhead.
 
 #### 3.4.5 First-Class Function Types
 
-Functions are first-class values that can be passed as parameters, returned from functions, and assigned to variables.
+I treat functions as first-class values. You can pass them as parameters, return them from other functions, or assign them to variables.
 
 **Function Type Syntax:**
 
@@ -310,19 +312,19 @@ shadow get_operation {
 }
 ```
 
-**Important:** Function types do not expose underlying C function pointers. They are treated as opaque values that can only be called.
+My function types do not expose underlying C function pointers. I treat them as opaque values.
 
 #### 3.4.6 HashMap<K,V>
 
-HashMap provides a generic hash table data structure with key-value mappings. Like List<T>, HashMap uses **monomorphization** - the compiler generates specialized HashMap_K_V implementations for each combination of key and value types used.
+I provide a HashMap as a generic hash table. Like my List type, I use monomorphization to generate specialized implementations for each combination of key and value types.
 
 **Supported Key Types:**
-- `int` - 64-bit integers
-- `string` - UTF-8 strings
+- `int`
+- `string`
 
 **Supported Value Types:**
-- `int` - 64-bit integers
-- `string` - UTF-8 strings
+- `int`
+- `string`
 
 **Declaration:**
 
@@ -355,25 +357,20 @@ shadow count_words {
     let hm: HashMap<string, int> = (count_words "test")
     assert (== (map_has hm "hello") true)
     assert (== (map_get hm "hello") 1)
-    # No map_free needed - HashMap is ARC-managed
 }
 ```
 
 **Implementation Notes:**
 
-HashMap is supported in **both** interpreter and compiled modes:
-- **Interpreter mode**: Uses a runtime implementation in eval.c
-- **Compiled mode**: Transpiler generates specialized `HashMap_K_V` code
+I support HashMap in both my interpreter and my compiled modes. In interpreter mode, I use a runtime implementation. In compiled mode, I generate specialized C code. I manage HashMap memory automatically using ARC.
 
-The transpiler creates monomorphized implementations like `HashMap_string_int` with all operations (new, put, get, has, size) specialized for the specific key-value types. HashMap memory is managed automatically by ARC — no manual free is needed.
-
-**Performance:** Hash table operations are O(1) average case with automatic rehashing when the load factor exceeds 0.75.
+**Performance:** My hash table operations are O(1) on average. I rehash automatically when the load factor exceeds 0.75.
 
 ## 4. Expressions
 
 ### 4.1 Literals
 
-Literals evaluate to their corresponding values:
+I evaluate literals to their corresponding values.
 
 ```nano
 42          # int
@@ -384,7 +381,7 @@ true        # bool
 
 ### 4.2 Variables
 
-Identifiers evaluate to the value of the named variable:
+I evaluate identifiers to the value of the named variable.
 
 ```nano
 let x: int = 42
@@ -393,43 +390,43 @@ let y: int = x  # y = 42
 
 ### 4.3 Operations (Prefix and Infix)
 
-nanolang supports **both** prefix notation (S-expressions) and infix notation for binary operators.
+I support both prefix notation and infix notation for my binary operators.
 
-**Prefix notation** uses parenthesized S-expressions:
+My prefix notation uses parentheses.
 
 ```nano
-(+ 2 3)              # Addition: 5
-(* (+ 2 3) 4)        # Multiplication: 20
+(+ 2 3)              # 5
+(* (+ 2 3) 4)        # 20
 (== x 5)             # Comparison
 (and (> x 0) (< x 10))  # Logical AND
 ```
 
-**Infix notation** uses conventional operator placement:
+My infix notation uses standard operator placement.
 
 ```nano
-2 + 3                # Addition: 5
-(2 + 3) * 4          # Multiplication: 20
+2 + 3                # 5
+(2 + 3) * 4          # 20
 x == 5               # Comparison
 x > 0 and x < 10    # Logical AND
 ```
 
-**Infix operators**: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+My infix operators are: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`.
 
-**Precedence**: All infix operators have **equal precedence** and are evaluated **left-to-right** (no PEMDAS/BODMAS rules). Use parentheses to control grouping:
+**Precedence**: I assign equal precedence to all my infix operators. I evaluate them strictly from left to right. I do not use PEMDAS. You must use parentheses if you want to control grouping.
 
 ```nano
-a * (b + c)          # Parentheses required to add before multiplying
-a + b * c            # Evaluates as (a + b) * c, NOT a + (b * c)
+a * (b + c)          # I add before I multiply
+a + b * c            # I evaluate this as (a + b) * c
 ```
 
-**Unary operators**: `not` and unary `-` work without parentheses:
+My unary operators `not` and `-` work without parentheses.
 
 ```nano
 not flag             # Logical negation
 -x                   # Numeric negation
 ```
 
-Both notations can be freely mixed. Prefix notation remains fully supported for backward compatibility.
+You can mix these notations. I maintain prefix notation for compatibility.
 
 ### 4.4 Arithmetic Operations
 
@@ -443,7 +440,7 @@ Both notations can be freely mixed. Prefix notation remains fully supported for 
 
 ### 4.5 Comparison Operations
 
-All comparison operations return `bool`:
+My comparison operations all return a `bool`.
 
 | Operator | Description      | Type Signature     |
 |----------|------------------|--------------------|
@@ -464,7 +461,7 @@ All comparison operations return `bool`:
 
 ### 4.7 Function Calls
 
-Functions are called using prefix notation (unlike operators, function calls always use prefix form):
+I always use prefix notation for function calls.
 
 ```nano
 (add 2 3)
@@ -475,7 +472,7 @@ Functions are called using prefix notation (unlike operators, function calls alw
 
 ### 4.8 If Expressions
 
-`if` is an expression that returns a value:
+I treat `if` as an expression that returns a value.
 
 ```nano
 let x: int = if (> a 0) {
@@ -485,9 +482,9 @@ let x: int = if (> a 0) {
 }
 ```
 
-Both branches must return the same type. Both branches are required (no optional `else`).
+I require both branches to return the same type. I require an `else` branch.
 
-**`else if` chaining** is supported for multi-way conditionals:
+I support `else if` chaining for multiple conditions.
 
 ```nano
 if x > 10 {
@@ -501,29 +498,29 @@ if x > 10 {
 
 ### 4.9 Evaluation Order
 
-Expressions are evaluated left-to-right, in both prefix and infix forms:
+I evaluate expressions from left to right.
 
 ```nano
-(+ (f x) (g y))  # f(x) is evaluated before g(y)
-(f x) + (g y)    # Same: f(x) is evaluated before g(y)
+(+ (f x) (g y))  # I evaluate f(x) before g(y)
+(f x) + (g y)    # I evaluate f(x) before g(y)
 ```
 
 ## 5. Statements
 
 ### 5.1 Variable Declaration
 
-Variables are declared with `let`:
+I use `let` to declare variables.
 
 ```nano
 let x: int = 42
-let mut counter: int = 0  # Mutable variable
+let mut counter: int = 0
 ```
 
-Variables are immutable by default. Use `mut` for mutable variables.
+I make variables immutable by default. You must use `mut` to declare a mutable variable.
 
 ### 5.2 Assignment
 
-Only mutable variables can be reassigned using `set`:
+I only allow you to reassign mutable variables. I use `set` for this.
 
 ```nano
 let mut x: int = 0
@@ -540,7 +537,7 @@ while condition {
 }
 ```
 
-The condition must be a `bool` expression. The loop executes while the condition is `true`.
+I require the condition to be a `bool` expression. I execute the loop while the condition is `true`.
 
 ```nano
 let mut i: int = 0
@@ -558,14 +555,14 @@ for identifier in expression {
 }
 ```
 
-The `for` loop is syntactic sugar for iterating over a range:
+I provide the `for` loop as a way to iterate over a range.
 
 ```nano
 for i in (range 0 10) {
     print i
 }
 
-# Equivalent to:
+# This is equivalent to:
 let mut i: int = 0
 while (< i 10) {
     print i
@@ -579,15 +576,15 @@ while (< i 10) {
 return expression
 ```
 
-Returns a value from a function. The expression type must match the function's return type.
+I use this to return a value from a function. I check that the expression type matches the return type I defined for the function.
 
 ### 5.6 Expression Statement
 
-Any expression can be used as a statement:
+I allow any expression to be used as a statement.
 
 ```nano
 print "hello"
-(add 2 3)  # Result is discarded
+(add 2 3)  # I discard the result
 ```
 
 ## 6. Functions
@@ -600,15 +597,15 @@ fn name(param1: type1, param2: type2) -> return_type {
 }
 ```
 
-Functions must:
-1. Have explicit parameter types
-2. Have an explicit return type
-3. Return a value if return type is not `void`
-4. Have a corresponding shadow-test
+I require that every function:
+1. Defines explicit parameter types.
+2. Defines an explicit return type.
+3. Returns a value if the return type is not `void`.
+4. Includes a shadow test.
 
 ### 6.2 Parameters
 
-Parameters are passed by value. They are immutable within the function:
+I pass parameters by value. I make them immutable within the function.
 
 ```nano
 fn increment(x: int) -> int {
@@ -619,10 +616,9 @@ fn increment(x: int) -> int {
 
 ### 6.3 Return Type
 
-Functions must specify a return type:
-
-- Non-`void` functions must return a value on all code paths
-- `void` functions may use `return` without a value or omit `return`
+I require a return type for every function.
+- If the function is not `void`, I ensure every code path returns a value.
+- If the function is `void`, you can use `return` without a value or omit it.
 
 ```nano
 fn get_sign(x: int) -> int {
@@ -635,29 +631,22 @@ fn get_sign(x: int) -> int {
             return 0
         }
     }
-}  # OK: All paths return a value
+}
 
 fn greet() -> void {
     print "Hello"
-    # No return needed
 }
 ```
 
 ### 6.4 External Functions (FFI)
 
-External functions allow calling C standard library functions:
+I allow you to declare external functions to call the C standard library.
 
 ```nano
 extern fn function_name(param: type) -> return_type
 ```
 
-**Key Properties:**
-- No function body - declaration only
-- No shadow-test required
-- Called directly with original C name
-- Must be safe (no buffer overflows, bounds-checked)
-
-**Example:**
+These declarations have no body and do not require a shadow test. I call them using their C names. I require these functions to be safe.
 
 ```nano
 # Declare external C functions
@@ -666,7 +655,7 @@ extern fn pow(x: float, y: float) -> float
 extern fn isdigit(c: int) -> int
 extern fn strlen(s: string) -> int
 
-# Use them in nanolang
+# Use them in my code
 fn hypotenuse(a: float, b: float) -> float {
     let a_sq: float = (pow a 2.0)
     let b_sq: float = (pow b 2.0)
@@ -678,26 +667,17 @@ shadow hypotenuse {
 }
 ```
 
-**Safety Requirements:**
+I expect you to only expose C functions that are safe. They should use explicit lengths and avoid pointer arithmetic.
 
-Only expose safe C functions that:
-- Take explicit length parameters (e.g., `strncmp`, not `strcpy`)
-- Cannot cause buffer overflows
-- Have no pointer arithmetic
-- Are well-documented standard functions
-
-See `docs/EXTERN_FFI.md` for complete documentation.
-
-## 7. Shadow-Tests
+## 7. Shadow Tests
 
 ### 7.1 Purpose
 
-Shadow-tests are mandatory tests that:
-- Run during compilation
-- Fail compilation if any assertion fails
-- Are stripped from production builds
-- Document expected behavior
-- Ensure correctness
+I use shadow tests to ensure honesty.
+- I run them during compilation.
+- I stop compilation if a test fails.
+- I remove them from production builds.
+- I use them to document my behavior.
 
 ### 7.2 Syntax
 
@@ -707,11 +687,11 @@ shadow function_name {
 }
 ```
 
-Each function must have exactly one shadow-test block. The shadow-test is defined after the function it tests.
+I require exactly one shadow test block for every function you define. You must place it after the function definition.
 
 ### 7.3 Assertions
 
-Shadow-tests use `assert` to verify behavior:
+I use `assert` within shadow tests to verify my behavior.
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -727,38 +707,34 @@ shadow add {
 
 ### 7.4 Assertion Semantics
 
-`assert` takes a boolean expression:
-- If `true`: Test passes, continue
-- If `false`: Compilation fails with error message
+I evaluate the boolean expression given to `assert`.
+- If it is `true`, I continue.
+- If it is `false`, I stop compilation and report the error.
 
 ### 7.5 Coverage Requirements
 
-Shadow-tests should cover:
-- Normal cases
-- Edge cases (0, negative numbers, empty strings, etc.)
-- Boundary conditions
-- Error conditions (where applicable)
+I expect shadow tests to cover normal cases, edge cases, and boundary conditions.
 
 ### 7.6 Execution Order
 
-Shadow-tests run immediately after their function is defined during compilation. This ensures that functions are tested as soon as they're available.
+I run each shadow test immediately after I finish defining the function it tests.
 
 ## 8. Semantics
 
 ### 8.1 Static Scoping
 
-nanolang uses static (lexical) scoping. Variables are resolved at compile time:
+I use static scoping. I resolve variables when I compile your code.
 
 ```nano
 let x: int = 1
 
 fn f() -> int {
-    return x  # Refers to the global x
+    return x  # This is the global x
 }
 
 fn g() -> int {
     let x: int = 2
-    return (f)  # Returns 1, not 2
+    return (f)  # I return 1
 }
 
 shadow f {
@@ -772,68 +748,57 @@ shadow g {
 
 ### 8.2 Variable Shadowing
 
-Inner scopes can shadow outer variables:
+I allow inner scopes to shadow variables from outer scopes.
 
 ```nano
 let x: int = 1
 {
-    let x: int = 2  # Shadows outer x
-    print x         # Prints 2
+    let x: int = 2  # I shadow the outer x
+    print x         # I print 2
 }
-print x            # Prints 1
+print x            # I print 1
 ```
 
 ### 8.3 Type Equivalence
 
-Types are equivalent if they have the same name. There is no structural typing:
-
-```nano
-# int and int are the same type
-# int and float are different types
-```
+I consider types equivalent only if they share the same name. I do not use structural typing.
 
 ### 8.4 No Implicit Conversions
 
-All type conversions must be explicit:
+I require all type conversions to be explicit.
 
 ```nano
 let x: int = 42
-# let y: float = x  # ERROR: No implicit conversion
+# let y: float = x  # ERROR: I do not convert implicitly
 ```
 
 ### 8.5 Short-Circuit Evaluation
 
-Logical operators `and` and `or` use short-circuit evaluation:
+I use short-circuit evaluation for `and` and `or`.
 
 ```nano
-(and false (expensive_computation))  # expensive_computation not called
-(or true (expensive_computation))    # expensive_computation not called
+(and false (expensive_computation))  # I do not call expensive_computation
+(or true (expensive_computation))    # I do not call expensive_computation
 ```
 
 ## 9. Compilation Model
 
 ### 9.1 Phases
 
-1. **Lexing**: Source text → Tokens
-2. **Parsing**: Tokens → AST
-3. **Type Checking**: Verify types, shadow-tests, return paths
-4. **Shadow-Test Execution**: Run all shadow-tests
-5. **Transpilation**: AST → C code
-6. **C Compilation**: C code → Native binary
+1. **Lexing**: I turn your source text into tokens.
+2. **Parsing**: I turn those tokens into an AST.
+3. **Type Checking**: I verify your types, tests, and return paths.
+4. **Shadow Test Execution**: I run your tests.
+5. **Transpilation**: I turn my AST into C code.
+6. **C Compilation**: I use a C compiler to produce a binary.
 
-### 9.2 Shadow-Test Compilation
+### 9.2 Shadow Test Compilation
 
-Shadow-tests are:
-1. Extracted during parsing
-2. Checked for type correctness
-3. Executed during compilation
-4. Removed from the final output
-
-If any shadow-test fails, compilation stops with an error.
+I extract tests during parsing and check them for correctness. I execute them while I compile. I do not include them in my final output.
 
 ### 9.3 C Transpilation
 
-nanolang compiles to clean, readable C:
+I produce clean C code.
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -841,7 +806,7 @@ fn add(a: int, b: int) -> int {
 }
 ```
 
-Transpiles to:
+I turn that into:
 
 ```c
 int64_t add(int64_t a, int64_t b) {
@@ -851,11 +816,10 @@ int64_t add(int64_t a, int64_t b) {
 
 ### 9.4 Entry Point
 
-Programs must define a `main` function:
+I require you to define a `main` function.
 
 ```nano
 fn main() -> int {
-    # program logic
     return 0
 }
 
@@ -866,36 +830,33 @@ shadow main {
 
 ### 9.5 Built-in Functions
 
-Built-in functions are provided by the runtime. The standard library includes **72 built-in functions** across 9 categories (see spec.json for complete list):
+I provide built-in functions through my runtime. I currently offer 72 functions across several categories.
 
-**Core I/O (3):**
-- `print`, `println`: Output to stdout (polymorphic over printable types)
-- `assert`: Runtime assertion (used in shadow-tests)
+**Core I/O:**
+- `print`, `println`
+- `assert`
 
-**Math Operations (11):**
-- Basic: `abs`, `min`, `max`
-- Advanced: `sqrt`, `pow`, `floor`, `ceil`, `round`
-- Trigonometric: `sin`, `cos`, `tan`
+**Math Operations:**
+- `abs`, `min`, `max`, `sqrt`, `pow`, `floor`, `ceil`, `round`, `sin`, `cos`, `tan`
 
-**String Operations (18):**
-- Basic: `str_length`, `str_concat`, `str_substring`, `str_contains`, `str_equals`
-- Character Access: `char_at`, `string_from_char`
-- Classification: `is_digit`, `is_alpha`, `is_alnum`, `is_whitespace`, `is_upper`, `is_lower`
-- Conversions: `int_to_string`, `string_to_int`, `digit_value`, `char_to_lower`, `char_to_upper`
+**String Operations:**
+- `str_length`, `str_concat`, `str_substring`, `str_contains`, `str_equals`
+- `char_at`, `string_from_char`, `is_digit`, `is_alpha`, `is_alnum`, `is_whitespace`, `is_upper`, `is_lower`
+- `int_to_string`, `string_to_int`, `digit_value`, `char_to_lower`, `char_to_upper`
 
-**Array Operations (4):**
+**Array Operations:**
 - `at`, `array_length`, `array_new`, `array_set`
 
-**List Operations (13):**
-- `list_int_*`: Dynamic integer list operations (new, push, pop, get, set, etc.)
+**List Operations:**
+- `list_int_*` operations for dynamic lists.
 
-**OS Operations (17):**
-- File I/O, directory management, path operations, system commands
+**OS Operations:**
+- Functions for files, directories, paths, and system commands.
 
 **Iteration:**
-- `range`: Generate integer range for for-loops
+- `range`
 
-See [STDLIB.md](STDLIB.md) for complete documentation of all built-in functions.
+I have documented these in [STDLIB.md](STDLIB.md).
 
 ## 10. Example Programs
 
@@ -972,75 +933,46 @@ shadow main {
 
 ### 11.1 Why Both Prefix and Infix Notation?
 
-nanolang supports both prefix (S-expression) and infix notation for operators.
+I support both notations to balance precision and familiarity. My prefix notation makes nesting explicit and removes ambiguity. This is helpful for machines. My infix notation is familiar to humans.
 
-**Prefix notation** makes nesting explicit and eliminates all precedence ambiguity:
+To avoid traditional precedence issues, I give all my infix operators equal precedence. I evaluate them from left to right. I require you to use parentheses if you want a different order.
 
-```nano
-(+ a (* b c))  # Unambiguous: multiply first, then add
-```
+I only use prefix notation for my function calls. This keeps them distinct from my operators.
 
-This is especially valuable for LLMs, which may not consistently apply precedence rules.
+### 11.2 Why Mandatory Shadow Tests?
 
-**Infix notation** provides familiarity for developers accustomed to conventional syntax:
-
-```nano
-a + b * c      # Familiar, but note: equal precedence, left-to-right
-```
-
-To avoid the pitfalls of traditional precedence rules, all infix operators in nanolang share **equal precedence** and evaluate strictly **left-to-right**. This means `a + b * c` evaluates as `(a + b) * c`, not `a + (b * c)`. Parentheses must be used to override this: `a + (b * c)`.
-
-**Function calls remain prefix-only** (`(println "hello")`), keeping the distinction between operators and function application clear.
-
-This dual approach gives users a choice: prefix for unambiguous nesting, infix for readability in simple expressions.
-
-### 11.2 Why Mandatory Shadow-Tests?
-
-1. **Quality**: Untested code doesn't compile
-2. **Documentation**: Tests show how to use functions
-3. **Confidence**: Tests prove correctness
-4. **LLM-friendly**: Forces test generation
+I require tests because untested code is a claim without proof. My tests also serve as documentation and give you confidence in my correctness.
 
 ### 11.3 Why Static Typing?
 
-Static typing catches errors at compile time:
-- No type errors at runtime
-- Better tooling support
-- Clearer semantics
-- LLM-friendly (types guide generation)
+I use static typing to catch errors before your code ever runs. It makes my semantics clearer and helps machines generate correct code.
 
 ### 11.4 Why C Transpilation?
 
-- **Performance**: Native speed
-- **Portability**: C runs everywhere
-- **Interop**: Easy FFI
-- **Self-hosting**: nanolang can eventually compile itself
-- **Tooling**: Leverage mature C ecosystem
+I transpile to C because it is portable and efficient. It allows me to use existing tools and will eventually allow me to compile myself.
 
 ## 12. Future Extensions
 
-**Implemented in v0.1:**
-- ✅ Arrays (static and dynamic)
-- ✅ Structs (product types)
-- ✅ Enums (enumerated types)
-- ✅ Unions (tagged unions/sum types)
-- ✅ Generics (List<T> with monomorphization)
-- ✅ First-class functions
-- ✅ Pattern matching (match expressions)
-- ✅ Comprehensive standard library (72 functions)
-- ✅ C transpilation with namespacing
+**What I have implemented in v0.1:**
+- Arrays (static and dynamic)
+- Structs
+- Enums
+- Unions
+- Generics (List<T> and HashMap<K,V>)
+- First-class functions
+- Pattern matching
+- My standard library
+- My C transpiler
 
-**In Development:**
-- ⏳ Tuple types (type system complete, parser pending)
-- ⏳ Self-hosted compiler (nanolang-in-nanolang)
+**What I am developing:**
+- Tuple types
+- My self-hosted compiler
 
-**Potential Future Additions:**
-- Module system (import/export)
-- More generic types (Map<K,V>, Set<T>, etc.)
-- Async/await primitives
+**My plans for the future:**
+- A module system
+- More generic types
+- Async primitives
 - Memory management hints
-- Debugging annotations
-- Package manager
-- Standard library expansion
+- A package manager
 
-All extensions must maintain the core principles: minimal, unambiguous, LLM-friendly, and test-driven.
+I will ensure that all my extensions follow my core principles. I will remain minimal and unambiguous. I will always require tests.

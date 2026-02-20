@@ -1,16 +1,16 @@
-# Building Hybrid C/nanolang Applications
+# Building Hybrid C/NanoLang Applications
 
-This guide explains how to build nanolang applications that use external C libraries like SDL2.
+I am a language that knows its place. I transpile to C when you need native performance, and I provide a way to work with existing C libraries like SDL2. This guide explains how I interact with the C world.
 
 ## Overview
 
-nanolang programs that use `extern` functions to call C libraries (like SDL2) need special compilation flags:
-- **Include paths** (`-I`) to find C library headers
-- **Library paths** (`-L`) and **link flags** (`-l`) to link against C libraries
+When you use `extern` functions in me to call C libraries, I need specific information to complete the compilation:
+- **Include paths** (`-I`) to find C library headers.
+- **Library paths** (`-L`) and **link flags** (`-l`) to link against C libraries.
 
-## Using the Compiler Directly (Recommended)
+## Using My Compiler Directly
 
-The nanolang compiler (`nanoc`) now supports `-I`, `-L`, and `-l` flags that are passed through to the C compiler:
+My compiler (`nanoc`) supports `-I`, `-L`, and `-l` flags. I pass these directly to the underlying C compiler.
 
 ```bash
 ./bin/nanoc program.nano -o program \
@@ -19,18 +19,18 @@ The nanolang compiler (`nanoc`) now supports `-I`, `-L`, and `-l` flags that are
     -lSDL2
 ```
 
-This will:
-1. Transpile `program.nano` to C
-2. Compile the C code with the specified include paths, library paths, and libraries
-3. Produce the final executable
+When you run this, I perform three steps:
+1. I transpile `program.nano` to C.
+2. I compile the resulting C code with your specified paths and libraries.
+3. I produce the final executable.
 
 ## Alternative: Manual Compilation
 
-If you need more control or want to use the generated C file in another build system, you can compile manually:
+If you need more control or want to use my generated C file in another build system, you can handle the compilation yourself.
 
 ### Option 1: Compile Manually After Transpilation
 
-1. **Transpile to C** (keep the generated C file):
+1. **Transpile to C** and tell me to keep the generated file:
 ```bash
 ./bin/nanoc examples/checkers_simple.nano -o examples/checkers_simple --keep-c
 ```
@@ -47,9 +47,9 @@ gcc -std=c99 -Isrc \
     -lSDL2
 ```
 
-### Option 2: Use Makefile (Recommended)
+### Option 2: Use My Makefile
 
-Create a Makefile target that handles both transpilation and compilation:
+I recommend using a Makefile target to handle both transpilation and compilation.
 
 ```makefile
 # In your Makefile
@@ -73,7 +73,7 @@ make checkers_simple
 
 ## Future Enhancement: Compiler Flags
 
-A better long-term solution would be to add flags to `nanoc`:
+I plan to support dedicated flags for configuration.
 
 ```bash
 # Proposed syntax
@@ -82,7 +82,7 @@ A better long-term solution would be to add flags to `nanoc`:
     --ldflags "-L/opt/homebrew/lib -lSDL2"
 ```
 
-Or use a configuration file:
+Or a configuration file:
 ```json
 {
   "cflags": ["-I/opt/homebrew/include/SDL2"],
@@ -105,7 +105,7 @@ brew install sdl2
     -lSDL2
 ```
 
-Or with verbose output to see the compilation command:
+Use my verbose flag to see the exact compilation command I use:
 ```bash
 ./bin/nanoc program.nano -o program \
     -I/opt/homebrew/include/SDL2 \
@@ -138,9 +138,9 @@ sudo dnf install SDL2-devel
     -lSDL2
 ```
 
-## Using pkg-config (Cross-Platform)
+## Using pkg-config
 
-For better cross-platform support, use `pkg-config`:
+For better cross-platform support, use `pkg-config`.
 
 ```bash
 # Get SDL2 flags
@@ -171,7 +171,7 @@ gcc -std=c99 -Isrc \
 ./examples/checkers_simple
 ```
 
-Or if you want to see what's happening:
+If you want to see what I am doing:
 ```bash
 ./bin/nanoc examples/checkers_simple.nano -o examples/checkers_simple \
     -I/opt/homebrew/include/SDL2 \
@@ -182,29 +182,30 @@ Or if you want to see what's happening:
 
 ## Required Runtime Files
 
-All nanolang programs need these runtime files:
-- `src/runtime/list_int.c` - Integer list implementation
-- `src/runtime/list_string.c` - String list implementation
+I need these runtime files for every program I produce:
+- `src/runtime/list_int.c` - Integer list implementation.
+- `src/runtime/list_string.c` - String list implementation.
 
-These are automatically included in the compilation command above.
+I include these automatically in the compilation commands above.
 
 ## Troubleshooting
 
 ### Error: "SDL.h: No such file or directory"
-- **Solution**: Add SDL include path with `-I/opt/homebrew/include/SDL2` (or your SDL install location)
+Add the SDL include path with `-I/opt/homebrew/include/SDL2` or the location of your SDL installation.
 
 ### Error: "undefined reference to `SDL_Init`"
-- **Solution**: Add SDL library path and link flag: `-L/opt/homebrew/lib -lSDL2`
+Add the SDL library path and link flag: `-L/opt/homebrew/lib -lSDL2`.
 
 ### Error: "library not found for -lSDL2"
-- **Solution**: Check SDL2 installation location:
-  ```bash
-  # macOS
-  brew --prefix sdl2
-  
-  # Linux
-  pkg-config --libs sdl2
-  ```
+Check your SDL2 installation location.
+
+```bash
+# macOS
+brew --prefix sdl2
+
+# Linux
+pkg-config --libs sdl2
+```
 
 ### Finding SDL2 Installation
 
@@ -223,7 +224,7 @@ pkg-config --exists sdl2 && echo "SDL2 found" || echo "SDL2 not found"
 
 ## Summary
 
-**Recommended workflow:**
+**My recommended workflow:**
 ```bash
 ./bin/nanoc program.nano -o program \
     -I/path/to/headers \
@@ -231,14 +232,15 @@ pkg-config --exists sdl2 && echo "SDL2 found" || echo "SDL2 not found"
     -llibname
 ```
 
-The compiler automatically:
-1. Transpiles `.nano` → `.c`
-2. Compiles the C code with your specified flags
-3. Links against your specified libraries
-4. Produces the final executable
+I automatically:
+1. Transpile `.nano` to `.c`.
+2. Compile the C code with your flags.
+3. Link against your libraries.
+4. Produce the final executable.
 
-**Alternative workflow** (for advanced use cases):
-1. Use `nanoc` with `--keep-c` to generate C code
-2. Manually compile the `.c` file with your own build system
-3. This is useful for integration with CMake, Makefiles, etc.
+**Alternative workflow for advanced use cases:**
+1. Use my `--keep-c` flag to generate C code.
+2. Manually compile the `.c` file with your own build system.
+3. This is useful when you integrate me with CMake or existing Makefiles.
+
 

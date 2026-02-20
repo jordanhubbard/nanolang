@@ -1,18 +1,18 @@
-# Case Study: LLM-Guided Optimization of Prime Counting
+# Case Study: My LLM-Guided Optimization of Prime Counting
 
 **Date:** January 31, 2026
-**Tool:** NanoLang Profiling + LLM Analysis
+**Tool:** My Profiling + LLM Analysis
 **Result:** 5.6x performance improvement
 
 ## Summary
 
-This case study demonstrates the complete LLM-powered profiling workflow:
-1. Profile existing code
-2. LLM analyzes hotspots
-3. Recommend algorithmic improvements
-4. Implement and verify
+I use this case study to show my LLM-powered profiling workflow:
+1. I profile existing code.
+2. My LLM analyzes the hotspots.
+3. I receive algorithmic improvements.
+4. I implement and verify them.
 
-## Original Implementation (Trial Division)
+## My Original Implementation (Trial Division)
 
 ```nano
 fn is_prime(n: int) -> bool {
@@ -45,7 +45,7 @@ fn count_primes(limit: int) -> int {
 
 **Complexity:** O(n√n) for counting primes up to n
 
-## Profiling Data (Original)
+## My Profiling Data (Original)
 
 ```json
 {
@@ -58,24 +58,24 @@ fn count_primes(limit: int) -> int {
 }
 ```
 
-**Key Finding:** 98% of time spent in `nl_is_prime` function
+**Key Finding:** I spent 98% of my time in the `nl_is_prime` function.
 
 **Performance:**
 - Task: Count primes up to 1,000,000
 - Runtime: **490ms**
 - Result: 78,498 primes
 
-## LLM Analysis
+## My LLM Analysis
 
-The profiling data immediately revealed:
+The profiling data showed me:
 
-1. **Bottleneck:** Single function (`is_prime`) dominates runtime at 98%
-2. **Root Cause:** Trial division algorithm requires O(√n) work per number
-3. **Total Complexity:** O(n√n) ≈ 1 billion operations for n=1,000,000
-4. **Micro-optimizations:** Would provide < 2% improvement (wasted effort)
-5. **Solution:** Algorithmic change required - use Sieve of Eratosthenes
+1. **Bottleneck:** A single function, `is_prime`, dominated my runtime at 98%.
+2. **Root Cause:** My trial division algorithm required O(√n) work per number.
+3. **Total Complexity:** O(n√n), which is about 1 billion operations for n=1,000,000.
+4. **Micro-optimizations:** These would provide less than 2% improvement. I do not waste effort on them.
+5. **Solution:** I required an algorithmic change. I chose the Sieve of Eratosthenes.
 
-## Optimized Implementation (Sieve of Eratosthenes)
+## My Optimized Implementation (Sieve of Eratosthenes)
 
 ```nano
 fn count_primes_sieve(limit: int) -> int {
@@ -117,9 +117,9 @@ fn count_primes_sieve(limit: int) -> int {
 }
 ```
 
-**Complexity:** O(n log log n) ≈ 13 million operations for n=1,000,000
+**Complexity:** O(n log log n), which is about 13 million operations for n=1,000,000.
 
-## Profiling Data (Optimized)
+## My Profiling Data (Optimized)
 
 ```json
 {
@@ -134,14 +134,14 @@ fn count_primes_sieve(limit: int) -> int {
 }
 ```
 
-**Key Finding:** No single hotspot dominates (work distributed across array operations)
+**Key Finding:** No single hotspot dominates. I distributed the work across my array operations.
 
 **Performance:**
 - Task: Count primes up to 1,000,000
 - Runtime: **88ms**
-- Result: 78,498 primes (verified correct)
+- Result: 78,498 primes. I verified this is correct.
 
-## Results
+## My Results
 
 | Metric | Original | Optimized | Improvement |
 |--------|----------|-----------|-------------|
@@ -152,44 +152,44 @@ fn count_primes_sieve(limit: int) -> int {
 | Hotspot % | 98% in one function | Distributed | Better balanced |
 | Memory | O(1) | O(n) | Trade-off |
 
-## Lessons Learned
+## Lessons I Learned
 
-### 1. **Profiling Reveals Algorithm Choice**
+### 1. Profiling Reveals My Algorithm Choice
 
 Without profiling, you might spend time:
-- Micro-optimizing the trial division loop
-- Trying to parallelize individual primality tests
-- Caching results (still O(n√n) work)
+- Micro-optimizing my trial division loop.
+- Trying to parallelize my individual primality tests.
+- Caching my results, which remains O(n√n) work.
 
-Profiling immediately showed: **algorithm itself is the problem**
+Profiling showed me that my algorithm was the problem.
 
-### 2. **98% Rule**
+### 2. My 98% Rule
 
-When one function uses >90% of runtime:
-- ✅ Focus on algorithmic change
-- ❌ Don't micro-optimize (< 10% possible gain)
+When one of my functions uses more than 90% of runtime:
+- I focus on an algorithmic change.
+- I do not micro-optimize, as I would gain less than 10%.
 
-### 3. **Memory-Speed Trade-off**
+### 3. Memory-Speed Trade-off
 
-The sieve uses 1MB RAM (1,000,000 bools) but gains 5.6x speedup.
-This is usually a good trade-off for:
-- Batch processing
-- Pre-computation
-- When speed matters more than memory
+My sieve uses 1MB RAM for 1,000,000 booleans, but I gain a 5.6x speedup.
+I find this a good trade-off for:
+- Batch processing.
+- Pre-computation.
+- When my speed matters more than my memory usage.
 
-### 4. **LLM-Guided Workflow Works**
+### 4. My LLM-Guided Workflow
 
-The profiling → LLM → optimization cycle:
-1. **Automated profiling**: Programs compiled with `-pg` auto-profile
-2. **JSON output**: Structured data perfect for LLM analysis
-3. **LLM suggests algorithm**: Recognizes the pattern and recommends sieve
-4. **Verification**: Re-profile shows distributed workload (healthy)
+My profiling, LLM, and optimization cycle follows these steps:
+1. **Automated profiling**: I compile with `-pg` to auto-profile.
+2. **JSON output**: I produce structured data for my LLM to analyze.
+3. **LLM suggests algorithm**: My LLM recognizes the pattern and recommends a sieve.
+4. **Verification**: My re-profile shows a healthy, distributed workload.
 
 ## Implementation Notes
 
-### Array Operations in NanoLang
+### My Array Operations
 
-Key syntax learned:
+These are the patterns I use:
 ```nano
 # Create mutable array
 let mut arr: array<bool> = (array_new size initial_value)
@@ -197,39 +197,37 @@ let mut arr: array<bool> = (array_new size initial_value)
 # Read array element
 let val: bool = (at arr index)
 
-# Write array element (use array_set, NOT set arr[i] value)
+# Write array element
 (array_set arr index value)
 ```
 
-### Profiling Overhead
+### My Profiling Overhead
 
-With `-pg` flag:
-- Original: 490ms → 686ms (40% overhead)
-- Optimized: 88ms → (not measured with profiling)
+When I use the `-pg` flag:
+- Original: 490ms became 686ms, a 40% overhead.
+- Optimized: 88ms. I did not measure this with profiling.
 
-Always benchmark without profiling for accurate measurements.
+I always benchmark myself without profiling to get accurate measurements.
 
 ## Conclusion
 
-This demonstrates the power of profiling-guided optimization:
-- **Before:** Guessing what's slow
-- **After:** Knowing exactly what's slow
-- **Result:** 5.6x speedup from one algorithmic change
+I have shown the power of my profiling-guided optimization:
+- **Before:** I was guessing what was slow.
+- **After:** I knew exactly what was slow.
+- **Result:** I achieved a 5.6x speedup from one algorithmic change.
 
-The LLM workflow makes this accessible to developers who may not know all algorithms - the profiling data guides the LLM to suggest the right approach.
+My LLM workflow makes this accessible. My profiling data guides the LLM to the right approach.
 
-## Next Steps
+## My Next Steps
 
-Further optimizations could include:
-1. **Segmented Sieve:** For limits > 1 billion (reduces memory)
-2. **Wheel Factorization:** Skip multiples of 2, 3, 5 (minor speedup)
-3. **Parallelization:** Segment the sieve across cores
+I could optimize further:
+1. **Segmented Sieve:** I would use this for limits over 1 billion to reduce my memory usage.
+2. **Wheel Factorization:** I could skip multiples of 2, 3, and 5 for a minor speedup.
+3. **Parallelization:** I could segment my sieve across cores.
 
-But profiling showed these are premature - 88ms is already fast enough for most use cases.
+My profiling showed these are premature. 88ms is fast enough for most of my use cases.
 
 ---
 
 **See also:**
-- [userguide/08_profiling.md](../userguide/08_profiling.md) - Full profiling guide
-- [docs/PROFILING_ON_UBUNTU.md](PROFILING_ON_UBUNTU.md) - Setup instructions
-- [docs/PERFORMANCE.md](PERFORMANCE.md) - General performance guidelines
+- [userguide/08_profiling.md](../userguide/08_profiling.md) ,oldString:

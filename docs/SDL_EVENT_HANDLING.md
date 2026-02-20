@@ -1,40 +1,40 @@
-# SDL Event Handling in NanoLang
+# My SDL Event Handling
 
 ## Overview
 
-SDL event handling in NanoLang is centralized in `modules/sdl_helpers/sdl_helpers.c` to provide a consistent, frame-based event polling system that works reliably across all SDL examples.
+I centralize my SDL event handling in `modules/sdl_helpers/sdl_helpers.c`. I provide a consistent, frame-based event polling system that works reliably across all my SDL examples.
 
-## Key Design Principles
+## My Design Principles
 
 ### 1. Frame-Based Event Buffering
 
-Events are polled once per "frame" (defined as a 16ms interval, approximately 60 FPS) and buffered internally. This prevents:
-- Event loss when multiple event polls occur within the same frame
-- Unbounded buffer growth from unconsumed events
-- Race conditions between different event types
+I poll events once per frame. I define a frame as a 16ms interval, which is approximately 60 FPS. I buffer these events internally. This prevents:
+- Event loss when multiple event polls occur within the same frame.
+- Unbounded buffer growth from unconsumed events.
+- Race conditions between different event types.
 
 ### 2. Special Event Handling
 
-Different event types receive different treatment:
+I treat different event types according to their needs:
 
 **SDL_QUIT (Window Close)**
-- **Persistent within frame**: Once received, remains true for the entire frame
-- **Multiple polls supported**: Can be checked multiple times per frame safely
-- **Never lost**: Critical for application shutdown
+- **Persistent within frame**: Once I receive this, it remains true for the entire frame.
+- **Multiple polls supported**: You can check this multiple times per frame safely.
+- **Never lost**: I ensure this is preserved for your application shutdown.
 
 **SDL_MOUSEMOTION**
-- **Coalesced**: Only the most recent motion event is kept
-- **Not buffered**: Doesn't consume buffer space
-- **High frequency**: Motion events can occur hundreds of times per second
+- **Coalesced**: I only keep the most recent motion event.
+- **Not buffered**: I do not let motion events consume my buffer space.
+- **High frequency**: I handle motion events that occur hundreds of times per second without bloat.
 
 **Other Events (Keyboard, Mouse Click, etc.)**
-- **Consumed on first poll**: Removed from buffer when retrieved
-- **FIFO order**: Events processed in order received
-- **Buffer limited**: Maximum 256 events per frame
+- **Consumed on first poll**: I remove these from my buffer when you retrieve them.
+- **FIFO order**: I process events in the order I received them.
+- **Buffer limited**: I allow a maximum of 256 events per frame.
 
 ## Implementation Details
 
-### Static State Variables
+### My Static State Variables
 
 ```c
 static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];  // Event buffer
@@ -46,7 +46,7 @@ static SDL_Event nl_sdl_last_mousemotion;                 // Last motion event
 static int nl_sdl_has_mousemotion = 0;                    // Motion flag
 ```
 
-### Event Draining Logic
+### My Event Draining Logic
 
 ```c
 static void nl__sdl_drain_events(void) {
@@ -78,7 +78,7 @@ static void nl__sdl_drain_events(void) {
 }
 ```
 
-### Quit Event Handling
+### My Quit Event Handling
 
 ```c
 int64_t nl_sdl_poll_event_quit(void) {
@@ -87,9 +87,9 @@ int64_t nl_sdl_poll_event_quit(void) {
 }
 ```
 
-## Usage Patterns
+## My Usage Patterns
 
-### Standard Event Loop
+### My Standard Event Loop
 
 ```nano
 while running {
@@ -120,7 +120,7 @@ let quit3: int = (nl_sdl_poll_event_quit)
 
 ### Event Order Independence
 
-The frame-based buffering ensures that the order of event polling within a frame doesn't matter:
+My frame-based buffering ensures that the order of event polling within a frame does not matter:
 
 ```nano
 # Both orderings work identically
@@ -133,76 +133,77 @@ let quit: int = (nl_sdl_poll_event_quit)
 let key: int = (nl_sdl_poll_keypress)
 ```
 
-## Available Event Functions
+## My Available Event Functions
 
 ### Critical Events
-- `nl_sdl_poll_event_quit() -> int` - Returns 1 if window close requested (persistent)
+- `nl_sdl_poll_event_quit() -> int` - I return 1 if a window close was requested. This is persistent within the frame.
 
 ### Mouse Events
-- `nl_sdl_poll_mouse_click() -> int` - Returns x*10000+y for left click, -1 otherwise
-- `nl_sdl_poll_mouse_up() -> int` - Returns x*10000+y for left release, -1 otherwise
-- `nl_sdl_poll_mouse_state() -> int` - Returns x*10000+y if button held, -1 otherwise
-- `nl_sdl_poll_mouse_motion() -> int` - Returns x*10000+y for mouse movement, -1 otherwise
-- `nl_sdl_poll_mouse_wheel() -> int` - Returns scroll delta (positive=up, negative=down)
+- `nl_sdl_poll_mouse_click() -> int` - I return x*10000+y for a left click, or -1.
+- `nl_sdl_poll_mouse_up() -> int` - I return x*10000+y for a left release, or -1.
+- `nl_sdl_poll_mouse_state() -> int` - I return x*10000+y if the button is held, or -1.
+- `nl_sdl_poll_mouse_motion() -> int` - I return x*10000+y for mouse movement, or -1.
+- `nl_sdl_poll_mouse_wheel() -> int` - I return the scroll delta. Positive is up, negative is down.
 
 ### Keyboard Events
-- `nl_sdl_poll_keypress() -> int` - Returns SDL scancode if key pressed, -1 otherwise
-- `nl_sdl_key_state(scancode: int) -> int` - Returns 1 if key currently held, 0 otherwise
+- `nl_sdl_poll_keypress() -> int` - I return the SDL scancode if a key was pressed, or -1.
+- `nl_sdl_key_state(scancode: int) -> int` - I return 1 if the key is currently held, or 0.
 
-## Common Pitfalls (Avoided by Current Design)
+## Common Pitfalls I Avoid
 
-### ❌ Old Problem: Lost Quit Events
+### Problem: Lost Quit Events
 ```c
-// OLD BUGGY CODE:
+// BUGGY CODE:
 // First call consumes quit event from buffer
 if (nl__sdl_take_first_event(SDL_QUIT, NULL)) { ... }
 // Second call finds empty buffer, returns 0
 if (nl__sdl_take_first_event(SDL_QUIT, NULL)) { ... }  // FAILS!
 ```
 
-### ✅ Current Solution: Persistent Quit Flag
+### My Solution: Persistent Quit Flag
 ```c
-// NEW CORRECT CODE:
+// CORRECT CODE:
 // Both calls check the same persistent flag
 if (nl_sdl_quit_received) { ... }  // Returns 1
 if (nl_sdl_quit_received) { ... }  // Returns 1 (still works!)
 ```
 
-### ❌ Old Problem: Buffer Clearing Between Calls
+### Problem: Buffer Clearing Between Calls
 ```c
-// OLD BUGGY CODE:
+// BUGGY CODE:
 nl__sdl_drain_events();  // Fills buffer
 nl__sdl_drain_events();  // Clears buffer if time changed!
 ```
 
-### ✅ Current Solution: Once-Per-Frame Draining
+### My Solution: Once-Per-Frame Draining
 ```c
-// NEW CORRECT CODE:
+// CORRECT CODE:
 nl__sdl_drain_events();  // Fills buffer, sets drained flag
 nl__sdl_drain_events();  // Returns early, preserves buffer
 ```
 
-## Performance Characteristics
+## My Performance Characteristics
 
-- **Frame rate**: Designed for 60 FPS (16ms frame time)
-- **Buffer capacity**: 256 events per frame
-- **Overhead**: Minimal - single timestamp check per drain call
-- **Latency**: ~1 frame (16ms) maximum for event response
+- **Frame rate**: I am designed for 60 FPS with a 16ms frame time.
+- **Buffer capacity**: I allow 256 events per frame.
+- **Overhead**: I use a single timestamp check per drain call.
+- **Latency**: I have a maximum event response latency of approximately one frame (16ms).
 
 ## Thread Safety
 
-**Not thread-safe**. All SDL event functions must be called from the main thread. This is an SDL limitation, not a NanoLang limitation.
+I am **not thread-safe**. You must call all my SDL event functions from the main thread. This is an SDL limitation, not my own.
 
-## Future Improvements
+## My Future Improvements
 
-- [ ] Configurable frame time threshold (currently hardcoded to 16ms)
-- [ ] Event priority system for critical events
-- [ ] Event queue overflow handling
-- [ ] Performance metrics and profiling
+- [ ] Configurable frame time threshold.
+- [ ] Event priority system for critical events.
+- [ ] Event queue overflow handling.
+- [ ] Performance metrics and profiling.
 
 ## See Also
 
-- `modules/sdl_helpers/sdl_helpers.c` - Implementation
-- `modules/sdl_helpers/sdl_helpers.nano` - NanoLang interface
-- `modules/sdl/sdl.nano` - Core SDL bindings
+- `modules/sdl_helpers/sdl_helpers.c` - My implementation.
+- `modules/sdl_helpers/sdl_helpers.nano` - My NanoLang interface.
+- `modules/sdl/sdl.nano` - My core SDL bindings.
+
 

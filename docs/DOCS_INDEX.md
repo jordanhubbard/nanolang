@@ -1,8 +1,8 @@
-# nanolang Documentation Index
+# My Documentation Index
 
-This page is a stable entrypoint for older links.
+I provide this page as a stable entrypoint for older links.
 
-**Canonical documentation map:** see **[docs/README.md](README.md)**.
+My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ## Quick Links
 
@@ -17,10 +17,10 @@ This page is a stable entrypoint for older links.
 - [Shadow Tests](SHADOW_TESTS.md)
 
 ### Virtual Machine
-- [NanoISA Architecture](NANOISA.md) - Complete VM backend reference (ISA, bytecode format, co-process FFI, daemon)
+- [NanoISA Architecture](NANOISA.md) - I document my complete VM backend here, including my ISA, bytecode format, co-process FFI, and daemon.
 
 ### Formal Verification
-- [NanoCore Proofs](../formal/README.md) - Coq mechanized metatheory (preservation, progress, determinism, semantic equivalence)
+- [NanoCore Proofs](../formal/README.md) - I use Coq to mechanize my metatheory. These proofs cover my preservation, progress, determinism, and semantic equivalence.
 
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)

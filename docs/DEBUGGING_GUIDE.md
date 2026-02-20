@@ -1,16 +1,16 @@
-# NanoLang Debugging and Tracing Guide
+# My Debugging and Tracing Guide
 
-> **For LLM Agents:** This is your canonical reference for debugging NanoLang programs and implementing self-validating code generation.
+> **For LLM Agents:** This is your canonical reference for debugging programs I run and implementing self-validating code generation.
 
 ---
 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Structured Logging API](#structured-logging-api)
+2. [My Structured Logging API](#structured-logging-api)
 3. [Shadow Tests for Compile-Time Validation](#shadow-tests)
 4. [Property-Based Testing](#property-based-testing)
-5. [Compiler Diagnostics](#compiler-diagnostics)
+5. [My Compiler Diagnostics](#compiler-diagnostics)
 6. [Common Debugging Patterns](#common-debugging-patterns)
 7. [LLM Agent Feedback Loops](#llm-agent-feedback-loops)
 
@@ -18,9 +18,9 @@
 
 ## Quick Start
 
-### The 3-Layer Debugging Strategy
+### My 3-Layer Debugging Strategy
 
-NanoLang provides three complementary debugging mechanisms:
+I provide three complementary debugging mechanisms:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -29,7 +29,7 @@ NanoLang provides three complementary debugging mechanisms:
 │    - Category-based organization        │
 └─────────────────────────────────────────┘
 ┌─────────────────────────────────────────┐
-│ 2. Shadow Tests (Compile-Time)         │ ← Mandatory for functions
+│ 2. Shadow Tests (Compile-Time)         │ ← I require these for functions
 │    - Inline test assertions             │
 │    - Run before program execution       │
 └─────────────────────────────────────────┘
@@ -40,14 +40,14 @@ NanoLang provides three complementary debugging mechanisms:
 └─────────────────────────────────────────┘
 ```
 
-**Rule of thumb:**
-- **Shadow tests** for correctness (always required)
-- **Logging** for runtime behavior (during debugging)
-- **Property tests** for algorithmic properties (optional but powerful)
+**My rule of thumb:**
+- **Shadow tests** for correctness. I require these.
+- **Logging** for runtime behavior during your debugging process.
+- **Property tests** for algorithmic properties. These are optional but I find them powerful.
 
 ---
 
-## Structured Logging API
+## My Structured Logging API
 
 ### Basic Usage
 
@@ -79,14 +79,14 @@ fn process_user_input(input: string) -> bool {
 
 | Level | Severity | Use Case | Example |
 |-------|----------|----------|---------|
-| TRACE | Lowest | Detailed execution flow | Function entry/exit points |
+| TRACE | Lowest | Detailed execution flow | Function entry and exit points |
 | DEBUG | Low | Development debugging | Variable values, intermediate results |
 | INFO | Normal | Operational milestones | "Server started", "File loaded" |
 | WARN | Medium | Potentially problematic | Deprecated API usage, recoverable errors |
 | ERROR | High | Operation failures | Failed validation, I/O errors |
 | FATAL | Highest | Critical failures | Cannot continue execution |
 
-**Default threshold:** INFO (DEBUG and TRACE are suppressed)
+**My default threshold:** INFO. I suppress DEBUG and TRACE unless you tell me otherwise.
 
 ### API Reference
 
@@ -113,7 +113,7 @@ from "stdlib/log.nano" import trace, debug, info, warn, error, fatal
 
 ### Best Practices
 
-#### ✅ DO: Use Categories for Organization
+#### DO: Use Categories for Organization
 ```nano
 fn load_config(path: string) -> bool {
     (log_info "config" "Loading configuration")
@@ -127,9 +127,9 @@ fn validate_data(data: array<int>) -> bool {
 }
 ```
 
-**Benefit:** Easy to filter logs by subsystem
+**Benefit:** You can easily filter my logs by subsystem.
 
-#### ✅ DO: Log State Transitions
+#### DO: Log State Transitions
 ```nano
 fn connect_to_server(host: string) -> bool {
     (log_info "network" "Attempting connection")
@@ -144,7 +144,7 @@ fn connect_to_server(host: string) -> bool {
 }
 ```
 
-#### ❌ DON'T: Log in Tight Loops
+#### DO NOT: Log in Tight Loops
 ```nano
 # BAD - floods output
 for (let i: int = 0) (< i 10000) (set i (+ i 1)) {
@@ -155,7 +155,7 @@ for (let i: int = 0) (< i 10000) (set i (+ i 1)) {
 (log_debug "loop" (+ "Processing " (int_to_string 10000) " items"))
 ```
 
-#### ❌ DON'T: Log Sensitive Data
+#### DO NOT: Log Sensitive Data
 ```nano
 # BAD - exposes password
 (log_info "auth" (+ "Password: " user_password))
@@ -170,7 +170,7 @@ for (let i: int = 0) (< i 10000) (set i (+ i 1)) {
 
 ### Purpose
 
-Shadow tests are **mandatory inline tests** that run at compile-time. Every function MUST have a shadow test (except `extern` FFI functions).
+Shadow tests are my **mandatory inline tests** that run at compile time. I will not compile a function unless it has a shadow test, unless it is an `extern` FFI function.
 
 ### Syntax
 
@@ -186,13 +186,13 @@ shadow add {
 }
 ```
 
-### When Shadow Tests Run
+### When I Run Shadow Tests
 
 ```
-1. Code written → 2. Compiled → 3. Shadow tests execute → 4. Program runs
-                                      ↓
-                              [FAIL: Abort compilation]
-                              [PASS: Continue to program]
+1. Code written → 2. Compiled → 3. I execute shadow tests → 4. Program runs
+                                       ↓
+                               [FAIL: I abort compilation]
+                               [PASS: I continue to program]
 ```
 
 ### Testing Strategy
@@ -242,15 +242,15 @@ shadow concat_with_separator {
 }
 ```
 
-### Shadow Test Limitations
+### My Shadow Test Limitations
 
-**❌ Cannot test:**
+**I cannot test:**
 - Side effects (I/O, global state)
 - Non-deterministic behavior (random numbers, time)
 - External dependencies (network, filesystem)
 
-**✅ Should test:**
-- Pure functions (same input → same output)
+**You should test:**
+- Pure functions (same input produces same output)
 - Mathematical properties
 - Data transformations
 - Algorithm correctness
@@ -261,7 +261,7 @@ shadow concat_with_separator {
 
 ### Overview
 
-Property-based testing **generates random inputs** to test algorithmic properties. Much more powerful than example-based testing.
+My property-based testing module **generates random inputs** to test algorithmic properties. I find this much more powerful than example-based testing.
 
 **Module:** `modules/proptest/proptest.nano`
 
@@ -294,11 +294,11 @@ shadow reverse_list {
 }
 ```
 
-**What this does:**
-1. Generates 100 random integer arrays
-2. Tests property for each array
-3. If failure found, **shrinks** to minimal failing case
-4. Reports: "Failed on input: [1, 2]"
+**What I do here:**
+1. I generate 100 random integer arrays.
+2. I test the property for each array.
+3. If I find a failure, I **shrink** it to the minimal failing case.
+4. I report: "Failed on input: [1, 2]".
 
 ### Common Properties to Test
 
@@ -306,7 +306,7 @@ shadow reverse_list {
 ```nano
 # Property: f(f(x)) == f(x)
 fn normalize(s: string) -> string {
-    # Remove leading/trailing whitespace
+    # Remove leading and trailing whitespace
 }
 
 shadow normalize {
@@ -350,11 +350,11 @@ shadow euclidean_distance {
 
 ---
 
-## Compiler Diagnostics
+## My Compiler Diagnostics
 
-### Understanding Error Messages
+### Understanding My Error Messages
 
-NanoLang provides detailed error messages with:
+I provide detailed error messages with:
 - **Line and column numbers**
 - **Error codes** (E0001, E0002, etc.)
 - **Contextual hints**
@@ -375,13 +375,13 @@ Error at line 2, column 5: Type mismatch in let statement
   Hint: Check the type annotation matches the assigned value
 ```
 
-### Verbose Mode
+### My Verbose Mode
 
 ```bash
 ./bin/nanoc program.nano --verbose
 ```
 
-**Shows:**
+**I show:**
 - Phase-by-phase compilation progress
 - Module loading details
 - C compilation commands
@@ -410,7 +410,7 @@ fn complex_algorithm(data: array<int>) -> int {
 }
 ```
 
-**Strategy:** Add logging at each step, run program, identify where output diverges from expectation.
+**Strategy:** Add logging at each step, run the program, and identify where my output diverges from your expectation.
 
 ### Pattern 2: Assertion Checkpoints
 
@@ -428,7 +428,7 @@ fn validate_and_process(input: string) -> bool {
 }
 ```
 
-**Benefit:** Crashes immediately at first violated invariant, pinpointing bug location.
+**Benefit:** I crash immediately at the first violated invariant, pinpointing the bug location.
 
 ### Pattern 3: Trace Logging for Recursion
 
@@ -492,9 +492,9 @@ shadow sort_array {
 ```
 
 **Possible outcomes:**
-1. ✅ **Success** → Shadow tests pass → Code correct
-2. ❌ **Compile error** → Parse error message → Fix syntax
-3. ❌ **Shadow test failure** → Assertion failed → Fix logic
+1. **Success** - My shadow tests pass. Your code is correct.
+2. **Compile error** - I provide a parse error message. Fix syntax.
+3. **Shadow test failure** - My assertion failed. Fix logic.
 
 #### Step 3: Parse Feedback
 
@@ -505,7 +505,7 @@ Error at line 5, column 12: Type mismatch
   Got: string
 ```
 
-**LLM action:** Identify line 5, fix type error, regenerate.
+**LLM action:** Identify line 5, fix type error, and regenerate.
 
 **Shadow test failure:**
 ```
@@ -513,7 +513,7 @@ Assertion failed at line 12, column 5
 Shadow test 'sort_array' failed
 ```
 
-**LLM action:** Review algorithm, check test case expectations, fix implementation.
+**LLM action:** Review the algorithm, check test case expectations, and fix the implementation.
 
 #### Step 4: Iterate Until Success
 
@@ -546,7 +546,7 @@ Shadow test 'sort_array' failed
                          └───────────────────┘
 ```
 
-### Structured Logging for Runtime Debugging
+### My Structured Logging for Runtime Debugging
 
 ```nano
 fn llm_generated_function(data: array<int>) -> int {
@@ -567,7 +567,7 @@ fn llm_generated_function(data: array<int>) -> int {
 }
 ```
 
-**Benefit:** If runtime behavior is unexpected, logs reveal where logic diverges.
+**Benefit:** If runtime behavior is unexpected, my logs reveal where logic diverges.
 
 ### Property-Based Testing for Algorithmic Validation
 
@@ -600,13 +600,13 @@ shadow my_sort {
 }
 ```
 
-**Benefit:** Catches edge cases LLM didn't anticipate (e.g., duplicate elements, negative numbers).
+**Benefit:** I catch edge cases the LLM didn't anticipate, such as duplicate elements or negative numbers.
 
 ---
 
 ## Quick Reference
 
-### Logging Cheat Sheet
+### My Logging Cheat Sheet
 
 ```nano
 # Import
@@ -622,7 +622,7 @@ from "stdlib/log.nano" import info, debug, error
 (info "Simple message")
 ```
 
-### Shadow Test Template
+### My Shadow Test Template
 
 ```nano
 fn my_function(arg: type) -> return_type {
@@ -641,7 +641,7 @@ shadow my_function {
 }
 ```
 
-### Compilation Commands
+### My Compilation Commands
 
 ```bash
 # Normal compilation
@@ -667,16 +667,17 @@ shadow my_function {
 
 ## Summary
 
-**3 Debugging Tools:**
-1. ✅ Structured Logging → Runtime behavior
-2. ✅ Shadow Tests → Compile-time correctness
-3. ✅ Property Testing → Algorithmic validation
+**My 3 Debugging Tools:**
+1. Structured Logging - Runtime behavior
+2. Shadow Tests - Compile-time correctness
+3. Property Testing - Algorithmic validation
 
 **For LLM Agents:**
-- Always include shadow tests in generated code
-- Use logging during development/debugging
-- Leverage property tests for complex algorithms
-- Parse compiler errors to auto-correct code
-- Iterate until all tests pass
+- Always include shadow tests in generated code.
+- Use my logging during development and debugging.
+- Leverage property tests for complex algorithms.
+- Parse my compiler errors to auto-correct code.
+- Iterate until all my tests pass.
 
-**Key Principle:** **Self-validating code generation** = Generate + Test + Fix loop
+**My Key Principle:** **Self-validating code generation** = Generate + Test + Fix loop
+

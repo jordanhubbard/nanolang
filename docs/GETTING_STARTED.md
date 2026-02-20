@@ -1,20 +1,20 @@
-# Getting Started with nanolang
+# Learning My Ways
 
-Welcome to nanolang! This guide will help you understand and start writing programs in this minimal, LLM-friendly language.
+I am NanoLang. This guide exists to help you understand how I function and how to write programs that I will accept. I am a minimal language designed to be written by machines and read by humans without ambiguity.
 
-## What is nanolang?
+## Who I Am
 
-nanolang is a programming language designed with these goals:
+I was designed with specific convictions:
 
-- **Simple**: Small set of features, easy to learn
-- **Clear**: Every construct has exactly one meaning
-- **Safe**: Static typing catches errors at compile time
-- **Tested**: All code must have shadow-tests
-- **LLM-friendly**: Syntax optimized for AI code generation
+- **Simple**: I have a small set of features. I do not provide multiple ways to do the same thing.
+- **Clear**: Every construct I possess has exactly one meaning.
+- **Safe**: My static type system catches errors at compile time so they do not happen at runtime.
+- **Tested**: I require shadow tests for every function. If you do not test your code, I will not compile it.
+- **LLM-friendly**: My syntax is optimized for AI code generation.
 
 ## Your First Program
 
-Let's start with the classic "Hello, World!":
+This is how I expect a basic program to look.
 
 ```nano
 fn main() -> int {
@@ -29,16 +29,16 @@ shadow main {
 
 ### Breaking it down:
 
-1. `fn main() -> int` - Define a function named `main` that returns an `int`
-2. `print "Hello, World!"` - Print the string
-3. `return 0` - Return success code
-4. `shadow main { ... }` - Required tests for the `main` function
+1. `fn main() -> int` - You define a function named `main` that returns an `int`.
+2. `print "Hello, World!"` - I output the string.
+3. `return 0` - You return a success code.
+4. `shadow main { ... }` - You provide the mandatory tests for your `main` function.
 
 ## Core Concepts
 
 ### 1. Dual Notation: Prefix and Infix
 
-nanolang supports **both** prefix notation (like Lisp) and conventional infix notation for operators:
+I support both prefix notation and conventional infix notation for operators. You may use whichever you find clearer in a given context.
 
 ```nano
 # Prefix notation (S-expression style):
@@ -56,7 +56,7 @@ true and false       # false
 # Both styles work - use whichever is clearer!
 ```
 
-**Important:** All infix operators have **equal precedence** and evaluate **left-to-right** (no PEMDAS). Use parentheses to control grouping:
+**Important**: I do not have operator precedence. All my infix operators have equal precedence and I evaluate them strictly from left to right. I do not follow PEMDAS. You must use parentheses to control grouping.
 
 ```nano
 # Without parens: evaluated left-to-right
@@ -66,11 +66,11 @@ a + b * c            # means (a + b) * c, NOT a + (b * c)
 a * (b + c)          # multiply a by the sum of b and c
 ```
 
-**Note:** Function calls still use prefix notation: `(println "hello")`, `(add 2 3)`. Unary operators `not` and `-` work without parens: `not flag`, `-x`.
+My function calls always use prefix notation: `(println "hello")`, `(add 2 3)`. My unary operators `not` and `-` work without parentheses: `not flag`, `-x`.
 
 ### 2. Explicit Types
 
-Every variable must declare its type:
+I require you to declare the type of every variable. I do not like guessing what you meant.
 
 ```nano
 let x: int = 42
@@ -79,16 +79,16 @@ let flag: bool = true
 let pi: float = 3.14
 ```
 
-Types available:
+The types I provide are:
 - `int` - 64-bit integer
 - `float` - 64-bit floating point
 - `bool` - true or false
 - `string` - UTF-8 text
-- `void` - no value (for functions only)
+- `void` - no value (used only for functions)
 
 ### 3. Functions
 
-Functions are defined with `fn`:
+You define functions using the `fn` keyword.
 
 ```nano
 fn add(a: int, b: int) -> int {
@@ -96,15 +96,15 @@ fn add(a: int, b: int) -> int {
 }
 ```
 
-**Rules:**
-- Parameters must have types: `a: int`
-- Must specify return type: `-> int`
-- Must return a value (unless `void`)
-- Must have a shadow-test
+My rules for functions are strict:
+- You must provide types for all parameters.
+- You must specify a return type.
+- You must return a value unless the return type is `void`.
+- You must provide a shadow test.
 
-### 4. Shadow-Tests
+### 4. Shadow Tests
 
-Every function needs tests:
+I require a test for every function you write.
 
 ```nano
 shadow add {
@@ -114,22 +114,22 @@ shadow add {
 }
 ```
 
-**Key points:**
-- Tests run during compilation
-- Failed tests = failed compilation
-- Tests document expected behavior
-- Tests are removed from production builds
+What you should know about my tests:
+- I run them during compilation.
+- If a test fails, I will refuse to compile your program.
+- They serve as documentation for how your code should behave.
+- I remove them from the final production binary.
 
 ### 5. Immutable by Default
 
-Variables are immutable unless marked with `mut`:
+My variables are immutable by default. I find it safer that way. If you intend to change a value, you must mark it with `mut`.
 
 ```nano
 let x: int = 10
-# set x 20  # ERROR: x is immutable
+# set x 20  # I will report an error here because x is immutable
 
 let mut y: int = 10
-set y 20     # OK: y is mutable
+set y 20     # This is allowed because y is mutable
 ```
 
 ## Common Patterns
@@ -152,7 +152,7 @@ shadow abs {
 }
 ```
 
-**Note:** Both `if` and `else` branches are required.
+I require both the `if` and the `else` branch. I do not allow ambiguity in control flow.
 
 ### Loops
 
@@ -228,41 +228,44 @@ int      float    bool     string   void
 true     false    print    and      or       not
 ```
 
-## Common Mistakes
+## Things I Will Not Let You Do
+
+I am very particular about how I am written. Here are several common ways to make me stop compiling your code.
 
 ### Both notations work for operators
 ```nano
 let sum: int = (+ a b)    # Prefix notation
-let sum: int = a + b       # Infix notation (also valid!)
+let sum: int = a + b       # Infix notation (also valid)
 ```
 
-**Note:** All infix operators have equal precedence (left-to-right). Use parentheses to group:
+Remember that I evaluate all infix operators from left to right. I do not have precedence rules.
+
 ```nano
-let result: int = a * (b + c)   # Parens needed: no PEMDAS
+let result: int = a * (b + c)   # You must use parentheses here
 ```
 
 ---
 
-### ❌ Wrong: Missing type annotation
+### Incorrect: Missing type annotation
 ```nano
 let x = 42
 ```
 
-### ✅ Correct: Explicit type
+### Correct: Explicit type
 ```nano
 let x: int = 42
 ```
 
 ---
 
-### ❌ Wrong: Missing shadow-test
+### Incorrect: Missing shadow test
 ```nano
 fn double(x: int) -> int {
     return (* x 2)
 }
 ```
 
-### ✅ Correct: Include shadow-test
+### Correct: Include shadow test
 ```nano
 fn double(x: int) -> int {
     return (* x 2)
@@ -276,13 +279,13 @@ shadow double {
 
 ---
 
-### ❌ Wrong: Mutating immutable variable
+### Incorrect: Mutating an immutable variable
 ```nano
 let x: int = 10
 set x 20
 ```
 
-### ✅ Correct: Declare as mutable
+### Correct: Declare as mutable
 ```nano
 let mut x: int = 10
 set x 20
@@ -290,14 +293,14 @@ set x 20
 
 ---
 
-### ❌ Wrong: If without else
+### Incorrect: If without else
 ```nano
 if (> x 0) {
     return 1
 }
 ```
 
-### ✅ Correct: Include else branch
+### Correct: Include else branch
 ```nano
 if (> x 0) {
     return 1
@@ -306,9 +309,9 @@ if (> x 0) {
 }
 ```
 
-## Alternative: NanoISA Virtual Machine
+## Alternative: My Virtual Machine
 
-In addition to compiling to C, nanolang can compile to its own virtual machine:
+I can transpile to C, but I can also compile to my own virtual machine.
 
 ```bash
 # Build the VM backend
@@ -326,39 +329,37 @@ make vm
 ./bin/nano_vm hello.nvm
 ```
 
-**Why use the VM backend?**
-- **Sandboxed execution** - All external function calls are isolated in a separate co-process via RPC. If an FFI call crashes, the VM survives.
-- **No C compiler needed** - The VM runs bytecode directly, no gcc/clang required at runtime.
-- **Formally grounded** - NanoLang's core semantics are verified in Coq; the VM's behavior can be validated against a provably correct reference interpreter.
+Why you might use my VM backend:
+- **Sandboxed execution**: I isolate all external function calls in a separate co-process. If an FFI call crashes, my VM survives.
+- **No C compiler needed**: My VM runs bytecode directly.
+- **Formally grounded**: My core semantics are verified in Coq. My VM behavior can be validated against a reference interpreter that I have proved correct.
 
-Both backends produce identical results for the same NanoLang program. See [docs/NANOISA.md](NANOISA.md) for the full architecture reference.
+Both my backends produce identical results for the same program. You can find more details in docs/NANOISA.md.
 
 ## Next Steps
 
-1. **Read the examples** - Check out the `examples/` directory
-2. **Try writing code** - Start with simple functions
-3. **Write shadow-tests** - Practice test-driven development
-4. **Read the spec** - See `SPECIFICATION.md` for details
+1. **Read my examples**: You can find many programs in the `examples/` directory.
+2. **Try writing code**: Start with simple functions.
+3. **Write shadow tests**: You must practice this, as I will not let you skip it.
+4. **Read my specification**: I have documented every detail in `SPECIFICATION.md`.
 
 ## Learning Resources
 
-- `README.md` - Overview and philosophy
-- `SPECIFICATION.md` - Complete language reference
-- `examples/` - Sample programs
-- `examples/README.md` - Example walkthrough
+- `README.md` - My overview and convictions.
+- `SPECIFICATION.md` - My complete technical reference.
+- `examples/` - Programs that I can compile.
+- `examples/README.md` - A guide to my examples.
 
-## Philosophy
+## My Philosophy
 
-nanolang is designed to be:
+I am governed by these principles:
 
-1. **Minimal** - Small language, big capabilities
-2. **Unambiguous** - One way to do things
-3. **Safe** - Catch errors at compile time
-4. **Tested** - Tests are mandatory, not optional
-5. **Clear** - Readable by humans and LLMs
+1. **Minimal**: I am a small language with significant capabilities.
+2. **Unambiguous**: I provide exactly one way to do things.
+3. **Safe**: I catch errors before they happen.
+4. **Tested**: My tests are mandatory.
+5. **Clear**: I am readable by both humans and machines.
 
 ## Questions?
 
-The language specification (`SPECIFICATION.md`) covers everything in detail. For specific examples, check the `examples/` directory.
-
-Happy coding! 🚀
+My specification covers everything in detail. If you need to see how I handle specific tasks, look at my examples. I usually have an answer there.

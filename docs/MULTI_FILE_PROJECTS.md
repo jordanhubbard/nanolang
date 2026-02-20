@@ -1,14 +1,14 @@
-# Multi-File Projects in Nanolang
+# Multi-File Projects
 
 ## Overview
 
-Nanolang now supports **complete multi-file project development** with project-relative imports, module caching, constant sharing, and automatic dependency resolution.
+I now support complete multi-file project development. I handle project-relative imports, module caching, constant sharing, and automatic dependency resolution.
 
 ## Features
 
-### ✅ Project-Relative Imports
+### Project-Relative Imports
 
-Import files from anywhere in your project using project-relative paths:
+You can import files from anywhere in your project using project-relative paths.
 
 ```nano
 // Import from examples directory
@@ -20,15 +20,15 @@ import "src/core/parser.nano"
 import "src/core/lexer.nano"
 ```
 
-The compiler automatically:
-1. Detects imports starting with `examples/` or `src/`
-2. Walks up the directory tree to find the project root
-3. Resolves paths relative to project root
-4. Works regardless of where compilation is invoked from
+My compiler automatically performs these steps:
+1. I detect imports starting with `examples/` or `src/`.
+2. I walk up the directory tree to find the project root.
+3. I resolve paths relative to the project root.
+4. I work regardless of where you invoke compilation.
 
-### ✅ Module Caching & Deduplication
+### Module Caching and Deduplication
 
-Prevents duplicate imports and circular dependencies:
+I prevent duplicate imports and circular dependencies.
 
 ```nano
 // types.nano - base types
@@ -42,15 +42,15 @@ import "examples/myproject/types.nano"  // Cached, skips
 import "examples/myproject/parser.nano" // Loads, types already cached
 ```
 
-**Cache Lifecycle:**
-- Cleared at compilation start
-- Modules cached as loaded during import processing
-- Each `.nano → .o` compilation gets isolated cache
-- Prevents "already defined" errors
+**My Cache Lifecycle:**
+- I clear the cache at the start of compilation.
+- I cache modules as I load them during import processing.
+- Each `.nano` to `.o` compilation gets an isolated cache.
+- I do this to prevent "already defined" errors.
 
-### ✅ Constant Export & Inlining
+### Constant Export and Inlining
 
-Top-level immutable constants are automatically exported and inlined:
+I automatically export and inline your top-level immutable constants.
 
 ```nano
 // config.nano
@@ -67,14 +67,14 @@ fn init_server() -> int {
 }
 ```
 
-**Transpiles to:**
+**I transpile this to:**
 ```c
 int64_t pool_size = (100 * 2LL);  // Constant value inlined
 ```
 
-### ✅ Recursive Import Processing
+### Recursive Import Processing
 
-Modules can import other modules transitively:
+My modules can import other modules transitively.
 
 ```
 types.nano (base types)
@@ -84,9 +84,9 @@ parser.nano (imports types)
 compiler.nano (imports parser, gets types transitively)
 ```
 
-## Example: Multi-File Project Structure
+## Example: Project Structure
 
-Complete multi-file project example:
+This is how I expect a complete multi-file project to look.
 
 ```
 examples/myproject/
@@ -130,7 +130,7 @@ make
 
 ## Generic Module System
 
-Modules now use metadata-driven header inclusion:
+I use metadata-driven header inclusion for my modules.
 
 ### Module Schema (module.json)
 
@@ -148,31 +148,31 @@ Modules now use metadata-driven header inclusion:
 
 ### Supported Libraries
 
-This system can wrap **any C library**:
+I can wrap any C library.
 
 **SDL Ecosystem:**
-- SDL2 → `"headers": ["SDL.h"]`
-- SDL2_mixer → `"headers": ["SDL_mixer.h"]`
-- SDL2_ttf → `"headers": ["SDL_ttf.h"]`
-- SDL2_image → `"headers": ["SDL_image.h"]`
+- SDL2: `"headers": ["SDL.h"]`
+- SDL2_mixer: `"headers": ["SDL_mixer.h"]`
+- SDL2_ttf: `"headers": ["SDL_ttf.h"]`
+- SDL2_image: `"headers": ["SDL_image.h"]`
 
 **Graphics:**
-- CUDA → `"headers": ["cuda.h", "cuda_runtime.h"]`
-- OpenGL → `"headers": ["GL/gl.h"]`
-- Vulkan → `"headers": ["vulkan/vulkan.h"]`
+- CUDA: `"headers": ["cuda.h", "cuda_runtime.h"]`
+- OpenGL: `"headers": ["GL/gl.h"]`
+- Vulkan: `"headers": ["vulkan/vulkan.h"]`
 
 **UI Frameworks:**
-- GTK → `"headers": ["gtk/gtk.h"]`, `"pkg_config": ["gtk+-3.0"]`
-- Qt → Custom headers and flags
+- GTK: `"headers": ["gtk/gtk.h"]`, `"pkg_config": ["gtk+-3.0"]`
+- Qt: Custom headers and flags
 
 **Utilities:**
-- curl → `"headers": ["curl/curl.h"]`
-- zlib → `"headers": ["zlib.h"]`
-- libpng → `"headers": ["png.h"]`
+- curl: `"headers": ["curl/curl.h"]`
+- zlib: `"headers": ["zlib.h"]`
+- libpng: `"headers": ["png.h"]`
 
 ## Architecture
 
-### 1. Module Resolution (`module.c`)
+### 1. Module Resolution (module.c)
 
 ```c
 char *resolve_module_path(const char *module_path, const char *current_file) {
@@ -233,29 +233,29 @@ case AST_IDENTIFIER: {
 
 | Before | After |
 |--------|-------|
-| Single-file only | ✅ Multi-file projects |
-| No code reuse | ✅ Shared constants/types |
-| Monolithic programs | ✅ Modular architecture |
-| Hardcoded SDL | ✅ Generic library support |
+| Single-file only | Multi-file projects |
+| No code reuse | Shared constants and types |
+| Monolithic programs | Modular architecture |
+| Hardcoded SDL | Generic library support |
 
 ## Future Enhancements
 
 1. **Module Visibility**
-   - Public/private exports
-   - Selective imports: `import { function_name } from "module"`
+   - I will add public and private exports.
+   - I will support selective imports: `import { function_name } from "module"`.
 
 2. **Package Management**
-   - Package registry
-   - Semantic versioning
-   - Dependency resolution
+   - I plan to have a package registry.
+   - I will support semantic versioning.
+   - I will handle dependency resolution.
 
 3. **Expression Evaluation**
-   - Compile-time computed constants
-   - Constant folding optimization
+   - I will support compile-time computed constants.
+   - I will implement constant folding optimization.
 
 4. **Type Exports**
-   - Share struct/enum/union definitions
-   - Type aliases across modules
+   - I will allow sharing of struct, enum, and union definitions.
+   - I will support type aliases across modules.
 
 ## Example: Creating a CUDA Module
 
@@ -294,11 +294,11 @@ fn main() -> int {
 
 ## Conclusion
 
-Nanolang's multi-file project support enables:
-- Professional software architecture
-- Large-scale application development  
-- Team collaboration on codebases
-- Reusable module libraries
-- Integration with ANY C library
+My support for multi-file projects enables:
+- Professional software architecture.
+- Large-scale application development.
+- Team collaboration on codebases.
+- Reusable module libraries.
+- Integration with any C library.
 
-**The future of nanolang development just got a lot more powerful!** 🚀
+My future for development is clear.

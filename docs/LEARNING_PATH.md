@@ -1,18 +1,18 @@
-# NanoLang Learning Path
+# My Learning Path
 
-**A structured guide to learning NanoLang through examples**
+**A structured guide to learning my syntax through examples**
 
-This guide organizes the 50+ NanoLang examples into a progressive learning path, from absolute beginner to advanced topics. Each section builds on the previous one, so we recommend following the path in order.
+I organize my 50+ examples into a progressive learning path. I move from basic syntax to advanced topics. Each section builds on the previous one. I recommend following this path in order.
 
 ---
 
 ## How to Use This Guide
 
-1. **Start at your level** - Skip ahead if you're familiar with similar languages
-2. **Run every example** - Compile and execute each example to see it work
-3. **Modify and experiment** - Change values, add features, break things
-4. **Read shadow tests** - Shadow tests show expected behavior and edge cases
-5. **Build projects** - Apply what you learn in the project challenges
+1. **Start at your level.** Skip ahead if you're familiar with similar languages.
+2. **Run every example.** Compile and execute each example to see it work.
+3. **Modify and experiment.** Change values, add features, or break things.
+4. **Read shadow tests.** Shadow tests show my expected behavior and edge cases.
+5. **Build projects.** Apply what you learn in the project challenges.
 
 ### Running Examples
 
@@ -27,21 +27,21 @@ This guide organizes the 50+ NanoLang examples into a progressive learning path,
 
 ---
 
-## Level 1: Absolute Beginner (★☆☆)
+## Level 1: Absolute Beginner (*)
 
-**Goal:** Understand NanoLang syntax, basic types, and functions
+**Goal:** Understand my syntax, basic types, and functions.
 
-**Prerequisites:** None - start here!
+**Prerequisites:** None. Start here.
 
-**Time to complete:** 1-2 hours
+**Time to complete:** 1 to 2 hours.
 
-### 1.1 Hello World & Basic Output
+### 1.1 Hello World and Basic Output
 
 **File:** `examples/language/nl_hello.nano`
 
 Learn:
-- Program structure (fn main)
-- The `println` function
+- My program structure (fn main)
+- My `println` function
 - String literals
 - Return values
 
@@ -53,9 +53,9 @@ fn main() -> int {
 ```
 
 **Exercises:**
-1. Change the message to your name
-2. Add multiple println statements
-3. What happens if you change the return value?
+1. Change the message to your name.
+2. Add multiple println statements.
+3. Observe what happens if you change the return value.
 
 ### 1.2 Variables and Types
 
@@ -68,7 +68,7 @@ Learn:
 - Variable declaration with `let`
 - Type annotations (int, float, string, bool)
 - Arithmetic operations
-- Type safety
+- My approach to type safety
 
 ```nano
 let x: int = 42
@@ -78,9 +78,9 @@ let flag: bool = true
 ```
 
 **Exercises:**
-1. Create variables of each type
-2. Try mixing types in operations (see what errors you get!)
-3. Calculate the area of a rectangle (length * width)
+1. Create variables of each type.
+2. Try mixing types in operations and read the errors I produce.
+3. Calculate the area of a rectangle (length * width).
 
 ### 1.3 Functions
 
@@ -92,7 +92,7 @@ let flag: bool = true
 Learn:
 - Function declaration
 - Parameters and return types
-- Both infix `a + b` and prefix `(+ a b)` notation for operators
+- My support for both infix `a + b` and prefix `(+ a b)` notation for operators
 - Prefix notation for function calls: `(println "hello")`
 - Recursion basics
 
@@ -108,9 +108,9 @@ shadow add {
 ```
 
 **Exercises:**
-1. Write a subtract function
-2. Write a multiply function
-3. Write a function that calculates the average of two numbers
+1. Write a subtract function.
+2. Write a multiply function.
+3. Write a function that calculates the average of two numbers.
 
 ### 1.4 Shadow Tests (Testing Philosophy)
 
@@ -120,7 +120,7 @@ Learn:
 - Shadow test blocks
 - The `assert` function
 - Test-driven development
-- Why testing matters
+- Why I require testing
 
 ```nano
 fn double(x: int) -> int {
@@ -135,21 +135,21 @@ shadow double {
 ```
 
 **Exercises:**
-1. Add more shadow test cases to your functions
-2. Write a function that intentionally fails a test
-3. Fix the function until all tests pass
+1. Add more shadow test cases to your functions.
+2. Write a function that intentionally fails a test.
+3. Fix the function until all tests pass.
 
 **Checkpoint:** Can you write a tested function that converts Fahrenheit to Celsius?
 
 ---
 
-## Level 2: Fundamentals (★★☆)
+## Level 2: Fundamentals (**)
 
-**Goal:** Master control flow, arrays, and basic data structures
+**Goal:** Master control flow, arrays, and basic data structures.
 
-**Prerequisites:** Complete Level 1
+**Prerequisites:** Complete Level 1.
 
-**Time to complete:** 3-4 hours
+**Time to complete:** 3 to 4 hours.
 
 ### 2.1 Control Flow: If/While
 
@@ -176,9 +176,9 @@ fn count_to_ten() -> void {
 ```
 
 **Exercises:**
-1. Write a function that finds the maximum of three numbers
-2. Write a function that counts down from 10 to 1
-3. Implement FizzBuzz (print "Fizz" for multiples of 3, "Buzz" for 5, "FizzBuzz" for both)
+1. Write a function that finds the maximum of three numbers.
+2. Write a function that counts down from 10 to 1.
+3. Implement FizzBuzz. Print "Fizz" for multiples of 3, "Buzz" for 5, and "FizzBuzz" for both.
 
 ### 2.2 Control Flow: For Loops
 
@@ -196,9 +196,9 @@ for i in (range 0 10) {
 ```
 
 **Exercises:**
-1. Print the squares of numbers 1-10
-2. Calculate the sum of numbers 1-100
-3. Print a multiplication table
+1. Print the squares of numbers 1-10.
+2. Calculate the sum of numbers 1-100.
+3. Print a multiplication table.
 
 ### 2.3 Arrays
 
@@ -211,7 +211,7 @@ Learn:
 - Array literals: `[1, 2, 3]`
 - Array access with `at`
 - Array functions: `array_length`, `array_push`, `array_pop`
-- Bounds checking
+- My bounds checking
 
 ```nano
 let numbers: array<int> = [1, 2, 3, 4, 5]
@@ -225,9 +225,9 @@ for i in (range 0 len) {
 ```
 
 **Exercises:**
-1. Write a function that reverses an array
-2. Find the maximum value in an array
-3. Calculate the average of all numbers in an array
+1. Write a function that reverses an array.
+2. Find the maximum value in an array.
+3. Calculate the average of all numbers in an array.
 
 ### 2.4 String Operations
 
@@ -248,21 +248,21 @@ let contains_hello: bool = (str_contains message "Hello")
 ```
 
 **Exercises:**
-1. Write a function that counts vowels in a string
-2. Write a function that checks if a string is a palindrome
-3. Implement string reversal
+1. Write a function that counts vowels in a string.
+2. Write a function that checks if a string is a palindrome.
+3. Implement string reversal.
 
 **Checkpoint:** Can you build a word counter that counts how many times each word appears in a sentence?
 
 ---
 
-## Level 3: Intermediate (★★☆)
+## Level 3: Intermediate (**)
 
-**Goal:** Use structs, enums, pattern matching, and higher-order functions
+**Goal:** Use structs, enums, pattern matching, and higher-order functions.
 
-**Prerequisites:** Complete Levels 1-2
+**Prerequisites:** Complete Levels 1 and 2.
 
-**Time to complete:** 4-5 hours
+**Time to complete:** 4 to 5 hours.
 
 ### 3.1 Structs
 
@@ -295,9 +295,9 @@ let dist: float = (distance p1 p2)  # 5.0
 ```
 
 **Exercises:**
-1. Create a Rectangle struct with width and height
-2. Write a function that calculates rectangle area
-3. Create a Person struct with name, age, and email
+1. Create a Rectangle struct with width and height.
+2. Write a function that calculates rectangle area.
+3. Create a Person struct with name, age, and email.
 
 ### 3.2 Enums
 
@@ -327,9 +327,9 @@ fn color_to_string(c: Color) -> string {
 ```
 
 **Exercises:**
-1. Create a TrafficLight enum (Red, Yellow, Green)
-2. Write a function that returns the next state
-3. Create a Direction enum (North, South, East, West) with movement logic
+1. Create a TrafficLight enum with Red, Yellow, and Green variants.
+2. Write a function that returns the next state.
+3. Create a Direction enum with North, South, East, and West variants and include movement logic.
 
 ### 3.3 Pattern Matching
 
@@ -352,9 +352,9 @@ fn classify_number(n: int) -> string {
 ```
 
 **Exercises:**
-1. Write a function that classifies numbers as positive, negative, or zero
-2. Implement rock-paper-scissors winner logic
-3. Create a calculator that matches on operation type
+1. Write a function that classifies numbers as positive, negative, or zero.
+2. Implement rock-paper-scissors winner logic.
+3. Create a calculator that matches on operation type.
 
 ### 3.4 First-Class Functions
 
@@ -367,7 +367,7 @@ Learn:
 - Functions as values
 - Function parameters
 - Higher-order functions
-- Closures (limited)
+- My support for closures
 
 ```nano
 fn apply_twice(f: fn(int) -> int, x: int) -> int {
@@ -382,9 +382,9 @@ let result: int = (apply_twice double 5)  # (double (double 5)) = 20
 ```
 
 **Exercises:**
-1. Write a `map` function that applies a function to every array element
-2. Write a `filter` function that keeps only matching elements
-3. Implement `compose` to chain two functions together
+1. Write a `map` function that applies a function to every array element.
+2. Write a `filter` function that keeps only matching elements.
+3. Implement `compose` to chain two functions together.
 
 ### 3.5 Map, Filter, Reduce
 
@@ -410,21 +410,21 @@ fn evens(numbers: array<int>) -> array<int> {
 ```
 
 **Exercises:**
-1. Filter an array to keep only odd numbers
-2. Map an array of temperatures from Celsius to Fahrenheit
-3. Use reduce to calculate the product of all numbers in an array
+1. Filter an array to keep only odd numbers.
+2. Map an array of temperatures from Celsius to Fahrenheit.
+3. Use reduce to calculate the product of all numbers in an array.
 
 **Checkpoint:** Can you implement a data processing pipeline that filters, maps, and reduces in sequence?
 
 ---
 
-## Level 4: Advanced (★★★)
+## Level 4: Advanced (***)
 
-**Goal:** Master generics, unions, advanced types, and FFI
+**Goal:** Master generics, unions, advanced types, and FFI.
 
-**Prerequisites:** Complete Levels 1-3
+**Prerequisites:** Complete Levels 1, 2, and 3.
 
-**Time to complete:** 5-6 hours
+**Time to complete:** 5 to 6 hours.
 
 ### 4.1 Generics
 
@@ -433,7 +433,7 @@ fn evens(numbers: array<int>) -> array<int> {
 Learn:
 - Generic type parameters: `List<T>`
 - Generic functions
-- Type inference
+- My type inference
 - Monomorphization
 
 ```nano
@@ -450,9 +450,9 @@ let str_box: Box<string> = (box_new "hello")
 ```
 
 **Exercises:**
-1. Create a generic `Pair<T, U>` struct
-2. Write a generic `swap` function that swaps two values
-3. Implement a generic `max` function
+1. Create a generic `Pair<T, U>` struct.
+2. Write a generic `swap` function that swaps two values.
+3. Implement a generic `max` function.
 
 ### 4.2 Unions (Tagged Unions)
 
@@ -462,7 +462,7 @@ Learn:
 - Union definitions
 - Union variants with data
 - Pattern matching on unions
-- Option<T> and Result<T, E> types
+- My Option<T> and Result<T, E> types
 
 ```nano
 union Option<T> {
@@ -480,9 +480,9 @@ fn divide(a: int, b: int) -> Option<int> {
 ```
 
 **Exercises:**
-1. Implement a Result<T, E> type for error handling
-2. Write a safe array access function that returns Option<T>
-3. Create a JSON value union (String, Number, Bool, Null, Object, Array)
+1. Implement a Result<T, E> type for error handling.
+2. Write a safe array access function that returns Option<T>.
+3. Create a JSON value union with String, Number, Bool, Null, Object, and Array variants.
 
 ### 4.3 HashMap
 
@@ -503,9 +503,9 @@ let hello_count: int = (map_get counts "hello")
 ```
 
 **Exercises:**
-1. Build a phone book (name -> phone number)
-2. Count character frequency in a string
-3. Group students by grade
+1. Build a phone book that maps names to phone numbers.
+2. Count character frequency in a string.
+3. Group students by grade.
 
 ### 4.4 FFI (Foreign Function Interface)
 
@@ -515,9 +515,9 @@ let hello_count: int = (map_get counts "hello")
 - `examples/language/nl_extern_char.nano`
 
 Learn:
-- extern keyword
+- The `extern` keyword
 - Calling C functions
-- Type mapping between NanoLang and C
+- Type mapping between my world and C
 - Safety considerations
 
 ```nano
@@ -530,17 +530,17 @@ fn hypotenuse(a: float, b: float) -> float {
 ```
 
 **Exercises:**
-1. Use extern to call C math functions (sin, cos, tan)
-2. Create a wrapper for a C string function
-3. Call a C file I/O function
+1. Use extern to call C math functions like sin, cos, and tan.
+2. Create a wrapper for a C string function.
+3. Call a C file I/O function.
 
 ### 4.5 File I/O
 
 **File:** `examples/language/nl_file_io_complete.nano`
 
 Learn:
-- Reading files: `file_read`
-- Writing files: `file_write`, `file_append`
+- Reading files with `file_read`
+- Writing files with `file_write` and `file_append`
 - File existence checks
 - Error handling
 
@@ -554,23 +554,23 @@ if (== status 0) {
 ```
 
 **Exercises:**
-1. Read a file and count its lines
-2. Copy one file to another
-3. Append a log entry to a file with timestamp
+1. Read a file and count its lines.
+2. Copy one file to another.
+3. Append a log entry to a file with a timestamp.
 
 **Checkpoint:** Can you build a command-line tool that processes a CSV file and outputs statistics?
 
 ---
 
-## Level 5: Expert (★★★)
+## Level 5: Expert (***)
 
-**Goal:** Understand compiler internals, self-hosting, and advanced patterns
+**Goal:** Understand my internal structures, how I self-host, and advanced patterns.
 
-**Prerequisites:** Complete Levels 1-4
+**Prerequisites:** Complete Levels 1 through 4.
 
-**Time to complete:** 8-10 hours
+**Time to complete:** 8 to 10 hours.
 
-### 5.1 Compiler Concepts
+### 5.1 My Internal Concepts
 
 **Files:**
 - `examples/language/nl_lexer.nano`
@@ -584,9 +584,9 @@ Learn:
 - Code generation
 
 **Exercises:**
-1. Build a simple calculator parser
-2. Implement a basic expression evaluator
-3. Create a mini language interpreter
+1. Build a simple calculator parser.
+2. Implement a basic expression evaluator.
+3. Create a mini language interpreter.
 
 ### 5.2 Advanced Math
 
@@ -602,11 +602,11 @@ Learn:
 - Mathematical series
 
 **Exercises:**
-1. Implement Newton's method for square roots
-2. Calculate factorial with overflow detection
-3. Implement a numerical integration function
+1. Implement Newton's method for square roots.
+2. Calculate factorial with overflow detection.
+3. Implement a numerical integration function.
 
-### 5.3 Data Structures & Algorithms
+### 5.3 Data Structures and Algorithms
 
 **Files:**
 - `examples/language/nl_linked_list.nano`
@@ -620,11 +620,11 @@ Learn:
 - Tree traversal
 
 **Exercises:**
-1. Implement quicksort
-2. Build a binary search tree with insert/search/delete
-3. Implement depth-first and breadth-first search
+1. Implement quicksort.
+2. Build a binary search tree with insert, search, and delete functions.
+3. Implement depth-first and breadth-first search.
 
-### 5.4 Simulations & Games
+### 5.4 Simulations and Games
 
 **Files:**
 - `examples/language/nl_game_of_life.nano`
@@ -638,9 +638,9 @@ Learn:
 - State management
 
 **Exercises:**
-1. Modify Game of Life rules
-2. Add obstacles to the boids simulation
-3. Implement new materials in falling sand
+1. Modify Game of Life rules.
+2. Add obstacles to the boids simulation.
+3. Implement new materials in falling sand.
 
 ---
 
@@ -648,98 +648,98 @@ Learn:
 
 Apply your skills to build complete applications.
 
-### Beginner Projects (★☆☆)
+### Beginner Projects (*)
 
 **Project 1: Todo List**
-- Store tasks in memory
-- Add, remove, list tasks
-- Mark tasks as complete
-- Save/load from file
+- Store tasks in memory.
+- Add, remove, and list tasks.
+- Mark tasks as complete.
+- Save to and load from a file.
 
 **Project 2: Number Guessing Game**
-- Generate random number
-- Accept user input
-- Give hints (too high/too low)
-- Count guesses
+- Generate a random number.
+- Accept user input.
+- Give hints.
+- Count guesses.
 
 **Project 3: Basic Calculator**
-- Parse expressions like "2 + 3 * 4"
-- Handle operator precedence
-- Show step-by-step evaluation
+- Parse expressions like "2 + 3 * 4".
+- Handle operator precedence through parentheses.
+- Show step-by-step evaluation.
 
-### Intermediate Projects (★★☆)
+### Intermediate Projects (**)
 
 **Project 4: CSV Analyzer**
-- Read CSV files
-- Calculate statistics (mean, median, mode)
-- Filter rows by criteria
-- Export results
+- Read CSV files.
+- Calculate statistics like mean, median, and mode.
+- Filter rows by criteria.
+- Export results.
 
 **Project 5: Text Adventure Game**
-- Room navigation
-- Item inventory
-- Simple puzzles
-- Save game state
+- Room navigation.
+- Item inventory.
+- Simple puzzles.
+- Save game state.
 
 **Project 6: Markdown to HTML**
-- Parse markdown syntax
-- Generate HTML
-- Handle headings, lists, links, bold, italic
+- Parse markdown syntax.
+- Generate HTML.
+- Handle headings, lists, links, bold, and italic text.
 
-### Advanced Projects (★★★)
+### Advanced Projects (***)
 
 **Project 7: Expression Evaluator**
-- Tokenizer (lexer)
-- Parser (build AST)
-- Evaluator (interpret AST)
-- Variables and functions
+- Tokenizer (lexer).
+- Parser (build AST).
+- Evaluator (interpret AST).
+- Variables and functions.
 
 **Project 8: Simple Web Server**
-- Socket programming (via FFI)
-- HTTP request parsing
-- Route handling
-- Static file serving
+- Socket programming via FFI.
+- HTTP request parsing.
+- Route handling.
+- Static file serving.
 
 **Project 9: Mini Compiler**
-- Lexical analysis
-- Parsing
-- Type checking
-- Code generation (transpile to C)
+- Lexical analysis.
+- Parsing.
+- Type checking.
+- Code generation (transpile to C).
 
 ---
 
 ## Learning Resources
 
-### Documentation
-- [SPECIFICATION.md](SPECIFICATION.md) - Language spec
-- [STDLIB.md](STDLIB.md) - Standard library reference
-- [EXTERN_FFI.md](EXTERN_FFI.md) - Foreign function interface
-- [SHADOW_TESTS.md](SHADOW_TESTS.md) - Testing philosophy
+### My Documentation
+- [SPECIFICATION.md](SPECIFICATION.md). My language spec.
+- [STDLIB.md](STDLIB.md). My standard library reference.
+- [EXTERN_FFI.md](EXTERN_FFI.md). My foreign function interface.
+- [SHADOW_TESTS.md](SHADOW_TESTS.md). My testing philosophy.
 
 ### Examples Browser
 ```bash
 make examples-launcher
 ```
 
-Launches an interactive browser to explore all examples by category.
+This launches an interactive browser to explore all examples by category.
 
 ### Getting Help
 
-1. **Check the examples** - 50+ working examples with shadow tests
-2. **Read error messages** - NanoLang provides helpful error messages
-3. **Run shadow tests** - They show expected behavior
-4. **GitHub Issues** - Open an issue for bugs or questions
+1. **Check my examples.** I have 50+ working examples with shadow tests.
+2. **Read my error messages.** I provide direct error messages when things go wrong.
+3. **Run shadow tests.** They show what I expect to be true.
+4. **GitHub Issues.** Open an issue for bugs or questions.
 
 ---
 
 ## Tips for Success
 
-1. **Write shadow tests first** - Think about expected behavior before coding
-2. **Start simple** - Master basics before moving to advanced topics
-3. **Experiment freely** - Break things and learn from errors
-4. **Read other code** - Study examples to see idiomatic patterns
-5. **Build projects** - Apply what you learn in real programs
-6. **Ask questions** - The community is here to help
+1. **Write shadow tests first.** Think about expected behavior before coding.
+2. **Start simple.** Master my basics before moving to advanced topics.
+3. **Experiment freely.** Break things and learn from the errors I produce.
+4. **Read other code.** Study my examples to see idiomatic patterns.
+5. **Build projects.** Apply what you learn in real programs.
+6. **Ask questions.** The community is here to help.
 
 ---
 
@@ -747,21 +747,20 @@ Launches an interactive browser to explore all examples by category.
 
 ### Beginner Mistakes
 
-1. **Forgetting type annotations**
+1. **Forgetting type annotations.**
    ```nano
    let x = 5  # Error: must specify type
    let x: int = 5  # Correct
    ```
 
-2. **Assuming operator precedence (PEMDAS)**
+2. **Assuming operator precedence.**
    ```nano
    let wrong: int = 2 + 3 * 4    # Evaluates left-to-right: (2+3)*4 = 20
    let right: int = 2 + (3 * 4)  # Use parens to group: 2+12 = 14
    ```
-   NanoLang supports both infix `a + b` and prefix `(+ a b)` notation,
-   but all infix operators have equal precedence and evaluate left-to-right.
+   I support both infix `a + b` and prefix `(+ a b)` notation, but all my infix operators have equal precedence and evaluate left-to-right.
 
-3. **Forgetting to declare mut for mutable variables**
+3. **Forgetting to declare mut for mutable variables.**
    ```nano
    let x: int = 5
    set x 10  # Error: x is not mutable
@@ -772,40 +771,30 @@ Launches an interactive browser to explore all examples by category.
 
 ### Intermediate Mistakes
 
-1. **Not handling errors**
+1. **Not handling errors.**
    ```nano
-   let result: int = (divide 10 0)  # Might panic!
+   let result: int = (divide 10 0)  # Might panic.
 
    # Better: Check for errors
    let result_opt: Option<int> = (safe_divide 10 0)
    ```
 
-2. **Ignoring shadow test failures**
-   - Shadow tests are NOT optional
-   - They validate correctness
-   - Fix failing tests immediately
+2. **Ignoring shadow test failures.**
+   My shadow tests are not optional. They validate correctness. Fix failing tests immediately.
 
-3. **Overcomplicating solutions**
-   - Start with simple, working code
-   - Refactor later if needed
-   - Premature optimization is evil
+3. **Overcomplicating solutions.**
+   Start with simple, working code. Refactor later if you need to. I prefer honest, direct code over premature optimization.
 
 ### Advanced Mistakes
 
-1. **Unsafe FFI usage**
-   - Always validate inputs before passing to C
-   - Check return values
-   - See [EXTERN_FFI.md](EXTERN_FFI.md) for safety guidelines
+1. **Unsafe FFI usage.**
+   Always validate inputs before passing to C. Check return values. See [EXTERN_FFI.md](EXTERN_FFI.md) for my safety guidelines.
 
-2. **Ignoring performance**
-   - Profile before optimizing
-   - Use appropriate data structures
-   - Batch operations when possible
+2. **Ignoring performance.**
+   Profile before optimizing. Use appropriate data structures. Batch operations when possible.
 
-3. **Poor error messages**
-   - Use descriptive error types
-   - Include context in errors
-   - Make debugging easy
+3. **Poor error messages.**
+   Use descriptive error types. Include context in errors. Make debugging easy for those who follow you.
 
 ---
 
@@ -813,15 +802,15 @@ Launches an interactive browser to explore all examples by category.
 
 Once you've completed this learning path:
 
-1. **Contribute to NanoLang** - See [CONTRIBUTING.md](../CONTRIBUTING.md)
-2. **Build your own projects** - Apply what you learned
-3. **Explore self-hosting** - Study how NanoLang compiles itself
-4. **Join the community** - Share your projects and help others
+1. **Contribute to me.** See [CONTRIBUTING.md](../CONTRIBUTING.md).
+2. **Build your own projects.** Apply what you learned.
+3. **Explore self-hosting.** Study how I compile myself.
+4. **Join the community.** Share your projects and help others.
 
 ---
 
-**Last Updated:** January 25, 2026
-**Examples:** 50+ working examples with shadow tests
-**Path Duration:** 20-30 hours total (all levels)
+**Last Updated:** January 25, 2026.
+**Examples:** 50+ working examples with shadow tests.
+**Path Duration:** 20 to 30 hours total for all levels.
 
-Happy learning! 🚀
+Happy learning.

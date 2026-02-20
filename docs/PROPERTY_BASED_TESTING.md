@@ -1,31 +1,31 @@
-# Property-Based Testing (proptest) for NanoLang
+# Property-Based Testing (proptest)
 
-NanoLang includes a lightweight, deterministic property-based testing helper module: `modules/proptest/proptest.nano`.
+I include a lightweight, deterministic property-based testing helper module: `modules/proptest/proptest.nano`.
 
-This is the **single canonical doc** for:
-- Writing properties and generators in canonical NanoLang
-- Understanding shrinking and counterexamples
-- Reproducing failures deterministically (seeded)
-- Running in CI
+This is the single canonical document for:
+- Writing properties and generators
+- Understanding how I shrink counterexamples
+- Reproducing failures deterministically with seeds
+- Running tests in CI
 
 ## Mental model
 
-A property test is just code that:
+A property test is code that:
 - generates inputs
 - checks a property
-- on failure, shrinks to a simpler counterexample
-- reports a `PropertyReport` you can assert on in a normal `shadow` test
+- shrinks to a simpler counterexample on failure
+- reports a `PropertyReport` you can assert on in a `shadow` test
 
-There is **no special syntax**: properties are plain functions returning encoded outcomes.
+I don't use special syntax. My properties are plain functions that return encoded outcomes.
 
 ## Outcomes (pass / fail / discard)
 
 Your property function returns an encoded `string` outcome:
-- `(proptest.prop_pass)` — case passes
-- `(proptest.prop_fail "message")` — case fails (will trigger shrinking)
-- `(proptest.prop_discard "reason")` — precondition not met (runner tries another case)
+- `(proptest.prop_pass)` - the case passes
+- `(proptest.prop_fail "message")` - the case fails and I start shrinking
+- `(proptest.prop_discard "reason")` - the precondition is not met and I try another case
 
-Use **discard** for preconditions (e.g., division by zero), not for “random retries”.
+I use discard for preconditions like division by zero. I don't use it for random retries.
 
 ## Quickstart: a unary int property
 
@@ -77,18 +77,18 @@ shadow prop_non_negative {
 
 The report fields include:
 - `passed: bool`
-- `case_count: int` (how many passing cases before first fail, or total passes)
+- `case_count: int` (passing cases before first fail, or total passes)
 - `discard_count: int`
 - `shrink_count: int`
-- `counterexample: string` (includes minimal failing input + message when failing)
+- `counterexample: string` (minimal failing input and message when failing)
 
 ## Reproducibility (seeded determinism)
 
-Property runs are deterministic given a `seed` in `RunConfig`.
+My property runs are deterministic when you provide a `seed` in `RunConfig`.
 
-Recommended defaults:
-- **CI**: fixed seed (e.g. `1`) for determinism
-- **Local debugging**: pick a seed, lower trials, iterate quickly
+My recommended defaults:
+- **CI**: use a fixed seed for determinism
+- **Local debugging**: pick a seed, lower trials, and iterate
 
 Example with explicit config:
 
@@ -110,25 +110,25 @@ shadow prop_no_zero {
 
 ## Shrinking (how to interpret counterexamples)
 
-When the first failure happens, the runner attempts to **shrink** the failing input:
-- it searches for a simpler failing value (bounded by `max_shrink_steps`)
-- the final minimal failing input is included in `report.counterexample`
-- `report.shrink_count` tells you how much shrinking was done
+When I encounter the first failure, I attempt to shrink the failing input:
+- I search for a simpler failing value, bounded by `max_shrink_steps`
+- I include the final minimal failing input in `report.counterexample`
+- `report.shrink_count` tells you how many shrinking steps I took
 
-Operationally:
+How to use this:
 - if you see a counterexample like `... x=0 :: zero`, focus on the property at that input
-- if you need a different shrinking strategy, change the generator (or add a new shrinker in `modules/proptest/proptest.nano`)
+- if you need a different shrinking strategy, change the generator or add a new shrinker to my proptest module
 
 ## Writing good properties
 
-- **Pure functions**: avoid I/O and global state inside properties.
-- **Small, focused properties**: one invariant per property.
-- **Use `prop_discard` for preconditions**: it keeps failure signals meaningful.
-- **Short failure messages**: they end up embedded in `counterexample`.
+- **Pure functions**: avoid I/O and global state inside properties
+- **Small, focused properties**: one invariant per property
+- **Use `prop_discard` for preconditions**: it keeps failure signals meaningful
+- **Short failure messages**: I embed these in the counterexample
 
 ## CI + local workflow
 
-Property tests are normal `.nano` tests under `tests/` that compile + run like any other test.
+Property tests are normal tests under `tests/` that compile and run like any other test.
 
 - **Run locally**:
 
@@ -137,7 +137,6 @@ make test
 ```
 
 - **CI pattern**:
-  - keep trials modest (fast)
-  - use fixed seeds (reproducible)
+  - keep trials modest
+  - use fixed seeds
   - assert `report_passed(report)` in `shadow` tests
-

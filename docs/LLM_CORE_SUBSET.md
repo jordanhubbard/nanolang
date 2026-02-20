@@ -1,16 +1,16 @@
-# LLM Core Subset - Start Here
+# My Core Subset - Start Here
 
-> **For LLMs:** Learn this subset FIRST. Everything else is "advanced" - don't use it unless the user asks.
+> **For LLMs:** Learn this subset first. Everything else is advanced. Do not use it unless the user asks.
 
-## Philosophy
+## My Philosophy
 
-The NanoLang Core Subset contains **exactly what you need** to write 80% of programs. Master this first, explore advanced features later.
+My core subset contains exactly what you need to write 80% of programs. Master this first. Explore my advanced features later.
 
 **Total Core Size:** ~50 primitives (syntax + stdlib + types)
 
 ---
 
-## Core Syntax (20 primitives)
+## My Core Syntax (20 primitives)
 
 ### Variables
 ```nano
@@ -63,7 +63,7 @@ for (let i: int = 0) (< i 10) (set i (+ i 1)) {
 
 ---
 
-## Core Types (6 types)
+## My Core Types (6 types)
 
 ```nano
 int      # 64-bit integer
@@ -74,11 +74,11 @@ array<T> # Fixed-size array
 void     # No return value
 ```
 
-**That's it.** Don't use advanced types (structs, enums, unions, generics) unless asked.
+That is all. I do not want you to use my advanced types (structs, enums, unions, generics) unless you are asked.
 
 ---
 
-## Core Math Operations (8 operations)
+## My Core Math Operations (8 operations)
 
 ```nano
 (+ a b)      # Addition
@@ -93,7 +93,7 @@ void     # No return value
 
 ---
 
-## Core Comparisons (6 operations)
+## My Core Comparisons (6 operations)
 
 ```nano
 (== a b)     # Equal
@@ -106,7 +106,7 @@ void     # No return value
 
 ---
 
-## Core Boolean Logic (3 operations)
+## My Core Boolean Logic (3 operations)
 
 ```nano
 (and a b)    # Logical AND
@@ -116,7 +116,7 @@ void     # No return value
 
 ---
 
-## Core String Operations (6 functions)
+## My Core String Operations (6 functions)
 
 ```nano
 (+ str1 str2)              # Concatenation
@@ -135,7 +135,7 @@ let len: int = (str_length greeting)
 
 ---
 
-## Core Array Operations (4 functions)
+## My Core Array Operations (4 functions)
 
 ```nano
 (array_new size initial_value)    # Create array
@@ -153,7 +153,7 @@ let val: int = (array_get nums 0)
 
 ---
 
-## Core I/O (4 functions)
+## My Core I/O (4 functions)
 
 ```nano
 (print s)            # Print without newline
@@ -171,7 +171,7 @@ let name: string = (read_line)
 
 ---
 
-## Core Control (2 functions)
+## My Core Control (2 functions)
 
 ```nano
 (assert condition)    # Assert condition is true (shadow tests)
@@ -180,7 +180,7 @@ let name: string = (read_line)
 
 ---
 
-## Core Module Imports
+## My Core Module Imports
 
 ```nano
 from "path/to/module.nano" import function1, function2
@@ -190,7 +190,7 @@ from "path/to/module.nano" import function1, function2
 - `modules/math_ext/math_ext.nano` - Extended math (sin, cos, etc.)
 - `modules/std/io/stdio.nano` - File I/O
 
-**Don't use other modules unless asked.**
+I do not want you to use other modules unless you are asked.
 
 ---
 
@@ -238,43 +238,43 @@ shadow main {
 
 ---
 
-## What's NOT in Core (Advanced Features)
+## What I Exclude From Core (Advanced Features)
 
 ### Advanced Types
-- ❌ Structs - complex data structures
-- ❌ Enums - enumerated types
-- ❌ Unions - tagged unions
-- ❌ Generics - generic types like `List<T>`
-- ❌ Opaque types - FFI types
+- Structs - complex data structures
+- Enums - enumerated types
+- Unions - tagged unions
+- Generics - generic types like `List<T>`
+- Opaque types - FFI types
 
 ### Advanced Control Flow
-- ❌ Match expressions - pattern matching
-- ❌ Try/catch - error handling (use `Result<T, E>` if needed)
+- Match expressions - pattern matching
+- Try/catch - error handling (use `Result<T, E>` if needed)
 
 ### Advanced Features
-- ❌ FFI (`extern` functions) - calling C code
-- ❌ Unsafe blocks - bypassing safety
-- ❌ Macros - code generation
-- ❌ Modules with complex dependencies
+- FFI (`extern` functions) - calling C code
+- Unsafe blocks - bypassing safety
+- Macros - code generation
+- Modules with complex dependencies
 
 ### Advanced Modules
-- ❌ SDL - graphics/games
-- ❌ HTTP - web servers
-- ❌ Database - SQLite/MySQL
-- ❌ Async - asynchronous I/O
+- SDL - graphics/games
+- HTTP - web servers
+- Database - SQLite/MySQL
+- Async - asynchronous I/O
 
-**Rule:** If it's not listed in "Core", consider it advanced. Ask the user before using.
+**Rule:** If I have not listed it in Core, consider it advanced. Ask the user before using it.
 
 ---
 
 ## Learning Path for LLMs
 
-### Step 1: Memorize Core Syntax
+### Step 1: Memorize My Core Syntax
 - Function calls: `(f x y)`
 - Variables: `let name: type = value`
 - Control flow: `cond`, `if/else`, `while`, `for`
 
-### Step 2: Memorize Core Stdlib
+### Step 2: Memorize My Core Stdlib
 - Math: `+`, `-`, `*`, `/`, `%`
 - Strings: `+`, `==`, `str_length`
 - Arrays: `array_new`, `array_get`, `array_set`
@@ -287,39 +287,39 @@ shadow main {
 - Basic algorithms
 
 ### Step 4: Add Shadow Tests
-- Every function needs a `shadow` block
-- Use `assert` to validate behavior
-- Test edge cases
+- Every function I compile must have a `shadow` block.
+- Use `assert` to validate behavior.
+- Test edge cases.
 
-### Step 5: Only Then Explore Advanced Features
-- Learn structs if user needs data structures
-- Learn modules if user needs external functionality
-- Learn FFI if user needs C interop
+### Step 5: Only Then Explore My Advanced Features
+- Learn structs if the user needs data structures.
+- Learn modules if the user needs external functionality.
+- Learn FFI if the user needs C interop.
 
 ---
 
 ## Success Criteria
 
-**An LLM has mastered the core subset when it can:**
+**I consider that an LLM has mastered my core subset when it can:**
 
-1. ✅ Write functions with shadow tests
-2. ✅ Use infix `a + b` or prefix `(+ a b)` notation for operators (both are valid)
-3. ✅ Implement basic algorithms (factorial, fibonacci, etc.)
-4. ✅ Manipulate strings and arrays
-5. ✅ Use `cond` for expressions, `if/else` for statements
-6. ✅ Never use non-canonical forms
-7. ✅ Never use advanced features without explicit request
+1. Write functions with shadow tests.
+2. Use infix `a + b` or prefix `(+ a b)` notation for operators (both are valid).
+3. Implement basic algorithms (factorial, fibonacci, etc.).
+4. Manipulate strings and arrays.
+5. Use `cond` for expressions, `if/else` for statements.
+6. Never use non-canonical forms.
+7. Never use advanced features without an explicit request.
 
 ---
 
-## Quick Reference Card
+## My Quick Reference Card
 
 ```nano
 # Variables
 let x: int = 5
 let mut y: int = 0
 set y 10
-
+ 
 # Functions
 fn add(a: int, b: int) -> int {
     return (+ a b)
@@ -377,22 +377,23 @@ while (< i 10) {
 
 **When you see a NanoLang task:**
 
-1. **First:** Can I solve this with core subset only?
-2. **If yes:** Use ONLY core features
-3. **If no:** Ask user: "This requires [feature]. Should I use it?"
+1. **First:** Can I solve this with my core subset only?
+2. **If yes:** Use ONLY my core features.
+3. **If no:** Ask the user: "This requires [feature]. Should I use it?"
 
-**Default assumption:** User wants simple, core-only code. Complexity is opt-in, not default.
+**Default assumption:** The user wants simple, core-only code. Complexity is opt-in, not default.
 
 ---
 
-## Rationale
+## My Rationale
 
-**Why a core subset?**
+**Why do I have a core subset?**
 
-1. **Faster learning:** 50 primitives vs. 200+ full language
-2. **Higher reliability:** Smaller surface area = fewer mistakes
-3. **Better code:** Simple code is better code
-4. **Easier debugging:** Less to go wrong
+1. **Faster learning:** masters 50 primitives instead of my full scope.
+2. **Higher reliability:** A smaller surface area means you make fewer mistakes.
+3. **Better code:** Simple code is better code.
+4. **Easier debugging:** There is less to go wrong.
 
-**80/20 rule:** The core subset handles 80% of tasks with 20% of the language. Start there.
+**80/20 rule:** My core subset handles 80% of tasks with 20% of my language. Start there.
+
 

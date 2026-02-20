@@ -1,18 +1,20 @@
-# Dynamic Arrays in Nanolang
+# My Dynamic Arrays
 
 ## Overview
 
-Nanolang provides built-in dynamic arrays that automatically grow and shrink as needed. Arrays are garbage-collected and type-safe.
+I provide built-in dynamic arrays that grow and shrink as needed. I manage their memory automatically and ensure they remain type-safe.
 
 ## Array Operations
 
 ### Creation
+
 ```nano
 let arr: array<int> = []                    # Empty array
 let arr2: array<int> = [1, 2, 3, 4]         # Array literal
 ```
 
 ### Adding Elements
+
 ```nano
 let mut arr: array<int> = []
 set arr (array_push arr 42)                 # Add to end
@@ -21,6 +23,7 @@ set arr (array_push arr 43)
 ```
 
 ### Removing Elements
+
 ```nano
 let val: int = (array_pop arr)              # Remove and return last element
 # val = 43, arr = [42]
@@ -30,6 +33,7 @@ set arr (array_remove_at arr 0)             # Remove element at index 0
 ```
 
 ### Accessing Elements
+
 ```nano
 let first: int = (at arr 0)                 # Get element at index
 (array_set arr 0 100)                       # Set element at index
@@ -49,7 +53,7 @@ let len: int = (array_length arr)           # Get length
 
 ## Type-Specific Operations
 
-Arrays are typed and support all primitive types:
+I require arrays to be typed. I support all my primitive types.
 
 ```nano
 # Integer arrays
@@ -81,6 +85,7 @@ let row: array<int> = (array_pop matrix)
 ## Examples
 
 ### Example 1: Dynamic Stack
+
 ```nano
 fn stack_demo() -> int {
     let mut stack: array<int> = []
@@ -99,6 +104,7 @@ fn stack_demo() -> int {
 ```
 
 ### Example 2: Remove Elements
+
 ```nano
 fn remove_demo() -> int {
     let mut arr: array<int> = [10, 20, 30, 40, 50]
@@ -116,6 +122,7 @@ fn remove_demo() -> int {
 ```
 
 ### Example 3: Processing Arrays
+
 ```nano
 fn sum_array(arr: array<int>) -> int {
     let mut sum: int = 0
@@ -140,6 +147,7 @@ fn process_data() -> int {
 ```
 
 ### Example 4: Array Filtering
+
 ```nano
 fn filter_positive(arr: array<int>) -> array<int> {
     let mut result: array<int> = []
@@ -173,18 +181,18 @@ fn demo_filter() -> int {
 
 ## Memory Management
 
-Arrays are automatically garbage collected. When an array is no longer referenced, its memory is reclaimed.
+I manage array memory automatically. When you no longer reference an array, I reclaim its memory.
 
 ```nano
 fn create_temporary() -> int {
     let temp: array<int> = [1, 2, 3]
     return (array_length temp)
-}  # temp is automatically freed after function returns
+}  # I free temp after the function returns
 ```
 
 ## Bounds Checking
 
-All array operations perform bounds checking at runtime:
+I perform bounds checking on all array operations at runtime.
 
 ```nano
 let arr: array<int> = [1, 2, 3]
@@ -193,19 +201,21 @@ let val: int = (at arr 10)  # Runtime error: index out of bounds
 
 ## Mutability
 
-Arrays must be declared as mutable to modify them:
+You must declare an array as mutable if you intend to modify it.
 
 ```nano
 let arr: array<int> = [1, 2, 3]          # Immutable
-set arr (array_push arr 4)                # Error!
+set arr (array_push arr 4)                # Error
+```
 
+```nano
 let mut arr2: array<int> = [1, 2, 3]      # Mutable
-set arr2 (array_push arr2 4)              # OK!
+set arr2 (array_push arr2 4)              # Allowed
 ```
 
 ## See Also
 
-- [Generic Types](./GENERIC_TYPES.md) - Generic type instantiation with List<T>
-- [Language Specification](./SPECIFICATION.md) - Types, arrays, and semantics
-- [spec.json](../spec.json) - Machine-readable reference (types + stdlib)
-- [Examples](../examples/) - Real-world usage examples
+- [Generic Types](./GENERIC_TYPES.md)
+- [Language Specification](./SPECIFICATION.md)
+- [spec.json](../spec.json)
+- [Examples](../examples/)

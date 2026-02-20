@@ -1,17 +1,17 @@
-# Module Creation Tutorial
+# Creating Modules
 
-This guide shows you how to create custom nanolang modules for C library integration.
+I show you how to create custom modules to integrate C libraries with me.
 
-## Module Structure
+## My Module Structure
 
-Every module lives in `modules/<name>/` and contains:
+Every module I use lives in `modules/<name>/` and contains:
 
 ```
 modules/mymodule/
 ├── module.json          # Module metadata and build configuration
-├── mymodule.nano        # Nanolang FFI declarations
+├── mymodule.nano        # My FFI declarations
 ├── mymodule_helpers.c   # Optional: C helper functions
-└── mymodule_helpers.nano # Optional: Nanolang helper function declarations
+└── mymodule_helpers.nano # Optional: My helper function declarations
 ```
 
 ## Step 1: Create Module Directory
@@ -22,7 +22,7 @@ mkdir modules/mymodule
 
 ## Step 2: Create `module.json`
 
-The `module.json` file tells the build system how to compile and link your module.
+The `module.json` file tells my build system how to compile and link your module.
 
 ### Example: Pure FFI Module (no C code)
 
@@ -68,7 +68,7 @@ The `module.json` file tells the build system how to compile and link your modul
   "link_flags": [                // Manual linker flags (optional)
     "-framework CoreAudio"
   ],
-  "dependencies": [              // Other nanolang modules required (optional)
+  "dependencies": [              // Other modules I require (optional)
     "sdl"
   ]
 }
@@ -97,7 +97,7 @@ let MY_FLAG_B: int = 2
 
 ### Type Mapping
 
-| Nanolang | C Equivalent |
+| My Type | C Equivalent |
 |----------|--------------|
 | `int` | `int64_t` |
 | `float` | `double` |
@@ -108,13 +108,13 @@ let MY_FLAG_B: int = 2
 
 ## Step 4: Optional C Helpers
 
-If you need custom C code (not just FFI bindings), create `mymodule_helpers.c`:
+If you need custom C code, create `mymodule_helpers.c`:
 
 ```c
 #include <stdint.h>
 #include <stdbool.h>
 
-// Nanolang-callable helper function
+// Helper function I can call
 int64_t nl_mymodule_helper(int64_t arg1, const char* arg2) {
     // Your C code here
     return 42;
@@ -129,12 +129,12 @@ extern fn nl_mymodule_helper(arg1: int, arg2: string) -> int
 
 ### Naming Convention
 
-- Prefix C functions with `nl_` to avoid name collisions
-- Use descriptive names: `nl_sdl_render_fill_rect` not `nl_rfr`
+- Prefix C functions with `nl_` to avoid name collisions.
+- Use descriptive names: `nl_sdl_render_fill_rect` not `nl_rfr`.
 
 ## Step 5: Using Your Module
 
-In your nanolang code:
+In the code you write for me:
 
 ```nano
 import "modules/mymodule/mymodule.nano"
@@ -173,7 +173,7 @@ let SEEK_CUR: int = 1
 let SEEK_END: int = 2
 let FILE_MODE_READ: string = "rb"
 
-# Helper function in nanolang
+# Helper function in my syntax
 fn file_size(filename: string) -> int {
     let file: int = (fopen filename FILE_MODE_READ)
     if (== file 0) {
@@ -186,6 +186,7 @@ fn file_size(filename: string) -> int {
     }
 }
 
+# I require shadow tests for my functions
 shadow file_size {
     assert (>= (file_size "/nonexistent") -1)
 }
@@ -286,19 +287,19 @@ fn main() -> int {
 
 ### Automatic Building
 
-Modules are built automatically when used:
+I build modules automatically when you use them:
 
 ```bash
 # Compile your program
 ./bin/nanoc examples/myprogram.nano -o myprogram
 
-# Modules are compiled as needed
+# I compile modules as needed
 ```
 
 ### Manual Testing
 
 ```bash
-# Test with interpreter (no C compilation)
+# Test with my interpreter (no C compilation)
 ./bin/nano examples/myprogram.nano
 
 # Compile to native binary
@@ -310,7 +311,7 @@ Modules are built automatically when used:
 
 ### 1. Start Simple
 
-Begin with pure FFI bindings (no C code):
+Begin with pure FFI bindings:
 
 ```nano
 extern fn existing_c_function(arg: int) -> int
@@ -318,10 +319,10 @@ extern fn existing_c_function(arg: int) -> int
 
 ### 2. Add Helpers as Needed
 
-Only write C helpers when:
-- The C API is too complex for direct FFI
-- You need to marshal data structures
-- Performance requires C implementation
+Write C helpers only when:
+- The C API is too complex for direct FFI.
+- You must marshal data structures.
+- Performance requires a C implementation.
 
 ### 3. Use Descriptive Names
 
@@ -335,11 +336,7 @@ extern fn rfr(...)
 
 ### 4. Document Your Module
 
-Add comments explaining:
-- What the function does
-- Parameter meanings
-- Return value interpretation
-- Example usage
+Add comments explaining what each function does.
 
 ```nano
 # Load audio file from disk
@@ -350,7 +347,7 @@ extern fn load_audio(filename: string) -> int
 
 ### 5. Add Shadow Tests
 
-Test your helper functions:
+I require you to test your helper functions.
 
 ```nano
 fn clamp(value: int, min_val: int, max_val: int) -> int {
@@ -376,7 +373,7 @@ shadow clamp {
 
 ### Pattern 1: Opaque Handles
 
-C libraries often return pointers. In nanolang, treat them as `int`:
+C libraries often return pointers. I treat them as `int`.
 
 ```nano
 # SDL_Window* becomes int
@@ -448,11 +445,11 @@ fn load_and_process_file(filename: string) -> bool {
 Error: Cannot find module 'mymodule'
 ```
 
-**Solution**: Check that:
-1. Directory exists: `modules/mymodule/`
-2. `module.json` exists
-3. `mymodule.nano` exists
-4. Import path is correct: `import "modules/mymodule/mymodule.nano"`
+Check that:
+1. Directory exists: `modules/mymodule/`.
+2. `module.json` exists.
+3. `mymodule.nano` exists.
+4. Import path is correct: `import "modules/mymodule/mymodule.nano"`.
 
 ### Linking Errors
 
@@ -460,10 +457,9 @@ Error: Cannot find module 'mymodule'
 Undefined symbols: _my_function
 ```
 
-**Solution**: 
-1. Add function to `c_sources` in `module.json`
-2. Or add library to `pkg_config`
-3. Or add to `link_flags`
+1. Add function to `c_sources` in `module.json`.
+2. Add library to `pkg_config`.
+3. Add to `link_flags`.
 
 ### Type Mismatches
 
@@ -471,30 +467,30 @@ Undefined symbols: _my_function
 Error: Type mismatch in function call
 ```
 
-**Solution**: Check type mapping:
-- C `int` → nanolang `int` (int64_t)
-- C `double` → nanolang `float`
-- C `char*` → nanolang `string`
-- C pointers → nanolang `int`
+Check my type mapping:
+- C `int` to my `int` (int64_t).
+- C `double` to my `float`.
+- C `char*` to my `string`.
+- C pointers to my `int`.
 
-## Examples in nanolang
+## Examples
 
-See these working modules:
-- `modules/sdl/` - SDL2 bindings
-- `modules/sdl_helpers/` - SDL2 with C helpers
-- `modules/sdl_mixer/` - External library (SDL2_mixer)
-- `modules/stdio/` - Standard C library bindings
-- `modules/math_ext/` - Math extensions
+I provide working modules here:
+- `modules/sdl/` - SDL2 bindings.
+- `modules/sdl_helpers/` - SDL2 with C helpers.
+- `modules/sdl_mixer/` - External library (SDL2_mixer).
+- `modules/stdio/` - Standard C library bindings.
+- `modules/math_ext/` - Math extensions.
 
-All examples in `examples/` directory demonstrate module usage.
+All examples in my `examples/` directory demonstrate how I use modules.
 
 ## Next Steps
 
-1. Browse existing modules for examples
-2. Create your first simple FFI module
-3. Add C helpers if needed
-4. Document your module
-5. Share it!
+1. Browse my existing modules for examples.
+2. Create your first simple FFI module.
+3. Add C helpers if you need them.
+4. Document your module.
+5. Share it.
 
 ## Reference
 
@@ -505,4 +501,4 @@ All examples in `examples/` directory demonstrate module usage.
 
 ---
 
-**Happy module building!** 🚀
+I wish you success with your modules.

@@ -1,65 +1,65 @@
-# Type Inference in NanoLang
+# Type Inference
 
 ## Overview
 
-NanoLang is primarily an **explicitly-typed language** where most type annotations are mandatory. However, the compiler does perform **limited type inference** in specific contexts to reduce verbosity while maintaining clarity.
+I am primarily an explicitly-typed language. I require you to provide most type annotations. I perform limited type inference in specific contexts to reduce verbosity. I do this only where it does not sacrifice clarity.
 
-This document explains exactly what the compiler can and cannot infer, helping you understand when type annotations are required.
+This document explains what I can and cannot infer. It will help you understand when I require you to be explicit.
 
 ## Quick Reference
 
 | Situation | Inference | Example |
 |-----------|-----------|---------|
-| Variable declarations | ❌ **Required** | `let x: int = 42` |
-| Function parameters | ❌ **Required** | `fn f(x: int)` |
-| Function return types | ❌ **Required** | `fn f() -> int` |
-| Array element types | ✅ **Inferred from literal** | `let arr: array<int> = [1, 2, 3]` |
-| Empty array types | ⚠️ **Context-dependent** | Requires type annotation |
-| Struct literal names | ✅ **Inferred from context** | See below |
-| Generic type parameters | ❌ **Required** | `let list: List<int> = ...` |
+| Variable declarations | Required | `let x: int = 42` |
+| Function parameters | Required | `fn f(x: int)` |
+| Function return types | Required | `fn f() -> int` |
+| Array element types | Inferred from literal | `let arr: array<int> = [1, 2, 3]` |
+| Empty array types | Context-dependent | Requires type annotation |
+| Struct literal names | Inferred from context | See below |
+| Generic type parameters | Required | `let list: List<int> = ...` |
 
-## What MUST Be Explicitly Annotated
+## What I Require You To Annotate
 
 ### 1. Variable Type Annotations
 
-**Rule:** ALL variable declarations must include a type annotation.
+I require all variable declarations to include a type annotation.
 
 ```nano
-# ✅ CORRECT
+# CORRECT
 let x: int = 42
 let name: string = "Alice"
 let flag: bool = true
 let pi: float = 3.14
 
-# ❌ ERROR: Missing type annotation
-let x = 42          # Compiler error
-let name = "Alice"  # Compiler error
+# ERROR: Missing type annotation
+let x = 42          # I will not compile this
+let name = "Alice"  # I will not compile this
 ```
 
-**Why?** Explicit types improve code clarity and make it easier for both humans and LLMs to understand code without context.
+Explicit types improve code clarity. They make it easier for humans and machines to understand code without searching for context.
 
 ### 2. Function Parameter Types
 
-**Rule:** ALL function parameters must have type annotations.
+I require all function parameters to have type annotations.
 
 ```nano
-# ✅ CORRECT
+# CORRECT
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
-# ❌ ERROR: Missing parameter types
-fn add(a, b) -> int {  # Compiler error
+# ERROR: Missing parameter types
+fn add(a, b) -> int {  # I will not compile this
     return (+ a b)
 }
 ```
 
 ### 3. Function Return Types
 
-**Rule:** ALL functions must declare their return type, even `void`.
+I require all functions to declare their return type. This includes functions that return `void`.
 
 ```nano
-# ✅ CORRECT
+# CORRECT
 fn get_value() -> int {
     return 42
 }
@@ -68,73 +68,71 @@ fn print_message() -> void {
     (println "Hello")
 }
 
-# ❌ ERROR: Missing return type
-fn get_value() {  # Compiler error
+# ERROR: Missing return type
+fn get_value() {  # I will not compile this
     return 42
 }
 ```
 
-**Exception:** `shadow` test blocks don't need return types (they're always `void`).
+I do not require return types for `shadow` test blocks. They are always `void`.
 
 ### 4. Generic Type Parameters
 
-**Rule:** Generic types like `List<T>` and `HashMap<K,V>` require explicit type parameters.
+I require explicit type parameters for generic types like `List<T>` and `HashMap<K,V>`.
 
 ```nano
-# ✅ CORRECT
+# CORRECT
 let numbers: List<int> = (List_int_new)
 let mapping: HashMap<string, int> = (map_new)
 
-# ❌ ERROR: Missing type parameters
-let numbers: List = (List_int_new)     # Compiler error
-let mapping: HashMap = (map_new)       # Compiler error
+# ERROR: Missing type parameters
+let numbers: List = (List_int_new)     # I will not compile this
+let mapping: HashMap = (map_new)       # I will not compile this
 ```
 
-**Why?** NanoLang uses **monomorphization** (compile-time specialization). The compiler needs to know which concrete types to generate code for.
+I use monomorphization to specialize code at compile time. I must know the concrete types to generate the correct implementation.
 
-## What CAN Be Inferred
+## What I Can Infer
 
 ### 1. Array Element Types (From Literals)
 
-When you provide an array literal with elements, the compiler can infer the element type from the literal itself.
+When you provide an array literal with elements, I infer the element type from the literal itself.
 
 ```nano
-# Type annotation specifies array<int>, but could be inferred from [1, 2, 3]
+# I verify that [1, 2, 3] matches array<int>
 let numbers: array<int> = [1, 2, 3]
 
-# This works because the literal [1, 2, 3] clearly contains ints
+# I determine the element type from the literal contents
 let values: array<int> = [10, 20, 30]
-
-# The literal determines element type
 let names: array<string> = ["Alice", "Bob"]
 ```
 
-**Important:** You still need the type annotation on the variable (`array<int>`), but the compiler verifies it matches the literal.
+You must still provide the type annotation on the variable. I check that it matches the literal.
 
 ### 2. Empty Array Types (Context-Dependent)
 
-Empty arrays `[]` require type information from context:
+Empty arrays `[]` require type information from the context.
 
 ```nano
-# ✅ CORRECT: Type specified in variable annotation
+# CORRECT: I use the variable annotation
 let empty: array<int> = []
 
-# ✅ CORRECT: Type known from function parameter
+# CORRECT: I use the function parameter type
 fn process_numbers(nums: array<int>) -> void {
     # ...
 }
-# Calling with empty array - type inferred from parameter
+# I infer the type from the parameter when you call me
 (process_numbers [])
 
-# ❌ ERROR: No context for empty array type
-let unknown = []  # Would error anyway (no variable type)
+# ERROR: I have no context for this empty array type
+let unknown = []  # I will not compile this
 ```
 
 ### 3. Struct Literal Names (From Context)
 
-When the compiler knows what struct type is expected, you can use **anonymous struct literals** by omitting the struct name.
+When I know which struct type is expected, you can use anonymous struct literals by omitting the struct name.
 
-**Important:** This feature exists in the typechecker but may have limited practical use since variable declarations always require explicit types. It's most useful for:
+This feature is present in my typechecker. It is useful for:
 
 1. Function return values
 2. Nested struct initialization
@@ -146,16 +144,13 @@ struct Point {
     y: int
 }
 
-# Explicit struct name (always works)
+# I accept the explicit struct name
 fn create_point() -> Point {
     return Point { x: 10, y: 20 }
 }
-
-# In theory, could be anonymous if return type provides context
-# (Current syntax requires struct name, but typechecker supports inference)
 ```
 
-**Current Status:** While the typechecker has logic for anonymous struct literals (line 2100-2104 in `typechecker.c`), the parser and syntax currently require explicit struct names. This is documented for completeness.
+My typechecker has logic for anonymous struct literals. My parser and syntax currently require explicit struct names. I document this for completeness.
 
 ## Type Inference Examples
 
@@ -163,13 +158,13 @@ fn create_point() -> Point {
 
 ```nano
 fn process_data() -> void {
-    # Element type inferred from literal
+    # I infer the element type from the literal
     let scores: array<int> = [95, 87, 92, 88]
     
-    # Empty array requires explicit type
+    # I require an explicit type for empty arrays
     let mut results: array<int> = []
     
-    # Type matches literal
+    # I ensure the type matches the literal
     let names: array<string> = ["Alice", "Bob", "Charlie"]
 }
 
@@ -182,7 +177,7 @@ shadow process_data {
 ### Example 2: Generic Type Parameters
 
 ```nano
-# HashMap requires explicit K,V parameters
+# I require explicit K,V parameters for HashMap
 fn create_lookup() -> HashMap<string, int> {
     let map: HashMap<string, int> = (map_new)
     (map_insert map "answer" 42)
@@ -194,7 +189,7 @@ shadow create_lookup {
     assert true
 }
 
-# List requires explicit T parameter
+# I require an explicit T parameter for List
 fn create_list() -> List<int> {
     let list: List<int> = (List_int_new)
     (List_int_push list 1)
@@ -208,15 +203,15 @@ shadow create_list {
 }
 ```
 
-### Example 3: No Variable Type Inference
+### Example 3: Variable Type Requirements
 
 ```nano
-# ❌ These all fail - variables need explicit types
+# I will not compile these variable declarations
 # let x = 42
 # let name = "Alice"
 # let flag = (> 5 3)
 
-# ✅ Correct versions
+# I require these versions
 let x: int = 42
 let name: string = "Alice"
 let flag: bool = (> 5 3)
@@ -227,27 +222,25 @@ let flag: bool = (> 5 3)
 ### Mistake 1: Omitting Variable Types
 
 ```nano
-# ❌ ERROR
+# ERROR
 let count = 0
 
-# ✅ CORRECT
+# CORRECT
 let count: int = 0
 ```
 
-**Error Message:**
-```
-Error: Variable declaration requires explicit type annotation
-```
+I will produce this error:
+`Error: Variable declaration requires explicit type annotation`
 
 ### Mistake 2: Omitting Function Parameter Types
 
 ```nano
-# ❌ ERROR
+# ERROR
 fn double(x) -> int {
     return (* x 2)
 }
 
-# ✅ CORRECT
+# CORRECT
 fn double(x: int) -> int {
     return (* x 2)
 }
@@ -260,41 +253,39 @@ shadow double {
 ### Mistake 3: Missing Generic Type Parameters
 
 ```nano
-# ❌ ERROR
+# ERROR
 let numbers: List = (List_int_new)
 
-# ✅ CORRECT
+# CORRECT
 let numbers: List<int> = (List_int_new)
 ```
 
-**Error Message:**
-```
-Error: Generic type List requires type parameters
-```
+I will produce this error:
+`Error: Generic type List requires type parameters`
 
 ### Mistake 4: Empty Array Without Type
 
 ```nano
-# ❌ ERROR
+# ERROR
 let mut results = []
 
-# ✅ CORRECT
+# CORRECT
 let mut results: array<int> = []
 ```
 
-## Design Philosophy
+## My Design Philosophy
 
-### Why So Explicit?
+### Why I Am Explicit
 
-NanoLang's explicit typing philosophy serves several goals:
+My explicit typing philosophy serves these goals:
 
-1. **LLM-Friendly:** AI systems can generate correct code without complex inference rules
-2. **Readability:** Code is self-documenting; types are always visible
-3. **Simplicity:** Fewer inference rules mean less cognitive load
-4. **Error Messages:** When types are explicit, error messages are clearer
-5. **Compile Speed:** Less type inference = faster compilation
+1. **Machine-Friendly.** AI systems generate correct code without complex inference rules.
+2. **Readability.** Code is self-documenting. Types are always visible.
+3. **Simplicity.** Fewer inference rules mean less cognitive load for you.
+4. **Clarity.** Error messages are clearer when types are explicit.
+5. **Speed.** Less type inference results in faster compilation.
 
-### Comparison with Other Languages
+### Comparison With Other Languages
 
 | Language | Variable Types | Parameter Types | Return Types |
 |----------|---------------|-----------------|--------------|
@@ -305,53 +296,46 @@ NanoLang's explicit typing philosophy serves several goals:
 | TypeScript | Can omit | Can omit | Can infer |
 | Python | Optional | Optional | Optional |
 
-NanoLang is closer to C in its explicitness, but simpler than Rust or TypeScript's inference.
+I am closer to C in my explicitness. I am simpler than Rust or TypeScript.
 
 ## Future Considerations
 
-The type inference system is intentionally minimal. Potential future additions could include:
+My type inference system is intentionally minimal. I could add these features:
 
-1. **Local variable inference:** `let x = 42  # infer int`
-2. **Return type inference:** `fn f() { return 42 }  # infer -> int`
-3. **Generic function parameters:** `fn identity<T>(x: T) -> T`
+1. **Local variable inference.** `let x = 42`
+2. **Return type inference.** `fn f() { return 42 }`
+3. **Generic function parameters.** `fn identity<T>(x: T) -> T`
 
-However, these are **not currently planned** as they conflict with the design goal of explicitness.
+I do not currently plan to add these features. They conflict with my goal of explicitness.
 
 ## Best Practices
 
 ### 1. Always Annotate Variables
 
-Even when you think the type is "obvious," include the annotation:
+Include the annotation even when you think the type is obvious.
 
 ```nano
-# ✅ Good - clear and explicit
+# Good. I find this clear and explicit.
 let message: string = "Hello"
 let count: int = 0
 let ready: bool = false
-
-# ❌ Bad - would be an error anyway
-# let message = "Hello"
 ```
 
 ### 2. Use Descriptive Types for Generics
 
 ```nano
-# ✅ Good - type parameters are clear
+# Good. Your type parameters are clear to me.
 let user_ids: List<int> = (List_int_new)
 let user_map: HashMap<string, int> = (map_new)
-
-# ❌ Confusing - what are the types?
-# let data: List = ...  # Won't compile anyway
 ```
 
-### 3. Leverage Function Signatures
+### 3. Use Function Signatures
 
-Function signatures serve as documentation:
+Your function signatures serve as documentation for me and for you.
 
 ```nano
-# ✅ Good - signature tells you everything
+# Good. This signature tells me everything I need to know.
 fn calculate_distance(x1: int, y1: int, x2: int, y2: int) -> float {
-    # Implementation
     return 0.0
 }
 
@@ -363,20 +347,21 @@ shadow calculate_distance {
 
 ## Summary
 
-**NanoLang's Type Inference Philosophy:**
+I follow these principles for type inference:
 
-- **Default:** Explicit type annotations required
-- **Exception:** Limited inference in specific contexts (array literals, struct literals)
-- **Goal:** Maximize clarity and LLM-friendliness
+- **Default.** I require explicit type annotations.
+- **Exception.** I allow limited inference for array and struct literals.
+- **Goal.** I maximize clarity and machine-friendliness.
 
-**Key Takeaway:** When in doubt, add the type annotation. NanoLang values explicitness over brevity.
+When you are in doubt, add the type annotation. I value explicitness over brevity.
 
 ---
 
 **See Also:**
 - [Type System Specification](SPECIFICATION.md#3-types)
-- [Generics Deep Dive](GENERICS_DEEP_DIVE.md) - Monomorphization explained
-- [Error Messages Guide](ERROR_MESSAGES.md) - Understanding type errors
-- [Getting Started](GETTING_STARTED.md) - Basic type usage
+- [Generics Deep Dive](GENERICS_DEEP_DIVE.md)
+- [Error Messages Guide](ERROR_MESSAGES.md)
+- [Getting Started](GETTING_STARTED.md)
 
-**Last Updated:** January 25, 2026
+**Last Updated:** February 20, 2026
+

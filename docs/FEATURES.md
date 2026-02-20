@@ -1,15 +1,15 @@
-# nanolang Features Overview
+# Features
 
 **Version:** 0.2.0  
-**Status:** Alpha - Feature-Complete, Production-Ready Approaching
+**Status:** Alpha - I am feature-complete and approaching production-readiness.
 
 ---
 
 ## Core Features
 
-### ✅ Automatic Memory Management (ARC)
+### Automatic Memory Management (ARC)
 
-**NEW in v2.3.0!** Automatic Reference Counting (ARC) provides zero-overhead memory management:
+I provide automatic reference counting (ARC) to manage memory without manual intervention.
 
 ```nano
 from "modules/std/json/json.nano" import Json, parse, get_string
@@ -22,20 +22,15 @@ fn extract_data(json_text: string) -> string {
 }
 ```
 
-**Benefits:**
-- No manual memory management - No free() calls needed
-- Deterministic cleanup - Objects freed when last reference goes away
-- Borrowed reference detection - Zero-cost for accessors
-- Cycle detection - Circular references handled automatically
-- Native performance - Compiles to C with minimal overhead
+I eliminate manual memory management and the need for `free` calls. My cleanup is deterministic: I free objects as soon as their last reference disappears. I detect borrowed references to ensure accessors have no overhead, and I handle circular references automatically. I compile to C with minimal overhead to maintain performance.
 
 See [Automatic Memory Management Guide](../userguide/03_basic_types.md#automatic-memory-management) for details.
 
 ---
 
-### ✅ Dual Notation: Prefix and Infix
+### Dual Notation: Prefix and Infix
 
-Operators support both prefix (S-expression) and infix notation:
+I support both prefix (S-expression) and infix notation for operators.
 
 ```nano
 # Prefix notation (S-expression style):
@@ -49,42 +44,34 @@ a + b                        # Addition
 x > 0 and x < 10            # Logical operators too
 ```
 
-**Infix operators:** `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`
+My infix operators include: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`.
 
-**Infix rules:**
-- All infix operators have **equal precedence**, evaluated **left-to-right** (no PEMDAS)
-- Use parentheses to control grouping: `a * (b + c)`
-- Unary `not` and `-` work without parens: `not flag`, `-x`
-- Function calls remain prefix: `(println "hello")`
+My rules for infix notation are:
+- All infix operators have equal precedence and evaluate left-to-right. I do not use PEMDAS.
+- You must use parentheses to control grouping: `a * (b + c)`.
+- Unary `not` and `-` work without parentheses: `not flag`, `-x`.
+- My function calls always remain prefix: `(println "hello")`.
 
-**Benefits:**
-- Choose the clearest notation for each situation
-- Prefix style eliminates all ambiguity
-- Infix style reads naturally for simple expressions
-- LLM-friendly syntax
+I offer these choices so you can use the clearest notation for each situation. My prefix style eliminates all ambiguity, while my infix style reads naturally for simple expressions. I designed this syntax to be friendly to both humans and machines.
 
 ---
 
-### ✅ Static Type System
+### Static Type System
 
-All variables and parameters must have explicit type annotations:
+I require explicit type annotations for all variables and parameters.
 
 ```nano
 let x: int = 42              # Explicit type required
 let mut y: float = 3.14      # Mutable variable
 ```
 
-**Type Safety:**
-- No implicit conversions
-- No type inference
-- Compile-time type checking
-- Type errors caught before runtime
+My type system ensures safety by disallowing implicit conversions and type inference. I check all types at compile time so that errors are caught before your program runs.
 
 ---
 
-### ✅ Mandatory Shadow-Tests
+### Mandatory Shadow-Tests
 
-Every function must have a `shadow` block with assertions:
+I require every function to have a `shadow` block containing assertions.
 
 ```nano
 fn factorial(n: int) -> int {
@@ -101,17 +88,13 @@ shadow factorial {
 }
 ```
 
-**Benefits:**
-- 100% test coverage guaranteed
-- Tests run at compile time
-- Living documentation
-- Catch bugs before runtime
+I enforce this to guarantee test coverage. I run these tests at compile time, providing you with living documentation and catching bugs before runtime.
 
 ---
 
 ## Type System Features
 
-### ✅ Primitive Types
+### Primitive Types
 
 | Type     | Description | Size | Example |
 |----------|-------------|------|---------|
@@ -123,9 +106,9 @@ shadow factorial {
 
 ---
 
-### ✅ Structs (Product Types)
+### Structs (Product Types)
 
-Structs group related data:
+I use structs to group related data.
 
 ```nano
 struct Point {
@@ -137,17 +120,13 @@ let p: Point = Point { x: 10, y: 20 }
 let x_coord: int = p.x
 ```
 
-**Features:**
-- Named fields
-- Field access with `.` operator
-- Stack-allocated by default
-- GC-managed heap allocation available
+I support named fields and field access via the `.` operator. I allocate structs on the stack by default, but I also provide GC-managed heap allocation when needed.
 
 ---
 
-### ✅ Enums (Enumerated Types)
+### Enums (Enumerated Types)
 
-Enums define named integer constants:
+I define enums as named integer constants.
 
 ```nano
 enum Status {
@@ -159,16 +138,13 @@ enum Status {
 let s: int = Status.Active  # Enums are integers
 ```
 
-**Features:**
-- Explicit integer values
-- Compile-time constants
-- Zero runtime overhead
+My enums use explicit integer values and function as compile-time constants with zero runtime overhead.
 
 ---
 
-### ✅ Unions (Tagged Unions / Sum Types)
+### Unions (Tagged Unions / Sum Types)
 
-Unions represent a value that can be one of several variants:
+I represent values that can be one of several variants using unions.
 
 ```nano
 union Result {
@@ -192,15 +168,11 @@ shadow divide {
 }
 ```
 
-**Features:**
-- Type-safe variant handling
-- Pattern matching with `match` expressions
-- Named fields per variant
-- Compile-time exhaustiveness checking
+I provide type-safe variant handling and pattern matching with `match` expressions. Each variant can have named fields. I check for exhaustiveness at compile time.
 
-### ✅ Generic Unions
+### Generic Unions
 
-**NEW!** Unions can now be generic over type parameters:
+I allow unions to be generic over type parameters.
 
 ```nano
 union Result<T, E> {
@@ -230,11 +202,7 @@ shadow divide {
 }
 ```
 
-**Features:**
-- Generic type parameters (`<T, E>`)
-- Type-safe monomorphization (generates concrete types at compile-time)
-- Works with any type: primitives, structs, other generics
-- Standard library includes `Result<T,E>` (helper functions are planned once generic functions are supported)
+I support generic type parameters like `<T, E>` and use monomorphization to generate concrete types at compile time. This works with primitives, structs, and other generics. My standard library includes `Result<T,E>`, and I plan to add helper functions once I support generic functions.
 
 **Standard Library Usage:**
 ```nano
@@ -252,9 +220,9 @@ fn main() -> int {
 
 ---
 
-### ✅ Pattern Matching
+### Pattern Matching
 
-Match expressions destructure unions safely:
+I use match expressions to destructure unions safely.
 
 ```nano
 match result {
@@ -263,17 +231,13 @@ match result {
 }
 ```
 
-**Features:**
-- Exhaustive pattern checking
-- Variable binding for each variant
-- Type-safe field access
-- Expression-based (returns a value)
+I ensure pattern checking is exhaustive and provide variable binding for each variant. This allows for type-safe field access within an expression that returns a value.
 
 ---
 
-### ✅ Generics (Monomorphization)
+### Generics (Monomorphization)
 
-Generic types enable reusable, type-safe code:
+I use generic types to enable the creation of reusable, type-safe code.
 
 ```nano
 # Built-in generic: List<T>
@@ -290,14 +254,9 @@ let points: List<Point> = (List_Point_new)
 (List_Point_push points (Point { x: 1, y: 2 }))
 ```
 
-**Implementation:**
-- **Monomorphization:** Each concrete type generates specialized code
-- `List<int>` → `List_int_new`, `List_int_push`, etc.
-- `List<Point>` → `List_Point_new`, `List_Point_push`, etc.
-- Zero runtime overhead
-- Type-safe at compile time
+My implementation uses monomorphization, meaning I generate specialized code for each concrete type, such as `List_int_new` or `List_Point_new`. This approach ensures zero runtime overhead and maintains type safety at compile time.
 
-**Generic Functions Available:**
+My available generic functions include:
 - `List_<T>_new()` - Create empty list
 - `List_<T>_push(list, value)` - Push element
 - `List_<T>_length(list)` - Get length
@@ -305,9 +264,9 @@ let points: List<Point> = (List_Point_new)
 
 ---
 
-### ✅ First-Class Functions
+### First-Class Functions
 
-Functions can be passed as parameters, returned from functions, and assigned to variables:
+I treat functions as values. You can pass them as parameters, return them from other functions, and assign them to variables.
 
 ```nano
 fn double(x: int) -> int {
@@ -335,22 +294,13 @@ fn get_operation(choice: int) -> fn(int) -> int {
 }
 ```
 
-**Function Type Syntax:**
-```nano
-fn(param_type1, param_type2) -> return_type
-```
-
-**Features:**
-- Functions are values
-- No exposed function pointers
-- Type-safe function variables
-- No dereferencing needed
+My syntax for function types is `fn(param_types) -> return_type`. I do not expose function pointers; I use type-safe function variables that do not require dereferencing.
 
 ---
 
-### ⏳ Tuples (In Development)
+### Tuples
 
-Tuples allow returning multiple values:
+Planned: I am adding tuples to allow returning multiple values.
 
 ```nano
 fn divide_with_remainder(a: int, b: int) -> (int, int) {
@@ -362,15 +312,15 @@ let quotient: int = result.0
 let remainder: int = result.1
 ```
 
-**Status:** Type system complete, parser implementation pending
+Development status: My type system support is complete, and I am currently implementing the parser.
 
 ---
 
 ## Control Flow
 
-### ✅ If Expressions
+### If Expressions
 
-Both branches required:
+I require both branches to be present.
 
 ```nano
 if (> x 0) {
@@ -382,7 +332,7 @@ if (> x 0) {
 
 ---
 
-### ✅ While Loops
+### While Loops
 
 ```nano
 let mut i: int = 0
@@ -394,7 +344,7 @@ while (< i 10) {
 
 ---
 
-### ✅ For Loops
+### For Loops
 
 ```nano
 for i in (range 0 10) {
@@ -406,9 +356,9 @@ for i in (range 0 10) {
 
 ## Mutability
 
-### ✅ Immutable by Default
+### Immutable by Default
 
-Variables are immutable unless declared with `mut`:
+My variables are immutable unless you declare them with `mut`.
 
 ```nano
 let x: int = 10
@@ -418,16 +368,15 @@ let mut y: int = 10
 set y 20  # OK: y is mutable
 ```
 
-**Benefits:**
-- Safer code by default
-- Explicit mutability tracking
-- Easier to reason about
+I enforce this to make your code safer and easier to reason about through explicit mutability tracking.
 
 ---
 
 ## Standard Library
 
-### ✅ Comprehensive Built-ins (72 Functions)
+### Comprehensive Built-ins (72 Functions)
+
+I provide 72 built-in functions covering several areas.
 
 **Core I/O (3):**
 - `print`, `println`, `assert`
@@ -459,11 +408,11 @@ See [`STDLIB.md`](STDLIB.md) for full reference.
 
 ---
 
-## Compilation & Tooling
+## Compilation and Tooling
 
-### ✅ Dual Compilation: C Transpilation + NanoISA Virtual Machine
+### Dual Compilation: C Transpilation and NanoISA Virtual Machine
 
-nanolang offers two compilation backends:
+I offer two compilation backends.
 
 **C Transpilation** (default, maximum performance):
 ```bash
@@ -480,61 +429,57 @@ nano_vm program.nvm                   # Execute bytecode
 nano_vm --isolate-ffi program.nvm     # Execute with FFI in separate process
 ```
 
-**When to use which:**
+Comparison of my backends:
 
 | | C Backend (`nanoc`) | VM Backend (`nano_virt`) |
 |-|---------------------|--------------------------|
-| **Performance** | Native speed | Interpreted (slower) |
-| **FFI safety** | In-process (shared address space) | Process-isolated (crash-safe) |
+| **Performance** | Native speed | Interpreted |
+| **FFI safety** | In-process | Process-isolated (crash-safe) |
 | **Dependencies** | Needs gcc/clang | Self-contained |
 | **Debugging** | GDB/LLDB on C output | Source-line debug info in bytecode |
 | **Formal grounding** | Semantics verified in Coq | Semantics verified in Coq + differential testing |
 
-**VM Architecture:**
-- 178-opcode stack machine with reference-counted GC
-- Co-process FFI: external calls run in a separate `nano_cop` process via RPC — FFI crashes cannot take down the VM
-- Optional daemon mode (`nano_vmd`): persistent VM process for reduced startup latency
-- Trap model: pure-compute core separated from I/O, enabling potential FPGA acceleration
+**My VM Architecture:**
+- I use a 178-opcode stack machine with reference-counted GC.
+- I isolate external function calls in a separate `nano_cop` process via RPC, so FFI crashes cannot take down my VM.
+- I offer an optional daemon mode (`nano_vmd`) to reduce startup latency.
+- I use a trap model that separates my pure-compute core from I/O, allowing for potential FPGA acceleration.
 
 See [NanoISA Architecture Reference](NANOISA.md) for the complete specification.
 
 ---
 
-### ✅ Formally Verified Semantics
+### Formally Verified Semantics
 
-NanoLang's core language (NanoCore) has mechanically verified metatheory in the Rocq Prover (Coq):
+I have mechanically verified my core language (NanoCore) in the Rocq Prover (Coq).
 
-- **Type Soundness** - Well-typed programs don't go wrong (preservation + progress)
-- **Determinism** - Each expression evaluates to at most one result
-- **Semantic Equivalence** - Big-step and small-step semantics agree
-- **Computable Evaluator** - Fuel-based reference interpreter extracted to OCaml
+- **Type Soundness**: I have proved that well-typed programs do not go wrong (preservation and progress).
+- **Determinism**: I have proved that evaluation is a partial function.
+- **Semantic Equivalence**: I have proved that my big-step and small-step semantics agree.
+- **Computable Evaluator**: I have an axiom-free soundness proof for my fuel-based reference interpreter.
 
-All proofs are **axiom-free**: ~6,170 lines of Coq, 193 theorems, 0 `Admitted`, 0 axioms.
+I have completed 6,170 lines of Coq proof and 193 theorems using zero axioms.
 
 See [formal/README.md](../formal/README.md) for the full proof suite.
 
 ---
 
-### ✅ C Transpilation
+### C Transpilation
 
-nanolang transpiles to C99:
+I transpile to C99.
 
 ```bash
 nanoc program.nano -o program
 ./program
 ```
 
-**Features:**
-- Readable C output (with `--keep-c`)
-- Zero-overhead abstractions
-- Compatible with C toolchain
-- Easy FFI with C libraries
+I produce readable C output when you use the `--keep-c` flag. I use zero-overhead abstractions and remain compatible with the C toolchain for easy FFI integration.
 
 ---
 
-### ✅ Namespacing
+### Namespacing
 
-All user-defined types are prefixed with `nl_` in generated C code:
+I prefix all user-defined types with `nl_` in my generated C code.
 
 ```nano
 struct Point { x: int, y: int }
@@ -549,70 +494,54 @@ typedef enum { nl_Status_Active = 1, nl_Status_Pending = 0 } nl_Status;
 typedef struct nl_Result { /* tagged union */ } nl_Result;
 ```
 
-**Benefits:**
-- Prevents name collisions with C runtime
-- Clean C interop
-- Enables calling nanolang from C
+I do this to prevent name collisions with the C runtime and to provide clean interop for calling me from C.
 
 ---
 
-### ✅ Interpreter with Tracing
+### Interpreter with Tracing
 
-nanolang includes a fast interpreter for development:
+I include a fast interpreter for development.
 
 ```bash
 nano program.nano
 ```
 
-**Tracing Flags:**
+I provide several tracing flags:
 - `--trace-all` - Trace everything
 - `--trace-function=<name>` - Trace specific function
 - `--trace-var=<name>` - Trace variable operations
 - `--trace-scope=<name>` - Trace function scope
 - `--trace-regex=<pattern>` - Trace by regex
 
-**Benefits:**
-- Fast iteration during development
-- Detailed execution traces
-- No compilation step for testing
-- Shadow-tests run automatically
+I use this to allow for fast iteration and detailed execution traces without a compilation step. I run shadow-tests automatically when using the interpreter.
 
 ---
 
 ## Safety Features
 
-### ✅ Memory Safety
+### Memory Safety
 
-- Static type checking
-- Bounds-checked array access
-- No manual memory management
-- GC for dynamic data structures
+I ensure memory safety through static type checking, bounds-checked array access, and the elimination of manual memory management. I use GC for dynamic data structures.
 
 ---
 
-### ✅ Type Safety
+### Type Safety
 
-- No implicit conversions
-- No null pointers
-- Tagged unions for error handling
-- Exhaustive pattern matching
+I maintain type safety by disallowing implicit conversions and null pointers. I use tagged unions for error handling and require exhaustive pattern matching.
 
 ---
 
-### ✅ Test-Driven
+### Test-Driven
 
-- Mandatory shadow-tests
-- 100% function coverage
-- Compile-time test execution
-- Living documentation
+I am test-driven. I require shadow-tests for 100% function coverage and execute these tests at compile time.
 
 ---
 
 ## FFI (Foreign Function Interface)
 
-### ✅ Extern Functions
+### Extern Functions
 
-Call C functions from nanolang:
+I allow you to call C functions.
 
 ```nano
 extern fn sqrt(x: float) -> float
@@ -623,38 +552,34 @@ fn pythagorean(a: float, b: float) -> float {
 }
 ```
 
-**Features:**
-- Direct C function calls
-- Type-safe bindings
-- No overhead
-- Easy integration with C libraries
+I provide type-safe bindings for direct C function calls with no overhead, facilitating easy integration with C libraries.
 
 ---
 
 ## Development Status
 
-**Completed Features:**
-- ✅ Core language (types, expressions, statements)
-- ✅ Structs, enums, unions
-- ✅ Generics with monomorphization
-- ✅ First-class functions
-- ✅ Pattern matching
-- ✅ Standard library (72 functions)
-- ✅ C transpilation with namespacing
-- ✅ Interpreter with tracing
-- ✅ Shadow-test system
-- ✅ FFI support
-- ✅ Zero compiler warnings
+What I have completed:
+- Complete: Core language (types, expressions, statements)
+- Complete: Structs, enums, unions
+- Complete: Generics with monomorphization
+- Complete: First-class functions
+- Complete: Pattern matching
+- Complete: Standard library (72 functions)
+- Complete: C transpilation with namespacing
+- Complete: Interpreter with tracing
+- Complete: Shadow-test system
+- Complete: FFI support
+- Complete: Zero compiler warnings
 
-**In Development:**
-- ⏳ Tuple types (type system done, parser pending)
-- ⏳ Self-hosted compiler (nanolang-in-nanolang)
+What I am currently developing:
+- In development: Tuple types (type system complete, parser implementation pending)
+- In development: Self-hosted compiler (I am writing myself in myself)
 
-**Planned:**
-- 📋 Module system
-- 📋 More generic types (Map<K,V>, Set<T>)
-- 📋 Package manager
-- 📋 Standard library expansion
+What I have planned:
+- Planned: Module system
+- Planned: More generic types (Map<K,V>, Set<T>)
+- Planned: Package manager
+- Planned: Standard library expansion
 
 ---
 
@@ -701,7 +626,4 @@ nano hello.nano
 - **Standard Library:** [`STDLIB.md`](STDLIB.md)
 - **Examples:** [`../examples/`](../examples/)
 
----
-
-**nanolang** - Minimal, LLM-friendly, test-driven programming for the modern age! 🚀
 

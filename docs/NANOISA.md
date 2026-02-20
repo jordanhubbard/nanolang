@@ -1,6 +1,6 @@
 # NanoISA Virtual Machine Architecture
 
-NanoLang includes a complete virtual machine backend as an alternative to C transpilation. The system compiles NanoLang source to a custom bytecode format (.nvm) and executes it in a stack-based virtual machine with process-isolated FFI.
+I provide a complete virtual machine backend as an alternative to C transpilation. I compile my source code to a custom bytecode format (.nvm) and execute it in a stack-based virtual machine with process-isolated FFI.
 
 ## Overview
 
@@ -26,10 +26,10 @@ nano_virt (compiler)
 
 | Binary | Description |
 |--------|-------------|
-| `nano_virt` | Compiler: .nano source to .nvm bytecode or native binary |
-| `nano_vm` | VM executor: loads and runs .nvm files |
-| `nano_cop` | FFI co-process: isolates external function calls |
-| `nano_vmd` | VM daemon: persistent VM process for reduced startup latency |
+| `nano_virt` | My compiler: .nano source to .nvm bytecode or native binary |
+| `nano_vm` | My VM executor: loads and runs .nvm files |
+| `nano_cop` | My FFI co-process: isolates external function calls |
+| `nano_vmd` | My VM daemon: persistent VM process for reduced startup latency |
 
 ### nano_virt (Compiler)
 
@@ -54,7 +54,7 @@ nano_vm [--daemon] [--isolate-ffi] <file.nvm>
 
 ### nano_vmd (Daemon)
 
-Listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and accepts .nvm blobs from clients. Useful for reducing startup cost when repeatedly running programs.
+My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and accepts .nvm blobs from clients. I use this to reduce startup cost when repeatedly running programs.
 
 ## Instruction Set Architecture
 
@@ -164,7 +164,7 @@ Each section has a 12-byte directory entry: `[type (4B)] [offset (4B)] [size (4B
 
 ### String Pool
 
-Variable-length entries: `[length: u32] [utf8_bytes: length]`. Strings are deduplicated at compile time.
+Variable-length entries: `[length: u32] [utf8_bytes: length]`. I deduplicate strings at compile time.
 
 ### Function Entries (18 bytes each)
 
@@ -176,15 +176,15 @@ Variable-length entries: `[length: u32] [utf8_bytes: length]`. Strings are dedup
 
 ### Trap Architecture
 
-The VM separates pure computation from side effects:
+My VM separates pure computation from side effects.
 
-**Pure core** (`vm_core_execute`) handles 83+ opcodes:
+My **pure core** (`vm_core_execute`) handles 83+ opcodes:
 - All arithmetic, logic, comparison
 - Stack manipulation, variable access
 - Data structure operations
 - Control flow (jumps, calls, returns)
 
-When the core encounters a side-effecting operation, it returns a **trap descriptor**:
+When my core encounters a side-effecting operation, it returns a **trap descriptor**:
 
 | Trap | Trigger | Handler Action |
 |------|---------|----------------|
@@ -194,18 +194,19 @@ When the core encounters a side-effecting operation, it returns a **trap descrip
 | `TRAP_HALT` | `OP_HALT` | Stop execution |
 | `TRAP_ERROR` | Runtime error | Report and terminate |
 
-The **harness** (`vm_execute`) dispatches traps and resumes the core. This separation enables potential FPGA implementation of the pure-compute core.
+My **harness** (`vm_execute`) dispatches traps and resumes the core. I chose this separation to enable potential FPGA implementation of the pure-compute core.
 
 ### Memory Management
 
-Reference-counted GC with scope-based auto-release:
+I use reference-counted GC with scope-based auto-release:
 - `OP_GC_RETAIN` / `OP_GC_RELEASE` - Manual reference counting
 - `OP_GC_SCOPE_ENTER` / `OP_GC_SCOPE_EXIT` - Automatic release on scope exit
-- The compiler inserts scope markers for let-bindings
+
+I insert scope markers for let-bindings at compile time.
 
 ### Call Frames
 
-Each function call pushes a frame with:
+Each function call I execute pushes a frame with:
 - Function index and return address
 - Stack base (where locals begin)
 - Local count (including parameters)
@@ -214,7 +215,7 @@ Each function call pushes a frame with:
 
 ## Co-Process FFI Protocol
 
-External function calls are isolated in a separate `nano_cop` process, communicating over pipes with a binary protocol.
+I isolate external function calls in a separate `nano_cop` process. I communicate over pipes using a binary protocol.
 
 ### Wire Format
 
@@ -223,9 +224,9 @@ External function calls are isolated in a separate `nano_cop` process, communica
 ### Message Types
 
 **VM to Co-Process:**
-- `COP_MSG_INIT` (0x01) - Send import table
-- `COP_MSG_FFI_REQ` (0x02) - Call external function (import index + serialized args)
-- `COP_MSG_SHUTDOWN` (0x03) - Terminate
+- `COP_MSG_INIT` (0x01) - I send the import table
+- `COP_MSG_FFI_REQ` (0x02) - I call an external function (import index + serialized args)
+- `COP_MSG_SHUTDOWN` (0x03) - I terminate the process
 
 **Co-Process to VM:**
 - `COP_MSG_FFI_RESULT` (0x10) - Serialized return value
@@ -246,32 +247,32 @@ External function calls are isolated in a separate `nano_cop` process, communica
 
 ### Lifecycle
 
-1. VM forks `nano_cop` subprocess (connected via pipes)
-2. VM sends `COP_MSG_INIT` with import table
-3. Co-process loads FFI modules, sends `COP_MSG_READY`
-4. For each FFI call: VM sends `COP_MSG_FFI_REQ`, co-process sends result
-5. VM sends `COP_MSG_SHUTDOWN` on exit
+1. I fork a `nano_cop` subprocess connected via pipes
+2. I send `COP_MSG_INIT` with the import table
+3. My co-process loads FFI modules and sends `COP_MSG_READY`
+4. For each FFI call: I send `COP_MSG_FFI_REQ`, and the co-process sends the result
+5. I send `COP_MSG_SHUTDOWN` on exit
 
-If the co-process crashes, the VM detects the broken pipe and can recover gracefully. FFI crashes are fully isolated from VM execution.
+If my co-process crashes, I detect the broken pipe and recover. I isolate FFI crashes from my execution.
 
 ## Compiler Backend (Codegen)
 
-The `nano_virt` compiler translates NanoLang AST to NanoISA bytecode in three passes:
+My `nano_virt` compiler translates my AST to NanoISA bytecode in three passes.
 
-**Pass 1 - Type Registration:** Register all struct, enum, union definitions; register function signatures and globals.
+**Pass 1 - Type Registration:** I register all struct, enum, union definitions. I register function signatures and globals.
 
-**Pass 1.5 - Global Initialization:** Compile `__init__` function for global variable initializers.
+**Pass 1.5 - Global Initialization:** I compile the `__init__` function for global variable initializers.
 
-**Pass 2 - Function Bodies:** Two sub-passes per function:
-- 2a: Scan for loop/branch labels
-- 2b: Generate bytecode with forward jump patching
+**Pass 2 - Function Bodies:** I use two sub-passes per function:
+- 2a: I scan for loop/branch labels
+- 2b: I generate bytecode with forward jump patching
 
 ### Native Binary Generation
 
-The wrapper generator (`wrapper_gen.c`) produces standalone native executables:
+My wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 
-1. **Full wrapper** (default): Embeds .nvm bytecode + links full VM runtime. Supports all features including closures, cross-module calls, and FFI.
-2. **Daemon wrapper** (`--daemon-wrapper`): Thin binary that connects to `nano_vmd` daemon. Much smaller footprint, requires daemon running.
+1. **Full wrapper** (default): I embed .nvm bytecode and link my full VM runtime. I support all features including closures, cross-module calls, and FFI.
+2. **Daemon wrapper** (`--daemon-wrapper`): I create a thin binary that connects to my `nano_vmd` daemon. This footprint is smaller but requires the daemon to be running.
 
 ## Source Files
 
@@ -279,35 +280,35 @@ The wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `isa.h` / `isa.c` | 401 | Instruction set definition, encode/decode |
-| `nvm_format.h` / `nvm_format.c` | 618 | Binary format serialization, CRC32 |
-| `assembler.h` / `assembler.c` | 736 | Two-pass text assembler |
-| `disassembler.h` / `disassembler.c` | 246 | Binary to text with label reconstruction |
+| `isa.h` / `isa.c` | 401 | My instruction set definition, encode/decode |
+| `nvm_format.h` / `nvm_format.c` | 618 | My binary format serialization, CRC32 |
+| `assembler.h` / `assembler.c` | 736 | My two-pass text assembler |
+| `disassembler.h` / `disassembler.c` | 246 | My binary to text with label reconstruction |
 
 ### NanoVM (`src/nanovm/`)
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `vm.h` / `vm.c` | 1,844 | Core switch-dispatch interpreter |
-| `value.h` / `value.c` | 225 | NanoValue constructors, type checking |
-| `heap.h` / `heap.c` | 595 | Reference-counting GC |
-| `vm_builtins.c` | 297 | Runtime builtins |
-| `vm_ffi.h` / `vm_ffi.c` | 611 | Fork/pipe/exec FFI lifecycle |
-| `cop_protocol.h` / `cop_protocol.c` | 227 | Co-process wire protocol |
-| `cop_main.c` | 212 | `nano_cop` binary |
-| `vmd_protocol.h` / `vmd_protocol.c` | 150 | Daemon wire protocol |
-| `vmd_client.c` | 275 | Daemon client connector |
-| `vmd_server.c` | 430 | Daemon server handler |
-| `vmd_main.c` | 52 | `nano_vmd` binary |
-| `main.c` | 214 | `nano_vm` binary |
+| `vm.h` / `vm.c` | 1,844 | My core switch-dispatch interpreter |
+| `value.h` / `value.c` | 225 | My NanoValue constructors, type checking |
+| `heap.h` / `heap.c` | 595 | My reference-counting GC |
+| `vm_builtins.c` | 297 | My runtime builtins |
+| `vm_ffi.h` / `vm_ffi.c` | 611 | My fork/pipe/exec FFI lifecycle |
+| `cop_protocol.h` / `cop_protocol.c` | 227 | My co-process wire protocol |
+| `cop_main.c` | 212 | My `nano_cop` binary |
+| `vmd_protocol.h` / `vmd_protocol.c` | 150 | My daemon wire protocol |
+| `vmd_client.c` | 275 | My daemon client connector |
+| `vmd_server.c` | 430 | My daemon server handler |
+| `vmd_main.c` | 52 | My `nano_vmd` binary |
+| `main.c` | 214 | My `nano_vm` binary |
 
 ### NanoVirt (`src/nanovirt/`)
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `codegen.h` / `codegen.c` | 3,083 | AST to bytecode compiler |
-| `wrapper_gen.h` / `wrapper_gen.c` | 574 | Native executable generator |
-| `main.c` | 331 | `nano_virt` binary |
+| `codegen.h` / `codegen.c` | 3,083 | My AST to bytecode compiler |
+| `wrapper_gen.h` / `wrapper_gen.c` | 574 | My native executable generator |
+| `main.c` | 331 | My `nano_virt` binary |
 
 **Total: ~11,000 lines of C**
 
@@ -315,15 +316,15 @@ The wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 
 | Test File | Tests | Coverage |
 |-----------|-------|----------|
-| `tests/nanoisa/test_nanoisa.c` | 470 | ISA encoding, NVM format, assembler, disassembler |
-| `tests/nanovm/test_vm.c` | 150 | All VM operations, GC, cross-module calls, daemon, co-process |
-| `tests/nanovm/test_codegen.c` | 62 | Bytecode generation from AST |
+| `tests/nanoisa/test_nanoisa.c` | 470 | I test ISA encoding, NVM format, assembler, disassembler |
+| `tests/nanovm/test_vm.c` | 150 | I test all VM operations, GC, cross-module calls, daemon, co-process |
+| `tests/nanovm/test_codegen.c` | 62 | I test bytecode generation from AST |
 
 ## Design Decisions
 
-- **Division by zero produces 0** - Matches the Coq formal semantics (total division)
-- **ADD is polymorphic** - Handles both integer addition and string concatenation
-- **Relative jump offsets** - Signed i32, relative to instruction start
-- **String pool deduplication** - Compile-time dedup saves .nvm file size
-- **Per-frame module tracking** - Each call frame records its module for cross-module resolution
-- **Opaque proxy values** - FFI objects represented as integer IDs; actual handles live in co-process address space
+- **Division by zero produces 0** - I do this to match my Coq formal semantics (total division).
+- **ADD is polymorphic** - I handle both integer addition and string concatenation with this opcode.
+- **Relative jump offsets** - I use signed i32 offsets, relative to the start of the instruction.
+- **String pool deduplication** - I deduplicate strings at compile time to save .nvm file size.
+- **Per-frame module tracking** - Each call frame I create records its module for cross-module resolution.
+- **Opaque proxy values** - I represent FFI objects as integer IDs. I keep the actual handles in my co-process address space.

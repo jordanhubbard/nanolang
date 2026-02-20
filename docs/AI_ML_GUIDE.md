@@ -1,22 +1,22 @@
-# AI and Machine Learning with nanolang
+# I Support AI and Machine Learning
 
 **Version:** 1.0  
-**Date:** November 19, 2025  
-**Status:** ✅ Available
+**Date:** February 20, 2026  
+**Status:** Available
 
 ---
 
 ## Overview
 
-nanolang supports AI and machine learning through the **ONNX Runtime module**, enabling CPU-based neural network inference without requiring a GPU.
+I support AI and machine learning through my **ONNX Runtime module**. I enable CPU-based neural network inference without requiring a GPU.
 
-**Key Features:**
+**What I offer:**
 
-- ✅ Run pre-trained neural networks
-- ✅ CPU-only (no CUDA/GPU required)
-- ✅ Support for PyTorch, TensorFlow, scikit-learn models
-- ✅ Image classification, NLP, object detection
-- ✅ Cross-platform (macOS, Linux)
+- I run pre-trained neural networks.
+- I am CPU-only. I do not require CUDA or a GPU.
+- I support PyTorch, TensorFlow, and scikit-learn models through the ONNX format.
+- I handle image classification, NLP, and object detection.
+- I am cross-platform. I run on macOS and Linux.
 
 ---
 
@@ -39,7 +39,7 @@ sudo apt-get install libonnxruntime-dev
 pkg-config --exists onnxruntime && echo "✓ Installed" || echo "✗ Not found"
 ```
 
-### 2. Import the ONNX Module
+### 2. Import My ONNX Module
 
 ```nano
 import "modules/onnx/onnx.nano"
@@ -76,7 +76,7 @@ shadow main {
 
 #### `onnx_load_model(path: string) -> int`
 
-Load an ONNX model from file.
+I load an ONNX model from a file.
 
 **Parameters:**
 - `path`: Path to `.onnx` model file
@@ -97,7 +97,7 @@ if (< model 0) {
 
 #### `onnx_free_model(model: int) -> void`
 
-Free model resources.
+I free model resources.
 
 **Parameters:**
 - `model`: Model handle from `onnx_load_model`
@@ -109,9 +109,9 @@ Free model resources.
 
 #### `onnx_run_inference(...) -> int`
 
-Run inference on a model (low-level interface).
+I run inference on a model through this low-level interface.
 
-**Note:** Full inference support requires runtime array-to-pointer conversion, which is planned for a future update.
+**Note:** My full inference support requires runtime array-to-pointer conversion. I have planned this for a future update.
 
 ---
 
@@ -186,7 +186,7 @@ with open("rf_model.onnx", "wb") as f:
 
 ### ONNX Model Zoo
 
-Official repository of pre-trained models:
+This is the official repository of pre-trained models:
 - **URL:** https://github.com/onnx/models
 - **Models:** Image classification, object detection, NLP, segmentation
 
@@ -210,7 +210,7 @@ Pre-trained transformer models:
 # Download ResNet50 from ONNX Model Zoo
 wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-v2-7.onnx
 
-# Use in nanolang
+# Use in my environment
 let model: int = (onnx_load_model "resnet50-v2-7.onnx")
 ```
 
@@ -220,13 +220,13 @@ let model: int = (onnx_load_model "resnet50-v2-7.onnx")
 
 ### Image Classification
 
-**Problem:** Identify what's in an image (dog, cat, car, etc.)
+**Problem:** Identify what is in an image.
 
-**Models:** ResNet, MobileNet, VGG, EfficientNet
+**Models:** ResNet, MobileNet, VGG, EfficientNet.
 
-**Input:** RGB image (e.g., 224×224×3)
+**Input:** RGB image (e.g., 224, 224, 3).
 
-**Output:** Class probabilities (e.g., 1000 ImageNet classes)
+**Output:** Class probabilities.
 
 **Example:**
 ```nano
@@ -245,33 +245,33 @@ let image: array<float> = (load_and_preprocess_image "photo.jpg")
 
 ### Object Detection
 
-**Problem:** Find and locate objects in an image
+**Problem:** Find and locate objects in an image.
 
-**Models:** YOLO, SSD, Faster R-CNN
+**Models:** YOLO, SSD, Faster R-CNN.
 
-**Input:** RGB image
+**Input:** RGB image.
 
-**Output:** Bounding boxes, class labels, confidence scores
+**Output:** Bounding boxes, class labels, and confidence scores.
 
 ### Sentiment Analysis
 
-**Problem:** Determine if text is positive, negative, or neutral
+**Problem:** Determine if text is positive, negative, or neutral.
 
-**Models:** BERT, DistilBERT, RoBERTa
+**Models:** BERT, DistilBERT, RoBERTa.
 
-**Input:** Tokenized text
+**Input:** Tokenized text.
 
-**Output:** Sentiment class (positive/negative/neutral)
+**Output:** Sentiment class.
 
 ### Time Series Forecasting
 
-**Problem:** Predict future values from historical data
+**Problem:** Predict future values from historical data.
 
-**Models:** LSTM, GRU, Temporal Convolutional Networks
+**Models:** LSTM, GRU, Temporal Convolutional Networks.
 
-**Input:** Historical values (e.g., stock prices, temperature)
+**Input:** Historical values.
 
-**Output:** Future predictions
+**Output:** Future predictions.
 
 ---
 
@@ -279,9 +279,9 @@ let image: array<float> = (load_and_preprocess_image "photo.jpg")
 
 ### 1. Use Smaller Models
 
-**Problem:** Large models are slow
+**Problem:** Large models are slow.
 
-**Solution:** Use lightweight alternatives
+**Solution:** I recommend using lightweight alternatives.
 
 | Task | Heavy Model | Light Model | Speedup |
 |------|-------------|-------------|---------|
@@ -291,9 +291,9 @@ let image: array<float> = (load_and_preprocess_image "photo.jpg")
 
 ### 2. Quantize Models
 
-**Problem:** Float32 models are large and slow
+**Problem:** Float32 models are large and slow.
 
-**Solution:** Convert to int8
+**Solution:** Convert them to int8.
 
 ```python
 # PyTorch quantization
@@ -312,15 +312,15 @@ torch.onnx.export(model_int8, dummy_input, "model_quantized.onnx")
 ```
 
 **Benefits:**
-- 4x smaller file size
-- 2-4x faster inference
-- Minimal accuracy loss
+- File size is 4x smaller.
+- Inference is 2 to 4 times faster.
+- Accuracy loss is minimal.
 
 ### 3. Optimize Input Size
 
-**Problem:** Large inputs slow down processing
+**Problem:** Large inputs slow down processing.
 
-**Solution:** Resize images to minimum required size
+**Solution:** Resize images to the minimum required size.
 
 ```python
 # Instead of 1024x1024, use 224x224 if model supports it
@@ -329,39 +329,39 @@ image = resize(image, (224, 224))
 
 ### 4. Batch Processing
 
-**Problem:** Processing one item at a time is inefficient
+**Problem:** Processing one item at a time is inefficient.
 
-**Solution:** Process multiple items together (future feature)
+**Solution:** I will support processing multiple items together in a future update.
 
 ---
 
-## Current Limitations
+## My Current Limitations
 
 ### Version 1.0 Limitations
 
 1. **Single Input/Output Only**
-   - Models must have exactly 1 input and 1 output
-   - Multi-input/output models not yet supported
+   - I require models to have exactly 1 input and 1 output.
+   - I do not yet support multi-input or multi-output models.
 
 2. **Fixed Shapes**
-   - Dynamic batching not yet implemented
-   - Must use batch size = 1
+   - I have not implemented dynamic batching.
+   - You must use a batch size of 1.
 
 3. **Float32 Only**
-   - Only float tensors supported
-   - Int8 quantized models not yet tested
+   - I only support float tensors.
+   - I have not yet tested int8 quantized models.
 
 4. **CPU Only**
-   - No GPU acceleration yet
-   - All inference runs on CPU
+   - I do not offer GPU acceleration yet.
+   - All inference runs on the CPU.
 
 5. **Array-to-Pointer Conversion**
-   - Full inference requires runtime support (in progress)
-   - Currently limited to model loading/unloading
+   - I am currently working on the runtime support for full inference.
+   - I am limited to model loading and unloading for now.
 
-### Planned Features
+### My Planned Features
 
-- [ ] Multi-input/output models
+- [ ] Multi-input and multi-output models
 - [ ] Dynamic batching
 - [ ] GPU acceleration (optional)
 - [ ] Quantized model support
@@ -411,7 +411,7 @@ python create_test_model.py
 
 This creates:
 - `simple_model.onnx` - Basic feedforward network
-- `tiny_classifier.onnx` - Tiny CNN for 32×32 images
+- `tiny_classifier.onnx` - Tiny CNN for 32x32 images
 
 ### Example 3: Image Classifier (Conceptual)
 
@@ -419,12 +419,12 @@ This creates:
 import "modules/onnx/onnx.nano"
 
 fn classify_image(model_path: string, image_path: string) -> int {
-    # Load model
+    # I load the model
     let model: int = (onnx_load_model model_path)
     if (< model 0) {
         return -1
     } else {
-        # Prepare image (when full support is available)
+        # I will prepare the image when full support is available
         # let image: array<float> = (load_image image_path)
         # let output: array<float> = (run_inference model image)
         # let class_id: int = (argmax output)
@@ -446,10 +446,10 @@ shadow classify_image {
 ### "Failed to load model"
 
 **Causes:**
-- ONNX Runtime not installed
-- Model file doesn't exist
-- Model has multiple inputs/outputs
-- Model is corrupted
+- ONNX Runtime is not installed.
+- The model file does not exist.
+- The model has multiple inputs or outputs.
+- The model is corrupted.
 
 **Solutions:**
 ```bash
@@ -486,13 +486,13 @@ ls /opt/homebrew/include/onnxruntime_c_api.h
 
 ### Performance Issues
 
-**Problem:** Inference is too slow
+**Problem:** Inference is too slow.
 
 **Solutions:**
-1. Use a smaller model (MobileNet vs ResNet)
-2. Quantize to int8
-3. Reduce input size
-4. Enable optimizations in ONNX Runtime (future feature)
+1. Use a smaller model.
+2. Quantize to int8.
+3. Reduce the input size.
+4. I will add optimizations for ONNX Runtime in a future release.
 
 ---
 
@@ -523,14 +523,14 @@ ls /opt/homebrew/include/onnxruntime_c_api.h
 ### For Beginners
 
 1. **Install ONNX Runtime**
-2. **Run example:** `examples/40_onnx_simple.nano`
+2. **Run my example:** `examples/40_onnx_simple.nano`
 3. **Create test models:** `examples/models/create_test_model.py`
 4. **Load and explore models**
 
 ### For Intermediate Users
 
-1. **Export PyTorch/TensorFlow models to ONNX**
-2. **Download pre-trained models from ONNX Model Zoo**
+1. **Export PyTorch or TensorFlow models to ONNX**
+2. **Download pre-trained models from the ONNX Model Zoo**
 3. **Experiment with different model architectures**
 4. **Optimize models for inference**
 
@@ -539,46 +539,46 @@ ls /opt/homebrew/include/onnxruntime_c_api.h
 1. **Quantize models to int8**
 2. **Create custom model architectures**
 3. **Benchmark inference performance**
-4. **Contribute enhancements to nanolang ONNX module**
+4. **Contribute enhancements to my ONNX module**
 
 ---
 
-## Comparison: nanolang vs Other Languages
+## Comparison: Me vs Other Languages
 
-| Feature | nanolang + ONNX | Python + PyTorch | C++ + LibTorch |
+| Feature | Me + ONNX | Python + PyTorch | C++ + LibTorch |
 |---------|-----------------|------------------|----------------|
-| Easy to learn | ✅ Very easy | ✅ Easy | ❌ Complex |
-| Startup time | ✅ Fast | ❌ Slow | ✅ Fast |
-| Memory usage | ✅ Low | ❌ High | ✅ Low |
-| Deployment | ✅ Single binary | ❌ Dependencies | ✅ Single binary |
-| Training | ❌ Not supported | ✅ Full support | ✅ Full support |
-| Inference | ✅ Supported | ✅ Supported | ✅ Supported |
-| Model formats | ✅ ONNX | ✅ PyTorch/ONNX | ✅ PyTorch/ONNX |
+| Easy to learn | Very easy | Easy | Complex |
+| Startup time | Fast | Slow | Fast |
+| Memory usage | Low | High | Low |
+| Deployment | Single binary | Dependencies | Single binary |
+| Training | Not supported | Full support | Full support |
+| Inference | Supported | Supported | Supported |
+| Model formats | ONNX | PyTorch/ONNX | PyTorch/ONNX |
 
-**Use nanolang when:**
-- You need fast, lightweight inference
-- You want single-binary deployment
-- You're building embedded/edge applications
-- You don't need training
+**Use me when:**
+- You need fast, lightweight inference.
+- You want single-binary deployment.
+- You are building embedded or edge applications.
+- You do not need training.
 
 **Use Python when:**
-- You need to train models
-- You need the full ML ecosystem
-- Development speed is priority
+- You need to train models.
+- You need the full ML ecosystem.
+- Development speed is your priority.
 
 ---
 
 ## Contributing
 
-Want to improve nanolang's AI capabilities?
+If you want to improve my AI capabilities:
 
-1. **Add tensor types** - First-class tensor support
-2. **GPU support** - CUDA/Metal acceleration
-3. **More model formats** - TensorFlow Lite, CoreML
-4. **Training support** - Backpropagation, optimizers
-5. **Quantization** - int8/int16 inference
+1. **Add tensor types** - I need first-class tensor support.
+2. **GPU support** - I need CUDA or Metal acceleration.
+3. **More model formats** - I could support TensorFlow Lite or CoreML.
+4. **Training support** - I need backpropagation and optimizers.
+5. **Quantization** - I need int8 or int16 inference.
 
-See `planning/` directory for roadmap and design docs.
+See my `planning/` directory for roadmap and design docs.
 
 ---
 
@@ -586,6 +586,7 @@ See `planning/` directory for roadmap and design docs.
 
 ONNX Runtime is licensed under the MIT License.
 
-nanolang ONNX module is part of nanolang and follows the nanolang license.
+My ONNX module is part of me and follows my license.
+
 
 

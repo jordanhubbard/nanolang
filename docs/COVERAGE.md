@@ -1,16 +1,16 @@
-# Code Coverage Guide
+# How I Measure Myself
 
-Guide to generating and analyzing code coverage reports for NanoLang.
+I use code coverage to understand which parts of my codebase have been proven through execution and which remain in the dark. I do not guess about my completeness. I measure it.
 
 ## Overview
 
-NanoLang uses **gcov** and **lcov** for code coverage analysis. This helps identify:
-- Which lines of code are executed by tests
+I use gcov and lcov for code coverage analysis. This helps me identify:
+- Which lines of my code are executed by tests
 - Which branches are taken
 - Which functions are called
 - Untested code paths
 
-**Coverage Metrics:**
+**My Coverage Metrics:**
 - **Line Coverage** - Percentage of lines executed
 - **Function Coverage** - Percentage of functions called
 - **Branch Coverage** - Percentage of branches taken
@@ -82,7 +82,7 @@ firefox coverage/index.html     # Manual
 
 ### 1. Build with Coverage
 
-Build the compiler with coverage instrumentation:
+Build my compiler with coverage instrumentation:
 
 ```bash
 make coverage
@@ -94,7 +94,7 @@ This adds these flags:
 
 ### 2. Run Tests
 
-Execute the test suite to generate coverage data:
+Execute my test suite to generate coverage data:
 
 ```bash
 make test
@@ -134,9 +134,9 @@ src/runtime/      91.2% (456/500)    95.0% (38/40)        82.1% (123/150)
 ```
 
 **Color Coding:**
-- 🟢 **Green (≥ 90%)** - Excellent coverage
-- 🟡 **Yellow (75-89%)** - Good coverage, room for improvement
-- 🔴 **Red (< 75%)** - Poor coverage, needs attention
+- **Green (≥ 90%)** - Excellent coverage
+- **Yellow (75-89%)** - Good coverage, room for improvement
+- **Red (< 75%)** - Poor coverage, needs attention
 
 ### Line-by-Line View
 
@@ -175,9 +175,9 @@ if (condition)     Branch 0: taken 10 times
 **Current Status:** Unknown (coverage not yet measured)
 
 **Target for v1.0:**
-- ✅ **Line Coverage:** ≥ 80%
-- ✅ **Function Coverage:** ≥ 85%
-- ✅ **Branch Coverage:** ≥ 70%
+- **Line Coverage:** ≥ 80%
+- **Function Coverage:** ≥ 85%
+- **Branch Coverage:** ≥ 70%
 
 ### Per-Component Goals
 
@@ -233,7 +233,7 @@ make coverage-report
 
 ### Exclude System Headers
 
-Already done automatically:
+I do this automatically:
 
 ```bash
 lcov --remove coverage.info '/usr/*' --output-file coverage.info
@@ -252,7 +252,7 @@ lcov --remove coverage.info \
 
 ### Include Only Specific Directories
 
-Focus on core compiler:
+Focus on my core compiler:
 
 ```bash
 lcov --extract coverage.info \
@@ -306,7 +306,7 @@ jobs:
 
 ### Coverage Badges
 
-Once CI is set up, add badge to README.md:
+Once CI is set up, add a badge to my README.md:
 
 ```markdown
 [![Coverage](https://codecov.io/gh/USERNAME/nanolang/branch/main/graph/badge.svg)](https://codecov.io/gh/USERNAME/nanolang)
@@ -367,11 +367,11 @@ coverage/
 
 ---
 
-## Best Practices
+## My Best Practices
 
 ### 1. Measure Regularly
 
-Run coverage weekly or after major changes:
+I run coverage weekly or after major changes:
 
 ```bash
 make coverage-report
@@ -379,7 +379,7 @@ make coverage-report
 
 ### 2. Set Coverage Gates
 
-Don't let coverage decrease:
+I do not let my coverage decrease:
 
 ```bash
 # Record baseline
@@ -396,14 +396,14 @@ fi
 
 ### 3. Test Edge Cases
 
-Focus on:
+I focus on:
 - Error paths (parser errors, type errors)
 - Boundary conditions (empty arrays, NULL pointers)
 - Unusual input (negative numbers, very large values)
 
-### 4. Don't Chase 100%
+### 4. I Don't Chase 100%
 
-**Realistic goals:**
+**My realistic goals:**
 - Core compiler: 85%
 - Runtime: 90%
 - Examples: Not required
@@ -414,11 +414,11 @@ Focus on:
 
 ### 5. Review Uncovered Code
 
-Ask for each uncovered line:
-1. **Is it dead code?** → Delete it
-2. **Is it an error path?** → Add negative test
-3. **Is it unreachable?** → Add assertion or comment
-4. **Is it hard to test?** → Refactor
+I ask for each uncovered line:
+1. **Is it dead code?** I delete it.
+2. **Is it an error path?** I add a negative test.
+3. **Is it unreachable?** I add an assertion or a comment.
+4. **Is it hard to test?** I refactor it.
 
 ---
 
@@ -484,9 +484,3 @@ lcov --capture --directory . --output-file coverage_parser.info
 - [Testing Guide](SHADOW_TESTS.md) - How to write tests
 - [Debugging Guide](DEBUGGING_GUIDE.md) - Debugging techniques
 - [Contributing Guide](../CONTRIBUTING.md) - Contribution guidelines
-
----
-
-**Last Updated:** January 25, 2026
-**Status:** Infrastructure complete, measurement pending
-**Version:** 0.2.0+

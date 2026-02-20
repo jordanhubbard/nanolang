@@ -1,6 +1,6 @@
-# Generics Deep Dive: Monomorphization in NanoLang
+# Generics Deep Dive: Monomorphization in My Core
 
-Complete guide to understanding NanoLang's generics implementation, performance implications, and trade-offs.
+I implement generics through monomorphization. This document explains how I handle these types, the performance I achieve, and the trade-offs I accept.
 
 ## Table of Contents
 
@@ -18,13 +18,13 @@ Complete guide to understanding NanoLang's generics implementation, performance 
 
 ## Overview
 
-NanoLang uses **monomorphization** for generics, the same approach as Rust and C++. This means:
+I use monomorphization for generics. This is the same approach used by Rust and C++. It means:
 
-- Generic types are specialized at **compile time**
-- Each concrete type gets its **own implementation**
-- **Zero runtime cost** - no type erasure, no boxing
-- **Large binaries** - each instantiation adds code
-- **Fast execution** - fully optimized for each type
+- I specialize generic types at compile time.
+- I generate a separate implementation for each concrete type.
+- I achieve zero runtime cost. I do not use type erasure or boxing.
+- I produce larger binaries because each instantiation adds code.
+- I execute quickly because I optimize every implementation for its specific type.
 
 ### What is Monomorphization?
 
@@ -34,13 +34,13 @@ let ints: List<int> = (List_int_new)
 let strs: List<string> = (List_string_new)
 let points: List<Point> = (List_Point_new)
 
-# Compiler generates THREE separate implementations:
+# I generate THREE separate implementations:
 # - List_int_new, List_int_push, List_int_get, ...
 # - List_string_new, List_string_push, List_string_get, ...
 # - List_Point_new, List_Point_push, List_Point_get, ...
 ```
 
-Each instantiation is a **completely separate function** in the generated code.
+Every instantiation I create is a completely separate function in my generated code.
 
 ---
 
@@ -48,20 +48,20 @@ Each instantiation is a **completely separate function** in the generated code.
 
 ### Step 1: Type Discovery
 
-Compiler scans code for generic type usage:
+I scan your code to find where you use generic types:
 
 ```nano
 let nums: List<int> = (List_int_new)
 let names: List<string> = (List_string_new)
 ```
 
-**Discovered types:**
-- `List<int>` → needs `List_int_*` functions
-- `List<string>` → needs `List_string_*` functions
+**Types I discover:**
+- `List<int>` → I need `List_int_*` functions.
+- `List<string>` → I need `List_string_*` functions.
 
 ### Step 2: Code Generation
 
-Compiler generates specialized implementations:
+I generate specialized implementations based on these discoveries.
 
 **Input (generic template):**
 ```nano
@@ -86,15 +86,15 @@ void List_string_push(List_string* list, char* item) {
 
 ### Step 3: Optimization
 
-Each generated function can be **independently optimized**:
+I optimize each generated function independently.
 
 ```c
-// List<int> - CPU can use vectorization
+// List<int> - I can use vectorization
 void List_int_push(List_int* list, int64_t item) {
     // Optimized for integers
 }
 
-// List<string> - Different optimization strategy
+// List<string> - I use a different strategy
 void List_string_push(List_string* list, char* item) {
     // Optimized for pointer management
 }
@@ -104,31 +104,31 @@ void List_string_push(List_string* list, char* item) {
 
 ## Trade-offs
 
-### ✅ Advantages
+### Advantages
 
 | Benefit | Description | Impact |
 |---------|-------------|--------|
-| **Zero runtime cost** | No boxing, no virtual dispatch | 🚀 Fastest |
-| **Full optimization** | Each type optimized independently | 🚀 Peak performance |
-| **Type safety** | Errors caught at compile time | ✅ Safe |
-| **No runtime** | No GC for generic containers | 💡 Predictable |
-| **Inline-friendly** | Compiler can inline across types | 🚀 Speed |
+| **Zero runtime cost** | I avoid boxing and virtual dispatch. | Fastest |
+| **Full optimization** | I optimize each type independently. | Peak performance |
+| **Type safety** | I catch errors at compile time. | Safe |
+| **No runtime** | I do not need a GC for generic containers. | Predictable |
+| **Inline-friendly** | I can inline code across types. | Speed |
 
-### ❌ Disadvantages
+### Disadvantages
 
 | Cost | Description | Impact |
 |------|-------------|--------|
-| **Binary bloat** | Each type adds code | 📦 Large binaries |
-| **Compile time** | More code to generate | ⏱️ Slower builds |
-| **Code duplication** | Similar code repeated | 🔄 Redundancy |
-| **No runtime generics** | Can't store `List<T>` with unknown T | ❌ Inflexible |
-| **Longer link time** | More symbols to link | ⏱️ Slower linking |
+| **Binary bloat** | Each type I add increases the code size. | Large binaries |
+| **Compile time** | I have more code to generate and compile. | Slower builds |
+| **Code duplication** | I repeat similar code structures. | Redundancy |
+| **No runtime generics** | I cannot store `List<T>` with an unknown T. | Inflexible |
+| **Longer link time** | I create more symbols for the linker. | Slower linking |
 
 ---
 
 ## Performance Characteristics
 
-### Runtime Performance: Excellent ✅
+### Runtime Performance: Excellent
 
 ```nano
 # List<int> operations are as fast as hand-written int code
@@ -145,9 +145,9 @@ let x: int = (List_int_get nums 0)  # No type checking at runtime
 | Get | 1.00x | 1.00x | 0% |
 | Iterate | 1.01x | 1.00x | 1% |
 
-**Conclusion:** Generic code is as fast as hand-written code.
+My generic code performs as fast as hand-written code.
 
-### Memory Performance: Excellent ✅
+### Memory Performance: Excellent
 
 ```c
 // List<int> - compact memory layout
@@ -160,7 +160,7 @@ struct List_int {
 // No boxing, no type tags, no vtables
 ```
 
-**Memory overhead:** None (same as hand-written)
+My memory overhead is zero. It matches what you would write by hand.
 
 ---
 
@@ -195,24 +195,24 @@ let configs: List<Config> = (List_Config_new)
 1 type   → ~2 KB
 5 types  → ~12 KB
 10 types → ~25 KB
-50 types → ~125 KB (!)
+50 types → ~125 KB
 ```
 
-**Rule of thumb:** Each generic instantiation adds 2-3 KB.
+I usually add 2 to 3 KB for each generic instantiation.
 
 ### Real-World Impact
 
 **Small program (< 10 generic types):**
-- Binary size: ~500 KB → ~520 KB
-- Impact: **Negligible** (4% increase)
+- Binary size: ~500 KB → ~520 KB.
+- Impact: Negligible.
 
 **Medium program (< 50 generic types):**
-- Binary size: ~2 MB → ~2.1 MB
-- Impact: **Acceptable** (5% increase)
+- Binary size: ~2 MB → ~2.1 MB.
+- Impact: Acceptable.
 
 **Large program (> 200 generic types):**
-- Binary size: ~10 MB → ~12 MB
-- Impact: **Noticeable** (20% increase)
+- Binary size: ~10 MB → ~12 MB.
+- Impact: Noticeable.
 
 ### Measuring Binary Size
 
@@ -244,78 +244,77 @@ real    0m0.152s
 **With generics (5 instantiations):**
 ```bash
 $ time ./bin/nanoc with_generics.nano -o with_generics
-real    0m0.189s  # +24% slower
+real    0m0.189s
 ```
 
 **With generics (50 instantiations):**
 ```bash
 $ time ./bin/nanoc heavy_generics.nano -o heavy_generics
-real    0m0.431s  # +183% slower (!)
+real    0m0.431s
 ```
 
 ### Scaling
 
-```
-Instantiations    Compile Time    Slowdown
-1                 150ms           baseline
-5                 189ms           +26%
-10                253ms           +69%
-50                431ms           +187%
-100               712ms           +375%
-```
+| Instantiations | Compile Time | Slowdown |
+|----------------|--------------|----------|
+| 1 | 150ms | baseline |
+| 5 | 189ms | +26% |
+| 10 | 253ms | +69% |
+| 50 | 431ms | +187% |
+| 100 | 712ms | +375% |
 
-**Rule of thumb:** Each instantiation adds ~5-8ms to compile time.
+I typically add 5 to 8ms to the compile time for each instantiation.
 
 ### Strategies to Reduce Compile Time
 
-1. **Minimize instantiations** - Reuse types
-2. **Separate compilation** - One module per generic type
-3. **Use non-generic alternatives** - When performance isn't critical
+1. Reuse types to minimize instantiations.
+2. Use one module per generic type for separate compilation.
+3. Use non-generic alternatives when you do not need peak performance.
 
 ---
 
 ## Comparison with Other Approaches
 
-### Monomorphization (NanoLang, Rust, C++)
+### Monomorphization (My approach, Rust, C++)
 
 **Pros:**
-- ✅ Zero runtime cost
-- ✅ Full optimization
-- ✅ Type safety
+- I achieve zero runtime cost.
+- I provide full optimization.
+- I ensure type safety.
 
 **Cons:**
-- ❌ Code bloat
-- ❌ Slow compilation
-- ❌ No runtime polymorphism
+- I cause code bloat.
+- I slow down compilation.
+- I do not support runtime polymorphism.
 
 ### Type Erasure (Java, Go)
 
 **Pros:**
-- ✅ Small binaries
-- ✅ Fast compilation
-- ✅ Runtime polymorphism
+- They produce small binaries.
+- They compile quickly.
+- They support runtime polymorphism.
 
 **Cons:**
-- ❌ Boxing overhead
-- ❌ Runtime type checks
-- ❌ Less optimization
+- They incur boxing overhead.
+- They require runtime type checks.
+- They offer less optimization.
 
 ### Comparison Table
 
 | Feature | Monomorphization | Type Erasure | Tagged Unions |
 |---------|------------------|--------------|---------------|
-| **Runtime speed** | 🚀 Fastest | 🐢 Slower | 🚀 Fast |
-| **Binary size** | 📦 Large | ✅ Small | ✅ Small |
-| **Compile time** | ⏱️ Slow | ✅ Fast | ✅ Fast |
-| **Type safety** | ✅ Compile-time | ⚠️ Runtime | ✅ Compile-time |
-| **Memory use** | ✅ Compact | 📦 Boxed | ✅ Compact |
-| **Runtime generics** | ❌ No | ✅ Yes | ⚠️ Limited |
+| **Runtime speed** | Fastest | Slower | Fast |
+| **Binary size** | Large | Small | Small |
+| **Compile time** | Slow | Fast | Fast |
+| **Type safety** | Compile-time | Runtime | Compile-time |
+| **Memory use** | Compact | Boxed | Compact |
+| **Runtime generics** | No | Yes | Limited |
 
 **Example:**
 
 ```nano
-# NanoLang (monomorphization)
-let nums: List<int> = (List_int_new)  # Generates List_int_* functions
+# My approach (monomorphization)
+let nums: List<int> = (List_int_new)  # I generate List_int_* functions
 
 // Java (type erasure)
 List<Integer> nums = new ArrayList<>();  # Uses Object internally, boxes integers
@@ -330,70 +329,51 @@ let nums = [1; 2; 3]  # Runtime type tags, no monomorphization
 
 ### 1. Limit Generic Instantiations in Libraries
 
-❌ **Avoid:**
-```nano
-# Library that uses 20 different List types internally
-# Adds 40 KB to every program that uses the library!
-```
-
-✅ **Prefer:**
-```nano
-# Library uses 2-3 generic types max
-# Provides non-generic APIs for most operations
-```
+I recommend that library authors limit internal generic usage. A library that uses 20 different List types internally adds 40 KB to every program that imports it. I prefer libraries that use a maximum of 2 or 3 generic types and provide non-generic APIs for most operations.
 
 ### 2. Reuse Generic Types
 
-❌ **Avoid:**
+Reuse types whenever possible.
+
 ```nano
-# Different generic types for similar data
+# I reuse List<int> for all of these
 let user_ids: List<int> = (List_int_new)
-let product_ids: List<int> = (List_int_new)  # Good: reuses List<int>
-let order_ids: List<int> = (List_int_new)     # Good: reuses List<int>
+let product_ids: List<int> = (List_int_new)
+let order_ids: List<int> = (List_int_new)
 ```
 
-✅ **Good:**
-All three reuse the same `List<int>` instantiation.
+All three variables reuse the same `List<int>` instantiation I created.
 
 ### 3. Consider Non-Generic Alternatives
 
-For rarely-used code:
+If you only use a generic type once in a non-critical path, consider an alternative.
 
-❌ **Avoid:**
 ```nano
-# Generic for one-time use
-let temp: List<RareType> = (List_RareType_new)  # Adds 2-3 KB for single use
-```
+# I add 2 to 3 KB for this single use
+let temp: List<RareType> = (List_RareType_new)
 
-✅ **Prefer:**
-```nano
-# Hand-written array for one-time use
-let temp: array<RareType> = (array_new 10 default_value)  # No generic overhead
+# This hand-written array has no generic overhead
+let temp: array<RareType> = (array_new 10 default_value)
 ```
 
 ### 4. Profile Before Optimizing
 
+I provide tools to help you measure the impact.
+
 ```bash
-# Check binary size
+# Check your binary size
 ls -lh myprogram
 
-# Check what's using space
+# Identify what uses space
 nm -S myprogram | grep List_ | sort -k2 -rn | head -20
 
-# Profile compile time
+# Profile my compile time
 time ./bin/nanoc myprogram.nano -o myprogram --verbose
 ```
 
 ### 5. Document Generic Usage
 
-```nano
-# Good: Document instantiations used
-# This module instantiates:
-# - List<int>
-# - List<string>
-# - List<Config>
-# Total overhead: ~7 KB
-```
+I suggest documenting the instantiations you use in your modules. This helps you track the overhead, such as 7 KB for `List<int>`, `List<string>`, and `List<Config>`.
 
 ---
 
@@ -401,20 +381,15 @@ time ./bin/nanoc myprogram.nano -o myprogram --verbose
 
 ### Generic Type Explosion
 
-**Problem:** Nested generics cause exponential growth
+Nested generics can cause exponential growth.
 
 ```nano
-# Each level multiplies instantiations
-let matrix: List<List<int>> = ...          # List_List_int, List_int
-let tensor: List<List<List<int>>> = ...    # List_List_List_int, List_List_int, List_int
+# Each level multiplies my instantiations
+let matrix: List<List<int>> = ...          # I need List_List_int and List_int
+let tensor: List<List<List<int>>> = ...    # I need three types
 ```
 
-**Instantiations needed:**
-- Level 1: `List<int>` (1 type)
-- Level 2: `List<int>`, `List<List<int>>` (2 types)
-- Level 3: `List<int>`, `List<List<int>>`, `List<List<List<int>>>` (3 types)
-
-**Mitigation:** Avoid deep nesting.
+I recommend avoiding deep nesting to keep the number of instantiations manageable.
 
 ### Cross-Module Generics
 
@@ -428,19 +403,20 @@ let nums: List<int> = (List_int_new)
 (process_ints nums)
 ```
 
-**Implication:** Both modules must agree on `List<int>` implementation. The compiler ensures consistency.
+I ensure that both modules agree on the `List<int>` implementation to maintain consistency.
 
 ### Future: Generic Functions (Not Yet Implemented)
 
-**Planned for v1.0:**
+I plan to support generic functions in version 1.0.
+
 ```nano
-# Generic function (not currently supported)
+# Generic function (I do not support this yet)
 fn generic_swap<T>(a: T, b: T) -> (T, T) {
     return (b, a)
 }
 
-let (x, y) = (generic_swap 1 2)           # Instantiates swap<int>
-let (s1, s2) = (generic_swap "a" "b")    # Instantiates swap<string>
+let (x, y) = (generic_swap 1 2)           # I will instantiate swap<int>
+let (s1, s2) = (generic_swap "a" "b")    # I will instantiate swap<string>
 ```
 
 ---
@@ -449,21 +425,23 @@ let (s1, s2) = (generic_swap "a" "b")    # Instantiates swap<string>
 
 ### Viewing Generated Code
 
+I allow you to inspect the C code I generate.
+
 ```bash
-# Keep generated C code
+# I keep the generated C code
 ./bin/nanoc myprogram.nano -o myprogram --keep-c
 
-# Inspect generated functions
+# You can inspect my functions
 cat myprogram.gen.c | grep "List_int"
 ```
 
 ### Measuring Impact
 
 ```bash
-# Size per instantiation
+# Calculate size per instantiation
 nm -S myprogram | grep "List_" | awk '{sum+=$2} END {print sum}'
 
-# Count instantiations
+# Count how many instantiations I created
 nm myprogram | grep "List_" | cut -d_ -f2 | sort -u | wc -l
 ```
 
@@ -471,13 +449,14 @@ nm myprogram | grep "List_" | cut -d_ -f2 | sort -u | wc -l
 
 ## Related Documentation
 
-- [SPECIFICATION.md](SPECIFICATION.md) - Generic types specification
-- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Generic syntax
-- [PERFORMANCE.md](PERFORMANCE.md) - Performance tuning
-- [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - Debugging generics
+- [SPECIFICATION.md](SPECIFICATION.md) - I specify generic types here.
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - My generic syntax at a glance.
+- [PERFORMANCE.md](PERFORMANCE.md) - How I tune performance.
+- [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - How to debug my generics.
 
 ---
 
-**Last Updated:** January 25, 2026
+**Last Updated:** February 20, 2026
 **Status:** Complete
 **Version:** 0.2.0+
+

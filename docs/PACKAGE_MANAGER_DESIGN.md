@@ -1,4 +1,4 @@
-# NanoLang Package Manager Design
+# My Package Manager Design
 
 **Status:** Design Proposal (Not Yet Implemented)  
 **Version:** 1.0  
@@ -6,29 +6,29 @@
 
 ## Overview
 
-This document outlines the design for `nanopkg`, a package manager for NanoLang. The goal is to provide a simple, reliable way to share and use NanoLang libraries.
+This document outlines the design for nanopkg, my package manager. I have designed this to provide a simple, reliable way to share and use NanoLang libraries.
 
 ## Goals
 
-### Primary Goals
-- ✅ Simple package installation (`nanopkg install <package>`)
-- ✅ Dependency resolution (automatically install dependencies)
-- ✅ Version management (semantic versioning)
-- ✅ Integration with existing module system
-- ✅ Local and remote packages
-- ✅ Reproducible builds (lock files)
+### My Primary Goals
+- Simple package installation (`nanopkg install <package>`)
+- Dependency resolution (I will automatically install dependencies)
+- Version management (I use semantic versioning)
+- Integration with my existing module system
+- Support for local and remote packages
+- Reproducible builds via lock files
 
-### Secondary Goals
-- ⏳ Package publishing (`nanopkg publish`)
-- ⏳ Package search (`nanopkg search <term>`)
-- ⏳ Documentation hosting
-- ⏳ Automated testing of packages
+### My Secondary Goals
+- Package publishing (`nanopkg publish`)
+- Package search (`nanopkg search <term>`)
+- Documentation hosting
+- Automated testing of packages
 
-### Non-Goals (For v1)
-- ❌ Binary distribution (compile from source only)
-- ❌ Cross-compilation (build on target platform)
-- ❌ Private registries (public registry only)
-- ❌ Workspaces (monorepo support)
+### What I Will Not Do (For v1)
+- Binary distribution (I compile from source only)
+- Cross-compilation (I build on the target platform)
+- Private registries (I support the public registry only)
+- Workspaces (I do not support monorepos yet)
 
 ## Architecture
 
@@ -128,13 +128,13 @@ my-package/
 
 **Forbidden Names:**
 - Reserved keywords: `test`, `std`, `core`, `builtin`
-- Namespace prefixes: `nano-*` (reserved for official packages)
+- Namespace prefixes: `nano-*` (I reserve these for official packages)
 
 ## Versioning
 
 ### Semantic Versioning
 
-NanoLang packages use [SemVer 2.0.0](https://semver.org/):
+My packages use [SemVer 2.0.0](https://semver.org/):
 
 ```
 MAJOR.MINOR.PATCH
@@ -147,9 +147,9 @@ MAJOR.MINOR.PATCH
 ```
 
 **Examples:**
-- `1.2.3` → `1.2.4`: Bug fix, safe to update
-- `1.2.3` → `1.3.0`: New feature, safe to update
-- `1.2.3` → `2.0.0`: Breaking change, requires code changes
+- `1.2.3` to `1.2.4`: Bug fix, safe to update
+- `1.2.3` to `1.3.0`: New feature, safe to update
+- `1.2.3` to `2.0.0`: Breaking change, requires code changes
 
 ### Version Constraints
 
@@ -166,7 +166,7 @@ MAJOR.MINOR.PATCH
 }
 ```
 
-**Default:** Caret (`^`) - allows minor and patch updates.
+**Default:** Caret (`^`). I allow minor and patch updates by default.
 
 ### Pre-release Versions
 
@@ -177,22 +177,22 @@ MAJOR.MINOR.PATCH
 1.0.0          # Stable release
 ```
 
-Pre-release versions are NOT installed unless explicitly requested.
+I do not install pre-release versions unless you explicitly request them.
 
 ## Dependency Resolution
 
-### Algorithm
+### My Algorithm
 
-1. **Parse** package.json and dependencies
-2. **Fetch** package metadata from registry
-3. **Resolve** versions using constraints
-4. **Check** for conflicts
-5. **Build** dependency graph
-6. **Install** packages in topological order
+1. I parse package.json and its dependencies.
+2. I fetch package metadata from my registry.
+3. I resolve versions based on your constraints.
+4. I check for conflicts.
+5. I build a dependency graph.
+6. I install packages in topological order.
 
 ### Conflict Resolution
 
-**Scenario:** Two packages require different versions of same dependency.
+**Scenario:** Two packages require different versions of the same dependency.
 
 ```
 my-app
@@ -202,17 +202,17 @@ my-app
     └── utils@^2.0.0  (requires 2.x)
 ```
 
-**Resolution Strategy:**
+**My Resolution Strategy:**
 
-1. **Try to satisfy both** - Find version that satisfies both constraints
-   - If possible: Use single version
-   - Example: `^1.5.0` and `^1.2.0` → use `1.5.0`
+1. **Try to satisfy both.** I find a version that satisfies both constraints.
+   - If possible: I use a single version.
+   - Example: `^1.5.0` and `^1.2.0` leads me to use `1.5.0`.
 
-2. **Fail if incompatible** - Major version conflicts cannot be resolved
+2. **Fail if incompatible.** I cannot resolve major version conflicts.
    - Error: "Cannot resolve utils: pkg-a requires ^1.0, pkg-b requires ^2.0"
-   - User must update one package or resolve manually
+   - You must update one package or resolve the conflict manually.
 
-**No Duplicate Versions (v1):** Unlike npm, we don't allow multiple versions of the same package. Simplicity over flexibility.
+**No Duplicate Versions (v1):** I do not allow multiple versions of the same package. I value simplicity over flexibility.
 
 ## Package Installation
 
@@ -229,15 +229,15 @@ nanopkg install json-parser@1.2.3
 nanopkg install
 ```
 
-**What happens:**
+**What I do:**
 
-1. ✅ Read package.json (if exists)
-2. ✅ Fetch package metadata from registry
-3. ✅ Resolve dependencies
-4. ✅ Download packages to `~/.nanopkg/cache/`
-5. ✅ Install to project `nanopkg_modules/`
-6. ✅ Update `package-lock.json`
-7. ✅ Compile if needed
+1. I read your package.json if it exists.
+2. I fetch package metadata from my registry.
+3. I resolve your dependencies.
+4. I download packages to `~/.nanopkg/cache/`.
+5. I install them to your project's `nanopkg_modules/` directory.
+6. I update your `package-lock.json`.
+7. I compile the code if necessary.
 
 ### Directory Structure After Install
 
@@ -281,14 +281,14 @@ my-project/
 }
 ```
 
-**Purpose:**
-- Reproducible builds (same versions every time)
-- Faster installs (no resolution needed)
-- Commit to version control
+**Why I use lock files:**
+- Reproducible builds (I use the same versions every time).
+- Faster installs (I do not need to resolve dependencies again).
+- You should commit these to your version control.
 
 ## Registry
 
-### Package Registry
+### My Package Registry
 
 **URL:** `https://registry.nanolang.org`
 
@@ -329,18 +329,18 @@ GET  /search?q={query}            # Search packages
 }
 ```
 
-### Registry Implementation
+### My Registry Implementation
 
 **Phase 1 (MVP):**
-- Static file hosting (no database)
-- Manual package approval
-- GitHub releases as backend
+- Static file hosting without a database.
+- Manual package approval.
+- GitHub releases serve as the backend.
 
 **Phase 2 (Full):**
-- Database-backed registry
-- Automated publishing
-- CDN distribution
-- Package statistics
+- Database-backed registry.
+- Automated publishing.
+- CDN distribution.
+- Package statistics.
 
 ## CLI Commands
 
@@ -382,7 +382,7 @@ nanopkg run <script>
 
 #### `nanopkg init`
 
-Creates new `package.json` interactively:
+I create a new `package.json` file interactively:
 
 ```bash
 $ nanopkg init
@@ -416,27 +416,27 @@ nanopkg install json-parser@1.2.3
 
 ```bash
 $ nanopkg publish
-✓ Validating package.json
-✓ Running tests
-✓ Building package
-✓ Creating tarball
-✓ Uploading to registry
-✓ Published json-parser@1.2.3
+Validating package.json
+Running tests
+Building package
+Creating tarball
+Uploading to registry
+Published json-parser@1.2.3
 ```
 
-**Pre-publish Checks:**
-- ✅ Valid package.json
-- ✅ All required files present
-- ✅ Tests pass
-- ✅ No unpublished changes (git clean)
-- ✅ Version not already published
-- ✅ License file exists
+**My Pre-publish Checks:**
+- I validate your package.json.
+- I ensure all required files are present.
+- I verify that your tests pass.
+- I check for unpublished changes in git.
+- I ensure the version is not already published.
+- I verify the license file exists.
 
-## Integration with Module System
+## Integration with My Module System
 
-### Current Module System
+### My Current Module System
 
-NanoLang already has a module system:
+I already provide a module system:
 
 ```nano
 // Import from local file
@@ -462,35 +462,35 @@ from "nanopkg_modules/json-parser/src/lib.nano" import parse_json
 export NANO_PACKAGE_PATH="./nanopkg_modules:~/.nanopkg/global"
 ```
 
-Compiler searches:
-1. Current directory
-2. `./nanopkg_modules/`
-3. `~/.nanopkg/global/`
-4. `$NANO_MODULE_PATH`
+I search for modules in this order:
+1. The current directory.
+2. The `./nanopkg_modules/` directory.
+3. The `~/.nanopkg/global/` directory.
+4. The path specified in `$NANO_MODULE_PATH`.
 
 ## Security
 
 ### Package Security
 
 **Verification:**
-- ✅ SHA-256 checksums for all packages
-- ✅ Verify integrity before installation
-- ✅ HTTPS-only registry connections
+- I use SHA-256 checksums for all packages.
+- I verify integrity before installation.
+- I only allow HTTPS connections to my registry.
 
 **Sandboxing (Future):**
-- ⏳ Package permissions system
-- ⏳ Restrict filesystem access
-- ⏳ Network access controls
-- ⏳ Audit logs
+- I plan to add a package permissions system.
+- I will restrict filesystem access.
+- I will implement network access controls.
+- I will provide audit logs.
 
 **Publishing Security:**
-- ✅ Authentication required for publishing
-- ✅ Package signing (optional for v1)
-- ✅ Malware scanning (automated)
+- I require authentication for publishing.
+- I will offer optional package signing in the future.
+- I perform automated malware scanning.
 
 ## Caching
 
-### Local Cache
+### My Local Cache
 
 ```
 ~/.nanopkg/
@@ -517,7 +517,7 @@ nanopkg cache verify
 
 ## Configuration
 
-### Global Config (~/.nanopkg/config.json)
+### My Global Config (~/.nanopkg/config.json)
 
 ```json
 {
@@ -543,12 +543,12 @@ nanopkg cache verify
 }
 ```
 
-## Roadmap
+## My Roadmap
 
 ### Phase 1: MVP (v0.1.0) - Q2 2026
 
 - [ ] Basic package.json support
-- [ ] Install command (local packages)
+- [ ] Install command for local packages
 - [ ] Dependency resolution
 - [ ] Lock file generation
 - [ ] Integration with nanoc
@@ -566,7 +566,7 @@ nanopkg cache verify
 - [ ] Update command with smart resolution
 - [ ] Global installations
 - [ ] Scripts support
-- [ ] Pre/post hooks
+- [ ] Pre and post hooks
 - [ ] Package audit
 
 ### Phase 4: Ecosystem (v1.0.0) - 2027
@@ -590,36 +590,36 @@ nanopkg cache verify
 
 ## FAQ
 
-### Q: Why not use existing package manager?
+### Q: Why did I not use an existing package manager?
 
-A: NanoLang-specific optimizations, simpler model, tight compiler integration.
+A: I require optimizations specific to my design, a simpler model, and tight integration with my compiler.
 
-### Q: How do I publish a package?
+### Q: How do you publish a package?
 
-A: `nanopkg publish` after `nanopkg login`. Requires authentication.
+A: You use `nanopkg publish` after you have run `nanopkg login`. I require authentication.
 
-### Q: Can I use private packages?
+### Q: Can you use private packages?
 
-A: Not in v1. Planned for future versions.
+A: Not in v1. I have planned this for future versions.
 
-### Q: How do I vendor dependencies?
+### Q: How do you vendor dependencies?
 
-A: Copy `nanopkg_modules/` to version control (not recommended) or use `nanopkg pack`.
+A: You can copy `nanopkg_modules/` to your version control, although I do not recommend it. You can also use `nanopkg pack`.
 
 ### Q: What about binary packages?
 
-A: v1 compiles from source. Binary distribution planned for v2.
+A: I compile from source in v1. I have planned binary distribution for v2.
 
-### Q: How do I contribute to the registry?
+### Q: How do you contribute to my registry?
 
-A: Contact maintainers or submit RFC for registry contributions.
+A: You should contact my maintainers or submit an RFC for registry contributions.
 
 ## Implementation Notes
 
-**Recommended Implementation Language:** NanoLang (self-hosted)  
+**My Recommended Implementation Language:** NanoLang (self-hosted)  
 **Alternative:** C or Go for bootstrap  
-**Estimated Effort:** 4-6 weeks for MVP  
-**Team Size:** 1-2 developers  
+**Estimated Effort:** 4 to 6 weeks for MVP  
+**Team Size:** 1 to 2 developers  
 
 ## References
 
@@ -631,11 +631,11 @@ A: Contact maintainers or submit RFC for registry contributions.
 ---
 
 **Status:** Design Proposal  
-**Next Steps:**
-1. Gather community feedback (RFC process)
-2. Prototype basic package.json parsing
-3. Implement install command (local only)
-4. Build registry infrastructure
+**My Next Steps:**
+1. Gather community feedback through my RFC process.
+2. Prototype my basic package.json parsing.
+3. Implement my install command for local use.
+4. Build my registry infrastructure.
 
 **Created:** January 25, 2026  
 **Author:** NanoLang Core Team

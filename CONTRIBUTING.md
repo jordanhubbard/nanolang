@@ -1,63 +1,56 @@
-# Contributing to NanoLang
+# How You Can Help Me
 
-## Ground Rules for Feature Development
+I am NanoLang. I have clear standards for how I am built, how I test myself, and how I evolve. If you want to contribute to my development, you must follow my rules. I do not compromise on these.
 
-These rules ensure the long-term maintainability and self-hosting capability of NanoLang.
+## My Ground Rules
 
-### 1. **Compiled Language - Single Implementation**
+These rules ensure I remain maintainable and capable of compiling myself.
 
-**RULE**: NanoLang is a compiled language. All features are implemented in the compiler.
+### 1. One Implementation
 
-**Why**: NanoLang transpiles to C for native performance. The interpreter was removed to eliminate the dual implementation burden (80 hours/year maintenance cost).
+I am a compiled language. Every feature you add must live in my compiler. I do not have an interpreter because maintaining two implementations is a waste of time. I transpile to C for performance.
 
-**Implementation**:
-- When adding a new language feature (operators, types, built-ins), implement it in:
-  - Compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
-- Shadow tests compile into the final binary and execute at runtime
-- Before marking a feature complete, verify shadow tests compile and pass
+If you add a feature, you must implement it in:
+- The compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
+
+I expect shadow tests to compile into the final binary and run at execution time. Before you claim a feature is finished, verify those tests pass.
 
 **Example**: Generic `List<T>` support
-- ✅ Compiler: Generates C code with `list_TypeName_*` functions
-- ✅ Shadow tests: Compile into binary, validate at runtime
-- ✅ Result: Clean, single implementation
+- Compiler: Generates C code with `list_TypeName_*` functions
+- Shadow tests: Compile into binary, validate at runtime
+- Result: One clean implementation
 
-### 2. **Warning-Free, Clean Sources**
+### 2. No Warnings
 
-**RULE**: All code must compile without warnings. The codebase should be clean and maintainable.
+I must compile without warnings. A warning is just a bug I haven't caught yet.
 
-**Why**: Warnings hide real issues. A warning-free codebase makes it easy to spot new problems immediately.
+- C code: Must pass `-Wall -Wextra -Werror`. No warnings means no errors.
+- My own code: I expect zero type warnings and zero unused variable warnings.
+- The build will fail if you introduce a warning.
+- If you find a warning that truly cannot be removed, you must document it.
 
-**Requirements**:
-- C code: `-Wall -Wextra -Werror` compliance (no warnings = no errors)
-- NanoLang code: No type warnings, no unused variable warnings
-- CI/CD: Build should fail on warnings
-- Exception: Acceptable warnings (like C11 typedef redefinitions) must be documented
-
-**How to maintain**:
+How to check:
 ```bash
-make clean && make  # Should show no warnings
-./bin/nanoc file.nano  # Should show no warnings
+make clean && make
+./bin/nanoc file.nano
 ```
 
-### 3. **Dual Implementation: C Reference + NanoLang Self-Hosted**
+### 3. Bootstrap and Self-Hosting
 
-**RULE**: All features must be implemented twice:
-1. **C Reference Implementation** (in `src/`) - Bootstrap compiler
-2. **NanoLang Self-Hosted** (in `src_nano/`) - Self-hosting components
+I have two versions of myself. You must update both.
+1. **C Reference Implementation** (`src/`) - This is how I bootstrap.
+2. **Self-Hosted Implementation** (`src_nano/`) - This is how I prove I am complete.
 
-**Why**: 
-- C reference compiles NanoLang code initially (bootstrapping)
-- NanoLang self-hosted version proves the language is powerful enough to implement itself
-- Self-hosting is the ultimate test of language completeness
+I use the C version to build my first stage. Then I use that stage to build myself again. If I cannot express a feature in my own syntax, then I am not finished.
 
-**Workflow**:
-1. **First**: Implement feature in C reference implementation
-2. **Test**: Verify it works with existing test suite
-3. **Second**: Implement same feature in NanoLang (in `src_nano/`)
-4. **Verify**: Self-hosted component uses the new feature correctly
-5. **Dogfood**: Use new feature throughout codebase
+Your workflow:
+1. Implement the feature in my C reference code.
+2. Verify it passes my tests.
+3. Implement the same feature using my own syntax in `src_nano/`.
+4. Verify my self-hosted components can use it.
+5. Use the feature in my codebase.
 
-**File Structure**:
+My structure:
 ```
 src/          - C reference implementation (bootstrap compiler)
   parser.c    - C parser
@@ -70,46 +63,31 @@ src_nano/     - NanoLang self-hosted implementation
   transpiler_minimal.nano - Transpiler in NanoLang
 ```
 
-### 4. **Test-First Development: Shadow Tests Are MANDATORY**
+### 4. Shadow Tests are Mandatory
 
-**RULE**: Every feature must have tests BEFORE being marked complete.
+I do not trust code that has not been asked to prove itself. Every function you write must have a shadow test. This is a core design principle, not a suggestion.
 
-**⚠️ CRITICAL: Shadow Tests Are NOT Optional ⚠️**
+I require shadow tests for:
+- All functions in my libraries
+- All functions in your applications
+- All functions in my examples
+- All helper functions
+- All demonstration programs
 
-Shadow tests are a **core design principle** of NanoLang, not a "nice to have". They must be included for:
+The only exception is `extern` functions. I cannot test what happens in the C world.
 
-- ✅ **ALL functions in library code**
-- ✅ **ALL functions in application code**  
-- ✅ **ALL functions in example code**
-- ✅ **ALL utility/helper functions**
-- ✅ **ALL demonstration programs**
-- ❌ **ONLY EXCEPTION:** `extern` functions (C FFI)
+Why I require this:
+- Shadow tests prove correctness during compilation.
+- They are executable specifications.
+- They allow me to validate myself during the bootstrap process.
+- They prevent bad design. If a function is hard to test, it is poorly written.
 
-**Why This Matters:**
-- Shadow tests validate correctness at compile time
-- They serve as executable documentation
-- They enable self-hosting (the compiler validates itself)
-- They force proper design (functions that are hard to test are poorly designed)
+If my compiler warns you about a missing shadow test, it is not a mistake. Add the test. If you are an LLM generating code for me, you will include shadow tests for every function.
 
-**For Contributors:** When you see "missing shadow test" warnings, these are NOT false positives. Add the tests.
-
-**For LLMs:** When generating any NanoLang code, include shadow tests for every function. No exceptions.
-
-**Test Hierarchy**:
-1. **Shadow Tests** (inline tests in NanoLang functions) - **MANDATORY**
-   - Unit tests for individual functions
-   - Run in interpreter during compilation
-   - Mandatory for all exported functions
-
-2. **Integration Tests** (`tests/*.nano`)
-   - Test feature combinations
-   - Run both interpreter and compiler paths
-   - Must pass 100%
-
-3. **Self-Hosting Tests**
-   - Bootstrap compilation (C compiles NanoLang compiler)
-   - Self-compilation (NanoLang compiles itself)
-   - Fixed-point verification (C1 ≡ C2)
+My test hierarchy:
+1. **Shadow Tests** (Inlined in functions) - Mandatory. These run during compilation.
+2. **Integration Tests** (`tests/*.nano`) - These test how features work together.
+3. **Self-Hosting Tests** - These verify the bootstrap and fixed-point identity.
 
 **Example**:
 ```nano
@@ -125,31 +103,30 @@ shadow list_length {
 }
 ```
 
-### 5. **Documentation Standards**
+### 5. Documentation
 
-**RULE**: Code should be self-documenting, with comments only where necessary.
+I prefer code that explains itself. Use comments only when necessary.
 
-**What to Document**:
-- ✅ Complex algorithms (why, not what)
-- ✅ Non-obvious design decisions
-- ✅ Workarounds for language/compiler limitations
-- ✅ Public API functions (brief description)
+What to document:
+- Why you chose a complex algorithm.
+- Design decisions that are not obvious.
+- Workarounds for my current limitations.
+- Brief descriptions of my public API.
 
-**What NOT to Document**:
-- ❌ Obvious code (`i++  // increment i`)
-- ❌ Redundant README files that duplicate code docs
-- ❌ Over-commented code that restates what it does
+What not to document:
+- Obvious code. I can read `i++` without help.
+- Redundant files that repeat what the code already says.
 
-**README Policy**:
-- Update only when requested by contributor/maintainer
-- Keep focused: What is NanoLang, how to build, how to run
-- Avoid documenting every function (use `--help` flags instead)
+My README policy:
+- Update it only when I ask you to.
+- Keep it focused on what I am and how to run me.
+- Do not document every function. Use my `--help` flags.
 
-### 6. **Error Messages Must Be Excellent**
+### 6. Precise Error Messages
 
-**RULE**: Error messages should immediately tell the user what's wrong and how to fix it.
+My error messages must tell the user what happened and how to fix it.
 
-**Format**:
+Format:
 ```
 Error at line X, column Y: <What went wrong>
   Note: <Additional context>
@@ -163,193 +140,121 @@ Error at line 42, column 18: Undefined function 'list_Point_new'
   Hint: Define 'struct Point { ... }' before using List<Point>
 ```
 
-**Line numbers are mandatory**: Every error during parsing, type-checking, or transpiling must include line and column numbers.
+I require line and column numbers for every error during parsing, type-checking, or transpiling.
 
-### 7. **Backward Compatibility**
+### 7. Backward Compatibility
 
-**RULE**: Once a feature is released, it must continue to work in future versions.
+I expect features that I have already released to keep working.
 
-**Breaking Changes Require**:
-- Major version bump
-- Migration guide
-- Deprecation warnings in previous version
-- Community discussion
+If you want to make a breaking change:
+- I will need a major version bump.
+- You must provide a migration guide.
+- I will issue deprecation warnings first.
+- You must discuss it with the community.
 
-**Safe Changes**:
-- Adding new features (non-breaking)
-- Fixing bugs
-- Improving error messages
-- Performance optimizations
+Safe changes include fixing bugs, improving my error messages, or optimizing my performance without changing my behavior.
 
-### 8. **Performance Considerations**
+### 8. Efficiency
 
-**RULE**: Don't sacrifice correctness for performance, but be mindful of efficiency.
+I value correctness over performance, but I do not tolerate waste.
 
-**Guidelines**:
-- Use appropriate data structures (`List<T>` for dynamic, arrays for fixed)
-- Avoid N² algorithms where N could be large
-- Profile before optimizing ("premature optimization is evil")
-- Memory leaks are bugs - always free allocated memory
+- Use the right data structures.
+- Avoid slow algorithms where input size might grow.
+- Profile your changes before you optimize them.
+- Memory leaks are bugs. Always free what you allocate.
 
-**Self-Hosting Performance**:
-- Compilation should be fast enough for development (< 5 seconds for small files)
-- Shadow tests should run quickly (< 1 second for typical test suite)
-- Large files (> 2000 lines) may need optimization or splitting
+My compilation should take less than 5 seconds for small files. My shadow tests should take less than 1 second. If you write more than 2000 lines in one file, you may need to split it.
 
-## Contribution Workflow
+## How You Should Work
 
-### 1. Before Starting
+### 1. Preparation
+- Read these rules.
+- Check my existing issues to see if someone is already doing the work.
+- Discuss large changes with me in an issue.
 
-- Read this CONTRIBUTING.md
-- Check existing issues/PRs to avoid duplicates
-- Discuss large changes in an issue first
+### 2. Development
+- Follow my ground rules.
+- Write your tests while you code, not after.
+- Run `make test` often.
+- Keep your commits small and focused.
 
-### 2. During Development
-
-- Follow the 8 ground rules above
-- Write tests as you code (not after)
-- Run `make test` frequently
-- Keep commits atomic and well-described
-
-### 3. Before Submitting PR
-
-**Checklist**:
+### 3. Submission
+Before you submit your work, verify:
 ```bash
 # Clean build
 make clean && make
 
 # All tests pass
-make test  # Must show 100% pass rate
+make test
 
 # No warnings
-./bin/nanoc your_file.nano  # Should be warning-free
+./bin/nanoc your_file.nano
 
-# Self-hosted components still build
-make  # Should rebuild parser_mvp, typechecker_minimal, etc.
-
-# Your feature has tests
-# Shadow tests in your .nano file
-# Integration test in tests/ if appropriate
+# Self-hosted components build
+make
 ```
 
-### 4. PR Description Template
-
+### 4. PR Description
+I expect your description to follow this format:
 ```markdown
 ## What Changed
-Brief description of the feature/fix
+Brief description
 
 ## Implementation
-- C Reference: <files modified>
-- NanoLang Self-Hosted: <files modified>
+- C Reference: <files>
+- NanoLang Self-Hosted: <files>
 
 ## Testing
-- Shadow tests: ✅ Added / ⚠️ Updated / ❌ None
-- Integration tests: ✅ Added / ⚠️ Updated / ❌ None
-- All tests passing: ✅ YES / ❌ NO
+- Shadow tests: Done / Updated / None
+- Integration tests: Done / Updated / None
+- All tests passing: Yes / No
 
 ## Breaking Changes
-YES / NO - if yes, describe migration path
+Yes / No
 
 ## Checklist
-- [ ] Builds warning-free
-- [ ] All tests pass (100%)
-- [ ] Shadow tests compile and pass
-- [ ] Documentation updated (if needed)
-- [ ] Self-hosted components updated (if needed)
+- Builds warning-free
+- All tests pass
+- Shadow tests pass
+- Documentation updated
+- Self-hosted components updated
 ```
 
-## RFC Process for Major Changes
+## How I Evolve
 
-### When to Use an RFC
+I use a Request for Comments (RFC) process for major changes.
 
-Use the RFC (Request for Comments) process for **major language changes**:
+### When an RFC is Needed
+- You want to add new syntax, operators, or types.
+- You want to change how an existing feature works.
+- You want to add large sections to my standard library.
+- You want to change my compiler's architecture.
 
-✅ **Requires RFC:**
-- New language features (new syntax, operators, types)
-- Breaking changes to existing features
-- Major standard library additions
-- Architectural changes to the compiler
-- Changes that affect backward compatibility
+### When an RFC is Not Needed
+- You are fixing a bug.
+- You are improving my documentation.
+- You are optimizing my performance.
+- You are adding examples or tests.
 
-❌ **No RFC Needed:**
-- Bug fixes
-- Documentation improvements
-- Performance optimizations (non-breaking)
-- New examples or test cases
-- Minor standard library functions
+### The RFC Process
+1. **Draft**: Use my template in `docs/rfcs/0000-template.md`.
+2. **Proposal**: Open a Pull Request with your RFC.
+3. **Discussion**: The community will provide feedback for 1 to 2 weeks.
+4. **Final Comment Period**: A one-week period for final concerns once the design is stable.
+5. **Decision**: I will either accept, reject, or postpone the proposal.
 
-### RFC Workflow
+Your RFC must explain your motivation, the detailed design, potential drawbacks, and any alternatives you considered.
 
-1. **Draft Phase**
-   ```bash
-   # Create a new RFC using the template
-   cp docs/rfcs/0000-template.md docs/rfcs/0000-my-feature.md
-   # Edit and fill out all sections
-   ```
+See `docs/RFC_PROCESS.md` for more details.
 
-2. **Proposal Phase**
-   - Open a Pull Request with your RFC
-   - Title: `RFC: Brief description`
-   - Label: `rfc`
-   - Engage with community feedback
+## Questions
 
-3. **Discussion Phase** (typically 1-2 weeks)
-   - Community provides feedback
-   - RFC author addresses concerns
-   - Design is refined through iteration
-
-4. **Final Comment Period (FCP)** (1 week)
-   - RFC enters FCP when design is stable
-   - Last chance for major concerns
-   - Maintainer announces FCP start
-
-5. **Decision**
-   - **Accepted**: Move to `docs/rfcs/accepted/`, implement the feature
-   - **Rejected**: Move to `docs/rfcs/rejected/` with rationale
-   - **Postponed**: Move to `docs/rfcs/postponed/` for future consideration
-
-### RFC Template Sections
-
-Your RFC should include:
-
-- **Summary**: One-paragraph explanation
-- **Motivation**: Why this change is needed
-- **Detailed Design**: Complete specification with examples
-- **Drawbacks**: Potential downsides
-- **Alternatives**: Other approaches considered
-- **Unresolved Questions**: Open issues to discuss
-
-### RFC Best Practices
-
-- **Start small**: Focus on one feature per RFC
-- **Show examples**: Include code examples of the proposed feature
-- **Be specific**: Vague RFCs are hard to evaluate
-- **Consider impact**: How does this affect existing code?
-- **Listen to feedback**: RFCs often improve through discussion
-
-### Example RFC Flow
-
-```
-1. Author creates RFC draft
-2. Opens PR with RFC markdown file
-3. Community discusses (1-2 weeks)
-4. RFC enters FCP (1 week)
-5. Maintainer accepts RFC
-6. Author implements feature
-7. Feature is released in next version
-```
-
-**See also**: `docs/RFC_PROCESS.md` for complete process documentation
-
-## Questions?
-
-Open an issue or discussion. We're here to help!
+If you have questions, open an issue or start a discussion.
 
 ## Code of Conduct
 
-- Be respectful and constructive
-- Focus on the code, not the person
-- Assume good intentions
-- Help newcomers learn
+- Be respectful.
+- Focus on my code.
+- Assume everyone is trying to help.
+- Help others learn how I work.
 
-**Welcome to NanoLang! Let's build something amazing together.** 🚀

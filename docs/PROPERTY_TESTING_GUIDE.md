@@ -1,12 +1,12 @@
-# Property-Based Testing Guide for NanoLang
+# My Property-Based Testing Guide
 
-> **For LLM Agents:** Property-based testing generates random inputs to validate algorithmic properties, catching edge cases that example-based tests miss.
+> **For LLM Agents:** My property-based testing generates random inputs to validate algorithmic properties. It catches edge cases that example-based tests miss.
 
 ---
 
 ## Table of Contents
 
-1. [Why Property-Based Testing?](#why-property-based-testing)
+1. [Why I Use Property-Based Testing](#why-i-use-property-based-testing)
 2. [Quick Start](#quick-start)
 3. [Core Concepts](#core-concepts)
 4. [API Reference](#api-reference)
@@ -16,7 +16,7 @@
 
 ---
 
-## Why Property-Based Testing?
+## Why I Use Property-Based Testing
 
 ### The Problem with Example-Based Tests
 
@@ -33,14 +33,14 @@ shadow reverse_list {
 }
 ```
 
-**What's missing?**
+**What is missing?**
 - Large arrays (100+ elements)
 - Negative numbers
 - Duplicates
 - Boundary values (INT_MIN, INT_MAX)
 - Random patterns
 
-### The Property-Based Solution
+### My Property-Based Solution
 
 ```nano
 from "modules/proptest/proptest.nano" import proptest_int_array
@@ -56,10 +56,10 @@ shadow reverse_list {
 }
 ```
 
-**What it tests:**
-- Automatically generates 100 random arrays
-- Tests the property: `reverse(reverse(x)) == x`
-- If failure found, **shrinks** to minimal failing case
+**What I test:**
+- I automatically generate 100 random arrays.
+- I test the property: `reverse(reverse(x)) == x`.
+- If I find a failure, I shrink it to the minimal failing case.
 - Example output: "Failed on: [0, -1, 0]"
 
 ---
@@ -69,7 +69,7 @@ shadow reverse_list {
 ### Installation
 
 ```bash
-# Property testing module is included with NanoLang
+# My property testing module is included with my source
 # Located at: modules/proptest/proptest.nano
 ```
 
@@ -128,12 +128,12 @@ shadow absolute_value {
 
 ### 1. Properties vs. Examples
 
-**Example-based testing** checks specific inputs:
+Example-based testing checks specific inputs:
 ```nano
 assert (== (add 2 3) 5)  # True for 2 and 3, but what about other inputs?
 ```
 
-**Property-based testing** checks universal properties:
+Property-based testing checks universal properties:
 ```nano
 (proptest_int_pair "commutative" 100
     (fn (a: int, b: int) -> bool {
@@ -143,7 +143,7 @@ assert (== (add 2 3) 5)  # True for 2 and 3, but what about other inputs?
 
 ### 2. Generators
 
-**Generators** produce random test inputs:
+My generators produce random test inputs:
 
 | Generator | Input Type | Use Case |
 |-----------|------------|----------|
@@ -154,9 +154,9 @@ assert (== (add 2 3) 5)  # True for 2 and 3, but what about other inputs?
 
 ### 3. Properties
 
-A **property** is a function that returns `bool`:
-- `true` → Test passes for this input
-- `false` → Test fails (counterexample found)
+A property is a function that returns `bool`:
+- `true` means the test passes for this input.
+- `false` means the test fails and a counterexample was found.
 
 ```nano
 # Property function signature
@@ -167,14 +167,14 @@ fn my_property(input: InputType) -> bool {
 
 ### 4. Shrinking
 
-When a test fails, **shrinking** finds the minimal failing case:
+When a test fails, I use shrinking to find the minimal failing case:
 
 ```
 Original failing input: [17, -99, 42, 5, 23, -8, 0, 1, 34]
 After shrinking:        [0, -8]
 ```
 
-**Benefit:** Easier to debug with minimal reproduction case.
+This makes it easier for you to debug with a minimal reproduction case.
 
 ---
 
@@ -182,7 +182,7 @@ After shrinking:        [0, -8]
 
 ### proptest_int
 
-Test properties with random integers.
+I test properties with random integers.
 
 ```nano
 from "modules/proptest/proptest.nano" import proptest_int
@@ -191,9 +191,9 @@ from "modules/proptest/proptest.nano" import proptest_int
 ```
 
 **Parameters:**
-- `property_name`: String - Descriptive name for test
-- `num_tests`: Int - Number of random inputs to generate (typically 50-100)
-- `property_function`: `fn(int) -> bool` - Function that tests the property
+- `property_name`: String. A descriptive name for the test.
+- `num_tests`: Int. The number of random inputs I should generate. I typically use 50 to 100.
+- `property_function`: `fn(int) -> bool`. The function that tests the property.
 
 **Example:**
 ```nano
@@ -208,7 +208,7 @@ shadow is_even {
 
 ### proptest_int_pair
 
-Test properties with pairs of random integers.
+I test properties with pairs of random integers.
 
 ```nano
 from "modules/proptest/proptest.nano" import proptest_int_pair
@@ -217,7 +217,7 @@ from "modules/proptest/proptest.nano" import proptest_int_pair
 ```
 
 **Parameters:**
-- `property_function`: `fn(int, int) -> bool`
+- `property_function`: `fn(int, int) -> bool`.
 
 **Example:**
 ```nano
@@ -235,7 +235,7 @@ shadow add {
 
 ### proptest_int_array
 
-Test properties with random integer arrays.
+I test properties with random integer arrays.
 
 ```nano
 from "modules/proptest/proptest.nano" import proptest_int_array
@@ -244,7 +244,7 @@ from "modules/proptest/proptest.nano" import proptest_int_array
 ```
 
 **Parameters:**
-- `property_function`: `fn(array<int>) -> bool`
+- `property_function`: `fn(array<int>) -> bool`.
 
 **Example:**
 ```nano
@@ -267,7 +267,7 @@ shadow sort_array {
 
 ### Custom Properties with prop_pass/prop_fail
 
-For more control, use explicit pass/fail:
+For more control, you can use explicit pass or fail results:
 
 ```nano
 from "modules/proptest/proptest.nano" import prop_pass, prop_fail
@@ -406,7 +406,7 @@ from "modules/proptest/proptest.nano" import prop_discard
 
 (proptest_int_pair "divide_inverse" 100
     (fn (a: int, b: int) -> bool {
-        # Discard cases where b == 0 (division undefined)
+        # I discard cases where b == 0 because division is undefined
         if (== b 0) {
             return (prop_discard "Division by zero")
         }
@@ -425,7 +425,7 @@ from "modules/proptest/proptest.nano" import prop_discard
 
 ### Stateful Properties
 
-Test sequences of operations maintain invariants:
+I test sequences of operations to ensure they maintain invariants:
 
 ```nano
 struct Stack {
@@ -456,7 +456,7 @@ shadow stack_operations {
 
 ### Oracle Testing
 
-Compare against a known-correct (but slow) implementation:
+I compare my results against a known-correct implementation:
 
 ```nano
 fn fast_fibonacci(n: int) -> int {
@@ -470,7 +470,7 @@ fn slow_fibonacci(n: int) -> int {
 shadow fast_fibonacci {
     (proptest_int "matches_oracle" 50
         (fn (n: int) -> bool {
-            # Only test small n for slow oracle
+            # I only test small n for the slow oracle
             if (> n 30) { return true }  # Skip large inputs
             
             return (== (fast_fibonacci n) (slow_fibonacci n))
@@ -495,7 +495,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Build NanoLang compiler
+      - name: Build my compiler
         run: make
       
       - name: Run property tests
@@ -519,11 +519,11 @@ tests/
 ```nano
 # tests/test_config.nano
 
-# Adjust test count based on CI environment
+# I adjust my test count based on the environment
 let is_ci: bool = (not (str_equals (getenv "CI") ""))
 let test_count: int = (cond
-    (is_ci 1000)  # More tests in CI
-    (else 100)    # Fewer tests locally for speed
+    (is_ci 1000)  # I run more tests in CI
+    (else 100)    # I run fewer tests locally for speed
 )
 
 shadow my_function {
@@ -536,10 +536,10 @@ shadow my_function {
 If property tests occasionally fail due to rare edge cases:
 
 ```nano
-# Document known limitations
+# I document my known limitations
 shadow sort_with_overflow {
     # Property: Sorting preserves all elements
-    # Note: May fail on extremely large arrays (>10000 elements)
+    # Note: I may fail on extremely large arrays (>10000 elements)
     # due to stack overflow in recursive quicksort
     (proptest_int_array "elements_preserved" 100
         (fn (arr: array<int>) -> bool {
@@ -555,26 +555,26 @@ shadow sort_with_overflow {
 
 When a property test fails in CI:
 
-1. **Capture the seed** (if module supports it in future):
+1. **Capture the seed.** If my module supports it, I will report the seed.
    ```
    ✗ Property 'my_test' failed (seed: 0x12345678)
    ```
 
-2. **Reproduce locally**:
+2. **Reproduce locally:**
    ```bash
    PROPTEST_SEED=0x12345678 ./test_runner
    ```
 
-3. **Fix the bug** revealed by the counterexample
+3. **Fix the bug.** I use the counterexample to reveal the error.
 
 ---
 
 ## Best Practices
 
-### ✅ DO: Start Simple
+### Start Simple
 
 ```nano
-# Begin with basic properties
+# I begin with basic properties
 shadow add {
     (proptest_int_pair "commutative" 100
         (fn (a: int, b: int) -> bool {
@@ -582,7 +582,7 @@ shadow add {
         }))
 }
 
-# Then add more complex properties
+# Then I add more complex properties
 shadow add {
     (proptest_int "identity" 100
         (fn (x: int) -> bool {
@@ -591,38 +591,38 @@ shadow add {
 }
 ```
 
-### ✅ DO: Name Properties Clearly
+### Name Properties Clearly
 
 ```nano
-# GOOD: Describes what's being tested
+# GOOD: This describes exactly what I am testing
 (proptest_int_array "sort_preserves_length" 100 ...)
 (proptest_int "abs_always_non_negative" 100 ...)
 
-# BAD: Vague names
+# BAD: These names are vague
 (proptest_int_array "test1" 100 ...)
 (proptest_int "property" 100 ...)
 ```
 
-### ✅ DO: Test Properties, Not Implementation
+### Test Properties, Not Implementation
 
 ```nano
-# GOOD: Tests observable behavior
+# GOOD: I test observable behavior
 (proptest_int_array "sorted_output_is_ascending" 100 ...)
 
-# BAD: Tests implementation details
+# BAD: This tests implementation details
 (proptest_int_array "uses_quicksort_partition" 100 ...)
 ```
 
-### ❌ DON'T: Test Non-Deterministic Functions
+### Do Not Test Non-Deterministic Functions
 
 ```nano
-# BAD: Random functions can't have consistent properties
+# BAD: Random functions do not have consistent properties
 fn get_random() -> int {
     return (random_int)
 }
 
 shadow get_random {
-    # This will fail!
+    # This will fail
     (proptest_int "always_returns_same" 100
         (fn (_: int) -> bool {
             return (== (get_random) (get_random))
@@ -630,18 +630,18 @@ shadow get_random {
 }
 ```
 
-### ❌ DON'T: Duplicate the Implementation
+### Do Not Duplicate the Implementation
 
 ```nano
-# BAD: Property is just reimplementing the function
+# BAD: The property is just reimplementing my function
 shadow add {
     (proptest_int_pair "works" 100
         (fn (a: int, b: int) -> bool {
-            return (== (add a b) (+ a b))  # Tautology!
+            return (== (add a b) (+ a b))  # This is a tautology
         }))
 }
 
-# GOOD: Tests mathematical properties
+# GOOD: I test mathematical properties
 shadow add {
     (proptest_int_pair "commutative" 100
         (fn (a: int, b: int) -> bool {
@@ -654,11 +654,11 @@ shadow add {
 
 ## Troubleshooting
 
-### "Property failed but I can't reproduce it"
+### "Property failed but I cannot reproduce it"
 
 **Cause:** Shrinking might have found a very specific edge case.
 
-**Solution:** Pay attention to the counterexample:
+**Solution:** Pay attention to the counterexample I provide:
 ```
 ✗ Counterexample: arr = [0, -2147483648, 1]
 ```
@@ -666,7 +666,7 @@ shadow add {
 Test this specific input manually:
 ```nano
 shadow my_function {
-    # Add explicit test for discovered edge case
+    # Add an explicit test for the discovered edge case
     let edge_case: array<int> = [0, -2147483648, 1]
     assert (my_property edge_case)
 }
@@ -676,7 +676,7 @@ shadow my_function {
 
 **Cause:** Different random seeds or timing.
 
-**Solution:** Use deterministic test count:
+**Solution:** Use a deterministic test count:
 ```nano
 let CI_TEST_COUNT: int = 1000
 let LOCAL_TEST_COUNT: int = 100
@@ -688,14 +688,14 @@ shadow my_function {
 
 ### "Property test is too slow"
 
-**Cause:** Too many test cases or expensive property function.
+**Cause:** You are using too many test cases or an expensive property function.
 
-**Solution:** Reduce test count or optimize property:
+**Solution:** Reduce the test count or optimize the property:
 ```nano
-# Before: 1000 tests, slow
+# Before: 1000 tests, which is slow
 (proptest_int_array "expensive_check" 1000 slow_property)
 
-# After: 100 tests, optimized
+# After: 100 tests, which is optimized
 (proptest_int_array "fast_check" 100 optimized_property)
 ```
 
@@ -717,7 +717,7 @@ from "modules/proptest/proptest.nano" import
 shadow my_function {
     (proptest_TYPE "property_name" num_tests
         (fn (input: TYPE) -> bool {
-            # Test property, return true/false
+            # Test the property and return true or false
         }))
 }
 ```
@@ -736,20 +736,20 @@ shadow my_function {
 
 ## Summary
 
-**Property-based testing:**
-- ✅ Generates random inputs automatically
-- ✅ Finds edge cases you didn't think of
-- ✅ Shrinks to minimal failing examples
-- ✅ Validates algorithmic properties universally
+**My property-based testing:**
+- I generate random inputs automatically.
+- I find edge cases you did not think of.
+- I shrink to minimal failing examples.
+- I validate algorithmic properties universally.
 
-**Use when:**
-- Testing algorithms (sorting, searching, math)
-- Validating invariants (data structures, protocols)
-- Comparing implementations (fast vs slow, old vs new)
+**Use me when:**
+- You are testing algorithms like sorting, searching, or math.
+- You are validating invariants in data structures or protocols.
+- You are comparing implementations.
 
-**Avoid when:**
-- Testing I/O or side effects
-- Non-deterministic functions
-- UI or visual output
+**Avoid me when:**
+- You are testing I/O or side effects.
+- You have non-deterministic functions.
+- You are testing UI or visual output.
 
-**For LLM agents:** Generate property tests alongside shadow tests to catch edge cases and validate algorithmic correctness automatically.
+**For LLM agents:** Generate property tests alongside shadow tests. This catches edge cases and validates algorithmic correctness automatically.

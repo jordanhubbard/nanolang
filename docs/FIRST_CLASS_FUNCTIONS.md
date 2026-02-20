@@ -1,6 +1,6 @@
-# First-Class Functions in NanoLang
+# My First-Class Functions
 
-NanoLang supports first-class functions, allowing functions to be passed as parameters, returned from functions, and stored in variables - all without exposing raw function pointers to the user.
+I support first-class functions. I allow you to pass functions as parameters, return them from other functions, and store them in variables. I do this without exposing raw function pointers.
 
 ## Table of Contents
 
@@ -15,18 +15,18 @@ NanoLang supports first-class functions, allowing functions to be passed as para
 
 ## Overview
 
-First-class functions enable functional programming patterns like:
+I enable functional programming patterns:
 - Higher-order functions (map, filter, fold)
 - Function factories
 - Strategy pattern
 - Callback mechanisms
 - Function dispatch tables
 
-**Key Innovation:** Users write clean syntax like `fn(int) -> bool` without seeing pointer syntax. The compiler handles all the C function pointer mechanics behind the scenes.
+You write clean syntax like `fn(int) -> bool`. I handle the C function pointer mechanics.
 
 ## Function Types
 
-Function types describe the signature of a function: parameter types and return type.
+My function types describe the signature of a function: parameter types and return type.
 
 ### Syntax
 
@@ -55,7 +55,7 @@ fn(int) -> fn(int) -> int
 
 ## Functions as Parameters
 
-Pass functions to other functions to enable higher-order operations.
+You can pass functions to other functions to enable higher-order operations.
 
 ### Basic Example
 
@@ -134,7 +134,7 @@ fn fold(arr: array<int>, init: int, f: fn(int, int) -> int) -> int {
 
 ## Functions as Return Values
 
-Functions can return other functions, enabling function factories and partial application.
+I allow functions to return other functions. This enables function factories and partial application.
 
 ### Function Factory Example
 
@@ -165,16 +165,16 @@ shadow get_operation {
 ```nano
 # Returns a function that adds 'x' to its argument
 fn make_adder(x: int) -> fn(int) -> int {
-    # Note: Current NanoLang doesn't support closures
-    # This would need to be implemented differently
-    # See limitations section
+    # I do not support closures yet.
+    # This must be implemented differently.
+    # See my limitations section.
     return add_x  # Simplified example
 }
 ```
 
 ## Function Variables
 
-Store functions in variables for dynamic dispatch and cleaner code organization.
+You can store functions in variables for dynamic dispatch and code organization.
 
 ### Basic Function Variables
 
@@ -355,26 +355,26 @@ shadow transform {
 ```nano
 fn compose(f: fn(int) -> int, g: fn(int) -> int) -> fn(int) -> int {
     # Returns h where h(x) = f(g(x))
-    # Note: NanoLang doesn't support closures yet
-    # This is a conceptual example
+    # I do not support closures yet.
+    # This is a conceptual example.
     return composed_function
 }
 ```
 
 ## Implementation Details
 
-### How It Works
+### How I Work
 
-Under the hood, NanoLang's first-class functions compile to C function pointers:
+I compile first-class functions to C function pointers.
 
 ```nano
-# NanoLang code
+# My code
 fn apply_twice(x: int, f: fn(int) -> int) -> int {
     return (f (f x))
 }
 ```
 
-Compiles to:
+I produce this C code:
 
 ```c
 // Generated C code
@@ -387,60 +387,60 @@ int64_t nl_apply_twice(int64_t x, UnaryOp_0 f) {
 
 ### Type Signatures
 
-The compiler generates typedefs for each unique function signature:
+I generate typedefs for each unique function signature:
 
-- `fn(int) -> int` → `typedef int64_t (*UnaryOp_0)(int64_t);`
-- `fn(int, int) -> int` → `typedef int64_t (*BinaryOp_0)(int64_t, int64_t);`
-- `fn(int) -> bool` → `typedef bool (*Predicate_0)(int64_t);`
+- `fn(int) -> int` translates to `typedef int64_t (*UnaryOp_0)(int64_t);`
+- `fn(int, int) -> int` translates to `typedef int64_t (*BinaryOp_0)(int64_t, int64_t);`
+- `fn(int) -> bool` translates to `typedef bool (*Predicate_0)(int64_t);`
 
 ### Function Name Mangling
 
-When passing functions as values, names are prefixed with `nl_`:
+When you pass a function as a value, I prefix its name with `nl_`:
 
 ```nano
 let f: fn(int) -> int = double
 ```
 
-Becomes:
+This becomes:
 
 ```c
-UnaryOp_0 f = nl_double;  // Add nl_ prefix
+UnaryOp_0 f = nl_double;
 ```
 
-But when calling through a function parameter, no prefix is added:
+When you call through a function parameter, I do not add a prefix:
 
 ```c
 int64_t nl_apply_twice(int64_t x, UnaryOp_0 f) {
-    return f(f(x));  // Direct call, no nl_ prefix
+    return f(f(x));
 }
 ```
 
-### Current Limitations
+### My Current Limitations
 
-1. **No Closures:** Functions cannot capture variables from outer scopes
-2. **No Anonymous Functions:** Must define named functions
-3. **No Generic Function Types:** Function types are monomorphic (no `fn<T>(T) -> T`)
-4. **Static Dispatch Only:** All function types resolved at compile time
+1. **No Closures.** Functions cannot capture variables from outer scopes.
+2. **No Anonymous Functions.** You must define named functions.
+3. **No Generic Function Types.** My function types are monomorphic.
+4. **Static Dispatch Only.** I resolve all function types at compile time.
 
 ### Future Enhancements
 
-Potential additions:
+I may add these:
 
-- **Closures:** Capture variables from enclosing scope
-- **Lambda expressions:** `let f = \x -> (* x 2)`
-- **Generic function types:** `fn<T>(T) -> T`
-- **Method references:** `my_object.method` as function value
+- **Closures.** Capture variables from enclosing scope.
+- **Lambda expressions.**
+- **Generic function types.**
+- **Method references.**
 
 ## See Also
 
-- [SPECIFICATION.md](SPECIFICATION.md) - Language specification
-- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Syntax quick reference
-- [ERROR_HANDLING.md](ERROR_HANDLING.md) - Error handling patterns (Result type)
-- [examples/language/nl_first_class_functions.nano](../examples/language/nl_first_class_functions.nano) - Basic examples
-- [examples/language/nl_function_return_values.nano](../examples/language/nl_function_return_values.nano) - Function factories
-- [examples/language/nl_function_variables.nano](../examples/language/nl_function_variables.nano) - Function variables and dispatch
-- [examples/language/nl_filter_map_fold.nano](../examples/language/nl_filter_map_fold.nano) - Higher-order functions
+- [SPECIFICATION.md](SPECIFICATION.md)
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- [ERROR_HANDLING.md](ERROR_HANDLING.md)
+- [examples/language/nl_first_class_functions.nano](../examples/language/nl_first_class_functions.nano)
+- [examples/language/nl_function_return_values.nano](../examples/language/nl_function_return_values.nano)
+- [examples/language/nl_function_variables.nano](../examples/language/nl_function_variables.nano)
+- [examples/language/nl_filter_map_fold.nano](../examples/language/nl_filter_map_fold.nano)
 
 ---
 
-**First-class functions are a powerful feature that enables functional programming patterns while maintaining NanoLang's simplicity and C-based compilation.**
+**I provide first-class functions to enable functional programming patterns. I maintain my simplicity and C-based compilation.**

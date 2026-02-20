@@ -1,10 +1,10 @@
-# NanoLang Error Messages Guide
+# My Error Messages
 
-Complete guide to understanding and fixing NanoLang compiler errors.
+I provide this guide to help you understand and fix the errors I find in your code.
 
 ## Table of Contents
 
-1. [Reading Error Messages](#reading-error-messages)
+1. [Reading My Error Messages](#reading-my-error-messages)
 2. [Type Errors](#type-errors)
 3. [Syntax Errors](#syntax-errors)
 4. [Shadow Test Errors](#shadow-test-errors)
@@ -15,9 +15,9 @@ Complete guide to understanding and fixing NanoLang compiler errors.
 
 ---
 
-## Reading Error Messages
+## Reading My Error Messages
 
-NanoLang error messages follow this format:
+I format my error messages to be machine-readable and human-clear:
 
 ```
 error: <error type>
@@ -46,13 +46,13 @@ error: type mismatch
    = help: Did you mean to use `string` type?
 ```
 
-### Parts of an Error
+### How I Structure an Error
 
-- **error type**: Category of error (type mismatch, undefined symbol, etc.)
-- **location**: File, line number, column number
-- **source context**: The problematic line of code
-- **visual indicator**: Points to the exact problem
-- **help message**: Suggestions for fixing (when available)
+- **error type**: The category of the problem.
+- **location**: The file, line, and column where I found it.
+- **source context**: The line of code I am highlighting.
+- **visual indicator**: I point exactly to the problematic tokens.
+- **help message**: I suggest how you might fix it.
 
 ---
 
@@ -229,7 +229,7 @@ error: syntax error: unbalanced parentheses
 let sum: int = a * (b + c)  # Close the grouping parentheses
 ```
 
-**Note:** NanoLang supports both prefix `(+ 1 2)` and infix `1 + 2` notation. All infix operators have equal precedence and evaluate left-to-right, so use parentheses to control grouping: `a * (b + c)`.
+**Note:** I support both prefix `(+ 1 2)` and infix `1 + 2` notation. All my infix operators have equal precedence and evaluate left-to-right. Use parentheses to control grouping: `a * (b + c)`.
 
 ---
 
@@ -523,15 +523,15 @@ error: circular import detected
 
 ## Common Mistakes
 
-### Note: Both Notations Work
+### My Notation Options
 
-Both prefix and infix are valid:
+I accept both prefix and infix notation:
 ```nano
 let x: int = (+ 5 3)   # Prefix notation
-let x: int = 5 + 3     # Infix notation (also valid!)
+let x: int = 5 + 3     # Infix notation (also valid)
 ```
 
-**Watch out for precedence!** All infix operators have equal precedence (left-to-right, no PEMDAS):
+**Watch my precedence rules.** All my infix operators have equal precedence. I evaluate from left to right. I do not use PEMDAS:
 ```nano
 # This evaluates as (5 + 3) * 2, NOT 5 + (3 * 2)
 let x: int = 5 + 3 * 2     # Result: 16
@@ -542,25 +542,25 @@ let x: int = 5 + (3 * 2)   # Result: 11
 
 ### Mistake: Missing Parentheses in Function Call
 
-❌ **Wrong:**
+**Wrong:
 ```nano
 (println add 2 3)  # Tries to print the function `add`
 ```
 
-✅ **Correct:**
+**Correct:
 ```nano
 (println (add 2 3))  # Call add first, then print result
 ```
 
 ### Mistake: Forgetting mut for Mutable Variables
 
-❌ **Wrong:**
+**Wrong:
 ```nano
 let counter: int = 0
 set counter (+ counter 1)  # Error: counter is immutable
 ```
 
-✅ **Correct:**
+**Correct:
 ```nano
 let mut counter: int = 0
 set counter (+ counter 1)  # OK: counter is mutable
@@ -568,14 +568,14 @@ set counter (+ counter 1)  # OK: counter is mutable
 
 ### Mistake: Using == for String Comparison
 
-❌ **Wrong:**
+**Wrong:
 ```nano
-if (== name "Alice") {  # May not work as expected
+if (== name "Alice") {  # This may not work as you expect
     # ...
 }
 ```
 
-✅ **Correct:**
+**Correct:
 ```nano
 if (str_equals name "Alice") {  # Use str_equals
     # ...
@@ -584,39 +584,40 @@ if (str_equals name "Alice") {  # Use str_equals
 
 ---
 
-## Error Recovery Tips
+## Tips for Recovery
 
-1. **Read the error message carefully** - It usually tells you exactly what's wrong
-2. **Check the line and column** - The error is at or near this position
-3. **Look at the help message** - Suggestions for fixing
-4. **Start from the first error** - Later errors may be cascading
-5. **Check parentheses balance** - Use editor matching
-6. **Verify types match** - Add explicit type annotations
-7. **Run shadow tests frequently** - Catch errors early
+1. **Read what I say carefully.** I tell you exactly what is wrong.
+2. **Check the line and column.** I report the error at or near this position.
+3. **Look at my help message.** I offer suggestions for fixing the problem.
+4. **Start with my first error.** Later errors are often just consequences of the first.
+5. **Check your parentheses.** Ensure they match.
+6. **Verify your types.** I require types to match exactly. Use explicit annotations.
+7. **Run shadow tests frequently.** I help you catch errors early this way.
 
 ---
 
 ## Getting Help
 
-If you're stuck:
+If you are stuck:
 
-1. **Check examples/** - Find similar code that works
-2. **Read SPECIFICATION.md** - Full language reference
-3. **Search GitHub issues** - Someone may have hit the same error
-4. **Ask in discussions** - Community can help
-5. **Report a bug** - If error message is unclear or wrong
+1. **Check my examples.** Find working code in the `examples/` directory.
+2. **Read my specification.** See `SPECIFICATION.md` for my full technical definition.
+3. **Search GitHub issues.** Others may have seen the same error.
+4. **Ask in discussions.** The community can provide answers.
+5. **Report a bug.** Tell me if my error message is unclear or wrong.
 
 ---
 
 ## Related Documentation
 
-- [GETTING_STARTED.md](GETTING_STARTED.md) - Tutorial
-- [SPECIFICATION.md](SPECIFICATION.md) - Language reference
-- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Syntax cheat sheet
-- [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - Debugging techniques
+- [GETTING_STARTED.md](GETTING_STARTED.md) - My tutorial
+- [SPECIFICATION.md](SPECIFICATION.md) - My language reference
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - My syntax cheat sheet
+- [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - My debugging techniques
 
 ---
 
-**Last Updated:** January 25, 2026
+**Last Updated:** February 20, 2026
 **Status:** Complete
 **Version:** 0.2.0+
+

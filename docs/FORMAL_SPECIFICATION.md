@@ -1,23 +1,23 @@
-# NanoCore Formal Specification
+# My Formal Specification (NanoCore)
 
-*Auto-generated from Coq proof scripts on 2026-02-08.*
+*Auto-generated from my Coq proof scripts on 2026-02-08.*
 
-> **NanoCore** is the formally verified subset of NanoLang. Every property
-> listed below has been machine-checked in Coq with **0 axioms** and
-> **0 Admitted** -- the proofs are complete and trustworthy.
+> **NanoCore** is my formally verified subset. I have machine-checked every property
+> listed below in Coq using **0 axioms** and **0 Admitted**. My proofs are complete,
+> and they do not bluff.
 
-## Verification Status
+## My Verification Status
 
 | Property | File | Description |
 |----------|------|-------------|
-| Type Soundness | `Soundness.v` | Well-typed programs evaluate to well-typed values |
-| Progress | `Progress.v` | Well-typed expressions are never stuck |
-| Determinism | `Determinism.v` | Evaluation produces a unique result |
-| Big-step / Small-step Equivalence | `Equivalence.v` | Both semantics agree on all programs |
+| Type Soundness | `Soundness.v` | I proved that well-typed programs evaluate to well-typed values |
+| Progress | `Progress.v` | I proved that well-typed expressions are never stuck |
+| Determinism | `Determinism.v` | I proved that evaluation produces a unique result |
+| Semantic Equivalence | `Equivalence.v` | I proved that my big-step and small-step semantics agree |
 
-## 1. Types
+## 1. My Types
 
-NanoCore has **7 types** (defined in `Syntax.v`):
+I have **7 types** in my verified subset (defined in `Syntax.v`):
 
 | Type | Syntax | Description |
 |------|--------|-------------|
@@ -29,11 +29,11 @@ NanoCore has **7 types** (defined in `Syntax.v`):
 | `TArray` | `array<T>` | Homogeneous array |
 | `TRecord` | `{f1: T1, ..., fn: Tn}` | Record (struct) type |
 
-## 2. Operators
+## 2. My Operators
 
 ### 2.1 Binary Operators
 
-NanoCore has **14 binary operators** classified by the semantics as:
+I have **14 binary operators** in NanoCore, classified by my semantics as:
 - Arithmetic (5): `OpAdd`, `OpSub`, `OpMul`, `OpDiv`, `OpMod`
 - Comparison (6): `OpEq`, `OpNe`, `OpLt`, `OpLe`, `OpGt`, `OpGe`
 - Logical (2): `OpAnd`, `OpOr`
@@ -90,9 +90,9 @@ eval_cmp_binop op n1 n2 =
   | _ => None
 ```
 
-## 3. Expression Forms
+## 3. My Expression Forms
 
-NanoCore has **16 expression forms** (defined in `Syntax.v`):
+I have **16 expression forms** (defined in `Syntax.v`):
 
 | # | Constructor | Coq Comment | Description |
 |---|-------------|-------------|-------------|
@@ -113,16 +113,16 @@ NanoCore has **16 expression forms** (defined in `Syntax.v`):
 | 15 | `EFix` | fix f (x:T1):T2 = body | |
 | 16 | `EArray` |  | |
 
-## 4. Evaluation Rules
+## 4. My Evaluation Rules
 
-The big-step semantics relation is `eval renv e renv' v`: expression `e`
-evaluates to value `v` in environment `renv`, producing updated environment `renv'`.
+My big-step semantics relation is `eval renv e renv' v`. I evaluate expression `e`
+to value `v` in environment `renv`, which produces an updated environment `renv'`.
 
-**Key properties:**
-- **Eager** (call-by-value): arguments are evaluated before function bodies
-- **Deterministic**: each expression has at most one result
-- **Lexical scoping**: closures capture their creation environment
-- **Store-passing**: mutable variables are threaded through the environment
+**My evaluation properties:**
+- **Eager** (call-by-value). I evaluate arguments before function bodies.
+- **Deterministic**. I produce at most one result for any expression.
+- **Lexical scoping**. My closures capture their creation environment.
+- **Store-passing**. I thread mutable variables through my environment.
 
 ### 4.1 Literals
 
@@ -167,9 +167,9 @@ evaluates to value `v` in environment `renv`, producing updated environment `ren
 |------|-------------|
 | `E_And_True` | Logical AND (short-circuit) |
 | `E_And_False` | AND where left is false (literal false on right) |
-| `E_And_Short` | Short-circuit AND: if left is false, result is false regardless of right |
+| `E_And_Short` | Short-circuit AND. If left is false, my result is false regardless of right. |
 | `E_Or_False` | Logical OR (short-circuit) |
-| `E_Or_Short` | Short-circuit OR: if left is true, result is true regardless of right |
+| `E_Or_Short` | Short-circuit OR. If left is true, my result is true regardless of right. |
 
 ### 4.7 Unary Ops
 
@@ -185,27 +185,27 @@ evaluates to value `v` in environment `renv`, producing updated environment `ren
 |------|-------------|
 | `E_IfTrue` | If-then-else: true branch |
 | `E_IfFalse` | If-then-else: false branch |
-| `E_Let` | Let binding: let x = e1 in e2. The body evaluates in the extended environment. The output environment pops the let binding, preserving any mutations to variables in the enclosing scope. |
+| `E_Let` | Let binding: let x = e1 in e2. I evaluate the body in the extended environment. I pop the let binding from the output environment, while preserving any mutations to variables in the enclosing scope. |
 | `E_Set` | Set: mutable variable update |
 | `E_Seq` | Sequence: e1; e2 |
-| `E_WhileTrue` | While loop: condition true, execute body and loop |
-| `E_WhileFalse` | While loop: condition false, stop |
+| `E_WhileTrue` | While loop: condition true, I execute body and loop |
+| `E_WhileFalse` | While loop: condition false, I stop |
 
 ### 4.9 Functions
 
 | Rule | Description |
 |------|-------------|
-| `E_Lam` | Lambda abstraction: creates a closure |
-| `E_App` | Function application. The body evaluates in the closure's environment (lexical scoping). Mutations inside the body don't affect the caller's environment. The output environment is the caller's env after evaluating the function and argument. |
-| `E_Fix` | Fix: recursive function creates a fix closure |
-| `E_AppFix` | Application of fix closure: unrolls one step |
+| `E_Lam` | Lambda abstraction. I create a closure. |
+| `E_App` | Function application. I evaluate the body in the closure's environment (lexical scoping). Mutations inside the body do not affect the caller's environment. The output environment is the caller's env after I evaluate the function and argument. |
+| `E_Fix` | Fix. My recursive functions create a fix closure. |
+| `E_AppFix` | Application of fix closure. I unroll one step. |
 
 ### 4.10 Arrays
 
 | Rule | Description |
 |------|-------------|
 | `E_ArrayNil` | Array literal: empty |
-| `E_ArrayCons` | Array literal: evaluate elements left-to-right |
+| `E_ArrayCons` | Array literal. I evaluate elements left-to-right. |
 | `E_Index` | Array indexing: (at arr i) |
 | `E_ArrayLen` | Array length |
 | `E_ArraySet` | Array functional update |
@@ -216,7 +216,7 @@ evaluates to value `v` in environment `renv`, producing updated environment `ren
 | Rule | Description |
 |------|-------------|
 | `E_RecordNil` | Record literal: empty |
-| `E_RecordCons` | Record literal: evaluate fields left-to-right |
+| `E_RecordCons` | Record literal. I evaluate fields left-to-right. |
 | `E_Field` | Record field access |
 | `E_SetField` | Record field update: set x.f = e |
 
@@ -231,11 +231,11 @@ evaluates to value `v` in environment `renv`, producing updated environment `ren
 
 | Rule | Description |
 |------|-------------|
-| `E_StrIndex` | String indexing: total, out-of-bounds returns "" |
+| `E_StrIndex` | String indexing. This is total. Out-of-bounds returns "". |
 
-## 5. Typing Rules
+## 5. My Typing Rules
 
-The typing judgment is `has_type ctx e t`: expression `e` has type `t`
+My typing judgment is `has_type ctx e t`. Expression `e` has type `t`
 in typing context `ctx`.
 
 ### 5.1 Literals
@@ -288,7 +288,7 @@ in typing context `ctx`.
 
 | Rule | Description |
 |------|-------------|
-| `T_ArrayNil` | Empty array literal: [] has type array<T> for any T |
+| `T_ArrayNil` | Empty array literal. [] has type array<T> for any T. |
 | `T_ArrayCons` | Non-empty array literal: [e, ...es] |
 | `T_Index` | Array indexing: (at arr i) |
 | `T_ArrayLen` | Array length |
@@ -317,10 +317,10 @@ in typing context `ctx`.
 |------|-------------|
 | `T_StrIndex` | String indexing |
 
-## 6. Values
+## 6. My Values
 
-Values are results of evaluation that cannot be reduced further.
-NanoCore has **9 value forms** (defined in `Syntax.v`):
+Values are results of evaluation that I cannot reduce further.
+I have **9 value forms** in NanoCore (defined in `Syntax.v`):
 
 | Constructor | Form | Description |
 |-------------|------|-------------|
@@ -328,62 +328,61 @@ NanoCore has **9 value forms** (defined in `Syntax.v`):
 | `VBool` | `VBool b` | Boolean value |
 | `VString` | `VString s` | String value |
 | `VUnit` | `VUnit` | Unit value |
-| `VClos` | `VClos x body env` | Closure: captures parameter name, body, and environment |
-| `VFixClos` | `VFixClos f x body env` | Recursive closure: also captures the function name for self-reference |
+| `VClos` | `VClos x body env` | Closure. I capture the parameter name, body, and environment. |
+| `VFixClos` | `VFixClos f x body env` | Recursive closure. I also capture the function name for self-reference. |
 | `VArray` | `VArray vs` | Array of values |
 | `VRecord` | `VRecord fields` | Record of named field values |
 | `VConstruct` | `VConstruct tag v` | Variant value: a tag with a payload value |
 
-## 7. Edge Cases
+## 7. My Edge Cases
 
-These behaviors are precisely specified by the formal semantics:
+I precisely specify these behaviors in my formal semantics:
 
-| Case | Expression | Behavior |
-|------|-----------|----------|
-| Division by zero | `a / 0` and `a % 0` | Returns `None` (evaluation gets stuck). Programs must guard against zero divisors. |
-| Array out of bounds | `arr[i]` where `i >= length(arr)` or `i < 0` | Returns `None` (evaluation gets stuck). The type system does not prevent this. |
-| Undefined variable | `x` where `x` is not in the environment | Returns `None` (evaluation gets stuck). The type system prevents this for well-typed programs. |
-| Type mismatch at runtime | e.g. `3 + true` | Gets stuck (no evaluation rule applies). Well-typed programs never reach this state (progress theorem). |
-| Short-circuit AND | `false and e2` | Returns `false` without evaluating `e2`. Side effects in `e2` are **not** executed. |
-| Short-circuit OR | `true or e2` | Returns `true` without evaluating `e2`. Side effects in `e2` are **not** executed. |
-| String indexing out of bounds | `s[i]` where `i >= length(s)` or `i < 0` | Returns `""` (empty string). String indexing is **total** -- it never gets stuck. |
-| Empty array literal | `[]` | Has type `array<T>` for any `T`. Type is determined by usage context. |
-| Let binding scoping | `let x = e1 in e2` | After `e2` evaluates, the `x` binding is popped. Mutations to outer variables are preserved. |
-| Closure capture | `fun (x : T) => body` | Captures the current environment (lexical scoping). Mutations inside the body do not affect the caller. |
-| While loop result | `while cond do body` | Always produces `unit`. Termination is **not** guaranteed -- depends on the condition. |
-| Record field update | `set x.f = v` | Updates the field in-place. Requires `x` in scope and `f` to be an existing field. |
-| Pattern matching scope | `match e { Tag x => body, ... }` | The binding `x` is scoped to the match arm body and popped afterwards. |
+| Case | Expression | My Behavior |
+|------|-----------|-------------|
+| Division by zero | `a / 0` and `a % 0` | I return `None`. Evaluation gets stuck. You must guard against zero divisors. |
+| Array out of bounds | `arr[i]` where `i >= length(arr)` or `i < 0` | I return `None`. Evaluation gets stuck. My type system does not prevent this. |
+| Undefined variable | `x` where `x` is not in the environment | I return `None`. Evaluation gets stuck. My type system prevents this for well-typed programs. |
+| Type mismatch at runtime | e.g. `3 + true` | I get stuck. No evaluation rule applies. Well-typed programs never reach this state, as I proved in my progress theorem. |
+| Short-circuit AND | `false and e2` | I return `false` without evaluating `e2`. Side effects in `e2` are **not** executed. |
+| Short-circuit OR | `true or e2` | I return `true` without evaluating `e2`. Side effects in `e2` are **not** executed. |
+| String indexing out of bounds | `s[i]` where `i >= length(s)` or `i < 0` | I return `""` (empty string). My string indexing is **total**. I never get stuck here. |
+| Empty array literal | `[]` | I assign it type `array<T>` for any `T`. I determine the type from usage context. |
+| Let binding scoping | `let x = e1 in e2` | After I evaluate `e2`, I pop the `x` binding. I preserve mutations to outer variables. |
+| Closure capture | `fun (x : T) => body` | I capture the current environment (lexical scoping). Mutations inside the body do not affect the caller. |
+| While loop result | `while cond do body` | I always produce `unit`. I do not guarantee termination; that depends on your condition. |
+| Record field update | `set x.f = v` | I update the field in-place. I require `x` to be in scope and `f` to be an existing field. |
+| Pattern matching scope | `match e { Tag x => body, ... }` | I scope the binding `x` to the match arm body and pop it afterwards. |
 
-## 8. Proven Properties
+## 8. My Proven Properties
 
 ### 8.1 Type Soundness (`Soundness.v`)
 
-If expression `e` has type `t` in a well-formed context, and `e` evaluates
-to value `v`, then `v` is a well-typed value of type `t`. In other words,
-evaluation preserves types.
+I proved that if expression `e` has type `t` in a well-formed context, and `e` evaluates
+to value `v`, then `v` is a well-typed value of type `t`. Evaluation preserves my types.
 
 ### 8.2 Progress (`Progress.v`)
 
-If expression `e` has type `t`, then either `e` is already a value or `e` can
-take a step under the small-step semantics. Well-typed programs never get stuck
-(modulo division by zero and out-of-bounds array access, which are partial).
+I proved that if expression `e` has type `t`, then either `e` is already a value or `e` can
+take a step under my small-step semantics. Well-typed programs never get stuck, except
+for division by zero and out-of-bounds array access, which I treat as partial operations.
 
 ### 8.3 Determinism (`Determinism.v`)
 
-If `eval renv e renv1 v1` and `eval renv e renv2 v2`, then `v1 = v2` and
-`renv1 = renv2`. Evaluation is a partial function -- there is at most one
+I proved that if `eval renv e renv1 v1` and `eval renv e renv2 v2`, then `v1 = v2` and
+`renv1 = renv2`. My evaluation is a partial function. I produce at most one
 result for any expression in any environment.
 
 ### 8.4 Big-step / Small-step Equivalence (`Equivalence.v`)
 
-The big-step semantics (natural semantics) and the small-step semantics
-(structural operational semantics) agree on all programs. This gives two
-independent definitions of NanoCore's behavior that serve as a cross-check.
+I proved that my big-step semantics (natural semantics) and my small-step semantics
+(structural operational semantics) agree on all programs. These are two
+independent definitions of my behavior that I use to cross-check myself.
 
 ## 9. NanoCore vs Full NanoLang
 
-NanoCore is a verified subset. Features present in full NanoLang but
-**outside** the formally verified subset:
+NanoCore is my verified subset. These features are present in my full version but
+remain **outside** my formally verified subset:
 
 | Feature | NanoLang | NanoCore |
 |---------|----------|----------|
@@ -401,9 +400,9 @@ NanoCore is a verified subset. Features present in full NanoLang but
 | Modules / Imports | Yes | **No** |
 | FFI / Extern | Yes | **No** |
 | Opaque Types | Yes | **No** |
-| For Loops | Yes | **No** (expressible as while + let) |
+| For Loops | Yes | **No** (I express these as while + let) |
 | Print / Assert | Yes | **No** |
 
 ---
 
-*Generated by `tools/extract_spec.py` from the Coq sources in `formal/`.*
+*Generated by `tools/extract_spec.py` from my Coq sources in `formal/`.*

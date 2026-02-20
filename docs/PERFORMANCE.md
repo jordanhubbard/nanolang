@@ -1,16 +1,16 @@
-# Performance Characteristics
+# My Performance Characteristics
 
 ## Overview
 
-This document explains NanoLang's performance characteristics, covering compilation speed, runtime performance, memory usage, and optimization strategies.
+This document explains my performance characteristics. I cover my compilation speed, runtime performance, memory usage, and optimization strategies.
 
-**Key Takeaway:** NanoLang compiles to C, so runtime performance is **comparable to C** for most workloads. The main trade-offs are around compilation time (monomorphization) and GC overhead (reference counting).
+**Key Takeaway:** I compile to C. My runtime performance is comparable to C for most workloads. My main trade-offs involve my compilation time because of monomorphization and my reference counting overhead.
 
 ## Quick Reference
 
 | Aspect | Performance | Notes |
 |--------|-------------|-------|
-| **Runtime Speed** | ~1x C | Compiles to optimized C code |
+| **Runtime Speed** | ~1x C | I compile to optimized C code |
 | **Compilation Speed** | Moderate | Monomorphization adds overhead |
 | **Memory Overhead** | Low | Reference counting metadata |
 | **GC Pause Time** | Very Low | Incremental reference counting |
@@ -21,16 +21,16 @@ This document explains NanoLang's performance characteristics, covering compilat
 
 ### Compilation Stages
 
-NanoLang compilation involves 6 stages:
+My compilation involves 6 stages:
 
 1. **Lexing** - O(n) in source code size
 2. **Parsing** - O(n) in token count
 3. **Type Checking** - O(n) in AST nodes
-4. **Shadow Tests** - O(t) in test count (runs at compile time!)
+4. **Shadow Tests** - O(t) in test count (I run these at compile time)
 5. **Transpilation** - O(n) in AST size
 6. **C Compilation** - O(n) in generated C code (via gcc/clang)
 
-**Total Time:** Dominated by stages 4 (shadow tests) and 6 (C compilation).
+**Total Time:** Stages 4 (shadow tests) and 6 (C compilation) dominate my total time.
 
 ### Compilation Speed Benchmarks
 
@@ -44,15 +44,15 @@ Approximate compilation times on modern hardware (2023 M1 MacBook Pro):
 | Asteroids | 1,000 lines | ~1.5s | SDL graphics, many tests |
 | Self-Hosting Compiler | 4,789 lines | ~3.2s | Large codebase |
 
-**Factors Affecting Compile Time:**
-- Shadow test count (each test is executed at compile time)
+**Factors Affecting My Compile Time:**
+- Shadow test count (I execute each test at compile time)
 - Generic type instantiations (monomorphization)
 - Number of functions and type checks
 - C compiler optimization level (gcc -O2 vs -O3)
 
 ### Monomorphization Impact
 
-Generic types increase compilation time because the compiler generates specialized code for each type combination:
+Generic types increase my compilation time because I generate specialized code for each type combination:
 
 ```nano
 # This generates List_int code
@@ -74,20 +74,20 @@ See [GENERICS_DEEP_DIVE.md](GENERICS_DEEP_DIVE.md) for details.
 
 ### Interpreter vs Compiled Mode
 
-NanoLang supports two execution modes:
+I support two execution modes:
 
 | Mode | Use Case | Performance |
 |------|----------|-------------|
 | **Compiled** | Production, fast execution | ~1x C speed |
 | **Interpreter** | Development, debugging | ~10-50x slower than compiled |
 
-**Recommendation:** Always use compiled mode for production. Interpreter mode is for rapid prototyping and debugging only.
+**Recommendation:** Use my compiled mode for production. My interpreter mode is for rapid prototyping and debugging only.
 
 ## Runtime Performance
 
 ### Speed Compared to C
 
-NanoLang compiles to C, so runtime performance is very close to C:
+I compile to C, so my runtime performance is very close to C:
 
 ```nano
 # NanoLang code
@@ -99,7 +99,7 @@ fn fibonacci(n: int) -> int {
 }
 ```
 
-Compiles to clean C code with minimal overhead:
+I compile to clean C code with minimal overhead:
 
 ```c
 int64_t nl_fibonacci(int64_t n) {
@@ -110,28 +110,28 @@ int64_t nl_fibonacci(int64_t n) {
 }
 ```
 
-**Performance:** Within 5-10% of hand-written C for most algorithms.
+**Performance:** I am within 5-10% of hand-written C for most algorithms.
 
 ### Runtime Overhead Sources
 
 1. **Reference Counting** (~5-10% overhead)
-   - Heap-allocated objects track reference counts
-   - Increment/decrement on assignment
-   - Negligible for stack-allocated primitives
+   - My heap-allocated objects track reference counts
+   - I increment/decrement on assignment
+   - This is negligible for stack-allocated primitives
 
 2. **Bounds Checking** (~1-5% overhead)
-   - Array access checks bounds at runtime
-   - Can be optimized away by C compiler in some cases
+   - I check array bounds at runtime
+   - The C compiler can optimize this away in some cases
 
 3. **GC Cycle Detection** (~1-3% overhead)
-   - Periodic cycle detection for reference cycles
-   - Runs infrequently, minimal impact
+   - I run periodic cycle detection for reference cycles
+   - This runs infrequently with minimal impact
 
 **Total Runtime Overhead:** ~5-15% compared to unsafe C code.
 
 ### Benchmark: Prime Number Sieve
 
-Comparing NanoLang to C, Python, and Go:
+Comparing me to C, Python, and Go:
 
 | Language | Time (ms) | Relative to C |
 |----------|-----------|---------------|
@@ -141,13 +141,13 @@ Comparing NanoLang to C, Python, and Go:
 | Python 3.11 | 847.3 ms | 46.5x |
 | NanoLang (interpreter) | 1,243.0 ms | 68.3x |
 
-**Conclusion:** Compiled NanoLang performance is very close to C.
+**Conclusion:** My compiled performance is very close to C.
 
 ## Memory Performance
 
 ### Memory Layout
 
-NanoLang uses a hybrid memory model:
+I use a hybrid memory model:
 
 **Stack-Allocated (Fast):**
 - Primitives: `int`, `float`, `bool`
@@ -175,29 +175,29 @@ See [MEMORY_MANAGEMENT.md](MEMORY_MANAGEMENT.md) for details.
 | **Lists** | 24-32 bytes | Capacity + size + refcount + metadata |
 | **HashMaps** | 32-48 bytes | Size + capacity + tombstones + refcount |
 
-**Typical Overhead:** 8-48 bytes per heap object (small compared to object size).
+**Typical Overhead:** 8-48 bytes per heap object. This is small compared to object size.
 
 ### GC Performance
 
-NanoLang uses **reference counting** with **cycle detection**:
+I use reference counting with cycle detection:
 
 **Advantages:**
-- ✅ Deterministic cleanup (objects freed immediately when unreachable)
-- ✅ No stop-the-world pauses
-- ✅ Low memory overhead
-- ✅ Predictable performance
+- Deterministic cleanup. I free objects immediately when they become unreachable.
+- No stop-the-world pauses.
+- Low memory overhead.
+- Predictable performance.
 
 **Disadvantages:**
-- ❌ Increment/decrement overhead (~5-10%)
-- ❌ Cannot handle reference cycles without cycle detector
-- ❌ Slower than no GC (but faster than tracing GC for most workloads)
+- Increment/decrement overhead (~5-10%).
+- I cannot handle reference cycles without my cycle detector.
+- Slower than no GC, but faster than tracing GC for most workloads.
 
 **Cycle Detection:**
-- Runs periodically (every N allocations)
-- Very fast for acyclic data structures (most programs)
-- Slightly slower for data with many cycles (graphs, circular lists)
+- I run this periodically every N allocations.
+- It is very fast for acyclic data structures.
+- It is slightly slower for data with many cycles like graphs or circular lists.
 
-**GC Pause Time:** Typically <1ms, imperceptible for most applications.
+**GC Pause Time:** Typically <1ms. This is imperceptible for most applications.
 
 ### Memory Benchmarks
 
@@ -224,7 +224,7 @@ NanoLang uses **reference counting** with **cycle detection**:
 
 ### Monomorphization Impact
 
-Each generic type instantiation adds to binary size:
+Each generic type instantiation adds to my binary size:
 
 ```nano
 let nums: List<int> = (List_int_new)       # +2.5 KB
@@ -266,11 +266,11 @@ let points: List<Point> = (List_Point_new)  # +3.1 KB (custom struct)
 
 3. **Limit generic instantiations:**
    ```nano
-   # ✅ Good - reuse types
+   # Good. Reuse types.
    let nums1: List<int> = (List_int_new)
    let nums2: List<int> = (List_int_new)  # Reuses List_int
    
-   # ❌ Bad - many instantiations
+   # Avoid many instantiations.
    let a: List<int> = (List_int_new)
    let b: List<string> = (List_string_new)
    let c: List<float> = (List_float_new)
@@ -280,12 +280,12 @@ let points: List<Point> = (List_Point_new)  # +3.1 KB (custom struct)
 
 ## Optimization Strategies
 
-### 1. Algorithm Complexity (Most Important!)
+### 1. Algorithm Complexity
 
-**Before micro-optimizing, choose the right algorithm:**
+Choose the right algorithm before you micro-optimize:
 
 ```nano
-# ❌ Bad - O(n²) time complexity
+# O(n²) time complexity.
 fn sum_pairs_slow(n: int) -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -300,7 +300,7 @@ fn sum_pairs_slow(n: int) -> int {
     return sum
 }
 
-# ✅ Good - O(n) time complexity
+# O(n) time complexity.
 fn sum_pairs_fast(n: int) -> int {
     let total: int = (* n (- n 1))
     let sum: int = (/ (* total total) 4)
@@ -308,12 +308,12 @@ fn sum_pairs_fast(n: int) -> int {
 }
 ```
 
-**Big-O matters more than micro-optimizations!**
+**Big-O matters more than micro-optimizations.**
 
 ### 2. Minimize Allocations
 
 ```nano
-# ❌ Bad - allocates in loop
+# Allocates in loop.
 fn concat_many_slow(count: int) -> string {
     let mut result: string = ""
     let mut i: int = 0
@@ -325,8 +325,8 @@ fn concat_many_slow(count: int) -> string {
     return result
 }
 
-# ✅ Good - use array and join (if available)
-# Or pre-allocate capacity
+# Use array and join if available.
+# Or pre-allocate capacity.
 fn concat_many_fast(count: int) -> string {
     # Pre-calculate size
     let capacity: int = (* count 4)
@@ -346,13 +346,13 @@ fn concat_many_fast(count: int) -> string {
 ```nano
 struct Point { x: int, y: int }
 
-# ✅ Fast - stack allocated
+# Fast. Stack allocated.
 fn process_point_fast(x: int, y: int) -> int {
     let p: Point = Point { x: x, y: y }
     return (+ p.x p.y)
 }
 
-# ❌ Slower - heap allocated (if returning)
+# Slower. Heap allocated if returning.
 fn process_point_slower(x: int, y: int) -> Point {
     return Point { x: x, y: y }  # Might heap-allocate
 }
@@ -361,7 +361,7 @@ fn process_point_slower(x: int, y: int) -> Point {
 ### 4. Avoid Unnecessary Copies
 
 ```nano
-# ❌ Bad - copies array
+# Potential copy of array.
 fn sum_array_slow(arr: array<int>) -> int {
     let copy: array<int> = arr  # Potential copy
     let mut sum: int = 0
@@ -374,7 +374,7 @@ fn sum_array_slow(arr: array<int>) -> int {
     return sum
 }
 
-# ✅ Good - iterates without copy
+# Iterates without copy.
 fn sum_array_fast(arr: array<int>) -> int {
     let mut sum: int = 0
     let len: int = (array_length arr)
@@ -389,7 +389,7 @@ fn sum_array_fast(arr: array<int>) -> int {
 
 ### 5. Profile Before Optimizing
 
-**Don't guess - measure!**
+Measure. Do not guess.
 
 ```bash
 # Time your program
@@ -413,7 +413,7 @@ instruments -t "Time Profiler" ./program
 ### Pitfall 1: String Concatenation in Loops
 
 ```nano
-# ❌ Slow - O(n²) time
+# Slow. O(n²) time.
 fn build_string_slow(n: int) -> string {
     let mut result: string = ""
     let mut i: int = 0
@@ -430,7 +430,7 @@ fn build_string_slow(n: int) -> string {
 ### Pitfall 2: Unnecessary Generic Instantiations
 
 ```nano
-# ❌ Bad - creates 3 monomorphized types
+# Creates 3 monomorphized types.
 fn process_data() -> void {
     let a: List<int> = (List_int_new)
     let b: List<string> = (List_string_new)
@@ -438,19 +438,19 @@ fn process_data() -> void {
     # Each adds ~2-3 KB to binary!
 }
 
-# ✅ Better - stick to one type if possible
+# Better. Stick to one type if possible.
 fn process_data_better() -> void {
     let a: List<int> = (List_int_new)
     let b: List<int> = (List_int_new)
     let c: List<int> = (List_int_new)
-    # Reuses List_int - no size increase
+    # Reuses List_int. No size increase.
 }
 ```
 
 ### Pitfall 3: Excessive Shadow Tests
 
 ```nano
-# ❌ Slow compilation - runs 1000 tests at compile time!
+# Slow compilation. Runs 1000 tests at compile time.
 shadow fibonacci {
     let mut i: int = 0
     while (< i 1000) {
@@ -460,7 +460,7 @@ shadow fibonacci {
     }
 }
 
-# ✅ Fast - tests key cases only
+# Fast. Tests key cases only.
 shadow fibonacci {
     assert (== (fibonacci 0) 0)
     assert (== (fibonacci 1) 1)
@@ -471,43 +471,43 @@ shadow fibonacci {
 
 ## Performance Checklist
 
-Before optimizing, ask:
+Ask these questions before you optimize:
 
-- [ ] **Is this actually slow?** (Measure first!)
-- [ ] **Is the algorithm optimal?** (Check Big-O)
-- [ ] **Are we allocating unnecessarily?** (Minimize heap use)
-- [ ] **Are we copying data unnecessarily?** (Pass by reference where possible)
-- [ ] **Are we testing too much at compile time?** (Limit shadow test iterations)
-- [ ] **Are we using too many generic types?** (Reuse types)
-- [ ] **Is the C compiler optimizing?** (Use -O2 or -O3)
+- [ ] **Is this actually slow?** Measure first.
+- [ ] **Is the algorithm optimal?** Check Big-O.
+- [ ] **Are we allocating unnecessarily?** Minimize heap use.
+- [ ] **Are we copying data unnecessarily?** Pass by reference where possible.
+- [ ] **Are we testing too much at compile time?** Limit shadow test iterations.
+- [ ] **Are we using too many generic types?** Reuse types.
+- [ ] **Is the C compiler optimizing?** Use -O2 or -O3.
 
 ## Summary
 
-**NanoLang Performance Profile:**
+**My Performance Profile:**
 
-✅ **Strengths:**
-- Runtime speed comparable to C (~1.05-1.15x)
-- Low GC overhead (incremental reference counting)
-- Fast startup (native binaries)
-- Predictable performance (no JIT compilation variance)
-- Small memory footprint
+- **Strengths:**
+  - Runtime speed comparable to C (~1.05-1.15x).
+  - Low GC overhead through incremental reference counting.
+  - Fast startup with native binaries.
+  - Predictable performance. I do not use JIT compilation.
+  - Small memory footprint.
 
-⚠️ **Trade-offs:**
-- Compilation slower than C (monomorphization + shadow tests)
-- Binary size larger than C (generic instantiations)
-- Reference counting overhead (~5-10%)
+- **Trade-offs:**
+  - Compilation slower than C because of monomorphization and shadow tests.
+  - Binary size larger than C because of generic instantiations.
+  - Reference counting overhead (~5-10%).
 
-**Recommended Approach:**
-1. Write correct code first
-2. Profile to find bottlenecks
-3. Optimize algorithms (Big-O matters most!)
-4. Minimize allocations and copies
-5. Let the C compiler do its job (use -O2/-O3)
+**My Recommended Approach:**
+1. Write correct code first.
+2. Profile to find bottlenecks.
+3. Optimize algorithms. Big-O matters most.
+4. Minimize allocations and copies.
+5. Let the C compiler do its job. Use -O2 or -O3.
 
 ---
 
 **See Also:**
-- **[MEMORY_MANAGEMENT.md](MEMORY_MANAGEMENT.md)** - Memory model and GC details
+- **[MEMORY_MANAGEMENT.md](MEMORY_MANAGEMENT.md)** - My memory model and GC details
 - **[GENERICS_DEEP_DIVE.md](GENERICS_DEEP_DIVE.md)** - Monomorphization performance impact
 - **[examples/advanced/performance_optimization.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/performance_optimization.nano)** - Performance examples
 

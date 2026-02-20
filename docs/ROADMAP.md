@@ -1,309 +1,309 @@
-# nanolang Roadmap
+# My Roadmap
 
-This document outlines the development roadmap for nanolang.
+I keep this document to outline my development journey.
 
 ## Project Vision
 
-Build a minimal, LLM-friendly programming language that:
-- Compiles to C for performance and portability
-- Requires shadow-tests for all code
-- Supports both infix (`a + b`) and prefix (`(+ a b)`) notation for operators
-- Eventually self-hosts (compiles itself)
+I am a minimal, LLM-friendly programming language. I exist to fulfill these goals:
+- I compile to C for performance and portability.
+- I require shadow tests for all code I compile.
+- I support both infix (a + b) and prefix ((+ a b)) notation for operators.
+- I compile myself.
 
-## Current Status: Phase 11 Complete - Formally Verified + Virtual Machine ✅
+## Current Status: Phase 11 Complete - Formally Verified + Virtual Machine
 
-**Status**: **PRODUCTION-READY** - Self-hosting, VM backend, and formal verification all complete
+Status: PRODUCTION-READY - I have achieved self-hosting, my virtual machine backend is functional, and my core is formally verified.
 
-**Current Capabilities**:
-- ✅ **100% Self-Hosting** - NanoLang compiler compiles itself (3-stage bootstrap verified)
-- ✅ **NanoISA Virtual Machine** - Custom 178-opcode ISA with .nvm bytecode format, process-isolated FFI
-- ✅ **Formally Verified** - Type soundness, progress, determinism, semantic equivalence proved in Coq (0 axioms)
-- ✅ Complete compilation pipeline (lexer → parser → type checker → transpiler / VM codegen)
-- ✅ Shadow-test execution during compilation (compile-time evaluator)
-- ✅ Multiple executables: `bin/nanoc` (C compiler), `bin/nano_virt` (VM compiler), `bin/nano_vm` (executor)
-- ✅ **Type System** - Primitives, arrays, structs, enums, unions, generics, tuples, first-class functions, affine types
-- ✅ **66 Standard Library Functions** - Math, strings, binary strings, arrays, I/O, OS, checked math, generics
-- ✅ **30+ FFI Modules** - SDL, ncurses, OpenGL, curl, readline, Python bridge, etc.
-- ✅ **90+ Working Examples** - Games, graphics, simulations, data analytics, etc.
-- ✅ **221+ Test Files** - Unit, integration, regression, negative, performance, ISA, VM tests
-- ✅ Extensive documentation (121+ markdown files)
-- ✅ ~6,170 lines of Coq proofs, ~11,000 lines of VM implementation
+Current Capabilities:
+- 100% Self-Hosting - My compiler compiles itself. I have verified this through a 3-stage bootstrap.
+- NanoISA Virtual Machine - I have a custom 178-opcode ISA with a .nvm bytecode format and process-isolated FFI.
+- Formally Verified - I have proved my type soundness, progress, determinism, and semantic equivalence in Coq using zero axioms.
+- I have a complete compilation pipeline: lexer, parser, type checker, and transpiler or VM codegen.
+- I execute shadow tests during compilation using my compile-time evaluator.
+- I provide multiple executables: bin/nanoc (C compiler), bin/nano_virt (VM compiler), and bin/nano_vm (executor).
+- My type system includes primitives, arrays, structs, enums, unions, generics, tuples, first-class functions, and affine types.
+- I have 66 standard library functions covering math, strings, binary strings, arrays, I/O, OS, checked math, and generics.
+- I have over 30 FFI modules, including SDL, ncurses, OpenGL, curl, readline, and a Python bridge.
+- I have over 90 working examples, ranging from games and graphics to simulations and data analytics.
+- I have over 221 test files covering unit, integration, regression, negative, performance, ISA, and VM tests.
+- I have produced over 121 markdown files of documentation.
+- I consist of approximately 6,170 lines of Coq proofs and 11,000 lines of VM implementation.
 
-## Phase 1 - Lexer ✅ Complete
+## Phase 1 - Lexer Complete
 
-**Goal**: Transform source text into tokens
+Goal: Transform source text into tokens.
 
-**Deliverables**:
-- ✅ Token definitions (nanolang.h)
-- ✅ Lexer implementation (src/lexer.c - ~300 lines)
-- ✅ Error reporting with line numbers
-- ✅ Test suite for lexer (all examples tokenize correctly)
-- ✅ Handle comments (# style)
-- ✅ Handle string literals
-- ✅ Handle numeric literals (int and float)
+Deliverables:
+- [x] Token definitions (nanolang.h)
+- [x] Lexer implementation (src/lexer.c - ~300 lines)
+- [x] Error reporting with line numbers
+- [x] Test suite for lexer (all examples tokenize correctly)
+- [x] Handle comments (# style)
+- [x] Handle string literals
+- [x] Handle numeric literals (int and float)
 
-**Completion Date**: September 29, 2025
+Completion Date: September 29, 2025
 
-**Success Criteria**: All met ✅
-- Can tokenize all example programs
-- Clear error messages for invalid input
-- Works with 15/15 examples
+Success Criteria: All met
+- I can tokenize all example programs.
+- I provide clear error messages for invalid input.
+- I work with 15/15 examples.
 
-## Phase 2 - Parser ✅ Complete
+## Phase 2 - Parser Complete
 
-**Goal**: Transform tokens into Abstract Syntax Tree (AST)
+Goal: Transform tokens into Abstract Syntax Tree (AST).
 
-**Deliverables**:
-- ✅ AST node definitions (nanolang.h)
-- ✅ Recursive descent parser (src/parser.c - ~680 lines)
-- ✅ Prefix and infix notation support
-- ✅ Error recovery
-- ✅ Test suite for parser (all examples parse correctly)
-- ⚠️ Pretty-printer (not implemented - low priority)
+Deliverables:
+- [x] AST node definitions (nanolang.h)
+- [x] Recursive descent parser (src/parser.c - ~680 lines)
+- [x] Prefix and infix notation support
+- [x] Error recovery
+- [x] Test suite for parser (all examples parse correctly)
+- [ ] Pretty-printer (not implemented - low priority)
 
-**Completion Date**: September 30, 2025
+Completion Date: September 30, 2025
 
-**Success Criteria**: All met ✅
-- Can parse all example programs
-- Produces valid AST
-- Helpful error messages
-- Works with 15/15 examples
+Success Criteria: All met
+- I can parse all example programs.
+- I produce a valid AST.
+- I provide helpful error messages.
+- I work with 15/15 examples.
 
-## Phase 3 - Type Checker ✅ Complete
+## Phase 3 - Type Checker Complete
 
-**Goal**: Verify type correctness of AST
+Goal: Verify type correctness of AST.
 
-**Deliverables**:
-- ✅ Type inference engine (src/typechecker.c - ~500 lines)
-- ✅ Type checking rules for all operators
-- ✅ Symbol table with scoping
-- ✅ Scope resolution
-- ✅ Error messages for type errors
-- ✅ Test suite for type checker (all examples type-check correctly)
+Deliverables:
+- [x] Type inference engine (src/typechecker.c - ~500 lines)
+- [x] Type checking rules for all operators
+- [x] Symbol table with scoping
+- [x] Scope resolution
+- [x] Error messages for type errors
+- [x] Test suite for type checker (all examples type-check correctly)
 
-**Completion Date**: September 30, 2025
+Completion Date: September 30, 2025
 
-**Success Criteria**: All met ✅
-- Catches all type errors
-- Rejects invalid programs
-- Accepts valid programs
-- Clear error messages
+Success Criteria: All met
+- I catch all type errors.
+- I reject invalid programs.
+- I accept valid programs.
+- I provide clear error messages.
 
-## Phase 4 - Shadow-Test Runner & Interpreter ✅ Complete
+## Phase 4 - Shadow-Test Runner & Interpreter Complete
 
-**Goal**: Execute shadow-tests during compilation and provide full interpretation
+Goal: Execute shadow tests during compilation and provide full interpretation.
 
-**Deliverables**:
-- ✅ Test extraction from AST
-- ✅ Complete interpreter for shadow-tests and programs (src/eval.c - ~450 lines)
-- ✅ Assertion checking
-- ✅ Test result reporting
-- ✅ Function call interface
-- ✅ Test suite for interpreter (15/15 examples pass)
+Deliverables:
+- [x] Test extraction from AST
+- [x] Complete interpreter for shadow tests and programs (src/eval.c - ~450 lines)
+- [x] Assertion checking
+- [x] Test result reporting
+- [x] Function call interface
+- [x] Test suite for interpreter (15/15 examples pass)
 
-**Completion Date**: September 30, 2025
+Completion Date: September 30, 2025
 
-**Success Criteria**: All met ✅
-- Executes all shadow-tests
-- Reports failures clearly
-- Full program interpretation support
-- Fast execution
+Success Criteria: All met
+- I execute all shadow tests.
+- I report failures clearly.
+- I support full program interpretation.
+- I execute quickly.
 
-## Phase 5 - C Transpiler ✅ Complete
+## Phase 5 - C Transpiler Complete
 
-**Goal**: Transform AST to C code
+Goal: Transform AST to C code.
 
-**Deliverables**:
-- ✅ C code generation (src/transpiler.c - ~380 lines)
-- ✅ Runtime library integration
-- ✅ Built-in function implementations
-- ✅ Memory management (C standard library)
-- ✅ Test suite for transpiler (15/15 examples compile and run)
-- ⚠️ C code formatter (basic formatting, could be improved)
+Deliverables:
+- [x] C code generation (src/transpiler.c - ~380 lines)
+- [x] Runtime library integration
+- [x] Built-in function implementations
+- [x] Memory management (C standard library)
+- [x] Test suite for transpiler (15/15 examples compile and run)
+- [ ] C code formatter (basic formatting, could be improved)
 
-**Completion Date**: September 30, 2025
+Completion Date: September 30, 2025
 
-**Success Criteria**: All met ✅
-- Generates valid C code
-- Compiles with standard C compiler (gcc)
-- Matches nanolang semantics
-- Produces working binaries
+Success Criteria: All met
+- I generate valid C code.
+- My output compiles with a standard C compiler (gcc).
+- I match my own semantics.
+- I produce working binaries.
 
-## Phase 6 - Standard Library (Minimal - ⚠️ In Progress)
+## Phase 6 - Standard Library (Minimal - In Progress)
 
-**Goal**: Provide common functionality
+Goal: Provide common functionality.
 
-**Deliverables**:
-- ⚠️ String operations (basic print only)
-- ✅ I/O functions (print)
-- ⚠️ Math functions (basic operators only, no advanced functions)
-- ⏳ Data structures (arrays, lists - not yet implemented)
-- ⚠️ Documentation (basic)
-- ✅ Shadow-tests for built-in functions
+Deliverables:
+- [ ] String operations (basic print only)
+- [x] I/O functions (print)
+- [ ] Math functions (basic operators only, no advanced functions)
+- [ ] Data structures (arrays, lists - not yet implemented)
+- [ ] Documentation (basic)
+- [x] Shadow tests for built-in functions
 
-**Current Status**: Basic functionality only
+Current Status: Basic functionality only.
 
-**Next Steps**:
-- Add more math functions (sin, cos, sqrt, etc.)
-- Implement arrays
-- Add string manipulation functions
-- Expand I/O (file operations)
+Next Steps:
+- I will add more math functions (sin, cos, sqrt, etc.).
+- I will implement arrays.
+- I will add string manipulation functions.
+- I will expand I/O to include file operations.
 
-## Phase 7 - Command-Line Tools ✅ Complete
+## Phase 7 - Command-Line Tools Complete
 
-**Goal**: User-friendly compiler and interpreter interfaces
+Goal: User-friendly compiler and interpreter interfaces.
 
-**Deliverables**:
-- ✅ `bin/nanoc` compiler command (src/main.c - ~190 lines)
-- ✅ `bin/nano` interpreter command (src/interpreter_main.c - ~180 lines)
-- ✅ Command-line options (-o, --verbose, --keep-c, --call)
-- ✅ Help system (--help)
-- ✅ Version information (--version)
-- ✅ Error formatting with line numbers
-- ✅ Makefile for building both tools
-- ✅ Documentation
+Deliverables:
+- [x] bin/nanoc compiler command (src/main.c - ~190 lines)
+- [x] bin/nano interpreter command (src/interpreter_main.c - ~180 lines)
+- [x] Command-line options (-o, --verbose, --keep-c, --call)
+- [x] Help system (--help)
+- [x] Version information (--version)
+- [x] Error formatting with line numbers
+- [x] Makefile for building both tools
+- [x] Documentation
 
-**Completion Date**: September 30, 2025
+Completion Date: September 30, 2025
 
-**Success Criteria**: All met ✅
-- Easy to use
-- Clear error messages
-- Good help text
-- Follows Unix conventions
-- Both compilation and interpretation supported
+Success Criteria: All met
+- I am easy to use.
+- I provide clear error messages.
+- I have good help text.
+- I follow Unix conventions.
+- I support both compilation and interpretation.
 
-## Phase 8 - Self-Hosting ✅ COMPLETE
+## Phase 8 - Self-Hosting COMPLETE
 
-**Completion Date**: January 2026
+Completion Date: January 2026
 
-**Goal**: Compile nanolang compiler in nanolang - **ACHIEVED**
+Goal: I compile myself.
 
-**Documentation**: See [planning/SELF_HOSTING.md](../planning/SELF_HOSTING.md) for detailed analysis
+Documentation: See [planning/SELF_HOSTING.md](../planning/SELF_HOSTING.md) for my detailed analysis.
 
-**Required Features** (6 essential) - ALL COMPLETE:
-1. ✅ Structs - Represent tokens, AST nodes, symbols (November 2025)
-2. ✅ Enums - Token types, AST node types (November 2025)
-3. ✅ Dynamic Lists - Store collections of tokens/nodes (November 2025)
-4. ✅ File I/O - Read source files, write C output (November 2025)
-5. ✅ Advanced String Operations - Character access, parsing, formatting (November 2025)
-6. ✅ System Execution - Invoke gcc on generated code (November 2025)
+Required Features (6 essential) - ALL COMPLETE:
+1. [x] Structs - I use these to represent tokens, AST nodes, and symbols (November 2025).
+2. [x] Enums - I use these for token types and AST node types (November 2025).
+3. [x] Dynamic Lists - I use these to store collections of tokens and nodes (November 2025).
+4. [x] File I/O - I read source files and write C output (November 2025).
+5. [x] Advanced String Operations - I use these for character access, parsing, and formatting (November 2025).
+6. [x] System Execution - I invoke gcc on my generated code (November 2025).
 
-**Bootstrap Implementation**:
-- [x] ✅ Implemented lexer in nanolang (December 2025)
-- [x] ✅ Implemented parser in nanolang (December 2025)
-- [x] ✅ Implemented type checker in nanolang (December 2025)
-- [x] ✅ Implemented transpiler in nanolang (December 2025)
-- [x] ✅ **3-Stage Bootstrap** working perfectly (January 2026):
-  - Stage 0: C-based nanoc_c compiles Stage 1
-  - Stage 1: Self-hosted components (parser, typecheck, transpiler)
-  - Stage 2: Stage 1 recompiles itself
-  - Stage 3: Verification (Stage 1 output == Stage 2 output)
-- [x] ✅ Performance optimization (within 2-3x of C)
-- [x] ✅ Documentation complete
-- [x] ✅ Full test suite passing (221 tests)
+Bootstrap Implementation:
+- [x] I implemented my lexer in myself (December 2025).
+- [x] I implemented my parser in myself (December 2025).
+- [x] I implemented my type checker in myself (December 2025).
+- [x] I implemented my transpiler in myself (December 2025).
+- [x] My 3-Stage Bootstrap works perfectly (January 2026):
+  - Stage 0: C-based nanoc_c compiles Stage 1.
+  - Stage 1: My self-hosted components (parser, typecheck, transpiler).
+  - Stage 2: Stage 1 recompiles itself.
+  - Stage 3: Verification (Stage 1 output matches Stage 2 output).
+- [x] I optimized my performance to be within 2-3x of C.
+- [x] My documentation is complete.
+- [x] My full test suite is passing (221 tests).
 
-**Success Criteria**: ALL MET ✅
-- ✅ nanolang compiler (written in nanolang) compiles itself
-- ✅ Bootstrapping process works reliably (`make bootstrap`)
-- ✅ Output binaries functionally equivalent (verified via Stage 3)
-- ✅ Performance acceptable (native C performance via transpilation)
-- ✅ All tests pass (shadow tests + examples + 221 test files)
-- ✅ Documentation complete (121+ docs)
+Success Criteria: ALL MET
+- [x] I compile myself.
+- [x] My bootstrapping process works reliably (make bootstrap).
+- [x] My output binaries are functionally equivalent (verified via Stage 3).
+- [x] My performance is acceptable (native C performance via transpilation).
+- [x] All my tests pass (shadow tests + examples + 221 test files).
+- [x] My documentation is complete (121+ docs).
 
-## Phase 10 - NanoISA Virtual Machine ✅ COMPLETE
+## Phase 10 - NanoISA Virtual Machine COMPLETE
 
-**Completion Date**: February 2026
+Completion Date: February 2026
 
-**Goal**: Custom virtual machine backend with process-isolated FFI - **ACHIEVED**
+Goal: I have a custom virtual machine backend with process-isolated FFI.
 
-**Deliverables** - ALL COMPLETE:
-- ✅ **NanoISA Instruction Set** - 178 opcodes, stack machine with RISC/CISC hybrid design
-- ✅ **.nvm Binary Format** - Sections for code, strings, functions, types, imports, debug info, module refs
-- ✅ **Assembler & Disassembler** - Two-pass text assembler, disassembler with label reconstruction
-- ✅ **NanoVM Interpreter** - Switch-dispatch execution engine with trap model (~1,844 lines)
-- ✅ **Reference-Counted GC** - Scope-based auto-release with OP_GC_SCOPE_ENTER/EXIT
-- ✅ **Compiler Backend (nano_virt)** - Three-pass AST-to-bytecode codegen (~3,083 lines)
-- ✅ **Co-Process FFI (nano_cop)** - External calls isolated in separate process via binary RPC protocol
-- ✅ **VM Daemon (nano_vmd)** - Persistent VM process for reduced startup latency
-- ✅ **Native Binary Generation** - Wrapper system embeds .nvm + VM runtime into standalone executables
-- ✅ **Cross-Module Linking** - OP_CALL_MODULE with per-frame module tracking
-- ✅ **Closure Support** - OP_CLOSURE_NEW/CALL with upvalue capture
-- ✅ **Comprehensive Test Suite** - 470 ISA tests + 150 VM tests + 62 codegen tests
+Deliverables - ALL COMPLETE:
+- [x] NanoISA Instruction Set - 178 opcodes, a stack machine with a RISC/CISC hybrid design.
+- [x] .nvm Binary Format - I include sections for code, strings, functions, types, imports, debug info, and module refs.
+- [x] Assembler & Disassembler - I have a two-pass text assembler and a disassembler with label reconstruction.
+- [x] NanoVM Interpreter - I have a switch-dispatch execution engine with a trap model (~1,844 lines).
+- [x] Reference-Counted GC - I use scope-based auto-release with OP_GC_SCOPE_ENTER and OP_GC_SCOPE_EXIT.
+- [x] Compiler Backend (nano_virt) - I have a three-pass AST-to-bytecode codegen (~3,083 lines).
+- [x] Co-Process FFI (nano_cop) - I isolate external calls in a separate process via a binary RPC protocol.
+- [x] VM Daemon (nano_vmd) - I can run as a persistent process to reduce startup latency.
+- [x] Native Binary Generation - I embed .nvm and my VM runtime into standalone executables.
+- [x] Cross-Module Linking - I use OP_CALL_MODULE with per-frame module tracking.
+- [x] Closure Support - I use OP_CLOSURE_NEW and OP_CLOSURE_CALL with upvalue capture.
+- [x] Comprehensive Test Suite - I have 470 ISA tests, 150 VM tests, and 62 codegen tests.
 
-**Architecture**: Trap model separates pure-compute core (83+ opcodes) from I/O operations, enabling potential FPGA acceleration. See [docs/NANOISA.md](NANOISA.md) for complete reference.
+Architecture: My trap model separates my pure-compute core (83+ opcodes) from I/O operations, which allows for future FPGA acceleration. I have documented this in docs/NANOISA.md.
 
-**Total**: ~11,000 lines of C across ISA, VM, compiler, and co-process components.
+Total: I consist of approximately 11,000 lines of C across my ISA, VM, compiler, and co-process components.
 
-## Phase 11 - Formal Verification ✅ COMPLETE
+## Phase 11 - Formal Verification COMPLETE
 
-**Completion Date**: February 2026
+Completion Date: February 2026
 
-**Goal**: Mechanized metatheory for NanoCore in the Rocq Prover (Coq) - **ACHIEVED (AXIOM-FREE)**
+Goal: I have a mechanized metatheory for my NanoCore in the Rocq Prover (Coq), achieved without axioms.
 
-**Deliverables** - ALL COMPLETE:
-- ✅ **Type Soundness (Preservation)** - Well-typed expressions evaluate to well-typed values
-- ✅ **Progress** - Well-typed closed expressions are values or can take a step
-- ✅ **Determinism** - Evaluation is a partial function
-- ✅ **Semantic Equivalence** - Big-step and small-step semantics agree (Equivalence.v, ~3,100 LOC)
-- ✅ **Computable Evaluator** - Fuel-based reference interpreter with soundness proof
-- ✅ **OCaml Extraction** - Reference interpreter extractable for testing against C implementation
+Deliverables - ALL COMPLETE:
+- [x] Type Soundness (Preservation) - I have proved that well-typed expressions evaluate to well-typed values.
+- [x] Progress - I have proved that well-typed closed expressions are values or can take a step.
+- [x] Determinism - I have proved that evaluation is a partial function.
+- [x] Semantic Equivalence - I have proved that my big-step and small-step semantics agree.
+- [x] Computable Evaluator - I have a fuel-based reference interpreter with a soundness proof.
+- [x] OCaml Extraction - I can extract my reference interpreter for testing against my C implementation.
 
-**Statistics**: ~6,170 lines of Coq, 193 theorems/lemmas, 0 axioms, 0 Admitted.
+Statistics: I have approximately 6,170 lines of Coq, 193 theorems/lemmas, 0 axioms, and 0 Admitted proofs.
 
-**Verified Language Features**: Integers, booleans, strings, arrays, records, variants with pattern matching, closures, recursive functions (fix), mutable variables, while loops, sequential composition.
+Verified Language Features: I have verified integers, booleans, strings, arrays, records, variants with pattern matching, closures, recursive functions (fix), mutable variables, while loops, and sequential composition.
 
-See [formal/README.md](../formal/README.md) for complete details.
+I have included more details in formal/README.md.
 
 ## Phase 9 - Ecosystem & Polish (Current - v0.3.0 target)
 
-**Goal**: Polish the project for 1.0 release and build ecosystem
+Goal: I am polishing myself for a 1.0 release and building my ecosystem.
 
-**Status**: In Progress
+Status: In Progress
 
-**High Priority**:
-- [ ] Complete STDLIB.md documentation (41 missing functions)
-- [x] Add code coverage metrics (gcov/lcov integration) - ✅ Completed
-- [x] Create ERROR_MESSAGES.md with examples - ✅ Completed
-- [x] Document memory management model (MEMORY_MANAGEMENT.md) - ✅ Completed
-- [ ] Expand FFI safety documentation
-- [x] Create GENERICS_DEEP_DIVE.md - ✅ Completed
-- [x] Add missing NAMESPACE_USAGE.md - ✅ Completed
-- [x] Fix eval.c size (split into modules) - ✅ Completed (Jan 2026)
-- [x] Add performance benchmarks - ✅ Completed (CI integration)
-- [x] Integrate fuzzing (AFL++/libFuzzer) - ✅ Completed (Jan 2026)
+High Priority:
+- [ ] I will complete the STDLIB.md documentation (41 missing functions).
+- [x] I have added code coverage metrics (gcov/lcov integration).
+- [x] I have created ERROR_MESSAGES.md with examples.
+- [x] I have documented my memory management model in MEMORY_MANAGEMENT.md.
+- [ ] I will expand my FFI safety documentation.
+- [x] I have created GENERICS_DEEP_DIVE.md.
+- [x] I have added NAMESPACE_USAGE.md.
+- [x] I have split eval.c into modules to manage its size (January 2026).
+- [x] I have added performance benchmarks to my CI.
+- [x] I have integrated fuzzing (AFL++/libFuzzer) (January 2026).
 
-**Medium Priority**:
-- [ ] VS Code extension (syntax highlighting)
-- [ ] Add --profile flag for performance profiling
-- [ ] Create LEARNING_PATH.md for examples
-- [ ] Document error handling philosophy
-- [ ] Add build modes (--debug / --release)
-- [ ] Unicode support planning
-- [x] Expand negative test coverage - ✅ Completed (20 → 36 tests, Jan 2026)
+Medium Priority:
+- [ ] I will have a VS Code extension for syntax highlighting.
+- [ ] I will add a --profile flag for performance profiling.
+- [ ] I will create LEARNING_PATH.md for my examples.
+- [ ] I will document my error handling philosophy.
+- [ ] I will add build modes (--debug / --release).
+- [ ] I will plan my Unicode support.
+- [x] I have expanded my negative test coverage from 20 to 36 tests (January 2026).
 
-**Low Priority**:
-- [x] RFC process for language evolution - ✅ Completed (Jan 2026)
-- [ ] Package manager prototype (nanopkg)
-- [ ] Concurrency model documentation
-- [ ] Formal grammar specification
+Low Priority:
+- [x] I have established an RFC process for my evolution (January 2026).
+- [ ] I will create a package manager prototype (nanopkg).
+- [ ] I will document my concurrency model.
+- [ ] I will provide a formal grammar specification.
 
-**Target Completion**: Q1 2026
+Target Completion: Q1 2026
 
 ## Completed Language Features
 
-### Core Data Types ✅
-- [x] ✅ **Arrays** - Dynamic arrays with bounds checking (November 2025)
-- [x] ✅ **Structs** - User-defined composite types (November 2025)
-- [x] ✅ **Enums** - Enumerated types with named constants (November 2025)
-- [x] ✅ **Unions** - Tagged unions/sum types with pattern matching (December 2025)
-- [x] ✅ **Generics** - Monomorphized generic types (December 2025)
-- [x] ✅ **Tuples** - Heterogeneous tuples (December 2025)
-- [x] ✅ **First-Class Functions** - Functions as values (December 2025)
-- [x] ✅ **Affine Types** - Resource management (December 2025)
+### Core Data Types
+- [x] Arrays - I have dynamic arrays with bounds checking (November 2025).
+- [x] Structs - I have user-defined composite types (November 2025).
+- [x] Enums - I have enumerated types with named constants (November 2025).
+- [x] Unions - I have tagged unions and sum types with pattern matching (December 2025).
+- [x] Generics - I have monomorphized generic types (December 2025).
+- [x] Tuples - I have heterogeneous tuples (December 2025).
+- [x] First-Class Functions - I treat functions as values (December 2025).
+- [x] Affine Types - I use these for resource management (December 2025).
 
 ## Future Enhancements
 
-These features may be added after self-hosting:
+I may add these features after I am fully self-hosting:
 
 ### Language Features
 - [ ] Dynamic Lists/Slices - Resizable collections
@@ -327,7 +327,7 @@ These features may be added after self-hosting:
 - [ ] Constant folding
 - [ ] Dead code elimination
 - [ ] Inlining
-- [x] ✅ NanoISA VM backend (alternative to C) - Complete (Feb 2026)
+- [x] NanoISA VM backend (alternative to C) - Complete (February 2026)
 
 ### Ecosystem
 - [ ] VS Code extension
@@ -341,160 +341,154 @@ These features may be added after self-hosting:
 
 | Phase | Original Estimate | Actual Time | Status |
 |-------|------------------|-------------|---------|
-| Phase 0: Specification | - | 1 day | ✅ Complete |
-| Phase 1: Lexer | 2-3 weeks | 1 day | ✅ Complete |
-| Phase 2: Parser | 3-4 weeks | 1 day | ✅ Complete |
-| Phase 3: Type Checker | 3-4 weeks | 1 day | ✅ Complete |
-| Phase 4: Shadow-Test Runner | 2-3 weeks | 1 day | ✅ Complete |
-| Phase 5: C Transpiler | 4-5 weeks | 1 day | ✅ Complete |
-| Phase 6: Standard Library | 3-4 weeks | - | ⚠️ Minimal |
-| Phase 7: CLI Tools | 2 weeks | 1 day | ✅ Complete |
-| Phase 8: Self-Hosting | 8-12 weeks | 3 months | ✅ Complete (Jan 2026) |
-| Phase 10: NanoISA VM | - | 1 month | ✅ Complete (Feb 2026) |
-| Phase 11: Formal Verification | - | 1 month | ✅ Complete (Feb 2026) |
+| Phase 0: Specification | - | 1 day | Complete |
+| Phase 1: Lexer | 2-3 weeks | 1 day | Complete |
+| Phase 2: Parser | 3-4 weeks | 1 day | Complete |
+| Phase 3: Type Checker | 3-4 weeks | 1 day | Complete |
+| Phase 4: Shadow-Test Runner | 2-3 weeks | 1 day | Complete |
+| Phase 5: C Transpiler | 4-5 weeks | 1 day | Complete |
+| Phase 6: Standard Library | 3-4 weeks | - | Minimal |
+| Phase 7: CLI Tools | 2 weeks | 1 day | Complete |
+| Phase 8: Self-Hosting | 8-12 weeks | 3 months | Complete (January 2026) |
+| Phase 10: NanoISA VM | - | 1 month | Complete (February 2026) |
+| Phase 11: Formal Verification | - | 1 month | Complete (February 2026) |
 
-**Total Actual Time (Phases 0-7)**: 2 days (September 29-30, 2025)
-**Efficiency**: Much faster than estimated due to focused development and AI assistance
+Total Actual Time (Phases 0-7): 2 days (September 29-30, 2025)
+
+Efficiency: I developed much faster than estimated due to focused effort and AI assistance.
 
 ## Milestones
 
-### Milestone 1: First Compilation (Phase 1-5) ✅ ACHIEVED
-**Completion Date**: September 30, 2025
-- ✅ Can compile simple nanolang programs
-- ✅ Generates working C code
-- ✅ Shadow-tests execute
-- ✅ All 15 examples working
+### Milestone 1: First Compilation (Phase 1-5) ACHIEVED
+Completion Date: September 30, 2025
+- [x] I can compile simple programs.
+- [x] I generate working C code.
+- [x] My shadow tests execute.
+- [x] All 15 of my initial examples are working.
 
-### Milestone 2: Usable Compiler (Phase 6-7) ✅ MOSTLY ACHIEVED
-**Completion Date**: September 30, 2025
-- ⚠️ Standard library minimal (basic functionality only)
-- ✅ Command-line tools polished (compiler + interpreter)
-- ✅ Documentation complete
-- ✅ Ready for simple projects
+### Milestone 2: Usable Compiler (Phase 6-7) MOSTLY ACHIEVED
+Completion Date: September 30, 2025
+- [ ] My standard library is minimal.
+- [x] I have polished command-line tools (compiler and interpreter).
+- [x] My documentation is complete.
+- [x] I am ready for simple projects.
 
 ### Milestone 3: Self-Hosting (Phase 8)
-**Target**: nanolang compiles itself
-- Compiler rewritten in nanolang
-- Bootstrap process working
-- Full test suite passing
+Target: I compile myself.
+- I am rewritten in myself.
+- My bootstrap process is working.
+- My full test suite is passing.
 
 ## How to Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+I have included details in CONTRIBUTING.md.
 
-**Current Focus**: Implementation planning
+Current Focus: Implementation planning.
 
-**Most Needed**:
-1. Feedback on specification
-2. Additional example programs
-3. Test cases
-4. Implementation volunteers
+Most Needed:
+1. Feedback on my specification.
+2. Additional example programs.
+3. Test cases.
+4. Implementation volunteers.
 
 ## Success Metrics
 
 ### Technical
-- All example programs compile and run
-- Shadow-tests catch bugs
-- Generated C code is readable
-- Compilation is fast
-- Self-hosting works
+- All my example programs compile and run.
+- My shadow tests catch bugs.
+- My generated C code is readable.
+- I compile quickly.
+- I compile myself.
 
 ### Community
-- Clear documentation
-- Active contributors
-- Growing example library
-- Positive feedback
+- I provide clear documentation.
+- I have active contributors.
+- I have a growing example library.
+- I receive positive feedback.
 
 ### Adoption
-- Real projects using nanolang
-- LLMs can generate correct code
-- Teaching material available
-- Community resources
+- Real projects use me.
+- LLMs can generate correct code for me.
+- I have teaching material available.
+- I have community resources.
 
 ## Risks and Mitigations
 
 ### Risk: Specification Changes
-**Mitigation**: Community review before implementation starts
+I mitigate this by seeking community review before I begin implementation.
 
 ### Risk: Implementation Complexity
-**Mitigation**: Incremental development, extensive testing
+I mitigate this through incremental development and extensive testing.
 
 ### Risk: Performance Issues
-**Mitigation**: C transpilation provides good baseline performance
+I mitigate this because my C transpilation provides a good baseline for performance.
 
 ### Risk: Limited Contributors
-**Mitigation**: Keep codebase simple and well-documented
+I mitigate this by keeping my codebase simple and well-documented.
 
 ### Risk: LLM Generation Quality
-**Mitigation**: Iterate on language design based on LLM testing
+I mitigate this by iterating on my language design based on my testing with LLMs.
 
 ## Communication
 
 ### Updates
-- Commit messages
-- Release notes
-- GitHub issues/PRs
+- My commit messages.
+- My release notes.
+- My GitHub issues and pull requests.
 
 ### Discussion
-- GitHub Discussions (when available)
-- Issue tracker for bugs/features
+- My GitHub Discussions (when available).
+- My issue tracker for bugs and features.
 
 ### Documentation
-- Keep docs in sync with code
-- Update examples regularly
-- Maintain changelog
+- I keep my docs in sync with my code.
+- I update my examples regularly.
+- I maintain my changelog.
 
 ## Versioning
 
-Following semantic versioning (semver):
+I follow semantic versioning (semver):
 
-- **0.x.y**: Pre-1.0 development
-- **1.0.0**: First stable release (after self-hosting)
-- **1.x.0**: New features (backwards compatible)
-- **x.0.0**: Breaking changes
+- 0.x.y: Pre-1.0 development.
+- 1.0.0: First stable release (after I compile myself).
+- 1.x.0: New features (backwards compatible).
+- x.0.0: Breaking changes.
 
 ## Release Strategy
 
 ### Pre-1.0 Releases
-- 0.1.0: Lexer complete
-- 0.2.0: Parser complete
-- 0.3.0: Type checker complete
-- 0.4.0: Shadow-test runner complete
-- 0.5.0: C transpiler complete
-- 0.6.0: Standard library complete
-- 0.7.0: CLI tool complete
-- 0.9.0: Self-hosting beta
+- 0.1.0: My lexer is complete.
+- 0.2.0: My parser is complete.
+- 0.3.0: My type checker is complete.
+- 0.4.0: My shadow-test runner is complete.
+- 0.5.0: My C transpiler is complete.
+- 0.6.0: My standard library is complete.
+- 0.7.0: My CLI tool is complete.
+- 0.9.0: My self-hosting beta.
 
 ### 1.0 Release Criteria
-- Self-hosting works
-- All examples compile
-- Documentation complete
-- Test suite passes
-- Performance acceptable
-- Breaking changes unlikely
+- I compile myself.
+- All my examples compile.
+- My documentation is complete.
+- My test suite passes.
+- My performance is acceptable.
+- Breaking changes are unlikely.
 
 ## Long-Term Vision
 
-nanolang aims to be:
+I aim to be:
 
-1. **Reference implementation** for LLM-friendly language design
-2. **Formally verified language** with mechanized proofs of type soundness and semantic correctness
-3. **Sandboxed execution platform** via NanoISA VM with process-isolated FFI
-4. **Teaching tool** for programming language concepts
-5. **Practical language** for systems programming
-6. **Proof of concept** for shadow-test methodology
-7. **Community project** with active contributors
-
-## Questions?
-
-For questions about the roadmap:
-1. Check [SPECIFICATION.md](SPECIFICATION.md) for language details
-2. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to help
-3. Open an issue for discussion
+1. A reference implementation for LLM-friendly language design.
+2. A formally verified language with mechanized proofs of type soundness and semantic correctness.
+3. A sandboxed execution platform via my NanoISA VM with process-isolated FFI.
+4. A teaching tool for programming language concepts.
+5. A practical language for systems programming.
+6. A proof of concept for my shadow-test methodology.
+7. A community project with active contributors.
 
 ---
 
-**Last Updated**: February 9, 2026 (Post-VM + Formal Verification Update)
-**Current Phase**: Phase 9 - Ecosystem & Polish (Phases 10-11 complete in parallel)
-**Next Major Milestone**: v1.0 Release (target: Q3 2026)
-**Next Review**: After Phase 9 completion
+Last Updated: February 20, 2026 (Post-VM + Formal Verification Update)
+Current Phase: Phase 9 - Ecosystem & Polish (Phases 10-11 complete in parallel)
+Next Major Milestone: v1.0 Release (target: Q3 2026)
+Next Review: After Phase 9 completion

@@ -1,14 +1,15 @@
-# Array Safety and Verifiability in nanolang
+# Array Safety and Verifiability
 
-**Design Philosophy:** Arrays must be safe by construction and verifiable through shadow tests.
+I ensure arrays are safe by construction and verifiable through shadow tests.
 
 ---
 
 ## Core Safety Principles
 
-### 1. **Always Bounds-Checked** (Runtime Safety)
+### 1. Always Bounds-Checked
 
-**Every array access is checked:**
+I check every array access. You cannot reach outside the memory I allocated.
+
 ```nano
 let nums: array<int> = [1, 2, 3, 4, 5]
 
@@ -32,15 +33,16 @@ int64_t nl_array_at(nl_array* arr, int64_t index) {
 }
 ```
 
-**Why this is safe:**
-- ✅ No buffer overflows possible
-- ✅ No undefined behavior
-- ✅ Fail fast with clear error messages
-- ✅ Line/column numbers in error (from AST)
+**Why I am safe:**
+- No buffer overflows possible.
+- No undefined behavior.
+- I fail fast with clear error messages.
+- I provide line and column numbers in errors from my AST.
 
-### 2. **Type-Safe by Construction** (Compile-Time Safety)
+### 2. Type-Safe by Construction
 
-**Homogeneous arrays only:**
+I only allow homogeneous arrays. Every element must be the same type.
+
 ```nano
 # Valid - all elements same type
 let nums: array<int> = [1, 2, 3, 4, 5]
@@ -50,19 +52,20 @@ let names: array<string> = ["Alice", "Bob", "Carol"]
 let mixed: array<int> = [1, "hello", 3.14]  # TYPE ERROR
 ```
 
-**Type checker validates:**
-1. Array literal elements match declared type
-2. All operations preserve type safety
-3. No implicit conversions
+**My type checker validates:**
+1. Array literal elements match the declared type.
+2. All operations preserve type safety.
+3. No implicit conversions.
 
-**Why this is safe:**
-- ✅ No type confusion
-- ✅ LLM can always know exact types
-- ✅ Compiler catches type errors early
+**Why I am safe:**
+- No type confusion.
+- An LLM reading my code knows the exact types.
+- I catch type errors early during compilation.
 
-### 3. **Immutable by Default** (Memory Safety)
+### 3. Immutable by Default
 
-**Arrays are immutable unless marked `mut`:**
+My arrays are immutable unless you explicitly mark them `mut`.
+
 ```nano
 # Immutable array - cannot change after creation
 let nums: array<int> = [1, 2, 3]
@@ -73,15 +76,16 @@ let mut counts: array<int> = [0, 0, 0]
 (array_set counts 0 99)  # OK - counts is mutable
 ```
 
-**Why this is safe:**
-- ✅ No unexpected mutations
-- ✅ Easier to reason about
-- ✅ LLM can track state changes
-- ✅ Functional programming benefits
+**Why I am safe:**
+- No unexpected mutations.
+- Easier to reason about state.
+- An LLM can track my state changes reliably.
+- I provide functional programming benefits.
 
-### 4. **Fixed-Size Arrays** (Predictable Memory)
+### 4. Fixed-Size Arrays
 
-**Array size is known at creation:**
+I require array sizes to be known at creation.
+
 ```nano
 # Size known from literal
 let nums: array<int> = [1, 2, 3, 4, 5]  # Length = 5
@@ -93,11 +97,11 @@ let zeros: array<int> = (array_new 10 0)  # Length = 10, all zeros
 let len: int = (array_length nums)  # Always returns 5
 ```
 
-**Why this is safe:**
-- ✅ No dynamic resizing surprises
-- ✅ Memory usage predictable
-- ✅ No reallocation bugs
-- ✅ LLM can track size statically
+**Why I am safe:**
+- No dynamic resizing surprises.
+- Memory usage is predictable.
+- No reallocation bugs.
+- An LLM can track my size statically.
 
 **Future enhancement (Phase 4):**
 ```nano
@@ -107,9 +111,10 @@ let mut vec: vector<int> = (vector_new)
 (vector_pop vec)      # Explicit shrinkage
 ```
 
-### 5. **Shadow-Tested Operations** (Verification)
+### 5. Shadow-Tested Operations
 
-**Every array function has mandatory tests:**
+I refuse to compile an array function unless you provide a shadow test.
+
 ```nano
 fn array_sum(arr: array<int>) -> int {
     let mut total: int = 0
@@ -138,42 +143,42 @@ shadow array_sum {
 }
 ```
 
-**Why this is verifiable:**
-- ✅ Every function behavior is documented
-- ✅ Edge cases are tested
-- ✅ LLM can see expected behavior
-- ✅ Tests execute at compile time
+**Why I am verifiable:**
+- Every behavior is documented.
+- Edge cases are tested.
+- An LLM can see my expected behavior.
+- Tests execute during compilation.
 
 ---
 
 ## Safety Guarantees
 
-### What nanolang Arrays GUARANTEE:
+### What I GUARANTEE:
 
 1. **No Buffer Overflows**
-   - Every access is bounds-checked
-   - Out-of-bounds = immediate error with diagnostics
-   - No silent corruption
+   - I check every access against bounds.
+   - Out-of-bounds access results in an immediate error with diagnostics.
+   - I do not allow silent corruption.
 
 2. **No Type Confusion**
-   - Homogeneous types enforced
-   - Type checker validates at compile time
-   - No `void*` or `any` type arrays
+   - I enforce homogeneous types.
+   - My type checker validates types at compile time.
+   - I have no `void*` or `any` type arrays.
 
-3. **No Null/Undefined**
-   - Arrays cannot be null
-   - Elements cannot be undefined
-   - Must provide default values
+3. **No Null or Undefined**
+   - My arrays cannot be null.
+   - My elements cannot be undefined.
+   - You must provide default values.
 
 4. **No Memory Corruption**
-   - Fixed-size prevents reallocation bugs
-   - Immutability prevents race conditions
-   - Clear ownership semantics
+   - My fixed sizes prevent reallocation bugs.
+   - My default immutability prevents race conditions.
+   - I have clear ownership semantics.
 
 5. **Predictable Behavior**
-   - No implicit conversions
-   - No operator overloading
-   - Explicit operations only
+   - I perform no implicit conversions.
+   - I do not use operator overloading.
+   - I only allow explicit operations.
 
 ---
 
@@ -215,30 +220,30 @@ shadow array_max {
 
 ### LLM-Verifiable Properties
 
-**The LLM can verify:**
+An LLM can verify my properties:
 
-1. **Preconditions** - What must be true before calling
+1. **Preconditions** - What must be true before calling.
    ```nano
    assert (> len 0)  # Array must not be empty
    ```
 
-2. **Postconditions** - What is guaranteed after calling
+2. **Postconditions** - What I guarantee after calling.
    ```nano
    # Result is in the array
    # Result is >= all elements
    ```
 
-3. **Invariants** - What remains true during execution
+3. **Invariants** - What remains true during execution.
    ```nano
    # i is always in bounds [0..len)
    # max_val is always the max of arr[0..i]
    ```
 
-4. **Edge Cases** - Boundary conditions tested
+4. **Edge Cases** - Boundary conditions I have tested.
    ```nano
    # Single element
    # Negative numbers
-   # Maximum/minimum values
+   # Maximum and minimum values
    ```
 
 ---
@@ -247,55 +252,58 @@ shadow array_max {
 
 ### Option 1: Compile-Time Length Tracking
 
-**Track array lengths in type system:**
+I can track array lengths in my type system.
+
 ```nano
 # Future enhancement
 let nums: array<int, 5> = [1, 2, 3, 4, 5]  # Length known at compile time
 
 fn get_third(arr: array<int, 5>) -> int {
-    return (at arr 2)  # Compiler knows 2 < 5, no runtime check needed!
+    return (at arr 2)  # I know 2 < 5, so no runtime check is needed
 }
 ```
 
 **Benefits:**
-- ✅ Some bounds checks can be eliminated
-- ✅ More errors caught at compile time
-- ✅ Better optimization opportunities
+- I can eliminate some bounds checks.
+- I catch more errors at compile time.
+- I find better optimization opportunities.
 
 **Drawbacks:**
-- ⚠️ More complex type system
-- ⚠️ Less flexible
-- ⚠️ Harder to implement
+- My type system becomes more complex.
+- I become less flexible.
+- I am harder to implement.
 
-**Verdict:** Phase 4 feature - keep simple for now
+**Verdict:** This is a Phase 4 feature. I will keep things simple for now.
 
 ### Option 2: Range Types for Indices
 
-**Restrict indices to valid range:**
+I can restrict indices to a valid range.
+
 ```nano
 # Future enhancement
 type Index5 = range<0, 5>  # Valid indices: 0, 1, 2, 3, 4
 
 fn safe_get(arr: array<int, 5>, i: Index5) -> int {
-    return (at arr i)  # Type system guarantees i is in bounds!
+    return (at arr i)  # My type system guarantees i is in bounds
 }
 ```
 
 **Benefits:**
-- ✅ Compile-time bounds checking
-- ✅ No runtime overhead for validated code
-- ✅ Proof of correctness
+- I provide compile-time bounds checking.
+- I have no runtime overhead for validated code.
+- I offer proof of correctness.
 
 **Drawbacks:**
-- ⚠️ Complex type system
-- ⚠️ Harder for LLM to generate
-- ⚠️ Runtime checks still needed at API boundaries
+- My type system becomes complex.
+- I am harder for an LLM to generate.
+- I still need runtime checks at my API boundaries.
 
-**Verdict:** Interesting for future, overkill for v1
+**Verdict:** This is interesting for later, but overkill for my first version.
 
 ### Option 3: Contracts and Assertions
 
-**Already supported through shadow tests!**
+I already support these through shadow tests.
+
 ```nano
 fn binary_search(arr: array<int>, target: int) -> int {
     # Contract: array must be sorted
@@ -320,50 +328,50 @@ shadow binary_search {
 
 ## Comparison with Other Languages
 
-### nanolang vs C Arrays
+### My Arrays vs C Arrays
 
-| Feature | C | nanolang |
+| Feature | C | Me |
 |---------|---|----------|
-| Bounds checking | ❌ None | ✅ Always |
-| Type safety | ⚠️ Weak | ✅ Strong |
-| Null safety | ❌ Pointers can be NULL | ✅ No null arrays |
-| Memory safety | ❌ Manual | ✅ Managed |
-| Verifiable | ❌ No | ✅ Shadow tests |
+| Bounds checking | None | Always |
+| Type safety | Weak | Strong |
+| Null safety | Pointers can be NULL | No null arrays |
+| Memory safety | Manual | Managed |
+| Verifiable | No | Shadow tests |
 
-### nanolang vs Python Lists
+### My Arrays vs Python Lists
 
-| Feature | Python | nanolang |
+| Feature | Python | Me |
 |---------|--------|----------|
-| Bounds checking | ✅ Yes | ✅ Yes |
-| Type safety | ❌ Dynamic | ✅ Static |
-| Immutability | ⚠️ Optional | ✅ Default |
-| Performance | ⚠️ Interpreted | ✅ Native |
-| Verifiable | ⚠️ Limited | ✅ Shadow tests |
+| Bounds checking | Yes | Yes |
+| Type safety | Dynamic | Static |
+| Immutability | Optional | Default |
+| Performance | Interpreted | Native |
+| Verifiable | Limited | Shadow tests |
 
-### nanolang vs Rust Vec
+### My Arrays vs Rust Vec
 
-| Feature | Rust | nanolang |
+| Feature | Rust | Me |
 |---------|------|----------|
-| Bounds checking | ✅ Yes | ✅ Yes |
-| Type safety | ✅ Strong | ✅ Strong |
-| Memory safety | ✅ Ownership | ✅ Managed |
-| Complexity | ⚠️ High | ✅ Simple |
-| LLM-friendly | ⚠️ Moderate | ✅ Very |
+| Bounds checking | Yes | Yes |
+| Type safety | Strong | Strong |
+| Memory safety | Ownership | Managed |
+| Complexity | High | Simple |
+| LLM-friendly | Moderate | Very |
 
-**nanolang goal:** Rust-level safety with Python-level simplicity!
+**My goal:** Rust-level safety with Python-level simplicity.
 
 ---
 
 ## Implementation Strategy
 
-### Phase 1: Basic Safe Arrays (Next)
+### Phase 1: Basic Safe Arrays (Current)
 
-**Must have:**
-1. ✅ Runtime bounds checking (always)
-2. ✅ Type-safe array<T> 
-3. ✅ Immutable by default
-4. ✅ Fixed size
-5. ✅ Shadow tests for all operations
+**What I must have:**
+1. Runtime bounds checking (always).
+2. Type-safe `array<T>`.
+3. Immutable by default.
+4. Fixed size.
+5. Shadow tests for all operations.
 
 **Operations:**
 ```nano
@@ -421,18 +429,18 @@ let cell: int = (at (at matrix 0) 1)  # matrix[0][1] = 2
 
 ## Safety Checklist
 
-Before implementing arrays, verify:
+Before I implement arrays, I verify:
 
-- [ ] ✅ **Bounds checking implemented** in evaluator
-- [ ] ✅ **Bounds checking implemented** in transpiler
-- [ ] ✅ **Type safety enforced** by type checker
-- [ ] ✅ **Immutability enforced** by type checker
-- [ ] ✅ **Shadow tests** for all array operations
-- [ ] ✅ **Error messages** include line/column numbers
-- [ ] ✅ **Memory management** is safe (no leaks)
-- [ ] ✅ **Edge cases tested** (empty arrays, single element, etc.)
-- [ ] ✅ **Documentation** includes safety guarantees
-- [ ] ✅ **LLM can understand** all array operations
+- [ ] Bounds checking is implemented in my evaluator.
+- [ ] Bounds checking is implemented in my transpiler.
+- [ ] My type checker enforces type safety.
+- [ ] My type checker enforces immutability.
+- [ ] I have shadow tests for all array operations.
+- [ ] My error messages include line and column numbers.
+- [ ] My memory management is safe and does not leak.
+- [ ] I have tested edge cases like empty arrays and single elements.
+- [ ] My documentation includes my safety guarantees.
+- [ ] An LLM can understand all my array operations.
 
 ---
 
@@ -474,57 +482,57 @@ shadow array_reverse {
 }
 ```
 
-**LLM can verify:**
-- ✅ Input array is not modified (immutability)
-- ✅ Output array has same length
-- ✅ Elements are in reverse order
-- ✅ Edge cases are handled
-- ✅ No bounds violations possible
-- ✅ Double reverse returns original
+**What an LLM can verify:**
+- My input array is not modified.
+- My output array has the same length.
+- My elements are in reverse order.
+- I handle edge cases.
+- No bounds violations are possible.
+- My double reverse returns the original.
 
 ---
 
 ## Conclusion
 
-**nanolang arrays will be:**
+**My arrays are:**
 
 1. **Safe by Construction**
-   - Always bounds-checked
-   - Type-safe
-   - Immutable by default
-   - No null/undefined
+   - Always bounds-checked.
+   - Type-safe.
+   - Immutable by default.
+   - Never null or undefined.
 
 2. **Verifiable Through Tests**
-   - Mandatory shadow tests
-   - Properties documented
-   - Edge cases covered
-   - Compile-time validation
+   - Mandatory shadow tests.
+   - Properties are documented.
+   - Edge cases are covered.
+   - Validated at compile time.
 
 3. **LLM-Friendly**
-   - Clear semantics
-   - No hidden behavior
-   - Predictable operations
-   - Complete introspection
+   - Clear semantics.
+   - No hidden behavior.
+   - Predictable operations.
+   - Complete introspection.
 
 4. **Production-Ready**
-   - No undefined behavior
-   - Clear error messages
-   - Memory safe
-   - Performance competitive
+   - No undefined behavior.
+   - Clear error messages.
+   - Memory safe.
+   - Performance competitive.
 
-**Design Philosophy:** 
-> "Make the right thing easy and the wrong thing impossible."
+**My Design Philosophy:**
+> Make the right thing easy and the wrong thing impossible.
 
-Arrays in nanolang will be **provably safe** and **trivially verifiable** by both humans and LLMs! 🛡️✅
+My arrays are provably safe and trivially verifiable by both humans and LLMs.
 
 ---
 
 **Next Steps:**
-1. Implement basic safe arrays (Phase 1)
-2. Add comprehensive shadow tests
-3. Benchmark performance vs C/Python
-4. Document safety guarantees
-5. Get LLM to generate array code and verify correctness
+1. Implement basic safe arrays.
+2. Add comprehensive shadow tests.
+3. Benchmark my performance against C and Python.
+4. Document my safety guarantees.
+5. Have an LLM generate array code and verify correctness.
 
-**Status:** Design complete, ready for implementation
+**Status:** Design complete. I am ready for implementation.
 

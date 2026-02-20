@@ -1,6 +1,6 @@
-# Nanolang Modules Reference
+# My Modules Reference
 
-Comprehensive guide to all available modules in nanolang.
+I provide a comprehensive set of modules to extend my core functionality.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Comprehensive guide to all available modules in nanolang.
 
 ### std/io/stdio
 
-Standard I/O operations for console input/output.
+I provide standard I/O operations for console input and output.
 
 **Import:**
 ```nano
@@ -50,7 +50,7 @@ fn main() -> int {
 
 ### std/collections/stringbuilder
 
-Efficient string building for concatenating multiple strings.
+I include an efficient string builder for concatenating multiple strings without unnecessary allocations.
 
 **Import:**
 ```nano
@@ -77,7 +77,7 @@ fn build_message(name: string, age: int) -> string {
 
 ### std/math/extended
 
-Extended math operations beyond basic arithmetic.
+I offer extended math operations beyond my basic arithmetic.
 
 **Functions:**
 - `abs(x: int) -> int` - Absolute value
@@ -95,7 +95,7 @@ Extended math operations beyond basic arithmetic.
 
 ### sqlite
 
-SQLite embedded database interface.
+I interface with the SQLite embedded database.
 
 **Import:**
 ```nano
@@ -169,7 +169,7 @@ fn query_users(db: opaque) -> int {
 
 ### filesystem
 
-File and directory operations.
+I provide file and directory operations.
 
 **Import:**
 ```nano
@@ -183,7 +183,7 @@ import "modules/filesystem/filesystem.nano" as FS
 | `nl_fs_read_file` | `(path: string) -> string` | Read entire file as string |
 | `nl_fs_write_file` | `(path: string, content: string) -> int` | Write string to file |
 | `nl_fs_file_exists` | `(path: string) -> int` | Check if file exists (1=yes, 0=no) |
-| `nl_fs_file_size` | `(path: string) -> int` | Get file size in bytes |
+| `nl_fs_file_size" | "(path: string) -> int` | Get file size in bytes |
 | `nl_fs_is_directory` | `(path: string) -> int` | Check if path is directory |
 | `nl_fs_delete_file` | `(path: string) -> int` | Delete file |
 
@@ -229,7 +229,7 @@ fn backup_file(source: string) -> int {
 
 ### sdl
 
-SDL2 core functionality for graphics, events, and windowing.
+I include SDL2 core functionality for graphics, events, and windowing.
 
 **Import:**
 ```nano
@@ -291,7 +291,7 @@ fn main() -> int {
 
 ### sdl_helpers
 
-High-level SDL wrappers for common operations.
+I provide high-level SDL wrappers for common operations.
 
 **Import:**
 ```nano
@@ -305,7 +305,7 @@ import "modules/sdl_helpers/sdl_helpers.nano" as SDL
 
 ### sdl_ttf
 
-TrueType font rendering for SDL.
+I support TrueType font rendering for SDL.
 
 **Import:**
 ```nano
@@ -320,7 +320,7 @@ import "modules/sdl_ttf/sdl_ttf.nano" as TTF
 
 ### ui_widgets
 
-High-level UI components built on SDL.
+I include high-level UI components built on SDL.
 
 **Widgets:**
 - `nl_ui_button(renderer, x, y, w, h, text, clicked) -> int` - Interactive button
@@ -334,7 +334,7 @@ High-level UI components built on SDL.
 
 ### sdl_mixer
 
-SDL_mixer for audio playback and mixing.
+I use SDL_mixer for audio playback and mixing.
 
 **Import:**
 ```nano
@@ -355,7 +355,7 @@ import "modules/sdl_mixer/sdl_mixer.nano" as Mix
 
 ### curl
 
-HTTP client using libcurl.
+I include an HTTP client using libcurl.
 
 **Import:**
 ```nano
@@ -365,7 +365,7 @@ import "modules/curl/curl.nano" as CURL
 **Functions:**
 - `nl_curl_get(url: string) -> string` - Simple GET request
 - `nl_curl_post(url: string, data: string) -> string` - POST request
-- `curl_easy_init() -> opaque` - Initialize CURL handle
+- `curl_easy_init() -> opaque" - Initialize CURL handle
 - `curl_easy_setopt(handle, option, value) -> int` - Set option
 - `curl_easy_perform(handle) -> int` - Perform request
 
@@ -375,7 +375,7 @@ import "modules/curl/curl.nano" as CURL
 
 ### vector2d
 
-2D vector math operations.
+I provide 2D vector math operations.
 
 **Import:**
 ```nano
@@ -405,8 +405,8 @@ struct Vec2 {
 
 ### Creating Modules
 
-Modules are directories in `modules/` containing:
-1. `*.nano` - Nanolang interface files
+My modules are directories in `modules/` containing:
+1. `*.nano` - My interface files
 2. `*.c` - C implementation (optional)
 3. `module.json` - Build metadata
 
@@ -444,10 +444,10 @@ from "std/math/extended.nano" import sqrt, pow, sin
 ## All Available Modules (37)
 
 **Standard Library:**
-- **std** - Core standard library
+- **std** - My core standard library
 - **stdio** - Standard I/O operations
 - **libc** - Direct libc bindings
-- **math_ext** - Extended math functions
+- **math_ext** - My extended math functions
 - **unicode** - Unicode text handling
 
 **Data & Storage:**
@@ -466,8 +466,8 @@ from "std/math/extended.nano" import sqrt, pow, sin
 - **glut** - OpenGL utility toolkit
 - **opengl** - OpenGL bindings (via `glew`/`glut`)
 - **ncurses** - Terminal UI library
-- **ui_widgets** - UI widget toolkit
-- **nano_highlight** - Syntax highlighting
+- **ui_widgets** - My UI widget toolkit
+- **nano_highlight** - My syntax highlighting
 
 **Audio & Media:**
 - **audio_helpers** - Audio utility functions
@@ -495,28 +495,29 @@ from "std/math/extended.nano" import sqrt, pow, sin
 - **proptest** - Property-based testing
 
 **Developer Tools:**
-- **nano_tools** - Development utilities
+- **nano_tools** - My development utilities
 - **readline** - Line editing (GNU readline)
-- **event** - Event system
+- **event** - My event system
 
-For detailed documentation, see `modules/<name>/README.md`.
+Detailed documentation resides in `modules/<name>/README.md`.
 
 ---
 
 ## Best Practices
 
-1. **Always check return values** - Most C FFI functions return error codes
-2. **Close resources** - Call cleanup functions (sqlite3_close, SDL_DestroyWindow, etc.)
-3. **Use opaque types** - For C pointers (SDL_Window*, etc.)
-4. **Import with aliases** - Prevents namespace collisions (as IO, as DB, etc.)
-5. **Check module.json** - For build dependencies and system requirements
+1. **Check return values** - Most C FFI functions return error codes. I recommend verifying them.
+2. **Close resources** - Call cleanup functions such as `sqlite3_close` or `SDL_DestroyWindow`.
+3. **Use opaque types** - Use these for C pointers like `SDL_Window*`.
+4. **Import with aliases** - Use `as IO` or `as DB` to prevent namespace collisions.
+5. **Check module.json** - Verify build dependencies and system requirements.
 
 ---
 
 ## Getting Help
 
-- Main documentation: `docs/FEATURES.md`
-- Example programs: `examples/`
+- My main documentation: `docs/FEATURES.md`
+- My example programs: `examples/`
 - Module-specific docs: `modules/<name>/README.md`
-- Build system: `docs/MODULE_FORMAT.md`
+- My build system: `docs/MODULE_FORMAT.md`
+
 
