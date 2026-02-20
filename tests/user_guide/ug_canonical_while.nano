@@ -1,3 +1,4 @@
+/* User guide test: canonical while loop */
 fn count_digits(n: int) -> int {
     let mut count: int = 0
     let mut val: int = n

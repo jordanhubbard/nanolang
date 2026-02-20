@@ -1,3 +1,4 @@
+/* User guide test: control flow with if-else statements */
 fn describe(x: int) -> void {
     if (< x 0) {
         (println "negative")

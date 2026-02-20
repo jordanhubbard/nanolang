@@ -1,3 +1,4 @@
+/* Test: extended math functions - exp2, log2, hypot, cbrt, copysign */
 from "std/math/extended.nano" import exp2, log2, log1p, expm1, cbrt, hypot, copysign
 
 let EPS: float = 0.00001

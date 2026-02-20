@@ -1,3 +1,4 @@
+/* Test: string concatenation with nested expressions */
 fn main() -> int {
     let a: string = "hello"
     let b: string = "world"

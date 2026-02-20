@@ -1,3 +1,4 @@
+/* User guide test: canonical struct definition */
 struct Point {
     x: int
     y: int

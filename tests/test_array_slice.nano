@@ -1,3 +1,4 @@
+/* Test: array_slice function with various ranges */
 fn main() -> int {
     return 0
 }

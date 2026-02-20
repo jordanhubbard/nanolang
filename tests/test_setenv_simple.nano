@@ -1,3 +1,4 @@
+/* Test: simple environment variable setting and retrieval */
 from "modules/std/env.nano" import set_env, get
 
 fn main() -> int {

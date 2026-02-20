@@ -1,3 +1,4 @@
+/* Test: import statements from standard library modules */
 from "modules/std/env.nano" import get, set_env
 from "modules/std/fs.nano" import walkdir, normalize
 from "modules/std/binary.nano" import encode_int, decode_int

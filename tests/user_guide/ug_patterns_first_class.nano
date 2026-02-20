@@ -1,3 +1,4 @@
+/* User guide test: pattern first-class functions */
 fn double(x: int) -> int {
     return (* x 2)
 }

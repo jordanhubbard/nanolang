@@ -1,3 +1,4 @@
+/* Test: 2D vector operations - add, sub, scale, dot, length, normalize, rotate */
 from "std/math/vector2d.nano" import Vector2D, vec_new, vec_zero, vec_add, vec_sub, vec_scale, vec_dot, vec_length, vec_length_squared, vec_distance, vec_distance_squared, vec_normalize, vec_rotate, vec_from_angle, vec_to_angle, vec_lerp, vec_clamp_length, vec_perp, vec_reflect
 from "std/math/extended.nano" import pi
 

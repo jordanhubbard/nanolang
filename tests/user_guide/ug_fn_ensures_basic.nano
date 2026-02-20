@@ -1,3 +1,4 @@
+/* User guide test: function ensures postcondition */
 fn abs_value(x: int) -> int
 ensures (>= result 0)
 {

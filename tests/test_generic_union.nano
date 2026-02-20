@@ -1,0 +1,96 @@
+/* Test generic union construction and instantiation.
+ * Covers: Either<L,R>, Result<T,E>, Option<T> type definitions,
+ * variant construction with type parameters, and function return types.
+ */
+
+union Either<L, R> {
+    Left { value: L },
+    Right { value: R }
+}
+
+union Result<T, E> {
+    Ok { value: T },
+    Err { error: E }
+}
+
+union Option<T> {
+    Some { value: T },
+    None {}
+}
+
+fn test_either() -> int {
+    let e1: Either<int, string> = Either<int, string>.Left { value: 42 }
+    let e2: Either<int, string> = Either<int, string>.Right { value: "hello" }
+    let e3: Either<bool, int> = Either<bool, int>.Left { value: true }
+    let e4: Either<bool, int> = Either<bool, int>.Right { value: 99 }
+    return 0
+}
+
+shadow test_either {
+    assert (== (test_either) 0)
+}
+
+fn divide(a: int, b: int) -> Result<int, string> {
+    if (== b 0) {
+        return Result<int, string>.Err { error: "Division by zero" }
+    } else {
+        return Result<int, string>.Ok { value: (/ a b) }
+    }
+}
+
+shadow divide {
+    let r: Result<int, string> = (divide 10 2)
+    assert true
+}
+
+fn test_result_parsing() -> int {
+    let r1: Result<int, string> = Result<int, string>.Ok { value: 42 }
+    let r2: Result<int, string> = Result<int, string>.Err { error: "failed" }
+    return 0
+}
+
+shadow test_result_parsing {
+    assert (== (test_result_parsing) 0)
+}
+
+fn test_result_in_function() -> Result<int, string> {
+    if true {
+        return Result<int, string>.Ok { value: 100 }
+    } else {
+        return Result<int, string>.Err { error: "error" }
+    }
+}
+
+shadow test_result_in_function {
+    let _res: Result<int, string> = (test_result_in_function)
+    assert true
+}
+
+fn get_value(has_value: bool) -> Option<int> {
+    if has_value {
+        return Option<int>.Some { value: 42 }
+    } else {
+        return Option<int>.None {}
+    }
+}
+
+shadow get_value {
+    let opt1: Option<int> = (get_value true)
+    let opt2: Option<int> = (get_value false)
+    assert true
+}
+
+fn main() -> int {
+    let _e: int = (test_either)
+    let _r1: Result<int, string> = (divide 10 2)
+    let _r2: Result<int, string> = (divide 10 0)
+    let _r3: int = (test_result_parsing)
+    let _r4: Result<int, string> = (test_result_in_function)
+    let _o1: Option<int> = (get_value true)
+    let _o2: Option<int> = (get_value false)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

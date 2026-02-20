@@ -1,3 +1,4 @@
+/* Fuzzing seed: struct definition for lexer */
 struct Point {
     x: int
     y: int

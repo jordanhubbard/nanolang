@@ -1,3 +1,4 @@
+/* Test: JSON parsing, access, and serialization */
 from "modules/std/json/json.nano" import Json, parse, free, object_has, get, get_int, get_string, as_int, as_string, is_number, keys, stringify
 
 fn contains_str(xs: array<string>, target: string) -> bool {

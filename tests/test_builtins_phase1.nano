@@ -1,3 +1,4 @@
+/* Test: string, conversion, and math builtin functions */
 fn test_string_ops() -> int {
     let s1: string = "hello"
     let s2: string = " world"

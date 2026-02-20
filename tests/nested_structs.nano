@@ -1,3 +1,4 @@
+/* Test: nested struct definitions and field access */
 struct Point {
     x: float,
     y: float

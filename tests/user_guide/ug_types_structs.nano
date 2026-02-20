@@ -1,3 +1,4 @@
+/* User guide test: type system struct definition */
 struct Point2D {
     x: int,
     y: int

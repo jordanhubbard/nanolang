@@ -1,3 +1,4 @@
+/* Test: nested function calls and output in main and shadow blocks */
 fn test_inner() -> string {
     return (int_to_string 42)
 }

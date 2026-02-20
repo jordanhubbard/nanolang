@@ -1,3 +1,4 @@
+/* Test: 3D vector operations - add, sub, scale, dot, cross, length, normalize */
 from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_add, vec3_sub, vec3_scale, vec3_dot, vec3_cross, vec3_length, vec3_distance, vec3_normalize, vec3_reflect, vec3_clamp_length
 
 let EPS: float = 0.00001

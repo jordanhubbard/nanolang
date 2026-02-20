@@ -1,3 +1,4 @@
+/* User guide test: type system array operations */
 fn sum_first_three(xs: array<int>) -> int {
     return (+ (at xs 0) (+ (at xs 1) (at xs 2)))
 }

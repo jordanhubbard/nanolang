@@ -1,3 +1,4 @@
+/* User guide test: canonical if-else statement */
 fn print_sign(n: int) -> void {
     if (< n 0) {
         (println "negative")

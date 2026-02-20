@@ -1,3 +1,4 @@
+/* User guide test: pattern fold over array */
 fn fold_sum(xs: array<int>) -> int {
     let mut acc: int = 0
     let mut i: int = 0

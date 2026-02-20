@@ -1,3 +1,4 @@
+/* Fuzzing seed: string literal handling for lexer */
 fn main() -> int {
     let msg: string = "hello world"
     return 0

@@ -1,3 +1,4 @@
+/* Test: extended math functions - trigonometric, logarithmic, hyperbolic, IEEE helpers */
 from "std/math/extended.nano" import pi, e, deg_to_rad, rad_to_deg, clamp, lerp
 from "std/math/extended.nano" import asin, acos, atan
 from "std/math/extended.nano" import log, log10, exp

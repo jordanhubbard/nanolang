@@ -1,3 +1,4 @@
+/* User guide test: type system boolean operations */
 fn both_true(a: bool, b: bool) -> bool {
     return (and a b)
 }

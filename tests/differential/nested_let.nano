@@ -1,3 +1,4 @@
+/* Differential test: nested let bindings with dependent values */
 fn main() -> int {
     let x: int = 3
     let y: int = (* x 4)

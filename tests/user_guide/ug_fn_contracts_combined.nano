@@ -1,3 +1,4 @@
+/* User guide test: function contracts with requires and ensures */
 fn bounded_increment(x: int, max: int) -> int
 requires (>= x 0)
 requires (> max x)

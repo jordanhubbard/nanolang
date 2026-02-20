@@ -1,3 +1,4 @@
+/* Test: complex number construction and operations */
 from "std/math/complex.nano" import Complex, complex_new, complex_mul, complex_abs
 
 fn test_complex_basic() -> int {

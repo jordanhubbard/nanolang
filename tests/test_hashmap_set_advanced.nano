@@ -1,3 +1,4 @@
+/* Test: hashmap and set operations with collisions, resizing, and tombstones */
 from "std/collections/hashmap.nano" import HashMap, map_new, map_put, map_get, map_has, map_size, map_keys, map_values, map_remove
 from "std/collections/set.nano" import Set, set_new, set_add, set_has, set_size, set_values, set_remove
 

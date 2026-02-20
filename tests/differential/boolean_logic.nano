@@ -1,3 +1,4 @@
+/* Differential test: boolean AND and OR operations */
 fn main() -> int {
     if (and true (or false true)) {
         (println "true")

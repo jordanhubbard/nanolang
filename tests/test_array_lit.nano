@@ -1,3 +1,4 @@
+/* Test: array literals with string and boolean elements */
 fn main() -> int {
     let strs: array<string> = ["hello", "world", "test"]
     (println (at strs 0))

@@ -1,3 +1,4 @@
+/* Test: full Python bridge with module import, method call, and attribute access */
 from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_import, pybridge_call, pybridge_get, pybridge_set, pybridge_release, pybridge_sysinfo, pybridge_deps, pybridge_shutdown
 from "modules/std/json/json.nano" import Json, parse, free, get, object_has, is_array, is_number, as_string, array_size, new_null, is_null
 

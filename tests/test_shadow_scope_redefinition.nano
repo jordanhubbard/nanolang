@@ -1,3 +1,4 @@
+/* Test: variable shadowing with redefinition in shadow blocks */
 fn double(x: int) -> int {
     return (* x 2)
 }

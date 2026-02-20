@@ -1,3 +1,4 @@
+/* Test: Python matplotlib bridge for rendering plots as PNG */
 from "modules/pybridge_matplotlib/pybridge_matplotlib.nano" import mpl_init, mpl_render_png, mpl_shutdown
 from "modules/std/json/json.nano" import Json, parse, free, get, object_has, is_string, as_string
 

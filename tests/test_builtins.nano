@@ -1,3 +1,4 @@
+/* Test: string, array, and type conversion builtin functions */
 fn test_string_ops() -> int {
     let s: string = "hello"
     let len: int = (str_length s)

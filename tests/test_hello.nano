@@ -1,3 +1,4 @@
+/* Test: basic hello world output */
 fn main() -> int {
     (println "Hello from self-hosted NanoLang!")
     return 0

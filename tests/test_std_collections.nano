@@ -1,3 +1,4 @@
+/* Test: standard library collections including StringBuilder, HashMap, and Set */
 from "std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string, sb_length
 from "std/collections/hashmap.nano" import HashMap, map_new, map_put, map_get, map_has, map_size, map_remove
 from "std/collections/set.nano" import Set, set_new, set_add, set_has, set_size, set_remove

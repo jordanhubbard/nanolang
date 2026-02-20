@@ -1,3 +1,4 @@
+/* Test: nested string concatenation */
 fn nested_concat(a: string, b: string, c: string) -> string {
     return (+ a (+ b c))
 }

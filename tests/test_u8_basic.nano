@@ -1,3 +1,4 @@
+/* Test: u8 byte type and array operations */
 fn main() -> int {
     return 0
 }

@@ -1,3 +1,4 @@
+/* Test: function preconditions with requires clauses */
 fn safe_divide(x: int, y: int) -> int
     requires (> x 0)
     requires (!= y 0)

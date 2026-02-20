@@ -1,3 +1,4 @@
+/* Test: 4D vector operations - add, sub, scale, dot, length, normalize, vec3 conversion */
 from "std/math/vector4d.nano" import Vector4D, vec4_new, vec4_zero, vec4_add, vec4_sub, vec4_scale, vec4_dot, vec4_length, vec4_normalize, vec4_from_vec3, vec4_to_vec3_div_w
 from "std/math/vector3d.nano" import Vector3D, vec3_new
 

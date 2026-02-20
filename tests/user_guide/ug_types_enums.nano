@@ -1,3 +1,4 @@
+/* User guide test: type system enum definition */
 enum Status {
     IDLE = 0,
     RUNNING = 1,

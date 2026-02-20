@@ -1,3 +1,4 @@
+/* Test: module aliasing with import and from */
 import "modules/std/collections/stringbuilder.nano" as sb
 from "modules/std/collections/stringbuilder.nano" import sb_join as join_strings
 

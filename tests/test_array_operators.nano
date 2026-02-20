@@ -1,3 +1,4 @@
+/* Test: array arithmetic operations and broadcasting */
 fn test_int_array_array_add() -> int {
     let a: array<int> = [1, 2, 3]
     let b: array<int> = [10, 20, 30]

@@ -1,3 +1,4 @@
+/* Test: temporary file and directory operations */
 fn main() -> int {
     return 0
 }

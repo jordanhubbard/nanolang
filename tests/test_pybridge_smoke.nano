@@ -1,3 +1,4 @@
+/* Test: basic Python bridge initialization and ping */
 from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_ping, pybridge_shutdown
 
 fn test_pybridge_smoke() -> int {

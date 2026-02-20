@@ -1,3 +1,4 @@
+/* User guide test: control flow with conditional expressions */
 fn sign(x: int) -> int {
     return (cond
         ((< x 0) -1)

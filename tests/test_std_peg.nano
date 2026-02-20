@@ -1,3 +1,4 @@
+/* Test: PEG parsing library - literals, choice, character classes, captures */
 from "std/peg/peg.nano" import quick_match, quick_captures
 
 fn peg_literal_sequence() -> int {

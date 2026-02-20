@@ -1,3 +1,4 @@
+/* Test: environment variable operations with shadow tests */
 from "modules/std/env.nano" import set_env, get
 
 fn test_it() -> int {

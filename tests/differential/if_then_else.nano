@@ -1,3 +1,4 @@
+/* Differential test: if-else with boolean literal */
 fn main() -> int {
     if true {
         (println "1")

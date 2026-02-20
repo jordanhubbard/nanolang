@@ -1,3 +1,4 @@
+/* User guide test: type system HashMap operations */
 fn count_words(words: array<string>) -> HashMap<string, int> {
     let counts: HashMap<string, int> = (map_new)
     let mut i: int = 0

@@ -1,3 +1,4 @@
+/* Test: property-based testing framework with generators and shrinking */
 from "modules/proptest/proptest.nano" import int_range, int_pair, int_array, forall_int, forall_int_pair, forall_int_array, forall_int_with_config, forall_int_pair_with_config, forall_int_array_with_config, prop_pass, prop_fail, prop_discard, config, config_default, report_passed, report_summary, RunConfig, PropertyReport, IntPairGenerator, IntArrayGenerator, IntRangeGenerator
 
 fn always_pass(_: int) -> string {

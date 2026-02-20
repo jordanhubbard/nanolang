@@ -1,3 +1,4 @@
+/* Test: 4x4 matrix operations including translation and transformation */
 from "std/math/matrix4.nano" import Mat4, mat4_identity, mat4_translation, mat4_mul, mat4_transform_point
 from "std/math/vector3d.nano" import Vector3D, vec3_new
 

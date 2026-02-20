@@ -1,3 +1,4 @@
+/* User guide test: canonical array operations */
 fn sum_first_two(arr: array<int>) -> int {
     let a: int = (at arr 0)
     let b: int = (at arr 1)

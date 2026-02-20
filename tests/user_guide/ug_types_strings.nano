@@ -1,3 +1,4 @@
+/* User guide test: type system string operations */
 fn greeting() -> string {
     return (+ "hello" (+ " " "world"))
 }

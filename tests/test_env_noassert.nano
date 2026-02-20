@@ -1,3 +1,4 @@
+/* Test: environment variable get and set operations */
 from "modules/std/env.nano" import set_env, get
 
 fn test_it() -> int {

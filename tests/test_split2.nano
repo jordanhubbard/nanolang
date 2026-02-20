@@ -1,3 +1,4 @@
+/* Test: regex string splitting with character class */
 from "std/regex/regex.nano" import regex_split
 
 fn main() -> int {

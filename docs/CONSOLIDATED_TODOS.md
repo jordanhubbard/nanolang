@@ -1,6 +1,7 @@
 # Consolidated TODOs
 
 **Created:** 2026-02-20
+**Last updated:** 2026-02-20
 **Source:** Extracted from internal planning docs during cleanup audit.
 
 ---
@@ -101,6 +102,7 @@ Deferred: integrate `nl_string_t` into the transpiler. 2-3 weeks effort.
 
 ### str_concat Refactoring (from STRING_PLUS_REFACTORING_EXAMPLES.md, CODEBASE_REFACTORING_2025_12_31.md)
 ~30 `str_concat` calls remain in codebase (mostly in `src_nano/nanoc_integrated.nano`). Replace with `+` operator.
+Note: these are compiler internals (transpiler emitting C code, typechecker builtin recognition). This is compiler refactoring, not a search-and-replace task.
 
 ---
 
@@ -266,15 +268,15 @@ Full `nano pkg` CLI and ecosystem (not yet started).
 ## Examples Cleanup (from planning/EXAMPLES_AUDIT_REPORT.md, planning/EXAMPLES_CONSOLIDATION_AUDIT.md, planning/EXAMPLES_MODERNIZATION.md)
 - Add header comments to ~48 undocumented examples.
 - Modernize 6 game examples with enums and structs (checkers, snake, maze, particles, boids, boids_complete).
-- Delete 15 redundant/superseded example files.
+- ~~Delete 15 redundant/superseded example files.~~ Audited 2026-02-20: no true redundants found. Examples serve distinct purposes across categories.
 - Create 11 new merged comprehensive examples.
-- Reorganize examples into subdirectories (beginner/, language_features/, games/, modules/, advanced/).
+- ~~Reorganize examples into subdirectories.~~ Done: language/, games/, graphics/, advanced/, terminal/, audio/, data/, network/, physics/, verified/ all exist.
 
 ## Test Cleanup (from planning/TEST_AUDIT_REPORT.md)
-- Delete 25-30 duplicate test files.
+- ~~Delete 25-30 duplicate test files.~~ Done 2026-02-20: deleted 6 truly redundant files (tuple_simple_test, tuple_minimal, test_builtins_simple, test_nested_simple, test_split, test_env_only). Remaining files serve distinct purposes.
 - Move 6 tutorial tests to `examples/language_features/`.
-- Consolidate generic union and array tests.
-- Add header comments to all tests.
+- ~~Consolidate generic union and array tests.~~ Done 2026-02-20: consolidated 6 generic_union files into 3 (test_generic_union.nano, test_generic_union_match.nano, test_generic_union_non_generic.nano).
+- ~~Add header comments to all tests.~~ Done 2026-02-20: all 183 test files now have header comments.
 
 ## Tracing Infrastructure (from planning/TRACING_DESIGN.md)
 Full tracing system (not yet started).

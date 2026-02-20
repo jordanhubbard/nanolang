@@ -1,3 +1,4 @@
+/* Differential test: division by zero behavior */
 fn main() -> int {
     (println (cast_string (/ 42 0)))
     return 0

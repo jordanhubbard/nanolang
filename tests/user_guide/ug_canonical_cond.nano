@@ -1,3 +1,4 @@
+/* User guide test: canonical conditional expression */
 fn classify(n: int) -> string {
     return (cond
         ((< n 0) "negative")
