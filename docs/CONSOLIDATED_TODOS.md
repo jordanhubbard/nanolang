@@ -173,3 +173,152 @@ New tools: code analysis tool (linter), documentation generator, custom DSL exam
 
 ### Autonomous Agents (from AUTONOMOUS_AGENTS.md)
 Future: streaming responses, webhook integration, vector database, multi-repo coordination, automated deployment.
+
+---
+
+## Compiler Optimizations (from planning/COMPILER_OPTIMIZATIONS_DESIGN.md)
+Full optimization pass framework. No phases implemented.
+- Phase 1: Optimization pass infrastructure and `--optimize=N` flag.
+- Phase 2: Constant folding.
+- Phase 3: Dead code elimination.
+- Phase 4: Tail call optimization.
+- Phase 5: CSE, loop invariant code motion, inline expansion, loop unrolling.
+
+## Compiler Module Boundaries (from planning/compiler_module_boundaries.md)
+Immutable phase-boundary contracts.
+- Each phase module must expose `fn run(input) -> PhaseOutput`.
+- `nanoc_integrated.nano` must become a coordinator chaining phase outputs.
+- C refactors must include generated headers.
+
+## Code Coverage Infrastructure (from planning/BEAD_FIXES_SUMMARY.md)
+- Add `make coverage` target with gcov/lcov integration.
+- Generate HTML coverage reports.
+- Add CI coverage badge and thresholds.
+
+## Stdlib Reorganization (from planning/STDLIB_REORGANIZATION_PLAN.md, planning/EVAL_REFACTORING_PLAN.md)
+- Create `src/stdlib/` directory structure.
+- Reorganize 72 stdlib functions into focused modules.
+- Complete documentation for ~41 undocumented stdlib functions.
+- Add per-module tests.
+- Update CONTRIBUTING.md with new structure.
+
+## Generics (from planning/GENERICS_DESIGN.md, planning/GENERICS_EXTENDED_DESIGN.md)
+- Parse `List<T>` syntax for generic types and functions.
+- Type checker: track and create generic instantiations.
+- Transpiler: generate concrete monomorphized types.
+- Multiple type parameters (`Map<K,V>`), nested generics.
+- `Result<T>` and `Option<T>` union types with pattern matching.
+- Add `TYPE_LIST_GENERIC` to type enum, `ListInstantiation` tracking.
+
+## Garbage Collection (from planning/GC_DESIGN.md, planning/GC_UNIVERSAL_OBJECTS.md)
+- `src/runtime/gc.c`: GC allocator with reference counting and free list.
+- String GC integration.
+- Transpiler: generate `gc_retain()`/`gc_release()` calls.
+- Mark-and-sweep cycle detection (`gc_collect_cycles()`).
+- New stdlib: `array_capacity`, `array_reserve`, `array_filter`, `array_map`.
+- Extend GC to structs, unions, lists (`GC_TYPE_STRUCT`, `GC_TYPE_UNION`, `GC_TYPE_LIST`).
+- Language syntax for heap allocation, parser/type checker GC inference.
+
+## First-Class Functions (from planning/FIRST_CLASS_FUNCTIONS_DESIGN.md)
+- Phase B4: User guide and spec documentation updates.
+- Phase B5: Code audit to refactor `src_nano/*` with first-class function patterns (parser dispatch tables, token classification callbacks, AST transformation callbacks).
+
+## Known Bugs (from planning/KNOWN_ISSUES.md)
+- (High) Expression statements not validated: parser/typechecker allows standalone pure expressions as statements without error.
+- (Medium) Self-hosted typechecker misses function argument type errors: `test_function_arg_type_errors.nano` disabled in CI.
+
+## Dep Locator (from planning/DEP_LOCATOR_NANO_REQUIREMENTS.md)
+- Fix generic type inference for `at(array<T>, index)` when array is a function parameter.
+- Improve generic type representation in `Type` struct (`src/nanolang.h`).
+- Enhance `env_lookup_variable()` to return full type info including generics.
+
+## LSP Server (from planning/LSP_DESIGN.md)
+Full Language Server Protocol implementation (not yet started).
+- Phase 1: Basic LSP (textDocument/didOpen, completion, hover, definition).
+- Phase 2: Navigation (references, rename, formatting, code actions).
+- Phase 3: Semantic tokens, inlay hints, workspace symbols.
+- VS Code extension (`editors/vscode/nanolang/`).
+
+## REPL Improvements (from planning/REPL_IMPLEMENTATION_PLAN.md, planning/REPL_PROGRESS.md, planning/REPL_DESIGN.md)
+- Stateful session manager with persistent variables.
+- Function definitions in REPL.
+- Module imports in REPL.
+- Tab completion, help, save/load.
+- Variable reassignment (`set` statement support).
+- C-native `nanorepl` binary (alternative to nano-based REPL).
+- Multiline input support.
+- Multi-type eval commands (`:int`, `:float`, `:string`, `:bool`).
+
+## Package Manager (from planning/PACKAGE_MANAGER_DESIGN.md)
+Full `nano pkg` CLI and ecosystem (not yet started).
+- Phase 1: CLI tool and `nano.toml` format.
+- Phase 2: Registry HTTP API and package signing.
+- Phase 3: Lock files and vulnerability scanning.
+- Phase 4: Web UI.
+
+## Module FFI (from planning/MODULE_FFI_IMPLEMENTATION.md, planning/MODULE_SYSTEM_ANALYSIS.md)
+- Complete metadata deserialization (read from `.o` files, binary-only module import).
+- Improve C type mapping (pointers, C structs, C enums, function pointers).
+- Module namespacing (`as` keyword qualified access).
+- Module versioning.
+- Complete FFI tool: C header parser in `nanoc-ffi`.
+
+## Examples Cleanup (from planning/EXAMPLES_AUDIT_REPORT.md, planning/EXAMPLES_CONSOLIDATION_AUDIT.md, planning/EXAMPLES_MODERNIZATION.md)
+- Add header comments to ~48 undocumented examples.
+- Modernize 6 game examples with enums and structs (checkers, snake, maze, particles, boids, boids_complete).
+- Delete 15 redundant/superseded example files.
+- Create 11 new merged comprehensive examples.
+- Reorganize examples into subdirectories (beginner/, language_features/, games/, modules/, advanced/).
+
+## Test Cleanup (from planning/TEST_AUDIT_REPORT.md)
+- Delete 25-30 duplicate test files.
+- Move 6 tutorial tests to `examples/language_features/`.
+- Consolidate generic union and array tests.
+- Add header comments to all tests.
+
+## Tracing Infrastructure (from planning/TRACING_DESIGN.md)
+Full tracing system (not yet started).
+- Create `src/tracing.h` and `src/tracing.c`.
+- Add hooks in `eval.c` and `typechecker.c`.
+- Implement command-line tracing flags.
+
+## Transpiler Improvements (from planning/TRANSPILER_ENUM_ISSUE.md, planning/transpiler_refactoring_plan.md, planning/TUPLE_RETURN_IMPLEMENTATION.md)
+- Fix proper enum field handling (currently using `int` workaround).
+- Add `GeneratedTypes` tracking struct to `transpiler.c`.
+- Complete transpiler refactoring (58% remaining): stdlib to separate file, function declarations, function implementations.
+- Integrate `TupleTypeRegistry` into `transpile_program()` (95% done, 4-5 integration points remain).
+
+## Self-Hosted Compiler Improvements (from planning/SRC_NANO_IMPROVEMENTS.md, planning/STAGE2_STATUS.md, planning/UNION_TYPES_AUDIT.md)
+- Replace magic numbers in `lexer_v2.nano` with enum variants.
+- Generic List integration (`List<Token>`).
+- AST union type refactor in `ast_types.nano`.
+- Fix match arm bindings in typechecker scope.
+- Generic union instantiation parsing (`Result<int, string>` syntax).
+- Tuple types in self-hosted compiler.
+- First-class functions in self-hosted compiler.
+
+## Showcase Games (from planning/SHOWCASE_GAMES_ROADMAP.md)
+- Boids simulation.
+- Procedural terrain explorer.
+- Falling sand (physics sandbox).
+- Music sequencer.
+- Shared infrastructure modules (vector2d, spatial, noise, audio, cellular, ui).
+
+## Web Playground (from planning/WEB_PLAYGROUND_DESIGN.md)
+- WASM build of compiler.
+- Share via URL, embed mode, download.
+- Code formatting, keyboard shortcuts, mobile support.
+- Multi-file projects, module support.
+- Debugging and profiling integration.
+- Backend services (sharing API, PostgreSQL, Redis).
+
+## Safety and Quality (from planning/safety_guidelines.md)
+- Add lint rules / codegen checks to forbid recursion beyond configurable depth.
+- Property-based tests (QuickCheck-style) for parser/type checker invariants.
+- Extend schema/contracts to cover module imports, IR transforms, and runtime list helpers.
+
+## Interpreter (from planning/LEXER_ENUM_ACCESS_LIMITATION.md, planning/INTERPRETER_ONLY_EXAMPLES_ANALYSIS.md)
+- Fix interpreter to register enum definitions before running shadow tests (currently requires magic numbers).
+- Systematically test all `nl_*` examples for compilation.
+- Update Makefile to compile all working examples.
+- Fix remaining transpiler `print` to `nl_print_*` prefix bug.

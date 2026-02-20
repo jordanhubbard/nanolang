@@ -137,7 +137,7 @@ My status and plans:
 17. **[RFC Process](RFC_PROCESS.md)** - How I evolve
 18. **[Package Manager Design](PACKAGE_MANAGER_DESIGN.md)** - Package manager proposal
 19. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps I track for parity
-20. **[Self-Hosting Checklist](../planning/SELF_HOSTING_CHECKLIST.md)** - My path to self-hosting
+20. **[Consolidated TODOs](CONSOLIDATED_TODOS.md)** - All remaining work items
 
 ### Contributing
 
