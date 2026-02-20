@@ -7,6 +7,25 @@ import "examples/opl/opl_codegen.nano"
 module "modules/std/fs.nano"
 module "modules/std/json/json.nano"
 
+fn resolve_bundle_path(relative: string) -> string {
+    if (exists relative) { return relative } else {}
+    let prefix: string = "examples/"
+    let prefix_len: int = 9
+    let rel_len: int = (str_length relative)
+    if (>= rel_len prefix_len) {
+        let head: string = (str_substring relative 0 prefix_len)
+        if (== head prefix) {
+            let trimmed: string = (str_substring relative prefix_len (- rel_len prefix_len))
+            if (exists trimmed) { return trimmed } else {}
+        } else {}
+    } else {}
+    return relative
+}
+
+shadow resolve_bundle_path {
+    assert (== (resolve_bundle_path "/tmp") "/tmp")
+}
+
 pub struct Output {
     code: int
     stdout: string
@@ -67,7 +86,7 @@ fn cmd_parse(input_path: string, out_path: string) -> int {
 
 shadow cmd_parse {
     let out_path: string = "/tmp/opl_cli_parse.json"
-    assert (== (cmd_parse "examples/opl/bundle/EXAMPLES.opl" out_path) 0)
+    assert (== (cmd_parse (resolve_bundle_path "examples/opl/bundle/EXAMPLES.opl") out_path) 0)
     assert (exists out_path)
     (delete out_path)
 }
@@ -108,7 +127,7 @@ fn cmd_compile(input_path: string, out_path: string) -> int {
 
 shadow cmd_compile {
     let out_path: string = "/tmp/opl_cli_compile.json"
-    assert (== (cmd_compile "examples/opl/bundle/EXAMPLES.opl" out_path) 0)
+    assert (== (cmd_compile (resolve_bundle_path "examples/opl/bundle/EXAMPLES.opl") out_path) 0)
     assert (exists out_path)
     (delete out_path)
 }
@@ -131,7 +150,7 @@ fn cmd_codegen(plan_path: string, out_path: string) -> int {
 
 shadow cmd_codegen {
     let out_path: string = "/tmp/opl_cli_codegen.nano"
-    assert (== (cmd_codegen "examples/opl/bundle/EXAMPLES.expected_plan.json" out_path) 0)
+    assert (== (cmd_codegen (resolve_bundle_path "examples/opl/bundle/EXAMPLES.expected_plan.json") out_path) 0)
     assert (exists out_path)
     (delete out_path)
 }
@@ -222,7 +241,7 @@ shadow run_validate_error {
 }
 
 fn cmd_test() -> int {
-    let src: string = (read "examples/opl/bundle/TESTS.cases.json")
+    let src: string = (read (resolve_bundle_path "examples/opl/bundle/TESTS.cases.json"))
     let root: Json = (parse src)
     if (== root 0) { return 2 } else {}
 
@@ -237,8 +256,8 @@ fn cmd_test() -> int {
         let kind: string = (get_string c "kind")
 
         if (== kind "golden_ast") {
-            let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
-            let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
+            let inp: string = (resolve_bundle_path (+ "examples/opl/bundle/" (get_string c "inputFile")))
+            let exp: string = (resolve_bundle_path (+ "examples/opl/bundle/" (get_string c "expectedFile")))
             let ok: bool = (run_golden_ast inp exp)
             if (not ok) {
                 (println (+ "FAIL golden_ast " name))
@@ -247,8 +266,8 @@ fn cmd_test() -> int {
         } else {}
 
         if (== kind "golden_plan") {
-            let inp: string = (+ "examples/opl/bundle/" (get_string c "inputFile"))
-            let exp: string = (+ "examples/opl/bundle/" (get_string c "expectedFile"))
+            let inp: string = (resolve_bundle_path (+ "examples/opl/bundle/" (get_string c "inputFile")))
+            let exp: string = (resolve_bundle_path (+ "examples/opl/bundle/" (get_string c "expectedFile")))
             let ok: bool = (run_golden_plan inp exp)
             if (not ok) {
                 (println (+ "FAIL golden_plan " name))
@@ -360,7 +379,7 @@ fn run_golden_ast(input_path: string, expected_path: string) -> bool {
 }
 
 shadow run_golden_ast {
-    assert (run_golden_ast "examples/opl/bundle/EXAMPLES.opl" "examples/opl/bundle/EXAMPLES.expected_ast.json")
+    assert (run_golden_ast (resolve_bundle_path "examples/opl/bundle/EXAMPLES.opl") (resolve_bundle_path "examples/opl/bundle/EXAMPLES.expected_ast.json"))
 }
 
 fn run_golden_plan(input_path: string, expected_path: string) -> bool {
@@ -380,6 +399,6 @@ fn run_golden_plan(input_path: string, expected_path: string) -> bool {
 }
 
 shadow run_golden_plan {
-    assert (run_golden_plan "examples/opl/bundle/EXAMPLES.opl" "examples/opl/bundle/EXAMPLES.expected_plan.json")
+    assert (run_golden_plan (resolve_bundle_path "examples/opl/bundle/EXAMPLES.opl") (resolve_bundle_path "examples/opl/bundle/EXAMPLES.expected_plan.json"))
 }
 

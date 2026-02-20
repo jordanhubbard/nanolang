@@ -163,9 +163,15 @@ NCURSES_EXAMPLES := $(patsubst terminal/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EX
 NCURSES_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NCURSES_EXAMPLES)))
 
 # === OpenGL Examples (opengl_*) ===
-# Require GLFW + GLEW
+# Require freeglut (or GLFW + GLEW)
 
+GLUT_AVAILABLE := $(shell pkg-config --exists glut 2>/dev/null && echo yes || (pkg-config --exists freeglut 2>/dev/null && echo yes || echo no))
+
+ifeq ($(GLUT_AVAILABLE),yes)
 OPENGL_SOURCES := $(wildcard opengl/*.nano)
+else
+OPENGL_SOURCES :=
+endif
 OPENGL_EXAMPLES := $(patsubst opengl/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(OPENGL_SOURCES))
 OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
 
