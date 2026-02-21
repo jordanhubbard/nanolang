@@ -39,11 +39,8 @@ test_infix_ops.nano
 # Negative tests (compiler should reject)
 NEGATIVE_TESTS="
 test_requires_bool.nano
+test_function_arg_type_errors.nano
 "
-
-# NOTE: test_function_arg_type_errors.nano disabled - self-hosted typechecker passes this through
-# The C reference compiler correctly rejects it, but self-hosted needs type checking improvements
-# TODO: Fix self-hosted typechecker to properly reject function argument type mismatches
 
 PASSED=0
 FAILED=0

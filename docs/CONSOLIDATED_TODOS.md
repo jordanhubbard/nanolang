@@ -1,7 +1,7 @@
 # Consolidated TODOs
 
 **Created:** 2026-02-20
-**Last updated:** 2026-02-20
+**Last updated:** 2026-02-21
 **Source:** Extracted from internal planning docs during cleanup audit.
 
 ---
@@ -226,8 +226,8 @@ Immutable phase-boundary contracts.
 - Phase B5: Code audit to refactor `src_nano/*` with first-class function patterns (parser dispatch tables, token classification callbacks, AST transformation callbacks).
 
 ## Known Bugs (from planning/KNOWN_ISSUES.md)
-- (High) Expression statements not validated: parser/typechecker allows standalone pure expressions as statements without error.
-- (Medium) Self-hosted typechecker misses function argument type errors: `test_function_arg_type_errors.nano` disabled in CI.
+- ~~(High) Expression statements not validated: parser/typechecker allows standalone pure expressions as statements without error.~~ Fixed 2026-02-21: typechecker now rejects pure expression statements (literals, identifiers, operator expressions) with "EXPRESSION HAS NO EFFECT" error. Module-qualified calls and regular function calls are still allowed.
+- ~~(Medium) Self-hosted typechecker misses function argument type errors: `test_function_arg_type_errors.nano` disabled in CI.~~ Fixed 2026-02-21: self-hosted typechecker now validates argument types against parameter types for user-defined function calls. Test re-enabled in CI.
 
 ## Dep Locator (from planning/DEP_LOCATOR_NANO_REQUIREMENTS.md)
 - Fix generic type inference for `at(array<T>, index)` when array is a function parameter.
@@ -266,7 +266,7 @@ Full `nano pkg` CLI and ecosystem (not yet started).
 - Complete FFI tool: C header parser in `nanoc-ffi`.
 
 ## Examples Cleanup (from planning/EXAMPLES_AUDIT_REPORT.md, planning/EXAMPLES_CONSOLIDATION_AUDIT.md, planning/EXAMPLES_MODERNIZATION.md)
-- Add header comments to ~48 undocumented examples.
+- ~~Add header comments to ~48 undocumented examples.~~ Verified 2026-02-21: all 170 example .nano files already have standardized # comment headers (Example, Purpose, Features, Difficulty, Category, Prerequisites, Expected Output).
 - Modernize 6 game examples with enums and structs (checkers, snake, maze, particles, boids, boids_complete).
 - ~~Delete 15 redundant/superseded example files.~~ Audited 2026-02-20: no true redundants found. Examples serve distinct purposes across categories.
 - Create 11 new merged comprehensive examples.
@@ -274,7 +274,7 @@ Full `nano pkg` CLI and ecosystem (not yet started).
 
 ## Test Cleanup (from planning/TEST_AUDIT_REPORT.md)
 - ~~Delete 25-30 duplicate test files.~~ Done 2026-02-20: deleted 6 truly redundant files (tuple_simple_test, tuple_minimal, test_builtins_simple, test_nested_simple, test_split, test_env_only). Remaining files serve distinct purposes.
-- Move 6 tutorial tests to `examples/language_features/`.
+- ~~Move 6 tutorial tests to `examples/language_features/`.~~ Stale 2026-02-21: these 6 files are already in `examples/language/` alongside 55 other language examples. Creating a separate `language_features/` directory for 6 files is unnecessary churn.
 - ~~Consolidate generic union and array tests.~~ Done 2026-02-20: consolidated 6 generic_union files into 3 (test_generic_union.nano, test_generic_union_match.nano, test_generic_union_non_generic.nano).
 - ~~Add header comments to all tests.~~ Done 2026-02-20: all 183 test files now have header comments.
 
@@ -285,10 +285,10 @@ Full tracing system (not yet started).
 - Implement command-line tracing flags.
 
 ## Transpiler Improvements (from planning/TRANSPILER_ENUM_ISSUE.md, planning/transpiler_refactoring_plan.md, planning/TUPLE_RETURN_IMPLEMENTATION.md)
-- Fix proper enum field handling (currently using `int` workaround).
+- ~~Fix proper enum field handling (currently using `int` workaround).~~ Verified 2026-02-21: transpiler already handles enum-typed struct fields correctly. The redefinition bug described in TRANSPILER_ENUM_ISSUE.md does not reproduce. Enum types in struct fields generate clean C code with no duplicates.
 - Add `GeneratedTypes` tracking struct to `transpiler.c`.
 - Complete transpiler refactoring (58% remaining): stdlib to separate file, function declarations, function implementations.
-- Integrate `TupleTypeRegistry` into `transpile_program()` (95% done, 4-5 integration points remain).
+- ~~Integrate `TupleTypeRegistry` into `transpile_program()` (95% done, 4-5 integration points remain).~~ Verified 2026-02-21: all integration points are already in place. Registry is created, populated, used for type generation, and cleaned up. Planning doc "95%" is stale.
 
 ## Self-Hosted Compiler Improvements (from planning/SRC_NANO_IMPROVEMENTS.md, planning/STAGE2_STATUS.md, planning/UNION_TYPES_AUDIT.md)
 - Replace magic numbers in `lexer_v2.nano` with enum variants.

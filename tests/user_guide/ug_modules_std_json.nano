@@ -1,4 +1,3 @@
-/* User guide test: standard library JSON module */
 from "modules/std/json/json.nano" import Json, parse, get, object_has, as_string
 
 fn extract_name(json_text: string) -> string {

@@ -1,4 +1,3 @@
-/* User guide test: pattern match on union type */
 union SimpleResult {
     Ok { value: int },
     Err { error: string }

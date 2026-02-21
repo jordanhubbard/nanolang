@@ -1,4 +1,3 @@
-/* User guide test: getting started with arithmetic operations */
 fn add3(a: int, b: int, c: int) -> int {
     return (+ a (+ b c))
 }

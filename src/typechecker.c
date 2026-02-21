@@ -3573,8 +3573,17 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
         
         case AST_PREFIX_OP:
-            /* Expression statement */
+            /* Expression statement - operator expression used as statement has no effect */
             check_expression(stmt, tc->env);
+            emit_context_error(
+                "EXPRESSION HAS NO EFFECT",
+                stmt->line,
+                stmt->column,
+                1,
+                "This operator expression is used as a statement but produces no side effect. The result is discarded.",
+                "If you meant to call a function, use (function_name args). If you meant to assign, use set."
+            );
+            tc->has_error = true;
             return TYPE_VOID;
             
         case AST_CALL: {
@@ -3617,6 +3626,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_MODULE_QUALIFIED_CALL:
+            check_expression(stmt, tc->env);
+            return TYPE_VOID;
+
         case AST_FUNCTION: {
             /* Nested function definition (for closures).
              * Register it in the environment and type-check its body. */
@@ -3648,10 +3661,39 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
-        default:
-            /* Literals and identifiers as statements */
+        default: {
+            /* Literals, identifiers, and other pure expressions used as statements */
             check_expression(stmt, tc->env);
+            const char *kind = "expression";
+            switch (stmt->type) {
+                case AST_NUMBER:    kind = "numeric literal"; break;
+                case AST_FLOAT:     kind = "float literal"; break;
+                case AST_STRING:    kind = "string literal"; break;
+                case AST_BOOL:      kind = "boolean literal"; break;
+                case AST_IDENTIFIER: kind = "variable reference"; break;
+                case AST_ARRAY_LITERAL: kind = "array literal"; break;
+                case AST_STRUCT_LITERAL: kind = "struct literal"; break;
+                case AST_FIELD_ACCESS: kind = "field access"; break;
+                case AST_TUPLE_LITERAL: kind = "tuple literal"; break;
+                case AST_TUPLE_INDEX: kind = "tuple index"; break;
+                case AST_QUALIFIED_NAME: kind = "qualified name"; break;
+                default: break;
+            }
+            char message[256];
+            snprintf(message, sizeof(message),
+                     "This %s is used as a statement but produces no side effect. The result is discarded.",
+                     kind);
+            emit_context_error(
+                "EXPRESSION HAS NO EFFECT",
+                stmt->line,
+                stmt->column,
+                1,
+                message,
+                "If you meant to call a function, use (function_name args). If you meant to assign, use set."
+            );
+            tc->has_error = true;
             return TYPE_VOID;
+        }
     }
 }
 

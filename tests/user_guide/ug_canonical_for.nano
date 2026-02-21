@@ -1,4 +1,3 @@
-/* User guide test: canonical for loop */
 fn sum_range(n: int) -> int {
     let mut total: int = 0
     for i in (range 0 n) {

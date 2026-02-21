@@ -1,4 +1,3 @@
-/* User guide test: type system tuple operations */
 fn sum_pair() -> int {
     let t: (int, int) = (4, 6)
     return (+ t.0 t.1)

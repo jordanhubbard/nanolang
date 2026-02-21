@@ -2359,7 +2359,21 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (>= idx 0) {
                 let sym: Symbol = (at symbols idx)
                 if sym.is_function {
-                    /* For function calls, return the return type, not the function type */
+                    /* Validate argument types against parameter types */
+                    let mut j: int = 0
+                    while (< j call_node.arg_count) {
+                        if (< j sym.param_count) {
+                            let arg_ref2: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
+                            let arg_t2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
+                            let param_t: NSType = (at sym.param_types j)
+                            if (not (types_equal arg_t2 param_t)) {
+                                let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to '" (+ fn_name (+ "': expected " (+ (type_to_string param_t) (+ ", got " (type_to_string arg_t2))))))))
+                                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                                (Diagnostics.diag_list_add diags diag)
+                            } else { (print "") }
+                        } else { (print "") }
+                        set j (+ j 1)
+                    }
                     return sym.return_type
                 } else {
                     /* Variable being called - if it's a function type, extract return type */

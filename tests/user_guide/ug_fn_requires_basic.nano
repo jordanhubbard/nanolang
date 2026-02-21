@@ -1,4 +1,3 @@
-/* User guide test: function requires precondition */
 fn safe_divide(a: int, b: int) -> int
 requires (> b 0)
 {

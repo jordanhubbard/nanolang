@@ -1,4 +1,3 @@
-/* User guide test: getting started with hello world */
 fn hello_message() -> string {
     return "Hello, NanoLang!"
 }

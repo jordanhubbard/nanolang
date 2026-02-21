@@ -1,4 +1,3 @@
-/* User guide test: canonical string concatenation */
 fn greet(name: string) -> string {
     return (+ "Hello, " (+ name "!"))
 }

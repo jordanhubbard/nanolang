@@ -1,4 +1,3 @@
-/* User guide test: canonical prefix notation arithmetic */
 fn distance_1d(a: int, b: int) -> int {
     return (cond
         ((> a b) (- a b))

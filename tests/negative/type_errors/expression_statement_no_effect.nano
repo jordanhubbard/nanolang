@@ -1,0 +1,15 @@
+# Expected error: Expression has no effect
+# Standalone expressions without side effects are not valid statements
+
+fn main() -> int {
+    let x: int = 5
+    let y: int = 10
+
+    x
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

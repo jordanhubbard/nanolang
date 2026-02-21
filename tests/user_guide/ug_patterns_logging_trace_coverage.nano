@@ -1,4 +1,3 @@
-/* User guide test: pattern logging trace and coverage instrumentation */
 from "stdlib/log.nano" import log_info
 from "stdlib/coverage.nano" import coverage_init, coverage_record, coverage_report
 from "stdlib/coverage.nano" import trace_init, trace_record, trace_report

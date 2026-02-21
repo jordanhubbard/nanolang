@@ -1,4 +1,3 @@
-/* User guide test: canonical enum definition */
 enum Color {
     Red = 0
     Green = 1

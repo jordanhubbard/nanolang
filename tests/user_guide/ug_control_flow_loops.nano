@@ -1,4 +1,3 @@
-/* User guide test: control flow with while loops */
 fn sum_1_to_n(n: int) -> int {
     let mut sum: int = 0
     let mut i: int = 1

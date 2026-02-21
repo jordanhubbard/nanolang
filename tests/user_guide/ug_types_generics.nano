@@ -1,4 +1,3 @@
-/* User guide test: type system generic List operations */
 fn sum_list(xs: List<int>) -> int {
     let mut total: int = 0
     let len: int = (list_int_length xs)
