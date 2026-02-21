@@ -410,13 +410,9 @@ shadow parser_match {
 
 /* Expect a specific token type - advance if matched, set error if not */
 fn parser_expect(p: Parser, token_type: int) -> Parser {
-    /* TODO: Get current token from List<LexerToken> and check type */
-    /* For now, placeholder logic: */
     if (parser_match p token_type) {
-        /* LexerToken matches - advance and return */
         return (parser_advance p)
     } else {
-        /* LexerToken doesn't match - set error flag */
         return (parser_with_error p true)
     }
 }

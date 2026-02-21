@@ -1238,13 +1238,9 @@ shadow parser_match {
 
 /* Expect a specific token type - advance if matched, set error if not */
 fn parser_expect(p: Parser, token_type: int) -> Parser {
-    /* TODO: Get current token from List<LexerToken> and check type */
-    /* For now, placeholder logic: */
     if (parser_match p token_type) {
-        /* LexerToken matches - advance and return */
         return (parser_advance p)
     } else {
-        /* LexerToken doesn't match - set error flag */
         return (parser_with_error p true)
     }
 }
@@ -1974,7 +1970,7 @@ shadow parser_store_let {
 /* Helper: Store set statement node */
 fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, line: int, column: int) -> Parser {
     let node: ASTSet = ASTSet {
-        node_type: ParseNodeType.PNODE_LET,  /* TODO: Add PNODE_SET */
+        node_type: ParseNodeType.PNODE_SET,
         line: line,
         column: column,
         target: target,
@@ -2032,7 +2028,7 @@ shadow parser_store_set {
 /* Helper: Store if statement node */
 fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_id: int, else_body_id: int, line: int, column: int) -> Parser {
     let node: ASTIf = ASTIf {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_IF to enum */
+        node_type: ParseNodeType.PNODE_IF,
         line: line,
         column: column,
         condition: condition_id,
@@ -2091,7 +2087,7 @@ shadow parser_store_if {
 /* Helper: Store while statement node */
 fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id: int, line: int, column: int) -> Parser {
     let node: ASTWhile = ASTWhile {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_WHILE to enum */
+        node_type: ParseNodeType.PNODE_WHILE,
         line: line,
         column: column,
         condition: condition_id,
@@ -2149,7 +2145,7 @@ shadow parser_store_while {
 /* Helper: Store return statement node */
 fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, column: int) -> Parser {
     let node: ASTReturn = ASTReturn {
-        node_type: ParseNodeType.PNODE_BLOCK,  /* TODO: Add PNODE_RETURN to enum */
+        node_type: ParseNodeType.PNODE_RETURN,
         line: line,
         column: column,
         value: value_id,
@@ -2863,16 +2859,20 @@ fn parse_function_params(p: Parser, param_count: int) -> Parser {
                 let p1: Parser = (parser_advance p)  /* consume ')' */
                 return (parser_with_calls_count p1 0)
             } else {
-                /* Has parameters - skip them for now (simplified) */
-                /* Just advance until we find ')' */
+                /* Count params by counting commas + 1 */
                 let mut current: Parser = p
+                let mut param_count: int = 1
                 while (and (not (parser_is_at_end current)) (not (parser_has_error current))) {
                     let tok2: LexerToken = (parser_current current)
                     if (== tok2.token_type (token_rparen)) {
                         let p2: Parser = (parser_advance current)  /* consume ')' */
-                        /* TODO: Count parameters properly */
-                        return (parser_with_calls_count p2 1)  /* Simplified: assume 1 param */
+                        return (parser_with_calls_count p2 param_count)
                     } else {
+                        if (== tok2.token_type (token_comma)) {
+                            set param_count (+ param_count 1)
+                        } else {
+                            (print "")
+                        }
                         set current (parser_advance current)
                     }
                 }
@@ -4067,12 +4067,41 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NST
  * AST TYPE CHECKING - Statement validation
  * ============================================================================= */
 
+/* Map a ParseNodeType for a literal to an NSType (returns TYPE_UNKNOWN for complex exprs) */
+fn pnode_type_to_ntype(value_type: int) -> NSType {
+    if (== value_type ParseNodeType.PNODE_NUMBER) {
+        return (type_int)
+    } else {
+        if (== value_type ParseNodeType.PNODE_FLOAT) {
+            return (type_float)
+        } else {
+            if (== value_type ParseNodeType.PNODE_STRING) {
+                return (type_string)
+            } else {
+                if (== value_type ParseNodeType.PNODE_BOOL) {
+                    return (type_bool)
+                } else {
+                    return (type_unknown_named "unknown")
+                }
+            }
+        }
+    }
+}
+
+shadow pnode_type_to_ntype {
+    assert (== (pnode_type_to_ntype ParseNodeType.PNODE_NUMBER).kind TypeKind.TYPE_INT)
+    assert (== (pnode_type_to_ntype ParseNodeType.PNODE_STRING).kind TypeKind.TYPE_STRING)
+    assert (== (pnode_type_to_ntype ParseNodeType.PNODE_BOOL).kind TypeKind.TYPE_BOOL)
+    assert (== (pnode_type_to_ntype ParseNodeType.PNODE_FLOAT).kind TypeKind.TYPE_FLOAT)
+    assert (== (pnode_type_to_ntype ParseNodeType.PNODE_IDENTIFIER).kind TypeKind.TYPE_UNKNOWN)
+}
+
 /* NSType check a let statement
- * 
+ *
  * Validates that:
  * 1. The variable is not already defined
  * 2. The initialization expression type matches the declared type
- * 
+ *
  * Returns: Updated symbols array with the new variable
  */
 fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>) -> array<Symbol> {
@@ -4086,9 +4115,19 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>)
     
     /* Get declared type */
     let declared_type: NSType = (type_from_string let_node.var_type)
-    
-    /* TODO: NSType check the initialization expression */
-    /* For now, just add the symbol */
+
+    /* Check init expression type for literal values (identifiers/complex exprs skipped) */
+    let init_type: NSType = (pnode_type_to_ntype let_node.value_type)
+    if (and (!= init_type.kind TypeKind.TYPE_UNKNOWN) (!= declared_type.kind TypeKind.TYPE_UNKNOWN)) {
+        if (!= init_type.kind declared_type.kind) {
+            (println (+ "NSType error: " (+ let_node.name (+ " declared as " (+ let_node.var_type (+ " but initialized with " (type_to_string init_type)))))))
+        } else {
+            (print "")
+        }
+    } else {
+        (print "")
+    }
+
     let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false)
     return (env_add_symbol (env_new) symbols sym)
 }
@@ -4104,9 +4143,13 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
     if (< ret_node.value 0) {
         return (== expected_type.kind TypeKind.TYPE_VOID)
     } else {
-        /* TODO: NSType check the return expression */
-        /* For now, just return true */
-        return true
+        /* Check return expression type for literals; skip complex exprs */
+        let ret_type: NSType = (pnode_type_to_ntype ret_node.value_type)
+        if (and (!= ret_type.kind TypeKind.TYPE_UNKNOWN) (!= expected_type.kind TypeKind.TYPE_UNKNOWN)) {
+            return (== ret_type.kind expected_type.kind)
+        } else {
+            return true
+        }
     }
 }
 
@@ -4126,15 +4169,11 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
     (println (+ "NSType checking function " func.name))
     
-    /* Build symbol table with parameters */
-    /* TODO: Extract parameters from Parser storage */
+    /* Note: ASTFunction stores param_count but not param names/types;
+       full parameter extraction requires richer parser storage */
     let mut func_symbols: array<Symbol> = symbols
-    
-    /* Get expected return type */
-    let return_type: NSType = (type_from_string func.return_type)
-    
-    /* TODO: NSType check function body statements */
-    /* For now, just return true */
+    let _return_type: NSType = (type_from_string func.return_type)
+    /* Body checking requires block->statement mapping not yet available */
     return true
 }
 
@@ -4879,10 +4918,19 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int) -> string {
                     let mut result: string = "nl_"
                     set result (+ result func_name)
                     set result (+ result "(")
-                    
-                    /* TODO: Generate arguments */
-                    /* For now, generate with no arguments */
-                    
+
+                    /* Generate argument placeholders (arg node IDs not stored in ASTCall) */
+                    let mut arg_i: int = 0
+                    while (< arg_i call.arg_count) {
+                        if (> arg_i 0) {
+                            set result (+ result ", ")
+                        } else {
+                            (print "")
+                        }
+                        set result (+ result (+ "/* arg" (+ (int_to_string arg_i) " */")))
+                        set arg_i (+ arg_i 1)
+                    }
+
                     set result (+ result ")")
                     return result
                 } else {
@@ -4997,20 +5045,16 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int) -> string {
     set code (+ code cond_code)
     set code (+ code ") {\n")
     
-    /* TODO: Generate then body */
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "/* then body */\n")
-    
+    set code (+ code (generate_function_body parser if_stmt.then_body))
     set code (+ code (gen_indent indent))
     set code (+ code "}")
-    
+
     /* Generate else if present */
     if (< if_stmt.else_body 0) {
         set code (+ code "\n")
     } else {
         set code (+ code " else {\n")
-        set code (+ code (gen_indent (+ indent 1)))
-        set code (+ code "/* else body */\n")
+        set code (+ code (generate_function_body parser if_stmt.else_body))
         set code (+ code (gen_indent indent))
         set code (+ code "}\n")
     }
@@ -5036,10 +5080,7 @@ fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int) -> str
     set code (+ code cond_code)
     set code (+ code ") {\n")
     
-    /* TODO: Generate body */
-    set code (+ code (gen_indent (+ indent 1)))
-    set code (+ code "/* loop body */\n")
-    
+    set code (+ code (generate_function_body parser while_stmt.body))
     set code (+ code (gen_indent indent))
     set code (+ code "}\n")
     
@@ -5384,14 +5425,12 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
         (print "")
     }
     
-    /* TODO: Step 1: Read source file */
     if verbose {
         (println "Step 1: Reading source...")
     } else {
         (print "")
     }
-    /* let source: string = (read_file input) */
-    let source: string = "fn main() -> int { return 0 }"
+    let source: string = (read_file input)
     
     /* Step 2: Tokenize */
     if verbose {
@@ -5451,8 +5490,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
         (print "")
     }
     
-    /* TODO: Write C file when file I/O is ready */
-    /* (write_file c_file c_code) */
+    (write_file c_file c_code)
     
     /* Step 7: Compile C to binary */
     if verbose {
@@ -5467,9 +5505,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     let gcc_cmd4: string = (+ gcc_cmd3 output)
     let gcc_cmd5: string = (+ gcc_cmd4 " -lm")
     
-    /* TODO: Execute gcc when system() is ready */
-    /* let result: int = (system gcc_cmd5) */
-    let result: int = 0
+    let result: int = (system gcc_cmd5)
     
     if (== result 0) {
         if verbose {
