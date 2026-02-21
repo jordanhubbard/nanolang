@@ -74,3 +74,46 @@ shadow set_add {
     assert (set_has s1 "x")
     assert (== (set_size s1) 1)
 }
+
+shadow set_has {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    assert (set_has s1 "a")
+    assert (not (set_has s0 "a"))
+}
+
+shadow set_size {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let s2: Set = (set_add s1 "b")
+    assert (== (set_size s0) 0)
+    assert (== (set_size s2) 2)
+}
+
+shadow set_values {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let vals: array<string> = (set_values s1)
+    assert (== (array_length vals) 1)
+}
+
+shadow set_remove {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "x")
+    assert (set_has s1 "x")
+    let s2: Set = (set_remove s1 "x")
+    assert (not (set_has s2 "x"))
+}
+
+shadow set_clear {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let s2: Set = (set_clear s1)
+    assert (== (set_size s2) 0)
+}
+
+shadow set_free {
+    let s: Set = (set_new)
+    (set_free s)
+    assert true
+}

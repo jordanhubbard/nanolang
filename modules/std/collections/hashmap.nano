@@ -85,3 +85,59 @@ shadow map_put {
     assert (map_has hm1 "a")
     assert (== (map_get hm1 "a") "1")
 }
+
+shadow map_has {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "key" "val")
+    assert (map_has hm1 "key")
+    assert (not (map_has hm0 "key"))
+}
+
+shadow map_get {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "x" "y")
+    assert (== (map_get hm1 "x") "y")
+}
+
+shadow map_size {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    let hm2: HashMap = (map_put hm1 "b" "2")
+    assert (== (map_size hm0) 0)
+    assert (== (map_size hm2) 2)
+}
+
+shadow map_keys {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    let keys: array<string> = (map_keys hm1)
+    assert (== (array_length keys) 1)
+}
+
+shadow map_values {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    let vals: array<string> = (map_values hm1)
+    assert (== (array_length vals) 1)
+}
+
+shadow map_remove {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    assert (map_has hm1 "a")
+    let hm2: HashMap = (map_remove hm1 "a")
+    assert (not (map_has hm2 "a"))
+}
+
+shadow map_clear {
+    let hm0: HashMap = (map_new)
+    let hm1: HashMap = (map_put hm0 "a" "1")
+    let hm2: HashMap = (map_clear hm1)
+    assert (== (map_size hm2) 0)
+}
+
+shadow map_free {
+    let hm: HashMap = (map_new)
+    (map_free hm)
+    assert true
+}

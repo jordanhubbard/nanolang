@@ -44,6 +44,13 @@ fn is_terminal(sym: string) -> bool {
     }
 }
 
+shadow is_terminal {
+    assert (== (is_terminal "NUMBER") true)
+    assert (== (is_terminal "expr") false)
+    assert (== (is_terminal "+") true)
+    assert (== (is_terminal "") false)
+}
+
 fn is_nonterminal(sym: string) -> bool {
     let len: int = (str_length sym)
     if (== len 0) {
@@ -57,6 +64,13 @@ fn is_nonterminal(sym: string) -> bool {
             return false
         }
     }
+}
+
+shadow is_nonterminal {
+    assert (== (is_nonterminal "expr") true)
+    assert (== (is_nonterminal "NUMBER") false)
+    assert (== (is_nonterminal "") false)
+    assert (== (is_nonterminal "term") true)
 }
 
 /* Set representation - simple fixed array */
@@ -80,6 +94,12 @@ fn set_empty() -> StringSet {
     }
 }
 
+shadow set_empty {
+    let s: StringSet = (set_empty)
+    assert (== s.count 0)
+    assert (== s.item0 "")
+}
+
 fn set_contains(s: StringSet, item: string) -> bool {
     if (< s.count 1) { return false }
     else { if (== (== s.item0 item) true) { return true }
@@ -89,6 +109,14 @@ fn set_contains(s: StringSet, item: string) -> bool {
     else { if (== (== s.item2 item) true) { return true }
     else { return false }
     }}}}}
+}
+
+shadow set_contains {
+    let s: StringSet = (set_empty)
+    assert (== (set_contains s "A") false)
+    let s2: StringSet = (set_add s "A")
+    assert (== (set_contains s2 "A") true)
+    assert (== (set_contains s2 "B") false)
 }
 
 fn set_add(s: StringSet, item: string) -> StringSet {
@@ -108,6 +136,18 @@ fn set_add(s: StringSet, item: string) -> StringSet {
     }
 }
 
+shadow set_add {
+    let s: StringSet = (set_empty)
+    let s1: StringSet = (set_add s "A")
+    assert (== s1.count 1)
+    assert (== s1.item0 "A")
+    let s2: StringSet = (set_add s1 "B")
+    assert (== s2.count 2)
+    assert (== s2.item1 "B")
+    let s3: StringSet = (set_add s2 "A")
+    assert (== s3.count 2)
+}
+
 /* FIRST/FOLLOW computation */
 fn compute_first(symbol: string) -> StringSet {
     if (== (is_terminal symbol) true) {
@@ -116,6 +156,14 @@ fn compute_first(symbol: string) -> StringSet {
     } else {
         return (set_empty)
     }
+}
+
+shadow compute_first {
+    let first_term: StringSet = (compute_first "NUMBER")
+    assert (== first_term.count 1)
+    assert (== first_term.item0 "NUMBER")
+    let first_nonterm: StringSet = (compute_first "expr")
+    assert (== first_nonterm.count 0)
 }
 
 fn compute_follow(symbol: string, is_start: bool) -> StringSet {
@@ -128,39 +176,51 @@ fn compute_follow(symbol: string, is_start: bool) -> StringSet {
     return s
 }
 
+shadow compute_follow {
+    let follow_start: StringSet = (compute_follow "expr" true)
+    assert (== follow_start.count 1)
+    assert (== follow_start.item0 "$")
+    let follow_nonstart: StringSet = (compute_follow "term" false)
+    assert (== follow_nonstart.count 0)
+}
+
 /* Test functions */
 fn test_sets() -> int {
     (println "Testing sets...")
     
     let s1: StringSet = (set_empty)
     if (== s1.count 0) {
-        (println "✓ Empty set")
+        (println "ok Empty set")
     } else {
         return 1
     }
     
     let s2: StringSet = (set_add s1 "NUMBER")
     if (== s2.count 1) {
-        (println "✓ Add item")
+        (println "ok Add item")
     } else {
         return 1
     }
     
     if (== (set_contains s2 "NUMBER") true) {
-        (println "✓ Contains")
+        (println "ok Contains")
     } else {
         return 1
     }
     
     let s3: StringSet = (set_add s2 "NUMBER")
     if (== s3.count 1) {
-        (println "✓ No duplicates")
+        (println "ok No duplicates")
     } else {
         return 1
     }
     
     (println "")
     return 0
+}
+
+shadow test_sets {
+    assert (== (test_sets) 0)
 }
 
 fn test_first_follow() -> int {
@@ -168,14 +228,14 @@ fn test_first_follow() -> int {
     
     let first: StringSet = (compute_first "NUMBER")
     if (== first.count 1) {
-        (println "✓ FIRST(terminal)")
+        (println "ok FIRST(terminal)")
     } else {
         return 1
     }
     
     let follow: StringSet = (compute_follow "expr" true)
     if (== follow.count 1) {
-        (println "✓ FOLLOW(start)")
+        (println "ok FOLLOW(start)")
     } else {
         return 1
     }
@@ -184,23 +244,31 @@ fn test_first_follow() -> int {
     return 0
 }
 
+shadow test_first_follow {
+    assert (== (test_first_follow) 0)
+}
+
 fn test_symbols() -> int {
     (println "Testing symbol classification...")
     
     if (== (is_terminal "NUMBER") true) {
-        (println "✓ NUMBER is terminal")
+        (println "ok NUMBER is terminal")
     } else {
         return 1
     }
     
     if (== (is_nonterminal "expr") true) {
-        (println "✓ expr is nonterminal")
+        (println "ok expr is nonterminal")
     } else {
         return 1
     }
     
     (println "")
     return 0
+}
+
+shadow test_symbols {
+    assert (== (test_symbols) 0)
 }
 
 /* =============================================================================
@@ -224,6 +292,13 @@ fn item_create(prod_id: int, dot_pos: int, lookahead: string) -> LRItem {
         dot_pos: dot_pos,
         lookahead: lookahead
     }
+}
+
+shadow item_create {
+    let item: LRItem = (item_create 1 0 "$")
+    assert (== item.prod_id 1)
+    assert (== item.dot_pos 0)
+    assert (== item.lookahead "$")
 }
 
 /* Item set - collection of LR items */
@@ -252,6 +327,12 @@ fn itemset_empty() -> ItemSet {
         item6: empty_item,
         item7: empty_item
     }
+}
+
+shadow itemset_empty {
+    let iset: ItemSet = (itemset_empty)
+    assert (== iset.count 0)
+    assert (== iset.item0.prod_id 0)
 }
 
 fn itemset_add(iset: ItemSet, item: LRItem) -> ItemSet {
@@ -310,6 +391,14 @@ fn itemset_add(iset: ItemSet, item: LRItem) -> ItemSet {
     }}}
 }
 
+shadow itemset_add {
+    let iset: ItemSet = (itemset_empty)
+    let item1: LRItem = (item_create 1 0 "$")
+    let iset2: ItemSet = (itemset_add iset item1)
+    assert (== iset2.count 1)
+    assert (== iset2.item0.prod_id 1)
+}
+
 /* Get item at index */
 fn itemset_get(iset: ItemSet, idx: int) -> LRItem {
     if (== idx 0) { return iset.item0 }
@@ -324,6 +413,15 @@ fn itemset_get(iset: ItemSet, idx: int) -> LRItem {
     }}}}}}}
 }
 
+shadow itemset_get {
+    let iset: ItemSet = (itemset_empty)
+    let item1: LRItem = (item_create 1 2 "$")
+    let iset2: ItemSet = (itemset_add iset item1)
+    let retrieved: LRItem = (itemset_get iset2 0)
+    assert (== retrieved.prod_id 1)
+    assert (== retrieved.dot_pos 2)
+}
+
 /* Closure operation - expand item set
  * For each item [A -> alpha . B beta, a] where B is nonterminal:
  *   Add [B -> . gamma, b] for each production B -> gamma
@@ -335,6 +433,14 @@ fn closure(iset: ItemSet) -> ItemSet {
     return iset
 }
 
+shadow closure {
+    let iset: ItemSet = (itemset_empty)
+    let item1: LRItem = (item_create 1 0 "$")
+    let iset2: ItemSet = (itemset_add iset item1)
+    let closed: ItemSet = (closure iset2)
+    assert (>= closed.count 1)
+}
+
 /* Goto operation - compute next state
  * Given item set I and symbol X:
  *   For each item [A -> alpha . X beta, a] in I:
@@ -344,6 +450,12 @@ fn goto_state(iset: ItemSet, symbol: string) -> ItemSet {
     /* Simplified: return empty set for now */
     /* Would scan items, advance dot past symbol */
     return (itemset_empty)
+}
+
+shadow goto_state {
+    let iset: ItemSet = (itemset_empty)
+    let result: ItemSet = (goto_state iset "NUMBER")
+    assert (== result.count 0)
 }
 
 /* =============================================================================
@@ -371,11 +483,23 @@ fn action_shift(state: int) -> Action {
     }
 }
 
+shadow action_shift {
+    let act: Action = (action_shift 5)
+    assert (== act.action_type ActionType.Shift)
+    assert (== act.value 5)
+}
+
 fn action_reduce(prod_id: int) -> Action {
     return Action {
         action_type: ActionType.Reduce,
         value: prod_id
     }
+}
+
+shadow action_reduce {
+    let act: Action = (action_reduce 2)
+    assert (== act.action_type ActionType.Reduce)
+    assert (== act.value 2)
 }
 
 fn action_accept() -> Action {
@@ -385,11 +509,23 @@ fn action_accept() -> Action {
     }
 }
 
+shadow action_accept {
+    let act: Action = (action_accept)
+    assert (== act.action_type ActionType.Accept)
+    assert (== act.value 0)
+}
+
 fn action_error() -> Action {
     return Action {
         action_type: ActionType.Error,
         value: 0
     }
+}
+
+shadow action_error {
+    let act: Action = (action_error)
+    assert (== act.action_type ActionType.Error)
+    assert (== act.value 0)
 }
 
 /* Simple parse table - fixed size for demo */
@@ -405,6 +541,11 @@ fn table_create() -> ParseTable {
     }
 }
 
+shadow table_create {
+    let table: ParseTable = (table_create)
+    assert (== table.state_count 0)
+}
+
 /* =============================================================================
  * Tests for LR Items
  * =============================================================================
@@ -416,7 +557,7 @@ fn test_lr_items() -> int {
     /* Create item: [expr -> . term, $] */
     let item1: LRItem = (item_create 1 0 "$")
     if (== item1.prod_id 1) {
-        (println "✓ Item creation")
+        (println "ok Item creation")
     } else {
         return 1
     }
@@ -424,7 +565,7 @@ fn test_lr_items() -> int {
     /* Create item set */
     let iset1: ItemSet = (itemset_empty)
     if (== iset1.count 0) {
-        (println "✓ Empty item set")
+        (println "ok Empty item set")
     } else {
         return 1
     }
@@ -432,7 +573,7 @@ fn test_lr_items() -> int {
     /* Add item */
     let iset2: ItemSet = (itemset_add iset1 item1)
     if (== iset2.count 1) {
-        (println "✓ Add item to set")
+        (println "ok Add item to set")
     } else {
         return 1
     }
@@ -440,7 +581,7 @@ fn test_lr_items() -> int {
     /* Get item */
     let retrieved: LRItem = (itemset_get iset2 0)
     if (== retrieved.prod_id 1) {
-        (println "✓ Get item from set")
+        (println "ok Get item from set")
     } else {
         return 1
     }
@@ -448,13 +589,17 @@ fn test_lr_items() -> int {
     /* Closure (simplified) */
     let closed: ItemSet = (closure iset2)
     if (>= closed.count 1) {
-        (println "✓ Closure operation")
+        (println "ok Closure operation")
     } else {
         return 1
     }
     
     (println "")
     return 0
+}
+
+shadow test_lr_items {
+    assert (== (test_lr_items) 0)
 }
 
 fn test_actions() -> int {
@@ -462,21 +607,21 @@ fn test_actions() -> int {
     
     let shift_act: Action = (action_shift 5)
     if (== shift_act.action_type ActionType.Shift) {
-        (println "✓ Shift action")
+        (println "ok Shift action")
     } else {
         return 1
     }
     
     let reduce_act: Action = (action_reduce 2)
     if (== reduce_act.action_type ActionType.Reduce) {
-        (println "✓ Reduce action")
+        (println "ok Reduce action")
     } else {
         return 1
     }
     
     let accept_act: Action = (action_accept)
     if (== accept_act.action_type ActionType.Accept) {
-        (println "✓ Accept action")
+        (println "ok Accept action")
     } else {
         return 1
     }
@@ -485,16 +630,55 @@ fn test_actions() -> int {
     return 0
 }
 
+shadow test_actions {
+    assert (== (test_actions) 0)
+}
+
 fn test_table() -> int {
     (println "Testing parse table...")
     
     let table: ParseTable = (table_create)
     if (== table.state_count 0) {
-        (println "✓ Parse table creation")
+        (println "ok Parse table creation")
     } else {
         return 1
     }
     
     (println "")
     return 0
+}
+
+shadow test_table {
+    assert (== (test_table) 0)
+}
+
+fn main() -> int {
+    (println "LALR Parser Tests")
+    (println "")
+    
+    let r1: int = (test_sets)
+    let r2: int = (test_symbols)
+    let r3: int = (test_first_follow)
+    let r4: int = (test_lr_items)
+    let r5: int = (test_actions)
+    let r6: int = (test_table)
+    
+    if (== r1 0) {
+        if (== r2 0) {
+            if (== r3 0) {
+                if (== r4 0) {
+                    if (== r5 0) {
+                        if (== r6 0) {
+                            (println "All tests passed")
+                            return 0
+                        } else { return 1 }
+                    } else { return 1 }
+                } else { return 1 }
+            } else { return 1 }
+        } else { return 1 }
+    } else { return 1 }
+}
+
+shadow main {
+    assert (== (main) 0)
 }

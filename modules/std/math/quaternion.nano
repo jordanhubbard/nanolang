@@ -19,12 +19,37 @@ pub fn quat_new(x: float, y: float, z: float, w: float) -> Quat {
     return Quat { x: x, y: y, z: z, w: w }
 }
 
+shadow quat_new {
+    let q: Quat = (quat_new 1.0 2.0 3.0 4.0)
+    assert (< (abs (- q.x 1.0)) 0.001)
+    assert (< (abs (- q.y 2.0)) 0.001)
+    assert (< (abs (- q.z 3.0)) 0.001)
+    assert (< (abs (- q.w 4.0)) 0.001)
+}
+
 pub fn quat_identity() -> Quat {
     return Quat { x: 0.0, y: 0.0, z: 0.0, w: 1.0 }
 }
 
+shadow quat_identity {
+    let q: Quat = (quat_identity)
+    assert (< (abs q.x) 0.001)
+    assert (< (abs q.y) 0.001)
+    assert (< (abs q.z) 0.001)
+    assert (< (abs (- q.w 1.0)) 0.001)
+}
+
 pub fn quat_conjugate(q: Quat) -> Quat {
     return Quat { x: (- q.x), y: (- q.y), z: (- q.z), w: q.w }
+}
+
+shadow quat_conjugate {
+    let q: Quat = (quat_new 1.0 2.0 3.0 4.0)
+    let c: Quat = (quat_conjugate q)
+    assert (< (abs (- c.x -1.0)) 0.001)
+    assert (< (abs (- c.y -2.0)) 0.001)
+    assert (< (abs (- c.z -3.0)) 0.001)
+    assert (< (abs (- c.w 4.0)) 0.001)
 }
 
 pub fn quat_mul(a: Quat, b: Quat) -> Quat {
@@ -36,8 +61,25 @@ pub fn quat_mul(a: Quat, b: Quat) -> Quat {
     }
 }
 
+shadow quat_mul {
+    /* identity * q = q */
+    let id: Quat = (quat_identity)
+    let q: Quat = (quat_new 1.0 2.0 3.0 4.0)
+    let r: Quat = (quat_mul id q)
+    assert (< (abs (- r.x 1.0)) 0.001)
+    assert (< (abs (- r.y 2.0)) 0.001)
+    assert (< (abs (- r.z 3.0)) 0.001)
+    assert (< (abs (- r.w 4.0)) 0.001)
+}
+
 pub fn quat_length(q: Quat) -> float {
     return (sqrt (+ (+ (+ (* q.x q.x) (* q.y q.y)) (* q.z q.z)) (* q.w q.w)))
+}
+
+shadow quat_length {
+    let q: Quat = (quat_identity)
+    let len: float = (quat_length q)
+    assert (< (abs (- len 1.0)) 0.001)
 }
 
 pub fn quat_normalize(q: Quat) -> Quat {
@@ -50,6 +92,13 @@ pub fn quat_normalize(q: Quat) -> Quat {
     }
 }
 
+shadow quat_normalize {
+    let q: Quat = (quat_new 0.0 0.0 0.0 2.0)
+    let n: Quat = (quat_normalize q)
+    let len: float = (quat_length n)
+    assert (< (abs (- len 1.0)) 0.001)
+}
+
 pub fn quat_from_axis_angle(axis: Vector3D, angle: float) -> Quat {
     let half: float = (* 0.5 angle)
     let s: float = (sin half)
@@ -59,9 +108,29 @@ pub fn quat_from_axis_angle(axis: Vector3D, angle: float) -> Quat {
     return (quat_normalize (quat_new v.x v.y v.z c))
 }
 
+shadow quat_from_axis_angle {
+    /* 0 rotation around any axis gives identity */
+    let axis: Vector3D = (vec3_new 0.0 1.0 0.0)
+    let q: Quat = (quat_from_axis_angle axis 0.0)
+    assert (< (abs q.x) 0.001)
+    assert (< (abs q.y) 0.001)
+    assert (< (abs q.z) 0.001)
+    assert (< (abs (- q.w 1.0)) 0.001)
+}
+
 pub fn quat_rotate_vec3(q: Quat, v: Vector3D) -> Vector3D {
     let qn: Quat = (quat_normalize q)
     let p: Quat = (quat_new v.x v.y v.z 0.0)
     let r: Quat = (quat_mul (quat_mul qn p) (quat_conjugate qn))
     return (vec3_new r.x r.y r.z)
+}
+
+shadow quat_rotate_vec3 {
+    /* identity rotation leaves vector unchanged */
+    let q: Quat = (quat_identity)
+    let v: Vector3D = (vec3_new 1.0 0.0 0.0)
+    let result: Vector3D = (quat_rotate_vec3 q v)
+    assert (< (abs (- result.x 1.0)) 0.001)
+    assert (< (abs result.y) 0.001)
+    assert (< (abs result.z) 0.001)
 }

@@ -64,28 +64,164 @@ pub fn stringify(json: Json) -> string {
     return (nl_json_stringify json)
 }
 
+shadow stringify {
+    let j: Json = (parse "{\"x\": 42}")
+    let s: string = (stringify j)
+    assert (!= s "")
+    (free j)
+}
+
 pub fn is_null(json: Json) -> bool { return (!= (nl_json_is_null json) 0) }
+
+shadow is_null {
+    let j: Json = (new_null)
+    assert (is_null j)
+    (free j)
+}
+
 pub fn is_bool(json: Json) -> bool { return (!= (nl_json_is_bool json) 0) }
+
+shadow is_bool {
+    let j: Json = (new_bool true)
+    assert (is_bool j)
+    (free j)
+}
+
 pub fn is_number(json: Json) -> bool { return (!= (nl_json_is_number json) 0) }
+
+shadow is_number {
+    let j: Json = (new_int 5)
+    assert (is_number j)
+    (free j)
+}
+
 pub fn is_string(json: Json) -> bool { return (!= (nl_json_is_string json) 0) }
+
+shadow is_string {
+    let j: Json = (new_string "hello")
+    assert (is_string j)
+    (free j)
+}
+
 pub fn is_array(json: Json) -> bool { return (!= (nl_json_is_array json) 0) }
+
+shadow is_array {
+    let j: Json = (new_array)
+    assert (is_array j)
+    (free j)
+}
+
 pub fn is_object(json: Json) -> bool { return (!= (nl_json_is_object json) 0) }
 
+shadow is_object {
+    let j: Json = (new_object)
+    assert (is_object j)
+    (free j)
+}
+
 pub fn as_int(json: Json) -> int { return (nl_json_as_int json) }
+
+shadow as_int {
+    let j: Json = (new_int 42)
+    assert (== (as_int j) 42)
+    (free j)
+}
+
 pub fn as_bool(json: Json) -> bool { return (!= (nl_json_as_bool json) 0) }
+
+shadow as_bool {
+    let j: Json = (new_bool true)
+    assert (as_bool j)
+    (free j)
+}
+
 pub fn as_string(json: Json) -> string { return (nl_json_as_string json) }
 
+shadow as_string {
+    let j: Json = (new_string "test")
+    let s: string = (as_string j)
+    assert (== s "test")
+    (free j)
+}
+
 pub fn object_has(obj: Json, key: string) -> bool { return (!= (nl_json_object_has obj key) 0) }
+
+shadow object_has {
+    let j: Json = (parse "{\"x\": 1}")
+    assert (object_has j "x")
+    assert (!= (object_has j "missing") true)
+    (free j)
+}
+
 pub fn get(obj: Json, key: string) -> Json { return (nl_json_get obj key) }
+
+shadow get {
+    let j: Json = (parse "{\"y\": 2}")
+    let v: Json = (get j "y")
+    assert (!= v 0)
+    (free j)
+}
+
 pub fn keys(obj: Json) -> array<string> { return (nl_json_object_keys obj) }
 
+shadow keys {
+    let j: Json = (parse "{\"a\": 1, \"b\": 2}")
+    let k: array<string> = (keys j)
+    assert (> (len k) 0)
+    (free j)
+}
+
 pub fn array_size(arr: Json) -> int { return (nl_json_array_size arr) }
+
+shadow array_size {
+    let a: Json = (new_array)
+    assert (== (array_size a) 0)
+    (json_array_push a (new_int 1))
+    assert (== (array_size a) 1)
+    (free a)
+}
+
 pub fn get_index(arr: Json, idx: int) -> Json { return (nl_json_get_index arr idx) }
 
+shadow get_index {
+    let a: Json = (new_array)
+    (json_array_push a (new_int 99))
+    let v: Json = (get_index a 0)
+    assert (!= v 0)
+    (free a)
+}
+
 pub fn new_object() -> Json { return (nl_json_new_object) }
+
+shadow new_object {
+    let o: Json = (new_object)
+    assert (is_object o)
+    (free o)
+}
+
 pub fn new_array() -> Json { return (nl_json_new_array) }
+
+shadow new_array {
+    let a: Json = (new_array)
+    assert (is_array a)
+    (free a)
+}
+
 pub fn new_string(s: string) -> Json { return (nl_json_new_string s) }
+
+shadow new_string {
+    let j: Json = (new_string "val")
+    assert (is_string j)
+    (free j)
+}
+
 pub fn new_int(v: int) -> Json { return (nl_json_new_int v) }
+
+shadow new_int {
+    let j: Json = (new_int 77)
+    assert (is_number j)
+    (free j)
+}
 pub fn new_bool(v: bool) -> Json {
     let iv: int = (cond
         (v 1)
@@ -93,10 +229,29 @@ pub fn new_bool(v: bool) -> Json {
     )
     return (nl_json_new_bool iv)
 }
+
+shadow new_bool {
+    let j: Json = (new_bool true)
+    assert (is_bool j)
+    (free j)
+}
+
 pub fn new_null() -> Json { return (nl_json_new_null) }
+
+shadow new_null {
+    let j: Json = (new_null)
+    assert (is_null j)
+    (free j)
+}
 
 pub fn object_set(obj: Json, key: string, val: Json) -> bool {
     return (!= (nl_json_object_set obj key val) 0)
+}
+
+shadow object_set {
+    let o: Json = (new_object)
+    assert (object_set o "k" (new_int 3))
+    (free o)
 }
 
 pub fn json_array_push(arr: Json, val: Json) -> bool {

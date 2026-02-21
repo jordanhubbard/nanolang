@@ -17,12 +17,34 @@ pub fn complex_new(re: float, im: float) -> Complex {
     return Complex { re: re, im: im }
 }
 
+shadow complex_new {
+    let c: Complex = (complex_new 3.0 4.0)
+    assert (< (abs (- c.re 3.0)) 0.001)
+    assert (< (abs (- c.im 4.0)) 0.001)
+}
+
 pub fn complex_add(a: Complex, b: Complex) -> Complex {
     return Complex { re: (+ a.re b.re), im: (+ a.im b.im) }
 }
 
+shadow complex_add {
+    let a: Complex = (complex_new 1.0 2.0)
+    let b: Complex = (complex_new 3.0 4.0)
+    let result: Complex = (complex_add a b)
+    assert (< (abs (- result.re 4.0)) 0.001)
+    assert (< (abs (- result.im 6.0)) 0.001)
+}
+
 pub fn complex_sub(a: Complex, b: Complex) -> Complex {
     return Complex { re: (- a.re b.re), im: (- a.im b.im) }
+}
+
+shadow complex_sub {
+    let a: Complex = (complex_new 3.0 4.0)
+    let b: Complex = (complex_new 1.0 2.0)
+    let result: Complex = (complex_sub a b)
+    assert (< (abs (- result.re 2.0)) 0.001)
+    assert (< (abs (- result.im 2.0)) 0.001)
 }
 
 pub fn complex_mul(a: Complex, b: Complex) -> Complex {
@@ -32,16 +54,43 @@ pub fn complex_mul(a: Complex, b: Complex) -> Complex {
     }
 }
 
+shadow complex_mul {
+    let a: Complex = (complex_new 2.0 3.0)
+    let b: Complex = (complex_new 4.0 5.0)
+    let result: Complex = (complex_mul a b)
+    assert (< (abs (- result.re (- 7.0))) 0.001)
+    assert (< (abs (- result.im 22.0)) 0.001)
+}
+
 pub fn complex_conj(a: Complex) -> Complex {
     return Complex { re: a.re, im: (- a.im) }
+}
+
+shadow complex_conj {
+    let c: Complex = (complex_new 3.0 4.0)
+    let result: Complex = (complex_conj c)
+    assert (< (abs (- result.re 3.0)) 0.001)
+    assert (< (abs (- result.im (- 4.0))) 0.001)
 }
 
 pub fn complex_abs(a: Complex) -> float {
     return (sqrt (+ (* a.re a.re) (* a.im a.im)))
 }
 
+shadow complex_abs {
+    let c: Complex = (complex_new 3.0 4.0)
+    let result: float = (complex_abs c)
+    assert (< (abs (- result 5.0)) 0.001)
+}
+
 pub fn complex_arg(a: Complex) -> float {
     return (atan2 a.im a.re)
+}
+
+shadow complex_arg {
+    let c: Complex = (complex_new 1.0 0.0)
+    let result: float = (complex_arg c)
+    assert (< (abs result) 0.001)
 }
 
 pub fn complex_div(a: Complex, b: Complex) -> Complex {
@@ -55,11 +104,32 @@ pub fn complex_div(a: Complex, b: Complex) -> Complex {
     }
 }
 
+shadow complex_div {
+    let a: Complex = (complex_new 4.0 2.0)
+    let b: Complex = (complex_new 2.0 0.0)
+    let result: Complex = (complex_div a b)
+    assert (< (abs (- result.re 2.0)) 0.001)
+    assert (< (abs (- result.im 1.0)) 0.001)
+}
+
 pub fn complex_from_polar(r: float, theta: float) -> Complex {
     return Complex { re: (* r (cos theta)), im: (* r (sin theta)) }
+}
+
+shadow complex_from_polar {
+    let c: Complex = (complex_from_polar 1.0 0.0)
+    assert (< (abs (- c.re 1.0)) 0.001)
+    assert (< (abs c.im) 0.001)
 }
 
 pub fn complex_exp(z: Complex) -> Complex {
     let er: float = (exp z.re)
     return Complex { re: (* er (cos z.im)), im: (* er (sin z.im)) }
+}
+
+shadow complex_exp {
+    let z: Complex = (complex_new 0.0 0.0)
+    let result: Complex = (complex_exp z)
+    assert (< (abs (- result.re 1.0)) 0.001)
+    assert (< (abs result.im) 0.001)
 }

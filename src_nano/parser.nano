@@ -7038,6 +7038,17 @@ pub fn parser_get_for(p: Parser, idx: int) -> ASTFor {
     return (list_ASTFor_get p.fors idx)
 }
 
+shadow parser_get_for {
+    let p: Parser = (parser_init_ast_lists)
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let p1: Parser = (parser_store_block p stmts 1 1)
+    let block_id: int = p1.last_expr_node_id
+    let p2: Parser = (parser_store_number p1 "0" 1 1)
+    let p3: Parser = (parser_store_for p2 "i" p2.last_expr_node_id p2.last_expr_node_type block_id 1 1)
+    let node: ASTFor = (parser_get_for p3 0)
+    assert (== node.var_name "i")
+}
+
 /* Get an unsafe block by index */
 pub fn parser_get_unsafe_block(p: Parser, idx: int) -> ASTUnsafeBlock {
     return (list_ASTUnsafeBlock_get p.unsafe_blocks idx)
@@ -7165,9 +7176,31 @@ pub fn parser_get_struct_def_count(p: Parser) -> int {
     return (list_ASTStruct_length p.structs)
 }
 
+shadow parser_get_struct_def_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_struct_def_count p) 0)
+    let fnames: array<string> = []
+    set fnames (array_push fnames "x")
+    let ftypes: array<string> = []
+    set ftypes (array_push ftypes "int")
+    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes 1 1)
+    assert (== (parser_get_struct_def_count p2) 1)
+}
+
 /* Get a struct definition by index */
 pub fn parser_get_struct_def(p: Parser, idx: int) -> ASTStruct {
     return (list_ASTStruct_get p.structs idx)
+}
+
+shadow parser_get_struct_def {
+    let p: Parser = (parser_init_ast_lists)
+    let fnames: array<string> = []
+    set fnames (array_push fnames "x")
+    let ftypes: array<string> = []
+    set ftypes (array_push ftypes "int")
+    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes 1 1)
+    let s: ASTStruct = (parser_get_struct_def p2 0)
+    assert (== s.name "Point")
 }
 
 /* Get number of struct literals */
@@ -7185,9 +7218,23 @@ pub fn parser_get_enum_count(p: Parser) -> int {
     return (list_ASTEnum_length p.enums)
 }
 
+shadow parser_get_enum_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_enum_count p) 0)
+    let p2: Parser = (parser_store_enum p "Color" 3 1 1)
+    assert (== (parser_get_enum_count p2) 1)
+}
+
 /* Get an enum definition by index */
 pub fn parser_get_enum(p: Parser, idx: int) -> ASTEnum {
     return (list_ASTEnum_get p.enums idx)
+}
+
+shadow parser_get_enum {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_enum p "Color" 3 1 1)
+    let e: ASTEnum = (parser_get_enum p2 0)
+    assert (== e.name "Color")
 }
 
 /* Get number of union definitions */
@@ -7195,9 +7242,35 @@ pub fn parser_get_union_count(p: Parser) -> int {
     return (list_ASTUnion_length p.unions)
 }
 
+shadow parser_get_union_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_union_count p) 0)
+    let vnames: array<string> = []
+    let vfcounts: array<int> = []
+    let vfnames: array<string> = []
+    let vftypes: array<string> = []
+    let gparams: array<string> = []
+    let p2: Parser = (parser_store_union p "Option" 0 1 1 vnames vfcounts vfnames vftypes gparams 0)
+    assert (== (parser_get_union_count p2) 1)
+}
+
 /* Get a union definition by index */
 pub fn parser_get_union(p: Parser, idx: int) -> ASTUnion {
     return (list_ASTUnion_get p.unions idx)
+}
+
+shadow parser_get_union {
+    let p: Parser = (parser_init_ast_lists)
+    let vnames: array<string> = []
+    set vnames (array_push vnames "None")
+    let vfcounts: array<int> = []
+    set vfcounts (array_push vfcounts 0)
+    let vfnames: array<string> = []
+    let vftypes: array<string> = []
+    let gparams: array<string> = []
+    let p2: Parser = (parser_store_union p "Option" 1 1 1 vnames vfcounts vfnames vftypes gparams 0)
+    let u: ASTUnion = (parser_get_union p2 0)
+    assert (== u.name "Option")
 }
 
 /* Get number of union constructions */

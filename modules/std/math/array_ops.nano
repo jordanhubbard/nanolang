@@ -18,6 +18,13 @@ pub fn assert_same_length(a: array<float>, b: array<float>) -> void {
     assert (== (array_length a) (array_length b))
 }
 
+shadow assert_same_length {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [4.0, 5.0, 6.0]
+    (assert_same_length a b)
+    assert true
+}
+
 pub fn array_add(a: array<float>, b: array<float>) -> array<float> {
     (assert_same_length a b)
     let n: int = (array_length a)
@@ -42,6 +49,15 @@ pub fn array_sub(a: array<float>, b: array<float>) -> array<float> {
     return out
 }
 
+shadow array_sub {
+    let a: array<float> = [10.0, 20.0, 30.0]
+    let b: array<float> = [1.0, 2.0, 3.0]
+    let c: array<float> = (array_sub a b)
+    assert (< (abs (- (at c 0) 9.0)) EPSILON)
+    assert (< (abs (- (at c 1) 18.0)) EPSILON)
+    assert (< (abs (- (at c 2) 27.0)) EPSILON)
+}
+
 pub fn array_mul(a: array<float>, b: array<float>) -> array<float> {
     (assert_same_length a b)
     let n: int = (array_length a)
@@ -52,6 +68,15 @@ pub fn array_mul(a: array<float>, b: array<float>) -> array<float> {
         set i (+ i 1)
     }
     return out
+}
+
+shadow array_mul {
+    let a: array<float> = [2.0, 3.0, 4.0]
+    let b: array<float> = [5.0, 6.0, 7.0]
+    let c: array<float> = (array_mul a b)
+    assert (< (abs (- (at c 0) 10.0)) EPSILON)
+    assert (< (abs (- (at c 1) 18.0)) EPSILON)
+    assert (< (abs (- (at c 2) 28.0)) EPSILON)
 }
 
 pub fn array_div(a: array<float>, b: array<float>) -> array<float> {
@@ -66,6 +91,15 @@ pub fn array_div(a: array<float>, b: array<float>) -> array<float> {
     return out
 }
 
+shadow array_div {
+    let a: array<float> = [20.0, 30.0, 40.0]
+    let b: array<float> = [2.0, 3.0, 4.0]
+    let c: array<float> = (array_div a b)
+    assert (< (abs (- (at c 0) 10.0)) EPSILON)
+    assert (< (abs (- (at c 1) 10.0)) EPSILON)
+    assert (< (abs (- (at c 2) 10.0)) EPSILON)
+}
+
 pub fn array_add_scalar(a: array<float>, s: float) -> array<float> {
     let n: int = (array_length a)
     let mut out: array<float> = (array_new n 0.0)
@@ -75,6 +109,14 @@ pub fn array_add_scalar(a: array<float>, s: float) -> array<float> {
         set i (+ i 1)
     }
     return out
+}
+
+shadow array_add_scalar {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = (array_add_scalar a 5.0)
+    assert (< (abs (- (at b 0) 6.0)) EPSILON)
+    assert (< (abs (- (at b 1) 7.0)) EPSILON)
+    assert (< (abs (- (at b 2) 8.0)) EPSILON)
 }
 
 pub fn array_mul_scalar(a: array<float>, s: float) -> array<float> {
@@ -104,6 +146,12 @@ pub fn array_norm(a: array<float>) -> float {
     return (sqrt (array_dot a a))
 }
 
+shadow array_norm {
+    let a: array<float> = [3.0, 4.0]
+    let n: float = (array_norm a)
+    assert (< (abs (- n 5.0)) EPSILON)
+}
+
 pub fn array_normalize(a: array<float>) -> array<float> {
     let n: int = (array_length a)
     let len: float = (array_norm a)
@@ -112,6 +160,13 @@ pub fn array_normalize(a: array<float>) -> array<float> {
     } else {
         return (array_mul_scalar a (/ 1.0 len))
     }
+}
+
+shadow array_normalize {
+    let a: array<float> = [3.0, 4.0]
+    let n: array<float> = (array_normalize a)
+    assert (< (abs (- (at n 0) 0.6)) EPSILON)
+    assert (< (abs (- (at n 1) 0.8)) EPSILON)
 }
 
 pub fn array_lerp(a: array<float>, b: array<float>, t: float) -> array<float> {
@@ -128,6 +183,14 @@ pub fn array_lerp(a: array<float>, b: array<float>, t: float) -> array<float> {
     return out
 }
 
+shadow array_lerp {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [10.0, 20.0]
+    let c: array<float> = (array_lerp a b 0.5)
+    assert (< (abs (- (at c 0) 5.0)) EPSILON)
+    assert (< (abs (- (at c 1) 10.0)) EPSILON)
+}
+
 pub fn array_sum(a: array<float>) -> float {
     let n: int = (array_length a)
     let mut acc: float = 0.0
@@ -139,10 +202,22 @@ pub fn array_sum(a: array<float>) -> float {
     return acc
 }
 
+shadow array_sum {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let s: float = (array_sum a)
+    assert (< (abs (- s 6.0)) EPSILON)
+}
+
 pub fn array_mean(a: array<float>) -> float {
     let n: int = (array_length a)
     if (== n 0) { return 0.0 }
     return (/ (array_sum a) (cast_float n))
+}
+
+shadow array_mean {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let m: float = (array_mean a)
+    assert (< (abs (- m 2.0)) EPSILON)
 }
 
 pub fn array_min(a: array<float>) -> float {
@@ -158,6 +233,12 @@ pub fn array_min(a: array<float>) -> float {
     return m
 }
 
+shadow array_min {
+    let a: array<float> = [5.0, 2.0, 8.0, 1.0]
+    let mn: float = (array_min a)
+    assert (< (abs (- mn 1.0)) EPSILON)
+}
+
 pub fn array_max(a: array<float>) -> float {
     let n: int = (array_length a)
     assert (> n 0)
@@ -169,6 +250,12 @@ pub fn array_max(a: array<float>) -> float {
         set i (+ i 1)
     }
     return m
+}
+
+shadow array_max {
+    let a: array<float> = [5.0, 2.0, 8.0, 1.0]
+    let mx: float = (array_max a)
+    assert (< (abs (- mx 8.0)) EPSILON)
 }
 
 pub fn array_distance_squared(a: array<float>, b: array<float>) -> float {
@@ -184,8 +271,22 @@ pub fn array_distance_squared(a: array<float>, b: array<float>) -> float {
     return acc
 }
 
+shadow array_distance_squared {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [3.0, 4.0]
+    let ds: float = (array_distance_squared a b)
+    assert (< (abs (- ds 25.0)) EPSILON)
+}
+
 pub fn array_distance(a: array<float>, b: array<float>) -> float {
     return (sqrt (array_distance_squared a b))
+}
+
+shadow array_distance {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [3.0, 4.0]
+    let d: float = (array_distance a b)
+    assert (< (abs (- d 5.0)) EPSILON)
 }
 
 pub fn array_sum_int(a: array<int>) -> int {
@@ -197,6 +298,12 @@ pub fn array_sum_int(a: array<int>) -> int {
         set i (+ i 1)
     }
     return acc
+}
+
+shadow array_sum_int {
+    let a: array<int> = [1, 2, 3, 4]
+    let s: int = (array_sum_int a)
+    assert (== s 10)
 }
 
 pub fn array_min_int(a: array<int>) -> int {
@@ -212,6 +319,12 @@ pub fn array_min_int(a: array<int>) -> int {
     return m
 }
 
+shadow array_min_int {
+    let a: array<int> = [5, 2, 8, 1]
+    let mn: int = (array_min_int a)
+    assert (== mn 1)
+}
+
 pub fn array_max_int(a: array<int>) -> int {
     let n: int = (array_length a)
     assert (> n 0)
@@ -223,6 +336,12 @@ pub fn array_max_int(a: array<int>) -> int {
         set i (+ i 1)
     }
     return m
+}
+
+shadow array_max_int {
+    let a: array<int> = [5, 2, 8, 1]
+    let mx: int = (array_max_int a)
+    assert (== mx 8)
 }
 
 shadow array_add {

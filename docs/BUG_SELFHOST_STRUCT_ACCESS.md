@@ -1,10 +1,10 @@
 # Self-Hosting Blocker: Parser Struct Field Access Bug
 
-**Status**: Critical blocker for 100% self-hosting  
-**Severity**: High  
+**Status**: Verified NOT REPRODUCIBLE as of 2026-02-21. 3-stage bootstrap succeeds. nanoc_stage2 compiles parser.nano (216 functions, thousands of lets) without error. Full nanoc_v06.nano transpiles and typechecks successfully; remaining failures are C linking errors from missing module import declarations (separate issue: Module Visibility / Transitive Imports).
+**Severity**: ~~High~~ Closed  
 **Component**: Self-hosted transpiler (struct field access code generation)  
 **Discovery Date**: Current session  
-**Progress**: 99.8% → 100% (0.2% away!)
+**Progress**: ~~99.8% → 100% (0.2% away!)~~ Bug no longer reproduces.
 
 ---
 

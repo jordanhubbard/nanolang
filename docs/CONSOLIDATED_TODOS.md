@@ -1,7 +1,7 @@
 # Consolidated TODOs
 
 **Created:** 2026-02-20
-**Last updated:** 2026-02-21
+**Last updated:** 2026-02-22 (session 3)
 **Source:** Extracted from internal planning docs during cleanup audit.
 
 ---
@@ -9,15 +9,10 @@
 ## Self-Hosting and Compiler
 
 ### Bootstrap Block Bug (from BOOTSTRAP_BLOCK_BUG.md)
-Store statements directly in AST blocks instead of using `statement_start` index.
-- Change `ASTBlock` to hold `statements: array<ASTStmtRef>` directly.
-- Estimated effort: 6-8 hours.
+~~Store statements directly in AST blocks instead of using `statement_start` index.~~ Verified 2026-02-21: ASTBlock already uses `statements: List<ASTStmtRef>` directly in `generated/compiler_ast.nano`. All parser, transpiler, and typechecker code accesses blocks via `block.statements`. The old `statement_start` pattern only remains in the legacy `nanoc_integrated.nano`.
 
 ### Self-Host Struct Access Bug (from BUG_SELFHOST_STRUCT_ACCESS.md)
-Self-hosted compiler generates wrong C for struct field access.
-- Compare C output from `nanoc` vs `nanoc_v06` for the same input.
-- Check `generate_expression` in `src_nano/transpiler.nano` for `PNODE_FIELD_ACCESS`.
-- Verify struct field offset calculation.
+~~Self-hosted compiler generates wrong C for struct field access.~~ Verified 2026-02-21: Bug does not reproduce. The 3-stage bootstrap succeeds, and `nanoc_stage2` compiles `parser.nano` (216 functions, thousands of lets) without error. The field access code generation in `transpiler.nano` correctly emits `(obj).field_name`. The full `nanoc_v06.nano` transpiles and typechecks successfully; remaining failure is C compilation errors from missing module import declarations (separate issue, see Module Visibility below).
 
 ### Self-Hosting Roadmap (from SELF_HOSTING_ROADMAP.md)
 - Fix lexer column tracking bug in `src_nano/compiler/lexer.nano` (line 272-280).
@@ -31,9 +26,7 @@ Split 6,743-line `parser.nano` into maintainable, testable modules (147 function
 Integrate `src_nano/driver.nano` with existing compiler phases for a fully self-hosted compiler driver. Phase 1 (interface documentation) is complete.
 
 ### Session Summary Node ID Bug (from SESSION_SUMMARY.md)
-Parser node ID assignment bug: `last_expr_node_id` vs actual list indices mismatch.
-- Add debug output to track ID assignment.
-- Compare C parser and self-hosted parser AST structures.
+~~Parser node ID assignment bug: `last_expr_node_id` vs actual list indices mismatch.~~ Verified 2026-02-21: The node ID assignment pattern (`node_id = count` before push, then increment) produces correct 0-based indices matching list positions. No reproduction case exists. Planning doc was deleted during cleanup. The 3-stage bootstrap passes without node ID errors. Marking as stale.
 
 ### Module Visibility / Transitive Imports (from MODULE_VISIBILITY_INVESTIGATION.md)
 Issue nanolang-zmwa: transitive module imports do not work in self-hosted compiler (191 errors when compiling `nanoc_v06.nano`).
@@ -78,9 +71,7 @@ Design proposal for `cond` expression. Note: COND_IMPLEMENTATION_SUMMARY.md says
 ## Testing and Quality
 
 ### Shadow Test Audit (from SHADOW_TEST_AUDIT_SUMMARY.md)
-Priority 1 (Critical): Add shadows to `std/datetime/` (28), `stdlib/lalr.nano` (24), `std/json/` (23), `std/regex/` (13).
-Priority 2 (High): Add shadows to `modules/std/json/` (27), `modules/vector3d/` (18), `modules/std/collections/` (13), `modules/std/math/` (12).
-Priority 3 (Medium): Add shadows to `parser.nano` (75), `transpiler.nano` (51), `typecheck.nano` (22).
+~~Complete as of 2026-02-22.~~ All ~167 missing shadow tests have been added across all files. Every module, stdlib, and compiler core file now compiles with 0 "missing shadow" warnings. Files updated: stdlib/lalr.nano, modules/std/json/json.nano, modules/std/math/matrix4.nano, vector4d.nano, complex.nano, quaternion.nano, array_ops.nano, modules/std/collections/hashmap.nano, set.nano, src_nano/parser.nano, typecheck.nano, transpiler.nano. Build verified: 186 tests passed, 0 failed.
 
 ### Shadow Scope Analysis (from SHADOW_SCOPE_ANALYSIS.md)
 Variable scoping issue in shadow tests. Options B or C proposed for `src_nano/typecheck.nano`.

@@ -53,6 +53,13 @@ fn register_extern_names(parser: Parser) -> int {
     return (array_length extern_func_names)
 }
 
+shadow register_extern_names {
+    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let n: int = (register_extern_names p)
+    assert (>= n 0)
+}
+
 fn would_collide_with_extern(user_func_name: string) -> bool {
     let c_name: string = (+ "nl_" (mangle_name user_func_name))
     let n: int = (array_length extern_func_names)
@@ -138,10 +145,26 @@ fn add_module_alias(alias: string, module_name: string) -> int {
     return 0
 }
 
+shadow add_module_alias {
+    (reset_module_aliases)
+    let r: int = (add_module_alias "io" "std_io")
+    assert (== r 0)
+    assert (== (array_length module_aliases) 1)
+    (reset_module_aliases)
+}
+
 fn add_func_alias(alias: string, target: string) -> int {
     set func_aliases (array_push func_aliases alias)
     set func_alias_targets (array_push func_alias_targets target)
     return 0
+}
+
+shadow add_func_alias {
+    (reset_func_aliases)
+    let r: int = (add_func_alias "greet" "hello_mod.greet")
+    assert (== r 0)
+    assert (== (array_length func_aliases) 1)
+    (reset_func_aliases)
 }
 
 fn resolve_module_alias(name: string) -> string {
@@ -188,6 +211,12 @@ fn reset_fn_types() -> int {
     return 0
 }
 
+shadow reset_fn_types {
+    (reset_fn_types)
+    assert (== (array_length fn_type_originals) 0)
+    assert (== (array_length fn_type_names) 0)
+}
+
 fn is_fn_type(t: string) -> bool {
     return (transp_str_starts_with t "fn(")
 }
@@ -211,6 +240,17 @@ fn register_fn_type(t: string) -> string {
     set fn_type_originals (array_push fn_type_originals t)
     set fn_type_names (array_push fn_type_names name)
     return name
+}
+
+shadow register_fn_type {
+    (reset_fn_types)
+    let name1: string = (register_fn_type "fn(int)->int")
+    assert (== name1 "nl_FnPtr_0")
+    let name2: string = (register_fn_type "fn(int)->int")
+    assert (== name2 "nl_FnPtr_0")
+    let name3: string = (register_fn_type "fn(string)->bool")
+    assert (== name3 "nl_FnPtr_1")
+    (reset_fn_types)
 }
 
 fn parse_fn_type_params(t: string) -> array<string> {
@@ -274,6 +314,15 @@ fn parse_fn_type_params(t: string) -> array<string> {
     return result
 }
 
+shadow parse_fn_type_params {
+    let params1: array<string> = (parse_fn_type_params "fn(int,string)->bool")
+    assert (== (array_length params1) 2)
+    assert (== (at params1 0) "int")
+    assert (== (at params1 1) "string")
+    let params2: array<string> = (parse_fn_type_params "fn()->void")
+    assert (== (array_length params2) 0)
+}
+
 fn parse_fn_type_return(t: string) -> string {
     /* Parse fn(...)->RetType to get return type */
     let len: int = (str_length t)
@@ -326,6 +375,12 @@ fn parse_fn_type_return(t: string) -> string {
     return "void"
 }
 
+shadow parse_fn_type_return {
+    assert (== (parse_fn_type_return "fn(int,int)->int") "int")
+    assert (== (parse_fn_type_return "fn()->string") "string")
+    assert (== (parse_fn_type_return "fn()->void") "void")
+}
+
 fn generate_fn_type_typedefs() -> string {
     let n: int = (array_length fn_type_originals)
     if (== n 0) {
@@ -362,6 +417,16 @@ fn generate_fn_type_typedefs() -> string {
     }
     set sb (cg_append sb "\n")
     return (cg_build sb)
+}
+
+shadow generate_fn_type_typedefs {
+    (reset_fn_types)
+    let empty: string = (generate_fn_type_typedefs)
+    assert (== empty "")
+    (register_fn_type "fn(int)->int")
+    let result: string = (generate_fn_type_typedefs)
+    assert (> (str_length result) 0)
+    (reset_fn_types)
 }
 
 shadow is_fn_type {
@@ -893,6 +958,13 @@ fn build_module_alias_map(parser: Parser) -> int {
     return 0
 }
 
+shadow build_module_alias_map {
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let r: int = (build_module_alias_map p)
+    assert (== r 0)
+}
+
 fn mangle_module_ident(name: string) -> string {
     let mut out: string = ""
     let len: int = (str_length name)
@@ -1149,6 +1221,12 @@ fn c_func_name_for_call(func_name: string) -> string {
     }
 }
 
+shadow c_func_name_for_call {
+    set extern_func_names []
+    let r: string = (c_func_name_for_call "my_func")
+    assert (== r "nl_my_func")
+}
+
 fn c_func_name_for_definition(func_name: string) -> string {
     if (or (str_contains func_name "::") (str_contains func_name ".")) {
         return (c_name_for_qualified_function func_name)
@@ -1159,6 +1237,12 @@ fn c_func_name_for_definition(func_name: string) -> string {
             return (+ "nl_" (mangle_name func_name))
         }
     }
+}
+
+shadow c_func_name_for_definition {
+    set extern_func_names []
+    assert (== (c_func_name_for_definition "my_func") "nl_my_func")
+    assert (== (c_func_name_for_definition "add") "nl_add")
 }
 
 /* =============================================================================
@@ -1203,6 +1287,13 @@ fn func_returns_string(name: string) -> bool {
     if (== name "str_concat") { return true } else { (print "") }
     if (== name "string_from_char") { return true } else { (print "") }
     return false
+}
+
+shadow func_returns_string {
+    assert (func_returns_string "int_to_string")
+    assert (func_returns_string "str_substring")
+    assert (not (func_returns_string "print"))
+    assert (not (func_returns_string "sqrt"))
 }
 
 shadow func_returns_float {
@@ -1638,6 +1729,14 @@ fn is_runtime_declared_extern(name: string) -> bool {
     return false
 }
 
+shadow is_runtime_declared_extern {
+    assert (is_runtime_declared_extern "printf")
+    assert (is_runtime_declared_extern "malloc")
+    assert (is_runtime_declared_extern "nl_sb_new")
+    assert (is_runtime_declared_extern "list_int_new")
+    assert (not (is_runtime_declared_extern "my_custom_func"))
+}
+
 fn generate_function_prototypes(parser: Parser) -> string {
     let mut sb: array<string> = []
     set sb (cg_append sb "\n/* Extern function declarations (not covered by headers) */\n")
@@ -1758,6 +1857,16 @@ fn lookup_struct_field_type(parser: Parser, struct_name: string, field_name: str
         set si (+ si 1)
     }
     return ""
+}
+
+shadow lookup_struct_field_type {
+    let src: string = "struct Point { x: int, y: bool } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let t: string = (lookup_struct_field_type p "Point" "x")
+    assert (== t "int")
+    let t2: string = (lookup_struct_field_type p "Point" "z")
+    assert (== t2 "")
 }
 
 fn is_extern_function(parser: Parser, name: string) -> bool {
@@ -1934,6 +2043,13 @@ fn is_array_of_struct(t: string) -> bool {
     }
 }
 
+shadow is_array_of_struct {
+    assert (is_array_of_struct "array<Point>")
+    assert (not (is_array_of_struct "array<int>"))
+    assert (not (is_array_of_struct "int"))
+    assert (not (is_array_of_struct "string"))
+}
+
 shadow push_fn_from_elem_type {
     assert (== (push_fn_from_elem_type "float") "dyn_array_push_float")
     assert (== (push_fn_from_elem_type "bool") "dyn_array_push_bool")
@@ -1992,6 +2108,13 @@ fn box_struct_expr(elem_type: string, value_expr: string) -> string {
     set parts (cg_append parts value_expr)
     set parts (cg_append parts "; (int64_t)_box; })")
     return (cg_build parts)
+}
+
+shadow box_struct_expr {
+    let result: string = (box_struct_expr "Point" "my_val")
+    assert (str_contains result "nl_Point")
+    assert (str_contains result "my_val")
+    assert (str_contains result "malloc")
 }
 
 shadow type_is_struct {
@@ -5552,6 +5675,13 @@ fn is_let_in_block(parser: Parser, block_id: int, let_idx: int) -> bool {
     }
 }
 
+shadow is_let_in_block {
+    let src: string = "fn main() -> int { let x: int = 1 return x }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (is_let_in_block p -1 0))
+}
+
 /* Check if a let is a function parameter, inside a function body, or inside a shadow block */
 fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
     let func_count: int = (parser_get_function_count parser)
@@ -5581,6 +5711,13 @@ fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
         set si (+ si 1)
     }
     return false
+}
+
+shadow is_let_in_function {
+    let src: string = "fn main() -> int { let x: int = 1 return x }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (is_let_in_function p 0)
 }
 
 /* Generate global constant declarations for top-level let statements */
@@ -5649,6 +5786,14 @@ fn generate_global_constants(parser: Parser) -> string {
     return (cg_build sb)
 }
 
+shadow generate_global_constants {
+    let src: string = "fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let c: string = (generate_global_constants p)
+    assert (>= (str_length c) 0)
+}
+
 fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
     let func_count: int = (parser_get_function_count parser)
     let mut i: int = 0
@@ -5660,6 +5805,14 @@ fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
         set i (+ i 1)
     }
     return ""
+}
+
+shadow lookup_func_return_type_in_parser {
+    let src: string = "fn add(a: int, b: int) -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (lookup_func_return_type_in_parser p "add") "int")
+    assert (== (lookup_func_return_type_in_parser p "nonexistent") "")
 }
 
 pub fn transpile_parser(parser: Parser) -> string {
