@@ -48,12 +48,12 @@ requires (>= microseconds 0)
     let needed_zeros: int = (- 4 dec_len)
     let mut i: int = 0
     while (< i needed_zeros) {
-        set padded (str_concat padded "0")
+        set padded (+ padded "0")
         set i (+ i 1)
     }
-    set padded (str_concat padded dec_str)
+    set padded (+ padded dec_str)
 
-    return (str_concat sec_str (str_concat "." padded))
+    return (+ sec_str (+ "." padded))
 }
 
 shadow format_microseconds {

@@ -92,8 +92,7 @@ May be resolved (CI_STATUS.md says tests now work). Needs verification.
 Deferred: integrate `nl_string_t` into the transpiler. 2-3 weeks effort.
 
 ### str_concat Refactoring (from STRING_PLUS_REFACTORING_EXAMPLES.md, CODEBASE_REFACTORING_2025_12_31.md)
-~30 `str_concat` calls remain in codebase (mostly in `src_nano/nanoc_integrated.nano`). Replace with `+` operator.
-Note: these are compiler internals (transpiler emitting C code, typechecker builtin recognition). This is compiler refactoring, not a search-and-replace task.
+~~User-facing str_concat calls replaced with + operator as of 2026-02-22.~~ Only 3 user-facing occurrences existed (all in `stdlib/timing.nano`). The remaining ~19 references in `src_nano/typecheck.nano`, `src_nano/transpiler.nano`, and `src_nano/nanoc_integrated.nano` are compiler infrastructure (builtin function recognition, C code generation, extern declarations) and must remain.
 
 ---
 
@@ -277,8 +276,8 @@ Full tracing system (not yet started).
 
 ## Transpiler Improvements (from planning/TRANSPILER_ENUM_ISSUE.md, planning/transpiler_refactoring_plan.md, planning/TUPLE_RETURN_IMPLEMENTATION.md)
 - ~~Fix proper enum field handling (currently using `int` workaround).~~ Verified 2026-02-21: transpiler already handles enum-typed struct fields correctly. The redefinition bug described in TRANSPILER_ENUM_ISSUE.md does not reproduce. Enum types in struct fields generate clean C code with no duplicates.
-- Add `GeneratedTypes` tracking struct to `transpiler.c`.
-- Complete transpiler refactoring (58% remaining): stdlib to separate file, function declarations, function implementations.
+- ~~Add `GeneratedTypes` tracking struct to `transpiler.c`.~~ Not needed: verified 2026-02-22 that enum redefinition bug does not reproduce.
+- ~~Complete transpiler refactoring (58% remaining): stdlib to separate file, function declarations, function implementations.~~ Verified 2026-02-22: `transpile_to_c()` is now ~140 lines orchestrating 57 well-named static helper functions. The original plan targeted reducing it from 2,324 lines to <1,000. The file grew to 4,412 lines with new features but the main function is clean. The refactoring plan in `planning/transpiler_refactoring_plan.md` is stale.
 - ~~Integrate `TupleTypeRegistry` into `transpile_program()` (95% done, 4-5 integration points remain).~~ Verified 2026-02-21: all integration points are already in place. Registry is created, populated, used for type generation, and cleaned up. Planning doc "95%" is stale.
 
 ## Self-Hosted Compiler Improvements (from planning/SRC_NANO_IMPROVEMENTS.md, planning/STAGE2_STATUS.md, planning/UNION_TYPES_AUDIT.md)
