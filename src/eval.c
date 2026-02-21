@@ -2294,14 +2294,24 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_void();
         }
         
+        /* Call the function */
+        Function *func = env_get_function(env, func_name);
+
+        /* Infer anonymous struct literal names from parameter types before evaluating */
+        for (int i = 0; i < node->as.call.arg_count && func && i < func->param_count; i++) {
+            ASTNode *arg = node->as.call.args[i];
+            if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+                if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                    arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
+                }
+            }
+        }
+
         /* Evaluate arguments */
         Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
         for (int i = 0; i < node->as.call.arg_count; i++) {
             args[i] = eval_expression(node->as.call.args[i], env);
         }
-        
-        /* Call the function */
-        Function *func = env_get_function(env, func_name);
         if (!func) {
             fprintf(stderr, "Error: Function '%s' not found\n", func_name);
             free(args);
@@ -2328,8 +2338,18 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_void();
     }
 
-    /* Check for built-in OS functions */
-    /* Evaluate arguments first */
+    /* Infer anonymous struct literal names from parameter types before evaluating */
+    Function *named_func = env_get_function(env, name);
+    for (int i = 0; i < node->as.call.arg_count && named_func && i < named_func->param_count; i++) {
+        ASTNode *arg = node->as.call.args[i];
+        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+            if (named_func->params[i].type == TYPE_STRUCT && named_func->params[i].struct_type_name) {
+                arg->as.struct_literal.struct_name = strdup(named_func->params[i].struct_type_name);
+            }
+        }
+    }
+
+    /* Evaluate arguments */
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
         args[i] = eval_expression(node->as.call.args[i], env);

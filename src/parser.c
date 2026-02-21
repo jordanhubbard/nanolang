@@ -1,12 +1,37 @@
 #include "nanolang.h"
 #include "colors.h"
+#include <stdarg.h>
 #include <stdint.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
 
+#define MAX_PARSER_ERRORS 20
+
 /* Forward declarations */
 static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out);
+
+static void parser_error(Stage1Parser *p, int line, int column, const char *fmt, ...) __attribute__((format(printf, 4, 5)));
+static void parser_error(Stage1Parser *p, int line, int column, const char *fmt, ...) {
+    if (p->error_count > MAX_PARSER_ERRORS) {
+        return;
+    }
+    if (line == p->last_error_line && column == p->last_error_column && fmt == p->last_error_message) {
+        return;
+    }
+    p->error_count++;
+    p->last_error_line = line;
+    p->last_error_column = column;
+    p->last_error_message = fmt;
+    if (p->error_count > MAX_PARSER_ERRORS) {
+        fprintf(stderr, "... stopping after %d errors\n", MAX_PARSER_ERRORS);
+        return;
+    }
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+}
 
 /* Helper functions */
 static Token *current_token(Stage1Parser *p) {
@@ -86,13 +111,13 @@ static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
     if (!match(p, type)) {
         Token *tok = current_token(p);
         if (!tok || !p || p->count == 0) {
-            fprintf(stderr, "%sError:%s Stage1Parser state invalid\n", CSTART_ERROR, CEND);
+            parser_error(p, 0, 0, "%sError:%s Stage1Parser state invalid\n", CSTART_ERROR, CEND);
             return false;
         }
         const char *msg_safe = msg ? msg : "(null message)";
         const char *token_name = token_type_name(tok->token_type);
         const char *token_name_safe = token_name ? token_name : "UNKNOWN";
-        fprintf(stderr, "%sError at line %d, column %d:%s %s (got %s)\n",
+        parser_error(p, tok->line, tok->column, "%sError at line %d, column %d:%s %s (got %s)\n",
                 CSTART_ERROR, tok->line, tok->column, CEND, msg_safe, token_name_safe);
         return false;
     }
@@ -127,13 +152,13 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p);
 static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in function signature\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in function signature\n");
         return NULL;
     }
     
     /* Expect 'fn' */
     if (tok->token_type != TOKEN_FN) {
-        fprintf(stderr, "Error at line %d, column %d: Expected 'fn' for function type\n",
+        parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected 'fn' for function type\n",
                 tok->line, tok->column);
         return NULL;
     }
@@ -142,11 +167,11 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect '(' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after 'fn'\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) after 'fn'\n");
         return NULL;
     }
     if (tok->token_type != TOKEN_LPAREN) {
-        fprintf(stderr, "Error at line %d, column %d: Expected '(' after 'fn'\n",
+        parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected '(' after 'fn'\n",
                 tok->line, tok->column);
         return NULL;
     }
@@ -163,7 +188,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Parse parameter types */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before parameter types\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) before parameter types\n");
         free_function_signature(sig);
         return NULL;
     }
@@ -194,7 +219,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             /* TODO: Handle nested function signatures in function parameters */
             /* For now, we don't support fn(fn(int)->int)->int */
             if (nested_fn_sig) {
-                fprintf(stderr, "Error: Nested function types not yet supported\n");
+                parser_error(p, 0, 0, "Error: Nested function types not yet supported\n");
                 free_function_signature(nested_fn_sig);
                 free_function_signature(sig);
                 return NULL;
@@ -202,7 +227,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             
             tok = current_token(p);
             if (!tok) {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parameter list\n");
+                parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parameter list\n");
                 free_function_signature(sig);
                 return NULL;
             }
@@ -218,12 +243,12 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect ')' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before ')'\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) before ')'\n");
         free_function_signature(sig);
         return NULL;
     }
     if (tok->token_type != TOKEN_RPAREN) {
-        fprintf(stderr, "Error at line %d, column %d: Expected ')' in function type\n",
+        parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected ')' in function type\n",
                 tok->line, tok->column);
         free_function_signature(sig);
         return NULL;
@@ -233,12 +258,12 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Expect '->' */
     tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) before '->'\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) before '->'\n");
         free_function_signature(sig);
         return NULL;
     }
     if (tok->token_type != TOKEN_ARROW) {
-        fprintf(stderr, "Error at line %d, column %d: Expected '->' in function type\n",
+        parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected '->' in function type\n",
                 tok->line, tok->column);
         free_function_signature(sig);
         return NULL;
@@ -333,7 +358,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected type name after '.'\n",
+                        parser_error(p, type_tok->line, type_tok->column, "Error at line %d, column %d: Expected type name after '.'\n",
                                 type_tok->line, type_tok->column);
                         free(type_name);
                         return TYPE_UNKNOWN;
@@ -372,14 +397,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         }
                         advance(p);
                     } else {
-                        fprintf(stderr, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
+                        parser_error(p, type_param_tok->line, type_param_tok->column, "Error at line %d, column %d: Expected type parameter after 'List<'\n",
                                 type_param_tok->line, type_param_tok->column);
                             free(type_name);
                         return TYPE_UNKNOWN;
                     }
                     
                     if (current_token(p)->token_type != TOKEN_GT) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected '>' after List type parameter\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected '>' after List type parameter\n",
                                 current_token(p)->line, current_token(p)->column);
                             free(type_name);
                         return TYPE_UNKNOWN;
@@ -394,7 +419,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         if (type_info_out) {
                             TypeInfo *info = calloc(1, sizeof(TypeInfo));
                             if (!info) {
-                                fprintf(stderr, "Error: Out of memory allocating HashMap TypeInfo\n");
+                                parser_error(p, 0, 0, "Error: Out of memory allocating HashMap TypeInfo\n");
                                 free(type_name);
                                 return TYPE_UNKNOWN;
                             }
@@ -405,7 +430,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             int capacity = 2;
                             info->type_params = malloc(sizeof(TypeInfo*) * capacity);
                             if (!info->type_params) {
-                                fprintf(stderr, "Error: Out of memory allocating HashMap type params\n");
+                                parser_error(p, 0, 0, "Error: Out of memory allocating HashMap type params\n");
                                 free(info->generic_name);
                                 free(info);
                                 return TYPE_UNKNOWN;
@@ -414,7 +439,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             /* Parse exactly 2 type parameters: K, V */
                             while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
                                 if (info->type_param_count >= capacity) {
-                                    fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                    parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
                                             current_token(p)->line, current_token(p)->column);
                                     /* Cleanup */
                                     for (int i = 0; i < info->type_param_count; i++) {
@@ -428,7 +453,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
 
                                 TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
                                 if (!param_info) {
-                                    fprintf(stderr, "Error: Out of memory allocating HashMap param TypeInfo\n");
+                                    parser_error(p, 0, 0, "Error: Out of memory allocating HashMap param TypeInfo\n");
                                     for (int i = 0; i < info->type_param_count; i++) {
                                         free(info->type_params[i]);
                                     }
@@ -475,7 +500,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
 
                                     TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
                                     if (!elem_info) {
-                                        fprintf(stderr, "Error: Out of memory allocating array elem TypeInfo\n");
+                                        parser_error(p, 0, 0, "Error: Out of memory allocating array elem TypeInfo\n");
                                         free(param_info);
                                         for (int i = 0; i < info->type_param_count; i++) {
                                             free(info->type_params[i]);
@@ -507,7 +532,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                                         elem_info->generic_name = strdup(elem_tok->value);
                                         advance(p);
                                     } else {
-                                        fprintf(stderr, "Error at line %d, column %d: Expected array element type in HashMap type parameter\n",
+                                        parser_error(p, elem_tok->line, elem_tok->column, "Error at line %d, column %d: Expected array element type in HashMap type parameter\n",
                                                 elem_tok->line, elem_tok->column);
                                         if (elem_info->generic_name) free(elem_info->generic_name);
                                         free(elem_info);
@@ -536,7 +561,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
 
                                     param_info->element_type = elem_info;
                                 } else {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected HashMap type parameter\n",
+                                    parser_error(p, param_tok->line, param_tok->column, "Error at line %d, column %d: Expected HashMap type parameter\n",
                                             param_tok->line, param_tok->column);
                                     free(param_info);
                                     for (int i = 0; i < info->type_param_count; i++) {
@@ -553,7 +578,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                                 if (match(p, TOKEN_COMMA)) {
                                     advance(p);
                                 } else if (!match(p, TOKEN_GT)) {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in HashMap type parameters\n",
+                                    parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected ',' or '>' in HashMap type parameters\n",
                                             current_token(p)->line, current_token(p)->column);
                                     for (int i = 0; i < info->type_param_count; i++) {
                                         free(info->type_params[i]);
@@ -576,7 +601,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             }
 
                             if (info->type_param_count != 2) {
-                                fprintf(stderr, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
+                                parser_error(p, tok->line, tok->column, "Error at line %d, column %d: HashMap expects exactly 2 type parameters\n",
                                         tok->line, tok->column);
                                 for (int i = 0; i < info->type_param_count; i++) {
                                     free(info->type_params[i]);
@@ -703,7 +728,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                                     elem_info->generic_name = strdup(elem_tok->value);
                                     advance(p);
                                 } else {
-                                    fprintf(stderr, "Error at line %d, column %d: Expected array element type in type parameter\n",
+                                    parser_error(p, elem_tok->line, elem_tok->column, "Error at line %d, column %d: Expected array element type in type parameter\n",
                                             elem_tok->line, elem_tok->column);
                                     free(elem_info);
                                     free(param_info);
@@ -735,7 +760,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                                 param_info->generic_name = strdup(param_tok->value);
                                 advance(p);
                             } else {
-                                fprintf(stderr, "Error at line %d, column %d: Expected type parameter\n",
+                                parser_error(p, param_tok->line, param_tok->column, "Error at line %d, column %d: Expected type parameter\n",
                                         param_tok->line, param_tok->column);
                                 free(param_info);
                                 /* Free info and its type_params */
@@ -755,7 +780,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             if (match(p, TOKEN_COMMA)) {
                                 advance(p);
                             } else if (!match(p, TOKEN_GT)) {
-                                fprintf(stderr, "Error at line %d, column %d: Expected ',' or '>' in generic type parameters\n",
+                                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected ',' or '>' in generic type parameters\n",
                                         current_token(p)->line, current_token(p)->column);
                                 /* Free info and its type_params */
                                 for (int i = 0; i < info->type_param_count; i++) {
@@ -808,7 +833,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             /* Parse array<element_type> */
             advance(p);  /* consume 'array' */
             if (current_token(p)->token_type != TOKEN_LT) {
-                fprintf(stderr, "Error at line %d, column %d: Expected '<' after 'array'\n", 
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected '<' after 'array'\n", 
                         current_token(p)->line, current_token(p)->column);
                 return TYPE_UNKNOWN;
             }
@@ -821,7 +846,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             }
             
             if (current_token(p)->token_type != TOKEN_GT) {
-                fprintf(stderr, "Error at line %d, column %d: Expected '>' after array element type\n", 
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected '>' after array element type\n", 
                         current_token(p)->line, current_token(p)->column);
                 return TYPE_UNKNOWN;
             }
@@ -922,7 +947,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             return TYPE_TUPLE;
         }
         default:
-            fprintf(stderr, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
+            parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
     }
     
@@ -950,7 +975,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             /* Parameter name */
             if (!match(p, TOKEN_IDENTIFIER)) {
                 Token *tok = current_token(p);
-                fprintf(stderr, "Error at line %d, column %d: Expected parameter name\n", tok->line, tok->column);
+                parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected parameter name\n", tok->line, tok->column);
                 free(param_list);
                 return false;
             }
@@ -1114,7 +1139,7 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         node->as.call.return_struct_type_name = NULL;  /* Will be set by type checker if needed */
         return node;
     } else {
-        fprintf(stderr, "Error at line %d, column %d: Invalid prefix operation\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Invalid prefix operation\n", line, column);
         return NULL;
     }
 }
@@ -1134,7 +1159,7 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
     /* Allocate TypeInfo for the generic type */
     TypeInfo *type_info = calloc(1, sizeof(TypeInfo));
     if (!type_info) {
-        fprintf(stderr, "Error: Failed to allocate memory for TypeInfo\n");
+        parser_error(p, 0, 0, "Error: Failed to allocate memory for TypeInfo\n");
         return NULL;
     }
     
@@ -1157,7 +1182,7 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
         Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
         
         if (param_type == TYPE_UNKNOWN) {
-            fprintf(stderr, "Error at line %d, column %d: Failed to parse generic type parameter\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse generic type parameter\n",
                     current_token(p)->line, current_token(p)->column);
             /* Cleanup */
             for (int i = 0; i < count; i++) {
@@ -1204,7 +1229,7 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
 static ASTNode *parse_primary(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token)\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token)\n");
         return NULL;
     }
     ASTNode *node;
@@ -1292,7 +1317,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 if (match(p, TOKEN_COMMA)) {
                     advance(p);
                 } else if (!match(p, TOKEN_RBRACKET)) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected ',' or ']' in array literal\n",
+                    parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected ',' or ']' in array literal\n",
                             current_token(p)->line, current_token(p)->column);
                     free(elements);
                     return NULL;
@@ -1385,7 +1410,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     
                     /* Parse field name */
                     if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected field name in anonymous struct literal\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name in anonymous struct literal\n",
                                 current_token(p)->line, current_token(p)->column);
                         break;
                     }
@@ -1433,11 +1458,11 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Otherwise, this is an unexpected '{' in expression context */
             Token *current_tok = current_token(p);
             if (!current_tok) {
-                fprintf(stderr, "Error: Unexpected LBRACE in NULL token state\n");
+                parser_error(p, 0, 0, "Error: Unexpected LBRACE in NULL token state\n");
                 return NULL;
             }
             const char *type_name = token_type_name(current_tok->token_type);
-            fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
+            parser_error(p, current_tok->line, current_tok->column, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
                     current_tok->line, current_tok->column, 
                     type_name ? type_name : "UNKNOWN", 
                     current_tok->token_type);
@@ -1487,7 +1512,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected struct name after '.'\n",
+                        parser_error(p, type_tok->line, type_tok->column, "Error at line %d, column %d: Expected struct name after '.'\n",
                                 type_tok->line, type_tok->column);
                         free(struct_name);
                         return NULL;
@@ -1516,7 +1541,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     
                     /* Parse field name */
                     if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected field name in struct literal\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name in struct literal\n",
                                 current_token(p)->line, current_token(p)->column);
                         break;
                     }
@@ -1573,7 +1598,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     advance(p);  /* consume :: */
                     
                     if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected identifier after '::'\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected identifier after '::'\n",
                                 current_token(p)->line, current_token(p)->column);
                         for (int i = 0; i < count; i++) {
                             free(name_parts[i]);
@@ -1629,7 +1654,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     if (generic_type_info) {
                         /* Must be followed by .Variant for union construction */
                         if (!match(p, TOKEN_DOT)) {
-                            fprintf(stderr, "Error at line %d, column %d: Generic type instantiation '%s<...>' must be followed by '.Variant' for union construction\n",
+                            parser_error(p, line, column, "Error at line %d, column %d: Generic type instantiation '%s<...>' must be followed by '.Variant' for union construction\n",
                                     line, column, node->as.identifier);
                             free(node->as.identifier);
                             free(node);
@@ -1640,7 +1665,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         advance(p);  /* consume '.' */
                         
                         if (!match(p, TOKEN_IDENTIFIER)) {
-                            fprintf(stderr, "Error at line %d, column %d: Expected variant name after '.'\n",
+                            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name after '.'\n",
                                     current_token(p)->line, current_token(p)->column);
                             free(node->as.identifier);
                             free(node);
@@ -1675,7 +1700,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                             
                             /* Parse field name */
                             if (!match(p, TOKEN_IDENTIFIER)) {
-                                fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name in union construction\n",
                                         current_token(p)->line, current_token(p)->column);
                                 break;
                             }
@@ -1751,7 +1776,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Peek at next token after '(' */
             Token *next = peek_token(p, 1);
             if (!next) {
-                fprintf(stderr, "Error at line %d, column %d: Unexpected end of input after '('\n",
+                parser_error(p, line, column, "Error at line %d, column %d: Unexpected end of input after '('\n",
                         line, column);
                 return NULL;
             }
@@ -1794,7 +1819,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             
             ASTNode *first_expr = parse_expression(p);
             if (!first_expr) {
-                fprintf(stderr, "Error at line %d, column %d: Failed to parse expression after '('\n",
+                parser_error(p, line, column, "Error at line %d, column %d: Failed to parse expression after '('\n",
                         line, column);
                 return NULL;
             }
@@ -1823,7 +1848,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     
                     elements[count] = parse_expression(p);
                     if (!elements[count]) {
-                        fprintf(stderr, "Error at line %d, column %d: Failed to parse tuple element\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse tuple element\n",
                                 current_token(p)->line, current_token(p)->column);
                         for (int i = 0; i < count; i++) {
                             free_ast(elements[i]);
@@ -1928,7 +1953,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         free_ast(first_expr);
                         first_expr = NULL;
                     } else {
-                        fprintf(stderr, "Error at line %d, column %d: Complex field access not supported in function calls\n",
+                        parser_error(p, line, column, "Error at line %d, column %d: Complex field access not supported in function calls\n",
                                 line, column);
                         free_ast(first_expr);
                         return NULL;
@@ -1937,7 +1962,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* Function call returning function: ((func_call) arg1 arg2) */
                     func_expr = first_expr;
                 } else {
-                    fprintf(stderr, "Error at line %d, column %d: Function call requires identifier or function call as first element\n",
+                    parser_error(p, line, column, "Error at line %d, column %d: Function call requires identifier or function call as first element\n",
                             line, column);
                     free_ast(first_expr);
                     return NULL;
@@ -1956,7 +1981,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     
                     args[count] = parse_expression(p);
                     if (!args[count]) {
-                        fprintf(stderr, "Error at line %d, column %d: Failed to parse function argument\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse function argument\n",
                                 current_token(p)->line, current_token(p)->column);
                         for (int i = 0; i < count; i++) {
                             free_ast(args[i]);
@@ -2024,13 +2049,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Re-read token to ensure it's still valid (might have been corrupted during recursion) */
             Token *current_tok = current_token(p);
             if (!current_tok) {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_primary default case\n");
+                parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_primary default case\n");
                 return NULL;
             }
             /* Safety check: validate token values are reasonable */
             if (current_tok->line < 0 || current_tok->line > 1000000 || 
                 current_tok->column < 0 || current_tok->column > 1000000) {
-                fprintf(stderr, "Error: Invalid token state in parse_primary (possible memory corruption at line %d, column %d)\n",
+                parser_error(p, current_tok->line, current_tok->column, "Error: Invalid token state in parse_primary (possible memory corruption at line %d, column %d)\n",
                         current_tok->line, current_tok->column);
                 return NULL;
             }
@@ -2045,7 +2070,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 // fprintf(stderr, "DEBUG: ELSE should never reach parse_primary - it should be handled in parse_if_expression\n");
             }
             
-            fprintf(stderr, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
+            parser_error(p, current_tok->line, current_tok->column, "Error at line %d, column %d: Unexpected token in expression: %s (type=%d)\n",
                     current_tok->line, current_tok->column, type_name ? type_name : "UNKNOWN", current_tok->token_type);
             return NULL;
         }
@@ -2057,7 +2082,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
 static ASTNode *parse_cond_expression(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_cond_expression\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_cond_expression\n");
         return NULL;
     }
     int line = tok->line;
@@ -2077,7 +2102,7 @@ static ASTNode *parse_cond_expression(Stage1Parser *p) {
     while (true) {
         Token *current = current_token(p);
         if (!current) {
-            fprintf(stderr, "Error: Unexpected end of input in cond expression\n");
+            parser_error(p, 0, 0, "Error: Unexpected end of input in cond expression\n");
             free(conditions);
             free(values);
             return NULL;
@@ -2101,7 +2126,7 @@ static ASTNode *parse_cond_expression(Stage1Parser *p) {
         /* Parse condition */
         ASTNode *condition = parse_expression(p);
         if (!condition) {
-            fprintf(stderr, "Error: Failed to parse condition in cond clause at line %d\n", line);
+            parser_error(p, 0, 0, "Error: Failed to parse condition in cond clause at line %d\n", line);
             free(conditions);
             free(values);
             return NULL;
@@ -2110,7 +2135,7 @@ static ASTNode *parse_cond_expression(Stage1Parser *p) {
         /* Parse value */
         ASTNode *value = parse_expression(p);
         if (!value) {
-            fprintf(stderr, "Error: Failed to parse value in cond clause at line %d\n", line);
+            parser_error(p, 0, 0, "Error: Failed to parse value in cond clause at line %d\n", line);
             free(conditions);
             free(values);
             return NULL;
@@ -2139,7 +2164,7 @@ static ASTNode *parse_cond_expression(Stage1Parser *p) {
     /* Parse else value (we've already consumed 'else') */
     ASTNode *else_value = parse_expression(p);
     if (!else_value) {
-        fprintf(stderr, "Error: Failed to parse else value in cond expression at line %d\n", line);
+        parser_error(p, 0, 0, "Error: Failed to parse else value in cond expression at line %d\n", line);
         free(conditions);
         free(values);
         return NULL;
@@ -2165,7 +2190,7 @@ static ASTNode *parse_cond_expression(Stage1Parser *p) {
 static ASTNode *parse_if_expression(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_if_expression\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_if_expression\n");
         return NULL;
     }
     int line = tok->line;
@@ -2239,7 +2264,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
     p->recursion_depth++;
     if (p->recursion_depth > MAX_RECURSION_DEPTH) {
         Token *tok = current_token(p);
-        fprintf(stderr, "Error at line %d, column %d: Expression recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested expression.\n",
+        parser_error(p, tok ? tok->line : 0, tok ? tok->column : 0, "Error at line %d, column %d: Expression recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested expression.\n",
                 tok ? tok->line : 0, tok ? tok->column : 0, MAX_RECURSION_DEPTH);
         p->recursion_depth--;
         return NULL;
@@ -2283,7 +2308,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
         while (match(p, TOKEN_DOT)) {
             Token *dot_tok = current_token(p);
             if (!dot_tok) {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
+                parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in field access\n");
                 p->recursion_depth--;
                 return expr;
             }
@@ -2308,10 +2333,10 @@ static ASTNode *parse_expression(Stage1Parser *p) {
             if (!match(p, TOKEN_IDENTIFIER)) {
                 Token *err_tok = current_token(p);
                 if (err_tok) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
+                    parser_error(p, err_tok->line, err_tok->column, "Error at line %d, column %d: Expected field name, variant name, or tuple index after '.'\n",
                             err_tok->line, err_tok->column);
                 } else {
-                    fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
+                    parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) after '.'\n");
                 }
                 p->recursion_depth--;
                 return expr;
@@ -2319,13 +2344,13 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 
             Token *field_tok = current_token(p);
             if (!field_tok || !field_tok->value) {
-                fprintf(stderr, "Error at line %d, column %d: Invalid field/variant token\n",
+                parser_error(p, field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0, "Error at line %d, column %d: Invalid field/variant token\n",
                         field_tok ? field_tok->line : 0, field_tok ? field_tok->column : 0);
                 return expr;
             }
             char *field_or_variant = strdup(field_tok->value);
             if (!field_or_variant) {
-                fprintf(stderr, "Error: Failed to allocate memory for field/variant name\n");
+                parser_error(p, 0, 0, "Error: Failed to allocate memory for field/variant name\n");
                 return expr;
             }
             advance(p);
@@ -2363,7 +2388,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 
                     /* Parse field name */
                     if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected field name in union construction\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name in union construction\n",
                                 current_token(p)->line, current_token(p)->column);
                         break;
                     }
@@ -2428,7 +2453,7 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 
                 ASTNode *right = parse_primary(p);
                 if (!right) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected expression after operator\n",
+                    parser_error(p, op_line, op_col, "Error at line %d, column %d: Expected expression after operator\n",
                             op_line, op_col);
                     p->recursion_depth--;
                     return expr;
@@ -2459,7 +2484,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     p->recursion_depth++;
     if (p->recursion_depth > MAX_RECURSION_DEPTH) {
         Token *tok = current_token(p);
-        fprintf(stderr, "Error at line %d, column %d: Block recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested blocks.\n",
+        parser_error(p, tok ? tok->line : 0, tok ? tok->column : 0, "Error at line %d, column %d: Block recursion depth exceeded maximum (%d). Possible infinite recursion or extremely nested blocks.\n",
                 tok ? tok->line : 0, tok ? tok->column : 0, MAX_RECURSION_DEPTH);
         p->recursion_depth--;
         return NULL;
@@ -2467,7 +2492,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_block\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_block\n");
         p->recursion_depth--;
         return NULL;
     }
@@ -2498,7 +2523,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             consecutive_failures++;
             if (consecutive_failures > 10) {
                 Token *err_tok = current_token(p);
-                fprintf(stderr, "Error: Stage1Parser stuck in infinite loop in block at line %d, column %d. Aborting.\n",
+                parser_error(p, err_tok ? err_tok->line : 0, err_tok ? err_tok->column : 0, "Error: Stage1Parser stuck in infinite loop in block at line %d, column %d. Aborting.\n",
                         err_tok ? err_tok->line : 0, err_tok ? err_tok->column : 0);
                 free(statements);
                 p->recursion_depth--;
@@ -2554,7 +2579,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
 static ASTNode *parse_statement(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_statement\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_statement\n");
         return NULL;
     }
     ASTNode *node;
@@ -2577,7 +2602,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             }
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Expected variable name\n", line, column);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -2659,7 +2684,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected variable name\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Expected variable name\n", line, column);
                 return NULL;
             }
             char *name = strdup(current_token(p)->value);
@@ -2693,7 +2718,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             advance(p);
 
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected loop variable\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Expected loop variable\n", line, column);
                 return NULL;
             }
             char *var_name = strdup(current_token(p)->value);
@@ -2706,14 +2731,14 @@ static ASTNode *parse_statement(Stage1Parser *p) {
 
             ASTNode *range_expr = parse_expression(p);
             if (!range_expr) {
-                fprintf(stderr, "Error at line %d, column %d: Invalid range expression in for loop\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Invalid range expression in for loop\n", line, column);
                 free(var_name);
                 return NULL;
             }
 
             ASTNode *body = parse_block(p);
             if (!body) {
-                fprintf(stderr, "Error at line %d, column %d: Invalid body in for loop\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Invalid body in for loop\n", line, column);
                 free(var_name);
                 free_ast(range_expr);
                 return NULL;
@@ -2822,7 +2847,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
 
         case TOKEN_ELSE: {
             /* ELSE token encountered outside of IF context */
-            fprintf(stderr, "Error at line %d, column %d: 'else' without matching 'if'\n",
+            parser_error(p, tok->line, tok->column, "Error at line %d, column %d: 'else' without matching 'if'\n",
                     tok->line, tok->column);
             return NULL;
         }
@@ -2844,7 +2869,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                     /* Parse the expression to print */
                     ASTNode *expr = parse_expression(p);
                     if (!expr) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected expression after '%s'\n",
+                        parser_error(p, line, column, "Error at line %d, column %d: Expected expression after '%s'\n",
                                 line, column, is_println ? "println" : "print");
                         return NULL;
                     }
@@ -2879,7 +2904,7 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
     
     /* Get struct name */
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected struct name\n", 
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected struct name\n", 
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
@@ -2915,7 +2940,7 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
         
         /* Parse field name */
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected field name\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name\n",
                     current_token(p)->line, current_token(p)->column);
             break;
         }
@@ -2979,7 +3004,7 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
     
     /* Get enum name */
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected enum name\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected enum name\n",
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
@@ -3008,19 +3033,19 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
         
         /* Parse variant name */
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected variant name\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name\n",
                     current_token(p)->line, current_token(p)->column);
             break;
         }
         Token *tok = current_token(p);
         if (!tok || !tok->value) {
-            fprintf(stderr, "Error at line %d, column %d: Invalid token (NULL value)\n",
+            parser_error(p, tok ? tok->line : 0, tok ? tok->column : 0, "Error at line %d, column %d: Invalid token (NULL value)\n",
                     tok ? tok->line : 0, tok ? tok->column : 0);
             break;
         }
         variant_names[count] = strdup(tok->value);
         if (!variant_names[count]) {
-            fprintf(stderr, "Error: Failed to allocate memory for variant name\n");
+            parser_error(p, 0, 0, "Error: Failed to allocate memory for variant name\n");
             free(enum_name);
             for (int i = 0; i < count; i++) {
                 free(variant_names[i]);
@@ -3035,7 +3060,7 @@ static ASTNode *parse_enum_def(Stage1Parser *p) {
         if (match(p, TOKEN_ASSIGN)) {
             advance(p);
             if (!match(p, TOKEN_NUMBER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected number after '='\n",
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected number after '='\n",
                         current_token(p)->line, current_token(p)->column);
                 variant_values[count] = next_auto_value++;
             } else {
@@ -3088,13 +3113,13 @@ static ASTNode *parse_opaque_type(Stage1Parser *p) {
     
     /* Expect "type" keyword (using identifier since "type" is not a token) */
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected 'type' after 'opaque'\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected 'type' after 'opaque'\n",
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
     
     if (strcmp(current_token(p)->value, "type") != 0) {
-        fprintf(stderr, "Error at line %d, column %d: Expected 'type' after 'opaque', got '%s'\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected 'type' after 'opaque', got '%s'\n",
                 current_token(p)->line, current_token(p)->column, current_token(p)->value);
         return NULL;
     }
@@ -3102,7 +3127,7 @@ static ASTNode *parse_opaque_type(Stage1Parser *p) {
     
     /* Get type name */
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected type name after 'opaque type'\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected type name after 'opaque type'\n",
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
@@ -3127,7 +3152,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
     
     /* Get union name */
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected union name\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected union name\n",
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
@@ -3151,7 +3176,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             }
             
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected generic parameter name\n",
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected generic parameter name\n",
                         current_token(p)->line, current_token(p)->column);
                 for (int i = 0; i < generic_param_count; i++) {
                     free(generic_params[i]);
@@ -3212,7 +3237,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
         
         /* Parse variant name */
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected variant name\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name\n",
                     current_token(p)->line, current_token(p)->column);
             break;
         }
@@ -3242,7 +3267,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             
             /* Parse field name */
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected field name\n",
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name\n",
                         current_token(p)->line, current_token(p)->column);
                 break;
             }
@@ -3340,7 +3365,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
 static ASTNode *parse_match_expr(Stage1Parser *p) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_match_expr\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_match_expr\n");
         return NULL;
     }
     int line = tok->line;
@@ -3353,7 +3378,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     /* Parse expression to match on */
     ASTNode *expr = parse_expression(p);
     if (!expr) {
-        fprintf(stderr, "Error at line %d, column %d: Expected expression after 'match'\n",
+        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected expression after 'match'\n",
                 current_token(p)->line, current_token(p)->column);
         return NULL;
     }
@@ -3381,7 +3406,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
         
         /* Parse pattern: VariantName(binding) */
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected variant name in match pattern\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name in match pattern\n",
                     current_token(p)->line, current_token(p)->column);
             break;
         }
@@ -3396,7 +3421,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
         
         /* Parse binding variable */
         if (!match(p, TOKEN_IDENTIFIER)) {
-            fprintf(stderr, "Error at line %d, column %d: Expected binding variable in match pattern\n",
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected binding variable in match pattern\n",
                     current_token(p)->line, current_token(p)->column);
             free(pattern_variants[count]);
             break;
@@ -3713,7 +3738,7 @@ static void transform_returns_in_block(ASTNode *block, ASTNode **postconditions,
 static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     Token *tok = current_token(p);
     if (!tok) {
-        fprintf(stderr, "Error: Stage1Parser reached invalid state (NULL token) in parse_function\n");
+        parser_error(p, 0, 0, "Error: Stage1Parser reached invalid state (NULL token) in parse_function\n");
         return NULL;
     }
     int line = tok->line;
@@ -3724,7 +3749,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     }
 
     if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
-        fprintf(stderr, "Error at line %d, column %d: Expected function name\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Expected function name\n", line, column);
         return NULL;
     }
     char *name = strdup(current_token(p)->value);
@@ -3829,7 +3854,7 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     }
 
     if (is_extern && (precondition_count > 0 || postcondition_count > 0)) {
-        fprintf(stderr, "Error at line %d, column %d: Extern functions cannot have 'requires' or 'ensures' clauses\n",
+        parser_error(p, line, column, "Error at line %d, column %d: Extern functions cannot have 'requires' or 'ensures' clauses\n",
                 line, column);
         free(name);
         free(params);
@@ -3912,7 +3937,7 @@ static ASTNode *parse_module_decl(Stage1Parser *p) {
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected module name after 'module'\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Expected module name after 'module'\n", line, column);
         return NULL;
     }
 
@@ -3957,7 +3982,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
     }
     /* Otherwise it must be 'module' (new syntax) or 'import' (legacy) */
     else if (!match(p, TOKEN_MODULE) && !match(p, TOKEN_IMPORT)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected 'module', 'import', 'from', or 'use'\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Expected 'module', 'import', 'from', or 'use'\n", line, column);
         return NULL;
     } else {
         advance(p);  /* consume 'module' or 'import' */
@@ -3979,7 +4004,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
         module_path = path;
         advance(p);
     } else {
-        fprintf(stderr, "Error at line %d, column %d: Expected string or identifier after 'module'\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Expected string or identifier after 'module'\n", line, column);
         return NULL;
     }
 
@@ -4011,7 +4036,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
             
             while (true) {
                 if (!(match(p, TOKEN_IDENTIFIER) || match(p, TOKEN_SET))) {
-                    fprintf(stderr, "Error at line %d, column %d: Expected symbol name after 'import'\n",
+                    parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected symbol name after 'import'\n",
                             current_token(p)->line, current_token(p)->column);
                     free(module_path);
                     for (int i = 0; i < import_symbol_count; i++) {
@@ -4037,7 +4062,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
                 if (match(p, TOKEN_AS)) {
                     advance(p);  /* consume "as" */
                     if (!match(p, TOKEN_IDENTIFIER)) {
-                        fprintf(stderr, "Error at line %d, column %d: Expected alias name after 'as'\n",
+                        parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected alias name after 'as'\n",
                                 current_token(p)->line, current_token(p)->column);
                         free(module_path);
                         for (int i = 0; i < import_symbol_count; i++) {
@@ -4068,7 +4093,7 @@ static ASTNode *parse_import(Stage1Parser *p) {
         if (match(p, TOKEN_AS)) {
             advance(p);  /* consume "as" keyword */
             if (!match(p, TOKEN_IDENTIFIER)) {
-                fprintf(stderr, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
+                parser_error(p, line, column, "Error at line %d, column %d: Expected module alias name after 'as'\n", line, column);
                 free(module_path);
                 return NULL;
             }
@@ -4099,7 +4124,7 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
     }
 
     if (!match(p, TOKEN_IDENTIFIER)) {
-        fprintf(stderr, "Error at line %d, column %d: Expected function name after 'shadow'\n", line, column);
+        parser_error(p, line, column, "Error at line %d, column %d: Expected function name after 'shadow'\n", line, column);
         return NULL;
     }
     char *func_name = strdup(current_token(p)->value);
@@ -4129,6 +4154,10 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     parser.count = token_count;
     parser.pos = 0;
     parser.recursion_depth = 0;
+    parser.error_count = 0;
+    parser.last_error_line = -1;
+    parser.last_error_column = -1;
+    parser.last_error_message = NULL;
 
     int capacity = 16;
     int count = 0;
@@ -4141,7 +4170,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         /* Safety check: if current_token returns NULL, we've hit an error */
         Token *tok = current_token(&parser);
         if (!tok) {
-            fprintf(stderr, "Error: Stage1Parser reached invalid state\n");
+            parser_error(&parser, 0, 0, "Error: Stage1Parser reached invalid state\n");
             break;
         }
         
@@ -4149,7 +4178,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         if (parser.pos == last_pos) {
             consecutive_failures++;
             if (consecutive_failures > 10) {
-                fprintf(stderr, "Error: Stage1Parser stuck in infinite loop at line %d, column %d. Aborting.\n",
+                parser_error(&parser, tok->line, tok->column, "Error: Stage1Parser stuck in infinite loop at line %d, column %d. Aborting.\n",
                         tok->line, tok->column);
                 break;
             }
@@ -4188,7 +4217,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 if (next_tok && next_tok->token_type == TOKEN_LBRACE) {
                     /* It's an unsafe block - but we can't parse it here at top level */
                     /* This will be handled by the expression parser */
-                    fprintf(stderr, "Error: unsafe block can only appear inside functions, not at top level\n");
+                    parser_error(&parser, 0, 0, "Error: unsafe block can only appear inside functions, not at top level\n");
                     advance(&parser); /* consume unsafe */
                     advance(&parser); /* consume { */
                     /* Skip to closing brace */
@@ -4201,7 +4230,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     parsed = NULL;
                 } else {
                     /* Unknown unsafe construct */
-                    fprintf(stderr, "Error: Expected 'module' or '{' after 'unsafe'\n");
+                    parser_error(&parser, 0, 0, "Error: Expected 'module' or '{' after 'unsafe'\n");
                     advance(&parser);
                     parsed = NULL;
                 }
@@ -4276,7 +4305,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    fprintf(stderr, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, or use\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, or use\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
@@ -4287,7 +4316,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             if (!match(&parser, TOKEN_STRUCT)) {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    fprintf(stderr, "Error at line %d, column %d: 'resource' keyword must be followed by 'struct'\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'resource' keyword must be followed by 'struct'\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
@@ -4341,10 +4370,10 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else {
             Token *err_tok = current_token(&parser);
             if (err_tok) {
-                fprintf(stderr, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\n",
+                parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\n",
                         err_tok->line, err_tok->column);
             } else {
-                fprintf(stderr, "Error: Stage1Parser reached invalid state\n");
+                parser_error(&parser, 0, 0, "Error: Stage1Parser reached invalid state\n");
             }
             advance(&parser);  /* Skip invalid token to avoid infinite loop */
             continue;

@@ -1734,6 +1734,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         free(passed_sig.param_types);
                         free(passed_sig.param_struct_names);
                     } else {
+                        /* Handle anonymous struct literals: infer struct name from parameter type */
+                        if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
+                            if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
+                                arg->as.struct_literal.struct_name = strdup(func->params[i].struct_type_name);
+                            } else {
+                                fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal in function argument\n",
+                                        arg->line, arg->column);
+                            }
+                        }
+                        
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
                         

@@ -638,6 +638,10 @@ typedef struct {
     int count;
     int pos;
     int recursion_depth;  /* Track recursion depth to prevent stack overflow */
+    int error_count;
+    int last_error_line;
+    int last_error_column;
+    const char *last_error_message;
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);

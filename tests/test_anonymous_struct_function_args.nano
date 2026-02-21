@@ -1,0 +1,47 @@
+struct Point {
+    x: int,
+    y: int
+}
+
+fn distance_from_origin(p: Point) -> int {
+    return (+ p.x p.y)
+}
+
+shadow distance_from_origin {
+    assert (== (distance_from_origin Point { x: 3, y: 4 }) 7)
+}
+
+fn add_points(a: Point, b: Point) -> Point {
+    return Point { x: (+ a.x b.x), y: (+ a.y b.y) }
+}
+
+shadow add_points {
+    let r: Point = (add_points Point { x: 1, y: 2 } Point { x: 3, y: 4 })
+    assert (== r.x 4)
+    assert (== r.y 6)
+}
+
+fn use_anonymous(p: Point) -> int {
+    return (+ p.x p.y)
+}
+
+shadow use_anonymous {
+    # This is the NEW feature — anonymous struct literal in function arg
+    assert (== (use_anonymous { x: 10, y: 20 }) 30)
+}
+
+fn two_anonymous(a: Point, b: Point) -> int {
+    return (+ (+ a.x b.x) (+ a.y b.y))
+}
+
+shadow two_anonymous {
+    assert (== (two_anonymous { x: 1, y: 2 } { x: 3, y: 4 }) 10)
+}
+
+fn main() -> int {
+    let result: int = (use_anonymous { x: 5, y: 15 })
+    (println (int_to_string result))
+    return 0
+}
+
+shadow main { assert true }
