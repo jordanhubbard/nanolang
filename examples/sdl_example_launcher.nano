@@ -1014,8 +1014,24 @@ fn main() -> int {
                 let truncated: string = (str_truncate ex.name 10)
                 (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ ICON_SIZE 4)) 220 220 240 255)
 
-                # Status indicator badge - TODO: re-enable after fixing parse error
-                # Temporarily commented out
+                # Status indicator badge: green square in top-right corner when running
+                let badge_pid: int = (at example_pids ex_idx)
+                let mut badge_running: bool = false
+                if (== mode.name "vm") {
+                    set badge_running (is_vm_thread_running vm_state ex_idx)
+                } else {
+                    if (> badge_pid 0) {
+                        set badge_running (== (is_running badge_pid) 1)
+                    } else {
+                        (print "")
+                    }
+                }
+                if badge_running {
+                    (SDL_SetRenderDrawColor renderer 80 220 80 255)
+                    (nl_sdl_render_fill_rect renderer (+ icon_x (- ICON_SIZE 12)) (+ icon_y 4) 10 10)
+                } else {
+                    (print "")
+                }
             }
             set grid_idx (+ grid_idx 1)
         }
@@ -1089,8 +1105,29 @@ fn main() -> int {
                 (nl_sdl_render_fill_rect renderer (+ code_display_x 120) btn_y 120 28)
                 (nl_draw_text_blended renderer font "Build & Run" (+ code_display_x 135) (+ btn_y 6) 255 255 255 255)
 
-                # Status indicator with enhanced feedback - TODO: re-enable after fixing parse error
-                # Temporarily commented out
+                # Build status indicator
+                if (!= editor.build_status "") {
+                    let status_y: int = (+ btn_y 36)
+                    if (== editor.build_status "building") {
+                        (SDL_SetRenderDrawColor renderer 50 100 180 255)
+                    } else {
+                        if (== editor.build_status "success") {
+                            (SDL_SetRenderDrawColor renderer 40 160 40 255)
+                        } else {
+                            (SDL_SetRenderDrawColor renderer 180 50 50 255)
+                        }
+                    }
+                    (nl_sdl_render_fill_rect renderer (+ code_display_x 10) status_y (- RIGHT_PANEL_WIDTH 60) 24)
+                    let status_label: string = (+ "Build: " editor.build_status)
+                    (nl_draw_text_blended renderer font status_label (+ code_display_x 20) (+ status_y 4) 255 255 255 255)
+                    if (!= editor.build_output "") {
+                        (nl_draw_text_blended renderer small_font editor.build_output (+ code_display_x 10) (+ status_y 30) 255 180 180 255)
+                    } else {
+                        (print "")
+                    }
+                } else {
+                    (print "")
+                }
             } else {
                 # Normal source preview mode
                 (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255)

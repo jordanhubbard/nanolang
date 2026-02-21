@@ -329,24 +329,28 @@ pub fn error_type_mismatch(
     found: string,
     context: string
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "TYPE MISMATCH" file line column)
-    let _expected: string = expected
-    let _found: string = found
-    let _context: string = context
-    
-    # TODO: Build problem string with expected vs found
-    # "I expected a value of type `int`, but found `string`"
-    
-    # TODO: Build explanation based on context
-    # If context is "function_argument":
-    #   "The function signature declares this parameter as `int`"
-    # If context is "variable_assignment":
-    #   "The variable was declared with type `int`"
-    
-    # TODO: Build suggestion
-    # "Did you mean to use (string_to_int ...)?""
-    
-    return err
+    let problem: string = (encode_type_mismatch_message context expected found "")
+    let mut explanation: string = (explanation_for_code "E0001")
+    if (== context "function_argument") {
+        set explanation (+ "The function signature declares this parameter as " (+ (wrap_backticks expected) "."))
+    } else {
+        if (== context "variable_assignment") {
+            set explanation (+ "The variable was declared with type " (+ (wrap_backticks expected) "."))
+        } else {
+            (print "")
+        }
+    }
+    let suggestion: string = (suggestion_for_code "E0001")
+    return ErrorMessage {
+        title: "TYPE MISMATCH",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_type_mismatch {
@@ -362,22 +366,32 @@ pub fn error_undefined_variable(
     var_name: string,
     similar_names: List<string>
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "UNDEFINED VARIABLE" file line column)
-    let _var_name: string = var_name
-    let _similar_names: List<string> = similar_names
-    
-    # TODO: Build problem string
-    # "I cannot find a variable named `countr`"
-    
-    # TODO: Build suggestion based on similar names
-    # If similar_names has entries:
-    #   "Did you mean one of these?"
-    #   "    counter"
-    #   "    count"
-    # Else:
-    #   "Make sure to declare `countr` with `let` before using it"
-    
-    return err
+    let problem: string = (encode_undefined_name_message var_name)
+    let explanation: string = (explanation_for_code "E0002")
+    let name_count: int = (list_string_length similar_names)
+    let mut suggestion: string = (+ "Make sure to declare " (+ (wrap_backticks var_name) " with `let` before using it."))
+    if (> name_count 0) {
+        let mut hint: string = "Did you mean one of these?\n"
+        let mut i: int = 0
+        while (< i name_count) {
+            let candidate: string = (list_string_get similar_names i)
+            set hint (+ hint (+ "    " (+ candidate "\n")))
+            set i (+ i 1)
+        }
+        set suggestion hint
+    } else {
+        (print "")
+    }
+    return ErrorMessage {
+        title: "UNDEFINED VARIABLE",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_undefined_variable {
@@ -395,25 +409,24 @@ pub fn error_arity_mismatch(
     expected_args: int,
     found_args: int
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "WRONG NUMBER OF ARGUMENTS" file line column)
-    let _function_name: string = function_name
-    let _expected_args: int = expected_args
-    let _found_args: int = found_args
-    
-    # TODO: Build problem string
-    # "The function `add` expects 2 arguments, but I see 3"
-    
-    # TODO: Build explanation
-    # "This `add` function has type:"
-    # "    fn(int, int) -> int"
-    
-    # TODO: Build suggestion
-    # If found_args > expected_args:
-    #   "Remove the extra arguments"
-    # If found_args < expected_args:
-    #   "Add the missing arguments"
-    
-    return err
+    let problem: string = (encode_wrong_arg_count_message function_name expected_args found_args)
+    let explanation: string = (+ "The function " (+ (wrap_backticks function_name) " requires exactly this many arguments."))
+    let mut suggestion: string = "Add the missing arguments to match the function signature."
+    if (> found_args expected_args) {
+        set suggestion "Remove the extra arguments to match the function signature."
+    } else {
+        (print "")
+    }
+    return ErrorMessage {
+        title: "WRONG NUMBER OF ARGUMENTS",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_arity_mismatch {
@@ -429,24 +442,19 @@ pub fn error_missing_return(
     function_name: string,
     expected_type: string
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "MISSING RETURN" file line column)
-    let _function_name: string = function_name
-    let _expected_type: string = expected_type
-    
-    # TODO: Build problem string
-    # "The function `calculate` is declared to return `int`, but some branches don't return a value"
-    
-    # TODO: Build explanation
-    # "All execution paths in a function must return a value of the declared type."
-    # "Right now, if the condition is false, the function doesn't return anything."
-    
-    # TODO: Build suggestion
-    # "Add a return statement to the else branch:"
-    # "    } else {"
-    # "        return 0  # or some other default value"
-    # "    }"
-    
-    return err
+    let problem: string = (encode_missing_return_message function_name expected_type)
+    let explanation: string = "All execution paths in a function must return a value of the declared type. Right now, some branches don't return anything."
+    let suggestion: string = (+ "Add a `return` statement to all branches that currently fall through, returning a value of type " (+ (wrap_backticks expected_type) "."))
+    return ErrorMessage {
+        title: "MISSING RETURN",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_missing_return {
@@ -461,21 +469,19 @@ pub fn error_immutable_assignment(
     column: int,
     var_name: string
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "CANNOT ASSIGN TO IMMUTABLE VARIABLE" file line column)
-    let _var_name: string = var_name
-    
-    # TODO: Build problem string
-    # "I cannot assign to `count` because it was declared as immutable"
-    
-    # TODO: Build explanation
-    # "In NanoLang, variables are immutable by default. Once you assign a value"
-    # "to an immutable variable, you cannot change it later."
-    
-    # TODO: Build suggestion
-    # "To make this variable mutable, add the `mut` keyword:"
-    # "    let mut count: int = 0"
-    
-    return err
+    let problem: string = (encode_immutable_assignment_message var_name)
+    let explanation: string = "In NanoLang, variables are immutable by default. Once you assign a value to an immutable variable, you cannot change it later."
+    let suggestion: string = (+ "To make this variable mutable, add the `mut` keyword:\n    let mut " (+ var_name ": <type> = <value>"))
+    return ErrorMessage {
+        title: "CANNOT ASSIGN TO IMMUTABLE VARIABLE",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_immutable_assignment {
@@ -546,23 +552,19 @@ pub fn error_unsafe_required(
     column: int,
     function_name: string
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "UNSAFE OPERATION" file line column)
-    let _function_name: string = function_name
-    
-    # TODO: Build problem string
-    # "The function `malloc` is marked as unsafe and must be called inside an unsafe block"
-    
-    # TODO: Build explanation
-    # "Unsafe functions can cause memory errors or undefined behavior if used incorrectly."
-    # "NanoLang requires you to explicitly mark where unsafe code is used."
-    
-    # TODO: Build suggestion
-    # "Wrap the call in an unsafe block:"
-    # "    unsafe {"
-    # "        (malloc 100)"
-    # "    }"
-    
-    return err
+    let problem: string = (+ "The function " (+ (wrap_backticks function_name) " is marked as unsafe and must be called inside an `unsafe` block."))
+    let explanation: string = "Unsafe functions can cause memory errors or undefined behavior if used incorrectly. NanoLang requires you to explicitly mark where unsafe code is used."
+    let suggestion: string = (+ "Wrap the call in an unsafe block:\n    unsafe {\n        (" (+ function_name " ...)\n    }"))
+    return ErrorMessage {
+        title: "UNSAFE OPERATION",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_unsafe_required {
@@ -578,23 +580,19 @@ pub fn error_use_after_consume(
     resource_name: string,
     consumed_at_line: int
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "USE AFTER CONSUME" file line column)
-    let _resource_name: string = resource_name
-    let _consumed_at_line: int = consumed_at_line
-    
-    # TODO: Build problem string
-    # "I cannot use `file` because it was already consumed at line 42"
-    
-    # TODO: Build explanation
-    # "`file` is a resource type (FileHandle). Resource types can only be used once."
-    # "After you pass it to a consuming function like `close_file`, you cannot use it again."
-    
-    # TODO: Build suggestion
-    # "If you need to use the resource multiple times, consider:"
-    # "1. Restructure your code so the resource is consumed last"
-    # "2. Use a function that borrows instead of consuming"
-    
-    return err
+    let problem: string = (+ "I cannot use " (+ (wrap_backticks resource_name) (+ " because it was already consumed at line " (+ (int_to_string consumed_at_line) "."))))
+    let explanation: string = (+ (wrap_backticks resource_name) " is a resource type. Resource types can only be used once. After you pass it to a consuming function, you cannot use it again.")
+    let suggestion: string = "Restructure your code so the resource is consumed last, or use a function that borrows instead of consuming."
+    return ErrorMessage {
+        title: "USE AFTER CONSUME",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_use_after_consume {
@@ -610,22 +608,19 @@ pub fn error_resource_leak(
     resource_name: string,
     resource_type: string
 ) -> ErrorMessage {
-    let err: ErrorMessage = (error_message_new "RESOURCE LEAK" file line column)
-    let _resource_name: string = resource_name
-    let _resource_type: string = resource_type
-    
-    # TODO: Build problem string
-    # "The resource `file` of type `FileHandle` was not consumed before the function returns"
-    
-    # TODO: Build explanation
-    # "Resource types like `FileHandle` must be explicitly closed or consumed."
-    # "This prevents resource leaks (like leaving files open)."
-    
-    # TODO: Build suggestion
-    # "Add a call to consume the resource:"
-    # "    unsafe { (close_file file) }"
-    
-    return err
+    let problem: string = (+ "The resource " (+ (wrap_backticks resource_name) (+ " of type " (+ (wrap_backticks resource_type) " was not consumed before the function returns."))))
+    let explanation: string = (+ "Resource types like " (+ (wrap_backticks resource_type) " must be explicitly closed or consumed. This prevents resource leaks (like leaving files open)."))
+    let suggestion: string = (+ "Add a call to consume the resource before returning:\n    unsafe { (close_" (+ resource_name (+ " " (+ resource_name ") }"))))
+    return ErrorMessage {
+        title: "RESOURCE LEAK",
+        file: file,
+        line: line,
+        column: column,
+        problem: problem,
+        code_snippet: "",
+        explanation: explanation,
+        suggestion: suggestion
+    }
 }
 
 shadow error_resource_leak {
@@ -639,14 +634,27 @@ shadow error_resource_leak {
 
 /* Get a friendly error template for common mistakes */
 pub fn get_error_template(error_code: string) -> string {
-    let _error_code: string = error_code
-    # TODO: Return helpful templates for common errors
-    # E0001: NSType mismatch
-    # E0002: Undefined variable
-    # E0003: Arity mismatch
-    # etc.
-    
-    return "Error template placeholder"
+    if (== error_code "E0001") {
+        return "TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`."
+    } else {
+        if (== error_code "E0002") {
+            return "UNDEFINED IDENTIFIER: I cannot find a definition for `<name>` in the current scope."
+        } else {
+            if (== error_code "E0003") {
+                return "WRONG NUMBER OF ARGUMENTS: The function `<name>` expects <n> argument(s), but I see <m>."
+            } else {
+                if (== error_code "E0004") {
+                    return "ARGUMENT TYPE MISMATCH: Argument <n> of `<fn>` must be `<expected>`, but got `<found>`."
+                } else {
+                    if (== error_code "E0005") {
+                        return "IMMUTABLE VARIABLE: Cannot assign to `<name>` because it was declared immutable. Use `let mut` to allow reassignment."
+                    } else {
+                        return (+ "Unknown error code: " error_code)
+                    }
+                }
+            }
+        }
+    }
 }
 
 shadow get_error_template {

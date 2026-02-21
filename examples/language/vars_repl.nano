@@ -111,8 +111,9 @@ fn extract_var_name(input: string) -> string {
 }
 
 shadow extract_var_name {
-    # TODO: Fix this test
-    assert true
+    assert (== (extract_var_name "let x: int = 42") "x")
+    assert (== (extract_var_name "let count: string = hello") "count")
+    assert (== (extract_var_name "no colon here") "")
 }
 
 # Wrap expression with variable context

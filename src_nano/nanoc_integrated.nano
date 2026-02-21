@@ -3861,14 +3861,18 @@ shadow env_get_type {
 
 /* Check type of a literal number */
 fn check_number_literal(value: string) -> NSType {
-    /* For now, all numbers are int */
-    /* TODO: detect floats by checking for '.' */
-    return (type_int)
+    if (str_contains value ".") {
+        return (type_float)
+    } else {
+        return (type_int)
+    }
 }
 
 shadow check_number_literal {
     let t: NSType = (check_number_literal "42")
     assert (== t.kind TypeKind.TYPE_INT)
+    let tf: NSType = (check_number_literal "3.14")
+    assert (== tf.kind TypeKind.TYPE_FLOAT)
 }
 
 /* Check type of a string literal */
@@ -4074,8 +4078,7 @@ fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NST
 fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>) -> array<Symbol> {
     /* Check if variable already exists in current scope */
     if (env_has_symbol symbols let_node.name) {
-        /* TODO: Better error reporting with variable name */
-        (println "NSType error: Variable already defined")
+        (println (+ "NSType error: Variable already defined: " let_node.name))
         return symbols
     } else {
         (print "")
@@ -4121,8 +4124,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
  * Returns: true if valid, false if type errors
  */
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>) -> bool {
-    /* TODO: Add function name to debug output */
-    (println "NSType checking function...")
+    (println (+ "NSType checking function " func.name))
     
     /* Build symbol table with parameters */
     /* TODO: Extract parameters from Parser storage */
@@ -4195,8 +4197,7 @@ fn typecheck_parser(parser: Parser) -> int {
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
-        (println "  Registering function...")
+        (println (+ "  Registering function " func.name))
         
         let return_type: NSType = (type_from_string func.return_type)
         let func_sym: Symbol = (symbol_new func.name return_type false true)
@@ -4208,13 +4209,11 @@ fn typecheck_parser(parser: Parser) -> int {
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        /* TODO: Add function name to debug output */
-        (println "  NSType checking function...")
-        
+        (println (+ "  NSType checking function " func.name))
+
         let valid: bool = (check_function parser func symbols)
         if (not valid) {
-            /* TODO: Add function name to error message */
-            (println "Error: NSType error in function")
+            (println (+ "Error: NSType error in function " func.name))
             return 1
         } else {
             (print "")
@@ -4934,9 +4933,7 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int) -> string {
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int) -> string {
     let mut code: string = (gen_indent indent)
     
-    /* TODO: Get actual type from let_stmt - currently defaults to int64_t */
-    /* Workaround: Cannot access struct field from function parameter during transpilation */
-    set code (+ code "int64_t ")
+    set code (+ code (+ (type_to_c let_stmt.var_type) " "))
     
     /* Add variable name with nl_ prefix */
     set code (+ code "nl_")

@@ -2001,14 +2001,18 @@ shadow env_get_type {
 
 /* Check type of a literal number */
 fn check_number_literal(value: string) -> NSType {
-    /* For now, all numbers are int */
-    /* TODO: detect floats by checking for '.' */
-    return (type_int)
+    if (str_contains value ".") {
+        return (type_float)
+    } else {
+        return (type_int)
+    }
 }
 
 shadow check_number_literal {
     let t: NSType = (check_number_literal "42")
     assert (== t.kind TypeKind.TYPE_INT)
+    let tf: NSType = (check_number_literal "3.14")
+    assert (== tf.kind TypeKind.TYPE_FLOAT)
 }
 
 /* Check type of a string literal */
