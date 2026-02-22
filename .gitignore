@@ -121,3 +121,6 @@ tests/fuzzing/findings_*/
 tests/fuzzing/crash-*
 tests/fuzzing/*.log
 .vibe/
+
+# Beads task tracker runtime data
+.beads/ephemeral.sqlite3
