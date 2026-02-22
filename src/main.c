@@ -203,9 +203,9 @@ static void diags_push_simple(List_CompilerDiagnostic *diags, int phase, int sev
     CompilerDiagnostic d;
     d.phase = phase;
     d.severity = severity;
-    d.code = code ? code : "C0000";
-    d.message = message ? message : "";
-    d.location.file = "";
+    d.code = (char*)(code ? code : "C0000");
+    d.message = (char*)(message ? message : "");
+    d.location.file = (char*)"";
     d.location.line = 0;
     d.location.column = 0;
     nl_list_CompilerDiagnostic_push(diags, d);

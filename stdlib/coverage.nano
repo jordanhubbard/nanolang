@@ -162,6 +162,8 @@ shadow coverage_disable {
 
 # Performance instrumentation
 
+extern fn nl_get_time_ms() -> int
+
 struct TimingPoint {
     label: string,
     start_time_ms: int,
@@ -171,11 +173,10 @@ struct TimingPoint {
 
 let mut g_timing_points: array<TimingPoint> = []
 
-# Start timing a labeled section
+# Start timing a labeled section — returns current time in milliseconds
 fn timing_start(label: string) -> int {
-    # Return current time in milliseconds (placeholder - needs runtime support)
     let _label: string = label
-    return 0  # TODO: Implement with actual clock
+    return (nl_get_time_ms)
 }
 
 shadow timing_start {
@@ -185,7 +186,7 @@ shadow timing_start {
 
 # End timing a labeled section
 fn timing_end(label: string, start_time: int) -> void {
-    let end_time: int = 0  # TODO: Get actual time
+    let end_time: int = (nl_get_time_ms)
     let elapsed: int = (- end_time start_time)
     
     # Find or create timing point (rebuild array to avoid array_set on dynamic arrays)

@@ -17,12 +17,9 @@
  *   Result: A NanoLang program compiled by a NanoLang compiler!
  */
 
-/* Command line parsing */
-fn get_arg_count() -> int {
-    /* TODO: Once extern argc/argv work, use them */
-    /* For now, return mock value */
-    return 3  /* nanoc_sh input.nano -o output */
-}
+/* CLI argument access */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
 
 fn show_usage() -> int {
     (println "nanoc_sh - NanoLang Self-Hosted Compiler")
@@ -104,29 +101,28 @@ fn main() -> int {
     (println "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     (println "")
     
-    /* TODO: Parse actual command line args */
-    /* For now, accept hardcoded test */
-    
-    let argc: int = (get_arg_count)
-    
+    let argc: int = (get_argc)
+
     if (< argc 2) {
         return (show_usage)
     } else {
-        /* Mock: compile examples/fibonacci.nano */
-        let input: string = "examples/fibonacci.nano"
-        let output: string = "fibonacci_selfhosted"
-        
-        (println "Demo mode: Compiling fibonacci.nano")
-        (println "")
-        
+        let input: string = (get_argv 1)
+        let mut output: string = "a.out"
+        if (>= argc 4) {
+            let flag: string = (get_argv 2)
+            if (== flag "-o") {
+                set output (get_argv 3)
+            } else { (print "") }
+        } else { (print "") }
+
         return (compile_file input output)
     }
 }
 
 /* Shadow tests */
-shadow get_arg_count {
-    let count: int = (get_arg_count)
-    assert (> count 0)
+shadow get_argc {
+    let count: int = (get_argc)
+    assert (>= count 0)
 }
 
 shadow show_usage {

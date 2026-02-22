@@ -59,7 +59,7 @@ int64_t dyn_array_get_int(DynArray* arr, int64_t index);
 uint8_t dyn_array_get_u8(DynArray* arr, int64_t index);
 double dyn_array_get_float(DynArray* arr, int64_t index);
 bool dyn_array_get_bool(DynArray* arr, int64_t index);
-const char* dyn_array_get_string(DynArray* arr, int64_t index);
+char* dyn_array_get_string(DynArray* arr, int64_t index);
 DynArray* dyn_array_get_array(DynArray* arr, int64_t index);  /* For nested arrays */
 
 /* Set element at index */

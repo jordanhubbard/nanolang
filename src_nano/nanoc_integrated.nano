@@ -5333,15 +5333,52 @@ fn show_usage() -> void {
 
 /* Parse command line arguments */
 fn parse_args() -> CompilerArgs {
-    /* TODO: Use actual argc/argv when available */
-    /* For now, return defaults for testing */
+    let argc: int = (get_argc)
+    let mut input: string = ""
+    let mut output: string = "a.out"
+    let mut keep_c: bool = false
+    let mut verbose: bool = false
+    let mut help: bool = false
+    let mut error: bool = false
+
+    if (< argc 2) {
+        set help true
+    } else {
+        set input (get_argv 1)
+        let mut i: int = 2
+        while (< i argc) {
+            let arg: string = (get_argv i)
+            if (== arg "-o") {
+                set i (+ i 1)
+                if (< i argc) {
+                    set output (get_argv i)
+                } else {
+                    set error true
+                }
+            } else {
+                if (or (== arg "--keep-c") (== arg "-k")) {
+                    set keep_c true
+                } else {
+                    if (or (== arg "--verbose") (== arg "-v")) {
+                        set verbose true
+                    } else {
+                        if (or (== arg "--help") (== arg "-h")) {
+                            set help true
+                        } else { (print "") }
+                    }
+                }
+            }
+            set i (+ i 1)
+        }
+    }
+
     return CompilerArgs {
-        input_file: "test.nano",
-        output_file: "a.out",
-        keep_c: false,
-        verbose: false,
-        show_help: false,
-        has_error: false
+        input_file: input,
+        output_file: output,
+        keep_c: keep_c,
+        verbose: verbose,
+        show_help: help,
+        has_error: error
     }
 }
 
@@ -5505,7 +5542,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     let gcc_cmd4: string = (+ gcc_cmd3 output)
     let gcc_cmd5: string = (+ gcc_cmd4 " -lm")
     
-    let result: int = (system gcc_cmd5)
+    let result: int = (nl_exec_shell gcc_cmd5)
     
     if (== result 0) {
         if verbose {
@@ -5575,13 +5612,16 @@ extern fn list_LexerToken_push(list: List<LexerToken>, value: LexerToken) -> voi
 extern fn list_LexerToken_get(list: List<LexerToken>, index: int) -> LexerToken
 extern fn list_LexerToken_length(list: List<LexerToken>) -> int
 
+/* CLI argument functions */
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
 /* File I/O functions */
 extern fn read_file(filename: string) -> string
 extern fn write_file(filename: string, content: string) -> void
 
-/* System execution */
-/* system() is in stdlib.h - removed extern to avoid conflict */
-/* extern fn system(command: string) -> int */
+/* System execution — use nl_exec_shell (wraps system(), avoids stdlib.h conflict) */
+extern fn nl_exec_shell(command: string) -> int
 
 /* Additional string functions needed */
 extern fn str_concat(a: string, b: string) -> string

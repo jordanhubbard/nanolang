@@ -154,36 +154,11 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     }
     let source: string = (file_read input)
     
-    /* TODO: Once import aliases work, use the nanolang components:
-    
+    /* Import aliases now work — see compiler_modular.nano for the full NanoLang pipeline.
+     * This file delegates to the C compiler for simplicity; compiler_modular.nano is the
+     * true self-hosted version using Lexer/Parser/TypeCheck/Transpile modules. */
     if verbose {
-        (println "Step 2: Lexical analysis...")
-    }
-    let tokens = (Lexer.tokenize source)
-    let token_count: int = (List_Token_length tokens)
-    
-    if verbose {
-        (println "Step 3: Parsing...")
-    }
-    let parser = (Parser.parse_program tokens token_count)
-    
-    if verbose {
-        (println "Step 4: NSType checking...")
-    }
-    let result = (TypeChecker.typecheck_parser parser)
-    
-    if verbose {
-        (println "Step 5: Code generation...")
-    }
-    let c_code = (Transpiler.transpile_parser parser)
-    
-    */
-    
-    /* For now, use the C compiler as a placeholder until we fix imports */
-    /* This proves the CONCEPT even though it temporarily uses C */
-    if verbose {
-        (println "Step 2-5: Using C compiler components (temporary)...")
-        (println "  (Will use nanolang components once import aliases work)")
+        (println "Step 2-5: Using C compiler (see compiler_modular.nano for NanoLang pipeline)...")
     } else {
         (print "")
     }

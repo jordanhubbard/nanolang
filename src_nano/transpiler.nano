@@ -1121,24 +1121,26 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "char_to_upper") { return "nl_char_to_upper" } else { (print "") }
     
     /* OS/system builtins from runtime/cli.c (nl_os_* prefix) */
-    if (== func_name "getenv") { return "nl_os_getenv" } else { (print "") }
+    if (== func_name "getenv") { return "nl_getenv" } else { (print "") }
     if (== func_name "setenv") { return "nl_os_setenv" } else { (print "") }
     if (== func_name "system") { return "nl_os_system" } else { (print "") }
     if (== func_name "exit") { return "nl_os_exit" } else { (print "") }
     if (== func_name "getcwd") { return "nl_os_getcwd" } else { (print "") }
     if (== func_name "chdir") { return "nl_os_chdir" } else { (print "") }
     
-    /* File/path builtins from modules/std/fs.c (unprefixed) */
-    if (== func_name "file_read") { return "file_read" } else { (print "") }
+    /* File/path builtins from modules/std/fs.c (unprefixed).
+     * file_read, path_* functions return const char* in C but string in NanoLang;
+     * route them through nl_ wrappers (defined in gen_c_runtime) that cast to char*. */
+    if (== func_name "file_read") { return "nl_file_read" } else { (print "") }
     if (== func_name "file_write") { return "file_write" } else { (print "") }
     if (== func_name "file_append") { return "file_append" } else { (print "") }
     if (== func_name "file_exists") { return "file_exists" } else { (print "") }
     if (== func_name "file_remove") { return "file_delete" } else { (print "") }
     if (== func_name "file_size") { return "nl_os_file_size" } else { (print "") }
-    if (== func_name "path_join") { return "path_join" } else { (print "") }
-    if (== func_name "path_basename") { return "path_basename" } else { (print "") }
-    if (== func_name "path_dirname") { return "path_dirname" } else { (print "") }
-    if (== func_name "path_normalize") { return "path_normalize" } else { (print "") }
+    if (== func_name "path_join") { return "nl_path_join" } else { (print "") }
+    if (== func_name "path_basename") { return "nl_path_basename" } else { (print "") }
+    if (== func_name "path_dirname") { return "nl_path_dirname" } else { (print "") }
+    if (== func_name "path_normalize") { return "nl_path_normalize" } else { (print "") }
     if (== func_name "path_isfile") { return "nl_os_path_isfile" } else { (print "") }
     if (== func_name "path_isdir") { return "nl_os_path_isdir" } else { (print "") }
     if (== func_name "fs_walkdir") { return "fs_walkdir" } else { (print "") }
@@ -1149,6 +1151,7 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "tmp_dir") { return "nl_os_tmp_dir" } else { (print "") }
     if (== func_name "mktemp") { return "nl_os_mktemp" } else { (print "") }
     if (== func_name "mktemp_dir") { return "nl_os_mktemp_dir" } else { (print "") }
+    if (== func_name "path_relpath") { return "nl_path_relpath" } else { (print "") }
     if (== func_name "process_run") { return "nl_os_process_run" } else { (print "") }
     
     /* HashMap/map builtins (self-hosted runtime provides nl_map_*) */
@@ -1157,7 +1160,7 @@ fn map_builtin_func_name(func_name: string) -> string {
     
     /* CLI argument access (from runtime/cli.c) */
     if (== func_name "get_argc") { return "get_argc" } else { (print "") }
-    if (== func_name "get_argv") { return "get_argv" } else { (print "") }
+    if (== func_name "get_argv") { return "nl_get_argv" } else { (print "") }
     
     /* cast_string/to_string have no nl_ prefix in runtime */
     if (== func_name "cast_string") { return "cast_string" } else { (print "") }
@@ -1184,7 +1187,7 @@ shadow map_builtin_func_name {
     assert (== (map_builtin_func_name "str_length") "strlen")
     assert (== (map_builtin_func_name "int_to_string") "nl_int_to_string")
     assert (== (map_builtin_func_name "is_digit") "nl_is_digit")
-    assert (== (map_builtin_func_name "getenv") "nl_os_getenv")
+    assert (== (map_builtin_func_name "getenv") "nl_getenv")
     assert (== (map_builtin_func_name "file_read") "file_read")
     assert (== (map_builtin_func_name "path_join") "path_join")
     assert (== (map_builtin_func_name "map_set") "nl_map_put")
@@ -1645,6 +1648,8 @@ fn is_runtime_declared_extern(name: string) -> bool {
     if (== name "get_argv") { return true } else { (print "") }
     if (== name "eval") { return true } else { (print "") }
     if (== name "nl_exec_shell") { return true } else { (print "") }
+    if (== name "nl_exec_capture") { return true } else { (print "") }
+    if (== name "nl_get_time_ms") { return true } else { (print "") }
     /* C standard library: <ctype.h> */
     if (== name "isalpha") { return true } else { (print "") }
     if (== name "isdigit") { return true } else { (print "") }
@@ -2787,6 +2792,9 @@ shadow gen_function {
 fn gen_c_includes() -> string {
     let mut parts: array<string> = []
     set parts (cg_append parts "/* Generated by nanolang self-hosted compiler */\n")
+    set parts (cg_append parts "#ifndef _GNU_SOURCE\n")
+    set parts (cg_append parts "#define _GNU_SOURCE\n")
+    set parts (cg_append parts "#endif\n")
     set parts (cg_append parts "#include <stdio.h>\n")
     set parts (cg_append parts "#include <stdlib.h>\n")
     set parts (cg_append parts "#include <stdint.h>\n")
@@ -2861,8 +2869,30 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "typedef void* HttpResponse;\n")
     set parts (cg_append parts "typedef void* HttpServer;\n")
     set parts (cg_append parts "typedef void* HttpRequest;\n")
+    /* SDL opaque type forward declarations (guarded against SDL header conflicts) */
+    set parts (cg_append parts "#ifndef SDL_h_\n")
+    set parts (cg_append parts "typedef struct SDL_Window SDL_Window;\n")
+    set parts (cg_append parts "typedef struct SDL_Renderer SDL_Renderer;\n")
+    set parts (cg_append parts "typedef struct SDL_Texture SDL_Texture;\n")
+    set parts (cg_append parts "typedef struct SDL_Surface SDL_Surface;\n")
+    set parts (cg_append parts "typedef void* SDL_GLContext;\n")
+    set parts (cg_append parts "#endif\n")
+    set parts (cg_append parts "#ifndef SDL_TTF_H_\n")
+    set parts (cg_append parts "typedef struct _TTF_Font TTF_Font;\n")
+    set parts (cg_append parts "#endif\n")
+    set parts (cg_append parts "#ifndef SDL_MIXER_H_\n")
+    set parts (cg_append parts "typedef struct Mix_Chunk Mix_Chunk;\n")
+    set parts (cg_append parts "typedef struct Mix_Music Mix_Music;\n")
+    set parts (cg_append parts "#endif\n")
     set parts (cg_append parts "#endif\n\n")
-    
+    /* Module standard library headers - fs and process functions */
+    /* These are always included since the modules are always linked */
+    set parts (cg_append parts "#include \"fs.h\"\n")
+    set parts (cg_append parts "#include \"process.h\"\n")
+    /* Forward declarations for cli.c functions not covered by a header */
+    set parts (cg_append parts "extern int64_t nl_os_unsetenv(const char* name);\n")
+    set parts (cg_append parts "\n")
+
     return (cg_build parts)
 }
 
@@ -3053,28 +3083,51 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return c;\n")
     set sb (cg_append sb "}\n\n")
     
-    /* Module std_fs FFI (unprefixed symbols when sources are merged directly) */
-    set sb (cg_append sb "/* std_fs externs (provided by modules/std/fs.c) */\n")
-    set sb (cg_append sb "extern DynArray* fs_walkdir(const char* root);\n")
-    set sb (cg_append sb "extern const char* path_normalize(const char* path);\n")
-    set sb (cg_append sb "extern const char* path_join(const char* a, const char* b);\n")
-    set sb (cg_append sb "extern const char* path_basename(const char* path);\n")
-    set sb (cg_append sb "extern const char* path_dirname(const char* path);\n")
-    set sb (cg_append sb "extern char* file_read(const char* path);\n")
-    set sb (cg_append sb "extern int64_t file_write(const char* path, const char* content);\n")
-    set sb (cg_append sb "extern int64_t file_append(const char* path, const char* content);\n")
-    set sb (cg_append sb "extern bool file_exists(const char* path);\n")
-    set sb (cg_append sb "extern int64_t file_delete(const char* path);\n\n")
-    
+    /* fs.h returns const char* for path/file functions; NanoLang string type is char*.
+     * Provide nl_ wrappers that cast const char* to char* so user code can assign
+     * to string variables without -Wdiscarded-qualifiers warnings. */
+    set sb (cg_append sb "/* fs wrappers: return char* (NanoLang string) from const char* C functions */\n")
+    set sb (cg_append sb "static char* nl_path_normalize(const char* p) { return (char*)path_normalize(p); }\n")
+    set sb (cg_append sb "static char* nl_path_join(const char* a, const char* b) { return (char*)path_join(a, b); }\n")
+    set sb (cg_append sb "static char* nl_path_basename(const char* p) { return (char*)path_basename(p); }\n")
+    set sb (cg_append sb "static char* nl_path_dirname(const char* p) { return (char*)path_dirname(p); }\n")
+    set sb (cg_append sb "static char* nl_path_relpath(const char* t, const char* b) { return (char*)path_relpath(t, b); }\n")
+    set sb (cg_append sb "static char* nl_file_read(const char* p) { return (char*)file_read(p); }\n\n")
+
+    /* process.h does not declare nl_os_process_run (nanoc_c generates a static version that
+     * would conflict); declare it here as extern so user code can call process_run(...). */
+    set sb (cg_append sb "extern DynArray* nl_os_process_run(const char* command);\n\n")
+
     set sb (cg_append sb "/* CLI and OS functions (defined in runtime/cli.c) */\n")
     set sb (cg_append sb "int g_argc = 0;\n")
     set sb (cg_append sb "char **g_argv = NULL;\n")
     set sb (cg_append sb "extern int64_t get_argc(void);\n")
     set sb (cg_append sb "extern const char* get_argv(int64_t index);\n")
     set sb (cg_append sb "extern const char* nl_os_getenv(const char* name);\n")
+    set sb (cg_append sb "/* char* wrappers to avoid -Wdiscarded-qualifiers when assigning to string vars */\n")
+    set sb (cg_append sb "static char* nl_get_argv(int64_t idx) { return (char*)get_argv(idx); }\n")
+    set sb (cg_append sb "static char* nl_getenv(const char* name) { return (char*)nl_os_getenv(name); }\n")
     set sb (cg_append sb "extern int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite);\n")
     set sb (cg_append sb "extern int64_t nl_os_system(const char* command);\n")
     set sb (cg_append sb "static int64_t nl_exec_shell(const char* cmd) { return (int64_t)system(cmd); }\n\n")
+    set sb (cg_append sb "/* Capture stdout from a shell command (up to 65535 bytes) */\n")
+    set sb (cg_append sb "static const char* nl_exec_capture(const char* cmd) {\n")
+    set sb (cg_append sb "    FILE* pipe = popen(cmd, \"r\");\n")
+    set sb (cg_append sb "    if (!pipe) return \"\";\n")
+    set sb (cg_append sb "    char* out = (char*)malloc(65536);\n")
+    set sb (cg_append sb "    if (!out) { pclose(pipe); return \"\"; }\n")
+    set sb (cg_append sb "    size_t total = 0;\n")
+    set sb (cg_append sb "    char buf[1024];\n")
+    set sb (cg_append sb "    while (fgets(buf, sizeof(buf), pipe) && total < 65534) {\n")
+    set sb (cg_append sb "        size_t n = strlen(buf);\n")
+    set sb (cg_append sb "        if (total + n > 65534) n = 65534 - total;\n")
+    set sb (cg_append sb "        memcpy(out + total, buf, n);\n")
+    set sb (cg_append sb "        total += n;\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    out[total] = '\\0';\n")
+    set sb (cg_append sb "    pclose(pipe);\n")
+    set sb (cg_append sb "    return out;\n")
+    set sb (cg_append sb "}\n\n")
     
     set sb (cg_append sb "/* OS functions not in cli.c - static implementations */\n")
     set sb (cg_append sb "#include <unistd.h>\n")
@@ -3217,6 +3270,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "#endif\n")
     set sb (cg_append sb "}\n\n")
 
+    set sb (cg_append sb "/* Convenience: current time in milliseconds */\n")
+    set sb (cg_append sb "static int64_t nl_get_time_ms(void) { return nl_timing_get_microseconds() / 1000LL; }\n\n")
     set sb (cg_append sb "/* ========== End Math and Utility Built-in Functions ========== */\n\n")
 
     return (cg_build sb)
@@ -3962,7 +4017,14 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         /* Number literal */
         let num: ASTNumber = (parser_get_number parser node_id)
-        return num.value
+        /* INT64_MIN (-9223372036854775808) cannot be expressed as a C literal directly;
+           the constant 9223372036854775808 overflows int64_t before negation is applied.
+           Emit INT64_MIN (from <stdint.h>) instead. */
+        if (== num.value "-9223372036854775808") {
+            return "INT64_MIN"
+        } else {
+            return num.value
+        }
     } else {
         if (== node_type ParseNodeType.PNODE_FLOAT) {
             let f: ASTFloat = (parser_get_float parser node_id)
@@ -4473,12 +4535,133 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         (print "")
                     }
                     
-                    /* Build call: proper function name (handles list runtime) */
+                    /* HashMap<string,string> type-aware dispatch */
+                    /* map_new: use expected_type to pick constructor */
+                    if (== func_name "map_new") {
+                        if (or (== expected_type "HashMap<string,string>") (== expected_type "HashMap<string, string>")) {
+                            return "nl_hm_new()"
+                        } else {
+                            return "nl_map_new()"
+                        }
+                    } else { (print "") }
+
+                    /* map_put/map_set: 3 args (map, key, val) */
+                    if (or (== func_name "map_put") (== func_name "map_set")) {
+                        if (== call.arg_count 3) {
+                            let mp_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let mp_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let mp_a2: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+                            let mp_a0_code: string = (generate_expression parser mp_a0.node_id mp_a0.node_type env "")
+                            let mp_a1_code: string = (generate_expression parser mp_a1.node_id mp_a1.node_type env "")
+                            let mp_a2_code: string = (generate_expression parser mp_a2.node_id mp_a2.node_type env "")
+                            let mut mp_map_type: string = ""
+                            if (== mp_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let mp_id0: ASTIdentifier = (parser_get_identifier parser mp_a0.node_id)
+                                set mp_map_type (genenv_get env mp_id0.name)
+                            } else { (print "") }
+                            let mut mp_parts: array<string> = []
+                            if (or (== mp_map_type "HashMap<string,string>") (== mp_map_type "HashMap<string, string>")) {
+                                set mp_parts (cg_append mp_parts "nl_hm_put(")
+                            } else {
+                                set mp_parts (cg_append mp_parts "nl_map_put(")
+                            }
+                            set mp_parts (cg_append mp_parts mp_a0_code)
+                            set mp_parts (cg_append mp_parts ", ")
+                            set mp_parts (cg_append mp_parts mp_a1_code)
+                            set mp_parts (cg_append mp_parts ", ")
+                            set mp_parts (cg_append mp_parts mp_a2_code)
+                            set mp_parts (cg_append mp_parts ")")
+                            return (cg_build mp_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* map_has: 2 args (map, key) -> bool */
+                    if (== func_name "map_has") {
+                        if (== call.arg_count 2) {
+                            let mh_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let mh_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let mh_a0_code: string = (generate_expression parser mh_a0.node_id mh_a0.node_type env "")
+                            let mh_a1_code: string = (generate_expression parser mh_a1.node_id mh_a1.node_type env "")
+                            let mut mh_map_type: string = ""
+                            if (== mh_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let mh_id0: ASTIdentifier = (parser_get_identifier parser mh_a0.node_id)
+                                set mh_map_type (genenv_get env mh_id0.name)
+                            } else { (print "") }
+                            let mut mh_parts: array<string> = []
+                            if (or (== mh_map_type "HashMap<string,string>") (== mh_map_type "HashMap<string, string>")) {
+                                set mh_parts (cg_append mh_parts "nl_hm_has(")
+                            } else {
+                                set mh_parts (cg_append mh_parts "nl_map_has(")
+                            }
+                            set mh_parts (cg_append mh_parts mh_a0_code)
+                            set mh_parts (cg_append mh_parts ", ")
+                            set mh_parts (cg_append mh_parts mh_a1_code)
+                            set mh_parts (cg_append mh_parts ")")
+                            return (cg_build mh_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* map_get: 2 args (map, key) -> value */
+                    if (== func_name "map_get") {
+                        if (== call.arg_count 2) {
+                            let mg_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let mg_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let mg_a0_code: string = (generate_expression parser mg_a0.node_id mg_a0.node_type env "")
+                            let mg_a1_code: string = (generate_expression parser mg_a1.node_id mg_a1.node_type env "")
+                            let mut mg_map_type: string = ""
+                            if (== mg_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let mg_id0: ASTIdentifier = (parser_get_identifier parser mg_a0.node_id)
+                                set mg_map_type (genenv_get env mg_id0.name)
+                            } else { (print "") }
+                            let mut mg_parts: array<string> = []
+                            if (or (== mg_map_type "HashMap<string,string>") (== mg_map_type "HashMap<string, string>")) {
+                                set mg_parts (cg_append mg_parts "nl_hm_get(")
+                            } else {
+                                set mg_parts (cg_append mg_parts "nl_map_get(")
+                            }
+                            set mg_parts (cg_append mg_parts mg_a0_code)
+                            set mg_parts (cg_append mg_parts ", ")
+                            set mg_parts (cg_append mg_parts mg_a1_code)
+                            set mg_parts (cg_append mg_parts ")")
+                            return (cg_build mg_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* map_length/map_size: 1 arg (map) -> int */
+                    if (or (== func_name "map_length") (== func_name "map_size")) {
+                        if (== call.arg_count 1) {
+                            let ml_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let ml_a0_code: string = (generate_expression parser ml_a0.node_id ml_a0.node_type env "")
+                            let mut ml_map_type: string = ""
+                            if (== ml_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let ml_id0: ASTIdentifier = (parser_get_identifier parser ml_a0.node_id)
+                                set ml_map_type (genenv_get env ml_id0.name)
+                            } else { (print "") }
+                            let mut ml_parts: array<string> = []
+                            if (or (== ml_map_type "HashMap<string,string>") (== ml_map_type "HashMap<string, string>")) {
+                                set ml_parts (cg_append ml_parts "nl_hm_size(")
+                            } else {
+                                set ml_parts (cg_append ml_parts "nl_map_size(")
+                            }
+                            set ml_parts (cg_append ml_parts ml_a0_code)
+                            set ml_parts (cg_append ml_parts ")")
+                            return (cg_build ml_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* Build call: proper function name (handles list runtime).
+                     * Check builtin map first - this lets extern fn calls be routed through
+                     * nl_ wrappers (e.g. nl_path_normalize for const char*→char* cast). */
                     let mut c_func_name: string = func_name
-                    if (is_extern_function parser func_name) {
-                        (print "")
+                    let extern_builtin_map: string = (map_builtin_func_name func_name)
+                    if (!= extern_builtin_map "") {
+                        set c_func_name extern_builtin_map
                     } else {
-                        set c_func_name (c_func_name_for_call func_name)
+                        if (is_extern_function parser func_name) {
+                            (print "")
+                        } else {
+                            set c_func_name (c_func_name_for_call func_name)
+                        }
                     }
 
                     let mut parts: array<string> = []
@@ -4695,10 +4878,50 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                         let obj_code: string = (generate_expression parser fa.object fa.object_type env "")
                         let mut parts: array<string> = []
-                        set parts (cg_append parts "(")
-                        set parts (cg_append parts obj_code)
-                        set parts (cg_append parts ").")
-                        set parts (cg_append parts (mangle_name fa.field_name))
+                        /* Add (char*) cast when accessing string fields of extern structs.
+                         * The schema defines string fields as const char*, but NanoLang string = char*.
+                         * The cast avoids -Wdiscarded-qualifiers warnings during bootstrap. */
+                        let mut fa_field_is_string: bool = false
+                        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                            let fa_id: ASTIdentifier = (parser_get_identifier parser fa.object)
+                            let fa_owner_type: string = (genenv_get env fa_id.name)
+                            if (!= fa_owner_type "") {
+                                let fa_ft: string = (lookup_struct_field_type parser fa_owner_type fa.field_name)
+                                if (== fa_ft "string") {
+                                    set fa_field_is_string true
+                                } else { (print "") }
+                            } else { (print "") }
+                        } else {
+                            /* Handle nested field access: obj.inner.field */
+                            if (== fa.object_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                                let inner_fa: ASTFieldAccess = (parser_get_field_access parser fa.object)
+                                if (== inner_fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                                    let inner_id: ASTIdentifier = (parser_get_identifier parser inner_fa.object)
+                                    let inner_owner: string = (genenv_get env inner_id.name)
+                                    if (!= inner_owner "") {
+                                        let inner_ft: string = (lookup_struct_field_type parser inner_owner inner_fa.field_name)
+                                        if (!= inner_ft "") {
+                                            let nested_ft: string = (lookup_struct_field_type parser inner_ft fa.field_name)
+                                            if (== nested_ft "string") {
+                                                set fa_field_is_string true
+                                            } else { (print "") }
+                                        } else { (print "") }
+                                    } else { (print "") }
+                                } else { (print "") }
+                            } else { (print "") }
+                        }
+                        if fa_field_is_string {
+                            set parts (cg_append parts "(char*)((")
+                            set parts (cg_append parts obj_code)
+                            set parts (cg_append parts ").")
+                            set parts (cg_append parts (mangle_name fa.field_name))
+                            set parts (cg_append parts ")")
+                        } else {
+                            set parts (cg_append parts "(")
+                            set parts (cg_append parts obj_code)
+                            set parts (cg_append parts ").")
+                            set parts (cg_append parts (mangle_name fa.field_name))
+                        }
                         return (cg_build parts)
                     } else {
                         if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -5750,7 +5973,11 @@ fn generate_global_constants(parser: Parser) -> string {
             set sb (cg_append sb " = ")
             if (== let_node.value_type ParseNodeType.PNODE_NUMBER) {
                 let num: ASTNumber = (parser_get_number parser let_node.value)
-                set sb (cg_append sb num.value)
+                if (== num.value "-9223372036854775808") {
+                    set sb (cg_append sb "INT64_MIN")
+                } else {
+                    set sb (cg_append sb num.value)
+                }
             } else {
                 if (== let_node.value_type ParseNodeType.PNODE_FLOAT) {
                     let flt: ASTFloat = (parser_get_float parser let_node.value)

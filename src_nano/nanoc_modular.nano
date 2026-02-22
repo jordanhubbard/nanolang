@@ -175,60 +175,10 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
     }
     let source: string = (file_read input)
     
-    /* TODO: Once imports work properly, use:
-     * 
-     * if verbose {
-     *     (println "[2/6] Lexing (NanoLang lexer)...")
-     * }
-     * let tokens: List<LexerToken> = (tokenize source)
-     * 
-     * if verbose {
-     *     (println "[3/6] Parsing (NanoLang parser)...")
-     * }
-     * let parser: Parser = (parse_program tokens (List_Token_length tokens))
-     * 
-     * if verbose {
-     *     (println "[4/6] NSType checking (NanoLang typechecker)...")
-     * }
-     * let tc_result: int = (typecheck_parser parser)
-     * if (!= tc_result 0) {
-     *     (println "NSType checking failed!")
-     *     return 1
-     * }
-     * 
-     * if verbose {
-     *     (println "[5/6] Code generation (NanoLang transpiler)...")
-     * }
-     * let c_code: string = (transpile_parser parser)
-     * 
-     * if verbose {
-     *     (println "[6/6] Compiling C code...")
-     * }
-     * let c_file: string = (+ output ".c")
-     * let write_result: int = (file_write c_file c_code)
-     * if (!= write_result 0) {
-     *     (println "Failed to write C file!")
-     *     return 1
-     * }
-     * 
-     * let gcc_cmd: string = (+ "gcc " c_file)
-     * let gcc_cmd2: string = (+ gcc_cmd " -o ")
-     * let gcc_cmd3: string = (+ gcc_cmd2 output)
-     * let gcc_cmd4: string = (+ gcc_cmd3 " -lm")
-     * let result: int = (system gcc_cmd4)
-     * 
-     * if (!= result 0) {
-     *     (println "GCC compilation failed!")
-     *     return 1
-     * }
-     */
-    
-    /* For now, delegate to C compiler (same as nanoc_stage1) */
-    /* But this demonstrates the ARCHITECTURE for pure integration */
-    
+    /* Imports work — the full NanoLang pipeline is implemented in compiler_modular.nano.
+     * This file delegates to the C compiler for compatibility. */
     if verbose {
-        (println "[2/6] Using C implementation temporarily...")
-        (println "  (Pure NanoLang components ready for integration)")
+        (println "[2/6] Using C implementation (see compiler_modular.nano for pure NanoLang pipeline)...")
     } else {
         (print "")
     }

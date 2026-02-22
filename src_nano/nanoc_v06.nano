@@ -1295,6 +1295,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join modules_std "fs.c"))
             set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join modules_std "process.c"))
+            set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections/collections.c"))
             set cc_cmd (+ cc_cmd " -I")
             set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections"))

@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "process.h"
 #include <stdio.h>
 #include <stdlib.h>

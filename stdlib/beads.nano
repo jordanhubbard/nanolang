@@ -2,31 +2,33 @@
 # Provides programmatic access to bd (beads) command-line tool
 # Enables creating, querying, and managing issues from NanoLang code
 
-# TODO: Replace with actual implementations when available
-# from "stdlib/process.nano" import exec_command, CommandResult
-# from "stdlib/json.nano" import parse_json, JsonValue
+# Note: exec_command uses C FFI (nl_exec_capture, nl_exec_shell) — see below.
+# from "stdlib/json.nano" import parse_json, JsonValue  (future: replace stub)
 
-# Stub CommandResult until stdlib/process.nano is complete
+# C FFI: run command capturing stdout; run command returning exit code
+extern fn nl_exec_capture(cmd: string) -> string
+extern fn nl_exec_shell(cmd: string) -> int
+
 struct CommandResult {
     stdout: string,
     stderr: string,
     exit_code: int
 }
 
-# Stub exec_command until C FFI is implemented
+# Run a shell command, capturing stdout and exit code
 fn exec_command(command: string) -> CommandResult {
-    # TODO: Implement using C FFI to popen/system
-    # For now, return empty result
+    let out: string = (nl_exec_capture command)
+    let code: int = (nl_exec_shell command)
     return CommandResult {
-        stdout: "",
+        stdout: out,
         stderr: "",
-        exit_code: -1
+        exit_code: code
     }
 }
 
 shadow exec_command {
     let result: CommandResult = (exec_command "echo test")
-    assert (>= result.exit_code -1)
+    assert (>= result.exit_code 0)
 }
 
 # Stub JSON types until stdlib/json.nano is implemented

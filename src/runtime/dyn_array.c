@@ -337,12 +337,12 @@ bool dyn_array_get_bool(DynArray* arr, int64_t index) {
 }
 
 /* Get string */
-const char* dyn_array_get_string(DynArray* arr, int64_t index) {
+char* dyn_array_get_string(DynArray* arr, int64_t index) {
     assert(arr != NULL && "DynArray: NULL array");
     assert(arr->elem_type == ELEM_STRING && "DynArray: Type mismatch");
     assert(index >= 0 && index < arr->length && "DynArray: Index out of bounds");
-    
-    return ((const char**)arr->data)[index];
+
+    return (char*)((const char**)arr->data)[index];
 }
 
 DynArray* dyn_array_get_array(DynArray* arr, int64_t index) {

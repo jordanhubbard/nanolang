@@ -193,7 +193,7 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
     } else { (print "") }
 
     /* Case 2: Try module search path env (NANO_MODULE_PATH) */
-    let module_env: string = (nl_os_getenv "NANO_MODULE_PATH")
+    let module_env: string = (getenv "NANO_MODULE_PATH")
     if (not (== module_env "")) {
         let mut start: int = 0
         let mut i: int = 0

@@ -95,7 +95,7 @@ int64_t nl_sb_capacity(void* sb_ptr) {
     return sb->cap;
 }
 
-const char* nl_sb_to_string(void* sb_ptr) {
+char* nl_sb_to_string(void* sb_ptr) {
     NLStringBuilder *sb = (NLStringBuilder*)sb_ptr;
     if (!sb || !sb->buf) return strdup("");
     char *out = strdup(sb->buf);
@@ -268,7 +268,7 @@ bool nl_hm_has(void* hm_ptr, const char* key) {
     return found;
 }
 
-const char* nl_hm_get(void* hm_ptr, const char* key) {
+char* nl_hm_get(void* hm_ptr, const char* key) {
     NLHashMap *hm = (NLHashMap*)hm_ptr;
     if (!hm || !key) return "";
     bool found = false;
