@@ -1,7 +1,15 @@
 #include "hashmap_bootstrap.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
+/* Local strdup to avoid implicit-declaration issues in strict C99 */
+static char* hm_strdup(const char* s) {
+    if (!s) s = "";
+    size_t len = strlen(s);
+    char* copy = (char*)malloc(len + 1);
+    if (copy) memcpy(copy, s, len + 1);
+    return copy;
+}
 
 /* Simple FNV-1a hash function */
 static uint64_t hash_string(const char *s) {
@@ -27,6 +35,11 @@ HashMap_string_int* nl_hashmap_string_int_alloc(int64_t cap) {
 
 void nl_hashmap_string_int_free(HashMap_string_int *hm) {
     if (!hm) return;
+    for (int64_t i = 0; i < hm->capacity; i++) {
+        if (hm->entries[i].state == 1) {
+            free(hm->entries[i].key);
+        }
+    }
     free(hm->entries);
     free(hm);
 }
@@ -62,7 +75,9 @@ static void rehash_string_int(HashMap_string_int *hm) {
 
     for (int64_t i = 0; i < old_cap; i++) {
         if (old_entries[i].state == 1) {
+            /* nl_hashmap_string_int_put will strdup the key again */
             nl_hashmap_string_int_put(hm, old_entries[i].key, old_entries[i].value);
+            free(old_entries[i].key); /* Free the old strdup'd key */
         }
     }
     free(old_entries);
@@ -76,12 +91,17 @@ void nl_hashmap_string_int_put(HashMap_string_int *hm, char* key, int64_t val) {
     int64_t slot = find_slot_string_int(hm, key);
     HashMap_string_int_Entry *e = &hm->entries[slot];
 
-    if (e->state != 1) {
+    if (e->state == 1) {
+        /* Updating existing entry: free old key and strdup new */
+        free(e->key);
+        e->key = hm_strdup(key);
+        e->value = val;
+    } else {
         hm->size++;
+        e->state = 1;
+        e->key = hm_strdup(key);
+        e->value = val;
     }
-    e->state = 1;
-    e->key = key;
-    e->value = val;
 }
 
 bool nl_hashmap_string_int_has(HashMap_string_int *hm, char* key) {
@@ -110,6 +130,12 @@ HashMap_string_string* nl_hashmap_string_string_alloc(int64_t cap) {
 
 void nl_hashmap_string_string_free(HashMap_string_string *hm) {
     if (!hm) return;
+    for (int64_t i = 0; i < hm->capacity; i++) {
+        if (hm->entries[i].state == 1) {
+            free(hm->entries[i].key);
+            free(hm->entries[i].value);
+        }
+    }
     free(hm->entries);
     free(hm);
 }
@@ -145,7 +171,10 @@ static void rehash_string_string(HashMap_string_string *hm) {
 
     for (int64_t i = 0; i < old_cap; i++) {
         if (old_entries[i].state == 1) {
+            /* nl_hashmap_string_string_put will strdup key and value again */
             nl_hashmap_string_string_put(hm, old_entries[i].key, old_entries[i].value);
+            free(old_entries[i].key);
+            free(old_entries[i].value);
         }
     }
     free(old_entries);
@@ -159,12 +188,18 @@ void nl_hashmap_string_string_put(HashMap_string_string *hm, char* key, char* va
     int64_t slot = find_slot_string_string(hm, key);
     HashMap_string_string_Entry *e = &hm->entries[slot];
 
-    if (e->state != 1) {
+    if (e->state == 1) {
+        /* Updating existing entry: free old key/value and strdup new */
+        free(e->key);
+        free(e->value);
+        e->key = hm_strdup(key);
+        e->value = hm_strdup(val);
+    } else {
         hm->size++;
+        e->state = 1;
+        e->key = hm_strdup(key);
+        e->value = hm_strdup(val);
     }
-    e->state = 1;
-    e->key = key;
-    e->value = val;
 }
 
 bool nl_hashmap_string_string_has(HashMap_string_string *hm, char* key) {

@@ -1,0 +1,8 @@
+{
+  "name": "pybridge_warp",
+  "version": "1.0.0",
+  "description": "NVIDIA Warp CUDA fluid simulation adapter for pybridge",
+  "headers": [],
+  "c_sources": ["pybridge_warp.c"],
+  "cflags": ["-Imodules/pybridge", "-Isrc"]
+}

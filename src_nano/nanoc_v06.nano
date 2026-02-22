@@ -525,7 +525,8 @@ fn parse_import_path_from_line(line: string) -> string {
         let first_q: int = (nlc_str_index_of line "\"")
         let last_q: int = (nlc_str_last_index_of line "\"")
         if (and (>= first_q 0) (> last_q first_q)) {
-            return (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
+            let result: string = (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
+            return result
         } else {
             return ""
         }
