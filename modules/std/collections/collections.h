@@ -15,7 +15,7 @@ void nl_sb_append_char(void* sb, int64_t ch);
 void nl_sb_clear(void* sb);
 int64_t nl_sb_length(void* sb);
 int64_t nl_sb_capacity(void* sb);
-char* nl_sb_to_string(void* sb);
+const char* nl_sb_to_string(void* sb);
 void nl_sb_free(void* sb);
 
 /* ============================ HashMap<string,string> ============================ */
@@ -23,7 +23,7 @@ void nl_sb_free(void* sb);
 void* nl_hm_new(void);
 void nl_hm_put(void* hm, const char* key, const char* value);
 bool nl_hm_has(void* hm, const char* key);
-char* nl_hm_get(void* hm, const char* key);
+const char* nl_hm_get(void* hm, const char* key);
 int64_t nl_hm_size(void* hm);
 DynArray* nl_hm_keys(void* hm);
 DynArray* nl_hm_values(void* hm);

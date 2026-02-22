@@ -10,7 +10,7 @@ void* nl_json_parse(const char* text);
 void nl_json_free(void* json);
 
 /* Returns a newly allocated string (caller may leak; nanolang strings are char*). */
-char* nl_json_stringify(void* json);
+const char* nl_json_stringify(void* json);
 
 /* Type predicates */
 int64_t nl_json_is_null(void* json);
@@ -23,7 +23,7 @@ int64_t nl_json_is_object(void* json);
 /* Value conversion helpers (best-effort) */
 int64_t nl_json_as_int(void* json);
 int64_t nl_json_as_bool(void* json);
-char* nl_json_as_string(void* json);
+const char* nl_json_as_string(void* json);
 
 /* Object access */
 int64_t nl_json_object_has(void* obj, const char* key);

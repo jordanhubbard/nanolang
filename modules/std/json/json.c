@@ -83,7 +83,7 @@ void nl_json_free(void* json) {
     cJSON_Delete((cJSON*)json);
 }
 
-char* nl_json_stringify(void* json) {
+const char* nl_json_stringify(void* json) {
     if (!json) return nl_strdup_or_empty("null");
     /* cJSON_PrintUnformatted returns heap memory */
     char* s = cJSON_PrintUnformatted((cJSON*)json);
@@ -112,7 +112,7 @@ int64_t nl_json_as_bool(void* json) {
     return 0;
 }
 
-char* nl_json_as_string(void* json) {
+const char* nl_json_as_string(void* json) {
     if (!json) return nl_strdup_or_empty("");
     if (cJSON_IsString((cJSON*)json)) {
         return nl_strdup_or_empty(cJSON_GetStringValue((cJSON*)json));

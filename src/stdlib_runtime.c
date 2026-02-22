@@ -1399,6 +1399,9 @@ void generate_timing_utilities(StringBuilder *sb) {
     sb_append(sb, "#endif\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "/* Convenience: current time in milliseconds */\n");
+    sb_append(sb, "static int64_t nl_get_time_ms(void) { return nl_timing_get_microseconds() / 1000LL; }\n\n");
+
     sb_append(sb, "/* ========== End Timing Utilities ========== */\n\n");
 }
 
