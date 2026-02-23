@@ -4,6 +4,11 @@ All notable changes to NanoLang are documented here.
 
 ## [Unreleased]
 
+## [3.1.2] - 2026-02-23
+
+### Changed
+- gate verbose/debug output behind --verbose flag
+
 ## [3.1.1] - 2026-02-22
 
 ### Added
