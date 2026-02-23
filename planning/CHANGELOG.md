@@ -4,6 +4,22 @@ All notable changes to NanoLang are documented here.
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-02-22
+
+### Added
+- infer anonymous struct literal names from function parameter types
+
+### Changed
+- rewrite SDL launcher with modular architecture
+- replace str_concat with + operator in stdlib/timing.nano, update stale TODOs
+
+### Fixed
+- resolve conflicting types and missing nl_get_time_ms in stdlib
+- eliminate all -Wdiscarded-qualifiers warnings from clean build and bootstrap
+- resolve remaining TODOs in self-hosted compiler
+- implement outstanding TODOs across compiler and examples
+- reject pure expression statements, validate function arg types in self-hosted typechecker
+
 ## [3.1.1] - 2026-02-21
 
 ### Added
