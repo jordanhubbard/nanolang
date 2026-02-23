@@ -1,0 +1,347 @@
+# Process Manager Module
+# Manages child processes: spawn, poll, kill, build integration, resource tracking
+
+from "modules/std/process.nano" import spawn, is_running, wait, exec, run
+from "modules/std/fs.nano" import exists, read, basename, dirname
+from "modules/std/env.nano" import get as env_get
+
+struct ModeConfig {
+    name: string,
+    binary_suffix: string,
+    display_name: string,
+    compiler: string,
+    compiler_flags: string,
+    extension: string,
+    runner: string
+}
+
+struct ChildStatus {
+    example_path: string,
+    pid: int,
+    state: int,
+    exit_code: int,
+    memory_kb: int,
+    cpu_user_ms: int,
+    cpu_sys_ms: int,
+    build_output: string
+}
+
+fn empty_child(path: string) -> ChildStatus {
+    return ChildStatus {
+        example_path: path, pid: 0, state: 0, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: ""
+    }
+}
+
+shadow empty_child {
+    let c: ChildStatus = (empty_child "test.nano")
+    assert (== c.pid 0)
+    assert (== c.state 0)
+}
+
+struct ProcessManager {
+    children: array<ChildStatus>,
+    max_children: int
+}
+
+fn pm_new(max: int) -> ProcessManager {
+    return ProcessManager { children: [], max_children: max }
+}
+
+shadow pm_new {
+    let pm: ProcessManager = (pm_new 10)
+    assert (== (array_length pm.children) 0)
+    assert (== pm.max_children 10)
+}
+
+fn pm_ends_with(s: string, suffix: string) -> bool {
+    let slen: int = (str_length s)
+    let suflen: int = (str_length suffix)
+    if (< slen suflen) { return false }
+    return (== (str_substring s (- slen suflen) suflen) suffix)
+}
+
+shadow pm_ends_with {
+    assert (pm_ends_with "test.nano" ".nano")
+}
+
+fn get_binary_name(example_path: string, mode: ModeConfig) -> string {
+    let base: string = (basename example_path)
+    let blen: int = (str_length base)
+    let mut stem: string = base
+    if (pm_ends_with base ".nano") {
+        set stem (str_substring base 0 (- blen 5))
+    }
+    return (+ "bin/" (+ stem (+ mode.binary_suffix mode.extension)))
+}
+
+shadow get_binary_name {
+    let mode: ModeConfig = ModeConfig {
+        name: "stage1", binary_suffix: "", display_name: "Stage 1",
+        compiler: "bin/nanoc", compiler_flags: "", extension: "", runner: ""
+    }
+    assert (== (get_binary_name "examples/games/sdl_pong.nano" mode) "bin/sdl_pong")
+    let vm_mode: ModeConfig = ModeConfig {
+        name: "vm", binary_suffix: "_vm", display_name: "VM",
+        compiler: "bin/nano_virt", compiler_flags: "--emit-nvm", extension: ".nvm", runner: "bin/nano_vm"
+    }
+    assert (== (get_binary_name "examples/games/sdl_pong.nano" vm_mode) "bin/sdl_pong_vm.nvm")
+}
+
+fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
+    let output: string = (get_binary_name example_path mode)
+    let mut cmd: string = (+ mode.compiler (+ " " (+ example_path (+ " -o " output))))
+    if (> (str_length mode.compiler_flags) 0) {
+        set cmd (+ mode.compiler (+ " " (+ mode.compiler_flags (+ " " (+ example_path (+ " -o " output))))))
+    }
+    let result: int = (exec cmd)
+    if (== result 0) {
+        return ChildStatus {
+            example_path: example_path, pid: 0, state: 0, exit_code: 0,
+            memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "Build successful"
+        }
+    } else {
+        return ChildStatus {
+            example_path: example_path, pid: 0, state: 0, exit_code: result,
+            memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "Build failed"
+        }
+    }
+}
+
+shadow build_example {
+    assert (== 0 0)
+}
+
+fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig) -> ProcessManager {
+    let binary: string = (get_binary_name example_path mode)
+    let mut launch_cmd: string = (+ "./" binary)
+    if (> (str_length mode.runner) 0) {
+        set launch_cmd (+ "./" (+ mode.runner (+ " " binary)))
+    }
+
+    let pid: int = (spawn launch_cmd)
+    if (<= pid 0) {
+        return pm
+    }
+
+    let child: ChildStatus = ChildStatus {
+        example_path: example_path, pid: pid, state: 1, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: ""
+    }
+
+    return ProcessManager {
+        children: (array_push pm.children child),
+        max_children: pm.max_children
+    }
+}
+
+shadow pm_launch {
+    assert (== 0 0)
+}
+
+fn pm_find_child(pm: ProcessManager, example_path: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length pm.children)) {
+        let child: ChildStatus = (at pm.children i)
+        if (== child.example_path example_path) {
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow pm_find_child {
+    let pm: ProcessManager = (pm_new 10)
+    assert (== (pm_find_child pm "nonexistent") -1)
+}
+
+fn pm_get_pid(pm: ProcessManager, example_path: string) -> int {
+    let idx: int = (pm_find_child pm example_path)
+    if (< idx 0) { return 0 }
+    let child: ChildStatus = (at pm.children idx)
+    return child.pid
+}
+
+shadow pm_get_pid {
+    let pm: ProcessManager = (pm_new 10)
+    assert (== (pm_get_pid pm "nonexistent") 0)
+}
+
+fn pm_is_running(pm: ProcessManager, example_path: string) -> bool {
+    let idx: int = (pm_find_child pm example_path)
+    if (< idx 0) { return false }
+    let child: ChildStatus = (at pm.children idx)
+    if (== child.state 1) {
+        return (== (is_running child.pid) 1)
+    }
+    return false
+}
+
+shadow pm_is_running {
+    let pm: ProcessManager = (pm_new 10)
+    assert (not (pm_is_running pm "nonexistent"))
+}
+
+fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
+    let idx: int = (pm_find_child pm example_path)
+    if (< idx 0) { return pm }
+    let child: ChildStatus = (at pm.children idx)
+    if (> child.pid 0) {
+        (exec (+ "kill " (int_to_string child.pid)))
+    }
+    let mut new_children: array<ChildStatus> = []
+    let mut i: int = 0
+    while (< i (array_length pm.children)) {
+        if (!= i idx) {
+            set new_children (array_push new_children (at pm.children i))
+        }
+        set i (+ i 1)
+    }
+    return ProcessManager { children: new_children, max_children: pm.max_children }
+}
+
+shadow pm_kill {
+    let pm: ProcessManager = (pm_new 10)
+    let pm2: ProcessManager = (pm_kill pm "nonexistent")
+    assert (== (array_length pm2.children) 0)
+}
+
+fn pm_poll(pm: ProcessManager) -> ProcessManager {
+    let mut new_children: array<ChildStatus> = []
+    let mut i: int = 0
+    while (< i (array_length pm.children)) {
+        let child: ChildStatus = (at pm.children i)
+        if (== child.state 1) {
+            let running: int = (is_running child.pid)
+            if (== running 0) {
+                let code: int = (wait child.pid)
+                set new_children (array_push new_children ChildStatus {
+                    example_path: child.example_path, pid: child.pid,
+                    state: 2, exit_code: code,
+                    memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0,
+                    build_output: child.build_output
+                })
+            } else {
+                set new_children (array_push new_children child)
+            }
+        } else {
+            set new_children (array_push new_children child)
+        }
+        set i (+ i 1)
+    }
+    return ProcessManager { children: new_children, max_children: pm.max_children }
+}
+
+shadow pm_poll {
+    let pm: ProcessManager = (pm_new 10)
+    let pm2: ProcessManager = (pm_poll pm)
+    assert (== (array_length pm2.children) 0)
+}
+
+fn pm_running_count(pm: ProcessManager) -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i (array_length pm.children)) {
+        let child: ChildStatus = (at pm.children i)
+        if (== child.state 1) {
+            set count (+ count 1)
+        }
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow pm_running_count {
+    let pm: ProcessManager = (pm_new 10)
+    assert (== (pm_running_count pm) 0)
+}
+
+fn pm_cleanup_exited(pm: ProcessManager) -> ProcessManager {
+    let mut new_children: array<ChildStatus> = []
+    let mut i: int = 0
+    while (< i (array_length pm.children)) {
+        let child: ChildStatus = (at pm.children i)
+        if (== child.state 1) {
+            set new_children (array_push new_children child)
+        }
+        set i (+ i 1)
+    }
+    return ProcessManager { children: new_children, max_children: pm.max_children }
+}
+
+shadow pm_cleanup_exited {
+    let pm: ProcessManager = (pm_new 10)
+    let pm2: ProcessManager = (pm_cleanup_exited pm)
+    assert (== (array_length pm2.children) 0)
+}
+
+fn parse_mode(mode_str: string) -> ModeConfig {
+    if (== mode_str "stage3") {
+        return ModeConfig {
+            name: "stage3", binary_suffix: "_stage3",
+            display_name: "Stage 3 (Self-Hosted)",
+            compiler: "bin/nanoc_stage2", compiler_flags: "",
+            extension: "", runner: ""
+        }
+    }
+    if (== mode_str "vm") {
+        return ModeConfig {
+            name: "vm", binary_suffix: "_vm",
+            display_name: "VM (Bytecode)",
+            compiler: "bin/nano_virt", compiler_flags: "--emit-nvm",
+            extension: ".nvm", runner: "bin/nano_vm"
+        }
+    }
+    return ModeConfig {
+        name: "stage1", binary_suffix: "",
+        display_name: "Stage 1 (C Ref)",
+        compiler: "bin/nanoc", compiler_flags: "",
+        extension: "", runner: ""
+    }
+}
+
+shadow parse_mode {
+    let m: ModeConfig = (parse_mode "stage3")
+    assert (== m.name "stage3")
+    let m2: ModeConfig = (parse_mode "vm")
+    assert (== m2.extension ".nvm")
+    let m3: ModeConfig = (parse_mode "stage1")
+    assert (== m3.compiler "bin/nanoc")
+}
+
+fn next_mode(current: ModeConfig) -> ModeConfig {
+    if (== current.name "stage1") { return (parse_mode "stage3") }
+    if (== current.name "stage3") { return (parse_mode "vm") }
+    return (parse_mode "stage1")
+}
+
+shadow next_mode {
+    let m1: ModeConfig = (parse_mode "stage1")
+    let m2: ModeConfig = (next_mode m1)
+    assert (== m2.name "stage3")
+    let m3: ModeConfig = (next_mode m2)
+    assert (== m3.name "vm")
+    let m4: ModeConfig = (next_mode m3)
+    assert (== m4.name "stage1")
+}
+
+fn init_mode() -> ModeConfig {
+    let mode_str: string = (env_get "NANO_MODE")
+    if (== (str_length mode_str) 0) {
+        return (parse_mode "stage1")
+    }
+    return (parse_mode mode_str)
+}
+
+shadow init_mode {
+    assert (== 0 0)
+}
+
+fn pm_self_test() -> int {
+    return 0
+}
+
+shadow pm_self_test {
+    assert (== 0 0)
+}

@@ -1,0 +1,339 @@
+# Launcher UI Module
+# Rendering functions for icon grid, preview panel, resource bars, toolbar
+# Depends on SDL modules and ui_widgets
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl_image/sdl_image.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+
+# Layout constants
+let UI_WINDOW_WIDTH: int = 1200
+let UI_WINDOW_HEIGHT: int = 800
+let UI_LEFT_PANEL_WIDTH: int = 320
+let UI_LEFT_PANEL_X: int = 10
+let UI_LEFT_PANEL_Y: int = 10
+let UI_RIGHT_PANEL_X: int = 340
+let UI_RIGHT_PANEL_WIDTH: int = 850
+let UI_RIGHT_PANEL_Y: int = 10
+
+let UI_ICON_SIZE: int = 80
+let UI_ICON_MARGIN: int = 12
+let UI_ICON_LABEL_HEIGHT: int = 20
+let UI_ICONS_PER_ROW: int = 3
+let UI_ICON_TOTAL_SIZE: int = 100
+
+# UI action enum
+enum UIAction {
+    NONE = 0,
+    SELECT_EXAMPLE = 1,
+    LAUNCH = 2,
+    KILL = 3,
+    EDIT = 4,
+    SAVE = 5,
+    BUILD = 6,
+    SWITCH_MODE = 7,
+    CHANGE_CATEGORY = 8,
+    QUIT = 9,
+    NEW_FILE = 10,
+    CLOSE_EDITOR = 11,
+    SCROLL_UP = 12,
+    SCROLL_DOWN = 13,
+    BUILD_AND_RUN = 14
+}
+
+# Click result with associated data
+struct ClickResult {
+    action: int,
+    index: int,
+    category_index: int
+}
+
+fn no_action() -> ClickResult {
+    return ClickResult { action: UIAction.NONE, index: -1, category_index: -1 }
+}
+
+shadow no_action {
+    let r: ClickResult = (no_action)
+    assert (== r.action UIAction.NONE)
+}
+
+fn rgb(r: int, g: int, b: int) -> int {
+    return (+ (* r 65536) (+ (* g 256) b))
+}
+
+shadow rgb {
+    assert (== (rgb 255 0 0) 16711680)
+    assert (== (rgb 0 0 255) 255)
+}
+
+fn str_truncate(s: string, max_len: int) -> string {
+    let len: int = (str_length s)
+    if (<= len max_len) { return s }
+    return (+ (str_substring s 0 max_len) "...")
+}
+
+shadow str_truncate {
+    assert (== (str_truncate "hello" 10) "hello")
+    assert (== (str_truncate "hello world" 5) "hello...")
+}
+
+fn get_icon_color(index: int) -> int {
+    let colors: array<int> = [
+        (rgb 255 0 0), (rgb 0 255 0), (rgb 0 0 255),
+        (rgb 255 255 0), (rgb 255 0 255), (rgb 0 255 255),
+        (rgb 255 128 0), (rgb 128 0 255), (rgb 0 255 128),
+        (rgb 255 0 128), (rgb 128 255 0), (rgb 0 128 255)
+    ]
+    return (at colors (% index 12))
+}
+
+shadow get_icon_color {
+    let c0: int = (get_icon_color 0)
+    let c1: int = (get_icon_color 1)
+    assert (!= c0 c1)
+}
+
+fn ui_draw_background(renderer: SDL_Renderer) -> void {
+    (SDL_SetRenderDrawColor renderer 18 18 24 255)
+    (SDL_RenderClear renderer)
+}
+
+fn ui_draw_left_panel(renderer: SDL_Renderer) -> void {
+    (nl_ui_panel renderer UI_LEFT_PANEL_X UI_LEFT_PANEL_Y UI_LEFT_PANEL_WIDTH (- UI_WINDOW_HEIGHT 20) 28 28 38 240)
+}
+
+fn ui_draw_right_panel(renderer: SDL_Renderer, font: TTF_Font) -> void {
+    (nl_ui_panel renderer UI_RIGHT_PANEL_X UI_RIGHT_PANEL_Y UI_RIGHT_PANEL_WIDTH (- UI_WINDOW_HEIGHT 20) 28 28 38 240)
+    (nl_ui_label renderer font "Example Preview" (+ UI_RIGHT_PANEL_X 20) (+ UI_RIGHT_PANEL_Y 18) 240 240 255 255)
+}
+
+fn ui_draw_cat_button(renderer: SDL_Renderer, font: TTF_Font, label: string, x: int, y: int, w: int, h: int, is_active: bool) -> void {
+    if is_active {
+        (SDL_SetRenderDrawColor renderer 80 80 120 255)
+    } else {
+        (SDL_SetRenderDrawColor renderer 50 50 70 255)
+    }
+    (nl_sdl_render_fill_rect renderer x y w h)
+    (nl_draw_text_blended renderer font label (+ x 8) (+ y 5) 220 220 240 255)
+}
+
+fn ui_draw_mode_button(renderer: SDL_Renderer, font: TTF_Font, mode_display: string, mode_color: int) -> void {
+    let btn_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 270)
+    let btn_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    let mr: int = (/ mode_color 65536)
+    let mg: int = (/ (% mode_color 65536) 256)
+    let mb: int = (% mode_color 256)
+    (SDL_SetRenderDrawColor renderer mr mg mb 255)
+    (nl_sdl_render_fill_rect renderer btn_x btn_y 170 28)
+    (nl_draw_text_blended renderer font (+ "Mode: " mode_display) (+ btn_x 10) (+ btn_y 6) 255 255 255 255)
+}
+
+fn ui_draw_quit_button(renderer: SDL_Renderer, font: TTF_Font) -> void {
+    let btn_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 90)
+    let btn_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    (SDL_SetRenderDrawColor renderer 100 50 50 255)
+    (nl_sdl_render_fill_rect renderer btn_x btn_y 70 28)
+    (nl_draw_text_blended renderer font "Quit" (+ btn_x 15) (+ btn_y 6) 240 220 220 255)
+}
+
+fn ui_draw_edit_button(renderer: SDL_Renderer, font: TTF_Font, editor_active: bool) -> void {
+    let btn_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 560)
+    let btn_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    if editor_active {
+        (SDL_SetRenderDrawColor renderer 180 180 50 255)
+    } else {
+        (SDL_SetRenderDrawColor renderer 50 100 180 255)
+    }
+    (nl_sdl_render_fill_rect renderer btn_x btn_y 100 28)
+    (nl_draw_text_blended renderer font "Edit" (+ btn_x 30) (+ btn_y 6) 255 255 255 255)
+}
+
+fn ui_draw_launch_button(renderer: SDL_Renderer, font: TTF_Font, is_running: bool) -> void {
+    let btn_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 445)
+    let btn_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    if is_running {
+        (SDL_SetRenderDrawColor renderer 180 50 50 255)
+        (nl_sdl_render_fill_rect renderer btn_x btn_y 160 28)
+        (nl_draw_text_blended renderer font "Force Quit" (+ btn_x 35) (+ btn_y 6) 255 255 255 255)
+    } else {
+        (SDL_SetRenderDrawColor renderer 50 100 50 255)
+        (nl_sdl_render_fill_rect renderer btn_x btn_y 160 28)
+        (nl_draw_text_blended renderer font "Launch Example" (+ btn_x 15) (+ btn_y 6) 220 240 220 255)
+    }
+}
+
+fn ui_draw_icon(renderer: SDL_Renderer, title_font: TTF_Font, small_font: TTF_Font, name: string, icon_texture: int, icon_x: int, icon_y: int, icon_idx: int, is_selected: bool, is_running: bool) -> void {
+    if is_selected {
+        (SDL_SetRenderDrawColor renderer 255 255 255 255)
+        (nl_sdl_render_fill_rect renderer (- icon_x 3) (- icon_y 3) (+ UI_ICON_SIZE 6) (+ UI_ICON_SIZE 6))
+    }
+    if (!= icon_texture 0) {
+        (nl_img_render_texture renderer icon_texture icon_x icon_y UI_ICON_SIZE UI_ICON_SIZE)
+    } else {
+        let color: int = (get_icon_color icon_idx)
+        let cr: int = (/ color 65536)
+        let cg: int = (% (/ color 256) 256)
+        let cb: int = (% color 256)
+        (SDL_SetRenderDrawColor renderer cr cg cb 255)
+        (nl_sdl_render_fill_rect renderer icon_x icon_y UI_ICON_SIZE UI_ICON_SIZE)
+        let first_letter: string = (str_substring name 0 1)
+        (nl_draw_text_blended renderer title_font first_letter (+ icon_x 30) (+ icon_y 28) 255 255 255 255)
+    }
+    let truncated: string = (str_truncate name 10)
+    (nl_draw_text_blended renderer small_font truncated (+ icon_x 5) (+ icon_y (+ UI_ICON_SIZE 4)) 220 220 240 255)
+    if is_running {
+        (SDL_SetRenderDrawColor renderer 80 220 80 255)
+        (nl_sdl_render_fill_rect renderer (+ icon_x (- UI_ICON_SIZE 12)) (+ icon_y 4) 10 10)
+    }
+}
+
+fn ui_draw_example_info(renderer: SDL_Renderer, font: TTF_Font, name: string, desc: string, file_path: string) -> void {
+    let info_y: int = (+ UI_RIGHT_PANEL_Y 60)
+    (nl_ui_label renderer font (+ "Name: " name) (+ UI_RIGHT_PANEL_X 20) info_y 240 240 255 255)
+    (nl_ui_label renderer font (+ "Desc: " desc) (+ UI_RIGHT_PANEL_X 20) (+ info_y 24) 200 200 220 255)
+    (nl_ui_label renderer font (+ "File: " file_path) (+ UI_RIGHT_PANEL_X 20) (+ info_y 48) 160 160 180 255)
+}
+
+fn ui_draw_source_preview(renderer: SDL_Renderer, font: TTF_Font, source_code: string, scroll: int) -> void {
+    let info_y: int = (+ UI_RIGHT_PANEL_Y 60)
+    let source_y: int = (+ info_y 90)
+    let source_h: int = (- (- UI_WINDOW_HEIGHT source_y) 100)
+    (nl_ui_label renderer font "Source Code:" (+ UI_RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255)
+    let code_x: int = (+ UI_RIGHT_PANEL_X 20)
+    let code_y: int = (+ source_y 35)
+    let code_w: int = (- UI_RIGHT_PANEL_WIDTH 40)
+    let code_h: int = (- source_h 65)
+    (nl_ui_code_display_ansi renderer font source_code code_x code_y code_w code_h scroll 18)
+}
+
+fn ui_draw_resource_bar(renderer: SDL_Renderer, font: TTF_Font, memory_kb: int, cpu_ms: int, y_offset: int) -> void {
+    let bar_x: int = (+ UI_RIGHT_PANEL_X 20)
+    let bar_y: int = y_offset
+    let bar_w: int = (- UI_RIGHT_PANEL_WIDTH 40)
+    let bar_h: int = 24
+
+    (SDL_SetRenderDrawColor renderer 40 40 60 255)
+    (nl_sdl_render_fill_rect renderer bar_x bar_y bar_w bar_h)
+
+    let mut mem_text: string = ""
+    if (>= memory_kb 1024) {
+        set mem_text (+ (int_to_string (/ memory_kb 1024)) " MB")
+    } else {
+        set mem_text (+ (int_to_string memory_kb) " KB")
+    }
+    let cpu_text: string = (+ (int_to_string (/ cpu_ms 1000)) "s CPU")
+    let label: string = (+ "Mem: " (+ mem_text (+ "  |  " cpu_text)))
+    (nl_draw_text_blended renderer font label (+ bar_x 8) (+ bar_y 4) 200 200 220 255)
+
+    # Memory bar visualization (max 256 MB = 262144 KB)
+    let mem_frac: int = (/ (* memory_kb bar_w) 262144)
+    let mut bar_fill: int = mem_frac
+    if (> bar_fill bar_w) { set bar_fill bar_w }
+    if (> bar_fill 0) {
+        if (> memory_kb 131072) {
+            (SDL_SetRenderDrawColor renderer 200 80 80 180)
+        } else {
+            if (> memory_kb 65536) {
+                (SDL_SetRenderDrawColor renderer 200 200 80 180)
+            } else {
+                (SDL_SetRenderDrawColor renderer 80 200 80 180)
+            }
+        }
+        (nl_sdl_render_fill_rect renderer bar_x (+ bar_y (- bar_h 4)) bar_fill 3)
+    }
+}
+
+fn ui_draw_no_selection(renderer: SDL_Renderer, font: TTF_Font) -> void {
+    (nl_ui_label renderer font "Select an example from the left panel" (+ UI_RIGHT_PANEL_X 20) (+ UI_RIGHT_PANEL_Y 100) 180 180 200 255)
+    (nl_ui_label renderer font "to preview its source code." (+ UI_RIGHT_PANEL_X 20) (+ UI_RIGHT_PANEL_Y 124) 160 160 180 255)
+}
+
+fn ui_handle_click(click_x: int, click_y: int, num_categories: int, cat_x_offsets: array<int>, cat_rows: array<int>, icon_count: int, icon_scroll: int, grid_start_y: int, has_selection: bool, _editor_active: bool) -> ClickResult {
+    # Check category buttons
+    let cat_y1: int = (+ UI_LEFT_PANEL_Y 10)
+    let cat_y2: int = (+ cat_y1 28)
+    let cat_y3: int = (+ cat_y2 28)
+    let cat_w: int = 95
+    let cat_h: int = 24
+    let mut btn_idx: int = 0
+    while (< btn_idx num_categories) {
+        let btn_x: int = (+ UI_LEFT_PANEL_X (at cat_x_offsets btn_idx))
+        let btn_row: int = (at cat_rows btn_idx)
+        let mut btn_y: int = cat_y1
+        if (== btn_row 1) { set btn_y cat_y2 }
+        if (== btn_row 2) { set btn_y cat_y3 }
+        if (and (>= click_x btn_x) (and (< click_x (+ btn_x cat_w))
+            (and (>= click_y btn_y) (< click_y (+ btn_y cat_h))))) {
+            return ClickResult { action: UIAction.CHANGE_CATEGORY, index: -1, category_index: btn_idx }
+        }
+        set btn_idx (+ btn_idx 1)
+    }
+
+    # Check Mode button
+    let mode_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 270)
+    let mode_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    if (and (>= click_x mode_x) (and (< click_x (+ mode_x 170))
+        (and (>= click_y mode_y) (< click_y (+ mode_y 28))))) {
+        return ClickResult { action: UIAction.SWITCH_MODE, index: -1, category_index: -1 }
+    }
+
+    # Check Quit button
+    let quit_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 90)
+    let quit_y: int = (+ UI_RIGHT_PANEL_Y 14)
+    if (and (>= click_x quit_x) (and (< click_x (+ quit_x 70))
+        (and (>= click_y quit_y) (< click_y (+ quit_y 28))))) {
+        return ClickResult { action: UIAction.QUIT, index: -1, category_index: -1 }
+    }
+
+    # Check Edit button
+    if has_selection {
+        let edit_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 560)
+        let edit_y: int = (+ UI_RIGHT_PANEL_Y 14)
+        if (and (>= click_x edit_x) (and (< click_x (+ edit_x 100))
+            (and (>= click_y edit_y) (< click_y (+ edit_y 28))))) {
+            return ClickResult { action: UIAction.EDIT, index: -1, category_index: -1 }
+        }
+
+        # Check Launch/Kill button
+        let launch_x: int = (- (+ UI_RIGHT_PANEL_X UI_RIGHT_PANEL_WIDTH) 445)
+        let launch_y: int = (+ UI_RIGHT_PANEL_Y 14)
+        if (and (>= click_x launch_x) (and (< click_x (+ launch_x 160))
+            (and (>= click_y launch_y) (< click_y (+ launch_y 28))))) {
+            return ClickResult { action: UIAction.LAUNCH, index: -1, category_index: -1 }
+        }
+    }
+
+    # Check icon clicks
+    let scroll_offset_px: int = (* icon_scroll (+ UI_ICON_TOTAL_SIZE UI_ICON_MARGIN))
+    let mut check_idx: int = 0
+    while (< check_idx icon_count) {
+        let row: int = (/ check_idx UI_ICONS_PER_ROW)
+        let col: int = (% check_idx UI_ICONS_PER_ROW)
+        let icon_x: int = (+ UI_LEFT_PANEL_X (+ 15 (* col (+ UI_ICON_SIZE UI_ICON_MARGIN))))
+        let icon_y: int = (- (+ grid_start_y (* row (+ UI_ICON_TOTAL_SIZE UI_ICON_MARGIN))) scroll_offset_px)
+        if (and (>= icon_y grid_start_y) (< icon_y (- UI_WINDOW_HEIGHT 20))) {
+            if (and (>= click_x icon_x) (and (< click_x (+ icon_x UI_ICON_SIZE))
+                (and (>= click_y icon_y) (< click_y (+ icon_y UI_ICON_SIZE))))) {
+                return ClickResult { action: UIAction.SELECT_EXAMPLE, index: check_idx, category_index: -1 }
+            }
+        }
+        set check_idx (+ check_idx 1)
+    }
+
+    return (no_action)
+}
+
+shadow ui_handle_click {
+    assert (== 0 0)
+}
+
+fn ui_self_test() -> int {
+    return 0
+}
+
+shadow ui_self_test {
+    assert (== 0 0)
+}

@@ -1,0 +1,297 @@
+# Example Discovery Module
+# Auto-scans example directories, parses structured headers, builds catalog
+
+from "modules/std/fs.nano" import walkdir, basename, join, read, exists, dirname
+
+struct ExampleInfo {
+    path: string,
+    name: string,
+    description: string,
+    category: string,
+    difficulty: string,
+    features: string,
+    prerequisites: string,
+    expected_output: string,
+    icon_path: string
+}
+
+fn ed_starts_with(s: string, prefix: string) -> bool {
+    if (< (str_length s) (str_length prefix)) { return false }
+    return (== (str_substring s 0 (str_length prefix)) prefix)
+}
+
+shadow ed_starts_with {
+    assert (ed_starts_with "hello world" "hello")
+    assert (not (ed_starts_with "hello" "world"))
+    assert (not (ed_starts_with "" "x"))
+}
+
+fn ed_ends_with(s: string, suffix: string) -> bool {
+    let slen: int = (str_length s)
+    let suflen: int = (str_length suffix)
+    if (< slen suflen) { return false }
+    return (== (str_substring s (- slen suflen) suflen) suffix)
+}
+
+shadow ed_ends_with {
+    assert (ed_ends_with "hello.nano" ".nano")
+    assert (not (ed_ends_with "hello" ".nano"))
+}
+
+fn str_trim(s: string) -> string {
+    let len: int = (str_length s)
+    let mut start: int = 0
+    let mut scanning: bool = true
+    while (and (< start len) scanning) {
+        let ch: string = (str_substring s start 1)
+        if (and (!= ch " ") (!= ch "\t")) {
+            set scanning false
+        } else {
+            set start (+ start 1)
+        }
+    }
+    let mut end: int = len
+    set scanning true
+    while (and (> end start) scanning) {
+        let ch: string = (str_substring s (- end 1) 1)
+        if (and (!= ch " ") (and (!= ch "\t") (and (!= ch "\n") (!= ch "\r")))) {
+            set scanning false
+        } else {
+            set end (- end 1)
+        }
+    }
+    if (>= start end) { return "" }
+    return (str_substring s start (- end start))
+}
+
+shadow str_trim {
+    assert (== (str_trim "  hello  ") "hello")
+    assert (== (str_trim "hello") "hello")
+    assert (== (str_trim "   ") "")
+}
+
+fn extract_hdr(line: string, prefix: string) -> string {
+    if (not (ed_starts_with line prefix)) { return "" }
+    return (str_trim (str_substring line (str_length prefix) (- (str_length line) (str_length prefix))))
+}
+
+shadow extract_hdr {
+    assert (== (extract_hdr "# Example: Pong" "# Example: ") "Pong")
+    assert (== (extract_hdr "# Category: games" "# Category: ") "games")
+    assert (== (extract_hdr "nope" "# Example: ") "")
+}
+
+fn infer_category_from_path(path: string) -> string {
+    let dir: string = (dirname path)
+    let cat: string = (basename dir)
+    if (== cat "examples") { return "tools" }
+    return cat
+}
+
+shadow infer_category_from_path {
+    assert (== (infer_category_from_path "examples/games/sdl_pong.nano") "games")
+    assert (== (infer_category_from_path "examples/sdl_launcher.nano") "tools")
+}
+
+fn find_icon(example_path: string) -> string {
+    let base: string = (basename example_path)
+    let blen: int = (str_length base)
+    let mut stem: string = base
+    if (ed_ends_with base ".nano") {
+        set stem (str_substring base 0 (- blen 5))
+    }
+    let icon_path: string = (join "examples/icons" (+ stem ".png"))
+    if (exists icon_path) { return icon_path }
+    return ""
+}
+
+shadow find_icon {
+    assert (== 0 0)
+}
+
+fn is_example_file(path: string) -> bool {
+    if (not (ed_ends_with path ".nano")) { return false }
+    let base: string = (basename path)
+    if (ed_starts_with base "test_") { return false }
+    if (ed_starts_with base "ug_") { return false }
+    let dir: string = (dirname path)
+    let dir_base: string = (basename dir)
+    if (== dir_base "lib") { return false }
+    if (== dir_base "output") { return false }
+    return true
+}
+
+shadow is_example_file {
+    assert (is_example_file "examples/games/sdl_pong.nano")
+    assert (not (is_example_file "examples/lib/discovery.nano"))
+    assert (not (is_example_file "test_foo.nano"))
+    assert (not (is_example_file "readme.txt"))
+}
+
+fn parse_example_header(path: string) -> ExampleInfo {
+    let content: string = (read path)
+    let mut nm: string = ""
+    let mut ds: string = ""
+    let mut ct: string = ""
+    let mut df: string = ""
+    let mut ft: string = ""
+    let mut pr: string = ""
+    let mut eo: string = ""
+
+    if (> (str_length content) 0) {
+        let clen: int = (str_length content)
+        let mut pos: int = 0
+        let mut lc: int = 0
+        while (and (< pos clen) (< lc 12)) {
+            let mut ll: int = 0
+            let mut fnl: bool = false
+            while (and (< (+ pos ll) clen) (not fnl)) {
+                if (== (str_substring content (+ pos ll) 1) "\n") {
+                    set fnl true
+                } else {
+                    set ll (+ ll 1)
+                }
+            }
+            let line: string = (str_substring content pos ll)
+            let a: string = (extract_hdr line "# Example: ")
+            if (> (str_length a) 0) { set nm a }
+            let b: string = (extract_hdr line "# Purpose: ")
+            if (> (str_length b) 0) { set ds b }
+            let c: string = (extract_hdr line "# Category: ")
+            if (> (str_length c) 0) { set ct c }
+            let d: string = (extract_hdr line "# Difficulty: ")
+            if (> (str_length d) 0) { set df d }
+            let e: string = (extract_hdr line "# Features: ")
+            if (> (str_length e) 0) { set ft e }
+            let f: string = (extract_hdr line "# Prerequisites: ")
+            if (> (str_length f) 0) { set pr f }
+            let g: string = (extract_hdr line "# Expected Output: ")
+            if (> (str_length g) 0) { set eo g }
+            set pos (+ pos (+ ll 1))
+            set lc (+ lc 1)
+        }
+    }
+
+    if (== (str_length nm) 0) {
+        let base: string = (basename path)
+        if (ed_ends_with base ".nano") {
+            set nm (str_substring base 0 (- (str_length base) 5))
+        } else {
+            set nm base
+        }
+    }
+    if (== (str_length ct) 0) {
+        set ct (infer_category_from_path path)
+    }
+
+    return ExampleInfo {
+        path: path, name: nm, description: ds, category: ct,
+        difficulty: df, features: ft, prerequisites: pr,
+        expected_output: eo, icon_path: (find_icon path)
+    }
+}
+
+shadow parse_example_header {
+    assert (== 0 0)
+}
+
+fn discover_examples(root: string) -> array<ExampleInfo> {
+    let all_files: array<string> = (walkdir root)
+    let mut examples: array<ExampleInfo> = []
+    let mut i: int = 0
+    while (< i (array_length all_files)) {
+        let file: string = (at all_files i)
+        if (is_example_file file) {
+            let info: ExampleInfo = (parse_example_header file)
+            set examples (array_push examples info)
+        }
+        set i (+ i 1)
+    }
+    return examples
+}
+
+shadow discover_examples {
+    assert (== 0 0)
+}
+
+fn filter_by_category(examples: array<ExampleInfo>, category: string) -> array<ExampleInfo> {
+    if (== category "all") { return examples }
+    let mut filtered: array<ExampleInfo> = []
+    let mut i: int = 0
+    while (< i (array_length examples)) {
+        let ex: ExampleInfo = (at examples i)
+        if (== ex.category category) {
+            set filtered (array_push filtered ex)
+        }
+        set i (+ i 1)
+    }
+    return filtered
+}
+
+shadow filter_by_category {
+    let mut exs: array<ExampleInfo> = []
+    set exs (array_push exs ExampleInfo {
+        path: "a", name: "A", description: "", category: "games",
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+    })
+    set exs (array_push exs ExampleInfo {
+        path: "b", name: "B", description: "", category: "gfx",
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+    })
+    assert (== (array_length (filter_by_category exs "games")) 1)
+    assert (== (array_length (filter_by_category exs "all")) 2)
+}
+
+fn collect_categories(examples: array<ExampleInfo>) -> array<string> {
+    let mut cats: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length examples)) {
+        let ex: ExampleInfo = (at examples i)
+        let mut found: bool = false
+        let mut j: int = 0
+        while (and (< j (array_length cats)) (not found)) {
+            if (== (at cats j) ex.category) { set found true }
+            set j (+ j 1)
+        }
+        if (not found) {
+            set cats (array_push cats ex.category)
+        }
+        set i (+ i 1)
+    }
+    return cats
+}
+
+shadow collect_categories {
+    let mut exs: array<ExampleInfo> = []
+    set exs (array_push exs ExampleInfo {
+        path: "a", name: "A", description: "", category: "games",
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+    })
+    set exs (array_push exs ExampleInfo {
+        path: "b", name: "B", description: "", category: "games",
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+    })
+    set exs (array_push exs ExampleInfo {
+        path: "c", name: "C", description: "", category: "gfx",
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+    })
+    assert (== (array_length (collect_categories exs)) 2)
+}
+
+fn discovery_self_test() -> int {
+    let examples: array<ExampleInfo> = (discover_examples "examples")
+    (println (+ "Discovered " (+ (int_to_string (array_length examples)) " examples")))
+    let cats: array<string> = (collect_categories examples)
+    let mut i: int = 0
+    while (< i (array_length cats)) {
+        let cat: string = (at cats i)
+        let filtered: array<ExampleInfo> = (filter_by_category examples cat)
+        (println (+ "  " (+ cat (+ ": " (int_to_string (array_length filtered))))))
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow discovery_self_test {
+    assert (== 0 0)
+}

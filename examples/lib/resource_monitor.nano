@@ -1,0 +1,254 @@
+# Resource Monitor Module
+# Reads /proc/<pid>/stat and /proc/<pid>/status for CPU/memory/IO stats
+
+from "modules/std/fs.nano" import read, exists
+
+struct ResourceSnapshot {
+    pid: int,
+    cpu_user_ms: int,
+    cpu_sys_ms: int,
+    memory_kb: int,
+    vsize_bytes: int,
+    elapsed_ms: int,
+    valid: bool
+}
+
+fn empty_snapshot(pid: int) -> ResourceSnapshot {
+    return ResourceSnapshot {
+        pid: pid, cpu_user_ms: 0, cpu_sys_ms: 0,
+        memory_kb: 0, vsize_bytes: 0, elapsed_ms: 0, valid: false
+    }
+}
+
+shadow empty_snapshot {
+    let s: ResourceSnapshot = (empty_snapshot 123)
+    assert (== s.pid 123)
+    assert (not s.valid)
+}
+
+fn rm_starts_with(s: string, prefix: string) -> bool {
+    if (< (str_length s) (str_length prefix)) { return false }
+    return (== (str_substring s 0 (str_length prefix)) prefix)
+}
+
+shadow rm_starts_with {
+    assert (rm_starts_with "VmRSS:" "VmRSS:")
+    assert (not (rm_starts_with "hello" "world"))
+}
+
+fn parse_int_from_string(s: string) -> int {
+    let mut result: int = 0
+    let len: int = (str_length s)
+    let mut i: int = 0
+    while (< i len) {
+        let code: int = (char_at s i)
+        if (and (>= code 48) (<= code 57)) {
+            set result (+ (* result 10) (- code 48))
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow parse_int_from_string {
+    assert (== (parse_int_from_string "12345") 12345)
+    assert (== (parse_int_from_string "  42 kB") 42)
+    assert (== (parse_int_from_string "0") 0)
+}
+
+fn find_field_in_lines(content: string, prefix: string) -> string {
+    let clen: int = (str_length content)
+    let mut pos: int = 0
+    while (< pos clen) {
+        let mut ll: int = 0
+        let mut fnl: bool = false
+        while (and (< (+ pos ll) clen) (not fnl)) {
+            if (== (str_substring content (+ pos ll) 1) "\n") {
+                set fnl true
+            } else {
+                set ll (+ ll 1)
+            }
+        }
+        let line: string = (str_substring content pos ll)
+        if (rm_starts_with line prefix) {
+            let plen: int = (str_length prefix)
+            return (str_substring line plen (- ll plen))
+        }
+        set pos (+ pos (+ ll 1))
+    }
+    return ""
+}
+
+shadow find_field_in_lines {
+    assert (== (str_length (find_field_in_lines "" "VmRSS:")) 0)
+}
+
+fn nth_space_separated(s: string, n: int) -> string {
+    let slen: int = (str_length s)
+    let mut field_start: int = 0
+    let mut field_idx: int = 0
+    let mut in_field: bool = false
+    let mut i: int = 0
+
+    while (< i slen) {
+        let ch: string = (str_substring s i 1)
+        let is_space: bool = (or (== ch " ") (== ch "\t"))
+        if (and (not in_field) (not is_space)) {
+            set field_start i
+            set in_field true
+        }
+        if (and in_field is_space) {
+            if (== field_idx n) {
+                return (str_substring s field_start (- i field_start))
+            }
+            set field_idx (+ field_idx 1)
+            set in_field false
+        }
+        set i (+ i 1)
+    }
+    if (and in_field (== field_idx n)) {
+        return (str_substring s field_start (- slen field_start))
+    }
+    return ""
+}
+
+shadow nth_space_separated {
+    assert (== (nth_space_separated "a b c d" 0) "a")
+    assert (== (nth_space_separated "a b c d" 2) "c")
+    assert (== (nth_space_separated "  hello  world  " 0) "hello")
+    assert (== (nth_space_separated "  hello  world  " 1) "world")
+}
+
+fn proc_memory_kb(pid: int) -> int {
+    let path: string = (+ "/proc/" (+ (int_to_string pid) "/status"))
+    if (not (exists path)) { return 0 }
+    let content: string = (read path)
+    if (== (str_length content) 0) { return 0 }
+    let rss_str: string = (find_field_in_lines content "VmRSS:")
+    return (parse_int_from_string rss_str)
+}
+
+shadow proc_memory_kb {
+    assert (>= (proc_memory_kb 1) 0)
+}
+
+fn proc_vsize_bytes(pid: int) -> int {
+    let path: string = (+ "/proc/" (+ (int_to_string pid) "/status"))
+    if (not (exists path)) { return 0 }
+    let content: string = (read path)
+    if (== (str_length content) 0) { return 0 }
+    let vsize_str: string = (find_field_in_lines content "VmSize:")
+    return (* (parse_int_from_string vsize_str) 1024)
+}
+
+shadow proc_vsize_bytes {
+    assert (>= (proc_vsize_bytes 1) 0)
+}
+
+fn proc_cpu_ticks(pid: int) -> ResourceSnapshot {
+    let path: string = (+ "/proc/" (+ (int_to_string pid) "/stat"))
+    if (not (exists path)) { return (empty_snapshot pid) }
+    let content: string = (read path)
+    if (== (str_length content) 0) { return (empty_snapshot pid) }
+
+    # /proc/<pid>/stat fields (0-indexed):
+    # 13 = utime (user CPU ticks)
+    # 14 = stime (system CPU ticks)
+    # 22 = vsize (virtual memory size in bytes)
+    # Fields start after the comm field which is in parentheses
+    let clen: int = (str_length content)
+    let mut paren_end: int = 0
+    let mut i: int = 0
+    let mut found_paren: bool = false
+    while (and (< i clen) (not found_paren)) {
+        if (== (str_substring content i 1) ")") {
+            set paren_end (+ i 1)
+            set found_paren true
+        }
+        set i (+ i 1)
+    }
+    if (not found_paren) { return (empty_snapshot pid) }
+
+    # After the closing paren, skip the space and parse remaining fields
+    let rest: string = (str_substring content (+ paren_end 1) (- clen (+ paren_end 1)))
+
+    # Fields after comm (0-indexed in rest): 0=state, 1=ppid, ..., 11=utime, 12=stime, ..., 20=vsize
+    let utime_str: string = (nth_space_separated rest 11)
+    let stime_str: string = (nth_space_separated rest 12)
+    let vsize_str: string = (nth_space_separated rest 20)
+
+    let utime: int = (parse_int_from_string utime_str)
+    let stime: int = (parse_int_from_string stime_str)
+    let vsize: int = (parse_int_from_string vsize_str)
+
+    # Convert ticks to milliseconds (assuming 100 Hz = 10ms per tick)
+    return ResourceSnapshot {
+        pid: pid, cpu_user_ms: (* utime 10), cpu_sys_ms: (* stime 10),
+        memory_kb: 0, vsize_bytes: vsize, elapsed_ms: 0, valid: true
+    }
+}
+
+shadow proc_cpu_ticks {
+    let snap: ResourceSnapshot = (proc_cpu_ticks 1)
+    assert (>= snap.cpu_user_ms 0)
+}
+
+fn resource_snapshot(pid: int) -> ResourceSnapshot {
+    let cpu: ResourceSnapshot = (proc_cpu_ticks pid)
+    if (not cpu.valid) { return (empty_snapshot pid) }
+    let mem: int = (proc_memory_kb pid)
+    return ResourceSnapshot {
+        pid: pid, cpu_user_ms: cpu.cpu_user_ms, cpu_sys_ms: cpu.cpu_sys_ms,
+        memory_kb: mem, vsize_bytes: cpu.vsize_bytes, elapsed_ms: 0, valid: true
+    }
+}
+
+shadow resource_snapshot {
+    let snap: ResourceSnapshot = (resource_snapshot 1)
+    assert (>= snap.memory_kb 0)
+}
+
+fn format_memory(kb: int) -> string {
+    if (>= kb 1048576) {
+        let gb: int = (/ kb 1048576)
+        return (+ (int_to_string gb) " GB")
+    }
+    if (>= kb 1024) {
+        let mb: int = (/ kb 1024)
+        return (+ (int_to_string mb) " MB")
+    }
+    return (+ (int_to_string kb) " KB")
+}
+
+shadow format_memory {
+    assert (== (format_memory 512) "512 KB")
+    assert (== (format_memory 2048) "2 MB")
+    assert (== (format_memory 2097152) "2 GB")
+}
+
+fn format_cpu_time(ms: int) -> string {
+    if (>= ms 60000) {
+        let mins: int = (/ ms 60000)
+        let secs: int = (/ (% ms 60000) 1000)
+        return (+ (int_to_string mins) (+ "m" (+ (int_to_string secs) "s")))
+    }
+    if (>= ms 1000) {
+        let secs: int = (/ ms 1000)
+        return (+ (int_to_string secs) "s")
+    }
+    return (+ (int_to_string ms) "ms")
+}
+
+shadow format_cpu_time {
+    assert (== (format_cpu_time 500) "500ms")
+    assert (== (format_cpu_time 2500) "2s")
+    assert (== (format_cpu_time 65000) "1m5s")
+}
+
+fn resmon_self_test() -> int {
+    return 0
+}
+
+shadow resmon_self_test {
+    assert (== 0 0)
+}

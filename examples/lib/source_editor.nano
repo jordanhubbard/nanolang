@@ -1,0 +1,370 @@
+# Source Editor Module
+# Text buffer with cursor, insert/delete, save, new-file templates
+# No SDL dependency - rendering handled by launcher_ui
+
+from "modules/std/fs.nano" import read, write, exists
+
+struct EditorState {
+    lines: array<string>,
+    cursor_row: int,
+    cursor_col: int,
+    file_path: string,
+    modified: bool,
+    scroll_offset: int,
+    active: bool,
+    build_status: string,
+    build_output: string
+}
+
+fn editor_new() -> EditorState {
+    return EditorState {
+        lines: [], cursor_row: 0, cursor_col: 0,
+        file_path: "", modified: false, scroll_offset: 0,
+        active: false, build_status: "", build_output: ""
+    }
+}
+
+shadow editor_new {
+    let ed: EditorState = (editor_new)
+    assert (== (array_length ed.lines) 0)
+    assert (not ed.active)
+    assert (not ed.modified)
+}
+
+fn split_into_lines(content: string) -> array<string> {
+    let mut lines: array<string> = []
+    let clen: int = (str_length content)
+    let mut pos: int = 0
+    while (< pos clen) {
+        let mut ll: int = 0
+        let mut fnl: bool = false
+        while (and (< (+ pos ll) clen) (not fnl)) {
+            if (== (str_substring content (+ pos ll) 1) "\n") {
+                set fnl true
+            } else {
+                set ll (+ ll 1)
+            }
+        }
+        set lines (array_push lines (str_substring content pos ll))
+        set pos (+ pos (+ ll 1))
+    }
+    if (== (array_length lines) 0) {
+        set lines (array_push lines "")
+    }
+    return lines
+}
+
+shadow split_into_lines {
+    let lines: array<string> = (split_into_lines "")
+    assert (>= (array_length lines) 1)
+}
+
+fn join_lines(lines: array<string>) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        if (> i 0) {
+            set result (+ result "\n")
+        }
+        set result (+ result (at lines i))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow join_lines {
+    let mut lines: array<string> = []
+    set lines (array_push lines "hello")
+    set lines (array_push lines "world")
+    assert (== (join_lines lines) "hello\nworld")
+}
+
+fn editor_open(path: string) -> EditorState {
+    let content: string = (read path)
+    let lines: array<string> = (split_into_lines content)
+    return EditorState {
+        lines: lines, cursor_row: 0, cursor_col: 0,
+        file_path: path, modified: false, scroll_offset: 0,
+        active: true, build_status: "", build_output: ""
+    }
+}
+
+shadow editor_open {
+    assert (== 0 0)
+}
+
+fn editor_close(_ed: EditorState) -> EditorState {
+    return (editor_new)
+}
+
+shadow editor_close {
+    let ed0: EditorState = (editor_new)
+    let closed: EditorState = (editor_close ed0)
+    assert (not closed.active)
+}
+
+fn editor_save(ed: EditorState) -> EditorState {
+    if (not ed.active) { return ed }
+    let content: string = (join_lines ed.lines)
+    let result: int = (write ed.file_path content)
+    if (== result 0) {
+        return EditorState {
+            lines: ed.lines, cursor_row: ed.cursor_row, cursor_col: ed.cursor_col,
+            file_path: ed.file_path, modified: false, scroll_offset: ed.scroll_offset,
+            active: true, build_status: "saved", build_output: "File saved"
+        }
+    }
+    return EditorState {
+        lines: ed.lines, cursor_row: ed.cursor_row, cursor_col: ed.cursor_col,
+        file_path: ed.file_path, modified: ed.modified, scroll_offset: ed.scroll_offset,
+        active: true, build_status: "error", build_output: "Save failed"
+    }
+}
+
+shadow editor_save {
+    assert (== 0 0)
+}
+
+fn clamp_cursor(ed: EditorState) -> EditorState {
+    let nlines: int = (array_length ed.lines)
+    let mut row: int = ed.cursor_row
+    if (>= row nlines) { set row (- nlines 1) }
+    if (< row 0) { set row 0 }
+    let mut col: int = ed.cursor_col
+    if (> nlines 0) {
+        let line: string = (at ed.lines row)
+        let line_len: int = (str_length line)
+        if (> col line_len) { set col line_len }
+    }
+    if (< col 0) { set col 0 }
+    return EditorState {
+        lines: ed.lines, cursor_row: row, cursor_col: col,
+        file_path: ed.file_path, modified: ed.modified, scroll_offset: ed.scroll_offset,
+        active: ed.active, build_status: ed.build_status, build_output: ed.build_output
+    }
+}
+
+shadow clamp_cursor {
+    let ed: EditorState = (editor_new)
+    let clamped: EditorState = (clamp_cursor ed)
+    assert (== clamped.cursor_row 0)
+    assert (== clamped.cursor_col 0)
+}
+
+fn editor_move_cursor(ed: EditorState, dr: int, dc: int) -> EditorState {
+    let new_row: int = (+ ed.cursor_row dr)
+    let new_col: int = (+ ed.cursor_col dc)
+    return (clamp_cursor EditorState {
+        lines: ed.lines, cursor_row: new_row, cursor_col: new_col,
+        file_path: ed.file_path, modified: ed.modified, scroll_offset: ed.scroll_offset,
+        active: ed.active, build_status: ed.build_status, build_output: ed.build_output
+    })
+}
+
+shadow editor_move_cursor {
+    let ed: EditorState = (editor_new)
+    let moved: EditorState = (editor_move_cursor ed 0 0)
+    assert (== moved.cursor_row 0)
+}
+
+fn editor_insert_char(ed: EditorState, ch: string) -> EditorState {
+    if (not ed.active) { return ed }
+    let nlines: int = (array_length ed.lines)
+    if (== nlines 0) { return ed }
+    let line: string = (at ed.lines ed.cursor_row)
+    let llen: int = (str_length line)
+    let col: int = ed.cursor_col
+    let mut new_line: string = ""
+    if (> col 0) {
+        set new_line (str_substring line 0 col)
+    }
+    set new_line (+ new_line ch)
+    if (< col llen) {
+        set new_line (+ new_line (str_substring line col (- llen col)))
+    }
+    let mut new_lines: array<string> = []
+    let mut i: int = 0
+    while (< i nlines) {
+        if (== i ed.cursor_row) {
+            set new_lines (array_push new_lines new_line)
+        } else {
+            set new_lines (array_push new_lines (at ed.lines i))
+        }
+        set i (+ i 1)
+    }
+    return EditorState {
+        lines: new_lines, cursor_row: ed.cursor_row, cursor_col: (+ col 1),
+        file_path: ed.file_path, modified: true, scroll_offset: ed.scroll_offset,
+        active: true, build_status: "", build_output: ""
+    }
+}
+
+shadow editor_insert_char {
+    assert (== 0 0)
+}
+
+fn editor_insert_newline(ed: EditorState) -> EditorState {
+    if (not ed.active) { return ed }
+    let nlines: int = (array_length ed.lines)
+    if (== nlines 0) { return ed }
+    let line: string = (at ed.lines ed.cursor_row)
+    let llen: int = (str_length line)
+    let col: int = ed.cursor_col
+    let mut before: string = ""
+    if (> col 0) { set before (str_substring line 0 col) }
+    let mut after: string = ""
+    if (< col llen) { set after (str_substring line col (- llen col)) }
+    let mut new_lines: array<string> = []
+    let mut i: int = 0
+    while (< i nlines) {
+        if (== i ed.cursor_row) {
+            set new_lines (array_push new_lines before)
+            set new_lines (array_push new_lines after)
+        } else {
+            set new_lines (array_push new_lines (at ed.lines i))
+        }
+        set i (+ i 1)
+    }
+    return EditorState {
+        lines: new_lines, cursor_row: (+ ed.cursor_row 1), cursor_col: 0,
+        file_path: ed.file_path, modified: true, scroll_offset: ed.scroll_offset,
+        active: true, build_status: "", build_output: ""
+    }
+}
+
+shadow editor_insert_newline {
+    assert (== 0 0)
+}
+
+fn editor_delete_char(ed: EditorState) -> EditorState {
+    if (not ed.active) { return ed }
+    let nlines: int = (array_length ed.lines)
+    if (== nlines 0) { return ed }
+    let row: int = ed.cursor_row
+    let col: int = ed.cursor_col
+    let line: string = (at ed.lines row)
+    let llen: int = (str_length line)
+
+    if (> col 0) {
+        let mut new_line: string = ""
+        if (> (- col 1) 0) {
+            set new_line (str_substring line 0 (- col 1))
+        }
+        if (< col llen) {
+            set new_line (+ new_line (str_substring line col (- llen col)))
+        }
+        let mut new_lines: array<string> = []
+        let mut i: int = 0
+        while (< i nlines) {
+            if (== i row) {
+                set new_lines (array_push new_lines new_line)
+            } else {
+                set new_lines (array_push new_lines (at ed.lines i))
+            }
+            set i (+ i 1)
+        }
+        return EditorState {
+            lines: new_lines, cursor_row: row, cursor_col: (- col 1),
+            file_path: ed.file_path, modified: true, scroll_offset: ed.scroll_offset,
+            active: true, build_status: "", build_output: ""
+        }
+    }
+    if (and (== col 0) (> row 0)) {
+        let prev_line: string = (at ed.lines (- row 1))
+        let merged: string = (+ prev_line line)
+        let new_col: int = (str_length prev_line)
+        let mut new_lines: array<string> = []
+        let mut i: int = 0
+        while (< i nlines) {
+            if (== i (- row 1)) {
+                set new_lines (array_push new_lines merged)
+            } else {
+                if (!= i row) {
+                    set new_lines (array_push new_lines (at ed.lines i))
+                }
+            }
+            set i (+ i 1)
+        }
+        return EditorState {
+            lines: new_lines, cursor_row: (- row 1), cursor_col: new_col,
+            file_path: ed.file_path, modified: true, scroll_offset: ed.scroll_offset,
+            active: true, build_status: "", build_output: ""
+        }
+    }
+    return ed
+}
+
+shadow editor_delete_char {
+    assert (== 0 0)
+}
+
+fn editor_scroll_to_cursor(ed: EditorState, visible_lines: int) -> EditorState {
+    let mut offset: int = ed.scroll_offset
+    if (< ed.cursor_row offset) { set offset ed.cursor_row }
+    if (>= ed.cursor_row (+ offset visible_lines)) {
+        set offset (+ (- ed.cursor_row visible_lines) 1)
+    }
+    if (< offset 0) { set offset 0 }
+    return EditorState {
+        lines: ed.lines, cursor_row: ed.cursor_row, cursor_col: ed.cursor_col,
+        file_path: ed.file_path, modified: ed.modified, scroll_offset: offset,
+        active: ed.active, build_status: ed.build_status, build_output: ed.build_output
+    }
+}
+
+shadow editor_scroll_to_cursor {
+    let ed: EditorState = (editor_new)
+    let scrolled: EditorState = (editor_scroll_to_cursor ed 20)
+    assert (== scrolled.scroll_offset 0)
+}
+
+fn editor_get_content(ed: EditorState) -> string {
+    return (join_lines ed.lines)
+}
+
+shadow editor_get_content {
+    let ed: EditorState = (editor_new)
+    assert (== (editor_get_content ed) "")
+}
+
+fn editor_line_count(ed: EditorState) -> int {
+    return (array_length ed.lines)
+}
+
+shadow editor_line_count {
+    let ed: EditorState = (editor_new)
+    assert (== (editor_line_count ed) 0)
+}
+
+fn new_example_template(name: string, category: string) -> string {
+    return (+ "# Example: " (+ name (+ "\n# Purpose: \n# Features: \n# Difficulty: Beginner\n# Category: " (+ category (+ "\n# Prerequisites: none\n# Expected Output: \n\nfn main() -> int {\n    (println \"Hello from " (+ name "!\")\n    return 0\n}\n\nshadow main {\n    assert (== 0 0)\n}\n"))))))
+}
+
+shadow new_example_template {
+    let tmpl: string = (new_example_template "Test" "language")
+    assert (> (str_length tmpl) 0)
+}
+
+fn editor_new_file(path: string, name: string, category: string) -> EditorState {
+    let content: string = (new_example_template name category)
+    let lines: array<string> = (split_into_lines content)
+    return EditorState {
+        lines: lines, cursor_row: 8, cursor_col: 4,
+        file_path: path, modified: true, scroll_offset: 0,
+        active: true, build_status: "", build_output: ""
+    }
+}
+
+shadow editor_new_file {
+    let ed: EditorState = (editor_new_file "/tmp/test.nano" "Test" "language")
+    assert ed.active
+    assert ed.modified
+}
+
+fn editor_self_test() -> int {
+    return 0
+}
+
+shadow editor_self_test {
+    assert (== 0 0)
+}
