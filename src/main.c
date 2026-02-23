@@ -555,7 +555,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     } else {
         unsetenv("NANO_LLM_SHADOW_JSON");
     }
-    if (!run_shadow_tests(program, env)) {
+    if (!run_shadow_tests(program, env, opts->verbose)) {
         fprintf(stderr, "Shadow tests failed\n");
         diags_push_simple(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, "CSHADOW01", "Shadow tests failed");
         free_ast(program);
@@ -1163,6 +1163,7 @@ int main(int argc, char *argv[]) {
         printf("Options:\n");
         printf("  -o <file>      Specify output file (default: $TMPDIR/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
+        printf("                 (also enabled by NANO_VERBOSE_BUILD=1 env var)\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");

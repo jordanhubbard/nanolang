@@ -78,7 +78,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("✓ Type checking complete\n");
 
     /* Phase 4: Shadow-Test Execution */
-    if (!run_shadow_tests(program, env)) {
+    if (!run_shadow_tests(program, env, opts->verbose)) {
         fprintf(stderr, "Shadow tests failed\n");
         free_ast(program);
         free_tokens(tokens, token_count);

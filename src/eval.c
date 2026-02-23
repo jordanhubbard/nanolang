@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <libgen.h>
 #include <sys/wait.h>
 #include <spawn.h>
@@ -4595,14 +4596,15 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
 }
 
 /* Run shadow tests */
-bool run_shadow_tests(ASTNode *program, Environment *env) {
+bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;
     }
 
-    /* Shadow test output goes to stdout (filtered by test scripts) */
-    fprintf(stdout, "Running shadow tests...\n");
+    if (verbose) {
+        fprintf(stdout, "Running shadow tests...\n");
+    }
 
     bool all_passed = true;
     g_in_shadow_tests = true;
@@ -4610,6 +4612,8 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
     ShadowFailure *failures = NULL;
     int failure_count = 0;
     int failure_cap = 0;
+    int test_count = 0;
+    int skipped_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
 
     /* First pass: Evaluate top-level constants */
@@ -4657,26 +4661,50 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
             }
             
             if (uses_extern) {
-                fprintf(stdout, "Testing %s... SKIPPED (uses extern functions)\n", func_name);
-                /* Note: Shadow tests with extern functions are skipped in interpreter mode.
-                 * These tests work fine when compiled (nanoc), but the interpreter cannot
-                 * execute them. Consider testing extern functionality via compiled tests. */
+                if (verbose) {
+                    fprintf(stdout, "Testing %s... SKIPPED (uses extern functions)\n", func_name);
+                }
+                skipped_count++;
                 continue;
             }
             
-            fprintf(stdout, "Testing %s... ", func_name);
+            test_count++;
+            if (verbose) {
+                fprintf(stdout, "Testing %s... ", func_name);
+            }
             
             /* Execute shadow test */
             g_shadow_current_test = func_name;
             g_shadow_current_fail_count = 0;
             g_shadow_current_first_line = 0;
             g_shadow_current_first_column = 0;
+
+            /* When not verbose, suppress stdout from test body execution */
+            int saved_stdout_fd = -1;
+            if (!verbose) {
+                fflush(stdout);
+                saved_stdout_fd = dup(STDOUT_FILENO);
+                int devnull = open("/dev/null", O_WRONLY);
+                if (devnull >= 0) {
+                    dup2(devnull, STDOUT_FILENO);
+                    close(devnull);
+                }
+            }
+
             eval_statement(item->as.shadow.body, env);
+
+            if (!verbose && saved_stdout_fd >= 0) {
+                fflush(stdout);
+                dup2(saved_stdout_fd, STDOUT_FILENO);
+                close(saved_stdout_fd);
+            }
 
             if (g_shadow_current_fail_count > 0) {
                 all_passed = false;
-                fprintf(stdout, "FAILED\n");
-                fprintf(stdout, "  Summary: %d assertion(s) failed\n", g_shadow_current_fail_count);
+                if (verbose) {
+                    fprintf(stdout, "FAILED\n");
+                }
+                fprintf(stdout, "  Shadow test '%s' FAILED: %d assertion(s) failed\n", func_name, g_shadow_current_fail_count);
                 if (g_shadow_current_first_line > 0) {
                     fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
                 }
@@ -4697,7 +4725,9 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
                     failure_count++;
                 }
             } else {
-                fprintf(stdout, "PASSED\n");
+                if (verbose) {
+                    fprintf(stdout, "PASSED\n");
+                }
             }
         }
         /* Note: We do NOT execute non-shadow items here - they're already registered
@@ -4705,7 +4735,11 @@ bool run_shadow_tests(ASTNode *program, Environment *env) {
     }
 
     if (all_passed) {
-        fprintf(stdout, "All shadow tests passed!\n");
+        if (verbose) {
+            fprintf(stdout, "All shadow tests passed! (%d tests", test_count);
+            if (skipped_count > 0) fprintf(stdout, ", %d skipped", skipped_count);
+            fprintf(stdout, ")\n");
+        }
     }
 
     shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed);

@@ -654,7 +654,7 @@ void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
 /* Shadow-Test Runner */
-bool run_shadow_tests(ASTNode *program, Environment *env);
+bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 
 /* Interpreter */
 bool run_program(ASTNode *program, Environment *env);
