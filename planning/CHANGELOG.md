@@ -4,6 +4,11 @@ All notable changes to NanoLang are documented here.
 
 ## [Unreleased]
 
+## [3.1.5] - 2026-02-23
+
+### Added
+- add inline source editor with text input and syntax highlighting
+
 ## [3.1.4] - 2026-02-23
 
 ### Added
