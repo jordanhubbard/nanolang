@@ -4,6 +4,11 @@ All notable changes to NanoLang are documented here.
 
 ## [Unreleased]
 
+## [3.1.3] - 2026-02-23
+
+### Fixed
+- run from repo root so icons and source code resolve
+
 ## [3.1.2] - 2026-02-23
 
 ### Changed
