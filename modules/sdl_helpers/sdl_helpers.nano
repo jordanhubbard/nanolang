@@ -74,3 +74,16 @@ extern fn nl_system(_cmd: string) -> int
 # Flush stdout - ensures output is visible when redirected to a file
 extern fn nl_flush_stdout() -> void
 
+# Start SDL text input mode - enables SDL_TEXTINPUT events for character input
+# Call this when entering an interactive text editing mode
+extern fn nl_sdl_start_text_input() -> void
+
+# Stop SDL text input mode - disables SDL_TEXTINPUT events
+# Call this when leaving text editing mode
+extern fn nl_sdl_stop_text_input() -> void
+
+# Poll for text input - returns typed character(s) from SDL_TEXTINPUT events
+# Returns empty string if no text input. Handles shift, caps, unicode.
+# Use alongside nl_sdl_poll_keypress() for control keys (arrows, backspace, etc.)
+extern fn nl_sdl_poll_text_input() -> string
+

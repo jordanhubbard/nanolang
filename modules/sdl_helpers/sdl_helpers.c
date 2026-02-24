@@ -465,3 +465,30 @@ void nl_flush_stdout(void) {
     fflush(stdout);
 }
 
+/* Start SDL text input mode - enables SDL_TEXTINPUT events */
+void nl_sdl_start_text_input(void) {
+    SDL_StartTextInput();
+}
+
+/* Stop SDL text input mode - disables SDL_TEXTINPUT events */
+void nl_sdl_stop_text_input(void) {
+    SDL_StopTextInput();
+}
+
+/* Poll for text input event - returns typed character(s) or empty string
+ * Use with nl_sdl_start_text_input() to receive printable character input.
+ * Returns the text from SDL_TEXTINPUT events (handles shift, unicode, etc.)
+ */
+const char* nl_sdl_poll_text_input(void) {
+    static char text_buf[64] = "";
+    SDL_Event event;
+    nl__sdl_drain_events();
+    if (nl__sdl_take_first_event(SDL_TEXTINPUT, &event)) {
+        strncpy(text_buf, event.text.text, sizeof(text_buf) - 1);
+        text_buf[sizeof(text_buf) - 1] = '\0';
+        return text_buf;
+    }
+    text_buf[0] = '\0';
+    return text_buf;
+}
+

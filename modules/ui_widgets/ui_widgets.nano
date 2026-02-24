@@ -335,4 +335,11 @@ extern fn nl_ui_code_display_ansi(_renderer: SDL_Renderer, _font: TTF_Font,
                                   _w: int, _h: int, _scroll_offset: int,
                                   _line_height: int) -> void
 
+# Code editor widget - syntax-highlighted code with line numbers and blinking cursor
+# Pass raw source code (not ANSI). cursor_row/cursor_col are 0-indexed.
+extern fn nl_ui_code_editor(_renderer: SDL_Renderer, _font: TTF_Font,
+                             _code: string, _x: int, _y: int,
+                             _w: int, _h: int, _scroll_offset: int,
+                             _line_height: int, _cursor_row: int, _cursor_col: int) -> void
+
 

@@ -135,4 +135,10 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
                              int64_t w, int64_t h, int64_t scroll_offset,
                              int64_t line_height);
 
+// Code editor widget - syntax-highlighted code with line numbers and cursor
+void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
+                       const char* code, int64_t x, int64_t y,
+                       int64_t w, int64_t h, int64_t scroll_offset,
+                       int64_t line_height, int64_t cursor_row, int64_t cursor_col);
+
 #endif // UI_WIDGETS_H

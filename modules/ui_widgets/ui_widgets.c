@@ -1610,3 +1610,180 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
 
     SDL_RenderSetClipRect(renderer, NULL);
 }
+
+// Code editor widget - displays code with line numbers, syntax highlighting, and blinking cursor
+// Parameters same as nl_ui_code_display plus cursor_row and cursor_col (0-indexed)
+void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
+                       const char* code, int64_t x, int64_t y,
+                       int64_t w, int64_t h, int64_t scroll_offset,
+                       int64_t line_height, int64_t cursor_row, int64_t cursor_col) {
+    if (!font || !code) return;
+
+    // Background (slightly warmer to indicate edit mode)
+    SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
+    SDL_SetRenderDrawColor(renderer, 25, 25, 35, 255);
+    SDL_RenderFillRect(renderer, &bg);
+
+    // Border (blue-ish for edit mode)
+    SDL_SetRenderDrawColor(renderer, 70, 70, 120, 255);
+    SDL_RenderDrawRect(renderer, &bg);
+
+    // Clip rect
+    SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_RenderSetClipRect(renderer, &clip);
+
+    // Line number gutter
+    int gutter_w = 50;
+
+    // Gutter background
+    SDL_Rect gutter_bg = {(int)x + 2, (int)y + 2, gutter_w - 2, (int)h - 4};
+    SDL_SetRenderDrawColor(renderer, 30, 30, 42, 255);
+    SDL_RenderFillRect(renderer, &gutter_bg);
+
+    // Gutter separator
+    SDL_SetRenderDrawColor(renderer, 60, 60, 80, 255);
+    SDL_RenderDrawLine(renderer, (int)x + gutter_w, (int)y + 2,
+                       (int)x + gutter_w, (int)y + (int)h - 2);
+
+    int code_len = (int)strlen(code);
+    int line_num = 0;
+    int pos = 0;
+
+    while (pos <= code_len) {
+        // Find end of current line
+        int line_start = pos;
+        while (pos < code_len && code[pos] != '\n') pos++;
+        int line_len = pos - line_start;
+
+        // Y position for this line
+        int draw_y = (int)y + 5 + (line_num - (int)scroll_offset) * (int)line_height;
+
+        // Only render visible lines
+        if (draw_y + (int)line_height >= (int)y && draw_y < (int)y + (int)h) {
+            // Line number
+            char line_num_str[16];
+            snprintf(line_num_str, sizeof(line_num_str), "%3d", line_num + 1);
+            SDL_Color gutter_color = {100, 100, 130, 255};
+            if (line_num == (int)cursor_row) {
+                gutter_color = (SDL_Color){180, 180, 220, 255};
+            }
+            SDL_Surface* gs = TTF_RenderText_Blended(font, line_num_str, gutter_color);
+            if (gs) {
+                SDL_Texture* gt = SDL_CreateTextureFromSurface(renderer, gs);
+                if (gt) {
+                    SDL_Rect dest = {(int)x + 5, draw_y, gs->w, gs->h};
+                    SDL_RenderCopy(renderer, gt, NULL, &dest);
+                    SDL_DestroyTexture(gt);
+                }
+                SDL_FreeSurface(gs);
+            }
+
+            // Highlight current line background
+            if (line_num == (int)cursor_row) {
+                SDL_SetRenderDrawColor(renderer, 35, 35, 50, 255);
+                SDL_Rect line_bg = {(int)x + gutter_w + 2, draw_y,
+                                    (int)w - gutter_w - 6, (int)line_height};
+                SDL_RenderFillRect(renderer, &line_bg);
+            }
+
+            // Render line text with syntax highlighting
+            if (line_len > 0) {
+                int lpos = 0;
+                int current_x = (int)x + gutter_w + 5;
+
+                while (lpos < line_len) {
+                    char c = code[line_start + lpos];
+
+                    if (c == ' ') {
+                        int sw;
+                        TTF_SizeText(font, " ", &sw, NULL);
+                        current_x += sw;
+                        lpos++;
+                        continue;
+                    }
+                    if (c == '\t') {
+                        int sw;
+                        TTF_SizeText(font, " ", &sw, NULL);
+                        current_x += sw * 4;
+                        lpos++;
+                        continue;
+                    }
+
+                    // Tokenize from position in full code string
+                    int token_len = 0;
+                    TokenType token_type = get_token_type(code, line_start + lpos, &token_len);
+
+                    if (token_len == 0) { lpos++; continue; }
+                    if (token_type == TOKEN_WHITESPACE) {
+                        lpos++;
+                        continue;
+                    }
+
+                    // Clamp token to line boundary
+                    if (lpos + token_len > line_len) {
+                        token_len = line_len - lpos;
+                    }
+                    if (token_len <= 0) { lpos++; continue; }
+
+                    char token_text[256];
+                    int tcopy = token_len < 255 ? token_len : 255;
+                    memcpy(token_text, code + line_start + lpos, tcopy);
+                    token_text[tcopy] = '\0';
+
+                    int tr, tg, tb;
+                    get_token_color(token_type, &tr, &tg, &tb);
+
+                    SDL_Color color = {(Uint8)tr, (Uint8)tg, (Uint8)tb, 255};
+                    SDL_Surface* surf = TTF_RenderText_Blended(font, token_text, color);
+                    if (surf) {
+                        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
+                        if (tex) {
+                            SDL_Rect dest = {current_x, draw_y, surf->w, surf->h};
+                            SDL_RenderCopy(renderer, tex, NULL, &dest);
+                            current_x += surf->w;
+                            SDL_DestroyTexture(tex);
+                        }
+                        SDL_FreeSurface(surf);
+                    }
+                    lpos += token_len;
+                }
+            }
+
+            // Draw blinking cursor
+            if (line_num == (int)cursor_row) {
+                int blink = ((SDL_GetTicks() / 530) % 2 == 0);
+                if (blink) {
+                    // Calculate cursor X by measuring prefix text (with tabs expanded)
+                    int cursor_x = (int)x + gutter_w + 5;
+                    if ((int)cursor_col > 0 && line_len > 0) {
+                        int measure_len = (int)cursor_col < line_len ? (int)cursor_col : line_len;
+                        char prefix[4096];
+                        int pi = 0;
+                        for (int ci = 0; ci < measure_len && pi < 4090; ci++) {
+                            char ch = code[line_start + ci];
+                            if (ch == '\t') {
+                                prefix[pi++] = ' '; prefix[pi++] = ' ';
+                                prefix[pi++] = ' '; prefix[pi++] = ' ';
+                            } else {
+                                prefix[pi++] = ch;
+                            }
+                        }
+                        prefix[pi] = '\0';
+                        int prefix_w;
+                        TTF_SizeText(font, prefix, &prefix_w, NULL);
+                        cursor_x += prefix_w;
+                    }
+                    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
+                    SDL_Rect cursor_rect = {cursor_x, draw_y, 2, (int)line_height};
+                    SDL_RenderFillRect(renderer, &cursor_rect);
+                }
+            }
+        }
+
+        line_num++;
+        if (pos < code_len) pos++;  // skip newline
+        else break;
+    }
+
+    SDL_RenderSetClipRect(renderer, NULL);
+}

@@ -54,4 +54,13 @@ int64_t nl_system(const char* cmd);
 /* Flush stdout - ensures diagnostic output is visible when redirected */
 void nl_flush_stdout(void);
 
+/* Start SDL text input mode - enables SDL_TEXTINPUT events */
+void nl_sdl_start_text_input(void);
+
+/* Stop SDL text input mode - disables SDL_TEXTINPUT events */
+void nl_sdl_stop_text_input(void);
+
+/* Poll for text input - returns typed character(s) or empty string */
+const char* nl_sdl_poll_text_input(void);
+
 #endif /* SDL_HELPERS_H */

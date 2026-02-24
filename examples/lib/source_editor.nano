@@ -318,6 +318,28 @@ shadow editor_scroll_to_cursor {
     assert (== scrolled.scroll_offset 0)
 }
 
+fn editor_scroll(ed: EditorState, delta: int) -> EditorState {
+    let mut offset: int = (+ ed.scroll_offset delta)
+    if (< offset 0) { set offset 0 }
+    let max_offset: int = (- (array_length ed.lines) 1)
+    if (> max_offset 0) {
+        if (> offset max_offset) { set offset max_offset }
+    } else {
+        set offset 0
+    }
+    return EditorState {
+        lines: ed.lines, cursor_row: ed.cursor_row, cursor_col: ed.cursor_col,
+        file_path: ed.file_path, modified: ed.modified, scroll_offset: offset,
+        active: ed.active, build_status: ed.build_status, build_output: ed.build_output
+    }
+}
+
+shadow editor_scroll {
+    let ed: EditorState = (editor_new)
+    let scrolled: EditorState = (editor_scroll ed 5)
+    assert (== scrolled.scroll_offset 0)
+}
+
 fn editor_get_content(ed: EditorState) -> string {
     return (join_lines ed.lines)
 }
