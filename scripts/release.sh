@@ -234,18 +234,22 @@ $release_notes
 **Full Changelog**: https://github.com/jordanhubbard/nanolang/compare/v$prev_version...v$version
 EOF
     
-    # Create annotated git tag
-    info "Creating git tag v$version..."
-    git tag -a "v$version" -m "Release v$version"
-    
-    # Commit changelog
+    # Commit changelog (if there are changes to commit)
     info "Committing CHANGELOG.md..."
     git add planning/CHANGELOG.md
-    git commit -m "docs: Update CHANGELOG for v$version release
+    if git diff --cached --quiet; then
+        info "CHANGELOG.md already up to date, skipping commit"
+    else
+        git commit -m "docs: Update CHANGELOG for v$version release
 
 Release highlights from v$prev_version
 
 Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
+    fi
+
+    # Create annotated git tag (after changelog commit so tag includes it)
+    info "Creating git tag v$version..."
+    git tag -a "v$version" -m "Release v$version"
     
     # Push commits and tags
     info "Pushing to origin..."

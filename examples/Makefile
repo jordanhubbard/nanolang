@@ -311,9 +311,10 @@ examples-available: $(COMPILER)
 	@echo ""
 
 # Example launcher (SDL app-store style)
+# Note: must run from repo root so relative paths (examples/icons/, examples/games/) resolve
 launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching... (ESC or Quit to exit)"
-	@$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
 # Test: compile and run examples with output verification
 test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
