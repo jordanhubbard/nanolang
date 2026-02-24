@@ -16,7 +16,7 @@ from "modules/std/fs.nano" import read
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 from "examples/lib/example_discovery.nano" import discover_examples, filter_by_category, collect_categories, find_icon
 from "examples/lib/process_manager.nano" import pm_new, pm_launch, pm_kill, pm_poll, pm_is_running, pm_get_pid, pm_running_count, pm_cleanup_exited, build_example, get_binary_name, parse_mode, next_mode, init_mode
-from "examples/lib/source_editor.nano" import editor_new, editor_open, editor_close, editor_save, editor_insert_char, editor_insert_newline, editor_delete_char, editor_move_cursor, editor_scroll_to_cursor, editor_get_content, editor_line_count, editor_new_file
+from "examples/lib/source_editor.nano" import editor_new, editor_open, editor_close, editor_save, editor_insert_char, editor_insert_newline, editor_delete_char, editor_move_cursor, editor_scroll_to_cursor, editor_scroll, editor_get_content, editor_line_count, editor_new_file
 from "examples/lib/resource_monitor.nano" import resource_snapshot
 
 # Layout constants
@@ -116,8 +116,27 @@ fn main() -> int {
         return 1
     }
 
-    # Auto-discover all examples
-    let all_examples: array<ExampleInfo> = (discover_examples "examples")
+    # Auto-discover all examples, sort icons-first
+    let discovered: array<ExampleInfo> = (discover_examples "examples")
+    let mut all_examples: array<ExampleInfo> = []
+    # First pass: examples with icons
+    let mut si: int = 0
+    while (< si (array_length discovered)) {
+        let ex: ExampleInfo = (at discovered si)
+        if (> (str_length ex.icon_path) 0) {
+            set all_examples (array_push all_examples ex)
+        }
+        set si (+ si 1)
+    }
+    # Second pass: examples without icons
+    set si 0
+    while (< si (array_length discovered)) {
+        let ex: ExampleInfo = (at discovered si)
+        if (== (str_length ex.icon_path) 0) {
+            set all_examples (array_push all_examples ex)
+        }
+        set si (+ si 1)
+    }
     let all_categories: array<string> = (collect_categories all_examples)
     let example_count: int = (array_length all_examples)
     (println (+ "Discovered " (+ (int_to_string example_count) " examples")))
@@ -140,8 +159,14 @@ fn main() -> int {
     let mut editor: EditorState = (editor_new)
     let mut selected_cat: string = "all"
     let mut filtered: array<ExampleInfo> = all_examples
-    let mut selected_index: int = -1
+    let mut selected_index: int = 0
+    # Auto-load first example's source
     let mut source_code: string = ""
+    if (> example_count 0) {
+        let first_ex: ExampleInfo = (at all_examples 0)
+        let first_raw: string = (read first_ex.path)
+        set source_code (pretty_print_ansi first_raw)
+    }
     let mut source_scroll: int = 0
     let mut icon_scroll: int = 0
     let mut running: bool = true
@@ -164,10 +189,58 @@ fn main() -> int {
         }
 
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 82) {
-            if (> source_scroll 0) { set source_scroll (- source_scroll 1) }
+        if editor.active {
+            let text_input: string = (nl_sdl_poll_text_input)
+            let text_len: int = (str_length text_input)
+            if (> text_len 0) {
+                let mut ti: int = 0
+                while (< ti text_len) {
+                    set editor (editor_insert_char editor (str_substring text_input ti 1))
+                    set ti (+ ti 1)
+                }
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 42) {
+                set editor (editor_delete_char editor)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 40) {
+                set editor (editor_insert_newline editor)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 82) {
+                set editor (editor_move_cursor editor -1 0)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 81) {
+                set editor (editor_move_cursor editor 1 0)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 80) {
+                set editor (editor_move_cursor editor 0 -1)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 79) {
+                set editor (editor_move_cursor editor 0 1)
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 43) {
+                set editor (editor_insert_char editor " ")
+                set editor (editor_insert_char editor " ")
+                set editor (editor_insert_char editor " ")
+                set editor (editor_insert_char editor " ")
+                set editor (editor_scroll_to_cursor editor 30)
+            }
+            if (== key 41) {
+                set editor (editor_close editor)
+                (nl_sdl_stop_text_input)
+            }
+        } else {
+            if (== key 82) {
+                if (> source_scroll 0) { set source_scroll (- source_scroll 1) }
+            }
+            if (== key 81) { set source_scroll (+ source_scroll 1) }
         }
-        if (== key 81) { set source_scroll (+ source_scroll 1) }
 
         # Mouse wheel
         let wheel: int = (nl_sdl_poll_mouse_wheel)
@@ -179,27 +252,35 @@ fn main() -> int {
             if (< mouse_x left_panel_right) {
                 if (> icon_scroll 0) { set icon_scroll (- icon_scroll 1) }
             } else {
-                set source_scroll (- source_scroll 3)
-                if (< source_scroll 0) { set source_scroll 0 }
+                if editor.active {
+                    set editor (editor_scroll editor -3)
+                } else {
+                    set source_scroll (- source_scroll 3)
+                    if (< source_scroll 0) { set source_scroll 0 }
+                }
             }
         }
         if (< wheel 0) {
             if (< mouse_x left_panel_right) {
                 set icon_scroll (+ icon_scroll 1)
             } else {
-                set source_scroll (+ source_scroll 3)
+                if editor.active {
+                    set editor (editor_scroll editor 3)
+                } else {
+                    set source_scroll (+ source_scroll 3)
+                }
             }
         }
 
-        # Enter launches selected
-        if (or (== key 40) (== key 88)) {
+        # Enter launches selected (only when not editing)
+        if (and (not editor.active) (or (== key 40) (== key 88))) {
             if (>= selected_index 0) {
                 if (< selected_index (array_length filtered)) {
                     let ex: ExampleInfo = (at filtered selected_index)
                     if (not (pm_is_running pm ex.path)) {
                         let build_result: ChildStatus = (build_example ex.path current_mode)
                         if (== build_result.exit_code 0) {
-                            set pm (pm_launch pm ex.path current_mode)
+                            set pm (pm_launch pm ex.path current_mode ex.default_args)
                         }
                     }
                 }
@@ -268,6 +349,11 @@ fn main() -> int {
                         (and (>= click_y iy) (< click_y (+ iy ICON_SIZE))))) {
                         set selected_index chk
                         let ex: ExampleInfo = (at filtered chk)
+                        # Close editor if open
+                        if editor.active {
+                            set editor (editor_close editor)
+                            (nl_sdl_stop_text_input)
+                        }
                         # Load and highlight source
                         let raw: string = (read ex.path)
                         let highlighted: string = (pretty_print_ansi raw)
@@ -279,31 +365,44 @@ fn main() -> int {
                 set chk (+ chk 1)
             }
 
-            # Launch/Kill button
             if (>= selected_index 0) {
                 if (< selected_index (array_length filtered)) {
-                    let launch_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 445)
-                    let launch_y: int = (+ RIGHT_PANEL_Y 14)
-                    if (and (>= click_x launch_x) (and (< click_x (+ launch_x 160))
-                        (and (>= click_y launch_y) (< click_y (+ launch_y 28))))) {
-                        let ex: ExampleInfo = (at filtered selected_index)
-                        if (pm_is_running pm ex.path) {
-                            set pm (pm_kill pm ex.path)
-                        } else {
-                            let br: ChildStatus = (build_example ex.path current_mode)
-                            if (== br.exit_code 0) {
-                                set pm (pm_launch pm ex.path current_mode)
-                            }
-                        }
-                    }
-
-                    # Edit button
+                    # Edit/Save button
                     let edit_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 560)
                     let edit_y: int = (+ RIGHT_PANEL_Y 14)
                     if (and (>= click_x edit_x) (and (< click_x (+ edit_x 100))
-                        (and (>= click_y edit_y) (< click_y (+ edit_y 28))))) {
-                        let ex: ExampleInfo = (at filtered selected_index)
-                        set editor (editor_open ex.path)
+                        (and (>= click_y (+ edit_y 24)) (< click_y (+ edit_y 52))))) {
+                        if editor.active {
+                            set editor (editor_save editor)
+                            let raw: string = (read editor.file_path)
+                            let highlighted: string = (pretty_print_ansi raw)
+                            set source_code highlighted
+                        } else {
+                            let ex: ExampleInfo = (at filtered selected_index)
+                            set editor (editor_open ex.path)
+                            (nl_sdl_start_text_input)
+                        }
+                    }
+
+                    # Launch/Kill button OR Close button (same position)
+                    let launch_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 445)
+                    let launch_y: int = (+ RIGHT_PANEL_Y 14)
+                    if (and (>= click_x launch_x) (and (< click_x (+ launch_x 160))
+                        (and (>= click_y (+ launch_y 24)) (< click_y (+ launch_y 52))))) {
+                        if editor.active {
+                            set editor (editor_close editor)
+                            (nl_sdl_stop_text_input)
+                        } else {
+                            let ex: ExampleInfo = (at filtered selected_index)
+                            if (pm_is_running pm ex.path) {
+                                set pm (pm_kill pm ex.path)
+                            } else {
+                                let br: ChildStatus = (build_example ex.path current_mode)
+                                if (== br.exit_code 0) {
+                                    set pm (pm_launch pm ex.path current_mode ex.default_args)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -453,40 +552,67 @@ fn main() -> int {
                     }
                 }
 
-                # Source preview
+                # Source preview / Editor
                 let source_y: int = (+ info_y 100)
                 let source_h: int = (- (- WINDOW_HEIGHT source_y) 60)
-                (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255)
                 let code_x: int = (+ RIGHT_PANEL_X 20)
                 let code_y: int = (+ source_y 35)
                 let code_w: int = (- RIGHT_PANEL_WIDTH 40)
                 let code_h: int = (- source_h 65)
-                if (< source_scroll 0) { set source_scroll 0 }
-                (nl_ui_code_display_ansi renderer font source_code code_x code_y code_w code_h source_scroll 18)
 
-                # Edit button
+                if editor.active {
+                    # Editor mode - show editable source with cursor
+                    let mut mod_indicator: string = ""
+                    if editor.modified {
+                        set mod_indicator " [modified]"
+                    }
+                    (nl_ui_label renderer font (+ "Editing:" mod_indicator) (+ RIGHT_PANEL_X 30) (+ source_y 10) 255 220 100 255)
+                    let editor_content: string = (editor_get_content editor)
+                    (nl_ui_code_editor renderer font editor_content code_x code_y code_w code_h editor.scroll_offset 18 editor.cursor_row editor.cursor_col)
+
+                    # Cursor position indicator
+                    let pos_text: string = (+ "Ln " (+ (int_to_string (+ editor.cursor_row 1)) (+ ", Col " (int_to_string (+ editor.cursor_col 1)))))
+                    (nl_ui_label renderer small_font pos_text (+ code_x (- code_w 120)) (+ code_y (+ code_h 5)) 140 140 160 255)
+                } else {
+                    # Read-only preview mode
+                    (nl_ui_label renderer font "Source Code:" (+ RIGHT_PANEL_X 30) (+ source_y 10) 200 200 220 255)
+                    if (< source_scroll 0) { set source_scroll 0 }
+                    (nl_ui_code_display_ansi renderer font source_code code_x code_y code_w code_h source_scroll 18)
+                }
+
+                # Edit/Save button
                 let edit_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 560)
                 let edit_btn_y: int = (+ RIGHT_PANEL_Y 14)
                 if editor.active {
-                    (SDL_SetRenderDrawColor renderer 180 180 50 255)
+                    # Save button
+                    (SDL_SetRenderDrawColor renderer 50 140 50 255)
+                    (nl_sdl_render_fill_rect renderer edit_btn_x (+ edit_btn_y 24) 100 28)
+                    (nl_draw_text_blended renderer font "Save" (+ edit_btn_x 30) (+ edit_btn_y 30) 255 255 255 255)
                 } else {
                     (SDL_SetRenderDrawColor renderer 50 100 180 255)
+                    (nl_sdl_render_fill_rect renderer edit_btn_x (+ edit_btn_y 24) 100 28)
+                    (nl_draw_text_blended renderer font "Edit" (+ edit_btn_x 30) (+ edit_btn_y 30) 255 255 255 255)
                 }
-                (nl_sdl_render_fill_rect renderer edit_btn_x (+ edit_btn_y 24) 100 28)
-                (nl_draw_text_blended renderer font "Edit" (+ edit_btn_x 30) (+ edit_btn_y 30) 255 255 255 255)
 
-                # Launch button
+                # Launch/Close button
                 let launch_btn_x: int = (- (+ RIGHT_PANEL_X RIGHT_PANEL_WIDTH) 445)
                 let launch_btn_y: int = (+ RIGHT_PANEL_Y 14)
-                let is_running_flag: bool = (pm_is_running pm ex.path)
-                if is_running_flag {
-                    (SDL_SetRenderDrawColor renderer 180 50 50 255)
+                if editor.active {
+                    # Close editor button
+                    (SDL_SetRenderDrawColor renderer 140 80 50 255)
                     (nl_sdl_render_fill_rect renderer launch_btn_x (+ launch_btn_y 24) 160 28)
-                    (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 30) 255 255 255 255)
+                    (nl_draw_text_blended renderer font "Close Editor" (+ launch_btn_x 25) (+ launch_btn_y 30) 255 255 255 255)
                 } else {
-                    (SDL_SetRenderDrawColor renderer 50 100 50 255)
-                    (nl_sdl_render_fill_rect renderer launch_btn_x (+ launch_btn_y 24) 160 28)
-                    (nl_draw_text_blended renderer font "Launch" (+ launch_btn_x 45) (+ launch_btn_y 30) 220 240 220 255)
+                    let is_running_flag: bool = (pm_is_running pm ex.path)
+                    if is_running_flag {
+                        (SDL_SetRenderDrawColor renderer 180 50 50 255)
+                        (nl_sdl_render_fill_rect renderer launch_btn_x (+ launch_btn_y 24) 160 28)
+                        (nl_draw_text_blended renderer font "Force Quit" (+ launch_btn_x 35) (+ launch_btn_y 30) 255 255 255 255)
+                    } else {
+                        (SDL_SetRenderDrawColor renderer 50 100 50 255)
+                        (nl_sdl_render_fill_rect renderer launch_btn_x (+ launch_btn_y 24) 160 28)
+                        (nl_draw_text_blended renderer font "Launch" (+ launch_btn_x 45) (+ launch_btn_y 30) 220 240 220 255)
+                    }
                 }
             }
         } else {

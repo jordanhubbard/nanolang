@@ -12,7 +12,8 @@ struct ExampleInfo {
     features: string,
     prerequisites: string,
     expected_output: string,
-    icon_path: string
+    icon_path: string,
+    default_args: string
 }
 
 fn ed_starts_with(s: string, prefix: string) -> bool {
@@ -137,6 +138,7 @@ fn parse_example_header(path: string) -> ExampleInfo {
     let mut ft: string = ""
     let mut pr: string = ""
     let mut eo: string = ""
+    let mut da: string = ""
 
     if (> (str_length content) 0) {
         let clen: int = (str_length content)
@@ -167,6 +169,8 @@ fn parse_example_header(path: string) -> ExampleInfo {
             if (> (str_length f) 0) { set pr f }
             let g: string = (extract_hdr line "# Expected Output: ")
             if (> (str_length g) 0) { set eo g }
+            let h: string = (extract_hdr line "# Default Args: ")
+            if (> (str_length h) 0) { set da h }
             set pos (+ pos (+ ll 1))
             set lc (+ lc 1)
         }
@@ -187,7 +191,8 @@ fn parse_example_header(path: string) -> ExampleInfo {
     return ExampleInfo {
         path: path, name: nm, description: ds, category: ct,
         difficulty: df, features: ft, prerequisites: pr,
-        expected_output: eo, icon_path: (find_icon path)
+        expected_output: eo, icon_path: (find_icon path),
+        default_args: da
     }
 }
 
@@ -232,11 +237,13 @@ shadow filter_by_category {
     let mut exs: array<ExampleInfo> = []
     set exs (array_push exs ExampleInfo {
         path: "a", name: "A", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "b", name: "B", description: "", category: "gfx",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        default_args: ""
     })
     assert (== (array_length (filter_by_category exs "games")) 1)
     assert (== (array_length (filter_by_category exs "all")) 2)
@@ -265,15 +272,18 @@ shadow collect_categories {
     let mut exs: array<ExampleInfo> = []
     set exs (array_push exs ExampleInfo {
         path: "a", name: "A", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "b", name: "B", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "c", name: "C", description: "", category: "gfx",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: ""
+        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        default_args: ""
     })
     assert (== (array_length (collect_categories exs)) 2)
 }

@@ -5,6 +5,7 @@
 # Category: advanced
 # Prerequisites: none
 # Expected Output: Results:
+# Default Args: examples/language
 
 from "modules/examples/meta.nano" import ExampleMeta, parse_meta, meta_to_json
 from "modules/examples/runner.nano" import TestResult, run_example, run_all, count_passed, count_failed, print_report, report_json

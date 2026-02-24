@@ -112,11 +112,14 @@ shadow build_example {
     assert (== 0 0)
 }
 
-fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig) -> ProcessManager {
+fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
     let binary: string = (get_binary_name example_path mode)
     let mut launch_cmd: string = (+ "./" binary)
     if (> (str_length mode.runner) 0) {
         set launch_cmd (+ "./" (+ mode.runner (+ " " binary)))
+    }
+    if (> (str_length default_args) 0) {
+        set launch_cmd (+ launch_cmd (+ " " default_args))
     }
 
     let pid: int = (spawn launch_cmd)

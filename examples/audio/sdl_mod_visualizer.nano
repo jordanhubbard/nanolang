@@ -5,6 +5,7 @@
 # Category: audio
 # Prerequisites: none
 # Expected Output: graphical
+# Default Args: examples/audio/gabba-studies-12.mod
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_mixer/sdl_mixer.nano"
