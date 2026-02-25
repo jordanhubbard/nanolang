@@ -197,13 +197,12 @@ shadow diag_make_type_error {
 
 /* Helper to create undefined reference messages */
 pub fn diag_make_undefined_error(name: string) -> string {
-    # For now, just return a simple error message
-    return "Undefined reference"
+    return (+ "Undefined reference: " name)
 }
 
 shadow diag_make_undefined_error {
     let msg: string = (diag_make_undefined_error "x")
-    assert (== msg "Undefined reference")
+    assert (== msg "Undefined reference: x")
 }
 
 /* Shadow tests for functions without them */

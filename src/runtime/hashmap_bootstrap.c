@@ -44,7 +44,7 @@ void nl_hashmap_string_int_free(HashMap_string_int *hm) {
     free(hm);
 }
 
-static int64_t find_slot_string_int(HashMap_string_int *hm, char* key) {
+static int64_t find_slot_string_int(HashMap_string_int *hm, const char* key) {
     uint64_t hash = hash_string(key);
     int64_t idx = hash % hm->capacity;
     int64_t first_tombstone = -1;
@@ -83,7 +83,7 @@ static void rehash_string_int(HashMap_string_int *hm) {
     free(old_entries);
 }
 
-void nl_hashmap_string_int_put(HashMap_string_int *hm, char* key, int64_t val) {
+void nl_hashmap_string_int_put(HashMap_string_int *hm, const char* key, int64_t val) {
     if (hm->size + hm->tombstones >= hm->capacity * 0.75) {
         rehash_string_int(hm);
     }
@@ -104,12 +104,12 @@ void nl_hashmap_string_int_put(HashMap_string_int *hm, char* key, int64_t val) {
     }
 }
 
-bool nl_hashmap_string_int_has(HashMap_string_int *hm, char* key) {
+bool nl_hashmap_string_int_has(HashMap_string_int *hm, const char* key) {
     int64_t slot = find_slot_string_int(hm, key);
     return hm->entries[slot].state == 1 && strcmp(hm->entries[slot].key, key) == 0;
 }
 
-int64_t nl_hashmap_string_int_get(HashMap_string_int *hm, char* key) {
+int64_t nl_hashmap_string_int_get(HashMap_string_int *hm, const char* key) {
     int64_t slot = find_slot_string_int(hm, key);
     if (hm->entries[slot].state == 1 && strcmp(hm->entries[slot].key, key) == 0) {
         return hm->entries[slot].value;
@@ -140,7 +140,7 @@ void nl_hashmap_string_string_free(HashMap_string_string *hm) {
     free(hm);
 }
 
-static int64_t find_slot_string_string(HashMap_string_string *hm, char* key) {
+static int64_t find_slot_string_string(HashMap_string_string *hm, const char* key) {
     uint64_t hash = hash_string(key);
     int64_t idx = hash % hm->capacity;
     int64_t first_tombstone = -1;
@@ -180,7 +180,7 @@ static void rehash_string_string(HashMap_string_string *hm) {
     free(old_entries);
 }
 
-void nl_hashmap_string_string_put(HashMap_string_string *hm, char* key, char* val) {
+void nl_hashmap_string_string_put(HashMap_string_string *hm, const char* key, const char* val) {
     if (hm->size + hm->tombstones >= hm->capacity * 0.75) {
         rehash_string_string(hm);
     }
@@ -202,12 +202,12 @@ void nl_hashmap_string_string_put(HashMap_string_string *hm, char* key, char* va
     }
 }
 
-bool nl_hashmap_string_string_has(HashMap_string_string *hm, char* key) {
+bool nl_hashmap_string_string_has(HashMap_string_string *hm, const char* key) {
     int64_t slot = find_slot_string_string(hm, key);
     return hm->entries[slot].state == 1 && strcmp(hm->entries[slot].key, key) == 0;
 }
 
-char* nl_hashmap_string_string_get(HashMap_string_string *hm, char* key) {
+const char* nl_hashmap_string_string_get(HashMap_string_string *hm, const char* key) {
     int64_t slot = find_slot_string_string(hm, key);
     if (hm->entries[slot].state == 1 && strcmp(hm->entries[slot].key, key) == 0) {
         return hm->entries[slot].value;

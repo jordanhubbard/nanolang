@@ -971,40 +971,40 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             if (== tok.token_type (token_lparen)) {
                 /* Tuple type: (T1,T2,...) */
                 let mut type_name: string = "("
-                let mut cur: Parser = (parser_advance p)
+                let mut tcur: Parser = (parser_advance p)
 
-                let arg1: TypeParseResult = (parse_type_string cur)
+                let arg1: TypeParseResult = (parse_type_string tcur)
                 if (not arg1.ok) {
                     return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
                 } else {
                     set type_name (+ type_name arg1.type_name)
-                    set cur arg1.p
+                    set tcur arg1.p
                 }
 
-                while (not (parser_is_at_end cur)) {
-                    let tc: LexerToken = (parser_current cur)
+                while (not (parser_is_at_end tcur)) {
+                    let tc: LexerToken = (parser_current tcur)
                     if (== tc.token_type (token_comma)) {
                         set type_name (+ type_name ",")
-                        set cur (parser_advance cur)
-                        let argn: TypeParseResult = (parse_type_string cur)
+                        set tcur (parser_advance tcur)
+                        let argn: TypeParseResult = (parse_type_string tcur)
                         if (not argn.ok) {
                             return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
                         } else {
                             set type_name (+ type_name argn.type_name)
-                            set cur argn.p
+                            set tcur argn.p
                         }
                     } else {
                         if (== tc.token_type (token_rparen)) {
                             set type_name (+ type_name ")")
-                            set cur (parser_advance cur)
-                            return TypeParseResult { p: cur, type_name: type_name, ok: true }
+                            set tcur (parser_advance tcur)
+                            return TypeParseResult { p: tcur, type_name: type_name, ok: true }
                         } else {
-                            return TypeParseResult { p: cur, type_name: type_name, ok: false }
+                            return TypeParseResult { p: tcur, type_name: type_name, ok: false }
                         }
                     }
                 }
 
-                return TypeParseResult { p: cur, type_name: type_name, ok: false }
+                return TypeParseResult { p: tcur, type_name: type_name, ok: false }
             } else {
             if (== tok.token_type (token_identifier)) {
                 let name_res: NameParseResult = (parse_qualified_name p)
@@ -6899,15 +6899,16 @@ shadow create_identifier_node {
 }
 
 fn test_parser_structure() -> int {
-    /* Test that we can create parser state */
     let empty_tokens: List<LexerToken> = (list_LexerToken_new)
     let p: Parser = (parser_new empty_tokens 0 "test.nano")
+    assert (== p.token_count 0)
     
-    /* Test that we can create AST nodes */
     let num: ASTNumber = (create_number_node "42" 1 1)
-    let id: ASTIdentifier = (create_identifier_node "x" 1 5)
+    assert (== num.value "42")
     
-    /* If we got here without crashes, structures work! */
+    let id: ASTIdentifier = (create_identifier_node "x" 1 5)
+    assert (== id.name "x")
+    
     return 0
 }
 

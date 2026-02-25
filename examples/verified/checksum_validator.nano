@@ -154,14 +154,14 @@ shadow verify_integrity {
     let expected: int = (checksum_sum data 997)
     let r: IntegrityResult = (verify_integrity data expected 997)
     let mut valid: bool = false
-    match r { Valid(v) => { set valid true }, Corrupted(c) => {} }
+    match r { Valid(_v) => { set valid true }, Corrupted(_c) => {} }
     assert valid
 
     /* Corrupted data detection */
     let bad_data: array<int> = [10, 20, 31, 40, 50]
     let r2: IntegrityResult = (verify_integrity bad_data expected 997)
     let mut corrupted: bool = false
-    match r2 { Valid(v) => {}, Corrupted(c) => { set corrupted true } }
+    match r2 { Valid(_v) => {}, Corrupted(_c) => { set corrupted true } }
     assert corrupted
 }
 
@@ -290,7 +290,7 @@ fn main() -> int {
     /* Integrity verification */
     let r: IntegrityResult = (verify_integrity data sum 997)
     let mut valid: bool = false
-    match r { Valid(v) => { set valid true }, Corrupted(c) => {} }
+    match r { Valid(_v) => { set valid true }, Corrupted(_c) => {} }
     assert valid
 
     /* Cross-verification */

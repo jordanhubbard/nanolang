@@ -68,7 +68,7 @@ shadow module_cache_contains {
     assert (module_cache_contains cache "test.nano")
 }
 
-fn module_cache_add(cache: ModuleCache, path: string, parser: Parser) -> ModuleCache {
+fn module_cache_add(cache: ModuleCache, path: string) -> ModuleCache {
     let mut new_paths: array<string> = cache.paths
     set new_paths (array_push new_paths path)
     
@@ -84,9 +84,7 @@ fn module_cache_add(cache: ModuleCache, path: string, parser: Parser) -> ModuleC
 
 shadow module_cache_add {
     let cache: ModuleCache = (module_cache_new)
-    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let dummy_parser: Parser = (parser_new empty_tokens 0 "test")
-    let updated: ModuleCache = (module_cache_add cache "test.nano" dummy_parser)
+    let updated: ModuleCache = (module_cache_add cache "test.nano")
     assert (== updated.count 1)
     assert (module_cache_contains updated "test.nano")
     let retrieved: Parser = (module_cache_get updated "test.nano")
@@ -116,9 +114,7 @@ fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
 
 shadow module_cache_get {
     let cache: ModuleCache = (module_cache_new)
-    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
-    let dummy_parser: Parser = (parser_new empty_tokens 10 "test")
-    let updated: ModuleCache = (module_cache_add cache "test.nano" dummy_parser)
+    let updated: ModuleCache = (module_cache_add cache "test.nano")
     let retrieved: Parser = (module_cache_get updated "test.nano")
     assert (== retrieved.token_count 10)
 }
@@ -405,7 +401,7 @@ pub fn process_imports_recursive(parser: Parser, symbols: array<Symbol>, cache: 
                     let module_parser: Parser = (parse_program module_tokens token_count module_source)
                     
                     /* Cache module BEFORE recursing to prevent infinite loops */
-                    set updated_cache (module_cache_add updated_cache module_path module_parser)
+                    set updated_cache (module_cache_add updated_cache module_path)
                     
                     /* RECURSIVELY process module's imports */
                     set updated_symbols (process_imports_recursive module_parser updated_symbols updated_cache module_path diags)

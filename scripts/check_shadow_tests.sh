@@ -28,7 +28,7 @@ for file in "$@"; do
     while IFS= read -r line; do
       funcs+=("$line")
     done < <(git diff -U0 HEAD -- "$file" \
-      | sed -nE 's/^\+.*(pub[[:space:]]+)?fn[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\2/p' \
+      | sed -nE 's/^\+[[:space:]]*(pub[[:space:]]+)?fn[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*/\2/p' \
       | sort -u)
   fi
 

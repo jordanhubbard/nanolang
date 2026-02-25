@@ -495,6 +495,10 @@ pub fn encode_type_mismatch_message(context: string, expected: string, found: st
     let mut base: string = (+ "I expected a value of type " (+ expected_label (+ ", but found " (+ found_label "."))))
     if (!= detail "") {
         set base (+ detail (+ ": " base))
+    } else {
+        if (!= context "") {
+            set base (+ "In " (+ context (+ ": " base)))
+        }
     }
     return base
 }

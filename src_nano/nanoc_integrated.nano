@@ -4417,7 +4417,7 @@ fn type_to_c(nano_type: string) -> string {
                 return "int"
             } else {
                 if (== nano_type "string") {
-                    return "char*"
+                    return "const char*"
                 } else {
                     if (== nano_type "void") {
                         return "void"
@@ -4749,12 +4749,12 @@ fn gen_c_runtime() -> string {
     let mut result: string = "/* Runtime helper functions */\n"
     
     /* print function */
-    set result (+ result "void nl_print(char* s) {\n")
+    set result (+ result "void nl_print(const char* s) {\n")
     set result (+ result "    printf(\"%s\", s);\n")
     set result (+ result "}\n\n")
     
     /* println function */
-    set result (+ result "void nl_println(char* s) {\n")
+    set result (+ result "void nl_println(const char* s) {\n")
     set result (+ result "    printf(\"%s\\n\", s);\n")
     set result (+ result "}\n\n")
     

@@ -22,9 +22,9 @@ typedef struct HashMap_string_int {
 
 HashMap_string_int* nl_hashmap_string_int_alloc(int64_t cap);
 void nl_hashmap_string_int_free(HashMap_string_int *hm);
-void nl_hashmap_string_int_put(HashMap_string_int *hm, char* key, int64_t val);
-bool nl_hashmap_string_int_has(HashMap_string_int *hm, char* key);
-int64_t nl_hashmap_string_int_get(HashMap_string_int *hm, char* key);
+void nl_hashmap_string_int_put(HashMap_string_int *hm, const char* key, int64_t val);
+bool nl_hashmap_string_int_has(HashMap_string_int *hm, const char* key);
+int64_t nl_hashmap_string_int_get(HashMap_string_int *hm, const char* key);
 
 /* HashMap<string, string> */
 typedef struct HashMap_string_string_Entry {
@@ -42,9 +42,9 @@ typedef struct HashMap_string_string {
 
 HashMap_string_string* nl_hashmap_string_string_alloc(int64_t cap);
 void nl_hashmap_string_string_free(HashMap_string_string *hm);
-void nl_hashmap_string_string_put(HashMap_string_string *hm, char* key, char* val);
-bool nl_hashmap_string_string_has(HashMap_string_string *hm, char* key);
-char* nl_hashmap_string_string_get(HashMap_string_string *hm, char* key);
+void nl_hashmap_string_string_put(HashMap_string_string *hm, const char* key, const char* val);
+bool nl_hashmap_string_string_has(HashMap_string_string *hm, const char* key);
+const char* nl_hashmap_string_string_get(HashMap_string_string *hm, const char* key);
 
 /* Type aliases used by transpiled code - use pointers */
 typedef HashMap_string_int* nl_HashMap_string_int_;

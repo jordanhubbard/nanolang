@@ -5560,9 +5560,11 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
              * can access type information. C's function-local scope prevents collisions.
              */
 
-            /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
+            /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!func->is_extern && !func->shadow_test) {
+            if (!env->suppress_shadow_warnings &&
+                !func->is_extern && !func->shadow_test &&
+                strcmp(item->as.function.name, "main") != 0) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
@@ -6240,9 +6242,11 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
              * can access type information. C's function-local scope prevents collisions.
              */
 
-            /* Verify function has shadow test (skip for extern functions and functions that use extern functions) */
+            /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!func->is_extern && !func->shadow_test) {
+            if (!env->suppress_shadow_warnings &&
+                !func->is_extern && !func->shadow_test &&
+                strcmp(item->as.function.name, "main") != 0) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {

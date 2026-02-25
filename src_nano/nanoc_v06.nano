@@ -740,8 +740,7 @@ fn merge_with_imports(input_file: string) -> string {
     } else { (print "") }
     /* Write merged source directly to temp file - avoids O(n²) string concat */
     let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
-    let dummy: int = (file_write merge_tmp "")
-    (print "")
+    let _dummy: int = (file_write merge_tmp "")
     let mut i: int = 0
     while (< i (array_length files)) {
         let src: string = (file_read (at files i))
@@ -754,9 +753,8 @@ fn merge_with_imports(input_file: string) -> string {
             let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
             let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
             if (and (== imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
-                let w1: int = (file_append merge_tmp (strip_pub_decl line))
-                let w2: int = (file_append merge_tmp "\n")
-                (print "")
+                let _w1: int = (file_append merge_tmp (strip_pub_decl line))
+                let _w2: int = (file_append merge_tmp "\n")
             } else {
                 (print "")
             }
@@ -970,8 +968,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         }
         let write_merged: int = (file_write temp_source_file merged_source)
         /* DEBUG: Also write to $TMPDIR/merged_debug.nano for inspection */
-        let debug_write: int = (file_write (+ (tmp_dir) "/merged_debug.nano") merged_source)
-        (print "")  /* Suppress unused variable warning */
+        let _debug_write: int = (file_write (+ (tmp_dir) "/merged_debug.nano") merged_source)
         if (== write_merged 0) {
             set source_to_compile temp_source_file
         } else {
@@ -1346,9 +1343,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             /* Clean up temp file unless --keep-c */
             if (not keep_c) {
                 let rm_cmd: string = (+ "rm -f " c_file)
-                let rm_result: int = (nl_exec_shell rm_cmd)
-                /* Ignore result - cleanup is non-critical */
-                (print "")
+                let _rm_result: int = (nl_exec_shell rm_cmd)
             } else {
                 if verbose {
                     (print "Kept C file: ")

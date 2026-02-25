@@ -2120,7 +2120,7 @@ const char *module_generate_forward_declarations(const char *module_path) {
         } else if (ret_type == TYPE_BOOL) {
             sb_append(sb, "int");
         } else if (ret_type == TYPE_STRING) {
-            sb_append(sb, "char*");
+            sb_append(sb, "const char*");
         } else if (ret_type == TYPE_VOID) {
             sb_append(sb, "void");
         } else if (ret_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
@@ -2156,7 +2156,7 @@ const char *module_generate_forward_declarations(const char *module_path) {
             } else if (param->type == TYPE_BOOL) {
                 sb_append(sb, "int");
             } else if (param->type == TYPE_STRING) {
-                sb_append(sb, "char*");
+                sb_append(sb, "const char*");
             } else if (param->type == TYPE_STRUCT && param->struct_type_name) {
                 snprintf(param_buf, sizeof(param_buf), "nl_%s", param->struct_type_name);
                 sb_append(sb, param_buf);

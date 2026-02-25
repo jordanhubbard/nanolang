@@ -1340,7 +1340,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_INT) { return TypeCParseResult { ok: true, c_type: "int64_t", next_pos: (+ start_pos 1) } } else { (print "") }
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_FLOAT) { return TypeCParseResult { ok: true, c_type: "double", next_pos: (+ start_pos 1) } } else { (print "") }
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_BOOL) { return TypeCParseResult { ok: true, c_type: "bool", next_pos: (+ start_pos 1) } } else { (print "") }
-    if (== t0.token_type LexerTokenType.TOKEN_TYPE_STRING) { return TypeCParseResult { ok: true, c_type: "char*", next_pos: (+ start_pos 1) } } else { (print "") }
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_STRING) { return TypeCParseResult { ok: true, c_type: "const char*", next_pos: (+ start_pos 1) } } else { (print "") }
 
     /* array<T> */
     if (== t0.token_type LexerTokenType.TOKEN_ARRAY) {
@@ -2255,7 +2255,7 @@ fn type_to_c(nano_type: string) -> string {
                 return "int"
             } else {
                 if (== nano_type "string") {
-                    return "char*"
+                    return "const char*"
                 } else {
                     if (== nano_type "void") {
                         return "void"
@@ -2935,11 +2935,11 @@ fn gen_c_runtime() -> string {
 
     /* Print functions */
     set sb (cg_append sb "/* Print functions */\n")
-    set sb (cg_append sb "void nl_print(char* s) {\n")
+    set sb (cg_append sb "void nl_print(const char* s) {\n")
     set sb (cg_append sb "    printf(\"%s\", s);\n")
     set sb (cg_append sb "}\n\n")
     
-    set sb (cg_append sb "void nl_println(char* s) {\n")
+    set sb (cg_append sb "void nl_println(const char* s) {\n")
     set sb (cg_append sb "    printf(\"%s\\n\", s);\n")
     set sb (cg_append sb "}\n\n")
 
@@ -3086,13 +3086,13 @@ fn gen_c_runtime() -> string {
     /* fs.h returns const char* for path/file functions; NanoLang string type is char*.
      * Provide nl_ wrappers that cast const char* to char* so user code can assign
      * to string variables without -Wdiscarded-qualifiers warnings. */
-    set sb (cg_append sb "/* fs wrappers: return char* (NanoLang string) from const char* C functions */\n")
-    set sb (cg_append sb "static char* nl_path_normalize(const char* p) { return (char*)path_normalize(p); }\n")
-    set sb (cg_append sb "static char* nl_path_join(const char* a, const char* b) { return (char*)path_join(a, b); }\n")
-    set sb (cg_append sb "static char* nl_path_basename(const char* p) { return (char*)path_basename(p); }\n")
-    set sb (cg_append sb "static char* nl_path_dirname(const char* p) { return (char*)path_dirname(p); }\n")
-    set sb (cg_append sb "static char* nl_path_relpath(const char* t, const char* b) { return (char*)path_relpath(t, b); }\n")
-    set sb (cg_append sb "static char* nl_file_read(const char* p) { return (char*)file_read(p); }\n\n")
+    set sb (cg_append sb "/* fs wrappers */\n")
+    set sb (cg_append sb "static const char* nl_path_normalize(const char* p) { return path_normalize(p); }\n")
+    set sb (cg_append sb "static const char* nl_path_join(const char* a, const char* b) { return path_join(a, b); }\n")
+    set sb (cg_append sb "static const char* nl_path_basename(const char* p) { return path_basename(p); }\n")
+    set sb (cg_append sb "static const char* nl_path_dirname(const char* p) { return path_dirname(p); }\n")
+    set sb (cg_append sb "static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }\n")
+    set sb (cg_append sb "static const char* nl_file_read(const char* p) { return file_read(p); }\n\n")
 
     /* process.h does not declare nl_os_process_run (nanoc_c generates a static version that
      * would conflict); declare it here as extern so user code can call process_run(...). */
@@ -3104,9 +3104,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "extern int64_t get_argc(void);\n")
     set sb (cg_append sb "extern const char* get_argv(int64_t index);\n")
     set sb (cg_append sb "extern const char* nl_os_getenv(const char* name);\n")
-    set sb (cg_append sb "/* char* wrappers to avoid -Wdiscarded-qualifiers when assigning to string vars */\n")
-    set sb (cg_append sb "static char* nl_get_argv(int64_t idx) { return (char*)get_argv(idx); }\n")
-    set sb (cg_append sb "static char* nl_getenv(const char* name) { return (char*)nl_os_getenv(name); }\n")
+    set sb (cg_append sb "static const char* nl_get_argv(int64_t idx) { return get_argv(idx); }\n")
+    set sb (cg_append sb "static const char* nl_getenv(const char* name) { return nl_os_getenv(name); }\n")
     set sb (cg_append sb "extern int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite);\n")
     set sb (cg_append sb "extern int64_t nl_os_system(const char* command);\n")
     set sb (cg_append sb "static int64_t nl_exec_shell(const char* cmd) { return (int64_t)system(cmd); }\n\n")
@@ -3232,9 +3231,9 @@ fn gen_c_runtime() -> string {
     /* HashMap wrappers (generic API over type-specific implementations) */
     set sb (cg_append sb "/* HashMap wrappers */\n")
     set sb (cg_append sb "static inline HashMap_string_int* nl_map_new(void) { return nl_hashmap_string_int_alloc(16); }\n")
-    set sb (cg_append sb "static inline void nl_map_put(HashMap_string_int* hm, char* key, int64_t val) { nl_hashmap_string_int_put(hm, key, val); }\n")
-    set sb (cg_append sb "static inline int64_t nl_map_get(HashMap_string_int* hm, char* key) { return nl_hashmap_string_int_get(hm, key); }\n")
-    set sb (cg_append sb "static inline int nl_map_has(HashMap_string_int* hm, char* key) { return nl_hashmap_string_int_has(hm, key); }\n")
+    set sb (cg_append sb "static inline void nl_map_put(HashMap_string_int* hm, const char* key, int64_t val) { nl_hashmap_string_int_put(hm, key, val); }\n")
+    set sb (cg_append sb "static inline int64_t nl_map_get(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_get(hm, key); }\n")
+    set sb (cg_append sb "static inline int nl_map_has(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_has(hm, key); }\n")
     set sb (cg_append sb "static inline int64_t nl_map_size(HashMap_string_int* hm) { return hm->size; }\n\n")
 
     /* Timing utilities */
@@ -3662,7 +3661,7 @@ shadow substitute_union_field_type {
     let params: array<string> = (array_push (array_push [] "T") "E")
     let args: array<string> = (array_push (array_push [] "int") "string")
     assert (== (substitute_union_field_type "T" params args) "int64_t")
-    assert (== (substitute_union_field_type "E" params args) "char*")
+    assert (== (substitute_union_field_type "E" params args) "const char*")
     assert (== (substitute_union_field_type "bool" params args) "int")
 }
 
@@ -3896,7 +3895,7 @@ shadow operator_to_string {
 }
 
 /* Helper to build array binary operation expressions using StringBuilder */
-fn build_array_binop_expr(left_code: string, right_code: string, elem_t: string, elem_enum: string, get_fn: string, push_fn: string, c_elem: string, op_str2: string, left_is_arr: bool, right_is_arr: bool, is_plus: bool, is_string: bool) -> string {
+fn build_array_binop_expr(left_code: string, right_code: string, elem_enum: string, get_fn: string, push_fn: string, c_elem: string, op_str2: string, left_is_arr: bool, right_is_arr: bool, is_plus: bool, is_string: bool) -> string {
     let mut sb: array<string> = []
     
     if (and left_is_arr right_is_arr) {
@@ -4000,7 +3999,7 @@ fn build_array_binop_expr(left_code: string, right_code: string, elem_t: string,
 }
 
 shadow build_array_binop_expr {
-    let result: string = (build_array_binop_expr "a" "b" "int" "ELEM_INT" "get" "push" "int64_t" "+" true true false false)
+    let result: string = (build_array_binop_expr "a" "b" "ELEM_INT" "get" "push" "int64_t" "+" true true false false)
     assert (> (str_length result) 0)
 }
 
@@ -4104,7 +4103,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                     let is_plus: bool = (== binop.op LexerTokenType.TOKEN_PLUS)
                     let is_string: bool = (== elem_t "string")
-                    return (build_array_binop_expr left_code right_code elem_t elem_enum get_fn push_fn c_elem op_str2 left_is_arr right_is_arr is_plus is_string)
+                    return (build_array_binop_expr left_code right_code elem_enum get_fn push_fn c_elem op_str2 left_is_arr right_is_arr is_plus is_string)
                 } else {
                     (print "")
                 }
@@ -4312,10 +4311,6 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let elem_enum: string = (elem_enum_from_elem_type elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
-                            let mut elem_struct: string = ""
-                            if (type_is_struct elem_t) {
-                                set elem_struct (+ "nl_" (mangle_type_name elem_t))
-                            } else { (print "") }
 
                             let mut parts: array<string> = []
                             set parts (cg_append parts "({ DynArray* _arr = dyn_array_new(")
@@ -4376,10 +4371,6 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 }
                             } else { (print "") }
                             let push_fn: string = (push_fn_from_elem_type elem_t)
-                            let mut elem_struct: string = (cond
-                                ((type_is_struct elem_t) (+ "nl_" (mangle_type_name elem_t)))
-                                (else "")
-                            )
 
                             let mut parts: array<string> = []
                             set parts (cg_append parts push_fn)
@@ -4437,10 +4428,6 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let set_fn: string = (set_fn_from_elem_type elem_t)
                             let mut parts: array<string> = []
-                            let mut elem_struct: string = ""
-                            if (type_is_struct elem_t) {
-                                set elem_struct (+ "nl_" (mangle_type_name elem_t))
-                            } else { (print "") }
 
                             set parts (cg_append parts set_fn)
                             set parts (cg_append parts "(")
@@ -4938,14 +4925,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                             let mut elem_enum: string = "ELEM_INT"
                             let mut push_fn: string = "dyn_array_push_int"
-                            let mut elem_struct: string = ""
 
                             if (!= elem_t "") {
                                 set elem_enum (elem_enum_from_elem_type elem_t)
                                 set push_fn (push_fn_from_elem_type elem_t)
-                                if (type_is_struct elem_t) {
-                                    set elem_struct (+ "nl_" (mangle_type_name elem_t))
-                                } else { (print "") }
                             } else {
                                 /* Infer element type from first element expression kind (fallback to int) */
                                 let mut elem_type: int = 0

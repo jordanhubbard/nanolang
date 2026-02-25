@@ -185,13 +185,13 @@ shadow check_range {
     let s: SensorReading = SensorReading { value: 100, sensor_id: 1, timestamp: 0 }
     let r: RangeCheck = (check_range s 0 200)
     let mut in_range: bool = false
-    match r { InRange(v) => { set in_range true }, OutOfRange(v) => {} }
+    match r { InRange(_v) => { set in_range true }, OutOfRange(_v) => {} }
     assert in_range
 
     let s2: SensorReading = SensorReading { value: 32768, sensor_id: 1, timestamp: 0 }
     let r2: RangeCheck = (check_range s2 0 32767)
     let mut out: bool = false
-    match r2 { InRange(v) => {}, OutOfRange(v) => { set out true } }
+    match r2 { InRange(_v) => {}, OutOfRange(_v) => { set out true } }
     assert out
 }
 
@@ -247,9 +247,9 @@ fn validated_vote(s1: SensorReading, s2: SensorReading, s3: SensorReading,
     let mut ok1: bool = false
     let mut ok2: bool = false
     let mut ok3: bool = false
-    match r1 { InRange(v) => { set ok1 true }, OutOfRange(v) => {} }
-    match r2 { InRange(v) => { set ok2 true }, OutOfRange(v) => {} }
-    match r3 { InRange(v) => { set ok3 true }, OutOfRange(v) => {} }
+    match r1 { InRange(_v) => { set ok1 true }, OutOfRange(_v) => {} }
+    match r2 { InRange(_v) => { set ok2 true }, OutOfRange(_v) => {} }
+    match r3 { InRange(_v) => { set ok3 true }, OutOfRange(_v) => {} }
 
     /* Count valid sensors */
     let mut valid_count: int = 0

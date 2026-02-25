@@ -93,6 +93,7 @@ static TestResult compile_and_run(const char *source) {
     }
 
     Environment *env = create_environment();
+    env->suppress_shadow_warnings = true;
     if (!type_check(program, env)) {
         snprintf(tr.error, sizeof(tr.error), "typecheck failed");
         free_ast(program);
@@ -156,6 +157,7 @@ static TestResult compile_and_call(const char *source, const char *fn_name,
     }
 
     Environment *env = create_environment();
+    env->suppress_shadow_warnings = true;
     if (!type_check(program, env)) {
         snprintf(tr.error, sizeof(tr.error), "typecheck failed");
         free_ast(program);
@@ -653,6 +655,7 @@ static void test_string_literal(void) {
     TestResult tr = compile_and_run(
         "fn main() -> int {\n"
         "  let s: string = \"hello\"\n"
+        "  assert (== s \"hello\")\n"
         "  return 0\n"
         "}");
     ASSERT(tr.ok, tr.error);
@@ -888,6 +891,7 @@ static void test_serialize_and_run(void) {
     ASTNode *program = parse_program(tokens, token_count);
     ASSERT(program != NULL, "parser failed");
     Environment *env = create_environment();
+    env->suppress_shadow_warnings = true;
     ASSERT(type_check(program, env), "typecheck failed");
     CodegenResult cg = codegen_compile(program, env, NULL, NULL);
     ASSERT(cg.ok, cg.error_msg);
@@ -1112,6 +1116,7 @@ static void test_enum_variant(void) {
         "enum Color { Red, Green, Blue }\n"
         "fn main() -> int {\n"
         "  let c: Color = Color.Green\n"
+        "  assert (== c Color.Green)\n"
         "  return 42\n"
         "}\n"
     );
@@ -1134,7 +1139,7 @@ static void test_union_construct_match(void) {
         "  let r: MyResult = MyResult.Ok { value: 42 }\n"
         "  match r {\n"
         "    Ok(v) => { return v.value }\n"
-        "    Err(e) => { return 0 }\n"
+        "    Err(_e) => { return 0 }\n"
         "  }\n"
         "}\n"
     );
@@ -1157,7 +1162,7 @@ static void test_union_match_err_path(void) {
         "  let r: MyResult = MyResult.Err { error: \"bad\" }\n"
         "  match r {\n"
         "    Ok(v) => { return v.value }\n"
-        "    Err(e) => { return -1 }\n"
+        "    Err(_e) => { return -1 }\n"
         "  }\n"
         "}\n"
     );

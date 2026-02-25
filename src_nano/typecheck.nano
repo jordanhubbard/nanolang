@@ -1265,7 +1265,7 @@ shadow str_last_index_of {
  * Handles: list_T_new, list_T_push, list_T_get, list_T_length
  * Returns: Appropriate type based on operation
  */
-fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
+fn check_list_function_call(fn_name: string) -> NSType {
     /* Extract type name: "list_Point_new" -> "Point" */
     let elem_type: string = (extract_list_type_from_function fn_name)
     
@@ -1299,11 +1299,11 @@ fn check_list_function_call(fn_name: string, arg_count: int) -> NSType {
 }
 
 shadow check_list_function_call {
-    let t1: NSType = (check_list_function_call "list_int_new" 0)
+    let t1: NSType = (check_list_function_call "list_int_new")
     assert (== t1.kind TypeKind.TYPE_LIST_GENERIC)
-    let t2: NSType = (check_list_function_call "list_Point_length" 1)
+    let t2: NSType = (check_list_function_call "list_Point_length")
     assert (== t2.kind TypeKind.TYPE_INT)
-    let t3: NSType = (check_list_function_call "list_int_push" 2)
+    let t3: NSType = (check_list_function_call "list_int_push")
     assert (== t3.kind TypeKind.TYPE_VOID)
 }
 
@@ -1458,7 +1458,7 @@ shadow is_builtin_function {
 /* Check return type for built-in functions
  * Returns the appropriate type based on the function name
  */
-fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
+fn check_builtin_function(fn_name: string) -> NSType {
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
     if (== fn_name "println") { return (type_void) } else { (print "") }
@@ -1633,10 +1633,10 @@ fn check_builtin_function(fn_name: string, arg_count: int) -> NSType {
 }
 
 shadow check_builtin_function {
-    let t1: NSType = (check_builtin_function "println" 1)
+    let t1: NSType = (check_builtin_function "println")
     assert (== t1.kind TypeKind.TYPE_VOID)
     
-    let t2: NSType = (check_builtin_function "array_length" 1)
+    let t2: NSType = (check_builtin_function "array_length")
     assert (== t2.kind TypeKind.TYPE_INT)
 }
 
@@ -1843,7 +1843,7 @@ shadow empty_param_types {
 }
 
 /* Add symbol to environment (using array) */
-fn env_add_symbol(env: TypeEnvironment, symbols: array<Symbol>, sym: Symbol) -> array<Symbol> {
+fn env_add_symbol(symbols: array<Symbol>, sym: Symbol) -> array<Symbol> {
     return (array_push symbols sym)
 }
 
@@ -2274,7 +2274,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
                     element_type_name: ""
                 }
                 let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types) (type_void))
-                set arm_symbols (env_add_symbol (env_new) arm_symbols binding_sym)
+                set arm_symbols (env_add_symbol arm_symbols binding_sym)
             } else {
                 (print "")
             }
@@ -2328,9 +2328,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let mut i: int = 0
         while (< i call_node.arg_count) {
             let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start i))
-            let arg_t: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
-            /* Allow function values as arguments for higher-order functions */
-            (print "")
+            let _arg_t: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
             set i (+ i 1)
         }
         /* Get function name from identifier node */
@@ -2394,13 +2392,13 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
-        let builtin_type: NSType = (check_builtin_function fn_name call_node.arg_count)
+        let builtin_type: NSType = (check_builtin_function fn_name)
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else {
             /* Check if it's a List<T> function (only for functions starting with "list_") */
             if (str_starts_with fn_name "list_") {
-                let list_type: NSType = (check_list_function_call fn_name call_node.arg_count)
+                let list_type: NSType = (check_list_function_call fn_name)
                 if (!= list_type.kind TypeKind.TYPE_UNKNOWN) {
                     return list_type
                 } else { (print "") }
@@ -2446,7 +2444,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let qualified_name: string = mqc_node.function_name
         let short_name: string = (module_qualified_suffix qualified_name)
         /* Allow builtin/mapped helpers for module-qualified calls (e.g., Diagnostics.*) */
-        let builtin_type: NSType = (check_builtin_function short_name mqc_node.arg_count)
+        let builtin_type: NSType = (check_builtin_function short_name)
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else { (print "") }
@@ -2669,7 +2667,7 @@ shadow check_expr_node {
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = []
     let sym: Symbol = (symbol_new "var_name" (type_string) false false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols sym)
+    set symbols (env_add_symbol symbols sym)
     let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
     let result: NSType = (check_expr_node p5 p5.last_expr_node_id p5.last_expr_node_type symbols diags "test.nano")
     assert (== result.kind TypeKind.TYPE_STRING)
@@ -2679,7 +2677,7 @@ shadow check_expr_node {
  * 
  * Validates that the return expression type matches the expected function return type
  */
-fn typecheck_return_expr(parser: Parser, ret_node: ASTReturn, expected_type: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>) -> bool {
+fn typecheck_return_expr(ret_node: ASTReturn, expected_type: NSType, diags: List<CompilerDiagnostic>) -> bool {
     if (< ret_node.value 0) {
         /* No return value - expect void */
         if (== expected_type.kind TypeKind.TYPE_VOID) {
@@ -2801,7 +2799,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>,
     }
 
     let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types) (type_void))
-    return (env_add_symbol (env_new) symbols sym)
+    return (env_add_symbol symbols sym)
 }
 
 shadow check_let_statement { assert true }
@@ -3086,7 +3084,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
         let ptype: NSType = (type_from_string_with_parser parser param_let.var_type)
         let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types) (type_void))
-        set func_symbols (env_add_symbol (env_new) func_symbols psym)
+        set func_symbols (env_add_symbol func_symbols psym)
         set i (+ i 1)
     }
 
@@ -3105,7 +3103,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
                 set pidx (+ pidx 1)
             }
             let float_sym: Symbol = (symbol_new func.name (type_float) false true func.param_count param_types (type_float))
-            set local_symbols (env_add_symbol (env_new) local_symbols float_sym)
+            set local_symbols (env_add_symbol local_symbols float_sym)
         } else { (print "") }
         return (check_block parser func.body local_symbols return_type diags file_name func.name)
     }
@@ -3207,33 +3205,33 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     
     /* Add built-in functions to symbol table */
     let println_sym: Symbol = (symbol_new "println" (type_void) false true (- 0 1) (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols println_sym)
+    set symbols (env_add_symbol symbols println_sym)
     let print_sym: Symbol = (symbol_new "print" (type_void) false true (- 0 1) (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols print_sym)
+    set symbols (env_add_symbol symbols print_sym)
 
     /* Minimal builtins used by nanoc_v06 */
     let system_sym: Symbol = (symbol_new "system" (type_int) false true (- 0 1) (empty_param_types) (type_int))
-    set symbols (env_add_symbol env symbols system_sym)
+    set symbols (env_add_symbol symbols system_sym)
     let str_concat_sym: Symbol = (symbol_new "str_concat" (type_string) false true (- 0 1) (empty_param_types) (type_string))
-    set symbols (env_add_symbol env symbols str_concat_sym)
+    set symbols (env_add_symbol symbols str_concat_sym)
     let str_equals_sym: Symbol = (symbol_new "str_equals" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol env symbols str_equals_sym)
+    set symbols (env_add_symbol symbols str_equals_sym)
     let not_sym: Symbol = (symbol_new "not" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol env symbols not_sym)
+    set symbols (env_add_symbol symbols not_sym)
     let and_sym: Symbol = (symbol_new "and" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol env symbols and_sym)
+    set symbols (env_add_symbol symbols and_sym)
     let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
-    set symbols (env_add_symbol env symbols or_sym)
+    set symbols (env_add_symbol symbols or_sym)
 
     /* Bootstrap: Add known top-level global variables from transpiler.nano */
     let module_aliases_sym: Symbol = (symbol_new "module_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols module_aliases_sym)
+    set symbols (env_add_symbol symbols module_aliases_sym)
     let module_alias_targets_sym: Symbol = (symbol_new "module_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols module_alias_targets_sym)
+    set symbols (env_add_symbol symbols module_alias_targets_sym)
     let func_aliases_sym: Symbol = (symbol_new "func_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols func_aliases_sym)
+    set symbols (env_add_symbol symbols func_aliases_sym)
     let func_alias_targets_sym: Symbol = (symbol_new "func_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol env symbols func_alias_targets_sym)
+    set symbols (env_add_symbol symbols func_alias_targets_sym)
 
     /* Phase 0.5: Add global let constants to symbol table */
     let global_let_count: int = (parser_get_let_count parser)
@@ -3259,7 +3257,7 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
                 let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))
-                set symbols (env_add_symbol env symbols gl_sym)
+                set symbols (env_add_symbol symbols gl_sym)
             } else { (print "") }
         } else { (print "") }
         set gli (+ gli 1)
@@ -3286,7 +3284,7 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
         }
 
         let func_sym: Symbol = (symbol_new func.name return_type false true func.param_count param_types return_type)
-        set symbols (env_add_symbol env symbols func_sym)
+        set symbols (env_add_symbol symbols func_sym)
         set i (+ i 1)
     }
     
