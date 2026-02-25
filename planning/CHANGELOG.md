@@ -4,6 +4,11 @@ All notable changes to NanoLang are documented here.
 
 ## [Unreleased]
 
+## [3.1.6] - 2026-02-25
+
+### Fixed
+- eliminate const-qualifier warnings across build pipeline
+
 ## [3.1.5] - 2026-02-23
 
 ### Added
