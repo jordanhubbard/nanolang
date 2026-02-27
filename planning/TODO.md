@@ -457,8 +457,7 @@ Choose your path:
 
 ### Documentation
 - [SPECIFICATION.md](../docs/SPECIFICATION.md) - Language reference
-- [SELF_HOSTING_REQUIREMENTS.md](SELF_HOSTING_REQUIREMENTS.md) - Feature requirements
-- [SELF_HOSTING_CHECKLIST.md](SELF_HOSTING_CHECKLIST.md) - Implementation tracking
+- [STAGE2_STATUS.md](STAGE2_STATUS.md) - Feature requirements and implementation tracking
 
 ### Examples
 - [examples/nl_union_types.nano](../examples/language/nl_union_types.nano) - Union types demo

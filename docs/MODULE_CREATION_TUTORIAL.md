@@ -497,7 +497,7 @@ All examples in my `examples/` directory demonstrate how I use modules.
 - [Module Format / System](MODULE_SYSTEM.md)
 - [SDL Extensions Guide](../modules/SDL_EXTENSIONS.md)
 - [Standard Library Reference](STDLIB.md)
-- [FFI Best Practices](../planning/C_FFI_PROPOSAL.md)
+- [FFI Best Practices](../planning/MODULE_FFI_IMPLEMENTATION.md)
 
 ---
 

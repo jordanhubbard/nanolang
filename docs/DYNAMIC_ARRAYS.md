@@ -215,7 +215,7 @@ set arr2 (array_push arr2 4)              # Allowed
 
 ## See Also
 
-- [Generic Types](./GENERIC_TYPES.md)
+- [Generic Types](./GENERICS_DEEP_DIVE.md)
 - [Language Specification](./SPECIFICATION.md)
 - [spec.json](../spec.json)
 - [Examples](../examples/)

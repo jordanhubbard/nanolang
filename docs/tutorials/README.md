@@ -30,7 +30,7 @@ Comprehensive step-by-step guides to master nanolang from beginner to advanced.
 ### 🔧 Intermediate
 
 **4. FFI Integration** ⏱️ 1 hour  
-*Coming soon - See [FFI Guide](../FFI_GUIDE.md)*
+*Coming soon - See [FFI Guide](../EXTERN_FFI.md)*
 - Calling C libraries
 - Type marshaling
 - Creating C modules

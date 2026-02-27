@@ -1302,7 +1302,7 @@ static void test_print(void) {
     uint8_t code[64];
     uint32_t off = 0;
     off += emit(code + off, OP_PUSH_STR, s1);
-    off += emit(code + off, OP_PRINT);
+    off += emit(code + off, OP_PRINTLN);
     off += emit(code + off, OP_PUSH_VOID);
     off += emit(code + off, OP_RET);
 

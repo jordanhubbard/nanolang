@@ -499,7 +499,7 @@ pub fn development_config() -> Config {
 
 Now you understand the module system! Continue to:
 
-- [FFI Guide](../FFI_GUIDE.md) - Call C libraries
+- [FFI Guide](../EXTERN_FFI.md) - Call C libraries
 - [Multi-File Projects](../MULTI_FILE_PROJECTS.md) - Real-world project structure
 - [Module Reference](../MODULES.md) - Available libraries
 

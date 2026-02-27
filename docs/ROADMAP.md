@@ -178,7 +178,7 @@ Completion Date: January 2026
 
 Goal: I compile myself.
 
-Documentation: See [planning/SELF_HOSTING.md](../planning/SELF_HOSTING.md) for my detailed analysis.
+Documentation: See [SELF_HOSTING_ROADMAP.md](./SELF_HOSTING_ROADMAP.md) for my detailed analysis.
 
 Required Features (6 essential) - ALL COMPLETE:
 1. [x] Structs - I use these to represent tokens, AST nodes, and symbols (November 2025).
