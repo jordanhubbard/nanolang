@@ -4455,6 +4455,15 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         }
     }
 
+    if (parser.error_count > 0) {
+        /* Parse errors occurred: free partial AST and signal failure */
+        for (int i = 0; i < count; i++) {
+            free_ast(items[i]);
+        }
+        free(items);
+        return NULL;
+    }
+
     ASTNode *program = create_node(AST_PROGRAM, 1, 1);
     program->as.program.items = items;
     program->as.program.count = count;
