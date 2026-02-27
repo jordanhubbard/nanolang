@@ -3694,6 +3694,68 @@ static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **
     return block;
 }
 
+/* Returns true if an AST node type is a value-producing expression */
+static bool is_expression_node(ASTNodeType type) {
+    switch (type) {
+        case AST_NUMBER:
+        case AST_FLOAT:
+        case AST_STRING:
+        case AST_BOOL:
+        case AST_IDENTIFIER:
+        case AST_PREFIX_OP:
+        case AST_CALL:
+        case AST_MODULE_QUALIFIED_CALL:
+        case AST_ARRAY_LITERAL:
+        case AST_COND:
+        case AST_STRUCT_LITERAL:
+        case AST_FIELD_ACCESS:
+        case AST_UNION_CONSTRUCT:
+        /* AST_MATCH excluded: match arm bodies need the full TypeChecker context
+         * (current_function_return_type) for proper return-statement type checking.
+         * Wrapping match in an implicit return causes arms to be evaluated through
+         * check_expression with an uninitialised temp TypeChecker, breaking type inference. */
+        case AST_TUPLE_LITERAL:
+        case AST_TUPLE_INDEX:
+        case AST_QUALIFIED_NAME:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/* Recursively inject implicit returns at tail positions of a block.
+ * Called from parse_function when return_type is non-void.
+ * Wraps bare expression statements at the end of function bodies (and
+ * both branches of tail-position if/else) in an AST_RETURN node.
+ */
+static void inject_implicit_return(ASTNode *block) {
+    if (!block || block->type != AST_BLOCK || block->as.block.count == 0) {
+        return;
+    }
+
+    int last = block->as.block.count - 1;
+    ASTNode *stmt = block->as.block.statements[last];
+    if (!stmt) return;
+
+    if (is_expression_node(stmt->type)) {
+        /* Wrap bare expression in return */
+        ASTNode *ret = create_node(AST_RETURN, stmt->line, stmt->column);
+        ret->as.return_stmt.value = stmt;
+        block->as.block.statements[last] = ret;
+    } else if (stmt->type == AST_IF) {
+        /* Tail-position if/else: recurse into both branches */
+        if (stmt->as.if_stmt.then_branch) {
+            inject_implicit_return(stmt->as.if_stmt.then_branch);
+        }
+        if (stmt->as.if_stmt.else_branch) {
+            inject_implicit_return(stmt->as.if_stmt.else_branch);
+        }
+    } else if (stmt->type == AST_BLOCK) {
+        inject_implicit_return(stmt);
+    }
+    /* For other statement types (while, let, set, etc.) — no implicit return */
+}
+
 /* Helper to recursively transform return statements in a block */
 static void transform_returns_in_block(ASTNode *block, ASTNode **postconditions, int postcondition_count, Type return_type) {
     if (!block || block->type != AST_BLOCK) {
@@ -3892,6 +3954,11 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
             }
             body->as.block.statements = new_statements;
             body->as.block.count = precondition_count + original_count;
+        }
+
+        /* Inject implicit return for the last expression in the body */
+        if (return_type != TYPE_VOID) {
+            inject_implicit_return(body);
         }
 
         /* Inject postconditions before return statements */

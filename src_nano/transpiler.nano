@@ -5807,11 +5807,130 @@ shadow generate_while_stmt {
     assert (str_contains code "while (1)")
 }
 
+/* Returns true if a ParseNodeType integer represents a value-producing expression */
+fn is_expr_pnode(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRING) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_CALL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_COND) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return true } else { (print "") }
+    /* PNODE_MATCH excluded: match arm bodies need the full TypeChecker context for
+     * proper return-statement type checking; wrapping match in implicit return breaks this. */
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) { return true } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) { return true } else { (print "") }
+    return false
+}
+
+shadow is_expr_pnode {
+    assert (is_expr_pnode ParseNodeType.PNODE_CALL)
+    assert (is_expr_pnode ParseNodeType.PNODE_NUMBER)
+    assert (not (is_expr_pnode ParseNodeType.PNODE_LET))
+    assert (not (is_expr_pnode ParseNodeType.PNODE_RETURN))
+    assert (not (is_expr_pnode ParseNodeType.PNODE_IF))
+}
+
+/* Generate a block treating the last statement as an implicit return when appropriate.
+ * Handles: bare expressions, tail-position if/else with both branches present.
+ * Recurses into if/else branches for nested tail positions.
+ */
+fn generate_block_tail_return(parser: Parser, block_id: int, indent: int, env: GenEnv, return_type: string) -> string {
+    if (< block_id 0) {
+        return ""
+    } else {
+        let block: ASTBlock = (parser_get_block parser block_id)
+        let stmt_count: int = (list_ASTStmtRef_length block.statements)
+        if (<= stmt_count 0) {
+            return ""
+        } else {
+            let last_stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements (- stmt_count 1))
+            /* If last stmt already has an explicit return, generate block normally */
+            if (== last_stmt.node_type ParseNodeType.PNODE_RETURN) {
+                return (generate_block parser block_id indent env return_type)
+            } else {
+                /* Generate all statements before the last one */
+                let mut parts: array<string> = []
+                let mut env_cur: GenEnv = env
+                let mut i: int = 0
+                while (< i (- stmt_count 1)) {
+                    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+                    let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
+                    set parts (cg_append parts res.code)
+                    set env_cur res.env
+                    set i (+ i 1)
+                }
+                /* Case: last stmt is a value-producing expression → implicit return */
+                if (is_expr_pnode last_stmt.node_type) {
+                    let expr_code: string = (generate_expression parser last_stmt.node_id last_stmt.node_type env_cur return_type)
+                    set parts (cg_append parts (gen_indent indent))
+                    set parts (cg_append parts "return ")
+                    set parts (cg_append parts expr_code)
+                    set parts (cg_append parts ";\n")
+                    return (cg_build parts)
+                } else {
+                    /* Case: last stmt is if/else with both branches present → recurse */
+                    if (== last_stmt.node_type ParseNodeType.PNODE_IF) {
+                        let if_s: ASTIf = (parser_get_if parser last_stmt.node_id)
+                        if (>= if_s.else_body 0) {
+                            set parts (cg_append parts (gen_indent indent))
+                            set parts (cg_append parts "if (")
+                            let cond_code: string = (generate_expression parser if_s.condition if_s.condition_type env_cur "bool")
+                            set parts (cg_append parts cond_code)
+                            set parts (cg_append parts ") {\n")
+                            set parts (cg_append parts (generate_block_tail_return parser if_s.then_body (+ indent 1) env_cur return_type))
+                            set parts (cg_append parts (gen_indent indent))
+                            set parts (cg_append parts "} else {\n")
+                            set parts (cg_append parts (generate_block_tail_return parser if_s.else_body (+ indent 1) env_cur return_type))
+                            set parts (cg_append parts (gen_indent indent))
+                            set parts (cg_append parts "}\n")
+                            return (cg_build parts)
+                        } else {
+                            /* if without else - cannot be implicit return, generate normally */
+                            let res: StmtGenResult = (generate_statement parser last_stmt indent env_cur return_type)
+                            set parts (cg_append parts res.code)
+                            return (cg_build parts)
+                        }
+                    } else {
+                        /* Other statement types: generate normally, no implicit return */
+                        let res: StmtGenResult = (generate_statement parser last_stmt indent env_cur return_type)
+                        set parts (cg_append parts res.code)
+                        return (cg_build parts)
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow generate_block_tail_return {
+    /* Test: expression tail return */
+    let src: string = (+ "f" "n f(x: int) -> int { (* x 2) }")
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let env: GenEnv = (genenv_put (genenv_new) "x" "int")
+    let code: string = (generate_block_tail_return p func.body 1 env "int")
+    assert (str_contains code "return")
+}
+
 fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type: string) -> string {
-    return (generate_block parser body_id 1 env return_type)
+    /* For void functions or missing body, no implicit return needed */
+    if (or (== return_type "") (== return_type "void")) {
+        return (generate_block parser body_id 1 env return_type)
+    } else {
+        return (generate_block_tail_return parser body_id 1 env return_type)
+    }
 }
 
 shadow generate_function_body {
+    /* Test: explicit return still works */
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
@@ -5819,6 +5938,14 @@ shadow generate_function_body {
     let env: GenEnv = (genenv_new)
     let code: string = (generate_function_body p func.body env "int")
     assert (str_contains code "return")
+    /* Test: implicit return — last expression used as return value */
+    let source2: string = (+ "f" "n double(x: int) -> int { (* x 2) }")
+    let toks2: List<LexerToken> = (tokenize_string source2)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let env2: GenEnv = (genenv_put (genenv_new) "x" "int")
+    let code2: string = (generate_function_body p2 func2.body env2 "int")
+    assert (str_contains code2 "return")
 }
 
 /* =============================================================================
