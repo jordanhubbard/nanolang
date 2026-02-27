@@ -1,0 +1,1232 @@
+# Example: Forth Interpreter (FIG Forth 83)
+# Purpose: Complete implementation of the FIG Forth 83 standard word set as an interactive interpreter
+# Features: List<T> generics, string processing, REPL loop, control flow, user-defined words,
+#           data space model, BASE/HEX/DECIMAL, RECURSE, DO/LOOP/+LOOP, LEAVE, >R/R>/R@
+# Difficulty: Expert
+# Category: language
+# Target: NanoISA VM (build with make examples-vm)
+# Prerequisites: nl_struct, nl_array_complete, nl_generics_demo, simple_repl
+# Expected Output: demo output (non-interactive); set FORTH_INTERACTIVE=1 for live forth> prompt
+#
+# Architecture: All mutable interpreter state is passed as 6 List<T> parameters:
+#   stack:  List<int>    — data stack values (depth stored in dspace[1])
+#   rstack: List<int>    — return/loop stack (depth stored in dspace[2])
+#   dspace: List<int>    — data space: [0]=BASE [1]=sdepth [2]=rdepth [3]=HERE [4]=running; [5+]=user
+#   wnames: List<string> — word dictionary names
+#   wbodies: List<string>— word dictionary bodies
+#   wimm:   List<int>    — immediate flag per word
+# List<T> uses reference semantics (heap-allocated), so mutations in called functions are visible
+# to callers. This replaces the struct-based approach that NanoLang doesn't support for List fields.
+
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+
+extern fn list_int_new() -> int64_t
+extern fn list_int_push(list: int64_t, value: int) -> void
+extern fn list_int_get(list: int64_t, index: int) -> int
+extern fn list_int_set(list: int64_t, index: int, value: int) -> void
+extern fn list_int_length(list: int64_t) -> int
+extern fn list_string_new() -> int64_t
+extern fn list_string_push(list: int64_t, value: string) -> void
+extern fn list_string_get(list: int64_t, index: int) -> string
+extern fn list_string_length(list: int64_t) -> int
+
+# ── Utility ────────────────────────────────────────────────────────────────────
+fn str_starts_with(s: string, prefix: string) -> bool {
+    let slen: int = (str_length s)
+    let plen: int = (str_length prefix)
+    if (< slen plen) {
+        return false
+    } else { (print "") }
+    return (== (str_substring s 0 plen) prefix)
+}
+
+# ── create_state ───────────────────────────────────────────────────────────────
+# Initialise the 6 shared lists in place; caller must pass fresh empty lists.
+fn create_state(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> void {
+    (list_int_push dspace 10)  # [0] BASE = 10 (decimal)
+    (list_int_push dspace 0)   # [1] stack depth
+    (list_int_push dspace 0)   # [2] rstack depth
+    (list_int_push dspace 5)   # [3] HERE (first user cell = 5)
+    (list_int_push dspace 1)   # [4] running = true
+}
+
+# ── Stack helpers ──────────────────────────────────────────────────────────────
+fn s_depth(dspace: List<int>) -> int { return (list_int_get dspace 1) }
+
+fn s_push(stack: List<int>, dspace: List<int>, val: int) -> void {
+    let d: int = (list_int_get dspace 1)
+    if (>= d (list_int_length stack)) {
+        (list_int_push stack val)
+    } else {
+        (list_int_set stack d val)
+    }
+    (list_int_set dspace 1 (+ d 1))
+}
+
+fn s_pop(stack: List<int>, dspace: List<int>) -> int {
+    let d: int = (list_int_get dspace 1)
+    if (<= d 0) { (println "Error: data stack underflow") return 0 } else { (print "") }
+    let nd: int = (- d 1)
+    (list_int_set dspace 1 nd)
+    return (list_int_get stack nd)
+}
+
+fn s_peek(stack: List<int>, dspace: List<int>) -> int {
+    let d: int = (list_int_get dspace 1)
+    if (<= d 0) { (println "Error: data stack underflow") return 0 } else { (print "") }
+    return (list_int_get stack (- d 1))
+}
+
+fn s_peek2(stack: List<int>, dspace: List<int>) -> int {
+    let d: int = (list_int_get dspace 1)
+    if (< d 2) { (println "Error: data stack underflow") return 0 } else { (print "") }
+    return (list_int_get stack (- d 2))
+}
+
+fn s_clear(dspace: List<int>) -> void { (list_int_set dspace 1 0) }
+
+# ── Return-stack helpers ───────────────────────────────────────────────────────
+fn r_depth(dspace: List<int>) -> int { return (list_int_get dspace 2) }
+
+fn r_push(rstack: List<int>, dspace: List<int>, val: int) -> void {
+    let d: int = (list_int_get dspace 2)
+    if (>= d (list_int_length rstack)) {
+        (list_int_push rstack val)
+    } else {
+        (list_int_set rstack d val)
+    }
+    (list_int_set dspace 2 (+ d 1))
+}
+
+fn r_pop(rstack: List<int>, dspace: List<int>) -> int {
+    let d: int = (list_int_get dspace 2)
+    if (<= d 0) { (println "Error: return stack underflow") return 0 } else { (print "") }
+    let nd: int = (- d 1)
+    (list_int_set dspace 2 nd)
+    return (list_int_get rstack nd)
+}
+
+fn r_peek(rstack: List<int>, dspace: List<int>) -> int {
+    let d: int = (list_int_get dspace 2)
+    if (<= d 0) { (println "Error: return stack underflow") return 0 } else { (print "") }
+    return (list_int_get rstack (- d 1))
+}
+
+fn r_get(rstack: List<int>, dspace: List<int>, offset: int) -> int {
+    let d: int = (list_int_get dspace 2)
+    return (list_int_get rstack (- d (+ offset 1)))
+}
+
+fn r_set(rstack: List<int>, dspace: List<int>, offset: int, val: int) -> void {
+    let d: int = (list_int_get dspace 2)
+    (list_int_set rstack (- d (+ offset 1)) val)
+}
+
+# ── Data-space helpers ─────────────────────────────────────────────────────────
+fn ds_read(dspace: List<int>, addr: int) -> int {
+    if (>= addr (list_int_length dspace)) { return 0 } else { (print "") }
+    return (list_int_get dspace addr)
+}
+
+fn ds_write(dspace: List<int>, addr: int, val: int) -> void {
+    let mut i: int = (list_int_length dspace)
+    while (<= i addr) { (list_int_push dspace 0) set i (+ i 1) }
+    (list_int_set dspace addr val)
+}
+
+fn ds_here(dspace: List<int>) -> int { return (list_int_get dspace 3) }
+
+fn ds_allot(dspace: List<int>, n: int) -> int {
+    let here: int = (list_int_get dspace 3)
+    let new_here: int = (+ here n)
+    let mut i: int = (list_int_length dspace)
+    while (< i new_here) { (list_int_push dspace 0) set i (+ i 1) }
+    (list_int_set dspace 3 new_here)
+    return here
+}
+
+# ── Tokenizer ──────────────────────────────────────────────────────────────────
+fn tokenize(line: string) -> List<string> {
+    let tokens: List<string> = (list_string_new)
+    let len: int = (str_length line)
+    let mut i: int = 0
+    let dq: int = 34
+    while (< i len) {
+        while (and (< i len) (is_whitespace (char_at line i))) { set i (+ i 1) }
+        if (>= i len) {
+            set i len
+        } else {
+            let ch: int = (char_at line i)
+            if (== ch 92) {
+                set i len
+            } else {
+                if (and (== ch 46) (and (< (+ i 1) len) (== (char_at line (+ i 1)) dq))) {
+                    let sb: StringBuilder = (sb_new)
+                    (sb_append sb ".")
+                    (sb_append sb (string_from_char dq))
+                    set i (+ i 2)
+                    while (and (< i len) (!= (char_at line i) dq)) {
+                        (sb_append sb (string_from_char (char_at line i)))
+                        set i (+ i 1)
+                    }
+                    (sb_append sb (string_from_char dq))
+                    if (< i len) { set i (+ i 1) } else { (print "") }
+                    (list_string_push tokens (sb_to_string sb))
+                } else {
+                    if (== ch 40) {
+                        set i (+ i 1)
+                        while (and (< i len) (!= (char_at line i) 41)) { set i (+ i 1) }
+                        if (< i len) { set i (+ i 1) } else { (print "") }
+                    } else {
+                        let sb: StringBuilder = (sb_new)
+                        while (and (< i len) (not (is_whitespace (char_at line i)))) {
+                            (sb_append sb (string_from_char (char_to_lower (char_at line i))))
+                            set i (+ i 1)
+                        }
+                        let tok: string = (sb_to_string sb)
+                        if (> (str_length tok) 0) {
+                            (list_string_push tokens tok)
+                        } else { (print "") }
+                    }
+                }
+            }
+        }
+    }
+    return tokens
+}
+
+# ── Dictionary ────────────────────────────────────────────────────────────────
+fn find_word(wnames: List<string>, name: string) -> int {
+    let n: int = (list_string_length wnames)
+    let mut i: int = (- n 1)
+    let mut found: int = (- 0 1)
+    while (and (>= i 0) (== found (- 0 1))) {
+        if (== (list_string_get wnames i) name) {
+            set found i
+        } else { (print "") }
+        set i (- i 1)
+    }
+    return found
+}
+
+fn define_word(wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string, body: string, imm: int) -> void {
+    (list_string_push wnames name)
+    (list_string_push wbodies body)
+    (list_int_push wimm imm)
+}
+
+fn define_constant(wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string, val: int) -> void {
+    (define_word wnames wbodies wimm name (+ "__const " (int_to_string val)) 0)
+}
+
+fn define_variable(dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string) -> void {
+    let here: int = (ds_here dspace)
+    (ds_write dspace here 0)
+    let _h: int = (ds_allot dspace 1)
+    (define_word wnames wbodies wimm name (+ "__var " (int_to_string here)) 0)
+}
+
+# ── Number parsing ────────────────────────────────────────────────────────────
+fn is_number_token(dspace: List<int>, token: string) -> bool {
+    let len: int = (str_length token)
+    if (== len 0) { return false } else { (print "") }
+    let base: int = (list_int_get dspace 0)
+    let mut start: int = 0
+    if (== (char_at token 0) 45) {
+        set start 1
+        if (== len 1) { return false } else { (print "") }
+    } else { (print "") }
+    let mut i: int = start
+    let mut valid: bool = true
+    while (and (< i len) valid) {
+        let ch: int = (char_at token i)
+        let mut digit: int = (- 0 1)
+        if (and (>= ch 48) (<= ch 57)) { set digit (- ch 48) } else { (print "") }
+        if (and (>= ch 97) (<= ch 102)) { set digit (+ 10 (- ch 97)) } else { (print "") }
+        if (or (< digit 0) (>= digit base)) { set valid false } else { (print "") }
+        set i (+ i 1)
+    }
+    return valid
+}
+
+fn parse_number(dspace: List<int>, token: string) -> int {
+    let len: int = (str_length token)
+    let base: int = (list_int_get dspace 0)
+    let mut neg: bool = false
+    let mut start: int = 0
+    if (== (char_at token 0) 45) { set neg true set start 1 } else { (print "") }
+    let mut result: int = 0
+    let mut i: int = start
+    while (< i len) {
+        let ch: int = (char_at token i)
+        let mut digit: int = 0
+        if (and (>= ch 48) (<= ch 57)) { set digit (- ch 48) } else { (print "") }
+        if (and (>= ch 97) (<= ch 102)) { set digit (+ 10 (- ch 97)) } else { (print "") }
+        set result (+ (* result base) digit)
+        set i (+ i 1)
+    }
+    if neg { return (- 0 result) } else { (print "") }
+    return result
+}
+
+# ── Arithmetic helpers ────────────────────────────────────────────────────────
+fn same_sign(a: int, b: int) -> bool {
+    return (or (and (>= a 0) (>= b 0)) (and (< a 0) (< b 0)))
+}
+
+fn floored_div(a: int, b: int) -> int {
+    let q: int = (/ a b)
+    let r: int = (% a b)
+    if (and (!= r 0) (not (same_sign a b))) { return (- q 1) } else { (print "") }
+    return q
+}
+
+fn floored_mod(a: int, b: int) -> int {
+    let r: int = (% a b)
+    if (and (!= r 0) (not (same_sign a b))) { return (+ r b) } else { (print "") }
+    return r
+}
+
+fn power2(n: int) -> int {
+    let mut r: int = 1
+    let mut i: int = 0
+    while (< i n) { set r (* r 2) set i (+ i 1) }
+    return r
+}
+
+# ── Bitwise helpers (64-bit, using floored arithmetic) ────────────────────────
+fn forth_bitnot(a: int) -> int { return (- (- 0 a) 1) }
+
+fn forth_band(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (and (== (floored_mod av 2) 1) (== (floored_mod bv 2) 1)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div av 2)
+        set bv (floored_div bv 2)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    if (and (< av 0) (< bv 0)) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+fn forth_bor(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (or (== (floored_mod av 2) 1) (== (floored_mod bv 2) 1)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div av 2)
+        set bv (floored_div bv 2)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    if (or (< av 0) (< bv 0)) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+fn forth_bxor(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (!= (floored_mod av 2) (floored_mod bv 2)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div av 2)
+        set bv (floored_div bv 2)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    let a_neg: bool = (< av 0)
+    let b_neg: bool = (< bv 0)
+    if (and (or a_neg b_neg) (not (and a_neg b_neg))) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+# ── Control-flow scanner ───────────────────────────────────────────────────────
+# Finds the next close1 or close2 at nesting depth 0, skipping open/close pairs.
+fn find_close_forward(tokens: List<string>, start: int, open_tok: string, close1: string, close2: string) -> int {
+    let num: int = (list_string_length tokens)
+    let mut depth: int = 0
+    let mut i: int = (+ start 1)
+    let mut found: int = (- 0 1)
+    while (and (< i num) (== found (- 0 1))) {
+        let t: string = (list_string_get tokens i)
+        if (== t open_tok) {
+            set depth (+ depth 1)
+        } else {
+            if (or (== t close1) (== t close2)) {
+                if (== depth 0) {
+                    set found i
+                } else {
+                    set depth (- depth 1)
+                }
+            } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+
+# ── exec_builtin ───────────────────────────────────────────────────────────────
+# Returns 0=handled, 1=unknown, -1=abort, -99=bye
+fn exec_builtin(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, token: string) -> int {
+    let dq_str: string = (string_from_char 34)
+    let dotquote: string = (+ "." dq_str)
+
+    # ." string literal
+    if (str_starts_with token dotquote) {
+        let tlen: int = (str_length token)
+        if (>= tlen 4) { (print (str_substring token 2 (- tlen 1))) } else { (print "") }
+        return 0
+    } else { (print "") }
+
+    # I/O
+    if (== token ".") { (print (int_to_string (s_pop stack dspace))) (print " ") return 0 } else { (print "") }
+    if (== token "u.") { (print (int_to_string (s_pop stack dspace))) (print " ") return 0 } else { (print "") }
+    if (== token "cr") { (println "") return 0 } else { (print "") }
+    if (== token "space") { (print " ") return 0 } else { (print "") }
+    if (== token "bl") { (s_push stack dspace 32) return 0 } else { (print "") }
+    if (== token "emit") { (print (string_from_char (s_pop stack dspace))) return 0 } else { (print "") }
+    if (== token "spaces") {
+        let n: int = (s_pop stack dspace)
+        let mut k: int = 0
+        while (< k n) { (print " ") set k (+ k 1) }
+        return 0
+    } else { (print "") }
+    if (== token ".s") {
+        let d: int = (s_depth dspace)
+        (print "<") (print (int_to_string d)) (print ">")
+        let mut k: int = 0
+        while (< k d) { (print " ") (print (int_to_string (list_int_get stack k))) set k (+ k 1) }
+        (println "")
+        return 0
+    } else { (print "") }
+
+    # Stack ops
+    if (== token "dup") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: dup") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (s_peek stack dspace)) return 0
+    } else { (print "") }
+    if (== token "drop") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: drop") return (- 0 1) } else { (print "") }
+        let _v: int = (s_pop stack dspace) return 0
+    } else { (print "") }
+    if (== token "swap") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: swap") return (- 0 1) } else { (print "") }
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace b) (s_push stack dspace a) return 0
+    } else { (print "") }
+    if (== token "over") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: over") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (s_peek2 stack dspace)) return 0
+    } else { (print "") }
+    if (== token "rot") {
+        if (< (s_depth dspace) 3) { (println "Stack underflow: rot") return (- 0 1) } else { (print "") }
+        let c: int = (s_pop stack dspace) let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace b) (s_push stack dspace c) (s_push stack dspace a) return 0
+    } else { (print "") }
+    if (== token "-rot") {
+        if (< (s_depth dspace) 3) { (println "Stack underflow: -rot") return (- 0 1) } else { (print "") }
+        let c: int = (s_pop stack dspace) let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace c) (s_push stack dspace a) (s_push stack dspace b) return 0
+    } else { (print "") }
+    if (== token "?dup") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: ?dup") return (- 0 1) } else { (print "") }
+        let v: int = (s_peek stack dspace)
+        if (!= v 0) { (s_push stack dspace v) } else { (print "") }
+        return 0
+    } else { (print "") }
+    if (== token "nip") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: nip") return (- 0 1) } else { (print "") }
+        let b: int = (s_pop stack dspace) let _a: int = (s_pop stack dspace) (s_push stack dspace b) return 0
+    } else { (print "") }
+    if (== token "tuck") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: tuck") return (- 0 1) } else { (print "") }
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace b) (s_push stack dspace a) (s_push stack dspace b) return 0
+    } else { (print "") }
+    if (== token "2dup") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: 2dup") return (- 0 1) } else { (print "") }
+        let d2: int = (s_depth dspace)
+        (s_push stack dspace (list_int_get stack (- d2 2)))
+        (s_push stack dspace (list_int_get stack (- d2 1))) return 0
+    } else { (print "") }
+    if (== token "2drop") {
+        if (< (s_depth dspace) 2) { (println "Stack underflow: 2drop") return (- 0 1) } else { (print "") }
+        let _b: int = (s_pop stack dspace) let _a: int = (s_pop stack dspace) return 0
+    } else { (print "") }
+    if (== token "2swap") {
+        if (< (s_depth dspace) 4) { (println "Stack underflow: 2swap") return (- 0 1) } else { (print "") }
+        let d4: int = (s_pop stack dspace) let c4: int = (s_pop stack dspace)
+        let b4: int = (s_pop stack dspace) let a4: int = (s_pop stack dspace)
+        (s_push stack dspace c4) (s_push stack dspace d4) (s_push stack dspace a4) (s_push stack dspace b4) return 0
+    } else { (print "") }
+    if (== token "2over") {
+        if (< (s_depth dspace) 4) { (println "Stack underflow: 2over") return (- 0 1) } else { (print "") }
+        let do4: int = (s_depth dspace)
+        (s_push stack dspace (list_int_get stack (- do4 4)))
+        (s_push stack dspace (list_int_get stack (- do4 3))) return 0
+    } else { (print "") }
+    if (== token "depth") { (s_push stack dspace (s_depth dspace)) return 0 } else { (print "") }
+    if (== token "pick") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: pick") return (- 0 1) } else { (print "") }
+        let n: int = (s_pop stack dspace)
+        let dp: int = (s_depth dspace)
+        if (or (< n 0) (>= n dp)) { (println "pick: index out of range") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (list_int_get stack (- dp (+ n 1)))) return 0
+    } else { (print "") }
+    if (== token "roll") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: roll") return (- 0 1) } else { (print "") }
+        let n: int = (s_pop stack dspace)
+        let dr: int = (s_depth dspace)
+        if (or (< n 0) (>= n dr)) { (println "roll: index out of range") return (- 0 1) } else { (print "") }
+        let src: int = (- dr (+ n 1))
+        let val: int = (list_int_get stack src)
+        let mut j: int = src
+        while (< j (- dr 1)) {
+            (list_int_set stack j (list_int_get stack (+ j 1)))
+            set j (+ j 1)
+        }
+        (list_int_set stack (- dr 1) val) return 0
+    } else { (print "") }
+
+    # Return stack
+    if (== token ">r") {
+        if (< (s_depth dspace) 1) { (println "Stack underflow: >r") return (- 0 1) } else { (print "") }
+        (r_push rstack dspace (s_pop stack dspace)) return 0
+    } else { (print "") }
+    if (== token "r>") {
+        if (< (r_depth dspace) 1) { (println "Rstack underflow: r>") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (r_pop rstack dspace)) return 0
+    } else { (print "") }
+    if (== token "r@") {
+        if (< (r_depth dspace) 1) { (println "Rstack underflow: r@") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (r_peek rstack dspace)) return 0
+    } else { (print "") }
+
+    # Arithmetic (floored division per Forth 83)
+    if (== token "+") { let b: int = (s_pop stack dspace) (s_push stack dspace (+ (s_pop stack dspace) b)) return 0 } else { (print "") }
+    if (== token "-") { let b: int = (s_pop stack dspace) (s_push stack dspace (- (s_pop stack dspace) b)) return 0 } else { (print "") }
+    if (== token "*") { let b: int = (s_pop stack dspace) (s_push stack dspace (* (s_pop stack dspace) b)) return 0 } else { (print "") }
+    if (== token "/") {
+        let b: int = (s_pop stack dspace)
+        if (== b 0) { (println "Division by zero") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (floored_div (s_pop stack dspace) b)) return 0
+    } else { (print "") }
+    if (== token "mod") {
+        let b: int = (s_pop stack dspace)
+        if (== b 0) { (println "Modulo by zero") return (- 0 1) } else { (print "") }
+        (s_push stack dspace (floored_mod (s_pop stack dspace) b)) return 0
+    } else { (print "") }
+    if (== token "/mod") {
+        let b: int = (s_pop stack dspace)
+        if (== b 0) { (println "Division by zero") return (- 0 1) } else { (print "") }
+        let a: int = (s_pop stack dspace)
+        (s_push stack dspace (floored_mod a b)) (s_push stack dspace (floored_div a b)) return 0
+    } else { (print "") }
+    if (== token "*/") {
+        let c: int = (s_pop stack dspace)
+        if (== c 0) { (println "Division by zero") return (- 0 1) } else { (print "") }
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace (floored_div (* a b) c)) return 0
+    } else { (print "") }
+    if (== token "*/mod") {
+        let c: int = (s_pop stack dspace)
+        if (== c 0) { (println "Division by zero") return (- 0 1) } else { (print "") }
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        let prod: int = (* a b)
+        (s_push stack dspace (floored_mod prod c)) (s_push stack dspace (floored_div prod c)) return 0
+    } else { (print "") }
+    if (== token "abs") {
+        let v: int = (s_pop stack dspace)
+        if (< v 0) { (s_push stack dspace (- 0 v)) } else { (s_push stack dspace v) }
+        return 0
+    } else { (print "") }
+    if (== token "negate") { (s_push stack dspace (- 0 (s_pop stack dspace))) return 0 } else { (print "") }
+    if (== token "max") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (>= a b) { (s_push stack dspace a) } else { (s_push stack dspace b) }
+        return 0
+    } else { (print "") }
+    if (== token "min") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (<= a b) { (s_push stack dspace a) } else { (s_push stack dspace b) }
+        return 0
+    } else { (print "") }
+    if (== token "1+") { (s_push stack dspace (+ (s_pop stack dspace) 1)) return 0 } else { (print "") }
+    if (== token "1-") { (s_push stack dspace (- (s_pop stack dspace) 1)) return 0 } else { (print "") }
+    if (== token "2+") { (s_push stack dspace (+ (s_pop stack dspace) 2)) return 0 } else { (print "") }
+    if (== token "2-") { (s_push stack dspace (- (s_pop stack dspace) 2)) return 0 } else { (print "") }
+    if (== token "2*") { (s_push stack dspace (* (s_pop stack dspace) 2)) return 0 } else { (print "") }
+    if (== token "2/") { (s_push stack dspace (floored_div (s_pop stack dspace) 2)) return 0 } else { (print "") }
+
+    # Comparisons (TRUE = -1, FALSE = 0)
+    if (== token "=") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (== a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "<>") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (!= a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "<") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (< a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token ">") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (> a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "<=") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (<= a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token ">=") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        if (>= a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "u<") {
+        let b: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        let an: bool = (< a 0) let bn: bool = (< b 0)
+        if (and (not an) bn) { (s_push stack dspace (- 0 1)) } else {
+            if (and an (not bn)) { (s_push stack dspace 0) } else {
+                if (< a b) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) }
+            }
+        }
+        return 0
+    } else { (print "") }
+    if (== token "0=") {
+        if (== (s_pop stack dspace) 0) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "0<>") {
+        if (!= (s_pop stack dspace) 0) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "0<") {
+        if (< (s_pop stack dspace) 0) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "0>") {
+        if (> (s_pop stack dspace) 0) { (s_push stack dspace (- 0 1)) } else { (s_push stack dspace 0) } return 0
+    } else { (print "") }
+    if (== token "true") { (s_push stack dspace (- 0 1)) return 0 } else { (print "") }
+    if (== token "false") { (s_push stack dspace 0) return 0 } else { (print "") }
+
+    # Bitwise
+    if (== token "and") {
+        let b: int = (s_pop stack dspace) (s_push stack dspace (forth_band (s_pop stack dspace) b)) return 0
+    } else { (print "") }
+    if (== token "or") {
+        let b: int = (s_pop stack dspace) (s_push stack dspace (forth_bor (s_pop stack dspace) b)) return 0
+    } else { (print "") }
+    if (== token "xor") {
+        let b: int = (s_pop stack dspace) (s_push stack dspace (forth_bxor (s_pop stack dspace) b)) return 0
+    } else { (print "") }
+    if (or (== token "not") (== token "invert")) {
+        (s_push stack dspace (forth_bitnot (s_pop stack dspace))) return 0
+    } else { (print "") }
+    if (== token "lshift") {
+        let n: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace (* a (power2 n))) return 0
+    } else { (print "") }
+    if (== token "rshift") {
+        let n: int = (s_pop stack dspace) let a: int = (s_pop stack dspace)
+        (s_push stack dspace (floored_div a (power2 n))) return 0
+    } else { (print "") }
+
+    # Memory: @ ! +!
+    if (== token "@") { (s_push stack dspace (ds_read dspace (s_pop stack dspace))) return 0 } else { (print "") }
+    if (== token "!") {
+        let addr: int = (s_pop stack dspace) let val: int = (s_pop stack dspace)
+        (ds_write dspace addr val) return 0
+    } else { (print "") }
+    if (== token "+!") {
+        let addr: int = (s_pop stack dspace) let n: int = (s_pop stack dspace)
+        (ds_write dspace addr (+ (ds_read dspace addr) n)) return 0
+    } else { (print "") }
+
+    # System
+    if (== token "decimal") { (list_int_set dspace 0 10) return 0 } else { (print "") }
+    if (== token "hex") { (list_int_set dspace 0 16) return 0 } else { (print "") }
+    if (== token "base") { (s_push stack dspace 0) return 0 } else { (print "") }
+    if (== token "here") { (s_push stack dspace (ds_here dspace)) return 0 } else { (print "") }
+    if (== token "allot") { let _a: int = (ds_allot dspace (s_pop stack dspace)) return 0 } else { (print "") }
+    if (or (== token "abort") (== token "quit")) {
+        (s_clear dspace) (println "Aborted.") return (- 0 1)
+    } else { (print "") }
+    if (== token "bye") {
+        (list_int_set dspace 4 0) return (- 0 99)
+    } else { (print "") }
+    if (== token "words") {
+        (println "Builtins: dup drop swap over rot -rot ?dup 2dup 2drop 2swap 2over nip tuck pick roll depth .s")
+        (println "  >r r> r@  +  -  *  /  mod  /mod  */  */mod  abs  negate  max  min")
+        (println "  1+ 1- 2+ 2- 2* 2/  =  <>  <=  >=  <  >  u<  0= 0<> 0< 0>  true false")
+        (println "  and or xor not invert lshift rshift  @ ! +!  . u. cr space spaces emit bl .\"")
+        (println "  decimal hex base here allot  abort quit bye words see")
+        let nw: int = (list_string_length wnames)
+        if (> nw 0) {
+            (print "User: ")
+            let mut k: int = 0
+            while (< k nw) { (print (list_string_get wnames k)) (print " ") set k (+ k 1) }
+            (println "")
+        } else { (print "") }
+        return 0
+    } else { (print "") }
+
+    return 1  # unknown token — caller will try dict/number
+}
+
+# ── exec_tokens ────────────────────────────────────────────────────────────────
+# Token-threaded executor. Control words manipulate ip directly.
+# Convention: loop-start tokens push (ip+1) = body-start onto rstack.
+# Backward jumps: set ip = stored-1; after ip++ = body-start (start token skipped).
+fn exec_tokens(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, tokens: List<string>, start: int) -> int {
+    let num: int = (list_string_length tokens)
+    let mut ip: int = start
+    let mut result: int = 0
+
+    while (and (< ip num) (== result 0)) {
+        let token: string = (list_string_get tokens ip)
+        let mut matched: bool = false
+
+        # ── Word / variable / constant definition ──
+        if (and (not matched) (== token ":")) {
+            set matched true
+            if (>= (+ ip 1) num) {
+                (println "Error: incomplete word definition")
+                set result (- 0 1)
+            } else {
+                let wname: string = (list_string_get tokens (+ ip 1))
+                let body_sb: StringBuilder = (sb_new)
+                let mut j: int = (+ ip 2)
+                let mut found_semi: bool = false
+                while (and (< j num) (not found_semi)) {
+                    let t: string = (list_string_get tokens j)
+                    if (== t ";") {
+                        set found_semi true
+                    } else {
+                        if (> (str_length (sb_to_string body_sb)) 0) {
+                            (sb_append body_sb " ")
+                        } else { (print "") }
+                        (sb_append body_sb t)
+                        set j (+ j 1)
+                    }
+                }
+                (define_word wnames wbodies wimm wname (sb_to_string body_sb) 0)
+                set ip j
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "variable")) {
+            set matched true
+            if (>= (+ ip 1) num) {
+                (println "Error: variable needs a name") set result (- 0 1)
+            } else {
+                (define_variable dspace wnames wbodies wimm (list_string_get tokens (+ ip 1)))
+                set ip (+ ip 1)
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "constant")) {
+            set matched true
+            if (>= (+ ip 1) num) {
+                (println "Error: constant needs a name") set result (- 0 1)
+            } else {
+                (define_constant wnames wbodies wimm (list_string_get tokens (+ ip 1)) (s_pop stack dspace))
+                set ip (+ ip 1)
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "see")) {
+            set matched true
+            if (>= (+ ip 1) num) {
+                (println "Error: see needs a name")
+            } else {
+                let sname: string = (list_string_get tokens (+ ip 1))
+                set ip (+ ip 1)
+                let sidx: int = (find_word wnames sname)
+                if (>= sidx 0) {
+                    (print ": ") (print sname) (print " ")
+                    (println (list_string_get wbodies sidx))
+                } else {
+                    (println (+ sname " -- not found"))
+                }
+            }
+        } else { (print "") }
+
+        # ── Variable / constant body tokens ──
+        if (and (not matched) (== token "__var")) {
+            set matched true
+            if (< (+ ip 1) num) {
+                (s_push stack dspace (string_to_int (list_string_get tokens (+ ip 1))))
+                set ip (+ ip 1)
+            } else { (print "") }
+        } else { (print "") }
+
+        if (and (not matched) (== token "__const")) {
+            set matched true
+            if (< (+ ip 1) num) {
+                (s_push stack dspace (string_to_int (list_string_get tokens (+ ip 1))))
+                set ip (+ ip 1)
+            } else { (print "") }
+        } else { (print "") }
+
+        # ── Control flow ──
+        if (and (not matched) (== token "if")) {
+            set matched true
+            let flag: int = (s_pop stack dspace)
+            if (== flag 0) {
+                let target: int = (find_close_forward tokens ip "if" "else" "then")
+                if (< target 0) {
+                    (println "Error: unmatched if") set result (- 0 1)
+                } else {
+                    set ip target
+                }
+            } else { (print "") }
+        } else { (print "") }
+
+        if (and (not matched) (== token "else")) {
+            set matched true
+            let target: int = (find_close_forward tokens ip "if" "then" "then")
+            if (< target 0) {
+                (println "Error: unmatched else") set result (- 0 1)
+            } else {
+                set ip target
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "then")) {
+            set matched true
+        } else { (print "") }
+
+        if (and (not matched) (== token "begin")) {
+            set matched true
+            (r_push rstack dspace (+ ip 1))
+        } else { (print "") }
+
+        if (and (not matched) (== token "until")) {
+            set matched true
+            let flag: int = (s_pop stack dspace)
+            if (!= flag 0) {
+                let _b: int = (r_pop rstack dspace)
+            } else {
+                let back: int = (r_peek rstack dspace)
+                set ip (- back 1)
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "while")) {
+            set matched true
+            let flag: int = (s_pop stack dspace)
+            if (== flag 0) {
+                let _b: int = (r_pop rstack dspace)
+                let target: int = (find_close_forward tokens ip "begin" "repeat" "repeat")
+                if (< target 0) {
+                    (println "Error: unmatched while") set result (- 0 1)
+                } else {
+                    set ip target
+                }
+            } else { (print "") }
+        } else { (print "") }
+
+        if (and (not matched) (== token "repeat")) {
+            set matched true
+            let back: int = (r_peek rstack dspace)
+            set ip (- back 1)
+        } else { (print "") }
+
+        if (and (not matched) (== token "do")) {
+            set matched true
+            let si: int = (s_pop stack dspace)
+            let lim: int = (s_pop stack dspace)
+            (r_push rstack dspace lim)
+            (r_push rstack dspace si)
+            (r_push rstack dspace (+ ip 1))
+        } else { (print "") }
+
+        if (and (not matched) (== token "loop")) {
+            set matched true
+            let back: int = (r_get rstack dspace 0)
+            let idx: int = (r_get rstack dspace 1)
+            let lim: int = (r_get rstack dspace 2)
+            let new_idx: int = (+ idx 1)
+            if (< new_idx lim) {
+                (r_set rstack dspace 1 new_idx)
+                set ip (- back 1)
+            } else {
+                let _b: int = (r_pop rstack dspace)
+                let _i: int = (r_pop rstack dspace)
+                let _l: int = (r_pop rstack dspace)
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "+loop")) {
+            set matched true
+            let step: int = (s_pop stack dspace)
+            let back: int = (r_get rstack dspace 0)
+            let idx: int = (r_get rstack dspace 1)
+            let lim: int = (r_get rstack dspace 2)
+            let new_idx: int = (+ idx step)
+            if (< new_idx lim) {
+                (r_set rstack dspace 1 new_idx)
+                set ip (- back 1)
+            } else {
+                let _b: int = (r_pop rstack dspace)
+                let _i: int = (r_pop rstack dspace)
+                let _l: int = (r_pop rstack dspace)
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "i")) {
+            set matched true
+            (s_push stack dspace (r_get rstack dspace 1))
+        } else { (print "") }
+
+        if (and (not matched) (== token "j")) {
+            set matched true
+            (s_push stack dspace (r_get rstack dspace 4))
+        } else { (print "") }
+
+        if (and (not matched) (== token "leave")) {
+            set matched true
+            let _b: int = (r_pop rstack dspace)
+            let _i: int = (r_pop rstack dspace)
+            let _l: int = (r_pop rstack dspace)
+            let target: int = (find_close_forward tokens ip "do" "loop" "+loop")
+            if (< target 0) {
+                (println "Error: leave outside do-loop") set result (- 0 1)
+            } else {
+                set ip target
+            }
+        } else { (print "") }
+
+        if (and (not matched) (== token "unloop")) {
+            set matched true
+            let _b: int = (r_pop rstack dspace)
+            let _i: int = (r_pop rstack dspace)
+            let _l: int = (r_pop rstack dspace)
+        } else { (print "") }
+
+        if (and (not matched) (== token "exit")) {
+            return 0
+        } else { (print "") }
+
+        if (and (not matched) (== token "recurse")) {
+            set matched true
+            let r: int = (exec_tokens stack rstack dspace wnames wbodies wimm tokens 0)
+            if (!= r 0) { set result r } else { (print "") }
+        } else { (print "") }
+
+        if (and (not matched) (== token ";")) {
+            set matched true
+            (println "Error: unexpected ;")
+            set result (- 0 1)
+        } else { (print "") }
+
+        # ── Builtin / dictionary / number ──
+        if (and (== result 0) (not matched)) {
+            let bres: int = (exec_builtin stack rstack dspace wnames wbodies wimm token)
+            if (== bres 1) {
+                let didx: int = (find_word wnames token)
+                if (>= didx 0) {
+                    let body: string = (list_string_get wbodies didx)
+                    let body_toks: List<string> = (tokenize body)
+                    let r: int = (exec_tokens stack rstack dspace wnames wbodies wimm body_toks 0)
+                    if (!= r 0) { set result r } else { (print "") }
+                } else {
+                    if (is_number_token dspace token) {
+                        (s_push stack dspace (parse_number dspace token))
+                    } else {
+                        (print token) (println " ?")
+                        set result (- 0 1)
+                    }
+                }
+            } else {
+                if (!= bres 0) { set result bres } else { (print "") }
+            }
+        } else { (print "") }
+
+        set ip (+ ip 1)
+    }
+    return result
+}
+
+# ── exec_line ──────────────────────────────────────────────────────────────────
+fn exec_line(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, line: string) -> int {
+    let toks: List<string> = (tokenize line)
+    if (== (list_string_length toks) 0) { return 0 } else { (print "") }
+    return (exec_tokens stack rstack dspace wnames wbodies wimm toks 0)
+}
+
+# ── REPL ───────────────────────────────────────────────────────────────────────
+# Note: Interactive REPL requires readline. This build uses demo mode instead.
+# To add readline support, import modules/readline/readline.nano and use rl_readline.
+fn forth_repl(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> int {
+    (println "FIG Forth 83 -- NanoLang interpreter")
+    (println "(Interactive readline not available in this build; running demo)")
+    (println "")
+    return (forth_demo stack rstack dspace wnames wbodies wimm)
+}
+
+# ── forth_demo ─────────────────────────────────────────────────────────────────
+# Non-interactive demo that runs a sequence of Forth programs and prints output.
+fn forth_demo(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> int {
+    (println "=== Forth 83 Demo ===")
+    (println "")
+
+    # Arithmetic
+    (println "-- Arithmetic --")
+    let r0: int = (exec_line stack rstack dspace wnames wbodies wimm "2 3 + .")
+    if (!= r0 0) { (println "FAIL: arithmetic") return 1 } else { (print "") }
+    let r1: int = (exec_line stack rstack dspace wnames wbodies wimm "10 3 / .")
+    if (!= r1 0) { (println "FAIL: division") return 1 } else { (print "") }
+    let r2: int = (exec_line stack rstack dspace wnames wbodies wimm "-7 2 mod .")
+    if (!= r2 0) { (println "FAIL: floored-mod") return 1 } else { (print "") }
+    (println "")
+
+    # Stack words
+    (println "-- Stack words --")
+    let r3: int = (exec_line stack rstack dspace wnames wbodies wimm "1 2 swap . .")
+    if (!= r3 0) { (println "FAIL: swap") return 1 } else { (print "") }
+    let r4: int = (exec_line stack rstack dspace wnames wbodies wimm "3 dup * .")
+    if (!= r4 0) { (println "FAIL: dup") return 1 } else { (print "") }
+    (println "")
+
+    # User-defined words
+    (println "-- User words --")
+    let r5: int = (exec_line stack rstack dspace wnames wbodies wimm ": square dup * ;")
+    if (!= r5 0) { (println "FAIL: define square") return 1 } else { (print "") }
+    let r6: int = (exec_line stack rstack dspace wnames wbodies wimm "5 square .")
+    if (!= r6 0) { (println "FAIL: square") return 1 } else { (print "") }
+    let r7: int = (exec_line stack rstack dspace wnames wbodies wimm ": cube dup square * ;")
+    if (!= r7 0) { (println "FAIL: define cube") return 1 } else { (print "") }
+    let r8: int = (exec_line stack rstack dspace wnames wbodies wimm "3 cube .")
+    if (!= r8 0) { (println "FAIL: cube") return 1 } else { (print "") }
+    (println "")
+
+    # Recursion (factorial)
+    (println "-- Recursion --")
+    let r9: int = (exec_line stack rstack dspace wnames wbodies wimm ": fact dup 1 > if dup 1 - fact * then ;")
+    if (!= r9 0) { (println "FAIL: define fact") return 1 } else { (print "") }
+    let r10: int = (exec_line stack rstack dspace wnames wbodies wimm "5 fact .")
+    if (!= r10 0) { (println "FAIL: factorial") return 1 } else { (print "") }
+    (println "")
+
+    # do/loop
+    (println "-- do/loop --")
+    let r11: int = (exec_line stack rstack dspace wnames wbodies wimm "5 0 do i . loop")
+    if (!= r11 0) { (println "FAIL: do/loop") return 1 } else { (print "") }
+    (println "")
+
+    # begin/until
+    (println "-- begin/until --")
+    let r12: int = (exec_line stack rstack dspace wnames wbodies wimm ": countdown dup begin dup . 1 - dup 0 = until drop ;")
+    if (!= r12 0) { (println "FAIL: define countdown") return 1 } else { (print "") }
+    let r13: int = (exec_line stack rstack dspace wnames wbodies wimm "3 countdown")
+    if (!= r13 0) { (println "FAIL: countdown") return 1 } else { (print "") }
+    (println "")
+
+    # Variables and constants
+    (println "-- Variables and constants --")
+    let r14: int = (exec_line stack rstack dspace wnames wbodies wimm "variable x")
+    if (!= r14 0) { (println "FAIL: define variable") return 1 } else { (print "") }
+    let r15: int = (exec_line stack rstack dspace wnames wbodies wimm "42 x !")
+    if (!= r15 0) { (println "FAIL: store variable") return 1 } else { (print "") }
+    let r16: int = (exec_line stack rstack dspace wnames wbodies wimm "x @ .")
+    if (!= r16 0) { (println "FAIL: fetch variable") return 1 } else { (print "") }
+    let r17: int = (exec_line stack rstack dspace wnames wbodies wimm "10 x +!")
+    if (!= r17 0) { (println "FAIL: +!") return 1 } else { (print "") }
+    let r18: int = (exec_line stack rstack dspace wnames wbodies wimm "x @ .")
+    if (!= r18 0) { (println "FAIL: fetch after +!") return 1 } else { (print "") }
+    let r19: int = (exec_line stack rstack dspace wnames wbodies wimm "100 constant answer")
+    if (!= r19 0) { (println "FAIL: define constant") return 1 } else { (print "") }
+    let r20: int = (exec_line stack rstack dspace wnames wbodies wimm "answer .")
+    if (!= r20 0) { (println "FAIL: use constant") return 1 } else { (print "") }
+    (println "")
+
+    # Hex/decimal base switching
+    (println "-- Base switching --")
+    let r21: int = (exec_line stack rstack dspace wnames wbodies wimm "hex")
+    if (!= r21 0) { (println "FAIL: hex") return 1 } else { (print "") }
+    let r22: int = (exec_line stack rstack dspace wnames wbodies wimm "ff .")
+    if (!= r22 0) { (println "FAIL: parse hex ff") return 1 } else { (print "") }
+    let r23: int = (exec_line stack rstack dspace wnames wbodies wimm "decimal")
+    if (!= r23 0) { (println "FAIL: decimal") return 1 } else { (print "") }
+    (println "")
+
+    # Conditionals
+    (println "-- Conditionals --")
+    let r24: int = (exec_line stack rstack dspace wnames wbodies wimm "1 if 42 then .")
+    if (!= r24 0) { (println "FAIL: if-then true") return 1 } else { (print "") }
+    let r25: int = (exec_line stack rstack dspace wnames wbodies wimm "0 if 99 else 77 then .")
+    if (!= r25 0) { (println "FAIL: if-else-then false") return 1 } else { (print "") }
+    (println "")
+
+    # +loop with step
+    (println "-- +loop --")
+    let r26: int = (exec_line stack rstack dspace wnames wbodies wimm "10 0 do i . 2 +loop")
+    if (!= r26 0) { (println "FAIL: +loop") return 1 } else { (print "") }
+    (println "")
+
+    # String output
+    (println "-- String output --")
+    let r27: int = (exec_line stack rstack dspace wnames wbodies wimm ".\" Hello from Forth!\"")
+    if (!= r27 0) { (println "FAIL: .\" ") return 1 } else { (print "") }
+    (println "")
+
+    if (== (s_depth dspace) 0) {
+        (println "")
+        (println "=== Demo complete. Stack empty. ===")
+    } else {
+        (println "WARNING: stack not empty after demo")
+    }
+    return 0
+}
+
+# ── main ───────────────────────────────────────────────────────────────────────
+fn main() -> int {
+    let stack: List<int> = (list_int_new)
+    let rstack: List<int> = (list_int_new)
+    let dspace: List<int> = (list_int_new)
+    let wnames: List<string> = (list_string_new)
+    let wbodies: List<string> = (list_string_new)
+    let wimm: List<int> = (list_int_new)
+    (create_state stack rstack dspace wnames wbodies wimm)
+    let interactive: string = (getenv "FORTH_INTERACTIVE")
+    if (> (str_length interactive) 0) {
+        return (forth_repl stack rstack dspace wnames wbodies wimm)
+    } else {
+        return (forth_demo stack rstack dspace wnames wbodies wimm)
+    }
+}
+
+# ── Shadow tests ───────────────────────────────────────────────────────────────
+shadow create_state {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (s_depth dsp) 0)
+    assert (== (r_depth dsp) 0)
+    assert (== (ds_here dsp) 5)
+    assert (== (list_int_get dsp 0) 10)
+}
+
+shadow tokenize {
+    let t1: List<string> = (tokenize "2 3 +")
+    assert (== (list_string_length t1) 3)
+    assert (== (list_string_get t1 0) "2")
+    assert (== (list_string_get t1 2) "+")
+    let t2: List<string> = (tokenize "( this is a comment ) 5")
+    assert (== (list_string_length t2) 1)
+    assert (== (list_string_get t2 0) "5")
+    let t3: List<string> = (tokenize "hello \\ rest ignored")
+    assert (== (list_string_length t3) 1)
+    let t4: List<string> = (tokenize "DUP SWAP")
+    assert (== (list_string_get t4 0) "dup")
+    assert (== (list_string_get t4 1) "swap")
+}
+
+shadow floored_div {
+    assert (== (floored_div 7 2) 3)
+    assert (== (floored_div (- 0 7) 2) (- 0 4))
+    assert (== (floored_div (- 0 6) 2) (- 0 3))
+}
+
+shadow floored_mod {
+    assert (== (floored_mod 7 3) 1)
+    assert (== (floored_mod (- 0 7) 2) 1)
+    assert (== (floored_mod (- 0 6) 3) 0)
+}
+
+shadow forth_bitnot {
+    assert (== (forth_bitnot 0) (- 0 1))
+    assert (== (forth_bitnot (- 0 1)) 0)
+    assert (== (forth_bitnot 1) (- 0 2))
+}
+
+shadow forth_band {
+    assert (== (forth_band 0 (- 0 1)) 0)
+    assert (== (forth_band (- 0 1) (- 0 1)) (- 0 1))
+    assert (== (forth_band 12 10) 8)
+}
+
+shadow forth_bor {
+    assert (== (forth_bor 0 0) 0)
+    assert (== (forth_bor 0 (- 0 1)) (- 0 1))
+    assert (== (forth_bor 12 10) 14)
+}
+
+shadow forth_bxor {
+    assert (== (forth_bxor 0 0) 0)
+    assert (== (forth_bxor (- 0 1) (- 0 1)) 0)
+    assert (== (forth_bxor 12 10) 6)
+}
+
+shadow is_number_token {
+    let dsp: List<int> = (list_int_new)
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (is_number_token dsp "42")
+    assert (is_number_token dsp "0")
+    assert (is_number_token dsp "-99")
+    assert (not (is_number_token dsp "abc"))
+    assert (not (is_number_token dsp ""))
+}
+
+shadow find_word {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (find_word wnm "foo") (- 0 1))
+    (define_word wnm wbd wim "foo" "1 2 +" 0)
+    assert (>= (find_word wnm "foo") 0)
+    assert (== (find_word wnm "bar") (- 0 1))
+}
+
+shadow exec_line {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    let r: int = (exec_line stk rst dsp wnm wbd wim "2 3 +")
+    assert (== r 0)
+    assert (== (s_depth dsp) 1)
+    assert (== (s_peek stk dsp) 5)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

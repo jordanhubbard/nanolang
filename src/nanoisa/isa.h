@@ -163,16 +163,17 @@ typedef enum {
     OP_CLOSURE_CALL = 0x91,  /* pop closure, set up env, call */
 
     /* I/O & Debug (0xA0-0xAF) */
-    OP_PRINT      = 0xA0,   /* pop value, print to stdout */
+    OP_PRINT      = 0xA0,   /* pop value, print to stdout (no newline) */
     OP_ASSERT     = 0xA1,   /* pop bool, abort if false */
     OP_DEBUG_LINE = 0xA2,   /* operand: u32 source line number */
     OP_HALT       = 0xA3,   /* stop execution */
+    OP_PRINTLN    = 0xA4,   /* pop value, print to stdout with newline */
 
     /* Opaque Proxy (0xB0-0xBF) */
     OP_OPAQUE_NULL  = 0xB0,  /* push null opaque proxy */
     OP_OPAQUE_VALID = 0xB1,  /* pop opaque -> push bool (is non-null) */
 
-    OP_COUNT        = 0xB2   /* Sentinel: number of defined opcodes */
+    OP_COUNT        = 0xB3   /* Sentinel: number of defined opcodes */
 } NanoOpcode;
 
 /* ========================================================================

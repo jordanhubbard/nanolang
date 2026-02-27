@@ -4361,7 +4361,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_PRINT: {
             Value value = eval_expression(stmt->as.print.expr, env);
             print_value(value);
-            printf("\n");
+            if (stmt->as.print.is_println) printf("\n");
             return create_void();
         }
 

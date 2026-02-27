@@ -85,7 +85,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static void nl_println_string(const char* value) {\n");
     sb_append(sb, "    printf(\"%s\\n\", value);\n");
     sb_append(sb, "}\n\n");
-    
+
     /* Dynamic array runtime - LEGACY (for old array<T> type) */
     sb_append(sb, "/* Dynamic array runtime (using GC) - LEGACY */\n");
     sb_append(sb, "#include \"runtime/gc.h\"\n");

@@ -3137,20 +3137,24 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
         case AST_PRINT: {
             emit_indent_item(list, indent);
-            
+
             /* Get the type of the expression */
             Type expr_type = check_expression(stmt->as.print.expr, env);
-            
-            /* Map type to print function (with nl_ prefix) */
-            const char *print_func = "nl_print_int";
-            if (expr_type == TYPE_STRING) {
-                print_func = "nl_print_string";
-            } else if (expr_type == TYPE_FLOAT) {
-                print_func = "nl_print_float";
-            } else if (expr_type == TYPE_BOOL) {
-                print_func = "nl_print_bool";
+
+            /* Map type to print/println function (with nl_ prefix) */
+            const char *print_func;
+            if (stmt->as.print.is_println) {
+                if (expr_type == TYPE_STRING) print_func = "nl_println_string";
+                else if (expr_type == TYPE_FLOAT) print_func = "nl_println_float";
+                else if (expr_type == TYPE_BOOL) print_func = "nl_println_bool";
+                else print_func = "nl_println_int";
+            } else {
+                if (expr_type == TYPE_STRING) print_func = "nl_print_string";
+                else if (expr_type == TYPE_FLOAT) print_func = "nl_print_float";
+                else if (expr_type == TYPE_BOOL) print_func = "nl_print_bool";
+                else print_func = "nl_print_int";
             }
-            
+
             emit_literal(list, print_func);
             emit_literal(list, "(");
             build_expr(list, stmt->as.print.expr, env);

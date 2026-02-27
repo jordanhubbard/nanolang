@@ -127,7 +127,7 @@ typedef struct {
     VmTrapType type;
     union {
         struct { uint32_t import_idx; NanoValue args[16]; int argc; } extern_call;
-        struct { NanoValue value; } print;
+        struct { NanoValue value; bool newline; } print;
         struct { NanoValue condition; } assert_check;
         struct { VmResult code; } error;
     } data;

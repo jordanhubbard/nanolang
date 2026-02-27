@@ -3685,7 +3685,7 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
         set i (+ i 1)
     }
 
-    /* Scan function return types */
+    /* Scan function return types and parameter types */
     let func_count: int = (parser_get_function_count parser)
     set i 0
     while (< i func_count) {
@@ -3696,6 +3696,18 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
                 set results (array_push results f.return_type)
             } else { (print "") }
         } else { (print "") }
+        /* Scan parameter types */
+        let mut j: int = 0
+        while (< j f.param_count) {
+            let param: ASTLet = (parser_get_let parser (+ f.param_start j))
+            if (str_contains param.var_type search) {
+                if (not (map_has seen param.var_type)) {
+                    (map_put seen param.var_type 1)
+                    set results (array_push results param.var_type)
+                } else { (print "") }
+            } else { (print "") }
+            set j (+ j 1)
+        }
         set i (+ i 1)
     }
 

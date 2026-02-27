@@ -100,6 +100,7 @@ For advanced language features and metaprogramming:
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
 | `nl_random_sentence.nano` | Beginner | RNG, strings | 15 min |
+| `nl_forth_interpreter.nano` | Expert | Forth 83, interpreter, structs, List<T>, REPL, token-threaded execution | 60 min |
 
 ---
 

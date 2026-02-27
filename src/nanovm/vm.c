@@ -1653,6 +1653,14 @@ VmTrap vm_core_execute(VmState *vm) {
         case OP_PRINT: {
             VmTrap t = { .type = TRAP_PRINT };
             t.data.print.value = stack_pop(vm);
+            t.data.print.newline = false;
+            return t;
+        }
+
+        case OP_PRINTLN: {
+            VmTrap t = { .type = TRAP_PRINT };
+            t.data.print.value = stack_pop(vm);
+            t.data.print.newline = true;
             return t;
         }
 
@@ -1777,7 +1785,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 
         case TRAP_PRINT:
             val_print(trap.data.print.value, vm_out(vm));
-            fprintf(vm_out(vm), "\n");
+            if (trap.data.print.newline) fprintf(vm_out(vm), "\n");
             vm_release(&vm->heap, trap.data.print.value);
             break;
 

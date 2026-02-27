@@ -2877,6 +2877,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                     /* Create AST_PRINT node */
                     ASTNode *node = create_node(AST_PRINT, line, column);
                     node->as.print.expr = expr;
+                    node->as.print.is_println = is_println;
                     return node;
                 }
             }

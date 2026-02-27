@@ -180,6 +180,7 @@ static const InstructionInfo instruction_table[256] = {
     INSTR0(OP_ASSERT,     "ASSERT"),
     INSTR1(OP_DEBUG_LINE, "DEBUG_LINE", OPERAND_U32),
     INSTR0(OP_HALT,       "HALT"),
+    INSTR0(OP_PRINTLN,    "PRINTLN"),
 
     /* Opaque Proxy */
     INSTR0(OP_OPAQUE_NULL,  "OPAQUE_NULL"),

@@ -317,6 +317,7 @@ struct ASTNode {
         } program;
         struct {
             ASTNode *expr;
+            bool is_println;
         } print;
         struct {
             ASTNode *condition;

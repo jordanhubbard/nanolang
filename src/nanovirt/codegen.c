@@ -551,7 +551,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     if (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) {
         if (argc >= 1) compile_expr(cg, args[0]);
         else emit_op(cg, OP_PUSH_VOID);
-        emit_op(cg, OP_PRINT);
+        /* println adds a newline; print does not */
+        emit_op(cg, strcmp(name, "println") == 0 ? OP_PRINTLN : OP_PRINT);
         /* println/print return void - push void so caller has a value */
         emit_op(cg, OP_PUSH_VOID);
         return true;
@@ -2240,7 +2241,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_PRINT: {
         compile_expr(cg, node->as.print.expr);
-        emit_op(cg, OP_PRINT);
+        emit_op(cg, node->as.print.is_println ? OP_PRINTLN : OP_PRINT);
         break;
     }
 
