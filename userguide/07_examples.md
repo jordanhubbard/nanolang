@@ -129,6 +129,7 @@ The SDL example launcher provides a graphical menu to browse and run examples:
 - [language/nl_factorial.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_factorial.nano)
 - [language/nl_falling_sand.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_falling_sand.nano)
 - [language/nl_fibonacci.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_fibonacci.nano)
+- [language/nl_forth_interpreter.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_forth_interpreter.nano)
 - [language/nl_filter_map_fold.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_filter_map_fold.nano)
 - [language/nl_first_class_functions.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_first_class_functions.nano)
 - [language/nl_floats.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_floats.nano)

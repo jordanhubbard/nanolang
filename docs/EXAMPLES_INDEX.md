@@ -1,8 +1,8 @@
 # My Examples Index
-## Complete Guide to My 79 Examples
+## Complete Guide to My 80 Examples
 
-**Last Updated**: 2026-01-23
-**Total Examples**: 79  
+**Last Updated**: 2026-02-26
+**Total Examples**: 80
 **Organization**: By difficulty and topic
 
 ---
@@ -100,7 +100,7 @@ For advanced language features and metaprogramming:
 | Example | Difficulty | Topics | Time |
 |---------|------------|--------|------|
 | `nl_random_sentence.nano` | Beginner | RNG, strings | 15 min |
-| `nl_forth_interpreter.nano` | Expert | Forth 83, interpreter, structs, List<T>, REPL, token-threaded execution | 60 min |
+| `nl_forth_interpreter.nano` | Expert | Forth 83, interpreter, List<T>, token-threaded execution, REPL, control flow | 60-90 min |
 
 ---
 
@@ -397,7 +397,8 @@ LEVEL 4 (Data Structures):
 LEVEL 5 (Advanced Features):
 ├─ SDL games (pong, asteroids)
 ├─ stdlib_ast_demo.nano
-└─ Matrix operations
+├─ Matrix operations
+└─ nl_forth_interpreter.nano (requires nl_generics_demo + nl_array_complete)
 
 SHOWCASE LEVEL:
 └─ All my showcase applications
