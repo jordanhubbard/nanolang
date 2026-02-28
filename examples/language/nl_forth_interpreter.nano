@@ -8,6 +8,13 @@
 # Prerequisites: nl_struct, nl_array_complete, nl_generics_demo, simple_repl
 # Expected Output: demo output (non-interactive); set FORTH_INTERACTIVE=1 for live forth> prompt
 #
+# Running interactive mode:
+#   FORTH_INTERACTIVE=1 ./nanolang examples/language/nl_forth_interpreter.nano
+#   (requires readline support in the VM build; see modules/readline/readline.nano)
+#   Type Forth expressions at the "forth> " prompt, e.g. "2 3 + . cr"
+#   Define words with ": sq dup * ;"
+#   Type "bye" or press Ctrl-D to exit.
+#
 # Architecture: All mutable interpreter state is passed as 6 List<T> parameters:
 #   stack:  List<int>    — data stack values (depth stored in dspace[1])
 #   rstack: List<int>    — return/loop stack (depth stored in dspace[2])
@@ -19,6 +26,7 @@
 # to callers. This replaces the struct-based approach that NanoLang doesn't support for List fields.
 
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+from "modules/readline/readline.nano" import rl_readline, rl_add_history
 
 extern fn list_int_new() -> int64_t
 extern fn list_int_push(list: int64_t, value: int) -> void
@@ -977,13 +985,25 @@ fn exec_line(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: Lis
 }
 
 # ── REPL ───────────────────────────────────────────────────────────────────────
-# Note: Interactive REPL requires readline. This build uses demo mode instead.
-# To add readline support, import modules/readline/readline.nano and use rl_readline.
+# Interactive Forth REPL using readline for line editing and history.
+# Exits when the user types "bye", presses Ctrl-D (EOF), or dspace[4] becomes 0.
 fn forth_repl(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> int {
     (println "FIG Forth 83 -- NanoLang interpreter")
-    (println "(Interactive readline not available in this build; running demo)")
+    (println "Type Forth expressions, ': word def ;' to define words, 'bye' or Ctrl-D to quit.")
     (println "")
-    return (forth_demo stack rstack dspace wnames wbodies wimm)
+    # dspace[4] is the running flag: 1 = running, 0 = stop (set by "bye" or EOF)
+    while (== (list_int_get dspace 4) 1) {
+        let line: string = (rl_readline "forth> ")
+        if (== (str_length line) 0) {
+            # EOF (Ctrl-D) — stop the loop
+            (println "")
+            (list_int_set dspace 4 0)
+        } else {
+            (rl_add_history line)
+            (exec_line stack rstack dspace wnames wbodies wimm line)
+        }
+    }
+    return 0
 }
 
 # ── forth_demo ─────────────────────────────────────────────────────────────────
