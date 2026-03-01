@@ -235,7 +235,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher test test-forth
+.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher test test-forth run-forth
 
 # Default: build all examples
 all: build
@@ -330,6 +330,9 @@ test-forth: $(BIN_DIR)/nl_forth_interpreter_vm
 	@echo "Running Forth ANS test suite (280 tests)"
 	@echo "=========================================="
 	@cd .. && FORTH_FILE=examples/language/forth/run_tests.fs bin/nano_vm bin/nl_forth_interpreter_vm
+
+run-forth: $(BIN_DIR)/nl_forth_interpreter_vm
+	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
