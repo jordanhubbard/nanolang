@@ -1,0 +1,62 @@
+# sdl_term — SDL2 terminal emulator module for NanoLang
+#
+# Combines libtmt (virtual VT100 screen) with SDL2+SDL_ttf rendering.
+# All handles are opaque int values (C pointers cast to int64_t).
+#
+# Typical usage pattern:
+#   let term: int = (nl_sdl_term_create "" 14 40 100)   # font, ptsize, rows, cols
+#   (nl_sdl_term_feed term some_string)                  # feed PTY output
+#   (nl_sdl_term_render term renderer 0 0)               # draw at (0,0)
+#   (nl_sdl_term_mark_clean term)                        # acknowledge dirty lines
+#   ...
+#   (nl_sdl_term_destroy term)
+
+# Create a terminal.
+#   font_path - path to monospace TTF font, or "" for automatic detection
+#   pt_size   - font point size (12-18 typical)
+#   rows/cols - terminal grid dimensions
+# Returns opaque handle (0 on failure).
+extern fn nl_sdl_term_create(_font_path: string, _pt_size: int, _rows: int, _cols: int) -> int
+
+# Feed bytes from the child process (or any string) into the virtual screen.
+extern fn nl_sdl_term_feed(_handle: int, _data: string) -> void
+
+# Render the virtual screen into the SDL renderer at pixel offset (x, y).
+# Only dirty lines are repainted.
+# Requires modules/sdl/sdl.nano to be imported first (for SDL_Renderer type).
+extern fn nl_sdl_term_render(_handle: int, _renderer: SDL_Renderer, _x: int, _y: int) -> void
+
+# Mark the screen clean after rendering (resets dirty flags).
+extern fn nl_sdl_term_mark_clean(_handle: int) -> void
+
+# Resize the virtual terminal grid.
+extern fn nl_sdl_term_resize(_handle: int, _rows: int, _cols: int) -> void
+
+# Current cursor column (0-based).
+extern fn nl_sdl_term_cursor_col(_handle: int) -> int
+
+# Current cursor row (0-based).
+extern fn nl_sdl_term_cursor_row(_handle: int) -> int
+
+# Width of one character cell in pixels.
+extern fn nl_sdl_term_cell_w(_handle: int) -> int
+
+# Height of one character cell in pixels.
+extern fn nl_sdl_term_cell_h(_handle: int) -> int
+
+# Total pixel width of the terminal (cols * cell_w).
+extern fn nl_sdl_term_pixel_w(_handle: int) -> int
+
+# Total pixel height of the terminal (rows * cell_h).
+extern fn nl_sdl_term_pixel_h(_handle: int) -> int
+
+# Free all resources associated with the terminal.
+extern fn nl_sdl_term_destroy(_handle: int) -> void
+
+# Convert an SDL keycode + modifier to a terminal input sequence.
+# After calling this, read the result with nl_sdl_term_key_seq_str().
+# Returns the number of bytes in the sequence (0 = key produces no terminal input).
+extern fn nl_sdl_term_key_to_seq(_keycode: int, _mod: int, _buf: string, _buf_len: int) -> int
+
+# Return the key sequence string populated by the last nl_sdl_term_key_to_seq call.
+extern fn nl_sdl_term_key_seq_str() -> string

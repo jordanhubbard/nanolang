@@ -1,0 +1,55 @@
+# sdl_term module MVP — opens an SDL window with an embedded terminal,
+# feeds it a short ANSI-coloured greeting, and waits for Escape to quit.
+
+module "modules/sdl/sdl.nano"
+module "modules/sdl_ttf/sdl_ttf.nano"
+module "modules/sdl_term/sdl_term.nano"
+
+fn main() -> int {
+    let init_ok: int = (SDL_Init 32)   # SDL_INIT_VIDEO = 0x20
+    if (!= init_ok 0) { (println "SDL_Init failed") return 1 } else { (print "") }
+
+    let win: int = (SDL_CreateWindow "sdl_term MVP" 100 100 800 500 4)
+    if (== win 0) { (println "SDL_CreateWindow failed") return 1 } else { (print "") }
+
+    let renderer: int = (SDL_CreateRenderer win (- 0 1) 2)
+    if (== renderer 0) { (println "SDL_CreateRenderer failed") return 1 } else { (print "") }
+
+    let term: int = (nl_sdl_term_create "" 14 30 100)
+    if (== term 0) { (println "nl_sdl_term_create failed") return 1 } else { (print "") }
+
+    # Feed a greeting with ANSI colour
+    (nl_sdl_term_feed term "\033[1;32msdl_term\033[0m: VT100 terminal in SDL.\r\n")
+    (nl_sdl_term_feed term "Press \033[1mEsc\033[0m to quit.\r\n")
+    (nl_sdl_term_feed term "> ")
+
+    let mut running: bool = true
+    while running {
+        let ev: int = (SDL_PollEvent)
+        if (!= ev 0) {
+            let etype: int = (SDL_EventType)
+            if (== etype 256) { set running false } else { (print "") }  # SDL_QUIT
+            if (== etype 768) {                                           # SDL_KEYDOWN
+                let kcode: int = (SDL_KeyCode)
+                if (== kcode 27) { set running false } else { (print "") } # SDLK_ESCAPE
+            } else { (print "") }
+        } else { (print "") }
+
+        (SDL_SetRenderDrawColor renderer 18 18 18 255)
+        (SDL_RenderClear renderer)
+        (nl_sdl_term_render term renderer 10 10)
+        (nl_sdl_term_mark_clean term)
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+    }
+
+    (nl_sdl_term_destroy term)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow win)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    assert true
+}

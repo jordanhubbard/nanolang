@@ -1,0 +1,43 @@
+# PTY - Pseudo-Terminal module for NanoLang
+# Provides POSIX PTY primitives for embedding subprocess terminal I/O in
+# graphical or TUI applications.
+#
+# Typical usage:
+#   let master: int = (nl_pty_open 24 80)
+#   let pid: int = (nl_pty_fork_exec master "bin/nano_vm" "bin/my_prog" "" "")
+#   ... in event loop ...
+#   let data: string = (nl_pty_read master)   # non-blocking
+#   (nl_pty_write master "hello\n")
+#   (nl_pty_resize master pid 40 120)
+#   (nl_pty_close master)
+
+# Open a new PTY master with the given initial terminal dimensions.
+# Returns the master file descriptor, or -1 on failure.
+extern fn nl_pty_open(_rows: int, _cols: int) -> int
+
+# Fork a child process connected to the PTY slave.
+#   master_fd  - file descriptor returned by nl_pty_open
+#   prog       - path to executable (e.g. "bin/nano_vm")
+#   args_str   - space-separated arguments (e.g. "bin/nl_forth_interpreter_vm")
+#   envkey     - environment variable name to set in child ("" to skip)
+#   envval     - value for that environment variable
+# Returns the child PID, or -1 on failure.
+extern fn nl_pty_fork_exec(_master_fd: int, _prog: string, _args_str: string, _envkey: string, _envval: string) -> int
+
+# Non-blocking read from the PTY master.
+# Returns data the child has written to its stdout/stderr.
+# Returns an empty string if no data is available yet.
+extern fn nl_pty_read(_master_fd: int) -> string
+
+# Write a string to the PTY master (appears on the child's stdin).
+# Returns the number of bytes written, or -1 on error.
+extern fn nl_pty_write(_master_fd: int, _data: string) -> int
+
+# Notify the child of a terminal resize via SIGWINCH.
+extern fn nl_pty_resize(_master_fd: int, _pid: int, _rows: int, _cols: int) -> void
+
+# Close the PTY master file descriptor.
+extern fn nl_pty_close(_master_fd: int) -> void
+
+# Returns 1 if the child process is still running, 0 if it has exited.
+extern fn nl_pty_is_alive(_pid: int) -> int

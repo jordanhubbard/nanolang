@@ -1,0 +1,43 @@
+{
+  "name": "pty",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "POSIX pseudo-terminal bindings — open a PTY, fork a subprocess, relay its I/O.",
+  "use_when": [
+    "User wants to embed a subprocess terminal inside an SDL or graphical window",
+    "User needs to run a program and capture its stdin/stdout as a terminal stream",
+    "User says 'terminal emulator', 'embed REPL', 'run subprocess in window'"
+  ],
+  "avoid_when": [
+    "User wants simple subprocess output without terminal emulation (use popen/stdio)",
+    "User is on Windows (POSIX PTY not available)"
+  ],
+  "capabilities": [
+    "open_pty",
+    "fork_exec",
+    "nonblocking_read",
+    "write_to_stdin",
+    "resize_terminal",
+    "check_alive"
+  ],
+  "keywords": [
+    "pty",
+    "pseudo-terminal",
+    "subprocess",
+    "terminal emulator",
+    "fork",
+    "exec",
+    "tty"
+  ],
+  "examples": [
+    "examples/mvp.nano"
+  ],
+  "dependencies": {
+    "nanolang": [],
+    "system": []
+  },
+  "io_surfaces": ["subprocess"],
+  "alternatives": [
+    {"when": "simple process output without terminal", "module": "stdio"}
+  ]
+}

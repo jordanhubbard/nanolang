@@ -1,0 +1,359 @@
+# Example: Forth IDE
+# Purpose: Split-pane SDL terminal IDE for the NanoLang Forth interpreter
+# Features: SDL graphics, PTY subprocess, terminal emulation, file browser
+# Difficulty: Advanced
+# Category: graphics
+# Prerequisites: sdl_drawing_primitives
+# Expected Output: interactive
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+unsafe module "modules/sdl_term/sdl_term.nano"
+module "modules/pty/pty.nano"
+module "modules/filesystem/filesystem.nano"
+module "modules/std/collections/stringbuilder.nano"
+
+# === LAYOUT ===
+
+let WIN_W: int = 1280
+let WIN_H: int = 720
+let PANEL_W: int = 260
+let DIVIDER_W: int = 2
+let TERM_X: int = (+ PANEL_W DIVIDER_W)
+let TERM_W: int = (- WIN_W TERM_X)
+let PADDING: int = 8
+let FONT_PT: int = 14
+
+# === COLOURS ===
+
+let COL_BG: int         = 0   # panel bg (set via SDL_SetRenderDrawColor)
+let COL_PANEL_BG: int   = 1
+let COL_DIVIDER: int    = 2
+let COL_SEL_BG: int     = 3
+let COL_SEL_TEXT: int   = 4
+let COL_TEXT: int       = 5
+let COL_DIM_TEXT: int   = 6
+let COL_TITLE: int      = 7
+let COL_STATUS_OK: int  = 8
+let COL_STATUS_ERR: int = 9
+
+fn set_color(renderer: SDL_Renderer, col: int) -> void {
+    if (== col COL_BG)         { (SDL_SetRenderDrawColor renderer  18  18  18 255) } else {
+    if (== col COL_PANEL_BG)   { (SDL_SetRenderDrawColor renderer  28  28  36 255) } else {
+    if (== col COL_DIVIDER)    { (SDL_SetRenderDrawColor renderer  60  60  80 255) } else {
+    if (== col COL_SEL_BG)     { (SDL_SetRenderDrawColor renderer  50  80 130 255) } else {
+    if (== col COL_SEL_TEXT)   { (SDL_SetRenderDrawColor renderer 220 240 255 255) } else {
+    if (== col COL_TEXT)       { (SDL_SetRenderDrawColor renderer 180 180 200 255) } else {
+    if (== col COL_DIM_TEXT)   { (SDL_SetRenderDrawColor renderer 100 100 120 255) } else {
+    if (== col COL_TITLE)      { (SDL_SetRenderDrawColor renderer 100 180 255 255) } else {
+    if (== col COL_STATUS_OK)  { (SDL_SetRenderDrawColor renderer  80 200  80 255) } else {
+    if (== col COL_STATUS_ERR) { (SDL_SetRenderDrawColor renderer 220  80  80 255) } else {
+        (SDL_SetRenderDrawColor renderer 200 200 200 255)
+    } } } } } } } } } }
+}
+
+shadow set_color {
+    assert true   # side-effectful
+}
+
+# === ESCAPE SEQUENCE BUILDER ===
+
+fn esc(suffix: string) -> string {
+    return (+ (string_from_char 27) suffix)
+}
+
+shadow esc {
+    let s: string = (esc "[A")
+    assert (== (str_length s) 3)
+}
+
+fn scancode_to_pty(sc: int) -> string {
+    if (== sc 40) { return "\r" }
+    if (== sc 42) { return (string_from_char 127) }
+    if (== sc 41) { return (string_from_char 27) }
+    if (== sc 82) { return (esc "[A") }
+    if (== sc 81) { return (esc "[B") }
+    if (== sc 79) { return (esc "[C") }
+    if (== sc 80) { return (esc "[D") }
+    if (== sc 74) { return (esc "[H") }  # Home
+    if (== sc 77) { return (esc "[F") }  # End
+    if (== sc 75) { return (esc "[5~") } # Page Up
+    if (== sc 78) { return (esc "[6~") } # Page Down
+    if (== sc 76) { return (esc "[3~") } # Delete
+    return ""
+}
+
+shadow scancode_to_pty {
+    assert (== (scancode_to_pty 40) "\r")
+    assert (== (str_length (scancode_to_pty 82)) 3)
+    assert (== (scancode_to_pty 99) "")
+}
+
+# === FILE PANEL ===
+
+fn draw_file_panel(renderer: SDL_Renderer, font: TTF_Font,
+                   files: array<string>, selected: int, scroll: int,
+                   focused: bool, cell_h: int) -> void {
+    # Background
+    (set_color renderer COL_PANEL_BG)
+    (nl_sdl_render_fill_rect renderer 0 0 PANEL_W WIN_H)
+
+    # Title
+    let title_col: int = (cond (focused 100) (else 60))
+    let title_r: int = (/ title_col 1)
+    (SDL_SetRenderDrawColor renderer (/ (* title_col 4) 4)  (/ (* title_col 18) 10) 255 255)
+    (nl_sdl_render_fill_rect renderer 0 0 PANEL_W (+ cell_h PADDING))
+    (nl_sdl_render_text_blended renderer font "  Forth Files" 4 (/ PADDING 2)
+                                255 255 255 255)
+
+    let row_h: int = (+ cell_h 4)
+    let list_top: int = (+ cell_h PADDING PADDING)
+    let visible_rows: int = (/ (- WIN_H (+ list_top 30)) row_h)
+    let n: int = (array_length files)
+
+    # File entries
+    let mut i: int = 0
+    while (< i visible_rows) {
+        let fi: int = (+ i scroll)
+        if (< fi n) {
+            let fname: string = (array_get files fi)
+            let y: int = (+ list_top (* i row_h))
+            if (== fi selected) {
+                (set_color renderer COL_SEL_BG)
+                (nl_sdl_render_fill_rect renderer 0 y PANEL_W row_h)
+                (nl_sdl_render_text_blended renderer font fname PADDING (+ y 2)
+                                            220 240 255 255)
+            } else {
+                (nl_sdl_render_text_blended renderer font fname PADDING (+ y 2)
+                                            160 160 190 255)
+            }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    # Scroll indicator
+    if (> n visible_rows) {
+        let pct: int = (/ (* scroll 100) (- n visible_rows))
+        let bar_h: int = (/ (* visible_rows row_h) n)
+        let bar_y: int = (+ list_top (/ (* pct (- (* visible_rows row_h) bar_h)) 100))
+        (set_color renderer COL_DIVIDER)
+        (nl_sdl_render_fill_rect renderer (- PANEL_W 4) bar_y 3 bar_h)
+    } else { (print "") }
+
+    # Bottom hint
+    (nl_sdl_render_text_blended renderer font
+        (cond (focused "Enter=load  Tab=terminal") (else "Tab=focus"))
+        PADDING (- WIN_H 20) 80 80 120 255)
+}
+
+shadow draw_file_panel {
+    assert true
+}
+
+fn draw_divider(renderer: SDL_Renderer) -> void {
+    (set_color renderer COL_DIVIDER)
+    (nl_sdl_render_fill_rect renderer PANEL_W 0 DIVIDER_W WIN_H)
+}
+
+shadow draw_divider {
+    assert true
+}
+
+# === STATUS BAR ===
+
+fn draw_status(renderer: SDL_Renderer, font: TTF_Font,
+               msg: string, is_err: bool) -> void {
+    let bar_y: int = (- WIN_H 22)
+    if is_err {
+        (SDL_SetRenderDrawColor renderer 80 20 20 255)
+    } else {
+        (SDL_SetRenderDrawColor renderer 20 40 20 255)
+    }
+    (nl_sdl_render_fill_rect renderer TERM_X bar_y TERM_W 22)
+    if is_err {
+        (nl_sdl_render_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
+                                    220 80 80 255)
+    } else {
+        (nl_sdl_render_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
+                                    80 200 80 255)
+    }
+}
+
+shadow draw_status {
+    assert true
+}
+
+# === MAIN ===
+
+fn main() -> int {
+    let sdl_ok: int = (SDL_Init 32)
+    if (!= sdl_ok 0) { (println "SDL_Init failed") return 1 } else { (print "") }
+
+    let ttf_ok: int = (TTF_Init)
+    if (!= ttf_ok 0) { (println "TTF_Init failed") return 1 } else { (print "") }
+
+    let win: SDL_Window = (SDL_CreateWindow
+        "NanoLang Forth IDE" 80 80 WIN_W WIN_H 4)
+    if (== (cast_int win) 0) { (println "SDL_CreateWindow failed") return 1 } else { (print "") }
+
+    let renderer: SDL_Renderer = (SDL_CreateRenderer win -1 2)
+    if (== (cast_int renderer) 0) { (println "SDL_CreateRenderer failed") return 1 } else { (print "") }
+
+    let font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" FONT_PT)
+    if (== (cast_int font) 0) { (println "Could not load monospace font") return 1 } else { (print "") }
+
+    # Compute terminal dimensions from window geometry
+    let dummy_term: int = (nl_sdl_term_create "" FONT_PT 10 10)
+    let cw: int = (nl_sdl_term_cell_w dummy_term)
+    let ch: int = (nl_sdl_term_cell_h dummy_term)
+    (nl_sdl_term_destroy dummy_term)
+
+    let term_cols: int = (/ TERM_W cw)
+    let term_rows: int = (/ WIN_H ch)
+
+    # Create the embedded terminal
+    let term: int = (nl_sdl_term_create "" FONT_PT term_rows term_cols)
+    if (== term 0) { (println "nl_sdl_term_create failed") return 1 } else { (print "") }
+
+    # Start PTY with FORTH_INTERACTIVE=1
+    let pty_fd: int = (nl_pty_open term_rows term_cols)
+    if (== pty_fd -1) { (println "nl_pty_open failed") return 1 } else { (print "") }
+
+    let pty_pid: int = (nl_pty_fork_exec pty_fd
+        "bin/nano_vm" "bin/nl_forth_interpreter_vm"
+        "FORTH_INTERACTIVE" "1")
+    if (== pty_pid -1) {
+        (nl_pty_close pty_fd)
+        (println "nl_pty_fork_exec failed — did you run 'make examples-vm' first?")
+        return 1
+    } else { (print "") }
+
+    # Enumerate Forth files
+    let files: array<string> = (nl_fs_list_files "examples/language/forth" ".fs")
+    let n_files: int = (array_length files)
+
+    let mut selected: int = 0
+    let mut file_scroll: int = 0
+    let mut focus_panel: bool = true   # true=file panel, false=terminal
+
+    let mut status_msg: string = "Ready — select a file and press Enter, or Tab to type in the REPL"
+    let mut status_err: bool = false
+
+    (nl_sdl_start_text_input)
+
+    let mut running: bool = true
+    while running {
+        # Feed any PTY output into the terminal
+        let pty_data: string = (nl_pty_read pty_fd)
+        if (> (str_length pty_data) 0) {
+            (nl_sdl_term_feed term pty_data)
+        } else { (print "") }
+
+        # Check if child is still alive
+        let alive: int = (nl_pty_is_alive pty_pid)
+        if (== alive 0) {
+            set status_msg "Forth interpreter exited."
+            set status_err true
+        } else { (print "") }
+
+        # Poll quit
+        let quit: int = (nl_sdl_poll_event_quit)
+        if (== quit 1) { set running false } else { (print "") }
+
+        # Poll keyboard
+        let sc: int = (nl_sdl_poll_keypress)
+
+        if focus_panel {
+            # File panel navigation
+            if (== sc 82) {   # UP
+                if (> selected 0) {
+                    set selected (- selected 1)
+                    if (< selected file_scroll) {
+                        set file_scroll selected
+                    } else { (print "") }
+                } else { (print "") }
+            } else { (print "") }
+            if (== sc 81) {   # DOWN
+                if (< selected (- n_files 1)) {
+                    set selected (+ selected 1)
+                    let row_h: int = (+ ch 4)
+                    let list_top: int = (+ ch PADDING PADDING)
+                    let vis: int = (/ (- WIN_H (+ list_top 30)) row_h)
+                    if (>= selected (+ file_scroll vis)) {
+                        set file_scroll (- selected (- vis 1))
+                    } else { (print "") }
+                } else { (print "") }
+            } else { (print "") }
+            if (== sc 43) {   # TAB → switch to terminal
+                set focus_panel false
+            } else { (print "") }
+            if (== sc 40) {   # ENTER → load selected file
+                if (< selected n_files) {
+                    let fpath: string = (array_get files selected)
+                    let cmd: string = (+ (+ "include " fpath) "\n")
+                    let _w: int = (nl_pty_write pty_fd cmd)
+                    set status_msg (+ "Loaded: " fpath)
+                    set status_err false
+                    set focus_panel false
+                } else { (print "") }
+            } else { (print "") }
+            if (== sc 41) {   # ESC → quit
+                set running false
+            } else { (print "") }
+        } else {
+            # Terminal focus: route keys to PTY
+            if (== sc 43) {   # TAB → switch to file panel
+                set focus_panel true
+            } else {
+                let seq: string = (scancode_to_pty sc)
+                if (> (str_length seq) 0) {
+                    let _w: int = (nl_pty_write pty_fd seq)
+                } else { (print "") }
+                # Regular text input
+                let txt: string = (nl_sdl_poll_text_input)
+                if (> (str_length txt) 0) {
+                    let _w: int = (nl_pty_write pty_fd txt)
+                } else { (print "") }
+            }
+            if (== sc 41) {  # Ctrl-C / ESC still quits IDE (not forwarded)
+                set running false
+            } else { (print "") }
+        }
+
+        # --- Render ---
+        (set_color renderer COL_BG)
+        (SDL_RenderClear renderer)
+
+        # Terminal pane
+        (nl_sdl_term_render term renderer TERM_X 0)
+        (nl_sdl_term_mark_clean term)
+
+        # File panel
+        (draw_file_panel renderer font files selected file_scroll focus_panel ch)
+
+        # Divider
+        (draw_divider renderer)
+
+        # Status bar
+        (draw_status renderer font status_msg status_err)
+
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+    }
+
+    (nl_sdl_stop_text_input)
+    (nl_pty_close pty_fd)
+    (nl_sdl_term_destroy term)
+    (TTF_CloseFont font)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow win)
+    (TTF_Quit)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    assert true
+}

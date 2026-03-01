@@ -1,0 +1,54 @@
+{
+  "name": "sdl_term",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "SDL2 terminal emulator — embed a VT100-compatible terminal in any SDL window.",
+  "use_when": [
+    "User wants a terminal/REPL embedded inside an SDL graphical window",
+    "User says 'SDL terminal', 'graphical terminal', 'embed terminal in SDL'",
+    "User wants to display subprocess output in an SDL window"
+  ],
+  "avoid_when": [
+    "User wants a standalone terminal app (use ncurses instead)",
+    "User only needs text output without SDL"
+  ],
+  "capabilities": [
+    "vt100_emulation",
+    "sdl_text_rendering",
+    "cursor_tracking",
+    "colour_attributes",
+    "bold_underline",
+    "keyboard_input_mapping"
+  ],
+  "keywords": [
+    "terminal",
+    "sdl",
+    "vt100",
+    "ansi",
+    "emulator",
+    "subprocess",
+    "repl"
+  ],
+  "examples": [
+    "examples/mvp.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["sdl", "sdl_ttf"],
+    "system": [
+      {
+        "id": "sdl2",
+        "install": { "apt": "libsdl2-dev", "brew": "sdl2" },
+        "version": ">=2.0"
+      },
+      {
+        "id": "sdl2_ttf",
+        "install": { "apt": "libsdl2-ttf-dev", "brew": "sdl2_ttf" },
+        "version": ">=2.0"
+      }
+    ]
+  },
+  "io_surfaces": ["window"],
+  "alternatives": [
+    {"when": "standalone terminal TUI", "module": "ncurses"}
+  ]
+}

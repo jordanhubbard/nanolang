@@ -1,0 +1,39 @@
+# PTY module MVP — smoke test
+# Opens a PTY, runs /bin/echo as a child, reads one line back.
+
+module "modules/pty/pty.nano"
+
+fn main() -> int {
+    let master: int = (nl_pty_open 24 80)
+    if (== master (- 0 1)) {
+        (println "ERROR: nl_pty_open failed")
+        return 1
+    }
+    let pid: int = (nl_pty_fork_exec master "/bin/echo" "hello from pty" "" "")
+    if (== pid (- 0 1)) {
+        (nl_pty_close master)
+        (println "ERROR: nl_pty_fork_exec failed")
+        return 1
+    }
+    # Give the child a moment to produce output
+    let mut attempts: int = 0
+    let mut got: string = ""
+    while (and (< attempts 100) (== (str_length got) 0)) {
+        set got (nl_pty_read master)
+        set attempts (+ attempts 1)
+    }
+    (nl_pty_close master)
+    if (> (str_length got) 0) {
+        (print "PTY output: ") (println got)
+        (println "PTY module OK")
+        return 0
+    } else {
+        (println "ERROR: no output received from child")
+        return 1
+    }
+}
+
+shadow main {
+    # PTY is a side-effectful system call; tested via the mvp program above.
+    assert true
+}
