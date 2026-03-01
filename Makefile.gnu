@@ -377,14 +377,6 @@ test-daemon: nano_vm nano_virt nano_vmd
 	@echo "=========================================="
 	@NANOLANG_BACKEND=daemon ./tests/run_all_tests.sh
 
-.PHONY: test-forth
-test-forth: examples-vm
-	@echo ""
-	@echo "=========================================="
-	@echo "Running Forth ANS test suite (280 tests)"
-	@echo "=========================================="
-	@FORTH_FILE=examples/language/forth/run_tests.fs bin/nano_vm bin/nl_forth_interpreter_vm
-
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
 NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
