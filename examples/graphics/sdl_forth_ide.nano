@@ -13,7 +13,6 @@ unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 unsafe module "modules/sdl_term/sdl_term.nano"
 module "modules/pty/pty.nano"
 module "modules/filesystem/filesystem.nano"
-module "modules/std/collections/stringbuilder.nano"
 
 # === LAYOUT ===
 
@@ -100,10 +99,9 @@ fn draw_file_panel(renderer: SDL_Renderer, font: TTF_Font,
     (set_color renderer COL_PANEL_BG)
     (nl_sdl_render_fill_rect renderer 0 0 PANEL_W WIN_H)
 
-    # Title
-    let title_col: int = (cond (focused 100) (else 60))
-    let title_r: int = (/ title_col 1)
-    (SDL_SetRenderDrawColor renderer (/ (* title_col 4) 4)  (/ (* title_col 18) 10) 255 255)
+    # Title bar — brighter when panel has focus
+    let title_col: int = (cond (focused 100) (else 50))
+    (SDL_SetRenderDrawColor renderer title_col (/ (* title_col 18) 10) 255 255)
     (nl_sdl_render_fill_rect renderer 0 0 PANEL_W (+ cell_h PADDING))
     (nl_sdl_render_text_blended renderer font "  Forth Files" 4 (/ PADDING 2)
                                 255 255 255 255)
@@ -196,13 +194,10 @@ fn main() -> int {
 
     let win: SDL_Window = (SDL_CreateWindow
         "NanoLang Forth IDE" 80 80 WIN_W WIN_H 4)
-    if (== (cast_int win) 0) { (println "SDL_CreateWindow failed") return 1 } else { (print "") }
 
     let renderer: SDL_Renderer = (SDL_CreateRenderer win -1 2)
-    if (== (cast_int renderer) 0) { (println "SDL_CreateRenderer failed") return 1 } else { (print "") }
 
     let font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" FONT_PT)
-    if (== (cast_int font) 0) { (println "Could not load monospace font") return 1 } else { (print "") }
 
     # Compute terminal dimensions from window geometry
     let dummy_term: int = (nl_sdl_term_create "" FONT_PT 10 10)
@@ -230,8 +225,9 @@ fn main() -> int {
         return 1
     } else { (print "") }
 
-    # Enumerate Forth files
-    let files: array<string> = (nl_fs_list_files "examples/language/forth" ".fs")
+    # Enumerate Forth files (bare filenames for display)
+    let forth_dir: string = "examples/language/forth"
+    let files: array<string> = (nl_fs_list_files forth_dir ".fs")
     let n_files: int = (array_length files)
 
     let mut selected: int = 0
@@ -291,7 +287,8 @@ fn main() -> int {
             } else { (print "") }
             if (== sc 40) {   # ENTER → load selected file
                 if (< selected n_files) {
-                    let fpath: string = (array_get files selected)
+                    let fname: string = (array_get files selected)
+                    let fpath: string = (+ (+ forth_dir "/") fname)
                     let cmd: string = (+ (+ "include " fpath) "\n")
                     let _w: int = (nl_pty_write pty_fd cmd)
                     set status_msg (+ "Loaded: " fpath)
