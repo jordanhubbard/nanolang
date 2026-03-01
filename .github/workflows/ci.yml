@@ -11,6 +11,9 @@ jobs:
     name: Build and Test (${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
+    timeout-minutes: 45
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:
@@ -111,6 +114,9 @@ jobs:
   docs:
     name: Docs (link check)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -122,7 +128,9 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Prevent runaway tests
+    timeout-minutes: 30
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -179,7 +187,10 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # Prevent runaway tests
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -283,6 +294,10 @@ jobs:
   performance:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -417,6 +432,9 @@ jobs:
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code

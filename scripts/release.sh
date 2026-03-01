@@ -3,7 +3,7 @@
 # Usage: ./scripts/release.sh [major|minor|patch]
 # Batch mode: BATCH=yes ./scripts/release.sh [major|minor|patch]
 
-set -e  # Exit on error
+set -euo pipefail
 
 # Batch mode detection
 BATCH_MODE="${BATCH:-no}"
@@ -110,9 +110,14 @@ generate_changelog_entry() {
     local date=$(date +%Y-%m-%d)
     
     info "Generating changelog from v$prev_version to HEAD..." >&2
-    
-    # Get commits since last version
-    local commits=$(git log "v$prev_version"..HEAD --pretty=format:"%h %s" --no-merges)
+
+    # Get commits since last version (handle first-release case)
+    local commits
+    if git rev-parse "v$prev_version" &>/dev/null; then
+        commits=$(git log "v$prev_version"..HEAD --pretty=format:"%h %s" --no-merges)
+    else
+        commits=$(git log --pretty=format:"%h %s" --no-merges)
+    fi
     
     # Categorize commits
     local added=""
@@ -162,10 +167,10 @@ generate_changelog_entry() {
 # Update CHANGELOG.md
 update_changelog() {
     local changelog_entry=$1
-    local changelog_file="planning/CHANGELOG.md"
-    
+    local changelog_file="CHANGELOG.md"
+
     info "Updating $changelog_file..."
-    
+
     if [[ ! -f "$changelog_file" ]]; then
         error "CHANGELOG.md not found at $changelog_file"
     fi
@@ -206,37 +211,42 @@ create_release() {
     
     info "Creating release v$version..."
     
-    # Get changelog entry for release notes
-    local release_notes=$(git log "v$prev_version"..HEAD --pretty=format:"- %s" --no-merges)
-    
-    # Count statistics
-    local commit_count=$(git rev-list --count "v$prev_version"..HEAD)
+    # Get changelog entry for release notes (handle first-release case)
+    local release_notes commit_count
+    if git rev-parse "v$prev_version" &>/dev/null; then
+        release_notes=$(git log "v$prev_version"..HEAD --pretty=format:"- %s" --no-merges)
+        commit_count=$(git rev-list --count "v$prev_version"..HEAD)
+    else
+        release_notes=$(git log --pretty=format:"- %s" --no-merges)
+        commit_count=$(git rev-list --count HEAD)
+    fi
     # test_status is now passed as argument (no longer runs make test again)
     
     # Build release notes
-    cat > /tmp/release_notes.md << EOF
-## 🎉 NanoLang v$version
+    local compare_url=""
+    if [[ -n "${REPO_URL:-}" ]]; then
+        compare_url="${REPO_URL}/compare/v${prev_version}...v${version}"
+    fi
 
-### 📊 Statistics
+    cat > /tmp/release_notes.md << EOF
+## NanoLang v$version
+
+### Statistics
 - **Commits since v$prev_version**: $commit_count
 - **Test Status**: $test_status
 
-### 📝 Changes
+### Changes
 
 $release_notes
-
-### 🔗 Links
-- [Full Changelog](https://github.com/jordanhubbard/nanolang/compare/v$prev_version...v$version)
-- [Documentation](https://github.com/jordanhubbard/nanolang/tree/main/docs)
-
----
-
-**Full Changelog**: https://github.com/jordanhubbard/nanolang/compare/v$prev_version...v$version
 EOF
+    if [[ -n "$compare_url" ]]; then
+        printf '\n### Links\n- [Full Changelog](%s)\n- [Documentation](%s/tree/main/docs)\n\n---\n\n**Full Changelog**: %s\n' \
+            "$compare_url" "${REPO_URL}" "$compare_url" >> /tmp/release_notes.md
+    fi
     
     # Commit changelog (if there are changes to commit)
     info "Committing CHANGELOG.md..."
-    git add planning/CHANGELOG.md
+    git add CHANGELOG.md
     if git diff --cached --quiet; then
         info "CHANGELOG.md already up to date, skipping commit"
     else
@@ -285,11 +295,17 @@ main() {
     
     # Get current version
     CURRENT_VERSION=$(get_current_version)
+
+    # Resolve repo URL dynamically (used in release notes)
+    REPO_URL=$(gh repo view --json url -q .url 2>/dev/null || echo "")
+
     if [[ -z "$CURRENT_VERSION" ]]; then
-        error "No version tags found. Create initial tag first (e.g., git tag v1.0.0)"
+        # First release — bootstrap from 1.0.0
+        CURRENT_VERSION="0.0.0"
+        info "No prior tags found — this will be the first release (v1.0.0)"
+    else
+        info "Current version: v$CURRENT_VERSION"
     fi
-    
-    info "Current version: v$CURRENT_VERSION"
     
     # Determine bump type
     BUMP_TYPE=${1:-patch}
