@@ -1,0 +1,20 @@
+# forth_see — NanoISA decompiler for Forth SEE word
+#
+# Locates the dispatch branch for the given built-in Forth word in
+# the compiled interpreter bytecode, then disassembles the NanoISA
+# implementation block.
+#
+# Usage:
+#   module "modules/forth_see/forth_see.nano"
+#
+# The returned string contains a formatted NanoISA listing.
+# The result buffer is static; copy it before the next call.
+
+extern fn nl_forth_see(_word: string, _nvm_path: string) -> string
+
+shadow nl_forth_see {
+    # Smoke-test: always returns a non-empty string.
+    # Use a nonexistent path so no binary is required during testing.
+    let result: string = (nl_forth_see "dup" "/nonexistent/path.nvm")
+    assert (> (str_length result) 0)
+}

@@ -27,6 +27,7 @@
 
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
 from "modules/readline/readline.nano" import rl_readline, rl_add_history
+module "modules/forth_see/forth_see.nano"
 
 extern fn list_int_new() -> int64_t
 extern fn list_int_push(list: int64_t, value: int) -> void
@@ -939,16 +940,22 @@ fn exec_tokens(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: L
         if (and (not matched) (== token "see")) {
             set matched true
             if (>= (+ ip 1) num) {
-                (println "Error: see needs a name")
+                (println "Usage: see <word>")
             } else {
                 let sname: string = (list_string_get tokens (+ ip 1))
                 set ip (+ ip 1)
                 let sidx: int = (find_word wnames sname)
                 if (>= sidx 0) {
-                    (print ": ") (print sname) (print " ")
-                    (println (list_string_get wbodies sidx))
+                    # User-defined: show Forth body
+                    (print ": ") (print sname) (print "  ")
+                    (print (list_string_get wbodies sidx))
+                    (println " ;")
+                    (println "; (interpreted word — no compiled body)")
                 } else {
-                    (println (+ sname " -- not found"))
+                    # Built-in or unknown: disassemble from NanoISA bytecode
+                    let see_nvm: string = "bin/nl_forth_interpreter_vm"
+                    let see_isa: string = (nl_forth_see sname see_nvm)
+                    (println see_isa)
                 }
             }
         } else { (print "") }

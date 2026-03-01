@@ -1,0 +1,18 @@
+{
+  "name": "forth_see",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "NanoISA decompiler for the Forth SEE word. Reads .nvm bytecode and disassembles the implementation of any built-in Forth word down to NanoISA opcodes.",
+  "use_when": [
+    "Implementing a Forth SEE decompiler that shows NanoISA bytecode",
+    "Debugging or inspecting Forth built-in word implementations at ISA level"
+  ],
+  "avoid_when": [
+    "General purpose NVM disassembly (use nanoisa tools instead)"
+  ],
+  "capabilities": ["nvm_decompile", "isa_disassemble"],
+  "keywords": ["forth", "see", "decompiler", "nanoisa", "disassembler", "nvm"],
+  "examples": [],
+  "dependencies": { "nanolang": [], "system": [] },
+  "io_surfaces": []
+}

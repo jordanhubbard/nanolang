@@ -324,17 +324,22 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	@echo ""
 	@echo "All example tests passed!"
 
-test-forth: $(BIN_DIR)/nl_forth_interpreter_vm
+../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h
+	@mkdir -p ../modules/forth_see/.build
+	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared -I../modules/forth_see \
+	    -o $@ ../modules/forth_see/forth_see.c
+
+test-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Forth ANS test suite (280 tests)"
 	@echo "=========================================="
 	@cd .. && FORTH_FILE=examples/language/forth/run_tests.fs bin/nano_vm bin/nl_forth_interpreter_vm
 
-run-forth: $(BIN_DIR)/nl_forth_interpreter_vm
+run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter_vm $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
+forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter_vm $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT) ../modules/forth_see/.build/libforth_see.so
 	@echo "Launching Forth IDE..."
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
