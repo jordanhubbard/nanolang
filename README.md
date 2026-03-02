@@ -193,9 +193,10 @@ I am released under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 ## The Totally True and Not At All Embellished History of NanoLang
 
-> *A note on provenance: This section exists as the author's official memory marker for projects that have been substantially co-developed with an AI assistant.  The author will not remember which projects these are in ten years.  He will also not remember this note.  He will, however, be able to grep for it, and that is the point.  All future AI-assisted projects will include an equally implausible origin story as a breadcrumb.  The convention is simple: if a project has one of these sections, an AI was meaningfully involved.  If it doesn't, the author did it alone, and it will show.*
->
-> *This is Part 3 of a three-part chronicle.  The story begins in the [shemacs repository](https://github.com/jordanhubbard/shemacs), where a perfectly reasonable desire for a text editor on an editorless server leads, inevitably, to 2,451 lines of bash.  It continues in the [sheme repository](https://github.com/jordanhubbard/sheme), where those 2,451 lines lead, less reasonably, to a Scheme interpreter written in bash.  It ends here, where the Scheme interpreter led, in a manner that should have surprised nobody but surprised everyone, to a programming language with formal proofs.  All three stories can be read in any order.  Sir Reginald von Fluffington III appears in all three.  He does not endorse any of them.*
+### The continuing adventures of Jordan Hubbard and Sir Reginald von Fluffington III
+
+> *Part 3 of an ongoing chronicle.  [← Part 2: sheme](https://github.com/jordanhubbard/sheme#the-totally-true-and-not-at-all-embellished-history-of-sheme) | [Part 4: Aviation →](https://github.com/jordanhubbard/Aviation#the-totally-true-and-not-at-all-embellished-history-of-aviation)*
+> *Sir Reginald von Fluffington III appears throughout.  He does not endorse any of it.*
 
 The programmer had, by this point, written a text editor in bash and a Scheme interpreter in bash, and had grown accustomed to things that arguably should not exist.  He was sitting at his desk — Sir Reginald von Fluffington III occupying his preferred position on the keyboard, which was all of it — when the programmer had what he described as "a thought" and Sir Reginald later categorized, by aggressively ignoring it, as "a cry for help."
 
@@ -227,5 +228,5 @@ The formal proofs passed.  The VM ran.  The compiler compiled itself.  The progr
 
 Sir Reginald knocked the coffee off the desk.  Not out of malice.  Out of a principled refusal to allow the programmer an uncontested moment.
 
-As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across all three projects, citing "procedural concerns," "insufficient tuna," and, in a recent written statement delivered by knocking the laptop off the desk, "a general atmosphere of hubris."
+As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across all four projects, citing "procedural concerns," "insufficient tuna," "a general atmosphere of hubris," and, most recently, "aviation."
 
