@@ -33,6 +33,11 @@ endif
 # Set module path for automatic module building
 export NANO_MODULE_PATH=../modules
 
+# === Detect compilers with limited linking support ===
+# nanoc_stage1/stage2 and nano_virt can only link built-in modules
+
+IS_SELFHOSTED := $(or $(findstring nanoc_stage1,$(COMPILER)),$(findstring nanoc_stage2,$(COMPILER)),$(findstring nano_virt,$(COMPILER)))
+
 # === Nanolang-Only Compiled Examples (nl_*) ===
 
 NL_SOURCES := $(filter-out \
@@ -46,6 +51,10 @@ NL_SOURCES := $(filter-out \
 # VM backend cannot resolve module imports
 ifeq ($(EXAMPLES_BACKEND),vm)
 NL_SOURCES := $(filter-out language/nl_boids.nano language/nl_random_sentence.nano language/nl_demo_selfhosting.nano,$(NL_SOURCES))
+endif
+# Self-hosted compiler can't link C-backed modules (readline, forth_see)
+ifneq ($(IS_SELFHOSTED),)
+NL_SOURCES := $(filter-out language/nl_forth_interpreter.nano,$(NL_SOURCES))
 endif
 
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
@@ -63,11 +72,6 @@ REPL_SOURCES :=
 endif
 REPL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(REPL_SOURCES))
 REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
-
-# === Detect compilers with limited linking support ===
-# nanoc_stage1/stage2 and nano_virt can only link built-in modules
-
-IS_SELFHOSTED := $(or $(findstring nanoc_stage1,$(COMPILER)),$(findstring nanoc_stage2,$(COMPILER)),$(findstring nano_virt,$(COMPILER)))
 
 # === Advanced Examples ===
 

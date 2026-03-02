@@ -116,6 +116,32 @@ static void shadow_write_json_file(const char *path, const ShadowFailure *fails,
 }
 
 
+/* Process escape sequences in a raw lexer string into actual characters */
+static char *unescape_string(const char *raw) {
+    size_t len = strlen(raw);
+    char *buf = malloc(len + 1);
+    size_t out = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (raw[i] == '\\' && i + 1 < len) {
+            i++;
+            switch (raw[i]) {
+                case 'n':  buf[out++] = '\n'; break;
+                case 't':  buf[out++] = '\t'; break;
+                case 'r':  buf[out++] = '\r'; break;
+                case '0':  buf[out++] = '\0'; break;
+                case '\\': buf[out++] = '\\'; break;
+                case '\'': buf[out++] = '\''; break;
+                case '"':  buf[out++] = '"';  break;
+                default:   buf[out++] = '\\'; buf[out++] = raw[i]; break;
+            }
+        } else {
+            buf[out++] = raw[i];
+        }
+    }
+    buf[out] = '\0';
+    return buf;
+}
+
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
@@ -3701,8 +3727,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_FLOAT:
             return create_float(expr->as.float_val);
 
-        case AST_STRING:
-            return create_string(expr->as.string_val);
+        case AST_STRING: {
+            char *unescaped = unescape_string(expr->as.string_val);
+            Value v = create_string(unescaped);
+            free(unescaped);
+            return v;
+        }
 
         case AST_BOOL:
             return create_bool(expr->as.bool_val);

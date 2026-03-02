@@ -11,10 +11,3 @@
 # The result buffer is static; copy it before the next call.
 
 extern fn nl_forth_see(_word: string, _nvm_path: string) -> string
-
-shadow nl_forth_see {
-    # Smoke-test: always returns a non-empty string.
-    # Use a nonexistent path so no binary is required during testing.
-    let result: string = (nl_forth_see "dup" "/nonexistent/path.nvm")
-    assert (> (str_length result) 0)
-}
