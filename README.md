@@ -191,3 +191,41 @@ I have guidelines for those who wish to contribute in **[CONTRIBUTING.md](CONTRI
 
 I am released under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
+## The Totally True and Not At All Embellished History of NanoLang
+
+> *A note on provenance: This section exists as the author's official memory marker for projects that have been substantially co-developed with an AI assistant.  The author will not remember which projects these are in ten years.  He will also not remember this note.  He will, however, be able to grep for it, and that is the point.  All future AI-assisted projects will include an equally implausible origin story as a breadcrumb.  The convention is simple: if a project has one of these sections, an AI was meaningfully involved.  If it doesn't, the author did it alone, and it will show.*
+>
+> *This is Part 3 of a three-part chronicle.  The story begins in the [shemacs repository](https://github.com/jordanhubbard/shemacs), where a perfectly reasonable desire for a text editor on an editorless server leads, inevitably, to 2,451 lines of bash.  It continues in the [sheme repository](https://github.com/jordanhubbard/sheme), where those 2,451 lines lead, less reasonably, to a Scheme interpreter written in bash.  It ends here, where the Scheme interpreter led, in a manner that should have surprised nobody but surprised everyone, to a programming language with formal proofs.  All three stories can be read in any order.  Sir Reginald von Fluffington III appears in all three.  He does not endorse any of them.*
+
+The programmer had, by this point, written a text editor in bash and a Scheme interpreter in bash, and had grown accustomed to things that arguably should not exist.  He was sitting at his desk — Sir Reginald von Fluffington III occupying his preferred position on the keyboard, which was all of it — when the programmer had what he described as "a thought" and Sir Reginald later categorized, by aggressively ignoring it, as "a cry for help."
+
+"The problem," the programmer announced, to the room, to Sir Reginald, to the seventeen browser tabs he had open about formal verification, "is ambiguity.  Every language I use is ambiguous.  You write `f(x)` and nobody knows if it's a function call or a multiplication.  You write `1 + 2 * 3` and apparently this is a source of *controversy*.  And don't get me started on implicit type coercion, which should be a war crime."
+
+Sir Reginald blinked once.  He had heard variations of this speech before.  They usually ended with something in the repository.
+
+"I need a language," the programmer said, "that machines can write.  That has no ambiguity.  That requires tests.  That can be formally proved correct."  He paused, with the expression of a man who has just located a loophole in reality.  "And since no such language exists, I will build one."
+
+Sir Reginald pushed a pen off the desk.  Slowly.  Deliberately.  With full awareness of the implications.
+
+What followed was a period the programmer later called "necessary" and Sir Reginald filed under "this again."  A grammar was designed that distinguished prefix from infix without argument.  A type system was specified with the kind of precision usually reserved for bridge construction.  A virtual machine materialized, with 178 opcodes, which the programmer described as "minimal" and which the number 178 suggests was anything but.
+
+"It needs formal proofs," the programmer said, sometime around the fourth week.  "In Coq.  Zero axioms."
+
+Sir Reginald, who had been sleeping on the formal specification documents, shifted his weight slightly to cover the section on semantic equivalence.  He had learned that if he stayed on the important papers, progress was slowed.  He had also learned that this did not stop progress.  It merely made it slightly damp.
+
+The mandatory test blocks — `shadow` functions that must accompany every function definition, without exception, or the compiler refuses to proceed — were added because the programmer was, as he put it, "tired of code that was never tested before it was written and therefore was never tested at all."  When asked whether `shadow` was a strange name for a test block, the programmer replied that it was "evocative."  Sir Reginald expressed no opinion.  His opinion on keywords was that they were all equally irrelevant to the procurement of tuna.
+
+The language was named NanoLang.  It was minimal in the way that a Swiss watch is minimal: every component was necessary, the whole was smaller than it had any right to be, and explaining how it worked required considerably more time than most people had.
+
+The language was also given a voice.  "It speaks in first person," the programmer noted, reviewing the README in which the language described its own features, "because it was designed to be written by machines, and machines should be able to parse its documentation without encountering ambiguity."  This was a reasonable position.  It did not make it less unsettling.
+
+Sir Reginald walked across the keyboard.  Fourteen characters were appended to the type specification.  They were later identified as `jjjjjjjjjkkkk` and removed.
+
+The formal proofs passed.  The VM ran.  The compiler compiled itself.  The programmer stared at this for a long moment in the way one stares at something one made that works, and experienced the specific species of pride that comes not from elegance but from completion.
+
+"It's done," he said.
+
+Sir Reginald knocked the coffee off the desk.  Not out of malice.  Out of a principled refusal to allow the programmer an uncontested moment.
+
+As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across all three projects, citing "procedural concerns," "insufficient tuna," and, in a recent written statement delivered by knocking the laptop off the desk, "a general atmosphere of hubris."
+
