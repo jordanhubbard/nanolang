@@ -542,6 +542,132 @@ shadow parse_import_path_from_line {
 }
 */
 
+fn nlc_str_trim(s: string) -> string {
+    let len: int = (str_length s)
+    let mut start: int = 0
+    while (and (< start len) (or (== (char_at s start) 32) (or (== (char_at s start) 9) (== (char_at s start) 10)))) {
+        set start (+ start 1)
+    }
+    let mut end: int = len
+    while (and (> end start) (or (== (char_at s (- end 1)) 32) (or (== (char_at s (- end 1)) 9) (== (char_at s (- end 1)) 10)))) {
+        set end (- end 1)
+    }
+    if (>= start end) { return "" } else { (print "") }
+    return (str_substring s start (- end start))
+}
+
+shadow nlc_str_trim {
+    assert (== (nlc_str_trim "  hello  ") "hello")
+    assert (== (nlc_str_trim "x") "x")
+    assert (== (nlc_str_trim "") "")
+}
+
+fn extract_from_aliases(lines: array<string>) -> array<string> {
+    let mut result: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        if (nlc_str_starts_with line "from ") {
+            let import_kw: int = (nlc_str_index_of line " import ")
+            if (>= import_kw 0) {
+                let after_import: string = (str_substring line (+ import_kw 8) (- (str_length line) (+ import_kw 8)))
+                let alen: int = (str_length after_import)
+                let mut pos: int = 0
+                while (< pos alen) {
+                    while (and (< pos alen) (== (char_at after_import pos) 32)) { set pos (+ pos 1) }
+                    let mut end: int = pos
+                    while (and (< end alen) (and (!= (char_at after_import end) 44) (!= (char_at after_import end) 32))) { set end (+ end 1) }
+                    let sym: string = (str_substring after_import pos (- end pos))
+                    set pos end
+                    while (and (< pos alen) (== (char_at after_import pos) 32)) { set pos (+ pos 1) }
+                    if (and (< (+ pos 2) alen) (== (str_substring after_import pos 3) "as ")) {
+                        set pos (+ pos 3)
+                        while (and (< pos alen) (== (char_at after_import pos) 32)) { set pos (+ pos 1) }
+                        let mut aend: int = pos
+                        while (and (< aend alen) (and (!= (char_at after_import aend) 44) (!= (char_at after_import aend) 32))) { set aend (+ aend 1) }
+                        let alias: string = (str_substring after_import pos (- aend pos))
+                        if (and (> (str_length sym) 0) (> (str_length alias) 0)) {
+                            set result (array_push result alias)
+                            set result (array_push result sym)
+                        } else { (print "") }
+                        set pos aend
+                    } else { (print "") }
+                    while (and (< pos alen) (or (== (char_at after_import pos) 44) (== (char_at after_import pos) 32))) { set pos (+ pos 1) }
+                }
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow extract_from_aliases {
+    assert (== 1 1)
+}
+
+fn apply_alias(line: string, alias: string, original: string) -> string {
+    let alen: int = (str_length alias)
+    let llen: int = (str_length line)
+    let mut result: string = ""
+    let mut i: int = 0
+    while (<= i (- llen alen)) {
+        let candidate: string = (str_substring line i alen)
+        if (== candidate alias) {
+            let before_ok: bool = (or (== i 0) (not (is_ident_char (char_at line (- i 1)))))
+            let after_pos: int = (+ i alen)
+            let after_ok: bool = (or (>= after_pos llen) (not (is_ident_char (char_at line after_pos))))
+            if (and before_ok after_ok) {
+                set result (+ result original)
+                set i (+ i alen)
+            } else {
+                set result (+ result (str_substring line i 1))
+                set i (+ i 1)
+            }
+        } else {
+            set result (+ result (str_substring line i 1))
+            set i (+ i 1)
+        }
+    }
+    while (< i llen) {
+        set result (+ result (str_substring line i 1))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow apply_alias {
+    assert (== 1 1)
+}
+
+fn is_ident_char(c: int) -> bool {
+    if (and (>= c 97) (<= c 122)) { return true } else { (print "") }
+    if (and (>= c 65) (<= c 90)) { return true } else { (print "") }
+    if (and (>= c 48) (<= c 57)) { return true } else { (print "") }
+    if (== c 95) { return true } else { (print "") }
+    return false
+}
+
+shadow is_ident_char {
+    assert (is_ident_char 97)
+    assert (not (is_ident_char 32))
+}
+
+fn apply_all_aliases(line: string, aliases: array<string>) -> string {
+    let mut result: string = line
+    let mut i: int = 0
+    while (< i (array_length aliases)) {
+        let alias: string = (at aliases i)
+        let original: string = (at aliases (+ i 1))
+        set result (apply_alias result alias original)
+        set i (+ i 2)
+    }
+    return result
+}
+
+shadow apply_all_aliases {
+    assert (== 1 1)
+}
+
 fn strip_pub_decl(line: string) -> string {
     if (nlc_str_starts_with line "pub fn ") {
         return (+ "fn " (str_substring line 7 (- (str_length line) 7)))
@@ -745,6 +871,7 @@ fn merge_with_imports(input_file: string) -> string {
     while (< i (array_length files)) {
         let src: string = (file_read (at files i))
         let lines: array<string> = (split_lines src)
+        let file_aliases: array<string> = (extract_from_aliases lines)
         let mut j: int = 0
         while (< j (array_length lines)) {
             let line: string = (at lines j)
@@ -753,7 +880,8 @@ fn merge_with_imports(input_file: string) -> string {
             let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
             let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
             if (and (== imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
-                let _w1: int = (file_append merge_tmp (strip_pub_decl line))
+                let resolved_line: string = (apply_all_aliases (strip_pub_decl line) file_aliases)
+                let _w1: int = (file_append merge_tmp resolved_line)
                 let _w2: int = (file_append merge_tmp "\n")
             } else {
                 (print "")

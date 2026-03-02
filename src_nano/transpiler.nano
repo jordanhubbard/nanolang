@@ -1646,7 +1646,7 @@ fn is_runtime_declared_extern(name: string) -> bool {
     /* gen_c_runtime declared: CLI functions */
     if (== name "get_argc") { return true } else { (print "") }
     if (== name "get_argv") { return true } else { (print "") }
-    if (== name "eval") { return true } else { (print "") }
+    /* eval is a user-provided extern, not runtime — needs forward declaration */
     if (== name "nl_exec_shell") { return true } else { (print "") }
     if (== name "nl_exec_capture") { return true } else { (print "") }
     if (== name "nl_get_time_ms") { return true } else { (print "") }
@@ -4147,8 +4147,35 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         let rt: string = (genenv_get env rid.name)
                         if (== rt "string") { set right_is_str_var true } else { (print "") }
                     } else { (print "") }
+                    /* Check struct field access for string type */
+                    let mut left_is_str_field: bool = false
+                    let mut right_is_str_field: bool = false
+                    if (== binop.left_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                        let lfa: ASTFieldAccess = (parser_get_field_access parser binop.left)
+                        let mut lowner_type: string = ""
+                        if (== lfa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                            let lowner_id: ASTIdentifier = (parser_get_identifier parser lfa.object)
+                            set lowner_type (genenv_get env lowner_id.name)
+                        } else { (print "") }
+                        if (!= lowner_type "") {
+                            let lft: string = (lookup_struct_field_type parser lowner_type lfa.field_name)
+                            if (== lft "string") { set left_is_str_field true } else { (print "") }
+                        } else { (print "") }
+                    } else { (print "") }
+                    if (== binop.right_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                        let rfa: ASTFieldAccess = (parser_get_field_access parser binop.right)
+                        let mut rowner_type: string = ""
+                        if (== rfa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                            let rowner_id: ASTIdentifier = (parser_get_identifier parser rfa.object)
+                            set rowner_type (genenv_get env rowner_id.name)
+                        } else { (print "") }
+                        if (!= rowner_type "") {
+                            let rft: string = (lookup_struct_field_type parser rowner_type rfa.field_name)
+                            if (== rft "string") { set right_is_str_field true } else { (print "") }
+                        } else { (print "") }
+                    } else { (print "") }
 
-                    let either_is_str: bool = (or (or left_is_str right_is_str) (or (or left_is_str_fn right_is_str_fn) (or left_is_str_var right_is_str_var)))
+                    let either_is_str: bool = (or (or left_is_str right_is_str) (or (or left_is_str_fn right_is_str_fn) (or (or left_is_str_var right_is_str_var) (or left_is_str_field right_is_str_field))))
                     if either_is_str {
                         let mut parts: array<string> = []
                         set parts (cg_append parts "nl_str_concat(")
@@ -6244,7 +6271,7 @@ pub fn transpile_parser(parser: Parser) -> string {
         }
 
         if (< func.body 0) {
-            /* Extern function - skip, already declared in runtime */
+            /* Extern function - prototypes emitted by generate_function_prototypes */
             (print "")
         } else {
             set emitted_bodies (array_push emitted_bodies func.name)
