@@ -2542,14 +2542,14 @@ shadow gen_identifier {
     assert (== (gen_identifier "x") "nl_x")
 }
 
-/* Generate code for a binary operation */
+/* Generate code for a binary operation.
+   Only arithmetic (+,-,*,/,%) and logical (&&,||) ops get outer parens
+   to preserve precedence. Comparisons (==,!=,<,>,<=,>=) are left bare
+   so that if(cond) doesn't produce if((a == b)) which triggers
+   -Wparentheses-equality in Clang. */
 fn gen_binary_op(op: string, left: string, right: string) -> string {
     /* Convert nanolang operators to C operators */
     let mut c_op: string = op
-    
-    /* Arithmetic is same: +, -, *, /, % */
-    /* Comparison: ==, !=, <, >, <=, >= */
-    /* Logical: convert 'and' -> '&&', 'or' -> '||' */
     
     if (== op "and") {
         set c_op "&&"
@@ -2561,14 +2561,20 @@ fn gen_binary_op(op: string, left: string, right: string) -> string {
         }
     }
     
+    let needs_parens: bool = (or (or (or (== op "+") (== op "-")) (or (== op "*") (== op "/"))) (or (== op "%") (or (== op "and") (== op "or"))))
+    
     let mut parts: array<string> = []
-    set parts (cg_append parts "(")
+    if needs_parens {
+        set parts (cg_append parts "(")
+    } else { (print "") }
     set parts (cg_append parts left)
     set parts (cg_append parts " ")
     set parts (cg_append parts c_op)
     set parts (cg_append parts " ")
     set parts (cg_append parts right)
-    set parts (cg_append parts ")")
+    if needs_parens {
+        set parts (cg_append parts ")")
+    } else { (print "") }
     
     return (cg_build parts)
 }
@@ -4226,15 +4232,23 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 /* Get operator string */
                 let op_str: string = (operator_to_string binop.op)
                 
-                /* Build expression: (left op right) */
+                /* Arithmetic and logical ops need parens for precedence.
+                   Comparisons must NOT be wrapped — Clang's -Wparentheses-equality
+                   fires when if( (a == b) ) appears with double parens. */
+                let arith_or_logic: bool = (or (or (or (== binop.op LexerTokenType.TOKEN_PLUS) (== binop.op LexerTokenType.TOKEN_MINUS)) (or (== binop.op LexerTokenType.TOKEN_STAR) (== binop.op LexerTokenType.TOKEN_SLASH))) (or (== binop.op LexerTokenType.TOKEN_PERCENT) (or (== binop.op LexerTokenType.TOKEN_AND) (== binop.op LexerTokenType.TOKEN_OR))))
+                
                 let mut parts: array<string> = []
-                set parts (cg_append parts "(")
+                if arith_or_logic {
+                    set parts (cg_append parts "(")
+                } else { (print "") }
                 set parts (cg_append parts left_code)
                 set parts (cg_append parts " ")
                 set parts (cg_append parts op_str)
                 set parts (cg_append parts " ")
                 set parts (cg_append parts right_code)
-                set parts (cg_append parts ")")
+                if arith_or_logic {
+                    set parts (cg_append parts ")")
+                } else { (print "") }
                 
                 return (cg_build parts)
             } else {
@@ -4251,9 +4265,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 1) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a0_code: string = (generate_expression parser a0.node_id a0.node_type env "")
+                            let arg_is_binop: bool = (== a0.node_type ParseNodeType.PNODE_BINARY_OP)
                             let mut parts: array<string> = []
                             set parts (cg_append parts "(!")
+                            if arg_is_binop {
+                                set parts (cg_append parts "(")
+                            } else { (print "") }
                             set parts (cg_append parts a0_code)
+                            if arg_is_binop {
+                                set parts (cg_append parts ")")
+                            } else { (print "") }
                             set parts (cg_append parts ")")
                             return (cg_build parts)
                         } else {
