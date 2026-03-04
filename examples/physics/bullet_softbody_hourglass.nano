@@ -66,7 +66,7 @@ fn project_y(y: float) -> int {
 }
 
 shadow project_y {
-    assert (< (project_y 10.0) (project_y (- 0.0 10.0)))
+    assert (< (project_y 10.0) (project_y -10.0))
 }
 
 fn draw_filled_circle(renderer: SDL_Renderer, cx: int, cy: int, radius: int) -> void {
@@ -134,12 +134,12 @@ fn main() -> int {
     }
 
     /* Static world */
-    (nl_bullet_create_rigid_box 0.0 (- 0.0 48.0) 0.0 80.0 2.0 60.0 0.0 0.4)
-    (nl_bullet_create_rigid_box_rotated (- 0.0 14.0) 0.0 0.0 24.0 1.0 6.0 25.0 0.0 0.3)
-    (nl_bullet_create_rigid_box_rotated 14.0 0.0 0.0 24.0 1.0 6.0 (- 25.0) 0.0 0.3)
-    (nl_bullet_create_rigid_box_rotated (- 0.0 10.0) (- 0.0 18.0) 0.0 18.0 1.0 6.0 (- 25.0) 0.0 0.3)
-    (nl_bullet_create_rigid_box_rotated 10.0 (- 0.0 18.0) 0.0 18.0 1.0 6.0 25.0 0.0 0.3)
-    (nl_bullet_create_rigid_box 0.0 (- 0.0 30.0) 0.0 4.0 10.0 6.0 0.0 0.2)
+    (nl_bullet_create_rigid_box 0.0 -48.0 0.0 80.0 2.0 60.0 0.0 0.4)
+    (nl_bullet_create_rigid_box_rotated -14.0 0.0 0.0 24.0 1.0 6.0 25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated 14.0 0.0 0.0 24.0 1.0 6.0 -25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated -10.0 -18.0 0.0 18.0 1.0 6.0 -25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box_rotated 10.0 -18.0 0.0 18.0 1.0 6.0 25.0 0.0 0.3)
+    (nl_bullet_create_rigid_box 0.0 -30.0 0.0 4.0 10.0 6.0 0.0 0.2)
 
     let mut particles: array<SoftParticle> = []
     let mut active_count: int = 0
@@ -173,8 +173,8 @@ fn main() -> int {
             set spawn_timer 0.0
             let mut spawned: int = 0
             while (and (< spawned SPAWN_BURST) (< active_count MAX_PARTICLES)) {
-                let lane_offset: float = (+ (- 0.0 4.0) (* (cast_float (% (+ frame_count spawned) 6)) 1.4))
-                let spawn_x: float = (+ lane_offset (cond ((== (% spawned 2) 0) 1.2) (else (- 0.0 1.2))))
+                let lane_offset: float = (+ -4.0 (* (cast_float (% (+ frame_count spawned) 6)) 1.4))
+                let spawn_x: float = (+ lane_offset (cond ((== (% spawned 2) 0) 1.2) (else -1.2)))
                 let mut handle: int = 0
                 set handle (nl_bullet_create_soft_sphere spawn_x PARTICLE_SPAWN_Y 0.0 PARTICLE_RADIUS PARTICLE_RESOLUTION)
                 if (!= handle (- 0 1)) {
@@ -197,7 +197,7 @@ fn main() -> int {
             if particle.active {
                 let mut sample_y: float = 0.0
                 set sample_y (nl_bullet_get_soft_body_node_y particle.handle 0)
-                if (and (< sample_y (- 0.0 5.0)) (not particle.crossed)) {
+                if (and (< sample_y -5.0) (not particle.crossed)) {
                     set crossed_count (+ crossed_count 1)
                     let updated: SoftParticle = SoftParticle {
                         handle: particle.handle,
@@ -206,7 +206,7 @@ fn main() -> int {
                     }
                     (array_set particles index updated)
                 }
-                if (< sample_y (- 0.0 45.0)) {
+                if (< sample_y -45.0) {
                     (nl_bullet_remove_soft_body particle.handle) 
                     let updated2: SoftParticle = SoftParticle {
                         handle: particle.handle,
@@ -240,17 +240,17 @@ fn main() -> int {
         (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
         
         # Floor
-        let floor_y: int = (project_y (- 0.0 48.0))
-        let floor_left: int = (project_x (- 0.0 40.0))
+        let floor_y: int = (project_y -48.0)
+        let floor_left: int = (project_x -40.0)
         let floor_right: int = (project_x 40.0)
         (nl_sdl_render_fill_rect renderer floor_left floor_y (- floor_right floor_left) 30)
         
         # Upper funnel - left side (angled wall from top-left to center)
         # Physics: box at (-14, 0) with length 24, rotated 25 degrees
-        let ul_top_x: int = (project_x (- 0.0 32.0))
+        let ul_top_x: int = (project_x -32.0)
         let ul_top_y: int = (project_y 10.0)
-        let ul_bot_x: int = (project_x (- 0.0 4.0))
-        let ul_bot_y: int = (project_y (- 0.0 8.0))
+        let ul_bot_x: int = (project_x -4.0)
+        let ul_bot_y: int = (project_y -8.0)
         (SDL_RenderDrawLine renderer ul_top_x ul_top_y ul_bot_x ul_bot_y)
         (SDL_RenderDrawLine renderer (+ ul_top_x 1) ul_top_y (+ ul_bot_x 1) ul_bot_y)
         (SDL_RenderDrawLine renderer (+ ul_top_x 2) ul_top_y (+ ul_bot_x 2) ul_bot_y)
@@ -261,7 +261,7 @@ fn main() -> int {
         let ur_top_x: int = (project_x 32.0)
         let ur_top_y: int = (project_y 10.0)
         let ur_bot_x: int = (project_x 4.0)
-        let ur_bot_y: int = (project_y (- 0.0 8.0))
+        let ur_bot_y: int = (project_y -8.0)
         (SDL_RenderDrawLine renderer ur_top_x ur_top_y ur_bot_x ur_bot_y)
         (SDL_RenderDrawLine renderer (+ ur_top_x 1) ur_top_y (+ ur_bot_x 1) ur_bot_y)
         (SDL_RenderDrawLine renderer (+ ur_top_x 2) ur_top_y (+ ur_bot_x 2) ul_bot_y)
@@ -269,18 +269,18 @@ fn main() -> int {
         (SDL_RenderDrawLine renderer (- ur_top_x 2) ur_top_y (- ur_bot_x 2) ur_bot_y)
         
         # Neck (narrow passage in the middle)
-        let neck_left: int = (project_x (- 0.0 4.0))
+        let neck_left: int = (project_x -4.0)
         let neck_right: int = (project_x 4.0)
-        let neck_top: int = (project_y (- 0.0 20.0))
-        let neck_bot: int = (project_y (- 0.0 40.0))
+        let neck_top: int = (project_y -20.0)
+        let neck_bot: int = (project_y -40.0)
         (nl_sdl_render_fill_rect renderer (- neck_left 4) neck_top 8 (- neck_bot neck_top))
         (nl_sdl_render_fill_rect renderer (- neck_right 4) neck_top 8 (- neck_bot neck_top))
         
         # Lower funnel - left side (angled wall from center down-left)
-        let ll_top_x: int = (project_x (- 0.0 4.0))
-        let ll_top_y: int = (project_y (- 0.0 8.0))
-        let ll_bot_x: int = (project_x (- 0.0 24.0))
-        let ll_bot_y: int = (project_y (- 0.0 28.0))
+        let ll_top_x: int = (project_x -4.0)
+        let ll_top_y: int = (project_y -8.0)
+        let ll_bot_x: int = (project_x -24.0)
+        let ll_bot_y: int = (project_y -28.0)
         (SDL_RenderDrawLine renderer ll_top_x ll_top_y ll_bot_x ll_bot_y)
         (SDL_RenderDrawLine renderer (+ ll_top_x 1) ll_top_y (+ ll_bot_x 1) ll_bot_y)
         (SDL_RenderDrawLine renderer (+ ll_top_x 2) ll_top_y (+ ll_bot_x 2) ll_bot_y)
@@ -289,9 +289,9 @@ fn main() -> int {
         
         # Lower funnel - right side (angled wall from center down-right)
         let lr_top_x: int = (project_x 4.0)
-        let lr_top_y: int = (project_y (- 0.0 8.0))
+        let lr_top_y: int = (project_y -8.0)
         let lr_bot_x: int = (project_x 24.0)
-        let lr_bot_y: int = (project_y (- 0.0 28.0))
+        let lr_bot_y: int = (project_y -28.0)
         (SDL_RenderDrawLine renderer lr_top_x lr_top_y lr_bot_x lr_bot_y)
         (SDL_RenderDrawLine renderer (+ lr_top_x 1) lr_top_y (+ lr_bot_x 1) lr_bot_y)
         (SDL_RenderDrawLine renderer (+ lr_top_x 2) lr_top_y (+ lr_bot_x 2) lr_bot_y)
@@ -299,10 +299,10 @@ fn main() -> int {
         (SDL_RenderDrawLine renderer (- lr_top_x 2) lr_top_y (- lr_bot_x 2) lr_bot_y)
         
         # Outer walls (vertical sides of hourglass)
-        let wall_left: int = (project_x (- 0.0 32.0))
+        let wall_left: int = (project_x -32.0)
         let wall_right: int = (project_x 32.0)
         let wall_top: int = (project_y 10.0)
-        let wall_bottom: int = (project_y (- 0.0 28.0))
+        let wall_bottom: int = (project_y -28.0)
         (nl_sdl_render_fill_rect renderer (- wall_left 4) wall_top 8 (- wall_bottom wall_top))
         (nl_sdl_render_fill_rect renderer (- wall_right 4) wall_top 8 (- wall_bottom wall_top))
 

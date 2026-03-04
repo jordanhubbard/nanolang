@@ -126,9 +126,9 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     
     /* Initialize Bullet Physics */
-    let mut bullet_init: int = 0
-    set bullet_init (nl_bullet_init)
-    if (== bullet_init 0) {
+    let mut bullet_ok: int = 0
+    set bullet_ok (nl_bullet_init)
+    if (== bullet_ok 0) {
         (println "Error: Failed to initialize Bullet Physics")
         (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)

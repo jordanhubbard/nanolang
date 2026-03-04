@@ -25,13 +25,13 @@ let TARGET_FPS: int = 60
 let FRAME_TIME: float = 0.016666
 
 let CAMERA_SCALE: float = 14.0
-let CAMERA_OFFSET_Y: float = (- 0.0 35.0)  # Shift camera downward to keep the negative-Y towers on screen
+let CAMERA_OFFSET_Y: float = -35.0  # Shift camera downward to keep the negative-Y towers on screen
 
 /* Tower configuration */
 let TOWER_COUNT: int = 12
 let LAYERS_PER_TOWER: int = 32
 let TOWER_SPACING: float = 3.8
-let TOWER_BASE_Y: float = (- 0.0 40.0)
+let TOWER_BASE_Y: float = -40.0
 let BLOCK_HALF_WIDTH: float = 0.7
 let BLOCK_HALF_HEIGHT: float = 0.5
 let BLOCK_HALF_DEPTH: float = 0.7
@@ -77,7 +77,7 @@ fn project_y(y: float) -> int {
 }
 
 shadow project_y {
-    assert (< (project_y 10.0) (project_y (- 0.0 10.0)))
+    assert (< (project_y 10.0) (project_y -10.0))
 }
 
 fn clamp_ratio(value: float) -> float {
@@ -91,7 +91,7 @@ fn clamp_ratio(value: float) -> float {
 }
 
 shadow clamp_ratio {
-    assert (== (clamp_ratio (- 0.0 1.0)) 0.0)
+    assert (== (clamp_ratio -1.0) 0.0)
     assert (== (clamp_ratio 0.5) 0.5)
     assert (== (clamp_ratio 2.0) 1.0)
 }
@@ -118,8 +118,8 @@ fn build_tower_field() -> TowerField {
     let mut tower_initial_tops: array<float> = []
 
     (nl_bullet_create_rigid_box 0.0 TOWER_BASE_Y 0.0 120.0 GROUND_HALF_HEIGHT 60.0 0.0 0.4)
-    (nl_bullet_create_rigid_box (- 0.0 30.0) (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
-    (nl_bullet_create_rigid_box 30.0 (- 0.0 40.0) 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
+    (nl_bullet_create_rigid_box -30.0 -40.0 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
+    (nl_bullet_create_rigid_box 30.0 -40.0 0.0 WALL_HALF_THICKNESS 25.0 60.0 0.0 0.3)
 
     let tower_spacing: float = TOWER_SPACING
     let layer_step: float = (* BLOCK_HALF_HEIGHT 2.0)
@@ -127,13 +127,17 @@ fn build_tower_field() -> TowerField {
 
     let mut tower_index: int = 0
     while (< tower_index TOWER_COUNT) {
-        let tower_center_x: float = (+ (- 0.0 (* tower_spacing (/ (cast_float (- TOWER_COUNT 1)) 2.0))) (* (cast_float tower_index) tower_spacing))
+        let half_span: float = (* tower_spacing (/ (cast_float (- TOWER_COUNT 1)) 2.0))
+        let tower_center_x: float = (+ (* -1.0 half_span) (* (cast_float tower_index) tower_spacing))
         let tower_top: float = (+ base_y (* (cast_float (- LAYERS_PER_TOWER 1)) layer_step))
         set tower_initial_tops (array_push tower_initial_tops tower_top)
 
         let mut layer: int = 0
         while (< layer LAYERS_PER_TOWER) {
-            let lean_dir: float = (cond ((== (% tower_index 2) 0) 1.0) (else (- 0.0 1.0)))
+            let mut lean_dir: float = -1.0
+            if (== (% tower_index 2) 0) {
+                set lean_dir 1.0
+            }
             let lean_amount: float = (* (cast_float layer) (* LAYER_LEAN lean_dir))
             let block_x: float = (+ tower_center_x lean_amount)
             let block_y: float = (+ base_y (* (cast_float layer) layer_step))
@@ -276,7 +280,7 @@ fn main() -> int {
         (nl_bullet_step FRAME_TIME) 
 
         if (== (% frame_count 120) 0) {
-            let mut current_tops: array<float> = (array_new TOWER_COUNT (- 0.0 1000.0))
+            let mut current_tops: array<float> = (array_new TOWER_COUNT -1000.0)
             let handles: array<int> = field.handles
             let tower_ids: array<int> = field.tower_ids
             let mut i: int = 0

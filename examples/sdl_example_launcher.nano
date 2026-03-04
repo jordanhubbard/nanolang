@@ -118,12 +118,21 @@ fn main() -> int {
 
     # Auto-discover all examples, sort icons-first
     let discovered: array<ExampleInfo> = (discover_examples "examples")
+    # Recompute icon paths locally (workaround: struct string fields corrupt across function returns)
+    let mut icon_paths: array<string> = []
+    let mut ip_i: int = 0
+    while (< ip_i (array_length discovered)) {
+        let dex: ExampleInfo = (at discovered ip_i)
+        set icon_paths (array_push icon_paths (find_icon dex.path))
+        set ip_i (+ ip_i 1)
+    }
     let mut all_examples: array<ExampleInfo> = []
     # First pass: examples with icons
     let mut si: int = 0
     while (< si (array_length discovered)) {
-        let ex: ExampleInfo = (at discovered si)
-        if (> (str_length ex.icon_path) 0) {
+        let ip: string = (at icon_paths si)
+        if (> (str_length ip) 0) {
+            let ex: ExampleInfo = (at discovered si)
             set all_examples (array_push all_examples ex)
         }
         set si (+ si 1)
@@ -131,8 +140,9 @@ fn main() -> int {
     # Second pass: examples without icons
     set si 0
     while (< si (array_length discovered)) {
-        let ex: ExampleInfo = (at discovered si)
-        if (== (str_length ex.icon_path) 0) {
+        let ip: string = (at icon_paths si)
+        if (== (str_length ip) 0) {
+            let ex: ExampleInfo = (at discovered si)
             set all_examples (array_push all_examples ex)
         }
         set si (+ si 1)
@@ -141,14 +151,15 @@ fn main() -> int {
     let example_count: int = (array_length all_examples)
     (println (+ "Discovered " (+ (int_to_string example_count) " examples")))
 
-    # Load icon textures
+    # Load icon textures - recompute paths fresh to avoid struct field aliasing
     let mut icon_textures: array<int> = []
     let mut tex_idx: int = 0
     while (< tex_idx example_count) {
-        let ex: ExampleInfo = (at all_examples tex_idx)
+        let tex_ex: ExampleInfo = (at all_examples tex_idx)
+        let fresh_ip: string = (find_icon tex_ex.path)
         let mut texture: int = 0
-        if (> (str_length ex.icon_path) 0) {
-            set texture (nl_img_load_png_texture renderer ex.icon_path)
+        if (> (str_length fresh_ip) 0) {
+            set texture (nl_img_load_png_texture renderer fresh_ip)
         }
         set icon_textures (array_push icon_textures texture)
         set tex_idx (+ tex_idx 1)
