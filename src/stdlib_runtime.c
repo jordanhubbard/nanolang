@@ -1285,6 +1285,23 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "/* Capture stdout from a shell command */\n");
+    sb_append(sb, "const char* nl_exec_capture(const char* cmd) {\n");
+    sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
+    sb_append(sb, "    if (!pipe) return \"\";\n");
+    sb_append(sb, "    char* out = (char*)malloc(65536);\n");
+    sb_append(sb, "    if (!out) { pclose(pipe); return \"\"; }\n");
+    sb_append(sb, "    size_t total = 0;\n");
+    sb_append(sb, "    while (total < 65535) {\n");
+    sb_append(sb, "        size_t n = fread(out + total, 1, 65535 - total, pipe);\n");
+    sb_append(sb, "        if (n == 0) break;\n");
+    sb_append(sb, "        total += n;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    out[total] = '\\0';\n");
+    sb_append(sb, "    pclose(pipe);\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
     /* File I/O aliases for self-hosted compiler compatibility */
     sb_append(sb, "/* File I/O aliases (without nl_os_ prefix for compiler use) */\n");
     sb_append(sb, "static char* file_read(const char* path) {\n");

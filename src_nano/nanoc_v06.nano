@@ -37,6 +37,8 @@ extern fn path_normalize(path: string) -> string
 
 /* System commands - wrapper to avoid stdlib.h system() conflict */
 extern fn nl_exec_shell(cmd: string) -> int
+extern fn nl_exec_capture(cmd: string) -> string
+extern fn nl_exec_capture(cmd: string) -> string
 
 /* =============================================================================
  * CLI ARGUMENT PARSING
@@ -838,7 +840,330 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
     }
 }
 
-fn merge_with_imports(input_file: string) -> string {
+struct MergeResult {
+    source: string
+    files: array<string>
+    repo_root: string
+}
+
+struct ModuleBuildFlags {
+    compile_flags: string
+    link_flags: string
+}
+
+fn json_extract_string_array(text: string, key: string) -> array<string> {
+    let mut result: array<string> = []
+    let search: string = (+ "\"" (+ key "\""))
+    let idx: int = (nlc_str_index_of text search)
+    if (< idx 0) { return result } else { (print "") }
+    let after_key: int = (+ idx (str_length search))
+    let tlen: int = (str_length text)
+    let mut pos: int = after_key
+    while (and (< pos tlen) (!= (char_at text pos) 91)) { set pos (+ pos 1) }
+    if (>= pos tlen) { return result } else { (print "") }
+    set pos (+ pos 1)
+    while (< pos tlen) {
+        let ch: int = (char_at text pos)
+        if (== ch 93) { return result } else { (print "") }
+        if (== ch 34) {
+            set pos (+ pos 1)
+            let mut end: int = pos
+            while (and (< end tlen) (!= (char_at text end) 34)) { set end (+ end 1) }
+            if (< end tlen) {
+                let val: string = (str_substring text pos (- end pos))
+                set result (array_push result val)
+                set pos (+ end 1)
+            } else { set pos end }
+        } else { set pos (+ pos 1) }
+    }
+    return result
+}
+
+shadow json_extract_string_array {
+    let json: string = "{\"pkg_config\": [\"sdl2\", \"SDL2_mixer\"], \"name\": \"test\"}"
+    let pkgs: array<string> = (json_extract_string_array json "pkg_config")
+    assert (== (array_length pkgs) 2)
+    assert (== (at pkgs 0) "sdl2")
+    assert (== (at pkgs 1) "SDL2_mixer")
+    let empty: array<string> = (json_extract_string_array json "missing")
+    assert (== (array_length empty) 0)
+}
+
+fn json_extract_string(text: string, key: string) -> string {
+    let search: string = (+ "\"" (+ key "\""))
+    let idx: int = (nlc_str_index_of text search)
+    if (< idx 0) { return "" } else { (print "") }
+    let after_key: int = (+ idx (str_length search))
+    let tlen: int = (str_length text)
+    let mut pos: int = after_key
+    while (and (< pos tlen) (!= (char_at text pos) 34)) { set pos (+ pos 1) }
+    if (>= pos tlen) { return "" } else { (print "") }
+    set pos (+ pos 1)
+    let mut end: int = pos
+    while (and (< end tlen) (!= (char_at text end) 34)) { set end (+ end 1) }
+    if (>= end tlen) { return "" } else { (print "") }
+    return (str_substring text pos (- end pos))
+}
+
+shadow json_extract_string {
+    let json: string = "{\"c_compiler\": \"c++\", \"name\": \"bullet\"}"
+    assert (== (json_extract_string json "c_compiler") "c++")
+    assert (== (json_extract_string json "missing") "")
+}
+
+fn nlc_path_basename(path: string) -> string {
+    let len: int = (str_length path)
+    let mut i: int = (- len 1)
+    while (and (>= i 0) (!= (char_at path i) 47)) { set i (- i 1) }
+    return (str_substring path (+ i 1) (- len (+ i 1)))
+}
+
+shadow nlc_path_basename {
+    assert (== (nlc_path_basename "/foo/bar.c") "bar.c")
+    assert (== (nlc_path_basename "test.c") "test.c")
+}
+
+fn collect_module_dirs(files: array<string>, repo_root: string) -> array<string> {
+    let modules_prefix: string = (+ repo_root "/modules/")
+    let std_prefix: string = (+ repo_root "/modules/std/")
+    let mut dirs: array<string> = []
+    let mut seen: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let f: string = (at files i)
+        if (and (nlc_str_starts_with f modules_prefix) (not (nlc_str_starts_with f std_prefix))) {
+            let dir: string = (nl_path_dirname f)
+            let mut dup: bool = false
+            let mut j: int = 0
+            while (< j (array_length seen)) {
+                if (== (at seen j) dir) { set dup true } else { (print "") }
+                set j (+ j 1)
+            }
+            if (not dup) {
+                set dirs (array_push dirs dir)
+                set seen (array_push seen dir)
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return dirs
+}
+
+shadow collect_module_dirs {
+    assert (== 1 1)
+}
+
+fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: bool) -> ModuleBuildFlags {
+    let module_dirs: array<string> = (collect_module_dirs files repo_root)
+    let mut cflags: string = ""
+    let mut ldflags: string = ""
+    let mut processed_pkgs: array<string> = []
+
+    let mut i: int = 0
+    while (< i (array_length module_dirs)) {
+        let dir: string = (at module_dirs i)
+        let json_path: string = (nl_path_join dir "module.json")
+        if (file_exists json_path) {
+            let json_text: string = (file_read json_path)
+            let mod_name: string = (json_extract_string json_text "name")
+            if verbose {
+                (print "  [module] ")
+                (print mod_name)
+                (print " (")
+                (print dir)
+                (println ")")
+            } else { (print "") }
+
+            /* pkg-config: collect compile and link flags */
+            let pkgs: array<string> = (json_extract_string_array json_text "pkg_config")
+            let mut pi: int = 0
+            while (< pi (array_length pkgs)) {
+                let pkg: string = (at pkgs pi)
+                let mut already: bool = false
+                let mut ai: int = 0
+                while (< ai (array_length processed_pkgs)) {
+                    if (== (at processed_pkgs ai) pkg) { set already true } else { (print "") }
+                    set ai (+ ai 1)
+                }
+                if (not already) {
+                    set processed_pkgs (array_push processed_pkgs pkg)
+                    let cflags_cmd: string = (+ "pkg-config --cflags " (+ pkg " 2>/dev/null"))
+                    let pkg_cflags: string = (nlc_str_trim (nl_exec_capture cflags_cmd))
+                    if (> (str_length pkg_cflags) 0) {
+                        set cflags (+ cflags (+ " " pkg_cflags))
+                        if verbose {
+                            (print "    pkg-config --cflags ")
+                            (print pkg)
+                            (print " -> ")
+                            (println pkg_cflags)
+                        } else { (print "") }
+                    } else { (print "") }
+                    let ldflags_cmd: string = (+ "pkg-config --libs " (+ pkg " 2>/dev/null"))
+                    let pkg_ldflags: string = (nlc_str_trim (nl_exec_capture ldflags_cmd))
+                    if (> (str_length pkg_ldflags) 0) {
+                        set ldflags (+ ldflags (+ " " pkg_ldflags))
+                        if verbose {
+                            (print "    pkg-config --libs ")
+                            (print pkg)
+                            (print " -> ")
+                            (println pkg_ldflags)
+                        } else { (print "") }
+                    } else { (print "") }
+                } else { (print "") }
+                set pi (+ pi 1)
+            }
+
+            /* Direct ldflags from module.json */
+            let mod_ldflags: array<string> = (json_extract_string_array json_text "ldflags")
+            let mut li: int = 0
+            while (< li (array_length mod_ldflags)) {
+                set ldflags (+ ldflags (+ " " (at mod_ldflags li)))
+                set li (+ li 1)
+            }
+
+            /* system_libs -> -l flags */
+            let sys_libs: array<string> = (json_extract_string_array json_text "system_libs")
+            let mut si: int = 0
+            while (< si (array_length sys_libs)) {
+                set ldflags (+ ldflags (+ " -l" (at sys_libs si)))
+                set si (+ si 1)
+            }
+
+            /* frameworks (macOS) */
+            let frameworks: array<string> = (json_extract_string_array json_text "frameworks")
+            let mut fi: int = 0
+            while (< fi (array_length frameworks)) {
+                set ldflags (+ ldflags (+ " -framework " (at frameworks fi)))
+                set fi (+ fi 1)
+            }
+
+            /* cflags from module.json */
+            let mod_cflags: array<string> = (json_extract_string_array json_text "cflags")
+            let mut ci: int = 0
+            while (< ci (array_length mod_cflags)) {
+                let flag: string = (at mod_cflags ci)
+                if (nlc_str_starts_with flag "-I") {
+                    let rel_path: string = (str_substring flag 2 (- (str_length flag) 2))
+                    set cflags (+ cflags (+ " -I" (nl_path_join repo_root rel_path)))
+                } else {
+                    set cflags (+ cflags (+ " " flag))
+                }
+                set ci (+ ci 1)
+            }
+
+            /* include_dirs */
+            let inc_dirs: array<string> = (json_extract_string_array json_text "include_dirs")
+            let mut ii: int = 0
+            while (< ii (array_length inc_dirs)) {
+                set cflags (+ cflags (+ " -I" (nl_path_join repo_root (at inc_dirs ii))))
+                set ii (+ ii 1)
+            }
+
+            /* Always add the module dir itself as an include path */
+            set cflags (+ cflags (+ " -I" dir))
+
+            /* c_sources: compile to .o files */
+            let c_sources: array<string> = (json_extract_string_array json_text "c_sources")
+            if (> (array_length c_sources) 0) {
+                let c_compiler: string = (json_extract_string json_text "c_compiler")
+                let mut cc_bin: string = (resolve_cc_binary)
+                if (== c_compiler "c++") {
+                    set cc_bin "c++"
+                } else { (print "") }
+                let build_dir: string = (nl_path_join repo_root "obj/nano_modules")
+                let _mk: int = (nl_exec_shell (+ "mkdir -p " build_dir))
+                let mut csi: int = 0
+                while (< csi (array_length c_sources)) {
+                    let csrc: string = (nl_path_join dir (at c_sources csi))
+                    let base: string = (nlc_path_basename csrc)
+                    let blen: int = (str_length base)
+                    let stem: string = (str_substring base 0 (- blen 2))
+                    let obj: string = (nl_path_join build_dir (+ stem ".o"))
+                    let mut compile_cmd: string = (+ cc_bin " -c -std=c99")
+                    if (== c_compiler "c++") {
+                        set compile_cmd (+ cc_bin " -c -std=c++11")
+                    } else { (print "") }
+                    set compile_cmd (+ compile_cmd cflags)
+                    set compile_cmd (+ compile_cmd (+ " -I" (nl_path_join repo_root "src")))
+                    set compile_cmd (+ compile_cmd (+ " " csrc))
+                    set compile_cmd (+ compile_cmd (+ " -o " obj))
+                    set compile_cmd (+ compile_cmd " 2>&1")
+                    if verbose {
+                        (print "    Compiling: ")
+                        (println csrc)
+                    } else { (print "") }
+                    let cr: int = (nl_exec_shell compile_cmd)
+                    if (== cr 0) {
+                        set ldflags (+ ldflags (+ " " obj))
+                    } else {
+                        (print "    Warning: failed to compile module source: ")
+                        (println csrc)
+                    }
+                    set csi (+ csi 1)
+                }
+            } else { (print "") }
+
+            /* dependencies: process recursively by finding their module dirs */
+            let deps: array<string> = (json_extract_string_array json_text "dependencies")
+            let mut di: int = 0
+            while (< di (array_length deps)) {
+                let dep_dir: string = (nl_path_join repo_root (+ "modules/" (at deps di)))
+                let dep_json: string = (nl_path_join dep_dir "module.json")
+                if (file_exists dep_json) {
+                    let mut dep_already: bool = false
+                    let mut dai: int = 0
+                    while (< dai (array_length module_dirs)) {
+                        if (== (at module_dirs dai) dep_dir) { set dep_already true } else { (print "") }
+                        set dai (+ dai 1)
+                    }
+                    if (not dep_already) {
+                        if verbose {
+                            (print "    dependency: ")
+                            (println (at deps di))
+                        } else { (print "") }
+                        let dep_json_text: string = (file_read dep_json)
+                        let dep_pkgs: array<string> = (json_extract_string_array dep_json_text "pkg_config")
+                        let mut dpi: int = 0
+                        while (< dpi (array_length dep_pkgs)) {
+                            let dpkg: string = (at dep_pkgs dpi)
+                            let mut dp_already: bool = false
+                            let mut dpai: int = 0
+                            while (< dpai (array_length processed_pkgs)) {
+                                if (== (at processed_pkgs dpai) dpkg) { set dp_already true } else { (print "") }
+                                set dpai (+ dpai 1)
+                            }
+                            if (not dp_already) {
+                                set processed_pkgs (array_push processed_pkgs dpkg)
+                                let dc_cmd: string = (+ "pkg-config --cflags " (+ dpkg " 2>/dev/null"))
+                                let dc_flags: string = (nlc_str_trim (nl_exec_capture dc_cmd))
+                                if (> (str_length dc_flags) 0) { set cflags (+ cflags (+ " " dc_flags)) } else { (print "") }
+                                let dl_cmd: string = (+ "pkg-config --libs " (+ dpkg " 2>/dev/null"))
+                                let dl_flags: string = (nlc_str_trim (nl_exec_capture dl_cmd))
+                                if (> (str_length dl_flags) 0) { set ldflags (+ ldflags (+ " " dl_flags)) } else { (print "") }
+                            } else { (print "") }
+                            set dpi (+ dpi 1)
+                        }
+                        let dep_ldflags: array<string> = (json_extract_string_array dep_json_text "ldflags")
+                        let mut dli: int = 0
+                        while (< dli (array_length dep_ldflags)) {
+                            set ldflags (+ ldflags (+ " " (at dep_ldflags dli)))
+                            set dli (+ dli 1)
+                        }
+                    } else { (print "") }
+                } else { (print "") }
+                set di (+ di 1)
+            }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return ModuleBuildFlags { compile_flags: cflags, link_flags: ldflags }
+}
+
+shadow collect_module_build_flags {
+    assert (== 1 1)
+}
+
+fn merge_with_imports(input_file: string) -> MergeResult {
     let mut start: string = input_file
     if (not (nlc_str_starts_with input_file "/")) {
         set start (nl_path_join (getcwd) input_file)
@@ -862,7 +1187,7 @@ fn merge_with_imports(input_file: string) -> string {
     let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return ""
+        return MergeResult { source: "", files: [], repo_root: repo_root }
     } else { (print "") }
     /* Write merged source directly to temp file - avoids O(n²) string concat */
     let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
@@ -890,7 +1215,11 @@ fn merge_with_imports(input_file: string) -> string {
         }
         set i (+ i 1)
     }
-    return (file_read merge_tmp)
+    return MergeResult { source: (file_read merge_tmp), files: files, repo_root: repo_root }
+}
+
+shadow merge_with_imports {
+    assert (== 1 1)
 }
 
 /* =============================================================================
@@ -1078,7 +1407,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
 
-    let merged_source: string = (merge_with_imports input_file)
+    let merge_result: MergeResult = (merge_with_imports input_file)
+    let merged_source: string = merge_result.source
+    let merged_files: array<string> = merge_result.files
+    let merge_repo_root: string = merge_result.repo_root
     let temp_source_file: string = (+ (tmp_dir) "/nanolang_merged.nano")
     let mut source_to_compile: string = input_file
     
@@ -1288,6 +1620,12 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             /* Step 5: C Compiler - Compile to executable */
+            /* Step 4.5: Collect module build flags (pkg-config, ldflags, etc.) */
+            if verbose {
+                (println "[4.5/5] Collecting module build flags...")
+            } else { (print "") }
+            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files merge_repo_root verbose)
+
             if verbose {
                 (println "[5/5] Compiling C to executable...")
             } else {
@@ -1307,6 +1645,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd include_src)
             set cc_cmd (+ cc_cmd " -I")
             set cc_cmd (+ cc_cmd include_modules)
+            /* Module compile flags (include paths from pkg-config, module cflags) */
+            if (> (str_length mod_flags.compile_flags) 0) {
+                set cc_cmd (+ cc_cmd mod_flags.compile_flags)
+            } else { (print "") }
             set cc_cmd (+ cc_cmd " ")
             let extra_cflags: string = (getenv "NANO_CFLAGS")
             if (!= extra_cflags "") {
@@ -1433,6 +1775,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
             set cc_cmd (+ cc_cmd " -lm")
+            /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
+            if (> (str_length mod_flags.link_flags) 0) {
+                set cc_cmd (+ cc_cmd mod_flags.link_flags)
+            } else { (print "") }
             let extra_ldflags: string = (getenv "NANO_LDFLAGS")
             if (!= extra_ldflags "") {
                 set cc_cmd (+ cc_cmd " ")
