@@ -645,12 +645,11 @@ examples:
 		$(EXAMPLES_TIMEOUT_CMD) $(MAKE) examples-core; \
 	else \
 		NANOLANG_AUTOBEADS_EXAMPLES=1 $(EXAMPLES_TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
-		$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= || echo "⚠️  Launcher build failed (optional - requires SDL and nano_tools modules)"; \
 	fi
 
-.PHONY: examples-core examples-stage1 examples-stage3 examples-vm
+.PHONY: examples-core examples-stage1 examples-stage3 examples-vm examples-launcher
 
-examples-core: examples-stage1 examples-stage3 examples-vm
+examples-core: examples-stage1
 	@echo "✅ Examples built successfully!"
 
 examples-stage1: bootstrap1 modules-index check-deps-sdl
@@ -685,6 +684,13 @@ examples-available: build check-deps-sdl
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available
 
 # Launch example browser
+examples-launcher: examples check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "🚀 Launching Example Browser"
+	@echo "=========================================="
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
+
 launcher: build check-deps-sdl
 	@echo ""
 	@echo "=========================================="

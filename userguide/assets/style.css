@@ -147,6 +147,7 @@ code .tok-text { color: var(--code-fg); }
 
 .md-table code {
   background: var(--code);
+  color: var(--code-fg);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;
