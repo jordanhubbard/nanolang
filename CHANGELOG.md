@@ -5,6 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.1.11] - 2026-03-04
+
+### Added
+- add module metadata support to stage1 compiler
+
+### Fixed
+- resolve make examples hang and black-on-black docs styling
+- work around two stage1 transpiler bugs in examples and launcher
+- restore original PNG icons for example launcher
+- resolve 3 pre-existing stage1 transpiler failures
+- eliminate 152+ -Wparentheses-equality warnings in self-hosted transpiler
+
 ## [3.1.10] - 2026-03-01
 
 ### Fixed
