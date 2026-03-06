@@ -1,0 +1,90 @@
+struct Info {
+    path: string,
+    name: string,
+    category: string,
+    icon: string,
+    extra: string
+}
+
+fn make_icon(stem: string) -> string {
+    let candidate: string = (+ "icons/" (+ stem ".png"))
+    let mod3: int = (% (str_length stem) 3)
+    if (== mod3 0) { return candidate }
+    return ""
+}
+
+shadow make_icon {
+    assert (== 0 0)
+}
+
+fn make_info(p: string) -> Info {
+    return Info {
+        path: p,
+        name: (+ "name_" p),
+        category: (+ "cat_" p),
+        icon: (make_icon p),
+        extra: (+ "extra_" p)
+    }
+}
+
+shadow make_info {
+    let i: Info = (make_info "abc")
+    assert (== i.path "abc")
+}
+
+fn collect_all() -> array<Info> {
+    let mut items: array<Info> = []
+    let mut i: int = 0
+    while (< i 50) {
+        let label: string = (+ "item_" (int_to_string i))
+        let info: Info = (make_info label)
+        set items (array_push items info)
+        set i (+ i 1)
+    }
+    return items
+}
+
+shadow collect_all {
+    assert (== 0 0)
+}
+
+fn main() -> int {
+    let results: array<Info> = (collect_all)
+    let count: int = (array_length results)
+    (println (+ "Count: " (int_to_string count)))
+
+    let mut failures: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let item: Info = (at results i)
+        let expected_path: string = (+ "item_" (int_to_string i))
+        let expected_name: string = (+ "name_item_" (int_to_string i))
+        let expected_extra: string = (+ "extra_item_" (int_to_string i))
+        if (!= item.path expected_path) {
+            (println (+ "FAIL path at " (+ (int_to_string i) (+ ": got " item.path))))
+            set failures (+ failures 1)
+        }
+        if (!= item.name expected_name) {
+            (println (+ "FAIL name at " (+ (int_to_string i) (+ ": got " item.name))))
+            set failures (+ failures 1)
+        }
+        if (!= item.extra expected_extra) {
+            (println (+ "FAIL extra at " (+ (int_to_string i) (+ ": got " item.extra))))
+            set failures (+ failures 1)
+        }
+        let expected_icon: string = (make_icon expected_path)
+        if (!= item.icon expected_icon) {
+            let msg: string = (+ "FAIL icon at " (+ (int_to_string i) (+ ": expected [" (+ expected_icon (+ "] got [" (+ item.icon "]"))))))
+            (println msg)
+            set failures (+ failures 1)
+        }
+        set i (+ i 1)
+    }
+
+    if (== failures 0) {
+        (println "All checks passed!")
+    } else {
+        (println (+ "FAILURES: " (int_to_string failures)))
+    }
+    return failures
+}

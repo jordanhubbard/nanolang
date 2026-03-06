@@ -4086,11 +4086,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 /* Array arithmetic lowering for identifier operands */
                 let mut left_arr_t: string = ""
                 let mut right_arr_t: string = ""
-                if (== binop.left_type 1) {
+                if (== binop.left_type ParseNodeType.PNODE_IDENTIFIER) {
                     let lid: ASTIdentifier = (parser_get_identifier parser binop.left)
                     set left_arr_t (genenv_get env lid.name)
                 } else { (print "") }
-                if (== binop.right_type 1) {
+                if (== binop.right_type ParseNodeType.PNODE_IDENTIFIER) {
                     let rid: ASTIdentifier = (parser_get_identifier parser binop.right)
                     set right_arr_t (genenv_get env rid.name)
                 } else { (print "") }
