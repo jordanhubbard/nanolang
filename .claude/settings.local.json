@@ -6,7 +6,8 @@
       "mcp__responsible-vibe-mcp__start_development",
       "mcp__responsible-vibe-mcp__reset_development",
       "mcp__responsible-vibe-mcp__setup_project_docs",
-      "mcp__responsible-vibe-mcp__proceed_to_phase"
+      "mcp__responsible-vibe-mcp__proceed_to_phase",
+      "WebFetch(domain:jordanhubbard.github.io)"
     ]
   },
   "enableAllProjectMcpServers": true,
