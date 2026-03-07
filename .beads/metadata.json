@@ -2,5 +2,8 @@
   "database": "dolt",
   "jsonl_export": "issues.jsonl",
   "backend": "dolt",
-  "dolt_database": "beads_nanolang"
+  "dolt_database": "beads_nanolang",
+  "dolt_server_host": "127.0.0.1",
+  "dolt_server_port": 3307,
+  "dolt_mode": "server"
 }
