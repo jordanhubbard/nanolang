@@ -5,6 +5,7 @@
   "headers": ["uv.h", "uv_helpers.h"],
   "c_sources": ["uv_helpers.c"],
   "pkg_config": ["libuv"],
+  "system_packages": ["libuv"],
   "install": {
     "macos": {
       "brew": "libuv",

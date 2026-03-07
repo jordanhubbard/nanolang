@@ -5,6 +5,7 @@
   "headers": ["sqlite3.h"],
   "c_sources": ["sqlite_helpers.c"],
   "pkg_config": ["sqlite3"],
+  "system_packages": ["sqlite3"],
   "install": {
     "macos": {
       "brew": "sqlite",

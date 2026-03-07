@@ -4,13 +4,11 @@
   "description": "HTTP/1.1 server with routing, static files, REST API support, and code execution",
   "author": "NanoLang Contributors",
   "license": "MIT",
-  "dependencies": {
-    "system": ["libuv"]
-  },
   "headers": ["http_server.h"],
   "c_sources": ["http_server.c"],
-  "cflags": ["-Imodules/http_server", "-I/opt/homebrew/include", "-I/usr/local/include"],
-  "ldflags": ["-L/opt/homebrew/lib", "-L/usr/local/lib", "-luv"],
+  "cflags": ["-Imodules/http_server"],
+  "pkg_config": ["libuv"],
+  "system_packages": ["libuv"],
   "exports": [
     "nl_http_server_create",
     "nl_http_server_set_static",

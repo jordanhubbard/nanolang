@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "SDL2 terminal emulator: libtmt virtual VT100 screen rendered with SDL_ttf",
     "headers": ["sdl_term.h", "tmt.h"],
+    "pkg_config": ["sdl2", "SDL2_ttf"],
     "cflags": ["-Imodules/sdl_term"],
     "c_sources": ["tmt.c", "sdl_term.c"],
     "ldflags": ["-lSDL2", "-lSDL2_ttf"],

@@ -6,5 +6,6 @@
   "cflags": ["-Imodules/ui_widgets"],
   "c_sources": ["ui_widgets.c"],
   "pkg_config": ["sdl2", "SDL2_ttf"],
+  "system_packages": ["sdl2", "sdl2_ttf"],
   "dependencies": ["sdl", "sdl_ttf"]
 }

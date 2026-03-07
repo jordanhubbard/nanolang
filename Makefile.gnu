@@ -1272,7 +1272,7 @@ $(OBJ_DIR)/lexer_nano.o: src_nano/lexer_main.nano $(COMPILER) | $(OBJ_DIR)
 	@rm -f $(OBJ_DIR)/lexer_nano.tmp $(OBJ_DIR)/lexer_nano.tmp.c $(OBJ_DIR)/lexer_nano_noMain.c
 
 # Dependency checking
-.PHONY: check-deps check-deps-sdl
+.PHONY: check-deps check-deps-sdl module-package-audit
 check-deps:
 	@echo "Checking build dependencies..."
 	@command -v $(CC) >/dev/null 2>&1 || { echo "❌ Error: $(CC) not found. Please install a C compiler."; exit 1; }
@@ -1303,6 +1303,9 @@ check-deps-sdl:
 			echo "✓ SDL2 found: $$(pkg-config --modversion sdl2)"; \
 		fi; \
 	fi
+
+module-package-audit:
+	@python3 tools/audit_module_packages.py
 
 # Build with sanitizers
 sanitize: CFLAGS += $(SANITIZE_FLAGS)
@@ -1385,6 +1388,7 @@ help:
 	@echo "Module Dependencies:"
 	@echo "  make modules            - Check what dependencies are needed (no sudo)"
 	@echo "  sudo make install-deps  - Install all missing dependencies (requires sudo)"
+	@echo "  make module-package-audit - Validate module package metadata coverage"
 	@echo ""
 	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
@@ -1491,7 +1495,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules release release-major release-minor release-patch
+.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION

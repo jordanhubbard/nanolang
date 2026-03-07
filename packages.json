@@ -136,7 +136,8 @@
         "pacman": {"package": "ncurses"},
         "brew": {"package": "ncurses"},
         "apk": {"package": "ncurses-dev"},
-        "zypper": {"package": "ncurses-devel"}
+        "zypper": {"package": "ncurses-devel"},
+        "pkg": {"package": "ncurses"}
       },
       "notes": "Windows: Use PDCurses or Windows Terminal API instead"
     },
@@ -190,7 +191,8 @@
         "chocolatey": {"package": "sqlite"},
         "winget": {"package": "SQLite.SQLite"},
         "apk": {"package": "sqlite-dev"},
-        "zypper": {"package": "sqlite3-devel"}
+        "zypper": {"package": "sqlite3-devel"},
+        "pkg": {"package": "sqlite3"}
       }
     },
     "curl": {
@@ -208,7 +210,44 @@
         "chocolatey": {"package": "curl"},
         "winget": {"package": "cURL.curl"},
         "apk": {"package": "curl-dev"},
-        "zypper": {"package": "libcurl-devel"}
+        "zypper": {"package": "libcurl-devel"},
+        "pkg": {"package": "curl"}
+      }
+    },
+    "libevent": {
+      "description": "Event notification library for async network servers",
+      "version": ">=2.0.0",
+      "detection": {
+        "pkg-config": "libevent",
+        "headers": ["event2/event.h"]
+      },
+      "install": {
+        "apt": {"package": "libevent-dev"},
+        "dnf": {"package": "libevent-devel"},
+        "yum": {"package": "libevent-devel"},
+        "pacman": {"package": "libevent"},
+        "brew": {"package": "libevent"},
+        "apk": {"package": "libevent-dev"},
+        "zypper": {"package": "libevent-devel"},
+        "pkg": {"package": "libevent"}
+      }
+    },
+    "libuv": {
+      "description": "Cross-platform asynchronous I/O library",
+      "version": ">=1.0.0",
+      "detection": {
+        "pkg-config": "libuv",
+        "headers": ["uv.h"]
+      },
+      "install": {
+        "apt": {"package": "libuv1-dev"},
+        "dnf": {"package": "libuv-devel"},
+        "yum": {"package": "libuv-devel"},
+        "pacman": {"package": "libuv"},
+        "brew": {"package": "libuv"},
+        "apk": {"package": "libuv-dev"},
+        "zypper": {"package": "libuv-devel"},
+        "pkg": {"package": "libuv"}
       }
     },
     "opengl": {
@@ -238,7 +277,8 @@
         "brew": {"package": "glew"},
         "chocolatey": {"package": "glew"},
         "apk": {"package": "glew-dev"},
-        "zypper": {"package": "glew-devel"}
+        "zypper": {"package": "glew-devel"},
+        "pkg": {"package": "glew"}
       }
     },
     "glfw": {
@@ -255,7 +295,8 @@
         "brew": {"package": "glfw"},
         "chocolatey": {"package": "glfw3"},
         "apk": {"package": "glfw-dev"},
-        "zypper": {"package": "glfw3-devel"}
+        "zypper": {"package": "glfw3-devel"},
+        "pkg": {"package": "glfw"}
       }
     },
     "bullet": {
@@ -271,7 +312,8 @@
         "pacman": {"package": "bullet"},
         "brew": {"package": "bullet"},
         "chocolatey": {"package": "bullet"},
-        "apk": {"package": "bullet-dev"}
+        "apk": {"package": "bullet-dev"},
+        "pkg": {"package": "bullet"}
       }
     },
     "pkg-config": {

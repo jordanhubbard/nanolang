@@ -15,6 +15,7 @@
 #include "cJSON.h"
 
 bool module_builder_verbose = false;
+static bool module_builder_can_prompt_sudo = false;
 
 // ============================================================================
 // Package Registry System - Central database of system package mappings
@@ -380,6 +381,7 @@ static const char* module_builder_sudo_prefix(void) {
     if (!initialized) {
         bool interactive = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
         bool wsl = is_wsl2();
+        module_builder_can_prompt_sudo = interactive || wsl;
 
         // On WSL2, prefer interactive sudo even if shell appears non-interactive
         // since WSL2 often runs in contexts where interactive sudo works fine
@@ -415,8 +417,8 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                       pm == PKG_MGR_PKG || pm == PKG_MGR_PACMAN || pm == PKG_MGR_ZYPPER ||
                       pm == PKG_MGR_APK);
 
-    if (needs_sudo && !has_passwordless_sudo()) {
-        // sudo requires a password and we can't provide one in this context
+    if (needs_sudo && !module_builder_can_prompt_sudo && !has_passwordless_sudo()) {
+        // Non-interactive run without passwordless sudo cannot install automatically.
         fprintf(stderr, "[Module]   ⚠️  Cannot auto-install %s: sudo requires a password\n", package_name);
         fprintf(stderr, "[Module]   Please install manually:\n");
 
@@ -472,6 +474,33 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
                      sudo_cmd, pm == PKG_MGR_DNF ? "dnf" : "yum", package_name);
             break;
 
+        case PKG_MGR_PACMAN:
+            snprintf(cmd, sizeof(cmd), "pacman -Q %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "%s pacman -S --noconfirm %s", sudo_cmd, package_name);
+            break;
+
+        case PKG_MGR_ZYPPER:
+            snprintf(cmd, sizeof(cmd), "rpm -q %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "%s zypper --non-interactive install -y %s", sudo_cmd, package_name);
+            break;
+
+        case PKG_MGR_APK:
+            snprintf(cmd, sizeof(cmd), "apk info -e %s >/dev/null 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "%s apk add %s", sudo_cmd, package_name);
+            break;
+
         case PKG_MGR_BREW:
             snprintf(cmd, sizeof(cmd), "brew list %s >/dev/null 2>&1", package_name);
             if (system(cmd) == 0) {
@@ -509,6 +538,15 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
             snprintf(cmd, sizeof(cmd), "winget install --silent %s", package_name);
             break;
 
+        case PKG_MGR_SCOOP:
+            snprintf(cmd, sizeof(cmd), "scoop list %s >nul 2>&1", package_name);
+            if (system(cmd) == 0) {
+                printf("[Module]   ✓ %s already installed\n", package_name);
+                return true;
+            }
+            snprintf(cmd, sizeof(cmd), "scoop install %s", package_name);
+            break;
+
         default:
             fprintf(stderr, "[Module]   ❌ Unknown package manager\n");
             return false;
@@ -523,6 +561,14 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
         fprintf(stderr, "[Module]   ❌ Failed to install %s\n", package_name);
         return false;
     }
+}
+
+static bool module_has_system_package_metadata(ModuleBuildMetadata *meta) {
+    if (!meta) return false;
+    return meta->system_packages_count > 0 ||
+           meta->apt_packages_count > 0 ||
+           meta->dnf_packages_count > 0 ||
+           meta->brew_packages_count > 0;
 }
 
 // Install system packages from module metadata (with registry support)
@@ -801,6 +847,25 @@ ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
 
 // Module metadata functions
 
+static void append_string_array_unique(char ***arr, size_t *count, const char *value) {
+    if (!arr || !count || !value || value[0] == '\0') return;
+
+    for (size_t i = 0; i < *count; i++) {
+        if ((*arr)[i] && strcmp((*arr)[i], value) == 0) {
+            return;
+        }
+    }
+
+    char **new_arr = realloc(*arr, sizeof(char*) * (*count + 1));
+    if (!new_arr) return;
+
+    *arr = new_arr;
+    (*arr)[*count] = strdup(value);
+    if ((*arr)[*count]) {
+        (*count)++;
+    }
+}
+
 ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     char path[1024];
     snprintf(path, sizeof(path), "%s/module.json", module_dir);
@@ -894,6 +959,43 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("owned_string_returns", owned_string_returns, owned_string_returns_count);
 
     #undef PARSE_STRING_ARRAY
+
+    // Compatibility parsing for object-style dependency manifests:
+    // {
+    //   "dependencies": {
+    //     "modules": ["std"],
+    //     "system": ["sdl2"] or [{"id":"sdl2"}]
+    //   }
+    // }
+    cJSON *dependencies_obj = cJSON_GetObjectItem(json, "dependencies");
+    if (dependencies_obj && cJSON_IsObject(dependencies_obj)) {
+        cJSON *module_deps = cJSON_GetObjectItem(dependencies_obj, "modules");
+        if (module_deps && cJSON_IsArray(module_deps)) {
+            int dep_count = cJSON_GetArraySize(module_deps);
+            for (int i = 0; i < dep_count; i++) {
+                cJSON *item = cJSON_GetArrayItem(module_deps, i);
+                if (cJSON_IsString(item)) {
+                    append_string_array_unique(&meta->dependencies, &meta->dependencies_count, item->valuestring);
+                }
+            }
+        }
+
+        cJSON *system_deps = cJSON_GetObjectItem(dependencies_obj, "system");
+        if (system_deps && cJSON_IsArray(system_deps)) {
+            int sys_count = cJSON_GetArraySize(system_deps);
+            for (int i = 0; i < sys_count; i++) {
+                cJSON *item = cJSON_GetArrayItem(system_deps, i);
+                if (cJSON_IsString(item)) {
+                    append_string_array_unique(&meta->system_packages, &meta->system_packages_count, item->valuestring);
+                } else if (cJSON_IsObject(item)) {
+                    cJSON *id = cJSON_GetObjectItem(item, "id");
+                    if (id && cJSON_IsString(id)) {
+                        append_string_array_unique(&meta->system_packages, &meta->system_packages_count, id->valuestring);
+                    }
+                }
+            }
+        }
+    }
 
     // Parse c_compiler (optional)
     cJSON *c_compiler = cJSON_GetObjectItem(json, "c_compiler");
@@ -1252,53 +1354,58 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             printf("[Module] Building %s...\n", meta->name);
         }
 
-        // Check pkg-config dependencies BEFORE attempting to compile
+        bool has_package_metadata = module_has_system_package_metadata(meta);
+
+        // Install declared system packages before checking pkg-config.
+        // This is the primary path for "import module -> auto-install deps".
+        if (has_package_metadata) {
+            if (!install_system_packages(meta)) {
+                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
+                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
+            }
+        }
+
+        // Check pkg-config dependencies AFTER installation attempt.
         const char *missing_pkg = NULL;
         if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
-            // Try to install the missing package
             fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
-            
-            // Check if we have install info in module.json
-            if (meta->install_brew || meta->install_apt) {
-                #ifdef __APPLE__
-                if (meta->install_brew) {
-                    fprintf(stderr, "[Module] Attempting: brew install %s\n", meta->install_brew);
-                    char install_cmd[256];
-                    snprintf(install_cmd, sizeof(install_cmd), "brew install %s 2>&1", meta->install_brew);
-                    int install_result = system(install_cmd);
-                    if (install_result == 0 && check_pkg_config_package(missing_pkg)) {
-                        fprintf(stderr, "[Module] Successfully installed %s\n", meta->install_brew);
-                    } else {
-                        fprintf(stderr, "[Module] Failed to install %s. Install manually with: brew install %s\n", 
-                                meta->install_brew, meta->install_brew);
-                        free(build_dir);
-                        return NULL;
-                    }
-                } else {
-                    fprintf(stderr, "[Module] No brew package specified. Skipping module '%s'\n", meta->name);
+
+            if (has_package_metadata) {
+                fprintf(stderr,
+                        "[Module] Module '%s' declared system_packages, but '%s' is still missing after auto-install\n",
+                        meta->name, missing_pkg);
+                free(build_dir);
+                return NULL;
+            }
+
+            // Legacy fallback for older manifests that only define install.{apt,brew}
+            PackageManager pm = detect_package_manager();
+            const char *legacy_pkg = NULL;
+            if (pm == PKG_MGR_BREW) {
+                legacy_pkg = meta->install_brew;
+            } else if (pm == PKG_MGR_APT) {
+                legacy_pkg = meta->install_apt;
+            }
+
+            if (legacy_pkg) {
+                fprintf(stderr, "[Module] Attempting legacy install fallback: %s\n", legacy_pkg);
+                if (!install_single_package(legacy_pkg, pm) || !check_pkg_config_package(missing_pkg)) {
+                    fprintf(stderr,
+                            "[Module] Failed to install missing dependency '%s' for module '%s'\n",
+                            missing_pkg, meta->name);
                     free(build_dir);
                     return NULL;
                 }
-                #else
-                if (meta->install_apt) {
-                    fprintf(stderr, "[Module] Install with: sudo apt-get install %s\n", meta->install_apt);
-                }
-                fprintf(stderr, "[Module] Skipping module '%s' due to missing dependencies\n", meta->name);
+            } else if (meta->install_brew || meta->install_apt) {
+                fprintf(stderr,
+                        "[Module] Legacy install mapping for module '%s' does not match this package manager\n",
+                        meta->name);
                 free(build_dir);
                 return NULL;
-                #endif
             } else {
                 fprintf(stderr, "[Module] Skipping module '%s' - install '%s' manually\n", meta->name, missing_pkg);
                 free(build_dir);
                 return NULL;
-            }
-        }
-
-        // Install system package dependencies (only when rebuilding)
-        if (meta->system_packages_count > 0 || meta->apt_packages_count > 0 || meta->dnf_packages_count > 0 || meta->brew_packages_count > 0) {
-            if (!install_system_packages(meta)) {
-                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
-                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
             }
         }
 

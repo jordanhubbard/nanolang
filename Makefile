@@ -1,61 +1,57 @@
 # ============================================================================
-# Nanolang Makefile - Portable Wrapper
+# Nanolang Makefile - BSD/gmake bridge
 # ============================================================================
 #
-# This Makefile detects whether GNU make or BSD make is being used.
-# The actual build logic is in Makefile.gnu (which requires GNU make).
-#
-# On BSD systems: Running 'make' will show a clear error to use 'gmake'
-# On Linux/macOS: Running 'make' works (delegates to Makefile.gnu)
+# GNU make will prefer GNUmakefile automatically.
+# BSD make reads this file and reinvokes gmake on GNUmakefile.
 #
 # ============================================================================
 
-# Check if GNU make is being used and delegate to Makefile.gnu
-# This uses only portable syntax that both BSD make and GNU make understand
-
-.PHONY: all build test test-docs examples clean help coverage coverage-report
+.PHONY: all build test test-docs examples clean help coverage coverage-report module-package-audit
 
 all:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
-		$(MAKE) -f Makefile.gnu all; \
+		$(MAKE) -f GNUmakefile all; \
+	elif command -v gmake >/dev/null 2>&1; then \
+		bridge_dir="$$(pwd)"; \
+		if [ ! -f "$$bridge_dir/GNUmakefile" ] && [ -f "$$bridge_dir/../GNUmakefile" ]; then \
+			bridge_dir="$$bridge_dir/.."; \
+		fi; \
+		exec gmake -C "$$bridge_dir" -f GNUmakefile all; \
 	else \
-		printf '\n'; \
-		printf '╔═══════════════════════════════════════════════════════════════╗\n'; \
-		printf '║                     ❌ ERROR: Wrong Make Tool                  ║\n'; \
-		printf '╚═══════════════════════════════════════════════════════════════╝\n'; \
-		printf '\n'; \
-		printf 'This project requires GNU make, but you are using BSD make.\n'; \
-		printf '\n'; \
-		printf '📋 SOLUTION:\n'; \
-		printf '  Use "gmake" instead of "make" for all build commands.\n'; \
-		printf '\n'; \
-		printf '🔧 INSTALLATION:\n'; \
-		printf '  FreeBSD:  pkg install gmake\n'; \
-		printf '  OpenBSD:  pkg_add gmake\n'; \
-		printf '  NetBSD:   pkgin install gmake\n'; \
-		printf '\n'; \
-		printf '📝 EXAMPLES:\n'; \
-		printf '  gmake              # Build the project\n'; \
-		printf '  gmake test         # Run tests\n'; \
-		printf '  gmake clean        # Clean build artifacts\n'; \
-		printf '  gmake examples     # Build examples\n'; \
-		printf '\n'; \
+		printf '\nERROR: GNU make is required but "gmake" was not found.\n'; \
+		printf 'Install GNU make and retry:\n'; \
+		printf '  FreeBSD: pkg install gmake\n'; \
+		printf '  OpenBSD: pkg_add gmake\n'; \
+		printf '  NetBSD:  pkgin install gmake\n\n'; \
 		exit 1; \
 	fi
 
-build test test-docs examples clean help install uninstall coverage coverage-report:
+build test test-docs examples clean help install uninstall coverage coverage-report module-package-audit:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
-		$(MAKE) -f Makefile.gnu $@; \
+		$(MAKE) -f GNUmakefile $@; \
+	elif command -v gmake >/dev/null 2>&1; then \
+		bridge_dir="$$(pwd)"; \
+		if [ ! -f "$$bridge_dir/GNUmakefile" ] && [ -f "$$bridge_dir/../GNUmakefile" ]; then \
+			bridge_dir="$$bridge_dir/.."; \
+		fi; \
+		exec gmake -C "$$bridge_dir" -f GNUmakefile $@; \
 	else \
-		printf '\n❌ ERROR: This requires GNU make. Use "gmake" instead of "make".\n\n'; \
+		printf '\nERROR: GNU make is required but "gmake" was not found.\n\n'; \
 		exit 1; \
 	fi
 
 # Catch-all for any other targets
-%:
+.DEFAULT:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
-		$(MAKE) -f Makefile.gnu $@; \
+		$(MAKE) -f GNUmakefile $@; \
+	elif command -v gmake >/dev/null 2>&1; then \
+		bridge_dir="$$(pwd)"; \
+		if [ ! -f "$$bridge_dir/GNUmakefile" ] && [ -f "$$bridge_dir/../GNUmakefile" ]; then \
+			bridge_dir="$$bridge_dir/.."; \
+		fi; \
+		exec gmake -C "$$bridge_dir" -f GNUmakefile $@; \
 	else \
-		printf '\n❌ ERROR: This requires GNU make. Use "gmake" instead of "make".\n\n'; \
+		printf '\nERROR: GNU make is required but "gmake" was not found.\n\n'; \
 		exit 1; \
 	fi

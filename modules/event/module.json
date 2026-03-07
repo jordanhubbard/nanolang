@@ -5,6 +5,7 @@
   "headers": ["event2/event.h", "event_helpers.h"],
   "c_sources": ["event_helpers.c"],
   "pkg_config": ["libevent"],
+  "system_packages": ["libevent"],
   "install": {
     "macos": {
       "brew": "libevent",

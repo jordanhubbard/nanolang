@@ -5,6 +5,7 @@
   "headers": ["curl/curl.h"],
   "c_sources": ["curl_helpers.c"],
   "pkg_config": ["libcurl"],
+  "system_packages": ["curl"],
   "install": {
     "macos": {
       "brew": "curl",
