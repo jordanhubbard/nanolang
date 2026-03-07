@@ -1,0 +1,97 @@
+# Regression test: struct string fields must not alias when stored from function
+# returns that use shared/static internal buffers.
+#
+# Root cause (issue #NNN): modules/std/fs.c path functions (path_join, path_basename,
+# path_dirname, path_normalize) used static char result[] buffers and returned pointers
+# to them. Subsequent calls overwrote the buffer, causing all previously stored struct
+# string fields to alias to the latest value.
+
+from "modules/std/fs.nano" import join, basename, dirname
+
+struct FileEntry {
+    path: string,
+    base: string,
+    dir: string
+}
+
+fn make_entry(p: string) -> FileEntry {
+    return FileEntry {
+        path: p,
+        base: (basename p),
+        dir: (dirname p)
+    }
+}
+
+shadow make_entry {
+    let e: FileEntry = (make_entry "foo/bar/baz.txt")
+    assert (== e.path "foo/bar/baz.txt")
+    assert (== e.base "baz.txt")
+    assert (== e.dir "foo/bar")
+}
+
+fn collect_entries() -> array<FileEntry> {
+    let paths: array<string> = [
+        "examples/graphics/sdl_boids.nano",
+        "examples/games/pong.nano",
+        "examples/terminal/ncurses_snake.nano",
+        "examples/ai/chatbot.nano"
+    ]
+    let mut entries: array<FileEntry> = []
+    let mut i: int = 0
+    while (< i (array_length paths)) {
+        let p: string = (at paths i)
+        let entry: FileEntry = (make_entry p)
+        set entries (array_push entries entry)
+        set i (+ i 1)
+    }
+    return entries
+}
+
+shadow collect_entries {
+    assert (== 0 0)
+}
+
+fn main() -> int {
+    let entries: array<FileEntry> = (collect_entries)
+    let count: int = (array_length entries)
+
+    let expected_bases: array<string> = [
+        "sdl_boids.nano",
+        "pong.nano",
+        "ncurses_snake.nano",
+        "chatbot.nano"
+    ]
+    let expected_dirs: array<string> = [
+        "examples/graphics",
+        "examples/games",
+        "examples/terminal",
+        "examples/ai"
+    ]
+
+    let mut failures: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let entry: FileEntry = (at entries i)
+        let exp_base: string = (at expected_bases i)
+        let exp_dir: string = (at expected_dirs i)
+
+        if (!= entry.base exp_base) {
+            let idx: string = (int_to_string i)
+            (println (+ "FAIL base[" (+ idx (+ "]: got " entry.base))))
+            set failures (+ failures 1)
+        }
+        if (!= entry.dir exp_dir) {
+            let idx: string = (int_to_string i)
+            (println (+ "FAIL dir[" (+ idx (+ "]: got " entry.dir))))
+            set failures (+ failures 1)
+        }
+        set i (+ i 1)
+    }
+
+    if (== failures 0) {
+        (println "All checks passed!")
+    } else {
+        (println (+ "FAILURES: " (int_to_string failures)))
+    }
+    return failures
+}
