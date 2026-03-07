@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.1.12] - 2026-03-07
+
+### Fixed
+- harden module dependency auto-install across platforms
+- replace static buffers in fs.c path functions; fix gc_mark for ELEM_STRUCT arrays
+- make examples now builds SDL/NCurses/network examples correctly
+- correct array broadcast misidentification of float literals as identifiers
+
 ## [3.1.11] - 2026-03-04
 
 ### Added
