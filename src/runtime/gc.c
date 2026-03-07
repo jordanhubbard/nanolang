@@ -338,16 +338,31 @@ static void gc_mark(GCHeader* header) {
             DynArray* arr = (DynArray*)obj;
             ElementType elem_type = dyn_array_get_elem_type(arr);
             
-            /* If array contains GC objects (arrays or structs), mark them */
-            /* Note: Arrays of GC objects store pointers to those objects */
-            if (elem_type == ELEM_ARRAY || elem_type == ELEM_STRUCT) {
+            if (elem_type == ELEM_ARRAY) {
+                /* Arrays of arrays: data is an array of DynArray* pointers */
                 int64_t len = dyn_array_length(arr);
-                /* For object arrays, data is an array of pointers */
                 void** ptr_data = (void**)arr->data;
                 for (int64_t i = 0; i < len; i++) {
                     void* elem = ptr_data[i];
                     if (elem && gc_is_managed(elem)) {
                         gc_mark(gc_get_header(elem));
+                    }
+                }
+            } else if (elem_type == ELEM_STRUCT && arr->elem_size > 0) {
+                /* Arrays of structs: data is packed struct values (by value, not pointers).
+                 * Scan each struct's bytes at pointer-aligned offsets to find any GC-managed
+                 * pointers embedded in string/array fields within the struct. */
+                int64_t len = dyn_array_length(arr);
+                size_t stride = (size_t)arr->elem_size;
+                for (int64_t i = 0; i < len; i++) {
+                    uint8_t* struct_data = (uint8_t*)arr->data + (i * stride);
+                    /* Scan each pointer-aligned word within the struct */
+                    for (size_t off = 0; off + sizeof(void*) <= stride; off += sizeof(void*)) {
+                        void* field_ptr;
+                        memcpy(&field_ptr, struct_data + off, sizeof(void*));
+                        if (field_ptr && gc_is_managed(field_ptr)) {
+                            gc_mark(gc_get_header(field_ptr));
+                        }
                     }
                 }
             }

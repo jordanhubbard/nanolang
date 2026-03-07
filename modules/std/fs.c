@@ -56,28 +56,26 @@ DynArray* fs_walkdir(const char* root) {
     return result;
 }
 
-/* Normalize path (resolve . and .., remove redundant slashes) */
-const char* path_normalize(const char* path) {
-    static char result[2048];
-    
+/* Internal helper: normalize path into caller-provided buffer */
+static void path_normalize_into(const char* path, char* result, size_t result_size) {
     if (!path || path[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
-        return result;
+        snprintf(result, result_size, ".");
+        return;
     }
-    
+
     int is_absolute = (path[0] == '/');
-    
+
     /* Copy path for tokenization */
     char* copy = strdup(path);
     if (!copy) {
-        snprintf(result, sizeof(result), "%s", path);
-        return result;
+        snprintf(result, result_size, "%s", path);
+        return;
     }
-    
+
     /* Split path into components */
     const char* parts[512];
     int count = 0;
-    
+
     char* saveptr = NULL;
     char* token = strtok_r(copy, "/", &saveptr);
     while (token) {
@@ -97,45 +95,51 @@ const char* path_normalize(const char* path) {
         }
         token = strtok_r(NULL, "/", &saveptr);
     }
-    
+
     /* Build result */
     result[0] = '\0';
     if (is_absolute) {
         strcat(result, "/");
     }
-    
+
     for (int i = 0; i < count; i++) {
         if (i > 0 || is_absolute) {
             if (result[strlen(result) - 1] != '/') {
-                strcat(result, "/");
+                strncat(result, "/", result_size - strlen(result) - 1);
             }
         }
-        strcat(result, parts[i]);
+        strncat(result, parts[i], result_size - strlen(result) - 1);
     }
-    
+
     /* Handle empty result */
     if (result[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
+        snprintf(result, result_size, ".");
     }
-    
+
     free(copy);
-    return result;
+}
+
+/* Normalize path (resolve . and .., remove redundant slashes) */
+const char* path_normalize(const char* path) {
+    char result[2048];
+    path_normalize_into(path, result, sizeof(result));
+    return strdup(result);
 }
 
 /* Join two path components */
 const char* path_join(const char* a, const char* b) {
-    static char result[2048];
-    
+    char result[2048];
+
     if (!a || a[0] == '\0') {
         snprintf(result, sizeof(result), "%s", b ? b : "");
-        return result;
+        return strdup(result);
     }
-    
+
     if (!b || b[0] == '\0') {
         snprintf(result, sizeof(result), "%s", a);
-        return result;
+        return strdup(result);
     }
-    
+
     /* Check if a ends with / */
     size_t a_len = strlen(a);
     if (a[a_len - 1] == '/') {
@@ -143,53 +147,45 @@ const char* path_join(const char* a, const char* b) {
     } else {
         snprintf(result, sizeof(result), "%s/%s", a, b);
     }
-    
-    return result;
+
+    return strdup(result);
 }
 
 /* Get basename of path */
 const char* path_basename(const char* path) {
-    static char result[2048];
-    
     if (!path || path[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
-        return result;
+        return strdup(".");
     }
-    
+
     /* Use POSIX basename (modifies input, so copy first) */
     char* copy = strdup(path);
     if (!copy) {
-        snprintf(result, sizeof(result), "%s", path);
-        return result;
+        return strdup(path);
     }
-    
+
     char* base = basename(copy);
-    snprintf(result, sizeof(result), "%s", base);
+    const char* result = strdup(base);
     free(copy);
-    
+
     return result;
 }
 
 /* Get dirname of path */
 const char* path_dirname(const char* path) {
-    static char result[2048];
-    
     if (!path || path[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
-        return result;
+        return strdup(".");
     }
-    
+
     /* Use POSIX dirname (modifies input, so copy first) */
     char* copy = strdup(path);
     if (!copy) {
-        snprintf(result, sizeof(result), "%s", path);
-        return result;
+        return strdup(path);
     }
-    
+
     char* dir = dirname(copy);
-    snprintf(result, sizeof(result), "%s", dir);
+    const char* result = strdup(dir);
     free(copy);
-    
+
     return result;
 }
 
@@ -203,17 +199,16 @@ static void path_append(char* out, size_t out_size, const char* part) {
 
 /* Compute relative path from base to target */
 const char* path_relpath(const char* target, const char* base) {
-    static char result[4096];
+    char result[4096];
 
     if (!target || !base) {
-        snprintf(result, sizeof(result), ".");
-        return result;
+        return strdup(".");
     }
 
     char target_norm[2048];
     char base_norm[2048];
-    snprintf(target_norm, sizeof(target_norm), "%s", path_normalize(target));
-    snprintf(base_norm, sizeof(base_norm), "%s", path_normalize(base));
+    path_normalize_into(target, target_norm, sizeof(target_norm));
+    path_normalize_into(base, base_norm, sizeof(base_norm));
 
     char target_copy[2048];
     char base_copy[2048];
@@ -259,7 +254,7 @@ const char* path_relpath(const char* target, const char* base) {
         snprintf(result, sizeof(result), ".");
     }
 
-    return result;
+    return strdup(result);
 }
 
 /* Read file content as string */
