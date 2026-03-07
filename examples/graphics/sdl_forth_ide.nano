@@ -103,11 +103,11 @@ fn draw_file_panel(renderer: SDL_Renderer, font: TTF_Font,
     let title_col: int = (cond (focused 100) (else 50))
     (SDL_SetRenderDrawColor renderer title_col (/ (* title_col 18) 10) 255 255)
     (nl_sdl_render_fill_rect renderer 0 0 PANEL_W (+ cell_h PADDING))
-    (nl_sdl_render_text_blended renderer font "  Forth Files" 4 (/ PADDING 2)
+    (nl_draw_text_blended renderer font "  Forth Files" 4 (/ PADDING 2)
                                 255 255 255 255)
 
     let row_h: int = (+ cell_h 4)
-    let list_top: int = (+ cell_h PADDING PADDING)
+    let list_top: int = (+ (+ cell_h PADDING) PADDING)
     let visible_rows: int = (/ (- WIN_H (+ list_top 30)) row_h)
     let n: int = (array_length files)
 
@@ -121,10 +121,10 @@ fn draw_file_panel(renderer: SDL_Renderer, font: TTF_Font,
             if (== fi selected) {
                 (set_color renderer COL_SEL_BG)
                 (nl_sdl_render_fill_rect renderer 0 y PANEL_W row_h)
-                (nl_sdl_render_text_blended renderer font fname PADDING (+ y 2)
+                (nl_draw_text_blended renderer font fname PADDING (+ y 2)
                                             220 240 255 255)
             } else {
-                (nl_sdl_render_text_blended renderer font fname PADDING (+ y 2)
+                (nl_draw_text_blended renderer font fname PADDING (+ y 2)
                                             160 160 190 255)
             }
         } else { (print "") }
@@ -141,7 +141,7 @@ fn draw_file_panel(renderer: SDL_Renderer, font: TTF_Font,
     } else { (print "") }
 
     # Bottom hint
-    (nl_sdl_render_text_blended renderer font
+    (nl_draw_text_blended renderer font
         (cond (focused "Enter=load  Tab=terminal") (else "Tab=focus"))
         PADDING (- WIN_H 20) 80 80 120 255)
 }
@@ -171,10 +171,10 @@ fn draw_status(renderer: SDL_Renderer, font: TTF_Font,
     }
     (nl_sdl_render_fill_rect renderer TERM_X bar_y TERM_W 22)
     if is_err {
-        (nl_sdl_render_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
+        (nl_draw_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
                                     220 80 80 255)
     } else {
-        (nl_sdl_render_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
+        (nl_draw_text_blended renderer font msg (+ TERM_X 6) (+ bar_y 3)
                                     80 200 80 255)
     }
 }
@@ -275,7 +275,7 @@ fn main() -> int {
                 if (< selected (- n_files 1)) {
                     set selected (+ selected 1)
                     let row_h: int = (+ ch 4)
-                    let list_top: int = (+ ch PADDING PADDING)
+                    let list_top: int = (+ (+ ch PADDING) PADDING)
                     let vis: int = (/ (- WIN_H (+ list_top 30)) row_h)
                     if (>= selected (+ file_scroll vis)) {
                         set file_scroll (- selected (- vis 1))

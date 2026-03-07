@@ -285,9 +285,8 @@ int64_t nl_sdl_term_create(const char *fp, int64_t pt, int64_t rows, int64_t col
 void nl_sdl_term_feed(int64_t h, const char *data) {
     nl_term_feed((NLTerm *)(uintptr_t)h, data);
 }
-void nl_sdl_term_render(int64_t h, int64_t renderer, int64_t x, int64_t y) {
-    nl_term_render((NLTerm *)(uintptr_t)h,
-                   (SDL_Renderer *)(uintptr_t)renderer, x, y);
+void nl_sdl_term_render(int64_t h, SDL_Renderer *renderer, int64_t x, int64_t y) {
+    nl_term_render((NLTerm *)(uintptr_t)h, renderer, x, y);
 }
 void nl_sdl_term_mark_clean(int64_t h) {
     nl_term_mark_clean((NLTerm *)(uintptr_t)h);

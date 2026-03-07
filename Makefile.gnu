@@ -647,10 +647,18 @@ examples:
 		NANOLANG_AUTOBEADS_EXAMPLES=1 $(EXAMPLES_TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
 	fi
 
-.PHONY: examples-core examples-stage1 examples-stage3 examples-vm examples-launcher
+.PHONY: examples-core examples-stage1 examples-full examples-stage3 examples-vm examples-launcher
 
-examples-core: examples-stage1
+examples-core: examples-stage1 examples-full
 	@echo "✅ Examples built successfully!"
+
+# Build with nanoc (C reference compiler) to include SDL/NCurses/network examples
+examples-full: stage1 modules-index check-deps-sdl
+	@echo ""
+	@echo "=========================================="
+	@echo "Building Examples (Full Compiler)"
+	@echo "=========================================="
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build
 
 examples-stage1: bootstrap1 modules-index check-deps-sdl
 	@echo ""

@@ -64,7 +64,7 @@ int64_t nl_term_key_to_seq(int64_t sdl_keycode, int64_t sdl_mod,
 int64_t nl_sdl_term_create(const char *font_path, int64_t pt_size,
                              int64_t rows, int64_t cols);
 void    nl_sdl_term_feed(int64_t handle, const char *data);
-void    nl_sdl_term_render(int64_t handle, int64_t renderer,
+void    nl_sdl_term_render(int64_t handle, SDL_Renderer *renderer,
                             int64_t x, int64_t y);
 void    nl_sdl_term_mark_clean(int64_t handle);
 void    nl_sdl_term_resize(int64_t handle, int64_t rows, int64_t cols);

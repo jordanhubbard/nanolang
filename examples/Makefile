@@ -31,7 +31,7 @@ COMPILER ?= $(BIN_DIR)/nanoc
 endif
 
 # Set module path for automatic module building
-export NANO_MODULE_PATH=../modules
+export NANO_MODULE_PATH=$(abspath ../modules)
 
 # === Detect compilers with limited linking support ===
 # nanoc_stage1/stage2 and nano_virt can only link built-in modules

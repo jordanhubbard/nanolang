@@ -40,7 +40,7 @@ fn str_trim(s: string) -> string {
         set end (- end 1)
     }
 
-    if (>= start end) {
+    if (> start end) {
         return ""
     } else { (print "") }
 

@@ -1282,11 +1282,16 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     /* Extract the module's own directory for -I path (so it can find its own headers) */
     char module_dir[512] = "";
     {
-        char *mp_copy = strdup(module_path);
+        /* Use realpath to resolve relative paths (e.g. ../modules/examples/runner.nano
+         * invoked from a subdirectory) to an absolute directory. Fallback to the
+         * root-relative heuristic if realpath fails (e.g. file not yet on disk). */
+        char abs_module_path[4096];
+        const char *resolved = realpath(module_path, abs_module_path);
+        const char *path_to_use = resolved ? abs_module_path : module_path;
+        char *mp_copy = strdup(path_to_use);
         char *last_slash = strrchr(mp_copy, '/');
         if (last_slash) {
             *last_slash = '\0';
-            /* If relative, prepend project root */
             if (mp_copy[0] == '/') {
                 snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy);
             } else {
