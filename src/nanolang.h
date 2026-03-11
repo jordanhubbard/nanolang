@@ -644,6 +644,10 @@ typedef struct {
     int last_error_line;
     int last_error_column;
     const char *last_error_message;
+    /* Lambda hoisting: anonymous functions collected during expression parsing */
+    struct ASTNode **lambda_functions;
+    int lambda_count;
+    int lambda_capacity;
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);

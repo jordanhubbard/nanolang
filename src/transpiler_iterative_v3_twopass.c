@@ -2530,66 +2530,87 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *variant_name = expr->as.match_expr.pattern_variants[i];
                 const char *binding_name = expr->as.match_expr.pattern_bindings[i];
                 ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
-                
-                /* case nl_UnionName_TAG_Variant: { */
-                emit_literal(list, "case nl_");
-                emit_literal(list, union_c_name);
-                emit_literal(list, "_TAG_");
-                emit_literal(list, variant_name);
-                emit_literal(list, ": { ");
-                
-                /* Find variant index to check field count */
-                int variant_field_count = 0;
-                if (udef) {
-                    for (int v = 0; v < udef->variant_count; v++) {
-                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
-                            variant_field_count = udef->variant_field_counts[v];
-                            break;
+
+                if (strcmp(variant_name, "_") == 0) {
+                    /* Wildcard arm: _ => expr  emits default: */
+                    emit_literal(list, "default: { ");
+
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                ASTNode *stmt = arm_body->as.block.statements[j];
+                                if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                                    emit_literal(list, "_out = ");
+                                    build_expr(list, stmt->as.return_stmt.value, env);
+                                    emit_literal(list, "; ");
+                                    break;
+                                }
+                            }
+                        } else {
+                            emit_literal(list, "_out = ");
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, "; ");
                         }
                     }
-                }
-                
-                /* Declare binding only if variant has fields */
-                if (variant_field_count > 0) {
-                    /* Binding name should NOT have nl_ prefix - it's referenced directly in code */
-                    emit_literal(list, "nl_");
-                    emit_literal(list, union_c_name);
-                    emit_literal(list, "_");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, " ");
-                    emit_literal(list, binding_name);
-                    emit_literal(list, " = _m.data.");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, "; ");
+
+                    emit_literal(list, "break; } ");
                 } else {
-                    /* Empty variant - just suppress unused warning */
-                    emit_literal(list, "(void)_m.data.");
+                    /* case nl_UnionName_TAG_Variant: { */
+                    emit_literal(list, "case nl_");
+                    emit_literal(list, union_c_name);
+                    emit_literal(list, "_TAG_");
                     emit_literal(list, variant_name);
-                    emit_literal(list, "; ");
-                }
-                
-                /* Handle arm body */
-                if (arm_body) {
-                    if (arm_body->type == AST_BLOCK) {
-                        /* For block bodies, find return statement */
-                        for (int j = 0; j < arm_body->as.block.count; j++) {
-                            ASTNode *stmt = arm_body->as.block.statements[j];
-                            if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
-                                emit_literal(list, "_out = ");
-                                build_expr(list, stmt->as.return_stmt.value, env);
-                                emit_literal(list, "; ");
+                    emit_literal(list, ": { ");
+
+                    /* Find variant index to check field count */
+                    int variant_field_count = 0;
+                    if (udef) {
+                        for (int v = 0; v < udef->variant_count; v++) {
+                            if (strcmp(udef->variant_names[v], variant_name) == 0) {
+                                variant_field_count = udef->variant_field_counts[v];
                                 break;
                             }
                         }
+                    }
+
+                    /* Declare binding only if variant has fields */
+                    if (variant_field_count > 0) {
+                        emit_literal(list, "nl_");
+                        emit_literal(list, union_c_name);
+                        emit_literal(list, "_");
+                        emit_literal(list, variant_name);
+                        emit_literal(list, " ");
+                        emit_literal(list, binding_name);
+                        emit_literal(list, " = _m.data.");
+                        emit_literal(list, variant_name);
+                        emit_literal(list, "; ");
                     } else {
-                        /* Expression body */
-                        emit_literal(list, "_out = ");
-                        build_expr(list, arm_body, env);
+                        emit_literal(list, "(void)_m.data.");
+                        emit_literal(list, variant_name);
                         emit_literal(list, "; ");
                     }
+
+                    /* Handle arm body */
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                ASTNode *stmt = arm_body->as.block.statements[j];
+                                if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                                    emit_literal(list, "_out = ");
+                                    build_expr(list, stmt->as.return_stmt.value, env);
+                                    emit_literal(list, "; ");
+                                    break;
+                                }
+                            }
+                        } else {
+                            emit_literal(list, "_out = ");
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, "; ");
+                        }
+                    }
+
+                    emit_literal(list, "break; } ");
                 }
-                
-                emit_literal(list, "break; } ");
             }
             
             /* Close switch and compound expression */
@@ -2684,76 +2705,108 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_indent_item(list, indent + 1);
             emit_literal(list, "switch (_m.tag) {\n");
 
+            int has_wildcard_arm = 0;
+            for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                if (strcmp(stmt->as.match_expr.pattern_variants[i], "_") == 0) {
+                    has_wildcard_arm = 1;
+                    break;
+                }
+            }
+
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
                 const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                 const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
                 ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
 
                 emit_indent_item(list, indent + 2);
-                emit_literal(list, "case nl_");
-                emit_literal(list, union_c_name);
-                emit_literal(list, "_TAG_");
-                emit_literal(list, variant_name);
-                emit_literal(list, ": {\n");
+                if (strcmp(variant_name, "_") == 0) {
+                    /* Wildcard arm: _ => { body }  emits default: */
+                    emit_literal(list, "default: {\n");
 
-                int variant_field_count = 0;
-                if (udef) {
-                    for (int v = 0; v < udef->variant_count; v++) {
-                        if (strcmp(udef->variant_names[v], variant_name) == 0) {
-                            variant_field_count = udef->variant_field_counts[v];
-                            break;
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                            }
+                        } else {
+                            emit_indent_item(list, indent + 3);
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, ";\n");
                         }
                     }
-                }
 
-                if (variant_field_count > 0) {
-                    if (binding_name && strcmp(binding_name, "_") != 0) {
-                        emit_indent_item(list, indent + 3);
-                        emit_literal(list, "nl_");
-                        emit_literal(list, union_c_name);
-                        emit_literal(list, "_");
-                        emit_literal(list, variant_name);
-                        emit_literal(list, " ");
-                        emit_literal(list, binding_name);
-                        emit_literal(list, " = _m.data.");
-                        emit_literal(list, variant_name);
-                        emit_literal(list, ";\n");
+                    emit_indent_item(list, indent + 3);
+                    emit_literal(list, "break;\n");
+                    emit_indent_item(list, indent + 2);
+                    emit_literal(list, "}\n");
+                } else {
+                    emit_literal(list, "case nl_");
+                    emit_literal(list, union_c_name);
+                    emit_literal(list, "_TAG_");
+                    emit_literal(list, variant_name);
+                    emit_literal(list, ": {\n");
+
+                    int variant_field_count = 0;
+                    if (udef) {
+                        for (int v = 0; v < udef->variant_count; v++) {
+                            if (strcmp(udef->variant_names[v], variant_name) == 0) {
+                                variant_field_count = udef->variant_field_counts[v];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (variant_field_count > 0) {
+                        if (binding_name && strcmp(binding_name, "_") != 0) {
+                            emit_indent_item(list, indent + 3);
+                            emit_literal(list, "nl_");
+                            emit_literal(list, union_c_name);
+                            emit_literal(list, "_");
+                            emit_literal(list, variant_name);
+                            emit_literal(list, " ");
+                            emit_literal(list, binding_name);
+                            emit_literal(list, " = _m.data.");
+                            emit_literal(list, variant_name);
+                            emit_literal(list, ";\n");
+                        } else {
+                            emit_indent_item(list, indent + 3);
+                            emit_literal(list, "(void)_m.data.");
+                            emit_literal(list, variant_name);
+                            emit_literal(list, ";\n");
+                        }
                     } else {
                         emit_indent_item(list, indent + 3);
                         emit_literal(list, "(void)_m.data.");
                         emit_literal(list, variant_name);
                         emit_literal(list, ";\n");
                     }
-                } else {
-                    emit_indent_item(list, indent + 3);
-                    emit_literal(list, "(void)_m.data.");
-                    emit_literal(list, variant_name);
-                    emit_literal(list, ";\n");
-                }
 
-                if (arm_body) {
-                    if (arm_body->type == AST_BLOCK) {
-                        for (int j = 0; j < arm_body->as.block.count; j++) {
-                            build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                            }
+                        } else {
+                            emit_indent_item(list, indent + 3);
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, ";\n");
                         }
-                    } else {
-                        emit_indent_item(list, indent + 3);
-                        build_expr(list, arm_body, env);
-                        emit_literal(list, ";\n");
                     }
-                }
 
-                emit_indent_item(list, indent + 3);
-                emit_literal(list, "break;\n");
-                emit_indent_item(list, indent + 2);
-                emit_literal(list, "}\n");
+                    emit_indent_item(list, indent + 3);
+                    emit_literal(list, "break;\n");
+                    emit_indent_item(list, indent + 2);
+                    emit_literal(list, "}\n");
+                }
             }
 
-            /* Add default case with __builtin_unreachable() for exhaustive matches
-             * This tells the compiler that all variants are covered, avoiding
-             * "control reaches end of non-void function" warnings on GCC */
-            emit_indent_item(list, indent + 2);
-            emit_literal(list, "default: __builtin_unreachable();\n");
+            /* Add default: __builtin_unreachable() only when no wildcard arm.
+             * This tells the C compiler all variants are covered and avoids
+             * "control reaches end of non-void function" warnings. */
+            if (!has_wildcard_arm) {
+                emit_indent_item(list, indent + 2);
+                emit_literal(list, "default: __builtin_unreachable();\n");
+            }
             emit_indent_item(list, indent + 1);
             emit_literal(list, "}\n");
             emit_indent_item(list, indent);
@@ -3084,9 +3137,95 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, "++) ");
                 build_stmt(list, scopes, stmt->as.for_stmt.body, indent, env, fn_registry);
             } else {
-                /* Fallback for non-range for loops */
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* unsupported for-in pattern */;\n");
+                /* Check if range is a List variable */
+                bool is_list = false;
+                Type list_elem_type = TYPE_INT;
+                const char *list_struct_name = NULL;
+
+                if (range && range->type == AST_IDENTIFIER) {
+                    Symbol *list_sym = env_get_var(env, range->as.identifier);
+                    if (list_sym) {
+                        if (list_sym->type == TYPE_LIST_INT || list_sym->type == TYPE_LIST_TOKEN) {
+                            is_list = true;
+                            list_elem_type = TYPE_INT;
+                        } else if (list_sym->type == TYPE_LIST_STRING) {
+                            is_list = true;
+                            list_elem_type = TYPE_STRING;
+                        } else if (list_sym->type == TYPE_LIST_GENERIC) {
+                            is_list = true;
+                            list_elem_type = list_sym->element_type;
+                            if (list_elem_type == TYPE_STRUCT && list_sym->struct_type_name) {
+                                list_struct_name = list_sym->struct_type_name;
+                            }
+                        }
+                    }
+                }
+
+                if (is_list) {
+                    /* for x in list =>
+                     * { <ListType>* __nl_lst = list; int64_t __nl_len = <list>_length(__nl_lst);
+                     *   for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {
+                     *     <elem_type> var = <list>_get(__nl_lst, __nl_idx);
+                     *     body_stmts; } }
+                     */
+                    /* Determine list C type and get/length function names */
+                    const char *list_c_type = "List_int*";
+                    const char *list_len_fn = "list_int_length";
+                    char elem_decl_buf[256];
+
+                    if (list_elem_type == TYPE_STRING) {
+                        list_c_type = "List_string*";
+                        list_len_fn = "list_string_length";
+                        snprintf(elem_decl_buf, sizeof(elem_decl_buf),
+                                 "const char* %s = list_string_get(__nl_lst, __nl_idx);\n", var);
+                    } else if (list_elem_type == TYPE_STRUCT && list_struct_name) {
+                        /* Generic struct list: List_TypeName* */
+                        static char lc_buf[64]; static char ll_buf[64];
+                        snprintf(lc_buf, sizeof(lc_buf), "List_%s*", list_struct_name);
+                        snprintf(ll_buf, sizeof(ll_buf), "List_%s_length", list_struct_name);
+                        list_c_type = lc_buf; list_len_fn = ll_buf;
+                        snprintf(elem_decl_buf, sizeof(elem_decl_buf),
+                                 "nl_%s %s = *List_%s_get(__nl_lst, __nl_idx);\n",
+                                 list_struct_name, var, list_struct_name);
+                    } else {
+                        /* INT (default) */
+                        snprintf(elem_decl_buf, sizeof(elem_decl_buf),
+                                 "int64_t %s = list_int_get(__nl_lst, __nl_idx);\n", var);
+                    }
+
+                    emit_indent_item(list, indent);
+                    emit_literal(list, "{\n");
+                    emit_indent_item(list, indent + 1);
+                    emit_formatted(list, "%s __nl_lst = ", list_c_type);
+                    build_expr(list, range, env);
+                    emit_literal(list, ";\n");
+                    emit_indent_item(list, indent + 1);
+                    emit_formatted(list, "int64_t __nl_len = %s(__nl_lst);\n", list_len_fn);
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
+
+                    emit_indent_item(list, indent + 2);
+                    emit_literal(list, elem_decl_buf);
+
+                    /* Emit body statements */
+                    ASTNode *body = stmt->as.for_stmt.body;
+                    scope_stack_push(scopes);
+                    if (body && body->type == AST_BLOCK) {
+                        for (int bi = 0; bi < body->as.block.count; bi++) {
+                            build_stmt(list, scopes, body->as.block.statements[bi], indent + 2, env, fn_registry);
+                        }
+                    }
+                    scope_stack_pop(scopes);
+
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "}\n");
+                    emit_indent_item(list, indent);
+                    emit_literal(list, "}\n");
+                } else {
+                    /* Fallback */
+                    emit_indent_item(list, indent);
+                    emit_literal(list, "/* unsupported for-in pattern */;\n");
+                }
             }
             break;
         }

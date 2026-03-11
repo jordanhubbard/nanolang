@@ -5417,48 +5417,64 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let mut tag_parts: array<string> = []
-        set tag_parts (cg_append tag_parts "nl_")
-        set tag_parts (cg_append tag_parts union_name)
-        set tag_parts (cg_append tag_parts "_TAG_")
-        set tag_parts (cg_append tag_parts variant)
-        let tag_name: string = (cg_build tag_parts)
+        /* Wildcard arm: _ => expr  emits default: */
+        if (== variant "_") {
+            set parts (cg_append parts "default: { ")
 
-        let mut var_type_parts: array<string> = []
-        set var_type_parts (cg_append var_type_parts "nl_")
-        set var_type_parts (cg_append var_type_parts union_name)
-        set var_type_parts (cg_append var_type_parts "_")
-        set var_type_parts (cg_append var_type_parts variant)
-        let variant_type: string = (cg_build var_type_parts)
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                set parts (cg_append parts "/* unsupported match arm block */ ")
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
+                set parts (cg_append parts "_out = ")
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts "; ")
+            }
 
-        set parts (cg_append parts "case ")
-        set parts (cg_append parts tag_name)
-        set parts (cg_append parts ": { ")
-
-        set parts (cg_append parts variant_type)
-        set parts (cg_append parts " nl_")
-        set parts (cg_append parts (mangle_name binding))
-        set parts (cg_append parts " = _m.data.")
-        set parts (cg_append parts variant)
-        set parts (cg_append parts "; ")
-
-        let mut type_name_parts: array<string> = []
-        set type_name_parts (cg_append type_name_parts union_name)
-        set type_name_parts (cg_append type_name_parts ".")
-        set type_name_parts (cg_append type_name_parts variant)
-        let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
-
-        if (== body_type ParseNodeType.PNODE_BLOCK) {
-            /* Block bodies in expression match aren't supported here; assume they return */
-            set parts (cg_append parts "/* unsupported match arm block */ ")
+            set parts (cg_append parts "break; } ")
         } else {
-            let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-            set parts (cg_append parts "_out = ")
-            set parts (cg_append parts expr_code)
-            set parts (cg_append parts "; ")
-        }
+            let mut tag_parts: array<string> = []
+            set tag_parts (cg_append tag_parts "nl_")
+            set tag_parts (cg_append tag_parts union_name)
+            set tag_parts (cg_append tag_parts "_TAG_")
+            set tag_parts (cg_append tag_parts variant)
+            let tag_name: string = (cg_build tag_parts)
 
-        set parts (cg_append parts "break; } ")
+            let mut var_type_parts: array<string> = []
+            set var_type_parts (cg_append var_type_parts "nl_")
+            set var_type_parts (cg_append var_type_parts union_name)
+            set var_type_parts (cg_append var_type_parts "_")
+            set var_type_parts (cg_append var_type_parts variant)
+            let variant_type: string = (cg_build var_type_parts)
+
+            set parts (cg_append parts "case ")
+            set parts (cg_append parts tag_name)
+            set parts (cg_append parts ": { ")
+
+            set parts (cg_append parts variant_type)
+            set parts (cg_append parts " nl_")
+            set parts (cg_append parts (mangle_name binding))
+            set parts (cg_append parts " = _m.data.")
+            set parts (cg_append parts variant)
+            set parts (cg_append parts "; ")
+
+            let mut type_name_parts: array<string> = []
+            set type_name_parts (cg_append type_name_parts union_name)
+            set type_name_parts (cg_append type_name_parts ".")
+            set type_name_parts (cg_append type_name_parts variant)
+            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
+
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                /* Block bodies in expression match aren't supported here; assume they return */
+                set parts (cg_append parts "/* unsupported match arm block */ ")
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
+                set parts (cg_append parts "_out = ")
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts "; ")
+            }
+
+            set parts (cg_append parts "break; } ")
+        }
         set i (+ i 1)
     }
 
@@ -5526,53 +5542,73 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
 
-        let mut tag_parts: array<string> = []
-        set tag_parts (cg_append tag_parts "nl_")
-        set tag_parts (cg_append tag_parts union_name)
-        set tag_parts (cg_append tag_parts "_TAG_")
-        set tag_parts (cg_append tag_parts variant)
-        let tag_name: string = (cg_build tag_parts)
+        /* Wildcard arm: _ => { body } emits default: */
+        if (== variant "_") {
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "default: {\n")
 
-        let mut var_type_parts: array<string> = []
-        set var_type_parts (cg_append var_type_parts "nl_")
-        set var_type_parts (cg_append var_type_parts union_name)
-        set var_type_parts (cg_append var_type_parts "_")
-        set var_type_parts (cg_append var_type_parts variant)
-        let variant_type: string = (cg_build var_type_parts)
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                set parts (cg_append parts (generate_block parser body_id (+ indent 3) env return_type))
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env "")
+                set parts (cg_append parts (gen_indent (+ indent 3)))
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts ";\n")
+            }
 
-        set parts (cg_append parts (gen_indent (+ indent 2)))
-        set parts (cg_append parts "case ")
-        set parts (cg_append parts tag_name)
-        set parts (cg_append parts ": {\n")
-
-        set parts (cg_append parts (gen_indent (+ indent 3)))
-        set parts (cg_append parts variant_type)
-        set parts (cg_append parts " nl_")
-        set parts (cg_append parts (mangle_name binding))
-        set parts (cg_append parts " = _m.data.")
-        set parts (cg_append parts variant)
-        set parts (cg_append parts ";\n")
-
-        let mut type_name_parts: array<string> = []
-        set type_name_parts (cg_append type_name_parts union_name)
-        set type_name_parts (cg_append type_name_parts ".")
-        set type_name_parts (cg_append type_name_parts variant)
-        let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
-
-        if (== body_type ParseNodeType.PNODE_BLOCK) {
-            set parts (cg_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
-        } else {
-            let expr_code: string = (generate_expression parser body_id body_type env_arm "")
             set parts (cg_append parts (gen_indent (+ indent 3)))
-            set parts (cg_append parts expr_code)
+            set parts (cg_append parts "break;\n")
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "}\n")
+        } else {
+            let mut tag_parts: array<string> = []
+            set tag_parts (cg_append tag_parts "nl_")
+            set tag_parts (cg_append tag_parts union_name)
+            set tag_parts (cg_append tag_parts "_TAG_")
+            set tag_parts (cg_append tag_parts variant)
+            let tag_name: string = (cg_build tag_parts)
+
+            let mut var_type_parts: array<string> = []
+            set var_type_parts (cg_append var_type_parts "nl_")
+            set var_type_parts (cg_append var_type_parts union_name)
+            set var_type_parts (cg_append var_type_parts "_")
+            set var_type_parts (cg_append var_type_parts variant)
+            let variant_type: string = (cg_build var_type_parts)
+
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "case ")
+            set parts (cg_append parts tag_name)
+            set parts (cg_append parts ": {\n")
+
+            set parts (cg_append parts (gen_indent (+ indent 3)))
+            set parts (cg_append parts variant_type)
+            set parts (cg_append parts " nl_")
+            set parts (cg_append parts (mangle_name binding))
+            set parts (cg_append parts " = _m.data.")
+            set parts (cg_append parts variant)
             set parts (cg_append parts ";\n")
+
+            let mut type_name_parts: array<string> = []
+            set type_name_parts (cg_append type_name_parts union_name)
+            set type_name_parts (cg_append type_name_parts ".")
+            set type_name_parts (cg_append type_name_parts variant)
+            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
+
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                set parts (cg_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env_arm "")
+                set parts (cg_append parts (gen_indent (+ indent 3)))
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts ";\n")
+            }
+
+            set parts (cg_append parts (gen_indent (+ indent 3)))
+            set parts (cg_append parts "break;\n")
+
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "}\n")
         }
-
-        set parts (cg_append parts (gen_indent (+ indent 3)))
-        set parts (cg_append parts "break;\n")
-
-        set parts (cg_append parts (gen_indent (+ indent 2)))
-        set parts (cg_append parts "}\n")
         set i (+ i 1)
     }
 
@@ -5623,6 +5659,11 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                     if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
                         let while_stmt: ASTWhile = (parser_get_while parser stmt.node_id)
                         let code: string = (generate_while_stmt parser while_stmt indent env return_type)
+                        return StmtGenResult { code: code, env: env }
+                    } else {
+                    if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+                        let for_stmt: ASTFor = (parser_get_for parser stmt.node_id)
+                        let code: string = (generate_for_stmt parser for_stmt indent env return_type)
                         return StmtGenResult { code: code, env: env }
                     } else {
                         if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
@@ -5683,6 +5724,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                             }
                             }
                         }
+                    }
                     }
                 }
             }
@@ -5818,13 +5860,124 @@ shadow generate_if_stmt {
     assert (str_contains code "else")
 }
 
+fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv, return_type: string) -> string {
+    let mut parts: array<string> = []
+    /* Check if iterable is (range start end) call */
+    if (== for_stmt.iterable_type ParseNodeType.PNODE_CALL) {
+        let call: ASTCall = (parser_get_call parser for_stmt.iterable)
+        let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+        if (and (== func_id.name "range") (== call.arg_count 2)) {
+            let start_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+            let end_arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            let start_code: string = (generate_expression parser start_arg.node_id start_arg.node_type env "int")
+            let end_code: string = (generate_expression parser end_arg.node_id end_arg.node_type env "int")
+            let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "for (int64_t ")
+            set parts (cg_append parts c_var)
+            set parts (cg_append parts " = ")
+            set parts (cg_append parts start_code)
+            set parts (cg_append parts "; ")
+            set parts (cg_append parts c_var)
+            set parts (cg_append parts " < ")
+            set parts (cg_append parts end_code)
+            set parts (cg_append parts "; ")
+            set parts (cg_append parts c_var)
+            set parts (cg_append parts "++) {\n")
+            let body_env: GenEnv = (genenv_put env for_stmt.var_name "int")
+            set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 1) body_env return_type))
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "}\n")
+        } else {
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "/* unsupported for-in call */;\n")
+        }
+    } else {
+        if (== for_stmt.iterable_type ParseNodeType.PNODE_IDENTIFIER) {
+            /* for x in list_var — list iteration using typed List_* API */
+            let id: ASTIdentifier = (parser_get_identifier parser for_stmt.iterable)
+            let list_type: string = (genenv_get env id.name)
+            /* Extract element type name from "List<ElemType>" */
+            let elem_name: string = (transp_extract_list_element_type list_type)
+            let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
+            let list_c_name: string = (+ "nl_" (mangle_name id.name))
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "{\n")
+            set parts (cg_append parts (gen_indent (+ indent 1)))
+            /* Emit typed list pointer and length */
+            if (or (== elem_name "int") (== elem_name "")) {
+                set parts (cg_append parts "List_int* __nl_lst = ")
+                set parts (cg_append parts list_c_name)
+                set parts (cg_append parts ";\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "int64_t __nl_len = list_int_length(__nl_lst);\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n")
+                set parts (cg_append parts (gen_indent (+ indent 2)))
+                set parts (cg_append parts "int64_t ")
+                set parts (cg_append parts c_var)
+                set parts (cg_append parts " = list_int_get(__nl_lst, __nl_idx);\n")
+            } else {
+            if (== elem_name "string") {
+                set parts (cg_append parts "List_string* __nl_lst = ")
+                set parts (cg_append parts list_c_name)
+                set parts (cg_append parts ";\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "int64_t __nl_len = list_string_length(__nl_lst);\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n")
+                set parts (cg_append parts (gen_indent (+ indent 2)))
+                set parts (cg_append parts "const char* ")
+                set parts (cg_append parts c_var)
+                set parts (cg_append parts " = list_string_get(__nl_lst, __nl_idx);\n")
+            } else {
+                /* Struct element type: use List_StructName* API */
+                let list_struct_c: string = (+ "List_" (mangle_name elem_name))
+                let elem_c_type: string = (+ "nl_" (mangle_name elem_name))
+                set parts (cg_append parts list_struct_c)
+                set parts (cg_append parts "* __nl_lst = ")
+                set parts (cg_append parts list_c_name)
+                set parts (cg_append parts ";\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "int64_t __nl_len = ")
+                set parts (cg_append parts list_struct_c)
+                set parts (cg_append parts "_length(__nl_lst);\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n")
+                set parts (cg_append parts (gen_indent (+ indent 2)))
+                set parts (cg_append parts elem_c_type)
+                set parts (cg_append parts " ")
+                set parts (cg_append parts c_var)
+                set parts (cg_append parts " = *")
+                set parts (cg_append parts list_struct_c)
+                set parts (cg_append parts "_get(__nl_lst, __nl_idx);\n")
+            }
+            }
+            let body_env: GenEnv = (genenv_put env for_stmt.var_name elem_name)
+            set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 2) body_env return_type))
+            set parts (cg_append parts (gen_indent (+ indent 1)))
+            set parts (cg_append parts "}\n")
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "}\n")
+        } else {
+            set parts (cg_append parts (gen_indent indent))
+            set parts (cg_append parts "/* unsupported for-in pattern */;\n")
+        }
+    }
+    return (cg_build parts)
+}
+
+shadow generate_for_stmt {
+    assert (== 1 1)
+}
+
 /* Generate C code for a while loop
- * 
+ *
  * Args:
  *   parser: Parser containing AST nodes
  *   while_stmt: While statement node
  *   indent: Indentation level
- * 
+ *
  * Returns: C code for while loop
  */
 fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: GenEnv, return_type: string) -> string {

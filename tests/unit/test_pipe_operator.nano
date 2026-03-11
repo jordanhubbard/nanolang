@@ -1,0 +1,58 @@
+/* Test: pipe operator |> — lhs |> f desugars to (f lhs) */
+
+fn double_val(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double_val {
+    assert (== (double_val 5) 10)
+}
+
+fn increment(x: int) -> int {
+    return (+ x 1)
+}
+
+shadow increment {
+    assert (== (increment 4) 5)
+}
+
+fn negate(x: int) -> int {
+    return (- 0 x)
+}
+
+shadow negate {
+    assert (== (negate 3) -3)
+}
+
+fn make_greeting(name: string) -> string {
+    return (str_concat "Hello, " name)
+}
+
+shadow make_greeting {
+    assert (str_equals (make_greeting "World") "Hello, World")
+}
+
+fn main() -> int {
+    /* Simple pipe: 3 |> double_val == 6 */
+    let a: int = 3 |> double_val
+    assert (== a 6)
+
+    /* Chained pipe: 3 |> double_val |> increment == 7 */
+    let b: int = 3 |> double_val |> increment
+    assert (== b 7)
+
+    /* Pipe then negate: 5 |> double_val |> negate == -10 */
+    let c: int = 5 |> double_val |> negate
+    assert (== c -10)
+
+    /* Pipe with string */
+    let greeting: string = "NanoLang" |> make_greeting
+    assert (str_contains greeting "NanoLang")
+
+    (println "pipe operator tests passed")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

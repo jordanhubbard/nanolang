@@ -243,7 +243,8 @@ typedef enum {
     TOKEN_NOT = 70,
     TOKEN_RANGE = 71,
     TOKEN_UNSAFE = 72,
-    TOKEN_RESOURCE = 73
+    TOKEN_RESOURCE = 73,
+    TOKEN_PIPE = 74
 } TokenType;
 
 typedef enum {

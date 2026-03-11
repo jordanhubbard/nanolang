@@ -1,0 +1,49 @@
+/* Test: local type inference — let x = expr  (no type annotation) */
+
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 5) 10)
+}
+
+fn greet(name: string) -> string {
+    return (str_concat "Hello, " name)
+}
+
+shadow greet {
+    assert (str_equals (greet "World") "Hello, World")
+}
+
+fn main() -> int {
+    /* Infer primitive types */
+    let n = 42
+    let s = "hello"
+    let b = true
+    let f = 3.14
+
+    /* Infer from function call */
+    let result = (double 7)
+    assert (== result 14)
+
+    /* Infer string from function */
+    let greeting = (greet "NanoLang")
+    assert (str_contains greeting "NanoLang")
+
+    /* Infer mutable */
+    let mut counter = 0
+    set counter (+ counter 1)
+    set counter (+ counter 1)
+    assert (== counter 2)
+
+    (println (int_to_string n))
+    (println s)
+    (println (int_to_string result))
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

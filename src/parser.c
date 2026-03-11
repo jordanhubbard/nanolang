@@ -125,6 +125,15 @@ static bool expect(Stage1Parser *p, TokenType type, const char *msg) {
     return true;
 }
 
+/* Add a hoisted lambda function node to the parser's deferred list */
+static void add_lambda_function(Stage1Parser *p, ASTNode *fn_node) {
+    if (p->lambda_count >= p->lambda_capacity) {
+        p->lambda_capacity *= 2;
+        p->lambda_functions = realloc(p->lambda_functions, sizeof(ASTNode*) * p->lambda_capacity);
+    }
+    p->lambda_functions[p->lambda_count++] = fn_node;
+}
+
 /* Forward declarations */
 static ASTNode *parse_statement(Stage1Parser *p);
 static ASTNode *parse_expression(Stage1Parser *p);
@@ -1336,6 +1345,79 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             return node;
         }
 
+        case TOKEN_FN: {
+            /* Lambda expression: fn(params) -> return_type { body } */
+            int lam_line = tok->line;
+            int lam_col  = tok->column;
+
+            /* Next token must be '(' for anonymous lambda */
+            Token *after_fn = peek_token(p, 1);
+            if (!after_fn || after_fn->token_type != TOKEN_LPAREN) {
+                parser_error(p, lam_line, lam_col,
+                    "Error at line %d, column %d: Expected '(' for lambda expression (use 'fn name(...)' for named functions)\n",
+                    lam_line, lam_col);
+                return NULL;
+            }
+
+            advance(p);  /* consume 'fn' */
+
+            /* Generate unique name from source position */
+            char lambda_name[64];
+            snprintf(lambda_name, sizeof(lambda_name), "__lambda_%d_%d", lam_line, lam_col);
+
+            /* Parse parameters: ( params ) */
+            if (!expect(p, TOKEN_LPAREN, "Expected '(' for lambda parameters")) return NULL;
+            Parameter *lam_params = NULL;
+            int lam_param_count = 0;
+            if (!parse_parameters(p, &lam_params, &lam_param_count)) return NULL;
+            if (!expect(p, TOKEN_RPAREN, "Expected ')' after lambda parameters")) {
+                free(lam_params);
+                return NULL;
+            }
+
+            /* Parse return type: -> type */
+            if (!expect(p, TOKEN_ARROW, "Expected '->' after lambda parameters")) {
+                free(lam_params);
+                return NULL;
+            }
+            char *lam_ret_struct = NULL;
+            FunctionSignature *lam_ret_fn_sig = NULL;
+            TypeInfo *lam_ret_type_info = NULL;
+            Type lam_ret_elem = TYPE_UNKNOWN;
+            Type lam_ret_type = parse_type_with_element(p, &lam_ret_elem, &lam_ret_struct,
+                                                         &lam_ret_fn_sig, &lam_ret_type_info);
+
+            /* Parse body: { stmts } */
+            ASTNode *lam_body = parse_block(p);
+            if (!lam_body) {
+                free(lam_params);
+                if (lam_ret_struct) free(lam_ret_struct);
+                return NULL;
+            }
+
+            /* Build AST_FUNCTION node */
+            ASTNode *lam_node = create_node(AST_FUNCTION, lam_line, lam_col);
+            lam_node->as.function.name                  = strdup(lambda_name);
+            lam_node->as.function.params                = lam_params;
+            lam_node->as.function.param_count           = lam_param_count;
+            lam_node->as.function.return_type           = lam_ret_type;
+            lam_node->as.function.return_element_type   = lam_ret_elem;
+            lam_node->as.function.return_struct_type_name = lam_ret_struct;
+            lam_node->as.function.return_fn_sig         = lam_ret_fn_sig;
+            lam_node->as.function.return_type_info      = lam_ret_type_info;
+            lam_node->as.function.body                  = lam_body;
+            lam_node->as.function.is_extern             = false;
+            lam_node->as.function.is_pub                = false;
+
+            /* Hoist to program level (appended after full parse) */
+            add_lambda_function(p, lam_node);
+
+            /* Return identifier expression that names the lambda */
+            ASTNode *id_node = create_node(AST_IDENTIFIER, lam_line, lam_col);
+            id_node->as.identifier = strdup(lambda_name);
+            return id_node;
+        }
+
         case TOKEN_UNSAFE: {
             /* Unsafe block as expression: unsafe { expr } */
             int line = tok->line;
@@ -2442,6 +2524,41 @@ static ASTNode *parse_expression(Stage1Parser *p) {
             }
         }
 
+        /* Check for pipe operator: lhs |> f  desugars to  (f lhs) */
+        if (match(p, TOKEN_PIPE)) {
+            Token *pipe_tok = current_token(p);
+            int pipe_line = pipe_tok->line;
+            int pipe_col = pipe_tok->column;
+            advance(p);  /* consume |> */
+
+            ASTNode *rhs = parse_primary(p);
+            if (!rhs) {
+                parser_error(p, pipe_line, pipe_col, "Error at line %d, column %d: Expected function name after '|>'\n",
+                        pipe_line, pipe_col);
+                p->recursion_depth--;
+                return expr;
+            }
+            if (rhs->type != AST_IDENTIFIER) {
+                parser_error(p, pipe_line, pipe_col, "Error at line %d, column %d: Pipe operator '|>' requires a function name on the right-hand side\n",
+                        pipe_line, pipe_col);
+                free_ast(rhs);
+                p->recursion_depth--;
+                return expr;
+            }
+
+            /* Build call node: (rhs expr) */
+            ASTNode *call_node = create_node(AST_CALL, pipe_line, pipe_col);
+            call_node->as.call.name = strdup(rhs->as.identifier);
+            call_node->as.call.func_expr = NULL;
+            call_node->as.call.args = malloc(sizeof(ASTNode*));
+            call_node->as.call.args[0] = expr;
+            call_node->as.call.arg_count = 1;
+            call_node->as.call.return_struct_type_name = NULL;
+            free_ast(rhs);
+            expr = call_node;
+            continue;
+        }
+
         /* Check for infix binary operator: expr op primary */
         {
             Token *cur = current_token(p);
@@ -2539,6 +2656,96 @@ static ASTNode *parse_block(Stage1Parser *p) {
             statements = realloc(statements, sizeof(ASTNode*) * capacity);
         }
 
+        /* Check for tuple destructuring: let [mut] (names) = expr */
+        bool is_tuple_destr = false;
+        bool td_is_mut = false;
+        if (match(p, TOKEN_LET)) {
+            Token *td_next1 = peek_token(p, 1);
+            Token *td_next2 = peek_token(p, 2);
+            if (td_next1 && td_next1->token_type == TOKEN_LPAREN) {
+                is_tuple_destr = true;
+                td_is_mut = false;
+            } else if (td_next1 && td_next1->token_type == TOKEN_MUT &&
+                       td_next2 && td_next2->token_type == TOKEN_LPAREN) {
+                is_tuple_destr = true;
+                td_is_mut = true;
+            }
+        }
+
+        if (is_tuple_destr) {
+            Token *td_tok = current_token(p);
+            int td_line = td_tok->line, td_col = td_tok->column;
+            advance(p);  /* consume 'let' */
+            if (td_is_mut) advance(p);  /* consume 'mut' */
+            advance(p);  /* consume '(' */
+
+            /* Parse comma-separated binding names */
+            char *td_names[32];
+            int td_n = 0;
+            while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF) && td_n < 32) {
+                if (!match(p, TOKEN_IDENTIFIER)) break;
+                td_names[td_n++] = strdup(current_token(p)->value);
+                advance(p);
+                if (match(p, TOKEN_COMMA)) advance(p);
+            }
+            if (!expect(p, TOKEN_RPAREN, "Expected ')' in tuple destructuring")) {
+                for (int i = 0; i < td_n; i++) free(td_names[i]);
+                break;
+            }
+            if (!expect(p, TOKEN_ASSIGN, "Expected '=' in tuple destructuring")) {
+                for (int i = 0; i < td_n; i++) free(td_names[i]);
+                break;
+            }
+            ASTNode *td_rhs = parse_expression(p);
+            if (!td_rhs) {
+                for (int i = 0; i < td_n; i++) free(td_names[i]);
+                break;
+            }
+
+            /* Generate unique temp name */
+            char temp_name[64];
+            snprintf(temp_name, sizeof(temp_name), "__td%d", count);
+
+            /* Ensure capacity for N+1 extra statements */
+            while (count + td_n + 1 >= capacity) {
+                capacity *= 2;
+                statements = realloc(statements, sizeof(ASTNode*) * capacity);
+            }
+
+            /* Emit: let __tdN = rhs (inferred type) */
+            ASTNode *temp_let = create_node(AST_LET, td_line, td_col);
+            temp_let->as.let.name = strdup(temp_name);
+            temp_let->as.let.var_type = TYPE_UNKNOWN;
+            temp_let->as.let.type_name = NULL;
+            temp_let->as.let.element_type = TYPE_UNKNOWN;
+            temp_let->as.let.fn_sig = NULL;
+            temp_let->as.let.type_info = NULL;
+            temp_let->as.let.is_mut = false;
+            temp_let->as.let.value = td_rhs;
+            statements[count++] = temp_let;
+
+            /* Emit: let nameK = __tdN.K for each binding */
+            for (int k = 0; k < td_n; k++) {
+                ASTNode *tuple_ref = create_node(AST_IDENTIFIER, td_line, td_col);
+                tuple_ref->as.identifier = strdup(temp_name);
+
+                ASTNode *tuple_idx = create_node(AST_TUPLE_INDEX, td_line, td_col);
+                tuple_idx->as.tuple_index.tuple = tuple_ref;
+                tuple_idx->as.tuple_index.index = k;
+
+                ASTNode *binding_let = create_node(AST_LET, td_line, td_col);
+                binding_let->as.let.name = td_names[k];  /* ownership transferred */
+                binding_let->as.let.var_type = TYPE_UNKNOWN;
+                binding_let->as.let.type_name = NULL;
+                binding_let->as.let.element_type = TYPE_UNKNOWN;
+                binding_let->as.let.fn_sig = NULL;
+                binding_let->as.let.type_info = NULL;
+                binding_let->as.let.is_mut = td_is_mut;
+                binding_let->as.let.value = tuple_idx;
+                statements[count++] = binding_let;
+            }
+        } else {
+
         ASTNode *stmt = parse_statement(p);
         if (stmt) {
             statements[count++] = stmt;
@@ -2553,6 +2760,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             /* Parsing failed - advance to avoid infinite loop */
             advance(p);
         }
+        }  /* end else (not tuple_destr) */
     }
 
     // Token *end_tok = current_token(p);
@@ -2608,54 +2816,57 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             char *name = strdup(current_token(p)->value);
             advance(p);
 
-            if (!expect(p, TOKEN_COLON, "Expected ':' after variable name")) {
-                free(name);
-                return NULL;
-            }
-
-            /* Capture type name if it's a struct/union type (identifier) */
-            Token *type_token = current_token(p);
+            /* Type annotation is optional: let x = expr  (inferred) or let x: T = expr */
+            Type type = TYPE_UNKNOWN;
             char *type_name = NULL;
-            if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    type_name = strdup(rhs->value);
-                } else {
-                    type_name = strdup(type_token->value);
-                }
-            }
-            
-            /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
-            char *type_param_name = NULL;  /* For generic types like List<Point> */
-            FunctionSignature *fn_sig = NULL;  /* For function types */
-            TypeInfo *type_info = NULL;  /* For generic types like Result<int, string> */
-            Type type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
+            char *type_param_name = NULL;
+            FunctionSignature *fn_sig = NULL;
+            TypeInfo *type_info = NULL;
 
-            /* For generic lists, type_param_name contains the element type (e.g., "Point") */
-            /* For structs, type_param_name contains the struct name (including qualified names like "Math.Point") */
-            if (type == TYPE_LIST_GENERIC && type_param_name) {
-                /* Replace type_name with the generic parameter name */
-                if (type_name) free(type_name);
-                type_name = type_param_name;
-            } else if (type == TYPE_STRUCT && type_param_name) {
-                /* Use the struct name from parse_type_with_element (handles qualified names) */
-                if (type_name) free(type_name);
-                type_name = type_param_name;
-            }
-            
-            /* For array<StructName>, save the struct name in type_name */
-            if (type == TYPE_ARRAY && element_type == TYPE_STRUCT && type_param_name) {
-                if (type_name) free(type_name);
-                type_name = type_param_name;
-            }
-            
-            /* For generic types with TypeInfo, use the generic_name */
-            if (type_info && type_info->generic_name) {
-                if (type_name) free(type_name);
-                type_name = strdup(type_info->generic_name);
+            {
+                Token *peek = current_token(p);
+                bool inferred = (peek && peek->token_type == TOKEN_ASSIGN);
+
+                if (!inferred) {
+                    if (!expect(p, TOKEN_COLON, "Expected ':' after variable name")) {
+                        free(name);
+                        return NULL;
+                    }
+
+                    /* Capture type name if it's a struct/union type (identifier) */
+                    Token *type_token = current_token(p);
+                    if (type_token->token_type == TOKEN_IDENTIFIER) {
+                        /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
+                        Token *dot = peek_token(p, 1);
+                        Token *rhs = peek_token(p, 2);
+                        if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
+                            type_name = strdup(rhs->value);
+                        } else {
+                            type_name = strdup(type_token->value);
+                        }
+                    }
+
+                    type = parse_type_with_element(p, &element_type, &type_param_name, &fn_sig, &type_info);
+
+                    if (type == TYPE_LIST_GENERIC && type_param_name) {
+                        if (type_name) free(type_name);
+                        type_name = type_param_name;
+                    } else if (type == TYPE_STRUCT && type_param_name) {
+                        if (type_name) free(type_name);
+                        type_name = type_param_name;
+                    }
+
+                    if (type == TYPE_ARRAY && element_type == TYPE_STRUCT && type_param_name) {
+                        if (type_name) free(type_name);
+                        type_name = type_param_name;
+                    }
+
+                    if (type_info && type_info->generic_name) {
+                        if (type_name) free(type_name);
+                        type_name = strdup(type_info->generic_name);
+                    }
+                }
             }
 
             if (!expect(p, TOKEN_ASSIGN, "Expected '=' in let statement")) {
@@ -3405,7 +3616,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             arm_bodies = realloc(arm_bodies, sizeof(ASTNode*) * capacity);
         }
         
-        /* Parse pattern: VariantName(binding) */
+        /* Parse pattern: VariantName(binding)  or wildcard:  _ */
         if (!match(p, TOKEN_IDENTIFIER)) {
             parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name in match pattern\n",
                     current_token(p)->line, current_token(p)->column);
@@ -3413,35 +3624,49 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
         }
         pattern_variants[count] = strdup(current_token(p)->value);
         advance(p);
-        
-        /* Expect opening paren for binding */
-        if (!expect(p, TOKEN_LPAREN, "Expected '(' after variant name in match")) {
-            free(pattern_variants[count]);
-            break;
-        }
-        
-        /* Parse binding variable */
-        if (!match(p, TOKEN_IDENTIFIER)) {
-            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected binding variable in match pattern\n",
-                    current_token(p)->line, current_token(p)->column);
-            free(pattern_variants[count]);
-            break;
-        }
-        pattern_bindings[count] = strdup(current_token(p)->value);
-        advance(p);
-        
-        /* Expect closing paren */
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding variable")) {
-            free(pattern_variants[count]);
-            free(pattern_bindings[count]);
-            break;
-        }
-        
-        /* Expect arrow */
-        if (!expect(p, TOKEN_ARROW, "Expected '=>' after match pattern")) {
-            free(pattern_variants[count]);
-            free(pattern_bindings[count]);
-            break;
+
+        if (strcmp(pattern_variants[count], "_") == 0) {
+            /* Wildcard arm: _ => { body }  — no binding parens */
+            pattern_bindings[count] = strdup("_");
+
+            /* Expect arrow */
+            if (!expect(p, TOKEN_ARROW, "Expected '=>' after '_' in match")) {
+                free(pattern_variants[count]);
+                free(pattern_bindings[count]);
+                break;
+            }
+        } else {
+            /* Normal arm: VariantName(binding) => { body } */
+
+            /* Expect opening paren for binding */
+            if (!expect(p, TOKEN_LPAREN, "Expected '(' after variant name in match")) {
+                free(pattern_variants[count]);
+                break;
+            }
+
+            /* Parse binding variable */
+            if (!match(p, TOKEN_IDENTIFIER)) {
+                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected binding variable in match pattern\n",
+                        current_token(p)->line, current_token(p)->column);
+                free(pattern_variants[count]);
+                break;
+            }
+            pattern_bindings[count] = strdup(current_token(p)->value);
+            advance(p);
+
+            /* Expect closing paren */
+            if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding variable")) {
+                free(pattern_variants[count]);
+                free(pattern_bindings[count]);
+                break;
+            }
+
+            /* Expect arrow */
+            if (!expect(p, TOKEN_ARROW, "Expected '=>' after match pattern")) {
+                free(pattern_variants[count]);
+                free(pattern_bindings[count]);
+                break;
+            }
         }
         
         /* Parse arm body - should be an expression or block */
@@ -4226,6 +4451,9 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     parser.last_error_line = -1;
     parser.last_error_column = -1;
     parser.last_error_message = NULL;
+    parser.lambda_functions = malloc(sizeof(ASTNode*) * 8);
+    parser.lambda_count = 0;
+    parser.lambda_capacity = 8;
 
     int capacity = 16;
     int count = 0;
@@ -4461,8 +4689,22 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             free_ast(items[i]);
         }
         free(items);
+        for (int li = 0; li < parser.lambda_count; li++) {
+            free_ast(parser.lambda_functions[li]);
+        }
+        free(parser.lambda_functions);
         return NULL;
     }
+
+    /* Hoist lambda functions collected during expression parsing to program scope */
+    for (int li = 0; li < parser.lambda_count; li++) {
+        if (count >= capacity) {
+            capacity *= 2;
+            items = realloc(items, sizeof(ASTNode*) * capacity);
+        }
+        items[count++] = parser.lambda_functions[li];
+    }
+    free(parser.lambda_functions);
 
     ASTNode *program = create_node(AST_PROGRAM, 1, 1);
     program->as.program.items = items;

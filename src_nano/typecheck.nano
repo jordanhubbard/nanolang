@@ -2765,10 +2765,26 @@ shadow array_elem_type_from_array_decl {
  * 
  * Returns: Updated symbols array with the new variable
  */
-fn check_let_statement(parser: Parser, let_node: ASTLet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
     # Allow variable redefinition (shadowing) to match C reference compiler behavior.
     # Shadow tests commonly reuse names (e.g., `let result` across multiple asserts).
-    
+
+    /* Type inference: let x = expr  (no declared type) */
+    if (== let_node.var_type "") {
+        if (>= let_node.value 0) {
+            let inferred: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+            let inferred_str: string = (type_to_string inferred)
+            /* Backfill the type into the AST so the transpiler can use it */
+            (parser_set_let_var_type parser node_id inferred_str)
+            let sym: Symbol = (symbol_new let_node.name inferred let_node.is_mut false 0 (empty_param_types) (type_void))
+            return (env_add_symbol symbols sym)
+        } else {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "type-inferred let requires an initializer" (Diagnostics.diag_location file_name let_node.line let_node.column))
+            (Diagnostics.diag_list_add diags diag)
+            return symbols
+        }
+    } else { (print "") }
+
     /* If initializer is an empty array literal, propagate element_type from declared type */
     if (and (>= let_node.value 0) (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
         let arr: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
@@ -2934,7 +2950,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
 
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
-            set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
+            set local_symbols (check_let_statement parser let_node stmt.node_id local_symbols diags file_name)
         } else { if (== stmt.node_type ParseNodeType.PNODE_SET) {
             let set_node: ASTSet = (parser_get_set parser stmt.node_id)
             if (not (check_set_statement parser set_node local_symbols diags file_name)) { set ok false } else { (print "") }
@@ -2967,6 +2983,20 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
 
             if (>= while_node.body 0) {
                 if (not (check_block parser while_node.body local_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
+            } else { (print "") }
+        } else { if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+            let for_node: ASTFor = (parser_get_for parser stmt.node_id)
+            /* Determine loop variable type from iterable */
+            let iter_type: NSType = (check_expr_node parser for_node.iterable for_node.iterable_type local_symbols diags file_name)
+            let mut loop_var_type: NSType = (type_int)
+            if (== iter_type.kind TypeKind.TYPE_LIST_GENERIC) {
+                set loop_var_type (type_from_string_with_parser parser iter_type.element_type_name)
+            } else { (print "") }
+            /* Add loop var to symbols, then check body */
+            let loop_sym: Symbol = (symbol_new for_node.var_name loop_var_type false false 0 (empty_param_types) (type_void))
+            let body_symbols: array<Symbol> = (env_add_symbol local_symbols loop_sym)
+            if (>= for_node.body 0) {
+                if (not (check_block parser for_node.body body_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
             let ret_node: ASTReturn = (parser_get_return parser stmt.node_id)
@@ -3002,7 +3032,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
                 
                 if (== unsafe_stmt.node_type ParseNodeType.PNODE_LET) {
                     let let_node: ASTLet = (parser_get_let parser unsafe_stmt.node_id)
-                    set local_symbols (check_let_statement parser let_node local_symbols diags file_name)
+                    set local_symbols (check_let_statement parser let_node unsafe_stmt.node_id local_symbols diags file_name)
                 } else { if (== unsafe_stmt.node_type ParseNodeType.PNODE_RETURN) {
                     let ret_node: ASTReturn = (parser_get_return parser unsafe_stmt.node_id)
                     if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
@@ -3030,7 +3060,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             } else {
                 (print "")
             }
-        } } } } } } }
+        } } } } } } } }
 
         set i (+ i 1)
     }

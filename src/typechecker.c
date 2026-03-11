@@ -2634,31 +2634,34 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 /* Save symbol count for scope */
                 int saved_symbol_count __attribute__((unused)) = env->symbol_count;
-                
-                /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
-                 * This allows us to distinguish union variant fields from regular struct fields
-                 */
-                Value binding_val = create_void();
-                env_define_var_with_type_info(env, 
-                    expr->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
-                
-                /* Store "UnionName.VariantName" as the struct type name for the binding
-                 * This will be used by field access type checking to look up variant fields
-                 */
-                if (union_base_name && env->symbol_count > 0) {
-                    Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
-                    const char *variant_name = expr->as.match_expr.pattern_variants[i];
-                    /* Format: "UnionName.VariantName" */
-                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
-                    binding_sym->struct_type_name = type_name;
+                const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
-                    /* Ensure bindings participate in visibility disambiguation */
-                    binding_sym->def_line = expr->line;
-                    binding_sym->def_column = expr->column;
+                /* Wildcard arm: _ => { body }  — no binding to add */
+                if (strcmp(variant_name_i, "_") != 0) {
+                    /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
+                     * This allows us to distinguish union variant fields from regular struct fields
+                     */
+                    Value binding_val = create_void();
+                    env_define_var_with_type_info(env,
+                        expr->as.match_expr.pattern_bindings[i],
+                        TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
+
+                    /* Store "UnionName.VariantName" as the struct type name for the binding
+                     * This will be used by field access type checking to look up variant fields
+                     */
+                    if (union_base_name && env->symbol_count > 0) {
+                        Symbol *binding_sym = &env->symbols[env->symbol_count - 1];
+                        /* Format: "UnionName.VariantName" */
+                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_i) + 2);
+                        sprintf(type_name, "%s.%s", union_base_name, variant_name_i);
+                        binding_sym->struct_type_name = type_name;
+
+                        /* Ensure bindings participate in visibility disambiguation */
+                        binding_sym->def_line = expr->line;
+                        binding_sym->def_column = expr->column;
+                    }
                 }
-                
+
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
@@ -2677,8 +2680,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            /* Exhaustiveness check: warn if any variants are not covered */
-            if (union_base_name) {
+            /* Exhaustiveness check: warn if any variants are not covered.
+             * Skip entirely if a wildcard _ arm is present (it covers all remaining). */
+            int has_wildcard = 0;
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                if (strcmp(expr->as.match_expr.pattern_variants[i], "_") == 0) {
+                    has_wildcard = 1;
+                    break;
+                }
+            }
+            if (union_base_name && !has_wildcard) {
                 UnionDef *union_def = env_get_union(env, union_base_name);
                 if (union_def) {
                     /* Build set of covered variants */
@@ -2880,8 +2891,39 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
             Type declared_type = stmt->as.let.var_type;
+
+            /* Type inference: let x = expr  (no declared type annotation) */
+            if (declared_type == TYPE_UNKNOWN && stmt->as.let.value) {
+                Type inferred = check_expression(stmt->as.let.value, tc->env);
+                stmt->as.let.var_type = inferred;
+                declared_type = inferred;
+                /* Infer struct/union type_name from expression where possible */
+                if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {
+                    /* Try to extract type name from the RHS expression */
+                    if (stmt->as.let.value->type == AST_STRUCT_LITERAL && stmt->as.let.value->as.struct_literal.struct_name) {
+                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.struct_literal.struct_name);
+                    } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.return_struct_type_name) {
+                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.call.return_struct_type_name);
+                    }
+                }
+                /* Register and add to env */
+                Value val = create_void();
+                env_define_var_with_type_info(tc->env, stmt->as.let.name, inferred,
+                    stmt->as.let.element_type, stmt->as.let.type_info,
+                    stmt->as.let.is_mut, val);
+                Symbol *isym = env_get_var(tc->env, stmt->as.let.name);
+                if (isym) {
+                    isym->def_line = stmt->line;
+                    isym->def_column = stmt->column;
+                    if (stmt->as.let.type_name) {
+                        isym->struct_type_name = strdup(stmt->as.let.type_name);
+                    }
+                }
+                return TYPE_VOID;
+            }
+
             Type original_declared_type = declared_type;  /* Save original before modifications */
-            
+
             /* Handle generic lists: List<UserType> - Register BEFORE checking expression */
             if (declared_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
                 const char *element_type = stmt->as.let.type_name;
@@ -3314,19 +3356,41 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_FOR: {
-            /* For loop variable has type int */
-            Value val = create_void();
-            env_define_var(tc->env, stmt->as.for_stmt.var_name, TYPE_INT, false, val);
+            /* Determine loop variable type from iterable */
+            Type iter_type = check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
-            /* Set definition location for visibility checking */
+            Type loop_var_type = TYPE_INT;  /* default for range(start, end) */
+            const char *loop_var_struct_name = NULL;
+
+            if (iter_type == TYPE_LIST_STRING) {
+                loop_var_type = TYPE_STRING;
+            } else if (iter_type == TYPE_LIST_GENERIC) {
+                /* Look up list variable to get element type */
+                ASTNode *rng = stmt->as.for_stmt.range_expr;
+                if (rng && rng->type == AST_IDENTIFIER) {
+                    Symbol *list_sym = env_get_var(tc->env, rng->as.identifier);
+                    if (list_sym && list_sym->element_type != TYPE_UNKNOWN) {
+                        loop_var_type = list_sym->element_type;
+                    }
+                    if (loop_var_type == TYPE_STRUCT && list_sym && list_sym->struct_type_name) {
+                        loop_var_struct_name = list_sym->struct_type_name;
+                    }
+                }
+            }
+            /* TYPE_LIST_INT, TYPE_LIST_TOKEN -> TYPE_INT (default already set) */
+
+            Value val = create_void();
+            env_define_var(tc->env, stmt->as.for_stmt.var_name, loop_var_type, false, val);
+
+            /* Set definition location and struct type name */
             Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);
             if (loop_var_sym) {
                 loop_var_sym->def_line = stmt->line;
                 loop_var_sym->def_column = stmt->column;
+                if (loop_var_struct_name) {
+                    loop_var_sym->struct_type_name = strdup(loop_var_struct_name);
+                }
             }
-
-            /* Range expression should return a range */
-            check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
             /* Check the loop body (increment loop depth for break/continue validation) */
             tc->loop_depth++;
@@ -5564,7 +5628,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             Function *func = env_get_function(env, item->as.function.name);
             if (!env->suppress_shadow_warnings &&
                 !func->is_extern && !func->shadow_test &&
-                strcmp(item->as.function.name, "main") != 0) {
+                strcmp(item->as.function.name, "main") != 0 &&
+                strncmp(item->as.function.name, "__lambda_", 9) != 0) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {
@@ -6246,7 +6311,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             Function *func = env_get_function(env, item->as.function.name);
             if (!env->suppress_shadow_warnings &&
                 !func->is_extern && !func->shadow_test &&
-                strcmp(item->as.function.name, "main") != 0) {
+                strcmp(item->as.function.name, "main") != 0 &&
+                strncmp(item->as.function.name, "__lambda_", 9) != 0) {
                 /* Check if function body uses extern functions - if so, shadow test is optional */
                 bool uses_extern = func->body && contains_extern_calls(func->body, env);
                 if (!uses_extern) {

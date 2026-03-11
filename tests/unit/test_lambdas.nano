@@ -1,0 +1,59 @@
+/* Test: anonymous functions (lambdas) */
+
+/* apply_fn takes a function and an int, applies it */
+fn apply_fn(f: fn(int) -> int, x: int) -> int {
+    return (f x)
+}
+
+shadow apply_fn {
+    let dbl: fn(int) -> int = fn(x: int) -> int { return (* x 2) }
+    assert (== (apply_fn dbl 5) 10)
+    assert (== (apply_fn dbl 0) 0)
+}
+
+/* apply_binary takes a two-arg function and two ints */
+fn apply_binary(f: fn(int, int) -> int, a: int, b: int) -> int {
+    return (f a b)
+}
+
+shadow apply_binary {
+    let add: fn(int, int) -> int = fn(x: int, y: int) -> int { return (+ x y) }
+    let mul: fn(int, int) -> int = fn(x: int, y: int) -> int { return (* x y) }
+    assert (== (apply_binary add 3 4) 7)
+    assert (== (apply_binary mul 3 4) 12)
+}
+
+fn main() -> int {
+    /* Lambda stored in let binding */
+    let dbl: fn(int) -> int = fn(x: int) -> int { return (* x 2) }
+    assert (== (dbl 5) 10)
+    assert (== (dbl 21) 42)
+
+    /* Lambda passed directly to higher-order function */
+    let result: int = (apply_fn fn(x: int) -> int { return (+ x 100) } 7)
+    assert (== result 107)
+
+    /* Multiple lambdas with different behavior */
+    let inc: fn(int) -> int = fn(n: int) -> int { return (+ n 1) }
+    let dec: fn(int) -> int = fn(n: int) -> int { return (- n 1) }
+    assert (== (inc 10) 11)
+    assert (== (dec 10) 9)
+
+    /* Lambda with conditional body */
+    let abs_val: fn(int) -> int = fn(n: int) -> int {
+        if (< n 0) {
+            return (* n -1)
+        } else {
+            return n
+        }
+    }
+    assert (== (abs_val -5) 5)
+    assert (== (abs_val 3) 3)
+
+    (println "lambda tests passed")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,53 @@
+/* Test: tuple destructuring — let (a, b) = expr */
+
+fn divmod(n: int, d: int) -> (int, int) {
+    return ((/ n d), (% n d))
+}
+
+shadow divmod {
+    let (q, r) = (divmod 17 5)
+    assert (== q 3)
+    assert (== r 2)
+}
+
+fn min_max(a: int, b: int) -> (int, int) {
+    if (< a b) {
+        return (a, b)
+    } else {
+        return (b, a)
+    }
+}
+
+shadow min_max {
+    let (lo, hi) = (min_max 7 3)
+    assert (== lo 3)
+    assert (== hi 7)
+}
+
+fn main() -> int {
+    /* Basic destructuring */
+    let (q, r) = (divmod 17 5)
+    assert (== q 3)
+    assert (== r 2)
+
+    /* Destructure into mutable bindings */
+    let mut (a, b) = (min_max 10 4)
+    assert (== a 4)
+    assert (== b 10)
+    set a (+ a 1)
+    assert (== a 5)
+
+    /* Three-element tuple */
+    let triple: (int, int, int) = (1, 2, 3)
+    let (x, y, z) = triple
+    assert (== x 1)
+    assert (== y 2)
+    assert (== z 3)
+
+    (println "tuple destructuring tests passed")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

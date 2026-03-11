@@ -1,5 +1,8 @@
 #include "nanolang.h"
 
+/* Forward declaration for mutual recursion with lex_fstring */
+Token *tokenize(const char *source, int *token_count);
+
 /* Helper function to create a token */
 static Token create_token(TokenType type, const char *value, int line, int column) {
     Token token;
@@ -77,6 +80,171 @@ static TokenType keyword_or_identifier(const char *str) {
     /* "range", "print", "println" are builtin functions, not keywords - treat as identifiers */
 
     return TOKEN_IDENTIFIER;
+}
+
+/* Emit one token into a dynamic token array, growing if needed.
+ * Returns 1 on success, 0 on allocation failure. */
+static int emit_token(Token **tokens, int *count, int *capacity,
+                       TokenType type, const char *value, int line, int column) {
+    if (*count >= *capacity - 1) {
+        *capacity *= 2;
+        *tokens = realloc(*tokens, sizeof(Token) * (*capacity));
+        if (!*tokens) return 0;
+    }
+    (*tokens)[(*count)++] = create_token(type, value, line, column);
+    return 1;
+}
+
+/* Process an f-string starting at source[*pos] ('f').
+ * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
+ * Modifies *pos to point past the closing quote.
+ * Returns 1 on success, 0 on error. */
+static int lex_fstring(const char *source, int *pos,
+                        Token **tokens, int *count, int *capacity,
+                        int line, int column) {
+    int i = *pos + 2;  /* skip f" */
+
+    /* Collect parts: (start, end, is_expr) triples in parallel arrays */
+    /* Max 64 parts for simplicity; realloc would be needed for more */
+    int max_parts = 64;
+    int *part_starts  = malloc(sizeof(int) * max_parts);
+    int *part_ends    = malloc(sizeof(int) * max_parts);
+    int *part_is_expr = malloc(sizeof(int) * max_parts);
+    int n_parts = 0;
+
+    int part_start = i;
+    int found_end = 0;
+
+    while (source[i] != '\0' && !found_end) {
+        if (source[i] == '"') {
+            /* Closing quote: save trailing static part */
+            if (i > part_start) {
+                part_starts[n_parts]  = part_start;
+                part_ends[n_parts]    = i;
+                part_is_expr[n_parts] = 0;
+                n_parts++;
+            }
+            i++;
+            found_end = 1;
+        } else if (source[i] == '\\' && source[i+1] != '\0') {
+            /* Escaped character in static part */
+            i += 2;
+        } else if (source[i] == '{') {
+            /* Save preceding static part */
+            if (i > part_start) {
+                part_starts[n_parts]  = part_start;
+                part_ends[n_parts]    = i;
+                part_is_expr[n_parts] = 0;
+                n_parts++;
+            }
+            /* Scan to matching }, tracking brace depth */
+            int expr_start = i + 1;
+            int depth = 1;
+            i++;
+            while (source[i] != '\0' && depth > 0) {
+                if (source[i] == '{') depth++;
+                else if (source[i] == '}') depth--;
+                i++;
+            }
+            if (depth == 0) {
+                /* Expression text: source[expr_start .. i-2] */
+                part_starts[n_parts]  = expr_start;
+                part_ends[n_parts]    = i - 1;  /* exclude the closing } */
+                part_is_expr[n_parts] = 1;
+                n_parts++;
+                part_start = i;
+            } else {
+                fprintf(stderr, "Error at line %d: Unclosed '{' in f-string\n", line);
+                free(part_starts); free(part_ends); free(part_is_expr);
+                return 0;
+            }
+        } else {
+            i++;
+        }
+    }
+
+    if (!found_end) {
+        fprintf(stderr, "Error at line %d: Unterminated f-string\n", line);
+        free(part_starts); free(part_ends); free(part_is_expr);
+        return 0;
+    }
+
+    /* Emit tokens for the collected parts */
+    if (n_parts == 0) {
+        /* Empty f-string */
+        emit_token(tokens, count, capacity, TOKEN_STRING, "", line, column);
+    } else if (n_parts == 1) {
+        /* Single part */
+        int len = part_ends[0] - part_starts[0];
+        char *text = malloc(len + 1);
+        strncpy(text, source + part_starts[0], len);
+        text[len] = '\0';
+        if (part_is_expr[0]) {
+            /* Expression: sub-tokenize and emit */
+            int sub_count = 0;
+            Token *sub_tokens = tokenize(text, &sub_count);
+            for (int k = 0; k < sub_count - 1; k++) {  /* -1 to skip EOF */
+                emit_token(tokens, count, capacity, sub_tokens[k].token_type,
+                           sub_tokens[k].value, line, column);
+            }
+            free(sub_tokens);
+        } else {
+            emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
+        }
+        free(text);
+    } else {
+        /* Multiple parts: emit nested right-associated str_concat calls.
+         * Pattern for [p0, p1, ..., p_{n-1}]:
+         *   for k in 0..n-2: LPAREN IDENT("str_concat") emit(pk)
+         *   emit(p_{n-1})
+         *   for k in 0..n-2: RPAREN
+         */
+        for (int k = 0; k < n_parts - 1; k++) {
+            emit_token(tokens, count, capacity, TOKEN_LPAREN, NULL, line, column);
+            emit_token(tokens, count, capacity, TOKEN_IDENTIFIER, "str_concat", line, column);
+            int len = part_ends[k] - part_starts[k];
+            char *text = malloc(len + 1);
+            strncpy(text, source + part_starts[k], len);
+            text[len] = '\0';
+            if (part_is_expr[k]) {
+                int sub_count = 0;
+                Token *sub_tokens = tokenize(text, &sub_count);
+                for (int j = 0; j < sub_count - 1; j++) {
+                    emit_token(tokens, count, capacity, sub_tokens[j].token_type,
+                               sub_tokens[j].value, line, column);
+                }
+                free(sub_tokens);
+            } else {
+                emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
+            }
+            free(text);
+        }
+        /* Last part */
+        int last_len = part_ends[n_parts-1] - part_starts[n_parts-1];
+        char *last_text = malloc(last_len + 1);
+        strncpy(last_text, source + part_starts[n_parts-1], last_len);
+        last_text[last_len] = '\0';
+        if (part_is_expr[n_parts-1]) {
+            int sub_count = 0;
+            Token *sub_tokens = tokenize(last_text, &sub_count);
+            for (int j = 0; j < sub_count - 1; j++) {
+                emit_token(tokens, count, capacity, sub_tokens[j].token_type,
+                           sub_tokens[j].value, line, column);
+            }
+            free(sub_tokens);
+        } else {
+            emit_token(tokens, count, capacity, TOKEN_STRING, last_text, line, column);
+        }
+        free(last_text);
+        /* Close all str_concat calls */
+        for (int k = 0; k < n_parts - 1; k++) {
+            emit_token(tokens, count, capacity, TOKEN_RPAREN, NULL, line, column);
+        }
+    }
+
+    free(part_starts); free(part_ends); free(part_is_expr);
+    *pos = i;
+    return 1;
 }
 
 /* Tokenize the source code */
@@ -182,6 +350,15 @@ Token *tokenize(const char *source, int *token_count) {
             char value_str[16];
             snprintf(value_str, sizeof(value_str), "%d", char_value);
             tokens[count++] = create_token(TOKEN_NUMBER, value_str, line, column);
+            continue;
+        }
+
+        /* F-string interpolation: f"text {expr} text" */
+        if (source[i] == 'f' && source[i+1] == '"') {
+            if (!lex_fstring(source, &i, &tokens, &count, &capacity, line, column)) {
+                free(tokens);
+                return NULL;
+            }
             continue;
         }
 
@@ -294,6 +471,11 @@ Token *tokenize(const char *source, int *token_count) {
             i += 2;
             continue;
         }
+        if (source[i] == '|' && source[i + 1] == '>') {
+            tokens[count++] = create_token(TOKEN_PIPE, NULL, line, column);
+            i += 2;
+            continue;
+        }
 
         /* Single-character tokens */
         switch (source[i]) {
@@ -403,6 +585,7 @@ const char *token_type_name(TokenType type) {
         /* TOKEN_RANGE removed */
         case TOKEN_UNSAFE: return "UNSAFE";
         case TOKEN_RESOURCE: return "RESOURCE";
+        case TOKEN_PIPE: return "PIPE";
         default: return "UNKNOWN";
     }
 }

@@ -385,6 +385,179 @@ shadow process_char_literal {
     assert (== tok.token_type 1)  /* TOKEN_NUMBER (char as int) */
 }
 
+/* Emit tokens for one part of an f-string (static text or expression) */
+fn emit_fstring_part_tokens(part_text: string, is_expr: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
+    if (!= is_expr 0) {
+        /* Expression part: tokenize it and emit its tokens (skip trailing EOF) */
+        let sub_tokens: List<LexerToken> = (tokenize_string part_text file_name diags)
+        let n: int = (list_LexerToken_length sub_tokens)
+        let mut k: int = 0
+        while (< k n) {
+            let tok: LexerToken = (list_LexerToken_get sub_tokens k)
+            if (!= tok.token_type LexerTokenType.TOKEN_EOF) {
+                (list_LexerToken_push tokens tok)
+            } else {
+                (print "")
+            }
+            set k (+ k 1)
+        }
+    } else {
+        /* Static text part: emit as STRING token */
+        (push_tok tokens LexerTokenType.TOKEN_STRING part_text line column)
+    }
+}
+
+shadow emit_fstring_part_tokens {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    (emit_fstring_part_tokens "hello" 0 tokens diags "test.nano" 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type LexerTokenType.TOKEN_STRING)
+}
+
+/* Process an f-string starting at source[i] ('f').
+ * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
+ * Returns the new position (after closing quote), or -1 on error. */
+fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> int {
+    /* source[i]=='f' (102), source[i+1]=='"' (34) */
+    let mut pos: int = (+ i 2)  /* skip f" */
+
+    let part_texts: List<string> = (list_string_new)
+    let part_is_exprs: List<int> = (list_int_new)
+
+    let mut part_start: int = pos
+    let mut found_end: bool = false
+
+    while (and (< pos len) (not found_end)) {
+        let c: int = (char_at source pos)
+        if (== c 34) {
+            /* Closing quote: save trailing static part */
+            let text: string = (str_substring source part_start (- pos part_start))
+            if (!= (str_length text) 0) {
+                (list_string_push part_texts text)
+                (list_int_push part_is_exprs 0)
+            } else {
+                (print "")
+            }
+            set pos (+ pos 1)
+            set found_end true
+        } else {
+            if (and (== c 92) (< (+ pos 1) len)) {
+                /* Escaped character in static part - skip both chars */
+                set pos (+ pos 2)
+            } else {
+                if (== c 123) {
+                    /* { starts interpolated expression */
+                    /* Save preceding static part */
+                    let text: string = (str_substring source part_start (- pos part_start))
+                    if (!= (str_length text) 0) {
+                        (list_string_push part_texts text)
+                        (list_int_push part_is_exprs 0)
+                    } else {
+                        (print "")
+                    }
+                    /* Scan to matching }, tracking brace depth */
+                    let expr_start: int = (+ pos 1)
+                    let mut depth: int = 1
+                    set pos (+ pos 1)
+                    while (and (< pos len) (> depth 0)) {
+                        let cc: int = (char_at source pos)
+                        if (== cc 123) {
+                            set depth (+ depth 1)
+                        } else {
+                            (print "")
+                        }
+                        if (== cc 125) {
+                            set depth (- depth 1)
+                        } else {
+                            (print "")
+                        }
+                        set pos (+ pos 1)
+                    }
+                    if (== depth 0) {
+                        /* expr_text = source[expr_start .. pos-2], length = pos-1-expr_start */
+                        let expr_text: string = (str_substring source expr_start (- (- pos 1) expr_start))
+                        if (!= (str_length expr_text) 0) {
+                            (list_string_push part_texts expr_text)
+                            (list_int_push part_is_exprs 1)
+                        } else {
+                            (print "")
+                        }
+                        set part_start pos
+                    } else {
+                        let diag: CompilerDiagnostic = (diag_lexer_error "L0004" "Unclosed '{' in f-string interpolation" (diag_location file_name line column))
+                        (diag_list_add diags diag)
+                        return -1
+                    }
+                } else {
+                    set pos (+ pos 1)
+                }
+            }
+        }
+    }
+
+    if (not found_end) {
+        let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated f-string literal" (diag_location file_name line column))
+        (diag_list_add diags diag)
+        return -1
+    }
+
+    /* Emit tokens for the collected parts */
+    let n: int = (list_string_length part_texts)
+    if (== n 0) {
+        /* Empty f-string: emit empty string token */
+        (push_tok tokens LexerTokenType.TOKEN_STRING "" line column)
+    } else {
+        if (== n 1) {
+            /* Single part: emit it directly */
+            let text: string = (list_string_get part_texts 0)
+            let is_expr: int = (list_int_get part_is_exprs 0)
+            (emit_fstring_part_tokens text is_expr tokens diags file_name line column)
+        } else {
+            /* Multiple parts: emit nested right-associated str_concat calls.
+             * Pattern for [p0, p1, ..., p_{n-1}]:
+             *   for k in 0..n-2: LPAREN IDENT(str_concat) [pk]
+             *   [p_{n-1}]
+             *   for k in 0..n-2: RPAREN
+             */
+            let mut k: int = 0
+            while (< k (- n 1)) {
+                (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
+                (push_tok tokens LexerTokenType.TOKEN_IDENTIFIER "str_concat" line column)
+                let text: string = (list_string_get part_texts k)
+                let is_expr: int = (list_int_get part_is_exprs k)
+                (emit_fstring_part_tokens text is_expr tokens diags file_name line column)
+                set k (+ k 1)
+            }
+            /* Last part */
+            let last_text: string = (list_string_get part_texts (- n 1))
+            let last_is_expr: int = (list_int_get part_is_exprs (- n 1))
+            (emit_fstring_part_tokens last_text last_is_expr tokens diags file_name line column)
+            /* Close all str_concat calls */
+            let mut k2: int = 0
+            while (< k2 (- n 1)) {
+                (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
+                set k2 (+ k2 1)
+            }
+        }
+    }
+
+    return pos
+}
+
+shadow process_fstring {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* f"Hello {name}!" -> (str_concat "Hello " (str_concat name "!")) */
+    let src: string = "f\"Hello {name}!\""
+    let new_pos: int = (process_fstring src 0 (str_length src) tokens diags "test.nano" 1 1)
+    assert (> new_pos 0)
+    assert (not (diag_list_has_errors diags))
+    /* 9 tokens: ( str_concat "Hello " ( str_concat name "!" ) ) */
+    assert (== (list_LexerToken_length tokens) 9)
+}
+
 pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
     let mut tokens: List<LexerToken> = (list_LexerToken_new)
     let mut i: int = 0
@@ -460,6 +633,11 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                         (push_tok tokens LexerTokenType.TOKEN_GE "" line column)
                         set i (+ i 2)
                     } else {
+                    /* Pipe operator: |> */
+                    if (and (< (+ i 1) len) (and (== c 124) (== (char_at source (+ i 1)) 62))) {
+                        (push_tok tokens LexerTokenType.TOKEN_PIPE "" line column)
+                        set i (+ i 2)
+                    } else {
                         /* Single '=' assignment (but not '==', '=>') */
                         if (== c 61) {
                             (push_tok tokens LexerTokenType.TOKEN_ASSIGN "" line column)
@@ -482,6 +660,10 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                 } else {
                                     if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
                                         set new_pos (process_number source i len tokens line column)
+                                    } else {
+                                    /* f-string interpolation: f"..." */
+                                    if (and (== c 102) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 34))) {
+                                        set new_pos (process_fstring source i len tokens diags file_name line column)
                                     } else {
                                         if (is_identifier_start c) {
                                             set new_pos (process_identifier source i len tokens line column)
@@ -572,6 +754,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                             }
                                         }
                                     }
+                                    }
                                 }
                             }
 
@@ -581,7 +764,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                 set i new_pos
                             }
                         }
-                    }}}}}}}
+                    }}}}}}}}
                 }
             }
         }

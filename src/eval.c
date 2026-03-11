@@ -4072,54 +4072,63 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             UnionValue *uval = match_val.as.union_val;
             
-            /* Find matching arm by comparing variant names */
+            /* Find matching arm by comparing variant names; _ is wildcard catch-all */
+            int wildcard_arm = -1;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
-                
+
+                if (strcmp(pattern_variant, "_") == 0) {
+                    wildcard_arm = i;
+                    continue;  /* try specific arms first */
+                }
+
                 if (strcmp(uval->variant_name, pattern_variant) == 0) {
                     /* This arm matches! */
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-                    
+
                     /* Save environment state for scope */
                     int saved_symbol_count = env->symbol_count;
-                    
+
                     /* Bind the pattern variable to a struct value representing the variant's fields
                      * This allows field access like binding.field_name in the match arm body
                      */
                     Value binding_val;
                     if (uval->field_count > 0) {
-                        /* Create a struct-like value with the variant's fields
-                         * We need to duplicate the field names and values for the struct
-                         */
                         char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
                         Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
-                        
+
                         for (int j = 0; j < uval->field_count; j++) {
-                            field_names_copy[j] = uval->field_names[j];  /* Share string pointers */
-                            field_values_copy[j] = uval->field_values[j];  /* Copy values */
+                            field_names_copy[j] = uval->field_names[j];
+                            field_values_copy[j] = uval->field_values[j];
                         }
-                        
-                        binding_val = create_struct(uval->union_name, 
-                                                   field_names_copy, 
-                                                   field_values_copy, 
+
+                        binding_val = create_struct(uval->union_name,
+                                                   field_names_copy,
+                                                   field_values_copy,
                                                    uval->field_count);
                     } else {
-                        /* Variant has no fields - create a placeholder */
                         binding_val = create_void();
                     }
                     env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
-                    
+
                     /* Evaluate arm body */
                     Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                    
+
                     /* Restore environment */
-                    /* Note: Symbols added here will be leaked, but interpreter is short-lived */
                     env->symbol_count = saved_symbol_count;
-                    
+
                     return result;
                 }
             }
-            
+
+            /* No specific arm matched — fall through to wildcard if present */
+            if (wildcard_arm >= 0) {
+                int saved_symbol_count = env->symbol_count;
+                Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
+                env->symbol_count = saved_symbol_count;
+                return result;
+            }
+
             /* No matching arm found - this should be caught by typechecker */
             fprintf(stderr, "Error: No matching arm for variant '%s'\n", uval->variant_name);
             return create_void();
@@ -4293,62 +4302,84 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         }
 
         case AST_FOR: {
-            /* Evaluate range */
             ASTNode *range_expr = stmt->as.for_stmt.range_expr;
-            if (range_expr->type != AST_CALL || strcmp(range_expr->as.call.name, "range") != 0) {
-                fprintf(stderr, "Error: for loop requires range expression\n");
-                return create_void();
-            }
+            const char *loop_var = stmt->as.for_stmt.var_name;
 
-            if (range_expr->as.call.arg_count != 2) {
-                fprintf(stderr, "Error: range requires 2 arguments\n");
-                return create_void();
-            }
+            /* Check if it's a range(start, end) call */
+            if (range_expr->type == AST_CALL && range_expr->as.call.name &&
+                strcmp(range_expr->as.call.name, "range") == 0 &&
+                range_expr->as.call.arg_count == 2) {
 
-            Value start_val = eval_expression(range_expr->as.call.args[0], env);
-            Value end_val = eval_expression(range_expr->as.call.args[1], env);
+                Value start_val = eval_expression(range_expr->as.call.args[0], env);
+                Value end_val = eval_expression(range_expr->as.call.args[1], env);
 
-            if (start_val.type != VAL_INT || end_val.type != VAL_INT) {
-                fprintf(stderr, "Error: range requires int arguments\n");
-                return create_void();
-            }
-
-            long long start = start_val.as.int_val;
-            long long end = end_val.as.int_val;
-
-            /* Define loop variable before the loop */
-            int loop_var_index = env->symbol_count;
-            env_define_var(env, stmt->as.for_stmt.var_name, TYPE_INT, false, create_int(start));
-
-            Value result = create_void();
-            for (long long i = start; i < end; i++) {
-                /* Update loop variable value */
-                env->symbols[loop_var_index].value = create_int(i);
-
-                /* Execute loop body */
-                result = eval_statement(stmt->as.for_stmt.body, env);
-                
-                /* If body returned a value, propagate it immediately */
-                if (result.is_return) {
-                    env->symbol_count = loop_var_index;  /* Clean up before return */
-                    return result;
+                if (start_val.type != VAL_INT || end_val.type != VAL_INT) {
+                    fprintf(stderr, "Error: range requires int arguments\n");
+                    return create_void();
                 }
 
-                if (result.is_break) {
-                    result = create_void();
-                    break;
+                long long start = start_val.as.int_val;
+                long long end = end_val.as.int_val;
+
+                int loop_var_index = env->symbol_count;
+                env_define_var(env, loop_var, TYPE_INT, false, create_int(start));
+
+                Value result = create_void();
+                for (long long i = start; i < end; i++) {
+                    env->symbols[loop_var_index].value = create_int(i);
+                    result = eval_statement(stmt->as.for_stmt.body, env);
+                    if (result.is_return) {
+                        env->symbol_count = loop_var_index;
+                        return result;
+                    }
+                    if (result.is_break) { result = create_void(); break; }
+                    if (result.is_continue) { result = create_void(); continue; }
+                }
+                env->symbol_count = loop_var_index;
+                return result;
+
+            } else {
+                /* List iteration: look up list type from symbol table */
+                Symbol *iterable_sym = NULL;
+                if (range_expr->type == AST_IDENTIFIER) {
+                    iterable_sym = env_get_var(env, range_expr->as.identifier);
                 }
 
-                if (result.is_continue) {
-                    result = create_void();
-                    continue;
+                Value iter_val = eval_expression(range_expr, env);
+                Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
+
+                int loop_var_index = env->symbol_count;
+                env_define_var(env, loop_var, TYPE_INT, true, create_void());
+
+                Value result = create_void();
+
+                if (list_type == TYPE_LIST_INT) {
+                    List_int *lst = (List_int*)(intptr_t)iter_val.as.int_val;
+                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    for (int idx = 0; idx < lst->length; idx++) {
+                        env->symbols[loop_var_index].value = create_int(lst->data[idx]);
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else if (list_type == TYPE_LIST_STRING) {
+                    List_string *lst = (List_string*)(intptr_t)iter_val.as.int_val;
+                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    for (int idx = 0; idx < lst->length; idx++) {
+                        env->symbols[loop_var_index].value = create_string(lst->data[idx]);
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else {
+                    fprintf(stderr, "Error: for-in requires a list or range expression\n");
                 }
+
+                env->symbol_count = loop_var_index;
+                return result;
             }
-
-            /* Remove loop variable from scope */
-            env->symbol_count = loop_var_index;
-
-            return result;
         }
 
         case AST_RETURN: {

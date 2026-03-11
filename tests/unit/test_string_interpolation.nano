@@ -1,0 +1,47 @@
+/* Test: string interpolation f"text {expr} text" */
+
+fn greet(name: string) -> string {
+    return f"Hello, {name}!"
+}
+
+shadow greet {
+    assert (str_equals (greet "World") "Hello, World!")
+    assert (str_equals (greet "NanoLang") "Hello, NanoLang!")
+}
+
+fn describe(name: string, age: int) -> string {
+    return f"{name} is {(int_to_string age)} years old"
+}
+
+shadow describe {
+    assert (str_equals (describe "Alice" 30) "Alice is 30 years old")
+}
+
+fn main() -> int {
+    /* Simple variable interpolation */
+    let name: string = "World"
+    let msg: string = f"Hello, {name}!"
+    assert (str_equals msg "Hello, World!")
+
+    /* Expression interpolation with int_to_string */
+    let n: int = 42
+    let s: string = f"The answer is {(int_to_string n)}."
+    assert (str_equals s "The answer is 42.")
+
+    /* Multiple interpolations */
+    let first: string = "Ada"
+    let last: string = "Lovelace"
+    let full: string = f"{first} {last}"
+    assert (str_equals full "Ada Lovelace")
+
+    /* f-string with no interpolations */
+    let plain: string = f"just text"
+    assert (str_equals plain "just text")
+
+    (println "string interpolation tests passed")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

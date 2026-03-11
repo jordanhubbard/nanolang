@@ -4,6 +4,7 @@
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include "reflection.h"
+#include "emit_typed_ast.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
 #include "nanocore_subset.h"
@@ -32,6 +33,7 @@ typedef struct {
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
     const char *reflect_output_path;  /* --reflect <path>: emit module API as JSON */
+    bool emit_typed_ast;              /* --emit-typed-ast-json: emit typed AST as JSON to stdout */
     char **include_paths;      /* -I flags */
     int include_count;
     char **library_paths;     /* -L flags */
@@ -488,6 +490,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(name_copy);
         
         /* Clean up and exit - no need to compile when reflecting */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
+
+    /* Phase 4.45: Emit typed AST as JSON (if requested) */
+    if (opts->emit_typed_ast) {
+        emit_typed_ast_json(input_file, program, env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1311,6 +1325,8 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--reflect") == 0 && i + 1 < argc) {
             opts.reflect_output_path = argv[i + 1];
             i++;
+        } else if (strcmp(argv[i], "--emit-typed-ast-json") == 0) {
+            opts.emit_typed_ast = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
