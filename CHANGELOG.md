@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-03-11
+
+### Added
+- Local type inference: `let x = 42` infers type from RHS (no annotation required)
+- Pipe operator `|>`: `x |> f |> g` desugars to `(g (f x))` for readable chains
+- String interpolation `f"..."`: `f"Hello {name}!"` desugars to str_concat at compile time
+- Tuple destructuring: `let (q, r) = (divmod 17 5)` binds each element directly
+- Wildcard `_` in match: catch-all arm `_ => { ... }` for exhaustive pattern matching
+- Anonymous functions (lambdas): `fn(x: int) -> int { return (* x 2) }` as expressions
+- `for x in List<T>`: iterate List<int>, List<string>, and List<struct> directly
+- `--emit-typed-ast-json`: compiler flag emitting type-annotated AST as JSON for tooling
+- All 8 features implemented in both C reference compiler and NanoLang self-hosted compiler
+
 ## [3.1.12] - 2026-03-07
 
 ### Fixed
