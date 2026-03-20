@@ -708,6 +708,12 @@ shadow token_not { assert (== (token_not) LexerTokenType.TOKEN_NOT) }
 fn token_pipe() -> int { return LexerTokenType.TOKEN_PIPE }
 shadow token_pipe { assert (== (token_pipe) LexerTokenType.TOKEN_PIPE) }
 
+fn token_grammar() -> int { return LexerTokenType.TOKEN_GRAMMAR }
+shadow token_grammar { assert (== (token_grammar) LexerTokenType.TOKEN_GRAMMAR) }
+
+fn token_larrow() -> int { return LexerTokenType.TOKEN_LARROW }
+shadow token_larrow { assert (== (token_larrow) LexerTokenType.TOKEN_LARROW) }
+
 fn token_array() -> int { return LexerTokenType.TOKEN_ARRAY }
 shadow token_array { assert (== (token_array) LexerTokenType.TOKEN_ARRAY) }
 
@@ -2449,6 +2455,33 @@ fn parse_primary(p: Parser) -> Parser {
                 let p1: Parser = (parser_store_string p tok.value tok.line tok.column)
                 return (parser_advance p1)
             } else {
+            /* grammar { body } — desugars to (peg2_compile "body") */
+            if (== tok.token_type (token_grammar)) {
+                let p1: Parser = (parser_advance p)  /* consume 'grammar' */
+                if (parser_is_at_end p1) {
+                    return (parser_with_error p1 true)
+                } else {
+                    let body_tok: LexerToken = (parser_current p1)
+                    if (!= body_tok.token_type (token_string)) {
+                        return (parser_with_error p1 true)
+                    } else {
+                        /* Store identifier node for 'peg2_compile' */
+                        let p2: Parser = (parser_store_identifier p1 "peg2_compile" tok.line tok.column)
+                        let func_id: int = p2.last_expr_node_id
+                        let func_type: int = p2.last_expr_node_type
+                        let arg_start: int = (list_ASTLet_length p2.lets)
+                        /* Store string node for the grammar body */
+                        let p3: Parser = (parser_store_string p2 body_tok.value tok.line tok.column)
+                        let str_id: int = p3.last_expr_node_id
+                        let str_type: int = p3.last_expr_node_type
+                        /* Register as call argument */
+                        let p4: Parser = (parser_store_call_arg p3 str_id str_type)
+                        /* Store the call: peg2_compile(body_string) */
+                        let p5: Parser = (parser_store_call p4 func_id arg_start 1 tok.line tok.column)
+                        return (parser_advance p5)  /* consume body token */
+                    }
+                }
+            } else {
                 /* Bool literals */
                 if (or (== tok.token_type (token_true)) (== tok.token_type (token_false))) {
                     let is_true: bool = (== tok.token_type (token_true))
@@ -2802,6 +2835,7 @@ fn parse_primary(p: Parser) -> Parser {
                     }
                 }
             }
+        }
         }
         }
         }

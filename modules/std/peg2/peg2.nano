@@ -1,0 +1,260 @@
+/*
+ * std/peg2 — Intrinsic PEG Parser Module
+ *
+ * Provides a full PEG (Parsing Expression Grammar) engine with:
+ *   - Named rules and rule references
+ *   - Named captures: name:expr
+ *   - Ordered choice: e1 / e2
+ *   - Sequence: e1 e2
+ *   - Repetition: e*, e+, e?
+ *   - Lookahead: !e (negative), &e (positive)
+ *   - Character classes: [a-z], [^abc], [\d], [\w], [\s]
+ *   - String literals: "text"
+ *   - Any-char: .
+ *   - O(n) Packrat memoization — no exponential backtracking
+ *   - Precise error messages: "expected X at line N col M"
+ *
+ * Grammar format:
+ *   rule_name <- expr
+ *   rule_name <- expr
+ *
+ * The first rule is the start (entry) rule.
+ *
+ * Example — parse a CSV row:
+ *   let csv = (peg2_compile "row <- field (\",\" field)*\nfield <- [^\",\\n]*")
+ *   let result = (peg2_parse csv "hello,world,foo")
+ *   if result.ok {
+ *     print (peg2_text result.tree "hello,world,foo")
+ *   }
+ */
+
+/* Opaque compiled grammar handle */
+opaque type Peg2Grammar
+
+/*
+ * A node in the parse tree. Represents a matched span of input,
+ * annotated with the rule name (or "" for anonymous nodes) and
+ * an optional capture label.
+ */
+struct Peg2Node {
+    rule_name:    string,
+    capture_name: string,
+    start:        int,
+    end:          int,
+    child_count:  int
+}
+
+/*
+ * Result of a parse operation.
+ *   ok        — true on success
+ *   tree      — root parse tree node (valid when ok = true)
+ *   error     — human-readable error (valid when ok = false)
+ *   error_pos — byte offset of the furthest parse failure
+ */
+struct Peg2Result {
+    ok:        bool,
+    tree:      Peg2Node,
+    error:     string,
+    error_pos: int
+}
+
+/* ---- FFI declarations ---- */
+
+extern fn nl_peg2_ffi_compile(_grammar_src: string) -> Peg2Grammar
+extern fn nl_peg2_ffi_parse(_g: Peg2Grammar, _input: string) -> int
+extern fn nl_peg2_ffi_find(_g: Peg2Grammar, _input: string) -> int
+extern fn nl_peg2_ffi_matches(_g: Peg2Grammar, _input: string) -> int
+extern fn nl_peg2_ffi_free(_g: Peg2Grammar) -> void
+
+/* Tree node accessors (operate on internal thread-local state after parse/find) */
+extern fn nl_peg2_ffi_tree_rule() -> string
+extern fn nl_peg2_ffi_tree_capture() -> string
+extern fn nl_peg2_ffi_tree_start() -> int
+extern fn nl_peg2_ffi_tree_end() -> int
+extern fn nl_peg2_ffi_tree_child_count() -> int
+extern fn nl_peg2_ffi_tree_text(_input: string) -> string
+extern fn nl_peg2_ffi_last_error() -> string
+extern fn nl_peg2_ffi_last_error_pos() -> int
+
+/* ---- Private helpers ---- */
+
+fn peg2_read_node() -> Peg2Node {
+    let rule:    string = (nl_peg2_ffi_tree_rule)
+    let cap:     string = (nl_peg2_ffi_tree_capture)
+    let start:   int    = (nl_peg2_ffi_tree_start)
+    let end:     int    = (nl_peg2_ffi_tree_end)
+    let nchild:  int    = (nl_peg2_ffi_tree_child_count)
+    return Peg2Node { rule_name: rule, capture_name: cap, start: start, end: end, child_count: nchild }
+}
+
+/* ---- Public API ---- */
+
+/*
+ * Compile a grammar string into a reusable Grammar handle.
+ * The grammar uses the format:
+ *   rule <- expr
+ * Returns an opaque Peg2Grammar handle.
+ *
+ * The first rule defined is the start/entry rule.
+ */
+pub fn peg2_compile(grammar_src: string) -> Peg2Grammar {
+    return (nl_peg2_ffi_compile grammar_src)
+}
+
+shadow peg2_compile {
+    let g = (peg2_compile "word <- [a-zA-Z]+")
+    assert (peg2_matches g "hello")
+    assert (not (peg2_matches g "123"))
+    (peg2_free g)
+}
+
+/*
+ * Free a compiled grammar. Call when done to release C resources.
+ */
+pub fn peg2_free(g: Peg2Grammar) -> void {
+    return (nl_peg2_ffi_free g)
+}
+
+shadow peg2_free {
+    let g = (peg2_compile "x <- \"a\"")
+    (peg2_free g)
+    assert true
+}
+
+/*
+ * Full match: the entire input string must be consumed by the start rule.
+ * Returns a Peg2Result with ok=true and a parse tree on success.
+ */
+pub fn peg2_parse(g: Peg2Grammar, input: string) -> Peg2Result {
+    let ok_int: int = (nl_peg2_ffi_parse g input)
+    let ok: bool = (== ok_int 1)
+    if ok {
+        let tree: Peg2Node = (peg2_read_node)
+        return Peg2Result { ok: true, tree: tree, error: "", error_pos: 0 }
+    } else {
+        let msg: string = (nl_peg2_ffi_last_error)
+        let pos: int    = (nl_peg2_ffi_last_error_pos)
+        let empty: Peg2Node = Peg2Node { rule_name: "", capture_name: "", start: 0, end: 0, child_count: 0 }
+        return Peg2Result { ok: false, tree: empty, error: msg, error_pos: pos }
+    }
+}
+
+shadow peg2_parse {
+    let g = (peg2_compile "num <- [0-9]+")
+    let r1 = (peg2_parse g "42")
+    assert r1.ok
+    assert (== r1.tree.rule_name "num")
+    let r2 = (peg2_parse g "abc")
+    assert (not r2.ok)
+    (peg2_free g)
+}
+
+/*
+ * Partial match: find the first occurrence of the start rule anywhere in input.
+ * Does not require consuming the full input.
+ * Returns Peg2Result with the matched span.
+ */
+pub fn peg2_find(g: Peg2Grammar, input: string) -> Peg2Result {
+    let ok_int: int = (nl_peg2_ffi_find g input)
+    let ok: bool = (== ok_int 1)
+    if ok {
+        let tree: Peg2Node = (peg2_read_node)
+        return Peg2Result { ok: true, tree: tree, error: "", error_pos: 0 }
+    } else {
+        let msg: string = (nl_peg2_ffi_last_error)
+        let pos: int    = (nl_peg2_ffi_last_error_pos)
+        let empty: Peg2Node = Peg2Node { rule_name: "", capture_name: "", start: 0, end: 0, child_count: 0 }
+        return Peg2Result { ok: false, tree: empty, error: msg, error_pos: pos }
+    }
+}
+
+shadow peg2_find {
+    let g = (peg2_compile "num <- [0-9]+")
+    let r = (peg2_find g "abc 42 xyz")
+    assert r.ok
+    assert (== r.tree.start 4)
+    assert (== r.tree.end 6)
+    (peg2_free g)
+}
+
+/*
+ * Quick boolean: does the grammar fully match this input?
+ * More efficient than peg2_parse when you only need a yes/no answer.
+ */
+pub fn peg2_matches(g: Peg2Grammar, input: string) -> bool {
+    let r: int = (nl_peg2_ffi_matches g input)
+    return (== r 1)
+}
+
+shadow peg2_matches {
+    let g = (peg2_compile "id <- [a-zA-Z_][a-zA-Z0-9_]*")
+    assert (peg2_matches g "hello")
+    assert (peg2_matches g "_x1")
+    assert (not (peg2_matches g "1bad"))
+    assert (not (peg2_matches g ""))
+    (peg2_free g)
+}
+
+/*
+ * Get the text matched by a parse tree node, given the original input string.
+ */
+pub fn peg2_text(node: Peg2Node, input: string) -> string {
+    return (str_slice input node.start node.end)
+}
+
+shadow peg2_text {
+    let g = (peg2_compile "word <- [a-z]+")
+    let r = (peg2_parse g "hello")
+    assert r.ok
+    assert (== (peg2_text r.tree "hello") "hello")
+    (peg2_free g)
+}
+
+/*
+ * One-shot: compile, parse, and return result. Grammar is freed after use.
+ * Convenient for quick one-off parses.
+ */
+pub fn peg2_parse_once(grammar_src: string, input: string) -> Peg2Result {
+    let g: Peg2Grammar = (peg2_compile grammar_src)
+    let r: Peg2Result  = (peg2_parse g input)
+    (peg2_free g)
+    return r
+}
+
+shadow peg2_parse_once {
+    let r = (peg2_parse_once "x <- \"hello\"" "hello")
+    assert r.ok
+    let r2 = (peg2_parse_once "x <- \"hello\"" "world")
+    assert (not r2.ok)
+}
+
+/*
+ * One-shot: compile, find first match, and return result. Grammar is freed after use.
+ */
+pub fn peg2_find_once(grammar_src: string, input: string) -> Peg2Result {
+    let g: Peg2Grammar = (peg2_compile grammar_src)
+    let r: Peg2Result  = (peg2_find g input)
+    (peg2_free g)
+    return r
+}
+
+shadow peg2_find_once {
+    let r = (peg2_find_once "n <- [0-9]+" "abc 99 def")
+    assert r.ok
+    assert (== r.tree.start 4)
+}
+
+/*
+ * One-shot: does this grammar match this input? Compiles and frees in one call.
+ */
+pub fn peg2_matches_once(grammar_src: string, input: string) -> bool {
+    let g: Peg2Grammar = (peg2_compile grammar_src)
+    let ok: bool = (peg2_matches g input)
+    (peg2_free g)
+    return ok
+}
+
+shadow peg2_matches_once {
+    assert (peg2_matches_once "x <- [0-9]+" "123")
+    assert (not (peg2_matches_once "x <- [0-9]+" "abc"))
+}

@@ -6365,10 +6365,68 @@ shadow lookup_func_return_type_in_parser {
     assert (== (lookup_func_return_type_in_parser p "nonexistent") "")
 }
 
+/* Check if any grammar literal (peg2_compile call) was used in the parsed AST.
+ * Returns 1 if found, 0 otherwise. */
+fn parser_uses_grammar_literal(parser: Parser) -> int {
+    let call_count: int = (parser_get_call_count parser)
+    let mut i: int = 0
+    while (< i call_count) {
+        let call: ASTCall = (parser_get_call parser i)
+        if (== call.function_name "peg2_compile") {
+            return 1
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow parser_uses_grammar_literal {
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0 "t.nano")
+    assert (== (parser_uses_grammar_literal p) 0)
+}
+
+/* Check if the peg2 module is already imported. */
+fn parser_has_peg2_import(parser: Parser) -> int {
+    let import_count: int = (parser_get_import_count parser)
+    let mut i: int = 0
+    while (< i import_count) {
+        let imp: ASTImport = (parser_get_import parser i)
+        if (str_contains imp.module_path "peg2") {
+            return 1
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow parser_has_peg2_import {
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0 "t.nano")
+    assert (== (parser_has_peg2_import p) 0)
+}
+
 pub fn transpile_parser(parser: Parser) -> string {
     (println "=== Code Generation (Full AST Walk) ===")
     (build_module_alias_map parser)
     (reset_fn_types)
+
+    /* C3: Grammar literal auto-import check.
+     * If grammar { } was used but peg2 is not imported, emit a helpful diagnostic. */
+    if (== (parser_uses_grammar_literal parser) 1) {
+        if (== (parser_has_peg2_import parser) 0) {
+            (println "error: grammar { } literal used without importing std/peg2.")
+            (println "  Add: import \"modules/std/peg2/peg2.nano\"")
+        } else {
+            (print "")
+        }
+    } else {
+        (print "")
+    }
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)

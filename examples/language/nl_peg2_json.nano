@@ -1,0 +1,57 @@
+/*
+ * nl_peg2_json.nano — Validate JSON structure using peg2
+ *
+ * Demonstrates a real-world grammar: JSON structural validation.
+ * This shows the full power of peg2:
+ *   - Mutual recursion between rules (object → value → object)
+ *   - Named captures for field extraction
+ *   - Negative lookahead for string char exclusion
+ *   - Whitespace handling
+ */
+
+import "modules/std/peg2/peg2.nano"
+
+/* JSON grammar (structural validator — not a full semantic parser) */
+let json_grammar: string = "value <- ws (object / array / string / number / \"true\" / \"false\" / \"null\") ws\nobject <- \"{\" ws (pair (ws \",\" ws pair)*)? ws \"}\"\npair <- key:string ws \":\" ws val:value\narray <- \"[\" ws (value (ws \",\" ws value)*)? ws \"]\"\nstring <- \"\\\"\" (!\"\\\"\" (escape / .))* \"\\\"\"\nescape <- \"\\\\\" .\nnumber <- \"-\"? ([1-9] [0-9]* / \"0\") (\".\" [0-9]+)? (([eE] [\"+\"-] [0-9]+))?\nws <- [ \\t\\n\\r]*"
+
+fn validate_json(label: string, input: string) -> void {
+    let r: Peg2Result = (peg2_parse_once json_grammar input)
+    let status: string = if r.ok { "VALID" } else { (str_concat "INVALID: " r.error) }
+    print (str_concat "  " (str_concat label (str_concat " → " status)))
+}
+
+fn main() -> void {
+    print "=== peg2 JSON Validator ==="
+    print "\n--- Valid JSON ---"
+    (validate_json "null literal"     "null")
+    (validate_json "bool true"        "true")
+    (validate_json "integer"          "42")
+    (validate_json "float"            "-3.14")
+    (validate_json "empty string"     "\"\"")
+    (validate_json "string"           "\"hello world\"")
+    (validate_json "empty array"      "[]")
+    (validate_json "array"            "[1, 2, 3]")
+    (validate_json "empty object"     "{}")
+    (validate_json "simple object"    "{\"key\": \"value\"}")
+    (validate_json "nested"           "{\"a\": [1, {\"b\": true}], \"c\": null}")
+
+    print "\n--- Invalid JSON ---"
+    (validate_json "bare word"        "hello")
+    (validate_json "single quotes"    "'string'")
+    (validate_json "trailing comma"   "[1, 2,]")
+    (validate_json "missing value"    "{\"key\":}")
+    (validate_json "unquoted key"     "{key: 1}")
+
+    print "\n--- Named Captures Demo ---"
+    /* Use peg2_find to locate a number anywhere in mixed text */
+    let num_g: Peg2Grammar = (peg2_compile "num <- n:[\"-\"\"0\"-\"9\"]+ (\".\" [0-9]+)?")
+    let text: string = "Error: timeout after 30 seconds, retry 5 times"
+    let r: Peg2Result = (peg2_find num_g text)
+    if r.ok {
+        print (str_concat "  First number in text: '" (str_concat (peg2_text r.tree text) "'"))
+        print (str_concat "  Position: " (str_concat (int_to_str r.tree.start) (str_concat "-" (int_to_str r.tree.end))))
+    }
+    (peg2_free num_g)
+
+    print "\nDone."
+}

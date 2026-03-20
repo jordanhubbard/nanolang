@@ -1,0 +1,57 @@
+/*
+ * nl_peg2_expr.nano — Parse arithmetic expressions using peg2
+ *
+ * Demonstrates a classic recursive PEG grammar for arithmetic:
+ *   expr   <- term (("+" / "-") term)*
+ *   term   <- factor (("*" / "/") factor)*
+ *   factor <- "(" expr ")" / number
+ *   number <- "-"? [0-9]+ ("." [0-9]+)?
+ *   ws     <- [ \t]*
+ *
+ * This showcases:
+ *   - Iterative operator precedence (avoiding left recursion)
+ *   - Optional whitespace rule
+ *   - Nested grouping via parentheses
+ */
+
+import "modules/std/peg2/peg2.nano"
+
+let expr_grammar: string = "expr <- ws term (ws (\"+\" / \"-\") ws term)* ws\nterm <- factor (ws (\"*\" / \"/\") ws factor)*\nfactor <- \"(\" ws expr ws \")\" / number\nnumber <- \"-\"? [0-9]+ (\".\" [0-9]+)?\nws <- [ \\t]*"
+
+fn try_parse(input: string) -> void {
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+    let r: Peg2Result = (peg2_parse g input)
+    if r.ok {
+        print (str_concat "  ✓ " (str_concat input (str_concat " → span [" (str_concat (int_to_str r.tree.start) (str_concat "," (str_concat (int_to_str r.tree.end) "]"))))))
+    } else {
+        print (str_concat "  ✗ " (str_concat input (str_concat " → " r.error)))
+    }
+    (peg2_free g)
+}
+
+fn demo_validation() -> void {
+    print "\n--- Expression Validation ---"
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+
+    let inputs: array<string> = ["1 + 2", "3 * (4 + 5)", "-7.5 / 2.0", "((1+2)*3)", "1 + * 2", "(unclosed"]
+    let i: int = 0
+    while (< i 6) {
+        let input: string = inputs[i]
+        let ok: bool = (peg2_matches g input)
+        print (str_concat "  " (str_concat input (str_concat ": " (if ok { "valid" } else { "invalid" }))))
+        set i (+ i 1)
+    }
+
+    (peg2_free g)
+}
+
+fn main() -> void {
+    print "=== peg2 Arithmetic Expression Parser ==="
+    (try_parse "1 + 2")
+    (try_parse "3 * (4 + 5)")
+    (try_parse "-7.5 / 2.0")
+    (try_parse "((1 + 2) * (3 - 4))")
+    (try_parse "bad * * input")
+    (demo_validation)
+    print "\nDone."
+}

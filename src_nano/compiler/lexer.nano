@@ -192,6 +192,17 @@ shadow keyword_group4 {
     assert (== (keyword_group4 "unknown") (- 0 1))
 }
 
+fn keyword_group5(s: string) -> int {
+    if (== s "grammar") { return LexerTokenType.TOKEN_GRAMMAR } else {
+        return -1
+    }
+}
+
+shadow keyword_group5 {
+    assert (== (keyword_group5 "grammar") 75)  /* TOKEN_GRAMMAR */
+    assert (== (keyword_group5 "unknown") (- 0 1))
+}
+
 fn keyword_or_identifier(s: string) -> int {
     let t1: int = (keyword_group1 s)
     if (!= t1 -1) {
@@ -209,7 +220,12 @@ fn keyword_or_identifier(s: string) -> int {
                 if (!= t4 -1) {
                     return t4
                 } else {
-                    return LexerTokenType.TOKEN_IDENTIFIER
+                    let t5: int = (keyword_group5 s)
+                    if (!= t5 -1) {
+                        return t5
+                    } else {
+                        return LexerTokenType.TOKEN_IDENTIFIER
+                    }
                 }
             }
         }
@@ -217,10 +233,11 @@ fn keyword_or_identifier(s: string) -> int {
 }
 
 shadow keyword_or_identifier {
-    assert (== (keyword_or_identifier "fn") 24)     /* keyword from group2 */
-    assert (== (keyword_or_identifier "int") 50)    /* keyword from group3 */
-    assert (== (keyword_or_identifier "and") 68)    /* keyword from group4 */
-    assert (== (keyword_or_identifier "myvar") 4)   /* TOKEN_IDENTIFIER */
+    assert (== (keyword_or_identifier "fn") 24)      /* keyword from group2 */
+    assert (== (keyword_or_identifier "int") 50)     /* keyword from group3 */
+    assert (== (keyword_or_identifier "and") 68)     /* keyword from group4 */
+    assert (== (keyword_or_identifier "grammar") 75) /* keyword from group5 */
+    assert (== (keyword_or_identifier "myvar") 4)    /* TOKEN_IDENTIFIER */
 }
 
 fn push_tok(tokens: List<LexerToken>, token_type: int, value: string, line: int, column: int) -> void {
@@ -306,6 +323,58 @@ shadow process_number {
     assert (== tok.token_type 1)  /* TOKEN_NUMBER */
 }
 
+/* Read the body of a grammar { ... } block as a raw string token.
+ * Called after the 'grammar' keyword token has been emitted.
+ * Skips whitespace, expects '{', reads raw text until the matching '}',
+ * and emits it as TOKEN_STRING. Returns the position after the closing '}'. */
+fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = i
+    /* Skip whitespace before '{' */
+    while (and (< pos len) (is_whitespace_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+    /* Must be '{' (ASCII 123) */
+    if (or (>= pos len) (!= (char_at source pos) 123)) {
+        return i  /* No brace — leave caller to handle the error */
+    } else {
+        (print "")
+    }
+    set pos (+ pos 1)  /* consume '{' */
+    let body_start: int = pos
+    let mut depth: int = 1
+    while (and (< pos len) (> depth 0)) {
+        let c: int = (char_at source pos)
+        if (== c 123) {
+            set depth (+ depth 1)
+        } else {
+            if (== c 125) {
+                set depth (- depth 1)
+            } else {
+                (print "")
+            }
+        }
+        if (> depth 0) {
+            set pos (+ pos 1)
+        }
+    }
+    /* Extract body (excludes the closing '}') */
+    let body_len: int = (- pos body_start)
+    let body: string = (str_substring source body_start body_len)
+    (push_tok tokens LexerTokenType.TOKEN_STRING body line column)
+    return (+ pos 1)  /* advance past '}' */
+}
+
+shadow process_grammar_body {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    /* Simulate source positioned just after 'grammar', pointing at ' { rule <- "x" }' */
+    let src: string = " { rule <- \"x\" }"
+    let new_pos: int = (process_grammar_body src 0 16 tokens 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 3)  /* TOKEN_STRING */
+    assert (== new_pos 16)
+}
+
 fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
@@ -316,7 +385,12 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>
     let id_value: string = (str_substring source start id_length)
     let token_type: int = (keyword_or_identifier id_value)
     (push_tok tokens token_type id_value line column)
-    return pos
+    /* Special case: grammar keyword — immediately read { body } as a raw string */
+    if (== token_type LexerTokenType.TOKEN_GRAMMAR) {
+        return (process_grammar_body source pos len tokens line column)
+    } else {
+        return pos
+    }
 }
 
 shadow process_identifier {
@@ -327,6 +401,19 @@ shadow process_identifier {
     assert (== (list_LexerToken_length tokens) 1)
     let tok: LexerToken = (list_LexerToken_get tokens 0)
     assert (== tok.token_type 4)  /* TOKEN_IDENTIFIER */
+}
+
+shadow process_identifier {
+    /* Test grammar keyword reads body */
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "grammar { rule <- \"x\" }"
+    let new_pos: int = (process_identifier src 0 23 tokens 1 1)
+    assert (== (list_LexerToken_length tokens) 2)  /* TOKEN_GRAMMAR + TOKEN_STRING */
+    let t0: LexerToken = (list_LexerToken_get tokens 0)
+    let t1: LexerToken = (list_LexerToken_get tokens 1)
+    assert (== t0.token_type 75)  /* TOKEN_GRAMMAR */
+    assert (== t1.token_type 3)   /* TOKEN_STRING with body */
+    assert (== new_pos 23)
 }
 
 fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
@@ -638,6 +725,11 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                         (push_tok tokens LexerTokenType.TOKEN_PIPE "" line column)
                         set i (+ i 2)
                     } else {
+                    /* PEG rule arrow: <- (ASCII 60, 45) */
+                    if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 45))) {
+                        (push_tok tokens LexerTokenType.TOKEN_LARROW "" line column)
+                        set i (+ i 2)
+                    } else {
                         /* Single '=' assignment (but not '==', '=>') */
                         if (== c 61) {
                             (push_tok tokens LexerTokenType.TOKEN_ASSIGN "" line column)
@@ -764,7 +856,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                 set i new_pos
                             }
                         }
-                    }}}}}}}}
+                    }}}}}}}}}
                 }
             }
         }
