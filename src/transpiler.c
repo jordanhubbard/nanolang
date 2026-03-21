@@ -885,6 +885,7 @@ static const char *get_c_func_name(const char *nano_name) {
 
 /* Global context for the iterative transpiler */
 ASTNode *g_current_function = NULL;
+const char *g_source_file_for_line_directives = NULL;
 
 #include "transpiler_iterative_v3_twopass.c"
 
@@ -4158,6 +4159,8 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             if (strncmp(func_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) break; \
             if (strncmp(func_name, "curl_", 5) == 0 && module_headers_contain("curl")) break; \
             if (strncmp(func_name, "glfw", 4) == 0 && module_headers_contain("glfw")) break; \
+            if (strncmp(func_name, "nl_queue_", 9) == 0 && module_headers_contain("dispatch.h")) break; \
+            if (strncmp(func_name, "nl_group_", 9) == 0 && module_headers_contain("dispatch.h")) break; \
         } \
         \
         sb_append(sb, "extern "); \
@@ -4258,6 +4261,10 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                 } else { \
                     sb_append(sb, "void*"); \
                 } \
+            } else if ((_params)[j].type == TYPE_FUNCTION) { \
+                /* Function pointer param: emit void(*name)(void) to avoid implicit-int */ \
+                sb_appendf(sb, "void (*%s)(void)", (_params)[j].name); \
+                continue; \
             } else { \
                 sb_append(sb, type_to_c((_params)[j].type)); \
             } \
@@ -4296,6 +4303,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
         fprintf(stderr, "Error: Environment is NULL in transpile_to_c\n");
         return NULL;
     }
+
+    /* Set source file for #line directive emission */
+    g_source_file_for_line_directives = input_file;
 
     /* Clear and collect headers from imported modules */
     collect_module_headers_from_imports(program);

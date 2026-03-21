@@ -4598,10 +4598,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 if (parsed && parsed->type == AST_UNION_DEF) {
                     parsed->as.union_def.is_pub = is_pub;
                 }
+            } else if (match(&parser, TOKEN_OPAQUE)) {
+                /* pub opaque type — same as opaque type, just public */
+                parsed = parse_opaque_type(&parser);
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, or use\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, use, or opaque\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;

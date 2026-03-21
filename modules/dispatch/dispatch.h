@@ -1,68 +1,70 @@
 /* dispatch.h — NanoLang dispatch module C API
  *
- * Thin wrappers over libdispatch. Exposed to NanoLang via dispatch.nano opaque types.
- * All handles are malloc'd structs containing a single dispatch_queue_t / dispatch_group_t.
+ * Thin wrappers over libdispatch. Exposed to NanoLang via opaque types.
+ * All callback parameters use C function pointer type `void (*)(void)` so
+ * that NanoLang's generated `FnType_N` typedefs (which are C function
+ * pointers) can be passed directly without any Blocks extension on the
+ * caller side.  dispatch.c wraps them in Clang Blocks before handing off
+ * to the GCD API (requires -fblocks, macOS/Linux libdispatch).
  */
 #ifndef NL_DISPATCH_H
 #define NL_DISPATCH_H
 
-#ifdef __APPLE__
-#  include <dispatch/dispatch.h>
-#else
-#  include <dispatch/dispatch.h>
-#endif
 #include <stdint.h>
+
+/* NanoLang opaque type typedefs — must match transpiler.nano's is_opaque_type list */
+#ifndef NL_DISPATCH_TYPES_DECLARED
+#define NL_DISPATCH_TYPES_DECLARED
+typedef void* NlQueue;
+typedef void* NlQueueGroup;
+#endif
+
+/* C function pointer type used for all callbacks */
+typedef void (*nl_dispatch_fn)(void);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* ---------- Opaque handles ---------- */
-
-typedef struct { dispatch_queue_t q; }  NlQueue;
-typedef struct { dispatch_group_t g; }  NlQueueGroup;
-
 /* ---------- Queue lifecycle ---------- */
 
 /** Create a serial queue (FIFO, one task at a time). */
-NlQueue* nl_queue_serial(const char* label);
+void* nl_queue_serial(const char* label);
 
 /** Create a concurrent queue (tasks may run in parallel). */
-NlQueue* nl_queue_concurrent(const char* label);
+void* nl_queue_concurrent(const char* label);
 
-/** Destroy (drain + release) a queue created with nl_queue_serial/concurrent.
- *  Must not be called from inside a block submitted to this queue. */
-void nl_queue_destroy(NlQueue* q);
+/** Destroy (drain + release) a queue. */
+void nl_queue_destroy(void* q);
 
 /* ---------- Dispatch primitives ---------- */
 
-/** Enqueue a no-arg NanoLang callback (void fn(void*) / block) asynchronously.
- *  The NanoLang transpiler calls this with a Clang block: ^{ ... }            */
-void nl_queue_async(NlQueue* q, dispatch_block_t blk);
+/** Enqueue fn asynchronously (fire-and-forget). */
+void nl_queue_async(void* q, nl_dispatch_fn fn);
 
-/** Enqueue synchronously — blocks caller until block completes. */
-void nl_queue_sync(NlQueue* q, dispatch_block_t blk);
+/** Enqueue fn synchronously — blocks caller until fn completes. */
+void nl_queue_sync(void* q, nl_dispatch_fn fn);
 
-/** Enqueue a barrier async: waits for all prior items, runs alone, then lets later items proceed. */
-void nl_queue_barrier_async(NlQueue* q, dispatch_block_t blk);
+/** Enqueue a barrier async. */
+void nl_queue_barrier_async(void* q, nl_dispatch_fn fn);
 
 /** Enqueue after a delay (nanoseconds). */
-void nl_queue_after_ns(NlQueue* q, int64_t ns, dispatch_block_t blk);
+void nl_queue_after_ns(void* q, int64_t ns, nl_dispatch_fn fn);
 
 /* ---------- Group operations ---------- */
 
-NlQueueGroup* nl_group_create(void);
-void          nl_group_destroy(NlQueueGroup* g);
+void* nl_group_create(void);
+void  nl_group_destroy(void* g);
 
-/** Submit blk to q, tracked by group g. */
-void nl_group_async(NlQueueGroup* g, NlQueue* q, dispatch_block_t blk);
+/** Submit fn to q, tracked by group g. */
+void nl_group_async(void* g, void* q, nl_dispatch_fn fn);
 
-/** Run blk on q when all tasks in group have completed. */
-void nl_group_notify(NlQueueGroup* g, NlQueue* q, dispatch_block_t blk);
+/** Run fn on q when all tasks in group have completed. */
+void nl_group_notify(void* g, void* q, nl_dispatch_fn fn);
 
 /** Block caller until all tasks in group complete (or timeout_ns elapses).
  *  Returns 0 on success, non-zero on timeout. */
-int nl_group_wait_ns(NlQueueGroup* g, int64_t timeout_ns);
+int nl_group_wait_ns(void* g, int64_t timeout_ns);
 
 #ifdef __cplusplus
 }

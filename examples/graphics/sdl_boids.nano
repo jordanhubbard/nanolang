@@ -1,9 +1,9 @@
-# Example: Boids Flocking Simulation
-# Purpose: Visual flocking simulation demonstrating emergent behavior from simple steering rules
-# Features: structs, vector math, SDL graphics, modules, float arithmetic, arrays
+# Example: Boids Flocking Simulation (Parallel)
+# Purpose: Visual flocking simulation with parallel force computation via dispatch groups
+# Features: structs, vector math, SDL graphics, modules, dispatch parallelism, float arithmetic
 # Difficulty: Advanced
 # Category: graphics
-# Prerequisites: sdl_particles
+# Prerequisites: sdl_particles, nl_dispatch_counter
 # Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
@@ -11,34 +11,37 @@ unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 module "modules/ui_widgets/ui_widgets.nano"
+module "modules/dispatch/dispatch.nano"
 
 from "std/math/vector2d.nano" import vec_new, vec_length
-
-# === STRUCTS ===
-struct Boid {
-    x: float,
-    y: float,
-    vx: float,
-    vy: float
-}
 
 # === CONSTANTS ===
 let WINDOW_WIDTH: int = 800
 let WINDOW_HEIGHT: int = 600
 let NUM_BOIDS: int = 50
+let BOID_HALF: int = 25
 let BOID_SIZE: int = 3
 let MAX_SPEED: float = 100.0
-let PERCEPTION_RADIUS: float = 50.0
-let FPS: int = 60
-
-# Flocking behavior constants
 let VISUAL_RANGE: float = 75.0
 let MIN_DISTANCE: float = 20.0
-let COHESION_FACTOR: float = 0.005
-let SEPARATION_FACTOR: float = 0.05
-let ALIGNMENT_FACTOR: float = 0.05
 
-# === SIMPLIFIED BOID UPDATE (JUST WRAPPING FOR NOW) ===
+# === MODULE-LEVEL BOID STATE ===
+# Kept at module scope so named worker functions can access them without closure capture.
+
+let mut g_boid_x: array<float> = []
+let mut g_boid_y: array<float> = []
+let mut g_boid_vx: array<float> = []
+let mut g_boid_vy: array<float> = []
+# Output arrays written by parallel workers (each boid writes to its own slot)
+let mut g_new_vx: array<float> = []
+let mut g_new_vy: array<float> = []
+
+# Flocking parameters (updated by UI sliders each frame before the physics step)
+let mut g_cohesion: float = 0.005
+let mut g_separation: float = 0.05
+let mut g_alignment: float = 0.05
+
+# === HELPERS ===
 
 fn wrap_coord(val: float, max: float) -> float {
     return (cond
@@ -50,22 +53,140 @@ fn wrap_coord(val: float, max: float) -> float {
 
 shadow wrap_coord {
     assert (== (wrap_coord 50.0 100.0) 50.0)
-    let wrapped: float = (wrap_coord 150.0 100.0)
-    assert (< wrapped 1.0)
+    assert (< (wrap_coord 150.0 100.0) 1.0)
+    assert (> (wrap_coord -1.0 100.0) 99.0)
 }
 
-# === UI OVERLAY ===
+fn init_boid_arrays() -> void {
+    let mut i: int = 0
+    while (< i NUM_BOIDS) {
+        set g_boid_x (array_push g_boid_x 0.0)
+        set g_boid_y (array_push g_boid_y 0.0)
+        set g_boid_vx (array_push g_boid_vx 0.0)
+        set g_boid_vy (array_push g_boid_vy 0.0)
+        set g_new_vx (array_push g_new_vx 0.0)
+        set g_new_vy (array_push g_new_vy 0.0)
+        set i (+ i 1)
+    }
+}
+
+shadow init_boid_arrays {
+    (print "")
+}
+
+# === SINGLE-BOID FORCE COMPUTATION ===
+# Reads from g_boid_* (shared, read-only during flocking phase).
+# Writes to g_new_vx[i] and g_new_vy[i] (exclusive slot — no race).
+
+fn compute_boid_forces(i: int) -> void {
+    let x: float = (at g_boid_x i)
+    let y: float = (at g_boid_y i)
+    let vx: float = (at g_boid_vx i)
+    let vy: float = (at g_boid_vy i)
+
+    let mut separation_x: float = 0.0
+    let mut separation_y: float = 0.0
+    let mut neighbor_count: int = 0
+    let mut cohesion_x: float = 0.0
+    let mut cohesion_y: float = 0.0
+    let mut alignment_x: float = 0.0
+    let mut alignment_y: float = 0.0
+
+    let mut j: int = 0
+    while (< j NUM_BOIDS) {
+        if (!= i j) {
+            let other_x: float = (at g_boid_x j)
+            let other_y: float = (at g_boid_y j)
+            let dx: float = (- other_x x)
+            let dy: float = (- other_y y)
+            let dist: float = (vec_length (vec_new dx dy))
+
+            if (< dist VISUAL_RANGE) {
+                set cohesion_x (+ cohesion_x other_x)
+                set cohesion_y (+ cohesion_y other_y)
+                set alignment_x (+ alignment_x (at g_boid_vx j))
+                set alignment_y (+ alignment_y (at g_boid_vy j))
+                set neighbor_count (+ neighbor_count 1)
+            } else {}
+
+            if (< dist MIN_DISTANCE) {
+                set separation_x (- separation_x dx)
+                set separation_y (- separation_y dy)
+            } else {}
+        } else {}
+
+        set j (+ j 1)
+    }
+
+    let mut nvx: float = vx
+    let mut nvy: float = vy
+
+    if (> neighbor_count 0) {
+        let nc: float = (cast_float neighbor_count)
+        let avg_x: float = (/ cohesion_x nc)
+        let avg_y: float = (/ cohesion_y nc)
+        set nvx (+ nvx (* (- avg_x x) g_cohesion))
+        set nvy (+ nvy (* (- avg_y y) g_cohesion))
+
+        let avg_vx: float = (/ alignment_x nc)
+        let avg_vy: float = (/ alignment_y nc)
+        set nvx (+ nvx (* (- avg_vx vx) g_alignment))
+        set nvy (+ nvy (* (- avg_vy vy) g_alignment))
+    } else {}
+
+    set nvx (+ nvx (* separation_x g_separation))
+    set nvy (+ nvy (* separation_y g_separation))
+
+    let speed: float = (vec_length (vec_new nvx nvy))
+    if (> speed MAX_SPEED) {
+        let scale: float = (/ MAX_SPEED speed)
+        set nvx (* nvx scale)
+        set nvy (* nvy scale)
+    } else {}
+
+    (array_set g_new_vx i nvx)
+    (array_set g_new_vy i nvy)
+}
+
+shadow compute_boid_forces {
+    (print "")
+}
+
+# === PARALLEL WORKER FUNCTIONS ===
+# Each processes exactly half the boid array — no overlap, no races.
+
+fn compute_flocking_lower() -> void {
+    let mut i: int = 0
+    while (< i BOID_HALF) {
+        (compute_boid_forces i)
+        set i (+ i 1)
+    }
+}
+
+shadow compute_flocking_lower {
+    (print "")
+}
+
+fn compute_flocking_upper() -> void {
+    let mut i: int = BOID_HALF
+    while (< i NUM_BOIDS) {
+        (compute_boid_forces i)
+        set i (+ i 1)
+    }
+}
+
+shadow compute_flocking_upper {
+    (print "")
+}
+
+# === UI ===
 
 fn draw_ui_overlay(renderer: SDL_Renderer, font: TTF_Font, boid_count: int) -> void {
-    # Draw semi-transparent bar at bottom
-    (SDL_SetRenderDrawColor renderer 0 0 0 200) 
-    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30) 
-    
-    # Draw "Boids: XX" text
+    (SDL_SetRenderDrawColor renderer 0 0 0 200)
+    (nl_sdl_render_fill_rect renderer 0 (- WINDOW_HEIGHT 30) WINDOW_WIDTH 30)
     let boid_label: string = (+ "Boids: " (int_to_string boid_count))
-    (nl_draw_text_blended renderer font boid_label 10 (- WINDOW_HEIGHT 25) 100 200 100 255) 
-    
-    # Draw "ESC = Quit" text
+    (nl_draw_text_blended renderer font boid_label 10 (- WINDOW_HEIGHT 25) 100 200 100 255)
+    (nl_draw_text_blended renderer font "Parallel flocking (2 workers)" 160 (- WINDOW_HEIGHT 25) 160 160 255 255)
 }
 
 shadow draw_ui_overlay {
@@ -75,259 +196,146 @@ shadow draw_ui_overlay {
 # === MAIN ===
 
 fn main() -> int {
-    
     # Initialize SDL
-    (SDL_Init 32) 
-    
-    let window: SDL_Window = (SDL_CreateWindow "Nanolang Boids" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
+    (SDL_Init 32)
+
+    let window: SDL_Window = (SDL_CreateWindow "Nanolang Boids (Parallel)" 100 100 WINDOW_WIDTH WINDOW_HEIGHT 4)
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 2)
-    
+
     if (== renderer 0) {
         return 1
     } else {}
-    
-    # Initialize SDL_ttf
-    (TTF_Init) 
-    
-    # Load font
+
+    (TTF_Init)
     let font: TTF_Font = (nl_open_font_portable "Arial" 16)
     if (== font 0) {
-        (SDL_DestroyRenderer renderer) 
-        (SDL_DestroyWindow window) 
-        (SDL_Quit) 
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
         return 1
     } else {}
-    
+
     # Disable mouse motion events to prevent event queue flooding
-    # SDL_MOUSEMOTION = 0x400 = 1024
-    (SDL_EventState 1024 0) 
-    
-    # Initialize boids with random-ish positions - pre-allocate arrays
-    let mut boid_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    let mut boid_y: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    let mut boid_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    let mut boid_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+    (SDL_EventState 1024 0)
+
+    # Initialize module-level boid arrays
+    (init_boid_arrays)
+
+    # Set initial positions and velocities
     let mut i: int = 0
     while (< i NUM_BOIDS) {
         let i_f: float = (cast_float i)
-        let x: float = (+ 100.0 (* 10.0 i_f))
-        let y: float = (+ 100.0 (* 8.0 i_f))
-        
-        # Pseudo-random velocities
-        let mod5: float = (cast_float (% i 5))
-        let mod3: float = (cast_float (% i 3))
-        let vx: float = (- (* 20.0 mod5) 40.0)
-        let vy: float = (- (* 20.0 mod3) 30.0)
-        
-        (array_set boid_x i x)
-        (array_set boid_y i y)
-        (array_set boid_vx i vx)
-        (array_set boid_vy i vy)
-        
+        (array_set g_boid_x i (+ 100.0 (* 10.0 i_f)))
+        (array_set g_boid_y i (+ 100.0 (* 8.0 i_f)))
+        (array_set g_boid_vx i (- (* 20.0 (cast_float (% i 5))) 40.0))
+        (array_set g_boid_vy i (- (* 20.0 (cast_float (% i 3))) 30.0))
         set i (+ i 1)
     }
-    
-    # Main loop
+
+    # Set up dispatch infrastructure for parallel flocking
+    let q_compute: NlQueue = (queue_concurrent "nano.boids.compute")
+    let g_flock: NlQueueGroup = (group_create)
+
     let dt: float = 0.016
     let mut frame: int = 0
     let mut running: bool = true
-    
-    # Adjustable flocking parameters (sliders control these)
-    let mut cohesion_factor: float = 0.005
-    let mut separation_factor: float = 0.05
-    let mut alignment_factor: float = 0.05
-    
+
     while running {
-        # Handle events - keypress drains the event queue
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
             set running false
-        }
-        
-        # Note: nl_sdl_poll_keypress already handles SDL_QUIT by pushing it back
-        # But we still check for safety in case the queue wasn't empty
+        } else {}
+
         let quit: int = (nl_sdl_poll_event_quit)
         if (== quit 1) {
             set running false
-        }
-        
-        # Apply flocking rules - pre-allocate arrays
-        let mut new_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        let mut new_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        
+        } else {}
+
+        # === PARALLEL FLOCKING PHASE ===
+        # Fan out: two workers compute forces for lower/upper halves simultaneously.
+        # Safety: g_boid_x/y/vx/vy are read-only during this phase;
+        #         each worker writes to disjoint slots of g_new_vx/vy.
+        (group_async g_flock q_compute compute_flocking_lower)
+        (group_async g_flock q_compute compute_flocking_upper)
+
+        # Fan in: wait for both workers to finish
+        let wait_rc: int = (group_wait_ms g_flock 1000)
+        if (!= wait_rc 0) {
+            (println "WARN: flocking timeout")
+        } else {}
+
+        # Copy computed velocities back to g_boid_vx/vy
         set i 0
         while (< i NUM_BOIDS) {
-            let x: float = (at boid_x i)
-            let y: float = (at boid_y i)
-            let vx: float = (at boid_vx i)
-            let vy: float = (at boid_vy i)
-            
-            # Initialize accumulator forces (use variables to avoid false warnings)
-            let mut separation_x: float = 0.0
-            let mut separation_y: float = 0.0
-            let mut neighbor_count: int = 0
-            let mut cohesion_x: float = 0.0
-            let mut cohesion_y: float = 0.0
-            let mut alignment_x: float = 0.0
-            let mut alignment_y: float = 0.0
-            
-            # Check all other boids
-            let mut j: int = 0
-            while (< j NUM_BOIDS) {
-                if (!= i j) {
-                    let other_x: float = (at boid_x j)
-                    let other_y: float = (at boid_y j)
-                    let dx: float = (- other_x x)
-                    let dy: float = (- other_y y)
-                    let dist: float = (vec_length (vec_new dx dy))
-                    
-                    if (< dist VISUAL_RANGE) {
-                        # Cohesion: steer towards average position
-                        set cohesion_x (+ cohesion_x other_x)
-                        set cohesion_y (+ cohesion_y other_y)
-                        
-                        # Alignment: match velocity
-                        set alignment_x (+ alignment_x (at boid_vx j))
-                        set alignment_y (+ alignment_y (at boid_vy j))
-                        
-                        set neighbor_count (+ neighbor_count 1)
-                    } else {}
-                    
-                    # Separation: avoid crowding
-                    if (< dist MIN_DISTANCE) {
-                        set separation_x (- separation_x dx)
-                        set separation_y (- separation_y dy)
-                    } else {}
-                } else {}
-                
-                set j (+ j 1)
-            }
-            
-            # Apply cohesion
-            let mut new_vx_val: float = vx
-            let mut new_vy_val: float = vy
-            
-            if (> neighbor_count 0) {
-                let avg_x: float = (/ cohesion_x (cast_float neighbor_count))
-                let avg_y: float = (/ cohesion_y (cast_float neighbor_count))
-                set new_vx_val (+ new_vx_val (* (- avg_x x) cohesion_factor))
-                set new_vy_val (+ new_vy_val (* (- avg_y y) cohesion_factor))
-                
-                let avg_vx: float = (/ alignment_x (cast_float neighbor_count))
-                let avg_vy: float = (/ alignment_y (cast_float neighbor_count))
-                set new_vx_val (+ new_vx_val (* (- avg_vx vx) alignment_factor))
-                set new_vy_val (+ new_vy_val (* (- avg_vy vy) alignment_factor))
-            } else {}
-            
-            # Apply separation
-            set new_vx_val (+ new_vx_val (* separation_x separation_factor))
-            set new_vy_val (+ new_vy_val (* separation_y separation_factor))
-            
-            # Limit speed
-            let speed: float = (vec_length (vec_new new_vx_val new_vy_val))
-            if (> speed MAX_SPEED) {
-                let scale: float = (/ MAX_SPEED speed)
-                set new_vx_val (* new_vx_val scale)
-                set new_vy_val (* new_vy_val scale)
-            } else {}
-            
-            (array_set new_vx i new_vx_val)
-            (array_set new_vy i new_vy_val)
-            
+            (array_set g_boid_vx i (at g_new_vx i))
+            (array_set g_boid_vy i (at g_new_vy i))
             set i (+ i 1)
         }
-        
-        # Update velocities
-        set boid_vx new_vx
-        set boid_vy new_vy
-        
-        # Update positions - pre-allocate arrays
-        let mut new_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        let mut new_y: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        
+
+        # === SERIAL INTEGRATION PHASE (positions) ===
         set i 0
         while (< i NUM_BOIDS) {
-            let x: float = (at boid_x i)
-            let y: float = (at boid_y i)
-            let vx: float = (at boid_vx i)
-            let vy: float = (at boid_vy i)
-            
-            let mut new_x_val: float = (+ x (* vx dt))
-            let mut new_y_val: float = (+ y (* vy dt))
-            
-            # Wrap around screen
-            set new_x_val (wrap_coord new_x_val (cast_float WINDOW_WIDTH))
-            set new_y_val (wrap_coord new_y_val (cast_float WINDOW_HEIGHT))
-            
-            (array_set new_x i new_x_val)
-            (array_set new_y i new_y_val)
-            
+            let nx: float = (+ (at g_boid_x i) (* (at g_boid_vx i) dt))
+            let ny: float = (+ (at g_boid_y i) (* (at g_boid_vy i) dt))
+            (array_set g_boid_x i (wrap_coord nx (cast_float WINDOW_WIDTH)))
+            (array_set g_boid_y i (wrap_coord ny (cast_float WINDOW_HEIGHT)))
             set i (+ i 1)
         }
-        
-        set boid_x new_x
-        set boid_y new_y
-        
-        # Render
-        (SDL_SetRenderDrawColor renderer 10 10 30 255) 
-        (SDL_RenderClear renderer) 
-        
-        # Parameter sliders in a panel
-        (nl_ui_panel renderer 10 530 550 65 25 25 35 220) 
-        (nl_ui_label renderer font "Flocking Parameters" 20 535 150 200 255 255) 
-        
-        # Parameter sliders (bottom of screen) - scale 0.0-1.0 to parameter ranges
-        let cohesion_norm: float = (/ cohesion_factor 0.02)
+
+        # === RENDER PHASE (main thread — SDL is not thread-safe) ===
+        (SDL_SetRenderDrawColor renderer 10 10 30 255)
+        (SDL_RenderClear renderer)
+
+        # Parameter sliders
+        (nl_ui_panel renderer 10 530 550 65 25 25 35 220)
+        (nl_ui_label renderer font "Flocking Parameters" 20 535 150 200 255 255)
+
+        let cohesion_norm: float = (/ g_cohesion 0.02)
         let cohesion_slider: float = (nl_ui_slider renderer 20 565 150 20 cohesion_norm)
-        set cohesion_factor (* cohesion_slider 0.02)
-        (nl_ui_label renderer font "Cohesion" 20 548 200 200 200 255) 
-        
-        let separation_norm: float = (/ separation_factor 0.2)
+        set g_cohesion (* cohesion_slider 0.02)
+        (nl_ui_label renderer font "Cohesion" 20 548 200 200 200 255)
+
+        let separation_norm: float = (/ g_separation 0.2)
         let separation_slider: float = (nl_ui_slider renderer 200 565 150 20 separation_norm)
-        set separation_factor (* separation_slider 0.2)
-        (nl_ui_label renderer font "Separation" 200 548 200 200 200 255) 
-        
-        let alignment_norm: float = (/ alignment_factor 0.2)
+        set g_separation (* separation_slider 0.2)
+        (nl_ui_label renderer font "Separation" 200 548 200 200 200 255)
+
+        let alignment_norm: float = (/ g_alignment 0.2)
         let alignment_slider: float = (nl_ui_slider renderer 380 565 150 20 alignment_norm)
-        set alignment_factor (* alignment_slider 0.2)
-        (nl_ui_label renderer font "Alignment" 380 548 200 200 200 255) 
-        
+        set g_alignment (* alignment_slider 0.2)
+        (nl_ui_label renderer font "Alignment" 380 548 200 200 200 255)
+
         # Draw boids
-        (SDL_SetRenderDrawColor renderer 100 200 255 255) 
+        (SDL_SetRenderDrawColor renderer 100 200 255 255)
         set i 0
         while (< i NUM_BOIDS) {
-            let bx: int = (cast_int (at boid_x i))
-            let by: int = (cast_int (at boid_y i))
-            
-            (nl_sdl_render_fill_rect renderer bx by BOID_SIZE BOID_SIZE) 
-            
+            let bx: int = (cast_int (at g_boid_x i))
+            let by: int = (cast_int (at g_boid_y i))
+            (nl_sdl_render_fill_rect renderer bx by BOID_SIZE BOID_SIZE)
             set i (+ i 1)
         }
-        
-        # Draw UI overlay
+
         (draw_ui_overlay renderer font NUM_BOIDS)
-        
-        # Draw on-screen help
-        
-        (SDL_RenderPresent renderer) 
-        (SDL_Delay 16) 
-        
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+
         set frame (+ frame 1)
     }
-    
+
     (println "")
-    (println "✅ Simulation complete!")
+    (println "Simulation complete!")
     (print "Total frames: ")
     (println frame)
-    
+
     # Cleanup
-    (TTF_CloseFont font) 
-    (TTF_Quit) 
-    (SDL_DestroyRenderer renderer) 
-    (SDL_DestroyWindow window) 
-    (SDL_Quit) 
-    
+    (group_destroy g_flock)
+    (queue_destroy q_compute)
+    (TTF_CloseFont font)
+    (TTF_Quit)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+
     return 0
 }
 

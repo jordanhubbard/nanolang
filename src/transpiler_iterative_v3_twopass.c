@@ -19,6 +19,7 @@
  * ============================================================================ */
 
 extern ASTNode *g_current_function;  /* Current function being transpiled */
+extern const char *g_source_file_for_line_directives; /* Source file for #line directives */
 
 /* =========================================================================
  * GENERIC TYPE NAME HELPERS
@@ -2641,7 +2642,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             scope_stack_push(scopes);
 
             for (int i = 0; i < stmt->as.block.count; i++) {
-                build_stmt(list, scopes, stmt->as.block.statements[i], indent + 1, env, fn_registry);
+                ASTNode *child = stmt->as.block.statements[i];
+                if (g_source_file_for_line_directives && child && child->line > 0) {
+                    emit_formatted(list, "#line %d \"%s\"\n",
+                                   child->line, g_source_file_for_line_directives);
+                }
+                build_stmt(list, scopes, child, indent + 1, env, fn_registry);
             }
 
             /* Emit cleanup for variables in this scope */

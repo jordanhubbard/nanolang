@@ -2,6 +2,7 @@
   "name": "dispatch",
   "description": "Grand Central Dispatch (libdispatch) bindings — serial/concurrent queues, groups, async/sync dispatch",
   "version": "1.0.0",
+  "headers": ["dispatch.h"],
   "c_sources": ["dispatch.c"],
   "cflags": ["-fblocks", "-Imodules/dispatch"],
   "ldflags_macos": [],

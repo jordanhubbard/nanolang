@@ -104,12 +104,16 @@ fn is_opaque_type(name: string) -> bool {
     if (== name "TTF_Font") { return true } else { (print "") }
     if (== name "GLFWwindow") { return true } else { (print "") }
     if (== name "GLFWmonitor") { return true } else { (print "") }
+    if (== name "NlQueue") { return true } else { (print "") }
+    if (== name "NlQueueGroup") { return true } else { (print "") }
     return false
 }
 
 shadow is_opaque_type {
     assert (is_opaque_type "NLStringBuilder")
     assert (is_opaque_type "SDL_Window")
+    assert (is_opaque_type "NlQueue")
+    assert (is_opaque_type "NlQueueGroup")
     assert (not (is_opaque_type "int"))
     assert (not (is_opaque_type "Point"))
 }
@@ -2909,6 +2913,8 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "typedef void* HttpResponse;\n")
     set parts (cg_append parts "typedef void* HttpServer;\n")
     set parts (cg_append parts "typedef void* HttpRequest;\n")
+    set parts (cg_append parts "typedef void* NlQueue;\n")
+    set parts (cg_append parts "typedef void* NlQueueGroup;\n")
     /* SDL opaque type forward declarations (guarded against SDL header conflicts) */
     set parts (cg_append parts "#ifndef SDL_h_\n")
     set parts (cg_append parts "typedef void* SDL_Window;\n")
@@ -6046,6 +6052,77 @@ struct StmtGenResult {
     env: GenEnv
 }
 
+/* Extract the source line number from a statement reference.
+ * Dispatches on node_type to retrieve .line from the actual AST node.
+ * Returns 0 if the node type is unknown or has no line info. */
+fn get_stmt_line(parser: Parser, stmt: ASTStmtRef) -> int {
+    if (== stmt.node_type ParseNodeType.PNODE_LET) {
+        let n: ASTLet = (parser_get_let parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_SET) {
+        let n: ASTSet = (parser_get_set parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+        let n: ASTReturn = (parser_get_return parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_IF) {
+        let n: ASTIf = (parser_get_if parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+        let n: ASTWhile = (parser_get_while parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+        let n: ASTFor = (parser_get_for parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
+        let n: ASTAssert = (parser_get_assert parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_MATCH) {
+        let n: ASTMatch = (parser_get_match parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+        let n: ASTCall = (parser_get_call parser stmt.node_id)
+        return n.line
+    } else {
+    if (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser stmt.node_id)
+        return n.line
+    } else {
+        return 0
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+}
+
+shadow get_stmt_line {
+    let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt0: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let stmt1: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    let line0: int = (get_stmt_line p stmt0)
+    let line1: int = (get_stmt_line p stmt1)
+    assert (> line0 0)
+    assert (> line1 0)
+}
+
 fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv, return_type: string) -> StmtGenResult {
     if (== stmt.node_type ParseNodeType.PNODE_LET) {
         let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
@@ -6168,6 +6245,11 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
         let stmt_count: int = (list_ASTStmtRef_length block.statements)
         while (< i stmt_count) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            let line_num: int = (get_stmt_line parser stmt)
+            if (> line_num 0) {
+                let line_dir: string = (str_concat "#line " (str_concat (int_to_string line_num) (str_concat " \"" (str_concat parser.file_name "\"\n"))))
+                set parts (cg_append parts line_dir)
+            } else { (print "") }
             let res: StmtGenResult = (generate_statement parser stmt indent env_cur return_type)
             set parts (cg_append parts res.code)
             set env_cur res.env
