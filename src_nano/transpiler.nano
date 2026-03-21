@@ -1254,7 +1254,9 @@ shadow c_func_name_for_definition {
 
 struct GenEnv {
     names: array<string>,
-    types: array<string>
+    types: array<string>,
+    mut_flags: array<bool>,
+    scope: string
 }
 
 fn type_is_float(t: string) -> bool {
@@ -1891,28 +1893,34 @@ shadow is_extern_function {
     assert (is_extern_function p "foo")
 }
 
-fn genenv_new() -> GenEnv {
-    return GenEnv { names: [], types: [] }
+fn genenv_new(scope: string) -> GenEnv {
+    return GenEnv { names: [], types: [], mut_flags: [], scope: scope }
 }
 
 shadow genenv_new {
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "main")
     assert (== (array_length env.names) 0)
     assert (== (array_length env.types) 0)
+    assert (== (array_length env.mut_flags) 0)
+    assert (== env.scope "main")
 }
 
-fn genenv_put(env: GenEnv, name: string, t: string) -> GenEnv {
+fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
     let new_names: array<string> = (array_push env.names name)
     let new_types: array<string> = (array_push env.types t)
-    return GenEnv { names: new_names, types: new_types }
+    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
+    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, scope: env.scope }
 }
 
 shadow genenv_put {
-    let env: GenEnv = (genenv_new)
-    let env2: GenEnv = (genenv_put env "x" "int")
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "x" "int" false)
     assert (== (array_length env2.names) 1)
     assert (== (at env2.names 0) "x")
     assert (== (at env2.types 0) "int")
+    assert (== (at env2.mut_flags 0) false)
+    let env3: GenEnv = (genenv_put env2 "y" "int" true)
+    assert (== (at env3.mut_flags 1) true)
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -1928,12 +1936,33 @@ fn genenv_get(env: GenEnv, name: string) -> string {
 }
 
 shadow genenv_get {
-    let env: GenEnv = (genenv_new)
-    let env2: GenEnv = (genenv_put env "x" "int")
-    let env3: GenEnv = (genenv_put env2 "y" "bool")
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "x" "int" false)
+    let env3: GenEnv = (genenv_put env2 "y" "bool" false)
     assert (== (genenv_get env3 "x") "int")
     assert (== (genenv_get env3 "y") "bool")
     assert (== (genenv_get env3 "unknown") "")
+}
+
+fn genenv_get_mut(env: GenEnv, name: string) -> bool {
+    let mut i: int = (- (array_length env.names) 1)
+    while (>= i 0) {
+        if (== (at env.names i) name) {
+            return (at env.mut_flags i)
+        } else {
+            set i (- i 1)
+        }
+    }
+    return false
+}
+
+shadow genenv_get_mut {
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "x" "int" false)
+    let env3: GenEnv = (genenv_put env2 "counter" "int" true)
+    assert (== (genenv_get_mut env3 "counter") true)
+    assert (== (genenv_get_mut env3 "x") false)
+    assert (== (genenv_get_mut env3 "unknown") false)
 }
 
 fn is_array_type(t: string) -> bool {
@@ -2895,6 +2924,8 @@ fn gen_c_includes() -> string {
     /* These are always included since the modules are always linked */
     set parts (cg_append parts "#include \"fs.h\"\n")
     set parts (cg_append parts "#include \"process.h\"\n")
+    /* Auto-concurrency: guarded mutable variables use libdispatch */
+    set parts (cg_append parts "#include \"runtime/nano_dispatch.h\"\n")
     /* Forward declarations for cli.c functions not covered by a header */
     set parts (cg_append parts "extern int64_t nl_os_unsetenv(const char* name);\n")
     set parts (cg_append parts "\n")
@@ -4066,8 +4097,22 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            /* Prefix with nl_ for nanolang identifiers */
-            return (+ "nl_" (mangle_name id.name))
+            let c_var: string = (+ "nl_" (mangle_name id.name))
+            /* If the variable is mut, reads must go through NL_GUARDED_READ */
+            if (genenv_get_mut env id.name) {
+                let var_t: string = (genenv_get env id.name)
+                let c_t: string = (type_to_c var_t)
+                let mut rparts: array<string> = []
+                set rparts (cg_append rparts "NL_GUARDED_READ(")
+                set rparts (cg_append rparts c_var)
+                set rparts (cg_append rparts ", ")
+                set rparts (cg_append rparts c_t)
+                set rparts (cg_append rparts ")")
+                return (cg_build rparts)
+            } else {
+                /* Prefix with nl_ for nanolang identifiers */
+                return c_var
+            }
         } else {
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
@@ -5257,7 +5302,7 @@ shadow generate_expression {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_expression p ret.value ret.value_type env "int")
     assert (== code "42")
 }
@@ -5295,7 +5340,7 @@ shadow generate_return_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_return_stmt p ret 0 env "int")
     assert (== code "return 42;\n")
 }
@@ -5309,30 +5354,83 @@ shadow generate_return_stmt {
  * 
  * Returns: C code for variable declaration with initialization
  */
+/* Map a NanoLang type to its NlGuarded_* C struct name */
+fn guarded_type_name(nano_type: string) -> string {
+    if (== nano_type "int") { return "NlGuarded_int" } else { (print "") }
+    if (== nano_type "float") { return "NlGuarded_float" } else { (print "") }
+    if (== nano_type "bool") { return "NlGuarded_bool" } else { (print "") }
+    if (== nano_type "string") { return "NlGuarded_str" } else { (print "") }
+    /* Struct/opaque: NlGuarded_<mangled_typename> */
+    let mut parts: array<string> = []
+    set parts (cg_append parts "NlGuarded_")
+    set parts (cg_append parts (mangle_name nano_type))
+    return (cg_build parts)
+}
+
+shadow guarded_type_name {
+    assert (== (guarded_type_name "int") "NlGuarded_int")
+    assert (== (guarded_type_name "float") "NlGuarded_float")
+    assert (== (guarded_type_name "bool") "NlGuarded_bool")
+    assert (== (guarded_type_name "string") "NlGuarded_str")
+    assert (== (guarded_type_name "MyStruct") "NlGuarded_MyStruct")
+}
+
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
 
-    let c_type: string = (type_to_c let_stmt.var_type)
-    set parts (cg_append parts c_type)
-    set parts (cg_append parts " ")
-    
-    /* Add variable name with nl_ prefix */
-    set parts (cg_append parts "nl_")
-    set parts (cg_append parts (mangle_name let_stmt.name))
-    set parts (cg_append parts " = ")
-    
-    /* Generate initialization expression */
-    if (< let_stmt.value 0) {
-        /* No initialization - use default */
-        set parts (cg_append parts "0")
+    if let_stmt.is_mut {
+        /* Mutable variable: emit NlGuarded_<type> with NL_GUARDED_INIT */
+        let guarded_t: string = (guarded_type_name let_stmt.var_type)
+        let c_var: string = (+ "nl_" (mangle_name let_stmt.name))
+        /* Build queue name: "nano.<scope>.<varname>" */
+        let mut qname_parts: array<string> = []
+        set qname_parts (cg_append qname_parts "\"nano.")
+        set qname_parts (cg_append qname_parts env.scope)
+        set qname_parts (cg_append qname_parts ".")
+        set qname_parts (cg_append qname_parts let_stmt.name)
+        set qname_parts (cg_append qname_parts "\"")
+        let q_name_lit: string = (cg_build qname_parts)
+        /* Emit: NlGuarded_int nl_x; NL_GUARDED_INIT(nl_x, "nano.main.x", <expr>); */
+        set parts (cg_append parts guarded_t)
+        set parts (cg_append parts " ")
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts ";\n")
+        set parts (cg_append parts (gen_indent indent))
+        set parts (cg_append parts "NL_GUARDED_INIT(")
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts ", ")
+        set parts (cg_append parts q_name_lit)
+        set parts (cg_append parts ", ")
+        if (< let_stmt.value 0) {
+            set parts (cg_append parts "0")
+        } else {
+            let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
+            set parts (cg_append parts expr_code)
+        }
+        set parts (cg_append parts ");\n")
     } else {
-        /* Generate expression */
-        let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-        set parts (cg_append parts expr_code)
+        let c_type: string = (type_to_c let_stmt.var_type)
+        set parts (cg_append parts c_type)
+        set parts (cg_append parts " ")
+
+        /* Add variable name with nl_ prefix */
+        set parts (cg_append parts "nl_")
+        set parts (cg_append parts (mangle_name let_stmt.name))
+        set parts (cg_append parts " = ")
+
+        /* Generate initialization expression */
+        if (< let_stmt.value 0) {
+            /* No initialization - use default */
+            set parts (cg_append parts "0")
+        } else {
+            /* Generate expression */
+            let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
+            set parts (cg_append parts expr_code)
+        }
+
+        set parts (cg_append parts ";\n")
     }
-    
-    set parts (cg_append parts ";\n")
     return (cg_build parts)
 }
 
@@ -5341,7 +5439,7 @@ shadow generate_let_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let l: ASTLet = (parser_get_let p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_let_stmt p l 0 env)
     assert (== code "int64_t nl_x = 1;\n")
 }
@@ -5361,7 +5459,7 @@ shadow generate_assert_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let a: ASTAssert = (parser_get_assert p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_assert_stmt p a 0 env)
     assert (== code "assert(1);\n")
 }
@@ -5461,7 +5559,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             set type_name_parts (cg_append type_name_parts union_name)
             set type_name_parts (cg_append type_name_parts ".")
             set type_name_parts (cg_append type_name_parts variant)
-            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
+            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts) false)
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 /* Block bodies in expression match aren't supported here; assume they return */
@@ -5487,7 +5585,7 @@ shadow generate_match_expr {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
-    let env0: GenEnv = (genenv_put (genenv_new) "x" "Option")
+    let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
     let code: string = (generate_match_expr p m env0 "int")
     assert (str_contains code "switch")
 }
@@ -5592,7 +5690,7 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
             set type_name_parts (cg_append type_name_parts union_name)
             set type_name_parts (cg_append type_name_parts ".")
             set type_name_parts (cg_append type_name_parts variant)
-            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts))
+            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts) false)
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 set parts (cg_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
@@ -5624,7 +5722,7 @@ shadow generate_match_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
-    let env0: GenEnv = (genenv_put (genenv_new) "x" "Option")
+    let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
     let code: string = (generate_match_stmt p m 0 env0 "int")
     assert (str_contains code "switch")
 }
@@ -5638,7 +5736,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
     if (== stmt.node_type ParseNodeType.PNODE_LET) {
         let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
         let code: string = (generate_let_stmt parser let_stmt indent env)
-        let env2: GenEnv = (genenv_put env let_stmt.name let_stmt.var_type)
+        let env2: GenEnv = (genenv_put env let_stmt.name let_stmt.var_type let_stmt.is_mut)
         return StmtGenResult { code: code, env: env2 }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_SET) {
@@ -5739,7 +5837,7 @@ shadow generate_statement {
     let func: ASTFunction = (parser_get_function p 0)
     let block: ASTBlock = (parser_get_block p func.body)
     let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let res: StmtGenResult = (generate_statement p stmt 0 env "int")
     assert (str_contains res.code "nl_x")
     assert (== (genenv_get res.env "x") "int")
@@ -5770,7 +5868,7 @@ shadow generate_block {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_block p func.body 0 env "int")
     assert (str_contains code "return")
 }
@@ -5787,18 +5885,27 @@ shadow generate_block {
 fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv) -> string {
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
-    
-    /* Add target variable with nl_ prefix */
-    set parts (cg_append parts "nl_")
-    set parts (cg_append parts (mangle_name set_stmt.target))
-    set parts (cg_append parts " = ")
-    
-    /* Generate value expression */
+
     let target_t: string = (genenv_get env set_stmt.target)
-    let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-    set parts (cg_append parts expr_code)
-    
-    set parts (cg_append parts ";\n")
+    let is_mut_target: bool = (genenv_get_mut env set_stmt.target)
+    let c_var: string = (+ "nl_" (mangle_name set_stmt.target))
+
+    if is_mut_target {
+        /* Mutable target: enqueue write via NL_GUARDED_WRITE */
+        let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
+        set parts (cg_append parts "NL_GUARDED_WRITE(")
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts ", ")
+        set parts (cg_append parts expr_code)
+        set parts (cg_append parts ");\n")
+    } else {
+        /* Immutable (by convention non-mut) direct assignment */
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts " = ")
+        let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
+        set parts (cg_append parts expr_code)
+        set parts (cg_append parts ";\n")
+    }
     return (cg_build parts)
 }
 
@@ -5807,9 +5914,14 @@ shadow generate_set_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let s: ASTSet = (parser_get_set p 0)
-    let env: GenEnv = (genenv_put (genenv_new) "x" "int")
+    /* Non-mut x: expect direct assignment */
+    let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
     let code: string = (generate_set_stmt p s 0 env)
     assert (== code "nl_x = 2;\n")
+    /* Mut x: expect NL_GUARDED_WRITE */
+    let env_mut: GenEnv = (genenv_put (genenv_new "test") "x" "int" true)
+    let code_mut: string = (generate_set_stmt p s 0 env_mut)
+    assert (str_contains code_mut "NL_GUARDED_WRITE")
 }
 
 /* Generate C code for an if statement
@@ -5854,7 +5966,7 @@ shadow generate_if_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let if_stmt: ASTIf = (parser_get_if p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_if_stmt p if_stmt 0 env "int")
     assert (str_contains code "if (1)")
     assert (str_contains code "else")
@@ -5884,7 +5996,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
             set parts (cg_append parts "; ")
             set parts (cg_append parts c_var)
             set parts (cg_append parts "++) {\n")
-            let body_env: GenEnv = (genenv_put env for_stmt.var_name "int")
+            let body_env: GenEnv = (genenv_put env for_stmt.var_name "int" false)
             set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 1) body_env return_type))
             set parts (cg_append parts (gen_indent indent))
             set parts (cg_append parts "}\n")
@@ -5953,7 +6065,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
                 set parts (cg_append parts "_get(__nl_lst, __nl_idx);\n")
             }
             }
-            let body_env: GenEnv = (genenv_put env for_stmt.var_name elem_name)
+            let body_env: GenEnv = (genenv_put env for_stmt.var_name elem_name false)
             set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 2) body_env return_type))
             set parts (cg_append parts (gen_indent (+ indent 1)))
             set parts (cg_append parts "}\n")
@@ -6003,7 +6115,7 @@ shadow generate_while_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let w: ASTWhile = (parser_get_while p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_while_stmt p w 0 env "int")
     assert (str_contains code "while (1)")
 }
@@ -6116,7 +6228,7 @@ shadow generate_block_tail_return {
     let toks: List<LexerToken> = (tokenize_string src)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
-    let env: GenEnv = (genenv_put (genenv_new) "x" "int")
+    let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
     let code: string = (generate_block_tail_return p func.body 1 env "int")
     assert (str_contains code "return")
 }
@@ -6136,7 +6248,7 @@ shadow generate_function_body {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
-    let env: GenEnv = (genenv_new)
+    let env: GenEnv = (genenv_new "test")
     let code: string = (generate_function_body p func.body env "int")
     assert (str_contains code "return")
     /* Test: implicit return — last expression used as return value */
@@ -6144,7 +6256,7 @@ shadow generate_function_body {
     let toks2: List<LexerToken> = (tokenize_string source2)
     let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
     let func2: ASTFunction = (parser_get_function p2 0)
-    let env2: GenEnv = (genenv_put (genenv_new) "x" "int")
+    let env2: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
     let code2: string = (generate_function_body p2 func2.body env2 "int")
     assert (str_contains code2 "return")
 }
@@ -6437,13 +6549,13 @@ pub fn transpile_parser(parser: Parser) -> string {
     let _reg: int = (register_extern_names parser)
     
     /* Precompute top-level env once (not per function) */
-    let mut global_env: GenEnv = (genenv_new)
+    let mut global_env: GenEnv = (genenv_new "global")
     let all_lets: int = (parser_get_let_count parser)
     let mut gi: int = 0
     while (< gi all_lets) {
         let glet: ASTLet = (parser_get_let parser gi)
         if (not (is_let_in_function parser gi)) {
-            set global_env (genenv_put global_env glet.name glet.var_type)
+            set global_env (genenv_put global_env glet.name glet.var_type glet.is_mut)
         } else { (print "") }
         set gi (+ gi 1)
     }
@@ -6486,12 +6598,12 @@ pub fn transpile_parser(parser: Parser) -> string {
             (print "")
         } else {
             set emitted_bodies (array_push emitted_bodies func.name)
-            let mut env0: GenEnv = global_env
+            let mut env0: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, scope: func.name }
             /* Seed env with parameters */
             let mut k: int = 0
             while (< k func.param_count) {
                 let plet: ASTLet = (parser_get_let parser (+ func.param_start k))
-                set env0 (genenv_put env0 plet.name plet.var_type)
+                set env0 (genenv_put env0 plet.name plet.var_type false)
                 set k (+ k 1)
             }
 

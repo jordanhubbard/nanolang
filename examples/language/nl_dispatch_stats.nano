@@ -1,0 +1,64 @@
+/* nl_dispatch_stats.nano
+ * Demonstrates a guarded struct with concurrent updates.
+ *
+ * A Stats struct has a single queue for the whole struct (not per-field).
+ * All writes to `stats` are serialized through that queue.
+ */
+
+import dispatch
+
+struct Stats {
+    count: int,
+    total: int
+}
+
+fn main() -> int {
+    let q_stats: Queue = (queue_serial "nano.main.stats")
+    let mut stats: Stats = Stats { count: 0, total: 0 }
+
+    /* Worker queue for concurrent producers */
+    let q_work: Queue = (queue_concurrent "nano.main.workers")
+    let g: QueueGroup = (group_create)
+
+    /* Submit 100 updates, each adding a value */
+    let mut i: int = 0
+    while (< i 100) {
+        let val: int = (+ i 1)
+        group_async(g, q_work, fn() -> void {
+            /* Serialize struct update through its queue */
+            queue_sync(q_stats, fn() -> void {
+                set stats Stats { count: (+ stats.count 1), total: (+ stats.total val) }
+            })
+        })
+        set i (+ i 1)
+    }
+
+    let rc: int = (group_wait_ms g -1)
+    if (!= rc 0) {
+        (println "group_wait failed!")
+        return 1
+    }
+
+    /* Drain the stats queue before reading */
+    queue_sync(q_stats, fn() -> void {})
+
+    let final_count: int = stats.count
+    let final_total: int = stats.total
+    (print "count = ")
+    (println (int_to_string final_count))
+    (print "total = ")
+    (println (int_to_string final_total))
+
+    /* sum 1..100 = 5050 */
+    if (and (== final_count 100) (== final_total 5050)) {
+        (println "PASS")
+    } else {
+        (println "FAIL")
+        return 1
+    }
+
+    (group_destroy g)
+    (queue_destroy q_work)
+    (queue_destroy q_stats)
+    return 0
+}

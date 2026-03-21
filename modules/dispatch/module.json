@@ -1,0 +1,11 @@
+{
+  "name": "dispatch",
+  "description": "Grand Central Dispatch (libdispatch) bindings — serial/concurrent queues, groups, async/sync dispatch",
+  "version": "1.0.0",
+  "c_sources": ["dispatch.c"],
+  "cflags": ["-fblocks", "-Imodules/dispatch"],
+  "ldflags_macos": [],
+  "ldflags_linux": ["-ldispatch"],
+  "dependencies": [],
+  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem (no extra -l needed). Linux: install libdispatch-dev (swift-corelibs-libdispatch)."
+}

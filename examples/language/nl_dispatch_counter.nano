@@ -1,0 +1,51 @@
+/* nl_dispatch_counter.nano
+ * Demonstrates automatic, zero-boilerplate concurrency via guarded mut variables.
+ *
+ * Every `let mut` variable automatically gets a private serial dispatch_queue_t.
+ * Writes (set) are dispatch_async (fire-and-forget).
+ * Reads are dispatch_sync (blocks until the queue drains).
+ * The programmer never touches a lock, join, or thread directly.
+ */
+
+import dispatch
+
+fn main() -> int {
+    /* The compiler wraps `counter` in NlGuarded_int automatically. */
+    let mut counter: int = 0
+
+    /* Create a concurrent queue for fan-out */
+    let q: Queue = (queue_concurrent "nano.main.worker")
+
+    /* Fan out 1000 increments concurrently */
+    let g: QueueGroup = (group_create)
+    let mut i: int = 0
+    while (< i 1000) {
+        group_async(g, q, fn() -> void {
+            /* `set counter` becomes dispatch_async(counter._q, ^{ counter._v += 1; }) */
+            set counter (+ counter 1)
+        })
+        set i (+ i 1)
+    }
+
+    /* Wait for all increments to complete */
+    let rc: int = (group_wait_ms g -1)
+    if (!= rc 0) {
+        (println "group_wait failed!")
+        return 1
+    }
+
+    /* Read counter — dispatch_sync drains the write queue first */
+    let final_val: int = counter
+    (print "counter = ")
+    (println (int_to_string final_val))
+
+    if (== final_val 1000) {
+        (println "PASS: counter is exactly 1000")
+    } else {
+        (println "FAIL: race condition or lost writes")
+    }
+
+    (group_destroy g)
+    (queue_destroy q)
+    return 0
+}

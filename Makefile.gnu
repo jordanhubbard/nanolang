@@ -47,7 +47,7 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fblocks
 LDFLAGS = -lm
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
@@ -55,10 +55,15 @@ LDFLAGS = -lm
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 LDFLAGS += -rdynamic
+# libdispatch is not part of glibc on Linux; link against swift-corelibs-libdispatch
+LDFLAGS += -ldispatch -lBlocksRuntime
 endif
 ifeq ($(UNAME_S),FreeBSD)
 LDFLAGS += -Wl,-E
+# FreeBSD ships libdispatch; BlocksRuntime may be needed depending on clang version
+LDFLAGS += -ldispatch
 endif
+# macOS: dispatch is part of libSystem — no extra -l needed; -fblocks is always available
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
