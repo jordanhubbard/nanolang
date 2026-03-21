@@ -27,14 +27,15 @@ let MIN_DISTANCE: float = 20.0
 
 # === MODULE-LEVEL BOID STATE ===
 # Kept at module scope so named worker functions can access them without closure capture.
+# Pre-populated with float zeros so the arrays carry ELEM_FLOAT type from creation.
 
-let mut g_boid_x: array<float> = []
-let mut g_boid_y: array<float> = []
-let mut g_boid_vx: array<float> = []
-let mut g_boid_vy: array<float> = []
+let mut g_boid_x: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+let mut g_boid_y: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+let mut g_boid_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+let mut g_boid_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 # Output arrays written by parallel workers (each boid writes to its own slot)
-let mut g_new_vx: array<float> = []
-let mut g_new_vy: array<float> = []
+let mut g_new_vx: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+let mut g_new_vy: array<float> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 # Flocking parameters (updated by UI sliders each frame before the physics step)
 let mut g_cohesion: float = 0.005
@@ -55,23 +56,6 @@ shadow wrap_coord {
     assert (== (wrap_coord 50.0 100.0) 50.0)
     assert (< (wrap_coord 150.0 100.0) 1.0)
     assert (> (wrap_coord -1.0 100.0) 99.0)
-}
-
-fn init_boid_arrays() -> void {
-    let mut i: int = 0
-    while (< i NUM_BOIDS) {
-        set g_boid_x (array_push g_boid_x 0.0)
-        set g_boid_y (array_push g_boid_y 0.0)
-        set g_boid_vx (array_push g_boid_vx 0.0)
-        set g_boid_vy (array_push g_boid_vy 0.0)
-        set g_new_vx (array_push g_new_vx 0.0)
-        set g_new_vy (array_push g_new_vy 0.0)
-        set i (+ i 1)
-    }
-}
-
-shadow init_boid_arrays {
-    (print "")
 }
 
 # === SINGLE-BOID FORCE COMPUTATION ===
@@ -217,9 +201,6 @@ fn main() -> int {
 
     # Disable mouse motion events to prevent event queue flooding
     (SDL_EventState 1024 0)
-
-    # Initialize module-level boid arrays
-    (init_boid_arrays)
 
     # Set initial positions and velocities
     let mut i: int = 0
