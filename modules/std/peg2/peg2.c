@@ -36,6 +36,11 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+/* Forward declarations for static internal functions */
+static void nl_peg2_free(Peg2Grammar *g);
+static void nl_peg2_result_free(Peg2Result *r);
+static void nl_peg2_node_free(Peg2Node *node);
+
 /* ============================================================
  * Expression AST
  * ============================================================ */
@@ -506,7 +511,7 @@ static void resolve_refs(Expr *e, char **rule_names, int rule_count) {
  * Compile a grammar string
  * ============================================================ */
 
-Peg2Grammar *nl_peg2_compile(const char *src, char **error_out) {
+static Peg2Grammar *nl_peg2_compile(const char *src, char **error_out) {
     if (error_out) *error_out = NULL;
 
     GParser p = { .src = src, .pos = 0, .len = (int)strlen(src) };
@@ -587,7 +592,7 @@ Peg2Grammar *nl_peg2_compile(const char *src, char **error_out) {
     return g;
 }
 
-void nl_peg2_free(Peg2Grammar *g) {
+static void nl_peg2_free(Peg2Grammar *g) {
     if (!g) return;
     for (int i = 0; i < g->rule_count; i++) {
         free(g->rules[i].name);
@@ -617,13 +622,35 @@ static void node_add_child(Peg2Node *parent, Peg2Node *child) {
     parent->children[parent->child_count++] = child;
 }
 
-void nl_peg2_node_free(Peg2Node *node) {
+static void nl_peg2_node_free(Peg2Node *node) {
     if (!node) return;
     free((char *)node->rule_name);
     free((char *)node->capture_name);
     for (int i = 0; i < node->child_count; i++) nl_peg2_node_free(node->children[i]);
     free(node->children);
     free(node);
+}
+
+/* Deep-copy a parse tree node (including all children).
+ * Used to give each caller their own copy so that memo-stored nodes
+ * are not aliased: if a sequence fails and frees its children, the
+ * memo's copy is unaffected. */
+static Peg2Node *node_deep_copy(const Peg2Node *src) {
+    if (!src) return NULL;
+    Peg2Node *dst = malloc(sizeof(Peg2Node));
+    dst->rule_name    = src->rule_name    ? strdup(src->rule_name)    : NULL;
+    dst->capture_name = src->capture_name ? strdup(src->capture_name) : NULL;
+    dst->start       = src->start;
+    dst->end         = src->end;
+    dst->child_count = src->child_count;
+    if (src->child_count > 0) {
+        dst->children = malloc((size_t)src->child_count * sizeof(Peg2Node *));
+        for (int i = 0; i < src->child_count; i++)
+            dst->children[i] = node_deep_copy(src->children[i]);
+    } else {
+        dst->children = NULL;
+    }
+    return dst;
 }
 
 /* ============================================================
@@ -671,7 +698,10 @@ static int peg_rule(Peg2Grammar *g, int rule_idx, const char *input,
 
     MemoCell *cell = memo_get(m, pos, rule_idx);
     if (cell->valid) {
-        if (tree_out) *tree_out = cell->tree ? /* share */ cell->tree : NULL;
+        /* Return a deep copy so each caller owns their node. This prevents
+         * use-after-free when a failed sequence frees its children while
+         * those same nodes are still referenced by the memo table. */
+        if (tree_out) *tree_out = node_deep_copy(cell->tree);
         return cell->end_pos;
     }
 
@@ -692,7 +722,8 @@ static int peg_rule(Peg2Grammar *g, int rule_idx, const char *input,
         cell->end_pos = -1;
     }
 
-    if (tree_out) *tree_out = cell->tree;
+    /* Return a deep copy: memo owns the original, caller owns their copy. */
+    if (tree_out) *tree_out = node_deep_copy(cell->tree);
     return cell->end_pos;
 }
 
@@ -881,6 +912,14 @@ static Peg2Result run_match(Peg2Grammar *g, const char *input, int input_len, in
     Peg2Node *tree = NULL;
     int end = peg_rule(g, 0, input, start_pos, input_len, &m, &tree);
 
+    /* Free all trees owned by the memo table. The returned `tree` is a
+     * deep copy (see peg_rule), so freeing memo copies causes no double-free. */
+    for (int i = 0; i <= input_len; i++) {
+        for (int j = 0; j < g->rule_count; j++) {
+            MemoCell *mc = memo_get(&m, i, j);
+            if (mc->valid && mc->tree) nl_peg2_node_free(mc->tree);
+        }
+    }
     free(m.cells);
 
     if (end >= 0) {
@@ -906,7 +945,7 @@ static Peg2Result run_match(Peg2Grammar *g, const char *input, int input_len, in
     return r;
 }
 
-Peg2Result nl_peg2_parse(Peg2Grammar *g, const char *input, int input_len) {
+static Peg2Result nl_peg2_parse(Peg2Grammar *g, const char *input, int input_len) {
     Peg2Result r = run_match(g, input, input_len, 0);
     /* Require full match */
     if (r.ok && r.tree && r.tree->end != input_len) {
@@ -927,7 +966,7 @@ Peg2Result nl_peg2_parse(Peg2Grammar *g, const char *input, int input_len) {
     return r;
 }
 
-Peg2Result nl_peg2_find(Peg2Grammar *g, const char *input, int input_len) {
+static Peg2Result nl_peg2_find(Peg2Grammar *g, const char *input, int input_len) {
     if (!g) { Peg2Result r = {0}; r.error_msg = strdup("null grammar"); return r; }
     for (int i = 0; i < input_len; i++) {
         Peg2Result r = run_match(g, input, input_len, i);
@@ -940,7 +979,7 @@ Peg2Result nl_peg2_find(Peg2Grammar *g, const char *input, int input_len) {
     return fail;
 }
 
-Peg2Node **nl_peg2_find_all(Peg2Grammar *g, const char *input, int input_len, int *count_out) {
+static Peg2Node **nl_peg2_find_all(Peg2Grammar *g, const char *input, int input_len, int *count_out) {
     int cap = 8, count = 0;
     Peg2Node **results = malloc(cap * sizeof(Peg2Node *));
     int pos = 0;
@@ -957,7 +996,7 @@ Peg2Node **nl_peg2_find_all(Peg2Grammar *g, const char *input, int input_len, in
     return results;
 }
 
-int nl_peg2_matches(Peg2Grammar *g, const char *input, int input_len) {
+static int nl_peg2_matches(Peg2Grammar *g, const char *input, int input_len) {
     Peg2Result r = nl_peg2_parse(g, input, input_len);
     int ok = r.ok;
     nl_peg2_result_free(&r);
@@ -968,14 +1007,14 @@ int nl_peg2_matches(Peg2Grammar *g, const char *input, int input_len) {
  * Tree navigation
  * ============================================================ */
 
-char *nl_peg2_node_text(const Peg2Node *node, const char *input) {
+static char *nl_peg2_node_text(const Peg2Node *node, const char *input) {
     if (!node) return strdup("");
     int len = node->end - node->start;
     if (len < 0) len = 0;
     return strndup(input + node->start, len);
 }
 
-Peg2Node *nl_peg2_node_get(const Peg2Node *node, const char *rule_name) {
+static Peg2Node *nl_peg2_node_get(const Peg2Node *node, const char *rule_name) {
     if (!node) return NULL;
     for (int i = 0; i < node->child_count; i++) {
         Peg2Node *c = node->children[i];
@@ -989,7 +1028,7 @@ Peg2Node *nl_peg2_node_get(const Peg2Node *node, const char *rule_name) {
     return NULL;
 }
 
-Peg2Node *nl_peg2_node_capture(const Peg2Node *node, const char *cap_name) {
+static Peg2Node *nl_peg2_node_capture(const Peg2Node *node, const char *cap_name) {
     if (!node) return NULL;
     for (int i = 0; i < node->child_count; i++) {
         Peg2Node *c = node->children[i];
@@ -1004,7 +1043,7 @@ Peg2Node *nl_peg2_node_capture(const Peg2Node *node, const char *cap_name) {
  * Cleanup
  * ============================================================ */
 
-void nl_peg2_result_free(Peg2Result *r) {
+static void nl_peg2_result_free(Peg2Result *r) {
     if (!r) return;
     nl_peg2_node_free(r->tree);
     free(r->error_msg);
@@ -1012,7 +1051,7 @@ void nl_peg2_result_free(Peg2Result *r) {
     r->error_msg = NULL;
 }
 
-void nl_peg2_free_all(Peg2Node **nodes, int count) {
+static void nl_peg2_free_all(Peg2Node **nodes, int count) {
     for (int i = 0; i < count; i++) nl_peg2_node_free(nodes[i]);
     free(nodes);
 }

@@ -87,6 +87,7 @@ fn is_opaque_type(name: string) -> bool {
     if (== name "NLStringSet") { return true } else { (print "") }
     if (== name "NLHashMap") { return true } else { (print "") }
     if (== name "NlPeg") { return true } else { (print "") }
+    if (== name "Peg2Grammar") { return true } else { (print "") }
     if (== name "Json") { return true } else { (print "") }
     if (== name "Regex") { return true } else { (print "") }
     if (== name "DateTime") { return true } else { (print "") }
@@ -1095,6 +1096,8 @@ fn map_builtin_func_name(func_name: string) -> string {
     
     /* String builtins */
     if (== func_name "str_length") { return "strlen" } else { (print "") }
+    if (== func_name "str_len") { return "strlen" } else { (print "") }
+    if (== func_name "str_slice") { return "nl_str_slice" } else { (print "") }
     if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
     if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
     if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
@@ -1289,6 +1292,7 @@ fn func_returns_string(name: string) -> bool {
     if (== name "float_to_string") { return true } else { (print "") }
     if (== name "bool_to_string") { return true } else { (print "") }
     if (== name "str_substring") { return true } else { (print "") }
+    if (== name "str_slice") { return true } else { (print "") }
     if (== name "str_concat") { return true } else { (print "") }
     if (== name "string_from_char") { return true } else { (print "") }
     return false
@@ -2898,6 +2902,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "typedef void* NLStringSet;\n")
     set parts (cg_append parts "typedef void* NLHashMap;\n")
     set parts (cg_append parts "typedef void* NlPeg;\n")
+    set parts (cg_append parts "typedef void* Peg2Grammar;\n")
     set parts (cg_append parts "typedef void* Json;\n")
     set parts (cg_append parts "typedef void* Regex;\n")
     set parts (cg_append parts "typedef void* DateTime;\n")
@@ -2925,7 +2930,6 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include \"fs.h\"\n")
     set parts (cg_append parts "#include \"process.h\"\n")
     /* Auto-concurrency: guarded mutable variables use libdispatch */
-    set parts (cg_append parts "#include \"runtime/nano_dispatch.h\"\n")
     /* Forward declarations for cli.c functions not covered by a header */
     set parts (cg_append parts "extern int64_t nl_os_unsetenv(const char* name);\n")
     set parts (cg_append parts "\n")
@@ -3053,6 +3057,12 @@ fn gen_c_runtime() -> string {
     
     set sb (cg_append sb "bool nl_str_contains(const char* str, const char* substr) {\n")
     set sb (cg_append sb "    return strstr(str, substr) != NULL;\n")
+    set sb (cg_append sb "}\n\n")
+    /* nl_str_slice(str, start, end) - slice from start to end (end-exclusive) */
+    set sb (cg_append sb "char* nl_str_slice(const char* s, int64_t start, int64_t end_pos) {\n")
+    set sb (cg_append sb "    if (!s) return \"\";\n")
+    set sb (cg_append sb "    int64_t len = end_pos - start;\n")
+    set sb (cg_append sb "    return nl_str_substring(s, start, len > 0 ? len : 0);\n")
     set sb (cg_append sb "}\n\n")
     
     set sb (cg_append sb "bool nl_str_equals(const char* s1, const char* s2) {\n")
@@ -3261,6 +3271,60 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
     set sb (cg_append sb "        int64_t val = dyn_array_get_int(arr, i);\n")
     set sb (cg_append sb "        if (fn(val)) dyn_array_push_int(result, val);\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+
+    /* String variants */
+    set sb (cg_append sb "static DynArray* nl_map_str(DynArray* arr, const char* (*fn)(const char*)) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        dyn_array_push_string(result, fn(dyn_array_get_string(arr, i)));\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "static const char* nl_reduce_str(DynArray* arr, const char* initial, const char* (*fn)(const char*, const char*)) {\n")
+    set sb (cg_append sb "    const char* acc = initial;\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        acc = fn(acc, dyn_array_get_string(arr, i));\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return acc;\n")
+    set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "static DynArray* nl_filter_str(DynArray* arr, int (*fn)(const char*)) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        const char* val = dyn_array_get_string(arr, i);\n")
+    set sb (cg_append sb "        if (fn(val)) dyn_array_push_string(result, val);\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+
+    /* Float variants */
+    set sb (cg_append sb "static DynArray* nl_map_float(DynArray* arr, double (*fn)(double)) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_FLOAT);\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        dyn_array_push_float(result, fn(dyn_array_get_float(arr, i)));\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "static double nl_reduce_float(DynArray* arr, double initial, double (*fn)(double, double)) {\n")
+    set sb (cg_append sb "    double acc = initial;\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        acc = fn(acc, dyn_array_get_float(arr, i));\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return acc;\n")
+    set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "static DynArray* nl_filter_float(DynArray* arr, int (*fn)(double)) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_FLOAT);\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        double val = dyn_array_get_float(arr, i);\n")
+    set sb (cg_append sb "        if (fn(val)) dyn_array_push_float(result, val);\n")
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return result;\n")
     set sb (cg_append sb "}\n\n")
@@ -4098,21 +4162,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             /* Identifier */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             let c_var: string = (+ "nl_" (mangle_name id.name))
-            /* If the variable is mut, reads must go through NL_GUARDED_READ */
-            if (genenv_get_mut env id.name) {
-                let var_t: string = (genenv_get env id.name)
-                let c_t: string = (type_to_c var_t)
-                let mut rparts: array<string> = []
-                set rparts (cg_append rparts "NL_GUARDED_READ(")
-                set rparts (cg_append rparts c_var)
-                set rparts (cg_append rparts ", ")
-                set rparts (cg_append rparts c_t)
-                set rparts (cg_append rparts ")")
-                return (cg_build rparts)
-            } else {
-                /* Prefix with nl_ for nanolang identifiers */
-                return c_var
-            }
+            /* Prefix with nl_ for nanolang identifiers */
+            return c_var
         } else {
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
@@ -4351,6 +4402,49 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             return (cg_build parts)
                         } else {
                             return "(!0)"
+                        }
+                    } else {
+                        (print "")
+                    }
+
+                    /* __try__: x? desugars to (__try__ x).
+                     * Extracts the Ok value or early-returns the Err. */
+                    if (== func_name "__try__") {
+                        if (== call.arg_count 1) {
+                            let try_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let try_a0_code: string = (generate_expression parser try_a0.node_id try_a0.node_type env "")
+                            let mut try_union_type: string = ""
+                            if (== try_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let try_id0: ASTIdentifier = (parser_get_identifier parser try_a0.node_id)
+                                set try_union_type (genenv_get env try_id0.name)
+                            } else { (print "") }
+                            if (== try_union_type "") { set try_union_type "Result" } else { (print "") }
+                            let try_c_type: string = (+ "nl_" try_union_type)
+                            let try_err_tag: string = (+ (+ (+ "nl_" try_union_type) "_TAG_") "Err")
+                            let try_tmp: string = "_nl_try_r"
+                            let mut tp: array<string> = []
+                            set tp (cg_append tp "({ ")
+                            set tp (cg_append tp try_c_type)
+                            set tp (cg_append tp " ")
+                            set tp (cg_append tp try_tmp)
+                            set tp (cg_append tp " = ")
+                            set tp (cg_append tp try_a0_code)
+                            set tp (cg_append tp "; if (")
+                            set tp (cg_append tp try_tmp)
+                            set tp (cg_append tp ".tag == ")
+                            set tp (cg_append tp try_err_tag)
+                            set tp (cg_append tp ") return ")
+                            set tp (cg_append tp try_tmp)
+                            /* Extract the inner Ok value: .data.Ok.fieldname (or .data.Ok for struct) */
+                            let try_ok_field: string = (get_variant_first_field_access parser try_union_type "Ok")
+                            set tp (cg_append tp "; ")
+                            set tp (cg_append tp try_tmp)
+                            set tp (cg_append tp ".data.Ok")
+                            set tp (cg_append tp try_ok_field)
+                            set tp (cg_append tp "; })")
+                            return (cg_build tp)
+                        } else {
+                            return "0"
                         }
                     } else {
                         (print "")
@@ -4627,6 +4721,97 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         (print "")
                     }
                     
+                    /* array_map: (array_map arr fn) -> mapped array */
+                    if (== func_name "array_map") {
+                        if (== call.arg_count 2) {
+                            let am_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let am_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let am_a0_code: string = (generate_expression parser am_a0.node_id am_a0.node_type env "")
+                            let am_a1_code: string = (generate_expression parser am_a1.node_id am_a1.node_type env "")
+                            let mut am_elem_t: string = ""
+                            if (== am_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let am_id0: ASTIdentifier = (parser_get_identifier parser am_a0.node_id)
+                                let am_arr_t: string = (genenv_get env am_id0.name)
+                                let am_inferred: string = (array_elem_type_from_array_type am_arr_t)
+                                if (!= am_inferred "") { set am_elem_t am_inferred } else { set am_elem_t "int" }
+                            } else { set am_elem_t "int" }
+                            let mut am_helper: string = "nl_map"
+                            if (== am_elem_t "string") { set am_helper "nl_map_str" } else {
+                                if (== am_elem_t "float") { set am_helper "nl_map_float" } else { (print "") }
+                            }
+                            let mut am_parts: array<string> = []
+                            set am_parts (cg_append am_parts am_helper)
+                            set am_parts (cg_append am_parts "(")
+                            set am_parts (cg_append am_parts am_a0_code)
+                            set am_parts (cg_append am_parts ", ")
+                            set am_parts (cg_append am_parts am_a1_code)
+                            set am_parts (cg_append am_parts ")")
+                            return (cg_build am_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* array_filter: (array_filter arr pred) -> filtered array */
+                    if (== func_name "array_filter") {
+                        if (== call.arg_count 2) {
+                            let af_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let af_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let af_a0_code: string = (generate_expression parser af_a0.node_id af_a0.node_type env "")
+                            let af_a1_code: string = (generate_expression parser af_a1.node_id af_a1.node_type env "")
+                            let mut af_elem_t: string = ""
+                            if (== af_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let af_id0: ASTIdentifier = (parser_get_identifier parser af_a0.node_id)
+                                let af_arr_t: string = (genenv_get env af_id0.name)
+                                let af_inferred: string = (array_elem_type_from_array_type af_arr_t)
+                                if (!= af_inferred "") { set af_elem_t af_inferred } else { set af_elem_t "int" }
+                            } else { set af_elem_t "int" }
+                            let mut af_helper: string = "nl_filter"
+                            if (== af_elem_t "string") { set af_helper "nl_filter_str" } else {
+                                if (== af_elem_t "float") { set af_helper "nl_filter_float" } else { (print "") }
+                            }
+                            let mut af_parts: array<string> = []
+                            set af_parts (cg_append af_parts af_helper)
+                            set af_parts (cg_append af_parts "(")
+                            set af_parts (cg_append af_parts af_a0_code)
+                            set af_parts (cg_append af_parts ", ")
+                            set af_parts (cg_append af_parts af_a1_code)
+                            set af_parts (cg_append af_parts ")")
+                            return (cg_build af_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
+                    /* array_fold: (array_fold arr initial fn) -> folded value */
+                    if (== func_name "array_fold") {
+                        if (== call.arg_count 3) {
+                            let afo_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let afo_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                            let afo_a2: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+                            let afo_a0_code: string = (generate_expression parser afo_a0.node_id afo_a0.node_type env "")
+                            let afo_a1_code: string = (generate_expression parser afo_a1.node_id afo_a1.node_type env "")
+                            let afo_a2_code: string = (generate_expression parser afo_a2.node_id afo_a2.node_type env "")
+                            let mut afo_elem_t: string = ""
+                            if (== afo_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let afo_id0: ASTIdentifier = (parser_get_identifier parser afo_a0.node_id)
+                                let afo_arr_t: string = (genenv_get env afo_id0.name)
+                                let afo_inferred: string = (array_elem_type_from_array_type afo_arr_t)
+                                if (!= afo_inferred "") { set afo_elem_t afo_inferred } else { set afo_elem_t "int" }
+                            } else { set afo_elem_t "int" }
+                            let mut afo_helper: string = "nl_reduce"
+                            if (== afo_elem_t "string") { set afo_helper "nl_reduce_str" } else {
+                                if (== afo_elem_t "float") { set afo_helper "nl_reduce_float" } else { (print "") }
+                            }
+                            let mut afo_parts: array<string> = []
+                            set afo_parts (cg_append afo_parts afo_helper)
+                            set afo_parts (cg_append afo_parts "(")
+                            set afo_parts (cg_append afo_parts afo_a0_code)
+                            set afo_parts (cg_append afo_parts ", ")
+                            set afo_parts (cg_append afo_parts afo_a1_code)
+                            set afo_parts (cg_append afo_parts ", ")
+                            set afo_parts (cg_append afo_parts afo_a2_code)
+                            set afo_parts (cg_append afo_parts ")")
+                            return (cg_build afo_parts)
+                        } else { (print "") }
+                    } else { (print "") }
+
                     /* HashMap<string,string> type-aware dispatch */
                     /* map_new: use expected_type to pick constructor */
                     if (== func_name "map_new") {
@@ -5379,58 +5564,19 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
 
-    if let_stmt.is_mut {
-        /* Mutable variable: emit NlGuarded_<type> with NL_GUARDED_INIT */
-        let guarded_t: string = (guarded_type_name let_stmt.var_type)
-        let c_var: string = (+ "nl_" (mangle_name let_stmt.name))
-        /* Build queue name: "nano.<scope>.<varname>" */
-        let mut qname_parts: array<string> = []
-        set qname_parts (cg_append qname_parts "\"nano.")
-        set qname_parts (cg_append qname_parts env.scope)
-        set qname_parts (cg_append qname_parts ".")
-        set qname_parts (cg_append qname_parts let_stmt.name)
-        set qname_parts (cg_append qname_parts "\"")
-        let q_name_lit: string = (cg_build qname_parts)
-        /* Emit: NlGuarded_int nl_x; NL_GUARDED_INIT(nl_x, "nano.main.x", <expr>); */
-        set parts (cg_append parts guarded_t)
-        set parts (cg_append parts " ")
-        set parts (cg_append parts c_var)
-        set parts (cg_append parts ";\n")
-        set parts (cg_append parts (gen_indent indent))
-        set parts (cg_append parts "NL_GUARDED_INIT(")
-        set parts (cg_append parts c_var)
-        set parts (cg_append parts ", ")
-        set parts (cg_append parts q_name_lit)
-        set parts (cg_append parts ", ")
-        if (< let_stmt.value 0) {
-            set parts (cg_append parts "0")
-        } else {
-            let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-            set parts (cg_append parts expr_code)
-        }
-        set parts (cg_append parts ");\n")
+    let c_type: string = (type_to_c let_stmt.var_type)
+    set parts (cg_append parts c_type)
+    set parts (cg_append parts " ")
+    set parts (cg_append parts "nl_")
+    set parts (cg_append parts (mangle_name let_stmt.name))
+    set parts (cg_append parts " = ")
+    if (< let_stmt.value 0) {
+        set parts (cg_append parts "0")
     } else {
-        let c_type: string = (type_to_c let_stmt.var_type)
-        set parts (cg_append parts c_type)
-        set parts (cg_append parts " ")
-
-        /* Add variable name with nl_ prefix */
-        set parts (cg_append parts "nl_")
-        set parts (cg_append parts (mangle_name let_stmt.name))
-        set parts (cg_append parts " = ")
-
-        /* Generate initialization expression */
-        if (< let_stmt.value 0) {
-            /* No initialization - use default */
-            set parts (cg_append parts "0")
-        } else {
-            /* Generate expression */
-            let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
-            set parts (cg_append parts expr_code)
-        }
-
-        set parts (cg_append parts ";\n")
+        let expr_code: string = (generate_expression parser let_stmt.value let_stmt.value_type env let_stmt.var_type)
+        set parts (cg_append parts expr_code)
     }
+    set parts (cg_append parts ";\n")
     return (cg_build parts)
 }
 
@@ -5537,29 +5683,17 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             set tag_parts (cg_append tag_parts variant)
             let tag_name: string = (cg_build tag_parts)
 
-            let mut var_type_parts: array<string> = []
-            set var_type_parts (cg_append var_type_parts "nl_")
-            set var_type_parts (cg_append var_type_parts union_name)
-            set var_type_parts (cg_append var_type_parts "_")
-            set var_type_parts (cg_append var_type_parts variant)
-            let variant_type: string = (cg_build var_type_parts)
-
             set parts (cg_append parts "case ")
             set parts (cg_append parts tag_name)
             set parts (cg_append parts ": { ")
 
-            set parts (cg_append parts variant_type)
-            set parts (cg_append parts " nl_")
-            set parts (cg_append parts (mangle_name binding))
-            set parts (cg_append parts " = _m.data.")
-            set parts (cg_append parts variant)
-            set parts (cg_append parts "; ")
+            /* Emit binding with correct inner type (fixes single-field variant bindings) */
+            let binding_decl_expr: string = (gen_match_variant_binding parser union_name variant binding "")
+            set parts (cg_append parts binding_decl_expr)
 
-            let mut type_name_parts: array<string> = []
-            set type_name_parts (cg_append type_name_parts union_name)
-            set type_name_parts (cg_append type_name_parts ".")
-            set type_name_parts (cg_append type_name_parts variant)
-            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts) false)
+            /* Register binding with actual inner field type */
+            let binding_type_expr: string = (get_variant_field_type parser union_name variant)
+            let env_arm: GenEnv = (genenv_put env binding binding_type_expr false)
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 /* Block bodies in expression match aren't supported here; assume they return */
@@ -5588,6 +5722,199 @@ shadow generate_match_expr {
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
     let code: string = (generate_match_expr p m env0 "int")
     assert (str_contains code "switch")
+}
+
+/* Get the NanoLang type of the first field of a union variant (for env registration).
+ * Returns "string", "int", "bool" etc. for single-field variants,
+ * or "union_name.variant" (the old format) if not found or multi-field. */
+fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -> string {
+    let ucount: int = (parser_get_union_count parser)
+    let mut ui: int = 0
+    while (< ui ucount) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        if (== u.name union_name) {
+            let mut vi: int = 0
+            let mut variant_idx: int = -1
+            while (< vi u.variant_count) {
+                let vname: string = (at u.variant_names vi)
+                if (== vname variant) { set variant_idx vi } else { (print "") }
+                set vi (+ vi 1)
+            }
+            if (== variant_idx -1) {
+                return (str_concat (str_concat union_name ".") variant)
+            } else { (print "") }
+            let mut field_offset: int = 0
+            set vi 0
+            while (< vi variant_idx) {
+                set field_offset (+ field_offset (at u.variant_field_counts vi))
+                set vi (+ vi 1)
+            }
+            let fcount: int = (at u.variant_field_counts variant_idx)
+            if (== fcount 1) {
+                let fname: string = (at u.variant_field_names field_offset)
+                /* Only extract inner type for positional/anonymous fields (_0).
+                 * Named fields keep the struct binding type so callers use s.fieldname. */
+                if (== fname "_0") {
+                    return (at u.variant_field_types field_offset)
+                } else { (print "") }
+            } else { (print "") }
+            return (str_concat (str_concat union_name ".") variant)
+        } else { (print "") }
+        set ui (+ ui 1)
+    }
+    return (str_concat (str_concat union_name ".") variant)
+}
+
+/* Get the C field access suffix for the first field of a union variant.
+ * Returns ".fieldname" for single-field variants (e.g., ".val" for Ok { val: int }).
+ * Returns "" for unit variants or if union not found (caller appends nothing).
+ * Used by the ? operator to extract the inner value from the success variant. */
+fn get_variant_first_field_access(parser: Parser, union_name: string, variant: string) -> string {
+    let ucount: int = (parser_get_union_count parser)
+    let mut ui: int = 0
+    while (< ui ucount) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        if (== u.name union_name) {
+            /* Find variant index and field_offset */
+            let mut vi: int = 0
+            let mut variant_idx: int = -1
+            while (< vi u.variant_count) {
+                let vname: string = (at u.variant_names vi)
+                if (== vname variant) { set variant_idx vi } else { (print "") }
+                set vi (+ vi 1)
+            }
+            if (== variant_idx -1) { return "" } else { (print "") }
+            /* Compute field_offset */
+            let mut field_offset: int = 0
+            set vi 0
+            while (< vi variant_idx) {
+                set field_offset (+ field_offset (at u.variant_field_counts vi))
+                set vi (+ vi 1)
+            }
+            let fcount: int = (at u.variant_field_counts variant_idx)
+            if (== fcount 0) { return "" } else { (print "") }
+            let fname: string = (at u.variant_field_names field_offset)
+            return (str_concat "." (mangle_name fname))
+        } else { (print "") }
+        set ui (+ ui 1)
+    }
+    return ""
+}
+
+/* Look up a union's variant field info for match binding generation.
+ * Returns the C-level declaration and value expression for binding a variable
+ * to a union variant's inner value:
+ *   - If variant has 1 field: "c_type nl_VAR = _m.data.VARIANT.FIELD;\n"
+ *   - If variant has 0 fields: "" (no binding needed)
+ *   - If variant has >1 fields: struct declaration (old behaviour)
+ * Caller provides indentation string. */
+fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string, binding: string, indent_str: string) -> string {
+    /* Search for the union definition */
+    let ucount: int = (parser_get_union_count parser)
+    let mut ui: int = 0
+    let mut found_u: ASTUnion = ASTUnion { node_type: 0, line: 0, column: 0, name: "", variant_count: 0, variant_names: [], variant_field_counts: [], variant_field_names: [], variant_field_types: [], generic_params: [], generic_param_count: 0 }
+    let mut found: bool = false
+    while (< ui ucount) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        if (== u.name union_name) {
+            set found_u u
+            set found true
+        } else { (print "") }
+        set ui (+ ui 1)
+    }
+
+    if (not found) {
+        /* Fallback: old struct behaviour */
+        let mut parts: array<string> = []
+        set parts (cg_append parts indent_str)
+        set parts (cg_append parts "nl_")
+        set parts (cg_append parts union_name)
+        set parts (cg_append parts "_")
+        set parts (cg_append parts variant)
+        set parts (cg_append parts " nl_")
+        set parts (cg_append parts (mangle_name binding))
+        set parts (cg_append parts " = _m.data.")
+        set parts (cg_append parts variant)
+        set parts (cg_append parts ";\n")
+        return (cg_build parts)
+    } else { (print "") }
+
+    /* Find the variant index */
+    let mut vi: int = 0
+    let mut variant_idx: int = -1
+    while (< vi found_u.variant_count) {
+        let vname: string = (at found_u.variant_names vi)
+        if (== vname variant) {
+            set variant_idx vi
+        } else { (print "") }
+        set vi (+ vi 1)
+    }
+    /* Compute field_offset by summing field counts of variants before variant_idx */
+    let mut field_offset: int = 0
+    set vi 0
+    while (< vi variant_idx) {
+        set field_offset (+ field_offset (at found_u.variant_field_counts vi))
+        set vi (+ vi 1)
+    }
+
+    if (== variant_idx -1) {
+        /* Variant not found — fallback */
+        let mut parts: array<string> = []
+        set parts (cg_append parts indent_str)
+        set parts (cg_append parts "nl_")
+        set parts (cg_append parts union_name)
+        set parts (cg_append parts "_")
+        set parts (cg_append parts variant)
+        set parts (cg_append parts " nl_")
+        set parts (cg_append parts (mangle_name binding))
+        set parts (cg_append parts " = _m.data.")
+        set parts (cg_append parts variant)
+        set parts (cg_append parts ";\n")
+        return (cg_build parts)
+    } else { (print "") }
+
+    let fcount: int = (at found_u.variant_field_counts variant_idx)
+
+    if (== fcount 0) {
+        /* Unit variant — no binding */
+        return ""
+    } else { (print "") }
+
+    if (== fcount 1) {
+        let fname: string = (at found_u.variant_field_names field_offset)
+        /* Only extract the inner value for positional/anonymous fields (_0).
+         * Named fields keep the struct binding so callers can use s.fieldname. */
+        if (== fname "_0") {
+            let ftype: string = (at found_u.variant_field_types field_offset)
+            let c_type: string = (type_to_c ftype)
+            let mut parts: array<string> = []
+            set parts (cg_append parts indent_str)
+            set parts (cg_append parts c_type)
+            set parts (cg_append parts " nl_")
+            set parts (cg_append parts (mangle_name binding))
+            set parts (cg_append parts " = _m.data.")
+            set parts (cg_append parts variant)
+            set parts (cg_append parts ".")
+            set parts (cg_append parts (mangle_name fname))
+            set parts (cg_append parts ";\n")
+            return (cg_build parts)
+        } else { (print "") }
+        /* Named single-field variant — fall through to struct binding */
+    } else { (print "") }
+
+    /* Multi-field variant — use struct type (keep old behaviour) */
+    let mut parts: array<string> = []
+    set parts (cg_append parts indent_str)
+    set parts (cg_append parts "nl_")
+    set parts (cg_append parts union_name)
+    set parts (cg_append parts "_")
+    set parts (cg_append parts variant)
+    set parts (cg_append parts " nl_")
+    set parts (cg_append parts (mangle_name binding))
+    set parts (cg_append parts " = _m.data.")
+    set parts (cg_append parts variant)
+    set parts (cg_append parts ";\n")
+    return (cg_build parts)
 }
 
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
@@ -5666,31 +5993,18 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
             set tag_parts (cg_append tag_parts variant)
             let tag_name: string = (cg_build tag_parts)
 
-            let mut var_type_parts: array<string> = []
-            set var_type_parts (cg_append var_type_parts "nl_")
-            set var_type_parts (cg_append var_type_parts union_name)
-            set var_type_parts (cg_append var_type_parts "_")
-            set var_type_parts (cg_append var_type_parts variant)
-            let variant_type: string = (cg_build var_type_parts)
-
             set parts (cg_append parts (gen_indent (+ indent 2)))
             set parts (cg_append parts "case ")
             set parts (cg_append parts tag_name)
             set parts (cg_append parts ": {\n")
 
-            set parts (cg_append parts (gen_indent (+ indent 3)))
-            set parts (cg_append parts variant_type)
-            set parts (cg_append parts " nl_")
-            set parts (cg_append parts (mangle_name binding))
-            set parts (cg_append parts " = _m.data.")
-            set parts (cg_append parts variant)
-            set parts (cg_append parts ";\n")
+            /* Emit binding with correct inner type (fixes single-field variant bindings) */
+            let binding_decl: string = (gen_match_variant_binding parser union_name variant binding (gen_indent (+ indent 3)))
+            set parts (cg_append parts binding_decl)
 
-            let mut type_name_parts: array<string> = []
-            set type_name_parts (cg_append type_name_parts union_name)
-            set type_name_parts (cg_append type_name_parts ".")
-            set type_name_parts (cg_append type_name_parts variant)
-            let env_arm: GenEnv = (genenv_put env binding (cg_build type_name_parts) false)
+            /* Register binding with actual inner field type so expr generators use the right type */
+            let binding_type: string = (get_variant_field_type parser union_name variant)
+            let env_arm: GenEnv = (genenv_put env binding binding_type false)
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 set parts (cg_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
@@ -5890,22 +6204,12 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
     let is_mut_target: bool = (genenv_get_mut env set_stmt.target)
     let c_var: string = (+ "nl_" (mangle_name set_stmt.target))
 
-    if is_mut_target {
-        /* Mutable target: enqueue write via NL_GUARDED_WRITE */
-        let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-        set parts (cg_append parts "NL_GUARDED_WRITE(")
-        set parts (cg_append parts c_var)
-        set parts (cg_append parts ", ")
-        set parts (cg_append parts expr_code)
-        set parts (cg_append parts ");\n")
-    } else {
-        /* Immutable (by convention non-mut) direct assignment */
-        set parts (cg_append parts c_var)
-        set parts (cg_append parts " = ")
-        let expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-        set parts (cg_append parts expr_code)
-        set parts (cg_append parts ";\n")
-    }
+    /* Direct assignment for all variables (mut or not) */
+    set parts (cg_append parts c_var)
+    set parts (cg_append parts " = ")
+    let set_expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
+    set parts (cg_append parts set_expr_code)
+    set parts (cg_append parts ";\n")
     return (cg_build parts)
 }
 
@@ -5918,10 +6222,10 @@ shadow generate_set_stmt {
     let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
     let code: string = (generate_set_stmt p s 0 env)
     assert (== code "nl_x = 2;\n")
-    /* Mut x: expect NL_GUARDED_WRITE */
+    /* Mut x: expect same direct assignment */
     let env_mut: GenEnv = (genenv_put (genenv_new "test") "x" "int" true)
     let code_mut: string = (generate_set_stmt p s 0 env_mut)
-    assert (str_contains code_mut "NL_GUARDED_WRITE")
+    assert (== code_mut "nl_x = 2;\n")
 }
 
 /* Generate C code for an if statement
@@ -6484,7 +6788,8 @@ fn parser_uses_grammar_literal(parser: Parser) -> int {
     let mut i: int = 0
     while (< i call_count) {
         let call: ASTCall = (parser_get_call parser i)
-        if (== call.function_name "peg2_compile") {
+        let call_fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
+        if (== call_fn_id.name "peg2_compile") {
             return 1
         } else {
             (print "")

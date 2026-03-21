@@ -244,7 +244,10 @@ typedef enum {
     TOKEN_RANGE = 71,
     TOKEN_UNSAFE = 72,
     TOKEN_RESOURCE = 73,
-    TOKEN_PIPE = 74
+    TOKEN_PIPE = 74,
+    TOKEN_GRAMMAR = 75,
+    TOKEN_LARROW = 76,
+    TOKEN_QUESTION = 77
 } TokenType;
 
 typedef enum {
@@ -286,7 +289,8 @@ typedef enum {
     PNODE_ENUM = 35,
     PNODE_UNION = 36,
     PNODE_UNSAFE_BLOCK = 37,
-    PNODE_MODULE_QUALIFIED_CALL = 38
+    PNODE_MODULE_QUALIFIED_CALL = 38,
+    PNODE_GRAMMAR = 39
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken

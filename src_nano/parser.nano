@@ -714,6 +714,9 @@ shadow token_grammar { assert (== (token_grammar) LexerTokenType.TOKEN_GRAMMAR) 
 fn token_larrow() -> int { return LexerTokenType.TOKEN_LARROW }
 shadow token_larrow { assert (== (token_larrow) LexerTokenType.TOKEN_LARROW) }
 
+fn token_question() -> int { return LexerTokenType.TOKEN_QUESTION }
+shadow token_question { assert (== (token_question) LexerTokenType.TOKEN_QUESTION) }
+
 fn token_array() -> int { return LexerTokenType.TOKEN_ARRAY }
 shadow token_array { assert (== (token_array) LexerTokenType.TOKEN_ARRAY) }
 
@@ -3009,7 +3012,19 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                         }
                                     }
                                 } else {
+                                if (== tok_post.token_type (token_question)) {
+                                    /* ? postfix: x?  desugars to  (__try__ x) */
+                                    let p_q: Parser = (parser_advance p_postfix)  /* consume ? */
+                                    let inner_id: int = p_postfix.last_expr_node_id
+                                    let inner_type: int = p_postfix.last_expr_node_type
+                                    let p_fn: Parser = (parser_store_identifier p_q "__try__" tok_post.line tok_post.column)
+                                    let try_func_id: int = p_fn.last_expr_node_id
+                                    let arg_start: int = (list_ASTStmtRef_length p_fn.call_args)
+                                    let p_arg: Parser = (parser_store_call_arg p_fn inner_id inner_type)
+                                    set p_postfix (parser_store_call p_arg try_func_id arg_start 1 tok_post.line tok_post.column)
+                                } else {
                                     set done true
+                                }
                                 }
                             }
                         }

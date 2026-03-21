@@ -128,7 +128,7 @@ shadow peg2_free {
 pub fn peg2_parse(g: Peg2Grammar, input: string) -> Peg2Result {
     let ok_int: int = (nl_peg2_ffi_parse g input)
     let ok: bool = (== ok_int 1)
-    if ok {
+    if (== ok true) {
         let tree: Peg2Node = (peg2_read_node)
         return Peg2Result { ok: true, tree: tree, error: "", error_pos: 0 }
     } else {
@@ -157,7 +157,7 @@ shadow peg2_parse {
 pub fn peg2_find(g: Peg2Grammar, input: string) -> Peg2Result {
     let ok_int: int = (nl_peg2_ffi_find g input)
     let ok: bool = (== ok_int 1)
-    if ok {
+    if (== ok true) {
         let tree: Peg2Node = (peg2_read_node)
         return Peg2Result { ok: true, tree: tree, error: "", error_pos: 0 }
     } else {
@@ -199,7 +199,7 @@ shadow peg2_matches {
  * Get the text matched by a parse tree node, given the original input string.
  */
 pub fn peg2_text(node: Peg2Node, input: string) -> string {
-    return (str_slice input node.start node.end)
+    return (str_substring input node.start (- node.end node.start))
 }
 
 shadow peg2_text {

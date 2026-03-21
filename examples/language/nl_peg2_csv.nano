@@ -19,51 +19,69 @@ let csv_grammar: string = "file <- row (\"\\n\" row)*\nrow <- field (\",\" field
 fn parse_csv(input: string) -> void {
     let g: Peg2Grammar = (peg2_compile csv_grammar)
     let result: Peg2Result = (peg2_parse g input)
-    if result.ok {
-        print "Parsed successfully!"
-        print (str_concat "  Matched rule: " result.tree.rule_name)
-        print (str_concat "  Span: " (str_concat (int_to_str result.tree.start) (str_concat "-" (int_to_str result.tree.end))))
+    if (== result.ok true) {
+        (print "Parsed successfully!")
+        (print (str_concat "  Matched rule: " result.tree.rule_name))
+        (print (str_concat "  Span: " (str_concat (int_to_string result.tree.start) (str_concat "-" (int_to_string result.tree.end)))))
     } else {
-        print (str_concat "Parse error: " result.error)
+        (print (str_concat "Parse error: " result.error))
     }
     (peg2_free g)
 }
 
 fn demo_matches() -> void {
-    print "\n--- CSV Field Matching ---"
+    (print "\n--- CSV Field Matching ---")
     let field_g: Peg2Grammar = (peg2_compile "field <- quoted / plain\nquoted <- \"\\\"\" (!\"\\\"\" .)* \"\\\"\"\nplain <- [^,\\n\\r\"]*")
 
     let plain_result: Peg2Result = (peg2_parse field_g "hello")
-    print (str_concat "plain 'hello': " (if plain_result.ok { "ok" } else { plain_result.error }))
+    let mut plain_status: string = "ok"
+    if (not plain_result.ok) { set plain_status plain_result.error } else { (print "") }
+    (print (str_concat "plain 'hello': " plain_status))
 
     let quoted_result: Peg2Result = (peg2_parse field_g "\"hello, world\"")
-    print (str_concat "quoted 'hello, world': " (if quoted_result.ok { "ok" } else { quoted_result.error }))
+    let mut quoted_status: string = "ok"
+    if (not quoted_result.ok) { set quoted_status quoted_result.error } else { (print "") }
+    (print (str_concat "quoted 'hello, world': " quoted_status))
 
     (peg2_free field_g)
 }
 
 fn demo_find_numbers() -> void {
-    print "\n--- Find All Numbers in Text ---"
+    (print "\n--- Find All Numbers in Text ---")
     let num_g: Peg2Grammar = (peg2_compile "num <- \"-\"? [0-9]+ (\".\" [0-9]+)?")
     let text: string = "The price is 3.14 dollars, or maybe 42 cents, but not -7.5 off."
+    let text_len: int = (str_length text)
 
-    let r: Peg2Result = (peg2_find num_g text)
-    while r.ok {
-        let matched: string = (peg2_text r.tree text)
-        print (str_concat "  found number: " matched)
-        /* Advance past the last match to find the next */
-        let remaining: string = (str_slice text r.tree.end (str_len text))
-        set r (peg2_find num_g remaining)
+    /* Track absolute position in text; peg2_find returns positions
+     * relative to the remaining substring, so we adjust for abs coords. */
+    let mut pos: int = 0
+    let mut remaining: string = text
+    let mut r: Peg2Result = (peg2_find num_g remaining)
+    while (== r.ok true) {
+        let abs_start: int = (+ pos r.tree.start)
+        let abs_end: int = (+ pos r.tree.end)
+        let matched: string = (str_substring text abs_start (- abs_end abs_start))
+        (print (str_concat "  found number: " matched))
+        /* Advance absolute position past the matched span */
+        set pos abs_end
+        if (>= pos text_len) {
+            /* Done scanning */
+            set r (peg2_find num_g "")
+        } else {
+            set remaining (str_substring text pos (- text_len pos))
+            set r (peg2_find num_g remaining)
+        }
     }
 
     (peg2_free num_g)
 }
 
-fn main() -> void {
-    print "=== peg2 CSV Parser Demo ==="
+fn main() -> int {
+    (print "=== peg2 CSV Parser Demo ===")
     (parse_csv "name,age,city")
     (parse_csv "Alice,30,\"New York\"")
     (demo_matches)
     (demo_find_numbers)
-    print "\nDone."
+    (print "\nDone.")
+    return 0
 }

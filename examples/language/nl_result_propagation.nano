@@ -1,0 +1,102 @@
+/* nl_result_propagation.nano
+ * Demonstrates the Result type and the ? error-propagation operator.
+ *
+ * x? desugars to:
+ *   ({ nl_Result _nl_try_r = x; if (_nl_try_r.tag == nl_Result_TAG_Err) return _nl_try_r; _nl_try_r.data.Ok.val; })
+ *
+ * This lets you write short-circuit error handling without explicit match blocks.
+ * Note: requires the stage1 self-hosted compiler (? operator not in nanoc_c).
+ *
+ * Union variants with named fields (Ok { val: T }) bind as structs in match arms,
+ * so use ok.val / err.msg to access the inner value.
+ */
+
+union Result {
+    Ok { val: int },
+    Err { msg: string }
+}
+
+/* Safe integer division — returns Err on divide-by-zero */
+fn safe_div(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Err { msg: "divide by zero" }
+    } else {
+        return Result.Ok { val: (/ a b) }
+    }
+}
+
+/* Safe square root — returns Err on negative input */
+fn safe_sqrt_int(n: int) -> Result {
+    if (< n 0) {
+        return Result.Err { msg: "sqrt of negative number" }
+    } else {
+        /* Integer approximation */
+        let mut i: int = 0
+        while (<= (* i i) n) {
+            set i (+ i 1)
+        }
+        return Result.Ok { val: (- i 1) }
+    }
+}
+
+/* Chain: compute sqrt(a / b) — propagates any Err automatically */
+fn sqrt_of_ratio(a: int, b: int) -> Result {
+    let div_r: Result = (safe_div a b)
+    let quotient: int = div_r?    /* returns Err if b==0 */
+    let sqrt_r: Result = (safe_sqrt_int quotient)
+    let root: int = sqrt_r?       /* returns Err if quotient<0 */
+    return Result.Ok { val: root }
+}
+
+fn main() -> int {
+    /* Happy path: sqrt(100 / 4) = sqrt(25) = 5 */
+    let r1: Result = (sqrt_of_ratio 100 4)
+    match r1 {
+        Ok(ok) => {
+            (print "sqrt(100/4) = ")
+            (println (int_to_string ok.val))
+            if (!= ok.val 5) {
+                (println "FAIL: expected 5")
+                return 1
+            } else { (print "") }
+        }
+        Err(err) => {
+            (print "FAIL: unexpected error: ")
+            (println err.msg)
+            return 1
+        }
+    }
+
+    /* Error path: divide by zero */
+    let r2: Result = (sqrt_of_ratio 100 0)
+    match r2 {
+        Ok(ok) => {
+            (println "FAIL: expected Err but got Ok")
+            return 1
+        }
+        Err(err) => {
+            (print "caught expected error: ")
+            (println err.msg)
+            if (!= err.msg "divide by zero") {
+                (println "FAIL: wrong error message")
+                return 1
+            } else { (print "") }
+        }
+    }
+
+    /* Error path: sqrt of negative */
+    let r3: Result = (sqrt_of_ratio -9 1)
+    match r3 {
+        Ok(ok) => {
+            (println "FAIL: expected Err for negative sqrt")
+            return 1
+        }
+        Err(err) => {
+            (print "caught expected error: ")
+            (println err.msg)
+        }
+    }
+
+    (println "PASS")
+    return 0
+}

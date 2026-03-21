@@ -77,7 +77,8 @@ enum LexerTokenType {
     TOKEN_RESOURCE = 73,
     TOKEN_PIPE = 74,
     TOKEN_GRAMMAR = 75,
-    TOKEN_LARROW = 76
+    TOKEN_LARROW = 76,
+    TOKEN_QUESTION = 77
 }
 
 enum ParseNodeType {

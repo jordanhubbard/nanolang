@@ -152,8 +152,16 @@ OPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPL_EXAMPLES)))
 # === SDL Examples (sdl_*) ===
 # Require SDL2 library
 
+GLFW_AVAILABLE := $(shell pkg-config --exists glfw3 2>/dev/null && echo yes || echo no)
+
+SDL_GRAPHICS_SOURCES := $(wildcard graphics/sdl_*.nano)
+# sdl_nanoviz requires GLFW (OpenGL windowing); skip when GLFW is not installed
+ifeq ($(GLFW_AVAILABLE),no)
+SDL_GRAPHICS_SOURCES := $(filter-out graphics/sdl_nanoviz.nano,$(SDL_GRAPHICS_SOURCES))
+endif
+
 SDL_EXAMPLES = \
-	$(patsubst graphics/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard graphics/sdl_*.nano)) \
+	$(patsubst graphics/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(SDL_GRAPHICS_SOURCES)) \
 	$(patsubst audio/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard audio/sdl_*.nano)) \
 	$(patsubst games/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard games/sdl_*.nano)) \
 	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)

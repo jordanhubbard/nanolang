@@ -1,0 +1,165 @@
+/* nl_array_functional.nano
+ * Demonstrates array_map, array_filter, and array_fold builtins.
+ *
+ * These are type-dispatched transpiler builtins that accept first-class
+ * functions (lambdas or named functions) and work on int, float, and string arrays.
+ */
+
+fn double_it(x: int) -> int {
+    return (* x 2)
+}
+
+fn is_even(x: int) -> bool {
+    return (== (% x 2) 0)
+}
+
+fn sum(acc: int, x: int) -> int {
+    return (+ acc x)
+}
+
+fn to_upper_first(s: string) -> string {
+    /* Capitalise first char if lowercase a-z */
+    if (and (>= (char_at s 0) 97) (<= (char_at s 0) 122)) {
+        let upper_ch: int = (- (char_at s 0) 32)
+        return (str_concat (string_from_char upper_ch) (str_substring s 1 (- (str_length s) 1)))
+    } else {
+        return s
+    }
+}
+
+fn longer_than_3(s: string) -> bool {
+    return (> (str_length s) 3)
+}
+
+fn concat_words(acc: string, s: string) -> string {
+    if (== (str_length acc) 0) {
+        return s
+    } else {
+        return (str_concat (str_concat acc " ") s)
+    }
+}
+
+fn square_f(x: float) -> float {
+    return (* x x)
+}
+
+fn positive(x: float) -> bool {
+    return (> x 0.0)
+}
+
+fn sum_f(acc: float, x: float) -> float {
+    return (+ acc x)
+}
+
+fn main() -> int {
+    /* --- int array operations --- */
+    let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    let doubled: array<int> = (array_map nums double_it)
+    let evens: array<int>   = (array_filter nums is_even)
+    let total: int          = (array_fold nums 0 sum)
+
+    (print "doubled: ")
+    let mut di: int = 0
+    while (< di (array_length doubled)) {
+        (print (int_to_string (at doubled di)))
+        (print " ")
+        set di (+ di 1)
+    }
+    (println "")
+
+    (print "evens: ")
+    let mut ei: int = 0
+    while (< ei (array_length evens)) {
+        (print (int_to_string (at evens ei)))
+        (print " ")
+        set ei (+ ei 1)
+    }
+    (println "")
+
+    (print "sum 1..10 = ")
+    (println (int_to_string total))
+
+    /* Verify int results */
+    if (!= total 55) {
+        (println "FAIL: expected sum=55")
+        return 1
+    } else { (print "") }
+    if (!= (array_length evens) 5) {
+        (println "FAIL: expected 5 evens")
+        return 1
+    } else { (print "") }
+    if (!= (array_length doubled) 10) {
+        (println "FAIL: expected 10 doubled")
+        return 1
+    } else { (print "") }
+
+    /* --- string array operations --- */
+    let words: array<string> = ["hello", "hi", "world", "nano", "a", "ok"]
+
+    let capped: array<string>  = (array_map words to_upper_first)
+    let long_ws: array<string> = (array_filter words longer_than_3)
+    let joined: string         = (array_fold words "" concat_words)
+
+    (print "capitalised: ")
+    let mut ci: int = 0
+    while (< ci (array_length capped)) {
+        (print (at capped ci))
+        (print " ")
+        set ci (+ ci 1)
+    }
+    (println "")
+
+    (print "long words (>3): ")
+    let mut li: int = 0
+    while (< li (array_length long_ws)) {
+        (print (at long_ws li))
+        (print " ")
+        set li (+ li 1)
+    }
+    (println "")
+
+    (print "joined: ")
+    (println joined)
+
+    if (!= (array_length long_ws) 3) {
+        (println "FAIL: expected 3 long words")
+        return 1
+    } else { (print "") }
+
+    /* --- float array operations --- */
+    let floats: array<float> = [1.0, -2.5, 3.0, -0.5, 4.0]
+
+    let squares: array<float>   = (array_map floats square_f)
+    let positives: array<float> = (array_filter floats positive)
+    let fsum: float             = (array_fold floats 0.0 sum_f)
+
+    (print "squares: ")
+    let mut si: int = 0
+    while (< si (array_length squares)) {
+        (print (float_to_string (at squares si)))
+        (print " ")
+        set si (+ si 1)
+    }
+    (println "")
+
+    (print "positives: ")
+    let mut pi: int = 0
+    while (< pi (array_length positives)) {
+        (print (float_to_string (at positives pi)))
+        (print " ")
+        set pi (+ pi 1)
+    }
+    (println "")
+
+    (print "float sum = ")
+    (println (float_to_string fsum))
+
+    if (!= (array_length positives) 3) {
+        (println "FAIL: expected 3 positives")
+        return 1
+    } else { (print "") }
+
+    (println "PASS")
+    return 0
+}

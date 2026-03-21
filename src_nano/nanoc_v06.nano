@@ -1774,6 +1774,20 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd (nl_path_join modules_std "json"))
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
+            /* Conditionally link peg2.c if the program imports modules/std/peg2 */
+            let mut uses_peg2: bool = false
+            let mut peg2_fi: int = 0
+            while (< peg2_fi (array_length merged_files)) {
+                let peg2_f: string = (at merged_files peg2_fi)
+                if (> (nlc_str_index_of peg2_f "peg2") -1) { set uses_peg2 true } else { (print "") }
+                set peg2_fi (+ peg2_fi 1)
+            }
+            if uses_peg2 {
+                set cc_cmd (+ cc_cmd " ")
+                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2/peg2.c"))
+                set cc_cmd (+ cc_cmd " -I")
+                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
+            } else { (print "") }
             set cc_cmd (+ cc_cmd " -lm")
             /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
             if (> (str_length mod_flags.link_flags) 0) {

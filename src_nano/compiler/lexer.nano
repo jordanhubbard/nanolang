@@ -730,6 +730,11 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                         (push_tok tokens LexerTokenType.TOKEN_LARROW "" line column)
                         set i (+ i 2)
                     } else {
+                    /* Result propagation: ? (ASCII 63) */
+                    if (== c 63) {
+                        (push_tok tokens LexerTokenType.TOKEN_QUESTION "" line column)
+                        set i (+ i 1)
+                    } else {
                         /* Single '=' assignment (but not '==', '=>') */
                         if (== c 61) {
                             (push_tok tokens LexerTokenType.TOKEN_ASSIGN "" line column)
@@ -856,6 +861,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                 set i new_pos
                             }
                         }
+                    }
                     }}}}}}}}}
                 }
             }

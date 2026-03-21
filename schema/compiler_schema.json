@@ -74,7 +74,10 @@
     "TOKEN_RANGE",
     "TOKEN_UNSAFE",
     "TOKEN_RESOURCE",
-    "TOKEN_PIPE"
+    "TOKEN_PIPE",
+    "TOKEN_GRAMMAR",
+    "TOKEN_LARROW",
+    "TOKEN_QUESTION"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",
@@ -115,7 +118,8 @@
     "PNODE_ENUM",
     "PNODE_UNION",
     "PNODE_UNSAFE_BLOCK",
-    "PNODE_MODULE_QUALIFIED_CALL"
+    "PNODE_MODULE_QUALIFIED_CALL",
+    "PNODE_GRAMMAR"
   ],
   "nano_enums": [
     {
@@ -132,10 +136,10 @@
         "TYPE_ENUM",
         "TYPE_UNION",
         "TYPE_GENERIC",
-            "TYPE_LIST_INT",
-            "TYPE_LIST_STRING",
-            "TYPE_LIST_TOKEN",
-            "TYPE_LIST_GENERIC",
+        "TYPE_LIST_INT",
+        "TYPE_LIST_STRING",
+        "TYPE_LIST_TOKEN",
+        "TYPE_LIST_GENERIC",
         "TYPE_FUNCTION",
         "TYPE_TUPLE",
         "TYPE_OPAQUE",
@@ -169,10 +173,22 @@
     {
       "name": "LexerToken",
       "fields": [
-        ["token_type", "int"],
-        ["value", "string"],
-        ["line", "int"],
-        ["column", "int"]
+        [
+          "token_type",
+          "int"
+        ],
+        [
+          "value",
+          "string"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ]
       ],
       "emit_c": true
     },
@@ -1665,9 +1681,18 @@
     {
       "name": "TypeEnvironment",
       "fields": [
-        ["error_count", "int"],
-        ["has_error", "bool"],
-        ["diagnostics", "List<CompilerDiagnostic>"]
+        [
+          "error_count",
+          "int"
+        ],
+        [
+          "has_error",
+          "bool"
+        ],
+        [
+          "diagnostics",
+          "List<CompilerDiagnostic>"
+        ]
       ],
       "emit_c": true
     },
