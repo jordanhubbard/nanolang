@@ -466,18 +466,17 @@ RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
 USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
-	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"; \
-		echo "   Bootstrap complete - using fully evolved version"; \
-	else \
-		echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"; \
-		echo "   Bootstrap not complete - using baseline version"; \
-	fi
+	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"
+	@echo "   (Use 'make test-selfhosted' to test with nanoc_stage2)"
 	@echo ""
-	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
-	fi
+	@rm -f $(COMPILER)
+	@ln -sf nanoc_c $(COMPILER)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(MAKE) test-impl
+	@# Restore proper link based on bootstrap status
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_stage2 $(COMPILER); \
+	fi
 
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
@@ -491,23 +490,21 @@ userguide-export: build $(USERGUIDE_CHECK_TOOL)
 # Use this for local development when you want automatic issue tracking
 test-with-beads: build
 	@echo ""
-	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2) + Beads tracking"; \
-		echo "   Bootstrap complete - using fully evolved version"; \
-	else \
-		echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + Beads tracking"; \
-		echo "   Bootstrap not complete - using baseline version"; \
-	fi
+	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + Beads tracking"
 	@echo ""
-	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
-	fi
+	@rm -f $(COMPILER)
+	@ln -sf nanoc_c $(COMPILER)
 	@echo ""
 	@# Auto-file beads on failures.
 	@# Local default: per-failure beads. CI default: summary bead.
 	@MODE=per; \
 	if [ -n "$$CI" ]; then MODE=summary; fi; \
 	$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
+	@# Restore proper link based on bootstrap status
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_stage2 $(COMPILER); \
+	fi
 
 # Alias for backwards compatibility
 test-full: test
@@ -565,6 +562,25 @@ test-bootstrap: bootstrap
 	@echo "   Using self-hosted compiler (stage1 → nanoc_stage2)"
 	@echo ""
 	@$(TIMEOUT_CMD) $(MAKE) test-impl
+
+# Test with self-hosted compiler (nanoc_stage2), without rebuilding
+test-selfhosted: build
+	@echo ""
+	@echo "🎯 Testing with SELF-HOSTED compiler (nanoc_stage2)"
+	@echo "   Note: requires 'make bootstrap' to be complete"
+	@echo ""
+	@if [ ! -f $(SENTINEL_BOOTSTRAP3) ] || [ ! -f $(NANOC_STAGE2) ]; then \
+		echo "❌ Bootstrap not complete. Run 'make bootstrap' first."; \
+		exit 1; \
+	fi
+	@rm -f $(COMPILER)
+	@ln -sf nanoc_stage2 $(COMPILER)
+	@$(TIMEOUT_CMD) $(MAKE) test-impl
+	@# Restore after test (stage2 is still primary when bootstrapped)
+	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
+		rm -f $(COMPILER); \
+		ln -sf nanoc_stage2 $(COMPILER); \
+	fi
 
 # Test only core language features (nl_* tests)
 test-lang: build
@@ -1500,7 +1516,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch
+.PHONY: all build vm test test-selfhosted test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch
 
 # ============================================================================
 # RELEASE AUTOMATION
