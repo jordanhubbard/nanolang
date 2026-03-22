@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-03-23
+
+### Added
+- complete roadmap features 1-11 with self-hosting pipeline
+- dispatch module + parallel physics in sdl_boids and sdl_falling_sand
+- add automatic zero-boilerplate concurrency via libdispatch
+- add intrinsic PEG grammar support (std/peg2)
+
+### Fixed
+- make test use nanoc_c; remove debugging artifact test
+- pre-populate module-level float arrays with 0.0 to set ELEM_FLOAT type
+- resolve peg2 crashes, union match bindings, and example build failures
+
 ## [3.2.0] - 2026-03-11
 
 ### Added
