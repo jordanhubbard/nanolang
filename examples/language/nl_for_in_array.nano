@@ -1,0 +1,64 @@
+/* nl_for_in_array.nano
+ * Demonstrates for-in iteration over dyn_array (array<T>) variables.
+ */
+
+fn sum_ints(nums: array<int>) -> int {
+    let mut total: int = 0
+    for n in nums {
+        set total (+ total n)
+    }
+    return total
+}
+
+fn join_strings(words: array<string>) -> string {
+    let mut result: string = ""
+    for w in words {
+        if (== result "") {
+            set result w
+        } else {
+            set result (str_concat result (str_concat ", " w))
+        }
+    }
+    return result
+}
+
+fn count_above(vals: array<float>, threshold: float) -> int {
+    let mut count: int = 0
+    for v in vals {
+        if (> v threshold) {
+            set count (+ count 1)
+        } else { (print "") }
+    }
+    return count
+}
+
+fn main() -> int {
+    /* Integer array sum */
+    let mut nums: array<int> = []
+    set nums (array_push nums 1)
+    set nums (array_push nums 2)
+    set nums (array_push nums 3)
+    set nums (array_push nums 4)
+    set nums (array_push nums 5)
+    (println (int_to_string (sum_ints nums)))
+
+    /* String array join */
+    let mut words: array<string> = []
+    set words (array_push words "hello")
+    set words (array_push words "world")
+    set words (array_push words "nano")
+    (println (join_strings words))
+
+    /* Float array — count values above threshold */
+    let mut vals: array<float> = []
+    set vals (array_push vals 1.5)
+    set vals (array_push vals 2.5)
+    set vals (array_push vals 3.0)
+    (println (int_to_string (count_above vals 2.0)))
+
+    return 0
+}
+
+shadow main {
+    (print "")
+}

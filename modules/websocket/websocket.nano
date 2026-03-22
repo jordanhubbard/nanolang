@@ -1,0 +1,83 @@
+/* =============================================================================
+ * websocket - WebSocket client module (RFC 6455)
+ * ============================================================================= */
+
+module websocket
+
+extern fn nl_ws_connect(_url: string) -> int
+extern fn nl_ws_send(_handle: int, _message: string) -> int
+extern fn nl_ws_receive(_handle: int) -> string
+extern fn nl_ws_receive_timeout(_handle: int, _timeout_ms: int) -> string
+extern fn nl_ws_close(_handle: int) -> int
+extern fn nl_ws_is_connected(_handle: int) -> int
+extern fn nl_ws_last_error(_handle: int) -> string
+
+/* Connect to a WebSocket server.
+ * url: "ws://host:port/path"
+ * Returns a handle (non-zero) on success, 0 on failure. */
+pub fn connect(url: string) -> int {
+    return (nl_ws_connect url)
+}
+
+shadow connect {
+    /* We can only test that the function is callable without a real server */
+    let h: int = (connect "ws://127.0.0.1:0/")
+    assert (== h 0)  /* expected: connection refused to port 0 */
+}
+
+/* Send a UTF-8 text message. Returns 0 on success. */
+pub fn send(handle: int, message: string) -> int {
+    return (nl_ws_send handle message)
+}
+
+shadow send {
+    assert (== (send 0 "hello") -1)  /* invalid handle returns error */
+}
+
+/* Receive the next message (blocks until data arrives or connection closes).
+ * Returns "" on error or close. */
+pub fn receive(handle: int) -> string {
+    return (nl_ws_receive handle)
+}
+
+shadow receive {
+    assert (== (receive 0) "")  /* invalid handle returns empty */
+}
+
+/* Receive with a timeout in milliseconds.
+ * Returns "" on timeout or error. */
+pub fn receive_timeout(handle: int, timeout_ms: int) -> string {
+    return (nl_ws_receive_timeout handle timeout_ms)
+}
+
+shadow receive_timeout {
+    assert (== (receive_timeout 0 100) "")
+}
+
+/* Close the WebSocket connection. Returns 0 on success. */
+pub fn close(handle: int) -> int {
+    return (nl_ws_close handle)
+}
+
+shadow close {
+    assert (== (close 0) -1)  /* invalid handle */
+}
+
+/* Returns true if the handle refers to an open connection. */
+pub fn is_connected(handle: int) -> bool {
+    return (!= (nl_ws_is_connected handle) 0)
+}
+
+shadow is_connected {
+    assert (not (is_connected 0))
+}
+
+/* Returns the last error message for a handle. */
+pub fn last_error(handle: int) -> string {
+    return (nl_ws_last_error handle)
+}
+
+shadow last_error {
+    let msg: string = (last_error 0)
+    assert (!= msg "")
+}

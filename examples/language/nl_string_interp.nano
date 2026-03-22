@@ -1,0 +1,37 @@
+/* String Interpolation Example
+   "Hello, {name}!" desugars to nl_str_concat(...) chains at transpiler level.
+   Supports identifiers of type int, float (via int/float_to_string), string, bool.
+*/
+
+fn greet(name: string, age: int) -> string {
+    return "Hello, {name}! You are {age} years old."
+}
+
+fn format_point(x: int, y: int) -> string {
+    return "Point({x}, {y})"
+}
+
+fn describe(label: string, value: int) -> string {
+    return "{label} = {value}"
+}
+
+fn main() -> int {
+    let name: string = "Alice"
+    let age: int = 30
+    (print (greet name age))
+
+    let x: int = 42
+    let y: int = -7
+    (print (format_point x y))
+
+    let label: string = "answer"
+    let value: int = 42
+    (print (describe label value))
+
+    /* Inline usage */
+    let n: int = 5
+    (print "The value of n is {n}.")
+    (print "n squared is {n}.")
+
+    return 0
+}

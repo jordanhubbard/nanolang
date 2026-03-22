@@ -388,9 +388,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     /* String operations */
     sb_append(sb, "/* String concatenation - use strnlen for safety */\n");
     sb_append(sb, "static const char* nl_str_concat(const char* s1, const char* s2) {\n");
-    sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
-    sb_append(sb, "    size_t len1 = strnlen(s1, 1024*1024);\n");
-    sb_append(sb, "    size_t len2 = strnlen(s2, 1024*1024);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to 64MB */\n");
+    sb_append(sb, "    size_t len1 = strnlen(s1, 64*1024*1024);\n");
+    sb_append(sb, "    size_t len2 = strnlen(s2, 64*1024*1024);\n");
     sb_append(sb, "    char* result = gc_alloc_string(len1 + len2);\n");
     sb_append(sb, "    if (!result) return \"\";\n");
     sb_append(sb, "    memcpy(result, s1, len1);\n");
@@ -401,8 +401,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     
     sb_append(sb, "/* String substring - use strnlen for safety */\n");
     sb_append(sb, "static const char* nl_str_substring(const char* str, int64_t start, int64_t length) {\n");
-    sb_append(sb, "    /* Safety: Bound string scan to 1MB */\n");
-    sb_append(sb, "    int64_t str_len = strnlen(str, 1024*1024);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to 64MB */\n");
+    sb_append(sb, "    int64_t str_len = strnlen(str, 64*1024*1024);\n");
     sb_append(sb, "    if (start < 0 || start > str_len || length < 0) return \"\";\n");
     sb_append(sb, "    if (start == str_len) return \"\";\n");
     sb_append(sb, "    if (start + length > str_len) length = str_len - start;\n");
@@ -428,7 +428,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
     sb_append(sb, "    if (!out) return NULL;\n");
     sb_append(sb, "    if (!s) return out;\n");
-    sb_append(sb, "    size_t len = strnlen(s, 1024*1024);\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
     sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
     sb_append(sb, "        dyn_array_push_u8(out, (uint8_t)(unsigned char)s[i]);\n");
     sb_append(sb, "    }\n");
@@ -525,8 +525,8 @@ void generate_string_operations(StringBuilder *sb) {
     
     /* char_at - use strnlen for safety */
     sb_append(sb, "static int64_t char_at(const char* s, int64_t index) {\n");
-    sb_append(sb, "    /* Safety: Bound string scan to reasonable size (1MB) */\n");
-    sb_append(sb, "    int len = strnlen(s, 1024*1024);\n");
+    sb_append(sb, "    /* Safety: Bound string scan to 64MB */\n");
+    sb_append(sb, "    int len = strnlen(s, 64*1024*1024);\n");
     sb_append(sb, "    if (index < 0 || index >= len) {\n");
     sb_append(sb, "        fprintf(stderr, \"Error: Index %lld out of bounds (string length %d)\\n\", (long long)index, len);\n");
     sb_append(sb, "        return 0;\n");

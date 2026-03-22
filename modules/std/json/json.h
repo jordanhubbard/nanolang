@@ -22,6 +22,7 @@ int64_t nl_json_is_object(void* json);
 
 /* Value conversion helpers (best-effort) */
 int64_t nl_json_as_int(void* json);
+double nl_json_as_float(void* json);
 int64_t nl_json_as_bool(void* json);
 const char* nl_json_as_string(void* json);
 

@@ -1,0 +1,76 @@
+/* nl_match_int.nano
+ * Demonstrates integer literal pattern matching in match expressions.
+ *
+ * Syntax (expression match — arm result is the value):
+ *   let x: string = match n {
+ *       0 => "zero"
+ *       1 => "one"
+ *       _ => "many"
+ *   }
+ */
+
+fn day_name(d: int) -> string {
+    let result: string = match d {
+        0 => "Sunday"
+        1 => "Monday"
+        2 => "Tuesday"
+        3 => "Wednesday"
+        4 => "Thursday"
+        5 => "Friday"
+        6 => "Saturday"
+        _ => "Unknown"
+    }
+    return result
+}
+
+fn http_status(code: int) -> string {
+    let result: string = match code {
+        200 => "OK"
+        201 => "Created"
+        400 => "Bad Request"
+        401 => "Unauthorized"
+        403 => "Forbidden"
+        404 => "Not Found"
+        500 => "Internal Server Error"
+        _ => "Unknown Status"
+    }
+    return result
+}
+
+fn classify(n: int) -> string {
+    let result: string = match n {
+        0 => "zero"
+        1 => "one"
+        2 => "two"
+        _ => "many"
+    }
+    return result
+}
+
+fn main() -> int {
+    /* Day names */
+    let mut d: int = 0
+    while (<= d 6) {
+        (println (day_name d))
+        set d (+ d 1)
+    }
+    (println (day_name 99))
+
+    /* HTTP status codes */
+    (println (http_status 200))
+    (println (http_status 404))
+    (println (http_status 500))
+    (println (http_status 999))
+
+    /* Small integer classifier */
+    (println (classify 0))
+    (println (classify 1))
+    (println (classify 2))
+    (println (classify 42))
+
+    return 0
+}
+
+shadow main {
+    (print "")
+}

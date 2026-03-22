@@ -19,7 +19,7 @@
  * Hash Table for O(1) pointer lookup
  * ============================================================================ */
 
-#define GC_HASH_SIZE 16384  /* Power of 2 for fast modulo */
+#define GC_HASH_SIZE 1048576  /* Power of 2 for fast modulo - large for bootstrap */
 #define GC_HASH_MASK (GC_HASH_SIZE - 1)
 
 /* Hash bucket entry */
@@ -51,7 +51,7 @@ static struct {
 } gc_state = {
     .all_objects = NULL,
     .stats = {0},
-    .threshold = 256 * 1024 * 1024,  /* 256MB default - batch-friendly */
+    .threshold = (size_t)2048 * 1024 * 1024,  /* 2GB for bootstrap - reduce GC frequency */
     .last_collection_usage = 0,
     .cycle_detection_enabled = true,
     .initialized = false

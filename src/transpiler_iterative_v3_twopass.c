@@ -677,9 +677,105 @@ static bool is_generic_list_runtime_fn(const char *name) {
     return true;
 }
 
+/* Emit C code for a string literal that may contain {ident} interpolation.
+   "Hello, {name}!" emits nl_str_concat(nl_str_concat("Hello, ", nl_name), "!")
+   Falls back to plain "value" if no { found. */
+static void emit_string_interp(WorkList *list, const char *raw, Environment *env) {
+    if (!strchr(raw, '{')) {
+        emit_formatted(list, "\"%s\"", raw);
+        return;
+    }
+    /* Collect parts as C expressions, then chain with nl_str_concat */
+    /* Max 64 parts; silently truncate beyond that */
+#define MAX_INTERP_PARTS 64
+    char *parts[MAX_INTERP_PARTS];
+    int nparts = 0;
+    const char *p = raw;
+    char lit_buf[4096];
+    size_t lit_len = 0;
+
+    while (*p) {
+        if (*p == '{') {
+            const char *q = p + 1;
+            if (*q && (isalpha((unsigned char)*q) || *q == '_')) {
+                const char *ident_start = q;
+                while (*q && (isalnum((unsigned char)*q) || *q == '_')) q++;
+                if (*q == '}') {
+                    /* Flush pending literal */
+                    if (lit_len > 0 && nparts < MAX_INTERP_PARTS) {
+                        char *s = malloc(lit_len + 3);
+                        s[0] = '"';
+                        memcpy(s+1, lit_buf, lit_len);
+                        s[lit_len+1] = '"';
+                        s[lit_len+2] = '\0';
+                        parts[nparts++] = s;
+                        lit_len = 0;
+                    }
+                    /* Build ident conversion */
+                    size_t ident_len = (size_t)(q - ident_start);
+                    char ident[256];
+                    if (ident_len >= sizeof(ident)) ident_len = sizeof(ident)-1;
+                    memcpy(ident, ident_start, ident_len);
+                    ident[ident_len] = '\0';
+                    /* Look up type */
+                    Symbol *sym = env_get_var(env, ident);
+                    Type t = sym ? sym->type : TYPE_UNKNOWN;
+                    char c_name[320];
+                    snprintf(c_name, sizeof(c_name), "%s", ident); /* no nl_ prefix in C transpiler */
+                    char *conv = malloc(512);
+                    if (t == TYPE_INT) {
+                        snprintf(conv, 512, "int_to_string(%s)", c_name);
+                    } else if (t == TYPE_FLOAT) {
+                        snprintf(conv, 512, "float_to_string(%s)", c_name);
+                    } else if (t == TYPE_BOOL) {
+                        snprintf(conv, 512, "int_to_string(%s)", c_name);
+                    } else {
+                        snprintf(conv, 512, "%s", c_name);
+                    }
+                    if (nparts < MAX_INTERP_PARTS) parts[nparts++] = conv;
+                    else free(conv);
+                    p = q + 1;
+                    continue;
+                }
+            }
+        }
+        if (lit_len < sizeof(lit_buf)-1) lit_buf[lit_len++] = *p;
+        p++;
+    }
+    if (lit_len > 0 && nparts < MAX_INTERP_PARTS) {
+        char *s = malloc(lit_len + 3);
+        s[0] = '"';
+        memcpy(s+1, lit_buf, lit_len);
+        s[lit_len+1] = '"';
+        s[lit_len+2] = '\0';
+        parts[nparts++] = s;
+    }
+    if (nparts == 0) {
+        emit_literal(list, "\"\"");
+    } else if (nparts == 1) {
+        emit_literal(list, parts[0]);
+        free(parts[0]);
+    } else {
+        /* Build nested nl_str_concat calls: nl_str_concat(nl_str_concat(p0,p1),p2)... */
+        char *result = parts[0];
+        for (int i = 1; i < nparts; i++) {
+            size_t rlen = strlen(result);
+            size_t plen = strlen(parts[i]);
+            char *next = malloc(rlen + plen + 20);
+            snprintf(next, rlen + plen + 20, "nl_str_concat(%s, %s)", result, parts[i]);
+            free(result);
+            free(parts[i]);
+            result = next;
+        }
+        emit_literal(list, result);
+        free(result);
+    }
+#undef MAX_INTERP_PARTS
+}
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
-    
+
     switch (expr->type) {
         case AST_NUMBER:
             emit_formatted(list, "%lldLL", expr->as.number);
@@ -694,7 +790,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
             
         case AST_STRING:
-            emit_formatted(list, "\"%s\"", expr->as.string_val);
+            emit_string_interp(list, expr->as.string_val, env);
             break;
             
         case AST_BOOL:
@@ -2478,13 +2574,23 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_MATCH: {
             /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
             /* Generate: ({ UnionType _m = scrutinee; int64_t _out = 0; switch(_m.tag) { case TAG_V: { VariantType nl_binding = _m.data.V; _out = body; break; } } _out; }) */
-            
+
+            /* Detect int-pattern match: any non-wildcard arm starts with "INT:" */
+            int is_int_match_expr = 0;
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                if (strncmp(expr->as.match_expr.pattern_variants[i], "INT:", 4) == 0) {
+                    is_int_match_expr = 1;
+                    break;
+                }
+            }
+
             const char *union_c_name = expr->as.match_expr.union_type_name;
-            if (!union_c_name) {
+            if (!union_c_name && !is_int_match_expr) {
                 emit_literal(list, "/* match: unknown union type */0");
                 break;
             }
-            
+            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
+
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
             const char *base_union_name = union_c_name;
@@ -2503,29 +2609,44 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             
-            /* Determine output type - check if we're in a function returning a struct */
+            /* Determine output type from current function's return type */
             const char *out_type = "int64_t";  /* Default fallback */
             char out_type_buf[256] = "int64_t";  /* Buffer to save out_type */
-            if (g_current_function && 
-                g_current_function->as.function.return_type == TYPE_STRUCT &&
-                g_current_function->as.function.return_struct_type_name) {
-                const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
-                strncpy(out_type_buf, temp, sizeof(out_type_buf) - 1);
-                out_type_buf[sizeof(out_type_buf) - 1] = '\0';
-                out_type = out_type_buf;
+            if (g_current_function) {
+                Type fn_ret = g_current_function->as.function.return_type;
+                if (fn_ret == TYPE_STRUCT && g_current_function->as.function.return_struct_type_name) {
+                    const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
+                    strncpy(out_type_buf, temp, sizeof(out_type_buf) - 1);
+                    out_type_buf[sizeof(out_type_buf) - 1] = '\0';
+                    out_type = out_type_buf;
+                } else if (fn_ret == TYPE_STRING) {
+                    out_type = "const char*";
+                } else if (fn_ret == TYPE_FLOAT) {
+                    out_type = "double";
+                } else if (fn_ret == TYPE_BOOL) {
+                    out_type = "int64_t";
+                }
             }
             
             const char *prefixed_union = get_prefixed_type_name(union_c_name);
-            
+
             /* Start compound expression */
             emit_literal(list, "({ ");
-            emit_literal(list, prefixed_union);
-            emit_literal(list, " _m = ");
-            build_expr(list, expr->as.match_expr.expr, env);
-            emit_literal(list, "; ");
-            emit_literal(list, out_type);
-            emit_literal(list, " _out = {0}; switch (_m.tag) { ");
-            
+            if (is_int_match_expr) {
+                emit_literal(list, "int64_t _m = ");
+                build_expr(list, expr->as.match_expr.expr, env);
+                emit_literal(list, "; ");
+                emit_literal(list, out_type);
+                emit_literal(list, " _out = {0}; switch (_m) { ");
+            } else {
+                emit_literal(list, prefixed_union);
+                emit_literal(list, " _m = ");
+                build_expr(list, expr->as.match_expr.expr, env);
+                emit_literal(list, "; ");
+                emit_literal(list, out_type);
+                emit_literal(list, " _out = {0}; switch (_m.tag) { ");
+            }
+
             /* Generate each match arm */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *variant_name = expr->as.match_expr.pattern_variants[i];
@@ -2535,6 +2656,31 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (strcmp(variant_name, "_") == 0) {
                     /* Wildcard arm: _ => expr  emits default: */
                     emit_literal(list, "default: { ");
+
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                ASTNode *stmt = arm_body->as.block.statements[j];
+                                if (stmt && stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
+                                    emit_literal(list, "_out = ");
+                                    build_expr(list, stmt->as.return_stmt.value, env);
+                                    emit_literal(list, "; ");
+                                    break;
+                                }
+                            }
+                        } else {
+                            emit_literal(list, "_out = ");
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, "; ");
+                        }
+                    }
+
+                    emit_literal(list, "break; } ");
+                } else if (strncmp(variant_name, "INT:", 4) == 0) {
+                    /* Integer literal arm: case N: { */
+                    emit_literal(list, "case ");
+                    emit_literal(list, variant_name + 4);  /* skip "INT:" prefix */
+                    emit_literal(list, ": { ");
 
                     if (arm_body) {
                         if (arm_body->type == AST_BLOCK) {
@@ -2672,12 +2818,23 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
 
         case AST_MATCH: {
+            /* Detect int-pattern match first (before union_c_name check) */
+            int is_int_match_stmt = 0;
+            for (int _pi = 0; _pi < stmt->as.match_expr.arm_count; _pi++) {
+                if (stmt->as.match_expr.pattern_variants[_pi] &&
+                    strncmp(stmt->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
+                    is_int_match_stmt = 1;
+                    break;
+                }
+            }
+
             const char *union_c_name = stmt->as.match_expr.union_type_name;
-            if (!union_c_name) {
+            if (!union_c_name && !is_int_match_stmt) {
                 emit_indent_item(list, indent);
                 emit_literal(list, "/* match: unknown union type */;\n");
                 break;
             }
+            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */
@@ -2703,13 +2860,20 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "{\n");
 
             emit_indent_item(list, indent + 1);
-            emit_literal(list, prefixed_union);
-            emit_literal(list, " _m = ");
-            build_expr(list, stmt->as.match_expr.expr, env);
-            emit_literal(list, ";\n");
-
-            emit_indent_item(list, indent + 1);
-            emit_literal(list, "switch (_m.tag) {\n");
+            if (is_int_match_stmt) {
+                emit_literal(list, "int64_t _m = ");
+                build_expr(list, stmt->as.match_expr.expr, env);
+                emit_literal(list, ";\n");
+                emit_indent_item(list, indent + 1);
+                emit_literal(list, "switch (_m) {\n");
+            } else {
+                emit_literal(list, prefixed_union);
+                emit_literal(list, " _m = ");
+                build_expr(list, stmt->as.match_expr.expr, env);
+                emit_literal(list, ";\n");
+                emit_indent_item(list, indent + 1);
+                emit_literal(list, "switch (_m.tag) {\n");
+            }
 
             int has_wildcard_arm = 0;
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
@@ -2728,6 +2892,28 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 if (strcmp(variant_name, "_") == 0) {
                     /* Wildcard arm: _ => { body }  emits default: */
                     emit_literal(list, "default: {\n");
+
+                    if (arm_body) {
+                        if (arm_body->type == AST_BLOCK) {
+                            for (int j = 0; j < arm_body->as.block.count; j++) {
+                                build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                            }
+                        } else {
+                            emit_indent_item(list, indent + 3);
+                            build_expr(list, arm_body, env);
+                            emit_literal(list, ";\n");
+                        }
+                    }
+
+                    emit_indent_item(list, indent + 3);
+                    emit_literal(list, "break;\n");
+                    emit_indent_item(list, indent + 2);
+                    emit_literal(list, "}\n");
+                } else if (strncmp(variant_name, "INT:", 4) == 0) {
+                    /* Integer literal arm: case N: { body } */
+                    emit_literal(list, "case ");
+                    emit_literal(list, variant_name + 4);  /* skip "INT:" prefix */
+                    emit_literal(list, ": {\n");
 
                     if (arm_body) {
                         if (arm_body->type == AST_BLOCK) {
@@ -3143,6 +3329,69 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, "++) ");
                 build_stmt(list, scopes, stmt->as.for_stmt.body, indent, env, fn_registry);
             } else {
+                /* Check if range is a dyn_array (array<T>) variable */
+                bool is_dyn_array = false;
+                Type dyn_elem_type = TYPE_INT;
+
+                if (range && range->type == AST_IDENTIFIER) {
+                    Symbol *arr_sym = env_get_var(env, range->as.identifier);
+                    if (arr_sym && arr_sym->type == TYPE_ARRAY) {
+                        is_dyn_array = true;
+                        dyn_elem_type = arr_sym->element_type;
+                    }
+                }
+
+                if (is_dyn_array) {
+                    /* for x in array_var =>
+                     * { DynArray* __nl_arr = array_var;
+                     *   int64_t __nl_len = dyn_array_length(__nl_arr);
+                     *   for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {
+                     *     <elem_type> var = dyn_array_get_<T>(__nl_arr, __nl_idx);
+                     *     body_stmts; } }
+                     */
+                    const char *get_fn;
+                    const char *c_elem_type;
+                    if (dyn_elem_type == TYPE_FLOAT) {
+                        get_fn = "dyn_array_get_float";
+                        c_elem_type = "double";
+                    } else if (dyn_elem_type == TYPE_STRING) {
+                        get_fn = "dyn_array_get_string";
+                        c_elem_type = "const char*";
+                    } else if (dyn_elem_type == TYPE_BOOL) {
+                        get_fn = "dyn_array_get_bool";
+                        c_elem_type = "int64_t";
+                    } else {
+                        get_fn = "dyn_array_get_int";
+                        c_elem_type = "int64_t";
+                    }
+                    emit_indent_item(list, indent);
+                    emit_literal(list, "{\n");
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "DynArray* __nl_arr = ");
+                    build_expr(list, range, env);
+                    emit_literal(list, ";\n");
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "int64_t __nl_len = dyn_array_length(__nl_arr);\n");
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
+                    emit_indent_item(list, indent + 2);
+                    emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
+                                   c_elem_type, var, get_fn);
+                    /* Emit body statements */
+                    ASTNode *dyn_body = stmt->as.for_stmt.body;
+                    scope_stack_push(scopes);
+                    if (dyn_body && dyn_body->type == AST_BLOCK) {
+                        for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
+                            build_stmt(list, scopes, dyn_body->as.block.statements[bi], indent + 2, env, fn_registry);
+                        }
+                    }
+                    scope_stack_pop(scopes);
+                    emit_indent_item(list, indent + 1);
+                    emit_literal(list, "}\n");
+                    emit_indent_item(list, indent);
+                    emit_literal(list, "}\n");
+                } else {
+
                 /* Check if range is a List variable */
                 bool is_list = false;
                 Type list_elem_type = TYPE_INT;
@@ -3232,6 +3481,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent);
                     emit_literal(list, "/* unsupported for-in pattern */;\n");
                 }
+                } /* end else (!is_dyn_array) */
             }
             break;
         }

@@ -273,6 +273,131 @@ static time_t get_mtime(const char *path) {
     return st.st_mtime;
 }
 
+/* ============================================================
+ * Incremental compilation: content-hash cache
+ *
+ * Stores FNV-1a hashes of each C source + header in
+ *   <module_dir>/.build/source_hashes.json
+ * On rebuild check: if all hashes match, skip compilation
+ * even when mtime is newer (e.g. after git checkout).
+ * ============================================================ */
+
+/* FNV-1a 64-bit hash of file contents */
+static uint64_t hash_file_fnv1a(const char *path) {
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return 0;
+
+    uint64_t h = 14695981039346656037ULL;
+    unsigned char buf[4096];
+    size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        for (size_t i = 0; i < n; i++) {
+            h ^= (uint64_t)buf[i];
+            h *= 1099511628211ULL;
+        }
+    }
+    fclose(fp);
+    return h;
+}
+
+/* Path to the hash cache file for a module */
+static char *hash_cache_path(const char *module_dir) {
+    char *build_dir = module_get_build_dir(module_dir);
+    if (!build_dir) return NULL;
+    char *out = malloc(strlen(build_dir) + 32);
+    if (out) snprintf(out, strlen(build_dir) + 32, "%s/source_hashes.json", build_dir);
+    free(build_dir);
+    return out;
+}
+
+/* Load hash cache JSON for a module (caller must cJSON_Delete) */
+static cJSON *load_hash_cache(const char *module_dir) {
+    char *path = hash_cache_path(module_dir);
+    if (!path) return NULL;
+    FILE *fp = fopen(path, "r");
+    free(path);
+    if (!fp) return NULL;
+    fseek(fp, 0, SEEK_END);
+    long sz = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    if (sz <= 0) { fclose(fp); return NULL; }
+    char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(fp); return NULL; }
+    fread(buf, 1, (size_t)sz, fp);
+    buf[sz] = '\0';
+    fclose(fp);
+    cJSON *root = cJSON_Parse(buf);
+    free(buf);
+    return root;
+}
+
+/* Save hash cache JSON for a module */
+static void save_hash_cache(const char *module_dir, cJSON *root) {
+    char *path = hash_cache_path(module_dir);
+    if (!path) return;
+    char *text = cJSON_PrintUnformatted(root);
+    if (!text) { free(path); return; }
+    FILE *fp = fopen(path, "w");
+    if (fp) { fputs(text, fp); fclose(fp); }
+    free(text);
+    free(path);
+}
+
+/* Update the on-disk hash cache after a successful build */
+void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta) {
+    if (!meta || meta->c_sources_count == 0) return;
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return;
+    for (size_t i = 0; i < meta->c_sources_count; i++) {
+        char src[1024];
+        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
+        uint64_t h = hash_file_fnv1a(src);
+        char hstr[24];
+        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+        cJSON_AddStringToObject(root, meta->c_sources[i], hstr);
+    }
+    /* Also hash module.json itself */
+    char mj[1024];
+    snprintf(mj, sizeof(mj), "%s/module.json", module_dir);
+    uint64_t mj_hash = hash_file_fnv1a(mj);
+    char mj_hstr[24];
+    snprintf(mj_hstr, sizeof(mj_hstr), "%llu", (unsigned long long)mj_hash);
+    cJSON_AddStringToObject(root, "module.json", mj_hstr);
+    save_hash_cache(module_dir, root);
+    cJSON_Delete(root);
+}
+
+/* Returns true if all source hashes match the cache → skip rebuild */
+static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
+    cJSON *cache = load_hash_cache(module_dir);
+    if (!cache) return false;
+    bool match = true;
+    for (size_t i = 0; i < meta->c_sources_count && match; i++) {
+        char src[1024];
+        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
+        uint64_t h = hash_file_fnv1a(src);
+        char hstr[24];
+        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+        cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, meta->c_sources[i]);
+        if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0) {
+            match = false;
+        }
+    }
+    /* Check module.json hash */
+    if (match) {
+        char mj[1024];
+        snprintf(mj, sizeof(mj), "%s/module.json", module_dir);
+        uint64_t h = hash_file_fnv1a(mj);
+        char hstr[24];
+        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+        cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, "module.json");
+        if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+            match = false;
+    }
+    cJSON_Delete(cache);
+    return match;
+}
+
 // Helper: Create directory (mkdir -p)
 static bool mkdir_p(const char *path) {
     char tmp[1024];
@@ -1197,6 +1322,16 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
         return true;
     }
 
+    /* Fast path: compare content hashes. If all hashes match the
+     * persisted cache, sources haven't changed regardless of mtime
+     * (handles git checkout, rsync copies, CI environments). */
+    if (hashes_match(module_dir, meta)) {
+        if (module_builder_verbose) {
+            printf("[Module] %s up-to-date (hash cache hit)\n", meta->name);
+        }
+        return false;
+    }
+
     time_t object_mtime = get_mtime(object_file);
 
     // Check if any C source is newer
@@ -1616,6 +1751,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 printf("[Module] ✓ Built shared library %s\n", shared_lib);
             }
         }
+        /* Update hash cache so next build can skip mtime check */
+        module_update_hash_cache(meta->module_dir, meta);
     } else {
         if (module_builder_verbose) {
             printf("[Module] %s up to date (using cache)\n", meta->name);

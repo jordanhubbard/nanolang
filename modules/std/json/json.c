@@ -104,6 +104,12 @@ int64_t nl_json_as_int(void* json) {
     return (int64_t)cJSON_GetNumberValue((cJSON*)json);
 }
 
+double nl_json_as_float(void* json) {
+    if (!json) return 0.0;
+    if (!cJSON_IsNumber((cJSON*)json)) return 0.0;
+    return cJSON_GetNumberValue((cJSON*)json);
+}
+
 int64_t nl_json_as_bool(void* json) {
     if (!json) return 0;
     if (cJSON_IsBool((cJSON*)json)) return cJSON_IsTrue((cJSON*)json) ? 1 : 0;

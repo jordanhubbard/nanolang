@@ -3616,14 +3616,30 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             arm_bodies = realloc(arm_bodies, sizeof(ASTNode*) * capacity);
         }
         
-        /* Parse pattern: VariantName(binding)  or wildcard:  _ */
-        if (!match(p, TOKEN_IDENTIFIER)) {
-            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name in match pattern\n",
+        /* Parse pattern: VariantName(binding),  wildcard: _,  or integer literal: 42 */
+        int is_int_arm = match(p, TOKEN_NUMBER);
+        if (!is_int_arm && !match(p, TOKEN_IDENTIFIER)) {
+            parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected variant name or integer in match pattern\n",
                     current_token(p)->line, current_token(p)->column);
             break;
         }
-        pattern_variants[count] = strdup(current_token(p)->value);
-        advance(p);
+
+        if (is_int_arm) {
+            /* Integer literal arm: 42 => { body } — no binding */
+            char int_pattern[64];
+            snprintf(int_pattern, sizeof(int_pattern), "INT:%s", current_token(p)->value);
+            pattern_variants[count] = strdup(int_pattern);
+            advance(p);
+            pattern_bindings[count] = strdup("_");
+
+            if (!expect(p, TOKEN_ARROW, "Expected '=>' after integer pattern in match")) {
+                free(pattern_variants[count]);
+                free(pattern_bindings[count]);
+                break;
+            }
+        } else {
+            pattern_variants[count] = strdup(current_token(p)->value);
+            advance(p);
 
         if (strcmp(pattern_variants[count], "_") == 0) {
             /* Wildcard arm: _ => { body }  — no binding parens */
@@ -3668,6 +3684,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
                 break;
             }
         }
+        } /* end else (not is_int_arm) */
         
         /* Parse arm body - should be an expression or block */
         if (match(p, TOKEN_LBRACE)) {

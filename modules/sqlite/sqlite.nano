@@ -1,60 +1,254 @@
-# sqlite.nano - SQLite3 embedded database module for nanolang
-#
-# Provides SQL database functionality for local data storage.
-#
-# Example usage:
-#   import "modules/sqlite/sqlite.nano"
-#   
-#   fn main() -> int {
-#       let db: int = (nl_sqlite3_open "test.db")
-#       (nl_sqlite3_exec db "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)")
-#       (nl_sqlite3_exec db "INSERT INTO users (name) VALUES ('Alice')")
-#       (nl_sqlite3_close db)
-#       return 0
-#   }
+/* =============================================================================
+ * sqlite - SQLite3 embedded database module
+ * ============================================================================= */
 
-# ============================================================================
-# Version information
-# ============================================================================
+module sqlite
+
+/* SQLite result codes */
+pub fn SQLITE_OK() -> int { return 0 }
+shadow SQLITE_OK { assert (== (SQLITE_OK) 0) }
+
+pub fn SQLITE_ROW() -> int { return 100 }
+shadow SQLITE_ROW { assert (== (SQLITE_ROW) 100) }
+
+pub fn SQLITE_DONE() -> int { return 101 }
+shadow SQLITE_DONE { assert (== (SQLITE_DONE) 101) }
+
+/* Column type constants */
+pub fn SQLITE_INTEGER() -> int { return 1 }
+shadow SQLITE_INTEGER { assert (== (SQLITE_INTEGER) 1) }
+
+pub fn SQLITE_FLOAT() -> int { return 2 }
+shadow SQLITE_FLOAT { assert (== (SQLITE_FLOAT) 2) }
+
+pub fn SQLITE_TEXT() -> int { return 3 }
+shadow SQLITE_TEXT { assert (== (SQLITE_TEXT) 3) }
+
+pub fn SQLITE_BLOB() -> int { return 4 }
+shadow SQLITE_BLOB { assert (== (SQLITE_BLOB) 4) }
+
+pub fn SQLITE_NULL() -> int { return 5 }
+shadow SQLITE_NULL { assert (== (SQLITE_NULL) 5) }
+
+/* ============================================================================
+ * Version
+ * ============================================================================ */
 
 extern fn nl_sqlite3_version() -> string
 extern fn nl_sqlite3_version_number() -> int
 
-# ============================================================================
-# Database management
-# ============================================================================
+pub fn version() -> string {
+    return (nl_sqlite3_version)
+}
+
+shadow version {
+    let v: string = (version)
+    assert (!= v "")
+}
+
+pub fn version_number() -> int {
+    return (nl_sqlite3_version_number)
+}
+
+shadow version_number {
+    let n: int = (version_number)
+    assert (> n 0)
+}
+
+/* ============================================================================
+ * Database management
+ * ============================================================================ */
 
 extern fn nl_sqlite3_open(_filename: string) -> int
 extern fn nl_sqlite3_close(_db: int) -> int
 extern fn nl_sqlite3_errmsg(_db: int) -> string
 
-# ============================================================================
-# Simple execution (no result set)
-# ============================================================================
+pub fn open(filename: string) -> int {
+    return (nl_sqlite3_open filename)
+}
+
+shadow open {
+    let db: int = (open ":memory:")
+    assert (!= db 0)
+    (close db)
+}
+
+pub fn close(db: int) -> int {
+    return (nl_sqlite3_close db)
+}
+
+shadow close {
+    let db: int = (open ":memory:")
+    let rc: int = (close db)
+    assert (== rc 0)
+}
+
+pub fn errmsg(db: int) -> string {
+    return (nl_sqlite3_errmsg db)
+}
+
+shadow errmsg {
+    let db: int = (open ":memory:")
+    let msg: string = (errmsg db)
+    assert (!= msg "")
+    (close db)
+}
+
+/* ============================================================================
+ * Simple execution (no result set)
+ * ============================================================================ */
 
 extern fn nl_sqlite3_exec(_db: int, _sql: string) -> int
 
-# ============================================================================
-# Prepared statements
-# ============================================================================
+pub fn exec(db: int, sql: string) -> int {
+    return (nl_sqlite3_exec db sql)
+}
+
+shadow exec {
+    let db: int = (open ":memory:")
+    let rc: int = (exec db "CREATE TABLE t (x INTEGER)")
+    assert (== rc 0)
+    (close db)
+}
+
+/* ============================================================================
+ * Prepared statements
+ * ============================================================================ */
 
 extern fn nl_sqlite3_prepare(_db: int, _sql: string) -> int
 extern fn nl_sqlite3_finalize(_stmt: int) -> int
 extern fn nl_sqlite3_step(_stmt: int) -> int
 extern fn nl_sqlite3_reset(_stmt: int) -> int
 
-# ============================================================================
-# Binding parameters (1-based index)
-# ============================================================================
+pub fn prepare(db: int, sql: string) -> int {
+    return (nl_sqlite3_prepare db sql)
+}
+
+shadow prepare {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    assert (!= stmt 0)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn finalize(stmt: int) -> int {
+    return (nl_sqlite3_finalize stmt)
+}
+
+shadow finalize {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    let rc: int = (finalize stmt)
+    assert (== rc 0)
+    (close db)
+}
+
+pub fn step(stmt: int) -> int {
+    return (nl_sqlite3_step stmt)
+}
+
+shadow step {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (42)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    let rc: int = (step stmt)
+    assert (== rc 100)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn reset(stmt: int) -> int {
+    return (nl_sqlite3_reset stmt)
+}
+
+shadow reset {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (1)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    (step stmt)
+    let rc: int = (reset stmt)
+    assert (== rc 0)
+    (finalize stmt)
+    (close db)
+}
+
+/* ============================================================================
+ * Parameter binding (1-based index)
+ * ============================================================================ */
 
 extern fn nl_sqlite3_bind_int(_stmt: int, _index: int, _value: int) -> int
 extern fn nl_sqlite3_bind_double(_stmt: int, _index: int, _value: float) -> int
 extern fn nl_sqlite3_bind_text(_stmt: int, _index: int, _value: string) -> int
 extern fn nl_sqlite3_bind_null(_stmt: int, _index: int) -> int
 
-# ============================================================================
-# Reading result columns (0-based index)
-# ============================================================================
+pub fn bind_int(stmt: int, index: int, value: int) -> int {
+    return (nl_sqlite3_bind_int stmt index value)
+}
+
+shadow bind_int {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let stmt: int = (prepare db "INSERT INTO t VALUES (?)")
+    let rc: int = (bind_int stmt 1 99)
+    assert (== rc 0)
+    (step stmt)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn bind_double(stmt: int, index: int, value: float) -> int {
+    return (nl_sqlite3_bind_double stmt index value)
+}
+
+shadow bind_double {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x REAL)")
+    let stmt: int = (prepare db "INSERT INTO t VALUES (?)")
+    let rc: int = (bind_double stmt 1 3.14)
+    assert (== rc 0)
+    (step stmt)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn bind_text(stmt: int, index: int, value: string) -> int {
+    return (nl_sqlite3_bind_text stmt index value)
+}
+
+shadow bind_text {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x TEXT)")
+    let stmt: int = (prepare db "INSERT INTO t VALUES (?)")
+    let rc: int = (bind_text stmt 1 "hello")
+    assert (== rc 0)
+    (step stmt)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn bind_null(stmt: int, index: int) -> int {
+    return (nl_sqlite3_bind_null stmt index)
+}
+
+shadow bind_null {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let stmt: int = (prepare db "INSERT INTO t VALUES (?)")
+    let rc: int = (bind_null stmt 1)
+    assert (== rc 0)
+    (step stmt)
+    (finalize stmt)
+    (close db)
+}
+
+/* ============================================================================
+ * Column reading (0-based index)
+ * ============================================================================ */
 
 extern fn nl_sqlite3_column_count(_stmt: int) -> int
 extern fn nl_sqlite3_column_name(_stmt: int, _index: int) -> string
@@ -63,17 +257,216 @@ extern fn nl_sqlite3_column_double(_stmt: int, _index: int) -> float
 extern fn nl_sqlite3_column_text(_stmt: int, _index: int) -> string
 extern fn nl_sqlite3_column_type(_stmt: int, _index: int) -> int
 
-# ============================================================================
-# Database info
-# ============================================================================
+pub fn column_count(stmt: int) -> int {
+    return (nl_sqlite3_column_count stmt)
+}
+
+shadow column_count {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (a INTEGER, b TEXT)")
+    let stmt: int = (prepare db "SELECT a, b FROM t")
+    let n: int = (column_count stmt)
+    assert (== n 2)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn column_name(stmt: int, index: int) -> string {
+    return (nl_sqlite3_column_name stmt index)
+}
+
+shadow column_name {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (mycol INTEGER)")
+    let stmt: int = (prepare db "SELECT mycol FROM t")
+    let nm: string = (column_name stmt 0)
+    assert (== nm "mycol")
+    (finalize stmt)
+    (close db)
+}
+
+pub fn column_int(stmt: int, index: int) -> int {
+    return (nl_sqlite3_column_int stmt index)
+}
+
+shadow column_int {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (77)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    (step stmt)
+    let v: int = (column_int stmt 0)
+    assert (== v 77)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn column_double(stmt: int, index: int) -> float {
+    return (nl_sqlite3_column_double stmt index)
+}
+
+shadow column_double {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x REAL)")
+    (exec db "INSERT INTO t VALUES (2.5)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    (step stmt)
+    let v: float = (column_double stmt 0)
+    assert (> v 2.0)
+    (finalize stmt)
+    (close db)
+}
+
+pub fn column_text(stmt: int, index: int) -> string {
+    return (nl_sqlite3_column_text stmt index)
+}
+
+shadow column_text {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x TEXT)")
+    (exec db "INSERT INTO t VALUES ('nano')")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    (step stmt)
+    let v: string = (column_text stmt 0)
+    assert (== v "nano")
+    (finalize stmt)
+    (close db)
+}
+
+pub fn column_type(stmt: int, index: int) -> int {
+    return (nl_sqlite3_column_type stmt index)
+}
+
+shadow column_type {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (1)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    (step stmt)
+    let t: int = (column_type stmt 0)
+    assert (== t 1)
+    (finalize stmt)
+    (close db)
+}
+
+/* ============================================================================
+ * Database info
+ * ============================================================================ */
 
 extern fn nl_sqlite3_last_insert_rowid(_db: int) -> int
 extern fn nl_sqlite3_changes(_db: int) -> int
 
-# ============================================================================
-# Transactions
-# ============================================================================
+pub fn last_insert_rowid(db: int) -> int {
+    return (nl_sqlite3_last_insert_rowid db)
+}
+
+shadow last_insert_rowid {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (id INTEGER PRIMARY KEY, x TEXT)")
+    (exec db "INSERT INTO t (x) VALUES ('a')")
+    let rowid: int = (last_insert_rowid db)
+    assert (> rowid 0)
+    (close db)
+}
+
+pub fn changes(db: int) -> int {
+    return (nl_sqlite3_changes db)
+}
+
+shadow changes {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (1)")
+    (exec db "INSERT INTO t VALUES (2)")
+    (exec db "UPDATE t SET x = 0")
+    let n: int = (changes db)
+    assert (== n 2)
+    (close db)
+}
+
+/* ============================================================================
+ * Transactions
+ * ============================================================================ */
 
 extern fn nl_sqlite3_begin_transaction(_db: int) -> int
 extern fn nl_sqlite3_commit(_db: int) -> int
 extern fn nl_sqlite3_rollback(_db: int) -> int
+
+pub fn begin_transaction(db: int) -> int {
+    return (nl_sqlite3_begin_transaction db)
+}
+
+pub fn commit(db: int) -> int {
+    return (nl_sqlite3_commit db)
+}
+
+pub fn rollback(db: int) -> int {
+    return (nl_sqlite3_rollback db)
+}
+
+shadow begin_transaction {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let rc: int = (begin_transaction db)
+    assert (== rc 0)
+    (exec db "INSERT INTO t VALUES (1)")
+    (commit db)
+    (close db)
+}
+
+shadow rollback {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (begin_transaction db)
+    (exec db "INSERT INTO t VALUES (1)")
+    let rc: int = (rollback db)
+    assert (== rc 0)
+    (close db)
+}
+
+/* ============================================================================
+ * High-level helpers
+ * ============================================================================ */
+
+/* Execute SQL and return true on success */
+pub fn exec_ok(db: int, sql: string) -> bool {
+    return (== (nl_sqlite3_exec db sql) 0)
+}
+
+shadow exec_ok {
+    let db: int = (open ":memory:")
+    assert (exec_ok db "CREATE TABLE t (x INTEGER)")
+    assert (exec_ok db "INSERT INTO t VALUES (42)")
+    (close db)
+}
+
+/* Check whether step returned a row */
+pub fn has_row(step_result: int) -> bool {
+    return (== step_result 100)
+}
+
+shadow has_row {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    (exec db "INSERT INTO t VALUES (1)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    let rc: int = (step stmt)
+    assert (has_row rc)
+    (finalize stmt)
+    (close db)
+}
+
+/* Check whether step is done (no more rows) */
+pub fn is_done(step_result: int) -> bool {
+    return (== step_result 101)
+}
+
+shadow is_done {
+    let db: int = (open ":memory:")
+    (exec db "CREATE TABLE t (x INTEGER)")
+    let stmt: int = (prepare db "SELECT x FROM t")
+    let rc: int = (step stmt)
+    assert (is_done rc)
+    (finalize stmt)
+    (close db)
+}

@@ -2562,7 +2562,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         case AST_MATCH: {
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
-            if (match_type != TYPE_UNION) {
+            /* Allow int-pattern match: any arm variant starts with "INT:" */
+            int has_int_patterns_expr = 0;
+            for (int _pi = 0; _pi < expr->as.match_expr.arm_count; _pi++) {
+                if (expr->as.match_expr.pattern_variants[_pi] &&
+                    strncmp(expr->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
+                    has_int_patterns_expr = 1;
+                    break;
+                }
+            }
+            if (match_type != TYPE_UNION && !has_int_patterns_expr) {
                 fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
                         expr->line, expr->column);
                 return TYPE_UNKNOWN;
@@ -2897,6 +2906,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 Type inferred = check_expression(stmt->as.let.value, tc->env);
                 stmt->as.let.var_type = inferred;
                 declared_type = inferred;
+                /* Infer element type for array literals */
+                if (inferred == TYPE_ARRAY && stmt->as.let.element_type == TYPE_UNKNOWN) {
+                    if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
+                        ASTNode *alit = stmt->as.let.value;
+                        if (alit->as.array_literal.element_count > 0) {
+                            stmt->as.let.element_type = check_expression(alit->as.array_literal.elements[0], tc->env);
+                            alit->as.array_literal.element_type = stmt->as.let.element_type;
+                        }
+                    }
+                }
                 /* Infer struct/union type_name from expression where possible */
                 if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {
                     /* Try to extract type name from the RHS expression */
@@ -3362,7 +3381,19 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             Type loop_var_type = TYPE_INT;  /* default for range(start, end) */
             const char *loop_var_struct_name = NULL;
 
-            if (iter_type == TYPE_LIST_STRING) {
+            if (iter_type == TYPE_ARRAY) {
+                /* Look up array variable to get element type */
+                ASTNode *rng = stmt->as.for_stmt.range_expr;
+                if (rng && rng->type == AST_IDENTIFIER) {
+                    Symbol *arr_sym = env_get_var(tc->env, rng->as.identifier);
+                    if (arr_sym && arr_sym->element_type != TYPE_UNKNOWN) {
+                        loop_var_type = arr_sym->element_type;
+                    }
+                    if (loop_var_type == TYPE_STRUCT && arr_sym && arr_sym->struct_type_name) {
+                        loop_var_struct_name = arr_sym->struct_type_name;
+                    }
+                }
+            } else if (iter_type == TYPE_LIST_STRING) {
                 loop_var_type = TYPE_STRING;
             } else if (iter_type == TYPE_LIST_GENERIC) {
                 /* Look up list variable to get element type */
@@ -3464,8 +3495,15 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_BLOCK: {
             Type last_type = TYPE_VOID;
+            bool returned = false;
             for (int i = 0; i < stmt->as.block.count; i++) {
-                last_type = check_statement(tc, stmt->as.block.statements[i]);
+                ASTNode *s = stmt->as.block.statements[i];
+                if (returned) {
+                    fprintf(stderr, "Warning at line %d, column %d: Unreachable code after return\n",
+                            s->line, s->column);
+                }
+                last_type = check_statement(tc, s);
+                if (s->type == AST_RETURN) returned = true;
             }
             return last_type;
         }
@@ -3540,7 +3578,16 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
              * current_function_return_type initialized, which can produce spurious errors.)
              */
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
-            if (match_type != TYPE_UNION) {
+            /* Allow int-pattern match: any arm variant starts with "INT:" */
+            int has_int_patterns_stmt = 0;
+            for (int _pi = 0; _pi < stmt->as.match_expr.arm_count; _pi++) {
+                if (stmt->as.match_expr.pattern_variants[_pi] &&
+                    strncmp(stmt->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
+                    has_int_patterns_stmt = 1;
+                    break;
+                }
+            }
+            if (match_type != TYPE_UNION && !has_int_patterns_stmt) {
                 emit_context_error(
                     "TYPE MISMATCH",
                     stmt->line,

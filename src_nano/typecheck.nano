@@ -2240,8 +2240,19 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     
     /* Check scrutinee (expression being matched) */
     let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
-    
-    if (!= scrutinee_type.kind TypeKind.TYPE_UNION) {
+
+    /* Detect int-pattern match: any arm variant starts with "INT:" */
+    let mut has_int_patterns: bool = false
+    let mut pat_i: int = 0
+    while (< pat_i m.arm_count) {
+        let pv: string = (at m.arm_variants pat_i)
+        if (str_starts_with pv "INT:") {
+            set has_int_patterns true
+        } else { (print "") }
+        set pat_i (+ pat_i 1)
+    }
+
+    if (and (!= scrutinee_type.kind TypeKind.TYPE_UNION) (not has_int_patterns)) {
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match expression must match on union type" (Diagnostics.diag_location file_name m.line m.column))
         (Diagnostics.diag_list_add diags diag)
         return (type_unknown_named "match_error")
@@ -2928,10 +2939,17 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
     
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
+    let mut returned: bool = false
 
     let mut i: int = 0
     while (< i stmt_count) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+
+        /* Dead code detection: warn if statement follows a return */
+        if (== returned true) {
+            let ret_diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "W0002" "Unreachable code after return" (Diagnostics.diag_location file_name 0 0))
+            (Diagnostics.diag_list_add diags ret_diag)
+        } else { (print "") }
         
         if (== block_id 1304) {
             (print "  DEBUG: Statement ")
@@ -2991,7 +3009,20 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             let mut loop_var_type: NSType = (type_int)
             if (== iter_type.kind TypeKind.TYPE_LIST_GENERIC) {
                 set loop_var_type (type_from_string_with_parser parser iter_type.element_type_name)
-            } else { (print "") }
+            } else { if (== iter_type.kind TypeKind.TYPE_ARRAY) {
+                /* Use element_type_kind directly — name is "" for array types */
+                if (== iter_type.element_type_kind TypeKind.TYPE_STRING) {
+                    set loop_var_type (type_string)
+                } else { if (== iter_type.element_type_kind TypeKind.TYPE_FLOAT) {
+                    set loop_var_type (type_float)
+                } else { if (== iter_type.element_type_kind TypeKind.TYPE_BOOL) {
+                    set loop_var_type (type_bool)
+                } else { if (== iter_type.element_type_kind TypeKind.TYPE_STRUCT) {
+                    set loop_var_type (type_from_string iter_type.element_type_name)
+                } else {
+                    set loop_var_type (type_int)
+                } } } }
+            } else { (print "") } }
             /* Add loop var to symbols, then check body */
             let loop_sym: Symbol = (symbol_new for_node.var_name loop_var_type false false 0 (empty_param_types) (type_void))
             let body_symbols: array<Symbol> = (env_add_symbol local_symbols loop_sym)
@@ -3013,6 +3044,7 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
                 set ok false
             } else { (print "") }
+            set returned true
         } else { if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
             let a: ASTAssert = (parser_get_assert parser stmt.node_id)
             let cond_raw: NSType = (check_expr_node parser a.condition a.condition_type local_symbols diags file_name)
@@ -3094,19 +3126,10 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
 
     let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
-    /* Create a fresh symbol table for this function */
-    /* Copy function symbols and mutable global variables */
-    let mut func_symbols: array<Symbol> = []
-    let mut j: int = 0
-    while (< j (array_length symbols)) {
-        let sym: Symbol = (at symbols j)
-        if (or (== sym.is_function true) (== sym.is_mutable true)) {
-            set func_symbols (array_push func_symbols sym)
-        } else {
-            (print "")
-        }
-        set j (+ j 1)
-    }
+    /* Create a fresh symbol table for this function.
+     * All symbols at this point are functions or mutable globals (set up in Phase 1),
+     * so no filtering is needed — just use them all. This avoids the O(n^2) rebuild. */
+    let mut func_symbols: array<Symbol> = symbols
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0

@@ -18,6 +18,7 @@ extern fn nl_json_is_array(_json: Json) -> int
 extern fn nl_json_is_object(_json: Json) -> int
 
 extern fn nl_json_as_int(_json: Json) -> int
+extern fn nl_json_as_float(_json: Json) -> float
 extern fn nl_json_as_bool(_json: Json) -> int
 extern fn nl_json_as_string(_json: Json) -> string
 
@@ -127,6 +128,15 @@ shadow as_int {
     (free j)
 }
 
+pub fn as_float(json: Json) -> float { return (nl_json_as_float json) }
+
+shadow as_float {
+    let j: Json = (parse "3.14")
+    let f: float = (as_float j)
+    assert (> f 3.0)
+    (free j)
+}
+
 pub fn as_bool(json: Json) -> bool { return (!= (nl_json_as_bool json) 0) }
 
 shadow as_bool {
@@ -141,6 +151,85 @@ shadow as_string {
     let j: Json = (new_string "test")
     let s: string = (as_string j)
     assert (== s "test")
+    (free j)
+}
+
+/* Typed field getters — additional typed helpers for float/bool/arrays */
+pub fn get_float(obj: Json, key: string) -> float {
+    let it: Json = (get obj key)
+    if (== it 0) {
+        return 0.0
+    }
+    let f: float = (as_float it)
+    (free it)
+    return f
+}
+
+shadow get_float {
+    let j: Json = (parse "{\"x\": 1.5}")
+    let f: float = (get_float j "x")
+    assert (> f 1.0)
+    assert (== (get_float j "missing") 0.0)
+    (free j)
+}
+
+pub fn get_bool(obj: Json, key: string) -> bool {
+    let it: Json = (get obj key)
+    if (== it 0) {
+        return false
+    }
+    let b: bool = (as_bool it)
+    (free it)
+    return b
+}
+
+shadow get_bool {
+    let j: Json = (parse "{\"ok\": true}")
+    assert (get_bool j "ok")
+    assert (not (get_bool j "missing"))
+    (free j)
+}
+
+/* Decode a JSON array of ints into an array<int> */
+pub fn decode_int_array(arr: Json) -> array<int> {
+    let n: int = (array_size arr)
+    let mut result: array<int> = []
+    let mut i: int = 0
+    while (< i n) {
+        let elem: Json = (get_index arr i)
+        set result (array_push result (as_int elem))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow decode_int_array {
+    let j: Json = (parse "[1, 2, 3]")
+    let arr: array<int> = (decode_int_array j)
+    assert (== (array_length arr) 3)
+    assert (== (at arr 0) 1)
+    assert (== (at arr 2) 3)
+    (free j)
+}
+
+/* Decode a JSON array of strings into an array<string> */
+pub fn decode_string_array(arr: Json) -> array<string> {
+    let n: int = (array_size arr)
+    let mut result: array<string> = []
+    let mut i: int = 0
+    while (< i n) {
+        let elem: Json = (get_index arr i)
+        set result (array_push result (as_string elem))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow decode_string_array {
+    let j: Json = (parse "[\"a\", \"b\"]")
+    let arr: array<string> = (decode_string_array j)
+    assert (== (array_length arr) 2)
+    assert (== (at arr 0) "a")
     (free j)
 }
 

@@ -2232,13 +2232,63 @@ fn parse_match(p: Parser) -> Parser {
                         let p_end: Parser = (parser_advance pcur)
                         return (parser_store_match p_end scrutinee_id scrutinee_type arm_variants arm_bindings arm_body_ids arm_body_types arm_count tok.line tok.column)
                     } else {
-                        if (!= tcur.token_type (token_identifier)) {
+                        if (and (!= tcur.token_type (token_identifier)) (!= tcur.token_type (token_number))) {
                             return (parser_with_error pcur true)
                         } else {
                             let variant_name: string = tcur.value
                             let p1a: Parser = (parser_advance pcur)
+                            /* Integer literal arm: 42 => { body }  — no binding parens */
+                            if (== tcur.token_type (token_number)) {
+                                let int_pattern: string = (str_concat "INT:" variant_name)
+                                let p1e: Parser = (parser_expect p1a (token_arrow))
+                                if (parser_has_error p1e) { return p1e } else {
+                                    if (parser_is_at_end p1e) {
+                                        return (parser_with_error p1e true)
+                                    } else {
+                                        let tbody: LexerToken = (parser_current p1e)
+                                        if (== tbody.token_type (token_lbrace)) {
+                                            let pbody: Parser = (parse_block p1e)
+                                            if (parser_has_error pbody) {
+                                                return pbody
+                                            } else {
+                                                set arm_variants (array_push arm_variants int_pattern)
+                                                set arm_bindings (array_push arm_bindings "_")
+                                                set arm_body_ids (array_push arm_body_ids pbody.last_expr_node_id)
+                                                set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
+                                                set arm_count (+ arm_count 1)
+                                                set pcur pbody
+
+                                                if (not (parser_is_at_end pcur)) {
+                                                    let tnext: LexerToken = (parser_current pcur)
+                                                    if (== tnext.token_type (token_comma)) {
+                                                        set pcur (parser_advance pcur)
+                                                    } else { (print "") }
+                                                } else { (print "") }
+                                            }
+                                        } else {
+                                            let pexpr: Parser = (parse_expression p1e)
+                                            if (parser_has_error pexpr) {
+                                                return pexpr
+                                            } else {
+                                                set arm_variants (array_push arm_variants int_pattern)
+                                                set arm_bindings (array_push arm_bindings "_")
+                                                set arm_body_ids (array_push arm_body_ids pexpr.last_expr_node_id)
+                                                set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
+                                                set arm_count (+ arm_count 1)
+                                                set pcur pexpr
+
+                                                if (not (parser_is_at_end pcur)) {
+                                                    let tnext: LexerToken = (parser_current pcur)
+                                                    if (== tnext.token_type (token_comma)) {
+                                                        set pcur (parser_advance pcur)
+                                                    } else { (print "") }
+                                                } else { (print "") }
+                                            }
+                                        }
+                                    }
+                                }
                             /* Wildcard arm: _ => { body }  — no binding parens */
-                            if (== variant_name "_") {
+                            } else if (== variant_name "_") {
                                 let p1e: Parser = (parser_expect p1a (token_arrow))
                                 if (parser_has_error p1e) { return p1e } else {
                                     if (parser_is_at_end p1e) {
@@ -4381,6 +4431,19 @@ shadow parser_store_block {
     assert (== 1 1)
 }
 
+/* Helper: Wrap an IF node (by ID) in a synthetic block containing just that IF statement.
+ * This ensures else_body is always a block ID, fixing else-if chain type-checking. */
+fn parser_wrap_if_in_block(p: Parser, if_id: int, line: int, column: int) -> Parser {
+    let stmts: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let stmt_ref: ASTStmtRef = ASTStmtRef { node_id: if_id, node_type: ParseNodeType.PNODE_IF }
+    (list_ASTStmtRef_push stmts stmt_ref)
+    return (parser_store_block p stmts line column)
+}
+
+shadow parser_wrap_if_in_block {
+    assert (== 1 1)
+}
+
 /* Parse block: { statements } */
 /* Uses recursive helper for functional style */
 fn expr_kind_to_pnode(kind: int) -> int {
@@ -4888,8 +4951,14 @@ fn parse_if_statement(p: Parser) -> Parser {
                                 let tok3: LexerToken = (parser_current p4)
                                 let mut p5: Parser = p4
                                 if (== tok3.token_type (token_if)) {
-                                    /* else if - parse as if statement */
-                                    set p5 (parse_if_statement p4)
+                                    /* else if - parse as if statement, then wrap in a block
+                                     * so that else_body is always a block ID */
+                                    let p5_if: Parser = (parse_if_statement p4)
+                                    if (parser_has_error p5_if) {
+                                        return p5_if
+                                    } else {
+                                        set p5 (parser_wrap_if_in_block p5_if p5_if.last_expr_node_id tok3.line tok3.column)
+                                    }
                                 } else {
                                     /* else { block } - parse as block */
                                     set p5 (parse_block p4)

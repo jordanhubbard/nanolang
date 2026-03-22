@@ -1973,6 +1973,112 @@ shadow genenv_get_mut {
     assert (== (genenv_get_mut env3 "unknown") false)
 }
 
+/* --- String interpolation helpers --- */
+
+fn transp_is_ident_start_str(c: string) -> bool {
+    return (str_contains "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_" c)
+}
+
+fn transp_is_ident_char_str(c: string) -> bool {
+    return (str_contains "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789" c)
+}
+
+/* Given an identifier and its type, emit the C expression that converts it to const char*.
+   Uses nl_int_to_string / nl_float_to_string as emitted by gen_c_runtime. */
+fn interp_to_str_expr(ident: string, type_str: string) -> string {
+    let c_name: string = (+ "nl_" (mangle_name ident))
+    if (== type_str "int") {
+        return (+ (+ "nl_int_to_string(" c_name) ")")
+    } else { if (== type_str "float") {
+        return (+ (+ "nl_float_to_string(" c_name) ")")
+    } else { if (== type_str "bool") {
+        return (+ (+ "nl_int_to_string(" c_name) ")")
+    } else {
+        /* string or unknown - use directly */
+        return c_name
+    } } }
+}
+
+/* Expand "Hello, {name}!" into nl_str_concat(...) chain if interpolation present.
+   Returns C expression. raw is the string content (no surrounding quotes). */
+fn expand_string_interp(raw: string, env: GenEnv) -> string {
+    let len: int = (str_length raw)
+    let mut i: int = 0
+    let mut current_lit: string = ""
+    let mut parts: array<string> = []
+
+    while (< i len) {
+        let ch: string = (str_substring raw i 1)
+        if (== ch "{") {
+            if (< (+ i 1) len) {
+                let next_ch: string = (str_substring raw (+ i 1) 1)
+                if (== (transp_is_ident_start_str next_ch) true) {
+                    /* Scan the identifier */
+                    let mut j: int = (+ i 1)
+                    while (and (< j len) (== (transp_is_ident_char_str (str_substring raw j 1)) true)) {
+                        set j (+ j 1)
+                    }
+                    if (and (< j len) (== (str_substring raw j 1) "}")) {
+                        /* Valid {ident} — emit literal so far, then conversion */
+                        let ident: string = (str_substring raw (+ i 1) (- j (+ i 1)))
+                        if (!= current_lit "") {
+                            set parts (array_push parts (+ (+ "\"" current_lit) "\""))
+                            set current_lit ""
+                        }
+                        let type_str: string = (genenv_get env ident)
+                        set parts (array_push parts (interp_to_str_expr ident type_str))
+                        set i (+ j 1)
+                    } else {
+                        set current_lit (+ current_lit ch)
+                        set i (+ i 1)
+                    }
+                } else {
+                    set current_lit (+ current_lit ch)
+                    set i (+ i 1)
+                }
+            } else {
+                set current_lit (+ current_lit ch)
+                set i (+ i 1)
+            }
+        } else {
+            set current_lit (+ current_lit ch)
+            set i (+ i 1)
+        }
+    }
+
+    if (!= current_lit "") {
+        set parts (array_push parts (+ (+ "\"" current_lit) "\""))
+    }
+
+    let parts_len: int = (array_length parts)
+    if (== parts_len 0) {
+        return "\"\""
+    } else { if (== parts_len 1) {
+        return (at parts 0)
+    } else {
+        /* Build nested nl_str_concat calls */
+        let mut result: string = (at parts 0)
+        let mut k: int = 1
+        while (< k parts_len) {
+            set result (+ (+ (+ "nl_str_concat(" result) ", ") (+ (at parts k) ")"))
+            set k (+ k 1)
+        }
+        return result
+    } }
+}
+
+shadow expand_string_interp {
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "name" "string" false)
+    let env3: GenEnv = (genenv_put env2 "n" "int" false)
+    /* No interpolation - plain string */
+    assert (== (expand_string_interp "hello" env3) "\"hello\"")
+    /* Simple string ident */
+    assert (== (expand_string_interp "Hello, {name}!" env3) "nl_str_concat(nl_str_concat(\"Hello, \", nl_name), \"!\")")
+    /* Int ident */
+    assert (== (expand_string_interp "count: {n}" env3) "nl_str_concat(\"count: \", nl_int_to_string(nl_n))")
+}
+
 fn is_array_type(t: string) -> bool {
     return (str_contains t "array<")
 }
@@ -4150,11 +4256,15 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            let mut parts: array<string> = []
-            set parts (cg_append parts "\"")
-            set parts (cg_append parts s.value)
-            set parts (cg_append parts "\"")
-            return (cg_build parts)
+            if (str_contains s.value "{") {
+                return (expand_string_interp s.value env)
+            } else {
+                let mut parts: array<string> = []
+                set parts (cg_append parts "\"")
+                set parts (cg_append parts s.value)
+                set parts (cg_append parts "\"")
+                return (cg_build parts)
+            }
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -5651,14 +5761,33 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set out_c (type_to_c expected_type)
     } else { (print "") }
 
+    /* Detect int-pattern match: any non-wildcard arm starts with "INT:" */
+    let mut is_int_match: bool = false
+    let mut probe_i: int = 0
+    while (< probe_i m.arm_count) {
+        let probe_v: string = (at m.arm_variants probe_i)
+        if (transp_str_starts_with probe_v "INT:") {
+            set is_int_match true
+        } else { (print "") }
+        set probe_i (+ probe_i 1)
+    }
+
     let mut parts: array<string> = []
     set parts (cg_append parts "({ ")
-    set parts (cg_append parts union_c)
-    set parts (cg_append parts " _m = ")
-    set parts (cg_append parts scr_code)
-    set parts (cg_append parts "; ")
-    set parts (cg_append parts out_c)
-    set parts (cg_append parts " _out = 0; switch (_m.tag) { ")
+    if (== is_int_match true) {
+        set parts (cg_append parts "int64_t _m = ")
+        set parts (cg_append parts scr_code)
+        set parts (cg_append parts "; ")
+        set parts (cg_append parts out_c)
+        set parts (cg_append parts " _out = 0; switch (_m) { ")
+    } else {
+        set parts (cg_append parts union_c)
+        set parts (cg_append parts " _m = ")
+        set parts (cg_append parts scr_code)
+        set parts (cg_append parts "; ")
+        set parts (cg_append parts out_c)
+        set parts (cg_append parts " _out = 0; switch (_m.tag) { ")
+    }
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -5670,6 +5799,23 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         /* Wildcard arm: _ => expr  emits default: */
         if (== variant "_") {
             set parts (cg_append parts "default: { ")
+
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                set parts (cg_append parts "/* unsupported match arm block */ ")
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
+                set parts (cg_append parts "_out = ")
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts "; ")
+            }
+
+            set parts (cg_append parts "break; } ")
+        } else if (transp_str_starts_with variant "INT:") {
+            /* Integer literal arm: emit case N: */
+            let int_val: string = (str_substring variant 4 (- (str_length variant) 4))
+            set parts (cg_append parts "case ")
+            set parts (cg_append parts int_val)
+            set parts (cg_append parts ": { ")
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 set parts (cg_append parts "/* unsupported match arm block */ ")
@@ -5954,17 +6100,35 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
     set union_parts (cg_append union_parts union_name)
     let union_c: string = (cg_build union_parts)
 
+    /* Detect int-pattern match: any non-wildcard arm starts with "INT:" */
+    let mut is_int_match: bool = false
+    let mut probe_i: int = 0
+    while (< probe_i m.arm_count) {
+        let probe_v: string = (at m.arm_variants probe_i)
+        if (transp_str_starts_with probe_v "INT:") {
+            set is_int_match true
+        } else { (print "") }
+        set probe_i (+ probe_i 1)
+    }
+
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
     set parts (cg_append parts "{\n")
     set parts (cg_append parts (gen_indent (+ indent 1)))
-    set parts (cg_append parts union_c)
-    set parts (cg_append parts " _m = ")
-    set parts (cg_append parts scr_code)
-    set parts (cg_append parts ";\n")
-
-    set parts (cg_append parts (gen_indent (+ indent 1)))
-    set parts (cg_append parts "switch (_m.tag) {\n")
+    if (== is_int_match true) {
+        set parts (cg_append parts "int64_t _m = ")
+        set parts (cg_append parts scr_code)
+        set parts (cg_append parts ";\n")
+        set parts (cg_append parts (gen_indent (+ indent 1)))
+        set parts (cg_append parts "switch (_m) {\n")
+    } else {
+        set parts (cg_append parts union_c)
+        set parts (cg_append parts " _m = ")
+        set parts (cg_append parts scr_code)
+        set parts (cg_append parts ";\n")
+        set parts (cg_append parts (gen_indent (+ indent 1)))
+        set parts (cg_append parts "switch (_m.tag) {\n")
+    }
 
     let mut i: int = 0
     while (< i m.arm_count) {
@@ -5977,6 +6141,27 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
         if (== variant "_") {
             set parts (cg_append parts (gen_indent (+ indent 2)))
             set parts (cg_append parts "default: {\n")
+
+            if (== body_type ParseNodeType.PNODE_BLOCK) {
+                set parts (cg_append parts (generate_block parser body_id (+ indent 3) env return_type))
+            } else {
+                let expr_code: string = (generate_expression parser body_id body_type env "")
+                set parts (cg_append parts (gen_indent (+ indent 3)))
+                set parts (cg_append parts expr_code)
+                set parts (cg_append parts ";\n")
+            }
+
+            set parts (cg_append parts (gen_indent (+ indent 3)))
+            set parts (cg_append parts "break;\n")
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "}\n")
+        } else if (transp_str_starts_with variant "INT:") {
+            /* Integer literal arm: emit case N: */
+            let int_val: string = (str_substring variant 4 (- (str_length variant) 4))
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "case ")
+            set parts (cg_append parts int_val)
+            set parts (cg_append parts ": {\n")
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 set parts (cg_append parts (generate_block parser body_id (+ indent 3) env return_type))
@@ -6392,9 +6577,43 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
         }
     } else {
         if (== for_stmt.iterable_type ParseNodeType.PNODE_IDENTIFIER) {
-            /* for x in list_var — list iteration using typed List_* API */
             let id: ASTIdentifier = (parser_get_identifier parser for_stmt.iterable)
-            let list_type: string = (genenv_get env id.name)
+            let arr_type: string = (genenv_get env id.name)
+
+            /* for x in array_var — dyn_array iteration */
+            if (is_array_type arr_type) {
+                let elem_type: string = (array_elem_type_from_array_type arr_type)
+                let c_elem_type: string = (c_type_from_elem_type elem_type)
+                let get_fn: string = (get_fn_from_elem_type elem_type)
+                let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
+                let arr_c_name: string = (+ "nl_" (mangle_name id.name))
+                set parts (cg_append parts (gen_indent indent))
+                set parts (cg_append parts "{\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "int64_t __nl_len = dyn_array_length(")
+                set parts (cg_append parts arr_c_name)
+                set parts (cg_append parts ");\n")
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n")
+                set parts (cg_append parts (gen_indent (+ indent 2)))
+                set parts (cg_append parts c_elem_type)
+                set parts (cg_append parts " ")
+                set parts (cg_append parts c_var)
+                set parts (cg_append parts " = ")
+                set parts (cg_append parts get_fn)
+                set parts (cg_append parts "(")
+                set parts (cg_append parts arr_c_name)
+                set parts (cg_append parts ", __nl_idx);\n")
+                let body_env: GenEnv = (genenv_put env for_stmt.var_name elem_type false)
+                set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 2) body_env return_type))
+                set parts (cg_append parts (gen_indent (+ indent 1)))
+                set parts (cg_append parts "}\n")
+                set parts (cg_append parts (gen_indent indent))
+                set parts (cg_append parts "}\n")
+            } else {
+
+            /* for x in list_var — list iteration using typed List_* API */
+            let list_type: string = arr_type
             /* Extract element type name from "List<ElemType>" */
             let elem_name: string = (transp_extract_list_element_type list_type)
             let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
@@ -6457,6 +6676,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
             set parts (cg_append parts "}\n")
             set parts (cg_append parts (gen_indent indent))
             set parts (cg_append parts "}\n")
+            } /* end else (list iteration) */
         } else {
             set parts (cg_append parts (gen_indent indent))
             set parts (cg_append parts "/* unsupported for-in pattern */;\n")
@@ -6887,8 +7107,11 @@ shadow parser_uses_grammar_literal {
     assert (== (parser_uses_grammar_literal p) 0)
 }
 
-/* Check if the peg2 module is already imported. */
+/* Check if the peg2 module is already imported.
+ * Checks both import statements (original source) and merged extern function
+ * declarations (stage1 merged source where imports have been inlined). */
 fn parser_has_peg2_import(parser: Parser) -> int {
+    /* Check explicit import statements */
     let import_count: int = (parser_get_import_count parser)
     let mut i: int = 0
     while (< i import_count) {
@@ -6899,6 +7122,16 @@ fn parser_has_peg2_import(parser: Parser) -> int {
             (print "")
         }
         set i (+ i 1)
+    }
+    /* Also check if peg2_compile is defined as a function (merged source case) */
+    let fn_count: int = (parser_get_function_count parser)
+    let mut fi: int = 0
+    while (< fi fn_count) {
+        let f: ASTFunction = (parser_get_function parser fi)
+        if (== (transp_str_starts_with f.name "peg2_") true) {
+            return 1
+        } else { (print "") }
+        set fi (+ fi 1)
     }
     return 0
 }
