@@ -1,6 +1,6 @@
 # Planning Documents
 
-I keep my design documents and incomplete implementation plans here. Completed work has been removed. All remaining TODOs from deleted documents are consolidated in [docs/CONSOLIDATED_TODOS.md](../docs/CONSOLIDATED_TODOS.md).
+I keep my design documents and incomplete implementation plans here. Completed work has been removed. All remaining TODOs from deleted documents are tracked in the active planning documents listed below.
 
 ---
 
@@ -68,10 +68,9 @@ I keep my design documents and incomplete implementation plans here. Completed w
 ### Status and Tracking
 
 - [BEAD_FIXES_SUMMARY.md](BEAD_FIXES_SUMMARY.md) -- Coverage, stdlib, eval.c follow-ups
-- [TODO.md](TODO.md) -- Legacy TODO (stale, see CONSOLIDATED_TODOS.md)
-- [REMAINING_TODOS.md](REMAINING_TODOS.md) -- Legacy remaining items (stale, see CONSOLIDATED_TODOS.md)
+- [TODO.md](TODO.md) -- Legacy TODO (stale)
+- [REMAINING_TODOS.md](REMAINING_TODOS.md) -- Legacy remaining items (stale)
 
 ---
 
 For user-facing documentation, see [docs/](../docs/).
-For the consolidated list of all remaining work, see [docs/CONSOLIDATED_TODOS.md](../docs/CONSOLIDATED_TODOS.md).

@@ -74,7 +74,6 @@ My philosophy on honesty and verification:
    - Generating coverage reports
    - Coverage targets by component
    - Interpreting results
-   - [Coverage Status](COVERAGE_STATUS.md)
 
 9. **[Feature Coverage](../tests/FEATURE_COVERAGE.md)** - My test suite
 
@@ -135,9 +134,7 @@ My status and plans:
 
 16. **[Roadmap](ROADMAP.md)** - Future development plans
 17. **[RFC Process](RFC_PROCESS.md)** - How I evolve
-18. **[Package Manager Design](PACKAGE_MANAGER_DESIGN.md)** - Package manager proposal
-19. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps I track for parity
-20. **[Consolidated TODOs](CONSOLIDATED_TODOS.md)** - All remaining work items
+18. **[Spec / Coverage Audit](../SPEC_AUDIT.md)** - Gaps I track for parity
 
 ### Contributing
 
