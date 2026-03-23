@@ -429,6 +429,45 @@ jobs:
               body: body
             });
 
+  concurrency:
+    name: Concurrency (clang + libdispatch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            libblocksruntime-dev \
+            libdispatch-dev \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
+
+      - name: Build stage 1 with clang
+        run: make stage1 CC=clang
+
+      - name: Build stage 2 (self-hosted) with clang
+        run: make stage2 CC=clang
+
+      - name: Compile nl_global_counter example
+        run: |
+          bin/nanoc examples/language/nl_global_counter.nano -o /tmp/nl_global_counter \
+            CC=clang LDFLAGS="-ldispatch -lBlocksRuntime" || \
+          CC=clang bin/nanoc examples/language/nl_global_counter.nano -o /tmp/nl_global_counter
+
+      - name: Run nl_global_counter example
+        run: /tmp/nl_global_counter
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest

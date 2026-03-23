@@ -1263,6 +1263,7 @@ struct GenEnv {
     names: array<string>,
     types: array<string>,
     mut_flags: array<bool>,
+    global_flags: array<bool>,
     scope: string
 }
 
@@ -1902,7 +1903,7 @@ shadow is_extern_function {
 }
 
 fn genenv_new(scope: string) -> GenEnv {
-    return GenEnv { names: [], types: [], mut_flags: [], scope: scope }
+    return GenEnv { names: [], types: [], mut_flags: [], global_flags: [], scope: scope }
 }
 
 shadow genenv_new {
@@ -1910,6 +1911,7 @@ shadow genenv_new {
     assert (== (array_length env.names) 0)
     assert (== (array_length env.types) 0)
     assert (== (array_length env.mut_flags) 0)
+    assert (== (array_length env.global_flags) 0)
     assert (== env.scope "main")
 }
 
@@ -1917,7 +1919,8 @@ fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
     let new_names: array<string> = (array_push env.names name)
     let new_types: array<string> = (array_push env.types t)
     let new_flags: array<bool> = (array_push env.mut_flags is_mut)
-    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, scope: env.scope }
+    let new_globals: array<bool> = (array_push env.global_flags false)
+    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
 }
 
 shadow genenv_put {
@@ -1927,8 +1930,26 @@ shadow genenv_put {
     assert (== (at env2.names 0) "x")
     assert (== (at env2.types 0) "int")
     assert (== (at env2.mut_flags 0) false)
+    assert (== (at env2.global_flags 0) false)
     let env3: GenEnv = (genenv_put env2 "y" "int" true)
     assert (== (at env3.mut_flags 1) true)
+    assert (== (at env3.global_flags 1) false)
+}
+
+fn genenv_put_global(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
+    let new_names: array<string> = (array_push env.names name)
+    let new_types: array<string> = (array_push env.types t)
+    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
+    let new_globals: array<bool> = (array_push env.global_flags true)
+    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
+}
+
+shadow genenv_put_global {
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put_global env "counter" "int" true)
+    assert (== (at env2.global_flags 0) true)
+    assert (== (at env2.mut_flags 0) true)
+    assert (== (at env2.types 0) "int")
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -1971,6 +1992,27 @@ shadow genenv_get_mut {
     assert (== (genenv_get_mut env3 "counter") true)
     assert (== (genenv_get_mut env3 "x") false)
     assert (== (genenv_get_mut env3 "unknown") false)
+}
+
+fn genenv_get_global(env: GenEnv, name: string) -> bool {
+    let mut i: int = (- (array_length env.names) 1)
+    while (>= i 0) {
+        if (== (at env.names i) name) {
+            return (at env.global_flags i)
+        } else {
+            set i (- i 1)
+        }
+    }
+    return false
+}
+
+shadow genenv_get_global {
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "local_x" "int" false)
+    let env3: GenEnv = (genenv_put_global env2 "global_counter" "int" true)
+    assert (== (genenv_get_global env3 "global_counter") true)
+    assert (== (genenv_get_global env3 "local_x") false)
+    assert (== (genenv_get_global env3 "unknown") false)
 }
 
 /* --- String interpolation helpers --- */
@@ -3548,11 +3590,40 @@ fn gen_c_program(functions: string) -> string {
     return (cg_build parts)
 }
 
+/* Returns true if the program has any module-scope mutable primitive that
+ * requires nano_dispatch.h (NlGuarded_* + libdispatch). */
+fn parser_has_guarded_globals(parser: Parser) -> bool {
+    let total: int = (parser_get_let_count parser)
+    let mut i: int = 0
+    while (< i total) {
+        let l: ASTLet = (parser_get_let parser i)
+        if (not (is_let_in_function parser i)) {
+            if (and l.is_mut (is_guarded_primitive l.var_type)) {
+                return true
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow parser_has_guarded_globals {
+    let src: string = "fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (parser_has_guarded_globals p) false)
+}
+
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     let mut sb: array<string> = []
-    
+
     set sb (cg_append sb (gen_c_includes))
+    /* Conditionally include nano_dispatch.h only when guarded globals exist,
+     * so programs without module-scope let mut don't require clang + libdispatch. */
+    if (parser_has_guarded_globals parser) {
+        set sb (cg_append sb "#include \"runtime/nano_dispatch.h\"\n")
+    } else { (print "") }
     /* Check if user defines builtin names to avoid redefinition */
     if (has_function_named parser "float_to_string") {
         set sb (cg_append sb "#define NL_HAS_USER_FLOAT_TO_STRING 1\n")
@@ -4275,11 +4346,21 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             }
         } else {
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
-            /* Identifier */
+            /* Identifier — guarded globals use NL_GUARDED_READ for thread-safe reads */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             let c_var: string = (+ "nl_" (mangle_name id.name))
-            /* Prefix with nl_ for nanolang identifiers */
-            return c_var
+            if (and (genenv_get_global env id.name) (is_guarded_primitive (genenv_get env id.name))) {
+                let c_type: string = (type_to_c (genenv_get env id.name))
+                let mut rd: array<string> = []
+                set rd (cg_append rd "NL_GUARDED_READ(")
+                set rd (cg_append rd c_var)
+                set rd (cg_append rd ", ")
+                set rd (cg_append rd c_type)
+                set rd (cg_append rd ")")
+                return (cg_build rd)
+            } else {
+                return c_var
+            }
         } else {
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
@@ -5676,6 +5757,26 @@ shadow guarded_type_name {
     assert (== (guarded_type_name "MyStruct") "NlGuarded_MyStruct")
 }
 
+/* Returns true for NanoLang primitive types that map to a predefined NlGuarded_* struct.
+ * Only these types get dispatch-wrapped at module scope; complex types (arrays,
+ * user structs) remain plain C variables. */
+fn is_guarded_primitive(t: string) -> bool {
+    if (== t "int") { return true } else { (print "") }
+    if (== t "float") { return true } else { (print "") }
+    if (== t "bool") { return true } else { (print "") }
+    if (== t "string") { return true } else { (print "") }
+    return false
+}
+
+shadow is_guarded_primitive {
+    assert (== (is_guarded_primitive "int") true)
+    assert (== (is_guarded_primitive "float") true)
+    assert (== (is_guarded_primitive "bool") true)
+    assert (== (is_guarded_primitive "string") true)
+    assert (== (is_guarded_primitive "array<int>") false)
+    assert (== (is_guarded_primitive "MyStruct") false)
+}
+
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
@@ -6468,15 +6569,24 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
     set parts (cg_append parts (gen_indent indent))
 
     let target_t: string = (genenv_get env set_stmt.target)
-    let is_mut_target: bool = (genenv_get_mut env set_stmt.target)
     let c_var: string = (+ "nl_" (mangle_name set_stmt.target))
 
-    /* Direct assignment for all variables (mut or not) */
-    set parts (cg_append parts c_var)
-    set parts (cg_append parts " = ")
-    let set_expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
-    set parts (cg_append parts set_expr_code)
-    set parts (cg_append parts ";\n")
+    /* Module-scope mutable primitives use NL_GUARDED_WRITE for thread-safe writes */
+    if (and (genenv_get_global env set_stmt.target) (is_guarded_primitive target_t)) {
+        let set_expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
+        set parts (cg_append parts "NL_GUARDED_WRITE(")
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts ", ")
+        set parts (cg_append parts set_expr_code)
+        set parts (cg_append parts ");\n")
+    } else {
+        /* Direct assignment for local variables */
+        set parts (cg_append parts c_var)
+        set parts (cg_append parts " = ")
+        let set_expr_code: string = (generate_expression parser set_stmt.value set_stmt.value_type env target_t)
+        set parts (cg_append parts set_expr_code)
+        set parts (cg_append parts ";\n")
+    }
     return (cg_build parts)
 }
 
@@ -6485,14 +6595,18 @@ shadow generate_set_stmt {
     let toks: List<LexerToken> = (tokenize_string source)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let s: ASTSet = (parser_get_set p 0)
-    /* Non-mut x: expect direct assignment */
+    /* Non-mut local x: expect direct assignment */
     let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
     let code: string = (generate_set_stmt p s 0 env)
     assert (== code "nl_x = 2;\n")
-    /* Mut x: expect same direct assignment */
+    /* Mut local x: expect same direct assignment */
     let env_mut: GenEnv = (genenv_put (genenv_new "test") "x" "int" true)
     let code_mut: string = (generate_set_stmt p s 0 env_mut)
     assert (== code_mut "nl_x = 2;\n")
+    /* Mut global x: expect NL_GUARDED_WRITE */
+    let env_global: GenEnv = (genenv_put_global (genenv_new "test") "x" "int" true)
+    let code_global: string = (generate_set_stmt p s 0 env_global)
+    assert (== code_global "NL_GUARDED_WRITE(nl_x, 2);\n")
 }
 
 /* Generate C code for an if statement
@@ -6984,13 +7098,64 @@ shadow is_let_in_function {
     assert (is_let_in_function p 0)
 }
 
-/* Generate global constant declarations for top-level let statements */
+/* Extract a C literal string for a global let's initial value.
+ * Used by both the plain declaration and the NL_GUARDED_INIT constructor. */
+fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
+    if (== let_node.value_type ParseNodeType.PNODE_NUMBER) {
+        let num: ASTNumber = (parser_get_number parser let_node.value)
+        if (== num.value "-9223372036854775808") {
+            return "INT64_MIN"
+        } else {
+            return num.value
+        }
+    } else {
+        if (== let_node.value_type ParseNodeType.PNODE_FLOAT) {
+            let flt: ASTFloat = (parser_get_float parser let_node.value)
+            return flt.value
+        } else {
+            if (== let_node.value_type ParseNodeType.PNODE_STRING) {
+                let str_node: ASTString = (parser_get_string parser let_node.value)
+                let mut parts: array<string> = []
+                set parts (cg_append parts "\"")
+                set parts (cg_append parts str_node.value)
+                set parts (cg_append parts "\"")
+                return (cg_build parts)
+            } else {
+                if (== let_node.value_type ParseNodeType.PNODE_BOOL) {
+                    let bool_node: ASTBool = (parser_get_bool parser let_node.value)
+                    if bool_node.value {
+                        return "true"
+                    } else {
+                        return "false"
+                    }
+                } else {
+                    return "0"
+                }
+            }
+        }
+    }
+}
+
+shadow global_init_literal {
+    let src: string = "fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string src)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (>= (str_length (global_init_literal p (parser_get_let p 0))) 0)
+}
+
+/* Generate global constant declarations for top-level let statements.
+ * Immutable globals and complex mutable globals: plain C declarations.
+ * Mutable primitive globals (int/float/bool/string): NlGuarded_* with constructor. */
 fn generate_global_constants(parser: Parser) -> string {
     let total_lets: int = (parser_get_let_count parser)
     let mut sb: array<string> = []
-    let mut has_globals: bool = false
+    let mut has_plain: bool = false
+    let mut has_guarded: bool = false
     let mut emitted_globals: array<string> = []
-    
+    /* Collect guarded names and init literals for the constructor */
+    let mut guarded_names: array<string> = []
+    let mut guarded_inits: array<string> = []
+
     let mut li: int = 0
     while (< li total_lets) {
         let let_node: ASTLet = (parser_get_let parser li)
@@ -7003,52 +7168,53 @@ fn generate_global_constants(parser: Parser) -> string {
             }
             if (not glob_dup) {
             set emitted_globals (array_push emitted_globals let_node.name)
-            if (not has_globals) {
-                set sb (cg_append sb "/* Global constants */\n")
-                set has_globals true
-            } else { (print "") }
-            let c_type: string = (type_to_c let_node.var_type)
-            set sb (cg_append sb c_type)
-            set sb (cg_append sb " nl_")
-            set sb (cg_append sb (mangle_name let_node.name))
-            set sb (cg_append sb " = ")
-            if (== let_node.value_type ParseNodeType.PNODE_NUMBER) {
-                let num: ASTNumber = (parser_get_number parser let_node.value)
-                if (== num.value "-9223372036854775808") {
-                    set sb (cg_append sb "INT64_MIN")
-                } else {
-                    set sb (cg_append sb num.value)
-                }
+            if (and let_node.is_mut (is_guarded_primitive let_node.var_type)) {
+                /* Guarded mutable primitive: declare NlGuarded_* struct, init in ctor */
+                if (not has_guarded) {
+                    set sb (cg_append sb "/* Module-scope mutable primitives (thread-safe via libdispatch) */\n")
+                    set has_guarded true
+                } else { (print "") }
+                set sb (cg_append sb (guarded_type_name let_node.var_type))
+                set sb (cg_append sb " nl_")
+                set sb (cg_append sb (mangle_name let_node.name))
+                set sb (cg_append sb ";\n")
+                set guarded_names (array_push guarded_names let_node.name)
+                set guarded_inits (array_push guarded_inits (global_init_literal parser let_node))
             } else {
-                if (== let_node.value_type ParseNodeType.PNODE_FLOAT) {
-                    let flt: ASTFloat = (parser_get_float parser let_node.value)
-                    set sb (cg_append sb flt.value)
-                } else {
-                    if (== let_node.value_type ParseNodeType.PNODE_STRING) {
-                        let str_node: ASTString = (parser_get_string parser let_node.value)
-                        set sb (cg_append sb "\"")
-                        set sb (cg_append sb str_node.value)
-                        set sb (cg_append sb "\"")
-                    } else {
-                        if (== let_node.value_type ParseNodeType.PNODE_BOOL) {
-                            let bool_node: ASTBool = (parser_get_bool parser let_node.value)
-                            if bool_node.value {
-                                set sb (cg_append sb "true")
-                            } else {
-                                set sb (cg_append sb "false")
-                            }
-                        } else {
-                            set sb (cg_append sb "0")
-                        }
-                    }
-                }
+                /* Plain declaration: immutable global or mutable complex type */
+                if (not has_plain) {
+                    set sb (cg_append sb "/* Global constants */\n")
+                    set has_plain true
+                } else { (print "") }
+                let c_type: string = (type_to_c let_node.var_type)
+                set sb (cg_append sb c_type)
+                set sb (cg_append sb " nl_")
+                set sb (cg_append sb (mangle_name let_node.name))
+                set sb (cg_append sb " = ")
+                set sb (cg_append sb (global_init_literal parser let_node))
+                set sb (cg_append sb ";\n")
             }
-            set sb (cg_append sb ";\n")
             } else { (print "") }
         } else { (print "") }
         set li (+ li 1)
     }
-    if has_globals {
+    /* Emit constructor to initialize guarded globals at program startup */
+    if has_guarded {
+        set sb (cg_append sb "\n__attribute__((constructor)) static void nl_init_guarded_globals(void) {\n")
+        let mut ci: int = 0
+        while (< ci (array_length guarded_names)) {
+            set sb (cg_append sb "    NL_GUARDED_INIT(nl_")
+            set sb (cg_append sb (mangle_name (at guarded_names ci)))
+            set sb (cg_append sb ", \"nano.")
+            set sb (cg_append sb (at guarded_names ci))
+            set sb (cg_append sb "\", ")
+            set sb (cg_append sb (at guarded_inits ci))
+            set sb (cg_append sb ");\n")
+            set ci (+ ci 1)
+        }
+        set sb (cg_append sb "}\n")
+    } else { (print "") }
+    if (or has_plain has_guarded) {
         set sb (cg_append sb "\n")
     } else { (print "") }
     return (cg_build sb)
@@ -7168,14 +7334,21 @@ pub fn transpile_parser(parser: Parser) -> string {
 
     let _reg: int = (register_extern_names parser)
     
-    /* Precompute top-level env once (not per function) */
+    /* Precompute top-level env once (not per function).
+     * Guarded primitives (module-scope let mut int/float/bool/string) are registered
+     * with genenv_put_global so that identifier reads and set statements emit
+     * NL_GUARDED_READ / NL_GUARDED_WRITE when accessed from inside functions. */
     let mut global_env: GenEnv = (genenv_new "global")
     let all_lets: int = (parser_get_let_count parser)
     let mut gi: int = 0
     while (< gi all_lets) {
         let glet: ASTLet = (parser_get_let parser gi)
         if (not (is_let_in_function parser gi)) {
-            set global_env (genenv_put global_env glet.name glet.var_type glet.is_mut)
+            if (and glet.is_mut (is_guarded_primitive glet.var_type)) {
+                set global_env (genenv_put_global global_env glet.name glet.var_type glet.is_mut)
+            } else {
+                set global_env (genenv_put global_env glet.name glet.var_type glet.is_mut)
+            }
         } else { (print "") }
         set gi (+ gi 1)
     }
@@ -7218,7 +7391,7 @@ pub fn transpile_parser(parser: Parser) -> string {
             (print "")
         } else {
             set emitted_bodies (array_push emitted_bodies func.name)
-            let mut env0: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, scope: func.name }
+            let mut env0: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, scope: func.name }
             /* Seed env with parameters */
             let mut k: int = 0
             while (< k func.param_count) {

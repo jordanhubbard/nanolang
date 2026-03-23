@@ -1,0 +1,70 @@
+# nl_global_counter.nano — demonstrates module-scope let mut with dispatch safety
+#
+# Module-scope `let mut` primitive variables are automatically wrapped in
+# NlGuarded_* structs backed by a serial dispatch_queue_t.  Every read
+# uses NL_GUARDED_READ (dispatch_sync) and every write uses NL_GUARDED_WRITE
+# (dispatch_async), giving zero-boilerplate thread safety.
+#
+# This example shows the pattern works correctly for sequential access.
+# For concurrent access use the dispatch module to drive updates from
+# multiple queues.
+
+let mut counter: int = 0
+let mut label: string = "start"
+let mut enabled: bool = true
+
+fn increment() -> int {
+    set counter (+ counter 1)
+    return counter
+}
+
+shadow increment {
+    set counter 0
+    assert (== (increment) 1)
+    assert (== (increment) 2)
+    set counter 0
+}
+
+fn reset() -> int {
+    set counter 0
+    set label "reset"
+    set enabled false
+    return counter
+}
+
+shadow reset {
+    assert (== (reset) 0)
+    assert (== label "reset")
+    assert (== enabled false)
+    set label "start"
+    set enabled true
+}
+
+fn main() -> int {
+    set counter 0
+    set label "running"
+    set enabled true
+
+    let mut i: int = 0
+    while (< i 10) {
+        let v: int = (increment)
+        set i (+ i 1)
+    }
+
+    (print "counter = ")
+    (println (int_to_string counter))
+    (print "label   = ")
+    (println label)
+    (print "enabled = ")
+    if enabled {
+        (println "true")
+    } else {
+        (println "false")
+    }
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
