@@ -341,6 +341,12 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared -I../modules/forth_see \
 	    -o $@ ../modules/forth_see/forth_see.c
 
+# Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
+# The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
+$(BIN_DIR)/nl_forth_interpreter_vm: language/nl_forth_interpreter.nano $(BIN_DIR)/nano_virt
+	@echo "Building $@..."
+	$(BIN_DIR)/nano_virt --emit-nvm $< -o $@
+
 test-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@echo ""
 	@echo "=========================================="
