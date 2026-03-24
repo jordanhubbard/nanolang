@@ -1296,11 +1296,42 @@ fn func_returns_string(name: string) -> bool {
     if (== name "int_to_string") { return true } else { (print "") }
     if (== name "float_to_string") { return true } else { (print "") }
     if (== name "bool_to_string") { return true } else { (print "") }
+    if (== name "to_string") { return true } else { (print "") }
     if (== name "str_substring") { return true } else { (print "") }
     if (== name "str_slice") { return true } else { (print "") }
     if (== name "str_concat") { return true } else { (print "") }
     if (== name "string_from_char") { return true } else { (print "") }
     return false
+}
+
+/* Infer the NanoLang type of a parsed expression node for interpolation.
+   Returns "int", "float", "bool", "string", or "" (unknown). */
+fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) -> string {
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let id: ASTIdentifier = (parser_get_identifier parser node_id)
+        return (genenv_get env id.name)
+    } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return "int" } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return "float" } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_STRING) { return "string" } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return "bool" } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_CALL) {
+        let ic: ASTCall = (parser_get_call parser node_id)
+        let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
+        if (func_returns_string if_id.name) { return "string" } else { (print "") }
+        if (func_returns_float if_id.name) { return "float" } else { (print "") }
+        return "int"
+    } else { (print "") }
+    return ""
+}
+
+shadow infer_expr_type {
+    let env: GenEnv = (genenv_new "test")
+    let env2: GenEnv = (genenv_put env "x" "int" false)
+    let env3: GenEnv = (genenv_put env2 "name" "string" false)
+    /* Can't call parser_get_identifier without a real parser, so just verify it compiles */
+    assert (== (genenv_get env2 "x") "int")
+    assert (== (genenv_get env3 "name") "string")
 }
 
 shadow func_returns_string {
@@ -4642,6 +4673,29 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             return (cg_build tp)
                         } else {
                             return "0"
+                        }
+                    } else {
+                        (print "")
+                    }
+
+                    /* to_string: polymorphic conversion used by f-string interpolation.
+                     * Wraps int/float/bool with nl_*_to_string; passes string through unchanged. */
+                    if (== func_name "to_string") {
+                        if (== call.arg_count 1) {
+                            let ts_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                            let ts_code: string = (generate_expression parser ts_a0.node_id ts_a0.node_type env "")
+                            let ts_type: string = (infer_expr_type parser ts_a0.node_id ts_a0.node_type env)
+                            if (== ts_type "int") {
+                                return (+ (+ "nl_int_to_string(" ts_code) ")")
+                            } else { if (== ts_type "float") {
+                                return (+ (+ "nl_float_to_string(" ts_code) ")")
+                            } else { if (== ts_type "bool") {
+                                return (+ (+ "nl_bool_to_string(" ts_code) ")")
+                            } else {
+                                return ts_code
+                            } } }
+                        } else {
+                            return "\"\""
                         }
                     } else {
                         (print "")

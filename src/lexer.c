@@ -95,8 +95,25 @@ static int emit_token(Token **tokens, int *count, int *capacity,
     return 1;
 }
 
+/* Emit tokens for one expression part of an f-string.
+ * Wraps with (to_string ...) for automatic type conversion. */
+static void emit_fstring_expr(Token **tokens, int *count, int *capacity,
+                               const char *text, int line, int column) {
+    emit_token(tokens, count, capacity, TOKEN_LPAREN, NULL, line, column);
+    emit_token(tokens, count, capacity, TOKEN_IDENTIFIER, "to_string", line, column);
+    int sub_count = 0;
+    Token *sub_tokens = tokenize(text, &sub_count);
+    for (int k = 0; k < sub_count - 1; k++) {  /* -1 to skip EOF */
+        emit_token(tokens, count, capacity, sub_tokens[k].token_type,
+                   sub_tokens[k].value, line, column);
+    }
+    free(sub_tokens);
+    emit_token(tokens, count, capacity, TOKEN_RPAREN, NULL, line, column);
+}
+
 /* Process an f-string starting at source[*pos] ('f').
  * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
+ * Expression parts are wrapped with (to_string ...) for automatic type conversion.
  * Modifies *pos to point past the closing quote.
  * Returns 1 on success, 0 on error. */
 static int lex_fstring(const char *source, int *pos,
@@ -180,14 +197,7 @@ static int lex_fstring(const char *source, int *pos,
         strncpy(text, source + part_starts[0], len);
         text[len] = '\0';
         if (part_is_expr[0]) {
-            /* Expression: sub-tokenize and emit */
-            int sub_count = 0;
-            Token *sub_tokens = tokenize(text, &sub_count);
-            for (int k = 0; k < sub_count - 1; k++) {  /* -1 to skip EOF */
-                emit_token(tokens, count, capacity, sub_tokens[k].token_type,
-                           sub_tokens[k].value, line, column);
-            }
-            free(sub_tokens);
+            emit_fstring_expr(tokens, count, capacity, text, line, column);
         } else {
             emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
         }
@@ -207,13 +217,7 @@ static int lex_fstring(const char *source, int *pos,
             strncpy(text, source + part_starts[k], len);
             text[len] = '\0';
             if (part_is_expr[k]) {
-                int sub_count = 0;
-                Token *sub_tokens = tokenize(text, &sub_count);
-                for (int j = 0; j < sub_count - 1; j++) {
-                    emit_token(tokens, count, capacity, sub_tokens[j].token_type,
-                               sub_tokens[j].value, line, column);
-                }
-                free(sub_tokens);
+                emit_fstring_expr(tokens, count, capacity, text, line, column);
             } else {
                 emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
             }
@@ -225,13 +229,7 @@ static int lex_fstring(const char *source, int *pos,
         strncpy(last_text, source + part_starts[n_parts-1], last_len);
         last_text[last_len] = '\0';
         if (part_is_expr[n_parts-1]) {
-            int sub_count = 0;
-            Token *sub_tokens = tokenize(last_text, &sub_count);
-            for (int j = 0; j < sub_count - 1; j++) {
-                emit_token(tokens, count, capacity, sub_tokens[j].token_type,
-                           sub_tokens[j].value, line, column);
-            }
-            free(sub_tokens);
+            emit_fstring_expr(tokens, count, capacity, last_text, line, column);
         } else {
             emit_token(tokens, count, capacity, TOKEN_STRING, last_text, line, column);
         }

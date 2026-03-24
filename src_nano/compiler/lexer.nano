@@ -472,10 +472,13 @@ shadow process_char_literal {
     assert (== tok.token_type 1)  /* TOKEN_NUMBER (char as int) */
 }
 
-/* Emit tokens for one part of an f-string (static text or expression) */
+/* Emit tokens for one part of an f-string (static text or expression).
+ * Expression parts are wrapped in (to_string ...) for automatic type conversion. */
 fn emit_fstring_part_tokens(part_text: string, is_expr: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
     if (!= is_expr 0) {
-        /* Expression part: tokenize it and emit its tokens (skip trailing EOF) */
+        /* Expression part: wrap with (to_string ...) for polymorphic type conversion */
+        (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
+        (push_tok tokens LexerTokenType.TOKEN_IDENTIFIER "to_string" line column)
         let sub_tokens: List<LexerToken> = (tokenize_string part_text file_name diags)
         let n: int = (list_LexerToken_length sub_tokens)
         let mut k: int = 0
@@ -488,6 +491,7 @@ fn emit_fstring_part_tokens(part_text: string, is_expr: int, tokens: List<LexerT
             }
             set k (+ k 1)
         }
+        (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
     } else {
         /* Static text part: emit as STRING token */
         (push_tok tokens LexerTokenType.TOKEN_STRING part_text line column)
@@ -497,10 +501,20 @@ fn emit_fstring_part_tokens(part_text: string, is_expr: int, tokens: List<LexerT
 shadow emit_fstring_part_tokens {
     let tokens: List<LexerToken> = (list_LexerToken_new)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* Static part: 1 STRING token */
     (emit_fstring_part_tokens "hello" 0 tokens diags "test.nano" 1 1)
     assert (== (list_LexerToken_length tokens) 1)
     let tok: LexerToken = (list_LexerToken_get tokens 0)
     assert (== tok.token_type LexerTokenType.TOKEN_STRING)
+    /* Expression part: ( to_string name ) = 4 tokens (LPAREN IDENT IDENT RPAREN) */
+    let tokens2: List<LexerToken> = (list_LexerToken_new)
+    (emit_fstring_part_tokens "name" 1 tokens2 diags "test.nano" 1 1)
+    assert (== (list_LexerToken_length tokens2) 4)
+    let t0: LexerToken = (list_LexerToken_get tokens2 0)
+    let t1: LexerToken = (list_LexerToken_get tokens2 1)
+    assert (== t0.token_type LexerTokenType.TOKEN_LPAREN)
+    assert (== t1.token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== t1.value "to_string")
 }
 
 /* Process an f-string starting at source[i] ('f').
@@ -636,13 +650,13 @@ fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, d
 shadow process_fstring {
     let tokens: List<LexerToken> = (list_LexerToken_new)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    /* f"Hello {name}!" -> (str_concat "Hello " (str_concat name "!")) */
+    /* f"Hello {name}!" -> (str_concat "Hello " (str_concat (to_string name) "!")) */
     let src: string = "f\"Hello {name}!\""
     let new_pos: int = (process_fstring src 0 (str_length src) tokens diags "test.nano" 1 1)
     assert (> new_pos 0)
     assert (not (diag_list_has_errors diags))
-    /* 9 tokens: ( str_concat "Hello " ( str_concat name "!" ) ) */
-    assert (== (list_LexerToken_length tokens) 9)
+    /* 12 tokens: ( str_concat "Hello " ( str_concat ( to_string name ) "!" ) ) */
+    assert (== (list_LexerToken_length tokens) 12)
 }
 
 pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
