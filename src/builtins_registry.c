@@ -82,9 +82,9 @@ const BuiltinEntry builtin_registry[] = {
     {"cast_bool",       "nl_cast_bool",      1, {U,U,U,U}, B, OP_CAST_BOOL,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"cast_string",     "cast_string",       1, {U,U,U,U}, S, OP_CAST_STRING, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"to_string",       "to_string",         1, {U,U,U,U}, S, OP_CAST_STRING, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
-    {"int_to_string",   "int_to_string",     1, {I,U,U,U}, S, OP_STR_FROM_INT, BUILTIN_PURE|BUILTIN_INLINE_VM},
-    {"float_to_string", "float_to_string",   1, {F,U,U,U}, S, OP_STR_FROM_FLOAT, BUILTIN_PURE|BUILTIN_INLINE_VM},
-    {"bool_to_string",  "bool_to_string",    1, {B,U,U,U}, S, OP_CAST_STRING, BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"int_to_string",   "int_to_string",     1, {I,U,U,U}, S, OP_STR_FROM_INT,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"float_to_string", "float_to_string",   1, {F,U,U,U}, S, OP_STR_FROM_FLOAT, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"bool_to_string",  "bool_to_string",    1, {B,U,U,U}, S, OP_CAST_STRING,    L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"null_opaque",     "nl_null_opaque",    0, {U,U,U,U}, O, OP_NOP, L|BUILTIN_PURE},
 
     /* ── String operations ────────────────────────────────────────── */
@@ -94,34 +94,38 @@ const BuiltinEntry builtin_registry[] = {
     {"str_contains",    "nl_str_contains",   2, {S,S,U,U}, B, OP_STR_CONTAINS, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_equals",      "nl_str_equals",     2, {S,S,U,U}, B, OP_STR_EQ,       L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     /* str_index_of: handled by module FFI, not a builtin (VM has vm_str_index_of) */
-    {"char_at",         "char_at",           2, {S,I,U,U}, I, OP_STR_CHAR_AT,  BUILTIN_PURE|BUILTIN_INLINE_VM},
-    {"string_from_char","string_from_char",  1, {I,U,U,U}, S, OP_NOP, BUILTIN_PURE},
-    {"string_to_int",   "string_to_int",     1, {S,U,U,U}, I, OP_NOP, BUILTIN_PURE},
-    {"string_to_float", "string_to_float",   1, {S,U,U,U}, F, OP_NOP, BUILTIN_PURE},
+    {"char_at",         "char_at",           2, {S,I,U,U}, I, OP_STR_CHAR_AT,  L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"string_from_char","string_from_char",  1, {I,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"string_to_int",   "string_to_int",     1, {S,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"string_to_float", "string_to_float",   1, {S,U,U,U}, F, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Character classification ─────────────────────────────────── */
-    {"is_digit",        "is_digit",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_alpha",        "is_alpha",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_alnum",        "is_alnum",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_space",        "is_space",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_whitespace",   "is_whitespace",     1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_upper",        "is_upper",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"is_lower",        "is_lower",          1, {I,U,U,U}, B, OP_NOP, BUILTIN_PURE},
-    {"digit_value",     "digit_value",       1, {I,U,U,U}, I, OP_NOP, BUILTIN_PURE},
-    {"char_to_lower",   "char_to_lower",     1, {I,U,U,U}, I, OP_NOP, BUILTIN_PURE},
-    {"char_to_upper",   "char_to_upper",     1, {I,U,U,U}, I, OP_NOP, BUILTIN_PURE},
+    {"is_digit",        "is_digit",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_alpha",        "is_alpha",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_alnum",        "is_alnum",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_space",        "is_space",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_whitespace",   "is_whitespace",     1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_upper",        "is_upper",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"is_lower",        "is_lower",          1, {I,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"digit_value",     "digit_value",       1, {I,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"char_to_lower",   "char_to_lower",     1, {I,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"char_to_upper",   "char_to_upper",     1, {I,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Array operations ─────────────────────────────────────────── */
     {"array_length",    "dyn_array_length",  1, {A,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"array_new",       "array_new",         2, {I,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_set",       "dyn_array_put",     3, {A,I,U,U}, V, OP_NOP, L},
     {"at",              "dyn_array_get",     2, {A,I,U,U}, U, OP_NOP, L|BUILTIN_PURE},
-    {"array_get",       "array_get",         2, {A,I,U,U}, U, OP_NOP, BUILTIN_PURE},
-    {"array_push",      "array_push",        2, {A,U,U,U}, V, OP_NOP, 0},
-    {"array_pop",       "array_pop",         1, {A,U,U,U}, U, OP_NOP, 0},
-    {"array_remove_at", "dyn_array_remove_at", 2, {A,I,U,U}, V, OP_NOP, 0},
-    {"array_slice",     "nl_array_slice",    3, {A,I,I,U}, A, OP_NOP, BUILTIN_PURE},
-    {"array_concat",    "array_concat",      2, {A,A,U,U}, A, OP_NOP, BUILTIN_PURE},
+    {"array_get",       "array_get",         2, {A,I,U,U}, U, OP_NOP, L|BUILTIN_PURE},
+    {"array_push",      "array_push",        2, {A,U,U,U}, A, OP_NOP, L},
+    {"array_pop",       "array_pop",         1, {A,U,U,U}, U, OP_NOP, L},
+    {"array_remove_at", "dyn_array_remove_at", 2, {A,I,U,U}, V, OP_NOP, L},
+    {"array_slice",     "nl_array_slice",    3, {A,I,I,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_concat",    "array_concat",      2, {A,A,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    /* Higher-order array functions (array_map, array_filter, array_fold) */
+    {"array_map",       "array_map",         2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_filter",    "array_filter",      2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_fold",      "array_fold",        3, {A,U,U,U}, U, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Hashmap operations ───────────────────────────────────────── */
     {"hashmap_new",     "hashmap_new",       0, {U,U,U,U}, U, OP_NOP, 0},
@@ -143,9 +147,9 @@ const BuiltinEntry builtin_registry[] = {
     {"map_length",      "hashmap_length",    1, {U,U,U,U}, I, OP_NOP, BUILTIN_PURE},
 
     /* ── Higher-order ─────────────────────────────────────────────── */
-    {"filter",          "filter",            2, {A,U,U,U}, A, OP_NOP, BUILTIN_PURE},
-    {"map",             "map",               2, {A,U,U,U}, A, OP_NOP, BUILTIN_PURE},
-    {"reduce",          "reduce",            3, {A,U,U,U}, U, OP_NOP, BUILTIN_PURE},
+    {"filter",          "filter",            2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"map",             "map",               2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"reduce",          "reduce",            3, {A,U,U,U}, U, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Result<T, E> helpers ─────────────────────────────────────── */
     {"result_is_ok",      "result_is_ok",      1, {U,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},

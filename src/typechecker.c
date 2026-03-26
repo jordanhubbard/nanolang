@@ -349,6 +349,10 @@ static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
 static bool types_match(Type t1, Type t2) {
     if (t1 == t2) return true;
 
+    /* TYPE_UNKNOWN is always compatible — polymorphic builtins (map/filter/reduce/fold)
+     * and higher-order functions return TYPE_UNKNOWN; runtime enforces correctness. */
+    if (t1 == TYPE_UNKNOWN || t2 == TYPE_UNKNOWN) return true;
+
     /* u8 is assignment-compatible with int (u8 is codegen'd as uint8_t). */
     if ((t1 == TYPE_U8 && t2 == TYPE_INT) ||
         (t1 == TYPE_INT && t2 == TYPE_U8)) {

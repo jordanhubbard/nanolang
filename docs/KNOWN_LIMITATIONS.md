@@ -34,3 +34,50 @@ I have verified that all first-class function features are functional and tested
 **Status:** FIXED in my parser
 
 This was causing issues, but I resolved it by improving my struct literal detection heuristic.
+
+---
+
+## Tree-Walking Interpreter (`bin/nano`) — Known Limitations
+
+The `bin/nano` interpreter runs nanolang programs directly without compiling to C.
+63 of 69 language examples pass. The remaining 6 have the following limitations:
+
+### Performance: Computationally Intensive Programs
+
+The tree-walking interpreter is significantly slower than compiled C output.
+Programs that iterate millions of times will time out:
+
+- `nl_primes_sieve.nano` — Sieve of Eratosthenes over 1,000,000 elements
+- `nl_primes_trial_division.nano` — Trial division over 1,000,000 numbers
+- `nl_game_of_life.nano` — 40×20 grid Conway's Game of Life (10 generations)
+
+These programs work correctly when compiled with `nanoc` and run natively.
+For the interpreter, the benchmark limit should be reduced (e.g. to 10,000) to
+complete in a reasonable time.
+
+### Platform: libdispatch (Grand Central Dispatch)
+
+Three examples use GCD for concurrent task dispatch:
+
+- `nl_dispatch_counter.nano`
+- `nl_dispatch_pipeline.nano`
+- `nl_dispatch_stats.nano`
+
+These require the `dispatch` module shared library and libdispatch. On macOS
+this works natively. On Linux, libdispatch must be installed separately
+(`libdispatch-dev`) and the module must be compiled. The `group_wait` call
+fails when the native library is unavailable.
+
+### Parser: `?` Error Propagation Operator
+
+- `nl_result_propagation.nano` — Uses the `?` postfix operator for automatic
+  error propagation (similar to Rust's `?`).
+
+This operator is implemented in the stage1 self-hosted compiler but not in the
+C reference compiler (`src/lexer.c`). It requires a parser change to support.
+
+### Runtime: Missing Data File
+
+- `nl_random_sentence.nano` — Requires a dictionary file at a runtime path
+  that is not included in the repository. This is a data dependency, not an
+  interpreter bug.

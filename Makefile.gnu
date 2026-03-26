@@ -148,7 +148,8 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
-# Interpreter removed - NanoLang is a compiled language
+INTERPRETER = $(BIN_DIR)/nano
+INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o
 
 # Self-hosted components
 SELFHOST_COMPONENTS = \
@@ -238,7 +239,7 @@ PREFIX ?= /usr/local
 
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
-build: schema modules-index $(SENTINEL_STAGE3)
+build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER)
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Build Complete (3-Stage Bootstrap)"
@@ -820,6 +821,11 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 	fi
 
 # Interpreter removed - NanoLang is a compiled language
+
+# Interpreter binary: bin/nano runs programs directly via the tree-walking interpreter
+$(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
+	@echo "✓ Interpreter: $(INTERPRETER)"
 
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)

@@ -24,6 +24,10 @@
 #include <spawn.h>
 #include <math.h>
 
+/* g_argc/g_argv are defined in main.c / nano_main.c */
+extern int g_argc;
+extern char **g_argv;
+
 typedef struct {
     const char *test_name;
     int first_line;
@@ -2458,6 +2462,99 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
     if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
+
+    /* Additional type conversion functions */
+    if (strcmp(name, "float_to_string") == 0) {
+        if (args[0].type != VAL_FLOAT && args[0].type != VAL_INT) {
+            return create_string("0.0");
+        }
+        double v = args[0].type == VAL_FLOAT ? args[0].as.float_val : (double)args[0].as.int_val;
+        char buffer[64];
+        snprintf(buffer, sizeof(buffer), "%g", v);
+        return create_string(buffer);
+    }
+    if (strcmp(name, "bool_to_string") == 0) {
+        if (args[0].type == VAL_BOOL) {
+            return create_string(args[0].as.bool_val ? "true" : "false");
+        }
+        return create_string("false");
+    }
+    if (strcmp(name, "string_to_float") == 0) {
+        if (args[0].type != VAL_STRING) return create_float(0.0);
+        char *endptr;
+        double val = strtod(args[0].as.string_val, &endptr);
+        return create_float(val);
+    }
+
+    /* get_argc / get_argv for CLI programs */
+    if (strcmp(name, "get_argc") == 0) {
+        return create_int(g_argc);
+    }
+    if (strcmp(name, "get_argv") == 0) {
+        if (args[0].type != VAL_INT) return create_string("");
+        int idx = (int)args[0].as.int_val;
+        if (idx < 0 || idx >= g_argc || !g_argv[idx]) return create_string("");
+        return create_string(g_argv[idx]);
+    }
+
+    /* Timing utilities */
+    if (strcmp(name, "nl_timing_get_nanoseconds") == 0) {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        long long ns = (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        return create_int(ns);
+    }
+
+    /* String builder builtins (interpreter-native implementations) */
+    if (strcmp(name, "nl_sb_new") == 0) {
+        /* Allocate an EvalSB on the heap; store pointer as int */
+        EvalSB *sb = malloc(sizeof(EvalSB));
+        *sb = eval_sb_new(256);
+        return create_int((long long)(intptr_t)sb);
+    }
+    if (strcmp(name, "nl_sb_with_capacity") == 0) {
+        size_t cap = (args[0].type == VAL_INT) ? (size_t)args[0].as.int_val : 256;
+        EvalSB *sb = malloc(sizeof(EvalSB));
+        *sb = eval_sb_new(cap);
+        return create_int((long long)(intptr_t)sb);
+    }
+    if (strcmp(name, "nl_sb_append") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        if (sb && args[1].type == VAL_STRING && args[1].as.string_val)
+            eval_sb_append_cstr(sb, args[1].as.string_val);
+        return create_void();
+    }
+    if (strcmp(name, "nl_sb_append_char") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        if (sb && args[1].type == VAL_INT) {
+            char c = (char)args[1].as.int_val;
+            eval_sb_append_char(sb, c);
+        }
+        return create_void();
+    }
+    if (strcmp(name, "nl_sb_clear") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        if (sb) { sb->len = 0; if (sb->buf) sb->buf[0] = '\0'; }
+        return create_void();
+    }
+    if (strcmp(name, "nl_sb_length") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        return create_int(sb ? (long long)sb->len : 0);
+    }
+    if (strcmp(name, "nl_sb_capacity") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        return create_int(sb ? (long long)sb->cap : 0);
+    }
+    if (strcmp(name, "nl_sb_to_string") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        if (!sb || !sb->buf) return create_string("");
+        return create_string(sb->buf);
+    }
+    if (strcmp(name, "nl_sb_free") == 0) {
+        EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
+        if (sb) { free(sb->buf); free(sb); }
+        return create_void();
+    }
     
     /* String operations */
     if (strcmp(name, "str_length") == 0) return builtin_str_length(args);
@@ -2590,9 +2687,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
     
     /* Higher-order array functions */
-    if (strcmp(name, "map") == 0) return builtin_map(args, env);
-    if (strcmp(name, "filter") == 0) return builtin_filter(args, env);
-    if (strcmp(name, "reduce") == 0) return builtin_reduce(args, env);
+    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) return builtin_map(args, env);
+    if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) return builtin_filter(args, env);
+    if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
     if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
@@ -4062,16 +4159,58 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_MATCH: {
-            /* Evaluate match expression: match status { Ok(x) => 1, Error(e) => 0 } */
+            /* Evaluate match expression: match status { Ok(x) => 1, Error(e) => 0 }
+             * Also supports integer literal patterns: match n { 0 => "zero", 1 => "one", _ => "many" }
+             */
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
-            
+
+            /* Integer/primitive literal pattern matching */
             if (match_val.type != VAL_UNION) {
-                fprintf(stderr, "Error: Match expression requires a union value (got type %d)\n", match_val.type);
+                int wildcard_arm = -1;
+                for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                    const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+
+                    if (strcmp(pattern_variant, "_") == 0) {
+                        wildcard_arm = i;
+                        continue;
+                    }
+
+                    bool arm_matches = false;
+                    /* INT:<number> patterns */
+                    if (strncmp(pattern_variant, "INT:", 4) == 0) {
+                        long long pat_val = strtoll(pattern_variant + 4, NULL, 10);
+                        if (match_val.type == VAL_INT) {
+                            arm_matches = (match_val.as.int_val == pat_val);
+                        } else if (match_val.type == VAL_FLOAT) {
+                            arm_matches = ((long long)match_val.as.float_val == pat_val);
+                        }
+                    } else if (match_val.type == VAL_BOOL) {
+                        arm_matches = (strcmp(pattern_variant, match_val.as.bool_val ? "true" : "false") == 0);
+                    } else if (match_val.type == VAL_STRING && match_val.as.string_val) {
+                        arm_matches = (strcmp(pattern_variant, match_val.as.string_val) == 0);
+                    }
+
+                    if (arm_matches) {
+                        int saved_symbol_count = env->symbol_count;
+                        Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
+                        env->symbol_count = saved_symbol_count;
+                        return result;
+                    }
+                }
+
+                if (wildcard_arm >= 0) {
+                    int saved_symbol_count = env->symbol_count;
+                    Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
+                    env->symbol_count = saved_symbol_count;
+                    return result;
+                }
+
+                fprintf(stderr, "Error: No matching arm in match expression\n");
                 return create_void();
             }
-            
+
             UnionValue *uval = match_val.as.union_val;
-            
+
             /* Find matching arm by comparing variant names; _ is wildcard catch-all */
             int wildcard_arm = -1;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
@@ -4353,7 +4492,47 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
                 Value result = create_void();
 
-                if (list_type == TYPE_LIST_INT) {
+                if (iter_val.type == VAL_ARRAY) {
+                    /* Static array iteration */
+                    Array *arr = iter_val.as.array_val;
+                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    for (int idx = 0; idx < arr->length; idx++) {
+                        Value elem = create_void();
+                        switch (arr->element_type) {
+                            case VAL_INT:    elem = create_int(((long long*)arr->data)[idx]); break;
+                            case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
+                            case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
+                            case VAL_STRING: elem = create_string(((char**)arr->data)[idx]); break;
+                            default: break;
+                        }
+                        env->symbols[loop_var_index].value = elem;
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else if (iter_val.type == VAL_DYN_ARRAY) {
+                    /* Dynamic array iteration */
+                    DynArray *arr = iter_val.as.dyn_array_val;
+                    if (!arr) { env->symbol_count = loop_var_index; return create_void(); }
+                    int64_t len = dyn_array_length(arr);
+                    ElementType et = dyn_array_get_elem_type(arr);
+                    for (int64_t idx = 0; idx < len; idx++) {
+                        Value elem = create_void();
+                        switch (et) {
+                            case ELEM_INT:    elem = create_int(dyn_array_get_int(arr, idx)); break;
+                            case ELEM_FLOAT:  elem = create_float(dyn_array_get_float(arr, idx)); break;
+                            case ELEM_BOOL:   elem = create_bool(dyn_array_get_bool(arr, idx)); break;
+                            case ELEM_STRING: elem = create_string(dyn_array_get_string(arr, idx)); break;
+                            default: break;
+                        }
+                        env->symbols[loop_var_index].value = elem;
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else if (list_type == TYPE_LIST_INT) {
                     List_int *lst = (List_int*)(intptr_t)iter_val.as.int_val;
                     if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
@@ -4374,7 +4553,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         if (result.is_continue) { result = create_void(); continue; }
                     }
                 } else {
-                    fprintf(stderr, "Error: for-in requires a list or range expression\n");
+                    fprintf(stderr, "Error: for-in requires a list, array, or range expression\n");
                 }
 
                 env->symbol_count = loop_var_index;
