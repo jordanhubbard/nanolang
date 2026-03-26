@@ -58,7 +58,10 @@ static int interpret_file(const char *input_file) {
     fseek(file, 0, SEEK_SET);
     char *source = malloc((size_t)size + 1);
     if (!source) { fclose(file); fprintf(stderr, "nano: out of memory\n"); return 1; }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(source, 1, (size_t)size, file);
+#pragma GCC diagnostic pop
     source[size] = '\0';
     fclose(file);
 

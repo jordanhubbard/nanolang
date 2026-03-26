@@ -294,7 +294,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fseek(file, 0, SEEK_SET);
 
     char *source = malloc(size + 1);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(source, 1, size, file);
+#pragma GCC diagnostic pop
     source[size] = '\0';
     fclose(file);
 
@@ -692,7 +695,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
     
     /* Build include flags */
-    char include_flags[2048];
+    char include_flags[8192];
     snprintf(include_flags, sizeof(include_flags), "-I%s/src", get_project_root());
     for (int i = 0; i < opts->include_count; i++) {
         char temp[512];
@@ -789,7 +792,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fseek(schema_h, 0, SEEK_SET);
         char *schema_content = malloc(size + 1);
         if (schema_content) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             fread(schema_content, 1, size, schema_h);
+#pragma GCC diagnostic pop
             schema_content[size] = '\0';
             
             const char *ptr = schema_content;
@@ -862,14 +868,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             }
             
             if (!already_detected && detected_count < 32) {
-                strncpy(detected_types[detected_count], type_name, 63);
-                detected_types[detected_count][63] = '\0';
+                snprintf(detected_types[detected_count], 64, "%s", type_name);
                 detected_count++;
                 
                 /* Check if this type already has a runtime list implementation.
                  * If so, skip wrapper generation to avoid duplicate symbols —
                  * the runtime file is already linked via runtime_basenames[]. */
-                char runtime_list_path[512];
+                char runtime_list_path[8192];
                 snprintf(runtime_list_path, sizeof(runtime_list_path),
                          "%s/src/runtime/list_%s.c", get_project_root(), type_name);
                 if (access(runtime_list_path, F_OK) == 0) {
@@ -903,7 +908,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     c_type = nl_prefixed_type;
                 }
                 
-                char gen_cmd[512];
+                char gen_cmd[8192];
                 snprintf(gen_cmd, sizeof(gen_cmd),
                         "%s/scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
                         get_project_root(), type_name, get_tmp_dir(), c_type);
@@ -1042,10 +1047,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         "runtime/gc_struct.c", "runtime/nl_string.c", "runtime/cli.c", "runtime/regex.c",
         NULL
     };
-    char runtime_files[8192];
+    char runtime_files[65536];
     runtime_files[0] = '\0';
     for (int i = 0; runtime_basenames[i]; i++) {
-        char entry[256];
+        char entry[8192];
         snprintf(entry, sizeof(entry), "%s%s/src/%s",
                  i > 0 ? " " : "", get_project_root(), runtime_basenames[i]);
         strncat(runtime_files, entry, sizeof(runtime_files) - strlen(runtime_files) - 1);

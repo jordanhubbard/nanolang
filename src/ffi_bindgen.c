@@ -173,9 +173,8 @@ static bool parse_function_declaration(CTokenizer *t, FILE *out) {
     while (token && (strcmp(token, "unsigned") == 0 || strcmp(token, "signed") == 0 ||
                      strcmp(token, "long") == 0 || strcmp(token, "short") == 0 ||
                      strcmp(token, "const") == 0)) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), "%s %s", return_type, token);
-        strncpy(return_type, temp, sizeof(return_type) - 1);
+        size_t rt_len = strlen(return_type);
+        snprintf(return_type + rt_len, sizeof(return_type) - rt_len, " %s", token);
         free(token);
         token = next_token(t);
     }
@@ -230,13 +229,12 @@ static bool parse_function_declaration(CTokenizer *t, FILE *out) {
             /* Check if this is a type keyword or modifier */
             if (is_c_type_keyword(token) || strcmp(token, "*") == 0 || strcmp(token, "**") == 0) {
                 /* This is part of the type */
-                char temp[512];
+                size_t pt_len = strlen(param_type);
                 if (strcmp(token, "*") == 0 || strcmp(token, "**") == 0) {
-                    snprintf(temp, sizeof(temp), "%s%s", param_type, token);
+                    snprintf(param_type + pt_len, sizeof(param_type) - pt_len, "%s", token);
                 } else {
-                    snprintf(temp, sizeof(temp), "%s %s", param_type, token);
+                    snprintf(param_type + pt_len, sizeof(param_type) - pt_len, " %s", token);
                 }
-                strncpy(param_type, temp, sizeof(param_type) - 1);
                 free(token);
                 token = next_token(t);
             } else if ((isalpha(token[0]) || token[0] == '_') && strlen(param_type) > 0) {
@@ -251,9 +249,8 @@ static bool parse_function_declaration(CTokenizer *t, FILE *out) {
                 /* Unknown - might be struct name or parameter name */
                 /* If it looks like an identifier and we don't have a type yet, it might be a struct name */
                 if (isalpha(token[0]) || token[0] == '_') {
-                    char temp[512];
-                    snprintf(temp, sizeof(temp), "%s %s", param_type, token);
-                    strncpy(param_type, temp, sizeof(param_type) - 1);
+                    size_t pt2_len = strlen(param_type);
+                    snprintf(param_type + pt2_len, sizeof(param_type) - pt2_len, " %s", token);
                     free(token);
                     token = next_token(t);
                 } else {
@@ -326,7 +323,10 @@ static bool generate_module(const char *header_file, FFIOptions *opts) {
     fseek(header, 0, SEEK_SET);
     
     char *source = malloc(size + 1);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(source, 1, size, header);
+#pragma GCC diagnostic pop
     source[size] = '\0';
     fclose(header);
     

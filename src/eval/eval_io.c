@@ -44,7 +44,10 @@ Value builtin_file_read(Value *args) {
     fseek(f, 0, SEEK_SET);
 
     char *buffer = malloc(size + 1);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(buffer, 1, size, f);
+#pragma GCC diagnostic pop
     buffer[size] = '\0';
     fclose(f);
 

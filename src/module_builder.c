@@ -79,7 +79,10 @@ static cJSON* load_package_registry(void) {
         return NULL;
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(content, 1, size, fp);
+#pragma GCC diagnostic pop
     content[size] = '\0';
     fclose(fp);
 
@@ -323,7 +326,10 @@ static cJSON *load_hash_cache(const char *module_dir) {
     if (sz <= 0) { fclose(fp); return NULL; }
     char *buf = malloc((size_t)sz + 1);
     if (!buf) { fclose(fp); return NULL; }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(buf, 1, (size_t)sz, fp);
+#pragma GCC diagnostic pop
     buf[sz] = '\0';
     fclose(fp);
     cJSON *root = cJSON_Parse(buf);
@@ -1017,7 +1023,10 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
         return NULL;
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(content, 1, size, fp);
+#pragma GCC diagnostic pop
     content[size] = '\0';
     fclose(fp);
 

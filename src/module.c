@@ -568,7 +568,10 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     fseek(file, 0, SEEK_SET);
     
     char *source = malloc(size + 1);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
     fread(source, 1, size, file);
+#pragma GCC diagnostic pop
     source[size] = '\0';
     fclose(file);
     
@@ -1238,8 +1241,7 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
                 }
 
                 if (!already_detected && detected_count < 64) {
-                    strncpy(detected_types[detected_count], type_name, 63);
-                    detected_types[detected_count][63] = '\0';
+                    snprintf(detected_types[detected_count], 64, "%s", type_name);
                     detected_count++;
 
                     const char *c_type = type_name;
@@ -1253,19 +1255,22 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
                     if (verbose) {
                         printf("[Modules] Generating List<%s> runtime...\n", type_name);
                     }
-                    (void)system(gen_cmd);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+                    system(gen_cmd);
+#pragma GCC diagnostic pop
                 }
             }
         }
     }
-    
+
     /* Compile C code to object file */
     /* Note: Runtime files are linked separately, not compiled into module objects */
     /* Add SDL flags if SDL modules are used */
     char sdl_flags[256] = "";
     FILE *sdl_check = popen("sdl2-config --cflags 2>/dev/null", "r");
     if (sdl_check) {
-        fgets(sdl_flags, sizeof(sdl_flags), sdl_check);
+        if (!fgets(sdl_flags, sizeof(sdl_flags), sdl_check)) sdl_flags[0] = '\0';
         pclose(sdl_check);
         /* Remove trailing newline */
         char *newline = strchr(sdl_flags, '\n');
@@ -1501,7 +1506,10 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                  * earlier ones and we end up linking only the last compiled Nano object, causing
                  * undefined references on strict linkers (Linux CI).
                  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
                 system("mkdir -p obj/nano_modules 2>/dev/null");
+#pragma GCC diagnostic pop
 
                 const char *last_slash = strrchr(module_path, '/');
                 const char *base_name = last_slash ? last_slash + 1 : module_path;
@@ -1590,8 +1598,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             snprintf(obj_file, sizeof(obj_file), "obj/nano_modules/%s.o", base_without_ext);
 
             /* Ensure obj directory exists */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             system("mkdir -p obj/nano_modules 2>/dev/null");
-            
+#pragma GCC diagnostic pop
+
             /* Compile module to object file */
             if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
