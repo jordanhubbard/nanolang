@@ -101,6 +101,7 @@ shadow cwd {
     assert (> (str_length dir) 0)
 }
 
+# @pure
 fn glob_match_impl(pattern: string, pi: int, text: string, ti: int) -> bool {
     let plen: int = (str_length pattern)
     let tlen: int = (str_length text)

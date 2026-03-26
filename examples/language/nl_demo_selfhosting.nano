@@ -8,6 +8,7 @@
 
 module "examples/advanced/math_helper.nano" as Math
 
+# @pure
 fn fibonacci(n: int) -> int {
     if (< n 2) {
         return n
@@ -25,6 +26,7 @@ shadow fibonacci {
     assert (== (fibonacci 10) 55)
 }
 
+# @pure
 fn factorial(n: int) -> int {
     if (< n 2) {
         return 1
@@ -41,6 +43,7 @@ shadow factorial {
     assert (== (factorial 6) 720)
 }
 
+# @pure
 fn power(base: int, exp: int) -> int {
     if (== exp 0) {
         return 1

@@ -80,6 +80,7 @@ shadow wrap_expression {
 }
 
 # Evaluate expression
+# @pure
 fn eval_expression(expr: string) -> int {
     let source: string = (wrap_expression expr)
     unsafe {

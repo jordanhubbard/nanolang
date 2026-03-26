@@ -11,6 +11,7 @@
 
 module "modules/dispatch/dispatch.nano"
 
+# @pure
 fn work_item() -> void {
     /* Simulated work — no-op placeholder */
     let x: int = 42

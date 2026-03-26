@@ -7,6 +7,7 @@
 # Expected Output: Phase B2: Functions as Return Values
 
 /* Some basic functions */
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -15,6 +16,7 @@ shadow add {
     assert (== (add 2 3) 5)
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -24,6 +26,7 @@ shadow multiply {
 }
 
 /* Function factory - returns a function! */
+# @pure
 fn get_adder() -> fn(int, int) -> int {
     return add
 }
@@ -33,6 +36,7 @@ shadow get_adder {
     assert (== 1 1)
 }
 
+# @pure
 fn get_multiplier() -> fn(int, int) -> int {
     return multiply
 }
@@ -43,6 +47,7 @@ shadow get_multiplier {
 }
 
 /* Conditional factory */
+# @pure
 fn get_operation(use_add: bool) -> fn(int, int) -> int {
     if use_add {
         return add

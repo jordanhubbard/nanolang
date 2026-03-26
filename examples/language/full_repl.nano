@@ -185,6 +185,7 @@ shadow find_char {
     assert (== (find_char "test" colon) (- 0 1))
 }
 
+# @pure
 fn is_let_statement(input: string) -> bool {
     let trimmed: string = (str_trim input)
     return (str_starts_with trimmed "let ")
@@ -219,6 +220,7 @@ shadow extract_var_name {
 }
 
 # Check if input is a function definition
+# @pure
 fn is_fn_definition(input: string) -> bool {
     let trimmed: string = (str_trim input)
     return (str_starts_with trimmed "fn ")

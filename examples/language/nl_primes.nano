@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_operators, nl_loops
 # Expected Output: Prime numbers up to 50:
 
+# @pure
 fn is_prime(n: int) -> bool {
     # Early returns for simple cases
     if (< n 2) {
@@ -56,6 +57,7 @@ shadow is_prime {
     assert (== (is_prime 101) true)
 }
 
+# @pure
 fn count_primes(limit: int) -> int {
     let mut count: int = 0
     let mut i: int = 2

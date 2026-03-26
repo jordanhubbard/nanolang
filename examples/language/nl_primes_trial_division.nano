@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_loops, nl_primes
 # Expected Output: Calculating primes up to 1,000,000...
 
+# @pure
 fn is_prime(n: int) -> bool {
     if (< n 2) { return false }
     if (== n 2) { return true }
@@ -21,6 +22,7 @@ fn is_prime(n: int) -> bool {
     return true
 }
 
+# @pure
 fn count_primes(limit: int) -> int {
     let mut count: int = 0
     let mut i: int = 2

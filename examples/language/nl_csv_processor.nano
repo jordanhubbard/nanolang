@@ -22,6 +22,7 @@ struct Employee {
 }
 
 # Create sample employee data
+# @pure
 fn create_sample_data() -> array<Employee> {
     let mut employees: array<Employee> = []
     set employees (array_push employees (Employee { name: "Alice", age: 30, salary: 75000, department: "Engineering" }))
@@ -40,6 +41,7 @@ shadow create_sample_data {
 }
 
 # Filter: Keep only employees in a specific department
+# @pure
 fn is_in_department(emp: Employee, dept: string) -> bool {
     return (== emp.department dept)
 }
@@ -51,6 +53,7 @@ shadow is_in_department {
 }
 
 # Filter: Keep only employees above age threshold
+# @pure
 fn is_above_age(emp: Employee, min_age: int) -> bool {
     return (>= emp.age min_age)
 }
@@ -63,6 +66,7 @@ shadow is_above_age {
 }
 
 # Map: Apply a salary raise (percentage)
+# @pure
 fn apply_raise(emp: Employee, percent: int) -> Employee {
     let raise_amount: int = (/ (* emp.salary percent) 100)
     let new_salary: int = (+ emp.salary raise_amount)
@@ -77,6 +81,7 @@ shadow apply_raise {
 }
 
 # Fold: Sum all salaries
+# @pure
 fn sum_salaries(employees: array<Employee>) -> int {
     let mut total: int = 0
     let mut i: int = 0
@@ -96,6 +101,7 @@ shadow sum_salaries {
 }
 
 # Fold: Count employees
+# @pure
 fn count_employees(employees: array<Employee>) -> int {
     return (array_length employees)
 }
@@ -108,6 +114,7 @@ shadow count_employees {
 }
 
 # Fold: Compute average salary
+# @pure
 fn average_salary(employees: array<Employee>) -> int {
     let count: int = (array_length employees)
     if (== count 0) {
@@ -126,6 +133,7 @@ shadow average_salary {
 }
 
 # Full pipeline: Filter → Map → Aggregate
+# @pure
 fn process_employees(employees: array<Employee>, target_dept: string, min_age: int, raise_percent: int) -> int {
     let mut i: int = 0
 

@@ -17,6 +17,7 @@ struct Color {
     b: int
 }
 
+# @pure
 fn create_point(x: int, y: int) -> Point {
     return Point { x: x, y: y }
 }
@@ -27,6 +28,7 @@ shadow create_point {
     assert (== p.y 10)
 }
 
+# @pure
 fn get_x(p: Point) -> int {
     return p.x
 }
@@ -36,6 +38,7 @@ shadow get_x {
     assert (== (get_x p) 42)
 }
 
+# @pure
 fn get_y(p: Point) -> int {
     return p.y
 }
@@ -45,6 +48,7 @@ shadow get_y {
     assert (== (get_y p) 100)
 }
 
+# @pure
 fn add_points(p1: Point, p2: Point) -> Point {
     let new_x: int = (+ p1.x p2.x)
     let new_y: int = (+ p1.y p2.y)

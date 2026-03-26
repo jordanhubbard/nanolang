@@ -12,6 +12,7 @@
 
 module std_math_array
 
+# frozen
 let EPSILON: float = 0.000001
 
 pub fn assert_same_length(a: array<float>, b: array<float>) -> void {

@@ -149,9 +149,11 @@ pub extern fn copysign(_x: float, _y: float) -> float
  */
 
 /* Pi (π) constant (kept private; use pi() accessor) */
+# frozen
 let PI: float = 3.141592653589793
 
 /* Euler's number (e) constant (kept private; use e() accessor) */
+# frozen
 let E: float = 2.718281828459045
 
 pub fn pi() -> float { return PI }

@@ -13,6 +13,7 @@
 
 module "modules/dispatch/dispatch.nano"
 
+# @pure
 fn noop_work() -> void {}
 
 shadow noop_work {

@@ -14,6 +14,7 @@ import "modules/std/peg2/peg2.nano"
  *   quoted <- '"' (!'"' .)* '"'
  *   plain  <- [^,\n\r"]*
  */
+# frozen
 let csv_grammar: string = "file <- row (\"\\n\" row)*\nrow <- field (\",\" field)*\nfield <- quoted / plain\nquoted <- \"\\\"\" (!\"\\\"\" .)* \"\\\"\"\nplain <- [^,\\n\\r\"]*"
 
 fn parse_csv(input: string) -> void {

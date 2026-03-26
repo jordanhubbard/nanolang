@@ -6,6 +6,7 @@
 # Prerequisites: nl_array_complete
 # Expected Output: Array [10, 20, 30] at index 2 = 30
 
+# @pure
 fn test_bounds_valid() -> int {
     # This should work
     return (at [10, 20, 30] 2)

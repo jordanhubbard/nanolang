@@ -7,6 +7,7 @@
 # Expected Output: Phase B3: Function Variables - COMPLETE!
 
 /* Basic arithmetic operations */
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -15,6 +16,7 @@ shadow add {
     assert (== (add 2 3) 5)
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -23,6 +25,7 @@ shadow multiply {
     assert (== (multiply 4 5) 20)
 }
 
+# @pure
 fn subtract(a: int, b: int) -> int {
     return (- a b)
 }
@@ -32,6 +35,7 @@ shadow subtract {
 }
 
 /* Function factory */
+# @pure
 fn get_operation(choice: int) -> fn(int, int) -> int {
     if (== choice 0) {
         return add
@@ -50,6 +54,7 @@ shadow get_operation {
 }
 
 /* Use stored function */
+# @pure
 fn apply_stored_operation(a: int, b: int, choice: int) -> int {
     /* Store function in variable */
     let op: fn(int, int) -> int = (get_operation choice)
@@ -67,6 +72,7 @@ shadow apply_stored_operation {
 }
 
 /* Calculator with function dispatch */
+# @pure
 fn calculator(a: int, b: int, operation: int) -> int {
     /* Get the operation function */
     let func: fn(int, int) -> int = (get_operation operation)
@@ -86,6 +92,7 @@ shadow calculator {
 }
 
 /* Strategy pattern demo */
+# @pure
 fn process_numbers(x: int, y: int, strategy: fn(int, int) -> int) -> int {
     /* Strategy function passed as parameter - use it directly */
     return (strategy x y)

@@ -13,6 +13,7 @@ extern fn strcmp(s1: string, s2: string) -> int
 
 # Board representation: flat array of 9 positions
 # 0 = empty, 1 = X, 2 = O
+# @pure
 fn create_board() -> array<int> {
     return (array_new 9 0)
 }
@@ -48,6 +49,7 @@ shadow display_board {
 }
 
 # Get display character for a cell using cond
+# @pure
 fn get_cell_display(board: array<int>, pos: int) -> string {
     let cell: int = (at board pos)
     return (cond
@@ -67,6 +69,7 @@ shadow get_cell_display {
 }
 
 # Check if position is valid and empty using cond
+# @pure
 fn is_valid_move(board: array<int>, pos: int) -> bool {
     return (cond
         ((< pos 0) false)
@@ -86,6 +89,7 @@ shadow is_valid_move {
 }
 
 # Make a move
+# @pure
 fn make_move(board: array<int>, pos: int, player: int) -> void {
     (array_set board pos player)
 }
@@ -99,6 +103,7 @@ shadow make_move {
 }
 
 # Check if player has won
+# @pure
 fn check_win(board: array<int>, player: int) -> bool {
     # Check rows
     let row1: bool = (and (and (== (at board 0) player) (== (at board 1) player)) (== (at board 2) player))
@@ -142,6 +147,7 @@ shadow check_win {
 }
 
 # Check if board is full (draw)
+# @pure
 fn is_board_full(board: array<int>) -> bool {
     let mut i: int = 0
     let mut empty_found: bool = false
@@ -172,6 +178,7 @@ shadow is_board_full {
 }
 
 # Get player name
+# @pure
 fn get_player_name(player: int) -> string {
     if (== player 1) {
         return "X"
@@ -186,6 +193,7 @@ shadow get_player_name {
 }
 
 # Simple AI: pick first available move
+# @pure
 fn ai_move(board: array<int>) -> int {
     let mut i: int = 0
     while (< i 9) {

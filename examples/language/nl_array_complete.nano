@@ -7,6 +7,7 @@
 # Expected Output: === Comprehensive Array Test Suite ===
 
 # Test 1: Array literal basics
+# @pure
 fn test_array_literal() -> int {
     return (array_length [1, 2, 3, 4, 5])
 }
@@ -16,6 +17,7 @@ shadow test_array_literal {
 }
 
 # Test 2: Array access
+# @pure
 fn test_array_access() -> int {
     return (at [10, 20, 30, 40] 2)
 }
@@ -25,6 +27,7 @@ shadow test_array_access {
 }
 
 # Test 3: Array sum
+# @pure
 fn array_sum() -> int {
     let sum1: int = (at [5, 10, 15] 0)
     let sum2: int = (at [5, 10, 15] 1)
@@ -37,6 +40,7 @@ shadow array_sum {
 }
 
 # Test 4: Array with variables
+# @pure
 fn test_with_vars() -> int {
     let first: int = (at [100, 200, 300] 0)
     let last: int = (at [100, 200, 300] 2)
@@ -48,6 +52,7 @@ shadow test_with_vars {
 }
 
 # Test 5: Array length
+# @pure
 fn test_length() -> int {
     let len1: int = (array_length [1, 2, 3])
     let len2: int = (array_length [10, 20])
@@ -59,6 +64,7 @@ shadow test_length {
 }
 
 # Test 6: Array new
+# @pure
 fn test_array_new() -> int {
     let len: int = (array_length (array_new 7 0))
     return len
@@ -69,6 +75,7 @@ shadow test_array_new {
 }
 
 # Test 7: Multiple operations
+# @pure
 fn test_multi_ops() -> int {
     let arr_len: int = (array_length [1, 2, 3, 4])
     let arr_elem: int = (at [5, 6, 7, 8] 1)

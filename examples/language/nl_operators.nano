@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello
 # Expected Output: === Arithmetic Operations ===
 
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -16,6 +17,7 @@ shadow add {
     assert (== (add (- 0 5) 5) 0)
 }
 
+# @pure
 fn subtract(a: int, b: int) -> int {
     return (- a b)
 }
@@ -26,6 +28,7 @@ shadow subtract {
     assert (== (subtract 0 10) (- 0 10))
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -36,6 +39,7 @@ shadow multiply {
     assert (== (multiply (- 0 3) 4) (- 0 12))
 }
 
+# @pure
 fn divide(a: int, b: int) -> int {
     return (/ a b)
 }
@@ -46,6 +50,7 @@ shadow divide {
     assert (== (divide 100 10) 10)
 }
 
+# @pure
 fn modulo(a: int, b: int) -> int {
     return (% a b)
 }
@@ -56,6 +61,7 @@ shadow modulo {
     assert (== (modulo 7 2) 1)
 }
 
+# @pure
 fn complex_expr(x: int, y: int, z: int) -> int {
     return (+ (* x y) (/ z 2))
 }

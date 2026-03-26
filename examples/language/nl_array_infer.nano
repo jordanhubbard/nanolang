@@ -3,6 +3,7 @@
    The compiler infers the element type from the literal contents.
 */
 
+# @pure
 fn sum(arr: array<int>) -> int {
     let mut s: int = 0
     for x in arr {

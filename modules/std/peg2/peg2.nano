@@ -78,6 +78,7 @@ extern fn nl_peg2_ffi_last_error_pos() -> int
 
 /* ---- Private helpers ---- */
 
+# @pure
 fn peg2_read_node() -> Peg2Node {
     let rule:    string = (nl_peg2_ffi_tree_rule)
     let cap:     string = (nl_peg2_ffi_tree_capture)

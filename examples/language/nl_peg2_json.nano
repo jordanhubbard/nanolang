@@ -14,6 +14,7 @@ import "modules/std/peg2/peg2.nano"
  * Note: grammar uses no named captures to keep tree sharing safe.
  * We compile the grammar once and reuse it for all validation calls
  * to avoid repeated compile/free cycles with recursive grammars. */
+# frozen
 let json_grammar: string = "value <- ws (object / array / string / number / \"true\" / \"false\" / \"null\") ws\nobject <- \"{\" ws (pair (ws \",\" ws pair)*)? ws \"}\"\npair <- string ws \":\" ws value\narray <- \"[\" ws (value (ws \",\" ws value)*)? ws \"]\"\nstring <- \"\\\"\" (!\"\\\"\" (\"\\\\\" . / .))* \"\\\"\"\nnumber <- \"-\"? ([1-9] [0-9]* / \"0\") (\".\" [0-9]+)?\nws <- [ \\t\\n\\r]*"
 
 fn validate_json(g: Peg2Grammar, label: string, input: string) -> void {

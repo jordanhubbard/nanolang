@@ -27,6 +27,7 @@ enum HttpStatus {
     ServerError = 500
 }
 
+# @pure
 fn test_color() -> int {
     let c: Color = Color.Red
     return c
@@ -36,6 +37,7 @@ shadow test_color {
     assert (== (test_color) 0)
 }
 
+# @pure
 fn test_status() -> int {
     let s: Status = Status.Active
     return s
@@ -45,6 +47,7 @@ shadow test_status {
     assert (== (test_status) 1)
 }
 
+# @pure
 fn test_http() -> int {
     let h: HttpStatus = HttpStatus.Ok
     return h
@@ -54,6 +57,7 @@ shadow test_http {
     assert (== (test_http) 200)
 }
 
+# @pure
 fn color_to_int(c: Color) -> int {
     return c
 }
@@ -67,6 +71,7 @@ shadow color_to_int {
     assert (== (color_to_int blue) 2)
 }
 
+# @pure
 fn is_error(status: int) -> bool {
     return (>= status 400)
 }
@@ -80,6 +85,7 @@ shadow is_error {
     assert (== (is_error error) true)
 }
 
+# @pure
 fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }

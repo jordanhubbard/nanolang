@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_loops, nl_primes
 # Expected Output: Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...
 
+# @pure
 fn count_primes_sieve(limit: int) -> int {
     if (< limit 2) {
         return 0

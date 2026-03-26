@@ -17,6 +17,7 @@ union Result {
 }
 
 /* Safe integer division — returns Err on divide-by-zero */
+# @pure
 fn safe_div(a: int, b: int) -> Result {
     if (== b 0) {
         return Result.Err { msg: "divide by zero" }
@@ -26,6 +27,7 @@ fn safe_div(a: int, b: int) -> Result {
 }
 
 /* Safe square root — returns Err on negative input */
+# @pure
 fn safe_sqrt_int(n: int) -> Result {
     if (< n 0) {
         return Result.Err { msg: "sqrt of negative number" }
@@ -40,6 +42,7 @@ fn safe_sqrt_int(n: int) -> Result {
 }
 
 /* Chain: compute sqrt(a / b) — propagates any Err automatically */
+# @pure
 fn sqrt_of_ratio(a: int, b: int) -> Result {
     let div_r: Result = (safe_div a b)
     let quotient: int = div_r?    /* returns Err if b==0 */

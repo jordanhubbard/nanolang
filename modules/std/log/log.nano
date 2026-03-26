@@ -20,14 +20,21 @@
  * ============================================================================= */
 
 /* Log Levels (0 = Debug, 1 = Info, 2 = Warn, 3 = Error, 4 = Fatal) */
+# frozen
 let LOG_LEVEL_DEBUG: int = 0
+# frozen
 let LOG_LEVEL_INFO: int = 1
+# frozen
 let LOG_LEVEL_WARN: int = 2
+# frozen
 let LOG_LEVEL_ERROR: int = 3
+# frozen
 let LOG_LEVEL_FATAL: int = 4
 
 /* Output modes */
+# frozen
 let OUTPUT_MODE_TEXT: int = 0
+# frozen
 let OUTPUT_MODE_JSON: int = 1
 
 /* =============================================================================
@@ -100,6 +107,7 @@ shadow get_log_level {
  * BASIC LOGGING
  * ============================================================================= */
 
+# @pure
 fn level_to_string(level: int) -> string {
     return (cond
         ((== level LOG_LEVEL_DEBUG) "DEBUG")
@@ -119,6 +127,7 @@ shadow level_to_string {
     assert (== (level_to_string LOG_LEVEL_FATAL) "FATAL")
 }
 
+# @pure
 fn format_log_text(level: int, message: string) -> string {
     let level_str: string = (level_to_string level)
     return (+ "[" (+ level_str (+ "] " message)))
@@ -129,6 +138,7 @@ shadow format_log_text {
     assert (> (str_length text) 0)
 }
 
+# @pure
 fn format_log_json(level: int, message: string) -> string {
     let level_str: string = (level_to_string level)
     let mut json: string = "{"
@@ -145,6 +155,7 @@ shadow format_log_json {
     assert (> (str_length json) 0)
 }
 
+# @pure
 fn should_log(level: int) -> bool {
     return (>= level (get_log_level))
 }

@@ -16,6 +16,7 @@
 
 import "modules/std/peg2/peg2.nano"
 
+# frozen
 let expr_grammar: string = "expr <- ws term (ws (\"+\" / \"-\") ws term)* ws\nterm <- factor (ws (\"*\" / \"/\") ws factor)*\nfactor <- \"(\" ws expr ws \")\" / number\nnumber <- \"-\"? [0-9]+ (\".\" [0-9]+)?\nws <- [ \\t]*"
 
 fn try_parse(g: Peg2Grammar, input: string) -> void {

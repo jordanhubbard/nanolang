@@ -13,6 +13,7 @@ extern fn get_argc() -> int
 extern fn get_argv(index: int) -> string
 
 # Helper to convert int to float
+# @pure
 fn int_to_float(n: int) -> float {
     if (== n 0) {
         return 0.0
@@ -47,6 +48,7 @@ shadow int_to_float {
 
 # Initialize array for spigot algorithm
 # We need more digits internally for accuracy
+# @pure
 fn init_spigot_array(size: int) -> array<int> {
     let arr: array<int> = (array_new size 2)
     return arr
@@ -61,6 +63,7 @@ shadow init_spigot_array {
 
 # Compute one digit of pi using spigot algorithm
 # This is a simplified version that works for moderate precision
+# @pure
 fn compute_pi_digit(arr: array<int>, len: int) -> int {
     let mut carry: int = 0
     let mut i: int = (- len 1)
@@ -96,6 +99,7 @@ shadow compute_pi_digit {
 }
 
 # Calculate pi digits using the spigot algorithm
+# @pure
 fn pow10(n: int) -> int {
     let mut result: int = 1
     let mut i: int = 0
@@ -111,6 +115,7 @@ shadow pow10 {
     assert (== (pow10 3) 1000)
 }
 
+# @pure
 fn format_float_fixed(value: float, decimals: int) -> string {
     let factor: int = (pow10 decimals)
     let scaled: int = (cast_int (+ (* value (int_to_float factor)) 0.5))
@@ -133,6 +138,7 @@ shadow format_float_fixed {
     assert (str_equals (format_float_fixed 3.1415926 5) "3.14159")
 }
 
+# @pure
 fn calculate_pi_spigot(decimal_places: int) -> string {
     if (<= decimal_places 0) {
         return "3"
@@ -152,6 +158,7 @@ shadow calculate_pi_spigot {
 
 # Simple pi calculation using Leibniz formula (slower but simpler)
 # π/4 = 1 - 1/3 + 1/5 - 1/7 + 1/9 - ...
+# @pure
 fn calculate_pi_leibniz(iterations: int) -> float {
     let mut pi: float = 0.0
     let mut i: int = 0
@@ -183,6 +190,7 @@ shadow calculate_pi_leibniz {
 # Better formula: Machin's formula
 # π/4 = 4*arctan(1/5) - arctan(1/239)
 # We'll compute arctan using Taylor series
+# @pure
 fn arctan_series(x: float, terms: int) -> float {
     let mut result: float = 0.0
     let mut i: int = 0
@@ -214,10 +222,13 @@ shadow arctan_series {
     assert (< result 0.79)
 }
 
+# @pure
 fn calculate_pi_machin(terms: int) -> float {
+    # par {  -- term1 and term2 are independent @pure computations, eligible for parallel eval
     let term1: float = (arctan_series 0.2 terms)      # arctan(1/5)
     let term2: float = (arctan_series 0.0041841 terms) # arctan(1/239) ≈ 0.0041841
-    
+    # }
+
     let pi_over_4: float = (- (* 4.0 term1) term2)
     return (* pi_over_4 4.0)
 }

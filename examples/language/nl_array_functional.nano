@@ -5,18 +5,22 @@
  * functions (lambdas or named functions) and work on int, float, and string arrays.
  */
 
+# @pure
 fn double_it(x: int) -> int {
     return (* x 2)
 }
 
+# @pure
 fn is_even(x: int) -> bool {
     return (== (% x 2) 0)
 }
 
+# @pure @associative
 fn sum(acc: int, x: int) -> int {
     return (+ acc x)
 }
 
+# @pure
 fn to_upper_first(s: string) -> string {
     /* Capitalise first char if lowercase a-z */
     if (and (>= (char_at s 0) 97) (<= (char_at s 0) 122)) {
@@ -27,10 +31,12 @@ fn to_upper_first(s: string) -> string {
     }
 }
 
+# @pure
 fn longer_than_3(s: string) -> bool {
     return (> (str_length s) 3)
 }
 
+# @pure
 fn concat_words(acc: string, s: string) -> string {
     if (== (str_length acc) 0) {
         return s
@@ -39,14 +45,17 @@ fn concat_words(acc: string, s: string) -> string {
     }
 }
 
+# @pure
 fn square_f(x: float) -> float {
     return (* x x)
 }
 
+# @pure
 fn positive(x: float) -> bool {
     return (> x 0.0)
 }
 
+# @pure @associative
 fn sum_f(acc: float, x: float) -> float {
     return (+ acc x)
 }
@@ -55,9 +64,12 @@ fn main() -> int {
     /* --- int array operations --- */
     let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+    # par {  -- doubled, evens, total are independent @pure operations over the same immutable array
     let doubled: array<int> = (array_map nums double_it)
     let evens: array<int>   = (array_filter nums is_even)
     let total: int          = (array_fold nums 0 sum)
+    # }
+    # |> fusion opportunity: array_map |> array_filter |> array_fold can fuse into a single pass
 
     (print "doubled: ")
     let mut di: int = 0

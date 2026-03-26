@@ -8,6 +8,7 @@
 
 /* ==== PART 1: Simple If Statements ==== */
 
+# @pure
 fn test_if_true() -> int {
     if true {
         return 1
@@ -20,6 +21,7 @@ shadow test_if_true {
     assert (== (test_if_true) 1)
 }
 
+# @pure
 fn test_if_false() -> int {
     if false {
         return 1
@@ -32,6 +34,7 @@ shadow test_if_false {
     assert (== (test_if_false) 0)
 }
 
+# @pure
 fn test_if_comparison() -> int {
     let x: int = 10
     if (> x 5) {
@@ -47,6 +50,7 @@ shadow test_if_comparison {
 
 /* ==== PART 2: Nested If Statements ==== */
 
+# @pure
 fn test_nested_if() -> int {
     let x: int = 10
     let y: int = 20
@@ -66,6 +70,7 @@ shadow test_nested_if {
     assert (== (test_nested_if) 3)
 }
 
+# @pure
 fn classify_number(n: int) -> int {
     if (< n 0) {
         return -1
@@ -86,6 +91,7 @@ shadow classify_number {
 
 /* ==== PART 3: If with Complex Conditions ==== */
 
+# @pure
 fn test_and_condition() -> int {
     let x: int = 5
     if (and (> x 0) (< x 10)) {
@@ -99,6 +105,7 @@ shadow test_and_condition {
     assert (== (test_and_condition) 1)
 }
 
+# @pure
 fn test_or_condition() -> int {
     let x: int = 15
     if (or (< x 0) (> x 10)) {
@@ -112,6 +119,7 @@ shadow test_or_condition {
     assert (== (test_or_condition) 1)
 }
 
+# @pure
 fn in_range(x: int, low: int, high: int) -> int {
     if (and (>= x low) (<= x high)) {
         return 1
@@ -128,6 +136,7 @@ shadow in_range {
 
 /* ==== PART 4: Simple While Loops ==== */
 
+# @pure
 fn sum_to_n(n: int) -> int {
     let mut sum: int = 0
     let mut i: int = 1
@@ -146,6 +155,7 @@ shadow sum_to_n {
     assert (== (sum_to_n 0) 0)
 }
 
+# @pure
 fn factorial(n: int) -> int {
     let mut result: int = 1
     let mut i: int = 1
@@ -166,6 +176,7 @@ shadow factorial {
 
 /* ==== PART 5: While with Early Return ==== */
 
+# @pure
 fn find_first_divisible(limit: int, divisor: int) -> int {
     let mut i: int = 1
     
@@ -186,6 +197,7 @@ shadow find_first_divisible {
 
 /* ==== PART 6: Nested Loops ==== */
 
+# @pure
 fn nested_loop_sum() -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -206,6 +218,7 @@ shadow nested_loop_sum {
     assert (== (nested_loop_sum) 9)
 }
 
+# @pure
 fn multiplication_table_sum(n: int) -> int {
     let mut sum: int = 0
     let mut i: int = 1
@@ -228,6 +241,7 @@ shadow multiplication_table_sum {
 
 /* ==== PART 7: Combined If and While ==== */
 
+# @pure
 fn count_even(n: int) -> int {
     let mut count: int = 0
     let mut i: int = 0
@@ -248,6 +262,7 @@ shadow count_even {
     assert (== (count_even 10) 5)
 }
 
+# @pure
 fn sum_odd(n: int) -> int {
     let mut sum: int = 0
     let mut i: int = 1
@@ -270,6 +285,7 @@ shadow sum_odd {
 
 /* ==== PART 8: Fibonacci with Loop ==== */
 
+# @pure
 fn fibonacci(n: int) -> int {
     if (<= n 1) {
         return n

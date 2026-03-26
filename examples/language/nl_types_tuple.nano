@@ -9,6 +9,7 @@
 /* ==== PART 1: Basic Tuple Literals ==== */
 
 /* Test 1: Simple 2-tuple creation */
+# @pure
 fn test_pair_literal() -> int {
     let pair: (int, int) = (10, 20)
     return (+ pair.0 pair.1)
@@ -19,6 +20,7 @@ shadow test_pair_literal {
 }
 
 /* Test 2: 3-tuple creation */
+# @pure
 fn test_triple_literal() -> int {
     let triple: (int, int, int) = (1, 2, 3)
     return (+ (+ triple.0 triple.1) triple.2)
@@ -29,6 +31,7 @@ shadow test_triple_literal {
 }
 
 /* Test 3: 4-tuple creation */
+# @pure
 fn test_quad_literal() -> int {
     let quad: (int, int, int, int) = (10, 20, 30, 40)
     return (+ (+ (+ quad.0 quad.1) quad.2) quad.3)
@@ -39,6 +42,7 @@ shadow test_quad_literal {
 }
 
 /* Test 4: 5-tuple creation */
+# @pure
 fn test_five_tuple_literal() -> int {
     let t: (int, int, int, int, int) = (2, 4, 6, 8, 10)
     return (+ (+ (+ (+ t.0 t.1) t.2) t.3) t.4)
@@ -51,6 +55,7 @@ shadow test_five_tuple_literal {
 /* ==== PART 2: Mixed Type Tuples ==== */
 
 /* Test 5: (int, string) tuple */
+# @pure
 fn test_int_string_tuple() -> int {
     let t: (int, string) = (42, "hello")
     return t.0
@@ -61,6 +66,7 @@ shadow test_int_string_tuple {
 }
 
 /* Test 6: (string, int, bool) tuple */
+# @pure
 fn test_mixed_three() -> bool {
     let t: (string, int, bool) = ("test", 99, true)
     return t.2
@@ -71,6 +77,7 @@ shadow test_mixed_three {
 }
 
 /* Test 7: (bool, bool, bool) tuple */
+# @pure
 fn test_bool_tuple() -> int {
     let flags: (bool, bool, bool) = (true, false, true)
     let mut count: int = 0
@@ -103,6 +110,7 @@ shadow test_bool_tuple {
 /* ==== PART 3: Tuple Disambiguation (Critical Edge Case) ==== */
 
 /* Test 8: Parenthesized expression vs tuple - single value */
+# @pure
 fn test_paren_vs_tuple_single() -> int {
     let x: int = (42)
     return x
@@ -113,6 +121,7 @@ shadow test_paren_vs_tuple_single {
 }
 
 /* Test 9: Parenthesized expression vs tuple - with operator */
+# @pure
 fn test_paren_expr() -> int {
     let x: int = (+ 10 20)
     return x
@@ -123,6 +132,7 @@ shadow test_paren_expr {
 }
 
 /* Test 10: Actual tuple (comma makes it a tuple) */
+# @pure
 fn test_actual_tuple() -> int {
     let t: (int, int) = (10, 20)
     return t.0
@@ -133,6 +143,7 @@ shadow test_actual_tuple {
 }
 
 /* Test 11: Nested parentheses with tuple */
+# @pure
 fn test_nested_paren_tuple() -> int {
     let a: int = (+ 1 (+ 2 3))
     let t: (int, int) = (a, (* 2 a))
@@ -146,6 +157,7 @@ shadow test_nested_paren_tuple {
 /* ==== PART 4: Tuple Return Values ==== */
 
 /* Test 12: Function returning tuple */
+# @pure
 fn make_pair(a: int, b: int) -> (int, int) {
     return (a, b)
 }
@@ -157,6 +169,7 @@ shadow make_pair {
 }
 
 /* Test 13: Swap using tuple */
+# @pure
 fn swap(a: int, b: int) -> (int, int) {
     return (b, a)
 }
@@ -168,6 +181,7 @@ shadow swap {
 }
 
 /* Test 14: Min/max pair */
+# @pure
 fn min_max(a: int, b: int) -> (int, int) {
     if (< a b) {
         return (a, b)
@@ -187,6 +201,7 @@ shadow min_max {
 }
 
 /* Test 15: Divmod (quotient and remainder) */
+# @pure
 fn divmod(a: int, b: int) -> (int, int) {
     let q: int = (/ a b)
     let r: int = (% a b)
@@ -202,6 +217,7 @@ shadow divmod {
 /* ==== PART 5: Tuple in Control Flow ==== */
 
 /* Test 16: Tuple in if branches */
+# @pure
 fn conditional_tuple(flag: bool) -> (int, int) {
     if flag {
         return (1, 2)
@@ -221,6 +237,7 @@ shadow conditional_tuple {
 }
 
 /* Test 17: Tuple in while loop */
+# @pure
 fn sum_tuple_loop() -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -241,6 +258,7 @@ shadow sum_tuple_loop {
 /* ==== PART 6: Tuple Field Access Patterns ==== */
 
 /* Test 18: Multiple access to same tuple */
+# @pure
 fn test_multiple_access() -> int {
     let t: (int, int, int) = (10, 20, 30)
     let a: int = t.0
@@ -256,6 +274,7 @@ shadow test_multiple_access {
 }
 
 /* Test 19: Tuple field in expression */
+# @pure
 fn test_tuple_in_expr() -> int {
     let t: (int, int) = (7, 3)
     return (+ (* t.0 t.1) (- t.0 t.1))
@@ -266,10 +285,12 @@ shadow test_tuple_in_expr {
 }
 
 /* Test 20: Tuple field as function argument */
+# @pure
 fn double(x: int) -> int {
     return (* x 2)
 }
 
+# @pure
 fn test_tuple_as_arg() -> int {
     let t: (int, int) = (5, 10)
     return (+ (double t.0) (double t.1))
@@ -282,6 +303,7 @@ shadow test_tuple_as_arg {
 /* ==== PART 7: Complex Tuple Expressions ==== */
 
 /* Test 21: Tuple with computed elements */
+# @pure
 fn test_computed_tuple() -> int {
     let x: int = 5
     let t: (int, int, int) = ((* x 1), (* x 2), (* x 3))
@@ -293,12 +315,14 @@ shadow test_computed_tuple {
 }
 
 /* Test 22: Fibonacci pair iteration */
+# @pure
 fn fib_step(prev: (int, int)) -> (int, int) {
     let a: int = prev.0
     let b: int = prev.1
     return (b, (+ a b))
 }
 
+# @pure
 fn test_fib_iteration() -> int {
     let mut state: (int, int) = (0, 1)
     let mut i: int = 0
@@ -316,6 +340,7 @@ shadow test_fib_iteration {
 }
 
 /* Test 23: Coordinate operations */
+# @pure
 fn add_coords(a: (int, int), b: (int, int)) -> (int, int) {
     return ((+ a.0 b.0), (+ a.1 b.1))
 }

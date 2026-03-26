@@ -23,5 +23,6 @@ import "std/collections/stringbuilder.nano"
 import "std/collections/hashmap.nano"
 import "std/collections/set.nano"
 
+# frozen
 let STD_VERSION: string = "1.0.0"
 

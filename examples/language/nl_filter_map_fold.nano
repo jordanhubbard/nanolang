@@ -11,6 +11,7 @@
  * ============================================================================
  */
 
+# @pure
 fn is_positive(x: int) -> bool {
     return (> x 0)
 }
@@ -21,6 +22,7 @@ shadow is_positive {
     assert (== (is_positive 0) false)
 }
 
+# @pure
 fn is_even(x: int) -> bool {
     return (== (% x 2) 0)
 }
@@ -31,6 +33,7 @@ shadow is_even {
     assert (== (is_even 0) true)
 }
 
+# @pure
 fn is_greater_than_5(x: int) -> bool {
     return (> x 5)
 }
@@ -45,6 +48,7 @@ shadow is_greater_than_5 {
  * ============================================================================
  */
 
+# @pure
 fn double(x: int) -> int {
     return (* x 2)
 }
@@ -54,6 +58,7 @@ shadow double {
     assert (== (double 0) 0)
 }
 
+# @pure
 fn square(x: int) -> int {
     return (* x x)
 }
@@ -63,6 +68,7 @@ shadow square {
     assert (== (square 0) 0)
 }
 
+# @pure
 fn negate(x: int) -> int {
     return (- 0 x)
 }
@@ -77,22 +83,29 @@ shadow negate {
  * ============================================================================
  */
 
+# @pure @associative
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
 shadow add {
     assert (== (add 2 3) 5)
+    # @associative: add(add(1, 2), 3) == add(1, add(2, 3))
+    assert (== (add (add 1 2) 3) (add 1 (add 2 3)))
 }
 
+# @pure @associative
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
 
 shadow multiply {
     assert (== (multiply 4 5) 20)
+    # @associative: multiply(multiply(2, 3), 4) == multiply(2, multiply(3, 4))
+    assert (== (multiply (multiply 2 3) 4) (multiply 2 (multiply 3 4)))
 }
 
+# @pure @associative
 fn maximum(a: int, b: int) -> int {
     if (> a b) {
         return a
@@ -104,6 +117,8 @@ fn maximum(a: int, b: int) -> int {
 shadow maximum {
     assert (== (maximum 5 3) 5)
     assert (== (maximum 3 5) 5)
+    # @associative: maximum(maximum(3, 5), 7) == maximum(3, maximum(5, 7))
+    assert (== (maximum (maximum 3 5) 7) (maximum 3 (maximum 5 7)))
 }
 
 /* ============================================================================
@@ -112,6 +127,7 @@ shadow maximum {
  */
 
 /* Count elements that pass test */
+# @pure
 fn count_matching(numbers: array<int>, test: fn(int) -> bool) -> int {
     let mut count: int = 0
     let mut i: int = 0
@@ -133,6 +149,7 @@ shadow count_matching {
 }
 
 /* Apply transform to first element (simplified map) */
+# @pure
 fn apply_first(numbers: array<int>, transform: fn(int) -> int) -> int {
     if (> (array_length numbers) 0) {
         return (transform (at numbers 0))
@@ -149,6 +166,7 @@ shadow apply_first {
 }
 
 /* Fold: combine elements */
+# @pure
 fn fold(numbers: array<int>, initial: int, combine: fn(int, int) -> int) -> int {
     let mut acc: int = initial
     let mut i: int = 0

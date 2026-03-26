@@ -19,6 +19,7 @@ extern fn strcmp(s1: string, s2: string) -> int
 extern fn strchr(s: string, c: int) -> string
 
 # Helper: Get a random number in range [min, max]
+# @pure
 fn random_range(min: int, max: int) -> int {
     let diff: int = (- max min)
     let r: int = (% (rand) (+ diff 1))
@@ -38,6 +39,7 @@ shadow random_range {
 
 # Parse words from dictionary content
 # Returns the Nth word from the content (0-indexed)
+# @pure
 fn get_word_at_index(content: string, index: int) -> string {
     let mut current_word_start: int = 0
     let mut current_index: int = 0
@@ -85,6 +87,7 @@ shadow get_word_at_index {
 }
 
 # Count words in content (count newlines)
+# @pure
 fn count_words(content: string) -> int {
     let mut count: int = 0
     let len: int = (strlen content)
@@ -109,6 +112,7 @@ shadow count_words {
 }
 
 # Generate a random sentence
+# @pure
 fn generate_sentence(content: string, word_count: int) -> string {
     let total_words: int = (count_words content)
     

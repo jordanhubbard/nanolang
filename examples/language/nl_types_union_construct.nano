@@ -26,6 +26,7 @@ union Either {
 /* ==== PART 2: Simple Union Construction ==== */
 
 /* Test 1: Construct Option.Some with field */
+# @pure
 fn test_option_some() -> int {
     let opt: Option = Option.Some { value: 42 }
     match opt {
@@ -43,6 +44,7 @@ shadow test_option_some {
 }
 
 /* Test 2: Construct Option.None (empty variant) */
+# @pure
 fn test_option_none() -> int {
     let opt: Option = Option.None { }
     match opt {
@@ -60,6 +62,7 @@ shadow test_option_none {
 }
 
 /* Test 3: Construct Result.Ok */
+# @pure
 fn test_result_ok() -> int {
     let res: Result = Result.Ok { value: 100 }
     match res {
@@ -77,6 +80,7 @@ shadow test_result_ok {
 }
 
 /* Test 4: Construct Result.Error with multiple fields */
+# @pure
 fn test_result_error() -> int {
     let res: Result = Result.Error { code: 404, message: "not found" }
     match res {
@@ -96,6 +100,7 @@ shadow test_result_error {
 /* ==== PART 3: Union Construction with Computed Values ==== */
 
 /* Test 5: Field value from variable */
+# @pure
 fn test_value_from_var() -> int {
     let x: int = 50
     let opt: Option = Option.Some { value: x }
@@ -114,6 +119,7 @@ shadow test_value_from_var {
 }
 
 /* Test 6: Field value from expression */
+# @pure
 fn test_value_from_expr() -> int {
     let opt: Option = Option.Some { value: (+ 20 22) }
     match opt {
@@ -131,6 +137,7 @@ shadow test_value_from_expr {
 }
 
 /* Test 7: Multiple fields from variables */
+# @pure
 fn test_multi_field_vars() -> int {
     let code: int = 500
     let msg: string = "server error"
@@ -152,6 +159,7 @@ shadow test_multi_field_vars {
 /* ==== PART 4: Union Construction in Functions ==== */
 
 /* Test 8: Function returning constructed union */
+# @pure
 fn make_some(x: int) -> Option {
     return Option.Some { value: x }
 }
@@ -169,6 +177,7 @@ shadow make_some {
 }
 
 /* Test 9: Function with conditional union construction */
+# @pure
 fn maybe_value(x: int) -> Option {
     if (> x 0) {
         return Option.Some { value: x }
@@ -201,6 +210,7 @@ shadow maybe_value {
 }
 
 /* Test 10: Function returning Result */
+# @pure
 fn safe_divide(a: int, b: int) -> Result {
     if (== b 0) {
         return Result.Error { code: 1, message: "div by zero" }
@@ -235,6 +245,7 @@ shadow safe_divide {
 /* ==== PART 5: Union Construction in Loops ==== */
 
 /* Test 11: Construct union in while loop */
+# @pure
 fn sum_some_values(count: int) -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -261,6 +272,7 @@ shadow sum_some_values {
 }
 
 /* Test 12: Alternating union construction */
+# @pure
 fn alternate_construct(count: int) -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -300,6 +312,7 @@ shadow alternate_construct {
 /* ==== PART 6: Either Union (Left/Right Pattern) ==== */
 
 /* Test 13: Either.Left construction */
+# @pure
 fn test_either_left() -> int {
     let e: Either = Either.Left { value: 42 }
     match e {
@@ -317,6 +330,7 @@ shadow test_either_left {
 }
 
 /* Test 14: Either.Right construction */
+# @pure
 fn test_either_right() -> int {
     let e: Either = Either.Right { value: "hello" }
     match e {
@@ -334,6 +348,7 @@ shadow test_either_right {
 }
 
 /* Test 15: Function returning Either - simple version */
+# @pure
 fn get_either_left(val: int) -> Either {
     return Either.Left { value: val }
 }
@@ -353,6 +368,7 @@ shadow get_either_left {
 /* ==== PART 7: Complex Union Scenarios ==== */
 
 /* Test 16: Chained union operations */
+# @pure
 fn chain_operations(x: int) -> int {
     let opt1: Option = (maybe_value x)
     
@@ -380,6 +396,7 @@ shadow chain_operations {
 }
 
 /* Test 17: Union as function parameter (implicit) */
+# @pure
 fn unwrap_or(opt: Option, default_val: int) -> int {
     match opt {
         Some(s) => {
@@ -400,6 +417,7 @@ shadow unwrap_or {
 }
 
 /* Test 18: Multiple union constructions in one function */
+# @pure
 fn test_multiple_constructions() -> int {
     let opt1: Option = Option.Some { value: 10 }
     let opt2: Option = Option.Some { value: 20 }

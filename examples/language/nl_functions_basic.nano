@@ -8,6 +8,7 @@
 
 /* ==== PART 1: Simple Functions ==== */
 
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -18,6 +19,7 @@ shadow add {
     assert (== (add -5 10) 5)
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -28,6 +30,7 @@ shadow multiply {
     assert (== (multiply -2 5) -10)
 }
 
+# @pure
 fn identity(x: int) -> int {
     return x
 }
@@ -39,6 +42,7 @@ shadow identity {
 
 /* ==== PART 2: Functions with Different Types ==== */
 
+# @pure
 fn str_length_test(s: string) -> int {
     return (str_length s)
 }
@@ -48,6 +52,7 @@ shadow str_length_test {
     assert (== (str_length_test "") 0)
 }
 
+# @pure
 fn bool_not(b: bool) -> bool {
     return (not b)
 }
@@ -57,6 +62,7 @@ shadow bool_not {
     assert (== (bool_not false) true)
 }
 
+# @pure
 fn float_add(a: float, b: float) -> float {
     return (+ a b)
 }
@@ -67,6 +73,7 @@ shadow float_add {
 
 /* ==== PART 3: Functions with Multiple Parameters ==== */
 
+# @pure
 fn three_sum(a: int, b: int, c: int) -> int {
     return (+ (+ a b) c)
 }
@@ -75,6 +82,7 @@ shadow three_sum {
     assert (== (three_sum 1 2 3) 6)
 }
 
+# @pure
 fn four_params(a: int, b: int, c: int, d: int) -> int {
     return (+ (+ (+ a b) c) d)
 }
@@ -83,6 +91,7 @@ shadow four_params {
     assert (== (four_params 1 2 3 4) 10)
 }
 
+# @pure
 fn mixed_params(x: int, flag: bool, name: string) -> int {
     if flag {
         return (+ x (str_length name))
@@ -98,6 +107,7 @@ shadow mixed_params {
 
 /* ==== PART 4: Functions with Local Variables ==== */
 
+# @pure
 fn with_locals(x: int) -> int {
     let a: int = (* x 2)
     let b: int = (+ a 10)
@@ -108,6 +118,7 @@ shadow with_locals {
     assert (== (with_locals 5) 20)
 }
 
+# @pure
 fn swap_and_sum(a: int, b: int) -> int {
     let temp_a: int = b
     let temp_b: int = a
@@ -118,6 +129,7 @@ shadow swap_and_sum {
     assert (== (swap_and_sum 5 10) 15)
 }
 
+# @pure
 fn complex_locals(x: int, y: int) -> int {
     let sum: int = (+ x y)
     let diff: int = (- x y)
@@ -131,6 +143,7 @@ shadow complex_locals {
 
 /* ==== PART 5: Recursive Functions ==== */
 
+# @pure
 fn factorial_rec(n: int) -> int {
     if (<= n 1) {
         return 1
@@ -145,6 +158,7 @@ shadow factorial_rec {
     assert (== (factorial_rec 5) 120)
 }
 
+# @pure
 fn fibonacci_rec(n: int) -> int {
     if (<= n 1) {
         return n
@@ -159,6 +173,7 @@ shadow fibonacci_rec {
     assert (== (fibonacci_rec 6) 8)
 }
 
+# @pure
 fn sum_rec(n: int) -> int {
     if (<= n 0) {
         return 0
@@ -174,10 +189,12 @@ shadow sum_rec {
 
 /* ==== PART 6: Functions Calling Functions ==== */
 
+# @pure
 fn square(x: int) -> int {
     return (* x x)
 }
 
+# @pure
 fn cube(x: int) -> int {
     return (* (square x) x)
 }
@@ -187,6 +204,7 @@ shadow cube {
     assert (== (cube 3) 27)
 }
 
+# @pure
 fn sum_of_squares(a: int, b: int) -> int {
     return (+ (square a) (square b))
 }
@@ -195,6 +213,7 @@ shadow sum_of_squares {
     assert (== (sum_of_squares 3 4) 25)
 }
 
+# @pure
 fn hypotenuse_squared(a: int, b: int) -> int {
     return (sum_of_squares a b)
 }
@@ -205,6 +224,7 @@ shadow hypotenuse_squared {
 
 /* ==== PART 7: Functions with Conditionals ==== */
 
+# @pure
 fn abs_val(x: int) -> int {
     if (< x 0) {
         return (- 0 x)
@@ -219,6 +239,7 @@ shadow abs_val {
     assert (== (abs_val 0) 0)
 }
 
+# @pure
 fn max_val(a: int, b: int) -> int {
     if (> a b) {
         return a
@@ -233,6 +254,7 @@ shadow max_val {
     assert (== (max_val 5 5) 5)
 }
 
+# @pure
 fn min_val(a: int, b: int) -> int {
     if (< a b) {
         return a
@@ -246,6 +268,7 @@ shadow min_val {
     assert (== (min_val 10 5) 5)
 }
 
+# @pure
 fn clamp(x: int, low: int, high: int) -> int {
     if (< x low) {
         return low

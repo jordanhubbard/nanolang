@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_operators, nl_functions_basic
 # Expected Output: === Modern Calculator Demo ===
 
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -17,6 +18,7 @@ shadow add {
     assert (== (add 100 200) 300)
 }
 
+# @pure
 fn subtract(a: int, b: int) -> int {
     return (- a b)
 }
@@ -28,6 +30,7 @@ shadow subtract {
     assert (== (subtract 100 50) 50)
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -39,6 +42,7 @@ shadow multiply {
     assert (== (multiply 10 10) 100)
 }
 
+# @pure
 fn divide(a: int, b: int) -> int {
     return (/ a b)
 }
@@ -50,6 +54,7 @@ shadow divide {
     assert (== (divide 7 2) 3)
 }
 
+# @pure
 fn modulo(a: int, b: int) -> int {
     return (% a b)
 }
@@ -66,6 +71,7 @@ shadow modulo {
 
 # Operation dispatcher using if/else chains
 # Demonstrates multi-way branching for operation selection
+# @pure
 fn calculate(op: string, a: int, b: int) -> int {
     if (== op "add") {
         return (add a b)
@@ -99,6 +105,7 @@ shadow calculate {
 }
 
 # Format result with string concatenation using +
+# @pure
 fn format_result(op: string, a: int, b: int, result: int) -> string {
     let part1: string = (+ op "(")
     let part2: string = (+ part1 (int_to_string a))

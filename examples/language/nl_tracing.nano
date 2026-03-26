@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_operators
 # Expected Output: 30
 
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -14,6 +15,7 @@ shadow add {
     assert (== (add 5 3) 8)
 }
 
+# @pure
 fn multiply(x: int, y: int) -> int {
     let result: int = (* x y)
     return result
@@ -23,6 +25,7 @@ shadow multiply {
     assert (== (multiply 4 7) 28)
 }
 
+# @pure
 fn calculate_sum(numbers: array<int>) -> int {
     let mut sum: int = 0
     let mut i: int = 0

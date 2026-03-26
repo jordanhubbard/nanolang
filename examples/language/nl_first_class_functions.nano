@@ -7,6 +7,7 @@
 # Expected Output: First-Class Functions Demo
 
 /* Helper functions */
+# @pure
 fn double(x: int) -> int {
     return (* x 2)
 }
@@ -16,6 +17,7 @@ shadow double {
     assert (== (double 0) 0)
 }
 
+# @pure
 fn is_positive(x: int) -> bool {
     return (> x 0)
 }
@@ -26,6 +28,7 @@ shadow is_positive {
     assert (== (is_positive 0) false)
 }
 
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -35,6 +38,7 @@ shadow add {
 }
 
 /* Higher-order function: apply a function twice */
+# @pure
 fn apply_twice(x: int, f: fn(int) -> int) -> int {
     let result1: int = (f x)
     let result2: int = (f result1)
@@ -48,6 +52,7 @@ shadow apply_twice {
 }
 
 /* Higher-order function: apply binary operation */
+# @pure
 fn combine(a: int, b: int, op: fn(int, int) -> int) -> int {
     return (op a b)
 }

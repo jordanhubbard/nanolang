@@ -7,6 +7,7 @@
 # Expected Output: Function Factories Demo (Phase B2)
 
 /* Binary operations */
+# @pure
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -15,6 +16,7 @@ shadow add {
     assert (== (add 2 3) 5)
 }
 
+# @pure
 fn multiply(a: int, b: int) -> int {
     return (* a b)
 }
@@ -24,6 +26,7 @@ shadow multiply {
 }
 
 /* Function factory: returns a function */
+# @pure
 fn get_adder() -> fn(int, int) -> int {
     return add
 }
@@ -35,6 +38,7 @@ shadow get_adder {
     assert (== result 8)  /* 5 + 3 = 8 */
 }
 
+# @pure
 fn get_multiplier() -> fn(int, int) -> int {
     return multiply
 }
@@ -47,6 +51,7 @@ shadow get_multiplier {
 }
 
 /* Helper that applies a returned function (uses Phase B1) */
+# @pure
 fn apply_returned_function(a: int, b: int, factory: fn() -> fn(int, int) -> int) -> int {
     /* Get the function from factory, then apply it (all in one expression) */
     /* This demonstrates: factory returns a function, we pass it as parameter */

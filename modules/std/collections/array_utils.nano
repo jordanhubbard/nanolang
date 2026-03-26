@@ -5,6 +5,7 @@
 
 module std_collections_array_utils
 
+# @pure
 fn str_compare(a: string, b: string) -> int {
     let la: int = (str_length a)
     let lb: int = (str_length b)

@@ -28,6 +28,7 @@ union Color {
 /* ==== PART 2: Simple Match Tests ==== */
 
 /* Test 1: Basic match on Option.Some */
+# @pure
 fn test_match_some() -> int {
     let opt: Option = Option.Some { value: 42 }
     
@@ -46,6 +47,7 @@ shadow test_match_some {
 }
 
 /* Test 2: Basic match on Option.None */
+# @pure
 fn test_match_none() -> int {
     let opt: Option = Option.None { }
     
@@ -64,6 +66,7 @@ shadow test_match_none {
 }
 
 /* Test 3: Match with multiple fields in variant */
+# @pure
 fn test_match_multiple_fields() -> int {
     let res: Result = Result.Error { code: 404, message: "not found" }
     
@@ -84,6 +87,7 @@ shadow test_match_multiple_fields {
 /* ==== PART 3: Match with Computation ==== */
 
 /* Test 4: Match result used in computation */
+# @pure
 fn get_value_or_default(opt: Option, default_val: int) -> int {
     match opt {
         Some(s) => {
@@ -104,6 +108,7 @@ shadow get_value_or_default {
 }
 
 /* Test 5: Match with nested computation */
+# @pure
 fn double_if_some(opt: Option) -> int {
     match opt {
         Some(s) => {
@@ -126,6 +131,7 @@ shadow double_if_some {
 /* ==== PART 4: Match with Multiple Variants ==== */
 
 /* Test 6: Match on 4-variant union */
+# @pure
 fn color_to_int(c: Color) -> int {
     match c {
         Red(r) => {
@@ -158,6 +164,7 @@ shadow color_to_int {
 /* ==== PART 5: Match in Control Flow ==== */
 
 /* Test 7: Match inside if statement */
+# @pure
 fn process_option_conditionally(opt: Option, use_default: bool) -> int {
     if use_default {
         return 0
@@ -181,6 +188,7 @@ shadow process_option_conditionally {
 }
 
 /* Test 8: Match inside while loop */
+# @pure
 fn sum_options(count: int) -> int {
     let mut sum: int = 0
     let mut i: int = 0
@@ -209,6 +217,7 @@ shadow sum_options {
 /* ==== PART 6: Chained Match Operations ==== */
 
 /* Test 9: Function returning union, then matching */
+# @pure
 fn maybe_double(x: int) -> Option {
     if (> x 0) {
         return Option.Some { value: (* x 2) }
@@ -217,6 +226,7 @@ fn maybe_double(x: int) -> Option {
     }
 }
 
+# @pure
 fn test_chained_match() -> int {
     let result: Option = (maybe_double 5)
     
@@ -235,6 +245,7 @@ shadow test_chained_match {
 }
 
 /* Test 10: Multiple match calls in sequence */
+# @pure
 fn test_sequential_matches() -> int {
     let opt1: Option = Option.Some { value: 10 }
     let opt2: Option = Option.Some { value: 20 }
@@ -279,6 +290,7 @@ shadow test_sequential_matches {
 /* ==== PART 7: Error Handling Pattern ==== */
 
 /* Test 11: Safe division with Result */
+# @pure
 fn safe_divide(a: int, b: int) -> Result {
     if (== b 0) {
         return Result.Error { code: 1, message: "division by zero" }
@@ -287,6 +299,7 @@ fn safe_divide(a: int, b: int) -> Result {
     }
 }
 
+# @pure
 fn test_safe_division() -> int {
     let r1: Result = (safe_divide 100 10)
     let r2: Result = (safe_divide 50 0)

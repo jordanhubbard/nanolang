@@ -13,6 +13,7 @@ union Result<T, E> {
 }
 
 /* Function that returns a generic union type with string error */
+# @pure
 fn divide(a: int, b: int) -> Result<int, string> {
     if (== b 0) {
         return Result.Error { error: "Division by zero" }
@@ -35,6 +36,7 @@ union Status {
     Complete {}
 }
 
+# @pure
 fn get_status() -> Status {
     return Status.Running {}
 }
@@ -52,6 +54,7 @@ union Data {
     Pair { first: int, second: int }
 }
 
+# @pure
 fn create_pair(a: int, b: int) -> Data {
     return Data.Pair { first: a, second: b }
 }

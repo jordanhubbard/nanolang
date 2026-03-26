@@ -13,6 +13,7 @@ let mut counter: int = 0
 let mut label: string = "start"
 let mut enabled: bool = true
 
+# @pure
 fn increment() -> int {
     set counter (+ counter 1)
     return counter
@@ -25,6 +26,7 @@ shadow increment {
     set counter 0
 }
 
+# @pure
 fn reset() -> int {
     set counter 0
     set label "reset"

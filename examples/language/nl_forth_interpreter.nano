@@ -52,6 +52,7 @@ fn str_starts_with(s: string, prefix: string) -> bool {
 
 # ── create_state ───────────────────────────────────────────────────────────────
 # Initialise the 6 shared lists in place; caller must pass fresh empty lists.
+# @pure
 fn create_state(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> void {
     (list_int_push dspace 10)  # [0] BASE = 10 (decimal)
     (list_int_push dspace 0)   # [1] stack depth
@@ -69,8 +70,10 @@ fn create_state(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: 
 }
 
 # ── Stack helpers ──────────────────────────────────────────────────────────────
+# @pure
 fn s_depth(dspace: List<int>) -> int { return (list_int_get dspace 1) }
 
+# @pure
 fn s_push(stack: List<int>, dspace: List<int>, val: int) -> void {
     let d: int = (list_int_get dspace 1)
     if (>= d (list_int_length stack)) {
@@ -101,11 +104,14 @@ fn s_peek2(stack: List<int>, dspace: List<int>) -> int {
     return (list_int_get stack (- d 2))
 }
 
+# @pure
 fn s_clear(dspace: List<int>) -> void { (list_int_set dspace 1 0) }
 
 # ── Return-stack helpers ───────────────────────────────────────────────────────
+# @pure
 fn r_depth(dspace: List<int>) -> int { return (list_int_get dspace 2) }
 
+# @pure
 fn r_push(rstack: List<int>, dspace: List<int>, val: int) -> void {
     let d: int = (list_int_get dspace 2)
     if (>= d (list_int_length rstack)) {
@@ -130,11 +136,13 @@ fn r_peek(rstack: List<int>, dspace: List<int>) -> int {
     return (list_int_get rstack (- d 1))
 }
 
+# @pure
 fn r_get(rstack: List<int>, dspace: List<int>, offset: int) -> int {
     let d: int = (list_int_get dspace 2)
     return (list_int_get rstack (- d (+ offset 1)))
 }
 
+# @pure
 fn r_set(rstack: List<int>, dspace: List<int>, offset: int, val: int) -> void {
     let d: int = (list_int_get dspace 2)
     (list_int_set rstack (- d (+ offset 1)) val)
@@ -146,14 +154,17 @@ fn ds_read(dspace: List<int>, addr: int) -> int {
     return (list_int_get dspace addr)
 }
 
+# @pure
 fn ds_write(dspace: List<int>, addr: int, val: int) -> void {
     let mut i: int = (list_int_length dspace)
     while (<= i addr) { (list_int_push dspace 0) set i (+ i 1) }
     (list_int_set dspace addr val)
 }
 
+# @pure
 fn ds_here(dspace: List<int>) -> int { return (list_int_get dspace 3) }
 
+# @pure
 fn ds_allot(dspace: List<int>, n: int) -> int {
     let here: int = (list_int_get dspace 3)
     let new_here: int = (+ here n)
@@ -227,16 +238,19 @@ fn find_word(wnames: List<string>, name: string) -> int {
     return found
 }
 
+# @pure
 fn define_word(wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string, body: string, imm: int) -> void {
     (list_string_push wnames name)
     (list_string_push wbodies body)
     (list_int_push wimm imm)
 }
 
+# @pure
 fn define_constant(wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string, val: int) -> void {
     (define_word wnames wbodies wimm name (+ "__const " (int_to_string val)) 0)
 }
 
+# @pure
 fn define_variable(dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, name: string) -> void {
     let here: int = (ds_here dspace)
     (ds_write dspace here 0)
@@ -288,6 +302,7 @@ fn parse_number(dspace: List<int>, token: string) -> int {
 }
 
 # ── Arithmetic helpers ────────────────────────────────────────────────────────
+# @pure
 fn same_sign(a: int, b: int) -> bool {
     return (or (and (>= a 0) (>= b 0)) (and (< a 0) (< b 0)))
 }
@@ -305,6 +320,7 @@ fn floored_mod(a: int, b: int) -> int {
     return r
 }
 
+# @pure
 fn power2(n: int) -> int {
     let mut r: int = 1
     let mut i: int = 0
@@ -313,6 +329,7 @@ fn power2(n: int) -> int {
 }
 
 # ── Bitwise helpers (64-bit, using floored arithmetic) ────────────────────────
+# @pure
 fn forth_bitnot(a: int) -> int { return (- (- 0 a) 1) }
 
 fn forth_band(a: int, b: int) -> int {

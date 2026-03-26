@@ -9,6 +9,7 @@
  *   }
  */
 
+# @pure
 fn day_name(d: int) -> string {
     let result: string = match d {
         0 => "Sunday"
@@ -23,6 +24,7 @@ fn day_name(d: int) -> string {
     return result
 }
 
+# @pure
 fn http_status(code: int) -> string {
     let result: string = match code {
         200 => "OK"
@@ -37,6 +39,7 @@ fn http_status(code: int) -> string {
     return result
 }
 
+# @pure
 fn classify(n: int) -> string {
     let result: string = match n {
         0 => "zero"

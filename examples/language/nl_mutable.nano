@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_operators
 # Expected Output: === Mutable vs Immutable Variables ===
 
+# @pure
 fn immutable_example() -> int {
     let x: int = 10
     let y: int = 20
@@ -17,6 +18,7 @@ shadow immutable_example {
     assert (== (immutable_example) 30)
 }
 
+# @pure
 fn mutable_counter() -> int {
     let mut count: int = 0
     set count (+ count 1)
@@ -29,6 +31,7 @@ shadow mutable_counter {
     assert (== (mutable_counter) 3)
 }
 
+# @pure
 fn accumulator(n: int) -> int {
     let mut acc: int = 0
     let mut i: int = 0
@@ -45,6 +48,7 @@ shadow accumulator {
     assert (== (accumulator 0) 0)
 }
 
+# @pure
 fn swap_values(a: int, b: int) -> int {
     let mut x: int = a
     let mut y: int = b
@@ -59,6 +63,7 @@ shadow swap_values {
     assert (== (swap_values 100 200) 200)
 }
 
+# @pure
 fn double_value(n: int) -> int {
     let mut result: int = n
     set result (* result 2)

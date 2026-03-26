@@ -34,10 +34,12 @@ pub struct ReadIntArray {
 
 pub fn version() -> int { return 1 }
 
+# @pure
 fn push_u8(buf: array<u8>, b: int) -> array<u8> {
     return (array_push buf b)
 }
 
+# @pure
 fn write_varint(buf: array<u8>, n: int) -> array<u8> {
     let mut out: array<u8> = buf
     let mut x: int = n
@@ -80,6 +82,7 @@ pub fn read_varint(buf: array<u8>, pos: int) -> Result<ReadVarint, string> {
     }
 }
 
+# @pure
 fn write_i64_payload(buf: array<u8>, v: int) -> array<u8> {
     let mut out: array<u8> = buf
     if (< v 0) {
@@ -90,6 +93,7 @@ fn write_i64_payload(buf: array<u8>, v: int) -> array<u8> {
     return (write_varint out v)
 }
 
+# @pure
 fn read_i64_payload(buf: array<u8>, pos: int) -> Result<ReadInt, string> {
     let len: int = (array_length buf)
     if (>= pos len) {
@@ -161,6 +165,7 @@ pub fn decode_bool(buf: array<u8>) -> Result<bool, string> {
     return Result.Ok { value: (!= (at buf 1) 0) }
 }
 
+# @pure
 fn write_bytes(buf: array<u8>, bytes: array<u8>) -> array<u8> {
     let mut out: array<u8> = buf
     let n: int = (array_length bytes)

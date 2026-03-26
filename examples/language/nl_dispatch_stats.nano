@@ -10,6 +10,7 @@
 
 module "modules/dispatch/dispatch.nano"
 
+# @pure
 fn noop_update() -> void {}
 
 shadow noop_update {

@@ -11,6 +11,7 @@
  * =============================================================================
  */
 
+# @pure
 fn is_letter(c: int) -> bool {
     /* Check if character is a letter (A-Z or a-z) */
     return (or (and (>= c 65) (<= c 90))    /* A-Z */
@@ -24,6 +25,7 @@ shadow is_letter {
     assert (== (is_letter 32) false)  /* space */
 }
 
+# @pure
 fn char_to_lowercase(c: int) -> int {
     /* Convert uppercase letter to lowercase */
     if (and (>= c 65) (<= c 90)) {
@@ -39,6 +41,7 @@ shadow char_to_lowercase {
     assert (== (char_to_lowercase 97) 97)   /* 'a' -> 'a' */
 }
 
+# @pure
 fn normalize_word(word: string) -> string {
     /* Convert word to lowercase and clean it */
     let len: int = (str_length word)
@@ -65,6 +68,7 @@ shadow normalize_word {
     assert true
 }
 
+# @pure
 fn is_stopword(word: string) -> bool {
     /* Check if word is a common stopword (articles, prepositions, etc.) */
     return (or (== word "the")
@@ -100,6 +104,7 @@ struct WordCount {
     count: int
 }
 
+# @pure
 fn find_word_index(words: array<WordCount>, word: string) -> int {
     /* Linear search for word in array, return index or -1 */
     let words_len: int = (array_length words)
@@ -127,6 +132,7 @@ shadow find_word_index {
 
 /* Note: word comparison uses str_equals internally */
 
+# @pure
 fn increment_word_count(words: array<WordCount>, word: string) -> array<WordCount> {
     /* Add word or increment its count */
     let idx: int = (find_word_index words word)
@@ -162,6 +168,7 @@ shadow increment_word_count {
  * =============================================================================
  */
 
+# @pure
 fn split_into_words(text: string) -> array<string> {
     /* Split text on whitespace into array of words */
     let mut words: array<string> = []
@@ -196,6 +203,7 @@ shadow split_into_words {
     assert true
 }
 
+# @pure
 fn count_words(text: string) -> array<WordCount> {
     /* Main pipeline: text -> words -> normalized -> filtered -> counted */
     
@@ -238,6 +246,7 @@ shadow count_words {
     assert true
 }
 
+# @pure
 fn get_top_words(counts: array<WordCount>, n: int) -> array<WordCount> {
     /* Get top N most frequent words (simple selection sort for demonstration) */
     let counts_len: int = (array_length counts)

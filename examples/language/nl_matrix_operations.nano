@@ -17,6 +17,7 @@
  * ============================================================================
  */
 
+# @pure
 fn create_matrix_2x3() -> array<array<int>> {
     let mut matrix: array<array<int>> = []
     
@@ -54,6 +55,7 @@ shadow create_matrix_2x3 {
  * ============================================================================
  */
 
+# @pure
 fn matrix_get(matrix: array<array<int>>, row: int, col: int) -> int {
     let row_data: array<int> = (at matrix row)
     return (at row_data col)
@@ -106,6 +108,7 @@ shadow print_matrix {
  * ============================================================================
  */
 
+# @pure
 fn matrix_sum(matrix: array<array<int>>) -> int {
     let mut total: int = 0
     let rows: int = (array_length matrix)
@@ -132,6 +135,7 @@ shadow matrix_sum {
     assert (== (matrix_sum m) 21)
 }
 
+# @pure
 fn matrix_scale(matrix: array<array<int>>, factor: int) -> array<array<int>> {
     let mut result: array<array<int>> = []
     let rows: int = (array_length matrix)

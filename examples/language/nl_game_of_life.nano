@@ -13,8 +13,11 @@ enum CellState {
 }
 
 # === CONSTANTS ===
+# frozen
 let GRID_WIDTH: int = 40
+# frozen
 let GRID_HEIGHT: int = 20
+# frozen
 let GENERATIONS: int = 10
 
 # === EXTERNAL FUNCTIONS ===
@@ -23,6 +26,7 @@ extern fn srand(seed: int) -> void
 
 # === GRID OPERATIONS ===
 
+# @pure
 fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
@@ -33,6 +37,7 @@ shadow grid_index {
     assert (== (grid_index 9 9 10) 99)
 }
 
+# @pure
 fn is_out_of_bounds(x: int, y: int, width: int, height: int) -> bool {
     return (or (< x 0) (or (>= x width) (or (< y 0) (>= y height))))
 }
@@ -43,6 +48,7 @@ shadow is_out_of_bounds {
     assert (not (is_out_of_bounds 5 5 10 10))
 }
 
+# @pure
 fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> CellState {
     if (is_out_of_bounds x y width height) {
         return CellState.DEAD
@@ -59,6 +65,7 @@ shadow grid_get {
     assert (== (grid_get grid 10 0 10 1) 0)
 }
 
+# @pure
 fn count_neighbors(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
     let mut count: int = 0
     
@@ -93,6 +100,7 @@ shadow count_neighbors {
     assert (== (count_neighbors grid 0 0 3 3) 2)  # Corner has 2 neighbors
 }
 
+# @pure
 fn apply_rules(alive: CellState, neighbors: int) -> CellState {
     if (== alive CellState.ALIVE) {
         # Cell is alive

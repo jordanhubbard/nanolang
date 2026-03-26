@@ -20,15 +20,19 @@ module std_io
  */
 
 /* Open for reading (file must exist) */
+# frozen
 let FILE_MODE_READ: string = "rb"
 
 /* Open for writing (creates or truncates) */
+# frozen
 let FILE_MODE_WRITE: string = "wb"
 
 /* Open for append (creates if doesn't exist) */
+# frozen
 let FILE_MODE_APPEND: string = "ab"
 
 /* Open for reading and writing */
+# frozen
 let FILE_MODE_READ_WRITE: string = "r+b"
 
 /* =============================================================================
@@ -37,12 +41,15 @@ let FILE_MODE_READ_WRITE: string = "r+b"
  */
 
 /* Seek from beginning of file */
+# frozen
 let SEEK_SET: int = 0
 
 /* Seek from current position */
+# frozen
 let SEEK_CUR: int = 1
 
 /* Seek from end of file */
+# frozen
 let SEEK_END: int = 2
 
 /* =============================================================================

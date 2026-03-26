@@ -19,11 +19,14 @@ struct Path {
 }
 
 # === CONSTANTS ===
+# frozen
 let MAZE_WIDTH: int = 25
+# frozen
 let MAZE_HEIGHT: int = 15
 
 # === GRID OPS ===
 
+# @pure
 fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
@@ -33,6 +36,7 @@ shadow grid_index {
     assert (== (grid_index 5 2 10) 25)
 }
 
+# @pure
 fn is_out_of_bounds(x: int, y: int, width: int, height: int) -> bool {
     return (or (< x 0) (or (>= x width) (or (< y 0) (>= y height))))
 }
@@ -43,6 +47,7 @@ shadow is_out_of_bounds {
     assert (not (is_out_of_bounds 5 5 10 10))
 }
 
+# @pure
 fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> CellState {
     if (is_out_of_bounds x y width height) {
         return CellState.WALL

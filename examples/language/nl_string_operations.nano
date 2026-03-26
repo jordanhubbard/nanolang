@@ -6,17 +6,20 @@
 # Prerequisites: nl_hello
 # Expected Output: ✓ All string operations working!
 
+# @pure
 fn test_char_access() -> int {
     let text: string = "Hello"
     assert (== (char_at text 0) 72)
     return 0
 }
 
+# @pure
 fn test_string_building() -> int {
     assert (== (string_from_char 65) "A")
     return 0
 }
 
+# @pure
 fn test_classification() -> int {
     assert (== (is_digit 48) true)
     assert (== (is_alpha 65) true)
@@ -25,6 +28,7 @@ fn test_classification() -> int {
     return 0
 }
 
+# @pure
 fn test_conversions() -> int {
     assert (== (int_to_string 42) "42")
     assert (== (string_to_int "123") 123)

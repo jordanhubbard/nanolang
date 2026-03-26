@@ -17,15 +17,22 @@ struct Boid {
 }
 
 # === TOP-LEVEL CONSTANTS ===
+# frozen
 let NUM_BOIDS: int = 20
+# frozen
 let WORLD_SIZE: float = 200.0
+# frozen
 let PERCEPTION_RADIUS: float = 40.0
+# frozen
 let MAX_SPEED: float = 20.0
+# frozen
 let DT: float = 0.2
+# frozen
 let MAX_FRAMES: int = 40
 
 # === BOID SIMULATION ===
 
+# @pure
 fn wrap_position(pos: float, max: float) -> float {
     return (cond
         ((> pos max) 0.0)
@@ -40,6 +47,7 @@ shadow wrap_position {
     assert (== (wrap_position -1.0 200.0) 200.0)
 }
 
+# @pure
 fn float_to_string(f: float) -> string {
     return (+ (int_to_string (cast_int f)) ".0")
 }

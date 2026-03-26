@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello, nl_comparisons
 # Expected Output: === Logical Operations ===
 
+# @pure
 fn and_op(a: bool, b: bool) -> bool {
     return (and a b)
 }
@@ -17,6 +18,7 @@ shadow and_op {
     assert (== (and_op false false) false)
 }
 
+# @pure
 fn or_op(a: bool, b: bool) -> bool {
     return (or a b)
 }
@@ -28,6 +30,7 @@ shadow or_op {
     assert (== (or_op false false) false)
 }
 
+# @pure
 fn not_op(a: bool) -> bool {
     return (not a)
 }
@@ -37,6 +40,7 @@ shadow not_op {
     assert (== (not_op false) true)
 }
 
+# @pure
 fn complex_logic(a: bool, b: bool, c: bool) -> bool {
     return (or (and a b) c)
 }
@@ -47,6 +51,7 @@ shadow complex_logic {
     assert (== (complex_logic false false false) false)
 }
 
+# @pure
 fn is_in_range(x: int, low: int, high: int) -> bool {
     return (and (>= x low) (<= x high))
 }
@@ -59,6 +64,7 @@ shadow is_in_range {
     assert (== (is_in_range 10 1 10) true)
 }
 
+# @pure
 fn xor_sim(a: bool, b: bool) -> bool {
     return (and (or a b) (not (and a b)))
 }
@@ -70,6 +76,7 @@ shadow xor_sim {
     assert (== (xor_sim false false) false)
 }
 
+# @pure
 fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }

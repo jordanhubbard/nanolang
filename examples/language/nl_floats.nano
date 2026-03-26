@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello
 # Expected Output: === Float Operations ===
 
+# @pure
 fn add_floats(a: float, b: float) -> float {
     return (+ a b)
 }
@@ -16,6 +17,7 @@ shadow add_floats {
     assert (== (add_floats 3.14 1.86) 5.0)
 }
 
+# @pure
 fn multiply_floats(a: float, b: float) -> float {
     return (* a b)
 }
@@ -26,6 +28,7 @@ shadow multiply_floats {
     assert (== (multiply_floats 0.5 10.0) 5.0)
 }
 
+# @pure
 fn divide_floats(a: float, b: float) -> float {
     return (/ a b)
 }
@@ -36,6 +39,7 @@ shadow divide_floats {
     assert (== (divide_floats 1.0 4.0) 0.25)
 }
 
+# @pure
 fn circle_area(radius: float) -> float {
     let pi: float = 3.14159
     return (* pi (* radius radius))

@@ -7,18 +7,26 @@
 # Expected Output: interactive
 
 # === CONSTANTS ===
+# frozen
 let GRID_WIDTH: int = 40
+# frozen
 let GRID_HEIGHT: int = 30
+# frozen
 let MAX_PARTICLES: int = 100
+# frozen
 let FRAMES: int = 20
 
 # === PARTICLE TYPES ===
+# frozen
 let EMPTY: int = 0
+# frozen
 let SAND: int = 1
+# frozen
 let WALL: int = 2
 
 # === GRID OPERATIONS ===
 
+# @pure
 fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
@@ -28,6 +36,7 @@ shadow grid_index {
     assert (== (grid_index 5 2 10) 25)
 }
 
+# @pure
 fn is_out_of_bounds(x: int, y: int, width: int, height: int) -> bool {
     return (or (< x 0) (or (>= x width) (or (< y 0) (>= y height))))
 }
@@ -38,6 +47,7 @@ shadow is_out_of_bounds {
     assert (not (is_out_of_bounds 5 5 10 10))
 }
 
+# @pure
 fn grid_get(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
     if (is_out_of_bounds x y width height) {
         return WALL
@@ -58,6 +68,7 @@ shadow grid_get {
 
 # === PHYSICS SIMULATION ===
 
+# @pure
 fn simulate_particle(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
     let current: int = (grid_get grid x y width height)
     

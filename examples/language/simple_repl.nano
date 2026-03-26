@@ -104,6 +104,7 @@ shadow str_trim {
     assert (== (str_trim "   ") "")
 }
 
+# @pure
 fn is_command(input: string, cmd: string) -> bool {
     return (== (str_trim input) cmd)
 }
@@ -114,6 +115,7 @@ shadow is_command {
     assert (not (is_command "(+ 1 2)" "quit"))
 }
 
+# @pure
 fn is_empty(input: string) -> bool {
     return (== (str_length (str_trim input)) 0)
 }
@@ -124,6 +126,7 @@ shadow is_empty {
     assert (not (is_empty "hello"))
 }
 
+# @pure
 fn eval_expression(expr: string) -> int {
     # Returns 0 on success, 1 on failure
     let source: string = (wrap_expression expr)

@@ -11,6 +11,7 @@
 # Only simple expressions are supported in {}: identifiers, arithmetic,
 # and function calls.  For explicit precision formatting use float_to_string.
 
+# @pure
 fn greet(name: string) -> string {
     return f"Hello, {name}!"
 }
@@ -20,6 +21,7 @@ shadow greet {
     assert (== (greet "NanoLang") "Hello, NanoLang!")
 }
 
+# @pure
 fn describe_int(label: string, n: int) -> string {
     return f"{label}: {n}"
 }
@@ -30,6 +32,7 @@ shadow describe_int {
     assert (== (describe_int "neg" -7) "neg: -7")
 }
 
+# @pure
 fn describe_float(label: string, v: float) -> string {
     return f"{label} = {v}"
 }
@@ -38,6 +41,7 @@ shadow describe_float {
     assert (str_contains (describe_float "pi" 3.14) "pi = 3.14")
 }
 
+# @pure
 fn describe_bool(label: string, flag: bool) -> string {
     return f"{label}={flag}"
 }
@@ -47,6 +51,7 @@ shadow describe_bool {
     assert (== (describe_bool "active" false) "active=false")
 }
 
+# @pure
 fn multi_interp(name: string, score: int) -> string {
     return f"Player {name} scored {score} points"
 }

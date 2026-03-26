@@ -7,6 +7,7 @@
 # Expected Output: 
 
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
+# @pure
 fn build_scores() -> HashMap<string, int> {
     let hm: HashMap<string, int> = (map_new)
     (map_put hm "alice" 10)

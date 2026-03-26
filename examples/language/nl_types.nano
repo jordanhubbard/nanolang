@@ -6,6 +6,7 @@
 # Prerequisites: nl_hello
 # Expected Output: === Type Demonstration ===
 
+# @pure
 fn return_int() -> int {
     return 42
 }
@@ -14,6 +15,7 @@ shadow return_int {
     assert (== (return_int) 42)
 }
 
+# @pure
 fn return_float() -> float {
     return 3.14159
 }
@@ -22,6 +24,7 @@ shadow return_float {
     assert (== (return_float) 3.14159)
 }
 
+# @pure
 fn return_bool() -> bool {
     return true
 }
@@ -30,6 +33,7 @@ shadow return_bool {
     assert (== (return_bool) true)
 }
 
+# @pure
 fn return_string() -> string {
     return "Hello, nanolang!"
 }
@@ -47,6 +51,7 @@ shadow void_function {
     (void_function)
 }
 
+# @pure
 fn process_int(n: int) -> int {
     return (* n 2)
 }
@@ -57,6 +62,7 @@ shadow process_int {
     assert (== (process_int (- 0 5)) (- 0 10))
 }
 
+# @pure
 fn process_float(f: float) -> float {
     return (/ f 2.0)
 }
@@ -66,6 +72,7 @@ shadow process_float {
     assert (== (process_float 7.5) 3.75)
 }
 
+# @pure
 fn process_bool(b: bool) -> bool {
     return (not b)
 }
@@ -75,6 +82,7 @@ shadow process_bool {
     assert (== (process_bool false) true)
 }
 
+# @pure
 fn process_string(s: string) -> string {
     return s
 }
@@ -84,6 +92,7 @@ shadow process_string {
     assert (== (process_string "") "")
 }
 
+# @pure
 fn mixed_types(i: int, _f: float, b: bool, _s: string) -> int {
     if b {
         return i
@@ -97,6 +106,7 @@ shadow mixed_types {
     assert (== (mixed_types 10 3.14 false "hello") 0)
 }
 
+# @pure
 fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }
@@ -106,6 +116,7 @@ shadow btos {
     assert (== (btos false) "false")
 }
 
+# @pure
 fn float_to_string(f: float) -> string {
     return (+ (int_to_string (cast_int f)) ".0")
 }

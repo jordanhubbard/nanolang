@@ -83,6 +83,7 @@ shadow find_char {
     assert (== (find_char "test" colon) (- 0 1))
 }
 
+# @pure
 fn is_let_statement(input: string) -> bool {
     let trimmed: string = (str_trim input)
     return (str_starts_with trimmed "let ")
@@ -151,6 +152,7 @@ shadow wrap_with_context {
 }
 
 # Add variable definition to preamble
+# @pure
 fn add_to_preamble(preamble_sb: StringBuilder, var_def: string) -> void {
     (sb_append preamble_sb "    ")
     (sb_append preamble_sb var_def)
@@ -165,6 +167,7 @@ shadow add_to_preamble {
 }
 
 # Evaluate expression with context
+# @pure
 fn eval_with_preamble(preamble: string, expr: string) -> int {
     let source: string = (wrap_with_context preamble expr)
     unsafe {
