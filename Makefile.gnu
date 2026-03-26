@@ -47,7 +47,9 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -march=native -ftree-vectorize -Isrc -D_GNU_SOURCE
+# Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
+VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols

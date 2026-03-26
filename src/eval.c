@@ -162,62 +162,76 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
     ElementType t = dyn_array_get_elem_type(a);
     if (t != dyn_array_get_elem_type(b)) return NULL;
 
-    DynArray *out = dyn_array_new(t);
-    for (int64_t i = 0; i < len; i++) {
-        switch (t) {
-            case ELEM_INT: {
-                int64_t x = dyn_array_get_int(a, i);
-                int64_t y = dyn_array_get_int(b, i);
-                int64_t r = 0;
-                switch (op) {
-                    case TOKEN_PLUS: r = x + y; break;
-                    case TOKEN_MINUS: r = x - y; break;
-                    case TOKEN_STAR: r = x * y; break;
-                    case TOKEN_SLASH: r = x / y; break;
-                    case TOKEN_PERCENT: r = x % y; break;
-                    default: break;
-                }
-                dyn_array_push_int(out, r);
+    DynArray *out = dyn_array_new_with_capacity(t, len);
+    if (!out) return NULL;
+
+    /* Switch on type/op outside the loop so the compiler sees a clean vectorizable loop */
+    if (t == ELEM_INT) {
+        int64_t *__restrict__ pa = (int64_t*)a->data;
+        int64_t *__restrict__ pb = (int64_t*)b->data;
+        int64_t *__restrict__ po = (int64_t*)out->data;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
                 break;
-            }
-            case ELEM_FLOAT: {
-                double x = dyn_array_get_float(a, i);
-                double y = dyn_array_get_float(b, i);
-                double r = 0.0;
-                switch (op) {
-                    case TOKEN_PLUS: r = x + y; break;
-                    case TOKEN_MINUS: r = x - y; break;
-                    case TOKEN_STAR: r = x * y; break;
-                    case TOKEN_SLASH: r = x / y; break;
-                    default: break;
-                }
-                dyn_array_push_float(out, r);
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
                 break;
-            }
-            case ELEM_STRING: {
-                if (op != TOKEN_PLUS) return NULL;
-                const char *x = dyn_array_get_string(a, i);
-                const char *y = dyn_array_get_string(b, i);
-                size_t lx = strlen(x);
-                size_t ly = strlen(y);
-                char *buf = malloc(lx + ly + 1);
-                memcpy(buf, x, lx);
-                memcpy(buf + lx, y, ly);
-                buf[lx + ly] = '\0';
-                dyn_array_push_string(out, buf);
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
                 break;
-            }
-            case ELEM_ARRAY: {
-                DynArray *x = dyn_array_get_array(a, i);
-                DynArray *y = dyn_array_get_array(b, i);
-                DynArray *r = eval_dyn_array_binop(x, y, op);
-                if (!r) return NULL;
-                dyn_array_push_array(out, r);
+            case TOKEN_SLASH:
+                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] / pb[i] : 0;
                 break;
-            }
-            default:
-                return NULL;
+            case TOKEN_PERCENT:
+                for (int64_t i = 0; i < len; i++) po[i] = pb[i] != 0 ? pa[i] % pb[i] : 0;
+                break;
+            default: break;
         }
+        out->length = len;
+    } else if (t == ELEM_FLOAT) {
+        double *__restrict__ pa = (double*)a->data;
+        double *__restrict__ pb = (double*)b->data;
+        double *__restrict__ po = (double*)out->data;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                break;
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                break;
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                break;
+            case TOKEN_SLASH:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / pb[i];
+                break;
+            default: break;
+        }
+        out->length = len;
+    } else if (t == ELEM_STRING) {
+        if (op != TOKEN_PLUS) return NULL;
+        for (int64_t i = 0; i < len; i++) {
+            const char *x = dyn_array_get_string(a, i);
+            const char *y = dyn_array_get_string(b, i);
+            size_t lx = strlen(x);
+            size_t ly = strlen(y);
+            char *buf = malloc(lx + ly + 1);
+            memcpy(buf, x, lx);
+            memcpy(buf + lx, y, ly);
+            buf[lx + ly] = '\0';
+            dyn_array_push_string(out, buf);
+        }
+    } else if (t == ELEM_ARRAY) {
+        for (int64_t i = 0; i < len; i++) {
+            DynArray *x = dyn_array_get_array(a, i);
+            DynArray *y = dyn_array_get_array(b, i);
+            DynArray *r = eval_dyn_array_binop(x, y, op);
+            if (!r) return NULL;
+            dyn_array_push_array(out, r);
+        }
+    } else {
+        return NULL;
     }
     return out;
 }
@@ -226,56 +240,76 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
     if (!a) return NULL;
     int64_t len = dyn_array_length(a);
     ElementType t = dyn_array_get_elem_type(a);
-    DynArray *out = dyn_array_new(t);
+    DynArray *out = dyn_array_new_with_capacity(t, len);
+    if (!out) return NULL;
 
-    for (int64_t i = 0; i < len; i++) {
-        if (t == ELEM_ARRAY) {
+    if (t == ELEM_ARRAY) {
+        for (int64_t i = 0; i < len; i++) {
             DynArray *inner = dyn_array_get_array(a, i);
             DynArray *r = eval_dyn_array_scalar_right(inner, scalar, op);
             if (!r) return NULL;
             dyn_array_push_array(out, r);
-            continue;
         }
-
-        if (t == ELEM_INT && scalar.type == VAL_INT) {
-            int64_t x = dyn_array_get_int(a, i);
-            int64_t s = scalar.as.int_val;
-            int64_t r = 0;
-            switch (op) {
-                case TOKEN_PLUS: r = x + s; break;
-                case TOKEN_MINUS: r = x - s; break;
-                case TOKEN_STAR: r = x * s; break;
-                case TOKEN_SLASH: r = x / s; break;
-                case TOKEN_PERCENT: r = x % s; break;
-                default: break;
-            }
-            dyn_array_push_int(out, r);
-        } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
-            double x = dyn_array_get_float(a, i);
-            double s = scalar.as.float_val;
-            double r = 0.0;
-            switch (op) {
-                case TOKEN_PLUS: r = x + s; break;
-                case TOKEN_MINUS: r = x - s; break;
-                case TOKEN_STAR: r = x * s; break;
-                case TOKEN_SLASH: r = x / s; break;
-                default: break;
-            }
-            dyn_array_push_float(out, r);
-        } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
-            if (op != TOKEN_PLUS) return NULL;
+    } else if (t == ELEM_INT && scalar.type == VAL_INT) {
+        int64_t *__restrict__ pa = (int64_t*)a->data;
+        int64_t *__restrict__ po = (int64_t*)out->data;
+        int64_t s = scalar.as.int_val;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                break;
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                break;
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                break;
+            case TOKEN_SLASH:
+                if (s != 0)
+                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                break;
+            case TOKEN_PERCENT:
+                if (s != 0)
+                    for (int64_t i = 0; i < len; i++) po[i] = pa[i] % s;
+                break;
+            default: break;
+        }
+        out->length = len;
+    } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
+        double *__restrict__ pa = (double*)a->data;
+        double *__restrict__ po = (double*)out->data;
+        double s = scalar.as.float_val;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                break;
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                break;
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                break;
+            case TOKEN_SLASH:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                break;
+            default: break;
+        }
+        out->length = len;
+    } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
+        if (op != TOKEN_PLUS) return NULL;
+        const char *s = scalar.as.string_val;
+        size_t ls = strlen(s);
+        for (int64_t i = 0; i < len; i++) {
             const char *x = dyn_array_get_string(a, i);
-            const char *s = scalar.as.string_val;
             size_t lx = strlen(x);
-            size_t ls = strlen(s);
             char *buf = malloc(lx + ls + 1);
             memcpy(buf, x, lx);
             memcpy(buf + lx, s, ls);
             buf[lx + ls] = '\0';
             dyn_array_push_string(out, buf);
-        } else {
-            return NULL;
         }
+    } else {
+        return NULL;
     }
     return out;
 }
@@ -284,56 +318,74 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
     if (!a) return NULL;
     int64_t len = dyn_array_length(a);
     ElementType t = dyn_array_get_elem_type(a);
-    DynArray *out = dyn_array_new(t);
+    DynArray *out = dyn_array_new_with_capacity(t, len);
+    if (!out) return NULL;
 
-    for (int64_t i = 0; i < len; i++) {
-        if (t == ELEM_ARRAY) {
+    if (t == ELEM_ARRAY) {
+        for (int64_t i = 0; i < len; i++) {
             DynArray *inner = dyn_array_get_array(a, i);
             DynArray *r = eval_dyn_array_scalar_left(scalar, inner, op);
             if (!r) return NULL;
             dyn_array_push_array(out, r);
-            continue;
         }
-
-        if (t == ELEM_INT && scalar.type == VAL_INT) {
-            int64_t s = scalar.as.int_val;
-            int64_t y = dyn_array_get_int(a, i);
-            int64_t r = 0;
-            switch (op) {
-                case TOKEN_PLUS: r = s + y; break;
-                case TOKEN_MINUS: r = s - y; break;
-                case TOKEN_STAR: r = s * y; break;
-                case TOKEN_SLASH: r = s / y; break;
-                case TOKEN_PERCENT: r = s % y; break;
-                default: break;
-            }
-            dyn_array_push_int(out, r);
-        } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
-            double s = scalar.as.float_val;
-            double y = dyn_array_get_float(a, i);
-            double r = 0.0;
-            switch (op) {
-                case TOKEN_PLUS: r = s + y; break;
-                case TOKEN_MINUS: r = s - y; break;
-                case TOKEN_STAR: r = s * y; break;
-                case TOKEN_SLASH: r = s / y; break;
-                default: break;
-            }
-            dyn_array_push_float(out, r);
-        } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
-            if (op != TOKEN_PLUS) return NULL;
-            const char *s = scalar.as.string_val;
+    } else if (t == ELEM_INT && scalar.type == VAL_INT) {
+        int64_t *__restrict__ pa = (int64_t*)a->data;
+        int64_t *__restrict__ po = (int64_t*)out->data;
+        int64_t s = scalar.as.int_val;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                break;
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                break;
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                break;
+            case TOKEN_SLASH:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s / pa[i] : 0;
+                break;
+            case TOKEN_PERCENT:
+                for (int64_t i = 0; i < len; i++) po[i] = pa[i] != 0 ? s % pa[i] : 0;
+                break;
+            default: break;
+        }
+        out->length = len;
+    } else if (t == ELEM_FLOAT && scalar.type == VAL_FLOAT) {
+        double *__restrict__ pa = (double*)a->data;
+        double *__restrict__ po = (double*)out->data;
+        double s = scalar.as.float_val;
+        switch (op) {
+            case TOKEN_PLUS:
+                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                break;
+            case TOKEN_MINUS:
+                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                break;
+            case TOKEN_STAR:
+                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                break;
+            case TOKEN_SLASH:
+                for (int64_t i = 0; i < len; i++) po[i] = s / pa[i];
+                break;
+            default: break;
+        }
+        out->length = len;
+    } else if (t == ELEM_STRING && scalar.type == VAL_STRING) {
+        if (op != TOKEN_PLUS) return NULL;
+        const char *s = scalar.as.string_val;
+        size_t ls = strlen(s);
+        for (int64_t i = 0; i < len; i++) {
             const char *y = dyn_array_get_string(a, i);
-            size_t ls = strlen(s);
             size_t ly = strlen(y);
             char *buf = malloc(ls + ly + 1);
             memcpy(buf, s, ls);
             memcpy(buf + ls, y, ly);
             buf[ls + ly] = '\0';
             dyn_array_push_string(out, buf);
-        } else {
-            return NULL;
         }
+    } else {
+        return NULL;
     }
     return out;
 }
@@ -1290,6 +1342,179 @@ static Value builtin_array_remove_at(Value *args) {
  * Higher-Order Array Functions (map, filter, reduce)
  * ========================================================================== */
 
+/* Pure arithmetic lambda detection for map/reduce fast paths.
+ * Returns true if expr contains only: arithmetic binary/unary ops, numeric
+ * literals, and identifier references (assumed to be function parameters).
+ * No function calls, conditionals, or assignments.
+ */
+static bool is_pure_arithmetic_expr(ASTNode *expr) {
+    if (!expr) return false;
+    switch (expr->type) {
+        case AST_NUMBER:
+        case AST_FLOAT:
+            return true;
+        case AST_IDENTIFIER:
+            return true;  /* Assume it's a parameter — caller verifies */
+        case AST_PREFIX_OP: {
+            TokenType op = expr->as.prefix_op.op;
+            /* Allow arithmetic operators only */
+            if (op != TOKEN_PLUS && op != TOKEN_MINUS &&
+                op != TOKEN_STAR && op != TOKEN_SLASH && op != TOKEN_PERCENT)
+                return false;
+            for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
+                if (!is_pure_arithmetic_expr(expr->as.prefix_op.args[i]))
+                    return false;
+            }
+            return true;
+        }
+        default:
+            return false;
+    }
+}
+
+/* Returns true when the function body is a single return of a pure arithmetic expr. */
+static bool is_pure_arithmetic_lambda(ASTNode *fn_body) {
+    if (!fn_body || fn_body->type != AST_BLOCK) return false;
+    if (fn_body->as.block.count != 1) return false;
+    ASTNode *stmt = fn_body->as.block.statements[0];
+    if (!stmt || stmt->type != AST_RETURN) return false;
+    return is_pure_arithmetic_expr(stmt->as.return_stmt.value);
+}
+
+/* Evaluate a pure arithmetic expression for int64_t.
+ * param_val is the value to substitute for any identifier matching param_name.
+ */
+static int64_t eval_pure_expr_int(ASTNode *expr, int64_t param_val, const char *param_name) {
+    if (!expr) return 0;
+    switch (expr->type) {
+        case AST_NUMBER: return expr->as.number;
+        case AST_FLOAT:  return (int64_t)expr->as.float_val;
+        case AST_IDENTIFIER:
+            return (param_name && strcmp(expr->as.identifier, param_name) == 0)
+                   ? param_val : 0;
+        case AST_PREFIX_OP: {
+            if (expr->as.prefix_op.arg_count == 1) {
+                int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+            }
+            if (expr->as.prefix_op.arg_count == 2) {
+                int64_t a = eval_pure_expr_int(expr->as.prefix_op.args[0], param_val, param_name);
+                int64_t b = eval_pure_expr_int(expr->as.prefix_op.args[1], param_val, param_name);
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_PLUS:    return a + b;
+                    case TOKEN_MINUS:   return a - b;
+                    case TOKEN_STAR:    return a * b;
+                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
+                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    default: return 0;
+                }
+            }
+            return 0;
+        }
+        default: return 0;
+    }
+}
+
+/* Evaluate a pure arithmetic expression for int64_t with two parameter substitutions. */
+static int64_t eval_pure_expr_int2(ASTNode *expr,
+                                   int64_t p0_val, const char *p0_name,
+                                   int64_t p1_val, const char *p1_name) {
+    if (!expr) return 0;
+    switch (expr->type) {
+        case AST_NUMBER: return expr->as.number;
+        case AST_FLOAT:  return (int64_t)expr->as.float_val;
+        case AST_IDENTIFIER:
+            if (p0_name && strcmp(expr->as.identifier, p0_name) == 0) return p0_val;
+            if (p1_name && strcmp(expr->as.identifier, p1_name) == 0) return p1_val;
+            return 0;
+        case AST_PREFIX_OP: {
+            if (expr->as.prefix_op.arg_count == 1) {
+                int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+            }
+            if (expr->as.prefix_op.arg_count == 2) {
+                int64_t a = eval_pure_expr_int2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
+                int64_t b = eval_pure_expr_int2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_PLUS:    return a + b;
+                    case TOKEN_MINUS:   return a - b;
+                    case TOKEN_STAR:    return a * b;
+                    case TOKEN_SLASH:   return b != 0 ? a / b : 0;
+                    case TOKEN_PERCENT: return b != 0 ? a % b : 0;
+                    default: return 0;
+                }
+            }
+            return 0;
+        }
+        default: return 0;
+    }
+}
+
+/* Evaluate a pure arithmetic expression for double with two parameter substitutions. */
+static double eval_pure_expr_float2(ASTNode *expr,
+                                    double p0_val, const char *p0_name,
+                                    double p1_val, const char *p1_name) {
+    if (!expr) return 0.0;
+    switch (expr->type) {
+        case AST_NUMBER: return (double)expr->as.number;
+        case AST_FLOAT:  return expr->as.float_val;
+        case AST_IDENTIFIER:
+            if (p0_name && strcmp(expr->as.identifier, p0_name) == 0) return p0_val;
+            if (p1_name && strcmp(expr->as.identifier, p1_name) == 0) return p1_val;
+            return 0.0;
+        case AST_PREFIX_OP: {
+            if (expr->as.prefix_op.arg_count == 1) {
+                double a = eval_pure_expr_float2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+            }
+            if (expr->as.prefix_op.arg_count == 2) {
+                double a = eval_pure_expr_float2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
+                double b = eval_pure_expr_float2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_PLUS:  return a + b;
+                    case TOKEN_MINUS: return a - b;
+                    case TOKEN_STAR:  return a * b;
+                    case TOKEN_SLASH: return a / b;
+                    default: return 0.0;
+                }
+            }
+            return 0.0;
+        }
+        default: return 0.0;
+    }
+}
+
+/* Evaluate a pure arithmetic expression for double. */
+static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *param_name) {
+    if (!expr) return 0.0;
+    switch (expr->type) {
+        case AST_NUMBER: return (double)expr->as.number;
+        case AST_FLOAT:  return expr->as.float_val;
+        case AST_IDENTIFIER:
+            return (param_name && strcmp(expr->as.identifier, param_name) == 0)
+                   ? param_val : 0.0;
+        case AST_PREFIX_OP: {
+            if (expr->as.prefix_op.arg_count == 1) {
+                double a = eval_pure_expr_float(expr->as.prefix_op.args[0], param_val, param_name);
+                return (expr->as.prefix_op.op == TOKEN_MINUS) ? -a : a;
+            }
+            if (expr->as.prefix_op.arg_count == 2) {
+                double a = eval_pure_expr_float(expr->as.prefix_op.args[0], param_val, param_name);
+                double b = eval_pure_expr_float(expr->as.prefix_op.args[1], param_val, param_name);
+                switch (expr->as.prefix_op.op) {
+                    case TOKEN_PLUS:  return a + b;
+                    case TOKEN_MINUS: return a - b;
+                    case TOKEN_STAR:  return a * b;
+                    case TOKEN_SLASH: return a / b;
+                    default: return 0.0;
+                }
+            }
+            return 0.0;
+        }
+        default: return 0.0;
+    }
+}
+
 static Value builtin_map(Value *args, Environment *env) {
     /* map(array, transform_fn) -> array
      * Applies transform_fn to each element and returns a new array
@@ -1385,10 +1610,39 @@ static Value builtin_map(Value *args, Environment *env) {
         DynArray *input_arr = args[0].as.dyn_array_val;
         int64_t len = dyn_array_length(input_arr);
         ElementType elem_type = dyn_array_get_elem_type(input_arr);
-        
+
+        /* Fast path: pure arithmetic lambda — bypass call_function overhead.
+         * Pre-allocate full output, extract restrict pointers, inline the expression. */
+        if (elem_type == ELEM_INT || elem_type == ELEM_FLOAT) {
+            Function *fn = env_get_function(env, transform_fn_name);
+            if (fn && fn->param_count == 1 && fn->body &&
+                is_pure_arithmetic_lambda(fn->body)) {
+                ASTNode *ret_expr = fn->body->as.block.statements[0]->as.return_stmt.value;
+                const char *param_name = fn->params[0].name;
+                DynArray *output_arr = dyn_array_new_with_capacity(elem_type, len);
+                if (output_arr) {
+                    if (elem_type == ELEM_INT) {
+                        int64_t *__restrict__ pin  = (int64_t*)input_arr->data;
+                        int64_t *__restrict__ pout = (int64_t*)output_arr->data;
+                        for (int64_t i = 0; i < len; i++) {
+                            pout[i] = eval_pure_expr_int(ret_expr, pin[i], param_name);
+                        }
+                    } else {
+                        double *__restrict__ pin  = (double*)input_arr->data;
+                        double *__restrict__ pout = (double*)output_arr->data;
+                        for (int64_t i = 0; i < len; i++) {
+                            pout[i] = eval_pure_expr_float(ret_expr, pin[i], param_name);
+                        }
+                    }
+                    output_arr->length = len;
+                    return create_dyn_array(output_arr);
+                }
+            }
+        }
+
         /* Create new dynamic array of same type */
         DynArray *output_arr = dyn_array_new(elem_type);
-        
+
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
             Value elem;
@@ -1703,13 +1957,44 @@ static Value builtin_reduce(Value *args, Environment *env) {
         DynArray *arr = args[0].as.dyn_array_val;
         int64_t len = dyn_array_length(arr);
         ElementType elem_type = dyn_array_get_elem_type(arr);
-        
+
+        /* Fast path: pure arithmetic 2-param lambda — bypass call_function overhead.
+         * Evaluates combine(acc, elem) inline using typed direct loop. */
+        if (elem_type == ELEM_INT || elem_type == ELEM_FLOAT) {
+            Function *fn = env_get_function(env, combine_fn_name);
+            if (fn && fn->param_count == 2 && fn->body &&
+                is_pure_arithmetic_lambda(fn->body)) {
+                ASTNode *ret_expr = fn->body->as.block.statements[0]->as.return_stmt.value;
+                const char *acc_name  = fn->params[0].name;
+                const char *elem_name = fn->params[1].name;
+                if (elem_type == ELEM_INT && accumulator.type == VAL_INT) {
+                    int64_t *__restrict__ pa = (int64_t*)arr->data;
+                    int64_t acc = accumulator.as.int_val;
+                    for (int64_t i = 0; i < len; i++) {
+                        acc = eval_pure_expr_int2(ret_expr,
+                                                  acc,    acc_name,
+                                                  pa[i],  elem_name);
+                    }
+                    return create_int(acc);
+                } else if (elem_type == ELEM_FLOAT && accumulator.type == VAL_FLOAT) {
+                    double *__restrict__ pa = (double*)arr->data;
+                    double acc = accumulator.as.float_val;
+                    for (int64_t i = 0; i < len; i++) {
+                        acc = eval_pure_expr_float2(ret_expr,
+                                                    acc,    acc_name,
+                                                    pa[i],  elem_name);
+                    }
+                    return create_float(acc);
+                }
+            }
+        }
+
         for (int64_t i = 0; i < len; i++) {
             Value elem;
             elem.is_return = false;
             elem.is_break = false;
             elem.is_continue = false;
-            
+
             /* Get element */
             switch (elem_type) {
                 case ELEM_INT:
@@ -1736,17 +2021,17 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     fprintf(stderr, "Error: Unsupported array element type in reduce\n");
                     return create_void();
             }
-            
+
             /* Call combine function */
             Value call_args[2];
             call_args[0] = accumulator;
             call_args[1] = elem;
             accumulator = call_function(combine_fn_name, call_args, 2, env);
         }
-        
+
         return accumulator;
     }
-    
+
     fprintf(stderr, "Error: reduce() requires an array as first argument\n");
     return create_void();
 }

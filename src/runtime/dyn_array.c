@@ -13,6 +13,18 @@
 /* Dynamic array configuration */
 #define INITIAL_CAPACITY 8
 #define GROWTH_FACTOR 2
+#define DARRAY_ALIGN 32  /* 32-byte alignment for AVX2 auto-vectorization */
+
+/* Aligned allocation helper: always returns memory aligned to DARRAY_ALIGN.
+ * Size is rounded up to the next multiple of DARRAY_ALIGN. */
+static void *darray_aligned_alloc(size_t size) {
+    if (size == 0) size = DARRAY_ALIGN;
+    /* Round up to alignment multiple */
+    size = (size + DARRAY_ALIGN - 1) & ~(size_t)(DARRAY_ALIGN - 1);
+    void *ptr = NULL;
+    if (posix_memalign(&ptr, DARRAY_ALIGN, size) != 0) return NULL;
+    return ptr;
+}
 
 /* Get element size for type */
 static size_t get_element_size(ElementType type) {
@@ -44,13 +56,13 @@ DynArray* dyn_array_new(ElementType elem_type) {
         arr->elem_size = 0;  /* Will be set on first push */
         arr->data = NULL;     /* Allocate on first push */
     } else {
-        arr->data = malloc(arr->capacity * arr->elem_size);
+        arr->data = darray_aligned_alloc(arr->capacity * arr->elem_size);
         if (arr->data == NULL) {
             gc_release(arr);
             return NULL;
         }
     }
-    
+
     return arr;
 }
 
@@ -76,7 +88,7 @@ DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_cap
         arr->elem_size = 0;  /* Will be set on first push */
         arr->data = NULL;     /* Allocate on first push */
     } else {
-        arr->data = malloc(arr->capacity * arr->elem_size);
+        arr->data = darray_aligned_alloc(arr->capacity * arr->elem_size);
         if (arr->data == NULL) {
             gc_release(arr);
             return NULL;
@@ -86,16 +98,18 @@ DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_cap
     return arr;
 }
 
-/* Grow array capacity */
+/* Grow array capacity (maintains 32-byte alignment for SIMD) */
 static void dyn_array_grow(DynArray* arr) {
     int64_t new_capacity = arr->capacity * GROWTH_FACTOR;
-    void* new_data = realloc(arr->data, new_capacity * arr->elem_size);
-    
+    void* new_data = darray_aligned_alloc(new_capacity * arr->elem_size);
+
     if (new_data == NULL) {
         fprintf(stderr, "DynArray: Out of memory growing array\n");
         return;
     }
-    
+
+    memcpy(new_data, arr->data, arr->length * arr->elem_size);
+    free(arr->data);
     arr->data = new_data;
     arr->capacity = new_capacity;
 }
@@ -457,12 +471,14 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity) {
         return;
     }
     
-    void* new_data = realloc(arr->data, new_capacity * arr->elem_size);
+    void* new_data = darray_aligned_alloc(new_capacity * arr->elem_size);
     if (new_data == NULL) {
         fprintf(stderr, "DynArray: Out of memory reserving capacity\n");
         return;
     }
-    
+
+    memcpy(new_data, arr->data, arr->length * arr->elem_size);
+    free(arr->data);
     arr->data = new_data;
     arr->capacity = new_capacity;
 }

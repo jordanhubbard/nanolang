@@ -28,8 +28,8 @@ static char* read_file(const char* path) {
         return NULL;
     }
     
-    fread(content, 1, size, f);
-    content[size] = '\0';
+    size_t n = fread(content, 1, size, f);
+    content[n] = '\0';
     fclose(f);
     
     return content;

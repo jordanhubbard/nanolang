@@ -3372,6 +3372,13 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_literal(list, ";\n");
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "int64_t __nl_len = dyn_array_length(__nl_arr);\n");
+                    /* Vectorization hints for numeric element types */
+                    if (dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) {
+                        emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#pragma GCC ivdep\n");
+                        emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#pragma clang loop vectorize(enable) interleave(enable)\n");
+                    }
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);

@@ -219,8 +219,7 @@ static bool add_label(AsmState *state, const char *name, uint32_t offset) {
     }
 
     Label *l = &state->labels[state->label_count++];
-    strncpy(l->name, name, sizeof(l->name) - 1);
-    l->name[sizeof(l->name) - 1] = '\0';
+    snprintf(l->name, sizeof(l->name), "%s", name);
     l->offset = offset;
     l->function = state->current_function;
     l->defined = true;
@@ -230,8 +229,7 @@ static bool add_label(AsmState *state, const char *name, uint32_t offset) {
 static void add_patch(AsmState *state, const char *label, uint32_t code_offset, uint32_t instr_start) {
     if (state->patch_count >= MAX_PATCHES) return;
     Patch *p = &state->patches[state->patch_count++];
-    strncpy(p->label, label, sizeof(p->label) - 1);
-    p->label[sizeof(p->label) - 1] = '\0';
+    snprintf(p->label, sizeof(p->label), "%s", label);
     p->code_offset = code_offset;
     p->instr_start = instr_start;
     p->function = state->current_function;
