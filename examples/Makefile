@@ -30,8 +30,11 @@ else
 COMPILER ?= $(BIN_DIR)/nanoc
 endif
 
-# Set module path for automatic module building
-export NANO_MODULE_PATH=$(abspath ../modules)
+# Module path for import resolution and module building.
+# When invoked from repo root (make -C examples), NANO_MODULE_PATH is passed in;
+# otherwise default to repo modules relative to examples/.
+NANO_MODULE_PATH ?= $(abspath ../modules)
+export NANO_MODULE_PATH
 
 # === Detect compilers with limited linking support ===
 # nanoc_stage1/stage2 and nano_virt can only link built-in modules

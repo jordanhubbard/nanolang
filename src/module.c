@@ -401,6 +401,35 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
                 }
             }
         }
+
+        /* Use NANO_MODULE_PATH to derive project root: if set to .../repo/modules,
+         * try .../repo/<module_path> so examples/ and std/ resolve when cwd is not repo. */
+        {
+            int path_count = 0;
+            char **search_paths = get_module_search_paths(&path_count);
+            for (int i = 0; i < path_count; i++) {
+                const char *base = search_paths[i];
+                const char *last = strrchr(base, '/');
+                if (!last) continue;
+                char project_root[2048];
+                size_t root_len = (size_t)(last - base);
+                if (root_len >= sizeof(project_root)) continue;
+                memcpy(project_root, base, root_len);
+                project_root[root_len] = '\0';
+                const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
+                for (int p = 0; prefixes[p] != NULL; p++) {
+                    char test_path[2048];
+                    snprintf(test_path, sizeof(test_path), "%s/%s%s", project_root, prefixes[p], module_path);
+                    FILE *test = fopen(test_path, "r");
+                    if (test) {
+                        fclose(test);
+                        free_module_search_paths(search_paths, path_count);
+                        return strdup(test_path);
+                    }
+                }
+            }
+            free_module_search_paths(search_paths, path_count);
+        }
     }
     
     /* First, try relative to current file */

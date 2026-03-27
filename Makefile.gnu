@@ -109,6 +109,8 @@ BOOTSTRAP_DETERMINISTIC ?= 0
 # TMPDIR-aware temp directory for bootstrap test artifacts
 BOOTSTRAP_TMPDIR := $(or $(TMPDIR),/tmp)
 BOOTSTRAP_ENV := NANO_MODULE_PATH=modules
+# Absolute path to repo modules; passed to examples build so module resolution works from any cwd
+NANO_MODULES_ABS := $(abspath $(CURDIR)/modules)
 ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
 BOOTSTRAP_ENV += NANO_DETERMINISTIC=1
 endif
@@ -680,28 +682,28 @@ examples-full: stage1 modules-index check-deps-sdl
 	@echo "=========================================="
 	@echo "Building Examples (Full Compiler)"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 examples-stage1: bootstrap1 modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (Stage 1 Compiler)"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 examples-stage3: bootstrap3 modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (Stage 3 Compiler)"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3 NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 examples-vm: vm modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (NanoVM Bytecode)"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build available examples (GRACEFUL: skip examples with missing dependencies)
 examples-available: build check-deps-sdl
@@ -711,7 +713,7 @@ examples-available: build check-deps-sdl
 	@echo "=========================================="
 	@echo "Note: Examples with missing dependencies will be skipped."
 	@echo ""
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Launch example browser
 examples-launcher: examples check-deps-sdl
@@ -719,14 +721,14 @@ examples-launcher: examples check-deps-sdl
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX=
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 launcher: build check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
