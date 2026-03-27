@@ -35,7 +35,7 @@ extern fn nl_regex_split(_regex: Regex, _text: string) -> array<string>
 # Free compiled regex
 extern fn nl_regex_free(_regex: Regex) -> void
 
-fn is_null(regex: Regex) -> bool {
+pub fn is_null(regex: Regex) -> bool {
     let mut result: int = 0
     unsafe {
         set result (nl_regex_match regex "")

@@ -2016,9 +2016,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* For now, construct a qualified name "Module.function" and look it up */
             /* TODO: Use proper module namespace lookup */
-            char *qualified_name = malloc(strlen(module_alias) + strlen(function_name) + 2);
-            sprintf(qualified_name, "%s.%s", module_alias, function_name);
-            
+            size_t qname_len = strlen(module_alias) + strlen(function_name) + 2;
+            char *qualified_name = malloc(qname_len);
+            if (!qualified_name) return TYPE_UNKNOWN;
+            snprintf(qualified_name, qname_len, "%s.%s", module_alias, function_name);
+
             /* Look up function in environment */
             Function *func = env_get_function(env, qualified_name);
             if (!func) {

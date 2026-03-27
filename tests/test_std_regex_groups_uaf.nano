@@ -1,9 +1,9 @@
 /* Test: regex groups and use-after-free regression */
-from "std/regex/regex.nano" import compile, groups, free, Regex
+from "std/regex/regex.nano" import compile, groups, free, is_null, Regex
 
 fn regex_groups_uaf_regression() -> int {
     let re: Regex = (compile "(a)(b)")
-    if (== re (null_opaque)) {
+    if (is_null re) {
         return 1
     }
 
