@@ -5,6 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.1] - 2026-03-27
+
+### Added
+- @pure/@associative annotations, frozen let, par blocks — C compiler + .nano sources
+- f-string interpolation with automatic type conversion
+- Option A dispatch wrapping for module-scope let mut primitives
+
+### Fixed
+- resolve -Werror build failures (fread/system/fgets unused return, strncpy truncation)
+- resolve all CI failures
+- add explicit Makefile rule for nl_forth_interpreter_vm
+
 ## [3.3.0] - 2026-03-23
 
 ### Added

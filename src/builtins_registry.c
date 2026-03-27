@@ -119,7 +119,7 @@ const BuiltinEntry builtin_registry[] = {
     {"array_get",       "array_get",         2, {A,I,U,U}, U, OP_NOP, L|BUILTIN_PURE},
     {"array_push",      "array_push",        2, {A,U,U,U}, A, OP_NOP, L},
     {"array_pop",       "array_pop",         1, {A,U,U,U}, U, OP_NOP, L},
-    {"array_remove_at", "dyn_array_remove_at", 2, {A,I,U,U}, V, OP_NOP, L},
+    {"array_remove_at", "dyn_array_remove_at", 2, {A,I,U,U}, A, OP_NOP, L},
     {"array_slice",     "nl_array_slice",    3, {A,I,I,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_concat",    "array_concat",      2, {A,A,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     /* Higher-order array functions (array_map, array_filter, array_fold) */
