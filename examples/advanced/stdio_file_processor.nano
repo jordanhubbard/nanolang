@@ -6,7 +6,7 @@
 # Prerequisites: none
 # Expected Output: STDIO FILE PROCESSOR
 
-from "modules/std/fs.nano" import file_read, file_write, file_exists
+from "modules/std/fs.nano" import read, write, exists
 
 fn count_chars(text: string) -> int {
     return (str_length text)
@@ -74,9 +74,9 @@ fn main() -> int {
     (println "")
     
     # Check if README exists
-    if (file_exists "README.md") {
+    if (exists "README.md") {
         (println "✓ Found README.md")
-        let content: string = (file_read "README.md")
+        let content: string = (read "README.md")
         let lines: int = (count_lines content)
         let chars: int = (count_chars content)
         

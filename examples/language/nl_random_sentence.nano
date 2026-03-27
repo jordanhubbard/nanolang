@@ -6,7 +6,7 @@
 # Prerequisites: nl_hello, nl_functions
 # Expected Output: interactive
 
-from "modules/std/fs.nano" import file_read
+from "modules/std/fs.nano" import read
 
 # External C functions for random numbers and time
 extern fn rand() -> int
@@ -171,7 +171,7 @@ fn main() -> int {
     
     # Try to read dictionary file
     let dict_path: string = "/usr/share/dict/words"
-    let content: string = (file_read dict_path)
+    let content: string = (read dict_path)
     let content_len: int = (strlen content)
     
     if (== content_len 0) {
