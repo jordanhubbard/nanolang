@@ -3884,6 +3884,7 @@ static const char *builtin_function_names[] = {
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
 
 static const char *g_typecheck_current_file = NULL;
+static int g_typecheck_error_count = 0;
 
 void typecheck_set_current_file(const char *path) {
     g_typecheck_current_file = path;
@@ -3985,6 +3986,11 @@ static void emit_context_error(
     const char *message,
     const char *hint
 ) {
+    /* Track error count for non-warning emissions */
+    if (!title || (!strstr(title, "WARNING") && !strstr(title, "Warning"))) {
+        g_typecheck_error_count++;
+    }
+
     if (g_typecheck_current_file) {
         print_error_header(title, g_typecheck_current_file);
     } else {
@@ -4909,6 +4915,8 @@ bool type_check(ASTNode *program, Environment *env) {
         return false;
     }
 
+    g_typecheck_error_count = 0;
+
     TypeChecker tc;
     tc.env = env;
     tc.has_error = false;
@@ -5719,7 +5727,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
         tc.has_error = true;
     }
 
-    return !tc.has_error;
+    return !tc.has_error && g_typecheck_error_count == 0;
 }
 
 /* Type check a module (without requiring main function) */
@@ -5728,6 +5736,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
     }
+
+    g_typecheck_error_count = 0;
 
     TypeChecker tc;
     tc.env = env;
@@ -6379,5 +6389,5 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
     /* Note: Modules don't require a main function */
     /* Main function check is skipped for modules */
 
-    return !tc.has_error;
+    return !tc.has_error && g_typecheck_error_count == 0;
 }

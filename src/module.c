@@ -418,7 +418,7 @@ const char *resolve_module_path(const char *module_path, const char *current_fil
                 project_root[root_len] = '\0';
                 const char *prefixes[] = {"stdlib/", "modules/", "", NULL};
                 for (int p = 0; prefixes[p] != NULL; p++) {
-                    char test_path[2048];
+                    char test_path[4096];
                     snprintf(test_path, sizeof(test_path), "%s/%s%s", project_root, prefixes[p], module_path);
                     FILE *test = fopen(test_path, "r");
                     if (test) {
