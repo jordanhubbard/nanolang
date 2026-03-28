@@ -11,7 +11,7 @@ shadow divmod {
 }
 
 fn min_max(a: int, b: int) -> (int, int) {
-    if (< a b) {
+    if a < b {
         return (a, b)
     } else {
         return (b, a)
@@ -34,7 +34,7 @@ fn main() -> int {
     let mut (a, b) = (min_max 10 4)
     assert (== a 4)
     assert (== b 10)
-    set a (+ a 1)
+    set a (a + 1)
     assert (== a 5)
 
     /* Three-element tuple */

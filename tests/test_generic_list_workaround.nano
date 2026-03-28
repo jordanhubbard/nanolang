@@ -7,21 +7,21 @@ struct Point {
 
 fn test_list_point() -> bool {
     let points: List<Point> = (list_Point_new)
-    
+
     let p1: Point = Point { x: 10, y: 20 }
     let p2: Point = Point { x: 30, y: 40 }
-    
+
     (list_Point_push points p1)
     (list_Point_push points p2)
-    
-    let len: int = (list_Point_length points)
-    
+
+    let len = (list_Point_length points)
+
     # Workaround: Don't call get, just check length
-    return (== len 2)
+    return len == 2
 }
 
 fn main() -> int {
-    let result: bool = (test_list_point)
+    let result = (test_list_point)
     if result {
         (println "✅ Generic list test passed!")
         return 0

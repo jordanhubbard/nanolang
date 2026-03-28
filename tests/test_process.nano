@@ -4,23 +4,23 @@ extern fn process_run(command: string) -> array<string>
 
 fn test_process_run() -> int {
     (println "Testing process_run:")
-    
+
     let mut raw: array<string> = []
     unsafe {
         set raw (process_run "echo hello world")
     }
-    
-    let code_s: string = (at raw 0)
-    let stdout: string = (at raw 1)
-    let stderr: string = (at raw 2)
-    
+
+    let code_s = (at raw 0)
+    let stdout = (at raw 1)
+    let stderr = (at raw 2)
+
     (print "  Exit code: ")
     (println code_s)
     (print "  Stdout: ")
     (println stdout)
     (print "  Stderr: ")
     (println stderr)
-    
+
     return 0
 }
 
@@ -40,13 +40,13 @@ shadow test_system {
 fn main() -> int {
     (println "=== Testing std::process ===")
     (println "")
-    
+
     (test_process_run)
     (println "")
-    
+
     (test_system)
     (println "")
-    
+
     (println "All tests passed!")
     return 0
 }

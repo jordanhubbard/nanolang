@@ -11,7 +11,7 @@ enum TokenType {
 
 fn main() -> int {
     let p: Point = Point { x: 1, y: 2 }
-    let t: int = p.x
+    let t = p.x
     return 0
 }
 

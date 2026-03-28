@@ -145,7 +145,7 @@ shadow test_infix_or {
 }
 
 fn test_logical_chain() -> bool {
-    let x: int = 5
+    let x = 5
     # With equal precedence, must use parens: (x > 0) and (x < 100)
     return (x > 0) and (x < 100)
 }
@@ -173,7 +173,7 @@ shadow test_not_comparison {
 
 # Unary minus without parens
 fn test_unary_minus() -> int {
-    let x: int = 5
+    let x = 5
     return -x
 }
 
@@ -219,8 +219,8 @@ shadow test_string_concat {
 
 # Infix with variables
 fn test_infix_vars() -> int {
-    let a: int = 10
-    let b: int = 20
+    let a = 10
+    let b = 20
     return a + b
 }
 
@@ -229,9 +229,9 @@ shadow test_infix_vars {
 }
 
 fn test_infix_complex_vars() -> int {
-    let a: int = 10
-    let b: int = 3
-    let c: int = 7
+    let a = 10
+    let b = 3
+    let c = 7
     # Left-to-right: ((a - b) * c) = 49
     return a - b * c
 }
@@ -262,7 +262,7 @@ shadow test_else_if {
 
 # else if without final else
 fn test_else_if_no_final(x: int) -> int {
-    let mut result: int = 0
+    let mut result = 0
     if x > 100 {
         set result 3
     } else if x > 10 {
@@ -282,7 +282,7 @@ shadow test_else_if_no_final {
 
 # Infix operators in if conditions
 fn test_infix_in_condition() -> int {
-    let x: int = 5
+    let x = 5
     # With equal precedence, must use parens for mixed comparison + logical
     if (x > 3) and (x < 10) {
         return 1

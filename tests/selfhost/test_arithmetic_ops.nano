@@ -1,9 +1,9 @@
 /* Test all arithmetic operators supported by self-hosted compiler */
 
 fn test_addition() -> int {
-    let a: int = (+ 5 3)
-    let b: int = (+ 10 20)
-    return (+ a b)
+    let a = (+ 5 3)
+    let b = (+ 10 20)
+    return a + b
 }
 
 shadow test_addition {
@@ -11,9 +11,9 @@ shadow test_addition {
 }
 
 fn test_subtraction() -> int {
-    let a: int = (- 10 3)
-    let b: int = (- 20 5)
-    return (+ a b)
+    let a = (- 10 3)
+    let b = (- 20 5)
+    return a + b
 }
 
 shadow test_subtraction {
@@ -21,9 +21,9 @@ shadow test_subtraction {
 }
 
 fn test_multiplication() -> int {
-    let a: int = (* 5 3)
-    let b: int = (* 2 4)
-    return (+ a b)
+    let a = (* 5 3)
+    let b = (* 2 4)
+    return a + b
 }
 
 shadow test_multiplication {
@@ -31,9 +31,9 @@ shadow test_multiplication {
 }
 
 fn test_division() -> int {
-    let a: int = (/ 20 4)
-    let b: int = (/ 15 3)
-    return (+ a b)
+    let a = (/ 20 4)
+    let b = (/ 15 3)
+    return a + b
 }
 
 shadow test_division {
@@ -41,9 +41,9 @@ shadow test_division {
 }
 
 fn test_modulo() -> int {
-    let a: int = (% 10 3)
-    let b: int = (% 15 4)
-    return (+ a b)
+    let a = (% 10 3)
+    let b = (% 15 4)
+    return a + b
 }
 
 shadow test_modulo {
@@ -51,7 +51,7 @@ shadow test_modulo {
 }
 
 fn test_nested_arithmetic() -> int {
-    return (+ (* 2 3) (- 10 4))
+    return (+ 2 3) * (- 10 4)
 }
 
 shadow test_nested_arithmetic {
@@ -59,7 +59,7 @@ shadow test_nested_arithmetic {
 }
 
 fn test_complex_expression() -> int {
-    return (* (+ 2 3) (- 10 3))
+    return (+ 2 3) * (- 10 3)
 }
 
 shadow test_complex_expression {

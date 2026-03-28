@@ -8,25 +8,25 @@ extern fn path_dirname(path: string) -> string
 fn main() -> int {
     (println "Testing path operations")
     
-    let mut p1: string = ""
+    let mut p1 = ""
     unsafe {
         set p1 (path_normalize "/foo/bar")
     }
     (println p1)
     
-    let mut p2: string = ""
+    let mut p2 = ""
     unsafe {
         set p2 (path_join "foo" "bar")
     }
     (println p2)
     
-    let mut p3: string = ""
+    let mut p3 = ""
     unsafe {
         set p3 (path_basename "/foo/bar/baz.txt")
     }
     (println p3)
     
-    let mut p4: string = ""
+    let mut p4 = ""
     unsafe {
         set p4 (path_dirname "/foo/bar/baz.txt")
     }

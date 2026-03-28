@@ -42,14 +42,14 @@ pub enum Status {
 
 fn main() -> int {
     # Test public function
-    let result: int = (public_add 5 7)
-    
+    let result = (public_add 5 7)
+
     # Test struct creation
     let p: Point = Point { x: result, y: 20 }
-    
+
     # Test enum
     let s: Status = Status.Active
-    
+
     (println p.x)
     return 0
 }
@@ -57,11 +57,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-
-
-
-
-
-
-
-

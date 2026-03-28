@@ -44,8 +44,8 @@ shadow helper {
 }
 
 pub fn distance_squared(p1: Point, p2: Point) -> int {
-    let dx: int = (- p2.x p1.x)
-    let dy: int = (- p2.y p1.y)
+    let dx = (- p2.x p1.x)
+    let dy = (- p2.y p1.y)
     return (+ (* dx dx) (* dy dy))
 }
 
@@ -63,43 +63,43 @@ extern fn ___module_has_ffi_test_math() -> bool
 
 fn main() -> int {
     (println "=== Module Introspection Test ===")
-    
+
     # Test module safety flags
-    let is_unsafe: bool = (___module_is_unsafe_test_math)
-    let has_ffi: bool = (___module_has_ffi_test_math)
-    
+    let is_unsafe = (___module_is_unsafe_test_math)
+    let has_ffi = (___module_has_ffi_test_math)
+
     (print "Module is unsafe: ")
     (println (cond (is_unsafe "true") (else "false")))
-    
+
     (print "Module has FFI: ")
     (println (cond (has_ffi "true") (else "false")))
-    
+
     # Test exported functions count
-    let func_count: int = (___module_function_count_test_math)
-    
+    let func_count = (___module_function_count_test_math)
+
     (print "Exported functions count: ")
     (println (int_to_string func_count))
-    
+
     (println "Expected: 3 functions (add, multiply, distance_squared)")
-    if (!= func_count 3) {
+    if func_count != 3 {
         (println "ERROR: Function count mismatch!")
         return 1
     }
-    
+
     # Test exported structs count
-    let struct_count: int = (___module_struct_count_test_math)
-    
+    let struct_count = (___module_struct_count_test_math)
+
     (print "Exported structs count: ")
     (println (int_to_string struct_count))
-    
+
     (println "Expected: 2 structs (Point, Vector)")
-    if (!= struct_count 2) {
+    if struct_count != 2 {
         (println "ERROR: Struct count mismatch!")
         return 1
     }
-    
+
     (println "✓ All module introspection tests passed!")
-    
+
     return 0
 }
 

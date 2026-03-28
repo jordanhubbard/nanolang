@@ -3,8 +3,8 @@
 /* Test 1: Simple tuple literal and index access */
 fn test_basic_tuple() -> int {
     let t: (int, int) = (10, 20)
-    let a: int = t.0
-    let b: int = t.1
+    let a = t.0
+    let b = t.1
     return (+ a b)
 }
 
@@ -15,8 +15,8 @@ shadow test_basic_tuple {
 /* Test 2: Tuple with mixed types */
 fn test_mixed_tuple() -> int {
     let t: (int, bool, int) = (42, true, 7)
-    let x: int = t.0
-    let flag: bool = t.1
+    let x = t.0
+    let flag = t.1
     if flag {
         return x
     } else {
@@ -41,8 +41,8 @@ shadow get_pair {
 
 /* Test 4: Division with quotient and remainder */
 fn divide_with_remainder(a: int, b: int) -> (int, int) {
-    let quotient: int = (/ a b)
-    let remainder: int = (% a b)
+    let quotient = (/ a b)
+    let remainder = (% a b)
     return (quotient, remainder)
 }
 
@@ -65,8 +65,8 @@ shadow test_string_tuple {
 /* Test 6: Nested tuple access */
 fn test_tuple_in_arithmetic() -> int {
     let coords: (int, int) = (3, 4)
-    let sum: int = (+ coords.0 coords.1)
-    let product: int = (* coords.0 coords.1)
+    let sum = (+ coords.0 coords.1)
+    let product = (* coords.0 coords.1)
     return (+ sum product)
 }
 
@@ -87,8 +87,8 @@ shadow test_three_tuple {
 /* Test 8: Tuple assignment to variables */
 fn test_tuple_variables() -> int {
     let pair: (int, int) = (50, 30)
-    let first: int = pair.0
-    let second: int = pair.1
+    let first = pair.0
+    let second = pair.1
     return (- first second)
 }
 
@@ -99,8 +99,8 @@ shadow test_tuple_variables {
 /* Test 9: Using tuples in conditions */
 fn test_tuple_condition() -> int {
     let data: (bool, int, int) = (true, 100, 999)
-    let flag: bool = data.0
-    
+    let flag = data.0
+
     if flag {
         return data.1
     } else {
@@ -115,8 +115,8 @@ shadow test_tuple_condition {
 /* Test 10: Four element tuple */
 fn test_four_tuple() -> bool {
     let t: (int, int, int, int) = (1, 2, 3, 4)
-    let sum: int = (+ (+ t.0 t.1) (+ t.2 t.3))
-    return (== sum 10)
+    let sum = (+ (+ t.0 t.1) (+ t.2 t.3))
+    return sum == 10
 }
 
 shadow test_four_tuple {

@@ -2,7 +2,7 @@
 # Expected warning: Functions 'calculate_sum' and 'calcuate_sum' are very similar
 
 fn calculate_sum(a: int, b: int) -> int {
-    return (+ a b)
+    return a + b
 }
 
 shadow calculate_sum {
@@ -11,7 +11,7 @@ shadow calculate_sum {
 
 # Typo - missing 'l' in "calculate"
 fn calcuate_sum(x: int, y: int) -> int {
-    return (+ x y)
+    return x + y
 }
 
 shadow calcuate_sum {
@@ -19,9 +19,9 @@ shadow calcuate_sum {
 }
 
 fn main() -> int {
-    let result1: int = (calculate_sum 10 20)
-    let result2: int = (calcuate_sum 5 15)
-    return (+ result1 result2)
+    let result1 = (calculate_sum 10 20)
+    let result2 = (calcuate_sum 5 15)
+    return result1 + result2
 }
 
 shadow main {

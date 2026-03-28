@@ -1,7 +1,7 @@
 /* Test: pipe operator |> — lhs |> f desugars to (f lhs) */
 
 fn double_val(x: int) -> int {
-    return (* x 2)
+    return x * 2
 }
 
 shadow double_val {
@@ -9,7 +9,7 @@ shadow double_val {
 }
 
 fn increment(x: int) -> int {
-    return (+ x 1)
+    return x + 1
 }
 
 shadow increment {
@@ -17,7 +17,7 @@ shadow increment {
 }
 
 fn negate(x: int) -> int {
-    return (- 0 x)
+    return 0 - x
 }
 
 shadow negate {
@@ -34,19 +34,19 @@ shadow make_greeting {
 
 fn main() -> int {
     /* Simple pipe: 3 |> double_val == 6 */
-    let a: int = 3 |> double_val
+    let a = 3 |> double_val
     assert (== a 6)
 
     /* Chained pipe: 3 |> double_val |> increment == 7 */
-    let b: int = 3 |> double_val |> increment
+    let b = 3 |> double_val |> increment
     assert (== b 7)
 
     /* Pipe then negate: 5 |> double_val |> negate == -10 */
-    let c: int = 5 |> double_val |> negate
+    let c = 5 |> double_val |> negate
     assert (== c -10)
 
     /* Pipe with string */
-    let greeting: string = "NanoLang" |> make_greeting
+    let greeting = "NanoLang" |> make_greeting
     assert (str_contains greeting "NanoLang")
 
     (println "pipe operator tests passed")

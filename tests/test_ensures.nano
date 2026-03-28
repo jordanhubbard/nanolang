@@ -4,7 +4,7 @@
 fn double(x: int) -> int
     ensures (== result (* x 2))
 {
-    return (* x 2)
+    return x * 2
 }
 
 shadow double {
@@ -19,10 +19,10 @@ fn factorial(n: int) -> int
     ensures (>= result 1)
     ensures (or (== n 0) (>= result n))
 {
-    if (== n 0) {
+    if n == 0 {
         return 1
     } else {
-        return (* n (factorial (- n 1)))
+        return n * (factorial (n - 1))
     }
 }
 
@@ -38,7 +38,7 @@ fn maximum(a: int, b: int) -> int
     ensures (>= result b)
     ensures (or (== result a) (== result b))
 {
-    if (> a b) {
+    if a > b {
         return a
     } else {
         return b
@@ -55,7 +55,7 @@ shadow maximum {
 fn increment(x: int) -> int
     ensures (> result x)
 {
-    return (+ x 1)
+    return x + 1
 }
 
 shadow increment {
@@ -78,11 +78,11 @@ shadow safe_divide {
 }
 
 fn main() -> int {
-    let d: int = (double 21)
-    let f: int = (factorial 5)
-    let m: int = (maximum 10 20)
-    let i: int = (increment 99)
-    let s: int = (safe_divide 100 5)
+    let d = (double 21)
+    let f = (factorial 5)
+    let m = (maximum 10 20)
+    let i = (increment 99)
+    let s = (safe_divide 100 5)
 
     assert (== d 42)
     assert (== f 120)

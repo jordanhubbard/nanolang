@@ -1,7 +1,7 @@
 # Test assigning result of function call that returns a function
 
 fn double(x: int) -> int {
-    return (* x 2)
+    return x * 2
 }
 
 shadow double {
@@ -21,7 +21,7 @@ shadow get_double {
 
 fn main() -> int {
     let f: fn(int) -> int = (get_double)
-    let result: int = (f 5)
+    let result = (f 5)
     (print "Result: ")
     (println result)
     return 0

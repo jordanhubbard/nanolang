@@ -7,7 +7,7 @@ union Result<T, E> {
 
 /* Test function: Division that can fail */
 fn divide(a: int, b: int) -> Result<int, string> {
-    if (== b 0) {
+    if b == 0 {
         return Result.Err { error: "Division by zero" }
     }
     return Result.Ok { value: (/ a b) }
@@ -17,7 +17,7 @@ shadow divide {
     /* Test successful division */
     let result1: Result<int, string> = (divide 10 2)
     assert true  /* Verify it compiles */
-    
+
     /* Test division by zero */
     let result2: Result<int, string> = (divide 10 0)
     assert true  /* Verify it compiles */
@@ -26,7 +26,7 @@ shadow divide {
 /* Test function: Parse integer from string (simulated) */
 fn parse_int(s: string) -> Result<int, string> {
     /* Simplified simulation - in real implementation would parse string */
-    if (== s "42") {
+    if s == "42" {
         return Result.Ok { value: 42 }
     }
     return Result.Err { error: "Invalid number" }
@@ -35,7 +35,7 @@ fn parse_int(s: string) -> Result<int, string> {
 shadow parse_int {
     let result1: Result<int, string> = (parse_int "42")
     assert true
-    
+
     let result2: Result<int, string> = (parse_int "invalid")
     assert true
 }
@@ -43,10 +43,10 @@ shadow parse_int {
 /* Test function: File operation simulation */
 fn read_file(path: string) -> Result<string, int> {
     /* Simulate file read - error codes as integers */
-    if (== path "exists.txt") {
+    if path == "exists.txt" {
         return Result.Ok { value: "file contents" }
     }
-    if (== path "notfound.txt") {
+    if path == "notfound.txt" {
         return Result.Err { error: 404 }
     }
     return Result.Err { error: 500 }
@@ -61,7 +61,7 @@ shadow read_file {
 
 /* Test function: Nested Results */
 fn validate_positive(n: int) -> Result<int, string> {
-    if (> n 0) {
+    if n > 0 {
         return Result.Ok { value: n }
     }
     return Result.Err { error: "Number must be positive" }
@@ -69,14 +69,14 @@ fn validate_positive(n: int) -> Result<int, string> {
 
 fn safe_divide_positive(a: int, b: int) -> Result<int, string> {
     /* This would benefit from monadic bind in a real implementation */
-    if (<= b 0) {
+    if b <= 0 {
         return Result.Err { error: "Divisor must be positive" }
     }
-    if (== b 0) {
+    if b == 0 {
         return Result.Err { error: "Division by zero" }
     }
-    let result: int = (/ a b)
-    if (<= result 0) {
+    let result = (/ a b)
+    if result <= 0 {
         return Result.Err { error: "Result must be positive" }
     }
     return Result.Ok { value: result }
@@ -111,26 +111,26 @@ shadow test_float_result {
 
 fn main() -> int {
     println("Testing stdlib Result<T, E> type")
-    
+
     /* Test with int/string */
     let r1: Result<int, string> = (divide 10 2)
     println("divide(10, 2) created successfully")
-    
+
     let r2: Result<int, string> = (divide 10 0)
     println("divide(10, 0) created successfully")
-    
+
     /* Test with string/int */
     let r3: Result<string, int> = (read_file "exists.txt")
     println("read_file created successfully")
-    
+
     /* Test with bool/string */
     let r4: Result<bool, string> = (test_bool_result)
     println("bool result created successfully")
-    
+
     /* Test with float/int */
     let r5: Result<float, int> = (test_float_result)
     println("float result created successfully")
-    
+
     println("All Result type tests passed!")
     return 0
 }

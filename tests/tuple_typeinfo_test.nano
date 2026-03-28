@@ -3,10 +3,10 @@
 /* Test 1: Mixed type tuple with bool */
 fn test_mixed_types() -> int {
     let t: (int, bool, int) = (42, true, 7)
-    let x: int = t.0
-    let flag: bool = t.1
-    let y: int = t.2
-    
+    let x = t.0
+    let flag = t.1
+    let y = t.2
+
     if flag {
         return (+ x y)
     } else {
@@ -35,18 +35,18 @@ fn test_float_tuple() -> float {
 }
 
 shadow test_float_tuple {
-    let result: float = (test_float_tuple)
+    let result = (test_float_tuple)
     assert (== result 3.14)
 }
 
 /* Test 4: Nested tuple operations */
 fn test_nested_ops() -> int {
     let coords: (int, int, bool) = (3, 4, true)
-    let active: bool = coords.2
-    
+    let active = coords.2
+
     if active {
-        let x: int = coords.0
-        let y: int = coords.1
+        let x = coords.0
+        let y = coords.1
         return (* x y)
     } else {
         return 0
@@ -60,11 +60,11 @@ shadow test_nested_ops {
 /* Test 5: Four element tuple with mixed types */
 fn test_four_mixed() -> bool {
     let t: (int, bool, string, float) = (42, true, "test", 2.5)
-    let num: int = t.0
-    let flag: bool = t.1
-    let text: string = t.2
-    let fval: float = t.3
-    
+    let num = t.0
+    let flag = t.1
+    let text = t.2
+    let fval = t.3
+
     return (and flag (== num 42))
 }
 

@@ -6,7 +6,7 @@ union Result<T, E> {
 }
 
 fn divide(a: int, b: int) -> Result<int, string> {
-    if (== b 0) {
+    if b == 0 {
         return Result.Err { error: "Division by zero" }
     }
     return Result.Ok { value: (/ a b) }

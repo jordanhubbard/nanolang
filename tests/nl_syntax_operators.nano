@@ -156,7 +156,7 @@ shadow test_not_false {
 /* ==== PART 4: Unary Operators ==== */
 
 fn test_negate() -> int {
-    let x: int = 42
+    let x = 42
     return (- 0 x)
 }
 
@@ -191,7 +191,7 @@ shadow test_nested_arithmetic {
 }
 
 fn test_chained_comparison() -> bool {
-    let x: int = 5
+    let x = 5
     return (and (> x 0) (< x 10))
 }
 
@@ -200,9 +200,9 @@ shadow test_chained_comparison {
 }
 
 fn test_complex_logic() -> bool {
-    let a: bool = true
-    let b: bool = false
-    let c: bool = true
+    let a = true
+    let b = false
+    let c = true
     return (or (and a b) (and a c))
 }
 

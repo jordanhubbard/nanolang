@@ -14,7 +14,7 @@ fn test_diagnostic_creation() -> int {
         line: 10,
         column: 5
     }
-    
+
     let diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_PARSER,
@@ -22,7 +22,7 @@ fn test_diagnostic_creation() -> int {
         message: "Unexpected token",
         location: loc
     }
-    
+
     /* Validate diagnostic fields */
     assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
     assert (== diag.phase CompilerPhase.PHASE_PARSER)
@@ -30,7 +30,7 @@ fn test_diagnostic_creation() -> int {
     assert (== diag.message "Unexpected token")
     assert (== diag.location.line 10)
     assert (== diag.location.column 5)
-    
+
     return 0
 }
 
@@ -46,7 +46,7 @@ fn test_severity_levels() -> int {
         line: 1,
         column: 1
     }
-    
+
     let error: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_LEXER,
@@ -54,7 +54,7 @@ fn test_severity_levels() -> int {
         message: "Invalid character",
         location: loc
     }
-    
+
     let warning: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_WARNING,
         phase: CompilerPhase.PHASE_TYPECHECK,
@@ -62,7 +62,7 @@ fn test_severity_levels() -> int {
         message: "Unused variable",
         location: loc
     }
-    
+
     let info: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_INFO,
         phase: CompilerPhase.PHASE_TRANSPILER,
@@ -70,11 +70,11 @@ fn test_severity_levels() -> int {
         message: "Optimization applied",
         location: loc
     }
-    
+
     assert (== error.severity DiagnosticSeverity.DIAG_ERROR)
     assert (== warning.severity DiagnosticSeverity.DIAG_WARNING)
     assert (== info.severity DiagnosticSeverity.DIAG_INFO)
-    
+
     return 0
 }
 
@@ -90,7 +90,7 @@ fn test_compiler_phases() -> int {
         line: 5,
         column: 10
     }
-    
+
     let lex_diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_LEXER,
@@ -98,7 +98,7 @@ fn test_compiler_phases() -> int {
         message: "Lexer error",
         location: loc
     }
-    
+
     let parse_diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_PARSER,
@@ -106,7 +106,7 @@ fn test_compiler_phases() -> int {
         message: "Parser error",
         location: loc
     }
-    
+
     let type_diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_TYPECHECK,
@@ -114,7 +114,7 @@ fn test_compiler_phases() -> int {
         message: "Type error",
         location: loc
     }
-    
+
     let trans_diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_TRANSPILER,
@@ -122,12 +122,12 @@ fn test_compiler_phases() -> int {
         message: "Codegen error",
         location: loc
     }
-    
+
     assert (== lex_diag.phase CompilerPhase.PHASE_LEXER)
     assert (== parse_diag.phase CompilerPhase.PHASE_PARSER)
     assert (== type_diag.phase CompilerPhase.PHASE_TYPECHECK)
     assert (== trans_diag.phase CompilerPhase.PHASE_TRANSPILER)
-    
+
     return 0
 }
 
@@ -143,31 +143,31 @@ fn test_source_locations() -> int {
         line: 1,
         column: 1
     }
-    
+
     let loc2: CompilerSourceLocation = CompilerSourceLocation {
         file: "utils.nano",
         line: 100,
         column: 50
     }
-    
+
     let loc3: CompilerSourceLocation = CompilerSourceLocation {
         file: "test.nano",
         line: 42,
         column: 13
     }
-    
+
     assert (== loc1.file "main.nano")
     assert (== loc1.line 1)
     assert (== loc1.column 1)
-    
+
     assert (== loc2.file "utils.nano")
     assert (== loc2.line 100)
     assert (== loc2.column 50)
-    
+
     assert (== loc3.file "test.nano")
     assert (== loc3.line 42)
     assert (== loc3.column 13)
-    
+
     return 0
 }
 
@@ -183,7 +183,7 @@ fn test_error_codes() -> int {
         line: 1,
         column: 1
     }
-    
+
     /* Test various error codes */
     let diag1: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
@@ -193,7 +193,7 @@ fn test_error_codes() -> int {
         location: loc
     }
     assert (== diag1.code "E001")
-    
+
     let diag2: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_PARSER,
@@ -202,7 +202,7 @@ fn test_error_codes() -> int {
         location: loc
     }
     assert (== diag2.code "W001")
-    
+
     return 0
 }
 
@@ -218,7 +218,7 @@ fn test_message_formats() -> int {
         line: 10,
         column: 5
     }
-    
+
     /* Test various message formats */
     let diag1: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
@@ -228,7 +228,7 @@ fn test_message_formats() -> int {
         location: loc
     }
     assert (== diag1.message "Unexpected token")
-    
+
     let diag2: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_TYPECHECK,
@@ -237,7 +237,7 @@ fn test_message_formats() -> int {
         location: loc
     }
     assert (str_contains diag2.message "Type mismatch")
-    
+
     return 0
 }
 
@@ -255,7 +255,7 @@ fn test_multiline_locations() -> int {
     }
     assert (== loc1.line 1)
     assert (== loc1.column 1)
-    
+
     let loc2: CompilerSourceLocation = CompilerSourceLocation {
         file: "test.nano",
         line: 100,
@@ -263,7 +263,7 @@ fn test_multiline_locations() -> int {
     }
     assert (== loc2.line 100)
     assert (== loc2.column 50)
-    
+
     let loc3: CompilerSourceLocation = CompilerSourceLocation {
         file: "test.nano",
         line: 10000,
@@ -271,7 +271,7 @@ fn test_multiline_locations() -> int {
     }
     assert (== loc3.line 10000)
     assert (== loc3.column 25)
-    
+
     return 0
 }
 
@@ -294,8 +294,8 @@ fn test_format_diagnostics_output() -> int {
     }
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     (diag_list_add diags diag)
-    let source: string = "let count: int = 0\nlet result: int = (+ countr 1)\n"
-    let formatted: string = (format_diagnostics_elm_style diags source)
+    let source = "let count: int = 0\nlet result: int = (+ countr 1)\n"
+    let formatted = (format_diagnostics_elm_style diags source)
     assert (str_contains formatted "UNDEFINED IDENTIFIER")
     assert (str_contains formatted "countr")
     assert (str_contains formatted "Hint")
@@ -312,7 +312,7 @@ fn test_encoded_payload_roundtrip() -> int {
         line: 3,
         column: 12
     }
-    let payload: string = (encode_type_mismatch_message "function_argument" "int" "string" "Argument 1 of add")
+    let payload = (encode_type_mismatch_message "function_argument" "int" "string" "Argument 1 of add")
     let diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
         phase: CompilerPhase.PHASE_TYPECHECK,
@@ -322,8 +322,8 @@ fn test_encoded_payload_roundtrip() -> int {
     }
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     (diag_list_add diags diag)
-    let source: string = "fn add(x: int, y: int) -> int {\n    return (+ x y)\n}\nlet result: int = (add 1 \"2\")\n"
-    let formatted: string = (format_diagnostics_elm_style diags source)
+    let source = "fn add(x: int, y: int) -> int {\n    return (+ x y)\n}\nlet result: int = (add 1 \"2\")\n"
+    let formatted = (format_diagnostics_elm_style diags source)
     assert (str_contains formatted "Argument 1 of add")
     assert (str_contains formatted "Convert the argument")
     return 0
@@ -361,4 +361,3 @@ shadow main {
  * ✓ Handles various message formats
  * ✓ Tracks multi-line and multi-column positions
  */
-

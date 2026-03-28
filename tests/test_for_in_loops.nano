@@ -1,9 +1,9 @@
 # Test for-in loop transpilation
 
 fn sum_range(n: int) -> int {
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 0 n) {
-        set sum (+ sum i)
+        set sum (sum + i)
     }
     return sum
 }
@@ -17,10 +17,10 @@ shadow sum_range {
 }
 
 fn count_even(n: int) -> int {
-    let mut count: int = 0
+    let mut count = 0
     for i in (range 0 n) {
         if (== (% i 2) 0) {
-            set count (+ count 1)
+            set count (count + 1)
         }
     }
     return count
@@ -34,10 +34,10 @@ shadow count_even {
 }
 
 fn nested_loops(n: int) -> int {
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 0 n) {
         for j in (range 0 n) {
-            set sum (+ sum (+ i j))
+            set sum (sum + i + j)
         }
     }
     return sum
@@ -52,18 +52,18 @@ shadow nested_loops {
 
 fn array_iteration() -> int {
     let mut arr: array<int> = (array_new 5 0)
-    
+
     # Fill array with indices
     for i in (range 0 5) {
         (array_set arr i i)
     }
-    
+
     # Sum array elements
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 0 (array_length arr)) {
-        set sum (+ sum (at arr i))
+        set sum (sum + (at arr i))
     }
-    
+
     return sum
 }
 
@@ -72,9 +72,9 @@ shadow array_iteration {
 }
 
 fn range_start_end() -> int {
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 5 10) {
-        set sum (+ sum i)
+        set sum (sum + i)
     }
     return sum
 }
@@ -85,22 +85,22 @@ shadow range_start_end {
 
 fn main() -> int {
     (println "Testing for-in loops...")
-    
-    let sum: int = (sum_range 5)
-    (println (+ "sum_range(5) = " (int_to_string sum)))
-    
-    let evens: int = (count_even 10)
-    (println (+ "count_even(10) = " (int_to_string evens)))
-    
-    let nested: int = (nested_loops 3)
-    (println (+ "nested_loops(3) = " (int_to_string nested)))
-    
-    let arr_sum: int = (array_iteration)
-    (println (+ "array_iteration() = " (int_to_string arr_sum)))
-    
-    let range_sum: int = (range_start_end)
-    (println (+ "range_start_end() = " (int_to_string range_sum)))
-    
+
+    let sum = (sum_range 5)
+    (println f"sum_range(5) = {sum}")
+
+    let evens = (count_even 10)
+    (println f"count_even(10) = {evens}")
+
+    let nested = (nested_loops 3)
+    (println f"nested_loops(3) = {nested}")
+
+    let arr_sum = (array_iteration)
+    (println f"array_iteration() = {arr_sum}")
+
+    let range_sum = (range_start_end)
+    (println f"range_start_end() = {range_sum}")
+
     (println "All for-in loop tests passed!")
     return 0
 }

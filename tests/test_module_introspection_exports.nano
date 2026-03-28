@@ -12,19 +12,19 @@ fn main() -> int {
 }
 
 shadow main {
-    let mut fn_count: int = 0
+    let mut fn_count = 0
     unsafe { set fn_count (___module_function_count_fixture_module_exports) }
     assert (== fn_count 1)
 
-    let mut fn0: string = ""
+    let mut fn0 = ""
     unsafe { set fn0 (___module_function_name_fixture_module_exports 0) }
     assert (== fn0 "exported_fn")
 
-    let mut struct_count: int = 0
+    let mut struct_count = 0
     unsafe { set struct_count (___module_struct_count_fixture_module_exports) }
     assert (== struct_count 1)
 
-    let mut s0: string = ""
+    let mut s0 = ""
     unsafe { set s0 (___module_struct_name_fixture_module_exports 0) }
     assert (== s0 "ExportedStruct")
 }

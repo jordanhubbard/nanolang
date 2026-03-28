@@ -10,9 +10,9 @@
 
 /* Test 1.1: Int type */
 fn test_int_basic() -> int {
-    let a: int = 42
-    let b: int = -17
-    let c: int = 0
+    let a = 42
+    let b = -17
+    let c = 0
     return (+ (+ a b) c)
 }
 
@@ -22,9 +22,9 @@ shadow test_int_basic {
 
 /* Test 1.2: Float type */
 fn test_float_basic() -> float {
-    let a: float = 2.5
-    let b: float = 3.5
-    let c: float = 0.0
+    let a = 2.5
+    let b = 3.5
+    let c = 0.0
     return (+ (+ a b) c)
 }
 
@@ -34,8 +34,8 @@ shadow test_float_basic {
 
 /* Test 1.3: Bool type */
 fn test_bool_basic() -> bool {
-    let a: bool = true
-    let b: bool = false
+    let a = true
+    let b = false
     return (and a (not b))
 }
 
@@ -45,8 +45,8 @@ shadow test_bool_basic {
 
 /* Test 1.4: String type */
 fn test_string_basic() -> bool {
-    let a: string = "hello"
-    let b: string = "world"
+    let a = "hello"
+    let b = "world"
     return (and (== a "hello") (== b "world"))
 }
 
@@ -56,7 +56,7 @@ shadow test_string_basic {
 
 /* Test 1.5: Void return type */
 fn test_void_basic() -> void {
-    let x: int = 42
+    let x = 42
     return
 }
 
@@ -485,15 +485,15 @@ fn test_array_of_array_int() -> int {
     let mut inner1: array<int> = []
     set inner1 (array_push inner1 1)
     set inner1 (array_push inner1 2)
-    
+
     let mut inner2: array<int> = []
     set inner2 (array_push inner2 3)
     set inner2 (array_push inner2 4)
-    
+
     let mut outer: array<array<int>> = []
     set outer (array_push outer inner1)
     set outer (array_push outer inner2)
-    
+
     let row0: array<int> = (at outer 0)
     let row1: array<int> = (at outer 1)
     return (+ (at row0 0) (at row1 1))
@@ -658,8 +658,8 @@ shadow test_function_tuple_param {
 
 /* Test 8.7: Function taking array */
 fn sum_array(arr: array<int>) -> int {
-    let a: int = (at arr 0)
-    let b: int = (at arr 1)
+    let a = (at arr 0)
+    let b = (at arr 1)
     return (+ a b)
 }
 
@@ -700,13 +700,13 @@ shadow test_function_mixed_params {
 fn test_triple_nested_array() -> int {
     let mut l1: array<int> = []
     set l1 (array_push l1 1)
-    
+
     let mut l2: array<array<int>> = []
     set l2 (array_push l2 l1)
-    
+
     let mut l3: array<array<array<int>>> = []
     set l3 (array_push l3 l2)
-    
+
     let level2: array<array<int>> = (at l3 0)
     let level1: array<int> = (at level2 0)
     return (at level1 0)
@@ -728,11 +728,11 @@ fn test_complex_struct() -> int {
     let mut vals: array<int> = []
     set vals (array_push vals 5)
     let p: Point2D = Point2D { x: 10, y: 20 }
-    let c: ComplexData = ComplexData { 
-        id: 1, 
-        coords: (2, 3), 
-        values: vals, 
-        point: p 
+    let c: ComplexData = ComplexData {
+        id: 1,
+        coords: (2, 3),
+        values: vals,
+        point: p
     }
     return (+ (+ c.id (+ c.coords.0 c.coords.1)) (+ (at c.values 0) (+ c.point.x c.point.y)))
 }
@@ -746,16 +746,16 @@ shadow test_complex_struct {
     let mut vals1: array<int> = []
     set vals1 (array_push vals1 100)
     let p1: Point2D = Point2D { x: 1, y: 2 }
-    let c1: ComplexData = ComplexData { 
-        id: 10, 
-        coords: (3, 4), 
-        values: vals1, 
-        point: p1 
+    let c1: ComplexData = ComplexData {
+        id: 10,
+        coords: (3, 4),
+        values: vals1,
+        point: p1
     }
-    
+
     let mut arr: array<ComplexData> = []
     set arr (array_push arr c1)
-    
+
     let item: ComplexData = (at arr 0)
     return (+ item.id (at item.values 0))
 }
@@ -769,12 +769,12 @@ shadow test_array_complex_struct {
     let mut arr: array<int> = []
     set arr (array_push arr 7)
     let p: Point2D = Point2D { x: 8, y: 9 }
-    let t: (int, float, bool, string, array<int>, Point2D) = 
+    let t: (int, float, bool, string, array<int>, Point2D) =
         (1, 2.0, true, "test", arr, p)
-    
+
     let arr_val: array<int> = t.4
     let point_val: Point2D = t.5
-    let sum: int = (+ (+ t.0 (at arr_val 0)) (+ point_val.x point_val.y))
+    let sum = (+ (+ t.0 (at arr_val 0)) (+ point_val.x point_val.y))
     return sum
 }
 
@@ -787,11 +787,11 @@ shadow test_mega_tuple {
     let mut vals: array<int> = []
     set vals (array_push vals id)
     let p: Point2D = Point2D { x: id, y: (+ id 1) }
-    return ComplexData { 
-        id: id, 
-        coords: (id, (+ id 1)), 
-        values: vals, 
-        point: p 
+    return ComplexData {
+        id: id,
+        coords: (id, (+ id 1)),
+        values: vals,
+        point: p
     }
 }
 

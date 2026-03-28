@@ -23,9 +23,9 @@ from "modules/proptest/proptest.nano" import int_range, int_pair, forall_int_wit
 
 /* Arithmetic determinism: same inputs, same outputs */
 fn prop_arith_determinism(a: int, b: int) -> bool {
-    let r1: int = (+ a b)
-    let r2: int = (+ a b)
-    return (== r1 r2)
+    let r1 = a + b
+    let r2 = a + b
+    return r1 == r2
 }
 
 shadow prop_arith_determinism {
@@ -37,9 +37,9 @@ shadow prop_arith_determinism {
 
 /* Multiplication determinism */
 fn prop_mul_determinism(a: int, b: int) -> bool {
-    let r1: int = (* a b)
-    let r2: int = (* a b)
-    return (== r1 r2)
+    let r1 = (* a b)
+    let r2 = (* a b)
+    return r1 == r2
 }
 
 shadow prop_mul_determinism {
@@ -50,12 +50,12 @@ shadow prop_mul_determinism {
 
 /* Division determinism (safe: divisor != 0) */
 fn prop_div_determinism(a: int, b: int) -> bool {
-    if (== b 0) {
+    if b == 0 {
         return true
     }
-    let r1: int = (/ a b)
-    let r2: int = (/ a b)
-    return (== r1 r2)
+    let r1 = (/ a b)
+    let r2 = (/ a b)
+    return r1 == r2
 }
 
 shadow prop_div_determinism {
@@ -66,9 +66,9 @@ shadow prop_div_determinism {
 
 /* String concatenation determinism */
 fn prop_strcat_determinism(s1: string, s2: string) -> bool {
-    let r1: string = (+ s1 s2)
-    let r2: string = (+ s1 s2)
-    return (== r1 r2)
+    let r1 = (+ s1 s2)
+    let r2 = (+ s1 s2)
+    return r1 == r2
 }
 
 shadow prop_strcat_determinism {
@@ -79,10 +79,10 @@ shadow prop_strcat_determinism {
 
 /* Boolean logic determinism */
 fn prop_logic_determinism(a: bool, b: bool) -> bool {
-    let r1: bool = (and a b)
-    let r2: bool = (and a b)
-    let r3: bool = (or a b)
-    let r4: bool = (or a b)
+    let r1 = (and a b)
+    let r2 = (and a b)
+    let r3 = (or a b)
+    let r4 = (or a b)
     return (and (== r1 r2) (== r3 r4))
 }
 
@@ -95,10 +95,10 @@ shadow prop_logic_determinism {
 
 /* Comparison determinism */
 fn prop_cmp_determinism(a: int, b: int) -> bool {
-    let lt1: bool = (< a b)
-    let lt2: bool = (< a b)
-    let eq1: bool = (== a b)
-    let eq2: bool = (== a b)
+    let lt1 = a < b
+    let lt2 = a < b
+    let eq1 = a == b
+    let eq2 = a == b
     return (and (== lt1 lt2) (== eq1 eq2))
 }
 
@@ -110,19 +110,19 @@ shadow prop_cmp_determinism {
 
 /* If-expression determinism */
 fn prop_if_determinism(x: int) -> bool {
-    let mut r1: int = 0
-    if (> x 0) {
+    let mut r1 = 0
+    if x > 0 {
         set r1 x
     } else {
         set r1 (- 0 x)
     }
-    let mut r2: int = 0
-    if (> x 0) {
+    let mut r2 = 0
+    if x > 0 {
         set r2 x
     } else {
         set r2 (- 0 x)
     }
-    return (== r1 r2)
+    return r1 == r2
 }
 
 shadow prop_if_determinism {
@@ -133,19 +133,19 @@ shadow prop_if_determinism {
 
 /* While loop determinism */
 fn prop_while_determinism(n: int) -> bool {
-    let mut i: int = 0
-    let mut sum1: int = 0
-    while (< i n) {
-        set sum1 (+ sum1 i)
-        set i (+ i 1)
+    let mut i = 0
+    let mut sum1 = 0
+    while i < n {
+        set sum1 (sum1 + i)
+        set i (i + 1)
     }
     set i 0
-    let mut sum2: int = 0
-    while (< i n) {
-        set sum2 (+ sum2 i)
-        set i (+ i 1)
+    let mut sum2 = 0
+    while i < n {
+        set sum2 (sum2 + i)
+        set i (i + 1)
     }
-    return (== sum1 sum2)
+    return sum1 == sum2
 }
 
 shadow prop_while_determinism {
@@ -158,9 +158,9 @@ shadow prop_while_determinism {
 fn prop_array_determinism() -> bool {
     let arr1: array<int> = [1, 2, 3, 4, 5]
     let arr2: array<int> = [1, 2, 3, 4, 5]
-    let v1: int = (at arr1 2)
-    let v2: int = (at arr2 2)
-    return (== v1 v2)
+    let v1 = (at arr1 2)
+    let v2 = (at arr2 2)
+    return v1 == v2
 }
 
 shadow prop_array_determinism {
@@ -192,7 +192,7 @@ union IntResult {
 }
 
 fn safe_div(a: int, b: int) -> IntResult {
-    if (== b 0) {
+    if b == 0 {
         return IntResult.Err { message: "division by zero" }
     }
     return IntResult.Ok { value: (/ a b) }
@@ -200,7 +200,7 @@ fn safe_div(a: int, b: int) -> IntResult {
 
 shadow safe_div {
     let ok: IntResult = (safe_div 10 2)
-    let v: int = match ok { Ok(o) => o.value, Err(_e) => -1 }
+    let v = match ok { Ok(o) => o.value, Err(_e) => -1 }
     assert (== v 5)
 }
 
@@ -215,7 +215,7 @@ fn prop_union_determinism(a: int, b: int) -> bool {
         Ok(ok) => ok.value,
         Err(_err) => -1
     }
-    return (== v1 v2)
+    return v1 == v2
 }
 
 shadow prop_union_determinism {
@@ -235,12 +235,12 @@ fn prop_arith_type_preservation(a: int, b: int) -> bool {
     /* All arithmetic operations on int produce int.
      * If this compiles and runs, the typechecker has verified the types,
      * and the Coq proofs guarantee they're preserved at runtime. */
-    let sum: int = (+ a b)
-    let diff: int = (- a b)
-    let prod: int = (* a b)
+    let sum = a + b
+    let diff = a - b
+    let prod = (* a b)
     /* Verify the results are integers by doing arithmetic on them */
-    let check: int = (+ sum (+ diff prod))
-    return (== check (+ (+ a b) (+ (- a b) (* a b))))
+    let check = sum + diff + prod
+    return check == (a + b + (a - b) + (* a b))
 }
 
 shadow prop_arith_type_preservation {
@@ -250,12 +250,12 @@ shadow prop_arith_type_preservation {
 
 /* Comparison type preservation: int op int -> bool */
 fn prop_cmp_type_preservation(a: int, b: int) -> bool {
-    let lt: bool = (< a b)
-    let le: bool = (<= a b)
-    let gt: bool = (> a b)
-    let ge: bool = (>= a b)
-    let eq: bool = (== a b)
-    let ne: bool = (!= a b)
+    let lt = a < b
+    let le = a <= b
+    let gt = a > b
+    let ge = a >= b
+    let eq = a == b
+    let ne = a != b
     /* All comparisons produce bool - verified by typechecker + Coq */
     return (or lt (or le (or gt (or ge (or eq ne)))))
 }
@@ -267,10 +267,10 @@ shadow prop_cmp_type_preservation {
 
 /* String type preservation: string operations produce strings */
 fn prop_string_type_preservation(s: string) -> bool {
-    let _cat: string = (+ s s)
-    let len: int = (str_length s)
+    let _cat = (+ s s)
+    let len = (str_length s)
     /* _cat is string, len is int - verified */
-    return (>= len 0)
+    return len >= 0
 }
 
 shadow prop_string_type_preservation {
@@ -286,7 +286,7 @@ shadow prop_string_type_preservation {
 
 /* Addition is commutative: a + b = b + a */
 fn prop_add_commutative(a: int, b: int) -> bool {
-    return (== (+ a b) (+ b a))
+    return (a + b) == (b + a)
 }
 
 shadow prop_add_commutative {
@@ -309,7 +309,7 @@ shadow prop_mul_commutative {
 
 /* Addition identity: a + 0 = a */
 fn prop_add_identity(a: int) -> bool {
-    return (== (+ a 0) a)
+    return (a + 0) == a
 }
 
 shadow prop_add_identity {
@@ -342,7 +342,7 @@ shadow prop_mul_zero {
 
 /* Negation: a + (-a) = 0 */
 fn prop_negation(a: int) -> bool {
-    return (== (+ a (- 0 a)) 0)
+    return (a + (- 0 a)) == 0
 }
 
 shadow prop_negation {
@@ -382,10 +382,10 @@ fn double(x: int) -> int {
 
 fn map_array(arr: array<int>, f: fn(int) -> int) -> array<int> {
     let mut result: array<int> = []
-    let mut i: int = 0
-    while (< i (array_length arr)) {
+    let mut i = 0
+    while i < (array_length arr) {
         set result (array_push result (f (at arr i)))
-        set i (+ i 1)
+        set i (i + 1)
     }
     return result
 }
@@ -400,13 +400,13 @@ fn prop_map_determinism() -> bool {
     let input: array<int> = [1, 2, 3, 4, 5]
     let r1: array<int> = (map_array input double)
     let r2: array<int> = (map_array input double)
-    let mut i: int = 0
-    let mut all_equal: bool = true
-    while (< i (array_length r1)) {
-        if (!= (at r1 i) (at r2 i)) {
+    let mut i = 0
+    let mut all_equal = true
+    while i < (array_length r1) {
+        if (at r1 i) != (at r2 i) {
             set all_equal false
         }
-        set i (+ i 1)
+        set i (i + 1)
     }
     return all_equal
 }
@@ -417,17 +417,17 @@ shadow prop_map_determinism {
 
 /* Recursive function determinism */
 fn fibonacci(n: int) -> int {
-    if (<= n 1) {
+    if n <= 1 {
         return n
     }
-    let mut a: int = 0
-    let mut b: int = 1
-    let mut i: int = 2
-    while (<= i n) {
-        let temp: int = b
-        set b (+ a b)
+    let mut a = 0
+    let mut b = 1
+    let mut i = 2
+    while i <= n {
+        let temp = b
+        set b (a + b)
         set a temp
-        set i (+ i 1)
+        set i (i + 1)
     }
     return b
 }
@@ -435,9 +435,9 @@ fn fibonacci(n: int) -> int {
 shadow fibonacci { assert (== (fibonacci 10) 55) }
 
 fn prop_fib_determinism(n: int) -> bool {
-    let r1: int = (fibonacci n)
-    let r2: int = (fibonacci n)
-    return (== r1 r2)
+    let r1 = (fibonacci n)
+    let r2 = (fibonacci n)
+    return r1 == r2
 }
 
 shadow prop_fib_determinism {
@@ -490,15 +490,15 @@ fn pt_if_determinism(x: int) -> string {
 }
 
 fn pt_while_determinism(n: int) -> string {
-    if (< n 0) { return (prop_pass) }
-    if (> n 100) { return (prop_pass) }
+    if n < 0 { return (prop_pass) }
+    if n > 100 { return (prop_pass) }
     if (prop_while_determinism n) { return (prop_pass) }
     return (prop_fail "while not deterministic")
 }
 
 fn pt_fib_determinism(n: int) -> string {
-    if (< n 0) { return (prop_pass) }
-    if (> n 30) { return (prop_pass) }
+    if n < 0 { return (prop_pass) }
+    if n > 30 { return (prop_pass) }
     if (prop_fib_determinism n) { return (prop_pass) }
     return (prop_fail "fib not deterministic")
 }
@@ -566,10 +566,10 @@ shadow pt_cmp_type_preservation { assert (== (prop_pass) (pt_cmp_type_preservati
 
 /* --- Division consistency: a == (a/b)*b + (a%b) when b != 0 --- */
 fn pt_div_mod_consistency(a: int, b: int) -> string {
-    if (== b 0) { return (prop_pass) }
-    let q: int = (/ a b)
-    let r: int = (% a b)
-    if (== a (+ (* q b) r)) { return (prop_pass) }
+    if b == 0 { return (prop_pass) }
+    let q = (/ a b)
+    let r = (% a b)
+    if a == ((* q b) + r) { return (prop_pass) }
     return (prop_fail "div/mod inconsistent")
 }
 
@@ -602,7 +602,7 @@ fn main() -> int {
     let wide_pair: IntPairGenerator = (int_pair wide wide)
     let small_pair: IntPairGenerator = (int_pair small small)
 
-    let mut all_passed: bool = true
+    let mut all_passed = true
 
     /* --- Determinism (proven in Determinism.v) --- */
     print "--- Determinism Properties (Determinism.v) ---"

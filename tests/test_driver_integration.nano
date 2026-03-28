@@ -14,9 +14,9 @@ shadow test_simple_program {
 }
 
 fn test_with_variables() -> int {
-    let x: int = 10
-    let y: int = 20
-    return (+ x y)
+    let x = 10
+    let y = 20
+    return x + y
 }
 
 shadow test_with_variables {
@@ -24,8 +24,8 @@ shadow test_with_variables {
 }
 
 fn test_with_conditionals() -> int {
-    let x: int = 5
-    if (> x 0) {
+    let x = 5
+    if x > 0 {
         return 1
     } else {
         return 0
@@ -37,11 +37,11 @@ shadow test_with_conditionals {
 }
 
 fn test_with_loops() -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 5) {
-        set sum (+ sum i)
-        set i (+ i 1)
+    let mut sum = 0
+    let mut i = 0
+    while i < 5 {
+        set sum (sum + i)
+        set i (i + 1)
     }
     return sum
 }
@@ -51,10 +51,10 @@ shadow test_with_loops {
 }
 
 fn factorial(n: int) -> int {
-    if (<= n 1) {
+    if n <= 1 {
         return 1
     }
-    return (* n (factorial (- n 1)))
+    return n * (factorial (n - 1))
 }
 
 shadow factorial {
@@ -100,11 +100,11 @@ shadow test_with_unions {
 
 fn test_with_arrays() -> int {
     let arr: array<int> = [1, 2, 3, 4, 5]
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 5) {
-        set sum (+ sum (at arr i))
-        set i (+ i 1)
+    let mut sum = 0
+    let mut i = 0
+    while i < 5 {
+        set sum (sum + (at arr i))
+        set i (i + 1)
     }
     return sum
 }
@@ -119,7 +119,7 @@ fn test_first_class_functions() -> int {
 }
 
 fn double(x: int) -> int {
-    return (* x 2)
+    return x * 2
 }
 
 shadow double {
@@ -153,4 +153,3 @@ fn main() -> int {
     assert (== (test_first_class_functions) 42)
     return 0
 }
-

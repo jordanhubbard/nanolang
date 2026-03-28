@@ -18,11 +18,11 @@ shadow main {
 
     let ks: array<string> = (map_keys hm_si)
     assert (== (array_length ks) (map_size hm_si))
-    let mut i: int = 0
-    while (< i (array_length ks)) {
-        let k: string = (at ks i)
+    let mut i = 0
+    while i < (array_length ks) {
+        let k = (at ks i)
         assert (== (map_has hm_si k) true)
-        set i (+ i 1)
+        set i (i + 1)
     }
 
     let hm_is: HashMap<int, string> = (map_new)

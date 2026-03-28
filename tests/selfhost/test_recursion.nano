@@ -1,11 +1,11 @@
 /* Test recursive functions */
 
 fn factorial(n: int) -> int {
-    if (<= n 1) {
+    if n <= 1 {
         return 1
     } else {
-        let prev: int = (factorial (- n 1))
-        return (* n prev)
+        let prev = (factorial (n - 1))
+        return n * prev
     }
 }
 
@@ -16,12 +16,12 @@ shadow factorial {
 }
 
 fn fibonacci(n: int) -> int {
-    if (<= n 1) {
+    if n <= 1 {
         return n
     } else {
-        let a: int = (fibonacci (- n 1))
-        let b: int = (fibonacci (- n 2))
-        return (+ a b)
+        let a = (fibonacci (n - 1))
+        let b = (fibonacci (n - 2))
+        return a + b
     }
 }
 
@@ -32,10 +32,10 @@ shadow fibonacci {
 }
 
 fn sum_to_n(n: int) -> int {
-    if (<= n 0) {
+    if n <= 0 {
         return 0
     } else {
-        return (+ n (sum_to_n (- n 1)))
+        return n + (sum_to_n (n - 1))
     }
 }
 
@@ -45,10 +45,10 @@ shadow sum_to_n {
 }
 
 fn power(base: int, exp: int) -> int {
-    if (<= exp 0) {
+    if exp <= 0 {
         return 1
     } else {
-        return (* base (power base (- exp 1)))
+        return base * (power base (exp - 1))
     }
 }
 

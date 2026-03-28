@@ -5,17 +5,17 @@ extern fn get_argv(index: int) -> string
 
 fn main() -> int {
     (println "=== Testing get_argc/get_argv ===")
-    
-    let mut argc: int = 0
+
+    let mut argc = 0
     unsafe {
         set argc (get_argc)
     }
     (print "argc: ")
     (println (int_to_string argc))
-    
-    let mut i: int = 0
-    while (< i argc) {
-        let mut arg: string = ""
+
+    let mut i = 0
+    while i < argc {
+        let mut arg = ""
         unsafe {
             set arg (get_argv i)
         }
@@ -23,9 +23,9 @@ fn main() -> int {
         (print (int_to_string i))
         (print "]: ")
         (println arg)
-        set i (+ i 1)
+        set i (i + 1)
     }
-    
+
     (println "Test passed!")
     return 0
 }
@@ -33,4 +33,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

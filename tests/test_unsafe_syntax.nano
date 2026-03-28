@@ -3,8 +3,8 @@
 fn test_unsafe_syntax() -> int {
     /* Unsafe blocks can contain regular code */
     unsafe {
-        let x: int = 10
-        let y: int = 20
+        let x = 10
+        let y = 20
         return (+ x y)
     }
 }
@@ -14,11 +14,11 @@ shadow test_unsafe_syntax {
 }
 
 fn test_nested_unsafe() -> int {
-    let a: int = 5
+    let a = 5
     unsafe {
-        let b: int = 10
+        let b = 10
         unsafe {
-            let c: int = 15
+            let c = 15
             return (+ (+ a b) c)
         }
     }
@@ -30,8 +30,8 @@ shadow test_nested_unsafe {
 
 fn main() -> int {
     (println "Testing unsafe block syntax...")
-    let r1: int = (test_unsafe_syntax)
-    let r2: int = (test_nested_unsafe)
+    let r1 = (test_unsafe_syntax)
+    let r2 = (test_nested_unsafe)
     (print "Results: ")
     (print r1)
     (print ", ")

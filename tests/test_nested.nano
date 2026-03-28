@@ -9,8 +9,8 @@ shadow test_nested_call {
 }
 
 fn test_nested_expr() -> int {
-    let a: int = 10
-    let b: int = 20
+    let a = 10
+    let b = 20
     return (* (+ a b) 2)
 }
 
@@ -20,7 +20,7 @@ shadow test_nested_expr {
 
 fn main() -> int {
     (test_nested_call)
-    let result: int = (test_nested_expr)
+    let result = (test_nested_expr)
     (println (int_to_string result))
     return 0
 }

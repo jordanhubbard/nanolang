@@ -1,6 +1,6 @@
 /* Differential test: greater-than comparison */
 fn main() -> int {
-    if (> 10 5) {
+    if 10 > 5 {
         (println "yes")
     } else {
         (println "no")

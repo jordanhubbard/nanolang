@@ -6,12 +6,12 @@
 # This test ensures for-loops work correctly and don't cause segfaults
 
 fn test_for_loop() -> int {
-    let mut sum: int = 0
-    
+    let mut sum = 0
+
     for i in (range 1 11) {
-        set sum (+ sum i)
+        set sum (sum + i)
     }
-    
+
     return sum
 }
 
@@ -21,14 +21,14 @@ shadow test_for_loop {
 }
 
 fn test_nested_for() -> int {
-    let mut total: int = 0
-    
+    let mut total = 0
+
     for i in (range 1 4) {
         for j in (range 1 4) {
-            set total (+ total (* i j))
+            set total (total + (* i j))
         }
     }
-    
+
     return total
 }
 

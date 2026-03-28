@@ -25,8 +25,8 @@ shadow helper {
 
 # Public function using private helper
 pub fn process(val: int) -> int {
-    let doubled: int = (helper val)
-    return (+ doubled 10)
+    let doubled = (helper val)
+    return (doubled + 10)
 }
 
 shadow process {
@@ -36,9 +36,9 @@ shadow process {
 
 fn main() -> int {
     # Test direct calls
-    let sum: int = (add 5 7)
-    let proc: int = (process 20)
-    
+    let sum = (add 5 7)
+    let proc = (process 20)
+
     # sum should be 12
     # proc should be (20 * 2) + 10 = 50
     # verify sum + proc = 62
@@ -49,11 +49,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-
-
-
-
-
-
-
-

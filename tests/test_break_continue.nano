@@ -1,14 +1,14 @@
 # Test break and continue statements
 
 fn test_break_while() -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 10) {
-        if (== i 5) {
+    let mut sum = 0
+    let mut i = 0
+    while i < 10 {
+        if i == 5 {
             break
         } else { (print "") }
-        set sum (+ sum i)
-        set i (+ i 1)
+        set sum (sum + i)
+        set i (i + 1)
     }
     return sum  # Should be 0+1+2+3+4 = 10
 }
@@ -18,14 +18,14 @@ shadow test_break_while {
 }
 
 fn test_continue_while() -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 10) {
-        set i (+ i 1)
+    let mut sum = 0
+    let mut i = 0
+    while i < 10 {
+        set i (i + 1)
         if (== (% i 2) 1) {
             continue
         } else { (print "") }
-        set sum (+ sum i)
+        set sum (sum + i)
     }
     return sum  # Should be 2+4+6+8+10 = 30
 }
@@ -35,12 +35,12 @@ shadow test_continue_while {
 }
 
 fn test_break_for() -> int {
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 0 10) {
-        if (== i 5) {
+        if i == 5 {
             break
         } else { (print "") }
-        set sum (+ sum i)
+        set sum (sum + i)
     }
     return sum  # Should be 0+1+2+3+4 = 10
 }
@@ -50,12 +50,12 @@ shadow test_break_for {
 }
 
 fn test_continue_for() -> int {
-    let mut sum: int = 0
+    let mut sum = 0
     for i in (range 0 10) {
         if (== (% i 2) 1) {
             continue
         } else { (print "") }
-        set sum (+ sum i)
+        set sum (sum + i)
     }
     return sum  # Should be 0+2+4+6+8 = 20
 }
@@ -65,18 +65,18 @@ shadow test_continue_for {
 }
 
 fn test_nested_break() -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 10) {
-        let mut j: int = 0
-        while (< j 5) {
-            if (== j 3) {
+    let mut sum = 0
+    let mut i = 0
+    while i < 10 {
+        let mut j = 0
+        while j < 5 {
+            if j == 3 {
                 break  # Breaks inner loop only
             } else { (print "") }
-            set sum (+ sum 1)
-            set j (+ j 1)
+            set sum (sum + 1)
+            set j (j + 1)
         }
-        set i (+ i 1)
+        set i (i + 1)
     }
     return sum  # Each outer iteration adds 3, so 10 * 3 = 30
 }

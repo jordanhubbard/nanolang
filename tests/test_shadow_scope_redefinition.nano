@@ -4,10 +4,10 @@ fn double(x: int) -> int {
 }
 
 shadow double {
-    let result: int = (double 5)
+    let result = (double 5)
     assert (== result 10)
 
-    let result: int = (double 10)
+    let result = (double 10)
     assert (== result 20)
 }
 

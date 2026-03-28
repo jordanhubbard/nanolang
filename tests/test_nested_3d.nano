@@ -3,7 +3,7 @@
 fn test_3d_array() -> int {
     # Create a 3D array: 2x2x2 cube
     let mut cube: array<array<array<int>>> = []
-    
+
     # Layer 0
     let mut layer0: array<array<int>> = []
     let mut row00: array<int> = []
@@ -14,7 +14,7 @@ fn test_3d_array() -> int {
     set row01 (array_push row01 4)
     set layer0 (array_push layer0 row00)
     set layer0 (array_push layer0 row01)
-    
+
     # Layer 1
     let mut layer1: array<array<int>> = []
     let mut row10: array<int> = []
@@ -25,27 +25,27 @@ fn test_3d_array() -> int {
     set row11 (array_push row11 8)
     set layer1 (array_push layer1 row10)
     set layer1 (array_push layer1 row11)
-    
+
     # Build cube
     set cube (array_push cube layer0)
     set cube (array_push cube layer1)
-    
+
     # Access cube[1][1][0] should be 7
     let layer: array<array<int>> = (at cube 1)
     let row: array<int> = (at layer 1)
-    let value: int = (at row 0)
-    
+    let value = (at row 0)
+
     return value
 }
 
 fn main() -> int {
     (println "Testing 3D arrays (3 levels of nesting)...")
-    
-    let result: int = (test_3d_array)
+
+    let result = (test_3d_array)
     (print "cube[1][1][0] = ")
     (println result)
-    
-    if (== result 7) {
+
+    if result == 7 {
         (println "✅ 3D arrays work!")
         return 0
     } else {

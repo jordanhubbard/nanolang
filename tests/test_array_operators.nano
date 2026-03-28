@@ -37,9 +37,9 @@ fn test_float_array_mul_div() -> int {
     let b: array<float> = (* a 2.0)
     let c: array<float> = (/ b 4.0)
 
-    let v0: float = (at c 0)
-    let v1: float = (at c 1)
-    let v2: float = (at c 2)
+    let v0 = (at c 0)
+    let v1 = (at c 1)
+    let v2 = (at c 2)
 
     if (or (< v0 0.49) (> v0 0.51)) { (println "FAIL: v0") return 1 }
     if (or (< v1 0.99) (> v1 1.01)) { (println "FAIL: v1") return 1 }

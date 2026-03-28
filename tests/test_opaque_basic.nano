@@ -12,7 +12,7 @@ shadow test_param {
 }
 
 fn main() -> int {
-    let result: int = (test_param)
+    let result = (test_param)
     assert (== result 42)
     return 0
 }

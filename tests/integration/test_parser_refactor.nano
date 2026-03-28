@@ -2,7 +2,7 @@
 # This file exercises all parser features to ensure refactoring preserves functionality
 
 fn simple_function(x: int) -> int {
-    return (+ x 1)
+    return x + 1
 }
 
 shadow simple_function {
@@ -11,37 +11,37 @@ shadow simple_function {
 
 fn main() -> int {
     # Test: literals
-    let num: int = 42
-    let str: string = "hello"
-    let flag: bool = true
-    
+    let num = 42
+    let str = "hello"
+    let flag = true
+
     # Test: binary ops
-    let sum: int = (+ 1 2)
-    let cmp: bool = (< sum 10)
-    
+    let sum = (+ 1 2)
+    let cmp = (< sum 10)
+
     # Test: function calls
-    let result: int = (simple_function num)
-    
+    let result = (simple_function num)
+
     # Test: if/else
-    if (> result 0) {
+    if result > 0 {
         (println "positive")
     } else {
         (println "non-positive")
     }
-    
+
     # Test: while loop
-    let mut i: int = 0
-    while (< i 3) {
-        set i (+ i 1)
+    let mut i = 0
+    while i < 3 {
+        set i (i + 1)
     }
-    
+
     # Test: cond expression
-    let val: int = (cond
+    let val = (cond
         ((< i 0) -1)
         ((> i 10) 1)
         (else 0)
     )
-    
+
     return 0
 }
 

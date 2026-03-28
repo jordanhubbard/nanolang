@@ -5,7 +5,7 @@ requires (>= a 0)
 requires (>= b 0)
 ensures (>= result 0)
 {
-    return (+ a b)
+    return a + b
 }
 
 shadow add {

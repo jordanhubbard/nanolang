@@ -3,7 +3,7 @@
 fn bad_add(a: int, b: int) -> int
 ensures (> result 100)  /* This will fail when we return 15 */
 {
-    return (+ a b)
+    return a + b
 }
 
 shadow bad_add {

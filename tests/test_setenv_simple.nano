@@ -2,10 +2,10 @@
 from "modules/std/env.nano" import set_env, get
 
 fn main() -> int {
-    let result: int = (set_env "TEST_VAR" "hello")
-    (println (+ "set_env returned: " (int_to_string result)))
-    let val: string = (get "TEST_VAR")
-    (println (+ "get returned: " val))
+    let result = (set_env "TEST_VAR" "hello")
+    (println f"set_env returned: {result}")
+    let val = (get "TEST_VAR")
+    (println f"get returned: {val}")
     return 0
 }
 

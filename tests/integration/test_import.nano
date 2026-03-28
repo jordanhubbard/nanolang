@@ -3,12 +3,12 @@
 import "math_utils.nano"
 
 fn main() -> int {
-    let result1: int = (add 10 20)
-    let result2: int = (multiply 5 6)
-    
+    let result1 = (add 10 20)
+    let result2 = (multiply 5 6)
+
     (println result1)
     (println result2)
-    
+
     return 0
 }
 

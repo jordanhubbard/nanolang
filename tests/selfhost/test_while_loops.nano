@@ -1,11 +1,11 @@
 /* Test while loops with mutation */
 
 fn test_simple_loop() -> int {
-    let mut count: int = 0
-    let mut i: int = 0
-    while (< i 5) {
-        set count (+ count 1)
-        set i (+ i 1)
+    let mut count = 0
+    let mut i = 0
+    while i < 5 {
+        set count (count + 1)
+        set i (i + 1)
     }
     return count
 }
@@ -15,11 +15,11 @@ shadow test_simple_loop {
 }
 
 fn test_sum_loop() -> int {
-    let mut sum: int = 0
-    let mut i: int = 1
-    while (<= i 10) {
-        set sum (+ sum i)
-        set i (+ i 1)
+    let mut sum = 0
+    let mut i = 1
+    while i <= 10 {
+        set sum (sum + i)
+        set i (i + 1)
     }
     return sum
 }
@@ -29,15 +29,15 @@ shadow test_sum_loop {
 }
 
 fn test_nested_loops() -> int {
-    let mut count: int = 0
-    let mut i: int = 0
-    while (< i 3) {
-        let mut j: int = 0
-        while (< j 4) {
-            set count (+ count 1)
-            set j (+ j 1)
+    let mut count = 0
+    let mut i = 0
+    while i < 3 {
+        let mut j = 0
+        while j < 4 {
+            set count (count + 1)
+            set j (j + 1)
         }
-        set i (+ i 1)
+        set i (i + 1)
     }
     return count
 }
@@ -47,15 +47,15 @@ shadow test_nested_loops {
 }
 
 fn test_loop_with_condition() -> int {
-    let mut sum: int = 0
-    let mut i: int = 0
-    while (< i 10) {
-        if (== (% i 2) 0) {
-            set sum (+ sum i)
+    let mut sum = 0
+    let mut i = 0
+    while i < 10 {
+        if (% i 2) == 0 {
+            set sum (sum + i)
         } else {
-            let dummy: int = 0
+            let dummy = 0
         }
-        set i (+ i 1)
+        set i (i + 1)
     }
     return sum
 }

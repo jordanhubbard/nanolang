@@ -1,7 +1,7 @@
 /* Test if/else statements */
 
 fn test_simple_if() -> int {
-    if (> 5 3) {
+    if 5 > 3 {
         return 1
     } else {
         return 0
@@ -13,7 +13,7 @@ shadow test_simple_if {
 }
 
 fn test_simple_else() -> int {
-    if (< 5 3) {
+    if 5 < 3 {
         return 0
     } else {
         return 1
@@ -25,8 +25,8 @@ shadow test_simple_else {
 }
 
 fn test_nested_if() -> int {
-    if (> 10 5) {
-        if (< 3 7) {
+    if 10 > 5 {
+        if 3 < 7 {
             return 42
         } else {
             return 0
@@ -41,8 +41,8 @@ shadow test_nested_if {
 }
 
 fn test_if_with_let() -> int {
-    if (> 5 3) {
-        let x: int = 100
+    if 5 > 3 {
+        let x = 100
         return x
     } else {
         return 0
@@ -54,7 +54,7 @@ shadow test_if_with_let {
 }
 
 fn test_if_with_call() -> int {
-    if (== (test_simple_if) 1) {
+    if (test_simple_if) == 1 {
         return 999
     } else {
         return 0

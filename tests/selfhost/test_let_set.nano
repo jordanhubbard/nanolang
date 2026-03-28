@@ -1,7 +1,7 @@
 /* Test let and set statements */
 
 fn test_immutable_let() -> int {
-    let x: int = 42
+    let x = 42
     return x
 }
 
@@ -10,7 +10,7 @@ shadow test_immutable_let {
 }
 
 fn test_mutable_let() -> int {
-    let mut x: int = 10
+    let mut x = 10
     set x 20
     return x
 }
@@ -20,7 +20,7 @@ shadow test_mutable_let {
 }
 
 fn test_multiple_sets() -> int {
-    let mut x: int = 1
+    let mut x = 1
     set x 2
     set x 3
     set x 4
@@ -32,8 +32,8 @@ shadow test_multiple_sets {
 }
 
 fn test_set_with_expression() -> int {
-    let mut x: int = 10
-    set x (+ x 5)
+    let mut x = 10
+    set x (x + 5)
     return x
 }
 
@@ -42,11 +42,11 @@ shadow test_set_with_expression {
 }
 
 fn test_multiple_variables() -> int {
-    let mut a: int = 5
-    let mut b: int = 10
-    set a (+ a 1)
-    set b (+ b 2)
-    return (+ a b)
+    let mut a = 5
+    let mut b = 10
+    set a (a + 1)
+    set b (b + 2)
+    return a + b
 }
 
 shadow test_multiple_variables {

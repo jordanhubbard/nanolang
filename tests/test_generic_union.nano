@@ -31,7 +31,7 @@ shadow test_either {
 }
 
 fn divide(a: int, b: int) -> Result<int, string> {
-    if (== b 0) {
+    if b == 0 {
         return Result<int, string>.Err { error: "Division by zero" }
     } else {
         return Result<int, string>.Ok { value: (/ a b) }
@@ -81,10 +81,10 @@ shadow get_value {
 }
 
 fn main() -> int {
-    let _e: int = (test_either)
+    let _e = (test_either)
     let _r1: Result<int, string> = (divide 10 2)
     let _r2: Result<int, string> = (divide 10 0)
-    let _r3: int = (test_result_parsing)
+    let _r3 = (test_result_parsing)
     let _r4: Result<int, string> = (test_result_in_function)
     let _o1: Option<int> = (get_value true)
     let _o2: Option<int> = (get_value false)

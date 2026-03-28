@@ -1,9 +1,9 @@
 /* Test: for x in list { } — List<T> iteration */
 
 fn sum_list(items: List<int>) -> int {
-    let mut total: int = 0
+    let mut total = 0
     for x in items {
-        set total (+ total x)
+        set total (total + x)
     }
     return total
 }
@@ -17,9 +17,9 @@ shadow sum_list {
 }
 
 fn count_strings(words: List<string>) -> int {
-    let mut count: int = 0
+    let mut count = 0
     for w in words {
-        set count (+ count 1)
+        set count (count + 1)
     }
     return count
 }
@@ -33,9 +33,9 @@ shadow count_strings {
 
 fn main() -> int {
     /* Test for-in with range */
-    let mut sum_range: int = 0
+    let mut sum_range = 0
     for i in (range 0 5) {
-        set sum_range (+ sum_range i)
+        set sum_range (sum_range + i)
     }
     assert (== sum_range 10)
 
@@ -44,9 +44,9 @@ fn main() -> int {
     (list_int_push nums 10)
     (list_int_push nums 20)
     (list_int_push nums 30)
-    let mut total: int = 0
+    let mut total = 0
     for n in nums {
-        set total (+ total n)
+        set total (total + n)
     }
     assert (== total 60)
 
@@ -55,9 +55,9 @@ fn main() -> int {
     (list_string_push strs "a")
     (list_string_push strs "b")
     (list_string_push strs "c")
-    let mut scount: int = 0
+    let mut scount = 0
     for s in strs {
-        set scount (+ scount 1)
+        set scount (scount + 1)
     }
     assert (== scount 3)
 

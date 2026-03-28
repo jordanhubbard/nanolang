@@ -39,7 +39,7 @@ shadow two_anonymous {
 }
 
 fn main() -> int {
-    let result: int = (use_anonymous { x: 5, y: 15 })
+    let result = (use_anonymous { x: 5, y: 15 })
     (println (int_to_string result))
     return 0
 }

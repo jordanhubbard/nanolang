@@ -4,12 +4,12 @@ extern fn getenv(name: string) -> string
 
 fn test_without_unsafe() -> string {
     /* This should ERROR - calling extern without unsafe block */
-    let home: string = (getenv "HOME")
+    let home = (getenv "HOME")
     return home
 }
 
 fn main() -> int {
-    let result: string = (test_without_unsafe)
+    let result = (test_without_unsafe)
     (println result)
     return 0
 }

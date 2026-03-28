@@ -1,20 +1,19 @@
 /* Test: string concatenation with nested expressions */
 fn main() -> int {
-    let a: string = "hello"
-    let b: string = "world"
-    
+    let a = "hello"
+    let b = "world"
+
     # Test simple concat
-    let c1: string = (+ a " ")
+    let c1 = (+ a " ")
     (println c1)
-    
+
     # Test nested concat
-    let c2: string = (+ a (+ " " b))
+    let c2 = (+ a (+ " " b))
     (println c2)
-    
+
     # Test triple nested
-    let c3: string = (+ "[" (+ "0" (+ "] " "test")))
+    let c3 = (+ "[" (+ "0" (+ "] " "test")))
     (println c3)
-    
+
     return 0
 }
-

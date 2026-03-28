@@ -79,7 +79,7 @@ shadow test_status_inactive {
 fn test_enum_equality() -> bool {
     let d1: Direction = Direction.East
     let d2: Direction = Direction.East
-    return (== d1 d2)
+    return d1 == d2
 }
 
 shadow test_enum_equality {
@@ -89,7 +89,7 @@ shadow test_enum_equality {
 fn test_enum_inequality() -> bool {
     let d1: Direction = Direction.East
     let d2: Direction = Direction.West
-    return (!= d1 d2)
+    return d1 != d2
 }
 
 shadow test_enum_inequality {
@@ -148,7 +148,7 @@ shadow direction_to_int {
 
 fn test_enum_in_if() -> int {
     let status: Status = Status.Pending
-    
+
     if (== status Status.Active) {
         return 1
     } else {
@@ -165,8 +165,8 @@ shadow test_enum_in_if {
 }
 
 fn count_weekdays_manual() -> int {
-    let mut count: int = 0
-    
+    let mut count = 0
+
     let d1: Day = Day.Monday
     let d2: Day = Day.Tuesday
     let d3: Day = Day.Wednesday
@@ -174,43 +174,43 @@ fn count_weekdays_manual() -> int {
     let d5: Day = Day.Friday
     let d6: Day = Day.Saturday
     let d7: Day = Day.Sunday
-    
+
     if (and (!= d1 Day.Saturday) (!= d1 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d2 Day.Saturday) (!= d2 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d3 Day.Saturday) (!= d3 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d4 Day.Saturday) (!= d4 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d5 Day.Saturday) (!= d5 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d6 Day.Saturday) (!= d6 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
     if (and (!= d7 Day.Saturday) (!= d7 Day.Sunday)) {
-        set count (+ count 1)
+        set count (count + 1)
     } else {
         set count count
     }
-    
+
     return count
 }
 
@@ -237,7 +237,7 @@ fn test_status_cycle() -> bool {
     let s1: Status = (next_status s0)
     let s2: Status = (next_status s1)
     let s3: Status = (next_status s2)
-    
+
     return (and (and (== s1 Status.Inactive) (== s2 Status.Pending)) (== s3 Status.Active))
 }
 

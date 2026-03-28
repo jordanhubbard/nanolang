@@ -20,22 +20,22 @@ shadow main {
     assert (== (map_size hm) 1)
 
     /* Resize + delete/tombstone stress */
-    let mut i: int = 0
-    while (< i 200) {
-        let k: string = (+ "k" (to_string i))
-        let v: string = (to_string (* i 2))
+    let mut i = 0
+    while i < 200 {
+        let k = (+ "k" (to_string i))
+        let v = (to_string (* i 2))
         set hm (map_put hm k v)
-        set i (+ i 1)
+        set i (i + 1)
     }
     assert (== (map_size hm) 201)
     assert (== (map_get hm "k0") "0")
     assert (== (map_get hm "k199") "398")
 
-    let mut j: int = 0
-    while (< j 100) {
-        let k: string = (+ "k" (to_string j))
+    let mut j = 0
+    while j < 100 {
+        let k = (+ "k" (to_string j))
         set hm (map_remove hm k)
-        set j (+ j 1)
+        set j (j + 1)
     }
     assert (== (map_size hm) 101)
     assert (== (map_has hm "k0") false)
@@ -48,12 +48,12 @@ shadow main {
     assert (== (array_length ks1) (map_size hm))
     assert (== (array_length vs1) (map_size hm))
 
-    let mut idx: int = 0
-    while (< idx (array_length ks1)) {
-        let k: string = (at ks1 idx)
-        let v: string = (at vs1 idx)
+    let mut idx = 0
+    while idx < (array_length ks1) {
+        let k = (at ks1 idx)
+        let v = (at vs1 idx)
         assert (== (map_get hm k) v)
-        set idx (+ idx 1)
+        set idx (idx + 1)
     }
 
     let ks2: array<string> = (map_keys hm)

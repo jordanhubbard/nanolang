@@ -1,8 +1,8 @@
 /* Test infix operators via self-hosted compiler */
 
 fn test_infix_arithmetic() -> int {
-    let a: int = 2 + 3
-    let b: int = 10 - 4
+    let a = 2 + 3
+    let b = 10 - 4
     return a + b
 }
 
@@ -52,7 +52,7 @@ shadow test_not_bare {
 }
 
 fn test_unary_minus() -> int {
-    let x: int = 7
+    let x = 7
     return -x
 }
 

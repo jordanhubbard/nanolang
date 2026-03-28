@@ -23,7 +23,7 @@ fn test_enum_values() -> bool {
     let r: Color = Color.RED
     let g: Color = Color.GREEN
     let b: Color = Color.BLUE
-    
+
     return (and (and (== r 0) (== g 1)) (== b 2))
 }
 
@@ -51,7 +51,7 @@ shadow color_to_int {
 }
 
 fn test_enum_comparison() -> bool {
-    let result: int = (color_to_int Color.GREEN)
+    let result = (color_to_int Color.GREEN)
     return (== result 20)
 }
 
@@ -67,12 +67,12 @@ struct Pixel {
 }
 
 fn test_enum_in_struct() -> bool {
-    let p: Pixel = Pixel {
+    let p = Pixel {
         color: Color.BLUE,
         x: 100,
         y: 200
     }
-    
+
     return (and (== p.color Color.BLUE) (and (== p.x 100) (== p.y 200)))
 }
 
@@ -150,7 +150,7 @@ enum Direction {
 fn test_multiple_enums() -> bool {
     let c: Color = Color.RED
     let d: Direction = Direction.NORTH
-    
+
     /* Colors and directions are different types */
     return (and (== c 0) (== d 0))
 }
@@ -166,11 +166,11 @@ shadow test_multiple_enums {
     (list_Color_push colors Color.RED)
     (list_Color_push colors Color.GREEN)
     (list_Color_push colors Color.BLUE)
-    
+
     let len: int = (list_Color_length colors)
     let first: Color = (list_Color_get colors 0)
     let second: Color = (list_Color_get colors 1)
-    
+
     return (and (== len 3) (and (== first Color.RED) (== second Color.GREEN)))
 }
 
@@ -189,7 +189,7 @@ fn test_explicit_values() -> bool {
     let ok: StatusCode = StatusCode.OK
     let notfound: StatusCode = StatusCode.NOT_FOUND
     let error: StatusCode = StatusCode.SERVER_ERROR
-    
+
     return (and (== ok 200) (and (== notfound 404) (== error 500)))
 }
 
@@ -201,9 +201,9 @@ shadow test_explicit_values {
 fn test_enum_arithmetic() -> bool {
     let c1: Color = Color.RED
     let c2: Color = Color.BLUE
-    
+
     /* Can do arithmetic with enum values */
-    let sum: int = (+ c1 c2)  /* 0 + 2 = 2 */
+    let sum = (+ c1 c2)  /* 0 + 2 = 2 */
     return (== sum 2)
 }
 
@@ -214,56 +214,56 @@ shadow test_enum_arithmetic {
 /* Main test runner */
 fn main() -> int {
     (println "Testing Enums...")
-    
+
     if (test_simple_enum) {
         (println "✓ Simple enum works")
     } else {
         (println "✗ Simple enum failed")
         return 1
     }
-    
+
     if (test_enum_values) {
         (println "✓ Enum values work")
     } else {
         (println "✗ Enum values failed")
         return 1
     }
-    
+
     if (test_enum_comparison) {
         (println "✓ Enum comparison works")
     } else {
         (println "✗ Enum comparison failed")
         return 1
     }
-    
+
     if (test_enum_in_struct) {
         (println "✓ Enum in struct works")
     } else {
         (println "✗ Enum in struct failed")
         return 1
     }
-    
+
     if (test_enum_param) {
         (println "✓ Enum as parameter works")
     } else {
         (println "✗ Enum as parameter failed")
         return 1
     }
-    
+
     if (test_enum_return) {
         (println "✓ Enum as return value works")
     } else {
         (println "✗ Enum as return value failed")
         return 1
     }
-    
+
     if (test_multiple_enums) {
         (println "✓ Multiple enums work")
     } else {
         (println "✗ Multiple enums failed")
         return 1
     }
-    
+
     /* TODO: Re-enable when interpreter supports generic lists */
     /* if (test_enum_in_list) {
         (println "✓ Enum in List works")
@@ -272,21 +272,21 @@ fn main() -> int {
         return 1
     } */
     (println "⊘ Enum in List skipped (needs interpreter support)")
-    
+
     if (test_explicit_values) {
         (println "✓ Explicit enum values work")
     } else {
         (println "✗ Explicit enum values failed")
         return 1
     }
-    
+
     if (test_enum_arithmetic) {
         (println "✓ Enum arithmetic works")
     } else {
         (println "✗ Enum arithmetic failed")
         return 1
     }
-    
+
     (println "All enum tests passed! ✅")
     return 0
 }

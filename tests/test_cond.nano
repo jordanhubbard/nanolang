@@ -151,13 +151,13 @@ shadow day_of_week {
 /* ==== PART 6: Cond in Complex Expressions ==== */
 
 fn discount_price(price: int, member_years: int) -> int {
-    let discount: int = (cond
+    let discount = (cond
         ((>= member_years 10) 30)
         ((>= member_years 5) 20)
         ((>= member_years 1) 10)
         (else 0))
-    
-    return (- price (/ (* price discount) 100))
+
+    return price - (/ (* price discount) 100)
 }
 
 shadow discount_price {
@@ -187,17 +187,17 @@ shadow fizzbuzz_value {
 /* ==== PART 8: Multiple Conds in One Function ==== */
 
 fn process_pair(x: int, y: int) -> int {
-    let x_cat: int = (cond
+    let x_cat = (cond
         ((< x 0) -1)
         ((== x 0) 0)
         (else 1))
-    
-    let y_cat: int = (cond
+
+    let y_cat = (cond
         ((< y 0) -1)
         ((== y 0) 0)
         (else 1))
-    
-    return (+ (* x_cat 10) y_cat)
+
+    return (* x_cat 10) + y_cat
 }
 
 shadow process_pair {
@@ -225,7 +225,7 @@ shadow print_classification {
 fn main() -> int {
     (println "=== Cond Expression Tests ===")
     (println "")
-    
+
     (println "Testing classify_number...")
     (print "  classify_number(-5) = ")
     (println (classify_number -5))
@@ -236,7 +236,7 @@ fn main() -> int {
     (print "  classify_number(100) = ")
     (println (classify_number 100))
     (println "")
-    
+
     (println "Testing letter_grade...")
     (print "  letter_grade(95) = ")
     (println (letter_grade 95))
@@ -245,7 +245,7 @@ fn main() -> int {
     (print "  letter_grade(55) = ")
     (println (letter_grade 55))
     (println "")
-    
+
     (println "Testing sign...")
     (print "  sign(-10) = ")
     (println (sign -10))
@@ -254,14 +254,14 @@ fn main() -> int {
     (print "  sign(0) = ")
     (println (sign 0))
     (println "")
-    
+
     (println "Testing day_of_week...")
     (print "  day_of_week(0) = ")
     (println (day_of_week 0))
     (print "  day_of_week(3) = ")
     (println (day_of_week 3))
     (println "")
-    
+
     (println "All cond expression tests passed!")
     return 0
 }
@@ -269,4 +269,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

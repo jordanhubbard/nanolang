@@ -5,7 +5,7 @@ union Status {
 }
 
 fn test_ok() -> int {
-    let s: Status = Status.Ok {}
+    let s = Status.Ok {}
     return 1
 }
 

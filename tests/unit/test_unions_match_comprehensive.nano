@@ -10,7 +10,7 @@ union Result {
 
 fn test_simple_match() -> bool {
     let r: Result = Result.Ok { value: 42 }
-    
+
     match r {
         Ok(val) => {
             return (== val.value 42)
@@ -28,7 +28,7 @@ shadow test_simple_match {
 /* Test 2: Match with error variant */
 fn test_match_error() -> bool {
     let r: Result = Result.Error { message: "failed" }
-    
+
     match r {
         Ok(val) => {
             return false
@@ -45,10 +45,10 @@ shadow test_match_error {
 
 /* Test 3: Function returning union */
 fn divide(a: int, b: int) -> Result {
-    if (== b 0) {
+    if b == 0 {
         return Result.Error { message: "division by zero" }
     } else {
-        let quotient: int = (/ a b)
+        let quotient = (/ a b)
         return Result.Ok { value: quotient }
     }
 }
@@ -63,7 +63,7 @@ shadow divide {
             assert false
         }
     }
-    
+
     let r2: Result = (divide 10 0)
     match r2 {
         Ok(val) => {
@@ -112,14 +112,14 @@ fn area(s: Shape) -> int {
 shadow area {
     let circle: Shape = Shape.Circle { radius: 10 }
     assert (== (area circle) 300)
-    
+
     let rect: Shape = Shape.Rectangle { width: 5, height: 10 }
     assert (== (area rect) 50)
 }
 
 fn test_multi_field_union() -> bool {
     let s: Shape = Shape.Rectangle { width: 10, height: 20 }
-    let a: int = (area s)
+    let a = (area s)
     return (== a 200)
 }
 
@@ -147,14 +147,14 @@ fn unwrap_or(opt: Option, default_val: int) -> int {
 shadow unwrap_or {
     let some: Option = Option.Some { value: 42 }
     assert (== (unwrap_or some 0) 42)
-    
+
     let none: Option = Option.None {}
     assert (== (unwrap_or none 99) 99)
 }
 
 fn test_option_type() -> bool {
     let some: Option = Option.Some { value: 123 }
-    let result: int = (unwrap_or some 0)
+    let result = (unwrap_or some 0)
     return (== result 123)
 }
 
@@ -173,7 +173,7 @@ fn test_union_in_struct() -> bool {
         status: Result.Ok { value: 200 },
         timestamp: 1234567890
     }
-    
+
     match resp.status {
         Ok(val) => {
             return (== val.value 200)
@@ -208,7 +208,7 @@ fn speak(a: Animal) -> string {
 shadow speak {
     let dog: Animal = Animal.Dog { name: "Rex" }
     assert (== (speak dog) "woof")
-    
+
     let cat: Animal = Animal.Cat { name: "Whiskers" }
     assert (== (speak cat) "meow")
 }
@@ -216,8 +216,8 @@ shadow speak {
 fn test_multiple_unions() -> bool {
     let result1: Result = Result.Ok { value: 1 }
     let animal1: Animal = Animal.Dog { name: "Buddy" }
-    
-    let mut ok: bool = false
+
+    let mut ok = false
     match result1 {
         Ok(val) => {
             set ok true
@@ -226,8 +226,8 @@ fn test_multiple_unions() -> bool {
             set ok false
         }
     }
-    
-    let sound: string = (speak animal1)
+
+    let sound = (speak animal1)
     return (and ok (== sound "woof"))
 }
 
@@ -259,17 +259,17 @@ fn value_to_string(v: Value) -> string {
 shadow value_to_string {
     let int_val: Value = Value.Integer { num: 42 }
     assert (== (value_to_string int_val) "int")
-    
+
     let str_val: Value = Value.String { text: "hello" }
     assert (== (value_to_string str_val) "string")
-    
+
     let bool_val: Value = Value.Boolean { flag: true }
     assert (== (value_to_string bool_val) "bool")
 }
 
 fn test_mixed_types() -> bool {
     let v: Value = Value.String { text: "test" }
-    let type_str: string = (value_to_string v)
+    let type_str = (value_to_string v)
     return (== type_str "string")
 }
 
@@ -301,10 +301,10 @@ fn is_ready(s: Status) -> bool {
 shadow is_ready {
     let ready: Status = Status.Ready {}
     assert (== (is_ready ready) true)
-    
+
     let processing: Status = Status.Processing {}
     assert (== (is_ready processing) false)
-    
+
     let done: Status = Status.Done { result: 100 }
     assert (== (is_ready done) false)
 }
@@ -338,14 +338,14 @@ fn sum_tree(t: Tree) -> int {
 shadow sum_tree {
     let leaf: Tree = Tree.Leaf { value: 42 }
     assert (== (sum_tree leaf) 42)
-    
+
     let node: Tree = Tree.Node { left: 10, right: 20 }
     assert (== (sum_tree node) 30)
 }
 
 fn test_complex_match() -> bool {
     let t: Tree = Tree.Node { left: 15, right: 25 }
-    let sum: int = (sum_tree t)
+    let sum = (sum_tree t)
     return (== sum 40)
 }
 
@@ -356,77 +356,77 @@ shadow test_complex_match {
 /* Main test runner */
 fn main() -> int {
     (println "Testing Unions and Pattern Matching...")
-    
+
     if (test_simple_match) {
         (println "✓ Simple match works")
     } else {
         (println "✗ Simple match failed")
         return 1
     }
-    
+
     if (test_match_error) {
         (println "✓ Match error variant works")
     } else {
         (println "✗ Match error variant failed")
         return 1
     }
-    
+
     if (test_function_union) {
         (println "✓ Function returning union works")
     } else {
         (println "✗ Function returning union failed")
         return 1
     }
-    
+
     if (test_multi_field_union) {
         (println "✓ Multi-field union works")
     } else {
         (println "✗ Multi-field union failed")
         return 1
     }
-    
+
     if (test_option_type) {
         (println "✓ Option type works")
     } else {
         (println "✗ Option type failed")
         return 1
     }
-    
+
     if (test_union_in_struct) {
         (println "✓ Union in struct works")
     } else {
         (println "✗ Union in struct failed")
         return 1
     }
-    
+
     if (test_multiple_unions) {
         (println "✓ Multiple unions work")
     } else {
         (println "✗ Multiple unions failed")
         return 1
     }
-    
+
     if (test_mixed_types) {
         (println "✓ Mixed type union works")
     } else {
         (println "✗ Mixed type union failed")
         return 1
     }
-    
+
     if (test_empty_variant) {
         (println "✓ Empty variant works")
     } else {
         (println "✗ Empty variant failed")
         return 1
     }
-    
+
     if (test_complex_match) {
         (println "✓ Complex pattern matching works")
     } else {
         (println "✗ Complex pattern matching failed")
         return 1
     }
-    
+
     (println "All union and pattern matching tests passed! ✅")
     return 0
 }

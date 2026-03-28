@@ -10,7 +10,7 @@ fn always_fail(_: int) -> string {
 }
 
 fn pair_must_match(a: int, b: int) -> string {
-    if (== a b) {
+    if a == b {
         return (prop_pass)
     } else {
         return (prop_fail "pair mismatch")
@@ -18,7 +18,7 @@ fn pair_must_match(a: int, b: int) -> string {
 }
 
 fn array_requires_zero(values: array<int>) -> string {
-    if (== (array_length values) 0) {
+    if (array_length values) == 0 {
         return (prop_pass)
     } else {
         return (prop_fail "expected empty array")
@@ -26,7 +26,7 @@ fn array_requires_zero(values: array<int>) -> string {
 }
 
 fn fail_if_gt_three(value: int) -> string {
-    if (> value 3) {
+    if value > 3 {
         return (prop_fail "gt3")
     } else {
         return (prop_pass)
@@ -34,7 +34,7 @@ fn fail_if_gt_three(value: int) -> string {
 }
 
 fn fail_sum_over_five(a: int, b: int) -> string {
-    if (> (+ a b) 5) {
+    if (+ a b) > 5 {
         return (prop_fail "sum")
     } else {
         return (prop_pass)
@@ -42,7 +42,7 @@ fn fail_sum_over_five(a: int, b: int) -> string {
 }
 
 fn fail_on_empty(values: array<int>) -> string {
-    if (== (array_length values) 0) {
+    if (array_length values) == 0 {
         return (prop_fail "empty")
     } else {
         return (prop_pass)
@@ -50,7 +50,7 @@ fn fail_on_empty(values: array<int>) -> string {
 }
 
 fn even_only(value: int) -> string {
-    if (== (% value 2) 0) {
+    if (% value 2) == 0 {
         return (prop_pass)
     } else {
         return (prop_discard "odd")
@@ -62,7 +62,7 @@ shadow always_pass {
 }
 
 shadow always_fail {
-    let expected: string = (prop_fail "forced failure")
+    let expected = (prop_fail "forced failure")
     assert (== (always_fail 0) expected)
 }
 
@@ -98,13 +98,13 @@ fn test_forall_pass() -> bool {
     if (not (report_passed report)) {
         return false
     }
-    if (!= report.case_count 100) {
+    if report.case_count != 100 {
         return false
     }
-    if (!= report.discard_count 0) {
+    if report.discard_count != 0 {
         return false
     }
-    if (!= report.shrink_count 0) {
+    if report.shrink_count != 0 {
         return false
     }
     return (== report.counterexample "")
@@ -120,10 +120,10 @@ fn test_forall_fail() -> bool {
     if (report_passed report) {
         return false
     }
-    if (!= report.case_count 0) {
+    if report.case_count != 0 {
         return false
     }
-    if (!= report.shrink_count 1) {
+    if report.shrink_count != 1 {
         return false
     }
     return (== report.counterexample "gt3_shrink failed with x=4 :: gt3")
@@ -139,7 +139,7 @@ fn test_pair_fail() -> bool {
     if (report_passed report) {
         return false
     }
-    if (!= report.shrink_count 0) {
+    if report.shrink_count != 0 {
         return false
     }
     return (== report.counterexample "pair_limit failed with (a=3, b=3) :: sum")
@@ -168,7 +168,7 @@ fn test_discard_tracking() -> bool {
     if (not (report_passed report)) {
         return false
     }
-    if (!= report.case_count 10) {
+    if report.case_count != 10 {
         return false
     }
     return (> report.discard_count 0)
@@ -179,13 +179,13 @@ shadow test_discard_tracking {
 }
 
 fn main() -> int {
-    let mut all_passed: bool = true
+    let mut all_passed = true
     if (not (test_forall_pass)) { set all_passed false }
     if (not (test_forall_fail)) { set all_passed false }
     if (not (test_pair_fail)) { set all_passed false }
     if (not (test_array_fail)) { set all_passed false }
     if (not (test_discard_tracking)) { set all_passed false }
-    if (== all_passed true) {
+    if all_passed == true {
         return 0
     } else {
         return 1

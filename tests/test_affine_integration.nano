@@ -48,9 +48,9 @@ shadow test_resource_in_struct {
 /* Test 3: Conditional with close in all branches */
 
 fn test_conditional_branches() -> int {
-    let x: int = 10
-    
-    if (> x 0) {
+    let x = 10
+
+    if x > 0 {
         let f: FileHandle = (create_file)
         (close_file f)
         return 1
@@ -70,10 +70,10 @@ shadow test_conditional_branches {
 fn test_sequential() -> int {
     let f1: FileHandle = (create_file)
     (close_file f1)
-    
+
     let f2: FileHandle = (create_file)
     (close_file f2)
-    
+
     return 0
 }
 

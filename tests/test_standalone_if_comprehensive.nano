@@ -2,9 +2,9 @@
 # Tests that if statements work without else clauses
 
 fn test_standalone_if_simple(x: int) -> int {
-    let mut result: int = x
-    if (> x 10) {
-        set result (+ result 5)
+    let mut result = x
+    if x > 10 {
+        set result (result + 5)
     }
     return result
 }
@@ -15,14 +15,14 @@ shadow test_standalone_if_simple {
 }
 
 fn test_standalone_if_nested(x: int, y: int) -> int {
-    let mut sum: int = (+ x y)
-    
-    if (> x 0) {
-        if (> y 0) {
-            set sum (+ sum 10)
+    let mut sum = (+ x y)
+
+    if x > 0 {
+        if y > 0 {
+            set sum (sum + 10)
         }
     }
-    
+
     return sum
 }
 
@@ -33,20 +33,20 @@ shadow test_standalone_if_nested {
 }
 
 fn test_standalone_if_multiple(x: int) -> int {
-    let mut result: int = x
-    
-    if (> x 10) {
-        set result (+ result 1)
+    let mut result = x
+
+    if x > 10 {
+        set result (result + 1)
     }
-    
-    if (> x 20) {
-        set result (+ result 2)
+
+    if x > 20 {
+        set result (result + 2)
     }
-    
-    if (> x 30) {
-        set result (+ result 3)
+
+    if x > 30 {
+        set result (result + 3)
     }
-    
+
     return result
 }
 
@@ -58,14 +58,14 @@ shadow test_standalone_if_multiple {
 }
 
 fn test_standalone_if_with_return(x: int) -> int {
-    if (< x 0) {
+    if x < 0 {
         return 0
     }
-    
-    if (> x 100) {
+
+    if x > 100 {
         return 100
     }
-    
+
     return x
 }
 
@@ -78,15 +78,15 @@ shadow test_standalone_if_with_return {
 fn main() -> int {
     (println "=== Testing Standalone If Statements ===")
     (println "")
-    
+
     (println "✓ test_standalone_if_simple passed")
     (println "✓ test_standalone_if_nested passed")
     (println "✓ test_standalone_if_multiple passed")
     (println "✓ test_standalone_if_with_return passed")
-    
+
     (println "")
     (println "✅ All standalone if tests passed!")
-    
+
     return 0
 }
 

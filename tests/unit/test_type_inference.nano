@@ -33,8 +33,8 @@ fn main() -> int {
 
     /* Infer mutable */
     let mut counter = 0
-    set counter (+ counter 1)
-    set counter (+ counter 1)
+    set counter (counter + 1)
+    set counter (counter + 1)
     assert (== counter 2)
 
     (println (int_to_string n))

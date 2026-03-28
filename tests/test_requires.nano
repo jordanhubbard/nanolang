@@ -12,7 +12,7 @@ shadow safe_divide {
 }
 
 fn main() -> int {
-    let result: int = (safe_divide 100 4)
+    let result = (safe_divide 100 4)
     assert (== result 25)
     return 0
 }

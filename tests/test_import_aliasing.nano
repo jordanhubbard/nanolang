@@ -22,8 +22,8 @@ shadow joined_module {
 
 fn main() -> int {
     let parts: array<string> = ["ok"]
-    let value: string = (joined_module parts)
-    if (== value "ok") {
+    let value = (joined_module parts)
+    if value == "ok" {
         return 0
     } else {
         return 1

@@ -110,9 +110,9 @@ shadow test_string_with_spaces {
 /* ==== PART 5: Complex Literal Expressions ==== */
 
 fn test_nested_literals() -> int {
-    let x: int = 10
-    let y: int = 20
-    return (+ x y)
+    let x = 10
+    let y = 20
+    return x + y
 }
 
 shadow test_nested_literals {
@@ -120,8 +120,8 @@ shadow test_nested_literals {
 }
 
 fn test_literal_in_condition() -> bool {
-    let x: int = 42
-    return (== x 42)
+    let x = 42
+    return x == 42
 }
 
 shadow test_literal_in_condition {
@@ -129,9 +129,9 @@ shadow test_literal_in_condition {
 }
 
 fn test_string_concat_length() -> int {
-    let s1: string = "hello"
-    let s2: string = "world"
-    return (+ (str_length s1) (str_length s2))
+    let s1 = "hello"
+    let s2 = "world"
+    return (str_length s1) + (str_length s2)
 }
 
 shadow test_string_concat_length {

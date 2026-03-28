@@ -4,13 +4,13 @@
 
 /* Test 1: Functions as parameters - simple case */
 fn apply_twice(f: fn(int) -> int, x: int) -> int {
-    let result1: int = (f x)
-    let result2: int = (f result1)
+    let result1 = (f x)
+    let result2 = (f result1)
     return result2
 }
 
 fn increment(n: int) -> int {
-    return (+ n 1)
+    return n + 1
 }
 
 shadow increment {
@@ -18,7 +18,7 @@ shadow increment {
 }
 
 fn test_function_param() -> bool {
-    let result: int = (apply_twice increment 10)
+    let result = (apply_twice increment 10)
     /* increment(10) = 11, increment(11) = 12 */
     return (== result 12)
 }
@@ -37,7 +37,7 @@ fn get_double() -> fn(int) -> int {
 }
 
 fn double(n: int) -> int {
-    return (* n 2)
+    return n * 2
 }
 
 shadow double {
@@ -75,7 +75,7 @@ fn binary_op(f: fn(int, int) -> int, a: int, b: int) -> int {
 }
 
 fn add(x: int, y: int) -> int {
-    return (+ x y)
+    return x + y
 }
 
 shadow add {
@@ -83,7 +83,7 @@ shadow add {
 }
 
 fn multiply(x: int, y: int) -> int {
-    return (* x y)
+    return x * y
 }
 
 shadow multiply {
@@ -91,8 +91,8 @@ shadow multiply {
 }
 
 fn test_binary_function() -> bool {
-    let sum: int = (binary_op add 10 20)
-    let product: int = (binary_op multiply 10 20)
+    let sum = (binary_op add 10 20)
+    let product = (binary_op multiply 10 20)
     return (and (== sum 30) (== product 200))
 }
 
@@ -102,7 +102,7 @@ shadow test_binary_function {
 
 /* Test 5: Functions returning bool */
 fn is_positive(n: int) -> bool {
-    return (> n 0)
+    return n > 0
 }
 
 shadow is_positive {
@@ -115,8 +115,8 @@ fn filter_check(predicate: fn(int) -> bool, n: int) -> bool {
 }
 
 fn test_bool_function() -> bool {
-    let check1: bool = (filter_check is_positive 10)
-    let check2: bool = (filter_check is_positive -10)
+    let check1 = (filter_check is_positive 10)
+    let check2 = (filter_check is_positive -10)
     return (and (== check1 true) (== check2 false))
 }
 
@@ -126,12 +126,12 @@ shadow test_bool_function {
 
 /* Test 6: Chain of function applications */
 fn compose(f: fn(int) -> int, g: fn(int) -> int, x: int) -> int {
-    let temp: int = (g x)
+    let temp = (g x)
     return (f temp)
 }
 
 fn square(n: int) -> int {
-    return (* n n)
+    return n * n
 }
 
 shadow square {
@@ -140,7 +140,7 @@ shadow square {
 
 fn test_compose() -> bool {
     /* compose(increment, square, 5) = increment(square(5)) = increment(25) = 26 */
-    let result: int = (compose increment square 5)
+    let result = (compose increment square 5)
     return (== result 26)
 }
 
@@ -162,7 +162,7 @@ shadow string_to_length {
 }
 
 fn test_string_function() -> bool {
-    let len: int = (process_string string_to_length "testing")
+    let len = (process_string string_to_length "testing")
     return (== len 7)
 }
 
@@ -207,14 +207,14 @@ shadow test_conditional_function {
 /* Main test runner */
 fn main() -> int {
     (println "Testing First-Class Functions...")
-    
+
     if (test_function_param) {
         (println "✓ Functions as parameters work")
     } else {
         (println "✗ Functions as parameters failed")
         return 1
     }
-    
+
     /* DISABLED - function variables cause crashes
     if (test_function_return) {
         (println "✓ Functions as return values work")
@@ -222,7 +222,7 @@ fn main() -> int {
         (println "✗ Functions as return values failed")
         return 1
     }
-    
+
     if (test_function_variable) {
         (println "✓ Functions in variables work")
     } else {
@@ -230,35 +230,35 @@ fn main() -> int {
         return 1
     }
     */
-    
+
     if (test_binary_function) {
         (println "✓ Binary functions work")
     } else {
         (println "✗ Binary functions failed")
         return 1
     }
-    
+
     if (test_bool_function) {
         (println "✓ Bool-returning functions work")
     } else {
         (println "✗ Bool-returning functions failed")
         return 1
     }
-    
+
     if (test_compose) {
         (println "✓ Function composition works")
     } else {
         (println "✗ Function composition failed")
         return 1
     }
-    
+
     if (test_string_function) {
         (println "✓ String functions work")
     } else {
         (println "✗ String functions failed")
         return 1
     }
-    
+
     /* DISABLED - function variables cause crashes
     if (test_conditional_function) {
         (println "✓ Conditional function selection works")
@@ -267,7 +267,7 @@ fn main() -> int {
         return 1
     }
     */
-    
+
     (println "All first-class function tests passed! ✅")
     return 0
 }

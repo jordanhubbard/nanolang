@@ -6,7 +6,7 @@ enum Status {
 }
 
 fn main() -> int {
-    let s: Status = Status.OK
+    let s = Status.OK
     return 0
 }
 

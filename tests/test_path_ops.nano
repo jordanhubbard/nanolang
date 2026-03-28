@@ -9,16 +9,16 @@ fn main() -> int {
     (println "Testing path operations")
     
     unsafe {
-        let p1: string = (path_normalize "/foo/bar")
+        let p1 = (path_normalize "/foo/bar")
         (println p1)
         
-        let p2: string = (path_join "foo" "bar")
+        let p2 = (path_join "foo" "bar")
         (println p2)
         
-        let p3: string = (path_basename "/foo/bar/baz.txt")
+        let p3 = (path_basename "/foo/bar/baz.txt")
         (println p3)
         
-        let p4: string = (path_dirname "/foo/bar/baz.txt")
+        let p4 = (path_dirname "/foo/bar/baz.txt")
         (println p4)
     }
     

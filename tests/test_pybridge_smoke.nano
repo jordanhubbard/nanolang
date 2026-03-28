@@ -3,9 +3,9 @@ from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_ping, pybri
 
 fn test_pybridge_smoke() -> int {
     let reqs: array<string> = (array_new 0 "")
-    let ok: bool = (pybridge_init reqs false)
+    let ok = (pybridge_init reqs false)
     if ok {
-        let pong: string = (pybridge_ping)
+        let pong = (pybridge_ping)
         assert (> (str_length pong) 0)
         (pybridge_shutdown)
     }

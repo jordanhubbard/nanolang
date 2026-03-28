@@ -1,7 +1,7 @@
 /* Test function calls with arguments */
 
 fn add(a: int, b: int) -> int {
-    return (+ a b)
+    return a + b
 }
 
 shadow add {
@@ -10,7 +10,7 @@ shadow add {
 }
 
 fn multiply(x: int, y: int) -> int {
-    return (* x y)
+    return x * y
 }
 
 shadow multiply {
@@ -19,7 +19,7 @@ shadow multiply {
 }
 
 fn maximum(a: int, b: int) -> int {
-    if (> a b) {
+    if a > b {
         return a
     } else {
         return b
@@ -32,7 +32,7 @@ shadow maximum {
 }
 
 fn minimum(a: int, b: int) -> int {
-    if (< a b) {
+    if a < b {
         return a
     } else {
         return b
@@ -45,8 +45,8 @@ shadow minimum {
 }
 
 fn compute(a: int, b: int, c: int) -> int {
-    let temp1: int = (add a b)
-    let temp2: int = (multiply temp1 c)
+    let temp1 = (add a b)
+    let temp2 = (multiply temp1 c)
     return temp2
 }
 
@@ -55,8 +55,8 @@ shadow compute {
 }
 
 fn nested_calls() -> int {
-    let m1: int = (multiply 2 3)
-    let m2: int = (multiply 4 5)
+    let m1 = (multiply 2 3)
+    let m2 = (multiply 4 5)
     return (add m1 m2)
 }
 

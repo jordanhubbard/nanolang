@@ -5,26 +5,26 @@ from "std/math/vector3d.nano" import Vector3D, vec3_new, vec3_zero, vec3_add, ve
 fn test_vector3d_basic() -> bool {
     let v1: Vector3D = (vec3_new 1.0 2.0 3.0)
     let v2: Vector3D = (vec3_new 4.0 5.0 6.0)
-    
+
     # Test addition
     let sum: Vector3D = (vec3_add v1 v2)
-    if (!= sum.x 5.0) {
+    if sum.x != 5.0 {
         return false
     } else {}
-    
+
     # Test dot product
-    let dot: float = (vec3_dot v1 v2)
-    if (!= dot 32.0) {
+    let dot = (vec3_dot v1 v2)
+    if dot != 32.0 {
         return false
     } else {}
-    
+
     # Test length
     let v3: Vector3D = (vec3_new 3.0 4.0 0.0)
-    let len: float = (vec3_length v3)
-    if (!= len 5.0) {
+    let len = (vec3_length v3)
+    if len != 5.0 {
         return false
     } else {}
-    
+
     return true
 }
 
@@ -32,11 +32,11 @@ fn test_vector3d_cross() -> bool {
     let x_axis: Vector3D = (vec3_new 1.0 0.0 0.0)
     let y_axis: Vector3D = (vec3_new 0.0 1.0 0.0)
     let z_axis: Vector3D = (vec3_cross x_axis y_axis)
-    
-    if (!= z_axis.z 1.0) {
+
+    if z_axis.z != 1.0 {
         return false
     } else {}
-    
+
     return true
 }
 
@@ -44,11 +44,11 @@ fn test_vector3d_lerp() -> bool {
     let a: Vector3D = (vec3_new 0.0 0.0 0.0)
     let b: Vector3D = (vec3_new 10.0 10.0 10.0)
     let mid: Vector3D = (vec3_lerp a b 0.5)
-    
-    if (!= mid.x 5.0) {
+
+    if mid.x != 5.0 {
         return false
     } else {}
-    
+
     return true
 }
 
@@ -68,15 +68,15 @@ fn main() -> int {
     if (not (test_vector3d_basic)) {
         return 1
     } else {}
-    
+
     if (not (test_vector3d_cross)) {
         return 1
     } else {}
-    
+
     if (not (test_vector3d_lerp)) {
         return 1
     } else {}
-    
+
     return 0
 }
 

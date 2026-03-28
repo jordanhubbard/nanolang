@@ -7,14 +7,13 @@ fn test1(n: int) -> int {
 }
 
 fn main() -> int {
-    let r: int = (test1 -1)
+    let r = (test1 -1)
     (print "test1(-1) = ")
     (println r)
-    
-    let r2: int = (test1 5)
+
+    let r2 = (test1 5)
     (print "test1(5) = ")
     (println r2)
-    
+
     return 0
 }
-

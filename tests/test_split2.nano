@@ -2,20 +2,20 @@
 from "std/regex/regex.nano" import regex_split
 
 fn main() -> int {
-    let text: string = "a,b;c"
+    let text = "a,b;c"
     let parts: array<string> = (regex_split "[,;]" text)
-    
-    (println (+ "Parts: " (int_to_string (array_length parts))))
-    
-    let p0: string = (array_get parts 0)
-    (println (+ "Part 0: " p0))
-    
-    let p1: string = (array_get parts 1)
-    (println (+ "Part 1: " p1))
-    
-    let p2: string = (array_get parts 2)
-    (println (+ "Part 2: " p2))
-    
+
+    (println f"Parts: {(array_length parts)}")
+
+    let p0 = (array_get parts 0)
+    (println f"Part 0: {p0}")
+
+    let p1 = (array_get parts 1)
+    (println f"Part 1: {p1}")
+
+    let p2 = (array_get parts 2)
+    (println f"Part 2: {p2}")
+
     return 0
 }
 

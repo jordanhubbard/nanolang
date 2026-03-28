@@ -4,12 +4,12 @@ fn test_inner() -> string {
 }
 
 shadow test_inner {
-    let result: string = (test_inner)
+    let result = (test_inner)
     assert (== result "42")
 }
 
 fn test_outer() -> void {
-    let inner_result: string = (int_to_string 42)
+    let inner_result = (int_to_string 42)
     (println inner_result)
 }
 

@@ -15,13 +15,13 @@ fn close_file(f: FileHandle) -> void {
 
 fn main() -> int {
     (println "Testing resource tracking infrastructure")
-    
+
     /* Create a resource */
     let f: FileHandle = (create_file)
-    
+
     /* Use the resource */
     (close_file f)
-    
+
     (println "Resource tracking test passed!")
     return 0
 }

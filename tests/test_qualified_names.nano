@@ -14,7 +14,7 @@ shadow helper {
 fn main() -> int {
     # For now, just test that module declaration works
     # TODO: Test actual qualified name calls once fully implemented
-    let result: int = (helper)
+    let result = (helper)
     (println result)
     return 0
 }
@@ -22,11 +22,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-
-
-
-
-
-
-
-

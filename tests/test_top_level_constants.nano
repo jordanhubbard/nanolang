@@ -12,7 +12,7 @@ fn calculate_circle_area(radius: float) -> float {
 }
 
 shadow calculate_circle_area {
-    let area: float = (calculate_circle_area 10.0)
+    let area = (calculate_circle_area 10.0)
     assert (> area 314.0)
     assert (< area 315.0)
 }
@@ -42,7 +42,7 @@ shadow is_debug {
 }
 
 fn use_multiple_constants() -> int {
-    let area: float = (* PI 2.0)
+    let area = (* PI 2.0)
     if DEBUG_MODE {
         return MAX_SCORE
     } else {
@@ -57,26 +57,26 @@ shadow use_multiple_constants {
 fn main() -> int {
     (println "=== Testing Top-Level Constants ===")
     (println "")
-    
+
     (print "PI = ")
     (println PI)
-    
+
     (print "MAX_SCORE = ")
     (println MAX_SCORE)
-    
+
     (print "GAME_TITLE = ")
     (println GAME_TITLE)
-    
+
     (print "DEBUG_MODE = ")
     (println DEBUG_MODE)
-    
+
     (println "")
     (print "Circle area (radius=10): ")
     (println (calculate_circle_area 10.0))
-    
+
     (println "")
     (println "✅ All top-level constant tests passed!")
-    
+
     return 0
 }
 

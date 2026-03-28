@@ -1,7 +1,7 @@
 /* Test all comparison operators supported by self-hosted compiler */
 
 fn test_equals() -> int {
-    if (== 5 5) {
+    if 5 == 5 {
         return 1
     } else {
         return 0
@@ -13,7 +13,7 @@ shadow test_equals {
 }
 
 fn test_not_equals() -> int {
-    if (!= 5 3) {
+    if 5 != 3 {
         return 1
     } else {
         return 0
@@ -25,7 +25,7 @@ shadow test_not_equals {
 }
 
 fn test_less_than() -> int {
-    if (< 3 5) {
+    if 3 < 5 {
         return 1
     } else {
         return 0
@@ -37,7 +37,7 @@ shadow test_less_than {
 }
 
 fn test_less_equal() -> int {
-    if (<= 5 5) {
+    if 5 <= 5 {
         return 1
     } else {
         return 0
@@ -49,7 +49,7 @@ shadow test_less_equal {
 }
 
 fn test_greater_than() -> int {
-    if (> 10 5) {
+    if 10 > 5 {
         return 1
     } else {
         return 0
@@ -61,7 +61,7 @@ shadow test_greater_than {
 }
 
 fn test_greater_equal() -> int {
-    if (>= 7 7) {
+    if 7 >= 7 {
         return 1
     } else {
         return 0

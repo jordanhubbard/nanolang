@@ -9,7 +9,7 @@ fn main() -> int {
     (print "Point x: ")
     (println (int_to_string p.x))
     
-    if (== p.x 5) {
+    if p.x == 5 {
         (println "✓ Test passed!")
         return 0
     } else {

@@ -40,7 +40,7 @@ fn test_vector2d_ops() -> int {
     assert (approx n.x 0.6)
     assert (approx n.y 0.8)
 
-    let half_pi: float = (/ (pi) 2.0)
+    let half_pi = (/ (pi) 2.0)
     let r: Vector2D = (vec_rotate (vec_new 1.0 0.0) half_pi)
     assert (< (abs r.x) 0.01)
     assert (> r.y 0.99)
@@ -49,7 +49,7 @@ fn test_vector2d_ops() -> int {
     assert (< (abs fa.x) 0.01)
     assert (> fa.y 0.99)
 
-    let ang: float = (vec_to_angle (vec_new 0.0 1.0))
+    let ang = (vec_to_angle (vec_new 0.0 1.0))
     assert (approx ang half_pi)
 
     let l: Vector2D = (vec_lerp (vec_new 0.0 0.0) (vec_new 10.0 0.0) 0.25)

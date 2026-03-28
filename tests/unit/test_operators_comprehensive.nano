@@ -3,10 +3,10 @@
 /* ===== ARITHMETIC OPERATORS ===== */
 
 fn test_addition() -> int {
-    let a: int = (+ 5 3)
-    let b: int = (+ -2 7)
-    let c: int = (+ 0 0)
-    return (+ a (+ b c))
+    let a = (+ 5 3)
+    let b = (+ -2 7)
+    let c = (+ 0 0)
+    return a + (b + c)
 }
 
 shadow test_addition {
@@ -16,10 +16,10 @@ shadow test_addition {
 }
 
 fn test_subtraction() -> int {
-    let a: int = (- 10 3)
-    let b: int = (- 0 5)
-    let c: int = (- -3 -8)
-    return (+ a (+ b c))
+    let a = (- 10 3)
+    let b = (- 0 5)
+    let c = (- -3 -8)
+    return a + (b + c)
 }
 
 shadow test_subtraction {
@@ -29,10 +29,10 @@ shadow test_subtraction {
 }
 
 fn test_multiplication() -> int {
-    let a: int = (* 5 3)
-    let b: int = (* -2 4)
-    let c: int = (* 0 100)
-    return (+ a (+ b c))
+    let a = (* 5 3)
+    let b = (* -2 4)
+    let c = (* 0 100)
+    return a + (b + c)
 }
 
 shadow test_multiplication {
@@ -42,10 +42,10 @@ shadow test_multiplication {
 }
 
 fn test_division() -> int {
-    let a: int = (/ 20 4)
-    let b: int = (/ 15 3)
-    let c: int = (/ -8 2)
-    return (+ a (+ b c))
+    let a = (/ 20 4)
+    let b = (/ 15 3)
+    let c = (/ -8 2)
+    return a + (b + c)
 }
 
 shadow test_division {
@@ -55,10 +55,10 @@ shadow test_division {
 }
 
 fn test_modulo() -> int {
-    let a: int = (% 10 3)
-    let b: int = (% 15 4)
-    let c: int = (% 7 2)
-    return (+ a (+ b c))
+    let a = (% 10 3)
+    let b = (% 15 4)
+    let c = (% 7 2)
+    return a + (b + c)
 }
 
 shadow test_modulo {
@@ -69,25 +69,25 @@ shadow test_modulo {
 }
 
 fn test_float_arithmetic() -> float {
-    let a: float = (+ 2.5 3.5)
-    let b: float = (- 10.0 2.5)
-    let c: float = (* 2.0 3.0)
-    let d: float = (/ 9.0 3.0)
-    return (+ a (+ b (+ c d)))
+    let a = (+ 2.5 3.5)
+    let b = (- 10.0 2.5)
+    let c = (* 2.0 3.0)
+    let d = (/ 9.0 3.0)
+    return a + (b + (c + d))
 }
 
 shadow test_float_arithmetic {
-    let result: float = (test_float_arithmetic)
+    let result = (test_float_arithmetic)
     assert (== result 22.5)
 }
 
 /* ===== COMPARISON OPERATORS ===== */
 
 fn test_equality() -> bool {
-    let a: bool = (== 5 5)
-    let b: bool = (== 10 15)
-    let c: bool = (== "hello" "hello")
-    let d: bool = (== true true)
+    let a = (== 5 5)
+    let b = (== 10 15)
+    let c = (== "hello" "hello")
+    let d = (== true true)
     return (and a (and (not b) (and c d)))
 }
 
@@ -98,9 +98,9 @@ shadow test_equality {
 }
 
 fn test_inequality() -> bool {
-    let a: bool = (!= 5 3)
-    let b: bool = (!= 10 10)
-    let c: bool = (!= "hello" "world")
+    let a = (!= 5 3)
+    let b = (!= 10 10)
+    let c = (!= "hello" "world")
     return (and a (and (not b) c))
 }
 
@@ -111,9 +111,9 @@ shadow test_inequality {
 }
 
 fn test_less_than() -> bool {
-    let a: bool = (< 3 5)
-    let b: bool = (< 10 5)
-    let c: bool = (< 5 5)
+    let a = (< 3 5)
+    let b = (< 10 5)
+    let c = (< 5 5)
     return (and a (and (not b) (not c)))
 }
 
@@ -125,9 +125,9 @@ shadow test_less_than {
 }
 
 fn test_less_equal() -> bool {
-    let a: bool = (<= 3 5)
-    let b: bool = (<= 5 5)
-    let c: bool = (<= 10 5)
+    let a = (<= 3 5)
+    let b = (<= 5 5)
+    let c = (<= 10 5)
     return (and a (and b (not c)))
 }
 
@@ -139,9 +139,9 @@ shadow test_less_equal {
 }
 
 fn test_greater_than() -> bool {
-    let a: bool = (> 5 3)
-    let b: bool = (> 5 10)
-    let c: bool = (> 5 5)
+    let a = (> 5 3)
+    let b = (> 5 10)
+    let c = (> 5 5)
     return (and a (and (not b) (not c)))
 }
 
@@ -153,9 +153,9 @@ shadow test_greater_than {
 }
 
 fn test_greater_equal() -> bool {
-    let a: bool = (>= 5 3)
-    let b: bool = (>= 5 5)
-    let c: bool = (>= 3 5)
+    let a = (>= 5 3)
+    let b = (>= 5 5)
+    let c = (>= 3 5)
     return (and a (and b (not c)))
 }
 
@@ -169,10 +169,10 @@ shadow test_greater_equal {
 /* ===== LOGICAL OPERATORS ===== */
 
 fn test_and_operator() -> bool {
-    let a: bool = (and true true)
-    let b: bool = (and true false)
-    let c: bool = (and false true)
-    let d: bool = (and false false)
+    let a = (and true true)
+    let b = (and true false)
+    let c = (and false true)
+    let d = (and false false)
     return (and a (and (not b) (and (not c) (not d))))
 }
 
@@ -185,10 +185,10 @@ shadow test_and_operator {
 }
 
 fn test_or_operator() -> bool {
-    let a: bool = (or true true)
-    let b: bool = (or true false)
-    let c: bool = (or false true)
-    let d: bool = (or false false)
+    let a = (or true true)
+    let b = (or true false)
+    let c = (or false true)
+    let d = (or false false)
     return (and a (and b (and c (not d))))
 }
 
@@ -201,8 +201,8 @@ shadow test_or_operator {
 }
 
 fn test_not_operator() -> bool {
-    let a: bool = (not false)
-    let b: bool = (not true)
+    let a = (not false)
+    let b = (not true)
     return (and a (not b))
 }
 
@@ -216,7 +216,7 @@ shadow test_not_operator {
 
 fn test_complex_arithmetic() -> int {
     /* ((5 + 3) * 2 - 10) / 2 = (16 - 10) / 2 = 3 */
-    return (/ (- (* (+ 5 3) 2) 10) 2)
+    return ((5 + 3) * 2 - 10) / 2
 }
 
 shadow test_complex_arithmetic {
