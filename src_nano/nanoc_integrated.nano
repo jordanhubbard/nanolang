@@ -152,11 +152,16 @@ extern struct ASTReturn {
     value_type: int
 }
 
+extern struct ASTStmtRef {
+    node_id: int,
+    node_type: int,
+}
+
 extern struct ASTBlock {
     node_type: int,
     line: int,
     column: int,
-    statement_count: int
+    statements: List<ASTStmtRef>,
 }
 
 extern struct ASTFunction {
@@ -2200,12 +2205,12 @@ shadow parser_store_return {
 }
 
 /* Helper: Store block statement node */
-fn parser_store_block(p: Parser, statement_count: int, line: int, column: int) -> Parser {
+fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
         node_type: ParseNodeType.PNODE_BLOCK,
         line: line,
         column: column,
-        statement_count: statement_count
+        statements: stmts,
     }
     
     let block_id: int = p.blocks_count
@@ -2258,7 +2263,7 @@ shadow parser_store_block {
 
 /* Parse block: { statements } */
 /* Uses recursive helper for functional style */
-fn parse_block_recursive(p: Parser, statement_count: int, start_line: int, start_column: int) -> Parser {
+fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     if (parser_has_error p) {
         return p
     } else {
@@ -2266,19 +2271,20 @@ fn parse_block_recursive(p: Parser, statement_count: int, start_line: int, start
             return (parser_with_error p true)
         } else {
             let tok: LexerToken = (parser_current p)
-            
+
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
                 let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_block p1 statement_count start_line start_column)
+                return (parser_store_block p1 stmts start_line start_column)
             } else {
-                /* Parse statement */
+                /* Parse statement and record it in stmts */
                 let p2: Parser = (parse_statement p)
                 if (parser_has_error p2) {
                     return p2
                 } else {
-                    /* Continue parsing more statements */
-                    return (parse_block_recursive p2 (+ statement_count 1) start_line start_column)
+                    let stmt: ASTStmtRef = ASTStmtRef { node_id: p2.last_expr_node_id, node_type: p2.last_expr_node_type }
+                    (list_ASTStmtRef_push stmts stmt)
+                    return (parse_block_recursive p2 stmts start_line start_column)
                 }
             }
         }
@@ -2293,7 +2299,7 @@ fn parse_block(p: Parser) -> Parser {
         
         if (== tok.token_type (token_lbrace)) {
             let p1: Parser = (parser_advance p)  /* consume '{' */
-            return (parse_block_recursive p1 0 tok.line tok.column)
+            return (parse_block_recursive p1 (list_ASTStmtRef_new) tok.line tok.column)
         } else {
             return (parser_with_error p true)
         }

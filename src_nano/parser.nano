@@ -2521,7 +2521,6 @@ fn parse_primary(p: Parser) -> Parser {
                         /* Store identifier node for 'peg2_compile' */
                         let p2: Parser = (parser_store_identifier p1 "peg2_compile" tok.line tok.column)
                         let func_id: int = p2.last_expr_node_id
-                        let func_type: int = p2.last_expr_node_type
                         let arg_start: int = (list_ASTLet_length p2.lets)
                         /* Store string node for the grammar body */
                         let p3: Parser = (parser_store_string p2 body_tok.value tok.line tok.column)
@@ -5221,17 +5220,6 @@ shadow parse_statement {
 
 /* Helper: Store function node */
 fn parser_store_function(p: Parser, name: string, param_start: int, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
-    let lets_count_now: int = (list_ASTLet_length p.lets)
-    if (> param_start 150) {
-        (print "DEBUG store_function: name=")
-        (print name)
-        (print ", param_start=")
-        (print (int_to_string param_start))
-        (print ", body=")
-        (print (int_to_string body_id))
-        (print ", lets_count=")
-        (println (int_to_string lets_count_now))
-    } else { (print "") }
     let node: ASTFunction = ASTFunction {
         node_type: ParseNodeType.PNODE_FUNCTION,
         line: line,

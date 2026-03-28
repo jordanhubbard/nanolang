@@ -1316,6 +1316,25 @@ static void generate_list_implementations(Environment *env, StringBuilder *sb) {
             sb_appendf(sb, "    return list ? list->count : 0;\n");
             sb_appendf(sb, "}\n\n");
 
+            /* Emit unqualified aliases (without nl_ prefix) so user code that
+             * declares 'extern fn list_X_push(...)' resolves to the generated
+             * implementation without needing forward declarations. */
+            sb_appendf(sb, "#ifndef list_%s_new\n", type_name);
+            sb_appendf(sb, "#define list_%s_new nl_list_%s_new\n", type_name, type_name);
+            sb_appendf(sb, "#endif\n");
+            sb_appendf(sb, "#ifndef list_%s_push\n", type_name);
+            sb_appendf(sb, "#define list_%s_push nl_list_%s_push\n", type_name, type_name);
+            sb_appendf(sb, "#endif\n");
+            sb_appendf(sb, "#ifndef list_%s_get\n", type_name);
+            sb_appendf(sb, "#define list_%s_get nl_list_%s_get\n", type_name, type_name);
+            sb_appendf(sb, "#endif\n");
+            sb_appendf(sb, "#ifndef list_%s_set\n", type_name);
+            sb_appendf(sb, "#define list_%s_set nl_list_%s_set\n", type_name, type_name);
+            sb_appendf(sb, "#endif\n");
+            sb_appendf(sb, "#ifndef list_%s_length\n", type_name);
+            sb_appendf(sb, "#define list_%s_length nl_list_%s_length\n", type_name, type_name);
+            sb_appendf(sb, "#endif\n\n");
+
             free(prefixed_elem_type);
         }
 
