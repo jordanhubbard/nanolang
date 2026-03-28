@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.3] - 2026-03-28
+
+### Added
+- Fill in all 27 placeholder user guide pages in Part 3 (text processing,
+  data formats, web/networking, graphics, OpenGL, game dev, terminal UI,
+  testing, configuration) with full API references, examples, and best practices
+- Fill in 3 previously-empty API reference pages (StringBuilder, coverage,
+  vector2d) by marking their public functions as pub fn
+
+### Fixed
+- Reconcile user guide and API doc generator with v3.3.2 stdlib refactor:
+  update stringbuilder.md to new sb_* API, update regex.md import paths,
+  fix generate_all_api_docs.sh module paths
+- Fix pre-existing StringBuilder_to_string shadow test (discarded append
+  return value under immutable semantics)
+- Fix userguide_build_html HashMap: module pub fn unreachable from regular
+  functions; replace with inline get_theme_color() lookup
+
 ## [3.3.2] - 2026-03-28
 
 ### Changed
