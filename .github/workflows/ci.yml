@@ -446,12 +446,13 @@ jobs:
           sudo apt-get install -y \
             clang \
             libblocksruntime-dev \
-            libdispatch-dev \
             pkg-config \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev
+          # libdispatch-dev was removed from Ubuntu 24.04; install if available
+          sudo apt-get install -y libdispatch-dev || true
 
       - name: Build stage 1 with clang
         run: make stage1 CC=clang
