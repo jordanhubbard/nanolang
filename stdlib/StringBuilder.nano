@@ -31,7 +31,7 @@ let STRINGBUILDER_INITIAL_CAPACITY: int = 256
 let STRINGBUILDER_GROWTH_FACTOR: int = 2
 
 /* Create a new StringBuilder with default capacity */
-fn StringBuilder_new() -> StringBuilder {
+pub fn StringBuilder_new() -> StringBuilder {
     return StringBuilder {
         buffer: "",
         length: 0,
@@ -46,7 +46,7 @@ shadow StringBuilder_new {
 }
 
 /* Create a new StringBuilder with specific initial capacity */
-fn StringBuilder_with_capacity(capacity: int) -> StringBuilder
+pub fn StringBuilder_with_capacity(capacity: int) -> StringBuilder
 requires (> capacity 0)
 {
     return StringBuilder {
@@ -62,7 +62,7 @@ shadow StringBuilder_with_capacity {
 }
 
 /* Append a string to the StringBuilder (returns new StringBuilder) */
-fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
+pub fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder {
     let text_len: int = (str_length text)
     
     if (== text_len 0) {
@@ -106,7 +106,7 @@ shadow StringBuilder_append {
 }
 
 /* Append a string with a newline (returns new StringBuilder) */
-fn StringBuilder_append_line(sb: StringBuilder, text: string) -> StringBuilder {
+pub fn StringBuilder_append_line(sb: StringBuilder, text: string) -> StringBuilder {
     let sb2: StringBuilder = (StringBuilder_append sb text)
     return (StringBuilder_append sb2 "\n")
 }
@@ -119,7 +119,7 @@ shadow StringBuilder_append_line {
 }
 
 /* Append an integer (converted to string, returns new StringBuilder) */
-fn StringBuilder_append_int(sb: StringBuilder, n: int) -> StringBuilder {
+pub fn StringBuilder_append_int(sb: StringBuilder, n: int) -> StringBuilder {
     let s: string = (int_to_string n)
     return (StringBuilder_append sb s)
 }
@@ -135,7 +135,7 @@ shadow StringBuilder_append_int {
 }
 
 /* Append a character (ASCII value, returns new StringBuilder) */
-fn StringBuilder_append_char(sb: StringBuilder, c: int) -> StringBuilder {
+pub fn StringBuilder_append_char(sb: StringBuilder, c: int) -> StringBuilder {
     let s: string = (string_from_char c)
     return (StringBuilder_append sb s)
 }
@@ -148,19 +148,19 @@ shadow StringBuilder_append_char {
 }
 
 /* Get the current content as a string */
-fn StringBuilder_to_string(sb: StringBuilder) -> string {
+pub fn StringBuilder_to_string(sb: StringBuilder) -> string {
     return sb.buffer
 }
 
 shadow StringBuilder_to_string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    (StringBuilder_append sb "Test")
-    let result: string = (StringBuilder_to_string sb)
+    let sb0: StringBuilder = (StringBuilder_new)
+    let sb1: StringBuilder = (StringBuilder_append sb0 "Test")
+    let result: string = (StringBuilder_to_string sb1)
     assert (== (== result "Test") true)
 }
 
 /* Get current length */
-fn StringBuilder_length(sb: StringBuilder) -> int
+pub fn StringBuilder_length(sb: StringBuilder) -> int
 ensures (>= result 0)
 {
     return sb.length
@@ -174,7 +174,7 @@ shadow StringBuilder_length {
 }
 
 /* Clear the StringBuilder (reset to empty, returns new StringBuilder) */
-fn StringBuilder_clear(sb: StringBuilder) -> StringBuilder {
+pub fn StringBuilder_clear(sb: StringBuilder) -> StringBuilder {
     return StringBuilder {
         buffer: "",
         length: 0,
@@ -192,7 +192,7 @@ shadow StringBuilder_clear {
 }
 
 /* Check if StringBuilder is empty */
-fn StringBuilder_is_empty(sb: StringBuilder) -> bool {
+pub fn StringBuilder_is_empty(sb: StringBuilder) -> bool {
     return (== sb.length 0)
 }
 
@@ -206,7 +206,7 @@ shadow StringBuilder_is_empty {
 }
 
 /* Build a string from multiple parts efficiently */
-fn StringBuilder_from_parts(parts: array<string>) -> string {
+pub fn StringBuilder_from_parts(parts: array<string>) -> string {
     let sb_start: StringBuilder = (StringBuilder_new)
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
@@ -231,7 +231,7 @@ shadow StringBuilder_from_parts {
 }
 
 /* Join strings with a separator */
-fn StringBuilder_join(parts: array<string>, separator: string) -> string {
+pub fn StringBuilder_join(parts: array<string>, separator: string) -> string {
     let sb_start: StringBuilder = (StringBuilder_new)
     let count: int = (array_length parts)
     let mut sb: StringBuilder = sb_start
@@ -259,7 +259,7 @@ shadow StringBuilder_join {
 }
 
 /* Repeat a string n times */
-fn StringBuilder_repeat(text: string, n: int) -> string
+pub fn StringBuilder_repeat(text: string, n: int) -> string
 requires (>= n 0)
 {
     let sb_start: StringBuilder = (StringBuilder_new)
@@ -278,7 +278,7 @@ shadow StringBuilder_repeat {
 }
 
 /* Build indentation string (spaces) */
-fn StringBuilder_indent(level: int, spaces_per_level: int) -> string
+pub fn StringBuilder_indent(level: int, spaces_per_level: int) -> string
 requires (>= level 0)
 requires (>= spaces_per_level 0)
 {

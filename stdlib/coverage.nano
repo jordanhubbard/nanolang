@@ -16,7 +16,7 @@ let mut g_coverage_enabled: bool = false
 let mut g_coverage_points: array<CoveragePoint> = []
 
 # Initialize coverage tracking
-fn coverage_init() -> void {
+pub fn coverage_init() -> void {
     set g_coverage_enabled true
     set g_coverage_points []
 }
@@ -27,7 +27,7 @@ shadow coverage_init {
 }
 
 # Record a coverage point hit
-fn coverage_record(file: string, line: int, column: int) -> void {
+pub fn coverage_record(file: string, line: int, column: int) -> void {
     if g_coverage_enabled {
         # Find existing point or create new (rebuild array to avoid array_set on dynamic arrays)
         let mut found: bool = false
@@ -74,7 +74,7 @@ shadow coverage_record {
 }
 
 # Get total number of coverage points hit
-fn coverage_get_hit_count() -> int {
+pub fn coverage_get_hit_count() -> int {
     return (array_length g_coverage_points)
 }
 
@@ -84,7 +84,7 @@ shadow coverage_get_hit_count {
 }
 
 # Get number of times a specific line was executed
-fn coverage_get_line_hits(file: string, line: int) -> int {
+pub fn coverage_get_line_hits(file: string, line: int) -> int {
     let mut i: int = 0
     while (< i (array_length g_coverage_points)) {
         let point: CoveragePoint = (at g_coverage_points i)
@@ -103,7 +103,7 @@ shadow coverage_get_line_hits {
 }
 
 # Print coverage report
-fn coverage_report() -> void {
+pub fn coverage_report() -> void {
     (println "========================================")
     (println "Coverage Report")
     (println "========================================")
@@ -137,7 +137,7 @@ shadow coverage_report {
 }
 
 # Reset coverage data
-fn coverage_reset() -> void {
+pub fn coverage_reset() -> void {
     set g_coverage_points []
 }
 
@@ -149,7 +149,7 @@ shadow coverage_reset {
 }
 
 # Disable coverage tracking
-fn coverage_disable() -> void {
+pub fn coverage_disable() -> void {
     set g_coverage_enabled false
 }
 
@@ -174,7 +174,7 @@ struct TimingPoint {
 let mut g_timing_points: array<TimingPoint> = []
 
 # Start timing a labeled section — returns current time in milliseconds
-fn timing_start(label: string) -> int {
+pub fn timing_start(label: string) -> int {
     let _label: string = label
     return (nl_get_time_ms)
 }
@@ -185,7 +185,7 @@ shadow timing_start {
 }
 
 # End timing a labeled section
-fn timing_end(label: string, start_time: int) -> void {
+pub fn timing_end(label: string, start_time: int) -> void {
     let end_time: int = (nl_get_time_ms)
     let elapsed: int = (- end_time start_time)
     
@@ -230,7 +230,7 @@ shadow timing_end {
 }
 
 # Print timing report
-fn timing_report() -> void {
+pub fn timing_report() -> void {
     (println "========================================")
     (println "Performance Timing Report")
     (println "========================================")
@@ -264,7 +264,7 @@ shadow timing_report {
 }
 
 # Reset timing data
-fn timing_reset() -> void {
+pub fn timing_reset() -> void {
     set g_timing_points []
 }
 
@@ -287,7 +287,7 @@ let mut g_trace_events: array<TraceEvent> = []
 let mut g_trace_max_events: int = 10000
 
 # Initialize tracing
-fn trace_init() -> void {
+pub fn trace_init() -> void {
     set g_trace_enabled true
     set g_trace_events []
 }
@@ -297,7 +297,7 @@ shadow trace_init {
     assert g_trace_enabled
 }
 
-fn trace_init_with_limit(max_events: int) -> void {
+pub fn trace_init_with_limit(max_events: int) -> void {
     set g_trace_enabled true
     set g_trace_events []
     set g_trace_max_events max_events
@@ -310,7 +310,7 @@ shadow trace_init_with_limit {
 }
 
 # Record a trace event
-fn trace_record(event_type: string, location: string, details: string) -> void {
+pub fn trace_record(event_type: string, location: string, details: string) -> void {
     if g_trace_enabled {
         if (< (array_length g_trace_events) g_trace_max_events) {
             let event: TraceEvent = TraceEvent {
@@ -331,7 +331,7 @@ shadow trace_record {
 }
 
 # Print trace
-fn trace_report() -> void {
+pub fn trace_report() -> void {
     (println "========================================")
     (println "Execution Trace")
     (println "========================================")
@@ -367,7 +367,7 @@ shadow trace_report {
 }
 
 # Disable tracing
-fn trace_disable() -> void {
+pub fn trace_disable() -> void {
     set g_trace_enabled false
 }
 
@@ -377,7 +377,7 @@ shadow trace_disable {
 }
 
 # Reset trace
-fn trace_reset() -> void {
+pub fn trace_reset() -> void {
     set g_trace_events []
 }
 
