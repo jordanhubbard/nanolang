@@ -1,6 +1,6 @@
 /* Test matrix4 and timing contracts */
 
-from "stdlib/std/math/matrix4.nano" import Mat4, mat4_identity, mat4_get, mat4_set
+from "modules/std/math/matrix4.nano" import Mat4, mat4_identity, mat4_get, mat4_set
 from "stdlib/timing.nano" import format_microseconds, format_nanoseconds
 
 fn test_matrix_contracts() -> bool {

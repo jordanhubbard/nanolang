@@ -1,10 +1,10 @@
 /* Test stdlib math library contracts */
 
-from "stdlib/std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_distance, vec_clamp_length
-from "stdlib/std/math/vector3d.nano" import Vector3D, vec3_new, vec3_length, vec3_distance, vec3_clamp_length
-from "stdlib/std/math/extended.nano" import clamp
-from "stdlib/std/math/array_ops.nano" import array_min, array_max, array_norm
-from "stdlib/std/math/complex.nano" import Complex, complex_new, complex_abs
+from "modules/std/math/vector2d.nano" import Vector2D, vec_new, vec_length, vec_distance, vec_clamp_length
+from "modules/std/math/vector3d.nano" import Vector3D, vec3_new, vec3_length, vec3_distance, vec3_clamp_length
+from "modules/std/math/extended.nano" import clamp
+from "modules/std/math/array_ops.nano" import array_min, array_max, array_norm
+from "modules/std/math/complex.nano" import Complex, complex_new, complex_abs
 
 fn test_vec2_contracts() -> bool {
     /* Test vec_length ensures >= 0 */

@@ -3,7 +3,7 @@
 # Replaces gen_compiler_schema.py for Python-free bootstrap
 
 from "std/fs.nano" import read, write, join, file_delete
-from "std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, object_has, object_keys
+from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, object_has, keys
 
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
