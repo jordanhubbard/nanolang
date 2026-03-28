@@ -5,6 +5,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.2] - 2026-03-28
+
+### Changed
+- remove redundant stdlib/std, std/json, and unused stdlib files
+- retire stdlib/regex.nano in favour of std/regex/regex.nano
+- modernize all test files to current nanolang syntax
+
+### Fixed
+- mark public APIs as pub fn so API reference generator picks them up
+- resolve three CI failures introduced by modernize-tests commit
+- restore explicit type annotations for array_pop calls in test_dynamic_arrays.nano
+- resolve stage3 bootstrap blockers
+- make libdispatch-dev install optional in Concurrency CI job
+- add out_path null guard in ffi_loader_find_library
+- use memcpy instead of snprintf in nl_walkdir_rec to avoid format-truncation
+- suppress GCC format-truncation false positive in eval_io.c
+- typechecker null-guard and regex test private API usage
+- update .nano files to use public fs.nano API
+- correct CI failures — typechecker exit code and module.c truncation
+- resolve module paths correctly when cwd is not repo root
+
 ## [3.3.1] - 2026-03-27
 
 ### Added
