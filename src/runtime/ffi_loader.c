@@ -224,7 +224,7 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
 
 bool ffi_loader_find_library(const char *module_name, const char *module_dir,
                              char *out_path, size_t path_size) {
-    if (!module_name) return false;
+    if (!module_name || !out_path || path_size == 0) return false;
 
     /* Normalize: strip "modules/" prefix and ".nano" suffix */
     char normalized[512];
