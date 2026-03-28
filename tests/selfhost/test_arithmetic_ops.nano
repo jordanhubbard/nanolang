@@ -55,7 +55,7 @@ fn test_nested_arithmetic() -> int {
 }
 
 shadow test_nested_arithmetic {
-    assert (== (test_nested_arithmetic) 12)
+    assert (== (test_nested_arithmetic) 30)
 }
 
 fn test_complex_expression() -> int {

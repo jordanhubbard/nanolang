@@ -41,7 +41,7 @@ shadow match_in_expression {
 }
 
 fn main() -> int {
-    let opt = Option.Some { value: 7 }
+    let opt: Option = Option.Some { value: 7 }
     let result = (double_option opt)
     if result == 14 {
         return 0

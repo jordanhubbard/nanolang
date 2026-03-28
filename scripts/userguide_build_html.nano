@@ -1,7 +1,7 @@
 from "modules/std/fs.nano" import walkdir, read, write, append, exists, dirname, basename, join, mkdir_p, copy_dir, copy_file, relpath
 from "modules/std/process.nano" import exec
 from "modules/std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line, sb_to_string, sb_join
-from "modules/std/collections/hashmap.nano" import HashMap, map_new, map_put, map_has, map_get
+/* Note: HashMap module pub fn is not callable from regular functions; use inline lookup instead */
 from "modules/std/collections/array_utils.nano" import array_sort_strings, str_compare
 from "modules/std/env.nano" import get
 from "modules/std/log/log.nano" import set_log_level, LOG_LEVEL_DEBUG, log_debug
@@ -842,22 +842,22 @@ shadow md_to_html {
 
 
 
-fn init_theme_map() -> HashMap {
-    let mut hm: HashMap = (map_new)
-    set hm (map_put hm "01_getting_started" "#7aa2f7")
-    set hm (map_put hm "02_control_flow" "#9ece6a")
-    set hm (map_put hm "03_basic_types" "#f7768e")
-    set hm (map_put hm "04_higher_level_patterns" "#e0af68")
-    set hm (map_put hm "05_modules" "#7dcfff")
-    set hm (map_put hm "06_canonical_syntax" "#bb9af7")
-    set hm (map_put hm "README" "#a1a1aa")
-    set hm (map_put hm "index" "#7aa2f7")
-    return hm
+fn get_theme_color(stem: string) -> string {
+    if (== stem "01_getting_started") { return "#7aa2f7" } else { (print "") }
+    if (== stem "02_control_flow") { return "#9ece6a" } else { (print "") }
+    if (== stem "03_basic_types") { return "#f7768e" } else { (print "") }
+    if (== stem "04_higher_level_patterns") { return "#e0af68" } else { (print "") }
+    if (== stem "05_modules") { return "#7dcfff" } else { (print "") }
+    if (== stem "06_canonical_syntax") { return "#bb9af7" } else { (print "") }
+    if (== stem "README") { return "#a1a1aa" } else { (print "") }
+    if (== stem "index") { return "#7aa2f7" } else { (print "") }
+    return "#7aa2f7"
 }
 
-shadow init_theme_map {
-    let hm: HashMap = (init_theme_map)
-    assert (map_has hm "index")
+shadow get_theme_color {
+    assert (== (get_theme_color "index") "#7aa2f7")
+    assert (== (get_theme_color "03_basic_types") "#f7768e")
+    assert (== (get_theme_color "unknown") "#7aa2f7")
 }
 
 /* Convert int to string with zero-padding (e.g., 5 -> "0005" with width 4) */
@@ -1414,7 +1414,7 @@ fn main() -> int {
         (log_debug "userguide: Starting userguide build")
     }
     if (trace_enabled) { (append "/tmp/userguide_build_html.log" "userguide-html: start\n") } else { (print "") }
-    let theme_map: HashMap = (init_theme_map)
+    /* theme colors looked up inline via get_theme_color */
     let src_dir: string = "userguide"
     let out_dir: string = "build/userguide/html"
     let assets_dir: string = (+ out_dir "/assets")
@@ -1523,10 +1523,8 @@ fn main() -> int {
         let css_href: string = (relpath_copy (join out_dir "assets/style.css") page_dir)
         let home_href: string = (relpath_copy (join out_dir "index.html") page_dir)
         let mascot_href: string = (relpath_copy (join out_dir "assets/Nanolang_Mascot.png") page_dir)
-        let mut accent: string = "#7aa2f7"
-        if (map_has theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3))) {
-            set accent (map_get theme_map (str_substring (basename rel) 0 (- (str_length (basename rel)) 3)))
-        }
+        let stem_key: string = (str_substring (basename rel) 0 (- (str_length (basename rel)) 3))
+        let mut accent: string = (get_theme_color stem_key)
 
         let mut prev_html: string = ""
         if (> idx 0) {
