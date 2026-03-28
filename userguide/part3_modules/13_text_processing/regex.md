@@ -11,7 +11,7 @@ All compiled patterns are garbage-collected — there is no manual memory manage
 ## Quick Start
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, find_all, replace_all, split, Regex
+from "std/regex/regex.nano" import compile, matches, find_all, replace_all, split, Regex
 
 fn main() -> int {
     # Validate an email address
@@ -42,11 +42,11 @@ shadow main {
 ## Import
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, find, find_all, groups,
+from "std/regex/regex.nano" import compile, matches, find, find_all, groups,
                                    replace, replace_all, split, Regex
 
 # Quick (one-shot) variants — no Regex handle required:
-from "stdlib/regex.nano" import quick_match, quick_find, quick_replace, quick_split
+from "std/regex/regex.nano" import quick_match, quick_find, quick_replace, quick_split
 ```
 
 Import only what you need. `Regex` is the opaque type returned by `compile`; you must import it to annotate variables that hold compiled patterns.
@@ -79,7 +79,7 @@ Compiles a POSIX extended regular expression and returns an opaque `Regex` handl
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, Regex
+from "std/regex/regex.nano" import compile, Regex
 
 fn make_email_validator() -> Regex {
     return (compile "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
@@ -108,7 +108,7 @@ Tests whether `text` contains at least one match for the compiled pattern. The m
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn validate_hex_color(s: string) -> bool {
     let re: Regex = (compile "^#[0-9a-fA-F]{6}$")
@@ -145,7 +145,7 @@ Locates the first match of the pattern in `text` and returns its byte offset.
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, find, Regex
+from "std/regex/regex.nano" import compile, find, Regex
 
 fn find_first_number(text: string) -> int {
     let re: Regex = (compile "[0-9]+")
@@ -180,7 +180,7 @@ Finds every non-overlapping match in `text` and returns their starting byte offs
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, find_all, Regex
+from "std/regex/regex.nano" import compile, find_all, Regex
 
 fn count_vowels(text: string) -> int {
     let re: Regex = (compile "[aeiouAEIOU]")
@@ -216,7 +216,7 @@ Executes the pattern against `text` and extracts capture groups from the first m
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, groups, Regex
+from "std/regex/regex.nano" import compile, groups, Regex
 
 fn parse_date(date_str: string) -> array<string> {
     # Matches "YYYY-MM-DD" and captures year, month, day separately
@@ -257,7 +257,7 @@ Returns a new string with the **first** occurrence of the pattern replaced by `r
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, replace, Regex
+from "std/regex/regex.nano" import compile, replace, Regex
 
 fn censor_first_swear(text: string) -> string {
     let re: Regex = (compile "darn|shoot|heck")
@@ -292,7 +292,7 @@ Returns a new string with **every** occurrence of the pattern replaced by `repla
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, replace_all, Regex
+from "std/regex/regex.nano" import compile, replace_all, Regex
 
 fn normalize_whitespace(text: string) -> string {
     let re: Regex = (compile "[ \\t]+")
@@ -326,7 +326,7 @@ Splits `text` into segments using the pattern as a delimiter. The matched delimi
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import compile, split, Regex
+from "std/regex/regex.nano" import compile, split, Regex
 
 fn parse_csv_line(line: string) -> array<string> {
     # Split on comma with optional surrounding whitespace
@@ -359,7 +359,7 @@ fn quick_split(pattern: string, text: string) -> array<string>
 **Example:**
 
 ```nano
-from "stdlib/regex.nano" import quick_match, quick_find, quick_replace, quick_split
+from "std/regex/regex.nano" import quick_match, quick_find, quick_replace, quick_split
 
 fn demo_quick() -> bool {
     let is_zip: bool   = (quick_match "[0-9]{5}" "90210")
@@ -391,7 +391,7 @@ Explicitly releases the memory associated with a compiled pattern. Under normal 
 ### Example 1: Email Validation
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn is_valid_email(email: string) -> bool {
     let re: Regex = (compile "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
@@ -410,7 +410,7 @@ shadow is_valid_email {
 ### Example 2: Extracting All Numbers from Text
 
 ```nano
-from "stdlib/regex.nano" import compile, find_all, Regex
+from "std/regex/regex.nano" import compile, find_all, Regex
 
 fn extract_numbers_as_positions(text: string) -> int {
     let re: Regex = (compile "[0-9]+")
@@ -427,7 +427,7 @@ shadow extract_numbers_as_positions {
 ### Example 3: Parsing Structured Text with Capture Groups
 
 ```nano
-from "stdlib/regex.nano" import compile, groups, Regex
+from "std/regex/regex.nano" import compile, groups, Regex
 
 struct LogEntry {
     level: string,
@@ -462,7 +462,7 @@ shadow parse_log_line {
 ### Example 4: Data Sanitization Pipeline
 
 ```nano
-from "stdlib/regex.nano" import compile, replace_all, Regex
+from "std/regex/regex.nano" import compile, replace_all, Regex
 
 fn sanitize_identifier(raw: string) -> string {
     # Replace non-alphanumeric/underscore chars with underscore
@@ -484,7 +484,7 @@ shadow sanitize_identifier {
 ### Example 5: URL Extraction
 
 ```nano
-from "stdlib/regex.nano" import compile, find, find_all, Regex
+from "std/regex/regex.nano" import compile, find, find_all, Regex
 
 fn has_url(text: string) -> bool {
     let re: Regex = (compile "https?://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
@@ -553,7 +553,7 @@ let good: Regex = (compile "[0-9]+")
 **`matches` is substring, not full-string.** A pattern without anchors matches if it appears *anywhere* in the string.
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn example_anchor() -> void {
     let re: Regex = (compile "[0-9]+")
@@ -571,7 +571,7 @@ let digits_only: Regex = (compile "^[0-9]+$")
 **Compiling inside a tight loop.** Compiling a regex is expensive compared to matching. If the same pattern is used repeatedly, compile it once outside the loop.
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn validate_batch(items: array<string>) -> int {
     let re: Regex = (compile "^[a-z]+$")    # compile ONCE
@@ -590,7 +590,7 @@ fn validate_batch(items: array<string>) -> int {
 **`groups` returns empty array on no match.** Always check the array length before indexing.
 
 ```nano
-from "stdlib/regex.nano" import compile, groups, Regex
+from "std/regex/regex.nano" import compile, groups, Regex
 
 fn safe_group_extract(text: string) -> string {
     let re: Regex = (compile "([0-9]{4})-([0-9]{2})")

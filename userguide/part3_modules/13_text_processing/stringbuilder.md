@@ -2,7 +2,7 @@
 
 **Amortized O(n) string assembly for loops, templates, and large output generation.**
 
-The `stdlib/StringBuilder.nano` module provides a `StringBuilder` struct and a collection of functions for building strings incrementally without the quadratic cost of repeated concatenation. Each `StringBuilder_append` call returns a new `StringBuilder` value with the text added — the underlying implementation tracks a buffer and length, expanding the buffer geometrically so that the total cost of N appends is O(N) rather than O(N²).
+The `modules/std/collections/stringbuilder.nano` module provides a `StringBuilder` type and a collection of functions for building strings incrementally without the quadratic cost of repeated concatenation. Each `sb_append` call mutates the builder in-place and returns the same `StringBuilder` — the underlying C buffer grows geometrically so that the total cost of N appends is O(N) rather than O(N²).
 
 Use StringBuilder whenever you are assembling a string in a loop, generating a document or report, or concatenating more than a handful of fragments. For simple two-or-three piece joins, plain `+` is fine.
 
@@ -11,24 +11,24 @@ Use StringBuilder whenever you are assembling a string in a loop, generating a d
 ## Quick Start
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_to_string, StringBuilder
 
 fn build_greeting(names: array<string>) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "Hello to: ")
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "Hello to: ")
 
     let mut i: int = 0
     while (< i (array_length names)) {
         if (!= i 0) {
-            set sb (StringBuilder_append sb ", ")
+            set sb (sb_append sb ", ")
         }
-        set sb (StringBuilder_append sb (array_get names i))
+        set sb (sb_append sb (at names i))
         set i (+ i 1)
     }
 
-    set sb (StringBuilder_append sb "!")
-    return (StringBuilder_to_string sb)
+    set sb (sb_append sb "!")
+    return (sb_to_string sb)
 }
 
 shadow build_greeting {
@@ -46,14 +46,14 @@ shadow build_greeting {
 ## Import
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_line, StringBuilder_append_int,
-                                         StringBuilder_append_char, StringBuilder_to_string,
-                                         StringBuilder_length, StringBuilder_clear,
-                                         StringBuilder_is_empty, StringBuilder_with_capacity,
-                                         StringBuilder_from_parts, StringBuilder_join,
-                                         StringBuilder_repeat, StringBuilder_indent,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_with_capacity,
+                                                   sb_append, sb_append_line,
+                                                   sb_append_int, sb_append_char,
+                                                   sb_to_string, sb_length, sb_capacity,
+                                                   sb_clear, sb_is_empty, sb_free,
+                                                   sb_from_parts, sb_join,
+                                                   sb_repeat, sb_indent,
+                                                   StringBuilder
 ```
 
 Import only the functions you need. `StringBuilder` is the struct type; import it to annotate variables.
@@ -82,54 +82,43 @@ N appends:    ~N total bytes copied  →  O(N) amortized
 
 ---
 
-## The Immutable Value Pattern
+## Key Concept: Mutable Handle Semantics
 
-`StringBuilder` in `stdlib/StringBuilder.nano` is a plain struct (not an opaque handle). Each `StringBuilder_append` call returns a *new* `StringBuilder` value. You must capture the return value or the append has no effect.
-
-```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_to_string, StringBuilder
-
-fn wrong_usage() -> string {
-    let sb: StringBuilder = (StringBuilder_new)
-    (StringBuilder_append sb "Hello")   # Return value discarded — BUG!
-    return (StringBuilder_to_string sb) # Returns ""
-}
-
-fn correct_usage() -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "Hello")   # Capture the new value
-    set sb (StringBuilder_append sb " World")
-    return (StringBuilder_to_string sb)  # Returns "Hello World"
-}
-
-shadow correct_usage {
-    assert (== (correct_usage) "Hello World")
-}
-```
+> **`StringBuilder` wraps an opaque C handle.** Unlike plain NanoLang structs, the underlying buffer is mutated in-place by every `sb_append` call. `sb_append` returns the same `StringBuilder` value (same handle) for chaining convenience, but the mutation has already occurred — there is no separate "before" and "after" value.
+>
+> This means two variables that hold the same `StringBuilder` (e.g. after an assignment without `sb_clear`) share the same underlying buffer. In practice, always use a single `mut` variable and `set` it:
+>
+> ```nano
+> let mut sb: StringBuilder = (sb_new)
+> set sb (sb_append sb "Hello")   # mutates buffer, returns same sb
+> set sb (sb_append sb " World")
+> let result: string = (sb_to_string sb)  # "Hello World"
+> ```
+>
+> When you are done with a builder that you created, call `sb_free` to release the C buffer. Builders created by `sb_from_parts`, `sb_join`, `sb_repeat`, and `sb_indent` are freed internally — do not free them again.
 
 ---
 
 ## API Reference
 
-### `StringBuilder_new`
+### `sb_new`
 
 ```nano
-fn StringBuilder_new() -> StringBuilder
+fn sb_new() -> StringBuilder
 ```
 
-Creates a new, empty `StringBuilder` with a default initial capacity of 256 bytes. The capacity grows automatically as content is appended.
+Creates a new, empty `StringBuilder` with a default initial capacity. The capacity grows automatically as content is appended.
 
 **Returns:** An empty `StringBuilder` with `length = 0`.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_length, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_length, StringBuilder
 
 fn example_new() -> bool {
-    let sb: StringBuilder = (StringBuilder_new)
-    return (== (StringBuilder_length sb) 0)
+    let sb: StringBuilder = (sb_new)
+    return (== (sb_length sb) 0)
 }
 
 shadow example_new {
@@ -139,11 +128,10 @@ shadow example_new {
 
 ---
 
-### `StringBuilder_with_capacity`
+### `sb_with_capacity`
 
 ```nano
-fn StringBuilder_with_capacity(capacity: int) -> StringBuilder
-requires (> capacity 0)
+fn sb_with_capacity(capacity: int) -> StringBuilder
 ```
 
 Creates an empty `StringBuilder` pre-sized to `capacity` bytes. Use this when you know approximately how large the final string will be; it avoids intermediate reallocations.
@@ -152,60 +140,64 @@ Creates an empty `StringBuilder` pre-sized to `capacity` bytes. Use this when yo
 
 | Name | Type | Description |
 |------|------|-------------|
-| `capacity` | `int` | Initial buffer size in bytes. Must be greater than zero. |
+| `capacity` | `int` | Initial buffer size in bytes. |
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_with_capacity, StringBuilder_append,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_with_capacity, sb_append,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn build_large_report(line_count: int) -> string {
     # Pre-size for roughly 80 chars per line
     let estimated: int = (* line_count 80)
-    let mut sb: StringBuilder = (StringBuilder_with_capacity estimated)
+    let mut sb: StringBuilder = (sb_with_capacity estimated)
     let mut i: int = 0
     while (< i line_count) {
-        set sb (StringBuilder_append sb (+ "Line " (+ (int_to_string i) "\n")))
+        set sb (sb_append sb (+ "Line " (+ (int_to_string i) "\n")))
         set i (+ i 1)
     }
-    return (StringBuilder_to_string sb)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 ```
 
 ---
 
-### `StringBuilder_append`
+### `sb_append`
 
 ```nano
-fn StringBuilder_append(sb: StringBuilder, text: string) -> StringBuilder
+fn sb_append(sb: StringBuilder, text: string) -> StringBuilder
 ```
 
-Appends `text` to the current content of `sb` and returns the updated `StringBuilder`. If `text` is empty, returns `sb` unchanged.
+Appends `text` to the builder's internal buffer (mutating it in-place) and returns `sb`. The returned value is the same `StringBuilder` handle, not a new one.
 
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `sb` | `StringBuilder` | The current builder value |
+| `sb` | `StringBuilder` | The builder to append to |
 | `text` | `string` | Text to append |
 
-**Returns:** A `StringBuilder` containing the original content plus `text`.
+**Returns:** The same `StringBuilder`, for convenient chaining with `set`.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn chain_append() -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "one")
-    set sb (StringBuilder_append sb ", ")
-    set sb (StringBuilder_append sb "two")
-    set sb (StringBuilder_append sb ", ")
-    set sb (StringBuilder_append sb "three")
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "one")
+    set sb (sb_append sb ", ")
+    set sb (sb_append sb "two")
+    set sb (sb_append sb ", ")
+    set sb (sb_append sb "three")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow chain_append {
@@ -215,27 +207,29 @@ shadow chain_append {
 
 ---
 
-### `StringBuilder_append_line`
+### `sb_append_line`
 
 ```nano
-fn StringBuilder_append_line(sb: StringBuilder, text: string) -> StringBuilder
+fn sb_append_line(sb: StringBuilder, text: string) -> StringBuilder
 ```
 
-Appends `text` followed by a newline character (`\n`). Equivalent to two `StringBuilder_append` calls but more convenient when building multi-line output.
+Appends `text` followed by a newline character (`\n`). Equivalent to two `sb_append` calls but more convenient when building multi-line output.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append_line,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append_line,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn build_poem() -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append_line sb "Roses are red,")
-    set sb (StringBuilder_append_line sb "Violets are blue,")
-    set sb (StringBuilder_append_line sb "NanoLang is fast,")
-    set sb (StringBuilder_append_line sb "And memory-safe too.")
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append_line sb "Roses are red,")
+    set sb (sb_append_line sb "Violets are blue,")
+    set sb (sb_append_line sb "NanoLang is fast,")
+    set sb (sb_append_line sb "And memory-safe too.")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow build_poem {
@@ -246,29 +240,31 @@ shadow build_poem {
 
 ---
 
-### `StringBuilder_append_int`
+### `sb_append_int`
 
 ```nano
-fn StringBuilder_append_int(sb: StringBuilder, n: int) -> StringBuilder
+fn sb_append_int(sb: StringBuilder, n: int) -> StringBuilder
 ```
 
-Converts `n` to its decimal string representation and appends it. Equivalent to `StringBuilder_append sb (int_to_string n)` but reads more naturally in numeric formatting code.
+Converts `n` to its decimal string representation and appends it. Equivalent to `(sb_append sb (int_to_string n))` but reads more naturally in numeric formatting code.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_int, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_append_int, sb_to_string,
+                                                   sb_free, StringBuilder
 
 fn format_coords(x: int, y: int) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "(")
-    set sb (StringBuilder_append_int sb x)
-    set sb (StringBuilder_append sb ", ")
-    set sb (StringBuilder_append_int sb y)
-    set sb (StringBuilder_append sb ")")
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "(")
+    set sb (sb_append_int sb x)
+    set sb (sb_append sb ", ")
+    set sb (sb_append_int sb y)
+    set sb (sb_append sb ")")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow format_coords {
@@ -279,10 +275,10 @@ shadow format_coords {
 
 ---
 
-### `StringBuilder_append_char`
+### `sb_append_char`
 
 ```nano
-fn StringBuilder_append_char(sb: StringBuilder, c: int) -> StringBuilder
+fn sb_append_char(sb: StringBuilder, c: int) -> StringBuilder
 ```
 
 Appends a single character given by its ASCII integer value. Use character literals (`'A'`, `'\n'`) for readability.
@@ -290,16 +286,18 @@ Appends a single character given by its ASCII integer value. Use character liter
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_char, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_append_char, sb_to_string,
+                                                   sb_free, StringBuilder
 
 fn surround_with_quotes(s: string) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append_char sb '"')
-    set sb (StringBuilder_append sb s)
-    set sb (StringBuilder_append_char sb '"')
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append_char sb '"')
+    set sb (sb_append sb s)
+    set sb (sb_append_char sb '"')
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow surround_with_quotes {
@@ -309,60 +307,61 @@ shadow surround_with_quotes {
 
 ---
 
-### `StringBuilder_to_string`
+### `sb_to_string`
 
 ```nano
-fn StringBuilder_to_string(sb: StringBuilder) -> string
+fn sb_to_string(sb: StringBuilder) -> string
 ```
 
-Returns the accumulated content as a plain `string`. Does not modify the `StringBuilder`; you can call `to_string` multiple times on the same value and append more afterward.
+Returns the accumulated content as a plain `string`. Because the buffer is mutable, the returned string reflects all appends made up to the point of the call. You can call `sb_to_string` multiple times; each call returns a snapshot of the current content.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_to_string, sb_free, StringBuilder
 
-fn checkpoint_example() -> bool {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "Hello")
-    let partial: string = (StringBuilder_to_string sb)  # "Hello"
+fn snapshot_example() -> bool {
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "Hello")
+    let partial: string = (sb_to_string sb)  # "Hello"
 
-    set sb (StringBuilder_append sb " World")
-    let full: string = (StringBuilder_to_string sb)     # "Hello World"
+    set sb (sb_append sb " World")
+    let full: string = (sb_to_string sb)     # "Hello World"
 
+    (sb_free sb)
     return (and (== partial "Hello") (== full "Hello World"))
 }
 
-shadow checkpoint_example {
-    assert (checkpoint_example)
+shadow snapshot_example {
+    assert (snapshot_example)
 }
 ```
 
 ---
 
-### `StringBuilder_length`
+### `sb_length`
 
 ```nano
-fn StringBuilder_length(sb: StringBuilder) -> int
-ensures (>= result 0)
+fn sb_length(sb: StringBuilder) -> int
 ```
 
-Returns the current number of characters (bytes) in the builder.
+Returns the current number of bytes in the builder.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_length, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_length, sb_free, StringBuilder
 
 fn length_demo() -> bool {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    assert (== (StringBuilder_length sb) 0)
-    set sb (StringBuilder_append sb "hello")
-    assert (== (StringBuilder_length sb) 5)
-    set sb (StringBuilder_append sb " world")
-    assert (== (StringBuilder_length sb) 11)
+    let mut sb: StringBuilder = (sb_new)
+    assert (== (sb_length sb) 0)
+    set sb (sb_append sb "hello")
+    assert (== (sb_length sb) 5)
+    set sb (sb_append sb " world")
+    assert (== (sb_length sb) 11)
+    (sb_free sb)
     return true
 }
 
@@ -373,32 +372,43 @@ shadow length_demo {
 
 ---
 
-### `StringBuilder_clear`
+### `sb_capacity`
 
 ```nano
-fn StringBuilder_clear(sb: StringBuilder) -> StringBuilder
+fn sb_capacity(sb: StringBuilder) -> int
 ```
 
-Returns a new `StringBuilder` with the content reset to empty while preserving the allocated capacity. Useful for reusing a builder across multiple formatting passes without paying for reallocation.
+Returns the current allocated buffer capacity in bytes. This is always at least as large as `sb_length`. Useful for diagnostics or pre-sizing decisions.
+
+---
+
+### `sb_clear`
+
+```nano
+fn sb_clear(sb: StringBuilder) -> StringBuilder
+```
+
+Resets the builder's content to empty while preserving the allocated capacity. The returned value is the same `StringBuilder` handle. Useful for reusing a builder across multiple formatting passes without paying for reallocation.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_clear, StringBuilder_to_string,
-                                         StringBuilder_length, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_clear,
+                                                   sb_to_string, sb_length,
+                                                   sb_free, StringBuilder
 
 fn reuse_builder() -> bool {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "first pass")
-    let first: string = (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "first pass")
+    let first: string = (sb_to_string sb)
 
-    set sb (StringBuilder_clear sb)
-    assert (== (StringBuilder_length sb) 0)
+    set sb (sb_clear sb)
+    assert (== (sb_length sb) 0)
 
-    set sb (StringBuilder_append sb "second pass")
-    let second: string = (StringBuilder_to_string sb)
+    set sb (sb_append sb "second pass")
+    let second: string = (sb_to_string sb)
 
+    (sb_free sb)
     return (and (== first "first pass") (== second "second pass"))
 }
 
@@ -409,28 +419,40 @@ shadow reuse_builder {
 
 ---
 
-### `StringBuilder_is_empty`
+### `sb_is_empty`
 
 ```nano
-fn StringBuilder_is_empty(sb: StringBuilder) -> bool
+fn sb_is_empty(sb: StringBuilder) -> bool
 ```
 
-Returns `true` if the builder contains no characters. Equivalent to `(== (StringBuilder_length sb) 0)` but more expressive.
+Returns `true` if the builder contains no characters. Equivalent to `(== (sb_length sb) 0)` but more expressive.
 
 ---
 
-### `StringBuilder_from_parts`
+### `sb_free`
 
 ```nano
-fn StringBuilder_from_parts(parts: array<string>) -> string
+fn sb_free(sb: StringBuilder) -> void
 ```
 
-Efficiently concatenates all strings in `parts` in order and returns the result. This is a standalone utility — it creates its own internal builder, so you do not need to manage one yourself.
+Releases the underlying C buffer. Call this when you are finished with a `StringBuilder` that you created with `sb_new` or `sb_with_capacity`. After calling `sb_free`, do not use the builder again.
+
+Builders created internally by `sb_from_parts`, `sb_join`, `sb_repeat`, and `sb_indent` are freed by those functions — do not free them yourself.
+
+---
+
+### `sb_from_parts`
+
+```nano
+fn sb_from_parts(parts: array<string>) -> string
+```
+
+Efficiently concatenates all strings in `parts` in order and returns the result as a plain `string`. This is a standalone utility — it creates and frees its own internal builder, so you do not need to manage one yourself.
 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_from_parts
+from "std/collections/stringbuilder.nano" import sb_from_parts
 
 fn join_words() -> string {
     let words: array<string> = (array_new 4 "")
@@ -438,7 +460,7 @@ fn join_words() -> string {
     (array_set words 1 " ")
     (array_set words 2 "quick")
     (array_set words 3 " fox")
-    return (StringBuilder_from_parts words)
+    return (sb_from_parts words)
 }
 
 shadow join_words {
@@ -448,10 +470,10 @@ shadow join_words {
 
 ---
 
-### `StringBuilder_join`
+### `sb_join`
 
 ```nano
-fn StringBuilder_join(parts: array<string>, separator: string) -> string
+fn sb_join(parts: array<string>, separator: string) -> string
 ```
 
 Concatenates all strings in `parts`, inserting `separator` between each adjacent pair. No separator is added before the first element or after the last.
@@ -459,10 +481,10 @@ Concatenates all strings in `parts`, inserting `separator` between each adjacent
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_join
+from "std/collections/stringbuilder.nano" import sb_join
 
 fn csv_row(fields: array<string>) -> string {
-    return (StringBuilder_join fields ",")
+    return (sb_join fields ",")
 }
 
 shadow csv_row {
@@ -476,11 +498,10 @@ shadow csv_row {
 
 ---
 
-### `StringBuilder_repeat`
+### `sb_repeat`
 
 ```nano
-fn StringBuilder_repeat(text: string, n: int) -> string
-requires (>= n 0)
+fn sb_repeat(text: string, n: int) -> string
 ```
 
 Returns a string consisting of `text` repeated `n` times. When `n` is zero, returns `""`.
@@ -488,10 +509,10 @@ Returns a string consisting of `text` repeated `n` times. When `n` is zero, retu
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_repeat
+from "std/collections/stringbuilder.nano" import sb_repeat
 
 fn make_divider(width: int) -> string {
-    return (StringBuilder_repeat "-" width)
+    return (sb_repeat "-" width)
 }
 
 shadow make_divider {
@@ -502,12 +523,10 @@ shadow make_divider {
 
 ---
 
-### `StringBuilder_indent`
+### `sb_indent`
 
 ```nano
-fn StringBuilder_indent(level: int, spaces_per_level: int) -> string
-requires (>= level 0)
-requires (>= spaces_per_level 0)
+fn sb_indent(level: int, spaces_per_level: int) -> string
 ```
 
 Returns an indentation string of `level * spaces_per_level` spaces. Useful when generating code or structured text output.
@@ -515,13 +534,13 @@ Returns an indentation string of `level * spaces_per_level` spaces. Useful when 
 **Example:**
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_indent
+from "std/collections/stringbuilder.nano" import sb_indent
 
 fn indent_demo() -> bool {
-    assert (== (StringBuilder_indent 0 4) "")
-    assert (== (StringBuilder_indent 1 4) "    ")
-    assert (== (StringBuilder_indent 2 4) "        ")
-    assert (== (StringBuilder_indent 1 2) "  ")
+    assert (== (sb_indent 0 4) "")
+    assert (== (sb_indent 1 4) "    ")
+    assert (== (sb_indent 2 4) "        ")
+    assert (== (sb_indent 1 2) "  ")
     return true
 }
 
@@ -537,36 +556,37 @@ shadow indent_demo {
 ### Example 1: HTML Generation
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_line, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn build_html_page(title: string, items: array<string>) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
+    let mut sb: StringBuilder = (sb_new)
 
-    set sb (StringBuilder_append_line sb "<!DOCTYPE html>")
-    set sb (StringBuilder_append_line sb "<html>")
-    set sb (StringBuilder_append_line sb "<head>")
-    set sb (StringBuilder_append sb   "  <title>")
-    set sb (StringBuilder_append sb   title)
-    set sb (StringBuilder_append_line sb "</title>")
-    set sb (StringBuilder_append_line sb "</head>")
-    set sb (StringBuilder_append_line sb "<body>")
-    set sb (StringBuilder_append_line sb "  <ul>")
+    set sb (sb_append_line sb "<!DOCTYPE html>")
+    set sb (sb_append_line sb "<html>")
+    set sb (sb_append_line sb "<head>")
+    set sb (sb_append     sb "  <title>")
+    set sb (sb_append     sb title)
+    set sb (sb_append_line sb "</title>")
+    set sb (sb_append_line sb "</head>")
+    set sb (sb_append_line sb "<body>")
+    set sb (sb_append_line sb "  <ul>")
 
     let mut i: int = 0
     while (< i (array_length items)) {
-        set sb (StringBuilder_append sb "    <li>")
-        set sb (StringBuilder_append sb (array_get items i))
-        set sb (StringBuilder_append_line sb "</li>")
+        set sb (sb_append sb "    <li>")
+        set sb (sb_append sb (at items i))
+        set sb (sb_append_line sb "</li>")
         set i (+ i 1)
     }
 
-    set sb (StringBuilder_append_line sb "  </ul>")
-    set sb (StringBuilder_append_line sb "</body>")
-    set sb (StringBuilder_append sb "</html>")
+    set sb (sb_append_line sb "  </ul>")
+    set sb (sb_append_line sb "</body>")
+    set sb (sb_append sb "</html>")
 
-    return (StringBuilder_to_string sb)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow build_html_page {
@@ -584,9 +604,9 @@ shadow build_html_page {
 ### Example 2: CSV Generation
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_line, StringBuilder_append_int,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line,
+                                                   sb_append_int, sb_to_string,
+                                                   sb_free, StringBuilder
 
 struct Employee {
     name: string,
@@ -595,24 +615,26 @@ struct Employee {
 }
 
 fn employees_to_csv(employees: array<Employee>) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
+    let mut sb: StringBuilder = (sb_new)
 
     # Header row
-    set sb (StringBuilder_append_line sb "name,age,department")
+    set sb (sb_append_line sb "name,age,department")
 
     # Data rows
     let mut i: int = 0
     while (< i (array_length employees)) {
-        let emp: Employee = (array_get employees i)
-        set sb (StringBuilder_append sb emp.name)
-        set sb (StringBuilder_append sb ",")
-        set sb (StringBuilder_append_int sb emp.age)
-        set sb (StringBuilder_append sb ",")
-        set sb (StringBuilder_append_line sb emp.department)
+        let emp: Employee = (at employees i)
+        set sb (sb_append sb emp.name)
+        set sb (sb_append sb ",")
+        set sb (sb_append_int sb emp.age)
+        set sb (sb_append sb ",")
+        set sb (sb_append_line sb emp.department)
         set i (+ i 1)
     }
 
-    return (StringBuilder_to_string sb)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow employees_to_csv {
@@ -629,27 +651,28 @@ shadow employees_to_csv {
 ### Example 3: JSON Object Building
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_int, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_int,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn build_json_object(name: string, age: int, active: bool) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "{")
-    set sb (StringBuilder_append sb "\"name\":\"")
-    set sb (StringBuilder_append sb name)
-    set sb (StringBuilder_append sb "\",")
-    set sb (StringBuilder_append sb "\"age\":")
-    set sb (StringBuilder_append_int sb age)
-    set sb (StringBuilder_append sb ",")
-    set sb (StringBuilder_append sb "\"active\":")
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "{")
+    set sb (sb_append sb "\"name\":\"")
+    set sb (sb_append sb name)
+    set sb (sb_append sb "\",")
+    set sb (sb_append sb "\"age\":")
+    set sb (sb_append_int sb age)
+    set sb (sb_append sb ",")
+    set sb (sb_append sb "\"active\":")
     if active {
-        set sb (StringBuilder_append sb "true")
+        set sb (sb_append sb "true")
     } else {
-        set sb (StringBuilder_append sb "false")
+        set sb (sb_append sb "false")
     }
-    set sb (StringBuilder_append sb "}")
-    return (StringBuilder_to_string sb)
+    set sb (sb_append sb "}")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow build_json_object {
@@ -663,31 +686,33 @@ shadow build_json_object {
 ### Example 4: Indented Code Generation
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_line, StringBuilder_indent,
-                                         StringBuilder_to_string, StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line,
+                                                   sb_indent, sb_to_string,
+                                                   sb_free, StringBuilder
 
 fn generate_function(fn_name: string, body_lines: array<string>) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
+    let mut sb: StringBuilder = (sb_new)
 
     # Function signature
-    set sb (StringBuilder_append sb "fn ")
-    set sb (StringBuilder_append sb fn_name)
-    set sb (StringBuilder_append_line sb "() -> void {")
+    set sb (sb_append sb "fn ")
+    set sb (sb_append sb fn_name)
+    set sb (sb_append_line sb "() -> void {")
 
     # Body lines, indented by 4 spaces
-    let indent: string = (StringBuilder_indent 1 4)
+    let indent: string = (sb_indent 1 4)
     let mut i: int = 0
     while (< i (array_length body_lines)) {
-        set sb (StringBuilder_append sb indent)
-        set sb (StringBuilder_append_line sb (array_get body_lines i))
+        set sb (sb_append sb indent)
+        set sb (sb_append_line sb (at body_lines i))
         set i (+ i 1)
     }
 
     # Closing brace
-    set sb (StringBuilder_append sb "}")
+    set sb (sb_append sb "}")
 
-    return (StringBuilder_to_string sb)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow generate_function {
@@ -704,33 +729,34 @@ shadow generate_function {
 
 ### Example 5: Building a Delimited Report
 
-This example shows combining `StringBuilder_join` and `StringBuilder_repeat` to produce a formatted tabular report.
+This example shows combining `sb_join` and `sb_repeat` to produce a formatted tabular report.
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_line, StringBuilder_join,
-                                         StringBuilder_repeat, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_line,
+                                                   sb_join, sb_repeat,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn make_table(headers: array<string>, rows: array<array<string>>) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    let divider: string = (StringBuilder_repeat "-" 40)
+    let mut sb: StringBuilder = (sb_new)
+    let divider: string = (sb_repeat "-" 40)
 
     # Header
-    set sb (StringBuilder_append_line sb divider)
-    set sb (StringBuilder_append_line sb (StringBuilder_join headers " | "))
-    set sb (StringBuilder_append_line sb divider)
+    set sb (sb_append_line sb divider)
+    set sb (sb_append_line sb (sb_join headers " | "))
+    set sb (sb_append_line sb divider)
 
     # Rows
     let mut i: int = 0
     while (< i (array_length rows)) {
-        let row: array<string> = (array_get rows i)
-        set sb (StringBuilder_append_line sb (StringBuilder_join row " | "))
+        let row: array<string> = (at rows i)
+        set sb (sb_append_line sb (sb_join row " | "))
         set i (+ i 1)
     }
 
-    set sb (StringBuilder_append sb divider)
-    return (StringBuilder_to_string sb)
+    set sb (sb_append sb divider)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 ```
 
@@ -746,27 +772,28 @@ fn make_table(headers: array<string>, rows: array<array<string>>) -> string {
 | Building strings from 10+ fragments | StringBuilder |
 | Generating HTML, CSV, JSON, code | StringBuilder |
 | Building a simple error message | `(+ "Error: " msg)` |
-| Pre-known set of parts | `StringBuilder_from_parts` or `StringBuilder_join` |
+| Pre-known set of parts | `sb_from_parts` or `sb_join` |
 
 ---
 
 ## Common Pitfalls
 
-**Not capturing the return value.** Every `StringBuilder_append` returns a new value. Discarding it silently produces an empty or stale result. Use `let mut` and `set`.
+**Forgetting to call `sb_free`.** The `StringBuilder` wraps a C heap allocation. For every `sb_new` or `sb_with_capacity` call, there must be a corresponding `sb_free` when the builder is no longer needed.
 
-**Passing the wrong type.** `StringBuilder_append` only accepts `string`. Use `StringBuilder_append_int` for integers or call `int_to_string` / `float_to_string` explicitly before appending.
+**Passing the wrong type.** `sb_append` only accepts `string`. Use `sb_append_int` for integers or `sb_append_char` for character values. For floats, call `float_to_string` explicitly before appending.
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append,
-                                         StringBuilder_append_int, StringBuilder_to_string,
-                                         StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_append, sb_append_int,
+                                                   sb_to_string, sb_free, StringBuilder
 
 fn format_ratio(num: int, den: int) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append_int sb num)
-    set sb (StringBuilder_append sb "/")
-    set sb (StringBuilder_append_int sb den)
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append_int sb num)
+    set sb (sb_append sb "/")
+    set sb (sb_append_int sb den)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow format_ratio {
@@ -774,9 +801,9 @@ shadow format_ratio {
 }
 ```
 
-**Forgetting `StringBuilder_with_capacity` for very large outputs.** If you know you will be building a multi-megabyte string, seed the capacity upfront to avoid repeated halving-then-doubling reallocations.
+**Using `sb_clear` instead of creating a new builder when capacity should reset.** `sb_clear` preserves the allocated capacity, which is desirable for reuse. If you want a truly fresh builder with a smaller footprint, call `sb_free` then `sb_new`.
 
-**Using `StringBuilder_clear` instead of creating a new builder when capacity should reset.** `StringBuilder_clear` preserves the allocated capacity, which is desirable for reuse. If you want a truly fresh builder, call `StringBuilder_new` again.
+**Pre-sizing for large outputs.** If you know you will be building a multi-kilobyte string, seed the capacity upfront with `sb_with_capacity` to avoid repeated reallocations.
 
 ---
 

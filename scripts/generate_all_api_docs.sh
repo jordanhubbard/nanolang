@@ -47,8 +47,8 @@ generate_api_doc() {
 echo "📚 Standard Library:"
 generate_api_doc "stdlib/log.nano" "log"
 generate_api_doc "stdlib/coverage.nano" "coverage"
-generate_api_doc "stdlib/StringBuilder.nano" "StringBuilder"
-generate_api_doc "stdlib/regex.nano" "regex"
+generate_api_doc "modules/std/collections/stringbuilder.nano" "StringBuilder"
+generate_api_doc "std/regex/regex.nano" "regex"
 
 # SDL family
 echo ""

@@ -303,7 +303,7 @@ for i in (range 0 1000000) {
 
 ## 13.3 StringBuilder
 
-The `stdlib/StringBuilder.nano` module provides efficient string building.
+The `modules/std/collections/stringbuilder.nano` module provides efficient string building.
 
 ### Why Use StringBuilder?
 
@@ -320,51 +320,54 @@ for i in (range 0 1000) {
 **Solution:** StringBuilder is O(n)
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
-from "stdlib/StringBuilder.nano" import StringBuilder_to_string
+from "std/collections/stringbuilder.nano" import sb_new, sb_append
+from "std/collections/stringbuilder.nano" import sb_to_string, sb_free
 
 # ✅ Fast: Amortized O(1) per append
-let mut sb: StringBuilder = (StringBuilder_new)
+let mut sb: StringBuilder = (sb_new)
 for i in (range 0 1000) {
-    set sb (StringBuilder_append sb "x")  # O(1) average
+    set sb (sb_append sb "x")  # O(1) average
 }
-let result: string = (StringBuilder_to_string sb)
+let result: string = (sb_to_string sb)
+(sb_free sb)
 ```
 
 ### Creating StringBuilders
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_with_capacity
-from "stdlib/StringBuilder.nano" import StringBuilder
+from "std/collections/stringbuilder.nano" import sb_new, sb_with_capacity,
+                                                   sb_length, StringBuilder
 
 fn create_builders() -> StringBuilder {
-    # Default capacity (256)
-    let sb1: StringBuilder = (StringBuilder_new)
-    
+    # Default capacity
+    let sb1: StringBuilder = (sb_new)
+
     # Custom capacity
-    let sb2: StringBuilder = (StringBuilder_with_capacity 1024)
-    
+    let sb2: StringBuilder = (sb_with_capacity 1024)
+
     return sb1
 }
 
 shadow create_builders {
     let sb: StringBuilder = (create_builders)
-    assert (== sb.length 0)
+    assert (== (sb_length sb) 0)
 }
 ```
 
 ### Appending Strings
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
-from "stdlib/StringBuilder.nano" import StringBuilder_to_string
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_to_string, sb_free
 
 fn build_greeting(name: string) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "Hello, ")
-    set sb (StringBuilder_append sb name)
-    set sb (StringBuilder_append sb "!")
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "Hello, ")
+    set sb (sb_append sb name)
+    set sb (sb_append sb "!")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow build_greeting {
@@ -375,23 +378,23 @@ shadow build_greeting {
 ### Appending Other Types
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
-from "stdlib/StringBuilder.nano" import StringBuilder_append_int, StringBuilder_append_float
-from "stdlib/StringBuilder.nano" import StringBuilder_to_string
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_append_int,
+                                                   sb_to_string, sb_free
 
-fn format_data(name: string, age: int, score: float) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "Name: ")
-    set sb (StringBuilder_append sb name)
-    set sb (StringBuilder_append sb ", Age: ")
-    set sb (StringBuilder_append_int sb age)
-    set sb (StringBuilder_append sb ", Score: ")
-    set sb (StringBuilder_append_float sb score)
-    return (StringBuilder_to_string sb)
+fn format_data(name: string, age: int) -> string {
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "Name: ")
+    set sb (sb_append sb name)
+    set sb (sb_append sb ", Age: ")
+    set sb (sb_append_int sb age)
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow format_data {
-    let result: string = (format_data "Alice" 30 95.5)
+    let result: string = (format_data "Alice" 30)
     assert (str_contains result "Alice")
 }
 ```
@@ -399,22 +402,23 @@ shadow format_data {
 ### StringBuilder Operations
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
-from "stdlib/StringBuilder.nano" import StringBuilder_length, StringBuilder_clear
-from "stdlib/StringBuilder.nano" import StringBuilder_to_string
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_length, sb_clear,
+                                                   sb_to_string, sb_free
 
 fn builder_operations() -> bool {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "hello")
-    
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "hello")
+
     # Get length
-    let len: int = (StringBuilder_length sb)
+    let len: int = (sb_length sb)
     assert (== len 5)
-    
+
     # Clear contents
-    set sb (StringBuilder_clear sb)
-    assert (== (StringBuilder_length sb) 0)
-    
+    set sb (sb_clear sb)
+    assert (== (sb_length sb) 0)
+
+    (sb_free sb)
     return true
 }
 
@@ -426,21 +430,23 @@ shadow builder_operations {
 ### Practical Example: HTML Generation
 
 ```nano
-from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
-from "stdlib/StringBuilder.nano" import StringBuilder_to_string
+from "std/collections/stringbuilder.nano" import sb_new, sb_append,
+                                                   sb_to_string, sb_free
 
 fn build_html(title: string, body: string) -> string {
-    let mut sb: StringBuilder = (StringBuilder_new)
-    set sb (StringBuilder_append sb "<!DOCTYPE html>\n")
-    set sb (StringBuilder_append sb "<html>\n")
-    set sb (StringBuilder_append sb "<head><title>")
-    set sb (StringBuilder_append sb title)
-    set sb (StringBuilder_append sb "</title></head>\n")
-    set sb (StringBuilder_append sb "<body>")
-    set sb (StringBuilder_append sb body)
-    set sb (StringBuilder_append sb "</body>\n")
-    set sb (StringBuilder_append sb "</html>")
-    return (StringBuilder_to_string sb)
+    let mut sb: StringBuilder = (sb_new)
+    set sb (sb_append sb "<!DOCTYPE html>\n")
+    set sb (sb_append sb "<html>\n")
+    set sb (sb_append sb "<head><title>")
+    set sb (sb_append sb title)
+    set sb (sb_append sb "</title></head>\n")
+    set sb (sb_append sb "<body>")
+    set sb (sb_append sb body)
+    set sb (sb_append sb "</body>\n")
+    set sb (sb_append sb "</html>")
+    let result: string = (sb_to_string sb)
+    (sb_free sb)
+    return result
 }
 
 shadow build_html {
