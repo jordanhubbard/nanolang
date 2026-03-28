@@ -15,7 +15,7 @@ fn test_push_pop_int() -> int {
     }
 
     # Pop should return 44
-    let val = (array_pop arr)
+    let val: int = (array_pop arr)
     if val != 44 {
         (println "FAIL: Expected pop to return 44")
         return 1
@@ -101,7 +101,7 @@ fn test_float_array() -> int {
     }
 
     # Pop and check
-    let popped = (array_pop arr)
+    let popped: float = (array_pop arr)
     if (or (< popped 1.40) (> popped 1.42)) {
         (println "FAIL: Popped value should be ~1.41")
         return 1
