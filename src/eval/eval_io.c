@@ -387,16 +387,17 @@ static void nl_walkdir_rec(const char* root, DynArray* out) {
     struct dirent* entry;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-        const char *dname = entry->d_name;
-        if (!dname) continue;
         size_t root_len = strlen(root);
-        size_t name_len = strlen(dname);
+        size_t name_len = strlen(entry->d_name);
         bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');
-        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;
+        size_t slash = needs_slash ? 1 : 0;
+        size_t cap = root_len + slash + name_len + 1;
         char* path = malloc(cap);
         if (!path) continue;
-        if (needs_slash) snprintf(path, cap, "%s/%s", root, dname);
-        else snprintf(path, cap, "%s%s", root, dname);
+        memcpy(path, root, root_len);
+        if (needs_slash) path[root_len] = '/';
+        memcpy(path + root_len + slash, entry->d_name, name_len);
+        path[root_len + slash + name_len] = '\0';
 
         struct stat st;
         if (stat(path, &st) != 0) { free(path); continue; }
