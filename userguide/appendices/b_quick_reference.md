@@ -252,7 +252,7 @@ Import from `modules/std/env.nano` or `modules/std/process.nano`:
 |--------|---------|
 | `modules/std/log/log.nano` | Structured logging with levels |
 | `modules/std/collections/StringBuilder.nano` | Efficient string building |
-| `stdlib/regex.nano` | Regular expressions |
+| `std/regex/regex.nano` | Regular expressions |
 
 ### Data Formats
 

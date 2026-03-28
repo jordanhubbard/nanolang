@@ -60,7 +60,7 @@ Common standard library modules:
 ```nano
 import "stdlib/log.nano" as log
 import "stdlib/StringBuilder.nano" as sb
-import "stdlib/regex.nano" as regex
+import "std/regex/regex.nano" as regex
 import "stdlib/coverage.nano" as coverage
 ```
 
@@ -137,7 +137,7 @@ shadow app_startup {
 - You want cleaner call sites
 
 ```nano
-from "stdlib/regex.nano" import compile, matches
+from "std/regex/regex.nano" import compile, matches
 
 fn validate_email(email: string) -> bool {
     let pattern: Regex = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")

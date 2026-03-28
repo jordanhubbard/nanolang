@@ -78,7 +78,7 @@ fn main() -> int {
 
 ---
 
-### 🔤 **stdlib/regex.nano** - Regular Expressions
+### 🔤 **std/regex/regex.nano** - Regular Expressions
 Pattern matching and text processing (wrapper for C regex).
 
 **When to use:**
@@ -88,7 +88,7 @@ Pattern matching and text processing (wrapper for C regex).
 
 **Quick start:**
 ```nano
-from "stdlib/regex.nano" import regex_match
+from "std/regex/regex.nano" import regex_match
 
 fn main() -> int {
     if (regex_match "hello.*world" "hello beautiful world") {
@@ -168,7 +168,7 @@ LALR(1) parser construction.
 3. **Timing**: Use `timing_start()`/`timing_end()` for performance
 
 ### When Building Tools:
-- **Text processing**: `stdlib/regex.nano`
+- **Text processing**: `std/regex/regex.nano`
 - **Large string output**: `stdlib/StringBuilder.nano`
 - **Compilers**: `stdlib/ast.nano`, `stdlib/lalr.nano`, `stdlib/tidy_lexer.nano`
 
@@ -237,7 +237,7 @@ When adding stdlib libraries:
 |------|-----|--------|
 | **Logging** | `stdlib/log.nano` | `log_info`, `log_error`, `log_warn` |
 | **Coverage** | `stdlib/coverage.nano` | `coverage_init`, `coverage_report` |
-| **Regex** | `stdlib/regex.nano` | `regex_match` |
+| **Regex** | `std/regex/regex.nano` | `regex_match` |
 | **String building** | `stdlib/StringBuilder.nano` | `sb_new`, `sb_append` |
 | **AST tools** | `stdlib/ast.nano` | Various AST functions |
 | **Parsing** | `stdlib/lalr.nano` | LALR parser functions |

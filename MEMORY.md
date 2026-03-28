@@ -599,7 +599,7 @@ Replace `T` with the concrete type: `List_int_new`, `List_string_push`, `List_Po
 | `stdlib/coverage.nano` | Runtime code coverage tracking |
 | `stdlib/timing.nano` | Microsecond-precision benchmarking |
 | `stdlib/process.nano` | Process management |
-| `stdlib/regex.nano` | Regular expressions |
+| `std/regex/regex.nano` | Regular expressions |
 | `stdlib/ast.nano` | AST manipulation utilities |
 | `stdlib/beads.nano` | Issue tracking integration |
 | `stdlib/StringBuilder.nano` | Efficient string building |

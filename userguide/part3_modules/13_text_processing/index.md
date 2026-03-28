@@ -6,12 +6,12 @@ This chapter covers three essential text processing modules: regular expressions
 
 ## 13.1 Regular Expressions
 
-The `stdlib/regex.nano` module provides POSIX regex pattern matching.
+The `std/regex/regex.nano` module provides POSIX regex pattern matching.
 
 ### Compiling Patterns
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn validate_email(email: string) -> bool {
     let pattern: Regex = (compile "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-z]+")
@@ -32,7 +32,7 @@ shadow validate_email {
 ### Matching Patterns
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, Regex
+from "std/regex/regex.nano" import compile, matches, Regex
 
 fn test_patterns() -> bool {
     let pattern: Regex = (compile "hello.*world")
@@ -52,7 +52,7 @@ shadow test_patterns {
 ### Finding Matches
 
 ```nano
-from "stdlib/regex.nano" import compile, find, free, Regex
+from "std/regex/regex.nano" import compile, find, free, Regex
 
 fn find_position(text: string, pattern_str: string) -> int {
     let pattern: Regex = (compile pattern_str)
@@ -71,7 +71,7 @@ shadow find_position {
 ### Finding All Matches
 
 ```nano
-from "stdlib/regex.nano" import compile, find_all, free, Regex
+from "std/regex/regex.nano" import compile, find_all, free, Regex
 
 fn count_matches(text: string, pattern_str: string) -> int {
     let pattern: Regex = (compile pattern_str)
@@ -89,7 +89,7 @@ shadow count_matches {
 ### Capture Groups
 
 ```nano
-from "stdlib/regex.nano" import compile, groups, free, Regex
+from "std/regex/regex.nano" import compile, groups, free, Regex
 
 fn extract_parts(text: string) -> array<string> {
     let pattern: Regex = (compile "([a-z]+)@([a-z]+)\\.([a-z]+)")
@@ -107,7 +107,7 @@ shadow extract_parts {
 ### Replacing Text
 
 ```nano
-from "stdlib/regex.nano" import compile, replace, replace_all, free, Regex
+from "std/regex/regex.nano" import compile, replace, replace_all, free, Regex
 
 fn clean_text(text: string) -> string {
     let pattern: Regex = (compile "[0-9]+")
@@ -127,7 +127,7 @@ shadow clean_text {
 ### Splitting Strings
 
 ```nano
-from "stdlib/regex.nano" import compile, split, free, Regex
+from "std/regex/regex.nano" import compile, split, free, Regex
 
 fn split_by_comma(text: string) -> array<string> {
     let pattern: Regex = (compile ",\\s*")
@@ -465,7 +465,7 @@ shadow build_html {
 ## 13.4 Combined Example: Log Parser
 
 ```nano
-from "stdlib/regex.nano" import compile, matches, groups, free, Regex
+from "std/regex/regex.nano" import compile, matches, groups, free, Regex
 from "stdlib/log.nano" import log_info, log_error
 from "stdlib/StringBuilder.nano" import StringBuilder_new, StringBuilder_append
 from "stdlib/StringBuilder.nano" import StringBuilder_to_string
