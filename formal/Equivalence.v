@@ -2332,6 +2332,7 @@ Proof.
     | vs Hall
     | fvs Hall
     | tag v0 Hvg0
+    | vs_t Hall_t
     ].
   - apply eclosed_int.
   - apply eclosed_bool.
@@ -2346,6 +2347,8 @@ Proof.
     + simpl. apply IH. exact Hval.
     + exact IHr.
   - simpl. apply eclosed_construct. apply IH. exact Hvg0.
+  - simpl. apply eclosed_tuple.
+    induction Hall; constructor; [apply IH; assumption | assumption].
 Qed.
 
 Lemma env_good_all_vals_closed : forall renv,
