@@ -386,6 +386,7 @@ struct ASTNode {
             char **pattern_variants;
             char **pattern_bindings;
             ASTNode **arm_bodies;
+            ASTNode **guard_exprs;  /* Per-arm guard: NULL if no guard, or boolean expression */
             char *union_type_name;  /* Filled during typechecking */
         } match_expr;
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */

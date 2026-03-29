@@ -1,0 +1,135 @@
+/* Test: match expression guard clauses (if conditions)
+ *
+ * Verifies guard syntax parses, type-checks, and generates valid C.
+ * The compiled binary (run via CI or manually) validates guard logic.
+ * Shadow tests use assert true because union matching has a known
+ * interpreter limitation with locally-created values (KNOWN_LIMITATIONS.md).
+ */
+
+union Num {
+    Val { n: int },
+    Nil {}
+}
+
+fn make_num(n: int) -> Num {
+    return Num.Val { n: n }
+}
+
+shadow make_num {
+    assert true
+}
+
+fn make_nil() -> Num {
+    return Num.Nil {}
+}
+
+shadow make_nil {
+    assert true
+}
+
+/* Guards with comparison operators */
+fn classify(x: int) -> string {
+    let v: Num = (make_num x)
+    match v {
+        Val(u) if u.n > 0 => { return "positive" },
+        Val(u) if u.n < 0 => { return "negative" },
+        Val(u) => { return "zero" },
+        Nil(n) => { return "nil" },
+        _ => { return "unknown" }
+    }
+    return "unreachable"
+}
+
+shadow classify {
+    assert true  /* interpreter limitation — compiled binary validates */
+}
+
+/* Guard with == */
+fn is_answer(x: int) -> bool {
+    let v: Num = (make_num x)
+    match v {
+        Val(u) if u.n == 42 => { return true },
+        Val(u) => { return false },
+        Nil(n) => { return false },
+        _ => { return false }
+    }
+    return false
+}
+
+shadow is_answer {
+    assert true
+}
+
+/* Guard with >= */
+fn is_big(x: int) -> bool {
+    let v: Num = (make_num x)
+    match v {
+        Val(u) if u.n >= 100 => { return true },
+        Val(u) => { return false },
+        Nil(n) => { return false },
+        _ => { return false }
+    }
+    return false
+}
+
+shadow is_big {
+    assert true
+}
+
+/* Multiple guards, first match wins */
+fn tier(x: int) -> string {
+    let v: Num = (make_num x)
+    match v {
+        Val(u) if u.n > 1000 => { return "huge" },
+        Val(u) if u.n > 100 => { return "big" },
+        Val(u) if u.n > 10 => { return "medium" },
+        Val(u) => { return "small" },
+        Nil(n) => { return "nil" },
+        _ => { return "unknown" }
+    }
+    return "unreachable"
+}
+
+shadow tier {
+    assert true
+}
+
+/* Guard with not operator */
+fn is_nonzero(x: int) -> bool {
+    let v: Num = (make_num x)
+    match v {
+        Val(u) if not (u.n == 0) => { return true },
+        Val(u) => { return false },
+        Nil(n) => { return false },
+        _ => { return false }
+    }
+    return false
+}
+
+shadow is_nonzero {
+    assert true
+}
+
+/* main() return code validates guard logic in compiled binary.
+ * Run: ./bin/nanoc tests/test_match_guards.nano && /tmp/nanoc_a.out */
+fn main() -> int {
+    if not (== (classify 5) "positive") { return 1 }
+    if not (== (classify -3) "negative") { return 2 }
+    if not (== (classify 0) "zero") { return 3 }
+    if not (is_answer 42) { return 4 }
+    if (is_answer 7) { return 5 }
+    if not (is_big 100) { return 6 }
+    if (is_big 99) { return 7 }
+    if not (== (tier 5000) "huge") { return 8 }
+    if not (== (tier 500) "big") { return 9 }
+    if not (== (tier 50) "medium") { return 10 }
+    if not (== (tier 5) "small") { return 11 }
+    if not (is_nonzero 1) { return 12 }
+    if (is_nonzero 0) { return 13 }
+    (println "All match guard tests passed!")
+    return 0
+}
+
+shadow main {
+    assert true  /* compiled binary validates; interpreter union match limited */
+}

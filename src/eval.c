@@ -4676,7 +4676,15 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     }
 
                     if (arm_matches) {
+                        /* Check guard if present */
                         int saved_symbol_count = env->symbol_count;
+                        if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
+                            Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                            if (!guard_val.as.bool_val) {
+                                env->symbol_count = saved_symbol_count;
+                                continue;  /* Guard failed, try next arm */
+                            }
+                        }
                         Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
                         env->symbol_count = saved_symbol_count;
                         return result;
@@ -4685,6 +4693,15 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
                 if (wildcard_arm >= 0) {
                     int saved_symbol_count = env->symbol_count;
+                    /* Check guard on wildcard arm if present */
+                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
+                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                        if (!guard_val.as.bool_val) {
+                            env->symbol_count = saved_symbol_count;
+                            fprintf(stderr, "Error: No matching arm in match expression (guard failed)\n");
+                            return create_void();
+                        }
+                    }
                     Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
                     env->symbol_count = saved_symbol_count;
                     return result;
@@ -4707,7 +4724,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 }
 
                 if (strcmp(uval->variant_name, pattern_variant) == 0) {
-                    /* This arm matches! */
+                    /* This arm's pattern matches — now check guard */
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
 
                     /* Save environment state for scope */
@@ -4735,6 +4752,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     }
                     env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
 
+                    /* Check guard expression if present */
+                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
+                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                        if (!guard_val.as.bool_val) {
+                            /* Guard failed — restore scope and try next arm */
+                            env->symbol_count = saved_symbol_count;
+                            continue;
+                        }
+                    }
+
                     /* Evaluate arm body */
                     Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
 
@@ -4748,6 +4775,15 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* No specific arm matched — fall through to wildcard if present */
             if (wildcard_arm >= 0) {
                 int saved_symbol_count = env->symbol_count;
+                /* Check guard on wildcard arm if present */
+                if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
+                    Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                    if (!guard_val.as.bool_val) {
+                        env->symbol_count = saved_symbol_count;
+                        fprintf(stderr, "Error: No matching arm for variant '%s' (guard failed)\n", uval->variant_name);
+                        return create_void();
+                    }
+                }
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
                 env->symbol_count = saved_symbol_count;
                 return result;
