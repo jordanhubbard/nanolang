@@ -30,6 +30,8 @@ typedef struct {
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     bool profile;             /* --profile: inject timing hooks into generated C */
+
+    const char *profile_output_path; /* --profile-output <path>: write structured profile JSON to file */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
@@ -344,6 +346,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->profile_gprof = opts->profile_gprof;
     env->profile = opts->profile;
 
+
+    env->profile_output_path = opts->profile_output_path;
+    
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
         fprintf(stderr, "Module loading failed\n");
@@ -1195,6 +1200,8 @@ int main(int argc, char *argv[]) {
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
+
+        printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1236,6 +1243,8 @@ int main(int argc, char *argv[]) {
         .json_errors = false,
         .profile_gprof = false,
         .profile = false,
+
+        .profile_output_path = NULL,
         .llm_diags_json_path = NULL,
         .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
@@ -1281,6 +1290,10 @@ int main(int argc, char *argv[]) {
             opts.profile_gprof = true;
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
+
+        } else if (strcmp(argv[i], "--profile-output") == 0 && i + 1 < argc) {
+            opts.profile_output_path = argv[i + 1];
+            i++;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];

@@ -46,6 +46,7 @@ Environment *create_environment(void) {
     env->warn_ffi = false;
     env->forbid_unsafe = false;
     env->profile_gprof = false;
+    env->profile_output_path = NULL;
     env->suppress_shadow_warnings = false;
     
     /* Initialize import tracker */
