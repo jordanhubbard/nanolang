@@ -185,8 +185,8 @@ shadow parse_fence_lang {
 }
 
 fn extract_json_from_marker(line: string) -> Result<string, string> {
-    let start: int = (str_index_of_from line "{" 0)
-    let end: int = (str_index_of_from line "}" 0)
+    let start: int = (str_index_of line "{")
+    let end: int = (str_index_of line "}")
     if (or (== start -1) (== end -1)) {
         return Result.Err { error: "missing JSON object" }
     }
