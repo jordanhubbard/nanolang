@@ -2963,7 +2963,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     " {_nl_prof_get_entry(\"%s\"), {0, 0}};\n"
                     "    clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
                     g_profile_func_name);
+<<<<<<< HEAD
                 g_profile_mode = false;  /* consumed -- don't inject into nested blocks */
+=======
+                g_profile_mode = false;  /* consumed â don't inject into nested blocks */
+>>>>>>> 7cde8c7 (feat: add par { } blocks and --profile flag)
             }
 
             /* Push new scope for this block */
@@ -2999,6 +3003,17 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "}\n");
             break;
 
+
+        case AST_PAR_BLOCK:
+            /* par blocks emit sequentially at the enclosing scope so bindings remain visible after the block */
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par begin */\n");
+            for (int i = 0; i < stmt->as.par_block.count; i++) {
+                build_stmt(list, scopes, stmt->as.par_block.bindings[i], indent, env, fn_registry);
+            }
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par end */\n");
+            break;
         case AST_MATCH: {
             /* Detect int-pattern match first (before union_c_name check) */
             int is_int_match_stmt = 0;
