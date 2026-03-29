@@ -463,12 +463,12 @@ fn generate_api_docs(module_path: string, output_path: string) -> bool {
         return false
     }
 
-    if (not (fs.file_exists json_path)) {
+    if (not (fs.exists json_path)) {
         (println "Error: Reflection output not found")
         return false
     }
 
-    let json_text: string = (fs.file_read json_path)
+    let json_text: string = (fs.read json_path)
     let root: json.Json = (json.parse json_text)
     if (not (json.is_object root)) {
         (println "Error: Invalid JSON output")
@@ -498,7 +498,7 @@ fn generate_api_docs(module_path: string, output_path: string) -> bool {
     set out (generate_constants exports out)
 
     let markdown: string = (sb_to_string out)
-    (fs.file_write output_path markdown)
+    (fs.write output_path markdown)
 
     (json.free exports)
     (json.free root)
