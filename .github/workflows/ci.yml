@@ -284,10 +284,11 @@ jobs:
           script: |
             const coverage = '${{ steps.coverage.outputs.coverage }}';
             const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (50%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.name,
+              owner: repoOwner,
+              repo: repoName,
               body: body
             });
 
@@ -422,10 +423,11 @@ jobs:
             
             const body = `## ${emoji} Performance Report\n\n| Metric | Change |\n|--------|--------|\n| Build Time | ${buildChange}% |\n| Test Suite | ${testChange}% |\n| Self-Host Compile | ${compileChange}% |\n\n[View detailed benchmarks in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
             
+            const [perfOwner, perfRepo] = process.env.GITHUB_REPOSITORY.split('/');
             github.rest.issues.createComment({
               issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.name,
+              owner: perfOwner,
+              repo: perfRepo,
               body: body
             });
 
