@@ -2524,6 +2524,22 @@ static ASTNode *parse_expression(Stage1Parser *p) {
             }
         }
 
+        /* Check for ? try-propagate operator: expr? */
+        if (match(p, TOKEN_QUESTION)) {
+            Token *q_tok = current_token(p);
+            int q_line = q_tok->line;
+            int q_col = q_tok->column;
+            advance(p);  /* consume '?' */
+
+            ASTNode *try_node = create_node(AST_PREFIX_OP, q_line, q_col);
+            try_node->as.prefix_op.op = TOKEN_QUESTION;
+            try_node->as.prefix_op.args = malloc(sizeof(ASTNode*));
+            try_node->as.prefix_op.args[0] = expr;
+            try_node->as.prefix_op.arg_count = 1;
+            expr = try_node;
+            continue;
+        }
+
         /* Check for pipe operator: lhs |> f  desugars to  (f lhs) */
         if (match(p, TOKEN_PIPE)) {
             Token *pipe_tok = current_token(p);

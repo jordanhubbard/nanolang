@@ -1134,6 +1134,48 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.prefix_op.args[0], env);
                         emit_literal(list, ")");
                     }
+                } else if (op == TOKEN_QUESTION) {
+                    /* ? try-propagate: desugars to:
+                     * ({ nl_X _nl_try_r = inner; if (_nl_try_r.tag == nl_X_TAG_Err) return _nl_try_r; _nl_try_r.data.Ok.val; })
+                     */
+                    ASTNode *inner = expr->as.prefix_op.args[0];
+                    const char *union_name_raw = get_struct_type_name(inner, env);
+                    if (!union_name_raw) union_name_raw = "Result";
+                    char union_name[256];
+                    strncpy(union_name, union_name_raw, sizeof(union_name) - 1);
+                    union_name[sizeof(union_name) - 1] = '\0';
+
+                    const char *err_variant = "Err";
+                    const char *ok_variant = "Ok";
+                    const char *ok_field = "val";
+
+                    UnionDef *udef = env_get_union(env, union_name);
+                    if (udef) {
+                        for (int vi = 0; vi < udef->variant_count; vi++) {
+                            if (strcmp(udef->variant_names[vi], "Err") == 0) {
+                                err_variant = udef->variant_names[vi];
+                            } else if (strcmp(udef->variant_names[vi], "Ok") == 0) {
+                                ok_variant = udef->variant_names[vi];
+                                if (udef->variant_field_counts[vi] > 0) {
+                                    ok_field = udef->variant_field_names[vi][0];
+                                }
+                            }
+                        }
+                    }
+
+                    /* Copy prefixed names into local buffers before subsequent calls overwrite them */
+                    char c_type_buf[256];
+                    strncpy(c_type_buf, get_prefixed_type_name(union_name), sizeof(c_type_buf) - 1);
+                    c_type_buf[sizeof(c_type_buf) - 1] = '\0';
+                    char err_tag_buf[512];
+                    strncpy(err_tag_buf, get_prefixed_tag_name(union_name, err_variant), sizeof(err_tag_buf) - 1);
+                    err_tag_buf[sizeof(err_tag_buf) - 1] = '\0';
+
+                    emit_literal(list, "({ ");
+                    emit_formatted(list, "%s _nl_try_r = ", c_type_buf);
+                    build_expr(list, inner, env);
+                    emit_formatted(list, "; if (_nl_try_r.tag == %s) return _nl_try_r; ", err_tag_buf);
+                    emit_formatted(list, "_nl_try_r.data.%s.%s; })", ok_variant, ok_field);
                 }
             }
             break;

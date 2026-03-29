@@ -137,3 +137,122 @@ Value builtin_str_index_of(Value *args) {
     if (!p) return create_int(-1);
     return create_int((long long)(p - haystack));
 }
+
+Value builtin_str_trim(Value *args) {
+    if (args[0].type != VAL_STRING) { fprintf(stderr, "Error: str_trim requires string\n"); return create_void(); }
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    size_t start = 0;
+    while (start < len && (s[start] == ' ' || s[start] == '\t' || s[start] == '\n' || s[start] == '\r')) start++;
+    size_t end = len;
+    while (end > start && (s[end-1] == ' ' || s[end-1] == '\t' || s[end-1] == '\n' || s[end-1] == '\r')) end--;
+    size_t new_len = end - start;
+    char *result = malloc(new_len + 1);
+    if (!result) return create_string("");
+    memcpy(result, s + start, new_len);
+    result[new_len] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}
+
+Value builtin_str_trim_left(Value *args) {
+    if (args[0].type != VAL_STRING) { fprintf(stderr, "Error: str_trim_left requires string\n"); return create_void(); }
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    size_t start = 0;
+    while (start < len && (s[start] == ' ' || s[start] == '\t' || s[start] == '\n' || s[start] == '\r')) start++;
+    size_t new_len = len - start;
+    char *result = malloc(new_len + 1);
+    if (!result) return create_string("");
+    memcpy(result, s + start, new_len);
+    result[new_len] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}
+
+Value builtin_str_trim_right(Value *args) {
+    if (args[0].type != VAL_STRING) { fprintf(stderr, "Error: str_trim_right requires string\n"); return create_void(); }
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    size_t end = len;
+    while (end > 0 && (s[end-1] == ' ' || s[end-1] == '\t' || s[end-1] == '\n' || s[end-1] == '\r')) end--;
+    char *result = malloc(end + 1);
+    if (!result) return create_string("");
+    memcpy(result, s, end);
+    result[end] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}
+
+Value builtin_str_to_lower(Value *args) {
+    if (args[0].type != VAL_STRING) { fprintf(stderr, "Error: str_to_lower requires string\n"); return create_void(); }
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    char *result = malloc(len + 1);
+    if (!result) return create_string("");
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)s[i];
+        result[i] = (c >= 'A' && c <= 'Z') ? (char)(c + 32) : (char)c;
+    }
+    result[len] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}
+
+Value builtin_str_to_upper(Value *args) {
+    if (args[0].type != VAL_STRING) { fprintf(stderr, "Error: str_to_upper requires string\n"); return create_void(); }
+    const char *s = args[0].as.string_val;
+    size_t len = strlen(s);
+    char *result = malloc(len + 1);
+    if (!result) return create_string("");
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)s[i];
+        result[i] = (c >= 'a' && c <= 'z') ? (char)(c - 32) : (char)c;
+    }
+    result[len] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}
+
+Value builtin_str_replace(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING || args[2].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_replace requires three string arguments\n");
+        return create_void();
+    }
+    const char *s = args[0].as.string_val;
+    const char *old_str = args[1].as.string_val;
+    const char *new_str = args[2].as.string_val;
+    size_t old_len = strlen(old_str);
+    size_t new_len = strlen(new_str);
+    size_t s_len = strlen(s);
+    if (old_len == 0) return create_string(s);
+    /* Count occurrences */
+    int64_t count = 0;
+    const char *p = s;
+    const char *found;
+    while ((found = strstr(p, old_str)) != NULL) { count++; p = found + old_len; }
+    if (count == 0) return create_string(s);
+    int64_t result_len = (int64_t)s_len + count * ((int64_t)new_len - (int64_t)old_len);
+    if (result_len < 0) return create_string("");
+    char *result = malloc((size_t)result_len + 1);
+    if (!result) return create_string(s);
+    const char *src = s;
+    char *dst = result;
+    while ((found = strstr(src, old_str)) != NULL) {
+        size_t seg_len = (size_t)(found - src);
+        memcpy(dst, src, seg_len); dst += seg_len;
+        memcpy(dst, new_str, new_len); dst += new_len;
+        src = found + old_len;
+    }
+    size_t rest = strlen(src);
+    memcpy(dst, src, rest);
+    dst[rest] = '\0';
+    Value v = create_string(result);
+    free(result);
+    return v;
+}

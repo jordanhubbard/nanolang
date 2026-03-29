@@ -12,5 +12,11 @@ Value builtin_str_equals(Value *args);
 Value builtin_str_starts_with(Value *args);
 Value builtin_str_ends_with(Value *args);
 Value builtin_str_index_of(Value *args);
+Value builtin_str_trim(Value *args);
+Value builtin_str_trim_left(Value *args);
+Value builtin_str_trim_right(Value *args);
+Value builtin_str_to_lower(Value *args);
+Value builtin_str_to_upper(Value *args);
+Value builtin_str_replace(Value *args);
 
 #endif /* EVAL_STRING_H */

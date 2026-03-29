@@ -986,6 +986,180 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    return c;\n");
     sb_append(sb, "}\n\n");
     
+    /* str_trim */
+    sb_append(sb, "static const char* nl_str_trim(const char* s) {\n");
+    sb_append(sb, "    if (!s) return \"\";\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t start = 0;\n");
+    sb_append(sb, "    while (start < len && (s[start] == ' ' || s[start] == '\\t' || s[start] == '\\n' || s[start] == '\\r')) start++;\n");
+    sb_append(sb, "    size_t end = len;\n");
+    sb_append(sb, "    while (end > start && (s[end-1] == ' ' || s[end-1] == '\\t' || s[end-1] == '\\n' || s[end-1] == '\\r')) end--;\n");
+    sb_append(sb, "    size_t new_len = end - start;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(new_len);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    memcpy(result, s + start, new_len);\n");
+    sb_append(sb, "    result[new_len] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_trim_left */
+    sb_append(sb, "static const char* nl_str_trim_left(const char* s) {\n");
+    sb_append(sb, "    if (!s) return \"\";\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t start = 0;\n");
+    sb_append(sb, "    while (start < len && (s[start] == ' ' || s[start] == '\\t' || s[start] == '\\n' || s[start] == '\\r')) start++;\n");
+    sb_append(sb, "    size_t new_len = len - start;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(new_len);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    memcpy(result, s + start, new_len);\n");
+    sb_append(sb, "    result[new_len] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_trim_right */
+    sb_append(sb, "static const char* nl_str_trim_right(const char* s) {\n");
+    sb_append(sb, "    if (!s) return \"\";\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t end = len;\n");
+    sb_append(sb, "    while (end > 0 && (s[end-1] == ' ' || s[end-1] == '\\t' || s[end-1] == '\\n' || s[end-1] == '\\r')) end--;\n");
+    sb_append(sb, "    char* result = gc_alloc_string(end);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    memcpy(result, s, end);\n");
+    sb_append(sb, "    result[end] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_to_lower */
+    sb_append(sb, "static const char* nl_str_to_lower(const char* s) {\n");
+    sb_append(sb, "    if (!s) return \"\";\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        unsigned char c = (unsigned char)s[i];\n");
+    sb_append(sb, "        result[i] = (c >= 'A' && c <= 'Z') ? (char)(c + 32) : (char)c;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    result[len] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_to_upper */
+    sb_append(sb, "static const char* nl_str_to_upper(const char* s) {\n");
+    sb_append(sb, "    if (!s) return \"\";\n");
+    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(len);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    for (size_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        unsigned char c = (unsigned char)s[i];\n");
+    sb_append(sb, "        result[i] = (c >= 'a' && c <= 'z') ? (char)(c - 32) : (char)c;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    result[len] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_replace */
+    sb_append(sb, "static const char* nl_str_replace(const char* s, const char* old_str, const char* new_str) {\n");
+    sb_append(sb, "    if (!s || !old_str || !new_str) return s ? s : \"\";\n");
+    sb_append(sb, "    size_t old_len = strlen(old_str);\n");
+    sb_append(sb, "    size_t s_len = strlen(s);\n");
+    sb_append(sb, "    if (old_len == 0) {\n");
+    sb_append(sb, "        char* copy = gc_alloc_string(s_len);\n");
+    sb_append(sb, "        if (!copy) return s;\n");
+    sb_append(sb, "        memcpy(copy, s, s_len + 1);\n");
+    sb_append(sb, "        return copy;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    size_t new_len = strlen(new_str);\n");
+    sb_append(sb, "    int64_t count = 0;\n");
+    sb_append(sb, "    const char* p = s;\n");
+    sb_append(sb, "    const char* found;\n");
+    sb_append(sb, "    while ((found = strstr(p, old_str)) != NULL) { count++; p = found + old_len; }\n");
+    sb_append(sb, "    if (count == 0) {\n");
+    sb_append(sb, "        char* copy = gc_alloc_string(s_len);\n");
+    sb_append(sb, "        if (!copy) return s;\n");
+    sb_append(sb, "        memcpy(copy, s, s_len + 1);\n");
+    sb_append(sb, "        return copy;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    int64_t result_len = (int64_t)s_len + count * ((int64_t)new_len - (int64_t)old_len);\n");
+    sb_append(sb, "    if (result_len < 0) return \"\";\n");
+    sb_append(sb, "    char* result = gc_alloc_string((size_t)result_len);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    const char* src = s;\n");
+    sb_append(sb, "    char* dst = result;\n");
+    sb_append(sb, "    while ((found = strstr(src, old_str)) != NULL) {\n");
+    sb_append(sb, "        size_t seg_len = (size_t)(found - src);\n");
+    sb_append(sb, "        memcpy(dst, src, seg_len);\n");
+    sb_append(sb, "        dst += seg_len;\n");
+    sb_append(sb, "        memcpy(dst, new_str, new_len);\n");
+    sb_append(sb, "        dst += new_len;\n");
+    sb_append(sb, "        src = found + old_len;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    size_t rest = strlen(src);\n");
+    sb_append(sb, "    memcpy(dst, src, rest);\n");
+    sb_append(sb, "    dst[rest] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_split */
+    sb_append(sb, "static DynArray* nl_str_split(const char* str, const char* delim) {\n");
+    sb_append(sb, "    DynArray* result = dyn_array_new(ELEM_STRING);\n");
+    sb_append(sb, "    if (!result) return NULL;\n");
+    sb_append(sb, "    if (!str) return result;\n");
+    sb_append(sb, "    size_t delim_len = strlen(delim);\n");
+    sb_append(sb, "    if (delim_len == 0) {\n");
+    sb_append(sb, "        size_t str_len = strnlen(str, 64*1024*1024);\n");
+    sb_append(sb, "        for (size_t i = 0; i < str_len; i++) {\n");
+    sb_append(sb, "            char* ch = gc_alloc_string(1);\n");
+    sb_append(sb, "            if (!ch) break;\n");
+    sb_append(sb, "            ch[0] = str[i]; ch[1] = '\\0';\n");
+    sb_append(sb, "            dyn_array_push_string(result, ch);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        return result;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    const char* start = str;\n");
+    sb_append(sb, "    const char* found;\n");
+    sb_append(sb, "    while ((found = strstr(start, delim)) != NULL) {\n");
+    sb_append(sb, "        size_t seg_len = (size_t)(found - start);\n");
+    sb_append(sb, "        char* seg = gc_alloc_string(seg_len);\n");
+    sb_append(sb, "        if (!seg) break;\n");
+    sb_append(sb, "        memcpy(seg, start, seg_len);\n");
+    sb_append(sb, "        seg[seg_len] = '\\0';\n");
+    sb_append(sb, "        dyn_array_push_string(result, seg);\n");
+    sb_append(sb, "        start = found + delim_len;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    size_t rest_len = strlen(start);\n");
+    sb_append(sb, "    char* seg = gc_alloc_string(rest_len);\n");
+    sb_append(sb, "    if (seg) {\n");
+    sb_append(sb, "        memcpy(seg, start, rest_len);\n");
+    sb_append(sb, "        seg[rest_len] = '\\0';\n");
+    sb_append(sb, "        dyn_array_push_string(result, seg);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
+    /* str_join */
+    sb_append(sb, "static const char* nl_str_join(DynArray* arr, const char* delim) {\n");
+    sb_append(sb, "    if (!arr) return \"\";\n");
+    sb_append(sb, "    int64_t count = dyn_array_length(arr);\n");
+    sb_append(sb, "    if (count == 0) return \"\";\n");
+    sb_append(sb, "    size_t delim_len = strlen(delim);\n");
+    sb_append(sb, "    size_t total = 0;\n");
+    sb_append(sb, "    for (int64_t i = 0; i < count; i++) {\n");
+    sb_append(sb, "        const char* s = dyn_array_get_string(arr, i);\n");
+    sb_append(sb, "        if (s) total += strlen(s);\n");
+    sb_append(sb, "        if (i < count - 1) total += delim_len;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    char* result = gc_alloc_string(total);\n");
+    sb_append(sb, "    if (!result) return \"\";\n");
+    sb_append(sb, "    size_t pos = 0;\n");
+    sb_append(sb, "    for (int64_t i = 0; i < count; i++) {\n");
+    sb_append(sb, "        const char* s = dyn_array_get_string(arr, i);\n");
+    sb_append(sb, "        if (s) { size_t slen = strlen(s); memcpy(result + pos, s, slen); pos += slen; }\n");
+    sb_append(sb, "        if (i < count - 1) { memcpy(result + pos, delim, delim_len); pos += delim_len; }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    result[pos] = '\\0';\n");
+    sb_append(sb, "    return result;\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "/* ========== End Advanced String Operations ========== */\n\n");
 }
 

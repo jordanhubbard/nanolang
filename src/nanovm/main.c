@@ -142,9 +142,13 @@ static int run_standalone(const char *path) {
 
     int exit_code = 0;
     if (result != VM_OK) {
-        fprintf(stderr, "Runtime error: %s\n", vm_error_string(result));
-        if (vm.error_msg[0]) {
-            fprintf(stderr, "  %s\n", vm.error_msg);
+        bool has_debug = !!(module->header.flags & NVM_FLAG_DEBUG_INFO);
+        if (!has_debug) {
+            /* No debug info — emit plain error (stack trace already printed when debug info present) */
+            fprintf(stderr, "Runtime error: %s\n", vm_error_string(result));
+            if (vm.error_msg[0]) {
+                fprintf(stderr, "  %s\n", vm.error_msg);
+            }
         }
         exit_code = 1;
     }

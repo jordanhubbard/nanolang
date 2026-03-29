@@ -2975,6 +2975,74 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
     if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
     if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
+    if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
+    if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
+    if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);
+    if (strcmp(name, "str_to_lower") == 0) return builtin_str_to_lower(args);
+    if (strcmp(name, "str_to_upper") == 0) return builtin_str_to_upper(args);
+    if (strcmp(name, "str_replace") == 0) return builtin_str_replace(args);
+    if (strcmp(name, "str_split") == 0) {
+        if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+            fprintf(stderr, "Error: str_split requires two string arguments\n");
+            return create_void();
+        }
+        const char *str = args[0].as.string_val;
+        const char *delim = args[1].as.string_val;
+        DynArray *result = dyn_array_new(ELEM_STRING);
+        if (!result) return create_void();
+        size_t delim_len = strlen(delim);
+        if (delim_len == 0) {
+            size_t str_len = strlen(str);
+            for (size_t i = 0; i < str_len; i++) {
+                char ch[2] = { str[i], '\0' };
+                dyn_array_push_string(result, ch);
+            }
+        } else {
+            const char *start = str;
+            const char *found;
+            while ((found = strstr(start, delim)) != NULL) {
+                size_t seg_len = (size_t)(found - start);
+                char *seg = malloc(seg_len + 1);
+                if (!seg) break;
+                memcpy(seg, start, seg_len);
+                seg[seg_len] = '\0';
+                dyn_array_push_string(result, seg);
+                free(seg);
+                start = found + delim_len;
+            }
+            dyn_array_push_string(result, start);
+        }
+        return create_dyn_array(result);
+    }
+    if (strcmp(name, "str_join") == 0) {
+        if (args[0].type != VAL_DYN_ARRAY || args[1].type != VAL_STRING) {
+            fprintf(stderr, "Error: str_join requires array<string> and string\n");
+            return create_void();
+        }
+        DynArray *arr = args[0].as.dyn_array_val;
+        const char *delim = args[1].as.string_val;
+        int64_t count = dyn_array_length(arr);
+        if (count == 0) return create_string("");
+        size_t delim_len = strlen(delim);
+        size_t total = 0;
+        for (int64_t i = 0; i < count; i++) {
+            const char *s = dyn_array_get_string(arr, i);
+            if (s) total += strlen(s);
+            if (i < count - 1) total += delim_len;
+        }
+        char *buf = malloc(total + 1);
+        if (!buf) return create_string("");
+        size_t pos = 0;
+        for (int64_t i = 0; i < count; i++) {
+            const char *s = dyn_array_get_string(arr, i);
+            if (s) { size_t slen = strlen(s); memcpy(buf + pos, s, slen); pos += slen; }
+            if (i < count - 1) { memcpy(buf + pos, delim, delim_len); pos += delim_len; }
+        }
+        buf[pos] = '\0';
+        Value v = create_string(buf);
+        free(buf);
+        return v;
+    }
 
     /* Bytes helpers */
     if (strcmp(name, "bytes_from_string") == 0) return builtin_bytes_from_string(args);

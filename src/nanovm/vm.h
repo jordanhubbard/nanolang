@@ -31,6 +31,7 @@ typedef struct {
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */
     const NvmModule *module;  /* Module this frame belongs to (for cross-module calls) */
+    uint32_t current_line;    /* Most recently seen OP_DEBUG_LINE value (0 = unknown) */
 } VmCallFrame;
 
 /* ========================================================================
@@ -165,5 +166,16 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* ========================================================================
+ * Debug / Stack Trace
+ * ======================================================================== */
+
+/* Print a source-mapped stack trace for the current VM state to `out`.
+ * Each frame is printed as:
+ *   #N  <function_name>  line <line>  (module: <module_name>)
+ * Frames without debug info show "line ?" or "??" for unknown fields.
+ * Pass stderr or any FILE* for `out`. */
+void vm_stack_trace(const VmState *vm, FILE *out);
 
 #endif /* NANOVM_VM_H */
