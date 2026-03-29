@@ -639,6 +639,8 @@ typedef struct {
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool profile_gprof;        /* Enable gprof profiling analysis at exit */
     bool profile;              /* --profile: inject instrumented timing hooks into generated C */
+
+    const char *profile_output_path; /* --profile-output: write structured JSON to this file (NULL = stdout only) */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
 } Environment;
 

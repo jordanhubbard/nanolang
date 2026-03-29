@@ -4394,7 +4394,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Cross-platform profiling system (only when -pg flag is used) */
     if (env && env->profile_gprof) {
-        generate_profiling_system(sb);
+        generate_profiling_system(sb, env->profile_output_path);
     }
 
     /* Instrumented profiling system (only when --profile flag is used) */

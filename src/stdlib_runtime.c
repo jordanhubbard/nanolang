@@ -1719,41 +1719,70 @@ void generate_console_io_utilities(StringBuilder *sb) {
  * =============================================================================
  */
 
-void generate_profiling_system(StringBuilder *sb) {
+void generate_profiling_system(StringBuilder *sb, const char *profile_output_path) {
     sb_append(sb, "/* ========== Cross-Platform Profiling System ========== */\n\n");
     
     sb_append(sb, "#include <sys/types.h>\n");
     sb_append(sb, "#include <sys/wait.h>\n");
     sb_append(sb, "#include <unistd.h>\n");
-    sb_append(sb, "#include <signal.h>\n\n");
-    
+    sb_append(sb, "#include <signal.h>\n");
+    sb_append(sb, "#include <stdarg.h>\n\n");
+
+    /* Embed output path as a compile-time constant in the generated C */
+    if (profile_output_path) {
+        char path_decl[4096];
+        snprintf(path_decl, sizeof(path_decl),
+                 "static const char* _nl_profile_output_path = \"%s\";\n", profile_output_path);
+        sb_append(sb, path_decl);
+    } else {
+        sb_append(sb, "static const char* _nl_profile_output_path = NULL;\n");
+    }
+    sb_append(sb, "static FILE* _nl_profile_file = NULL;\n\n");
+
+    /* Helper: emit a formatted string to both stdout (decorated) and the profile file (clean) */
+    sb_append(sb, "static void _nl_profile_emit(FILE* f, const char* fmt, ...) {\n");
+    sb_append(sb, "    va_list ap;\n");
+    sb_append(sb, "    va_start(ap, fmt);\n");
+    sb_append(sb, "    vfprintf(stdout, fmt, ap);\n");
+    sb_append(sb, "    va_end(ap);\n");
+    sb_append(sb, "    if (f) {\n");
+    sb_append(sb, "        va_start(ap, fmt);\n");
+    sb_append(sb, "        vfprintf(f, fmt, ap);\n");
+    sb_append(sb, "        va_end(ap);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "}\n\n");
+
     /* Common JSON output helpers */
     sb_append(sb, "/* Output JSON header for profile results */\n");
     sb_append(sb, "static void _nl_profile_json_header(const char* binary, const char* platform, const char* tool) {\n");
+    sb_append(sb, "    if (_nl_profile_output_path && !_nl_profile_file) {\n");
+    sb_append(sb, "        _nl_profile_file = fopen(_nl_profile_output_path, \"w\");\n");
+    sb_append(sb, "    }\n");
     sb_append(sb, "    printf(\"\\n========== PROFILE ANALYSIS (LLM-READY JSON) ==========\\n\");\n");
-    sb_append(sb, "    printf(\"{\\n\");\n");
-    sb_append(sb, "    printf(\"  \\\"profile_type\\\": \\\"sampling\\\",\\n\");\n");
-    sb_append(sb, "    printf(\"  \\\"platform\\\": \\\"%s\\\",\\n\", platform);\n");
-    sb_append(sb, "    printf(\"  \\\"tool\\\": \\\"%s\\\",\\n\", tool);\n");
-    sb_append(sb, "    printf(\"  \\\"binary\\\": \\\"%s\\\",\\n\", binary);\n");
-    sb_append(sb, "    printf(\"  \\\"hotspots\\\": [\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"{\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"profile_type\\\": \\\"sampling\\\",\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"platform\\\": \\\"%s\\\",\\n\", platform);\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"tool\\\": \\\"%s\\\",\\n\", tool);\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"binary\\\": \\\"%s\\\",\\n\", binary);\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"hotspots\\\": [\\n\");\n");
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "static void _nl_profile_json_footer(void) {\n");
-    sb_append(sb, "    printf(\"\\n  ],\\n\");\n");
-    sb_append(sb, "    printf(\"  \\\"analysis_hints\\\": [\\n\");\n");
-    sb_append(sb, "    printf(\"    \\\"Functions with high sample counts are hot spots\\\",\\n\");\n");
-    sb_append(sb, "    printf(\"    \\\"Look for nl_ prefixed functions (NanoLang generated)\\\",\\n\");\n");
-    sb_append(sb, "    printf(\"    \\\"str_ and array_ functions often indicate algorithmic issues\\\",\\n\");\n");
-    sb_append(sb, "    printf(\"    \\\"Deep call stacks may indicate recursion or callback chains\\\"\\n\");\n");
-    sb_append(sb, "    printf(\"  ]\\n\");\n");
-    sb_append(sb, "    printf(\"}\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"\\n  ],\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  \\\"analysis_hints\\\": [\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"    \\\"Functions with high sample counts are hot spots\\\",\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"    \\\"Look for nl_ prefixed functions (NanoLang generated)\\\",\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"    \\\"str_ and array_ functions often indicate algorithmic issues\\\",\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"    \\\"Deep call stacks may indicate recursion or callback chains\\\"\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"  ]\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"}\\n\");\n");
     sb_append(sb, "    printf(\"========== END PROFILE ANALYSIS ==========\\n\\n\");\n");
+    sb_append(sb, "    if (_nl_profile_file) { fclose(_nl_profile_file); _nl_profile_file = NULL; }\n");
     sb_append(sb, "}\n\n");
     
     sb_append(sb, "static void _nl_profile_json_entry(int* count, const char* func, int samples, double pct) {\n");
-    sb_append(sb, "    if (*count > 0) printf(\",\\n\");\n");
-    sb_append(sb, "    printf(\"    {\\\"function\\\": \\\"%s\\\", \\\"samples\\\": %d, \\\"pct_time\\\": %.1f}\", func, samples, pct);\n");
+    sb_append(sb, "    if (*count > 0) _nl_profile_emit(_nl_profile_file, \",\\n\");\n");
+    sb_append(sb, "    _nl_profile_emit(_nl_profile_file, \"    {\\\"function\\\": \\\"%s\\\", \\\"samples\\\": %d, \\\"pct_time\\\": %.1f}\", func, samples, pct);\n");
     sb_append(sb, "    (*count)++;\n");
     sb_append(sb, "}\n\n");
 

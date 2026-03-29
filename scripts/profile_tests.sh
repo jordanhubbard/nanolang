@@ -73,9 +73,10 @@ for test_name in "${!TESTS[@]}"; do
     COMPILE_LOG="$OUTPUT_DIR/${test_name}_compile.log"
     RUN_LOG="$OUTPUT_DIR/${test_name}_run.log"
 
-    # Compile with profiling
+    # Compile with profiling + structured JSON output flag
     echo -n "    Compiling... "
-    if ./bin/nanoc "$test_file" -o "$BINARY" $PROFILE_FLAGS > "$COMPILE_LOG" 2>&1; then
+    if ./bin/nanoc "$test_file" -o "$BINARY" $PROFILE_FLAGS \
+            --profile-output "$PROFILE_JSON" > "$COMPILE_LOG" 2>&1; then
         echo -e "${GREEN}OK${NC}"
     else
         echo -e "${RED}FAILED${NC}"
@@ -84,7 +85,7 @@ for test_name in "${!TESTS[@]}"; do
         continue
     fi
 
-    # Run and capture profiling output
+    # Run — structured JSON is written to PROFILE_JSON automatically on exit
     echo -n "    Running... "
 
     # Different execution for different test types
@@ -92,19 +93,19 @@ for test_name in "${!TESTS[@]}"; do
         "userguide_build")
             # Don't actually build userguide (would take too long)
             # Just profile the startup and initialization
-            timeout 10s "$BINARY" --help > "$RUN_LOG" 2> "$PROFILE_JSON" || true
+            timeout 10s "$BINARY" --help > "$RUN_LOG" 2>&1 || true
             ;;
         "syntax_highlighter")
             # Profile highlighting a sample file
             if [ -f "examples/language/nl_hello.nano" ]; then
-                timeout 30s "$BINARY" examples/language/nl_hello.nano > "$RUN_LOG" 2> "$PROFILE_JSON" || true
+                timeout 30s "$BINARY" examples/language/nl_hello.nano > "$RUN_LOG" 2>&1 || true
             else
-                echo "test" | timeout 10s "$BINARY" > "$RUN_LOG" 2> "$PROFILE_JSON" || true
+                echo "test" | timeout 10s "$BINARY" > "$RUN_LOG" 2>&1 || true
             fi
             ;;
         *)
             # Regular test programs
-            timeout 60s "$BINARY" > "$RUN_LOG" 2> "$PROFILE_JSON" || true
+            timeout 60s "$BINARY" > "$RUN_LOG" 2>&1 || true
             ;;
     esac
 

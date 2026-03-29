@@ -102,7 +102,7 @@ void generate_console_io_utilities(StringBuilder *sb);
  * - Linux: Uses 'gprofng collect' to wrap execution
  * Both output OS-neutral JSON analysis of performance hotspots
  */
-void generate_profiling_system(StringBuilder *sb);
+void generate_profiling_system(StringBuilder *sb, const char *profile_output_path);
 
 /**
  * @brief Generate instrumented profiling runtime for --profile flag
