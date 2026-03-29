@@ -2702,7 +2702,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
                 /* Wildcard arm: _ => { body }  — no binding to add */
-                if (strcmp(variant_name_i, "_") != 0) {
+                if (strcmp(variant_name_i, "_") != 0 &&
+                    strncmp(variant_name_i, "INT:", 4) != 0) {
                     /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
                      * This allows us to distinguish union variant fields from regular struct fields
                      */
@@ -2727,6 +2728,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
 
+                /* Type check guard expression if present — must be boolean */
+                if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
+                    Type guard_type = check_expression(expr->as.match_expr.guard_exprs[i], env);
+                    if (guard_type != TYPE_BOOL && guard_type != TYPE_UNKNOWN) {
+                        fprintf(stderr, "Error at line %d, column %d: Match guard expression must be boolean\n",
+                                expr->as.match_expr.guard_exprs[i]->line,
+                                expr->as.match_expr.guard_exprs[i]->column);
+                    }
+                }
+
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
@@ -2746,10 +2757,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* Exhaustiveness check: warn if any variants are not covered.
-             * Skip entirely if a wildcard _ arm is present (it covers all remaining). */
+             * Skip entirely if a wildcard _ arm is present (it covers all remaining).
+             * Guarded arms do NOT count as full coverage (guards may all be false). */
             int has_wildcard = 0;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                if (strcmp(expr->as.match_expr.pattern_variants[i], "_") == 0) {
+                if (strcmp(expr->as.match_expr.pattern_variants[i], "_") == 0 &&
+                    !(expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i])) {
                     has_wildcard = 1;
                     break;
                 }
@@ -2757,11 +2770,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (union_base_name && !has_wildcard) {
                 UnionDef *union_def = env_get_union(env, union_base_name);
                 if (union_def) {
-                    /* Build set of covered variants */
+                    /* Build set of covered variants — only unguarded arms count */
                     bool *covered = calloc(union_def->variant_count, sizeof(bool));
 
                     for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                         const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+                        /* Skip guarded arms — they might not match */
+                        if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
+                            continue;
+                        }
 
                         /* Find which variant this pattern covers */
                         for (int j = 0; j < union_def->variant_count; j++) {
@@ -3777,21 +3794,36 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
-                Value binding_val = create_void();
-                env_define_var_with_type_info(tc->env,
-                    stmt->as.match_expr.pattern_bindings[i],
-                    TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
+                const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
-                if (union_base_name && tc->env->symbol_count > 0) {
-                    Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
-                    const char *variant_name = stmt->as.match_expr.pattern_variants[i];
-                    char *type_name = malloc(strlen(union_base_name) + strlen(variant_name) + 2);
-                    sprintf(type_name, "%s.%s", union_base_name, variant_name);
-                    binding_sym->struct_type_name = type_name;
+                /* Only add binding for non-wildcard, non-int-pattern arms */
+                if (strcmp(variant_name_s, "_") != 0 &&
+                    strncmp(variant_name_s, "INT:", 4) != 0) {
+                    Value binding_val = create_void();
+                    env_define_var_with_type_info(tc->env,
+                        stmt->as.match_expr.pattern_bindings[i],
+                        TYPE_STRUCT, TYPE_UNKNOWN, union_type_info, false, binding_val);
 
-                    /* Ensure bindings participate in visibility disambiguation */
-                    binding_sym->def_line = stmt->line;
-                    binding_sym->def_column = stmt->column;
+                    if (union_base_name && tc->env->symbol_count > 0) {
+                        Symbol *binding_sym = &tc->env->symbols[tc->env->symbol_count - 1];
+                        char *type_name = malloc(strlen(union_base_name) + strlen(variant_name_s) + 2);
+                        sprintf(type_name, "%s.%s", union_base_name, variant_name_s);
+                        binding_sym->struct_type_name = type_name;
+
+                        /* Ensure bindings participate in visibility disambiguation */
+                        binding_sym->def_line = stmt->line;
+                        binding_sym->def_column = stmt->column;
+                    }
+                }
+
+                /* Type check guard expression if present — must be boolean */
+                if (stmt->as.match_expr.guard_exprs && stmt->as.match_expr.guard_exprs[i]) {
+                    Type guard_type = check_expression(stmt->as.match_expr.guard_exprs[i], tc->env);
+                    if (guard_type != TYPE_BOOL && guard_type != TYPE_UNKNOWN) {
+                        fprintf(stderr, "Error at line %d, column %d: Match guard expression must be boolean\n",
+                                stmt->as.match_expr.guard_exprs[i]->line,
+                                stmt->as.match_expr.guard_exprs[i]->column);
+                    }
                 }
 
                 ASTNode *arm = stmt->as.match_expr.arm_bodies[i];

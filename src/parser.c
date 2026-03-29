@@ -3637,15 +3637,18 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     char **pattern_variants = malloc(sizeof(char*) * capacity);
     char **pattern_bindings = malloc(sizeof(char*) * capacity);
     ASTNode **arm_bodies = malloc(sizeof(ASTNode*) * capacity);
-    
+    ASTNode **guard_exprs = malloc(sizeof(ASTNode*) * capacity);
+
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
             capacity *= 2;
             pattern_variants = realloc(pattern_variants, sizeof(char*) * capacity);
             pattern_bindings = realloc(pattern_bindings, sizeof(char*) * capacity);
             arm_bodies = realloc(arm_bodies, sizeof(ASTNode*) * capacity);
+            guard_exprs = realloc(guard_exprs, sizeof(ASTNode*) * capacity);
         }
-        
+        guard_exprs[count] = NULL;  /* Default: no guard */
+
         /* Parse pattern: VariantName(binding),  wildcard: _,  or integer literal: 42 */
         int is_int_arm = match(p, TOKEN_NUMBER);
         if (!is_int_arm && !match(p, TOKEN_IDENTIFIER)) {
@@ -3662,9 +3665,21 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             advance(p);
             pattern_bindings[count] = strdup("_");
 
+            /* Optional guard: if <expr> */
+            if (match(p, TOKEN_IF)) {
+                advance(p);
+                guard_exprs[count] = parse_expression(p);
+                if (!guard_exprs[count]) {
+                    free(pattern_variants[count]);
+                    free(pattern_bindings[count]);
+                    break;
+                }
+            }
+
             if (!expect(p, TOKEN_ARROW, "Expected '=>' after integer pattern in match")) {
                 free(pattern_variants[count]);
                 free(pattern_bindings[count]);
+                if (guard_exprs[count]) free_ast(guard_exprs[count]);
                 break;
             }
         } else {
@@ -3675,10 +3690,22 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             /* Wildcard arm: _ => { body }  — no binding parens */
             pattern_bindings[count] = strdup("_");
 
+            /* Optional guard: if <expr> */
+            if (match(p, TOKEN_IF)) {
+                advance(p);
+                guard_exprs[count] = parse_expression(p);
+                if (!guard_exprs[count]) {
+                    free(pattern_variants[count]);
+                    free(pattern_bindings[count]);
+                    break;
+                }
+            }
+
             /* Expect arrow */
             if (!expect(p, TOKEN_ARROW, "Expected '=>' after '_' in match")) {
                 free(pattern_variants[count]);
                 free(pattern_bindings[count]);
+                if (guard_exprs[count]) free_ast(guard_exprs[count]);
                 break;
             }
         } else {
@@ -3707,10 +3734,22 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
                 break;
             }
 
+            /* Optional guard: if <expr> */
+            if (match(p, TOKEN_IF)) {
+                advance(p);
+                guard_exprs[count] = parse_expression(p);
+                if (!guard_exprs[count]) {
+                    free(pattern_variants[count]);
+                    free(pattern_bindings[count]);
+                    break;
+                }
+            }
+
             /* Expect arrow */
             if (!expect(p, TOKEN_ARROW, "Expected '=>' after match pattern")) {
                 free(pattern_variants[count]);
                 free(pattern_bindings[count]);
+                if (guard_exprs[count]) free_ast(guard_exprs[count]);
                 break;
             }
         }
@@ -3744,10 +3783,12 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             free(pattern_variants[i]);
             free(pattern_bindings[i]);
             free_ast(arm_bodies[i]);
+            if (guard_exprs[i]) free_ast(guard_exprs[i]);
         }
         free(pattern_variants);
         free(pattern_bindings);
         free(arm_bodies);
+        free(guard_exprs);
         return NULL;
     }
     
@@ -3758,8 +3799,9 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     match_node->as.match_expr.pattern_variants = pattern_variants;
     match_node->as.match_expr.pattern_bindings = pattern_bindings;
     match_node->as.match_expr.arm_bodies = arm_bodies;
+    match_node->as.match_expr.guard_exprs = guard_exprs;
     match_node->as.match_expr.union_type_name = NULL;  /* Will be filled during typechecking */
-    
+
     return match_node;
 }
 
@@ -5045,10 +5087,16 @@ void free_ast(ASTNode *node) {
                 free(node->as.match_expr.pattern_variants[i]);
                 free(node->as.match_expr.pattern_bindings[i]);
                 free_ast(node->as.match_expr.arm_bodies[i]);
+                if (node->as.match_expr.guard_exprs && node->as.match_expr.guard_exprs[i]) {
+                    free_ast(node->as.match_expr.guard_exprs[i]);
+                }
             }
             free(node->as.match_expr.pattern_variants);
             free(node->as.match_expr.pattern_bindings);
             free(node->as.match_expr.arm_bodies);
+            if (node->as.match_expr.guard_exprs) {
+                free(node->as.match_expr.guard_exprs);
+            }
             if (node->as.match_expr.union_type_name) {
                 free(node->as.match_expr.union_type_name);
             }
