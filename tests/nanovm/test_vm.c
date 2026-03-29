@@ -1394,6 +1394,97 @@ static void test_no_entry_point(void) {
 }
 
 /* ========================================================================
+ * Tests: Stack Trace / Debug Mode
+ * ======================================================================== */
+
+static void test_stack_trace_debug_mode(void) {
+    /*
+     * Build a module with debug info and a deliberate type error.
+     * Enable debug_mode, capture output, and verify the trace
+     * contains the expected function name and source location.
+     *
+     * Bytecode:
+     *   DEBUG_LINE 10       <- marks line 10
+     *   PUSH_I64  42
+     *   PUSH_BOOL 1
+     *   ADD                 <- type error: int + bool
+     *   RET
+     *
+     * Debug entry: offset=0, line=10, col=3
+     */
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_DEBUG_LINE, (uint32_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_PUSH_BOOL, (int)1);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    /* Add debug entry: bytecode offset 0 -> line 10, col 3 */
+    nvm_add_debug_entry(mod, 0, 10, 3);
+    mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+    /* Set source file */
+    mod->source_file_idx = nvm_add_string(mod, "test_src.nano", 13);
+
+    /* Capture output to a memory buffer */
+    char buf[1024];
+    memset(buf, 0, sizeof(buf));
+    FILE *memf = fmemopen(buf, sizeof(buf) - 1, "w");
+    ASSERT(memf != NULL, "fmemopen succeeded");
+
+    VmState vm;
+    vm_init(&vm, mod);
+    vm.debug_mode = true;
+    vm.output = memf;
+    VmResult r = vm_execute(&vm);
+    fclose(memf);
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "debug_trace: ADD int+bool => type error");
+    ASSERT(strstr(buf, "Stack trace") != NULL, "debug_trace: output contains 'Stack trace'");
+    ASSERT(strstr(buf, "main") != NULL, "debug_trace: output contains function name 'main'");
+    ASSERT(strstr(buf, "test_src.nano") != NULL, "debug_trace: output contains source file");
+    ASSERT(strstr(buf, "10") != NULL, "debug_trace: output contains line 10");
+}
+
+static void test_stack_trace_col(void) {
+    /*
+     * Verify col appears in the trace when source_col > 0 in the debug entry.
+     */
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_DEBUG_LINE, (uint32_t)5);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_BOOL, (int)0);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    nvm_add_debug_entry(mod, 0, 5, 7);
+    mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+    mod->source_file_idx = nvm_add_string(mod, "col_test.nano", 13);
+
+    char buf[1024];
+    memset(buf, 0, sizeof(buf));
+    FILE *memf = fmemopen(buf, sizeof(buf) - 1, "w");
+    ASSERT(memf != NULL, "fmemopen for col test");
+
+    VmState vm;
+    vm_init(&vm, mod);
+    vm.debug_mode = true;
+    vm.output = memf;
+    VmResult r = vm_execute(&vm);
+    fclose(memf);
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "debug_trace_col: type error");
+    ASSERT(strstr(buf, "5:7") != NULL, "debug_trace_col: output contains line:col '5:7'");
+}
+
+/* ========================================================================
  * Tests: Opaque Proxy
  * ======================================================================== */
 
@@ -1938,6 +2029,10 @@ int main(void) {
     printf("\n[Error Handling]\n");
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
+
+    printf("\n[Stack Trace / Debug Mode]\n");
+    RUN_TEST(test_stack_trace_debug_mode);
+    RUN_TEST(test_stack_trace_col);
 
     printf("\n[Opaque Proxy]\n");
     RUN_TEST(test_opaque_null);

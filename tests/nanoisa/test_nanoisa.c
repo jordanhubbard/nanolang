@@ -454,8 +454,8 @@ static void test_serialize_deserialize(void) {
     mod->functions[0].code_length = sizeof(code);
 
     /* Debug info */
-    nvm_add_debug_entry(mod, 0, 1);
-    nvm_add_debug_entry(mod, 5, 2);
+    nvm_add_debug_entry(mod, 0, 1, 5);
+    nvm_add_debug_entry(mod, 5, 2, 0);
 
     /* Serialize */
     uint32_t out_size;
@@ -493,8 +493,10 @@ static void test_serialize_deserialize(void) {
     ASSERT_EQ_INT(mod2->debug_count, 2, "Debug entry count");
     ASSERT_EQ_INT(mod2->debug_entries[0].bytecode_offset, 0, "Debug 0 offset");
     ASSERT_EQ_INT(mod2->debug_entries[0].source_line, 1, "Debug 0 line");
+    ASSERT_EQ_INT(mod2->debug_entries[0].source_col, 5, "Debug 0 col");
     ASSERT_EQ_INT(mod2->debug_entries[1].bytecode_offset, 5, "Debug 1 offset");
     ASSERT_EQ_INT(mod2->debug_entries[1].source_line, 2, "Debug 1 line");
+    ASSERT_EQ_INT(mod2->debug_entries[1].source_col, 0, "Debug 1 col");
 
     free(data);
     nvm_module_free(mod);

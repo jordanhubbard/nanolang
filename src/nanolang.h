@@ -193,7 +193,8 @@ typedef enum {
     AST_TUPLE_INDEX,       /* Tuple index access: tuple.0, tuple.1 */
     AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
     AST_UNSAFE_BLOCK,      /* Unsafe block: unsafe { ... } */
-    AST_TRY_OP             /* Postfix ? try operator: expr? */
+    AST_TRY_OP,            /* Postfix ? try operator: expr? */
+    AST_PAR_BLOCK          /* Parallel block: par { let a = ..., let b = ... } */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -436,6 +437,11 @@ struct ASTNode {
             char *union_type_name;  /* Filled by typechecker: C union name (e.g. "Result") */
             char *ok_field_name;    /* Filled by typechecker: first field of Ok variant */
         } try_op;
+        /* Parallel block: par { let a = ..., let b = ... } */
+        struct {
+            ASTNode **bindings;    /* Let-binding statements (AST_LET nodes) */
+            int count;             /* Number of bindings */
+        } par_block;
     } as;
 };
 

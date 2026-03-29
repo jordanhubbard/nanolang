@@ -102,15 +102,16 @@ typedef struct {
 
 /* ========================================================================
  * Debug Info Entry (serialized in DEBUG section)
- * Format: [bytecode_offset: u32] [source_line: u32]
+ * Format: [bytecode_offset: u32] [source_line: u32] [source_col: u32]
  * ======================================================================== */
 
 typedef struct {
     uint32_t bytecode_offset;
     uint32_t source_line;
+    uint32_t source_col;    /* 1-based column, 0 = unknown */
 } NvmDebugEntry;
 
-#define NVM_DEBUG_ENTRY_SIZE 8
+#define NVM_DEBUG_ENTRY_SIZE 12
 
 /* ========================================================================
  * Import Entry (serialized in IMPORTS section)
@@ -161,6 +162,9 @@ typedef struct {
     uint32_t debug_count;
     uint32_t debug_capacity;
 
+    /* Source file: string pool index of the source filename (0 = unknown) */
+    uint32_t source_file_idx;
+
     /* Import table */
     NvmImportEntry *imports;
     uint8_t **import_param_types; /* param type arrays, one per import */
@@ -188,8 +192,10 @@ uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);
 /* Append bytecode to the code section. Returns the byte offset where it was written. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
 
-/* Add a debug entry (bytecode offset -> source line) */
-void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset, uint32_t source_line);
+/* Add a debug entry (bytecode offset -> source line + column).
+ * source_col is 1-based; pass 0 if unknown. */
+void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
+                         uint32_t source_line, uint32_t source_col);
 
 /* Serialize module to a byte buffer. Caller must free returned buffer.
  * Sets *out_size to the total size. Returns NULL on error. */

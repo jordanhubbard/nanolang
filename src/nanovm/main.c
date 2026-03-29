@@ -26,6 +26,9 @@ char **g_argv = NULL;
 /* Global flag for co-process FFI isolation */
 static bool g_isolate_ffi = false;
 
+/* Global flag for debug mode (--debug or DEBUG env var) */
+static bool g_debug_mode = false;
+
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
     if (!f) {
@@ -138,13 +141,18 @@ static int run_standalone(const char *path) {
         vm.isolate_ffi = true;
     }
 
+    if (g_debug_mode) {
+        vm.debug_mode = true;
+    }
+
     VmResult result = vm_execute(&vm);
 
     int exit_code = 0;
     if (result != VM_OK) {
         bool has_debug = !!(module->header.flags & NVM_FLAG_DEBUG_INFO);
-        if (!has_debug) {
-            /* No debug info — emit plain error (stack trace already printed when debug info present) */
+        /* Stack trace is already printed inside vm_call_function when debug_mode
+         * or NVM_FLAG_DEBUG_INFO is set; only fall back to plain error otherwise. */
+        if (!has_debug && !g_debug_mode) {
             fprintf(stderr, "Runtime error: %s\n", vm_error_string(result));
             if (vm.error_msg[0]) {
                 fprintf(stderr, "  %s\n", vm.error_msg);
@@ -195,18 +203,23 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--daemon] <file.nvm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--daemon] [--debug] <file.nvm>\n", argv[0]);
         return 1;
     }
 
     bool daemon_mode = false;
     const char *nvm_path = NULL;
 
+    /* Honour DEBUG env var before parsing flags */
+    if (getenv("DEBUG")) g_debug_mode = true;
+
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
             daemon_mode = true;
         } else if (strcmp(argv[i], "--isolate-ffi") == 0 || strcmp(argv[i], "--cop") == 0) {
             g_isolate_ffi = true;
+        } else if (strcmp(argv[i], "--debug") == 0) {
+            g_debug_mode = true;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             return 1;

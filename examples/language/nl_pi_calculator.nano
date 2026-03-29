@@ -224,10 +224,10 @@ shadow arctan_series {
 
 # @pure
 fn calculate_pi_machin(terms: int) -> float {
-    # par {  -- term1 and term2 are independent @pure computations, eligible for parallel eval
-    let term1: float = (arctan_series 0.2 terms)      # arctan(1/5)
-    let term2: float = (arctan_series 0.0041841 terms) # arctan(1/239) ≈ 0.0041841
-    # }
+    par {
+        let term1: float = (arctan_series 0.2 terms)      # arctan(1/5)
+        let term2: float = (arctan_series 0.0041841 terms) # arctan(1/239) ≈ 0.0041841
+    }
 
     let pi_over_4: float = (- (* 4.0 term1) term2)
     return (* pi_over_4 4.0)
