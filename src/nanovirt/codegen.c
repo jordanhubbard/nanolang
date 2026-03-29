@@ -2026,6 +2026,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
 static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
+    /* Emit source location hint before each statement */
+    if (node->line > 0) {
+        uint32_t off = emit_op(cg, OP_DEBUG_LINE, (uint32_t)node->line);
+        nvm_add_debug_entry(cg->module, off, (uint32_t)node->line,
+                            (uint32_t)(node->column > 0 ? node->column : 0));
+    }
+
     switch (node->type) {
     case AST_LET: {
         compile_expr(cg, node->as.let.value);
@@ -3079,6 +3086,15 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     }
     if (cg.extern_count > 0) {
         cg.module->header.flags |= NVM_FLAG_NEEDS_EXTERN;
+    }
+    /* Always emit debug info so the VM can produce source-mapped traces */
+    if (cg.module->debug_count > 0) {
+        cg.module->header.flags |= NVM_FLAG_DEBUG_INFO;
+    }
+    /* Store source file path in string pool for stack traces */
+    if (input_file && input_file[0]) {
+        cg.module->source_file_idx = nvm_add_string(cg.module, input_file,
+                                                     (uint32_t)strlen(input_file));
     }
 
     free(cg.code);

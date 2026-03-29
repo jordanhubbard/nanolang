@@ -32,6 +32,7 @@ typedef struct {
     VmClosure *closure;       /* Non-NULL if this is a closure call */
     const NvmModule *module;  /* Module this frame belongs to (for cross-module calls) */
     uint32_t current_line;    /* Most recently seen OP_DEBUG_LINE value (0 = unknown) */
+    uint32_t current_col;     /* Column from most recent debug entry (0 = unknown) */
 } VmCallFrame;
 
 /* ========================================================================
@@ -100,6 +101,10 @@ typedef struct VmState {
     /* Error info */
     VmResult last_error;
     char error_msg[256];
+
+    /* Debug mode: emit stack trace on any runtime error.
+     * Enabled via --debug flag or DEBUG env var. */
+    bool debug_mode;
 } VmState;
 
 /* ========================================================================

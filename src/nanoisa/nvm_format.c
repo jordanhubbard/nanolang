@@ -215,7 +215,8 @@ uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size) {
  * Debug Info
  * ======================================================================== */
 
-void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset, uint32_t source_line) {
+void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
+                         uint32_t source_line, uint32_t source_col) {
     if (mod->debug_count >= mod->debug_capacity) {
         uint32_t new_cap = mod->debug_capacity * 2;
         NvmDebugEntry *new_entries = realloc(mod->debug_entries, new_cap * sizeof(NvmDebugEntry));
@@ -226,6 +227,7 @@ void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset, uint32_t sour
 
     mod->debug_entries[mod->debug_count].bytecode_offset = bytecode_offset;
     mod->debug_entries[mod->debug_count].source_line = source_line;
+    mod->debug_entries[mod->debug_count].source_col  = source_col;
     mod->debug_count++;
 }
 
@@ -341,6 +343,8 @@ static uint32_t serialize_debug(const NvmModule *mod, uint8_t *buf) {
         le_write_u32(buf + pos, mod->debug_entries[i].bytecode_offset);
         pos += 4;
         le_write_u32(buf + pos, mod->debug_entries[i].source_line);
+        pos += 4;
+        le_write_u32(buf + pos, mod->debug_entries[i].source_col);
         pos += 4;
     }
     return pos;
@@ -567,7 +571,8 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                 while (pos + NVM_DEBUG_ENTRY_SIZE <= sec_size) {
                     uint32_t bc_off = le_read_u32(sec_data + pos); pos += 4;
                     uint32_t line   = le_read_u32(sec_data + pos); pos += 4;
-                    nvm_add_debug_entry(mod, bc_off, line);
+                    uint32_t col    = le_read_u32(sec_data + pos); pos += 4;
+                    nvm_add_debug_entry(mod, bc_off, line, col);
                 }
                 break;
             }
