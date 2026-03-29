@@ -20,21 +20,7 @@ struct Snippet {
     run_timeout_s: int
 }
 
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let ls: int = (str_length s)
-    let lp: int = (str_length prefix)
-    if (< ls lp) { return false }
-    return (== (str_substring s 0 lp) prefix)
-}
-
 shadow str_starts_with { assert (str_starts_with "hello" "he") }
-
-fn str_ends_with(s: string, suffix: string) -> bool {
-    let ls: int = (str_length s)
-    let lf: int = (str_length suffix)
-    if (< ls lf) { return false }
-    return (== (str_substring s (- ls lf) lf) suffix)
-}
 
 shadow str_ends_with { assert (str_ends_with "hello" "lo") }
 
