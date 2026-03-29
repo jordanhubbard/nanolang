@@ -96,11 +96,17 @@ shadow test_str_index_of {
     assert (== (test_str_index_of) 0)
 }
 
-fn main() -> int {
+fn test_original_builtins() -> int {
     let r1: int = (test_str_starts_with)
     let r2: int = (test_str_ends_with)
     let r3: int = (test_str_index_of)
     return (+ (+ r1 r2) r3)
+}
+
+shadow test_original_builtins {
+    assert (== (test_original_builtins) 0)
+}
+
 /* Test: new stdlib string functions
  * Note: str_starts_with, str_ends_with, str_index_of are not tested here because
  * they are already defined as user functions in the bootstrap compiler source
