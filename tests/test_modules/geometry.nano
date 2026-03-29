@@ -1,0 +1,43 @@
+# Fixture module for module system tests
+module geometry
+
+pub struct GeoPoint {
+    x: int,
+    y: int
+}
+
+pub struct Circle {
+    cx: int,
+    cy: int,
+    radius: int
+}
+
+pub fn distance_sq(a: GeoPoint, b: GeoPoint) -> int {
+    let dx: int = (- b.x a.x)
+    let dy: int = (- b.y a.y)
+    return (+ (* dx dx) (* dy dy))
+}
+
+shadow distance_sq {
+    let p1: GeoPoint = GeoPoint { x: 0, y: 0 }
+    let p2: GeoPoint = GeoPoint { x: 3, y: 4 }
+    assert (== (distance_sq p1 p2) 25)
+}
+
+pub fn area_approx(c: Circle) -> int {
+    # Returns 3 * r^2 as integer approximation of pi*r^2
+    return (* 3 (* c.radius c.radius))
+}
+
+shadow area_approx {
+    let c: Circle = Circle { cx: 0, cy: 0, radius: 5 }
+    assert (== (area_approx c) 75)
+}
+
+fn private_helper(x: int) -> int {
+    return (* x x)
+}
+
+shadow private_helper {
+    assert (== (private_helper 7) 49)
+}

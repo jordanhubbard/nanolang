@@ -1,0 +1,6 @@
+module circ_test_a
+module "tests/test_modules/circ_test_b.nano" as B
+
+pub fn func_a() -> int {
+    return (B.func_b)
+}
