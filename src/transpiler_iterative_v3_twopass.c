@@ -1165,8 +1165,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                     /* Copy prefixed names into local buffers before subsequent calls overwrite them */
                     char c_type_buf[256];
-                    strncpy(c_type_buf, get_prefixed_type_name(union_name), sizeof(c_type_buf) - 1);
-                    c_type_buf[sizeof(c_type_buf) - 1] = '\0';
+                    snprintf(c_type_buf, sizeof(c_type_buf), "%s", get_prefixed_type_name(union_name));
                     char err_tag_buf[512];
                     snprintf(err_tag_buf, sizeof(err_tag_buf), "%s", get_prefixed_tag_name(union_name, err_variant));
 
