@@ -192,7 +192,8 @@ typedef enum {
     AST_TUPLE_LITERAL,     /* Tuple literal: (1, "hello", true) */
     AST_TUPLE_INDEX,       /* Tuple index access: tuple.0, tuple.1 */
     AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
-    AST_UNSAFE_BLOCK       /* Unsafe block: unsafe { ... } */
+    AST_UNSAFE_BLOCK,      /* Unsafe block: unsafe { ... } */
+    AST_TRY_OP             /* Postfix ? try operator: expr? */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -428,6 +429,12 @@ struct ASTNode {
             ASTNode **statements;  /* Statements in the unsafe block */
             int count;             /* Number of statements */
         } unsafe_block;
+        /* Postfix ? try operator: expr? */
+        struct {
+            ASTNode *operand;       /* The expression being try-unwrapped */
+            char *union_type_name;  /* Filled by typechecker: C union name (e.g. "Result") */
+            char *ok_field_name;    /* Filled by typechecker: first field of Ok variant */
+        } try_op;
     } as;
 };
 

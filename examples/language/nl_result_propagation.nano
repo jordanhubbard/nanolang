@@ -5,7 +5,7 @@
  *   ({ nl_Result _nl_try_r = x; if (_nl_try_r.tag == nl_Result_TAG_Err) return _nl_try_r; _nl_try_r.data.Ok.val; })
  *
  * This lets you write short-circuit error handling without explicit match blocks.
- * Note: requires the stage1 self-hosted compiler (? operator not in nanoc_c).
+ * Works with both bin/nanoc (C compiler) and the stage1 self-hosted compiler.
  *
  * Union variants with named fields (Ok { val: T }) bind as structs in match arms,
  * so use ok.val / err.msg to access the inner value.
@@ -25,6 +25,18 @@ fn safe_div(a: int, b: int) -> Result {
         return Result.Ok { val: (/ a b) }
     }
 }
+shadow safe_div {
+    let r1: Result = (safe_div 10 2)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    let r2: Result = (safe_div 7 0)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "divide by zero") }
+    }
+}
 
 /* Safe square root — returns Err on negative input */
 # @pure
@@ -40,6 +52,18 @@ fn safe_sqrt_int(n: int) -> Result {
         return Result.Ok { val: (- i 1) }
     }
 }
+shadow safe_sqrt_int {
+    let r1: Result = (safe_sqrt_int 25)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    let r2: Result = (safe_sqrt_int -1)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "sqrt of negative number") }
+    }
+}
 
 /* Chain: compute sqrt(a / b) — propagates any Err automatically */
 # @pure
@@ -49,6 +73,26 @@ fn sqrt_of_ratio(a: int, b: int) -> Result {
     let sqrt_r: Result = (safe_sqrt_int quotient)
     let root: int = sqrt_r?       /* returns Err if quotient<0 */
     return Result.Ok { val: root }
+}
+shadow sqrt_of_ratio {
+    /* Happy path */
+    let r1: Result = (sqrt_of_ratio 100 4)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    /* Divide by zero propagates */
+    let r2: Result = (sqrt_of_ratio 100 0)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "divide by zero") }
+    }
+    /* Negative sqrt propagates */
+    let r3: Result = (sqrt_of_ratio -9 1)
+    match r3 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "sqrt of negative number") }
+    }
 }
 
 fn main() -> int {

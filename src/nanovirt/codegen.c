@@ -1897,6 +1897,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
         break;
     }
 
+    case AST_TRY_OP:
+        cg_error(cg, node->line, "'?' operator not supported in VM bytecode compiler");
+        break;
+
     case AST_UNION_CONSTRUCT: {
         const char *uname = node->as.union_construct.union_name;
         const char *vname = node->as.union_construct.variant_name;
@@ -2266,6 +2270,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_TUPLE_INDEX:
     case AST_UNION_CONSTRUCT:
     case AST_MATCH:
+    case AST_TRY_OP:
         compile_expr(cg, node);
         emit_op(cg, OP_POP);
         break;

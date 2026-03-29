@@ -2040,6 +2040,26 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            /* Visibility check: private functions cannot be called from other modules */
+            if (func->module_name && !func->is_pub) {
+                bool same_module = env->current_module &&
+                                   strcmp(func->module_name, env->current_module) == 0;
+                if (!same_module) {
+                    char priv_msg[512];
+                    snprintf(priv_msg, sizeof(priv_msg),
+                             "Function '%s' is private to module '%s'.",
+                             func->name, func->module_name);
+                    char priv_hint[512];
+                    snprintf(priv_hint, sizeof(priv_hint),
+                             "Use 'pub fn %s(...)' to make it accessible from other modules.",
+                             func->name);
+                    emit_context_error("PRIVATE ACCESS", expr->line, expr->column,
+                                       (int)safe_strlen(function_name), priv_msg, priv_hint);
+                    free(qualified_name);
+                    return TYPE_UNKNOWN;
+                }
+            }
+
             /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
             if (env->warn_unsafe_calls && func->module_name) {
                 /* Check if the function's module is unsafe */
@@ -2050,14 +2070,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
                 }
             }
-            
+
             /* Phase 3: Warn on FFI calls if --warn-ffi is set */
             if (func->is_extern && env->warn_ffi) {
                 fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s.%s'\n",
                         expr->line, expr->column, module_alias, function_name);
                 fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
             }
-            
+
             free(qualified_name);
             
             /* Type check arguments (basic check - just verify count and type check expressions) */
@@ -2871,6 +2891,68 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * TODO: Store TypeInfo in function return types for complete type checking.
              */
             return TYPE_INT;
+        }
+
+        case AST_TRY_OP: {
+            /* Postfix ? try operator: expr?
+             * The operand must be a union type with Ok and Err variants.
+             * Returns the type of the first field of the Ok variant. */
+            Type inner_type = check_expression(expr->as.try_op.operand, env);
+            if (inner_type != TYPE_UNION) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union type (got %d)\n",
+                        expr->line, expr->column, inner_type);
+                return TYPE_UNKNOWN;
+            }
+
+            /* Resolve the union type name from the inner expression */
+            const char *union_name = NULL;
+            ASTNode *inner = expr->as.try_op.operand;
+            if (inner->type == AST_IDENTIFIER) {
+                Symbol *sym = env_get_var_visible_at(env, inner->as.identifier, inner->line, inner->column);
+                if (sym && sym->struct_type_name) union_name = sym->struct_type_name;
+            } else if (inner->type == AST_CALL) {
+                Function *func = env_get_function(env, inner->as.call.name);
+                if (func && func->return_struct_type_name) union_name = func->return_struct_type_name;
+            } else if (inner->type == AST_UNION_CONSTRUCT) {
+                union_name = inner->as.union_construct.union_name;
+            }
+
+            if (!union_name) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator: cannot determine union type name\n",
+                        expr->line, expr->column);
+                return TYPE_UNKNOWN;
+            }
+
+            /* Look up union def to find Ok variant and its first field */
+            UnionDef *udef = env_get_union(env, union_name);
+            if (!udef) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator: union '%s' not found\n",
+                        expr->line, expr->column, union_name);
+                return TYPE_UNKNOWN;
+            }
+
+            /* Find Ok variant */
+            int ok_idx = -1;
+            for (int i = 0; i < udef->variant_count; i++) {
+                if (strcmp(udef->variant_names[i], "Ok") == 0) {
+                    ok_idx = i;
+                    break;
+                }
+            }
+            if (ok_idx < 0 || udef->variant_field_counts[ok_idx] == 0) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator: union '%s' has no Ok variant with fields\n",
+                        expr->line, expr->column, union_name);
+                return TYPE_UNKNOWN;
+            }
+
+            /* Store metadata in node for the transpiler */
+            if (expr->as.try_op.union_type_name) free(expr->as.try_op.union_type_name);
+            if (expr->as.try_op.ok_field_name) free(expr->as.try_op.ok_field_name);
+            expr->as.try_op.union_type_name = strdup(union_name);
+            expr->as.try_op.ok_field_name = strdup(udef->variant_field_names[ok_idx][0]);
+
+            /* Return type is the Ok variant's first field type */
+            return udef->variant_field_types[ok_idx][0];
         }
 
         default:
@@ -3804,6 +3886,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 case AST_TUPLE_LITERAL: kind = "tuple literal"; break;
                 case AST_TUPLE_INDEX: kind = "tuple index"; break;
                 case AST_QUALIFIED_NAME: kind = "qualified name"; break;
+                case AST_TRY_OP: kind = "try expression"; break;
                 default: break;
             }
             char message[256];

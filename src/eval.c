@@ -4632,6 +4632,32 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return tv->elements[index];
         }
 
+        case AST_TRY_OP: {
+            /* Desugar expr? in the interpreter:
+             * evaluate operand; if Err variant, propagate as return; else return Ok's first field. */
+            Value inner = eval_expression(expr->as.try_op.operand, env);
+            if (inner.type != VAL_UNION || !inner.as.union_val) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union value\n",
+                        expr->line, expr->column);
+                return create_void();
+            }
+            UnionValue *uv = inner.as.union_val;
+            if (strcmp(uv->variant_name, "Err") == 0) {
+                /* Propagate the Err as a return value */
+                inner.is_return = true;
+                inner.is_break = false;
+                inner.is_continue = false;
+                return inner;
+            }
+            /* Ok variant: return the first field value */
+            if (uv->field_count == 0) {
+                fprintf(stderr, "Error at line %d, column %d: '?' operator: Ok variant has no fields\n",
+                        expr->line, expr->column);
+                return create_void();
+            }
+            return uv->field_values[0];
+        }
+
         default:
             return create_void();
     }
@@ -4665,6 +4691,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             }
 
             Value value = eval_expression(stmt->as.let.value, env);
+            /* If the RHS propagates a return (e.g. via the ? operator), forward it. */
+            if (value.is_return || value.is_break || value.is_continue) {
+                return value;
+            }
             env_define_var_with_type_info(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,

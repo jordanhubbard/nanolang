@@ -397,6 +397,8 @@ static SubsetResult check_subset(ASTNode *node, Environment *env) {
             return outside_ast("tuple literal (not in NanoCore)");
         case AST_TUPLE_INDEX:
             return outside_ast("tuple index (not in NanoCore)");
+        case AST_TRY_OP:
+            return outside_ast("try operator (not in NanoCore)");
         case AST_QUALIFIED_NAME:
             return outside_ast("qualified name (not in NanoCore)");
         case AST_BREAK:

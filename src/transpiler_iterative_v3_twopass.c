@@ -2305,6 +2305,25 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             build_expr(list, expr->as.tuple_index.tuple, env);
             emit_formatted(list, "._%d", expr->as.tuple_index.index);
             break;
+
+        case AST_TRY_OP: {
+            /* Desugar expr? to:
+             *   ({ nl_UNION _nl_try_r = EXPR;
+             *      if (_nl_try_r.tag == nl_UNION_TAG_Err) return _nl_try_r;
+             *      _nl_try_r.data.Ok.FIELD; })
+             */
+            const char *union_name = expr->as.try_op.union_type_name;
+            const char *ok_field  = expr->as.try_op.ok_field_name;
+            if (!union_name) union_name = "Result";
+            if (!ok_field)  ok_field  = "val";
+            const char *prefixed = get_prefixed_type_name(union_name);
+            emit_literal(list, "({ ");
+            emit_formatted(list, "%s _nl_try_r = ", prefixed);
+            build_expr(list, expr->as.try_op.operand, env);
+            emit_formatted(list, "; if (_nl_try_r.tag == nl_%s_TAG_Err) return _nl_try_r;", union_name);
+            emit_formatted(list, " _nl_try_r.data.Ok.%s; })", ok_field);
+            break;
+        }
             
         case AST_STRUCT_LITERAL: {
             /* Struct literal: StructName { field1: val1, field2: val2 } */
