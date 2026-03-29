@@ -68,14 +68,6 @@ this works natively. On Linux, libdispatch must be installed separately
 (`libdispatch-dev`) and the module must be compiled. The `group_wait` call
 fails when the native library is unavailable.
 
-### Parser: `?` Error Propagation Operator
-
-- `nl_result_propagation.nano` — Uses the `?` postfix operator for automatic
-  error propagation (similar to Rust's `?`).
-
-This operator is implemented in the stage1 self-hosted compiler but not in the
-C reference compiler (`src/lexer.c`). It requires a parser change to support.
-
 ### Runtime: Missing Data File
 
 - `nl_random_sentence.nano` — Requires a dictionary file at a runtime path

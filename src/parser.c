@@ -2575,6 +2575,20 @@ static ASTNode *parse_expression(Stage1Parser *p) {
             continue;
         }
 
+        /* Check for postfix ? try operator */
+        if (match(p, TOKEN_QUESTION)) {
+            Token *q_tok = current_token(p);
+            int q_line = q_tok ? q_tok->line : expr->line;
+            int q_col  = q_tok ? q_tok->column : expr->column;
+            advance(p);  /* consume '?' */
+            ASTNode *try_node = create_node(AST_TRY_OP, q_line, q_col);
+            try_node->as.try_op.operand = expr;
+            try_node->as.try_op.union_type_name = NULL;
+            try_node->as.try_op.ok_field_name = NULL;
+            expr = try_node;
+            continue;
+        }
+
         /* Check for infix binary operator: expr op primary */
         {
             Token *cur = current_token(p);
@@ -3975,6 +3989,7 @@ static bool is_expression_node(ASTNodeType type) {
         case AST_TUPLE_LITERAL:
         case AST_TUPLE_INDEX:
         case AST_QUALIFIED_NAME:
+        case AST_TRY_OP:
             return true;
         default:
             return false;
@@ -4917,6 +4932,11 @@ void free_ast(ASTNode *node) {
             break;
         case AST_TUPLE_INDEX:
             free_ast(node->as.tuple_index.tuple);
+            break;
+        case AST_TRY_OP:
+            free_ast(node->as.try_op.operand);
+            free(node->as.try_op.union_type_name);
+            free(node->as.try_op.ok_field_name);
             break;
         case AST_UNSAFE_BLOCK:
             for (int i = 0; i < node->as.unsafe_block.count; i++) {

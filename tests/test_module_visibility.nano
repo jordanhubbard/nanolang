@@ -1,0 +1,40 @@
+# Test pub/private visibility enforcement across module boundaries
+
+module "tests/test_modules/simple_math.nano" as Math
+
+# Public functions from Math should be callable
+fn test_pub_access() -> int {
+    return (Math.add 20 22)
+}
+
+shadow test_pub_access {
+    assert (== (test_pub_access) 42)
+}
+
+fn test_pub_multiply() -> int {
+    return (Math.multiply 6 7)
+}
+
+shadow test_pub_multiply {
+    assert (== (test_pub_multiply) 42)
+}
+
+fn test_pub_double() -> int {
+    return (Math.double 21)
+}
+
+shadow test_pub_double {
+    assert (== (test_pub_double) 42)
+}
+
+fn main() -> int {
+    assert (== (test_pub_access) 42)
+    assert (== (test_pub_multiply) 42)
+    assert (== (test_pub_double) 42)
+    (println "Module visibility tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,11 @@
+# Expected Error: Circular import dependency detected
+
+module "tests/test_modules/circ_test_a.nano" as A
+
+fn main() -> int {
+    return (A.func_a)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

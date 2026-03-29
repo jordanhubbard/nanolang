@@ -1,182 +1,133 @@
 {
-  "Function": {
-    "prefix": "fn",
-    "body": [
-      "fn ${1:function_name}(${2:params}) -> ${3:int} {",
-      "\t${4:return 0}",
-      "}",
-      "",
-      "shadow ${1:function_name} {",
-      "\tassert ${5:condition}",
-      "}"
-    ],
-    "description": "Create a function with shadow test"
-  },
-  "Main Function": {
-    "prefix": "main",
-    "body": [
-      "fn main() -> int {",
-      "\t${1:(println \"Hello, NanoLang!\")}",
-      "\treturn 0",
-      "}",
-      "",
-      "shadow main {",
-      "\tassert (== (main) 0)",
-      "}"
-    ],
-    "description": "Create main function"
-  },
-  "Struct": {
-    "prefix": "struct",
-    "body": [
-      "struct ${1:StructName} {",
-      "\t${2:field}: ${3:int}",
-      "}"
-    ],
-    "description": "Create a struct"
-  },
-  "Enum": {
-    "prefix": "enum",
-    "body": [
-      "enum ${1:EnumName} {",
-      "\t${2:Variant1}",
-      "\t${3:Variant2}",
-      "}"
-    ],
-    "description": "Create an enum"
-  },
-  "Union": {
-    "prefix": "union",
-    "body": [
-      "union ${1:UnionName}<${2:T}> {",
-      "\t${3:Some}(${2:T})",
-      "\t${4:None}",
-      "}"
-    ],
-    "description": "Create a union (tagged union/sum type)"
-  },
-  "Match": {
-    "prefix": "match",
-    "body": [
-      "match ${1:value} {",
-      "\t${2:Pattern1} => ${3:result1}",
-      "\t${4:Pattern2} => ${5:result2}",
-      "\t_ => ${6:default}",
-      "}"
-    ],
-    "description": "Create a match expression"
-  },
-  "If-Else": {
-    "prefix": "if",
-    "body": [
-      "if ${1:condition} {",
-      "\t${2:// then}",
-      "} else {",
-      "\t${3:// else}",
-      "}"
-    ],
-    "description": "Create an if-else statement"
-  },
-  "While Loop": {
-    "prefix": "while",
-    "body": [
-      "while ${1:condition} {",
-      "\t${2:// body}",
-      "}"
-    ],
-    "description": "Create a while loop"
-  },
-  "For Loop": {
-    "prefix": "for",
-    "body": [
-      "for ${1:i} in (range ${2:0} ${3:10}) {",
-      "\t${4:// body}",
-      "}"
-    ],
-    "description": "Create a for loop with range"
-  },
-  "Shadow Test": {
-    "prefix": "shadow",
-    "body": [
-      "shadow ${1:function_name} {",
-      "\tassert ${2:condition}",
-      "}"
-    ],
-    "description": "Create a shadow test block"
-  },
-  "Let Variable": {
-    "prefix": "let",
-    "body": "let ${1:name}: ${2:int} = ${3:value}",
-    "description": "Declare an immutable variable"
-  },
-  "Let Mutable": {
-    "prefix": "letmut",
-    "body": "let mut ${1:name}: ${2:int} = ${3:value}",
-    "description": "Declare a mutable variable"
-  },
-  "Import": {
-    "prefix": "import",
-    "body": "from \"${1:module/path}\" import ${2:function}",
-    "description": "Import from module"
-  },
-  "Extern Function": {
-    "prefix": "extern",
-    "body": "extern fn ${1:function_name}(${2:params}) -> ${3:int}",
-    "description": "Declare external C function"
-  },
-  "Array Declaration": {
-    "prefix": "array",
-    "body": "let ${1:name}: array<${2:int}> = [${3:1, 2, 3}]",
-    "description": "Declare an array"
-  },
-  "Result Ok": {
-    "prefix": "ok",
-    "body": "Result::Ok(${1:value})",
-    "description": "Return Result Ok variant"
-  },
-  "Result Err": {
-    "prefix": "err",
-    "body": "Result::Err(${1:error})",
-    "description": "Return Result Err variant"
-  },
-  "Option Some": {
-    "prefix": "some",
-    "body": "Option::Some(${1:value})",
-    "description": "Return Option Some variant"
-  },
-  "Option None": {
-    "prefix": "none",
-    "body": "Option::None",
-    "description": "Return Option None variant"
-  },
-  "Prefix Add": {
-    "prefix": "+",
-    "body": "(+ ${1:a} ${2:b})",
-    "description": "Addition in prefix notation"
-  },
-  "Prefix Subtract": {
-    "prefix": "-",
-    "body": "(- ${1:a} ${2:b})",
-    "description": "Subtraction in prefix notation"
-  },
-  "Prefix Multiply": {
-    "prefix": "*",
-    "body": "(* ${1:a} ${2:b})",
-    "description": "Multiplication in prefix notation"
-  },
-  "Prefix Divide": {
-    "prefix": "/",
-    "body": "(/ ${1:a} ${2:b})",
-    "description": "Division in prefix notation"
-  },
-  "Equals": {
-    "prefix": "==",
-    "body": "(== ${1:a} ${2:b})",
-    "description": "Equality comparison"
-  },
-  "Print": {
-    "prefix": "print",
-    "body": "(println ${1:message})",
-    "description": "Print line"
-  }
+    "Function": {
+        "prefix": "fn",
+        "body": ["fn ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Define a function"
+    },
+    "Shadow test": {
+        "prefix": "shadow",
+        "body": ["shadow ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Define a shadow test function"
+    },
+    "Let binding": {
+        "prefix": "let",
+        "body": ["let ${1:name}: ${2:Type} = ${0};"],
+        "description": "Immutable let binding"
+    },
+    "Var binding": {
+        "prefix": "var",
+        "body": ["var ${1:name}: ${2:Type} = ${0};"],
+        "description": "Mutable var binding"
+    },
+    "If statement": {
+        "prefix": "if",
+        "body": ["if ${1:condition} {", "\t${0}", "}"],
+        "description": "If statement"
+    },
+    "If-else statement": {
+        "prefix": "ife",
+        "body": ["if ${1:condition} {", "\t${2}", "} else {", "\t${0}", "}"],
+        "description": "If-else statement"
+    },
+    "Match expression": {
+        "prefix": "match",
+        "body": [
+            "match ${1:value} {",
+            "\t${2:Pattern1} => ${3:result1},",
+            "\t${4:Pattern2} => ${5:result2},",
+            "\t_ => ${0}",
+            "}"
+        ],
+        "description": "Pattern match expression"
+    },
+    "While loop": {
+        "prefix": "while",
+        "body": ["while ${1:condition} {", "\t${0}", "}"],
+        "description": "While loop"
+    },
+    "For loop": {
+        "prefix": "for",
+        "body": ["for ${1:item} in ${2:iterable} {", "\t${0}", "}"],
+        "description": "For-in loop"
+    },
+    "Struct": {
+        "prefix": "struct",
+        "body": ["struct ${1:Name} {", "\t${2:field}: ${3:Type},", "\t${0}", "}"],
+        "description": "Struct definition"
+    },
+    "Enum": {
+        "prefix": "enum",
+        "body": ["enum ${1:Name} {", "\t${2:Variant1},", "\t${3:Variant2},", "\t${0}", "}"],
+        "description": "Enum definition"
+    },
+    "Module": {
+        "prefix": "module",
+        "body": ["module ${1:name} {", "\t${0}", "}"],
+        "description": "Module definition"
+    },
+    "Import": {
+        "prefix": "import",
+        "body": ["import ${1:module}"],
+        "description": "Import a module"
+    },
+    "Import with use": {
+        "prefix": "use",
+        "body": ["use ${1:module}::${0:item}"],
+        "description": "Use an item from a module"
+    },
+    "Pub function": {
+        "prefix": "pfn",
+        "body": ["pub fn ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Public function"
+    },
+    "Option type": {
+        "prefix": "opt",
+        "body": ["Option<${1:Type}>"],
+        "description": "Option type"
+    },
+    "Result type": {
+        "prefix": "res",
+        "body": ["Result<${1:OkType}, ${2:ErrType}>"],
+        "description": "Result type"
+    },
+    "List type": {
+        "prefix": "list",
+        "body": ["List<${1:Type}>"],
+        "description": "List type"
+    },
+    "HashMap type": {
+        "prefix": "map",
+        "body": ["HashMap<${1:KeyType}, ${2:ValueType}>"],
+        "description": "HashMap type"
+    },
+    "Tuple type": {
+        "prefix": "tup",
+        "body": ["(${1:Type1}, ${2:Type2})"],
+        "description": "Tuple type"
+    },
+    "Tuple literal": {
+        "prefix": "tupl",
+        "body": ["(${1:val1}, ${2:val2})"],
+        "description": "Tuple literal"
+    },
+    "Print": {
+        "prefix": "print",
+        "body": ["print(${0});"],
+        "description": "Print to stdout"
+    },
+    "Println": {
+        "prefix": "println",
+        "body": ["println(${0});"],
+        "description": "Print line to stdout"
+    },
+    "Return": {
+        "prefix": "ret",
+        "body": ["return ${0};"],
+        "description": "Return statement"
+    },
+    "Error propagation": {
+        "prefix": "try",
+        "body": ["${1:expr}?"],
+        "description": "Error propagation with ?"
+    }
 }

@@ -573,14 +573,22 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     
     /* Check if module is already loaded (only if using cache) */
     if (use_cache) {
-        ASTNode *cached_ast = get_cached_module_ast(module_path);
-        if (cached_ast) {
-            /* Module already loaded - return cached AST */
-            /* This allows compile_module_to_object to reuse the AST */
-            /* without triggering a second parse (fixes nanolang-6h9) */
-            return cached_ast;
+        if (is_module_cached(module_path)) {
+            ASTNode *cached_ast = get_cached_module_ast(module_path);
+            if (cached_ast) {
+                /* Module fully loaded - return cached AST */
+                /* This allows compile_module_to_object to reuse the AST */
+                /* without triggering a second parse (fixes nanolang-6h9) */
+                return cached_ast;
+            }
+            /* Module is in cache with NULL AST: it is currently being loaded.
+             * This means we have a circular import dependency. */
+            fprintf(stderr, "Error: Circular import dependency detected for module '%s'\n", module_path);
+            fprintf(stderr, "  Hint: Modules cannot import each other directly or transitively.\n");
+            fprintf(stderr, "  Hint: Consider restructuring shared code into a third module.\n");
+            return NULL;
         }
-        
+
         /* Mark module as loading to prevent circular imports */
         cache_module(module_path);
     }

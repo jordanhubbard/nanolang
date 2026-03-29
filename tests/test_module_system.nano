@@ -1,0 +1,92 @@
+# Test suite for the NanoLang module system
+# Covers: imports, qualified calls, pub/private visibility, struct types
+
+module "tests/test_modules/simple_math.nano" as Math
+module "tests/test_modules/geometry.nano" as Geo
+
+# ─── basic qualified function call ───────────────────────────────────────────
+
+fn test_qualified_call() -> int {
+    let r: int = (Math.add 10 32)
+    return r
+}
+
+shadow test_qualified_call {
+    assert (== (test_qualified_call) 42)
+}
+
+# ─── qualified struct literal and field access ────────────────────────────────
+
+fn test_qualified_struct() -> int {
+    let p: Math.Point = Math.Point { x: 3, y: 4 }
+    return (+ p.x p.y)
+}
+
+shadow test_qualified_struct {
+    assert (== (test_qualified_struct) 7)
+}
+
+# ─── module function using module's own struct ────────────────────────────────
+
+fn test_geo_distance() -> int {
+    let a: Geo.GeoPoint = Geo.GeoPoint { x: 0, y: 0 }
+    let b: Geo.GeoPoint = Geo.GeoPoint { x: 3, y: 4 }
+    return (Geo.distance_sq a b)
+}
+
+shadow test_geo_distance {
+    assert (== (test_geo_distance) 25)
+}
+
+# ─── multiple modules in same file ───────────────────────────────────────────
+
+fn test_two_modules() -> int {
+    let sum: int = (Math.add 5 5)
+    let p: Math.Point = Math.Point { x: sum, y: 0 }
+    return p.x
+}
+
+shadow test_two_modules {
+    assert (== (test_two_modules) 10)
+}
+
+# ─── chained module calls ─────────────────────────────────────────────────────
+
+fn test_chained_calls() -> int {
+    let a: int = (Math.add 3 4)
+    let b: int = (Math.multiply a 2)
+    let c: int = (Math.subtract b 6)
+    return c
+}
+
+shadow test_chained_calls {
+    assert (== (test_chained_calls) 8)
+}
+
+# ─── module struct field ──────────────────────────────────────────────────────
+
+fn test_geo_circle() -> int {
+    let c: Geo.Circle = Geo.Circle { cx: 0, cy: 0, radius: 5 }
+    return (Geo.area_approx c)
+}
+
+shadow test_geo_circle {
+    assert (== (test_geo_circle) 75)
+}
+
+# ─── main ─────────────────────────────────────────────────────────────────────
+
+fn main() -> int {
+    assert (== (test_qualified_call) 42)
+    assert (== (test_qualified_struct) 7)
+    assert (== (test_geo_distance) 25)
+    assert (== (test_two_modules) 10)
+    assert (== (test_chained_calls) 8)
+    assert (== (test_geo_circle) 75)
+    (println "All module system tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
