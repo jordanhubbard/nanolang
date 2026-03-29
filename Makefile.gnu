@@ -831,6 +831,20 @@ $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
 	@echo "✓ Interpreter: $(INTERPRETER)"
 
+# LSP server binary: bin/nanolang-lsp speaks JSON-RPC 2.0 over stdio
+LSP_SERVER = $(BIN_DIR)/nanolang-lsp
+LSP_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lsp_server.o
+
+$(OBJ_DIR)/lsp_server.o: $(SRC_DIR)/lsp_server.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/lsp_server.c -o $(OBJ_DIR)/lsp_server.o
+
+$(LSP_SERVER): $(LSP_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(LSP_SERVER) $(LSP_OBJECTS) $(LDFLAGS)
+	@echo "✓ LSP Server: $(LSP_SERVER)"
+
+.PHONY: lsp
+lsp: $(LSP_SERVER)
+
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 

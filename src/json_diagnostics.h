@@ -54,4 +54,19 @@ void json_error(const char *code, const char *message, const char *file,
 void json_warning(const char *code, const char *message, const char *file,
                   int line, int column, const char *suggestion);
 
+/* -------------------------------------------------------------------------
+ * Conflict-free accessor API for callers that cannot include this header
+ * without a DiagnosticSeverity typedef conflict (e.g., files that also
+ * include nanolang.h → compiler_schema.h, which defines DiagnosticSeverity
+ * with different members).  Severity is returned as int:
+ *   0 = DIAG_ERROR, 1 = DIAG_WARNING, 2 = DIAG_INFO, 3 = DIAG_HINT
+ * ------------------------------------------------------------------------- */
+int json_diag_count(void);
+int json_diag_severity(int idx);          /* 0-3 as above */
+const char *json_diag_code(int idx);
+const char *json_diag_message(int idx);
+const char *json_diag_file(int idx);
+int json_diag_line(int idx);
+int json_diag_column(int idx);
+
 #endif /* JSON_DIAGNOSTICS_H */

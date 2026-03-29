@@ -155,3 +155,14 @@ void json_warning(const char *code, const char *message, const char *file,
                   int line, int column, const char *suggestion) {
     json_diagnostics_add(DIAG_WARNING, code, message, file, line, column, suggestion);
 }
+
+/* -------------------------------------------------------------------------
+ * Conflict-free accessors — usable without including json_diagnostics.h
+ * ------------------------------------------------------------------------- */
+int json_diag_count(void)              { return g_diagnostic_count; }
+int json_diag_severity(int i)          { return (i >= 0 && i < g_diagnostic_count) ? (int)g_diagnostics[i].severity : 0; }
+const char *json_diag_code(int i)      { return (i >= 0 && i < g_diagnostic_count) ? g_diagnostics[i].code    : NULL; }
+const char *json_diag_message(int i)   { return (i >= 0 && i < g_diagnostic_count) ? g_diagnostics[i].message : NULL; }
+const char *json_diag_file(int i)      { return (i >= 0 && i < g_diagnostic_count) ? g_diagnostics[i].file    : NULL; }
+int json_diag_line(int i)              { return (i >= 0 && i < g_diagnostic_count) ? g_diagnostics[i].line    : 0; }
+int json_diag_column(int i)            { return (i >= 0 && i < g_diagnostic_count) ? g_diagnostics[i].column  : 0; }

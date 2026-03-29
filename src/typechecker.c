@@ -3,6 +3,14 @@
 #include "resource_tracking.h"
 #include "colors.h"
 
+/* Use json_diagnostics without including json_diagnostics.h (DiagnosticSeverity conflict
+ * with compiler_schema.h). Declare only what we need via extern. */
+extern bool g_json_output_enabled;
+extern void json_error(const char *code, const char *message, const char *file,
+                       int line, int column, const char *suggestion);
+extern void json_warning(const char *code, const char *message, const char *file,
+                         int line, int column, const char *suggestion);
+
 static void emit_context_error(
     const char *title,
     int line,
@@ -4253,9 +4261,35 @@ static void emit_context_error(
     const char *message,
     const char *hint
 ) {
+    bool is_warning = title && (strstr(title, "WARNING") || strstr(title, "Warning"));
+
     /* Track error count for non-warning emissions */
-    if (!title || (!strstr(title, "WARNING") && !strstr(title, "Warning"))) {
+    if (!is_warning) {
         g_typecheck_error_count++;
+    }
+
+    /* Populate JSON diagnostics for LSP / tooling when enabled */
+    if (g_json_output_enabled) {
+        /* Extract error code from title bracket: "[E003] UNDEFINED VARIABLE" -> "E003" */
+        char code_buf[16] = "";
+        if (title) {
+            const char *lb = strchr(title, '[');
+            if (lb) {
+                const char *rb = strchr(lb, ']');
+                if (rb && (rb - lb - 1) < (int)sizeof(code_buf)) {
+                    size_t clen = (size_t)(rb - lb - 1);
+                    memcpy(code_buf, lb + 1, clen);
+                    code_buf[clen] = '\0';
+                }
+            }
+        }
+        const char *code = code_buf[0] ? code_buf : "E000";
+        const char *msg  = message ? message : "";
+        const char *hint_str = (hint && hint[0]) ? hint : NULL;
+        if (is_warning)
+            json_warning(code, msg, g_typecheck_current_file, line, column, hint_str);
+        else
+            json_error(code, msg, g_typecheck_current_file, line, column, hint_str);
     }
 
     if (g_typecheck_current_file) {
