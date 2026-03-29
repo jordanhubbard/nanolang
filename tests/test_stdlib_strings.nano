@@ -1,4 +1,6 @@
-# Tests for string stdlib builtins: str_starts_with, str_ends_with, str_index_of
+# Tests for string stdlib builtins: str_starts_with, str_ends_with, str_index_of,
+# str_trim, str_trim_left, str_trim_right, str_to_lower, str_to_upper,
+# str_replace, str_split, str_join
 
 fn test_str_starts_with() -> int {
     if (not (str_starts_with "hello world" "hello")) {
@@ -96,18 +98,6 @@ shadow test_str_index_of {
     assert (== (test_str_index_of) 0)
 }
 
-fn main() -> int {
-    let r1: int = (test_str_starts_with)
-    let r2: int = (test_str_ends_with)
-    let r3: int = (test_str_index_of)
-    return (+ (+ r1 r2) r3)
-/* Test: new stdlib string functions
- * Note: str_starts_with, str_ends_with, str_index_of are not tested here because
- * they are already defined as user functions in the bootstrap compiler source
- * (src_nano/typecheck.nano and src_nano/transpiler.nano) and cannot be registered
- * as builtins until those internal definitions are renamed.
- */
-
 fn test_str_trim() -> string {
     return (str_trim "  hello  ")
 }
@@ -186,24 +176,22 @@ shadow test_str_join {
 }
 
 fn main() -> int {
-    (println "Testing new string functions...")
-
+    let r1: int = (test_str_starts_with)
+    let r2: int = (test_str_ends_with)
+    let r3: int = (test_str_index_of)
     (println (str_trim "  hello  "))
     (println (str_trim_left "  hello  "))
     (println (str_trim_right "  hello  "))
     (println (str_to_lower "HELLO WORLD"))
     (println (str_to_upper "hello world"))
     (println (str_replace "foo bar foo" "foo" "baz"))
-
     let parts = (str_split "a,b,c" ",")
     (println (int_to_string (array_length parts)))
-
     let mut arr: array<string> = []
     set arr (array_push arr "x")
     set arr (array_push arr "y")
     (println (str_join arr "+"))
-
-    return 0
+    return (+ (+ r1 r2) r3)
 }
 
 shadow main {

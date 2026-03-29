@@ -20,37 +20,11 @@ struct Snippet {
     run_timeout_s: int
 }
 
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let ls: int = (str_length s)
-    let lp: int = (str_length prefix)
-    if (< ls lp) { return false }
-    return (== (str_substring s 0 lp) prefix)
-}
+# str_starts_with, str_ends_with, str_index_of are now builtins (stdlib expansion #24-26)
 
 shadow str_starts_with { assert (str_starts_with "hello" "he") }
-
-fn str_ends_with(s: string, suffix: string) -> bool {
-    let ls: int = (str_length s)
-    let lf: int = (str_length suffix)
-    if (< ls lf) { return false }
-    return (== (str_substring s (- ls lf) lf) suffix)
-}
-
 shadow str_ends_with { assert (str_ends_with "hello" "lo") }
-
-fn str_index_of(s: string, needle: string, start: int) -> int {
-    let ls: int = (str_length s)
-    let ln: int = (str_length needle)
-    if (== ln 0) { return start }
-    let mut i: int = start
-    while (<= (+ i ln) ls) {
-        if (== (str_substring s i ln) needle) { return i }
-        set i (+ i 1)
-    }
-    return -1
-}
-
-shadow str_index_of { assert (== (str_index_of "hello" "ll" 0) 2) }
+shadow str_index_of { assert (== (str_index_of "hello" "ll") 2) }
 
 fn char_is_space(c: int) -> bool {
     return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
@@ -199,8 +173,8 @@ shadow parse_fence_lang {
 }
 
 fn extract_json_from_marker(line: string) -> Result<string, string> {
-    let start: int = (str_index_of line "{" 0)
-    let end: int = (str_index_of line "}" 0)
+    let start: int = (str_index_of line "{")
+    let end: int = (str_index_of line "}")
     if (or (== start -1) (== end -1)) {
         return Result.Err { error: "missing JSON object" }
     }
