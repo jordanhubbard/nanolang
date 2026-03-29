@@ -3937,11 +3937,19 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
             }
             
             /* Check return type for tuple type */
-            if (item->as.function.return_type == TYPE_TUPLE && 
+            if (item->as.function.return_type == TYPE_TUPLE &&
                 item->as.function.return_type_info) {
                 register_tuple_type(tuple_registry, item->as.function.return_type_info);
             }
-            
+
+            /* Check parameter types for tuple types */
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (item->as.function.params[j].type == TYPE_TUPLE &&
+                    item->as.function.params[j].type_info) {
+                    register_tuple_type(tuple_registry, item->as.function.params[j].type_info);
+                }
+            }
+
             /* Collect from function body */
             collect_fn_sigs(item->as.function.body, fn_registry);
             collect_tuple_types_from_stmt(item->as.function.body, tuple_registry);

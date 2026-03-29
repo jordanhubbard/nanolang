@@ -46,6 +46,9 @@ Inductive val_has_type : val -> ty -> Prop :=
       assoc_lookup tag fts = Some t ->
       val_has_type v t ->
       val_has_type (VConstruct tag v) (TVariant fts)
+  | VT_Tuple : forall vs ts,
+      Forall2 val_has_type vs ts ->
+      val_has_type (VTuple vs) (TTuple ts)
 
 (** Agreement between runtime environments and typing contexts *)
 
@@ -113,6 +116,31 @@ Lemma canonical_variant : forall v fts,
   val_has_type v (TVariant fts) -> exists tag v', v = VConstruct tag v'.
 Proof.
   intros v fts H. inversion H. exists tag, v0. reflexivity.
+Qed.
+
+Lemma canonical_tuple : forall v ts,
+  val_has_type v (TTuple ts) -> exists vs, v = VTuple vs /\ Forall2 val_has_type vs ts.
+Proof.
+  intros v ts H. inversion H. exists vs. split; [reflexivity | assumption].
+Qed.
+
+Lemma tuple_type_inv : forall vs ts,
+  val_has_type (VTuple vs) (TTuple ts) -> Forall2 val_has_type vs ts.
+Proof.
+  intros vs ts H. inversion H. assumption.
+Qed.
+
+Lemma tuple_nth_type : forall vs ts i v t,
+  Forall2 val_has_type vs ts ->
+  nth_error vs i = Some v ->
+  nth_error ts i = Some t ->
+  val_has_type v t.
+Proof.
+  intros vs ts i.
+  revert vs ts.
+  induction i; intros vs ts v t HF2 Hv Ht.
+  - inversion HF2; subst; simpl in *; inversion Hv; inversion Ht; subst; assumption.
+  - inversion HF2; subst; simpl in *; eapply IHi; eassumption.
 Qed.
 
 (** ** Environment lookup agrees with context lookup *)
@@ -813,6 +841,20 @@ Proof.
     destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [_ Hagree1].
     destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [_ Hagree2].
     split; [constructor | assumption].
+  - (* E_TupleNil *)
+    inversion Htype; subst.
+    split; [apply VT_Tuple; constructor | assumption].
+  - (* E_TupleCons *)
+    inversion Htype; subst.
+    destruct (IHHeval1 _ _ ltac:(eassumption) Hagree) as [Hvhd Hagree1].
+    destruct (IHHeval2 _ _ ltac:(eassumption) Hagree1) as [Hvtl Hagree2].
+    inversion Hvtl; subst.
+    split; [apply VT_Tuple; constructor; assumption | assumption].
+  - (* E_TupleIndex *)
+    inversion Htype; subst.
+    destruct (IHHeval _ _ ltac:(eassumption) Hagree) as [Hvt Hagree1].
+    inversion Hvt; subst.
+    split; [eapply tuple_nth_type; eassumption | assumption].
 Qed.
 
 (** ** Type soundness corollary *)

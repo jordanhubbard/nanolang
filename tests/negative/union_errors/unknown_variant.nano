@@ -1,0 +1,12 @@
+# Expected error: Unknown variant 'Pending' in union 'Status'
+# Hint: Available variants: Active Inactive
+
+union Status {
+    Active {}
+    Inactive {}
+}
+
+fn main() -> int {
+    let s: Status = Status.Pending {}
+    return 0
+}

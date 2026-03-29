@@ -278,6 +278,16 @@ Inductive has_type : ctx -> expr -> ty -> Prop :=
       has_type ctx e1 TString ->
       has_type ctx e2 TInt ->
       has_type ctx (EStrIndex e1 e2) TString
+  | T_TupleNil : forall ctx,
+      has_type ctx (ETuple []) (TTuple [])
+  | T_TupleCons : forall ctx e es t ts,
+      has_type ctx e t ->
+      has_type ctx (ETuple es) (TTuple ts) ->
+      has_type ctx (ETuple (e :: es)) (TTuple (t :: ts))
+  | T_TupleIndex : forall ctx e ts i t,
+      has_type ctx e (TTuple ts) ->
+      nth_error ts i = Some t ->
+      has_type ctx (ETupleIndex e i) t
 
 (** ** Branch typing for pattern matching
 

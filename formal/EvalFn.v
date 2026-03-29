@@ -340,6 +340,37 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
       | _ => None
       end
 
+    | ETuple es =>
+      let fix eval_list (fuel2 : nat) (renv2 : env) (elems : list expr)
+          : option (env * list val) :=
+        match elems with
+        | [] => Some (renv2, [])
+        | e0 :: rest =>
+          match eval_fn fuel2 renv2 e0 with
+          | Some (renv3, v0) =>
+            match eval_list fuel2 renv3 rest with
+            | Some (renv4, vs) => Some (renv4, v0 :: vs)
+            | None => None
+            end
+          | None => None
+          end
+        end
+      in
+      match eval_list n renv es with
+      | Some (renv', vs) => Some (renv', VTuple vs)
+      | None => None
+      end
+
+    | ETupleIndex e0 i =>
+      match eval_fn n renv e0 with
+      | Some (renv1, VTuple vs) =>
+        match nth_error vs i with
+        | Some v => Some (renv1, v)
+        | None => None
+        end
+      | _ => None
+      end
+
     end
   end.
 
