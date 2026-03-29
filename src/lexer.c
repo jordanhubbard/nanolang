@@ -57,6 +57,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
     if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
     if (strcmp(str, "resource") == 0) return TOKEN_RESOURCE;
+    if (strcmp(str, "par") == 0) return TOKEN_PAR;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -586,6 +587,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_RESOURCE: return "RESOURCE";
         case TOKEN_PIPE: return "PIPE";
         case TOKEN_QUESTION: return "QUESTION";
+        case TOKEN_PAR: return "PAR";
         default: return "UNKNOWN";
     }
 }

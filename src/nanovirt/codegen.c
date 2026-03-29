@@ -2422,8 +2422,16 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_UNSAFE_BLOCK: {
-        for (int i = 0; i < node->as.block.count; i++) {
-            compile_stmt(cg, node->as.block.statements[i]);
+        for (int i = 0; i < node->as.unsafe_block.count; i++) {
+            compile_stmt(cg, node->as.unsafe_block.statements[i]);
+        }
+        break;
+    }
+
+    case AST_PAR_BLOCK: {
+        /* par blocks execute sequentially in the VM */
+        for (int i = 0; i < node->as.par_block.count; i++) {
+            compile_stmt(cg, node->as.par_block.bindings[i]);
         }
         break;
     }

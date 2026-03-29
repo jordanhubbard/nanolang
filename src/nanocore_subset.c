@@ -367,6 +367,10 @@ static SubsetResult check_subset(ASTNode *node, Environment *env) {
         case AST_UNSAFE_BLOCK:
             return unsafe_block();
 
+        /* ── Par block: check each binding ── */
+        case AST_PAR_BLOCK:
+            return check_subset_list(node->as.par_block.bindings, node->as.par_block.count, env);
+
         /* ── Shadow tests: transparent (check inner body) ── */
         case AST_SHADOW:
             return check_subset(node->as.shadow.body, env);

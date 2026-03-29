@@ -3080,6 +3080,44 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             return node;
         }
 
+        case TOKEN_PAR: {
+            int line = tok->line;
+            int column = tok->column;
+            advance(p);
+
+            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'par'")) {
+                return NULL;
+            }
+
+            int capacity = 8;
+            int count = 0;
+            ASTNode **bindings = malloc(sizeof(ASTNode*) * capacity);
+
+            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    bindings = realloc(bindings, sizeof(ASTNode*) * capacity);
+                }
+                ASTNode *stmt = parse_statement(p);
+                if (stmt) {
+                    bindings[count++] = stmt;
+                } else {
+                    advance(p);
+                }
+            }
+
+            if (!expect(p, TOKEN_RBRACE, "Expected '}' after par block")) {
+                for (int i = 0; i < count; i++) free_ast(bindings[i]);
+                free(bindings);
+                return NULL;
+            }
+
+            node = create_node(AST_PAR_BLOCK, line, column);
+            node->as.par_block.bindings = bindings;
+            node->as.par_block.count = count;
+            return node;
+        }
+
         case TOKEN_IF: {
             /* IF statement: if (condition) { ... } else { ... } */
             /* Parse as if-expression (same AST structure) */
@@ -4985,6 +5023,12 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.unsafe_block.statements[i]);
             }
             free(node->as.unsafe_block.statements);
+            break;
+        case AST_PAR_BLOCK:
+            for (int i = 0; i < node->as.par_block.count; i++) {
+                free_ast(node->as.par_block.bindings[i]);
+            }
+            free(node->as.par_block.bindings);
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {

@@ -5174,6 +5174,15 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
 
+        case AST_PAR_BLOCK: {
+            Value par_result = create_void();
+            for (int i = 0; i < stmt->as.par_block.count; i++) {
+                par_result = eval_statement(stmt->as.par_block.bindings[i], env);
+                if (par_result.is_return || par_result.is_break || par_result.is_continue) return par_result;
+            }
+            return par_result;
+        }
+
         case AST_UNSAFE_BLOCK: {
             /* Unsafe blocks are treated like regular blocks in the interpreter */
             Value result = create_void();

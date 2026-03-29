@@ -77,7 +77,8 @@
     "TOKEN_PIPE",
     "TOKEN_GRAMMAR",
     "TOKEN_LARROW",
-    "TOKEN_QUESTION"
+    "TOKEN_QUESTION",
+    "TOKEN_PAR"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",
@@ -119,7 +120,8 @@
     "PNODE_UNION",
     "PNODE_UNSAFE_BLOCK",
     "PNODE_MODULE_QUALIFIED_CALL",
-    "PNODE_GRAMMAR"
+    "PNODE_GRAMMAR",
+    "PNODE_PAR_BLOCK"
   ],
   "nano_enums": [
     {

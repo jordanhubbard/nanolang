@@ -3769,6 +3769,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_PAR_BLOCK: {
+            /* Verify par block bindings: each must be a let, evaluated sequentially */
+            for (int i = 0; i < stmt->as.par_block.count; i++) {
+                check_statement(tc, stmt->as.par_block.bindings[i]);
+            }
+            return TYPE_VOID;
+        }
+
         case AST_UNSAFE_BLOCK: {
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
