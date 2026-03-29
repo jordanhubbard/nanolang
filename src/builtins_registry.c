@@ -93,7 +93,17 @@ const BuiltinEntry builtin_registry[] = {
     {"str_substring",   "nl_str_substring",  3, {S,I,I,U}, S, OP_STR_SUBSTR,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_contains",    "nl_str_contains",   2, {S,S,U,U}, B, OP_STR_CONTAINS, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_equals",      "nl_str_equals",     2, {S,S,U,U}, B, OP_STR_EQ,       L|BUILTIN_PURE|BUILTIN_INLINE_VM},
-    /* str_index_of: handled by module FFI, not a builtin (VM has vm_str_index_of) */
+    {"str_split",       "nl_str_split",      2, {S,S,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"str_join",        "nl_str_join",       2, {A,S,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"str_trim",        "nl_str_trim",       1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"str_trim_left",   "nl_str_trim_left",  1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"str_trim_right",  "nl_str_trim_right", 1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    /* str_starts_with, str_ends_with, str_index_of are defined in src_nano bootstrap
+     * files (typecheck.nano, transpiler.nano) — cannot register as builtins until those
+     * internal definitions are renamed. C implementations (nl_str_*) are still emitted. */
+    {"str_replace",     "nl_str_replace",    3, {S,S,S,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"str_to_lower",    "nl_str_to_lower",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"str_to_upper",    "nl_str_to_upper",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"char_at",         "char_at",           2, {S,I,U,U}, I, OP_STR_CHAR_AT,  L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"string_from_char","string_from_char",  1, {I,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"string_to_int",   "string_to_int",     1, {S,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
