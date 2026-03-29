@@ -20,23 +20,11 @@ struct Snippet {
     run_timeout_s: int
 }
 
+# str_starts_with, str_ends_with, str_index_of are now builtins (stdlib expansion #24-26)
+
 shadow str_starts_with { assert (str_starts_with "hello" "he") }
-
 shadow str_ends_with { assert (str_ends_with "hello" "lo") }
-
-fn str_index_of_from(s: string, needle: string, start: int) -> int {
-    let ls: int = (str_length s)
-    let ln: int = (str_length needle)
-    if (== ln 0) { return start }
-    let mut i: int = start
-    while (<= (+ i ln) ls) {
-        if (== (str_substring s i ln) needle) { return i }
-        set i (+ i 1)
-    }
-    return -1
-}
-
-shadow str_index_of_from { assert (== (str_index_of_from "hello" "ll" 0) 2) }
+shadow str_index_of { assert (== (str_index_of "hello" "ll") 2) }
 
 fn char_is_space(c: int) -> bool {
     return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))

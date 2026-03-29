@@ -20,7 +20,18 @@ struct PageLink {
     rel_html: string
 }
 
+# str_starts_with, str_ends_with, str_index_of are now builtins (stdlib expansion #24-26)
+# str_index_of_from provides the 3-arg version with start offset
 
+shadow str_starts_with {
+    assert (str_starts_with "hello" "he")
+    assert (not (str_starts_with "hello" "hi"))
+}
+
+shadow str_ends_with {
+    assert (str_ends_with "hello" "lo")
+    assert (not (str_ends_with "hello" "la"))
+}
 
 fn str_index_of_from(s: string, needle: string, start: int) -> int {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 44 5) }

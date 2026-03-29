@@ -304,16 +304,7 @@ shadow gen_contracts {
     (free schema)
 }
 
-# Helper: Check if string starts with prefix
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let s_len: int = (str_length s)
-    let p_len: int = (str_length prefix)
-    if (> p_len s_len) {
-        return false
-    } else {}
-    let sub: string = (str_substring s 0 p_len)
-    return (== sub prefix)
-}
+# str_starts_with is now a builtin (stdlib expansion #24-26)
 
 shadow str_starts_with {
     assert (str_starts_with "List<int>" "List<")
