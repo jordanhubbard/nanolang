@@ -2963,11 +2963,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     " {_nl_prof_get_entry(\"%s\"), {0, 0}};\n"
                     "    clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
                     g_profile_func_name);
-<<<<<<< HEAD
                 g_profile_mode = false;  /* consumed -- don't inject into nested blocks */
-=======
                 g_profile_mode = false;  /* consumed â don't inject into nested blocks */
->>>>>>> 7cde8c7 (feat: add par { } blocks and --profile flag)
             }
 
             /* Push new scope for this block */
