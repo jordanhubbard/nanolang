@@ -4,707 +4,24 @@ I provide these built-in functions. They are my core capabilities, available to 
 
 ---
 
-## Core I/O Functions (3)
+## Core I/O (3)
 
 ### `print(value: any) -> void`
 I print a value without a trailing newline.
 
 ```nano
-print "Hello"
-print 42
-print 3.14
+(print "Hello")
+(print 42)
+(print 3.14)
 ```
 
 ### `println(value: any) -> void`
-I print a value with a trailing newline. This is polymorphic - it works with int, float, string, and bool.
+I print a value with a trailing newline. I am polymorphic — I work with int, float, string, and bool.
 
 ```nano
 (println "Hello, World!")
 (println 42)
-(println 3.14159)
 (println true)
-```
-
-### `assert(condition: bool) -> void`
-My runtime assertion. I terminate the program if the condition is false.
-
-```nano
-assert (== 2 2)           # Passes
-assert (> 5 3)            # Passes
-assert (== (add 2 2) 4)   # Passes
-```
-
----
-
-## Math Operations (11)
-
-### Basic Math (3)
-
-#### `abs(x: int|float) -> int|float`
-I return the absolute value. I preserve the type: int becomes int, float becomes float.
-
-```nano
-(abs -5)      # Returns 5
-(abs 5)       # Returns 5
-(abs -3.14)   # Returns 3.14
-```
-
-#### `min(a: int|float, b: int|float) -> int|float`
-I return the minimum of two values. Both arguments must be the same type.
-
-```nano
-(min 5 10)    # Returns 5
-(min 3.14 2.71)  # Returns 2.71
-```
-
-#### `max(a: int|float, b: int|float) -> int|float`
-I return the maximum of two values. Both arguments must be the same type.
-
-```nano
-(max 5 10)    # Returns 10
-(max 3.14 2.71)  # Returns 3.14
-```
-
-### Advanced Math (5)
-
-#### `sqrt(x: int|float) -> float`
-I return the square root. I always return a float.
-
-```nano
-(sqrt 16.0)   # Returns 4.0
-(sqrt 2.0)    # Returns 1.41421...
-(sqrt 9)      # Returns 3.0 (int converted to float)
-```
-
-#### `pow(base: int|float, exponent: int|float) -> float`
-I return the base raised to the power of the exponent. I always return a float.
-
-```nano
-(pow 2.0 3.0)    # Returns 8.0 (2³)
-(pow 5.0 2.0)    # Returns 25.0 (5²)
-(pow 2.0 -1.0)   # Returns 0.5 (2⁻¹)
-```
-
-#### `floor(x: int|float) -> float`
-I return the largest integer ≤ x as a float.
-
-```nano
-(floor 3.7)     # Returns 3.0
-(floor 3.2)     # Returns 3.0
-(floor -2.3)    # Returns -3.0
-```
-
-#### `ceil(x: int|float) -> float`
-I return the smallest integer ≥ x as a float.
-
-```nano
-(ceil 3.2)      # Returns 4.0
-(ceil 3.7)      # Returns 4.0
-(ceil -2.7)     # Returns -2.0
-```
-
-#### `round(x: int|float) -> float`
-I round to the nearest integer as a float.
-
-```nano
-(round 3.4)     # Returns 3.0
-(round 3.6)     # Returns 4.0
-(round 3.5)     # Returns 4.0 (rounds half to even)
-```
-
-### Trigonometric Functions (3)
-
-I evaluate all trig functions in **radians**. They always return a float.
-
-#### `sin(x: int|float) -> float`
-I return the sine of x (in radians).
-
-```nano
-(sin 0.0)       # Returns 0.0
-(sin 1.5708)    # Returns ≈1.0 (π/2)
-```
-
-#### `cos(x: int|float) -> float`
-I return the cosine of x (in radians).
-
-```nano
-(cos 0.0)       # Returns 1.0
-(cos 3.14159)   # Returns ≈-1.0 (π)
-```
-
-#### `tan(x: int|float) -> float`
-I return the tangent of x (in radians).
-
-```nano
-(tan 0.0)       # Returns 0.0
-(tan 0.7854)    # Returns ≈1.0 (π/4)
-```
-
-#### `asin(x: float) -> float`
-I return the arcsine of x (inverse sine) in radians.
-
-```nano
-(asin 1.0)      # Returns ≈1.5708 (π/2)
-(asin 0.5)      # Returns ≈0.5236 (π/6)
-```
-
-**Domain:** -1.0 to 1.0
-**Range:** -π/2 to π/2
-
-#### `acos(x: float) -> float`
-I return the arccosine of x (inverse cosine) in radians.
-
-```nano
-(acos 1.0)      # Returns 0.0
-(acos 0.0)      # Returns ≈1.5708 (π/2)
-```
-
-**Domain:** -1.0 to 1.0
-**Range:** 0 to π
-
-#### `atan(x: float) -> float`
-I return the arctangent of x (inverse tangent) in radians.
-
-```nano
-(atan 1.0)      # Returns ≈0.7854 (π/4)
-(atan 0.0)      # Returns 0.0
-```
-
-**Range:** -π/2 to π/2
-
----
-
-## String Operations (18)
-
-### `str_length(s: string) -> int`
-I return the length of a string in bytes.
-
-```nano
-let text: string = "Hello"
-let len: int = (str_length text)  # Returns 5
-```
-
-### `str_concat(s1: string, s2: string) -> string`
-I concatenate two strings and return a new string.
-
-```nano
-let hello: string = "Hello"
-let world: string = " World"
-let result: string = (str_concat hello world)  # "Hello World"
-```
-
-### `str_substring(s: string, start: int, length: int) -> string`
-I extract a substring starting at `start` with the given `length`.
-- `start` is 0-indexed
-- If `start + length` exceeds string length, I return until the end of the string
-- I return an empty string if start is out of bounds
-
-```nano
-let text: string = "Hello, World!"
-let hello: string = (str_substring text 0 5)   # "Hello"
-let world: string = (str_substring text 7 5)   # "World"
-```
-
-### `str_contains(s: string, substr: string) -> bool`
-I return true if string `s` contains substring `substr`.
-
-```nano
-let text: string = "The quick brown fox"
-(str_contains text "quick")   # Returns true
-(str_contains text "slow")    # Returns false
-```
-
-### `str_equals(s1: string, s2: string) -> bool`
-I return true if both strings are exactly equal.
-
-```nano
-let s1: string = "Hello"
-let s2: string = "Hello"
-let s3: string = "World"
-(str_equals s1 s2)   # Returns true
-(str_equals s1 s3)   # Returns false
-```
-
----
-
-## Advanced String Operations (13)
-
-### Character Access (2)
-
-#### `char_at(s: string, index: int) -> int`
-I return the ASCII value of the character at the specified index.
-- Index is 0-based
-- I return the integer ASCII value (0-255)
-- **Bounds-checked** - I terminate with an error if the index is out of bounds
-
-```nano
-let text: string = "Hello"
-let h: int = (char_at text 0)  # Returns 72 (ASCII 'H')
-let e: int = (char_at text 1)  # Returns 101 (ASCII 'e')
-let o: int = (char_at text 4)  # Returns 111 (ASCII 'o')
-```
-
-I use this for lexical analysis and character-by-character parsing.
-
-#### `string_from_char(c: int) -> string`
-I create a single-character string from an ASCII value.
-
-```nano
-let a: string = (string_from_char 65)   # Returns "A"
-let z: string = (string_from_char 90)   # Returns "Z"
-let zero: string = (string_from_char 48)  # Returns "0"
-let space: string = (string_from_char 32)  # Returns " "
-```
-
-I use this when building strings character-by-character, such as during code generation.
-
-### Character Classification (6)
-
-#### `is_digit(c: int) -> bool`
-I return true if the character is a digit ('0'-'9').
-
-```nano
-(is_digit 48)   # Returns true  ('0')
-(is_digit 53)   # Returns true  ('5')
-(is_digit 57)   # Returns true  ('9')
-(is_digit 65)   # Returns false ('A')
-(is_digit 97)   # Returns false ('a')
-```
-
-I use this for token classification in lexical analysis.
-
-#### `is_alpha(c: int) -> bool`
-I return true if the character is a letter (a-z, A-Z).
-
-```nano
-(is_alpha 65)   # Returns true  ('A')
-(is_alpha 90)   # Returns true  ('Z')
-(is_alpha 97)   # Returns true  ('a')
-(is_alpha 122)  # Returns true  ('z')
-(is_alpha 48)   # Returns false ('0')
-(is_alpha 32)   # Returns false (' ')
-```
-
-I use this for identifier validation in parsers.
-
-#### `is_alnum(c: int) -> bool`
-I return true if the character is alphanumeric (digit or letter).
-
-```nano
-(is_alnum 48)   # Returns true  ('0')
-(is_alnum 65)   # Returns true  ('A')
-(is_alnum 97)   # Returns true  ('a')
-(is_alnum 32)   # Returns false (' ')
-(is_alnum 33)   # Returns false ('!')
-```
-
-I use this to check if a character is valid in an identifier.
-
-#### `is_whitespace(c: int) -> bool`
-I return true if the character is whitespace (space, tab, newline, carriage return).
-
-```nano
-(is_whitespace 32)  # Returns true  (' ')
-(is_whitespace 9)   # Returns true  ('\t')
-(is_whitespace 10)  # Returns true  ('\n')
-(is_whitespace 13)  # Returns true  ('\r')
-(is_whitespace 65)  # Returns false ('A')
-```
-
-I use this to skip whitespace during tokenization.
-
-#### `is_upper(c: int) -> bool`
-I return true if the character is an uppercase letter (A-Z).
-
-```nano
-(is_upper 65)   # Returns true  ('A')
-(is_upper 90)   # Returns true  ('Z')
-(is_upper 77)   # Returns true  ('M')
-(is_upper 97)   # Returns false ('a')
-(is_upper 48)   # Returns false ('0')
-```
-
-#### `is_lower(c: int) -> bool`
-I return true if the character is a lowercase letter (a-z).
-
-```nano
-(is_lower 97)   # Returns true  ('a')
-(is_lower 122)  # Returns true  ('z')
-(is_lower 109)  # Returns true  ('m')
-(is_lower 65)   # Returns false ('A')
-(is_lower 48)   # Returns false ('0')
-```
-
-I provide these C-style aliases for compatibility and familiarity, though I prefer the `is_*` style in new code:
-- `isdigit` (alias for `is_digit`)
-- `isalpha` (alias for `is_alpha`)
-- `isalnum` (alias for `is_alnum`)
-- `isspace` (alias for `is_whitespace`)
-- `isupper` (alias for `is_upper`)
-- `islower` (alias for `is_lower`)
-- `isprint` (returns true for printable characters)
-- `ispunct` (returns true for punctuation characters)
-- `tolower` (alias for `char_to_lower`)
-- `toupper` (alias for `char_to_upper`)
-
-### Type Conversions (5)
-
-#### `int_to_string(n: int) -> string`
-I convert an integer to its string representation.
-
-```nano
-let s1: string = (int_to_string 42)    # Returns "42"
-let s2: string = (int_to_string 0)     # Returns "0"
-let s3: string = (int_to_string -100)  # Returns "-100"
-let s4: string = (int_to_string 999)   # Returns "999"
-```
-
-I use this for formatting numbers for output, error messages, and code generation.
-
-#### `string_to_int(s: string) -> int`
-I parse a string to an integer. I return 0 if the string cannot be parsed.
-
-```nano
-let n1: int = (string_to_int "42")     # Returns 42
-let n2: int = (string_to_int "0")      # Returns 0
-let n3: int = (string_to_int "-100")   # Returns -100
-let n4: int = (string_to_int "12345")  # Returns 12345
-```
-
-I use this to parse numeric literals during compilation.
-
-#### `digit_value(c: int) -> int`
-I convert a digit character to its numeric value. I return -1 if it is not a digit.
-
-```nano
-(digit_value 48)  # Returns 0  ('0' -> 0)
-(digit_value 49)  # Returns 1  ('1' -> 1)
-(digit_value 53)  # Returns 5  ('5' -> 5)
-(digit_value 57)  # Returns 9  ('9' -> 9)
-(digit_value 65)  # Returns -1 ('A' is not a digit)
-```
-
-I use this when parsing multi-digit numbers character-by-character.
-
-#### `char_to_lower(c: int) -> int`
-I convert an uppercase letter to lowercase. I leave non-letters unchanged.
-
-```nano
-(char_to_lower 65)   # Returns 97  ('A' -> 'a')
-(char_to_lower 90)   # Returns 122 ('Z' -> 'z')
-(char_to_lower 77)   # Returns 109 ('M' -> 'm')
-(char_to_lower 97)   # Returns 97  ('a' -> 'a', already lowercase)
-(char_to_lower 48)   # Returns 48  ('0' -> '0', not a letter)
-```
-
-I use this for case-insensitive comparisons and keyword normalization.
-
-#### `char_to_upper(c: int) -> int`
-I convert a lowercase letter to uppercase. I leave non-letters unchanged.
-
-```nano
-(char_to_upper 97)   # Returns 65  ('a' -> 'A')
-(char_to_upper 122)  # Returns 90  ('z' -> 'Z')
-(char_to_upper 109)  # Returns 77  ('m' -> 'M')
-(char_to_upper 65)   # Returns 65  ('A' -> 'A', already uppercase)
-(char_to_upper 48)   # Returns 48  ('0' -> '0', not a letter)
-```
-
-I use this to normalize identifiers and format output.
-
-### Practical Example: Simple Lexer
-
-```nano
-fn classify_char(c: int) -> string {
-    if (is_whitespace c) {
-        return "WHITESPACE"
-    }
-    if (is_digit c) {
-        return "DIGIT"
-    }
-    if (is_alpha c) {
-        return "LETTER"
-    }
-    return "SYMBOL"
-}
-
-fn parse_number(source: string, start: int) -> int {
-    let mut result: int = 0
-    let mut pos: int = start
-    let len: int = (str_length source)
-    
-    while (< pos len) {
-        let c: int = (char_at source pos)
-        if (is_digit c) {
-            let digit: int = (digit_value c)
-            set result (+ (* result 10) digit)
-            set pos (+ pos 1)
-        } else {
-            return result
-        }
-    }
-    
-    return result
-}
-```
-
----
-
-## Array Operations (4)
-
-### `at(arr: array<T>, index: int) -> T`
-I return the element at the specified index. I perform **bounds-checking** and terminate with an error if the index is out of bounds.
-
-```nano
-let nums: array<int> = [1, 2, 3, 4, 5]
-let first: int = (at nums 0)   # Returns 1
-let last: int = (at nums 4)    # Returns 5
-# (at nums 10)                  # ERROR: index out of bounds!
-```
-
-I include runtime bounds checking to prevent memory corruption and security vulnerabilities.
-
-### `array_length(arr: array<T>) -> int`
-I return the length (number of elements) of an array.
-
-```nano
-let nums: array<int> = [10, 20, 30]
-let len: int = (array_length nums)  # Returns 3
-
-let empty: array<int> = []
-let zero: int = (array_length empty)  # Returns 0
-```
-
-### `array_new(size: int, default: T) -> array<T>`
-I create a new array with the specified size, filled with the default value.
-
-```nano
-# Create array of 5 zeros
-let zeros: array<int> = (array_new 5 0)
-# [0, 0, 0, 0, 0]
-
-# Create array of 3 empty strings
-let strings: array<string> = (array_new 3 "")
-# ["", "", ""]
-```
-
-The size must be non-negative. I will cause an error if you provide a negative size.
-
-### `array_set(arr: mut array<T>, index: int, value: T) -> void`
-I set the element at the specified index. I perform **bounds-checking** and terminate with an error if the index is out of bounds. I require a **mutable** array.
-
-```nano
-let mut nums: array<int> = [1, 2, 3]
-(array_set nums 1 42)  # nums is now [1, 42, 3]
-
-# Type checking enforced
-# (array_set nums 0 "hello")  # ERROR: type mismatch!
-
-# Bounds checking enforced
-# (array_set nums 10 99)      # ERROR: index out of bounds!
-```
-
----
-
-## HashMap Operations (10)
-
-My **HashMap<K,V>** is a key-value collection with **O(1)** average lookup.
-
-My current constraints:
-- **Key type:** `int` or `string`
-- **Value type:** `int` or `string`
-- I require an explicit type annotation: `HashMap<K,V>`
-
-### `map_new() -> HashMap<K,V>`
-I create a new hash map. I require a type annotation on the variable.
-
-```nano
-let hm: HashMap<string, int> = (map_new)
-```
-
-### `map_put(map: HashMap<K,V>, key: K, value: V) -> void`
-I insert or update a key/value pair.
-
-```nano
-(map_put hm "alice" 10)
-(map_put hm "bob" 20)
-```
-
-### `map_get(map: HashMap<K,V>, key: K) -> V`
-I return the value for a key, or a default (`0` or `""`) if it is missing.
-
-```nano
-let score: int = (map_get hm "alice")
-```
-
-### `map_has(map: HashMap<K,V>, key: K) -> bool`
-I check if a key exists.
-
-```nano
-if (map_has hm "alice") { (println "found") }
-```
-
-### `map_remove(map: HashMap<K,V>, key: K) -> void`
-I remove a key/value pair if it is present.
-
-### `map_length(map: HashMap<K,V>) -> int`
-I return the number of entries. My alias is `map_size`.
-
-### `map_clear(map: HashMap<K,V>) -> void`
-I remove all entries without freeing the map.
-
-I use ARC to manage my HashMaps. They are automatically freed when they go out of scope, so `map_free` is no longer needed.
-
-### `map_keys(map: HashMap<K,V>) -> array<K>`
-I return all keys as an array.
-
-### `map_values(map: HashMap<K,V>) -> array<V>`
-I return all values as an array.
-
-I enforce these safety rules:
-- I require the array to be declared `mut`
-- My runtime bounds checking prevents buffer overflows
-- My type checking ensures homogeneous arrays
-
----
-
-## Result Type Operations (5)
-
-My Result<T, E> type represents success (Ok) or failure (Err) values.
-
-### `result_is_ok(r: Result<T, E>) -> bool`
-I check if the Result is an Ok variant.
-
-```nano
-let r: Result<int, string> = (divide 10 2)
-if (result_is_ok r) {
-    (println "Success!")
-}
-```
-
-### `result_is_err(r: Result<T, E>) -> bool`
-I check if the Result is an Err variant.
-
-```nano
-let r: Result<int, string> = (divide 10 0)
-if (result_is_err r) {
-    (println "Error occurred")
-}
-```
-
-### `result_unwrap(r: Result<T, E>) -> T`
-I extract the Ok value. I panic if it is an Err.
-
-```nano
-let r: Result<int, string> = (divide 10 2)
-let value: int = (result_unwrap r)  # 5
-```
-
-I warn you that I panic if the Result is an Err. Use `result_is_ok` to check first.
-
-### `result_unwrap_or(r: Result<T, E>, default: T) -> T`
-I extract the Ok value, or I return the default if it is an Err.
-
-```nano
-let r: Result<int, string> = (divide 10 0)
-let value: int = (result_unwrap_or r 0)  # Returns 0 (default)
-```
-
-I offer this as a safe alternative to `result_unwrap`.
-
-### `result_unwrap_err(r: Result<T, E>) -> E`
-I extract the Err value. I panic if it is an Ok.
-
-```nano
-let r: Result<int, string> = (divide 10 0)
-if (result_is_err r) {
-    let error: string = (result_unwrap_err r)
-    (println error)
-}
-```
-
----
-
-## Binary String Operations (8)
-
-I use binary strings (bstring) to handle raw binary data.
-
-### `bytes_from_string(s: string) -> bstring`
-I convert a string to a binary string.
-
-```nano
-let bs: bstring = (bytes_from_string "Hello")
-```
-
-### `string_from_bytes(bs: bstring) -> string`
-I convert a binary string to a regular string.
-
-```nano
-let s: string = (string_from_bytes bs)
-```
-
-### `bstring_length(bs: bstring) -> int`
-I return the binary string length in bytes.
-
-```nano
-let len: int = (bstring_length bs)
-```
-
-### `bstring_at(bs: bstring, index: int) -> int`
-I return the byte value at the index.
-
-```nano
-let byte: int = (bstring_at bs 0)  # Returns 0-255
-```
-
-### `bstring_slice(bs: bstring, start: int, length: int) -> bstring`
-I extract a portion of a binary string.
-
-```nano
-let subset: bstring = (bstring_slice bs 0 10)
-```
-
-### `bstring_concat(bs1: bstring, bs2: bstring) -> bstring`
-I concatenate two binary strings.
-
-```nano
-let combined: bstring = (bstring_concat bs1 bs2)
-```
-
-### `bstring_new(size: int) -> bstring`
-I create a new binary string of the specified size, which I zero-fill.
-
-```nano
-let bs: bstring = (bstring_new 1024)
-```
-
-### `bstring_set(bs: mut bstring, index: int, value: int) -> void`
-I set the byte at the index (value 0-255).
-
-```nano
-(bstring_set bs 0 65)  # Sets first byte to 'A'
-```
-
-My bounds checking prevents buffer overflows.
-
----
-
-## OS/System Functions (3)
-
-### `getcwd() -> string`
-I return the current working directory as an absolute path.
-
-```nano
-let cwd: string = (getcwd)
-(println cwd)  # Prints something like "/Users/username/project"
-```
-
-### `getenv(name: string) -> string`
-I get an environment variable value. I return an empty string if it is not set.
-
-```nano
-let home: string = (getenv "HOME")
-let path: string = (getenv "PATH")
 ```
 
 ### `range(start: int, end: int) -> iterator`
@@ -714,59 +31,887 @@ I provide this special function for use only in `for` loops. I create an iterato
 for i in (range 0 10) {
     (println i)  # Prints 0, 1, 2, ..., 9
 }
+for i in (range 5 8) {
+    (println i)  # Prints 5, 6, 7
+}
 ```
 
 I only allow `range` to be used in for-loop contexts.
 
 ---
 
-## File Operations (10)
+## Math (20)
+
+### `abs(x: int) -> int`
+I return the absolute value of an integer.
+
+```nano
+(abs -5)    # Returns 5
+(abs 5)     # Returns 5
+(abs 0)     # Returns 0
+```
+
+### `min(a: int, b: int) -> int`
+I return the minimum of two integers.
+
+```nano
+(min 5 10)   # Returns 5
+(min -3 0)   # Returns -3
+(min 7 7)    # Returns 7
+```
+
+### `max(a: int, b: int) -> int`
+I return the maximum of two integers.
+
+```nano
+(max 5 10)   # Returns 10
+(max -3 0)   # Returns 0
+(max 7 7)    # Returns 7
+```
+
+### `sqrt(x: float) -> float`
+I return the square root of x.
+
+```nano
+(sqrt 16.0)   # Returns 4.0
+(sqrt 2.0)    # Returns 1.41421...
+(sqrt 9.0)    # Returns 3.0
+```
+
+### `pow(base: float, exponent: float) -> float`
+I return base raised to the power of exponent.
+
+```nano
+(pow 2.0 3.0)    # Returns 8.0
+(pow 5.0 2.0)    # Returns 25.0
+(pow 2.0 -1.0)   # Returns 0.5
+```
+
+### `floor(x: float) -> float`
+I return the largest integer ≤ x as a float.
+
+```nano
+(floor 3.7)    # Returns 3.0
+(floor 3.2)    # Returns 3.0
+(floor -2.3)   # Returns -3.0
+```
+
+### `ceil(x: float) -> float`
+I return the smallest integer ≥ x as a float.
+
+```nano
+(ceil 3.2)    # Returns 4.0
+(ceil 3.7)    # Returns 4.0
+(ceil -2.7)   # Returns -2.0
+```
+
+### `round(x: float) -> float`
+I round to the nearest integer as a float.
+
+```nano
+(round 3.4)   # Returns 3.0
+(round 3.6)   # Returns 4.0
+(round 3.5)   # Returns 4.0
+```
+
+### `sin(x: float) -> float`
+I return the sine of x in radians.
+
+```nano
+(sin 0.0)      # Returns 0.0
+(sin 1.5708)   # Returns ≈1.0 (π/2)
+(sin 3.14159)  # Returns ≈0.0 (π)
+```
+
+### `cos(x: float) -> float`
+I return the cosine of x in radians.
+
+```nano
+(cos 0.0)      # Returns 1.0
+(cos 3.14159)  # Returns ≈-1.0 (π)
+(cos 1.5708)   # Returns ≈0.0 (π/2)
+```
+
+### `tan(x: float) -> float`
+I return the tangent of x in radians.
+
+```nano
+(tan 0.0)     # Returns 0.0
+(tan 0.7854)  # Returns ≈1.0 (π/4)
+(tan 1.0)     # Returns ≈1.5574
+```
+
+### `atan2(y: float, x: float) -> float`
+I return the angle in radians between the positive x-axis and the point (x, y). I handle the quadrant correctly, unlike `atan`.
+
+```nano
+(atan2 1.0 1.0)    # Returns ≈0.7854 (π/4, first quadrant)
+(atan2 1.0 -1.0)   # Returns ≈2.3562 (3π/4, second quadrant)
+(atan2 0.0 1.0)    # Returns 0.0
+```
+
+### `asin(x: float) -> float`
+I return the arcsine of x (inverse sine) in radians. My domain is -1.0 to 1.0 and I return values in -π/2 to π/2.
+
+```nano
+(asin 1.0)    # Returns ≈1.5708 (π/2)
+(asin 0.5)    # Returns ≈0.5236 (π/6)
+(asin 0.0)    # Returns 0.0
+```
+
+### `acos(x: float) -> float`
+I return the arccosine of x (inverse cosine) in radians. My domain is -1.0 to 1.0 and I return values in 0 to π.
+
+```nano
+(acos 1.0)    # Returns 0.0
+(acos 0.0)    # Returns ≈1.5708 (π/2)
+(acos -1.0)   # Returns ≈3.14159 (π)
+```
+
+### `atan(x: float) -> float`
+I return the arctangent of x (inverse tangent) in radians. I return values in -π/2 to π/2.
+
+```nano
+(atan 1.0)    # Returns ≈0.7854 (π/4)
+(atan 0.0)    # Returns 0.0
+(atan -1.0)   # Returns ≈-0.7854 (-π/4)
+```
+
+### `log(x: float) -> float`
+I return the natural logarithm (base e) of x.
+
+```nano
+(log 1.0)    # Returns 0.0
+(log 2.718)  # Returns ≈1.0
+(log 10.0)   # Returns ≈2.303
+```
+
+### `log2(x: float) -> float`
+I return the base-2 logarithm of x.
+
+```nano
+(log2 1.0)   # Returns 0.0
+(log2 2.0)   # Returns 1.0
+(log2 8.0)   # Returns 3.0
+```
+
+### `log10(x: float) -> float`
+I return the base-10 logarithm of x.
+
+```nano
+(log10 1.0)    # Returns 0.0
+(log10 10.0)   # Returns 1.0
+(log10 100.0)  # Returns 2.0
+```
+
+### `exp(x: float) -> float`
+I return e raised to the power of x.
+
+```nano
+(exp 0.0)   # Returns 1.0
+(exp 1.0)   # Returns ≈2.71828
+(exp 2.0)   # Returns ≈7.389
+```
+
+### `fmod(x: float, y: float) -> float`
+I return the floating-point remainder of x divided by y.
+
+```nano
+(fmod 5.5 2.0)    # Returns 1.5
+(fmod 10.0 3.0)   # Returns 1.0
+(fmod -5.5 2.0)   # Returns -1.5
+```
+
+---
+
+## Type Casting and Conversion (11)
+
+### `cast_int(value: any) -> int`
+I cast any value to an integer. I truncate floats and parse strings.
+
+```nano
+(cast_int 3.14)   # Returns 3
+(cast_int "42")   # Returns 42
+(cast_int true)   # Returns 1
+```
+
+### `cast_float(value: any) -> float`
+I cast any value to a float. I parse strings and convert integers.
+
+```nano
+(cast_float 42)      # Returns 42.0
+(cast_float "3.14")  # Returns 3.14
+(cast_float false)   # Returns 0.0
+```
+
+### `cast_bool(value: any) -> bool`
+I cast any value to a boolean. I treat 0, empty string, and null as false; everything else becomes true.
+
+```nano
+(cast_bool 1)       # Returns true
+(cast_bool 0)       # Returns false
+(cast_bool "hello") # Returns true
+(cast_bool "")      # Returns false
+```
+
+### `cast_string(value: any) -> string`
+I cast any value to its string representation.
+
+```nano
+(cast_string 42)    # Returns "42"
+(cast_string 3.14)  # Returns "3.14"
+(cast_string true)  # Returns "true"
+```
+
+### `to_string(value: any) -> string`
+I convert any value to its string representation. I am an alias for `cast_string`.
+
+```nano
+(to_string 99)      # Returns "99"
+(to_string false)   # Returns "false"
+(to_string 1.5)     # Returns "1.5"
+```
+
+### `int_to_string(n: int) -> string`
+I convert an integer to its string representation.
+
+```nano
+(int_to_string 42)    # Returns "42"
+(int_to_string 0)     # Returns "0"
+(int_to_string -100)  # Returns "-100"
+```
+
+### `float_to_string(f: float) -> string`
+I convert a float to its string representation.
+
+```nano
+(float_to_string 3.14)   # Returns "3.14"
+(float_to_string 0.0)    # Returns "0.0"
+(float_to_string -1.5)   # Returns "-1.5"
+```
+
+### `bool_to_string(b: bool) -> string`
+I convert a boolean to its string representation.
+
+```nano
+(bool_to_string true)   # Returns "true"
+(bool_to_string false)  # Returns "false"
+```
+
+### `string_to_int(s: string) -> int`
+I parse a string to an integer. I return 0 if the string cannot be parsed.
+
+```nano
+(string_to_int "42")     # Returns 42
+(string_to_int "-100")   # Returns -100
+(string_to_int "abc")    # Returns 0
+```
+
+### `string_to_float(s: string) -> float`
+I parse a string to a float. I return 0.0 if the string cannot be parsed.
+
+```nano
+(string_to_float "3.14")  # Returns 3.14
+(string_to_float "1e-3")  # Returns 0.001
+(string_to_float "bad")   # Returns 0.0
+```
+
+### `null_opaque() -> opaque`
+I return a null opaque handle. I am useful as a sentinel value when working with foreign function interfaces.
+
+```nano
+let handle: opaque = (null_opaque)
+```
+
+---
+
+## String Operations (7)
+
+### `str_length(s: string) -> int`
+I return the length of a string in bytes.
+
+```nano
+(str_length "Hello")   # Returns 5
+(str_length "")        # Returns 0
+(str_length "abc")     # Returns 3
+```
+
+### `str_concat(s1: string, s2: string) -> string`
+I concatenate two strings and return a new string.
+
+```nano
+(str_concat "Hello" " World")   # Returns "Hello World"
+(str_concat "foo" "bar")        # Returns "foobar"
+(str_concat "" "test")          # Returns "test"
+```
+
+### `str_substring(s: string, start: int, length: int) -> string`
+I extract a substring starting at `start` with the given `length`. The index is 0-based. I return until the end of the string if `start + length` exceeds the string length. I return an empty string if `start` is out of bounds.
+
+```nano
+(str_substring "Hello, World!" 0 5)   # Returns "Hello"
+(str_substring "Hello, World!" 7 5)   # Returns "World"
+(str_substring "Hello" 2 100)         # Returns "llo"
+```
+
+### `str_contains(s: string, substr: string) -> bool`
+I return true if string `s` contains substring `substr`.
+
+```nano
+(str_contains "The quick brown fox" "quick")   # Returns true
+(str_contains "The quick brown fox" "slow")    # Returns false
+(str_contains "hello" "")                      # Returns true
+```
+
+### `str_equals(s1: string, s2: string) -> bool`
+I return true if both strings are exactly equal.
+
+```nano
+(str_equals "Hello" "Hello")   # Returns true
+(str_equals "Hello" "World")   # Returns false
+(str_equals "" "")             # Returns true
+```
+
+### `char_at(s: string, index: int) -> int`
+I return the ASCII value of the character at the specified 0-based index. I terminate with an error if the index is out of bounds.
+
+```nano
+(char_at "Hello" 0)   # Returns 72 ('H')
+(char_at "Hello" 1)   # Returns 101 ('e')
+(char_at "Hello" 4)   # Returns 111 ('o')
+```
+
+### `string_from_char(c: int) -> string`
+I create a single-character string from an ASCII value.
+
+```nano
+(string_from_char 65)   # Returns "A"
+(string_from_char 90)   # Returns "Z"
+(string_from_char 48)   # Returns "0"
+```
+
+---
+
+## Character Classification (10)
+
+### `is_digit(c: int) -> bool`
+I return true if the character code represents a decimal digit ('0'–'9').
+
+```nano
+(is_digit 48)   # Returns true  ('0')
+(is_digit 53)   # Returns true  ('5')
+(is_digit 65)   # Returns false ('A')
+```
+
+### `is_alpha(c: int) -> bool`
+I return true if the character code represents a letter (a–z, A–Z).
+
+```nano
+(is_alpha 65)    # Returns true  ('A')
+(is_alpha 97)    # Returns true  ('a')
+(is_alpha 48)    # Returns false ('0')
+```
+
+### `is_alnum(c: int) -> bool`
+I return true if the character code represents an alphanumeric character (digit or letter).
+
+```nano
+(is_alnum 48)   # Returns true  ('0')
+(is_alnum 65)   # Returns true  ('A')
+(is_alnum 32)   # Returns false (' ')
+```
+
+### `is_space(c: int) -> bool`
+I return true if the character code is a space character (ASCII 32).
+
+```nano
+(is_space 32)   # Returns true  (' ')
+(is_space 65)   # Returns false ('A')
+(is_space 9)    # Returns false ('\t')
+```
+
+### `is_whitespace(c: int) -> bool`
+I return true if the character code represents any whitespace: space, tab, newline, or carriage return.
+
+```nano
+(is_whitespace 32)   # Returns true  (' ')
+(is_whitespace 9)    # Returns true  ('\t')
+(is_whitespace 10)   # Returns true  ('\n')
+(is_whitespace 65)   # Returns false ('A')
+```
+
+### `is_upper(c: int) -> bool`
+I return true if the character code represents an uppercase letter (A–Z).
+
+```nano
+(is_upper 65)   # Returns true  ('A')
+(is_upper 90)   # Returns true  ('Z')
+(is_upper 97)   # Returns false ('a')
+```
+
+### `is_lower(c: int) -> bool`
+I return true if the character code represents a lowercase letter (a–z).
+
+```nano
+(is_lower 97)    # Returns true  ('a')
+(is_lower 122)   # Returns true  ('z')
+(is_lower 65)    # Returns false ('A')
+```
+
+### `digit_value(c: int) -> int`
+I convert a digit character code to its numeric value. I return -1 if it is not a digit.
+
+```nano
+(digit_value 48)   # Returns 0  ('0' -> 0)
+(digit_value 53)   # Returns 5  ('5' -> 5)
+(digit_value 57)   # Returns 9  ('9' -> 9)
+(digit_value 65)   # Returns -1 ('A' is not a digit)
+```
+
+### `char_to_lower(c: int) -> int`
+I convert an uppercase letter code to lowercase. I leave non-letters unchanged.
+
+```nano
+(char_to_lower 65)   # Returns 97  ('A' -> 'a')
+(char_to_lower 90)   # Returns 122 ('Z' -> 'z')
+(char_to_lower 48)   # Returns 48  ('0' -> '0', unchanged)
+```
+
+### `char_to_upper(c: int) -> int`
+I convert a lowercase letter code to uppercase. I leave non-letters unchanged.
+
+```nano
+(char_to_upper 97)    # Returns 65  ('a' -> 'A')
+(char_to_upper 122)   # Returns 90  ('z' -> 'Z')
+(char_to_upper 48)    # Returns 48  ('0' -> '0', unchanged)
+```
+
+---
+
+## Array Operations (13)
+
+### `at(arr: array<T>, index: int) -> T`
+I return the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds.
+
+```nano
+let nums: array<int> = [1, 2, 3, 4, 5]
+(at nums 0)   # Returns 1
+(at nums 4)   # Returns 5
+```
+
+### `array_get(arr: array<T>, index: int) -> T`
+I return the element at the specified 0-based index. I am an alias for `at`.
+
+```nano
+let nums: array<int> = [10, 20, 30]
+(array_get nums 0)   # Returns 10
+(array_get nums 2)   # Returns 30
+```
+
+### `array_length(arr: array<T>) -> int`
+I return the number of elements in an array.
+
+```nano
+let nums: array<int> = [10, 20, 30]
+(array_length nums)    # Returns 3
+(array_length [])      # Returns 0
+```
+
+### `array_new(size: int, default: T) -> array<T>`
+I create a new array of the specified size, filled with the default value.
+
+```nano
+let zeros: array<int> = (array_new 5 0)
+# [0, 0, 0, 0, 0]
+let strs: array<string> = (array_new 3 "")
+# ["", "", ""]
+```
+
+### `array_set(arr: array<T>, index: int, value: T) -> void`
+I set the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds. I require a mutable array.
+
+```nano
+let mut nums: array<int> = [1, 2, 3]
+(array_set nums 1 42)
+# nums is now [1, 42, 3]
+```
+
+### `array_push(arr: array<T>, value: T) -> array<T>`
+I append an element to the end of an array and return the updated array.
+
+```nano
+let mut numbers: array<int> = [1, 2, 3]
+(array_push numbers 4)
+# numbers is now [1, 2, 3, 4]
+```
+
+### `array_pop(arr: array<T>) -> T`
+I remove and return the last element of the array.
+
+```nano
+let mut stack: array<int> = [1, 2, 3]
+let last: int = (array_pop stack)   # Returns 3
+# stack is now [1, 2]
+```
+
+### `array_remove_at(arr: array<T>, index: int) -> array<T>`
+I remove the element at the specified index, shifting remaining elements left, and return the updated array.
+
+```nano
+let mut items: array<int> = [10, 20, 30, 40]
+(array_remove_at items 1)
+# items is now [10, 30, 40]
+```
+
+### `array_slice(arr: array<T>, start: int, length: int) -> array<T>`
+I create a new array from a portion of the original, starting at `start` with the given `length`.
+
+```nano
+let numbers: array<int> = [1, 2, 3, 4, 5]
+let subset: array<int> = (array_slice numbers 1 3)
+# subset is [2, 3, 4]
+```
+
+### `array_concat(arr1: array<T>, arr2: array<T>) -> array<T>`
+I concatenate two arrays and return a new array containing all elements.
+
+```nano
+let a: array<int> = [1, 2, 3]
+let b: array<int> = [4, 5, 6]
+let c: array<int> = (array_concat a b)
+# c is [1, 2, 3, 4, 5, 6]
+```
+
+### `array_map(arr: array<T>, f: fn(T) -> U) -> array<U>`
+I apply a function to each element of an array and return a new array of the results.
+
+```nano
+fn square(x: int) -> int { return (* x x) }
+
+let nums: array<int> = [1, 2, 3, 4]
+let squares: array<int> = (array_map nums square)
+# squares is [1, 4, 9, 16]
+```
+
+### `array_filter(arr: array<T>, pred: fn(T) -> bool) -> array<T>`
+I return a new array containing only the elements for which the predicate returns true.
+
+```nano
+fn is_even(n: int) -> bool { return (== (% n 2) 0) }
+
+let nums: array<int> = [1, 2, 3, 4, 5, 6]
+let evens: array<int> = (array_filter nums is_even)
+# evens is [2, 4, 6]
+```
+
+### `array_fold(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
+I reduce an array to a single value by applying a function cumulatively, starting with `init`.
+
+```nano
+fn add(acc: int, x: int) -> int { return (+ acc x) }
+
+let nums: array<int> = [1, 2, 3, 4]
+let sum: int = (array_fold nums 0 add)
+# sum is 10
+```
+
+---
+
+## Higher-Order Functions (3)
+
+### `filter(arr: array<T>, predicate: fn(T) -> bool) -> array<T>`
+I create a new array with elements that satisfy the predicate. I am equivalent to `array_filter`.
+
+```nano
+fn is_even(n: int) -> bool { return (== (% n 2) 0) }
+
+let numbers: array<int> = [1, 2, 3, 4, 5, 6]
+let evens: array<int> = (filter numbers is_even)
+# evens is [2, 4, 6]
+```
+
+### `map(arr: array<T>, f: fn(T) -> U) -> array<U>`
+I transform each element using the provided function. I am equivalent to `array_map`.
+
+```nano
+fn square(x: int) -> int { return (* x x) }
+
+let numbers: array<int> = [1, 2, 3, 4]
+let squares: array<int> = (map numbers square)
+# squares is [1, 4, 9, 16]
+```
+
+### `reduce(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
+I reduce an array to a single value. I am equivalent to `array_fold`.
+
+```nano
+fn add(acc: int, x: int) -> int { return (+ acc x) }
+
+let numbers: array<int> = [1, 2, 3, 4]
+let sum: int = (reduce numbers 0 add)
+# sum is 10
+```
+
+---
+
+## HashMap Operations (16)
+
+I provide HashMap as a key-value collection with O(1) average lookup.
+
+### `hashmap_new() -> hashmap`
+I create a new empty hashmap.
+
+```nano
+let hm: hashmap = (hashmap_new)
+```
+
+### `hashmap_get(hm: hashmap, key: string) -> any`
+I return the value associated with `key`, or null if the key does not exist.
+
+```nano
+(hashmap_set hm "name" "Alice")
+let val: string = (hashmap_get hm "name")   # Returns "Alice"
+```
+
+### `hashmap_set(hm: hashmap, key: string, value: any) -> void`
+I insert or update the value for `key`.
+
+```nano
+let hm: hashmap = (hashmap_new)
+(hashmap_set hm "score" 100)
+(hashmap_set hm "name" "Bob")
+```
+
+### `hashmap_has(hm: hashmap, key: string) -> bool`
+I return true if `key` exists in the hashmap.
+
+```nano
+(hashmap_set hm "x" 42)
+(hashmap_has hm "x")       # Returns true
+(hashmap_has hm "missing")  # Returns false
+```
+
+### `hashmap_delete(hm: hashmap, key: string) -> void`
+I remove the key-value pair for `key`. I do nothing if the key does not exist.
+
+```nano
+(hashmap_set hm "temp" 99)
+(hashmap_delete hm "temp")
+(hashmap_has hm "temp")   # Returns false
+```
+
+### `hashmap_keys(hm: hashmap) -> array<string>`
+I return all keys in the hashmap as an array of strings.
+
+```nano
+(hashmap_set hm "a" 1)
+(hashmap_set hm "b" 2)
+let keys: array<string> = (hashmap_keys hm)
+# keys contains ["a", "b"] (order may vary)
+```
+
+### `hashmap_values(hm: hashmap) -> array<any>`
+I return all values in the hashmap as an array.
+
+```nano
+(hashmap_set hm "x" 10)
+(hashmap_set hm "y" 20)
+let vals: array<int> = (hashmap_values hm)
+# vals contains [10, 20] (order may vary)
+```
+
+### `hashmap_length(hm: hashmap) -> int`
+I return the number of key-value pairs in the hashmap.
+
+```nano
+let hm: hashmap = (hashmap_new)
+(hashmap_set hm "a" 1)
+(hashmap_set hm "b" 2)
+(hashmap_length hm)   # Returns 2
+```
+
+### `map_new() -> hashmap`
+I create a new empty hashmap. I am an alias for `hashmap_new`.
+
+```nano
+let m: hashmap = (map_new)
+```
+
+### `map_get(hm: hashmap, key: string) -> any`
+I return the value for `key`. I am an alias for `hashmap_get`.
+
+```nano
+let score: int = (map_get hm "alice")
+```
+
+### `map_set(hm: hashmap, key: string, value: any) -> void`
+I insert or update a key-value pair. I am an alias for `hashmap_set`.
+
+```nano
+(map_set hm "alice" 10)
+(map_set hm "bob" 20)
+```
+
+### `map_has(hm: hashmap, key: string) -> bool`
+I check if a key exists. I am an alias for `hashmap_has`.
+
+```nano
+if (map_has hm "alice") { (println "found") }
+```
+
+### `map_delete(hm: hashmap, key: string) -> void`
+I remove a key-value pair. I am an alias for `hashmap_delete`.
+
+```nano
+(map_delete hm "temp")
+```
+
+### `map_keys(hm: hashmap) -> array<string>`
+I return all keys as an array. I am an alias for `hashmap_keys`.
+
+```nano
+let keys: array<string> = (map_keys hm)
+```
+
+### `map_values(hm: hashmap) -> array<any>`
+I return all values as an array. I am an alias for `hashmap_values`.
+
+```nano
+let vals: array<int> = (map_values hm)
+```
+
+### `map_length(hm: hashmap) -> int`
+I return the number of entries. I am an alias for `hashmap_length`.
+
+```nano
+let count: int = (map_length hm)
+```
+
+---
+
+## Result Type Operations (7)
+
+My `Result<T, E>` type represents either success (`Ok`) or failure (`Err`).
+
+### `result_is_ok(r: Result<T, E>) -> bool`
+I return true if the result is an `Ok` value.
+
+```nano
+let r: Result<int, string> = (divide 10 2)
+if (result_is_ok r) { (println "Success!") }
+```
+
+### `result_is_err(r: Result<T, E>) -> bool`
+I return true if the result is an `Err` value.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+if (result_is_err r) { (println "Error occurred") }
+```
+
+### `result_unwrap(r: Result<T, E>) -> T`
+I extract the `Ok` value. I panic if the result is `Err` — use `result_is_ok` to check first.
+
+```nano
+let r: Result<int, string> = (divide 10 2)
+let value: int = (result_unwrap r)   # Returns 5
+```
+
+### `result_unwrap_err(r: Result<T, E>) -> E`
+I extract the `Err` value. I panic if the result is `Ok`.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+if (result_is_err r) {
+    let msg: string = (result_unwrap_err r)
+    (println msg)
+}
+```
+
+### `result_unwrap_or(r: Result<T, E>, default: T) -> T`
+I extract the `Ok` value, or return `default` if the result is `Err`.
+
+```nano
+let r: Result<int, string> = (divide 10 0)
+let value: int = (result_unwrap_or r 0)   # Returns 0 (the default)
+```
+
+### `result_map(r: Result<T, E>, f: fn(T) -> U) -> Result<U, E>`
+I apply a function to the `Ok` value and return a new result. I pass `Err` values through unchanged.
+
+```nano
+fn double(x: int) -> int { return (* x 2) }
+
+let r: Result<int, string> = (divide 10 2)
+let r2: Result<int, string> = (result_map r double)
+# r2 is Ok(10)
+```
+
+### `result_and_then(r: Result<T, E>, f: fn(T) -> Result<U, E>) -> Result<U, E>`
+I apply a function that itself returns a Result, and flatten the result. I pass `Err` values through unchanged. I use this to chain fallible operations.
+
+```nano
+fn safe_sqrt(x: int) -> Result<float, string> {
+    if (< x 0) { return (Err "negative input") }
+    return (Ok (sqrt (cast_float x)))
+}
+
+let r: Result<int, string> = (divide 16 1)
+let r2: Result<float, string> = (result_and_then r safe_sqrt)
+# r2 is Ok(4.0)
+```
+
+---
+
+## File I/O (8)
 
 ### `file_read(path: string) -> string`
-I read entire file contents as a string.
+I read the entire contents of a file and return them as a string. I return an empty string on error.
 
 ```nano
 let content: string = (file_read "data.txt")
 (println content)
 ```
 
-I return file contents as a string, or an empty string on error.
-
-### `file_read_bytes(path: string) -> bstring`
-I read file contents as a binary string (bstring).
+### `file_read_bytes(path: string) -> array<int>`
+I read file contents as an array of byte values (0–255). I recommend this for binary files.
 
 ```nano
-let data: bstring = (file_read_bytes "image.png")
-let size: int = (bstring_length data)
+let data: array<int> = (file_read_bytes "image.png")
+let size: int = (array_length data)
 ```
 
-I recommend this for binary files, images, and non-text data.
-
 ### `file_write(path: string, content: string) -> int`
-I write string content to a file. I overwrite it if it exists.
+I write string content to a file, overwriting it if it already exists. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (file_write "output.txt" "Hello, World!")
-if (== status 0) {
-    (println "Write successful")
-} else {
-    (println "Write failed")
-}
+if (== status 0) { (println "Write successful") }
 ```
 
-I return 0 on success and 1 on failure.
-
 ### `file_append(path: string, content: string) -> int`
-I append string content to the end of a file.
+I append string content to the end of a file, creating it if it does not exist. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (file_append "log.txt" "New log entry\n")
 ```
 
-I return 0 on success and 1 on failure.
+### `file_remove(path: string) -> int`
+I delete a file permanently. I return 0 on success and 1 on failure.
+
+```nano
+let status: int = (file_remove "temp.txt")
+```
+
+### `file_rename(old_path: string, new_path: string) -> int`
+I rename or move a file. I return 0 on success and 1 on failure.
+
+```nano
+let status: int = (file_rename "old.txt" "new.txt")
+```
 
 ### `file_exists(path: string) -> bool`
-I check if a file exists and is accessible.
+I return true if the file exists and is accessible.
 
 ```nano
 if (file_exists "config.json") {
@@ -776,59 +921,20 @@ if (file_exists "config.json") {
 }
 ```
 
-### `file_remove(path: string) -> int`
-I delete a file.
-
-```nano
-let status: int = (file_remove "temp.txt")
-```
-
-I return 0 on success and 1 on failure. I warn you that this is a permanent deletion with no confirmation.
-
-### `file_rename(old_path: string, new_path: string) -> int`
-I rename or move a file.
-
-```nano
-let status: int = (file_rename "old.txt" "new.txt")
-```
-
-I return 0 on success and 1 on failure.
-
 ### `file_size(path: string) -> int`
-I return the file size in bytes.
+I return the file size in bytes, or -1 on error.
 
 ```nano
 let size: int = (file_size "data.bin")
-(println (+ "File size: " (int_to_string size)))
+(println (str_concat "File size: " (int_to_string size)))
 ```
-
-I return the file size in bytes, or -1 on error.
-
-### `file_copy(src: string, dst: string) -> int`
-I copy a file from a source to a destination.
-
-```nano
-let status: int = (file_copy "original.txt" "backup.txt")
-```
-
-I return 0 on success and 1 on failure.
-
-### `file_chmod(path: string, mode: int) -> int`
-I change file permissions using Unix mode bits.
-
-```nano
-# Make file executable: chmod +x
-let status: int = (file_chmod "script.sh" 493)  # 0755 in octal
-```
-
-I return 0 on success and 1 on failure.
 
 ---
 
-## Directory Operations (5)
+## Directory and Navigation (10)
 
 ### `dir_exists(path: string) -> bool`
-I check if a directory exists.
+I return true if the path exists and is a directory.
 
 ```nano
 if (not (dir_exists "output")) {
@@ -837,25 +943,21 @@ if (not (dir_exists "output")) {
 ```
 
 ### `dir_create(path: string) -> int`
-I create a directory. Parent directories must exist.
+I create a directory. Parent directories must already exist. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (dir_create "build/output")
 ```
 
-I return 0 on success and 1 on failure. I do not create parent directories; use `dir_create_all` for that.
-
 ### `dir_remove(path: string) -> int`
-I remove an empty directory.
+I remove an empty directory. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (dir_remove "temp")
 ```
 
-I return 0 on success and 1 on failure. I require the directory to be empty.
-
 ### `dir_list(path: string) -> array<string>`
-I list all entries in a directory.
+I list all entries in a directory and return an array of filenames (not full paths). I return an empty array on error.
 
 ```nano
 let entries: array<string> = (dir_list ".")
@@ -864,102 +966,127 @@ for entry in entries {
 }
 ```
 
-I return an array of filenames, not full paths. I return an empty array on error.
+### `getcwd() -> string`
+I return the current working directory as an absolute path.
+
+```nano
+let cwd: string = (getcwd)
+(println cwd)   # Prints e.g. "/home/user/project"
+```
 
 ### `chdir(path: string) -> int`
-I change the current working directory.
+I change the current working directory. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (chdir "/tmp")
 let cwd: string = (getcwd)
-(println cwd)  # Prints "/tmp"
+(println cwd)   # Prints "/tmp"
 ```
 
-I return 0 on success and 1 on failure.
-
-### `fs_walkdir(path: string, callback: fn(string) -> void) -> void`
-I recursively walk a directory tree and call the callback for each file.
+### `fs_walkdir(path: string) -> array<string>`
+I recursively walk a directory tree and return an array of all file paths found.
 
 ```nano
-fn print_file(filepath: string) -> void {
-    (println filepath)
+let files: array<string> = (fs_walkdir ".")
+for f in files {
+    (println f)
 }
-
-# Print all files in current directory recursively
-(fs_walkdir "." print_file)
 ```
 
-I provide this to help you find files matching a pattern or to calculate total sizes.
+### `tmp_dir() -> string`
+I return the system's temporary directory path.
+
+```nano
+let tmp: string = (tmp_dir)
+(println tmp)   # Prints e.g. "/tmp"
+```
+
+### `mktemp(prefix: string) -> string`
+I create a new temporary file with the given prefix and return its path. The file is created and left open for writing.
+
+```nano
+let path: string = (mktemp "nano_work_")
+(file_write path "some data")
+```
+
+### `mktemp_dir(prefix: string) -> string`
+I create a new temporary directory with the given prefix and return its path.
+
+```nano
+let dir: string = (mktemp_dir "nano_build_")
+let out: string = (path_join dir "output.txt")
+```
 
 ---
 
 ## Path Operations (6)
 
-### `path_join(a: string, b: string) -> string`
-I join two path components with the proper separator.
+### `path_isfile(path: string) -> bool`
+I return true if the path exists and is a regular file.
 
 ```nano
-let full_path: string = (path_join "/home/user" "documents")
-# Result: "/home/user/documents"
+if (path_isfile "config.json") {
+    (println "Found config file")
+}
 ```
 
-I am platform-aware: I use `/` on Unix and `\` on Windows.
-
-### `path_basename(path: string) -> string`
-I extract the filename from a path.
+### `path_isdir(path: string) -> bool`
+I return true if the path exists and is a directory.
 
 ```nano
-let filename: string = (path_basename "/path/to/file.txt")
-# Result: "file.txt"
+if (path_isdir "src") {
+    (println "src directory exists")
+}
+```
+
+### `path_join(a: string, b: string) -> string`
+I join two path components with the appropriate separator. I use `/` on Unix.
+
+```nano
+let full: string = (path_join "/home/user" "documents")
+# Returns "/home/user/documents"
+let nested: string = (path_join "src" "main.nano")
+# Returns "src/main.nano"
+```
+
+### `path_basename(path: string) -> string`
+I extract the filename component from a path.
+
+```nano
+(path_basename "/path/to/file.txt")   # Returns "file.txt"
+(path_basename "src/main.nano")       # Returns "main.nano"
 ```
 
 ### `path_dirname(path: string) -> string`
-I extract the directory path.
+I extract the directory component from a path.
 
 ```nano
-let dir: string = (path_dirname "/path/to/file.txt")
-# Result: "/path/to"
-```
-
-### `path_extension(path: string) -> string`
-I extract the file extension.
-
-```nano
-let ext: string = (path_extension "document.pdf")
-# Result: "pdf"
+(path_dirname "/path/to/file.txt")   # Returns "/path/to"
+(path_dirname "src/main.nano")       # Returns "src"
 ```
 
 ### `path_normalize(path: string) -> string`
-I normalize a path by removing `.`, `..`, and redundant separators.
+I normalize a path by resolving `.`, `..`, and redundant separators.
 
 ```nano
-let clean: string = (path_normalize "./foo/../bar/./baz")
-# Result: "bar/baz"
-```
-
-### `path_absolute(path: string) -> string`
-I convert a relative path to an absolute path.
-
-```nano
-let abs: string = (path_absolute "file.txt")
-# Result: "/current/working/dir/file.txt"
+(path_normalize "./foo/../bar/./baz")   # Returns "bar/baz"
+(path_normalize "/a//b/./c")           # Returns "/a/b/c"
 ```
 
 ---
 
-## Process Operations (5)
+## Process and Environment (5)
 
 ### `system(command: string) -> int`
-I execute a shell command and wait for it to complete.
+I execute a shell command and wait for it to complete. I return the exit code.
 
 ```nano
 let status: int = (system "ls -la")
+if (!= status 0) { (println "Command failed") }
 ```
 
-I return the exit code from the command. I advise caution regarding command injection risks with user input.
-
 ### `exit(code: int) -> void`
-I terminate the program with an exit code.
+I terminate the program immediately with the given exit code.
 
 ```nano
 if (not (file_exists "required.txt")) {
@@ -968,826 +1095,73 @@ if (not (file_exists "required.txt")) {
 }
 ```
 
-I do not return; I exit immediately.
-
 ### `getenv(name: string) -> string`
-I get an environment variable value.
+I return the value of an environment variable. I return an empty string if it is not set.
 
 ```nano
 let home: string = (getenv "HOME")
-let user: string = (getenv "USER")
+let path: string = (getenv "PATH")
 ```
 
-I return the variable value, or an empty string if it is not set.
-
 ### `setenv(name: string, value: string) -> int`
-I set an environment variable for the current process.
+I set an environment variable for the current process and its children. I return 0 on success and 1 on failure.
 
 ```nano
 let status: int = (setenv "MY_VAR" "my_value")
 ```
 
-I return 0 on success and 1 on failure. This only affects the current process and its children.
-
-### `unsetenv(name: string) -> int`
-I remove an environment variable.
+### `process_run(command: string) -> array<string>`
+I execute a command and return its output as an array of strings. The first element is the exit code as a string, and subsequent elements are lines of stdout.
 
 ```nano
-let status: int = (unsetenv "MY_VAR")
-```
-
-I return 0 on success and 1 on failure.
-
----
-
-## Advanced Math Functions (15)
-
-### Exponential and Logarithmic
-
-#### `exp(x: float) -> float`
-I return e^x (the exponential function).
-
-```nano
-let result: float = (exp 2.0)  # e^2 ≈ 7.389
-```
-
-#### `log(x: float) -> float`
-My natural logarithm (base e).
-
-```nano
-let result: float = (log 10.0)  # ln(10) ≈ 2.303
-```
-
-#### `log10(x: float) -> float`
-My base-10 logarithm.
-
-```nano
-let result: float = (log10 100.0)  # Result: 2.0
-```
-
-#### `log2(x: float) -> float`
-My base-2 logarithm.
-
-```nano
-let result: float = (log2 8.0)  # Result: 3.0
-```
-
-### Hyperbolic Functions
-
-#### `sinh(x: float) -> float`
-I return the hyperbolic sine.
-
-```nano
-let result: float = (sinh 1.0)
-```
-
-#### `cosh(x: float) -> float`
-I return the hyperbolic cosine.
-
-```nano
-let result: float = (cosh 1.0)
-```
-
-#### `tanh(x: float) -> float`
-I return the hyperbolic tangent.
-
-```nano
-let result: float = (tanh 0.5)
-```
-
-#### `asinh(x: float) -> float`
-I return the inverse hyperbolic sine.
-
-#### `acosh(x: float) -> float`
-I return the inverse hyperbolic cosine.
-
-#### `atanh(x: float) -> float`
-I return the inverse hyperbolic tangent.
-
-### Advanced Operations
-
-#### `cbrt(x: float) -> float`
-I return the cube root.
-
-```nano
-let result: float = (cbrt 27.0)  # Result: 3.0
-```
-
-#### `hypot(x: float, y: float) -> float`
-I return the hypotenuse: sqrt(x² + y²).
-
-```nano
-let dist: float = (hypot 3.0 4.0)  # Result: 5.0
-```
-
-#### `fmod(x: float, y: float) -> float`
-I return the floating-point remainder.
-
-```nano
-let remainder: float = (fmod 5.5 2.0)  # Result: 1.5
-```
-
-#### `copysign(x: float, y: float) -> float`
-I return x with the sign of y.
-
-```nano
-let result: float = (copysign 3.0 -1.0)  # Result: -3.0
-```
-
-#### `fmax(x: float, y: float) -> float`
-I return the maximum of two floats. I handle NaN correctly.
-
-```nano
-let max_val: float = (fmax 3.5 2.1)  # Result: 3.5
-```
-
-#### `fmin(x: float, y: float) -> float`
-I return the minimum of two floats. I handle NaN correctly.
-
-```nano
-let min_val: float = (fmin 3.5 2.1)  # Result: 2.1
-```
-
-#### `fabs(x: float) -> float`
-I return the absolute value for floats.
-
-```nano
-let val: float = (fabs -3.5)  # Result: 3.5
-```
-
-I remind you to use `abs` for integers.
-
----
-
-## Type Conversion (10)
-
-### `int_to_string(n: int) -> string`
-I convert an integer to a string.
-
-```nano
-let s: string = (int_to_string 42)  # "42"
-```
-
-### `float_to_string(f: float) -> string`
-I convert a float to a string.
-
-```nano
-let s: string = (float_to_string 3.14)  # "3.14"
-```
-
-### `string_to_int(s: string) -> int`
-I parse a string to an integer.
-
-```nano
-let n: int = (string_to_int "123")  # 123
-```
-
-I return the parsed integer, or 0 if parsing fails.
-
-### `string_to_float(s: string) -> float`
-I parse a string to a float.
-
-```nano
-let f: float = (string_to_float "3.14")  # 3.14
-```
-
-I return the parsed float, or 0.0 if parsing fails.
-
-### `bool_to_string(b: bool) -> string`
-I convert a boolean to a string.
-
-```nano
-let s: string = (bool_to_string true)  # "true"
-```
-
-### `char_to_string(c: int) -> string`
-I convert a character code to a string.
-
-```nano
-let s: string = (char_to_string 65)  # "A"
-```
-
-### `cast_int(value: any) -> int`
-I cast a value to an integer.
-
-```nano
-let i: int = (cast_int 3.14)  # 3
-let i2: int = (cast_int "42")  # 42
-```
-
-I truncate floats and parse strings during this operation.
-
-### `cast_float(value: any) -> float`
-I cast a value to a float.
-
-```nano
-let f: float = (cast_float 42)  # 42.0
-let f2: float = (cast_float "3.14")  # 3.14
-```
-
-### `cast_string(value: any) -> string`
-I cast a value to a string.
-
-```nano
-let s: string = (cast_string 42)  # "42"
-let s2: string = (cast_string 3.14)  # "3.14"
-let s3: string = (cast_string true)  # "true"
-```
-
-### `cast_bool(value: any) -> bool`
-I cast a value to a boolean.
-
-```nano
-let b: bool = (cast_bool 1)  # true
-let b2: bool = (cast_bool 0)  # false
-let b3: bool = (cast_bool "")  # false
-let b4: bool = (cast_bool "hello")  # true
-```
-
-I evaluate 0, an empty string, or null as false; everything else becomes true.
-
----
-
-## Character Operations (5)
-
-### `char_at(s: string, index: int) -> int`
-I return the character code at the index.
-
-```nano
-let code: int = (char_at "Hello" 0)  # 72 ('H')
-```
-
-I return the character code (0-127 for ASCII), or 0 if the index is out of bounds.
-
-### `char_to_lower(c: int) -> int`
-I convert a character code to lowercase.
-
-```nano
-let lower: int = (char_to_lower 65)  # 97 ('a')
-```
-
-### `char_to_upper(c: int) -> int`
-I convert a character code to uppercase.
-
-```nano
-let upper: int = (char_to_upper 97)  # 65 ('A')
-```
-
-### `digit_value(c: int) -> int`
-I convert a digit character to its numeric value.
-
-```nano
-let val: int = (digit_value 53)  # 5 (from '5')
-```
-
-I return the digit value (0-9), or -1 if it is not a digit.
-
-### `string_from_char(c: int) -> string`
-I create a single-character string from a code.
-
-```nano
-let s: string = (string_from_char 65)  # "A"
+let result: array<string> = (process_run "echo hello")
+let code: string = (at result 0)     # "0" (exit code)
+let line: string = (at result 1)     # "hello"
 ```
 
 ---
 
-## Array Advanced Operations (5)
+## Binary String and UTF-8 (5)
 
-### `array_push(arr: mut array<T>, value: T) -> void`
-I append an element to the end of an array.
+### `bytes_from_string(s: string) -> array<int>`
+I convert a string to an array of byte values (0–255), one per character.
 
 ```nano
-let mut numbers: array<int> = [1, 2, 3]
-(array_push numbers 4)
-# numbers is now [1, 2, 3, 4]
+let bytes: array<int> = (bytes_from_string "Hello")
+(at bytes 0)   # Returns 72 ('H')
 ```
 
-I require the array to be declared `mut`.
-
-### `array_pop(arr: mut array<int>) -> int`
-I remove and return the last element.
+### `string_from_bytes(bytes: array<int>) -> string`
+I construct a string from an array of byte values.
 
 ```nano
-let mut stack: array<int> = [1, 2, 3]
-let last: int = (array_pop stack)  # 3
-# stack is now [1, 2]
+let bytes: array<int> = [72, 101, 108, 108, 111]
+let s: string = (string_from_bytes bytes)   # Returns "Hello"
 ```
 
-I return the last element, or 0 if the array is empty.
-
-### `array_slice(arr: array<T>, start: int, length: int) -> array<T>`
-I create a sub-array from a portion of an array.
+### `bstr_utf8_length(s: string) -> int`
+I return the number of Unicode code points in a UTF-8 encoded string, which may differ from its byte length for multi-byte characters.
 
 ```nano
-let numbers: array<int> = [1, 2, 3, 4, 5]
-let subset: array<int> = (array_slice numbers 1 3)
-# subset is [2, 3, 4]
+(bstr_utf8_length "Hello")   # Returns 5
+(bstr_utf8_length "café")    # Returns 4 (4 code points, 5 bytes)
 ```
 
-### `array_remove_at(arr: mut array<T>, index: int) -> void`
-I remove the element at the index and shift remaining elements.
+### `bstr_utf8_char_at(s: string, index: int) -> int`
+I return the Unicode code point at the given character index (not byte index) in a UTF-8 string.
 
 ```nano
-let mut items: array<int> = [10, 20, 30, 40]
-(array_remove_at items 1)
-# items is now [10, 30, 40]
+(bstr_utf8_char_at "Hello" 0)   # Returns 72 ('H')
+(bstr_utf8_char_at "café" 3)    # Returns the code point for 'é'
 ```
 
-### `filter(arr: array<T>, predicate: fn(T) -> bool) -> array<T>`
-I create a new array with elements that match the predicate.
+### `bstr_validate_utf8(s: string) -> bool`
+I return true if the string contains valid UTF-8 encoded text.
 
 ```nano
-fn is_even(n: int) -> bool {
-    return (== (% n 2) 0)
-}
-
-let numbers: array<int> = [1, 2, 3, 4, 5, 6]
-let evens: array<int> = (filter numbers is_even)
-# evens is [2, 4, 6]
-```
-
----
-
-## List Operations (Dynamic Lists)
-
-I provide dynamic lists for resizable, type-safe collections.
-
-### List<int> Operations
-
-#### `list_int_new() -> List<int>`
-I create a new empty list of integers.
-
-```nano
-let numbers: List<int> = (list_int_new)
-```
-
-#### `list_int_with_capacity(capacity: int) -> List<int>`
-I create a list with pre-allocated capacity.
-
-```nano
-let numbers: List<int> = (list_int_with_capacity 100)
-```
-
-I use this to avoid reallocations when you know the size in advance.
-
-#### `list_int_push(list: mut List<int>, value: int) -> void`
-I append a value to the end of a list.
-
-```nano
-let mut numbers: List<int> = (list_int_new)
-(list_int_push numbers 10)
-(list_int_push numbers 20)
-(list_int_push numbers 30)
-# list is now [10, 20, 30]
-```
-
-#### `list_int_pop(list: mut List<int>) -> int`
-I remove and return the last element.
-
-```nano
-let last: int = (list_int_pop numbers)  # 30
-# list is now [10, 20]
-```
-
-I return the last element, or 0 if the list is empty.
-
-#### `list_int_get(list: List<int>, index: int) -> int`
-I return the element at the index.
-
-```nano
-let value: int = (list_int_get numbers 0)  # 10
-```
-
-I return the element at the index, or 0 if it is out of bounds.
-
-#### `list_int_set(list: mut List<int>, index: int, value: int) -> void`
-I set the element at the index.
-
-```nano
-(list_int_set numbers 1 25)
-# numbers[1] is now 25
-```
-
-I require the index to be valid.
-
-#### `list_int_insert(list: mut List<int>, index: int, value: int) -> void`
-I insert a value at the index and shift elements to the right.
-
-```nano
-(list_int_insert numbers 1 15)
-# If list was [10, 20, 30], now [10, 15, 20, 30]
-```
-
-#### `list_int_remove(list: mut List<int>, index: int) -> void`
-I remove the element at the index and shift elements to the left.
-
-```nano
-(list_int_remove numbers 1)
-# If list was [10, 20, 30], now [10, 30]
-```
-
-#### `list_int_length(list: List<int>) -> int`
-I return the number of elements in the list.
-
-```nano
-let len: int = (list_int_length numbers)
-```
-
-#### `list_int_capacity(list: List<int>) -> int`
-I return the allocated capacity.
-
-```nano
-let cap: int = (list_int_capacity numbers)
-```
-
-#### `list_int_is_empty(list: List<int>) -> bool`
-I check if the list has no elements.
-
-```nano
-if (list_int_is_empty numbers) {
-    (println "List is empty")
+if (bstr_validate_utf8 content) {
+    (println "Valid UTF-8")
+} else {
+    (println "Invalid encoding")
 }
 ```
-
-#### `list_int_clear(list: mut List<int>) -> void`
-I remove all elements but keep the capacity.
-
-```nano
-(list_int_clear numbers)
-# length is now 0, but capacity unchanged
-```
-
-#### `list_int_free(list: mut List<int>) -> void`
-I free the list memory.
-
-```nano
-(list_int_free numbers)
-```
-
-I will not allow you to use the list after it is freed.
-
-### List<string> Operations
-
-I provide all these operations for `List<string>` as well:
-- `list_string_new()`, `list_string_with_capacity()`
-- `list_string_push()`, `list_string_pop()`
-- `list_string_get()`, `list_string_set()`
-- `list_string_insert()`, `list_string_remove()`
-- `list_string_length()`, `list_string_capacity()`
-- `list_string_is_empty()`, `list_string_clear()`, `list_string_free()`
-
-Example:
-```nano
-let mut names: List<string> = (list_string_new)
-(list_string_push names "Alice")
-(list_string_push names "Bob")
-(list_string_push names "Charlie")
-
-for i in (range 0 (list_string_length names)) {
-    let name: string = (list_string_get names i)
-    (println name)
-}
-```
-
----
-
-## Higher-Order Functions
-
-### `map(arr: array<T>, f: fn(T) -> U) -> array<U>`
-I transform each element using the provided function.
-
-```nano
-fn square(x: int) -> int {
-    return (* x x)
-}
-
-let numbers: array<int> = [1, 2, 3, 4]
-let squares: array<int> = (map numbers square)
-# squares is [1, 4, 9, 16]
-```
-
-### `reduce(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
-I reduce an array to a single value.
-
-```nano
-fn add(acc: int, x: int) -> int {
-    return (+ acc x)
-}
-
-let numbers: array<int> = [1, 2, 3, 4]
-let sum: int = (reduce numbers 0 add)
-# sum is 10
-```
-
-### `fold(arr: array<T>, init: U, f: fn(U, T) -> U) -> U`
-My alias for `reduce`.
-
-```nano
-let product: int = (fold numbers 1 multiply)
-```
-
----
-
-## Input/Output
-
-### `getchar() -> int`
-I read a single character from stdin.
-
-```nano
-(println "Press any key...")
-let ch: int = (getchar)
-(println (+ "You pressed: " (string_from_char ch)))
-```
-
-I return the character code (0-255), or -1 on EOF or error.
-
-### `print_int(n: int) -> void`
-I print an integer without a newline.
-
-```nano
-(print_int 42)
-(print_int 100)
-# Output: 42100
-```
-
-### `print_float(f: float) -> void`
-I print a float without a newline.
-
-```nano
-(print_float 3.14159)
-```
-
-### `print_bool(b: bool) -> void`
-I print a boolean as "true" or "false".
-
-```nano
-(print_bool true)   # Prints: true
-(print_bool false)  # Prints: false
-```
-
----
-
-## Time and Sleep
-
-### `time_now() -> int`
-I return the current Unix timestamp (seconds since the epoch).
-
-```nano
-let timestamp: int = (time_now)
-(println (int_to_string timestamp))
-```
-
-### `time_ms() -> int`
-I return the current time in milliseconds.
-
-```nano
-let start: int = (time_ms)
-# ... do work ...
-let end: int = (time_ms)
-let elapsed: int = (- end start)
-(println (+ "Elapsed: " (+ (int_to_string elapsed) "ms")))
-```
-
-### `sleep(ms: int) -> void`
-I sleep for the specified number of milliseconds.
-
-```nano
-(println "Waiting 2 seconds...")
-(sleep 2000)
-(println "Done!")
-```
-
----
-
-## Process Spawning
-
-### `spawn(command: string, args: array<string>) -> int`
-I spawn a child process with arguments.
-
-```nano
-let args: array<string> = ["-la", "/tmp"]
-let pid: int = (spawn "ls" args)
-```
-
-I return the process ID (pid), or -1 on error.
-
-### `waitpid(pid: int) -> int`
-I wait for a child process to complete.
-
-```nano
-let exit_code: int = (waitpid pid)
-if (== exit_code 0) {
-    (println "Process succeeded")
-}
-```
-
-I return the exit code of the child process.
-
----
-
-## Usage Examples
-
-### Example 1: Mathematical Computation
-
-```nano
-fn pythagorean(a: float, b: float) -> float {
-    let a_squared: float = (pow a 2.0)
-    let b_squared: float = (pow b 2.0)
-    let c_squared: float = (+ a_squared b_squared)
-    return (sqrt c_squared)
-}
-
-shadow pythagorean {
-    # 3-4-5 triangle
-    assert (== (pythagorean 3.0 4.0) 5.0)
-}
-```
-
-### Example 2: String Processing
-
-```nano
-fn process_name(full_name: string) -> string {
-    let len: int = (str_length full_name)
-    
-    if (str_contains full_name " ") {
-        (println "Full name detected")
-        return full_name
-    } else {
-        (println "Single name")
-        return (str_concat "Mr. " full_name)
-    }
-}
-
-shadow process_name {
-    assert (str_equals (process_name "John") "Mr. John")
-    assert (str_equals (process_name "John Doe") "John Doe")
-}
-```
-
-### Example 3: Array Processing
-
-```nano
-fn sum_array(arr: array<int>) -> int {
-    let mut total: int = 0
-    let mut i: int = 0
-    let len: int = (array_length arr)
-    
-    while (< i len) {
-        set total (+ total (at arr i))
-        set i (+ i 1)
-    }
-    
-    return total
-}
-
-shadow sum_array {
-    let nums: array<int> = [1, 2, 3, 4, 5]
-    assert (== (sum_array nums) 15)
-    
-    let empty: array<int> = []
-    assert (== (sum_array empty) 0)
-}
-
-fn main() -> int {
-    # Create and manipulate arrays
-    let mut data: array<int> = (array_new 5 0)
-    
-    # Fill with values
-    (array_set data 0 10)
-    (array_set data 1 20)
-    (array_set data 2 30)
-    (array_set data 3 40)
-    (array_set data 4 50)
-    
-    let total: int = (sum_array data)
-    (println total)  # Prints 150
-    
-    return 0
-}
-```
-
-### Example 4: Trigonometric Calculation
-
-```nano
-fn calculate_angle(opposite: float, adjacent: float) -> float {
-    # Calculate angle in radians using arctan
-    # (Not implemented yet, but shows how trig functions work)
-    let ratio: float = (/ opposite adjacent)
-    return ratio  # Simplified - would use atan in real code
-}
-
-fn demonstrate_trig() -> int {
-    let pi: float = 3.14159265359
-    let pi_over_2: float = (/ pi 2.0)
-    
-    (println "sin(π/2) should be 1:")
-    (println (sin pi_over_2))
-    
-    (println "cos(0) should be 1:")
-    (println (cos 0.0))
-    
-    return 0
-}
-```
-
----
-
-## Type Compatibility
-
-### Polymorphic Functions
-I allow these functions to accept multiple types:
-- `println(any)` - I accept int, float, string, and bool
-- `print(any)` - I accept int, float, string, and bool
-- `abs(int|float)` - I return the same type as the input
-- `min(int|float, int|float)` - Both arguments must be the same type
-- `max(int|float, int|float)` - Both arguments must be the same type
-
-### Type-Converting Functions
-I always return a float from these, regardless of input:
-- `sqrt(int|float) -> float`
-- `pow(int|float, int|float) -> float`
-- `floor(int|float) -> float`
-- `ceil(int|float) -> float`
-- `round(int|float) -> float`
-- `sin(int|float) -> float`
-- `cos(int|float) -> float`
-- `tan(int|float) -> float`
-
-### String-Only Functions
-I only allow these to work with strings:
-- `str_length(string) -> int`
-- `str_concat(string, string) -> string`
-- `str_substring(string, int, int) -> string`
-- `str_contains(string, string) -> bool`
-- `str_equals(string, string) -> bool`
-
----
-
-## Performance Notes
-
-I am honest about my performance characteristics:
-- My math functions use the C standard library directly. They are fast.
-- I bounds-check my string operations to ensure safety.
-- My `str_length` is O(n) because I use `strlen`.
-- My `str_contains` is O(n*m) because I use `strstr`.
-- I allocate memory for new strings on the heap.
-- In my transpiled C code, you must manage memory with care.
-- I use shadow tests to help you catch memory issues early.
-
----
-
-## My Plans for Standard Library Additions
-
-I plan to add these in future releases:
-- **String:** `str_uppercase`, `str_lowercase`, `str_split`, `str_join`
-- **Math:** `log`, `exp`, `atan`, `atan2`, `asin`, `acos`
-- **File I/O:** `file_read`, `file_write`, `file_exists`
-- **Arrays:** `array_map`, `array_filter`, `array_reduce`, `array_slice`
-
----
-
-## Notes
-
-- I document all functions with shadow tests in example files.
-- I test every stdlib function in at least one example program.
-- I include line and column numbers in my error messages.
-- I perform type checking at compile time.
-- I execute shadow tests during compilation to verify my own correctness.
-
-**Total Functions:** 72 across 9 categories (see spec.json for the authoritative list)
-- I/O: 3 functions (print, println, assert)
-- Math: 11 functions (abs, min, max, sqrt, pow, floor, ceil, round, sin, cos, tan)
-- String: 18 functions (char operations, classification, conversions)
-- Binary String: 12 functions (bstring operations for binary data)
-- Array: 10 functions (at, length, new, set, push, pop, remove_at, filter, map, reduce)
-- OS: 3 functions (getcwd, getenv, range)
-- Generics: 4 functions (List<T> operations)
-- Checked Math: 5 functions (overflow-safe arithmetic)
-
-**Documentation Status:** I have documented over 160 of my 166 builtin functions (96%+ coverage).
-
-**My Categories:**
-- Core I/O: 3 functions
-- Input/Output: 4 functions (getchar, print_int, print_float, print_bool)
-- Math Operations: 26 functions (basic, advanced, trigonometric, hyperbolic)
-- String Operations: 18 functions
-- Character Operations: 11 functions
-- Type Conversion: 6 functions
-- Array Operations: 9 functions
-- Array Advanced: 5 functions (push, pop, slice, remove_at, filter)
-- HashMap Operations: 10 functions (I only support these in my interpreter)
-- List<int> Operations: 14 functions
-- List<string> Operations: 14 functions
-- Higher-Order Functions: 3 functions (map, reduce, fold)
-- File Operations: 10 functions
-- Directory Operations: 5 functions
-- Path Operations: 6 functions
-- Process Operations: 5 functions
-- Process Spawning: 2 functions (spawn, waitpid)
-- Time and Sleep: 3 functions (time_now, time_ms, sleep)
-- Binary String Operations: 8 functions
-- Result Type Operations: 5 functions
-
-I have 15 functions remaining that need documentation. My HashMap operations are interpreter-only and are not available in my compiled code. Every function has shadow tests in its implementation.
-
-
