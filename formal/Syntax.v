@@ -33,7 +33,8 @@ Inductive ty : Type :=
   | TArrow   : ty -> ty -> ty                 (* function type: T1 -> T2 *)
   | TArray   : ty -> ty                       (* array type: array<T> *)
   | TRecord  : list (string * ty) -> ty       (* record type: {f1: T1, ..., fn: Tn} *)
-  | TVariant : list (string * ty) -> ty.      (* variant type: Tag1(T1) | ... | Tagn(Tn) *)
+  | TVariant : list (string * ty) -> ty       (* variant type: Tag1(T1) | ... | Tagn(Tn) *)
+  | TTuple   : list ty -> ty.                 (* tuple type: (T1, ..., Tn) *)
 
 (** ** Binary operators *)
 
@@ -92,7 +93,9 @@ Inductive expr : Type :=
   | ESetField  : string -> string -> expr -> expr       (* set x.f = e *)
   | EConstruct : string -> expr -> ty -> expr           (* variant constructor: Tag(e) : T *)
   | EMatch     : expr -> list (string * string * expr) -> expr  (* match e { Tag x => body, ... } *)
-  | EStrIndex  : expr -> expr -> expr.                  (* string indexing: s[i] *)
+  | EStrIndex  : expr -> expr -> expr                   (* string indexing: s[i] *)
+  | ETuple     : list expr -> expr                      (* tuple literal: (e1, ..., en) *)
+  | ETupleIndex : expr -> nat -> expr.                  (* tuple element access: e.i *)
 
 (** ** Values
 
@@ -109,6 +112,7 @@ Inductive val : Type :=
   | VArray     : list val -> val                        (* array value *)
   | VRecord    : list (string * val) -> val             (* record value *)
   | VConstruct : string -> val -> val                   (* variant value: tag, payload *)
+  | VTuple     : list val -> val                        (* tuple value: (v1, ..., vn) *)
 
 (** ** Environments
 
@@ -185,7 +189,7 @@ Fixpoint find_branch (tag : string) (branches : list (string * string * expr)) :
 Lemma ty_eq_dec : forall (t1 t2 : ty), {t1 = t2} + {t1 <> t2}.
 Proof.
   fix IH 1.
-  intros [| | | | ta tb | ta | fs1 | vs1] [| | | | ta' tb' | ta' | fs2 | vs2];
+  intros [| | | | ta tb | ta | fs1 | vs1 | ts1] [| | | | ta' tb' | ta' | fs2 | vs2 | ts2];
     try (left; reflexivity); try (right; discriminate).
   - (* TArrow *)
     destruct (IH ta ta'); [| right; congruence].
@@ -217,6 +221,17 @@ Proof.
     + destruct (string_dec s1 s2); [subst | right; congruence].
       destruct (IH t1 t2); [subst | right; congruence].
       destruct (IHvs vs2'); [subst | right; congruence].
+      left; reflexivity.
+  - (* TTuple *)
+    enough ({ts1 = ts2} + {ts1 <> ts2}) as [->|];
+      [left; reflexivity | right; congruence |].
+    revert ts2.
+    induction ts1 as [|t1 ts1' IHts]; intros [|t2 ts2'].
+    + left; reflexivity.
+    + right; discriminate.
+    + right; discriminate.
+    + destruct (IH t1 t2); [subst | right; congruence].
+      destruct (IHts ts2'); [subst | right; congruence].
       left; reflexivity.
 Defined.
 

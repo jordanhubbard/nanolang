@@ -20,6 +20,8 @@
 
 extern ASTNode *g_current_function;  /* Current function being transpiled */
 extern const char *g_source_file_for_line_directives; /* Source file for #line directives */
+extern bool g_profile_mode;          /* --profile: inject timing guard in next function body */
+extern const char *g_profile_func_name; /* function name for profiling guard */
 
 /* =========================================================================
  * GENERIC TYPE NAME HELPERS
@@ -2953,6 +2955,16 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_BLOCK:
             emit_indent_item(list, indent);
             emit_literal(list, "{\n");
+
+            /* --profile: inject timing guard at start of function body blocks (indent==0) */
+            if (indent == 0 && g_profile_mode && g_profile_func_name) {
+                emit_formatted(list,
+                    "    __attribute__((cleanup(_nl_prof_guard_exit))) _NlProfGuard _nl_prof_g ="
+                    " {_nl_prof_get_entry(\"%s\"), {0, 0}};\n"
+                    "    clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
+                    g_profile_func_name);
+                g_profile_mode = false;  /* consumed -- don't inject into nested blocks */
+            }
 
             /* Push new scope for this block */
             scope_stack_push(scopes);

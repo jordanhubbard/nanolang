@@ -1,0 +1,24 @@
+# Expected error: Unknown variant 'Pending' in union 'Status'
+# Hint: Available variants: Active Inactive
+
+union Status {
+    Active {}
+    Inactive {}
+}
+
+fn make_status() -> Status {
+    return Status.Pending {}
+}
+
+shadow make_status {
+    let s: Status = (make_status)
+    assert (== 1 1)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

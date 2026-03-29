@@ -763,10 +763,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         if (elem == TYPE_UNKNOWN || elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
                             return TYPE_ARRAY;
                         }
-                        fprintf(stderr, "Error at line %d, column %d: Unary minus requires array<int> or array<float>\n", expr->line, expr->column);
+                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                            "Unary minus requires array<int> or array<float>",
+                            "Only numeric arrays support element-wise negation");
                         return TYPE_UNKNOWN;
                     }
-                    fprintf(stderr, "Error at line %d, column %d: Unary minus requires numeric type\n", expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "Unary minus requires a numeric type (int or float)",
+                        "Check that the operand is an int or float variable");
                     return TYPE_UNKNOWN;
                 }
                 
@@ -1008,14 +1012,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_QUESTION) {
                 /* ? try-propagate operator: expr? returns the Ok value type */
                 if (arg_count != 1) {
-                    fprintf(stderr, "Error at line %d, column %d: ? operator requires exactly 1 operand\n",
-                            expr->line, expr->column);
+                    emit_context_error("SYNTAX ERROR", expr->line, expr->column, 1,
+                        "? operator requires exactly 1 operand",
+                        "Use 'expr?' — the ? operator is a postfix unary operator");
                     return TYPE_UNKNOWN;
                 }
                 Type inner_type = check_expression(expr->as.prefix_op.args[0], env);
                 if (inner_type != TYPE_UNION) {
-                    fprintf(stderr, "Error at line %d, column %d: ? operator requires a Result union type\n",
-                            expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "? operator requires a Result union type",
+                        "Declare your union with Ok and Err variants: 'union Result { Ok { val: T }, Err { msg: string } }'");
                     return TYPE_UNKNOWN;
                 }
                 /* Look up the union definition to find the Ok variant's first field type */
@@ -1044,8 +1050,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* First, check the inner function call */
                 Type inner_type = check_expression(expr->as.call.func_expr, env);
                 if (inner_type != TYPE_FUNCTION) {
-                    fprintf(stderr, "Error at line %d, column %d: Expression does not return a function\n",
-                            expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "Expression does not return a function",
+                        "Only function-typed values can be called — check the return type of the inner expression");
                     return TYPE_UNKNOWN;
                 }
                 
@@ -1098,8 +1105,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Result<T, E> helper intrinsics (generic-function stopgap) */
             if (strcmp(expr->as.call.name, "result_is_ok") == 0 || strcmp(expr->as.call.name, "result_is_err") == 0) {
                 if (expr->as.call.arg_count != 1) {
-                    fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
-                            expr->line, expr->column, expr->as.call.name);
+                    char message[256];
+                    snprintf(message, sizeof(message), "%s requires exactly 1 argument, got %d.",
+                             expr->as.call.name, expr->as.call.arg_count);
+                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                                       "Pass a single Result<T, E> value.");
                     return TYPE_UNKNOWN;
                 }
                 check_expression(expr->as.call.args[0], env);
@@ -1111,8 +1121,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 strcmp(expr->as.call.name, "result_unwrap_or") == 0) {
                 int expected = (strcmp(expr->as.call.name, "result_unwrap_or") == 0) ? 2 : 1;
                 if (expr->as.call.arg_count != expected) {
-                    fprintf(stderr, "Error at line %d, column %d: %s requires %d argument(s)\n",
-                            expr->line, expr->column, expr->as.call.name, expected);
+                    char message[256];
+                    snprintf(message, sizeof(message), "%s requires %d argument(s), got %d.",
+                             expr->as.call.name, expected, expr->as.call.arg_count);
+                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                                       "Pass a Result<T, E> value and (for result_unwrap_or) a default value.");
                     return TYPE_UNKNOWN;
                 }
 
@@ -1141,8 +1154,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (strcmp(expr->as.call.name, "result_unwrap_or") == 0) {
                     Type default_type = check_expression(expr->as.call.args[1], env);
                     if (default_type != out_type) {
-                        fprintf(stderr, "Error at line %d, column %d: result_unwrap_or default value type mismatch\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message),
+                                 "result_unwrap_or default value type mismatch: got %s, expected %s.",
+                                 type_to_string(default_type), type_to_string(out_type));
+                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                                           "The default value must be the same type as the Ok result.");
                     }
                 }
 
@@ -2265,17 +2282,26 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Find the variant index */
                 int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
                 if (variant_idx < 0) {
-                    fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
-                            expr->line, expr->column, variant_name, union_name);
+                    char hint[512];
+                    int hint_off = snprintf(hint, sizeof(hint), "Available variants:");
+                    for (int vi = 0; vi < udef->variant_count && hint_off < (int)sizeof(hint) - 3; vi++) {
+                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", udef->variant_names[vi]);
+                    }
+                    char message[256];
+                    snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.", variant_name, union_name);
+                    emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                     free(union_name);
                     return TYPE_UNKNOWN;
                 }
-                
+
                 /* Verify field count matches */
                 if (expr->as.struct_literal.field_count != udef->variant_field_counts[variant_idx]) {
-                    fprintf(stderr, "Error at line %d, column %d: Variant '%s.%s' expects %d fields, got %d\n",
-                            expr->line, expr->column, union_name, variant_name,
-                            udef->variant_field_counts[variant_idx], expr->as.struct_literal.field_count);
+                    char message[256];
+                    snprintf(message, sizeof(message), "Variant '%s.%s' expects %d field(s), got %d.",
+                             union_name, variant_name,
+                             udef->variant_field_counts[variant_idx], expr->as.struct_literal.field_count);
+                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                                       "Provide all required fields for the variant.");
                     free(union_name);
                     return TYPE_UNKNOWN;
                 }
@@ -2311,8 +2337,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
 
                     if (!types_match(field_type, expected)) {
-                        fprintf(stderr, "Error at line %d, column %d: Field type mismatch in variant '%s.%s'\n",
-                                expr->line, expr->column, union_name, variant_name);
+                        char message[256];
+                        snprintf(message, sizeof(message),
+                                 "Field type mismatch in variant '%s.%s': got %s, expected %s.",
+                                 union_name, variant_name,
+                                 type_to_string(field_type), type_to_string(expected));
+                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                                           "Ensure each field value matches the variant's declared type.");
                     }
 
                 next_union_field:
@@ -2329,22 +2360,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check that struct is defined */
             StructDef *sdef = env_get_struct(env, expr->as.struct_literal.struct_name);
             if (!sdef) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined struct '%s'\n",
-                        expr->line, expr->column, expr->as.struct_literal.struct_name);
+                char message[256];
+                snprintf(message, sizeof(message), "Undefined struct '%s'.",
+                         expr->as.struct_literal.struct_name);
+                emit_context_error("UNDEFINED STRUCT", expr->line, expr->column,
+                                   (int)safe_strlen(expr->as.struct_literal.struct_name),
+                                   message,
+                                   "Define 'struct Name { ... }' before using it in a literal.");
                 return TYPE_UNKNOWN;
             }
-            
+
             /* Normalize qualified name (Math.Point) to actual struct name (Point) */
             if (strcmp(expr->as.struct_literal.struct_name, sdef->name) != 0) {
                 free(expr->as.struct_literal.struct_name);
                 expr->as.struct_literal.struct_name = strdup(sdef->name);
             }
-            
+
             /* Check that all fields are provided and types match */
             if (expr->as.struct_literal.field_count != sdef->field_count) {
-                fprintf(stderr, "Error at line %d, column %d: Struct '%s' expects %d fields, got %d\n",
-                        expr->line, expr->column, expr->as.struct_literal.struct_name,
-                        sdef->field_count, expr->as.struct_literal.field_count);
+                char hint[512];
+                int hint_off = snprintf(hint, sizeof(hint), "Expected fields:");
+                for (int fi = 0; fi < sdef->field_count && hint_off < (int)sizeof(hint) - 3; fi++) {
+                    hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", sdef->field_names[fi]);
+                }
+                char message[256];
+                snprintf(message, sizeof(message), "Struct '%s' expects %d field(s), got %d.",
+                         expr->as.struct_literal.struct_name, sdef->field_count, expr->as.struct_literal.field_count);
+                emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message, hint);
                 return TYPE_UNKNOWN;
             }
             
@@ -2362,22 +2404,30 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 
                 if (field_index == -1) {
-                    fprintf(stderr, "Error at line %d, column %d: Unknown field '%s' in struct '%s'\n",
-                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name);
-                    fprintf(stderr, "  Known fields:");
-                    for (int j = 0; j < sdef->field_count; j++) {
-                        fprintf(stderr, "%s%s", (j == 0 ? " " : ", "), sdef->field_names[j]);
+                    char hint[512];
+                    int hint_off = snprintf(hint, sizeof(hint), "Available fields:");
+                    for (int j = 0; j < sdef->field_count && hint_off < (int)sizeof(hint) - 3; j++) {
+                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", sdef->field_names[j]);
                     }
-                    fprintf(stderr, "\n");
+                    char message[256];
+                    snprintf(message, sizeof(message), "Unknown field '%s' in struct '%s'.",
+                             field_name, expr->as.struct_literal.struct_name);
+                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                                       (int)safe_strlen(field_name), message, hint);
                     continue;
                 }
-                
+
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 if (!types_match(field_type, sdef->field_types[field_index])) {
-                    fprintf(stderr, "Error at line %d, column %d: Field '%s' type mismatch in struct '%s' (expected %s, got %s)\n",
-                            expr->line, expr->column, field_name, expr->as.struct_literal.struct_name,
-                            type_to_string(sdef->field_types[field_index]), type_to_string(field_type));
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                             "Field '%s' type mismatch in struct '%s': got %s, expected %s.",
+                             field_name, expr->as.struct_literal.struct_name,
+                             type_to_string(field_type), type_to_string(sdef->field_types[field_index]));
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column,
+                                       (int)safe_strlen(field_name), message,
+                                       "Ensure the field value matches the declared field type.");
                 }
             }
             
@@ -2432,8 +2482,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check the object type */
             Type object_type = check_expression(expr->as.field_access.object, env);
             if (object_type != TYPE_STRUCT) {
-                safe_fprintf(stderr, "Error at line %d, column %d: Field access requires a struct\n",
-                        expr->line, expr->column);
+                emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                                   "Field access requires a struct value.",
+                                   "Ensure the object before '.' is a struct type.");
                 return TYPE_UNKNOWN;
             }
             
@@ -2466,12 +2517,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Find the variant */
                 int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
                 if (variant_idx < 0) {
-                    fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
-                            expr->line, expr->column, variant_name, union_name);
+                    char hint[512];
+                    int hint_off = snprintf(hint, sizeof(hint), "Available variants:");
+                    for (int vi = 0; vi < udef->variant_count && hint_off < (int)sizeof(hint) - 3; vi++) {
+                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", udef->variant_names[vi]);
+                    }
+                    char message[256];
+                    snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.", variant_name, union_name);
+                    emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                     free(union_name);
                     return TYPE_UNKNOWN;
                 }
-                
+
                 /* Find the field in the variant */
                 const char *field_name = expr->as.field_access.field_name;
                 for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
@@ -2510,23 +2567,40 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 
                 /* Field not found */
-                fprintf(stderr, "Error at line %d, column %d: Variant '%s' of union '%s' has no field '%s'\n",
-                        expr->line, expr->column, variant_name, union_name, field_name);
+                {
+                    char hint[512];
+                    int hint_off = snprintf(hint, sizeof(hint), "Available fields:");
+                    for (int vi = 0; vi < udef->variant_field_counts[variant_idx] && hint_off < (int)sizeof(hint) - 3; vi++) {
+                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off,
+                                             " %s", udef->variant_field_names[variant_idx][vi]);
+                    }
+                    if (udef->variant_field_counts[variant_idx] == 0) {
+                        snprintf(hint, sizeof(hint), "Variant '%s' has no fields.", variant_name);
+                    }
+                    char message[256];
+                    snprintf(message, sizeof(message), "Variant '%s' of union '%s' has no field '%s'.",
+                             variant_name, union_name, field_name);
+                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                                       (int)safe_strlen(field_name), message, hint);
+                }
                 free(union_name);
                 return TYPE_UNKNOWN;
             }
 
         not_a_union_variant_field_access:
             ;
-            
+
             /* Look up the struct definition */
             StructDef *sdef = env_get_struct(env, struct_name);
             if (!sdef) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined struct '%s'\n",
-                        expr->line, expr->column, struct_name);
+                char message[256];
+                snprintf(message, sizeof(message), "Undefined struct '%s'.", struct_name);
+                emit_context_error("UNDEFINED STRUCT", expr->line, expr->column,
+                                   (int)safe_strlen(struct_name), message,
+                                   "Define 'struct Name { ... }' before accessing its fields.");
                 return TYPE_UNKNOWN;
             }
-            
+
             /* Find the field and return its type */
             const char *field_name = expr->as.field_access.field_name;
             for (int i = 0; i < sdef->field_count; i++) {
@@ -2534,10 +2608,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return sdef->field_types[i];
                 }
             }
-            
+
             /* Field not found */
-            fprintf(stderr, "Error at line %d, column %d: Struct '%s' has no field '%s'\n",
-                    expr->line, expr->column, struct_name, field_name);
+            {
+                char hint[512];
+                int hint_off = snprintf(hint, sizeof(hint), "Available fields:");
+                for (int i = 0; i < sdef->field_count && hint_off < (int)sizeof(hint) - 3; i++) {
+                    hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", sdef->field_names[i]);
+                }
+                char message[256];
+                snprintf(message, sizeof(message), "Struct '%s' has no field '%s'.", struct_name, field_name);
+                emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                                   (int)safe_strlen(field_name), message, hint);
+            }
             return TYPE_UNKNOWN;
         }
 
@@ -2545,38 +2628,48 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check that union is defined */
             UnionDef *udef = env_get_union(env, expr->as.union_construct.union_name);
             if (!udef) {
-                fprintf(stderr, "Error at line %d, column %d: Undefined union '%s'\n",
-                        expr->line, expr->column, expr->as.union_construct.union_name);
+                char message[256];
+                snprintf(message, sizeof(message), "Undefined union '%s'.",
+                         expr->as.union_construct.union_name);
+                emit_context_error("UNDEFINED UNION", expr->line, expr->column,
+                                   (int)safe_strlen(expr->as.union_construct.union_name),
+                                   message, "Define 'union Name { ... }' before constructing it.");
                 return TYPE_UNKNOWN;
             }
-            
+
             /* Check that variant exists */
-            int variant_idx = env_get_union_variant_index(env, 
-                expr->as.union_construct.union_name, 
+            int variant_idx = env_get_union_variant_index(env,
+                expr->as.union_construct.union_name,
                 expr->as.union_construct.variant_name);
             if (variant_idx < 0) {
-                fprintf(stderr, "Error at line %d, column %d: Unknown variant '%s' in union '%s'\n",
-                        expr->line, expr->column, 
-                        expr->as.union_construct.variant_name,
-                        expr->as.union_construct.union_name);
+                char hint[512];
+                int hint_off = snprintf(hint, sizeof(hint), "Available variants:");
+                for (int vi = 0; vi < udef->variant_count && hint_off < (int)sizeof(hint) - 3; vi++) {
+                    hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off, " %s", udef->variant_names[vi]);
+                }
+                char message[256];
+                snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.",
+                         expr->as.union_construct.variant_name, expr->as.union_construct.union_name);
+                emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                 return TYPE_UNKNOWN;
             }
-            
+
             /* Check that field count matches */
             int expected_field_count = udef->variant_field_counts[variant_idx];
             if (expr->as.union_construct.field_count != expected_field_count) {
-                fprintf(stderr, "Error at line %d, column %d: Variant '%s' expects %d fields, got %d\n",
-                        expr->line, expr->column,
-                        expr->as.union_construct.variant_name,
-                        expected_field_count,
-                        expr->as.union_construct.field_count);
+                char message[256];
+                snprintf(message, sizeof(message), "Variant '%s' expects %d field(s), got %d.",
+                         expr->as.union_construct.variant_name,
+                         expected_field_count, expr->as.union_construct.field_count);
+                emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                                   "Provide all required fields for the variant.");
                 return TYPE_UNKNOWN;
             }
-            
+
             /* Check each field type */
             for (int i = 0; i < expr->as.union_construct.field_count; i++) {
                 const char *field_name = expr->as.union_construct.field_names[i];
-                
+
                 /* Find matching field in variant definition */
                 int field_index = -1;
                 for (int j = 0; j < expected_field_count; j++) {
@@ -2585,18 +2678,26 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         break;
                     }
                 }
-                
+
                 if (field_index < 0) {
-                    fprintf(stderr, "Error at line %d, column %d: Unknown field '%s' in variant '%s'\n",
-                            expr->line, expr->column, field_name,
-                            expr->as.union_construct.variant_name);
+                    char hint[512];
+                    int hint_off = snprintf(hint, sizeof(hint), "Available fields:");
+                    for (int j = 0; j < expected_field_count && hint_off < (int)sizeof(hint) - 3; j++) {
+                        hint_off += snprintf(hint + hint_off, sizeof(hint) - hint_off,
+                                             " %s", udef->variant_field_names[variant_idx][j]);
+                    }
+                    char message[256];
+                    snprintf(message, sizeof(message), "Unknown field '%s' in variant '%s'.",
+                             field_name, expr->as.union_construct.variant_name);
+                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                                       (int)safe_strlen(field_name), message, hint);
                     return TYPE_UNKNOWN;
                 }
-                
+
                 /* Check field type */
                 Type expected_type = udef->variant_field_types[variant_idx][field_index];
                 Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
-                
+
                 /* For generic unions, accept any type for generic type parameters */
                 /* TODO: Proper type substitution for generic instantiations */
                 bool is_generic_param = (expected_type == TYPE_GENERIC || expected_type == TYPE_STRUCT);
@@ -2604,14 +2705,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     /* This is likely a generic type parameter - accept it for now */
                     /* The transpiler will handle concrete type generation */
                 } else if (actual_type != expected_type) {
-                    fprintf(stderr, "Error at line %d, column %d: Field '%s' expects type '%s', got '%s'\n",
-                            expr->line, expr->column, field_name,
-                            type_to_string(expected_type),
-                            type_to_string(actual_type));
+                    char message[256];
+                    snprintf(message, sizeof(message), "Field '%s' expects type '%s', got '%s'.",
+                             field_name, type_to_string(expected_type), type_to_string(actual_type));
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column,
+                                       (int)safe_strlen(field_name), message,
+                                       "Ensure the field value matches the variant's declared field type.");
                     return TYPE_UNKNOWN;
                 }
             }
-            
+
             return TYPE_UNION;
         }
 
@@ -3607,8 +3710,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             /* Fill in the struct name for type checking */
                             struct_lit->as.struct_literal.struct_name = strdup(tc->current_function_return_struct_name);
                         } else {
-                            fprintf(stderr, "Error at line %d, column %d: Cannot infer struct type for anonymous literal in return\n",
-                                    struct_lit->line, struct_lit->column);
+                            emit_context_error("TYPE MISMATCH", struct_lit->line, struct_lit->column, 1,
+                                               "Cannot infer struct type for anonymous literal in return.",
+                                               "Specify the struct name explicitly, e.g. 'StructName { field: value }'.");
                             tc->has_error = true;
                         }
                     }
@@ -3616,12 +3720,20 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!types_match(return_type, tc->current_function_return_type)) {
-                    fprintf(stderr, "Error at line %d, column %d: Return type mismatch\n", stmt->line, stmt->column);
+                    char message[256];
+                    snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
+                             type_to_string(return_type), type_to_string(tc->current_function_return_type));
+                    emit_context_error("TYPE MISMATCH", stmt->line, stmt->column, 1, message,
+                                       "Ensure the returned value matches the function's declared return type.");
                     tc->has_error = true;
                 }
             } else {
                 if (tc->current_function_return_type != TYPE_VOID) {
-                    fprintf(stderr, "Error at line %d, column %d: Function must return a value\n", stmt->line, stmt->column);
+                    char hint[256];
+                    snprintf(hint, sizeof(hint), "Add 'return <value>' of type %s.",
+                             type_to_string(tc->current_function_return_type));
+                    emit_context_error("MISSING RETURN", stmt->line, stmt->column, 1,
+                                       "Empty return in a non-void function.", hint);
                     tc->has_error = true;
                 }
             }
@@ -5868,9 +5980,11 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
     Function *main_func = env_get_function(env, "main");
     if (!main_func) {
         fprintf(stderr, "Error: Program must define a 'main' function\n");
+        fprintf(stderr, "  Hint: Add 'fn main() -> int { ... return 0 }' to your program.\n");
         tc.has_error = true;
     } else if (main_func->return_type != TYPE_INT) {
         fprintf(stderr, "Error: 'main' function must return int\n");
+        fprintf(stderr, "  Hint: Change the return type declaration to '-> int'.\n");
         tc.has_error = true;
     }
 

@@ -1,0 +1,47 @@
+/* Test: tuple types as function parameters */
+
+fn sum_pair(t: (int, int)) -> int {
+    return (+ t.0 t.1)
+}
+
+shadow sum_pair {
+    assert (== (sum_pair (3, 7)) 10)
+    assert (== (sum_pair (0, 0)) 0)
+}
+
+fn first_of_three(t: (int, string, bool)) -> int {
+    return t.0
+}
+
+shadow first_of_three {
+    assert (== (first_of_three (42, "hello", true)) 42)
+}
+
+fn swap_pair(t: (int, int)) -> (int, int) {
+    return (t.1, t.0)
+}
+
+shadow swap_pair {
+    let result: (int, int) = (swap_pair (10, 20))
+    assert (== result.0 20)
+    assert (== result.1 10)
+}
+
+fn add_pairs(a: (int, int), b: (int, int)) -> (int, int) {
+    return ((+ a.0 b.0), (+ a.1 b.1))
+}
+
+shadow add_pairs {
+    let result: (int, int) = (add_pairs (1, 2) (3, 4))
+    assert (== result.0 4)
+    assert (== result.1 6)
+}
+
+fn main() -> int {
+    (println "All tuple parameter tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

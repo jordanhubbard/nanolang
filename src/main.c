@@ -29,6 +29,7 @@ typedef struct {
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
+    bool profile;             /* --profile: inject timing hooks into generated C */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
@@ -341,7 +342,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->warn_ffi = opts->warn_ffi;
     env->forbid_unsafe = opts->forbid_unsafe;
     env->profile_gprof = opts->profile_gprof;
-    
+    env->profile = opts->profile;
+
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
         fprintf(stderr, "Module loading failed\n");
@@ -1192,6 +1194,7 @@ int main(int argc, char *argv[]) {
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
+        printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1232,6 +1235,7 @@ int main(int argc, char *argv[]) {
         .save_asm = false,
         .json_errors = false,
         .profile_gprof = false,
+        .profile = false,
         .llm_diags_json_path = NULL,
         .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
@@ -1275,6 +1279,8 @@ int main(int argc, char *argv[]) {
             opts.json_errors = true;
         } else if (strcmp(argv[i], "-pg") == 0) {
             opts.profile_gprof = true;
+        } else if (strcmp(argv[i], "--profile") == 0) {
+            opts.profile = true;
         } else if (strcmp(argv[i], "-I") == 0 && i + 1 < argc) {
             if (include_count < 32) {
                 include_paths[include_count++] = argv[i + 1];

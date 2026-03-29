@@ -338,4 +338,14 @@ Inductive eval : env -> expr -> env -> val -> Prop :=
       eval renv e1 renv1 (VString s) ->
       eval renv1 e2 renv2 (VInt n) ->
       eval renv (EStrIndex e1 e2) renv2
-           (VString (String.substring (Z.to_nat n) 1 s)).
+           (VString (String.substring (Z.to_nat n) 1 s))
+  | E_TupleNil : forall renv,
+      eval renv (ETuple []) renv (VTuple [])
+  | E_TupleCons : forall renv renv1 renv2 e es v vs,
+      eval renv e renv1 v ->
+      eval renv1 (ETuple es) renv2 (VTuple vs) ->
+      eval renv (ETuple (e :: es)) renv2 (VTuple (v :: vs))
+  | E_TupleIndex : forall renv renv1 e vs i v,
+      eval renv e renv1 (VTuple vs) ->
+      nth_error vs i = Some v ->
+      eval renv (ETupleIndex e i) renv1 v.

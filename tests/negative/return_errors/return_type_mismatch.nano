@@ -1,0 +1,18 @@
+# Expected error: Return type mismatch (got string, expected int)
+# Hint: Ensure the returned value matches the function's declared return type.
+
+fn get_count() -> int {
+    return "not a number"
+}
+
+shadow get_count {
+    assert (== (get_count) 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

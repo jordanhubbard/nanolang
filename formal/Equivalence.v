@@ -40,6 +40,7 @@ Fixpoint val_to_expr (v : val) : expr :=
   | VArray vs => EArray (map val_to_expr vs)
   | VRecord fvs => ERecord (map (fun '(f, v) => (f, val_to_expr v)) fvs)
   | VConstruct tag v => EConstruct tag (val_to_expr v) TUnit
+  | VTuple vs => ETuple (map val_to_expr vs)
   end
 
 with close (renv : env) (e : expr) : expr :=
@@ -143,7 +144,12 @@ Inductive expr_equiv : expr -> expr -> Prop :=
       expr_equiv (EMatch e branches) (EMatch e' branches')
   | EQ_StrIndex : forall e1 e1' e2 e2',
       expr_equiv e1 e1' -> expr_equiv e2 e2' ->
-      expr_equiv (EStrIndex e1 e2) (EStrIndex e1' e2').
+      expr_equiv (EStrIndex e1 e2) (EStrIndex e1' e2')
+  | EQ_Tuple : forall es es',
+      Forall2 expr_equiv es es' ->
+      expr_equiv (ETuple es) (ETuple es')
+  | EQ_TupleIndex : forall e e' i,
+      expr_equiv e e' -> expr_equiv (ETupleIndex e i) (ETupleIndex e' i).
 
 (** ** Multi-step equivalence: multi_step to an expr_equiv target *)
 
@@ -177,7 +183,9 @@ Inductive pure : expr -> Prop :=
       pure e ->
       Forall (fun b => pure (snd b)) branches ->
       pure (EMatch e branches)
-  | P_StrIndex : forall e1 e2, pure e1 -> pure e2 -> pure (EStrIndex e1 e2).
+  | P_StrIndex : forall e1 e2, pure e1 -> pure e2 -> pure (EStrIndex e1 e2)
+  | P_Tuple : forall es, Forall pure es -> pure (ETuple es)
+  | P_TupleIndex : forall e i, pure e -> pure (ETupleIndex e i).
 
 (** ** Helper: find_branch preserves Forall purity *)
 
@@ -256,6 +264,10 @@ Proof.
   1: pure_chain.   (* E_ArraySet *)
   1: pure_chain.   (* E_ArrayPush *)
   1: pure_chain.   (* E_StrIndex *)
+  1: reflexivity.  (* E_TupleNil *)
+  1: { pure_forall_inv. pure_chain.
+       apply IHHeval2. constructor. assumption. }  (* E_TupleCons *)
+  1: pure_chain.   (* E_TupleIndex *)
 Qed.
 
 (** ** Multi-step transitivity *)
@@ -274,7 +286,7 @@ Qed.
 Lemma val_to_expr_is_value : forall v, is_value (val_to_expr v).
 Proof.
   fix IH 1.
-  intros [n | b | s | | x body cenv | f x body cenv | vs | fvs | tag v0]; simpl.
+  intros [n | b | s | | x body cenv | f x body cenv | vs | fvs | tag v0 | vs_t]; simpl.
   - constructor.
   - constructor.
   - constructor.
@@ -288,6 +300,9 @@ Proof.
     induction fvs as [| [fn v] rest IHrest]; [constructor |].
     simpl. constructor; [simpl; apply IH | apply IHrest].
   - constructor. apply IH.
+  - constructor.
+    induction vs_t as [| v rest IHrest]; [constructor |].
+    simpl. constructor; [apply IH | apply IHrest].
 Qed.
 
 (** ** expr_equiv is reflexive *)
@@ -313,6 +328,9 @@ Proof.
     induction l as [| [[t y] b] rest IHl]; constructor.
     + simpl. split; [reflexivity | split; [reflexivity | apply IH]].
     + apply IHl.
+  - (* Tuple *)
+    constructor.
+    induction l as [| hd tl IHl]; constructor; [apply IH | apply IHl].
 Qed.
 
 (** ** expr_equiv preserves is_value *)
@@ -510,6 +528,14 @@ Proof.
   - eapply MS_Step; [apply S_StrIndex2; eassumption | assumption].
 Qed.
 
+Lemma ms_tupleindex1 : forall e e' i,
+  multi_step e e' -> multi_step (ETupleIndex e i) (ETupleIndex e' i).
+Proof.
+  intros. induction H.
+  - apply MS_Refl.
+  - eapply MS_Step; [apply S_TupleIndex1; eassumption | assumption].
+Qed.
+
 Lemma ms_array_head : forall e e' es,
   multi_step e e' -> multi_step (EArray (e :: es)) (EArray (e' :: es)).
 Proof.
@@ -531,6 +557,32 @@ Proof.
     eapply MS_Step.
     + apply S_ArrayTail; eassumption.
     + apply IHHms; reflexivity.
+Qed.
+
+Lemma ms_tuple_head : forall e e' es,
+  multi_step e e' -> multi_step (ETuple (e :: es)) (ETuple (e' :: es)).
+Proof.
+  intros. induction H.
+  - apply MS_Refl.
+  - eapply MS_Step; [apply S_TupleHead; eassumption | assumption].
+Qed.
+
+Lemma ms_tuple_tail : forall v es es',
+  is_value v -> multi_step (ETuple es) (ETuple es') ->
+  multi_step (ETuple (v :: es)) (ETuple (v :: es')).
+Proof.
+  intros v es es' Hv Hms.
+  remember (ETuple es) as te. remember (ETuple es') as te'.
+  revert es es' Heqte Heqte'.
+  induction Hms; intros; subst.
+  - injection Heqte'; intros; subst. apply MS_Refl.
+  - inversion H; subst.
+    + eapply MS_Step.
+      * apply S_TupleTail; eassumption.
+      * apply IHHms; reflexivity.
+    + eapply MS_Step.
+      * apply S_TupleTail; eassumption.
+      * apply IHHms; reflexivity.
 Qed.
 
 Lemma ms_record_head : forall f e e' fes,
@@ -1739,6 +1791,33 @@ Proof.
     injection H as Hcons. simpl. f_equal. congruence.
 Qed.
 
+Lemma eclosed_tuple : forall es, Forall eclosed es -> eclosed (ETuple es).
+Proof.
+  unfold eclosed. intros es Hall x s. simpl. f_equal.
+  induction es as [|e rest IH]; inversion Hall; subst; simpl; [reflexivity |].
+  f_equal; [apply H2 | apply IH; assumption].
+Qed.
+
+Lemma eclosed_tuple_inv : forall es, eclosed (ETuple es) -> Forall eclosed es.
+Proof.
+  intros es Hecl.
+  induction es as [|e rest IH]; [constructor |].
+  constructor.
+  - unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. congruence.
+  - apply IH. unfold eclosed. intros x s.
+    assert (H := Hecl x s). simpl in H.
+    injection H as Hcons. simpl. f_equal. congruence.
+Qed.
+
+Lemma eclosed_tupleindex_inv : forall e i,
+  eclosed (ETupleIndex e i) -> eclosed e.
+Proof.
+  unfold eclosed. intros e i H x s.
+  specialize (H x s). simpl in H. congruence.
+Qed.
+
 Lemma eclosed_match_scrutinee_inv : forall e brs,
   eclosed (EMatch e brs) -> eclosed e.
 Proof.
@@ -1878,6 +1957,15 @@ Proof.
         apply IH; [exact Hyx | exact Hcs | exact Hbody].
   (* EStrIndex *)
   - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ETuple *)
+  - simpl in Hinv. injection Hinv as Hlist. simpl. f_equal.
+    revert Hlist. induction l as [|e0 rest IHl]; intro Hlist; simpl in *.
+    + reflexivity.
+    + injection Hlist as He Hrest. f_equal;
+        [apply IH; [exact Hyx | exact Hcs | exact He]
+        |apply IHl; exact Hrest].
+  (* ETupleIndex *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
 Qed.
 
 Lemma eclosed_subst_closed : forall x s e,
@@ -1930,6 +2018,7 @@ Inductive val_good : val -> Prop :=
   | VG_Record : forall fvs,
       Forall (fun fv => val_good (snd fv)) fvs -> val_good (VRecord fvs)
   | VG_Construct : forall tag v, val_good v -> val_good (VConstruct tag v)
+  | VG_Tuple : forall vs, Forall val_good vs -> val_good (VTuple vs)
 with env_good : env -> Prop :=
   | EG_Nil : env_good ENil
   | EG_Cons : forall x v renv,
@@ -2046,6 +2135,22 @@ Qed.
 
 Lemma close_strindex : forall renv e1 e2,
   close renv (EStrIndex e1 e2) = EStrIndex (close renv e1) (close renv e2).
+Proof.
+  intro renv; induction renv as [|y vy rest IH]; intros; simpl; auto.
+Qed.
+
+Lemma close_tuple : forall renv es,
+  close renv (ETuple es) = ETuple (map (close renv) es).
+Proof.
+  intro renv. induction renv as [|y vy rest IH]; intros; simpl.
+  - f_equal. induction es; simpl; auto. f_equal. assumption.
+  - rewrite IH. f_equal.
+    induction es as [|e0 rest' IH']; simpl; auto.
+    f_equal. assumption.
+Qed.
+
+Lemma close_tupleindex : forall renv e i,
+  close renv (ETupleIndex e i) = ETupleIndex (close renv e) i.
 Proof.
   intro renv; induction renv as [|y vy rest IH]; intros; simpl; auto.
 Qed.
@@ -2236,6 +2341,7 @@ Proof.
     | vs Hall
     | fvs Hall
     | tag v0 Hvg0
+    | vs_t Hall_t
     ].
   - apply eclosed_int.
   - apply eclosed_bool.
@@ -2250,6 +2356,8 @@ Proof.
     + simpl. apply IH. exact Hval.
     + exact IHr.
   - simpl. apply eclosed_construct. apply IH. exact Hvg0.
+  - simpl. apply eclosed_tuple.
+    induction Hall; constructor; [apply IH; assumption | assumption].
 Qed.
 
 Lemma env_good_all_vals_closed : forall renv,
@@ -2335,6 +2443,10 @@ Ltac eclosed_prep :=
     rewrite close_strindex in H;
     let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
     destruct (eclosed_strindex_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (ETupleIndex _ _)) |- _ ] =>
+    rewrite close_tupleindex in H;
+    let H1 := fresh "Hecl" in
+    pose proof (eclosed_tupleindex_inv _ _ H) as H1; clear H
   end.
 
 (** Helper: apply an IH to get multi_step_equiv and val_good.
@@ -3080,7 +3192,79 @@ Proof.
     + apply ms_strindex1; eassumption.
     + apply ms_strindex2; [constructor | eassumption].
     + eapply MS_Step; [apply S_StrIndexVal | apply MS_Refl].
-Qed.
+
+  (* E_TupleNil: result = VTuple [] *)
+  - split; [| constructor; constructor].
+    rewrite close_tuple. simpl.
+    apply multi_step_to_equiv. apply MS_Refl.
+
+  (* E_TupleCons: eval e => v, eval (ETuple es) => VTuple vs *)
+  - rewrite close_tuple in Hecl. simpl in Hecl.
+    pose proof (eclosed_tuple_inv _ Hecl) as Hecl_all.
+    inversion Hecl_all as [| ? ? Hecl_hd Hecl_tl]; subst.
+    assert (Hecl_tail : eclosed (close renv (ETuple es))).
+    { rewrite close_tuple. apply eclosed_tuple. exact Hecl_tl. }
+    match goal with
+    | [ H : Forall pure (_ :: _) |- _ ] => inversion H; subst; clear H
+    end.
+    match goal with
+    | [ Heval : eval ?r ?e ?r' _, Hp : pure ?e |- _ ] =>
+      match r' with
+      | r => idtac
+      | _ => let Heq := fresh "Heq" in
+             assert (Heq : r' = r) by (eapply pure_env_unchanged; eassumption); subst r'
+      end
+    end.
+    apply_IH.
+    match goal with
+    | [ IH2 : pure (ETuple ?es) -> env_good ?renv -> all_vals_closed ?renv ->
+              eclosed (close ?renv (ETuple ?es)) ->
+              multi_step_equiv (close ?renv (ETuple ?es)) (val_to_expr (VTuple ?vs)) /\ val_good (VTuple ?vs) |- _ ] =>
+      destruct (IH2 ltac:(constructor; assumption) ltac:(assumption) ltac:(assumption) Hecl_tail) as [Hms2 Hvg2]
+    end.
+    inversion Hvg2; subst.
+    split.
+    + (* multi_step_equiv *)
+      rewrite close_tuple. simpl.
+      destruct Hms as [e' [Hms' Heq']].
+      assert (Hv' : is_value e').
+      { eapply expr_equiv_is_value. apply expr_equiv_sym; eassumption. apply val_to_expr_is_value. }
+      destruct Hms2 as [et' [Hms2' Heq2']].
+      simpl in Heq2'. inversion Heq2'; subst.
+      match goal with
+      | [ H : Forall2 expr_equiv ?es' (map val_to_expr vs) |- _ ] =>
+        exists (ETuple (e' :: es')); split;
+        [ eapply multi_step_trans;
+          [ apply ms_tuple_head; exact Hms'
+          | apply ms_tuple_tail; [exact Hv' |];
+            rewrite close_tuple in Hms2'; exact Hms2' ]
+        | constructor; constructor; assumption ]
+      end.
+    + (* val_good *)
+      constructor. constructor; assumption.
+
+  (* E_TupleIndex: eval e => VTuple vs, nth_error vs i = Some v *)
+  - eclosed_prep. apply_IH.
+    split.
+    + rewrite close_tupleindex.
+      destruct Hms as [e' [Hms' Heq']].
+      simpl in Heq'. inversion Heq'; subst.
+      (* e' ≡ ETuple (map val_to_expr vs) *)
+      assert (Hv' : is_value e').
+      { eapply expr_equiv_is_value. apply expr_equiv_sym; eassumption. apply val_to_expr_is_value. }
+      exists (nth_default EUnit (map val_to_expr vs) i). split.
+      * eapply multi_step_trans.
+        -- apply ms_tupleindex1; eassumption.
+        -- eapply MS_Step; [| apply MS_Refl].
+           apply S_TupleIndexVal.
+           ++ inversion Heq'; subst.
+              eapply forall_value_transfer_rev; [apply forall_val_to_expr_is_value | eassumption].
+           ++ rewrite nth_error_map. rewrite H. reflexivity.
+      * admit.
+    + eapply Forall_nth_error.
+      * inversion Hvg; subst. eassumption.
+      * eassumption.
+Admitted.
 
 (** ** Wrapper: the original theorem follows from the generalized one *)
 

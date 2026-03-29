@@ -78,6 +78,12 @@ Fixpoint subst (x : string) (s : expr) (e : expr) : expr :=
                     :: subst_branches rest
                 end) branches)
   | EStrIndex e1 e2 => EStrIndex (subst x s e1) (subst x s e2)
+  | ETuple es => ETuple ((fix subst_list (l : list expr) : list expr :=
+                   match l with
+                   | [] => []
+                   | e0 :: rest => subst x s e0 :: subst_list rest
+                   end) es)
+  | ETupleIndex e1 i => ETupleIndex (subst x s e1) i
   end.
 
 (** ** Value predicate on expressions *)
@@ -91,7 +97,8 @@ Inductive is_value : expr -> Prop :=
   | V_Fix    : forall f x t1 t2 body, is_value (EFix f x t1 t2 body)
   | V_Array  : forall es, Forall is_value es -> is_value (EArray es)
   | V_Record : forall fes, Forall (fun fe => is_value (snd fe)) fes -> is_value (ERecord fes)
-  | V_Construct : forall tag v t, is_value v -> is_value (EConstruct tag v t).
+  | V_Construct : forall tag v t, is_value v -> is_value (EConstruct tag v t)
+  | V_Tuple : forall es, Forall is_value es -> is_value (ETuple es).
 
 (** ** Total binary operation on expression values
 
@@ -309,7 +316,20 @@ Inductive step : expr -> expr -> Prop :=
       step (EStrIndex v1 e2) (EStrIndex v1 e2')
   | S_StrIndexVal : forall s n,
       step (EStrIndex (EString s) (EInt n))
-           (EString (String.substring (Z.to_nat n) 1 s)).
+           (EString (String.substring (Z.to_nat n) 1 s))
+  | S_TupleHead : forall e e' es,
+      step e e' ->
+      step (ETuple (e :: es)) (ETuple (e' :: es))
+  | S_TupleTail : forall v es es',
+      is_value v -> step (ETuple es) (ETuple es') ->
+      step (ETuple (v :: es)) (ETuple (v :: es'))
+  | S_TupleIndex1 : forall e e' i,
+      step e e' ->
+      step (ETupleIndex e i) (ETupleIndex e' i)
+  | S_TupleIndexVal : forall vs i v,
+      Forall is_value vs ->
+      nth_error vs i = Some v ->
+      step (ETupleIndex (ETuple vs) i) v.
 
 (** ** Canonical forms for expressions *)
 
@@ -373,6 +393,25 @@ Lemma canonical_forms_variant : forall e fts,
 Proof.
   intros e fts Ht Hv. inversion Hv; subst; try solve [inversion Ht].
   eexists _, _, _. split; [reflexivity | assumption].
+Qed.
+
+Lemma step_tuple_form : forall es es',
+  step (ETuple es) (ETuple es') ->
+  exists e e' rest, es = e :: rest /\ (step e e' /\ es' = e' :: rest \/
+                                       (is_value e /\ step (ETuple rest) (ETuple es'))).
+Proof.
+  intros es es' Hstep.
+  inversion Hstep; subst.
+  - (* S_TupleHead *) eexists _, _, _. split; [reflexivity|]. left. split; assumption.
+  - (* S_TupleTail *) eexists _, _, _. split; [reflexivity|]. right. split; [assumption | assumption].
+Qed.
+
+Lemma canonical_forms_tuple : forall e ts,
+  has_type CtxNil e (TTuple ts) -> is_value e ->
+  exists vs, e = ETuple vs /\ Forall is_value vs.
+Proof.
+  intros e ts Ht Hv. inversion Hv; subst; try solve [inversion Ht].
+  eexists _. split; [reflexivity | assumption].
 Qed.
 
 (** ** Totality of apply_binop on well-typed inputs *)
@@ -742,4 +781,31 @@ Proof.
         exists (EStrIndex e1 e2'). apply S_StrIndex2; assumption.
     + (* e1 steps *)
       exists (EStrIndex e1' e2). apply S_StrIndex1. assumption.
+  - (* T_TupleNil *)
+    left. constructor. constructor.
+  - (* T_TupleCons *)
+    rename e into ehd. rename es into etl.
+    destruct IHHtype1 as [Hv1 | [e1' Hs1]]; [reflexivity | |].
+    + (* head is value *)
+      destruct IHHtype2 as [Hv2 | [etl' Hstl]]; [reflexivity | |].
+      * (* tail is also value ETuple *)
+        left. inversion Hv2; subst. constructor. constructor; assumption.
+      * (* tail steps *)
+        right. exists (ETuple (ehd :: etl')). apply S_TupleTail; assumption.
+    + (* head steps *)
+      right. exists (ETuple (e1' :: etl)). apply S_TupleHead. assumption.
+  - (* T_TupleIndex *)
+    right.
+    destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
+    + apply canonical_forms_tuple in Htype as [vs [? HF]]; [| assumption]; subst.
+      (* nth_error ts i = Some t implies i < length ts = length vs *)
+      assert (Hsome : exists v, nth_error vs i = Some v).
+      { clear HF. revert vs Htype.
+        induction i; intros vs Ht.
+        - inversion Ht; subst; [discriminate | simpl; eauto].
+        - inversion Ht; subst; [destruct i; discriminate |].
+          simpl. apply IHi. assumption. }
+      destruct Hsome as [v Hnth].
+      eexists. apply S_TupleIndexVal; [assumption | assumption].
+    + exists (ETupleIndex e' i). apply S_TupleIndex1. assumption.
 Qed.
