@@ -48,7 +48,7 @@ shadow str_ends_with {
     assert (not (str_ends_with "hello" "la"))
 }
 
-fn str_index_of(s: string, needle: string, start: int) -> int {
+fn str_index_of_from(s: string, needle: string, start: int) -> int {
     if (coverage_enabled) { (coverage_record "scripts/userguide_build_html.nano" 44 5) }
     let ls: int = (str_length s)
     let ln: int = (str_length needle)
@@ -63,9 +63,9 @@ fn str_index_of(s: string, needle: string, start: int) -> int {
     return -1
 }
 
-shadow str_index_of {
-    assert (== (str_index_of "hello" "ll" 0) 2)
-    assert (== (str_index_of "hello" "zz" 0) -1)
+shadow str_index_of_from {
+    assert (== (str_index_of_from "hello" "ll" 0) 2)
+    assert (== (str_index_of_from "hello" "zz" 0) -1)
 }
 
 fn strip_prefix(s: string, prefix: string) -> string {
@@ -85,7 +85,7 @@ fn rel_from_src(path: string, src_dir: string) -> string {
         return (str_substring path (str_length prefix) (- (str_length path) (str_length prefix)))
     }
     let marker: string = (+ "/" prefix)
-    let idx: int = (str_index_of path marker 0)
+    let idx: int = (str_index_of_from path marker 0)
     if (!= idx -1) {
         let start: int = (+ idx (str_length marker))
         return (str_substring path start (- (str_length path) start))
@@ -335,7 +335,7 @@ fn render_inline(text: string) -> string {
     let n: int = (str_length text)
     while (< i n) {
         /* Find next [ but skip any inside backticks */
-        let mut open_idx: int = (str_index_of text "[" i)
+        let mut open_idx: int = (str_index_of_from text "[" i)
         /* Check if this [ is inside backticks by counting backticks before it */
         while (> open_idx -1) {
             let segment: string = (str_substring text i (- open_idx i))
@@ -350,7 +350,7 @@ fn render_inline(text: string) -> string {
             }
             /* If odd number of backticks before [, we're inside code - skip this [ */
             if (== (% tick_count 2) 1) {
-                set open_idx (str_index_of text "[" (+ open_idx 1))
+                set open_idx (str_index_of_from text "[" (+ open_idx 1))
             } else {
                 break
             }
@@ -360,12 +360,12 @@ fn render_inline(text: string) -> string {
             return out
         }
         set out (+ out (inline_code (debug_substring text i (- open_idx i) "render_inline before_link")))
-        let close_idx: int = (str_index_of text "](" (+ open_idx 1))
+        let close_idx: int = (str_index_of_from text "](" (+ open_idx 1))
         if (== close_idx -1) {
             set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_close")))
             return out
         }
-        let end_idx: int = (str_index_of text ")" (+ close_idx 2))
+        let end_idx: int = (str_index_of_from text ")" (+ close_idx 2))
         if (== end_idx -1) {
             set out (+ out (inline_code (debug_substring text open_idx (- n open_idx) "render_inline missing_end")))
             return out
@@ -1160,9 +1160,9 @@ fn expand_examples_inline(md_text: string) -> string {
         if (str_starts_with trimmed "- [language/") {
             if (str_contains line ".nano](https://") {
                 /* Extract path from link: - [language/file.nano](URL) */
-                let bracket_pos: int = (str_index_of line "[language/" 0)
+                let bracket_pos: int = (str_index_of_from line "[language/" 0)
                 if (> bracket_pos -1) {
-                    let paren_pos: int = (str_index_of line "](" bracket_pos)
+                    let paren_pos: int = (str_index_of_from line "](" bracket_pos)
                     if (> paren_pos -1) {
                         let path_len: int = (- (- paren_pos bracket_pos) 1)
                         let local_path: string = (str_substring line (+ bracket_pos 1) path_len)
@@ -1175,7 +1175,7 @@ fn expand_examples_inline(md_text: string) -> string {
                             /* Inline all examples regardless of size */
                             if true {
                                 /* Extract just filename */
-                                let slash_pos: int = (str_index_of local_path "/" 0)
+                                let slash_pos: int = (str_index_of_from local_path "/" 0)
                                 let fname_start: int = (+ slash_pos 1)
                                 let fname_len: int = (- (str_length local_path) fname_start)
                                 let filename: string = (str_substring local_path fname_start fname_len)
@@ -1190,7 +1190,7 @@ fn expand_examples_inline(md_text: string) -> string {
                                 
                                 /* Keep GitHub link */
                                 let url_start: int = (+ paren_pos 2)
-                                let url_end: int = (str_index_of line ")" url_start)
+                                let url_end: int = (str_index_of_from line ")" url_start)
                                 let url_len: int = (- url_end url_start)
                                 let gh_url: string = (str_substring line url_start url_len)
                                 set out (array_push out (+ "[View on GitHub](" (+ gh_url ")")))
@@ -1230,7 +1230,7 @@ struct ExampleLink {
 fn is_example_link_line(line: string) -> bool {
     let trimmed: string = (trim line)
     if (not (str_starts_with trimmed "- [")) { return false }
-    if (== (str_index_of trimmed ".nano](" 0) -1) { return false }
+    if (== (str_index_of_from trimmed ".nano](" 0) -1) { return false }
     return true
 }
 
@@ -1240,14 +1240,14 @@ shadow is_example_link_line {
 }
 
 fn parse_example_link(line: string) -> ExampleLink {
-    let open_idx: int = (str_index_of line "[" 0)
-    let close_idx: int = (str_index_of line "](" open_idx)
+    let open_idx: int = (str_index_of_from line "[" 0)
+    let close_idx: int = (str_index_of_from line "](" open_idx)
     if (or (== open_idx -1) (== close_idx -1)) {
         return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
     }
     let local_path: string = (str_substring line (+ open_idx 1) (- close_idx (+ open_idx 1)))
     let url_start: int = (+ close_idx 2)
-    let url_end: int = (str_index_of line ")" url_start)
+    let url_end: int = (str_index_of_from line ")" url_start)
     if (== url_end -1) {
         return ExampleLink { ok: false, local_path: "", url: "", filename: "" }
     }
