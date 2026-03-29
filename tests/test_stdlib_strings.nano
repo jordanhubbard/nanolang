@@ -96,22 +96,8 @@ shadow test_str_index_of {
     assert (== (test_str_index_of) 0)
 }
 
-fn test_original_builtins() -> int {
-    let r1: int = (test_str_starts_with)
-    let r2: int = (test_str_ends_with)
-    let r3: int = (test_str_index_of)
-    return (+ (+ r1 r2) r3)
-}
-
-shadow test_original_builtins {
-    assert (== (test_original_builtins) 0)
-}
-
-/* Test: new stdlib string functions
- * Note: str_starts_with, str_ends_with, str_index_of are not tested here because
- * they are already defined as user functions in the bootstrap compiler source
- * (src_nano/typecheck.nano and src_nano/transpiler.nano) and cannot be registered
- * as builtins until those internal definitions are renamed.
+/* Test: stdlib string builtins (str_starts_with, str_ends_with, str_index_of,
+ * trimming helpers, case conversion, replace/split/join)
  */
 
 fn test_str_trim() -> string {
@@ -192,24 +178,19 @@ shadow test_str_join {
 }
 
 fn main() -> int {
-    (println "Testing new string functions...")
-
-    (println (str_trim "  hello  "))
-    (println (str_trim_left "  hello  "))
-    (println (str_trim_right "  hello  "))
-    (println (str_to_lower "HELLO WORLD"))
-    (println (str_to_upper "hello world"))
-    (println (str_replace "foo bar foo" "foo" "baz"))
-
-    let parts = (str_split "a,b,c" ",")
-    (println (int_to_string (array_length parts)))
-
-    let mut arr: array<string> = []
-    set arr (array_push arr "x")
-    set arr (array_push arr "y")
-    (println (str_join arr "+"))
-
-    return 0
+    let mut failures: int = 0
+    set failures (+ failures (test_str_starts_with))
+    set failures (+ failures (test_str_ends_with))
+    set failures (+ failures (test_str_index_of))
+    set failures (+ failures (test_str_trim))
+    set failures (+ failures (test_str_trim_left))
+    set failures (+ failures (test_str_trim_right))
+    set failures (+ failures (test_str_to_lower))
+    set failures (+ failures (test_str_to_upper))
+    set failures (+ failures (test_str_replace))
+    set failures (+ failures (test_str_split))
+    set failures (+ failures (test_str_join))
+    return failures
 }
 
 shadow main {
