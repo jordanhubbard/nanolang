@@ -65,7 +65,7 @@ fn test_four_mixed() -> bool {
     let text = t.2
     let fval = t.3
 
-    return (and flag (== num 42))
+    return (and (and (and flag (== num 42)) (== text "test")) (> fval 2.0))
 }
 
 shadow test_four_mixed {
