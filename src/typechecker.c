@@ -763,10 +763,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         if (elem == TYPE_UNKNOWN || elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
                             return TYPE_ARRAY;
                         }
-                        fprintf(stderr, "Error at line %d, column %d: Unary minus requires array<int> or array<float>\n", expr->line, expr->column);
+                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                            "Unary minus requires array<int> or array<float>",
+                            "Only numeric arrays support element-wise negation");
                         return TYPE_UNKNOWN;
                     }
-                    fprintf(stderr, "Error at line %d, column %d: Unary minus requires numeric type\n", expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "Unary minus requires a numeric type (int or float)",
+                        "Check that the operand is an int or float variable");
                     return TYPE_UNKNOWN;
                 }
                 
@@ -1008,14 +1012,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_QUESTION) {
                 /* ? try-propagate operator: expr? returns the Ok value type */
                 if (arg_count != 1) {
-                    fprintf(stderr, "Error at line %d, column %d: ? operator requires exactly 1 operand\n",
-                            expr->line, expr->column);
+                    emit_context_error("SYNTAX ERROR", expr->line, expr->column, 1,
+                        "? operator requires exactly 1 operand",
+                        "Use 'expr?' — the ? operator is a postfix unary operator");
                     return TYPE_UNKNOWN;
                 }
                 Type inner_type = check_expression(expr->as.prefix_op.args[0], env);
                 if (inner_type != TYPE_UNION) {
-                    fprintf(stderr, "Error at line %d, column %d: ? operator requires a Result union type\n",
-                            expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "? operator requires a Result union type",
+                        "Declare your union with Ok and Err variants: 'union Result { Ok { val: T }, Err { msg: string } }'");
                     return TYPE_UNKNOWN;
                 }
                 /* Look up the union definition to find the Ok variant's first field type */
@@ -1044,8 +1050,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* First, check the inner function call */
                 Type inner_type = check_expression(expr->as.call.func_expr, env);
                 if (inner_type != TYPE_FUNCTION) {
-                    fprintf(stderr, "Error at line %d, column %d: Expression does not return a function\n",
-                            expr->line, expr->column);
+                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        "Expression does not return a function",
+                        "Only function-typed values can be called — check the return type of the inner expression");
                     return TYPE_UNKNOWN;
                 }
                 
