@@ -423,6 +423,33 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    return strcmp(s1, s2) == 0;\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "/* String starts_with */\n");
+    sb_append(sb, "static bool nl_str_starts_with(const char* s, const char* prefix) {\n");
+    sb_append(sb, "    if (!s || !prefix) return false;\n");
+    sb_append(sb, "    size_t slen = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t plen = strnlen(prefix, 64*1024*1024);\n");
+    sb_append(sb, "    if (plen > slen) return false;\n");
+    sb_append(sb, "    return strncmp(s, prefix, plen) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* String ends_with */\n");
+    sb_append(sb, "static bool nl_str_ends_with(const char* s, const char* suffix) {\n");
+    sb_append(sb, "    if (!s || !suffix) return false;\n");
+    sb_append(sb, "    size_t slen = strnlen(s, 64*1024*1024);\n");
+    sb_append(sb, "    size_t suflen = strnlen(suffix, 64*1024*1024);\n");
+    sb_append(sb, "    if (suflen > slen) return false;\n");
+    sb_append(sb, "    if (suflen == 0) return true;\n");
+    sb_append(sb, "    return strncmp(s + slen - suflen, suffix, suflen) == 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* String index_of - returns index of first occurrence of needle, or -1 */\n");
+    sb_append(sb, "static int64_t nl_str_index_of(const char* haystack, const char* needle) {\n");
+    sb_append(sb, "    if (!haystack || !needle) return -1;\n");
+    sb_append(sb, "    const char* p = strstr(haystack, needle);\n");
+    sb_append(sb, "    if (!p) return -1;\n");
+    sb_append(sb, "    return (int64_t)(p - haystack);\n");
+    sb_append(sb, "}\n\n");
+
     /* Bytes (array<u8>) helpers */
     sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s) {\n");
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_U8);\n");
@@ -510,10 +537,66 @@ void generate_math_utility_builtins(StringBuilder *sb) {
 
     /* Array operations */
     sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
-    
-    sb_append(sb, "/* Array struct */\n");
-    /* Old nl_array operations removed - now using DynArray exclusively */
-    
+
+    /* Array sort (integer ascending, in-place on a copy) */
+    sb_append(sb, "static int nl_array_sort_cmp_int(const void* a, const void* b) {\n");
+    sb_append(sb, "    int64_t x = *(const int64_t*)a;\n");
+    sb_append(sb, "    int64_t y = *(const int64_t*)b;\n");
+    sb_append(sb, "    return (x > y) - (x < y);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static DynArray* nl_array_sort(DynArray* arr) {\n");
+    sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    DynArray* out = dyn_array_clone(arr);\n");
+    sb_append(sb, "    if (!out) return arr;\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(out);\n");
+    sb_append(sb, "    if (len <= 1) return out;\n");
+    sb_append(sb, "    ElementType t = dyn_array_get_elem_type(out);\n");
+    sb_append(sb, "    if (t == ELEM_INT) {\n");
+    sb_append(sb, "        qsort(out->data, (size_t)len, sizeof(int64_t), nl_array_sort_cmp_int);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Array reverse (returns a new array) */
+    sb_append(sb, "static DynArray* nl_array_reverse(DynArray* arr) {\n");
+    sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
+    sb_append(sb, "    ElementType t = dyn_array_get_elem_type(arr);\n");
+    sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
+    sb_append(sb, "    if (!out) return NULL;\n");
+    sb_append(sb, "    for (int64_t i = len - 1; i >= 0; i--) {\n");
+    sb_append(sb, "        switch (t) {\n");
+    sb_append(sb, "            case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;\n");
+    sb_append(sb, "            case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;\n");
+    sb_append(sb, "            default: dyn_array_push_int(out, 0); break;\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Array contains (int elem) */
+    sb_append(sb, "static bool nl_array_contains(DynArray* arr, int64_t elem) {\n");
+    sb_append(sb, "    if (!arr) return false;\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return true;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return false;\n");
+    sb_append(sb, "}\n\n");
+
+    /* Array index_of (int elem, returns -1 if not found) */
+    sb_append(sb, "static int64_t nl_array_index_of(DynArray* arr, int64_t elem) {\n");
+    sb_append(sb, "    if (!arr) return -1;\n");
+    sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
+    sb_append(sb, "    for (int64_t i = 0; i < len; i++) {\n");
+    sb_append(sb, "        if (dyn_array_get_int(arr, i) == elem) return i;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return -1;\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "/* ========== End Array Operations ========== */\n\n");
 
     sb_append(sb, "/* ========== End Math and Utility Built-in Functions ========== */\n\n");

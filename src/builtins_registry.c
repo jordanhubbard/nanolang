@@ -93,7 +93,9 @@ const BuiltinEntry builtin_registry[] = {
     {"str_substring",   "nl_str_substring",  3, {S,I,I,U}, S, OP_STR_SUBSTR,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_contains",    "nl_str_contains",   2, {S,S,U,U}, B, OP_STR_CONTAINS, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_equals",      "nl_str_equals",     2, {S,S,U,U}, B, OP_STR_EQ,       L|BUILTIN_PURE|BUILTIN_INLINE_VM},
-    /* str_index_of: handled by module FFI, not a builtin (VM has vm_str_index_of) */
+    {"str_starts_with", "nl_str_starts_with", 2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"str_ends_with",   "nl_str_ends_with",   2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"str_index_of",    "nl_str_index_of",    2, {S,S,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"char_at",         "char_at",           2, {S,I,U,U}, I, OP_STR_CHAR_AT,  L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"string_from_char","string_from_char",  1, {I,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"string_to_int",   "string_to_int",     1, {S,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
@@ -126,6 +128,11 @@ const BuiltinEntry builtin_registry[] = {
     {"array_map",       "array_map",         2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_filter",    "array_filter",      2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_fold",      "array_fold",        3, {A,U,U,U}, U, OP_NOP, L|BUILTIN_PURE},
+    /* Array utility functions */
+    {"array_sort",      "nl_array_sort",     1, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_reverse",   "nl_array_reverse",  1, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_contains",  "nl_array_contains", 2, {A,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"array_index_of",  "nl_array_index_of", 2, {A,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Hashmap operations ───────────────────────────────────────── */
     {"hashmap_new",     "hashmap_new",       0, {U,U,U,U}, U, OP_NOP, 0},

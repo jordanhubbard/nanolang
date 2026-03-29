@@ -98,3 +98,42 @@ Value builtin_str_equals(Value *args) {
 
     return create_bool(strcmp(args[0].as.string_val, args[1].as.string_val) == 0);
 }
+
+Value builtin_str_starts_with(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_starts_with requires two string arguments\n");
+        return create_void();
+    }
+    const char *s = args[0].as.string_val;
+    const char *prefix = args[1].as.string_val;
+    size_t slen = strlen(s);
+    size_t plen = strlen(prefix);
+    if (plen > slen) return create_bool(false);
+    return create_bool(strncmp(s, prefix, plen) == 0);
+}
+
+Value builtin_str_ends_with(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_ends_with requires two string arguments\n");
+        return create_void();
+    }
+    const char *s = args[0].as.string_val;
+    const char *suffix = args[1].as.string_val;
+    size_t slen = strlen(s);
+    size_t suflen = strlen(suffix);
+    if (suflen > slen) return create_bool(false);
+    if (suflen == 0) return create_bool(true);
+    return create_bool(strncmp(s + slen - suflen, suffix, suflen) == 0);
+}
+
+Value builtin_str_index_of(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "Error: str_index_of requires two string arguments\n");
+        return create_void();
+    }
+    const char *haystack = args[0].as.string_val;
+    const char *needle = args[1].as.string_val;
+    const char *p = strstr(haystack, needle);
+    if (!p) return create_int(-1);
+    return create_int((long long)(p - haystack));
+}

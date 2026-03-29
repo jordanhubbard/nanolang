@@ -9,5 +9,8 @@ Value builtin_str_concat(Value *args);
 Value builtin_str_substring(Value *args);
 Value builtin_str_contains(Value *args);
 Value builtin_str_equals(Value *args);
+Value builtin_str_starts_with(Value *args);
+Value builtin_str_ends_with(Value *args);
+Value builtin_str_index_of(Value *args);
 
 #endif /* EVAL_STRING_H */

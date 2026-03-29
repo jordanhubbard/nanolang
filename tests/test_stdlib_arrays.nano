@@ -1,0 +1,165 @@
+# Tests for array utility builtins: array_sort, array_reverse, array_contains, array_index_of
+
+fn test_array_sort() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 3)
+    set arr (array_push arr 1)
+    set arr (array_push arr 4)
+    set arr (array_push arr 1)
+    set arr (array_push arr 5)
+
+    let sorted: array<int> = (array_sort arr)
+
+    if (!= (array_length sorted) 5) {
+        (println "FAIL: array_sort length")
+        return 1
+    } else {}
+    if (!= (at sorted 0) 1) {
+        (println "FAIL: array_sort [0]")
+        return 1
+    } else {}
+    if (!= (at sorted 1) 1) {
+        (println "FAIL: array_sort [1]")
+        return 1
+    } else {}
+    if (!= (at sorted 2) 3) {
+        (println "FAIL: array_sort [2]")
+        return 1
+    } else {}
+    if (!= (at sorted 3) 4) {
+        (println "FAIL: array_sort [3]")
+        return 1
+    } else {}
+    if (!= (at sorted 4) 5) {
+        (println "FAIL: array_sort [4]")
+        return 1
+    } else {}
+
+    # Original array should be unmodified
+    if (!= (at arr 0) 3) {
+        (println "FAIL: array_sort mutated original")
+        return 1
+    } else {}
+
+    (println "OK: test_array_sort passed")
+    return 0
+}
+
+shadow test_array_sort {
+    assert (== (test_array_sort) 0)
+}
+
+fn test_array_reverse() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 1)
+    set arr (array_push arr 2)
+    set arr (array_push arr 3)
+
+    let rev: array<int> = (array_reverse arr)
+
+    if (!= (array_length rev) 3) {
+        (println "FAIL: array_reverse length")
+        return 1
+    } else {}
+    if (!= (at rev 0) 3) {
+        (println "FAIL: array_reverse [0]")
+        return 1
+    } else {}
+    if (!= (at rev 1) 2) {
+        (println "FAIL: array_reverse [1]")
+        return 1
+    } else {}
+    if (!= (at rev 2) 1) {
+        (println "FAIL: array_reverse [2]")
+        return 1
+    } else {}
+
+    # Empty array reverse
+    let empty: array<int> = []
+    let rev_empty: array<int> = (array_reverse empty)
+    if (!= (array_length rev_empty) 0) {
+        (println "FAIL: array_reverse empty")
+        return 1
+    } else {}
+
+    (println "OK: test_array_reverse passed")
+    return 0
+}
+
+shadow test_array_reverse {
+    assert (== (test_array_reverse) 0)
+}
+
+fn test_array_contains() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 10)
+    set arr (array_push arr 20)
+    set arr (array_push arr 30)
+
+    if (not (array_contains arr 10)) {
+        (println "FAIL: array_contains found first")
+        return 1
+    } else {}
+    if (not (array_contains arr 20)) {
+        (println "FAIL: array_contains found middle")
+        return 1
+    } else {}
+    if (not (array_contains arr 30)) {
+        (println "FAIL: array_contains found last")
+        return 1
+    } else {}
+    if (array_contains arr 99) {
+        (println "FAIL: array_contains not found")
+        return 1
+    } else {}
+
+    (println "OK: test_array_contains passed")
+    return 0
+}
+
+shadow test_array_contains {
+    assert (== (test_array_contains) 0)
+}
+
+fn test_array_index_of() -> int {
+    let mut arr: array<int> = []
+    set arr (array_push arr 10)
+    set arr (array_push arr 20)
+    set arr (array_push arr 30)
+
+    let i0: int = (array_index_of arr 10)
+    if (!= i0 0) {
+        (println "FAIL: array_index_of first element")
+        return 1
+    } else {}
+    let i1: int = (array_index_of arr 20)
+    if (!= i1 1) {
+        (println "FAIL: array_index_of middle element")
+        return 1
+    } else {}
+    let i2: int = (array_index_of arr 30)
+    if (!= i2 2) {
+        (println "FAIL: array_index_of last element")
+        return 1
+    } else {}
+    let i3: int = (array_index_of arr 99)
+    if (!= i3 -1) {
+        (println "FAIL: array_index_of not found")
+        return 1
+    } else {}
+
+    (println "OK: test_array_index_of passed")
+    return 0
+}
+
+shadow test_array_index_of {
+    assert (== (test_array_index_of) 0)
+}
+
+fn main() -> int {
+    let r1: int = (test_array_sort)
+    let r2: int = (test_array_reverse)
+    let r3: int = (test_array_contains)
+    let r4: int = (test_array_index_of)
+    return (+ (+ (+ r1 r2) r3) r4)
+}

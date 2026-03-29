@@ -976,7 +976,7 @@ shadow fn_type_return_type {
 
 /* Create type from string representation */
 fn type_from_string(s: string) -> NSType {
-    if (str_starts_with s "fn(") {
+    if (tc_str_starts_with s "fn(") {
         return NSType {
             kind: TypeKind.TYPE_FUNCTION,
             name: s,
@@ -984,7 +984,7 @@ fn type_from_string(s: string) -> NSType {
             element_type_name: ""
         }
     } else { (print "") }
-    if (str_starts_with s "(") {
+    if (tc_str_starts_with s "(") {
         return NSType {
             kind: TypeKind.TYPE_TUPLE,
             name: s,
@@ -1117,7 +1117,7 @@ shadow tuple_type_string_from_literal {
 }
 
 fn base_type_name(type_str: string) -> string {
-    let lt: int = (str_index_of type_str "<")
+    let lt: int = (tc_str_index_of type_str "<")
     if (== lt -1) {
         return type_str
     } else {
@@ -1182,7 +1182,7 @@ fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
 shadow type_from_string_with_parser { assert true }
 
 /* Find first occurrence of character in string */
-fn str_index_of(s: string, ch: string) -> int {
+fn tc_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
     let mut i: int = 0
     
@@ -1199,17 +1199,17 @@ fn str_index_of(s: string, ch: string) -> int {
     return -1
 }
 
-shadow str_index_of {
-    assert (== (str_index_of "hello" "e") 1)
-    assert (== (str_index_of "List<Point>" "<") 4)
-    assert (== (str_index_of "hello" "x") -1)
+shadow tc_str_index_of {
+    assert (== (tc_str_index_of "hello" "e") 1)
+    assert (== (tc_str_index_of "List<Point>" "<") 4)
+    assert (== (tc_str_index_of "hello" "x") -1)
 }
 
 /* Extract element type from List<T> string */
 fn extract_list_element_type(s: string) -> string {
     /* "List<Point>" -> "Point" */
-    let start: int = (+ (str_index_of s "<") 1)
-    let end: int = (str_index_of s ">")
+    let start: int = (+ (tc_str_index_of s "<") 1)
+    let end: int = (tc_str_index_of s ">")
     if (and (> start 0) (> end start)) {
         return (str_substring s start (- end start))
     } else {
@@ -1223,7 +1223,7 @@ shadow extract_list_element_type {
 }
 
 /* Check if string starts with prefix */
-pub fn str_starts_with(s: string, prefix: string) -> bool {
+pub fn tc_str_starts_with(s: string, prefix: string) -> bool {
     let prefix_len: int = (str_length prefix)
     if (> prefix_len (str_length s)) {
         return false
@@ -1233,9 +1233,9 @@ pub fn str_starts_with(s: string, prefix: string) -> bool {
     }
 }
 
-shadow str_starts_with {
-    assert (str_starts_with "list_int_new" "list_")
-    assert (not (str_starts_with "hello" "list_"))
+shadow tc_str_starts_with {
+    assert (tc_str_starts_with "list_int_new" "list_")
+    assert (not (tc_str_starts_with "hello" "list_"))
 }
 
 /* Find last occurrence of character in string */
@@ -1336,6 +1336,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "char_at") { return true } else { (print "") }
     if (== fn_name "string_from_char") { return true } else { (print "") }
     if (== fn_name "str_starts_with") { return true } else { (print "") }
+    if (== fn_name "str_ends_with") { return true } else { (print "") }
     if (== fn_name "tc_str_ends_with") { return true } else { (print "") }
     if (== fn_name "str_index_of") { return true } else { (print "") }
     if (== fn_name "str_last_index_of") { return true } else { (print "") }
@@ -1357,6 +1358,10 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "array_set") { return true } else { (print "") }
     if (== fn_name "array_push") { return true } else { (print "") }
     if (== fn_name "array_slice") { return true } else { (print "") }
+    if (== fn_name "array_sort") { return true } else { (print "") }
+    if (== fn_name "array_reverse") { return true } else { (print "") }
+    if (== fn_name "array_contains") { return true } else { (print "") }
+    if (== fn_name "array_index_of") { return true } else { (print "") }
     if (== fn_name "map") { return true } else { (print "") }
     if (== fn_name "reduce") { return true } else { (print "") }
     
@@ -1503,6 +1508,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "char_at") { return (type_int) } else { (print "") }
     if (== fn_name "string_from_char") { return (type_string) } else { (print "") }
     if (== fn_name "str_starts_with") { return (type_bool) } else { (print "") }
+    if (== fn_name "str_ends_with") { return (type_bool) } else { (print "") }
     if (== fn_name "tc_str_ends_with") { return (type_bool) } else { (print "") }
     if (== fn_name "str_index_of") { return (type_int) } else { (print "") }
     if (== fn_name "str_last_index_of") { return (type_int) } else { (print "") }
@@ -1520,6 +1526,10 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "array_length") { return (type_int) } else { (print "") }
     if (== fn_name "array_set") { return (type_void) } else { (print "") }
     if (== fn_name "array_push") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "array_sort") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "array_reverse") { return (type_array 0 "") } else { (print "") }
+    if (== fn_name "array_contains") { return (type_bool) } else { (print "") }
+    if (== fn_name "array_index_of") { return (type_int) } else { (print "") }
     if (== fn_name "at") { return (type_unknown_named "array_elem") } else { (print "") }
     if (== fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
 
@@ -2246,7 +2256,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     let mut pat_i: int = 0
     while (< pat_i m.arm_count) {
         let pv: string = (at m.arm_variants pat_i)
-        if (str_starts_with pv "INT:") {
+        if (tc_str_starts_with pv "INT:") {
             set has_int_patterns true
         } else { (print "") }
         set pat_i (+ pat_i 1)
@@ -2408,7 +2418,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             return builtin_type
         } else {
             /* Check if it's a List<T> function (only for functions starting with "list_") */
-            if (str_starts_with fn_name "list_") {
+            if (tc_str_starts_with fn_name "list_") {
                 let list_type: NSType = (check_list_function_call fn_name)
                 if (!= list_type.kind TypeKind.TYPE_UNKNOWN) {
                     return list_type
@@ -2717,7 +2727,7 @@ fn array_elem_type_from_array_decl(t: string) -> string {
     /* Check nested arrays FIRST since "array<array<int>>" also contains "array<int>" */
     if (str_contains t "array<array<") {
         /* Extract the inner array type: array<array<int>> -> array<int> */
-        let start: int = (+ (str_index_of t "array<") 6)
+        let start: int = (+ (tc_str_index_of t "array<") 6)
         let end: int = (str_last_index_of t ">")
         if (and (>= start 0) (> end start)) {
             return (str_substring t start (- end start))
@@ -2739,7 +2749,7 @@ fn array_elem_type_from_array_decl(t: string) -> string {
                     } else {
                         /* Generic: array<SomeType> -> "SomeType" */
                         if (str_contains t "array<") {
-                            let lt: int = (str_index_of t "<")
+                            let lt: int = (tc_str_index_of t "<")
                             let gt: int = (str_last_index_of t ">")
                             if (and (>= lt 0) (> gt lt)) {
                                 let start: int = (+ lt 1)
