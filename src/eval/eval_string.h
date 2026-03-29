@@ -9,5 +9,11 @@ Value builtin_str_concat(Value *args);
 Value builtin_str_substring(Value *args);
 Value builtin_str_contains(Value *args);
 Value builtin_str_equals(Value *args);
+Value builtin_str_trim(Value *args);
+Value builtin_str_trim_left(Value *args);
+Value builtin_str_trim_right(Value *args);
+Value builtin_str_to_lower(Value *args);
+Value builtin_str_to_upper(Value *args);
+Value builtin_str_replace(Value *args);
 
 #endif /* EVAL_STRING_H */
