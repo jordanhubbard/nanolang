@@ -98,9 +98,9 @@ const BuiltinEntry builtin_registry[] = {
     {"str_trim",        "nl_str_trim",       1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_trim_left",   "nl_str_trim_left",  1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_trim_right",  "nl_str_trim_right", 1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
-    /* str_starts_with, str_ends_with, str_index_of are defined in src_nano bootstrap
-     * files (typecheck.nano, transpiler.nano) — cannot register as builtins until those
-     * internal definitions are renamed. C implementations (nl_str_*) are still emitted. */
+    {"str_starts_with", "nl_str_starts_with", 2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"str_ends_with",   "nl_str_ends_with",   2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"str_index_of",    "nl_str_index_of",    2, {S,S,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"str_replace",     "nl_str_replace",    3, {S,S,S,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_to_lower",    "nl_str_to_lower",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_to_upper",    "nl_str_to_upper",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
@@ -136,6 +136,11 @@ const BuiltinEntry builtin_registry[] = {
     {"array_map",       "array_map",         2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_filter",    "array_filter",      2, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"array_fold",      "array_fold",        3, {A,U,U,U}, U, OP_NOP, L|BUILTIN_PURE},
+    /* Array utility functions */
+    {"array_sort",      "nl_array_sort",     1, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_reverse",   "nl_array_reverse",  1, {A,U,U,U}, A, OP_NOP, L|BUILTIN_PURE},
+    {"array_contains",  "nl_array_contains", 2, {A,U,U,U}, B, OP_NOP, L|BUILTIN_PURE},
+    {"array_index_of",  "nl_array_index_of", 2, {A,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
 
     /* ── Hashmap operations ───────────────────────────────────────── */
     {"hashmap_new",     "hashmap_new",       0, {U,U,U,U}, U, OP_NOP, 0},

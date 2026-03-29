@@ -493,6 +493,7 @@ Token *tokenize(const char *source, int *token_count) {
             case '%': tokens[count++] = create_token(TOKEN_PERCENT, NULL, line, column); i++; break;
             case '<': tokens[count++] = create_token(TOKEN_LT, NULL, line, column); i++; break;
             case '>': tokens[count++] = create_token(TOKEN_GT, NULL, line, column); i++; break;
+            case '?': tokens[count++] = create_token(TOKEN_QUESTION, NULL, line, column); i++; break;
             default:
                 fprintf(stderr, "Error: Unknown character '%c' at line %d\n", source[i], line);
                 i++;
@@ -584,6 +585,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_UNSAFE: return "UNSAFE";
         case TOKEN_RESOURCE: return "RESOURCE";
         case TOKEN_PIPE: return "PIPE";
+        case TOKEN_QUESTION: return "QUESTION";
         default: return "UNKNOWN";
     }
 }

@@ -1338,6 +1338,131 @@ static Value builtin_array_remove_at(Value *args) {
     return args[0];
 }
 
+static Value builtin_array_sort(Value *args) {
+    /* array_sort(array) -> array — returns sorted copy (integers ascending) */
+    if (args[0].type == VAL_ARRAY) {
+        /* Empty static array — return new empty dynamic array */
+        DynArray *out = dyn_array_new(ELEM_INT);
+        return create_dyn_array(out);
+    }
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_sort() requires a dynamic array\n");
+        return create_void();
+    }
+    DynArray *arr = args[0].as.dyn_array_val;
+    DynArray *out = dyn_array_clone(arr);
+    if (!out) return args[0];
+    int64_t len = dyn_array_length(out);
+    if (len <= 1) return create_dyn_array(out);
+    if (dyn_array_get_elem_type(out) == ELEM_INT) {
+        /* Simple insertion sort for interpreter correctness */
+        for (int64_t i = 1; i < len; i++) {
+            int64_t key = dyn_array_get_int(out, i);
+            int64_t j = i - 1;
+            while (j >= 0 && dyn_array_get_int(out, j) > key) {
+                dyn_array_set_int(out, j + 1, dyn_array_get_int(out, j));
+                j--;
+            }
+            dyn_array_set_int(out, j + 1, key);
+        }
+    }
+    return create_dyn_array(out);
+}
+
+static Value builtin_array_reverse(Value *args) {
+    /* array_reverse(array) -> array — returns reversed copy */
+    if (args[0].type == VAL_ARRAY) {
+        /* Empty static array — return new empty dynamic array */
+        DynArray *out = dyn_array_new(ELEM_INT);
+        return create_dyn_array(out);
+    }
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_reverse() requires a dynamic array\n");
+        return create_void();
+    }
+    DynArray *arr = args[0].as.dyn_array_val;
+    int64_t len = dyn_array_length(arr);
+    ElementType t = dyn_array_get_elem_type(arr);
+    DynArray *out = dyn_array_new(t);
+    if (!out) return create_void();
+    for (int64_t i = len - 1; i >= 0; i--) {
+        switch (t) {
+            case ELEM_INT:    dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
+            case ELEM_FLOAT:  dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
+            case ELEM_BOOL:   dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
+            case ELEM_STRING: dyn_array_push_string(out, dyn_array_get_string(arr, i)); break;
+            default: dyn_array_push_int(out, 0); break;
+        }
+    }
+    return create_dyn_array(out);
+}
+
+static Value builtin_array_contains(Value *args) {
+    /* array_contains(array, elem) -> bool */
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_contains() requires a dynamic array\n");
+        return create_bool(false);
+    }
+    DynArray *arr = args[0].as.dyn_array_val;
+    int64_t len = dyn_array_length(arr);
+    ElementType t = dyn_array_get_elem_type(arr);
+    for (int64_t i = 0; i < len; i++) {
+        switch (t) {
+            case ELEM_INT:
+                if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_bool(true);
+                break;
+            case ELEM_FLOAT:
+                if (args[1].type == VAL_FLOAT && dyn_array_get_float(arr, i) == args[1].as.float_val)
+                    return create_bool(true);
+                break;
+            case ELEM_BOOL:
+                if (args[1].type == VAL_BOOL && dyn_array_get_bool(arr, i) == args[1].as.bool_val)
+                    return create_bool(true);
+                break;
+            case ELEM_STRING:
+                if (args[1].type == VAL_STRING && strcmp(dyn_array_get_string(arr, i), args[1].as.string_val) == 0)
+                    return create_bool(true);
+                break;
+            default: break;
+        }
+    }
+    return create_bool(false);
+}
+
+static Value builtin_array_index_of(Value *args) {
+    /* array_index_of(array, elem) -> int (-1 if not found) */
+    if (args[0].type != VAL_DYN_ARRAY) {
+        fprintf(stderr, "Error: array_index_of() requires a dynamic array\n");
+        return create_int(-1);
+    }
+    DynArray *arr = args[0].as.dyn_array_val;
+    int64_t len = dyn_array_length(arr);
+    ElementType t = dyn_array_get_elem_type(arr);
+    for (int64_t i = 0; i < len; i++) {
+        switch (t) {
+            case ELEM_INT:
+                if (args[1].type == VAL_INT && dyn_array_get_int(arr, i) == args[1].as.int_val)
+                    return create_int(i);
+                break;
+            case ELEM_FLOAT:
+                if (args[1].type == VAL_FLOAT && dyn_array_get_float(arr, i) == args[1].as.float_val)
+                    return create_int(i);
+                break;
+            case ELEM_BOOL:
+                if (args[1].type == VAL_BOOL && dyn_array_get_bool(arr, i) == args[1].as.bool_val)
+                    return create_int(i);
+                break;
+            case ELEM_STRING:
+                if (args[1].type == VAL_STRING && strcmp(dyn_array_get_string(arr, i), args[1].as.string_val) == 0)
+                    return create_int(i);
+                break;
+            default: break;
+        }
+    }
+    return create_int(-1);
+}
+
 /* ==========================================================================
  * Higher-Order Array Functions (map, filter, reduce)
  * ========================================================================== */
@@ -2847,6 +2972,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_substring") == 0) return builtin_str_substring(args);
     if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
     if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
+    if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
+    if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
+    if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
     if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
     if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
     if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);
@@ -3048,6 +3176,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
     if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
+    if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
+    if (strcmp(name, "array_reverse") == 0) return builtin_array_reverse(args);
+    if (strcmp(name, "array_contains") == 0) return builtin_array_contains(args);
+    if (strcmp(name, "array_index_of") == 0) return builtin_array_index_of(args);
     
     /* list_int operations - delegate to C runtime */
     if (strcmp(name, "list_int_new") == 0) {

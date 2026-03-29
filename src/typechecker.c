@@ -1005,6 +1005,36 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_BOOL;
             }
 
+            if (op == TOKEN_QUESTION) {
+                /* ? try-propagate operator: expr? returns the Ok value type */
+                if (arg_count != 1) {
+                    fprintf(stderr, "Error at line %d, column %d: ? operator requires exactly 1 operand\n",
+                            expr->line, expr->column);
+                    return TYPE_UNKNOWN;
+                }
+                Type inner_type = check_expression(expr->as.prefix_op.args[0], env);
+                if (inner_type != TYPE_UNION) {
+                    fprintf(stderr, "Error at line %d, column %d: ? operator requires a Result union type\n",
+                            expr->line, expr->column);
+                    return TYPE_UNKNOWN;
+                }
+                /* Look up the union definition to find the Ok variant's first field type */
+                const char *union_name = get_struct_type_name(expr->as.prefix_op.args[0], env);
+                if (union_name) {
+                    UnionDef *udef = env_get_union(env, union_name);
+                    if (udef) {
+                        for (int vi = 0; vi < udef->variant_count; vi++) {
+                            if (strcmp(udef->variant_names[vi], "Ok") == 0) {
+                                if (udef->variant_field_counts[vi] > 0) {
+                                    return udef->variant_field_types[vi][0];
+                                }
+                            }
+                        }
+                    }
+                }
+                return TYPE_UNKNOWN;
+            }
+
             return TYPE_UNKNOWN;
         }
 

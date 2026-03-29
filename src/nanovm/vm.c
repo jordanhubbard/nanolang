@@ -817,6 +817,7 @@ VmTrap vm_core_execute(VmState *vm) {
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
             new_frame->module = vm->module;
+            new_frame->current_line = 0;
 
             /* Save current execution context */
             frame = new_frame;
@@ -863,6 +864,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
                 new_frame->module = vm->module;
+            new_frame->current_line = 0;
 
                 frame = new_frame;
                 vm->current_fn = callee_idx;
@@ -971,6 +973,7 @@ VmTrap vm_core_execute(VmState *vm) {
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
             new_frame->module = target;  /* This frame runs in the target module */
+            new_frame->current_line = 0;
 
             /* Switch to target module */
             vm->module = target;
@@ -1638,6 +1641,7 @@ VmTrap vm_core_execute(VmState *vm) {
             new_frame->local_count = callee->local_count;
             new_frame->closure = closure;
             new_frame->module = vm->module;
+            new_frame->current_line = 0;
 
             frame = new_frame;
             vm->current_fn = callee_idx;
@@ -1671,7 +1675,8 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_DEBUG_LINE:
-            /* Source line tracking - ignored during execution */
+            /* Track source line in the current frame for stack traces */
+            frame->current_line = instr.operands[0].u32;
             break;
 
         case OP_HALT:
@@ -1727,6 +1732,78 @@ VmTrap vm_core_execute(VmState *vm) {
 }
 
 /* ========================================================================
+ * Debug: Source-Mapped Stack Trace
+ * ======================================================================== */
+
+void vm_stack_trace(const VmState *vm, FILE *out) {
+    if (!out) out = stderr;
+    fprintf(out, "Stack trace (most recent call first):\n");
+    if (vm->frame_count == 0) {
+        fprintf(out, "  (no frames)\n");
+        return;
+    }
+    for (int i = (int)vm->frame_count - 1; i >= 0; i--) {
+        const VmCallFrame *frame = &vm->frames[i];
+        const NvmModule *mod = frame->module ? frame->module : vm->module;
+
+        /* Resolve function name */
+        const char *fn_name = "??";
+        if (mod && frame->fn_idx < mod->function_count) {
+            const char *s = nvm_get_string(mod, mod->functions[frame->fn_idx].name_idx);
+            if (s && s[0]) fn_name = s;
+        }
+
+        /* Resolve module name */
+        const char *mod_name = "<unknown>";
+        if (mod) {
+            /* Look for a METADATA section name via string pool index 0 heuristic,
+             * or fall back to scanning strings for a module name. */
+            for (uint32_t s = 0; s < mod->string_count; s++) {
+                const char *candidate = nvm_get_string(mod, s);
+                if (candidate && candidate[0] && s == 0) {
+                    mod_name = candidate;
+                    break;
+                }
+            }
+        }
+
+        /* Source line: prefer per-frame tracking, fall back to debug entries */
+        uint32_t line = frame->current_line;
+        if (line == 0 && mod && mod->debug_count > 0) {
+            /* Find the debug entry with the largest bytecode_offset <= frame's ip.
+             * For frames other than the top frame we don't have a saved ip,
+             * so we use frame->return_ip as a proxy. */
+            uint32_t search_ip = (i == (int)vm->frame_count - 1)
+                                  ? vm->ip
+                                  : frame->return_ip;
+            uint32_t best_line = 0;
+            uint32_t best_offset = 0;
+            bool found = false;
+            for (uint32_t d = 0; d < mod->debug_count; d++) {
+                uint32_t off = mod->debug_entries[d].bytecode_offset;
+                if (off <= search_ip) {
+                    if (!found || off >= best_offset) {
+                        best_offset = off;
+                        best_line   = mod->debug_entries[d].source_line;
+                        found = true;
+                    }
+                }
+            }
+            if (found) line = best_line;
+        }
+
+        int frame_num = (int)vm->frame_count - 1 - i;
+        if (line > 0) {
+            fprintf(out, "  #%-2d  %s  line %u  (module: %s)\n",
+                    frame_num, fn_name, line, mod_name);
+        } else {
+            fprintf(out, "  #%-2d  %s  line ?  (module: %s)\n",
+                    frame_num, fn_name, mod_name);
+        }
+    }
+}
+
+/* ========================================================================
  * Runtime Harness (the "co-processor")
  *
  * Calls vm_core_execute() in a loop, handling each trap that the
@@ -1768,6 +1845,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     frame->local_count = fn->local_count;
     frame->closure = NULL;
     frame->module = vm->module;
+    frame->current_line = 0;
 
     vm->current_fn = fn_idx;
     vm->ip = fn->code_offset;
@@ -1822,6 +1900,16 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         }
 
         case TRAP_ERROR:
+            /* Emit source-mapped stack trace before unwinding */
+            if (vm->module->header.flags & NVM_FLAG_DEBUG_INFO) {
+                FILE *trace_out = vm->output ? vm->output : stderr;
+                fprintf(trace_out, "\nRuntime error: %s\n",
+                        vm_error_string(trap.data.error.code));
+                if (vm->error_msg[0]) {
+                    fprintf(trace_out, "  %s\n", vm->error_msg);
+                }
+                vm_stack_trace(vm, trace_out);
+            }
             return trap.data.error.code;
         }
     }

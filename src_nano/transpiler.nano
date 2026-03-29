@@ -817,7 +817,7 @@ shadow hashset_add_string {
     assert (hashset_has_string m3 "a")
 }
 
-pub fn str_ends_with(s: string, suffix: string) -> bool {
+pub fn transp_str_ends_with(s: string, suffix: string) -> bool {
     let ls: int = (str_length s)
     let lf: int = (str_length suffix)
     if (< ls lf) {
@@ -827,9 +827,9 @@ pub fn str_ends_with(s: string, suffix: string) -> bool {
     }
 }
 
-shadow str_ends_with {
-    assert (str_ends_with "hello.nano" ".nano")
-    assert (not (str_ends_with "test.c" ".nano"))
+shadow transp_str_ends_with {
+    assert (transp_str_ends_with "hello.nano" ".nano")
+    assert (not (transp_str_ends_with "test.c" ".nano"))
 }
 
 fn last_double_colon_index(s: string) -> int {

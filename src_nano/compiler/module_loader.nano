@@ -17,8 +17,8 @@ import "src_nano/generated/compiler_schema.nano"
 import "src_nano/generated/compiler_ast.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
-from "src_nano/typecheck.nano" import str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
-from "src_nano/transpiler.nano" import str_ends_with
+from "src_nano/typecheck.nano" import tc_str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
+from "src_nano/transpiler.nano" import transp_str_ends_with
 from "std/fs.nano" import exists, read, cwd
 
 extern fn nl_os_getenv(_name: string) -> string
@@ -175,12 +175,12 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
      * When resolving std/X.nano, we need to find it at modules/std/X.nano
      * but we can't call exists() because that function comes FROM std/fs.nano!
      * So we hardcode the path and let later code verify it exists */
-    if (str_starts_with import_path "std/") {
+    if (tc_str_starts_with import_path "std/") {
         return (module_path_join "modules" import_path)
     } else { (print "") }
 
     /* Case 1: Absolute path starting with / */
-    if (str_starts_with import_path "/") {
+    if (tc_str_starts_with import_path "/") {
         if (exists import_path) {
             return import_path
         } else {
@@ -203,20 +203,20 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
                     if (exists cand) { return cand } else { (print "") }
                     let seg_stdlib: string = (module_path_join seg (module_path_join "stdlib" import_path))
                     if (exists seg_stdlib) { return seg_stdlib } else { (print "") }
-                    if (not (str_ends_with import_path ".nano")) {
+                    if (not (transp_str_ends_with import_path ".nano")) {
                         let cand_ext: string = (+ cand ".nano")
                         if (exists cand_ext) { return cand_ext } else { (print "") }
                         let seg_stdlib_ext: string = (+ seg_stdlib ".nano")
                         if (exists seg_stdlib_ext) { return seg_stdlib_ext } else { (print "") }
                     } else { (print "") }
 
-                    if (str_starts_with import_path "modules/") {
+                    if (tc_str_starts_with import_path "modules/") {
                         let trimmed: string = (str_substring import_path 8 (- (str_length import_path) 8))
                         let trimmed_cand: string = (module_path_join seg trimmed)
                         if (exists trimmed_cand) { return trimmed_cand } else { (print "") }
                         let trimmed_stdlib: string = (module_path_join seg (module_path_join "stdlib" trimmed))
                         if (exists trimmed_stdlib) { return trimmed_stdlib } else { (print "") }
-                        if (not (str_ends_with trimmed ".nano")) {
+                        if (not (transp_str_ends_with trimmed ".nano")) {
                             let trimmed_ext: string = (+ trimmed_cand ".nano")
                             if (exists trimmed_ext) { return trimmed_ext } else { (print "") }
                             let trimmed_stdlib_ext: string = (+ trimmed_stdlib ".nano")
@@ -243,7 +243,7 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
     } else { (print "") }
 
     /* Case 4: Try adding .nano extension if not present */
-    if (not (str_ends_with import_path ".nano")) {
+    if (not (transp_str_ends_with import_path ".nano")) {
         let with_ext: string = (+ import_path ".nano")
         let relative_with_ext: string = (module_path_join current_dir with_ext)
         if (exists relative_with_ext) {
@@ -274,7 +274,7 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
     } else { (print "") }
 
     /* Case 6: Relative to repo modules directory when import is modules/... */
-    if (str_starts_with import_path "modules/") {
+    if (tc_str_starts_with import_path "modules/") {
         let trimmed: string = (str_substring import_path 8 (- (str_length import_path) 8))
         let modules_relative: string = (module_path_join working_dir (module_path_join "modules" trimmed))
         if (exists modules_relative) {
@@ -286,7 +286,7 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
             return modules_stdlib_relative
         } else { (print "") }
 
-        if (not (str_ends_with trimmed ".nano")) {
+        if (not (transp_str_ends_with trimmed ".nano")) {
             let modules_relative_ext: string = (+ modules_relative ".nano")
             if (exists modules_relative_ext) { return modules_relative_ext } else { (print "") }
             let modules_stdlib_relative_ext: string = (+ modules_stdlib_relative ".nano")
