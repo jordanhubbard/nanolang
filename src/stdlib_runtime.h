@@ -104,5 +104,14 @@ void generate_console_io_utilities(StringBuilder *sb);
  */
 void generate_profiling_system(StringBuilder *sb);
 
+/**
+ * @brief Generate instrumented profiling runtime for --profile flag
+ * @param sb StringBuilder to append generated code to
+ *
+ * Injects clock_gettime-based timing accumulators into each function.
+ * At program exit (via atexit), prints a hotspot table sorted by total time.
+ */
+void generate_instrumented_profiling_system(StringBuilder *sb);
+
 #endif /* STDLIB_RUNTIME_H */
 

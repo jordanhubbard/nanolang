@@ -632,6 +632,7 @@ typedef struct {
     bool warn_ffi;             /* Warn on any FFI call */
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool profile_gprof;        /* Enable gprof profiling analysis at exit */
+    bool profile;              /* --profile: inject instrumented timing hooks into generated C */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
 } Environment;
 

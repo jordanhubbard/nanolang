@@ -1,0 +1,45 @@
+/* Test: --profile flag — instrumented timing hooks
+ *
+ * This file verifies the correctness of profiled functions.
+ * Compile with: nanoc --profile tests/test_profile.nano -o /tmp/test_profile
+ * Run and check stderr for the profile report:
+ *   /tmp/test_profile 2>&1 | grep "NanoLang Profile Report"
+ */
+
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+fn sum_to(n: int) -> int {
+    let mut acc: int = 0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc i)
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn main() -> int {
+    let r: int = (fib 10)
+    let s: int = (sum_to 100)
+    (println (+ "fib(10)=" (int_to_string r)))
+    (println (+ "sum_to(100)=" (int_to_string s)))
+    return 0
+}
+
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 5) 5)
+    assert (== (fib 10) 55)
+}
+
+shadow sum_to {
+    assert (== (sum_to 0) 0)
+    assert (== (sum_to 5) 10)
+    assert (== (sum_to 100) 4950)
+}

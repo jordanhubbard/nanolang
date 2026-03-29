@@ -886,6 +886,8 @@ static const char *get_c_func_name(const char *nano_name) {
 /* Global context for the iterative transpiler */
 ASTNode *g_current_function = NULL;
 const char *g_source_file_for_line_directives = NULL;
+bool g_profile_mode = false;          /* --profile: emit timing guard in next function body block */
+const char *g_profile_func_name = NULL; /* name of function being profiled */
 
 #include "transpiler_iterative_v3_twopass.c"
 
@@ -3559,7 +3561,14 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
 
             /* Function body */
             g_current_function = item;  /* Set context for union construction in returns */
+            if (env && env->profile) {
+                /* Signal the block emitter to inject timing guard at start of this body */
+                g_profile_mode = true;
+                g_profile_func_name = c_func_name;
+            }
             transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
+            g_profile_mode = false;   /* Clear after body is emitted */
+            g_profile_func_name = NULL;
             g_current_function = NULL;  /* Clear context */
             sb_append(sb, "\n");
 
@@ -3728,10 +3737,14 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
         sb_appendf(sb, "    return _nl_run_with_profiling(argc, argv, %s);\n", c_main_name);
         sb_append(sb, "}\n");
     } else {
-        /* Normal main without profiling */
+        /* Normal main without gprof profiling */
         sb_append(sb, "int main(int argc, char **argv) {\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
+        if (env && env->profile) {
+            /* Register hotspot report to print at exit */
+            sb_append(sb, "    atexit(_nl_prof_report);\n");
+        }
         if (has_local_main) {
             const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
             sb_appendf(sb, "    return (int)%s();\n", c_main_name);
@@ -4382,6 +4395,11 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Cross-platform profiling system (only when -pg flag is used) */
     if (env && env->profile_gprof) {
         generate_profiling_system(sb);
+    }
+
+    /* Instrumented profiling system (only when --profile flag is used) */
+    if (env && env->profile) {
+        generate_instrumented_profiling_system(sb);
     }
 
     /* Math and utility built-in functions */
