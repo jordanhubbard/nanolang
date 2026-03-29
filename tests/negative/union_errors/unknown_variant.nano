@@ -6,7 +6,19 @@ union Status {
     Inactive {}
 }
 
+fn make_status() -> Status {
+    return Status.Pending {}
+}
+
+shadow make_status {
+    let s: Status = (make_status)
+    assert (== 1 1)
+}
+
 fn main() -> int {
-    let s: Status = Status.Pending {}
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

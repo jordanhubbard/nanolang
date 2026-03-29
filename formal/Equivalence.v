@@ -1957,6 +1957,15 @@ Proof.
         apply IH; [exact Hyx | exact Hcs | exact Hbody].
   (* EStrIndex *)
   - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
+  (* ETuple *)
+  - simpl in Hinv. injection Hinv as Hlist. simpl. f_equal.
+    revert Hlist. induction l as [|e0 rest IHl]; intro Hlist; simpl in *.
+    + reflexivity.
+    + injection Hlist as He Hrest. f_equal;
+        [apply IH; [exact Hyx | exact Hcs | exact He]
+        |apply IHl; exact Hrest].
+  (* ETupleIndex *)
+  - simpl in Hinv |- *. f_equal; (apply IH; [exact Hyx | exact Hcs | congruence]).
 Qed.
 
 Lemma eclosed_subst_closed : forall x s e,
@@ -2434,6 +2443,10 @@ Ltac eclosed_prep :=
     rewrite close_strindex in H;
     let H1 := fresh "Hecl" in let H2 := fresh "Hecl" in
     destruct (eclosed_strindex_inv _ _ H) as [H1 H2]; clear H
+  | [ H : eclosed (close ?r (ETupleIndex _ _)) |- _ ] =>
+    rewrite close_tupleindex in H;
+    let H1 := fresh "Hecl" in
+    pose proof (eclosed_tupleindex_inv _ _ H) as H1; clear H
   end.
 
 (** Helper: apply an IH to get multi_step_equiv and val_good.

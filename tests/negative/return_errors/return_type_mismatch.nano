@@ -5,6 +5,14 @@ fn get_count() -> int {
     return "not a number"
 }
 
+shadow get_count {
+    assert (== (get_count) 0)
+}
+
 fn main() -> int {
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
