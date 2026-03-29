@@ -70,6 +70,19 @@ jobs:
       - name: Run test suite
         run: make test
 
+      - name: Run test suite with JUnit XML output
+        run: make test-junit
+        continue-on-error: true
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Nanolang Test Suite
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
       - name: Run negative tests
         run: |
           cd tests/negative

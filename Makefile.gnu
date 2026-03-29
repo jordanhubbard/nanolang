@@ -593,6 +593,15 @@ test-lang: build
 	@echo "=========================================="
 	@./tests/run_all_tests.sh --lang
 
+# CI test targets with structured output
+test-junit: build
+	@echo "Running all tests with JUnit XML output..."
+	@./tests/run_all_tests.sh --format=junit --output=test-results.xml
+
+test-tap: build
+	@echo "Running all tests with TAP output..."
+	@./tests/run_all_tests.sh --format=tap --output=test-results.tap
+
 # Test only application/integration tests
 test-app: build
 	@echo ""

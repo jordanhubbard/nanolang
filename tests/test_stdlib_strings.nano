@@ -191,7 +191,7 @@ shadow test_str_join {
     assert (== (test_str_join) "a-b-c")
 }
 
-fn main() -> int {
+fn test_new_string_functions() -> int {
     (println "Testing new string functions...")
 
     (println (str_trim "  hello  "))
@@ -212,6 +212,6 @@ fn main() -> int {
     return 0
 }
 
-shadow main {
-    assert (== (main) 0)
+shadow test_new_string_functions {
+    assert (== (test_new_string_functions) 0)
 }
