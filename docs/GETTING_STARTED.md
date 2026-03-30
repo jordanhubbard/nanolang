@@ -115,10 +115,10 @@ shadow add {
 ```
 
 What you should know about my tests:
-- I run them at startup, before `main()` executes.
-- If a test fails, the program exits with an error immediately.
+- I run them during compilation (via my built-in interpreter).
+- If a test fails, I will refuse to produce a compiled binary.
 - They serve as documentation for how your code should behave.
-- They are included in the compiled binary and run every time.
+- They are NOT included in the compiled binary — only pure program code runs.
 
 ### 5. Immutable by Default
 
