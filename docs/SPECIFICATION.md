@@ -542,7 +542,7 @@ I require the condition to be a `bool` expression. I execute the loop while the 
 ```nano
 let mut i: int = 0
 while (< i 10) {
-    print i
+    (println (int_to_string i))
     set i (+ i 1)
 }
 ```
@@ -559,13 +559,13 @@ I provide the `for` loop as a way to iterate over a range.
 
 ```nano
 for i in (range 0 10) {
-    print i
+    (println (int_to_string i))
 }
 
 # This is equivalent to:
 let mut i: int = 0
 while (< i 10) {
-    print i
+    (println (int_to_string i))
     set i (+ i 1)
 }
 ```
@@ -932,7 +932,7 @@ shadow is_prime {
 fn main() -> int {
     for n in (range 1 20) {
         if (is_prime n) {
-            print n
+            (println (int_to_string n))
         }
     }
     return 0

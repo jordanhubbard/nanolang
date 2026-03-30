@@ -105,7 +105,7 @@ fn add(a: int, b: int) -> int {
 
 fn main() -> void {
     let result: int = (add 5 3)
-    print result
+    (println (int_to_string result))
 }
 ```
 
