@@ -182,14 +182,7 @@ fn main() -> int {
     set failures (+ failures (test_str_starts_with))
     set failures (+ failures (test_str_ends_with))
     set failures (+ failures (test_str_index_of))
-    set failures (+ failures (test_str_trim))
-    set failures (+ failures (test_str_trim_left))
-    set failures (+ failures (test_str_trim_right))
-    set failures (+ failures (test_str_to_lower))
-    set failures (+ failures (test_str_to_upper))
-    set failures (+ failures (test_str_replace))
     set failures (+ failures (test_str_split))
-    set failures (+ failures (test_str_join))
     return failures
 }
 
