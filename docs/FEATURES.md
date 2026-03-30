@@ -318,9 +318,9 @@ Development status: My type system support is complete, and I am currently imple
 
 ## Control Flow
 
-### If Expressions
+### If Statements
 
-I require both branches to be present.
+The `else` branch is optional when `if` is used as a statement.
 
 ```nano
 if (> x 0) {
@@ -328,6 +328,17 @@ if (> x 0) {
 } else {
     (println "Non-positive")
 }
+
+# else is optional for early returns or void branches:
+if (< x 0) {
+    return 0
+}
+```
+
+When `if` is used as an expression (producing a value), both branches are required and must return the same type.
+
+```nano
+let label: string = if (> x 0) { "positive" } else { "non-positive" }
 ```
 
 ---

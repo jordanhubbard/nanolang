@@ -264,7 +264,7 @@ fn main() -> void {
         set y (+ y 1)
     }
 
-    print "Rendering complete"
+    (println "Rendering complete")
 }
 <!-- END SNIPPET -->
 ```
