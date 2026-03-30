@@ -564,22 +564,24 @@ let mut x: int = 10
 set x 20  # I accept this
 ```
 
-I require an `else` branch for every `if`.
+When `if` is used as an expression producing a value, I require an `else` branch.
 ```nano
-if (> x 0) {
-    return 1
-}
-# I will refuse this: Missing else
+let result: int = if (> x 0) { 1 }
+# I will refuse this: if expression must have an else branch
 ```
 
-I expect a complete expression.
+I accept this:
+```nano
+let result: int = if (> x 0) { 1 } else { 0 }
+# I accept this
+```
+
+When `if` is used as a statement, `else` is optional:
 ```nano
 if (> x 0) {
-    return 1
-} else {
-    return 0
+    (println "positive")
 }
-# I accept this
+# I accept this: no else needed for a statement
 ```
 
 ## Tips

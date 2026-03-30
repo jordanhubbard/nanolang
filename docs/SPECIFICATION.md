@@ -482,7 +482,7 @@ let x: int = if (> a 0) {
 }
 ```
 
-I require both branches to return the same type. I require an `else` branch.
+When used as an expression (assigned to a variable or returned), I require both branches and they must return the same type. When used as a statement, `else` is optional.
 
 I support `else if` chaining for multiple conditions.
 
