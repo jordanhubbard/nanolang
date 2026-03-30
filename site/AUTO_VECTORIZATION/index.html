@@ -1,0 +1,1269 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/AUTO_VECTORIZATION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Auto-Vectorization in Nanolang: Opportunities and Implementation Plan - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#auto-vectorization-in-nanolang-opportunities-and-implementation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Auto-Vectorization in Nanolang: Opportunities and Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="auto-vectorization-in-nanolang-opportunities-and-implementation-plan">Auto-Vectorization in Nanolang: Opportunities and Implementation Plan<a class="headerlink" href="#auto-vectorization-in-nanolang-opportunities-and-implementation-plan" title="Permanent link">&para;</a></h1>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Nanolang has several strong vectorization opportunities hiding in plain sight. The language's design — typed arrays with homogeneous elements, explicit <code>map</code>/<code>filter</code>/<code>fold</code> builtins, and immutability as the default — maps cleanly onto SIMD hardware. This document identifies the concrete sites where auto-vectorization can be applied, from quick wins to deeper compiler passes.</p>
+<hr />
+<h2 id="1-where-the-opportunities-are">1. Where the Opportunities Are<a class="headerlink" href="#1-where-the-opportunities-are" title="Permanent link">&para;</a></h2>
+<h3 id="11-array-arithmetic-highest-impact-easiest-win">1.1 Array Arithmetic (Highest Impact, Easiest Win)<a class="headerlink" href="#11-array-arithmetic-highest-impact-easiest-win" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>src/eval.c</code> — <code>eval_dyn_array_binop()</code> and <code>eval_dyn_array_scalar_right/left()</code></p>
+<p>The interpreter already loops over homogeneous typed arrays to apply element-wise arithmetic. The current code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dyn_array_get_float</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dyn_array_get_float</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">dyn_array_push_float</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</code></pre></div>
+<p>This is exactly what SIMD is for. The array data is contiguous in memory (the <code>DynArray.data</code> field is a raw <code>void*</code> backed by a flat allocation). The element type is known statically (<code>ELEM_INT</code>, <code>ELEM_FLOAT</code>). The operation is known at the call site.</p>
+<p><strong>Fix:</strong> Replace the scalar loop with a vectorized one using compiler intrinsics or <code>__attribute__((optimize("O3")))</code> with <code>restrict</code> pointers. For GCC/Clang, auto-vectorization will fire automatically if the loop is written cleanly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Add restrict qualifiers to DynArray data pointers</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// Then the compiler can prove no aliasing and vectorize automatically</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="kr">restrict</span><span class="w"> </span><span class="n">src_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="kr">restrict</span><span class="w"> </span><span class="n">src_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="kr">restrict</span><span class="w"> </span><span class="n">dst</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">out</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">src_b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w">  </span><span class="c1">// GCC/Clang will SIMD this at -O2</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+</code></pre></div>
+<p>This works for <code>ELEM_INT</code> (256-bit AVX2 can do 4×int64 or 8×int32 per cycle) and <code>ELEM_FLOAT</code> (4×double per cycle with AVX2).</p>
+<p><strong>Cost:</strong> Minimal — no AST or language changes needed. Just rewrite the inner loops in <code>eval.c</code> and add <code>restrict</code> to <code>DynArray</code> allocation. Compiler does the rest.</p>
+<hr />
+<h3 id="12-map-over-homogeneous-arrays">1.2 <code>map()</code> Over Homogeneous Arrays<a class="headerlink" href="#12-map-over-homogeneous-arrays" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>src/eval.c</code> — <code>builtin_map()</code></p>
+<p>Currently, <code>map(array, fn)</code> dispatches element-by-element via <code>call_function()</code>. When the transform function is a <strong>pure arithmetic expression</strong> (e.g., <code>map(arr, fn(x) { x * 2 })</code>), this is massively over-abstracted — each element goes through the full interpreter dispatch pipeline.</p>
+<p><strong>Opportunity:</strong> Detect <strong>lambda-eligible</strong> map operations at compile/typecheck time:
+- Input array is homogeneous typed (all <code>int</code> or all <code>float</code>)
+- Transform function is a single arithmetic expression over its argument
+- No mutable captures, no side effects</p>
+<p>When these conditions hold, the transpiler can emit a tight vectorizable C loop instead of the general <code>call_function</code> dispatch:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Generated for: map(arr, fn(x: float) { x * 2.0 })</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="kr">restrict</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">arr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="kr">restrict</span><span class="w"> </span><span class="n">out</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span><span class="w">   </span><span class="c1">// compiler vectorizes this</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Detection heuristic in the type checker / transpiler:</strong>
+- Function body is a single <code>return</code> statement
+- The return expression contains only arithmetic binary ops and the function's parameter
+- No calls, no conditionals, no mutable variable access</p>
+<p>This is a "simple arithmetic lambda" pattern. Common in numeric code; high payoff.</p>
+<hr />
+<h3 id="13-for-x-in-array-loop-body-analysis">1.3 <code>for x in array { ... }</code> — Loop Body Analysis<a class="headerlink" href="#13-for-x-in-array-loop-body-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>src/transpiler.c</code> — <code>AST_FOR</code> case</p>
+<p>The transpiler already generates C <code>for</code> loops for <code>for x in array</code>. Currently these are scalar. When the loop body touches only the loop variable and immutable bindings, it's a candidate for vectorization.</p>
+<p><strong>Static analysis pass (new):</strong> Walk the loop body AST. If:
+1. All reads are from the loop variable or immutable <code>let</code> bindings
+2. The only write is to a locally-scoped accumulator or an output array
+3. No function calls with unknown effects</p>
+<p>Then emit the loop with <code>#pragma clang loop vectorize(enable)</code> and <code>#pragma GCC ivdep</code> (or equivalent SIMD intrinsics). The C compiler then vectorizes automatically.</p>
+<p>For the <strong>transpiler path</strong>, this is a compiler pass over the AST before C code emission. For the <strong>interpreter path</strong>, this would be a JIT-style specialization — recognize the pattern at runtime and switch to a vectorized implementation.</p>
+<hr />
+<h3 id="14-filter-with-predicate-inlining">1.4 <code>filter()</code> with Predicate Inlining<a class="headerlink" href="#14-filter-with-predicate-inlining" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>src/eval.c</code> — <code>builtin_filter()</code></p>
+<p>Same story as <code>map()</code>. When the predicate is a simple comparison (e.g., <code>filter(arr, fn(x) { x &gt; 0 })</code>), it can be lowered to a SIMD-friendly masked gather/conditional store pattern.</p>
+<p>Modern AVX-512 has direct support for masked vector operations — compare a vector of values against a threshold and extract matching elements in one pass. Without AVX-512, the standard approach is a two-pass: vectorized comparison to build a mask bitmask, then scalar gather of matching elements.</p>
+<hr />
+<h3 id="15-struct-of-arrays-transformation-aos-soa">1.5 Struct-of-Arrays Transformation (AoS → SoA)<a class="headerlink" href="#15-struct-of-arrays-transformation-aos-soa" title="Permanent link">&para;</a></h3>
+<p><strong>This is the deep one.</strong></p>
+<p>Nanolang arrays of structs are stored as <strong>Array of Structures (AoS)</strong> — each struct is laid out sequentially in memory. For SIMD, <strong>Structure of Arrays (SoA)</strong> is almost always better: all <code>x</code> fields packed together, all <code>y</code> fields packed together, etc.</p>
+<p>Example: <code>[Point]</code> where <code>Point = { x: float, y: float }</code> </p>
+<ul>
+<li><strong>AoS</strong> (current): <code>x0 y0 x1 y1 x2 y2 ...</code> — accessing all <code>x</code> values requires strided loads (SIMD unfriendly)</li>
+<li><strong>SoA</strong> (optimal): <code>x0 x1 x2 ... y0 y1 y2 ...</code> — accessing all <code>x</code> values is a single contiguous SIMD load</li>
+</ul>
+<p><strong>When to apply it:</strong> When an array of structs is used in a loop that accesses the same field on every element. The type checker can detect this pattern.</p>
+<p><strong>Implementation cost:</strong> High — requires a new internal representation for typed struct arrays, and the transpiler needs to emit different C code. Worth a dedicated planning doc. But the payoff for numerical/graphics code (vectors, particles, boids) is 4–8× on AVX2 hardware.</p>
+<hr />
+<h3 id="16-reduction-operations-foldreduce">1.6 Reduction Operations (<code>fold</code>/<code>reduce</code>)<a class="headerlink" href="#16-reduction-operations-foldreduce" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>src/eval.c</code> — <code>builtin_reduce()</code></p>
+<p>Sum, min, max, and product reductions over numeric arrays are classic SIMD targets. SIMD can compute these with a parallel reduction tree — O(log n) sequential depth vs. O(n) for scalar.</p>
+<p>GCC/Clang auto-vectorize these automatically when:
+- The reduction variable is a scalar (not an array or struct)
+- The combine function is one of: <code>+</code>, <code>*</code>, <code>min</code>, <code>max</code>, <code>and</code>, <code>or</code>, <code>xor</code>
+- The input array is homogeneous and contiguous</p>
+<p>The interpreter's <code>builtin_reduce</code> currently calls back into the user function per element. For pure arithmetic reductions, detect the pattern and use a direct loop.</p>
+<hr />
+<h2 id="2-implementation-priority">2. Implementation Priority<a class="headerlink" href="#2-implementation-priority" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Opportunity</th>
+<th>Impact</th>
+<th>Effort</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Array arithmetic (<code>eval_dyn_array_binop</code>)</td>
+<td>High</td>
+<td>Low</td>
+<td>Just rewrite inner loops with <code>restrict</code></td>
+</tr>
+<tr>
+<td><code>map()</code> simple lambda specialization</td>
+<td>High</td>
+<td>Medium</td>
+<td>Needs lambda pattern detection</td>
+</tr>
+<tr>
+<td><code>for x in array</code> loop vectorization pragma</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Add <code>#pragma ivdep</code> + analysis pass</td>
+</tr>
+<tr>
+<td><code>filter()</code> predicate inlining</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Similar to map()</td>
+</tr>
+<tr>
+<td><code>fold</code>/<code>reduce</code> arithmetic detection</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Detect builtin ops, use direct loop</td>
+</tr>
+<tr>
+<td>Struct-of-Arrays transformation</td>
+<td>Very High</td>
+<td>High</td>
+<td>Needs new representation + planning</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-transpiler-changes-needed">3. Transpiler Changes Needed<a class="headerlink" href="#3-transpiler-changes-needed" title="Permanent link">&para;</a></h2>
+<h3 id="31-restrict-on-dynarray-allocations">3.1 <code>restrict</code> on DynArray Allocations<a class="headerlink" href="#31-restrict-on-dynarray-allocations" title="Permanent link">&para;</a></h3>
+<p>In <code>src/runtime/dyn_array.h</code>, the <code>data</code> field is <code>void*</code>. The transpiler generates code that accesses this as a cast pointer. Adding <code>__restrict__</code> to the cast in generated loops tells the compiler the buffers don't alias:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Current transpiler output</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">((</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">out</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1">// Vectorization-friendly output</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">pa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">po</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="o">*</span><span class="p">)</span><span class="n">out</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="n">po</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pb</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>The <code>__restrict__</code> tells the compiler: <code>pa</code>, <code>pb</code>, <code>po</code> don't alias each other. It can then generate vectorized code without alias analysis uncertainty.</p>
+<h3 id="32-pure-function-annotation">3.2 Pure Function Annotation<a class="headerlink" href="#32-pure-function-annotation" title="Permanent link">&para;</a></h3>
+<p>Add a purity flag to <code>FunctionDef</code> in the type checker. A function is <strong>pure</strong> if:
+- All inputs are immutable (no <code>mut</code> parameters)
+- No mutable global bindings accessed
+- No I/O builtins called
+- All callees are also pure (transitively)</p>
+<p>Pure functions passed to <code>map</code>/<code>filter</code>/<code>fold</code> are candidates for inlining into the generated loop, eliminating the function call overhead entirely.</p>
+<h3 id="33-loop-vectorization-pass">3.3 Loop Vectorization Pass<a class="headerlink" href="#33-loop-vectorization-pass" title="Permanent link">&para;</a></h3>
+<p>Add a pre-emission AST pass that walks <code>AST_FOR</code> bodies and annotates them with one of:
+- <code>LOOP_VECTORIZABLE</code> — emit with <code>#pragma</code> hints
+- <code>LOOP_PARALLEL</code> — safe to parallelize (no shared mutable state, per the paper)
+- <code>LOOP_SERIAL</code> — cannot be parallelized (has side effects or mutable captures)</p>
+<p>This annotation drives code generation decisions downstream.</p>
+<hr />
+<h2 id="4-interpreter-path-specializations">4. Interpreter-Path Specializations<a class="headerlink" href="#4-interpreter-path-specializations" title="Permanent link">&para;</a></h2>
+<p>For the interpreter (not the transpiler), vectorization can be applied through <strong>runtime specialization</strong>:</p>
+<p>When <code>builtin_map(array, fn)</code> is called:
+1. Check if <code>array</code> is <code>ELEM_INT</code> or <code>ELEM_FLOAT</code> (homogeneous numeric)
+2. Check if <code>fn</code> resolves to a function with a single arithmetic-expression body
+3. If both: JIT-compile a specialized loop using computed element type and operation
+4. Otherwise: fall through to the general dispatch</p>
+<p>This is a lightweight form of polymorphic inline caching — cache the specialized loop keyed by <code>(element_type, operation)</code> and reuse it on subsequent calls with the same types.</p>
+<hr />
+<h2 id="5-relationship-to-the-mutability-as-concurrency-model">5. Relationship to the Mutability-as-Concurrency Model<a class="headerlink" href="#5-relationship-to-the-mutability-as-concurrency-model" title="Permanent link">&para;</a></h2>
+<p>The vectorization opportunities identified here are exactly the cases where the mutability-as-concurrency model (see <code>docs/MUTABILITY_AS_CONCURRENCY.md</code>) provides the strongest guarantees:</p>
+<ul>
+<li><strong>Immutable array + pure function</strong> → trivially data-parallel, SIMD and multi-core simultaneously</li>
+<li><strong>Mutable cell</strong> → synchronization required, SIMD within the critical section only</li>
+<li><strong>No mutable captures</strong> → loop body is an independent computation over each element</li>
+</ul>
+<p>The effect system that proves concurrency safety (the mutation effect set) also proves SIMD legality. They are the same analysis. A loop body that touches no mutable cells is both:
+1. Safe to vectorize across elements (SIMD)
+2. Safe to parallelize across iterations (multi-core)</p>
+<p>This means a single static analysis pass — the mutation effect set computation — gates both the vectorization pass and the parallelization pass. The compiler needs to do this work once.</p>
+<hr />
+<h2 id="6-quick-start-immediate-changes">6. Quick Start: Immediate Changes<a class="headerlink" href="#6-quick-start-immediate-changes" title="Permanent link">&para;</a></h2>
+<p>To get vectorization today with minimal code changes:</p>
+<ol>
+<li>
+<p><strong><code>src/runtime/dyn_array.h</code></strong>: Align <code>data</code> allocation to 32 bytes (AVX2 requirement):
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aligned_alloc</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="n">capacity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">elem_size</span><span class="p">);</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong><code>src/eval.c</code>, <code>eval_dyn_array_binop()</code></strong>: Rewrite as separate typed functions with <code>restrict</code> pointers and direct casts. Let GCC/Clang auto-vectorize.</p>
+</li>
+<li>
+<p><strong><code>Makefile</code></strong>: Add <code>-O3 -march=native -ftree-vectorize -fopt-info-vec</code> to CFLAGS. The <code>-fopt-info-vec</code> flag reports which loops were vectorized — use it to verify the changes are working.</p>
+</li>
+<li>
+<p><strong><code>src/transpiler.c</code></strong>: For <code>AST_FOR</code> loops over arrays of numeric type, add:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">sb_append</span><span class="p">(</span><span class="n">sb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;#pragma clang loop vectorize(enable)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">sb_append</span><span class="p">(</span><span class="n">sb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;#pragma GCC ivdep</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</code></pre></div>
+   before the emitted <code>for</code> loop.</p>
+</li>
+</ol>
+<p>These four changes can be made in an afternoon and will produce measurable speedups on any code that operates on numeric arrays. Everything else in this document is the deeper follow-through.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

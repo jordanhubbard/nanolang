@@ -1,0 +1,1471 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/MODULE_CREATION_TUTORIAL/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Creating Modules - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#creating-modules" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Creating Modules
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="creating-modules">Creating Modules<a class="headerlink" href="#creating-modules" title="Permanent link">&para;</a></h1>
+<p>I show you how to create custom modules to integrate C libraries with me.</p>
+<h2 id="my-module-structure">My Module Structure<a class="headerlink" href="#my-module-structure" title="Permanent link">&para;</a></h2>
+<p>Every module I use lives in <code>modules/&lt;name&gt;/</code> and contains:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>modules/mymodule/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── module.json          # Module metadata and build configuration
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── mymodule.nano        # My FFI declarations
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── mymodule_helpers.c   # Optional: C helper functions
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── mymodule_helpers.nano # Optional: My helper function declarations
+</code></pre></div>
+<h2 id="step-1-create-module-directory">Step 1: Create Module Directory<a class="headerlink" href="#step-1-create-module-directory" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>modules/mymodule
+</code></pre></div>
+<h2 id="step-2-create-modulejson">Step 2: Create <code>module.json</code><a class="headerlink" href="#step-2-create-modulejson" title="Permanent link">&para;</a></h2>
+<p>The <code>module.json</code> file tells my build system how to compile and link your module.</p>
+<h3 id="example-pure-ffi-module-no-c-code">Example: Pure FFI Module (no C code)<a class="headerlink" href="#example-pure-ffi-module-no-c-code" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;c_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-module-with-c-helpers">Example: Module with C Helpers<a class="headerlink" href="#example-module-with-c-helpers" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sdl_helpers&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;c_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sdl_helpers.c&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sdl&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="example-module-with-external-library">Example: Module with External Library<a class="headerlink" href="#example-module-with-external-library" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sdl_mixer&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;pkg_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;SDL2_mixer&quot;</span><span class="p">],</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sdl&quot;</span><span class="p">]</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="full-configuration-options">Full Configuration Options<a class="headerlink" href="#full-configuration-options" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mymodule&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1">// Module name (matches directory)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;c_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">                </span><span class="c1">// C files to compile (optional)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="s2">&quot;mymodule_helpers.c&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;pkg_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">                </span><span class="c1">// System libraries via pkg-config (optional)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="s2">&quot;libname&quot;</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">&quot;link_flags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">                </span><span class="c1">// Manual linker flags (optional)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="s2">&quot;-framework CoreAudio&quot;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">              </span><span class="c1">// Other modules I require (optional)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="s2">&quot;sdl&quot;</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="step-3-create-ffi-declarations-mymodulenano">Step 3: Create FFI Declarations (<code>mymodule.nano</code>)<a class="headerlink" href="#step-3-create-ffi-declarations-mymodulenano" title="Permanent link">&para;</a></h2>
+<p>Declare external C functions with <code>extern fn</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># Simple functions
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>extern fn c_function_name(arg1: int, arg2: string) -&gt; int
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a># Void return
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>extern fn do_something(value: float) -&gt; void
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a># Pointer types (use int)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>extern fn get_pointer() -&gt; int
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>extern fn use_pointer(ptr: int) -&gt; void
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a># Constants
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>let MY_CONSTANT: int = 42
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>let MY_FLAG_A: int = 1
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>let MY_FLAG_B: int = 2
+</code></pre></div>
+<h3 id="type-mapping">Type Mapping<a class="headerlink" href="#type-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>My Type</th>
+<th>C Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>int64_t</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>double</code></td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td><code>const char*</code></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>bool</code> (0 or 1)</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td>(pointers)</td>
+<td>Cast to/from <code>int</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="step-4-optional-c-helpers">Step 4: Optional C Helpers<a class="headerlink" href="#step-4-optional-c-helpers" title="Permanent link">&para;</a></h2>
+<p>If you need custom C code, create <code>mymodule_helpers.c</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1">// Helper function I can call</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kt">int64_t</span><span class="w"> </span><span class="nf">nl_mymodule_helper</span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">arg1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">arg2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="c1">// Your C code here</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">}</span>
+</code></pre></div>
+<p>Then declare it in <code>mymodule_helpers.nano</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern fn nl_mymodule_helper(arg1: int, arg2: string) -&gt; int
+</code></pre></div>
+<h3 id="naming-convention">Naming Convention<a class="headerlink" href="#naming-convention" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Prefix C functions with <code>nl_</code> to avoid name collisions.</li>
+<li>Use descriptive names: <code>nl_sdl_render_fill_rect</code> not <code>nl_rfr</code>.</li>
+</ul>
+<h2 id="step-5-using-your-module">Step 5: Using Your Module<a class="headerlink" href="#step-5-using-your-module" title="Permanent link">&para;</a></h2>
+<p>In the code you write for me:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>import &quot;modules/mymodule/mymodule.nano&quot;
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>fn main() -&gt; int {
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    let result: int = (c_function_name 10 &quot;hello&quot;)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    return 0
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
+</code></pre></div>
+<h2 id="complete-example-stdio-module">Complete Example: stdio Module<a class="headerlink" href="#complete-example-stdio-module" title="Permanent link">&para;</a></h2>
+<h3 id="modulesstdiomodulejson"><code>modules/stdio/module.json</code><a class="headerlink" href="#modulesstdiomodulejson" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;c_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="modulesstdiostdionano"><code>modules/stdio/stdio.nano</code><a class="headerlink" href="#modulesstdiostdionano" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a># File operations
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>extern fn fopen(filename: string, mode: string) -&gt; int
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>extern fn fclose(file: int) -&gt; int
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>extern fn fread(ptr: int, size: int, count: int, file: int) -&gt; int
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>extern fn fseek(file: int, offset: int, whence: int) -&gt; int
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>extern fn ftell(file: int) -&gt; int
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a># Constants
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>let SEEK_SET: int = 0
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>let SEEK_CUR: int = 1
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>let SEEK_END: int = 2
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>let FILE_MODE_READ: string = &quot;rb&quot;
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a># Helper function in my syntax
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>fn file_size(filename: string) -&gt; int {
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    let file: int = (fopen filename FILE_MODE_READ)
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    if (== file 0) {
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        return -1
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>    } else {
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>        (fseek file 0 SEEK_END)
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>        let size: int = (ftell file)
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>        (fclose file)
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>        return size
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>    }
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>}
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a># I require shadow tests for my functions
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>shadow file_size {
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>    assert (&gt;= (file_size &quot;/nonexistent&quot;) -1)
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>}
+</code></pre></div>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>import &quot;modules/stdio/stdio.nano&quot;
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>fn main() -&gt; int {
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    let size: int = (file_size &quot;myfile.txt&quot;)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    (println size)
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    return 0
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
+</code></pre></div>
+<h2 id="complete-example-sdl-helpers">Complete Example: SDL Helpers<a class="headerlink" href="#complete-example-sdl-helpers" title="Permanent link">&para;</a></h2>
+<h3 id="modulessdl_helpersmodulejson"><code>modules/sdl_helpers/module.json</code><a class="headerlink" href="#modulessdl_helpersmodulejson" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sdl_helpers&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nt">&quot;c_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sdl_helpers.c&quot;</span><span class="p">],</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sdl&quot;</span><span class="p">]</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="modulessdl_helperssdl_helpersc"><code>modules/sdl_helpers/sdl_helpers.c</code><a class="headerlink" href="#modulessdl_helperssdl_helpersc" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;SDL2/SDL.h&gt;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1">// Fill rectangle helper</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">nl_sdl_render_fill_rect</span><span class="p">(</span><span class="n">SDL_Renderer</span><span class="o">*</span><span class="w"> </span><span class="n">renderer</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">                              </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">                              </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">h</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="n">SDL_Rect</span><span class="w"> </span><span class="n">rect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{(</span><span class="kt">int</span><span class="p">)</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">h</span><span class="p">};</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="n">SDL_RenderFillRect</span><span class="p">(</span><span class="n">renderer</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rect</span><span class="p">);</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">}</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1">// Check if window should close</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="kt">bool</span><span class="w"> </span><span class="nf">nl_sdl_window_should_close</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="n">SDL_Event</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">SDL_PollEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SDL_QUIT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="modulessdl_helperssdl_helpersnano"><code>modules/sdl_helpers/sdl_helpers.nano</code><a class="headerlink" href="#modulessdl_helperssdl_helpersnano" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>extern fn nl_sdl_render_fill_rect(renderer: int, x: int, y: int, w: int, h: int) -&gt; void
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>extern fn nl_sdl_window_should_close() -&gt; bool
+</code></pre></div>
+<h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>import &quot;modules/sdl/sdl.nano&quot;
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>import &quot;modules/sdl_helpers/sdl_helpers.nano&quot;
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>fn main() -&gt; int {
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    (SDL_Init 32)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    let window: int = (SDL_CreateWindow &quot;Test&quot; 100 100 800 600 4)
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    let renderer: int = (SDL_CreateRenderer window -1 6)
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    let mut running: bool = true
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    while running {
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        (SDL_SetRenderDrawColor renderer 255 0 0 255)
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>        (SDL_RenderClear renderer)
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>        (nl_sdl_render_fill_rect renderer 100 100 200 200)
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>        (SDL_RenderPresent renderer)
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>        (SDL_Delay 16)
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>        if (nl_sdl_window_should_close) {
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>            set running false
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>        } else {}
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>    }
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>    (SDL_DestroyRenderer renderer)
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>    (SDL_DestroyWindow window)
+<a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>    (SDL_Quit)
+<a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a>    return 0
+<a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a>}
+</code></pre></div>
+<h2 id="building-and-testing">Building and Testing<a class="headerlink" href="#building-and-testing" title="Permanent link">&para;</a></h2>
+<h3 id="automatic-building">Automatic Building<a class="headerlink" href="#automatic-building" title="Permanent link">&para;</a></h3>
+<p>I build modules automatically when you use them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Compile your program</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>./bin/nanoc<span class="w"> </span>examples/myprogram.nano<span class="w"> </span>-o<span class="w"> </span>myprogram
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># I compile modules as needed</span>
+</code></pre></div>
+<h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Test with my interpreter (no C compilation)</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>./bin/nano<span class="w"> </span>examples/myprogram.nano
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Compile to native binary</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>./bin/nanoc<span class="w"> </span>examples/myprogram.nano<span class="w"> </span>-o<span class="w"> </span>myprogram
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>./myprogram
+</code></pre></div>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-start-simple">1. Start Simple<a class="headerlink" href="#1-start-simple" title="Permanent link">&para;</a></h3>
+<p>Begin with pure FFI bindings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>extern fn existing_c_function(arg: int) -&gt; int
+</code></pre></div>
+<h3 id="2-add-helpers-as-needed">2. Add Helpers as Needed<a class="headerlink" href="#2-add-helpers-as-needed" title="Permanent link">&para;</a></h3>
+<p>Write C helpers only when:
+- The C API is too complex for direct FFI.
+- You must marshal data structures.
+- Performance requires a C implementation.</p>
+<h3 id="3-use-descriptive-names">3. Use Descriptive Names<a class="headerlink" href="#3-use-descriptive-names" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a># Good
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>extern fn nl_sdl_render_filled_rectangle(...)
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a># Bad
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>extern fn rfr(...)
+</code></pre></div>
+<h3 id="4-document-your-module">4. Document Your Module<a class="headerlink" href="#4-document-your-module" title="Permanent link">&para;</a></h3>
+<p>Add comments explaining what each function does.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a># Load audio file from disk
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a># Returns: audio handle (int) or 0 on failure
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a># Example: let audio: int = (load_audio &quot;sound.wav&quot;)
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>extern fn load_audio(filename: string) -&gt; int
+</code></pre></div>
+<h3 id="5-add-shadow-tests">5. Add Shadow Tests<a class="headerlink" href="#5-add-shadow-tests" title="Permanent link">&para;</a></h3>
+<p>I require you to test your helper functions.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>fn clamp(value: int, min_val: int, max_val: int) -&gt; int {
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    if (&lt; value min_val) {
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>        return min_val
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    } else {
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>        if (&gt; value max_val) {
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>            return max_val
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>        } else {
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>            return value
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>        }
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>    }
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>}
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>shadow clamp {
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>    assert (== (clamp 5 0 10) 5)
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>    assert (== (clamp -5 0 10) 0)
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>    assert (== (clamp 15 0 10) 10)
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>}
+</code></pre></div>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-opaque-handles">Pattern 1: Opaque Handles<a class="headerlink" href="#pattern-1-opaque-handles" title="Permanent link">&para;</a></h3>
+<p>C libraries often return pointers. I treat them as <code>int</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a># SDL_Window* becomes int
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>extern fn SDL_CreateWindow(...) -&gt; int
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a># Use the handle
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>let window: int = (SDL_CreateWindow &quot;Title&quot; 0 0 800 600 4)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>if (== window 0) {
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    (println &quot;Failed to create window&quot;)
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>} else {
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    # Use window
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>    (SDL_DestroyWindow window)
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>}
+</code></pre></div>
+<h3 id="pattern-2-flags-and-constants">Pattern 2: Flags and Constants<a class="headerlink" href="#pattern-2-flags-and-constants" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a># Define flags as constants
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>let SDL_INIT_VIDEO: int = 32
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>let SDL_INIT_AUDIO: int = 16
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>let SDL_INIT_EVERYTHING: int = 62097
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a># Combine with bitwise OR (use + for now)
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>let flags: int = (+ SDL_INIT_VIDEO SDL_INIT_AUDIO)
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>(SDL_Init flags)
+</code></pre></div>
+<h3 id="pattern-3-error-checking">Pattern 3: Error Checking<a class="headerlink" href="#pattern-3-error-checking" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>extern fn SDL_GetError() -&gt; string
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>fn init_sdl() -&gt; bool {
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    let result: int = (SDL_Init 32)
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    if (!= result 0) {
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        (println &quot;SDL_Init failed:&quot;)
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>        (println (SDL_GetError))
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>        return false
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    } else {
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>        return true
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>    }
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>}
+</code></pre></div>
+<h3 id="pattern-4-resource-management">Pattern 4: Resource Management<a class="headerlink" href="#pattern-4-resource-management" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>fn load_and_process_file(filename: string) -&gt; bool {
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    let file: int = (fopen filename &quot;rb&quot;)
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    if (== file 0) {
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>        return false
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    } else {
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>        # Process file
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>        # ...
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>        # Always cleanup
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>        (fclose file)
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>        return true
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>    }
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>}
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="module-not-found">Module Not Found<a class="headerlink" href="#module-not-found" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>Error: Cannot find module &#39;mymodule&#39;
+</code></pre></div>
+<p>Check that:
+1. Directory exists: <code>modules/mymodule/</code>.
+2. <code>module.json</code> exists.
+3. <code>mymodule.nano</code> exists.
+4. Import path is correct: <code>import "modules/mymodule/mymodule.nano"</code>.</p>
+<h3 id="linking-errors">Linking Errors<a class="headerlink" href="#linking-errors" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>Undefined symbols: _my_function
+</code></pre></div>
+<ol>
+<li>Add function to <code>c_sources</code> in <code>module.json</code>.</li>
+<li>Add library to <code>pkg_config</code>.</li>
+<li>Add to <code>link_flags</code>.</li>
+</ol>
+<h3 id="type-mismatches">Type Mismatches<a class="headerlink" href="#type-mismatches" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>Error: Type mismatch in function call
+</code></pre></div>
+<p>Check my type mapping:
+- C <code>int</code> to my <code>int</code> (int64_t).
+- C <code>double</code> to my <code>float</code>.
+- C <code>char*</code> to my <code>string</code>.
+- C pointers to my <code>int</code>.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<p>I provide working modules here:
+- <code>modules/sdl/</code> - SDL2 bindings.
+- <code>modules/sdl_helpers/</code> - SDL2 with C helpers.
+- <code>modules/sdl_mixer/</code> - External library (SDL2_mixer).
+- <code>modules/stdio/</code> - Standard C library bindings.
+- <code>modules/math_ext/</code> - Math extensions.</p>
+<p>All examples in my <code>examples/</code> directory demonstrate how I use modules.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Browse my existing modules for examples.</li>
+<li>Create your first simple FFI module.</li>
+<li>Add C helpers if you need them.</li>
+<li>Document your module.</li>
+<li>Share it.</li>
+</ol>
+<h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../MODULE_SYSTEM/">Module Format / System</a></li>
+<li><a href="../modules/SDL_EXTENSIONS.md">SDL Extensions Guide</a></li>
+<li><a href="../STDLIB/">Standard Library Reference</a></li>
+<li><a href="../planning/MODULE_FFI_IMPLEMENTATION.md">FFI Best Practices</a></li>
+</ul>
+<hr />
+<p>I wish you success with your modules.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

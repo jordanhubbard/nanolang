@@ -1,0 +1,1318 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/PROFILING_CASE_STUDY_USERGUIDE/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Case Study: Userguide Build Performance Analysis - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#case-study-userguide-build-performance-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Case Study: Userguide Build Performance Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="case-study-userguide-build-performance-analysis">Case Study: Userguide Build Performance Analysis<a class="headerlink" href="#case-study-userguide-build-performance-analysis" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> January 31, 2026
+<strong>Tool:</strong> gprofng profiling
+<strong>Status:</strong> Analysis complete, optimization TODO</p>
+<h2 id="problem-statement">Problem Statement<a class="headerlink" href="#problem-statement" title="Permanent link">&para;</a></h2>
+<p>Building the user guide HTML from markdown takes <strong>~30+ seconds</strong> to complete.
+This is significantly slower than expected for processing ~50 markdown files.</p>
+<h2 id="profiling-data">Profiling Data<a class="headerlink" href="#profiling-data" title="Permanent link">&para;</a></h2>
+<p>Profiled userguide_build_html.nano for 30 seconds:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Functions sorted by metric: Exclusive Total CPU Time
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Excl. Total    Incl. Total     Name
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>CPU            CPU
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  sec.      %    sec.      %
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>29.741 100.00  29.741 100.00   &lt;Total&gt;
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>27.869  93.71  29.351  98.69   gc_is_managed
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> 1.481   4.98   1.481   4.98   gc_header_to_ptr
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a> 0.230   0.77   0.230   0.77   &lt;static&gt;@0x194500 (&lt;libc.so.6&gt;)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a> 0.040   0.13   0.270   0.91   nl_split_lines
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a> 0.020   0.07   0.120   0.40   char_at
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a> 0.010   0.03   0.020   0.07   nano_highlight__escape_html
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a> 0.010   0.03   0.030   0.10   sb_alloc
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a> 0.      0.    29.361  98.72   gc_alloc
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a> 0.      0.    29.361  98.72   gc_alloc_string
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a> 0.      0.    29.351  98.69   gc_collect_cycles
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a> 0.      0.    29.351  98.69   gc_mark
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a> 0.      0.     0.050   0.17   nano_highlight__highlight_html
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a> 0.      0.     0.020   0.07   nano_highlight__tokenize
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a> 0.      0.     0.050   0.17   nano_tools__pretty_print_html
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a> 0.      0.     0.070   0.24   nl_append_examples_body
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a> 0.      0.     0.150   0.50   nl_extract_summary
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a> 0.      0.     0.110   0.37   nl_extract_title
+</code></pre></div>
+<h2 id="critical-finding">Critical Finding<a class="headerlink" href="#critical-finding" title="Permanent link">&para;</a></h2>
+<p><strong>94% of CPU time is spent in garbage collection!</strong></p>
+<p>Specifically:
+- <code>gc_is_managed</code>: 93.71% (checking if pointers are GC-managed)
+- <code>gc_header_to_ptr</code>: 4.98% (pointer arithmetic for GC headers)
+- Actual work (syntax highlighting, parsing, etc.): &lt; 2%</p>
+<h2 id="root-cause-analysis">Root Cause Analysis<a class="headerlink" href="#root-cause-analysis" title="Permanent link">&para;</a></h2>
+<p>The userguide build performs:
+1. Read ~50 markdown files from disk
+2. Parse markdown → extract metadata (title, summary)
+3. Generate HTML for each page
+4. <strong>Syntax highlighting for code blocks</strong> (creates many strings)
+5. Build navigation sidebar
+6. Write HTML files</p>
+<p>Each string operation (substring, concatenation, formatting) allocates
+new strings, triggering GC overhead. The GC runs frequently to check
+if objects can be collected, spending 94% of time on bookkeeping.</p>
+<h2 id="why-gc-dominates">Why GC Dominates<a class="headerlink" href="#why-gc-dominates" title="Permanent link">&para;</a></h2>
+<h3 id="string-heavy-operations">String-Heavy Operations<a class="headerlink" href="#string-heavy-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># Markdown processing creates many temporary strings
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>fn extract_title(md: string) -&gt; string {
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    # Searches for &quot;# Title&quot; patterns
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    # Creates substrings for each line
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    # Pattern matching on each line
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    # Returns extracted title
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a># Syntax highlighting is particularly expensive
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>fn pretty_print_html(code: string, lang: string) -&gt; string {
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    # Tokenizes entire code string
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    # Creates HTML span for each token
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    # Concatenates all spans
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    # Escapes HTML entities
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    # Returns highlighted HTML
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>}
+</code></pre></div>
+<p>Every markdown file goes through:
+- Line-by-line processing (creates N substrings)
+- Token-by-token highlighting (creates 2N strings: tokens + HTML)
+- HTML template building (more concatenation)</p>
+<p>For 50 files with avg 500 lines + 100 code tokens each:
+- 50 × 500 = 25,000 line substrings
+- 50 × 100 × 2 = 10,000 syntax highlight strings
+- <strong>~35,000 string allocations</strong></p>
+<p>Every allocation triggers <code>gc_is_managed</code> checks!</p>
+<h2 id="optimization-strategies">Optimization Strategies<a class="headerlink" href="#optimization-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="1-batch-processing-with-stringbuilder-easy-2-3x-improvement">1. <strong>Batch Processing with StringBuilder</strong> (Easy, 2-3x improvement)<a class="headerlink" href="#1-batch-processing-with-stringbuilder-easy-2-3x-improvement" title="Permanent link">&para;</a></h3>
+<p><strong>Current:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>let mut result: string = &quot;&quot;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>for line in lines {
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    set result (+ result (process_line line))  # Allocates new string each time
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>}
+</code></pre></div></p>
+<p><strong>Optimized:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>let sb: StringBuilder = sb_new()
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>for line in lines {
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    sb_append(sb, (process_line line))  # Reuses buffer
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>}
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>let result: string = sb_to_string(sb)
+</code></pre></div></p>
+<p><strong>Expected gain:</strong> 2-3x faster (already partially done)</p>
+<h3 id="2-reduce-gc-frequency-medium-3-5x-improvement">2. <strong>Reduce GC Frequency</strong> (Medium, 3-5x improvement)<a class="headerlink" href="#2-reduce-gc-frequency-medium-3-5x-improvement" title="Permanent link">&para;</a></h3>
+<p>Modify GC to collect less aggressively during batch operations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Add GC mode for batch processing</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">gc_set_mode</span><span class="p">(</span><span class="k">enum</span><span class="w"> </span><span class="n">GCMode</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">GC_MODE_BATCH</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="n">gc_collect_threshold</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">  </span><span class="c1">// Collect 10x less frequently</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Expected gain:</strong> 3-5x faster during build</p>
+<h3 id="3-arena-allocation-for-temporary-strings-hard-10x-improvement">3. <strong>Arena Allocation for Temporary Strings</strong> (Hard, 10x improvement)<a class="headerlink" href="#3-arena-allocation-for-temporary-strings-hard-10x-improvement" title="Permanent link">&para;</a></h3>
+<p>Use arena allocator for short-lived strings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a># Hypothetical future syntax
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>fn process_file(path: string) -&gt; string with arena {
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    # All string allocations in this function use arena
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    # Arena freed when function returns
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    let lines: [string] = read_lines(path)
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    let html: string = md_to_html(lines)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    return html  # Only return value escapes arena
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>}
+</code></pre></div>
+<p><strong>Expected gain:</strong> 10x faster (no GC overhead for temp strings)</p>
+<h3 id="4-compile-time-string-interning-future">4. <strong>Compile-time String Interning</strong> (Future)<a class="headerlink" href="#4-compile-time-string-interning-future" title="Permanent link">&para;</a></h3>
+<p>Intern common strings (HTML tags, CSS classes) at compile time:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>const HTML_START: string = intern(&quot;&lt;div class=\&quot;content\&quot;&gt;&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>const HTML_END: string = intern(&quot;&lt;/div&gt;&quot;)
+</code></pre></div>
+<p><strong>Expected gain:</strong> 20% reduction in allocations</p>
+<h2 id="immediate-action-items">Immediate Action Items<a class="headerlink" href="#immediate-action-items" title="Permanent link">&para;</a></h2>
+<h3 id="short-term-this-week">Short-term (This Week)<a class="headerlink" href="#short-term-this-week" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <strong>Profile to identify bottleneck</strong> (DONE)</li>
+<li>☐ <strong>Add StringBuilder to all string concatenation loops</strong></li>
+<li>☐ <strong>Profile again to measure improvement</strong></li>
+</ol>
+<h3 id="medium-term-this-month">Medium-term (This Month)<a class="headerlink" href="#medium-term-this-month" title="Permanent link">&para;</a></h3>
+<ol>
+<li>☐ <strong>Add GC batch mode</strong> (C runtime change)</li>
+<li>☐ <strong>Optimize syntax highlighter to use StringBuilder internally</strong></li>
+<li>☐ <strong>Profile and document 3-5x improvement</strong></li>
+</ol>
+<h3 id="long-term-future">Long-term (Future)<a class="headerlink" href="#long-term-future" title="Permanent link">&para;</a></h3>
+<ol>
+<li>☐ <strong>Design arena allocation API</strong></li>
+<li>☐ <strong>Implement arena allocator in runtime</strong></li>
+<li>☐ <strong>Add compiler support for arena annotations</strong></li>
+</ol>
+<h2 id="expected-results">Expected Results<a class="headerlink" href="#expected-results" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Optimization</th>
+<th>Effort</th>
+<th>Expected Speedup</th>
+<th>Build Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline</td>
+<td>-</td>
+<td>1x</td>
+<td>~30s</td>
+</tr>
+<tr>
+<td>StringBuilder everywhere</td>
+<td>Low</td>
+<td>2-3x</td>
+<td>10-15s</td>
+</tr>
+<tr>
+<td>+ GC batch mode</td>
+<td>Medium</td>
+<td>3-5x</td>
+<td>6-10s</td>
+</tr>
+<tr>
+<td>+ Arena allocator</td>
+<td>High</td>
+<td>10x</td>
+<td>3s</td>
+</tr>
+<tr>
+<td>+ String interning</td>
+<td>Medium</td>
+<td>1.2x</td>
+<td>2.5s</td>
+</tr>
+</tbody>
+</table>
+<h2 id="comparison-to-prime-optimization">Comparison to Prime Optimization<a class="headerlink" href="#comparison-to-prime-optimization" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Prime Counter</th>
+<th>Userguide Build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bottleneck</td>
+<td>98% in is_prime</td>
+<td>94% in GC</td>
+</tr>
+<tr>
+<td>Root cause</td>
+<td>O(n√n) algorithm</td>
+<td>Excessive string allocation</td>
+</tr>
+<tr>
+<td>Solution type</td>
+<td>Algorithmic</td>
+<td>Runtime optimization</td>
+</tr>
+<tr>
+<td>Difficulty</td>
+<td>Easy (change algorithm)</td>
+<td>Medium-Hard (optimize GC)</td>
+</tr>
+<tr>
+<td>Expected gain</td>
+<td>5.6x</td>
+<td>3-10x (staged)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lessons-learned">Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="1-different-bottlenecks-require-different-solutions">1. <strong>Different Bottlenecks Require Different Solutions</strong><a class="headerlink" href="#1-different-bottlenecks-require-different-solutions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Prime counter:</strong> Change algorithm (developer fix)</li>
+<li><strong>Userguide build:</strong> Optimize runtime (language/compiler fix)</li>
+</ul>
+<h3 id="2-profiling-reveals-non-obvious-bottlenecks">2. <strong>Profiling Reveals Non-Obvious Bottlenecks</strong><a class="headerlink" href="#2-profiling-reveals-non-obvious-bottlenecks" title="Permanent link">&para;</a></h3>
+<p>Without profiling, you might think:
+- ❌ "Markdown parsing is slow"
+- ❌ "Syntax highlighting is complex"
+- ❌ "File I/O is the bottleneck"</p>
+<p>Profiling shows:
+- ✅ <strong>Garbage collection is the real problem</strong></p>
+<h3 id="3-string-operations-in-loops-are-expensive">3. <strong>String Operations in Loops Are Expensive</strong><a class="headerlink" href="#3-string-operations-in-loops-are-expensive" title="Permanent link">&para;</a></h3>
+<p>Every <code>+</code> operator on strings:
+1. Allocates new string
+2. Copies both operands
+3. Triggers GC check (93.71% of time!)</p>
+<p><strong>Rule:</strong> Use StringBuilder for any string building in loops.</p>
+<h3 id="4-gc-overhead-scales-with-allocations">4. <strong>GC Overhead Scales with Allocations</strong><a class="headerlink" href="#4-gc-overhead-scales-with-allocations" title="Permanent link">&para;</a></h3>
+<p>More allocations → more GC overhead (non-linear!)</p>
+<p>For batch operations (processing 50 files):
+- Small files (100 strings each): Manageable
+- Large files (1000 strings each): GC dominates</p>
+<p><strong>Solution:</strong> Reduce GC frequency during batch work.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Implement StringBuilder optimization</strong> (scripts/userguide_build_html.nano)</li>
+<li><strong>Profile again</strong> to confirm 2-3x improvement</li>
+<li><strong>Add GC batch mode</strong> (src/runtime/gc.c)</li>
+<li><strong>Document final results</strong> in this case study</li>
+</ol>
+<hr />
+<p><strong>See also:</strong>
+- <a href="../PROFILING_CASE_STUDY_PRIMES/">PROFILING_CASE_STUDY_PRIMES.md</a> - Algorithm optimization example
+- <a href="../userguide/08_profiling.md">userguide/08_profiling.md</a> - Profiling guide
+- <a href="../PERFORMANCE/">PERFORMANCE.md</a> - General performance guidelines</p>
+<p><strong>Status:</strong> Analysis complete. Ready to implement StringBuilder optimizations.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

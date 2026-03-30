@@ -1,0 +1,1574 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/AFFINE_TYPES_GUIDE/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Affine Types: A Practical Guide - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#affine-types-a-practical-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Affine Types: A Practical Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="affine-types-a-practical-guide">Affine Types: A Practical Guide<a class="headerlink" href="#affine-types-a-practical-guide" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 0.3.0<br />
+<strong>Status:</strong> Production-Ready<br />
+<strong>Difficulty:</strong> Intermediate</p>
+<hr />
+<h2 id="what-are-my-affine-types">What Are My Affine Types?<a class="headerlink" href="#what-are-my-affine-types" title="Permanent link">&para;</a></h2>
+<p>My affine types ensure that you use resources, like file handles, sockets, or database connections, at most once. I prevent common bugs at compile time:</p>
+<ul>
+<li>Use-after-free: Reading from a closed file</li>
+<li>Use-after-close: Sending data to a closed socket</li>
+<li>Double-free: Closing the same resource twice</li>
+<li>Resource leaks: Forgetting to close a resource</li>
+</ul>
+<p>I implement these through the <code>resource struct</code> keyword. This marks a struct as a managed resource, and I track its lifecycle during compilation.</p>
+<hr />
+<h2 id="why-i-use-affine-types">Why I Use Affine Types<a class="headerlink" href="#why-i-use-affine-types" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// C code - runtime bug waiting to happen</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;data.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">fread</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">fclose</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">fread</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span><span class="w">  </span><span class="c1">// BUG: Use after close! 💥</span>
+</code></pre></div>
+<h3 id="my-solution">My Solution<a class="headerlink" href="#my-solution" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># NanoLang - compile-time safety!
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>resource struct FileHandle { fd: int }
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>extern fn open_file(path: string) -&gt; FileHandle
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>extern fn read_file(f: FileHandle) -&gt; string
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>extern fn close_file(f: FileHandle) -&gt; void
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>fn example() -&gt; int {
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    let data: string = unsafe { (read_file f) }
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    unsafe { (close_file f) }
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    # let more: string = unsafe { (read_file f) }  # ✗ COMPILE ERROR!
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    return 0
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>}
+</code></pre></div>
+<p>I prevent the bug before your code runs.</p>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-declare-a-resource-struct">Step 1: Declare a Resource Struct<a class="headerlink" href="#step-1-declare-a-resource-struct" title="Permanent link">&para;</a></h3>
+<p>Use my <code>resource</code> keyword before <code>struct</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>resource struct FileHandle {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    fd: int
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>resource struct Socket {
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    id: int,
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    port: int
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>}
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>resource struct DatabaseConnection {
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    handle: int
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>}
+</code></pre></div>
+<p>Any struct I see declared with <code>resource</code> becomes subject to my affine type checking.</p>
+<hr />
+<h3 id="step-2-define-resource-operations">Step 2: Define Resource Operations<a class="headerlink" href="#step-2-define-resource-operations" title="Permanent link">&para;</a></h3>
+<p>Declare external C functions that work with your resource:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># Functions that CREATE resources
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>extern fn open_file(path: string) -&gt; FileHandle
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>extern fn connect_socket(host: string, port: int) -&gt; Socket
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a># Functions that USE resources (non-consuming)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>extern fn read_file(f: FileHandle) -&gt; string
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>extern fn send_data(s: Socket, data: string) -&gt; int
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a># Functions that CONSUME resources (take ownership)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>extern fn close_file(f: FileHandle) -&gt; void
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>extern fn close_socket(s: Socket) -&gt; void
+</code></pre></div>
+<p>When a function takes a resource by value, I consider it consumed.</p>
+<hr />
+<h3 id="step-3-use-resources-safely">Step 3: Use Resources Safely<a class="headerlink" href="#step-3-use-resources-safely" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>fn safe_file_usage() -&gt; string {
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    # 1. Create the resource
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    # 2. Use it multiple times (OK!)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    let chunk1: string = unsafe { (read_file f) }
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    let chunk2: string = unsafe { (read_file f) }
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    let chunk3: string = unsafe { (read_file f) }
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    # 3. Consume it exactly once (REQUIRED!)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    unsafe { (close_file f) }
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    return (str_concat chunk1 (str_concat chunk2 chunk3))
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>}
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>shadow safe_file_usage {
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    let result: string = (safe_file_usage)
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    assert (&gt;= (str_length result) 0)
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>}
+</code></pre></div>
+<hr />
+<h2 id="resource-lifecycle">Resource Lifecycle<a class="headerlink" href="#resource-lifecycle" title="Permanent link">&para;</a></h2>
+<p>I track every resource through these states:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>UNUSED → USED → CONSUMED
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  ↓       ↓        ↓
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Create  Use    Transfer ownership
+</code></pre></div>
+<h3 id="state-1-unused">State 1: UNUSED<a class="headerlink" href="#state-1-unused" title="Permanent link">&para;</a></h3>
+<p>The resource exists. You have not used it yet.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>let f: FileHandle = unsafe { (open_file &quot;file.txt&quot;) }
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a># State: UNUSED
+</code></pre></div>
+<h3 id="state-2-used">State 2: USED<a class="headerlink" href="#state-2-used" title="Permanent link">&para;</a></h3>
+<p>You have borrowed the resource through non-consuming operations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>let data: string = unsafe { (read_file f) }
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a># State: USED (can still use it more)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>let more: string = unsafe { (read_file f) }
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a># State: USED (still OK)
+</code></pre></div>
+<h3 id="state-3-consumed">State 3: CONSUMED<a class="headerlink" href="#state-3-consumed" title="Permanent link">&para;</a></h3>
+<p>You have moved or transferred the resource. Its ownership is gone.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>unsafe { (close_file f) }
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a># State: CONSUMED (cannot use anymore)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a># ✗ let x: string = unsafe { (read_file f) }  # COMPILE ERROR!
+</code></pre></div>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-simple-resource-usage">Pattern 1: Simple Resource Usage<a class="headerlink" href="#pattern-1-simple-resource-usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn pattern_simple() -&gt; int {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    let r: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    let data: string = unsafe { (read_file r) }
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    unsafe { (close_file r) }
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    return (str_length data)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>shadow pattern_simple {
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    assert (&gt;= (pattern_simple) 0)
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-2-multiple-resources">Pattern 2: Multiple Resources<a class="headerlink" href="#pattern-2-multiple-resources" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fn pattern_multiple() -&gt; int {
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    # Open multiple resources
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    let f1: FileHandle = unsafe { (open_file &quot;file1.txt&quot;) }
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    let f2: FileHandle = unsafe { (open_file &quot;file2.txt&quot;) }
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    let s: Socket = unsafe { (connect_socket &quot;localhost&quot; 8080) }
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    # Use them
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    let data1: string = unsafe { (read_file f1) }
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    let data2: string = unsafe { (read_file f2) }
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    let sent: int = unsafe { (send_data s (str_concat data1 data2)) }
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    # Close all resources
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    unsafe { (close_file f1) }
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    unsafe { (close_file f2) }
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    unsafe { (close_socket s) }
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    return sent
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>}
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>shadow pattern_multiple {
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>    assert (&gt;= (pattern_multiple) 0)
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-3-conditional-resource-handling">Pattern 3: Conditional Resource Handling<a class="headerlink" href="#pattern-3-conditional-resource-handling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn pattern_conditional(should_read: bool) -&gt; int {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    if should_read {
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        let data: string = unsafe { (read_file f) }
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        (println data)
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    } else {
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>        (println &quot;Skipping read&quot;)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    }
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    # Must close in ALL branches!
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    unsafe { (close_file f) }
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    return 0
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>}
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>shadow pattern_conditional {
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    assert (== (pattern_conditional true) 0)
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    assert (== (pattern_conditional false) 0)
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-4-resource-with-early-return">Pattern 4: Resource with Early Return<a class="headerlink" href="#pattern-4-resource-with-early-return" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn pattern_early_return(should_abort: bool) -&gt; int {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    if should_abort {
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        # Must close before early return!
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        unsafe { (close_file f) }
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        return (- 0 1)
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    }
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    let data: string = unsafe { (read_file f) }
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    unsafe { (close_file f) }
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    return (str_length data)
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>}
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>shadow pattern_early_return {
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    assert (== (pattern_early_return true) (- 0 1))
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    assert (&gt;= (pattern_early_return false) 0)
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-5-resource-in-helper-function">Pattern 5: Resource in Helper Function<a class="headerlink" href="#pattern-5-resource-in-helper-function" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn helper_process(f: FileHandle) -&gt; string {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    # Can use the resource here
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    return unsafe { (read_file f) }
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>shadow helper_process {
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    let f: FileHandle = unsafe { (open_file &quot;test.txt&quot;) }
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    let result: string = (helper_process f)
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    unsafe { (close_file f) }
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    (println result)
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>}
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>fn pattern_helper() -&gt; int {
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    let processed: string = (helper_process f)
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    # f is still valid here (helper didn&#39;t consume it)
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    unsafe { (close_file f) }
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    return (str_length processed)
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>}
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>shadow pattern_helper {
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>    assert (&gt;= (pattern_helper) 0)
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-6-resource-with-loops">Pattern 6: Resource with Loops<a class="headerlink" href="#pattern-6-resource-with-loops" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>fn pattern_loop() -&gt; int {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    let mut total: int = 0
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    let mut i: int = 0
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    while (&lt; i 5) {
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        let chunk: string = unsafe { (read_file f) }
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        set total (+ total (str_length chunk))
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        set i (+ i 1)
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    }
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    unsafe { (close_file f) }
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    return total
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>}
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>shadow pattern_loop {
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    assert (&gt;= (pattern_loop) 0)
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>}
+</code></pre></div>
+<hr />
+<h3 id="pattern-7-resource-in-struct">Pattern 7: Resource in Struct<a class="headerlink" href="#pattern-7-resource-in-struct" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>struct Connection {
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    socket: Socket,
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    is_active: bool,
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    name: string
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>}
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>fn pattern_struct() -&gt; int {
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    let s: Socket = unsafe { (connect_socket &quot;localhost&quot; 9000) }
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    let conn: Connection = Connection {
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>        socket: s,
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        is_active: true,
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        name: &quot;main&quot;
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>    }
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    if conn.is_active {
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>        let sent: int = unsafe { (send_data conn.socket &quot;hello&quot;) }
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>        (println &quot;Message sent&quot;)
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    }
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    # Must consume the socket from the struct
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    unsafe { (close_socket conn.socket) }
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>    return 0
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>}
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>shadow pattern_struct {
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>    assert (== (pattern_struct) 0)
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>}
+</code></pre></div>
+<hr />
+<h2 id="errors-i-detect">Errors I Detect<a class="headerlink" href="#errors-i-detect" title="Permanent link">&para;</a></h2>
+<h3 id="error-1-use-after-consume">Error 1: Use After Consume<a class="headerlink" href="#error-1-use-after-consume" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a># ✗ WRONG
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>unsafe { (close_file f) }
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>let data: string = unsafe { (read_file f) }  # ERROR!
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a># ✓ CORRECT
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>let data: string = unsafe { (read_file f) }  # Use before consume
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>unsafe { (close_file f) }
+</code></pre></div>
+<p>My error message:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Error: Cannot use resource &#39;f&#39; after it has been consumed
+</code></pre></div></p>
+<hr />
+<h3 id="error-2-double-consume">Error 2: Double Consume<a class="headerlink" href="#error-2-double-consume" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a># ✗ WRONG
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>unsafe { (close_file f) }
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>unsafe { (close_file f) }  # ERROR!
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a># ✓ CORRECT
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>unsafe { (close_file f) }  # Consume exactly once
+</code></pre></div>
+<p>My error message:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Error: Cannot consume resource &#39;f&#39; - already consumed
+</code></pre></div></p>
+<hr />
+<h3 id="error-3-resource-leak">Error 3: Resource Leak<a class="headerlink" href="#error-3-resource-leak" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a># ✗ WRONG
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>fn leaky() -&gt; int {
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    let data: string = unsafe { (read_file f) }
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    return (str_length data)
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    # ERROR: &#39;f&#39; was not consumed!
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>}
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a># ✓ CORRECT
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>fn safe() -&gt; int {
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>    let data: string = unsafe { (read_file f) }
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>    unsafe { (close_file f) }  # Always consume!
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>    return (str_length data)
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>}
+</code></pre></div>
+<p>My error message:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Error: Resource &#39;f&#39; was not consumed before end of scope
+</code></pre></div></p>
+<hr />
+<h3 id="error-4-conditional-leak">Error 4: Conditional Leak<a class="headerlink" href="#error-4-conditional-leak" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a># ✗ WRONG
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>fn conditional_leak(x: int) -&gt; int {
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    if (&gt; x 0) {
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>        unsafe { (close_file f) }
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    }
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>    # ERROR: &#39;f&#39; not consumed in else branch!
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    return 0
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>}
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a># ✓ CORRECT
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>fn conditional_safe(x: int) -&gt; int {
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>    if (&gt; x 0) {
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>        (println &quot;Positive&quot;)
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>    } else {
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>        (println &quot;Non-positive&quot;)
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>    }
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>    # Consume in ALL paths
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>    unsafe { (close_file f) }
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>    return 0
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>}
+</code></pre></div>
+<hr />
+<h2 id="things-i-recommend">Things I Recommend<a class="headerlink" href="#things-i-recommend" title="Permanent link">&para;</a></h2>
+<h3 id="consume-resources-as-late-as-possible">Consume Resources as Late as Possible<a class="headerlink" href="#consume-resources-as-late-as-possible" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>fn good_practice() -&gt; int {
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    let data1: string = unsafe { (read_file f) }
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    let data2: string = unsafe { (read_file f) }
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    let result: int = (+ (str_length data1) (str_length data2))
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    unsafe { (close_file f) }  # Close at the end
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    return result
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>}
+</code></pre></div>
+<h3 id="use-multiple-variables-for-multiple-resources">Use Multiple Variables for Multiple Resources<a class="headerlink" href="#use-multiple-variables-for-multiple-resources" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>fn good_multiple() -&gt; int {
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    let f1: FileHandle = unsafe { (open_file &quot;file1.txt&quot;) }
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    let f2: FileHandle = unsafe { (open_file &quot;file2.txt&quot;) }
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    # Use both
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    unsafe { (close_file f1) }
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    unsafe { (close_file f2) }
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    return 0
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>}
+</code></pre></div>
+<h3 id="close-in-all-branches">Close in All Branches<a class="headerlink" href="#close-in-all-branches" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>fn good_branches(flag: bool) -&gt; int {
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    let f: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    if flag {
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>        let data: string = unsafe { (read_file f) }
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>        unsafe { (close_file f) }
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        return (str_length data)
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    } else {
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>        unsafe { (close_file f) }
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>        return 0
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>    }
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>}
+</code></pre></div>
+<h3 id="do-not-try-to-clone-or-copy-resources">Do Not Try to Clone or Copy Resources<a class="headerlink" href="#do-not-try-to-clone-or-copy-resources" title="Permanent link">&para;</a></h3>
+<p>Resources cannot be cloned. They represent unique ownership.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a># ✗ This won&#39;t work
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>let f1: FileHandle = unsafe { (open_file &quot;data.txt&quot;) }
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>let f2: FileHandle = f1  # ERROR: Resources cannot be copied!
+</code></pre></div>
+<h3 id="do-not-store-resources-in-arrays">Do Not Store Resources in Arrays<a class="headerlink" href="#do-not-store-resources-in-arrays" title="Permanent link">&para;</a></h3>
+<p>Resources must have explicit, traceable lifetimes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a># ✗ This won&#39;t work
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>let handles: array&lt;FileHandle&gt; = [...]  # ERROR: No resource arrays!
+</code></pre></div>
+<hr />
+<h2 id="real-world-examples">Real-World Examples<a class="headerlink" href="#real-world-examples" title="Permanent link">&para;</a></h2>
+<h3 id="example-1-configuration-file-reader">Example 1: Configuration File Reader<a class="headerlink" href="#example-1-configuration-file-reader" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>resource struct FileHandle { fd: int }
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>extern fn open_file(path: string) -&gt; FileHandle
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>extern fn read_file(f: FileHandle) -&gt; string
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>extern fn close_file(f: FileHandle) -&gt; void
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>fn read_config(path: string) -&gt; string {
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    let f: FileHandle = unsafe { (open_file path) }
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>    let content: string = unsafe { (read_file f) }
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>    unsafe { (close_file f) }
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>    return content
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>}
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a>shadow read_config {
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a>    let config: string = (read_config &quot;config.json&quot;)
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>    assert (&gt;= (str_length config) 0)
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a>}
+</code></pre></div>
+<h3 id="example-2-network-client">Example 2: Network Client<a class="headerlink" href="#example-2-network-client" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>resource struct Socket { id: int }
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>extern fn connect_socket(host: string, port: int) -&gt; Socket
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>extern fn send_data(s: Socket, data: string) -&gt; int
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>extern fn receive_data(s: Socket) -&gt; string
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>extern fn close_socket(s: Socket) -&gt; void
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>fn send_request(host: string, request: string) -&gt; string {
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>    let s: Socket = unsafe { (connect_socket host 80) }
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>    let sent: int = unsafe { (send_data s request) }
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>    let response: string = unsafe { (receive_data s) }
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>    unsafe { (close_socket s) }
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>    return response
+<a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>}
+<a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>
+<a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>shadow send_request {
+<a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>    let resp: string = (send_request &quot;example.com&quot; &quot;GET / HTTP/1.0\r\n\r\n&quot;)
+<a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>    assert (&gt;= (str_length resp) 0)
+<a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a>}
+</code></pre></div>
+<hr />
+<h2 id="advanced-topics">Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permanent link">&para;</a></h2>
+<h3 id="affine-vs-linear-types">Affine vs Linear Types<a class="headerlink" href="#affine-vs-linear-types" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Linear types: Must be used exactly once. You cannot drop them.</li>
+<li>Affine types: Must be used at most once. You can drop them without using them.</li>
+</ul>
+<p>I use affine types because they are more flexible. You can consume a resource without using it first. You can conditionally use resources. Early returns are easier for me to handle.</p>
+<h3 id="relationship-to-rusts-ownership">Relationship to Rust's Ownership<a class="headerlink" href="#relationship-to-rusts-ownership" title="Permanent link">&para;</a></h3>
+<p>If you know Rust, my affine types are similar to Rust's move semantics:</p>
+<table>
+<thead>
+<tr>
+<th>Rust</th>
+<th>NanoLang (Me)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Drop</code> trait</td>
+<td>Resource consumption</td>
+</tr>
+<tr>
+<td>Move semantics</td>
+<td>Affine types</td>
+</tr>
+<tr>
+<td><code>&amp;mut</code> borrow</td>
+<td>Non-consuming use</td>
+</tr>
+<tr>
+<td>Lifetime <code>'a</code></td>
+<td>Implicit (function scope)</td>
+</tr>
+</tbody>
+</table>
+<p>My affine types are simpler. I have no lifetime annotations and no complex borrowing rules.</p>
+<hr />
+<h2 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h2>
+<p><strong>Can I return a resource from a function?</strong><br />
+Yes. The caller becomes responsible for consuming it.</p>
+<p><strong>What happens if I forget to close a resource?</strong><br />
+Compile error. My type checker enforces cleanup.</p>
+<p><strong>Can resources be optional (nullable)?</strong><br />
+Not yet. Consider using a union wrapper:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>union MaybeFile {
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    Some { f: FileHandle },
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>    None { }
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>}
+</code></pre></div></p>
+<p><strong>Do I need affine types for all structs?</strong><br />
+No. Only for types that represent managed resources like files or sockets.</p>
+<p><strong>Can I use GC with affine types?</strong><br />
+Yes. Regular values are GC'd. Affine types only track explicit resource cleanup.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<ul>
+<li>My affine types prevent resource bugs at compile time.</li>
+<li>Use <code>resource struct</code> for resources that need cleanup.</li>
+<li>Create, then Use, then Consume is the mandatory lifecycle.</li>
+<li>I enforce proper cleanup in all code paths.</li>
+<li>Zero runtime overhead. I do all checking at compile time.</li>
+</ul>
+<p>Start using my affine types today for safer, more reliable code.</p>
+<hr />
+<p>For more details, see:
+- <strong>MEMORY.md</strong> - My language reference
+- <strong>AFFINE_TYPES_DESIGN.md</strong> - My implementation details
+- <strong>tests/test_affine_integration.nano</strong> - My comprehensive examples</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

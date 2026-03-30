@@ -1,0 +1,2249 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/FORMAL_SPECIFICATION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>My Formal Specification (NanoCore) - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#my-formal-specification-nanocore" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              My Formal Specification (NanoCore)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="my-formal-specification-nanocore">My Formal Specification (NanoCore)<a class="headerlink" href="#my-formal-specification-nanocore" title="Permanent link">&para;</a></h1>
+<p><em>Auto-generated from my Coq proof scripts on 2026-02-08.</em></p>
+<blockquote>
+<p><strong>NanoCore</strong> is my formally verified subset. I have machine-checked every property
+listed below in Coq using <strong>0 axioms</strong> and <strong>0 Admitted</strong>. My proofs are complete,
+and they do not bluff.</p>
+</blockquote>
+<h2 id="my-verification-status">My Verification Status<a class="headerlink" href="#my-verification-status" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type Soundness</td>
+<td><code>Soundness.v</code></td>
+<td>I proved that well-typed programs evaluate to well-typed values</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td><code>Progress.v</code></td>
+<td>I proved that well-typed expressions are never stuck</td>
+</tr>
+<tr>
+<td>Determinism</td>
+<td><code>Determinism.v</code></td>
+<td>I proved that evaluation produces a unique result</td>
+</tr>
+<tr>
+<td>Semantic Equivalence</td>
+<td><code>Equivalence.v</code></td>
+<td>I proved that my big-step and small-step semantics agree</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-my-types">1. My Types<a class="headerlink" href="#1-my-types" title="Permanent link">&para;</a></h2>
+<p>I have <strong>7 types</strong> in my verified subset (defined in <code>Syntax.v</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TInt</code></td>
+<td><code>int</code></td>
+<td>64-bit signed integer</td>
+</tr>
+<tr>
+<td><code>TBool</code></td>
+<td><code>bool</code></td>
+<td>Boolean (true/false)</td>
+</tr>
+<tr>
+<td><code>TString</code></td>
+<td><code>string</code></td>
+<td>Immutable string</td>
+</tr>
+<tr>
+<td><code>TUnit</code></td>
+<td><code>unit</code></td>
+<td>Unit type (void-like)</td>
+</tr>
+<tr>
+<td><code>TArrow</code></td>
+<td><code>T1 -&gt; T2</code></td>
+<td>Function type</td>
+</tr>
+<tr>
+<td><code>TArray</code></td>
+<td><code>array&lt;T&gt;</code></td>
+<td>Homogeneous array</td>
+</tr>
+<tr>
+<td><code>TRecord</code></td>
+<td><code>{f1: T1, ..., fn: Tn}</code></td>
+<td>Record (struct) type</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-my-operators">2. My Operators<a class="headerlink" href="#2-my-operators" title="Permanent link">&para;</a></h2>
+<h3 id="21-binary-operators">2.1 Binary Operators<a class="headerlink" href="#21-binary-operators" title="Permanent link">&para;</a></h3>
+<p>I have <strong>14 binary operators</strong> in NanoCore, classified by my semantics as:
+- Arithmetic (5): <code>OpAdd</code>, <code>OpSub</code>, <code>OpMul</code>, <code>OpDiv</code>, <code>OpMod</code>
+- Comparison (6): <code>OpEq</code>, <code>OpNe</code>, <code>OpLt</code>, <code>OpLe</code>, <code>OpGt</code>, <code>OpGe</code>
+- Logical (2): <code>OpAnd</code>, <code>OpOr</code>
+- String (1): <code>OpStrCat</code></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Symbol</th>
+<th>Operand Types</th>
+<th>Result Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OpAdd</code></td>
+<td><code>+</code></td>
+<td>int, int</td>
+<td>int</td>
+<td>Addition</td>
+</tr>
+<tr>
+<td><code>OpSub</code></td>
+<td><code>-</code></td>
+<td>int, int</td>
+<td>int</td>
+<td>Subtraction</td>
+</tr>
+<tr>
+<td><code>OpMul</code></td>
+<td><code>*</code></td>
+<td>int, int</td>
+<td>int</td>
+<td>Multiplication</td>
+</tr>
+<tr>
+<td><code>OpDiv</code></td>
+<td><code>/</code></td>
+<td>int, int</td>
+<td>int</td>
+<td>Division (None if divisor = 0)</td>
+</tr>
+<tr>
+<td><code>OpMod</code></td>
+<td><code>%</code></td>
+<td>int, int</td>
+<td>int</td>
+<td>Modulo (None if divisor = 0)</td>
+</tr>
+<tr>
+<td><code>OpEq</code></td>
+<td><code>==</code></td>
+<td>int/bool/string</td>
+<td>bool</td>
+<td>Equality (polymorphic)</td>
+</tr>
+<tr>
+<td><code>OpNe</code></td>
+<td><code>!=</code></td>
+<td>int/bool/string</td>
+<td>bool</td>
+<td>Inequality (polymorphic)</td>
+</tr>
+<tr>
+<td><code>OpLt</code></td>
+<td><code>&lt;</code></td>
+<td>int, int</td>
+<td>bool</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>OpLe</code></td>
+<td><code>&lt;=</code></td>
+<td>int, int</td>
+<td>bool</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>OpGt</code></td>
+<td><code>&gt;</code></td>
+<td>int, int</td>
+<td>bool</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>OpGe</code></td>
+<td><code>&gt;=</code></td>
+<td>int, int</td>
+<td>bool</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>OpAnd</code></td>
+<td><code>and</code></td>
+<td>bool, bool</td>
+<td>bool</td>
+<td>Logical AND (short-circuit)</td>
+</tr>
+<tr>
+<td><code>OpOr</code></td>
+<td><code>or</code></td>
+<td>bool, bool</td>
+<td>bool</td>
+<td>Logical OR (short-circuit)</td>
+</tr>
+<tr>
+<td><code>OpStrCat</code></td>
+<td><code>+</code></td>
+<td>string, string</td>
+<td>string</td>
+<td>String concatenation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-unary-operators">2.2 Unary Operators<a class="headerlink" href="#22-unary-operators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Symbol</th>
+<th>Operand Type</th>
+<th>Result Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OpNeg</code></td>
+<td><code>- (unary)</code></td>
+<td>int</td>
+<td>int</td>
+<td>Arithmetic negation</td>
+</tr>
+<tr>
+<td><code>OpNot</code></td>
+<td><code>not</code></td>
+<td>bool</td>
+<td>bool</td>
+<td>Logical negation</td>
+</tr>
+<tr>
+<td><code>OpStrLen</code></td>
+<td><code>str_length</code></td>
+<td>string</td>
+<td>int</td>
+<td>String length</td>
+</tr>
+<tr>
+<td><code>OpArrayLen</code></td>
+<td><code>array_length</code></td>
+<td>array<T></td>
+<td>int</td>
+<td>Array length</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-arithmetic-semantics-eval_arith_binop">2.3 Arithmetic Semantics (<code>eval_arith_binop</code>)<a class="headerlink" href="#23-arithmetic-semantics-eval_arith_binop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eval_arith_binop op n1 n2 =
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  | OpAdd =&gt; Some (VInt (n1 + n2))
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  | OpSub =&gt; Some (VInt (n1 - n2))
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  | OpMul =&gt; Some (VInt (n1 * n2))
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  | OpDiv =&gt; if Z.eqb n2 0 then None else Some (VInt (Z.div n1 n2))
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  | OpMod =&gt; if Z.eqb n2 0 then None else Some (VInt (Z.modulo n1 n2))
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  | _ =&gt; None
+</code></pre></div>
+<h3 id="24-comparison-semantics-eval_cmp_binop">2.4 Comparison Semantics (<code>eval_cmp_binop</code>)<a class="headerlink" href="#24-comparison-semantics-eval_cmp_binop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>eval_cmp_binop op n1 n2 =
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  | OpEq =&gt; Some (VBool (Z.eqb n1 n2))
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  | OpNe =&gt; Some (VBool (negb (Z.eqb n1 n2)))
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  | OpLt =&gt; Some (VBool (Z.ltb n1 n2))
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  | OpLe =&gt; Some (VBool (Z.leb n1 n2))
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  | OpGt =&gt; Some (VBool (Z.ltb n2 n1))
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  | OpGe =&gt; Some (VBool (Z.leb n2 n1))
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  | _ =&gt; None
+</code></pre></div>
+<h2 id="3-my-expression-forms">3. My Expression Forms<a class="headerlink" href="#3-my-expression-forms" title="Permanent link">&para;</a></h2>
+<p>I have <strong>16 expression forms</strong> (defined in <code>Syntax.v</code>):</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Constructor</th>
+<th>Coq Comment</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>EInt</code></td>
+<td>integer literal</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>EBool</code></td>
+<td>boolean literal</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>EString</code></td>
+<td>string literal</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>EUnit</code></td>
+<td>unit literal</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>EVar</code></td>
+<td>variable reference</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>EBinOp</code></td>
+<td>binary operation</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>EUnOp</code></td>
+<td>unary operation</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>EIf</code></td>
+<td>if cond then e1 else e2</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>ELet</code></td>
+<td>let x = e1 in e2</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>ESet</code></td>
+<td>set x = e</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>ESeq</code></td>
+<td>e1; e2</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>EWhile</code></td>
+<td>while cond do body</td>
+<td></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>ELam</code></td>
+<td>fun (x : T) =&gt; body</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>EApp</code></td>
+<td>function application</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>EFix</code></td>
+<td>fix f (x:T1):T2 = body</td>
+<td></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>EArray</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-my-evaluation-rules">4. My Evaluation Rules<a class="headerlink" href="#4-my-evaluation-rules" title="Permanent link">&para;</a></h2>
+<p>My big-step semantics relation is <code>eval renv e renv' v</code>. I evaluate expression <code>e</code>
+to value <code>v</code> in environment <code>renv</code>, which produces an updated environment <code>renv'</code>.</p>
+<p><strong>My evaluation properties:</strong>
+- <strong>Eager</strong> (call-by-value). I evaluate arguments before function bodies.
+- <strong>Deterministic</strong>. I produce at most one result for any expression.
+- <strong>Lexical scoping</strong>. My closures capture their creation environment.
+- <strong>Store-passing</strong>. I thread mutable variables through my environment.</p>
+<h3 id="41-literals">4.1 Literals<a class="headerlink" href="#41-literals" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_Int</code></td>
+<td>Integer literal</td>
+</tr>
+<tr>
+<td><code>E_Bool</code></td>
+<td>Boolean literal</td>
+</tr>
+<tr>
+<td><code>E_String</code></td>
+<td>String literal</td>
+</tr>
+<tr>
+<td><code>E_Unit</code></td>
+<td>Unit literal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-variables">4.2 Variables<a class="headerlink" href="#42-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_Var</code></td>
+<td>Variable lookup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-arithmetic">4.3 Arithmetic<a class="headerlink" href="#43-arithmetic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_BinArith</code></td>
+<td>Arithmetic binary operations: int op int -&gt; int</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-comparison">4.4 Comparison<a class="headerlink" href="#44-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_BinCmp</code></td>
+<td>Comparison operations: int op int -&gt; bool</td>
+</tr>
+<tr>
+<td><code>E_BinEqBool</code></td>
+<td>Equality on booleans: bool op bool -&gt; bool</td>
+</tr>
+<tr>
+<td><code>E_BinNeBool</code></td>
+<td>Inequality on booleans</td>
+</tr>
+<tr>
+<td><code>E_BinEqStr</code></td>
+<td>String equality</td>
+</tr>
+<tr>
+<td><code>E_BinNeStr</code></td>
+<td>String inequality</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-string-ops">4.5 String Ops<a class="headerlink" href="#45-string-ops" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_StrCat</code></td>
+<td>String concatenation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="46-logical-ops">4.6 Logical Ops<a class="headerlink" href="#46-logical-ops" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_And_True</code></td>
+<td>Logical AND (short-circuit)</td>
+</tr>
+<tr>
+<td><code>E_And_False</code></td>
+<td>AND where left is false (literal false on right)</td>
+</tr>
+<tr>
+<td><code>E_And_Short</code></td>
+<td>Short-circuit AND. If left is false, my result is false regardless of right.</td>
+</tr>
+<tr>
+<td><code>E_Or_False</code></td>
+<td>Logical OR (short-circuit)</td>
+</tr>
+<tr>
+<td><code>E_Or_Short</code></td>
+<td>Short-circuit OR. If left is true, my result is true regardless of right.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="47-unary-ops">4.7 Unary Ops<a class="headerlink" href="#47-unary-ops" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_Neg</code></td>
+<td>Unary negation: -n</td>
+</tr>
+<tr>
+<td><code>E_Not</code></td>
+<td>Logical not</td>
+</tr>
+<tr>
+<td><code>E_StrLen</code></td>
+<td>String length</td>
+</tr>
+</tbody>
+</table>
+<h3 id="48-control-flow">4.8 Control Flow<a class="headerlink" href="#48-control-flow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_IfTrue</code></td>
+<td>If-then-else: true branch</td>
+</tr>
+<tr>
+<td><code>E_IfFalse</code></td>
+<td>If-then-else: false branch</td>
+</tr>
+<tr>
+<td><code>E_Let</code></td>
+<td>Let binding: let x = e1 in e2. I evaluate the body in the extended environment. I pop the let binding from the output environment, while preserving any mutations to variables in the enclosing scope.</td>
+</tr>
+<tr>
+<td><code>E_Set</code></td>
+<td>Set: mutable variable update</td>
+</tr>
+<tr>
+<td><code>E_Seq</code></td>
+<td>Sequence: e1; e2</td>
+</tr>
+<tr>
+<td><code>E_WhileTrue</code></td>
+<td>While loop: condition true, I execute body and loop</td>
+</tr>
+<tr>
+<td><code>E_WhileFalse</code></td>
+<td>While loop: condition false, I stop</td>
+</tr>
+</tbody>
+</table>
+<h3 id="49-functions">4.9 Functions<a class="headerlink" href="#49-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_Lam</code></td>
+<td>Lambda abstraction. I create a closure.</td>
+</tr>
+<tr>
+<td><code>E_App</code></td>
+<td>Function application. I evaluate the body in the closure's environment (lexical scoping). Mutations inside the body do not affect the caller's environment. The output environment is the caller's env after I evaluate the function and argument.</td>
+</tr>
+<tr>
+<td><code>E_Fix</code></td>
+<td>Fix. My recursive functions create a fix closure.</td>
+</tr>
+<tr>
+<td><code>E_AppFix</code></td>
+<td>Application of fix closure. I unroll one step.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="410-arrays">4.10 Arrays<a class="headerlink" href="#410-arrays" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_ArrayNil</code></td>
+<td>Array literal: empty</td>
+</tr>
+<tr>
+<td><code>E_ArrayCons</code></td>
+<td>Array literal. I evaluate elements left-to-right.</td>
+</tr>
+<tr>
+<td><code>E_Index</code></td>
+<td>Array indexing: (at arr i)</td>
+</tr>
+<tr>
+<td><code>E_ArrayLen</code></td>
+<td>Array length</td>
+</tr>
+<tr>
+<td><code>E_ArraySet</code></td>
+<td>Array functional update</td>
+</tr>
+<tr>
+<td><code>E_ArrayPush</code></td>
+<td>Array push</td>
+</tr>
+</tbody>
+</table>
+<h3 id="411-records">4.11 Records<a class="headerlink" href="#411-records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_RecordNil</code></td>
+<td>Record literal: empty</td>
+</tr>
+<tr>
+<td><code>E_RecordCons</code></td>
+<td>Record literal. I evaluate fields left-to-right.</td>
+</tr>
+<tr>
+<td><code>E_Field</code></td>
+<td>Record field access</td>
+</tr>
+<tr>
+<td><code>E_SetField</code></td>
+<td>Record field update: set x.f = e</td>
+</tr>
+</tbody>
+</table>
+<h3 id="412-variants">4.12 Variants<a class="headerlink" href="#412-variants" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_Construct</code></td>
+<td>Variant constructor</td>
+</tr>
+<tr>
+<td><code>E_Match</code></td>
+<td>Pattern matching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="413-string-indexing">4.13 String Indexing<a class="headerlink" href="#413-string-indexing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_StrIndex</code></td>
+<td>String indexing. This is total. Out-of-bounds returns "".</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-my-typing-rules">5. My Typing Rules<a class="headerlink" href="#5-my-typing-rules" title="Permanent link">&para;</a></h2>
+<p>My typing judgment is <code>has_type ctx e t</code>. Expression <code>e</code> has type <code>t</code>
+in typing context <code>ctx</code>.</p>
+<h3 id="51-literals">5.1 Literals<a class="headerlink" href="#51-literals" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_Int</code></td>
+<td>Integer literal</td>
+</tr>
+<tr>
+<td><code>T_Bool</code></td>
+<td>Boolean literal</td>
+</tr>
+<tr>
+<td><code>T_String</code></td>
+<td>String literal</td>
+</tr>
+<tr>
+<td><code>T_Unit</code></td>
+<td>Unit literal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-variables">5.2 Variables<a class="headerlink" href="#52-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_Var</code></td>
+<td>Variable</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-operators">5.3 Operators<a class="headerlink" href="#53-operators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_BinOp</code></td>
+<td>Binary operator on integers</td>
+</tr>
+<tr>
+<td><code>T_BinLogic</code></td>
+<td>Logical operators on booleans</td>
+</tr>
+<tr>
+<td><code>T_BinEqBool</code></td>
+<td>Equality/inequality on booleans</td>
+</tr>
+<tr>
+<td><code>T_StrCat</code></td>
+<td>String concatenation</td>
+</tr>
+<tr>
+<td><code>T_BinEqStr</code></td>
+<td>Equality/inequality on strings</td>
+</tr>
+<tr>
+<td><code>T_Neg</code></td>
+<td>Unary negation</td>
+</tr>
+<tr>
+<td><code>T_Not</code></td>
+<td>Logical not</td>
+</tr>
+<tr>
+<td><code>T_StrLen</code></td>
+<td>String length</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-control-flow">5.4 Control Flow<a class="headerlink" href="#54-control-flow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_If</code></td>
+<td>If-then-else</td>
+</tr>
+<tr>
+<td><code>T_Let</code></td>
+<td>Let binding</td>
+</tr>
+<tr>
+<td><code>T_Set</code></td>
+<td>Set: mutable variable assignment</td>
+</tr>
+<tr>
+<td><code>T_Seq</code></td>
+<td>Sequence</td>
+</tr>
+<tr>
+<td><code>T_While</code></td>
+<td>While loop</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55-functions">5.5 Functions<a class="headerlink" href="#55-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_Lam</code></td>
+<td>Lambda abstraction</td>
+</tr>
+<tr>
+<td><code>T_App</code></td>
+<td>Function application</td>
+</tr>
+<tr>
+<td><code>T_Fix</code></td>
+<td>Recursive function</td>
+</tr>
+</tbody>
+</table>
+<h3 id="56-arrays">5.6 Arrays<a class="headerlink" href="#56-arrays" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_ArrayNil</code></td>
+<td>Empty array literal. [] has type array<T> for any T.</td>
+</tr>
+<tr>
+<td><code>T_ArrayCons</code></td>
+<td>Non-empty array literal: [e, ...es]</td>
+</tr>
+<tr>
+<td><code>T_Index</code></td>
+<td>Array indexing: (at arr i)</td>
+</tr>
+<tr>
+<td><code>T_ArrayLen</code></td>
+<td>Array length</td>
+</tr>
+<tr>
+<td><code>T_ArraySet</code></td>
+<td>Array functional update</td>
+</tr>
+<tr>
+<td><code>T_ArrayPush</code></td>
+<td>Array push</td>
+</tr>
+</tbody>
+</table>
+<h3 id="57-records">5.7 Records<a class="headerlink" href="#57-records" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_RecordNil</code></td>
+<td>Empty record literal</td>
+</tr>
+<tr>
+<td><code>T_RecordCons</code></td>
+<td>Non-empty record literal</td>
+</tr>
+<tr>
+<td><code>T_Field</code></td>
+<td>Record field access</td>
+</tr>
+<tr>
+<td><code>T_SetField</code></td>
+<td>Record field update</td>
+</tr>
+</tbody>
+</table>
+<h3 id="58-variants">5.8 Variants<a class="headerlink" href="#58-variants" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_Construct</code></td>
+<td>Variant constructor</td>
+</tr>
+<tr>
+<td><code>T_Match</code></td>
+<td>Pattern matching</td>
+</tr>
+</tbody>
+</table>
+<h3 id="59-strings">5.9 Strings<a class="headerlink" href="#59-strings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T_StrIndex</code></td>
+<td>String indexing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-my-values">6. My Values<a class="headerlink" href="#6-my-values" title="Permanent link">&para;</a></h2>
+<p>Values are results of evaluation that I cannot reduce further.
+I have <strong>9 value forms</strong> in NanoCore (defined in <code>Syntax.v</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Constructor</th>
+<th>Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VInt</code></td>
+<td><code>VInt n</code></td>
+<td>Integer value</td>
+</tr>
+<tr>
+<td><code>VBool</code></td>
+<td><code>VBool b</code></td>
+<td>Boolean value</td>
+</tr>
+<tr>
+<td><code>VString</code></td>
+<td><code>VString s</code></td>
+<td>String value</td>
+</tr>
+<tr>
+<td><code>VUnit</code></td>
+<td><code>VUnit</code></td>
+<td>Unit value</td>
+</tr>
+<tr>
+<td><code>VClos</code></td>
+<td><code>VClos x body env</code></td>
+<td>Closure. I capture the parameter name, body, and environment.</td>
+</tr>
+<tr>
+<td><code>VFixClos</code></td>
+<td><code>VFixClos f x body env</code></td>
+<td>Recursive closure. I also capture the function name for self-reference.</td>
+</tr>
+<tr>
+<td><code>VArray</code></td>
+<td><code>VArray vs</code></td>
+<td>Array of values</td>
+</tr>
+<tr>
+<td><code>VRecord</code></td>
+<td><code>VRecord fields</code></td>
+<td>Record of named field values</td>
+</tr>
+<tr>
+<td><code>VConstruct</code></td>
+<td><code>VConstruct tag v</code></td>
+<td>Variant value: a tag with a payload value</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-my-edge-cases">7. My Edge Cases<a class="headerlink" href="#7-my-edge-cases" title="Permanent link">&para;</a></h2>
+<p>I precisely specify these behaviors in my formal semantics:</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Expression</th>
+<th>My Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Division by zero</td>
+<td><code>a / 0</code> and <code>a % 0</code></td>
+<td>I return <code>None</code>. Evaluation gets stuck. You must guard against zero divisors.</td>
+</tr>
+<tr>
+<td>Array out of bounds</td>
+<td><code>arr[i]</code> where <code>i &gt;= length(arr)</code> or <code>i &lt; 0</code></td>
+<td>I return <code>None</code>. Evaluation gets stuck. My type system does not prevent this.</td>
+</tr>
+<tr>
+<td>Undefined variable</td>
+<td><code>x</code> where <code>x</code> is not in the environment</td>
+<td>I return <code>None</code>. Evaluation gets stuck. My type system prevents this for well-typed programs.</td>
+</tr>
+<tr>
+<td>Type mismatch at runtime</td>
+<td>e.g. <code>3 + true</code></td>
+<td>I get stuck. No evaluation rule applies. Well-typed programs never reach this state, as I proved in my progress theorem.</td>
+</tr>
+<tr>
+<td>Short-circuit AND</td>
+<td><code>false and e2</code></td>
+<td>I return <code>false</code> without evaluating <code>e2</code>. Side effects in <code>e2</code> are <strong>not</strong> executed.</td>
+</tr>
+<tr>
+<td>Short-circuit OR</td>
+<td><code>true or e2</code></td>
+<td>I return <code>true</code> without evaluating <code>e2</code>. Side effects in <code>e2</code> are <strong>not</strong> executed.</td>
+</tr>
+<tr>
+<td>String indexing out of bounds</td>
+<td><code>s[i]</code> where <code>i &gt;= length(s)</code> or <code>i &lt; 0</code></td>
+<td>I return <code>""</code> (empty string). My string indexing is <strong>total</strong>. I never get stuck here.</td>
+</tr>
+<tr>
+<td>Empty array literal</td>
+<td><code>[]</code></td>
+<td>I assign it type <code>array&lt;T&gt;</code> for any <code>T</code>. I determine the type from usage context.</td>
+</tr>
+<tr>
+<td>Let binding scoping</td>
+<td><code>let x = e1 in e2</code></td>
+<td>After I evaluate <code>e2</code>, I pop the <code>x</code> binding. I preserve mutations to outer variables.</td>
+</tr>
+<tr>
+<td>Closure capture</td>
+<td><code>fun (x : T) =&gt; body</code></td>
+<td>I capture the current environment (lexical scoping). Mutations inside the body do not affect the caller.</td>
+</tr>
+<tr>
+<td>While loop result</td>
+<td><code>while cond do body</code></td>
+<td>I always produce <code>unit</code>. I do not guarantee termination; that depends on your condition.</td>
+</tr>
+<tr>
+<td>Record field update</td>
+<td><code>set x.f = v</code></td>
+<td>I update the field in-place. I require <code>x</code> to be in scope and <code>f</code> to be an existing field.</td>
+</tr>
+<tr>
+<td>Pattern matching scope</td>
+<td><code>match e { Tag x =&gt; body, ... }</code></td>
+<td>I scope the binding <code>x</code> to the match arm body and pop it afterwards.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-my-proven-properties">8. My Proven Properties<a class="headerlink" href="#8-my-proven-properties" title="Permanent link">&para;</a></h2>
+<h3 id="81-type-soundness-soundnessv">8.1 Type Soundness (<code>Soundness.v</code>)<a class="headerlink" href="#81-type-soundness-soundnessv" title="Permanent link">&para;</a></h3>
+<p>I proved that if expression <code>e</code> has type <code>t</code> in a well-formed context, and <code>e</code> evaluates
+to value <code>v</code>, then <code>v</code> is a well-typed value of type <code>t</code>. Evaluation preserves my types.</p>
+<h3 id="82-progress-progressv">8.2 Progress (<code>Progress.v</code>)<a class="headerlink" href="#82-progress-progressv" title="Permanent link">&para;</a></h3>
+<p>I proved that if expression <code>e</code> has type <code>t</code>, then either <code>e</code> is already a value or <code>e</code> can
+take a step under my small-step semantics. Well-typed programs never get stuck, except
+for division by zero and out-of-bounds array access, which I treat as partial operations.</p>
+<h3 id="83-determinism-determinismv">8.3 Determinism (<code>Determinism.v</code>)<a class="headerlink" href="#83-determinism-determinismv" title="Permanent link">&para;</a></h3>
+<p>I proved that if <code>eval renv e renv1 v1</code> and <code>eval renv e renv2 v2</code>, then <code>v1 = v2</code> and
+<code>renv1 = renv2</code>. My evaluation is a partial function. I produce at most one
+result for any expression in any environment.</p>
+<h3 id="84-big-step-small-step-equivalence-equivalencev">8.4 Big-step / Small-step Equivalence (<code>Equivalence.v</code>)<a class="headerlink" href="#84-big-step-small-step-equivalence-equivalencev" title="Permanent link">&para;</a></h3>
+<p>I proved that my big-step semantics (natural semantics) and my small-step semantics
+(structural operational semantics) agree on all programs. These are two
+independent definitions of my behavior that I use to cross-check myself.</p>
+<h2 id="9-nanocore-vs-full-nanolang">9. NanoCore vs Full NanoLang<a class="headerlink" href="#9-nanocore-vs-full-nanolang" title="Permanent link">&para;</a></h2>
+<p>NanoCore is my verified subset. These features are present in my full version but
+remain <strong>outside</strong> my formally verified subset:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>NanoLang</th>
+<th>NanoCore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integers, Booleans, Strings</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Arrays, Records, Variants</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Pattern Matching</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Functions, Recursion</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Mutable Variables</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>While Loops</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Floats</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Tuples</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Hashmaps</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Enums</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Generics</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Modules / Imports</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>FFI / Extern</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Opaque Types</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>For Loops</td>
+<td>Yes</td>
+<td><strong>No</strong> (I express these as while + let)</td>
+</tr>
+<tr>
+<td>Print / Assert</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated by <code>tools/extract_spec.py</code> from my Coq sources in <code>formal/</code>.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

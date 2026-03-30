@@ -1,0 +1,2056 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/EXTERN_FFI/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>External C Function Interface (FFI) - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#external-c-function-interface-ffi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              External C Function Interface (FFI)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="external-c-function-interface-ffi">External C Function Interface (FFI)<a class="headerlink" href="#external-c-function-interface-ffi" title="Permanent link">&para;</a></h1>
+<p>I support calling external C functions through the <code>extern</code> keyword. This is a first-class feature that allows me to integrate with the C ecosystem. I do not attempt to wrap everything. I allow you to use what exists.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>I treat extern functions as first-class citizens:
+- I do not allow them to be shadowed or redefined. They are immutable declarations.
+- I do not allow shadow tests for them. They are C functions, and I cannot test what I cannot see.
+- I type-check them at compile time. I enforce safety even at my borders.
+- I integrate them seamlessly. You can use C libraries directly without wrappers.</p>
+<p>This design allows me to work with the C ecosystem. You can use any C library, such as SDL2, OpenGL, or system libraries, directly from my code.</p>
+<hr />
+<h2 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h2>
+<h3 id="declaring-external-functions">Declaring External Functions<a class="headerlink" href="#declaring-external-functions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>extern fn function_name(param1: type1, param2: type2) -&gt; return_type
+</code></pre></div>
+<p><strong>Key Points:</strong>
+- Use the <code>extern</code> keyword before <code>fn</code>.
+- Provide the exact C function signature matching the C library.
+- No function body is permitted. Provide only the declaration.
+- I do not require or allow shadow tests for these functions.
+- I do not allow them to be redefined. They are immutable.</p>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># Declare external C math functions
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>extern fn pow(x: float, y: float) -&gt; float
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>extern fn sin(x: float) -&gt; float
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a># Use them in nanolang code
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>fn calculate_hypotenuse(a: float, b: float) -&gt; float {
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    let a_squared: float = (pow a 2.0)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    let b_squared: float = (pow b 2.0)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    let sum: float = (+ a_squared b_squared)
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    return (sqrt sum)
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>}
+</code></pre></div>
+<hr />
+<h2 id="first-class-extern-function-rules">First-Class Extern Function Rules<a class="headerlink" href="#first-class-extern-function-rules" title="Permanent link">&para;</a></h2>
+<h3 id="1-i-do-not-allow-shadowing-extern-functions">1. I Do Not Allow Shadowing Extern Functions<a class="headerlink" href="#1-i-do-not-allow-shadowing-extern-functions" title="Permanent link">&para;</a></h3>
+<p>Extern functions are immutable declarations. I do not let you redefine or shadow them with regular functions.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>extern fn SDL_Init(flags: int) -&gt; int
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a># ERROR: Cannot shadow extern function
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>fn SDL_Init(flags: int) -&gt; int {
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    return 0
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
+</code></pre></div>
+<p><strong>My Error Message:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Error: Function &#39;SDL_Init&#39; cannot shadow extern function
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  Extern functions are first-class and cannot be shadowed
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  Choose a different function name
+</code></pre></div></p>
+<h3 id="2-i-do-not-allow-shadow-tests-for-extern-functions">2. I Do Not Allow Shadow Tests for Extern Functions<a class="headerlink" href="#2-i-do-not-allow-shadow-tests-for-extern-functions" title="Permanent link">&para;</a></h3>
+<p>Extern functions are C functions. I cannot run them in my interpreter, so I do not allow shadow tests for them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>extern fn SDL_Init(flags: int) -&gt; int
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a># ERROR: Shadow test cannot be attached to extern function
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>shadow SDL_Init {
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    assert (== (SDL_Init 0) 0)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>}
+</code></pre></div>
+<p><strong>My Error Message:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Error: Shadow test cannot be attached to extern function &#39;SDL_Init&#39;
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  Extern functions are C functions and cannot be tested in the interpreter
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  Remove the shadow test or test a wrapper function instead
+</code></pre></div></p>
+<h3 id="3-i-skip-shadow-tests-for-functions-using-externs">3. I Skip Shadow Tests for Functions Using Externs<a class="headerlink" href="#3-i-skip-shadow-tests-for-functions-using-externs" title="Permanent link">&para;</a></h3>
+<p>If a regular function of mine calls an extern function, I make the shadow test optional. I skip it during execution because I cannot verify the behavior of the external world.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>extern fn SDL_Init(flags: int) -&gt; int
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>fn main() -&gt; int {
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    let result: int = (SDL_Init 32)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    return result
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>}
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a># Shadow test is optional - I will skip it at runtime
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>shadow main {
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    assert (== (main) 0)
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
+</code></pre></div>
+<h3 id="4-i-type-check-every-extern-call">4. I Type-Check Every Extern Call<a class="headerlink" href="#4-i-type-check-every-extern-call" title="Permanent link">&para;</a></h3>
+<p>I fully type-check all extern function calls at compile time. I do not let you wander into type mismatches.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>extern fn SDL_Init(flags: int) -&gt; int
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>fn main() -&gt; int {
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    # ERROR: Wrong argument type
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    let result: int = (SDL_Init &quot;invalid&quot;)
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    return result
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>}
+</code></pre></div>
+<hr />
+<h2 id="type-mapping">Type Mapping<a class="headerlink" href="#type-mapping" title="Permanent link">&para;</a></h2>
+<h3 id="my-types-to-c-types">My Types to C Types<a class="headerlink" href="#my-types-to-c-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>My Type</th>
+<th>C Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>int64_t</code></td>
+<td>64-bit signed integer</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>double</code></td>
+<td>Double-precision floating point</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>bool</code></td>
+<td>C99 boolean (0 or 1)</td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td><code>const char*</code></td>
+<td>Null-terminated C string</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>void</code></td>
+<td>No return value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important:</strong>
+- My <code>int</code> is always 64-bit. C <code>int</code> is platform-dependent.
+- My <code>float</code> is always double precision.
+- My strings are immutable. I pass them as <code>const char*</code> to C.
+- I represent pointer types like <code>SDL_Window*</code> as <code>int</code>. My transpiler casts them appropriately.</p>
+<hr />
+<h2 id="safe-function-categories">Safe Function Categories<a class="headerlink" href="#safe-function-categories" title="Permanent link">&para;</a></h2>
+<h3 id="category-1-math-functions">Category 1: Math Functions<a class="headerlink" href="#category-1-math-functions" title="Permanent link">&para;</a></h3>
+<p>I consider C math library functions safe. They operate on scalar values, have no side effects beyond errno, and cannot cause memory issues.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>extern fn asin(x: float) -&gt; float
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>extern fn acos(x: float) -&gt; float
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>extern fn atan(x: float) -&gt; float
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>extern fn exp(x: float) -&gt; float
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>extern fn log(x: float) -&gt; float
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>extern fn cbrt(x: float) -&gt; float
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>extern fn hypot(x: float, y: float) -&gt; float
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>extern fn trunc(x: float) -&gt; float
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>extern fn fmod(x: float, y: float) -&gt; float
+</code></pre></div>
+<p>I provide comprehensive examples in <code>examples/21_extern_math.nano</code>.</p>
+<h3 id="category-2-character-classification">Category 2: Character Classification<a class="headerlink" href="#category-2-character-classification" title="Permanent link">&para;</a></h3>
+<p>These functions are safe because they operate on single integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>extern fn isalpha(c: int) -&gt; int
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>extern fn isdigit(c: int) -&gt; int
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>extern fn isalnum(c: int) -&gt; int
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>extern fn isspace(c: int) -&gt; int
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>extern fn isupper(c: int) -&gt; int
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>extern fn islower(c: int) -&gt; int
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>extern fn toupper(c: int) -&gt; int
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>extern fn tolower(c: int) -&gt; int
+</code></pre></div>
+<p>I provide comprehensive examples in <code>examples/22_extern_char.nano</code>.</p>
+<h3 id="category-3-read-only-string-functions">Category 3: Read-Only String Functions<a class="headerlink" href="#category-3-read-only-string-functions" title="Permanent link">&para;</a></h3>
+<p>These are safe if the strings are null-terminated. I guarantee that all my strings are null-terminated.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>extern fn strlen(s: string) -&gt; int
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>extern fn strcmp(s1: string, s2: string) -&gt; int
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>extern fn strncmp(s1: string, s2: string, n: int) -&gt; int
+</code></pre></div>
+<p><strong>My Safety Notes:</strong>
+- I guarantee all my strings are null-terminated.
+- These functions do not modify memory.
+- I recommend <code>strncmp</code> over <code>strcmp</code> for bounded comparisons.</p>
+<p>I provide comprehensive examples in <code>examples/23_extern_string.nano</code>.</p>
+<hr />
+<h2 id="functions-i-refuse-to-support-directly">Functions I Refuse to Support Directly<a class="headerlink" href="#functions-i-refuse-to-support-directly" title="Permanent link">&para;</a></h2>
+<h3 id="unsafe-string-manipulation">Unsafe String Manipulation<a class="headerlink" href="#unsafe-string-manipulation" title="Permanent link">&para;</a></h3>
+<p>I do not want you to use these functions. They are dangerous.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// NO - No bounds checking</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">strcpy</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">strcat</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">);</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">sprintf</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">gets</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">);</span>
+</code></pre></div>
+<p>These functions cause buffer overflows because they do not respect buffer sizes. If you need string manipulation, use my runtime or implement safe wrappers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// src/runtime/string_safe.c</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">nl_safe_strdup</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">len</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">copy</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">memcpy</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">copy</span><span class="p">;</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="raw-memory-operations">Raw Memory Operations<a class="headerlink" href="#raw-memory-operations" title="Permanent link">&para;</a></h3>
+<p>I am cautious about these:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">free</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">);</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">memcpy</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+<p>They require manual memory management and cause leaks, double-free errors, use-after-free vulnerabilities, and buffer overflows. Use my built-in data structures instead. I handle the memory so you do not have to.</p>
+<hr />
+<h2 id="how-i-work">How I Work<a class="headerlink" href="#how-i-work" title="Permanent link">&para;</a></h2>
+<h3 id="my-compilation-process">My Compilation Process<a class="headerlink" href="#my-compilation-process" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Parsing:</strong> I recognize <code>extern fn</code> declarations.</li>
+<li><strong>Type Checking:</strong> I register these functions but do not check for a body.</li>
+<li><strong>Transpilation:</strong> I generate C forward declarations like <code>extern double sqrt(double);</code>.</li>
+<li><strong>Linking:</strong> The C compiler links against the standard library.</li>
+</ol>
+<h3 id="my-code-generation">My Code Generation<a class="headerlink" href="#my-code-generation" title="Permanent link">&para;</a></h3>
+<p><strong>In my syntax:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>fn main() -&gt; int {
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    let result: float = (sqrt 16.0)
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    (println result)
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    return 0
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>}
+</code></pre></div></p>
+<p><strong>The generated C:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="cm">/* External declarations */</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">extern</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="kt">double</span><span class="p">);</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="cm">/* Function implementations */</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="mf">16.0</span><span class="p">);</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="n">nl_println_float</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">}</span>
+</code></pre></div></p>
+<p>I call extern functions directly with their original names. I do not add my <code>nl_</code> prefix to them.</p>
+<hr />
+<h2 id="my-best-practices">My Best Practices<a class="headerlink" href="#my-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-declare-only-what-you-use">1. Declare Only What You Use<a class="headerlink" href="#1-declare-only-what-you-use" title="Permanent link">&para;</a></h3>
+<p>I recommend you only declare the C functions you actually need.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a># Good - specific declarations
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>extern fn pow(x: float, y: float) -&gt; float
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a># Bad - unused declarations
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>extern fn sin(x: float) -&gt; float
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>extern fn cos(x: float) -&gt; float
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>extern fn tan(x: float) -&gt; float
+</code></pre></div>
+<h3 id="2-group-your-declarations">2. Group Your Declarations<a class="headerlink" href="#2-group-your-declarations" title="Permanent link">&para;</a></h3>
+<p>I find it helpful to organize extern declarations by category.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a># Math operations
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>extern fn pow(x: float, y: float) -&gt; float
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>extern fn abs(x: int) -&gt; int
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a># String operations
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>extern fn strlen(s: string) -&gt; int
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>extern fn strcmp(s1: string, s2: string) -&gt; int
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a># Character classification
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>extern fn isdigit(c: int) -&gt; int
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>extern fn toupper(c: int) -&gt; int
+</code></pre></div>
+<h3 id="3-document-your-preconditions">3. Document Your Preconditions<a class="headerlink" href="#3-document-your-preconditions" title="Permanent link">&para;</a></h3>
+<p>I suggest you add comments explaining what the C function expects.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a># sqrt: Returns square root of x
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a># Precondition: x &gt;= 0 (negative values produce NaN)
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>extern fn sqrt(x: float) -&gt; float
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a># log: Returns natural logarithm of x
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a># Precondition: x &gt; 0 (zero/negative produce NaN or -inf)
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>extern fn log(x: float) -&gt; float
+</code></pre></div>
+<h3 id="4-check-every-return-value">4. Check Every Return Value<a class="headerlink" href="#4-check-every-return-value" title="Permanent link">&para;</a></h3>
+<p>For functions that can fail, I expect you to check the return values.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>extern fn strcmp(s1: string, s2: string) -&gt; int
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>fn strings_equal(s1: string, s2: string) -&gt; bool {
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    let result: int = (strcmp s1 s2)
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    return (== result 0)
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>}
+</code></pre></div>
+<h3 id="5-use-bounded-functions">5. Use Bounded Functions<a class="headerlink" href="#5-use-bounded-functions" title="Permanent link">&para;</a></h3>
+<p>I prefer bounded functions over unbounded ones.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a># I prefer this:
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>extern fn strncmp(s1: string, s2: string, n: int) -&gt; int
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a># I do not recommend this:
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>extern fn strcmp(s1: string, s2: string) -&gt; int
+</code></pre></div>
+<hr />
+<h2 id="my-limitations">My Limitations<a class="headerlink" href="#my-limitations" title="Permanent link">&para;</a></h2>
+<h3 id="what-i-cannot-do-yet">What I Cannot Do Yet<a class="headerlink" href="#what-i-cannot-do-yet" title="Permanent link">&para;</a></h3>
+<ol>
+<li>I cannot pass my structs to C functions yet.</li>
+<li>I cannot pass my arrays to C functions directly.</li>
+<li>I do not allow explicit pointer manipulation.</li>
+<li>I do not support passing my functions to C as callbacks.</li>
+<li>I do not support variadic functions like <code>printf(...)</code>.</li>
+</ol>
+<h3 id="how-to-work-around-them">How to Work Around Them<a class="headerlink" href="#how-to-work-around-them" title="Permanent link">&para;</a></h3>
+<p><strong>For Arrays:</strong>
+Use individual elements or create wrapper functions that convert my arrays.</p>
+<p><strong>For Structs:</strong>
+Pass individual fields or create C wrappers that construct the structs.</p>
+<p><strong>For Output Parameters:</strong>
+Use return values or create wrapper functions in my runtime.</p>
+<hr />
+<h2 id="safe-functions-i-recommend">Safe Functions I Recommend<a class="headerlink" href="#safe-functions-i-recommend" title="Permanent link">&para;</a></h2>
+<h3 id="math-functions-31-functions">Math Functions (31 functions)<a class="headerlink" href="#math-functions-31-functions" title="Permanent link">&para;</a></h3>
+<p><strong>Trigonometric:</strong>
+- <code>sin</code>, <code>cos</code>, <code>tan</code>
+- <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>atan2</code>
+- <code>sinh</code>, <code>cosh</code>, <code>tanh</code>
+- <code>asinh</code>, <code>acosh</code>, <code>atanh</code></p>
+<p><strong>Exponential/Logarithmic:</strong>
+- <code>exp</code>, <code>exp2</code>, <code>expm1</code>
+- <code>log</code>, <code>log10</code>, <code>log2</code>, <code>log1p</code></p>
+<p><strong>Power:</strong>
+- <code>pow</code>, <code>sqrt</code>, <code>cbrt</code>, <code>hypot</code></p>
+<p><strong>Rounding:</strong>
+- <code>ceil</code>, <code>floor</code>, <code>round</code>, <code>trunc</code>
+- <code>rint</code>, <code>nearbyint</code></p>
+<p><strong>Other:</strong>
+- <code>fabs</code>, <code>fmod</code>, <code>remainder</code>, <code>copysign</code></p>
+<h3 id="character-functions-14-functions">Character Functions (14 functions)<a class="headerlink" href="#character-functions-14-functions" title="Permanent link">&para;</a></h3>
+<p><strong>Classification:</strong>
+- <code>isalpha</code>, <code>isdigit</code>, <code>isalnum</code>, <code>isspace</code>
+- <code>isupper</code>, <code>islower</code>, <code>isprint</code>, <code>ispunct</code>
+- <code>iscntrl</code>, <code>isxdigit</code>, <code>isblank</code>, <code>isgraph</code></p>
+<p><strong>Conversion:</strong>
+- <code>toupper</code>, <code>tolower</code></p>
+<h3 id="string-functions-4-functions">String Functions (4 functions)<a class="headerlink" href="#string-functions-4-functions" title="Permanent link">&para;</a></h3>
+<p><strong>Read-Only:</strong>
+- <code>strlen</code>, <code>strcmp</code>, <code>strncmp</code>, <code>strchr</code></p>
+<p>I have 49 safe functions ready for you to use.</p>
+<hr />
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<p>I provide comprehensive examples in these files:</p>
+<ul>
+<li><code>examples/21_extern_math.nano</code></li>
+<li><code>examples/22_extern_char.nano</code></li>
+<li><code>examples/23_extern_string.nano</code></li>
+</ul>
+<hr />
+<h2 id="my-implementation-details">My Implementation Details<a class="headerlink" href="#my-implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="changes-to-my-parser">Changes to My Parser<a class="headerlink" href="#changes-to-my-parser" title="Permanent link">&para;</a></h3>
+<ul>
+<li>I added the <code>TOKEN_EXTERN</code> keyword.</li>
+<li>My <code>parse_function()</code> accepts an <code>is_extern</code> parameter.</li>
+<li>I skip the body of extern functions during parsing.</li>
+</ul>
+<h3 id="changes-to-my-type-checker">Changes to My Type Checker<a class="headerlink" href="#changes-to-my-type-checker" title="Permanent link">&para;</a></h3>
+<ul>
+<li>I skip body type checking for extern functions.</li>
+<li>I do not require shadow tests for them.</li>
+<li>I still validate the function signature.</li>
+</ul>
+<h3 id="changes-to-my-transpiler">Changes to My Transpiler<a class="headerlink" href="#changes-to-my-transpiler" title="Permanent link">&para;</a></h3>
+<ul>
+<li>I generate <code>extern</code> declarations in the C code.</li>
+<li>I call extern functions without my <code>nl_</code> prefix.</li>
+<li>I link directly to the C standard library.</li>
+</ul>
+<h3 id="files-i-modified">Files I Modified<a class="headerlink" href="#files-i-modified" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>src/nanolang.h</code> - I added <code>is_extern</code> fields to ASTNode and Function.</li>
+<li><code>src/lexer.c</code> - I recognize the <code>extern</code> keyword.</li>
+<li><code>src/parser.c</code> - I parse <code>extern fn</code> declarations.</li>
+<li><code>src/typechecker.c</code> - I skip body checks for extern functions.</li>
+<li><code>src/transpiler.c</code> - I generate the declarations and calls.</li>
+</ul>
+<hr />
+<h2 id="enhancements-i-plan-to-add">Enhancements I Plan to Add<a class="headerlink" href="#enhancements-i-plan-to-add" title="Permanent link">&para;</a></h2>
+<p>I am considering these improvements:</p>
+<ol>
+<li>Custom Headers: <code>extern "mylib.h" fn ...</code></li>
+<li>Linking Libraries: <code>extern "libmylib.so" fn ...</code></li>
+<li>Struct Support: Passing my structs to C functions.</li>
+<li>Callback Support: Passing my functions to C.</li>
+<li>Generic Pointers: <code>extern fn func(ptr: *void) -&gt; int</code></li>
+<li>Error Handling: <code>extern fn func() -&gt; Result&lt;int, Error&gt;</code></li>
+</ol>
+<hr />
+<h2 id="my-security-checklist">My Security Checklist<a class="headerlink" href="#my-security-checklist" title="Permanent link">&para;</a></h2>
+<p>Before you add an extern function, answer these:</p>
+<ul>
+<li>Does it take explicit length parameters for buffers?</li>
+<li>Does it return bounded results?</li>
+<li>Does it avoid pointer arithmetic?</li>
+<li>Does it avoid complex types like structs or unions?</li>
+<li>Is it safe with my type system?</li>
+<li>Can it avoid causing a buffer overflow?</li>
+<li>Can it avoid causing a use-after-free error?</li>
+<li>Does it have clear error handling?</li>
+</ul>
+<p>If you answer NO to any of these, do not expose the function directly. Create a safe wrapper in my runtime instead.</p>
+<hr />
+<h2 id="hybrid-applications">Hybrid Applications<a class="headerlink" href="#hybrid-applications" title="Permanent link">&para;</a></h2>
+<p>I am designed to work with C libraries. This allows you to build hybrid applications:</p>
+<ul>
+<li>You write your core logic in my syntax. It is type-safe and shadow-tested.</li>
+<li>You use C libraries like SDL2 or OpenGL for system integration.</li>
+<li>You do not need wrappers. You call the C functions directly.</li>
+</ul>
+<h3 id="example-sdl2-application">Example: SDL2 Application<a class="headerlink" href="#example-sdl2-application" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a># Declare SDL2 extern functions
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>extern fn SDL_Init(flags: int) -&gt; int
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>extern fn SDL_CreateWindow(title: string, x: int, y: int, w: int, h: int, flags: int) -&gt; int
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>extern fn SDL_Quit() -&gt; void
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>fn main() -&gt; int {
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    let result: int = (SDL_Init 32)
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    if (&lt; result 0) {
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>        return 1
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    } else {
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>        let window: int = (SDL_CreateWindow &quot;My App&quot; 0 0 640 480 4)
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>        if (== window 0) {
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>            (SDL_Quit)
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>            return 1
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>        } else {
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>            # ... application logic ...
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>            (SDL_Quit)
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>            return 0
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>        }
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>    }
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>}
+</code></pre></div>
+<p><strong>How to compile:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>./bin/nanoc<span class="w"> </span>app.nano<span class="w"> </span>-o<span class="w"> </span>app<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span>-I/opt/homebrew/include/SDL2<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span>-L/opt/homebrew/lib<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span>-lSDL2
+</code></pre></div></p>
+<p>I explain this further in <code>docs/BUILDING_HYBRID_APPS.md</code>.</p>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Extern functions allow me to integrate with the C ecosystem. I treat them as first-class features. I do not let you shadow them. I do not let you test them in my interpreter. I type-check every call. I do not require wrappers.</p>
+<p>I work with C. I do not try to hide it. But I also do not let you be reckless. When you are in doubt, create a safe wrapper.</p>
+<hr />
+<h2 id="my-ffi-safety-guidelines">My FFI Safety Guidelines<a class="headerlink" href="#my-ffi-safety-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="my-safety-promise">My Safety Promise<a class="headerlink" href="#my-safety-promise" title="Permanent link">&para;</a></h3>
+<p>I trust the <code>extern</code> functions you declare. I assume they are memory-safe and correct. This means you are responsible for my safety at this boundary.</p>
+<h3 id="my-trust-boundary">My Trust Boundary<a class="headerlink" href="#my-trust-boundary" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a># This is where I trust you
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>extern fn strcpy(dest: string, src: string) -&gt; string  # DANGEROUS
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a># I trust you that strcpy:
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a># - Will not overflow the destination buffer
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a># - Will not access invalid memory
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a># - Will not cause undefined behavior
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a># If you are wrong, I will crash or become vulnerable.
+</code></pre></div>
+<hr />
+<h2 id="my-safety-checklist">My Safety Checklist<a class="headerlink" href="#my-safety-checklist" title="Permanent link">&para;</a></h2>
+<p>Before you declare an <code>extern fn</code>, verify these:</p>
+<h3 id="buffer-overflows">Buffer Overflows<a class="headerlink" href="#buffer-overflows" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The function must not take unchecked string pointers.</li>
+<li>All buffer operations must have explicit length parameters.</li>
+<li>Use <code>strncpy</code> instead of <code>strcpy</code>, and <code>snprintf</code> instead of <code>sprintf</code>.</li>
+<li>Array parameters must include length and bounds information.</li>
+</ul>
+<h3 id="memory-safety">Memory Safety<a class="headerlink" href="#memory-safety" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The function must not return pointers to stack memory.</li>
+<li>All allocated memory must have clear ownership.</li>
+<li>There must be no dangling pointers after the function returns.</li>
+<li>There must be no double-free bugs.</li>
+</ul>
+<h3 id="type-safety">Type Safety<a class="headerlink" href="#type-safety" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Do not use unsafe casts between incompatible types.</li>
+<li>Pointer types must match exactly.</li>
+<li>Integer sizes must match. My <code>int</code> is <code>int64_t</code>.</li>
+<li>Do not expose pointer arithmetic.</li>
+</ul>
+<h3 id="input-validation">Input Validation<a class="headerlink" href="#input-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The function must validate all inputs.</li>
+<li>It must return errors instead of crashing.</li>
+<li>It must handle edge cases like NULL, 0, or negative values.</li>
+<li>You must document preconditions clearly.</li>
+</ul>
+<hr />
+<h2 id="c-functions-i-forbid">C Functions I Forbid<a class="headerlink" href="#c-functions-i-forbid" title="Permanent link">&para;</a></h2>
+<h3 id="unsafe-string-functions">Unsafe String Functions<a class="headerlink" href="#unsafe-string-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Unsafe Function</th>
+<th>Why it is Unsafe</th>
+<th>My Safe Alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strcpy(dest, src)</code></td>
+<td>No bounds checking</td>
+<td><code>strncpy(dest, src, n)</code></td>
+</tr>
+<tr>
+<td><code>strcat(dest, src)</code></td>
+<td>No bounds checking</td>
+<td><code>strncat(dest, src, n)</code></td>
+</tr>
+<tr>
+<td><code>sprintf(buf, fmt, ...)</code></td>
+<td>No bounds checking</td>
+<td><code>snprintf(buf, n, fmt, ...)</code></td>
+</tr>
+<tr>
+<td><code>gets(buf)</code></td>
+<td>No bounds checking</td>
+<td><code>fgets(buf, n, stdin)</code></td>
+</tr>
+<tr>
+<td><code>scanf("%s", buf)</code></td>
+<td>No bounds checking</td>
+<td><code>scanf("%100s", buf)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example of what I do not allow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a># I DO NOT WANT YOU TO DO THIS
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>extern fn strcpy(dest: string, src: string) -&gt; string
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>fn copy_string(source: string) -&gt; string {
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    let buffer: string = (c_malloc 10)  # Only 10 bytes
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    (strcpy buffer source)  # I will overflow if the source is too long
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    return buffer
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>}
+</code></pre></div></p>
+<h3 id="unsafe-memory-functions">Unsafe Memory Functions<a class="headerlink" href="#unsafe-memory-functions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Unsafe Function</th>
+<th>Why it is Unsafe</th>
+<th>My Safe Alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>memcpy(dst, src, n)</code></td>
+<td>No overlap check</td>
+<td><code>memmove(dst, src, n)</code></td>
+</tr>
+<tr>
+<td><code>alloca(n)</code></td>
+<td>Stack overflow</td>
+<td><code>malloc(n)</code> and <code>free()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="patterns-i-consider-safe">Patterns I Consider Safe<a class="headerlink" href="#patterns-i-consider-safe" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-length-bounded-operations">Pattern 1: Length-Bounded Operations<a class="headerlink" href="#pattern-1-length-bounded-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a># C function signature:
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a># char* strncpy(char* dest, const char* src, size_t n);
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>extern fn strncpy(dest: string, src: string, n: int) -&gt; string
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>fn safe_copy(src: string) -&gt; string {
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    let len: int = (str_length src)
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    let buffer: string = (c_malloc (+ len 1))  # I add 1 for the null terminator
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    (strncpy buffer src len)
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>    return buffer
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>}
+</code></pre></div>
+<h3 id="pattern-2-error-return-values">Pattern 2: Error Return Values<a class="headerlink" href="#pattern-2-error-return-values" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a># C returns -1 on error
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>extern fn safe_operation(x: int) -&gt; int
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>fn checked_operation(x: int) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    let result: int = (safe_operation x)
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    if (&lt; result 0) {
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>        return Result.Err { error: &quot;Operation failed&quot; }
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>    }
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>    return Result.Ok { value: result }
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>}
+</code></pre></div>
+<h3 id="pattern-3-opaque-pointers">Pattern 3: Opaque Pointers<a class="headerlink" href="#pattern-3-opaque-pointers" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a># I use an opaque type for C pointers
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>extern fn fopen(path: string, mode: string) -&gt; opaque
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>extern fn fclose(file: opaque) -&gt; int
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>fn safe_file_operation(path: string) -&gt; bool {
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    let file: opaque = (fopen path &quot;r&quot;)
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>    if (== file (null_opaque)) {
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>        return false
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>    }
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>    # Use the file...
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>    (fclose file)
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>    return true
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>}
+</code></pre></div>
+<hr />
+<h2 id="vulnerabilities-i-want-you-to-avoid">Vulnerabilities I Want You to Avoid<a class="headerlink" href="#vulnerabilities-i-want-you-to-avoid" title="Permanent link">&para;</a></h2>
+<h3 id="1-buffer-overflow">1. Buffer Overflow<a class="headerlink" href="#1-buffer-overflow" title="Permanent link">&para;</a></h3>
+<p><strong>Vulnerable Code:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>extern fn unsafe_read(buffer: string, size: int) -&gt; int
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>fn read_data() -&gt; string {
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    let buf: string = (c_malloc 100)
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>    (unsafe_read buf 200)  # I am reading too much into the buffer
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>    return buf
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>}
+</code></pre></div></p>
+<p><strong>My Fixed Version:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>extern fn safe_read(buffer: string, size: int, max_size: int) -&gt; int
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>fn read_data() -&gt; string {
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>    let buf: string = (c_malloc 100)
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>    (safe_read buf 0 100)  # I respect the buffer size
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>    return buf
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>}
+</code></pre></div></p>
+<h3 id="2-use-after-free">2. Use-After-Free<a class="headerlink" href="#2-use-after-free" title="Permanent link">&para;</a></h3>
+<p><strong>Vulnerable Code:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>extern fn get_temp_buffer() -&gt; string
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>fn process() -&gt; string {
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>    let buf: string = (get_temp_buffer)
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    # C might free the buffer here
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>    return buf  # I am using freed memory
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>}
+</code></pre></div></p>
+<p><strong>My Fixed Version:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>extern fn get_temp_buffer() -&gt; string
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>fn process() -&gt; string {
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>    let buf: string = (get_temp_buffer)
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>    let copy: string = (str_concat &quot;&quot; buf)  # I make my own copy
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    return copy
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>}
+</code></pre></div></p>
+<h3 id="3-null-pointer-dereference">3. NULL Pointer Dereference<a class="headerlink" href="#3-null-pointer-dereference" title="Permanent link">&para;</a></h3>
+<p><strong>Vulnerable Code:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>extern fn may_return_null(x: int) -&gt; string
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>fn use_result(x: int) -&gt; int {
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>    let s: string = (may_return_null x)
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>    return (str_length s)  # I will crash if s is NULL
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>}
+</code></pre></div></p>
+<p><strong>My Fixed Version:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>extern fn may_return_null(x: int) -&gt; opaque
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>fn use_result(x: int) -&gt; int {
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>    let s: opaque = (may_return_null x)
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>    if (== s (null_opaque)) {
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>        return 0  # I check for NULL
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>    }
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>    let str: string = (opaque_to_string s)
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>    return (str_length str)
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>}
+</code></pre></div></p>
+<hr />
+<h2 id="how-to-audit-my-ffi-bindings">How to Audit My FFI Bindings<a class="headerlink" href="#how-to-audit-my-ffi-bindings" title="Permanent link">&para;</a></h2>
+<h3 id="my-manual-audit-checklist">My Manual Audit Checklist<a class="headerlink" href="#my-manual-audit-checklist" title="Permanent link">&para;</a></h3>
+<p>For every <code>extern fn</code> you declare:</p>
+<ol>
+<li>Find the C documentation. Read the man pages or headers.</li>
+<li>Check the return values. Know what -1, NULL, or 0 means.</li>
+<li>Check the error conditions. Know how errors are reported.</li>
+<li>Check the buffer requirements. Ensure lengths are specified.</li>
+<li>Check thread safety. Can I call this from multiple threads?</li>
+<li>Check for side effects. Does it modify global state?</li>
+</ol>
+<h3 id="automated-scanning">Automated Scanning<a class="headerlink" href="#automated-scanning" title="Permanent link">&para;</a></h3>
+<p>I suggest you create a script to find unsafe patterns.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="ch">#!/bin/bash</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="c1"># scripts/audit_ffi_safety.sh</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Scanning for unsafe FFI patterns...&quot;</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="c1"># Check for known unsafe functions</span>
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;extern fn strcpy\|extern fn strcat\|extern fn sprintf\|extern fn gets&quot;</span><span class="w"> </span>.<span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.nano&quot;</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a><span class="c1"># Check for missing length parameters</span>
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;extern fn.*string.*string&quot;</span><span class="w"> </span>.<span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.nano&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;length\|size\|n&quot;</span>
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Audit complete.&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="how-to-test-my-ffi-bindings">How to Test My FFI Bindings<a class="headerlink" href="#how-to-test-my-ffi-bindings" title="Permanent link">&para;</a></h2>
+<h3 id="testing-for-buffer-overflows">Testing for Buffer Overflows<a class="headerlink" href="#testing-for-buffer-overflows" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a># Test with deliberately long inputs
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>extern fn my_ffi_func(buf: string, len: int) -&gt; int
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>shadow my_ffi_func {
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>    # Test with maximum safe size
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>    let buf: string = (c_malloc 1000)
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>    assert (&gt;= (my_ffi_func buf 1000) 0)
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>    # Test with empty string
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a>    assert (&gt;= (my_ffi_func &quot;&quot; 0) 0)
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a>}
+</code></pre></div>
+<h3 id="testing-for-null-handling">Testing for NULL Handling<a class="headerlink" href="#testing-for-null-handling" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>extern fn process_string(s: string) -&gt; int
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>shadow process_string {
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>    # Test with NULL
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>    assert (&gt;= (process_string (null_string)) 0)
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>
+<a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>    # Test with empty string
+<a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a>    assert (&gt;= (process_string &quot;&quot;) 0)
+<a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>}
+</code></pre></div>
+<hr />
+<h2 id="documentation-i-require">Documentation I Require<a class="headerlink" href="#documentation-i-require" title="Permanent link">&para;</a></h2>
+<p>I expect every <code>extern fn</code> to be documented like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a># Opens a file for reading.
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>#
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a># Safety:
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a># - Returns NULL on failure (check with null_opaque)
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a># - Caller must call fclose() on success
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a># - Path must be valid UTF-8
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a># - Mode must be &quot;r&quot;, &quot;w&quot;, &quot;a&quot;, &quot;rb&quot;, &quot;wb&quot;, or &quot;ab&quot;
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>#
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a># Example:
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a>#   let f: opaque = (fopen &quot;data.txt&quot; &quot;r&quot;)
+<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>#   if (!= f (null_opaque)) {
+<a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a>#       # Use the file...
+<a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a>#       (fclose f)
+<a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a>#   }
+<a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a>extern fn fopen(path: string, mode: string) -&gt; opaque
+</code></pre></div>
+<hr />
+<h2 id="my-plan-for-unsafe-blocks">My Plan for Unsafe Blocks<a class="headerlink" href="#my-plan-for-unsafe-blocks" title="Permanent link">&para;</a></h2>
+<p>I plan to add explicit <code>unsafe</code> blocks.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a># I will mark unsafe FFI code
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>unsafe {
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>    extern fn dangerous_c_function(ptr: opaque) -&gt; int
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>    fn wrapper(ptr: opaque) -&gt; int {
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>        # I require careful review for everything in this block
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>        return (dangerous_c_function ptr)
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a>    }
+<a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a>}
+<a id="__codelineno-38-10" name="__codelineno-38-10" href="#__codelineno-38-10"></a>
+<a id="__codelineno-38-11" name="__codelineno-38-11" href="#__codelineno-38-11"></a># My safe code remains outside
+<a id="__codelineno-38-12" name="__codelineno-38-12" href="#__codelineno-38-12"></a>fn safe_function() -&gt; int {
+<a id="__codelineno-38-13" name="__codelineno-38-13" href="#__codelineno-38-13"></a>    return 42
+<a id="__codelineno-38-14" name="__codelineno-38-14" href="#__codelineno-38-14"></a>}
+</code></pre></div>
+<p>This will make the trust boundaries clear. You will be able to find them by searching for <code>unsafe {</code>.</p>
+<hr />
+<h2 id="my-security-best-practices">My Security Best Practices<a class="headerlink" href="#my-security-best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Minimize your FFI surface. Use my standard library when you can.</li>
+<li>Use wrapper functions. Wrap unsafe C in my safe APIs.</li>
+<li>Validate all inputs before passing them to C.</li>
+<li>Check all return values.</li>
+<li>Document your safety requirements.</li>
+<li>Test your code with edge cases and fuzzing.</li>
+<li>Have your FFI code reviewed.</li>
+<li>Perform regular audits of your bindings.</li>
+</ol>
+<hr />
+<h2 id="advanced-safety-topics">Advanced Safety Topics<a class="headerlink" href="#advanced-safety-topics" title="Permanent link">&para;</a></h2>
+<h3 id="how-i-handle-memory-ownership">How I Handle Memory Ownership<a class="headerlink" href="#how-i-handle-memory-ownership" title="Permanent link">&para;</a></h3>
+<p>I have complex ownership semantics when I talk to C. You must understand who owns the memory.</p>
+<h4 id="caller-owned-i-manage-it">Caller-Owned (I Manage It)<a class="headerlink" href="#caller-owned-i-manage-it" title="Permanent link">&para;</a></h4>
+<p>This is my preferred pattern. I allocate and own the buffer.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>fn safe_file_read(path: string) -&gt; string {
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>    # I allocate and own this buffer
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>    let buffer: string = (string_new 4096)
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>    # The C function fills my buffer
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>    extern fn read_file_into_buffer(path: string, buf: string, size: int) -&gt; int
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>    let bytes_read: int = (read_file_into_buffer path buffer 4096)
+<a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>
+<a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a>    if (&lt; bytes_read 0) {
+<a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>        return &quot;&quot;
+<a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>    }
+<a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a>
+<a id="__codelineno-39-13" name="__codelineno-39-13" href="#__codelineno-39-13"></a>    # I still own the buffer. I will clean it up automatically.
+<a id="__codelineno-39-14" name="__codelineno-39-14" href="#__codelineno-39-14"></a>    return buffer
+<a id="__codelineno-39-15" name="__codelineno-39-15" href="#__codelineno-39-15"></a>}
+</code></pre></div>
+<p>My garbage collector handles the deallocation. There are no dangling pointers.</p>
+<h4 id="callee-owned-c-allocates-it">Callee-Owned (C Allocates It)<a class="headerlink" href="#callee-owned-c-allocates-it" title="Permanent link">&para;</a></h4>
+<p>When C allocates memory, I require you to free it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a># C allocates a new string
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>extern fn c_strdup(s: string) -&gt; string
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>extern fn c_free(ptr: string) -&gt; void
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>fn duplicate_string(source: string) -&gt; string {
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>    let copy: string = (c_strdup source)
+<a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a>
+<a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a>    # I require you to call c_free later
+<a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a>    return copy
+<a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a>}
+<a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a>
+<a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a># I prefer this RAII wrapper:
+<a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a>fn safe_duplicate(source: string) -&gt; string {
+<a id="__codelineno-40-14" name="__codelineno-40-14" href="#__codelineno-40-14"></a>    let copy: string = (c_strdup source)
+<a id="__codelineno-40-15" name="__codelineno-40-15" href="#__codelineno-40-15"></a>    let result: string = (string_copy copy)  # I copy it to my managed memory
+<a id="__codelineno-40-16" name="__codelineno-40-16" href="#__codelineno-40-16"></a>    (c_free copy)  # I free the C memory immediately
+<a id="__codelineno-40-17" name="__codelineno-40-17" href="#__codelineno-40-17"></a>    return result
+<a id="__codelineno-40-18" name="__codelineno-40-18" href="#__codelineno-40-18"></a>}
+</code></pre></div>
+<p>I do not want you to return C-owned pointers directly to users.</p>
+<h4 id="borrowed-no-transfer">Borrowed (No Transfer)<a class="headerlink" href="#borrowed-no-transfer" title="Permanent link">&para;</a></h4>
+<p>C borrows the memory and does not own it. This is safe.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a># strlen only reads, it does not own
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>extern fn strlen(s: string) -&gt; int
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>fn get_length(text: string) -&gt; int {
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>    # I let strlen borrow &#39;text&#39;
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>    return (strlen text)
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>}
+</code></pre></div>
+<hr />
+<h3 id="my-raii-patterns">My RAII Patterns<a class="headerlink" href="#my-raii-patterns" title="Permanent link">&para;</a></h3>
+<p>I use RAII to ensure resources are cleaned up even when errors occur.</p>
+<h4 id="file-handle-wrapper">File Handle Wrapper<a class="headerlink" href="#file-handle-wrapper" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a># C file operations
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>extern fn fopen(path: string, mode: string) -&gt; int
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>extern fn fclose(file: int) -&gt; int
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>extern fn fread(ptr: string, size: int, count: int, file: int) -&gt; int
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>struct File {
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>    handle: int
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>    is_open: bool
+<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>}
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>
+<a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>fn file_open(path: string, mode: string) -&gt; File {
+<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a>    let handle: int = (fopen path mode)
+<a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a>    return File { handle: handle, is_open: (!= handle 0) }
+<a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a>}
+<a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a>
+<a id="__codelineno-42-16" name="__codelineno-42-16" href="#__codelineno-42-16"></a>fn file_close(f: mut File) -&gt; void {
+<a id="__codelineno-42-17" name="__codelineno-42-17" href="#__codelineno-42-17"></a>    if f.is_open {
+<a id="__codelineno-42-18" name="__codelineno-42-18" href="#__codelineno-42-18"></a>        (fclose f.handle)
+<a id="__codelineno-42-19" name="__codelineno-42-19" href="#__codelineno-42-19"></a>        set f.is_open false
+<a id="__codelineno-42-20" name="__codelineno-42-20" href="#__codelineno-42-20"></a>        set f.handle 0
+<a id="__codelineno-42-21" name="__codelineno-42-21" href="#__codelineno-42-21"></a>    }
+<a id="__codelineno-42-22" name="__codelineno-42-22" href="#__codelineno-42-22"></a>}
+<a id="__codelineno-42-23" name="__codelineno-42-23" href="#__codelineno-42-23"></a>
+<a id="__codelineno-42-24" name="__codelineno-42-24" href="#__codelineno-42-24"></a>fn safe_read_file(path: string) -&gt; string {
+<a id="__codelineno-42-25" name="__codelineno-42-25" href="#__codelineno-42-25"></a>    let f: File = (file_open path &quot;r&quot;)
+<a id="__codelineno-42-26" name="__codelineno-42-26" href="#__codelineno-42-26"></a>    if (not f.is_open) {
+<a id="__codelineno-42-27" name="__codelineno-42-27" href="#__codelineno-42-27"></a>        return &quot;&quot;
+<a id="__codelineno-42-28" name="__codelineno-42-28" href="#__codelineno-42-28"></a>    }
+<a id="__codelineno-42-29" name="__codelineno-42-29" href="#__codelineno-42-29"></a>
+<a id="__codelineno-42-30" name="__codelineno-42-30" href="#__codelineno-42-30"></a>    let buffer: string = (string_new 4096)
+<a id="__codelineno-42-31" name="__codelineno-42-31" href="#__codelineno-42-31"></a>    let bytes: int = (fread buffer 1 4096 f.handle)
+<a id="__codelineno-42-32" name="__codelineno-42-32" href="#__codelineno-42-32"></a>
+<a id="__codelineno-42-33" name="__codelineno-42-33" href="#__codelineno-42-33"></a>    # I always close the file
+<a id="__codelineno-42-34" name="__codelineno-42-34" href="#__codelineno-42-34"></a>    (file_close f)
+<a id="__codelineno-42-35" name="__codelineno-42-35" href="#__codelineno-42-35"></a>
+<a id="__codelineno-42-36" name="__codelineno-42-36" href="#__codelineno-42-36"></a>    if (&lt; bytes 0) {
+<a id="__codelineno-42-37" name="__codelineno-42-37" href="#__codelineno-42-37"></a>        return &quot;&quot;
+<a id="__codelineno-42-38" name="__codelineno-42-38" href="#__codelineno-42-38"></a>    }
+<a id="__codelineno-42-39" name="__codelineno-42-39" href="#__codelineno-42-39"></a>
+<a id="__codelineno-42-40" name="__codelineno-42-40" href="#__codelineno-42-40"></a>    return buffer
+<a id="__codelineno-42-41" name="__codelineno-42-41" href="#__codelineno-42-41"></a>}
+</code></pre></div>
+<hr />
+<h3 id="my-thread-safety-considerations">My Thread Safety Considerations<a class="headerlink" href="#my-thread-safety-considerations" title="Permanent link">&para;</a></h3>
+<p>I am concerned about thread safety when you use FFI.</p>
+<h4 id="rule-1-avoid-non-reentrant-c-functions">Rule 1: Avoid Non-Reentrant C Functions<a class="headerlink" href="#rule-1-avoid-non-reentrant-c-functions" title="Permanent link">&para;</a></h4>
+<p>Many C functions are not thread-safe. I want you to use safe alternatives.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a># I do not want you to use this. It uses global state.
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>extern fn strtok(str: string, delim: string) -&gt; string
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a># Use this thread-safe alternative instead
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>extern fn strtok_r(str: string, delim: string, saveptr: int) -&gt; string
+</code></pre></div>
+<h4 id="rule-2-beware-of-global-state">Rule 2: Beware of Global State<a class="headerlink" href="#rule-2-beware-of-global-state" title="Permanent link">&para;</a></h4>
+<p>If a C library has global state, I may have trouble if multiple components try to use it at once. I suggest you use locking or thread-local storage.</p>
+<h4 id="rule-3-callbacks-from-c">Rule 3: Callbacks from C<a class="headerlink" href="#rule-3-callbacks-from-c" title="Permanent link">&para;</a></h4>
+<p>If C calls my functions, they run in C's thread context. I expect you to minimize shared state access and use message passing.</p>
+<hr />
+<h3 id="error-handling-across-my-boundary">Error Handling Across My Boundary<a class="headerlink" href="#error-handling-across-my-boundary" title="Permanent link">&para;</a></h3>
+<p>I have different conventions than C. I expect you to translate between them.</p>
+<h4 id="pattern-1-return-code-translation">Pattern 1: Return Code Translation<a class="headerlink" href="#pattern-1-return-code-translation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a># C returns 0 for success
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>extern fn c_operation(arg: string) -&gt; int
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>fn safe_operation(arg: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>    let status: int = (c_operation arg)
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>    if (== status 0) {
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>        return Ok(void)
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>    } else {
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a>        let msg: string = (error_code_to_string status)
+<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>        return Err(msg)
+<a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a>    }
+<a id="__codelineno-44-13" name="__codelineno-44-13" href="#__codelineno-44-13"></a>}
+</code></pre></div>
+<h4 id="pattern-2-errno-handling">Pattern 2: errno Handling<a class="headerlink" href="#pattern-2-errno-handling" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>extern fn c_errno() -&gt; int
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>extern fn c_strerror(errnum: int) -&gt; string
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>fn safe_file_operation(path: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>    extern fn remove_file(path: string) -&gt; int
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a>    let result: int = (remove_file path)
+<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>
+<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a>    if (!= result 0) {
+<a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a>        let err_num: int = (c_errno)
+<a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a>        let err_msg: string = (c_strerror err_num)
+<a id="__codelineno-45-12" name="__codelineno-45-12" href="#__codelineno-45-12"></a>        return Err(err_msg)
+<a id="__codelineno-45-13" name="__codelineno-45-13" href="#__codelineno-45-13"></a>    }
+<a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a>
+<a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a>    return Ok(void)
+<a id="__codelineno-45-16" name="__codelineno-45-16" href="#__codelineno-45-16"></a>}
+</code></pre></div>
+<hr />
+<h3 id="how-i-validate-inputs">How I Validate Inputs<a class="headerlink" href="#how-i-validate-inputs" title="Permanent link">&para;</a></h3>
+<p>I always validate inputs before I pass them to C.</p>
+<h4 id="string-validation">String Validation<a class="headerlink" href="#string-validation" title="Permanent link">&para;</a></h4>
+<p>I check for null bytes, length limits, and directory traversal.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>fn safe_path_operation(user_path: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>    if (str_contains user_path &quot;\0&quot;) {
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>        return Err(&quot;Path contains null byte&quot;)
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a>    }
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a>    if (&gt; (str_length user_path) 1024) {
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a>        return Err(&quot;Path too long&quot;)
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a>    }
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a>
+<a id="__codelineno-46-10" name="__codelineno-46-10" href="#__codelineno-46-10"></a>    if (str_contains user_path &quot;..&quot;) {
+<a id="__codelineno-46-11" name="__codelineno-46-11" href="#__codelineno-46-11"></a>        return Err(&quot;Path traversal not allowed&quot;)
+<a id="__codelineno-46-12" name="__codelineno-46-12" href="#__codelineno-46-12"></a>    }
+<a id="__codelineno-46-13" name="__codelineno-46-13" href="#__codelineno-46-13"></a>
+<a id="__codelineno-46-14" name="__codelineno-46-14" href="#__codelineno-46-14"></a>    extern fn c_open_file(path: string) -&gt; int
+<a id="__codelineno-46-15" name="__codelineno-46-15" href="#__codelineno-46-15"></a>    let handle: int = (c_open_file user_path)
+<a id="__codelineno-46-16" name="__codelineno-46-16" href="#__codelineno-46-16"></a>
+<a id="__codelineno-46-17" name="__codelineno-46-17" href="#__codelineno-46-17"></a>    if (== handle 0) {
+<a id="__codelineno-46-18" name="__codelineno-46-18" href="#__codelineno-46-18"></a>        return Err(&quot;Failed to open file&quot;)
+<a id="__codelineno-46-19" name="__codelineno-46-19" href="#__codelineno-46-19"></a>    }
+<a id="__codelineno-46-20" name="__codelineno-46-20" href="#__codelineno-46-20"></a>
+<a id="__codelineno-46-21" name="__codelineno-46-21" href="#__codelineno-46-21"></a>    return Ok(void)
+<a id="__codelineno-46-22" name="__codelineno-46-22" href="#__codelineno-46-22"></a>}
+</code></pre></div>
+<h4 id="integer-validation">Integer Validation<a class="headerlink" href="#integer-validation" title="Permanent link">&para;</a></h4>
+<p>I check for positive sizes and reasonable limits.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>fn safe_buffer_operation(size: int) -&gt; Result&lt;string, string&gt; {
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>    if (&lt;= size 0) {
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>        return Err(&quot;Size must be positive&quot;)
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a>    }
+<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a>
+<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a>    if (&gt; size 10485760) {
+<a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a>        return Err(&quot;Size too large&quot;)
+<a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a>    }
+<a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a>
+<a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a>    extern fn c_malloc(size: int) -&gt; string
+<a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a>    let buffer: string = (c_malloc size)
+<a id="__codelineno-47-12" name="__codelineno-47-12" href="#__codelineno-47-12"></a>
+<a id="__codelineno-47-13" name="__codelineno-47-13" href="#__codelineno-47-13"></a>    if (== buffer &quot;&quot;) {
+<a id="__codelineno-47-14" name="__codelineno-47-14" href="#__codelineno-47-14"></a>        return Err(&quot;Allocation failed&quot;)
+<a id="__codelineno-47-15" name="__codelineno-47-15" href="#__codelineno-47-15"></a>    }
+<a id="__codelineno-47-16" name="__codelineno-47-16" href="#__codelineno-47-16"></a>
+<a id="__codelineno-47-17" name="__codelineno-47-17" href="#__codelineno-47-17"></a>    return Ok(buffer)
+<a id="__codelineno-47-18" name="__codelineno-47-18" href="#__codelineno-47-18"></a>}
+</code></pre></div>
+<hr />
+<h3 id="security-how-i-prevent-injection">Security: How I Prevent Injection<a class="headerlink" href="#security-how-i-prevent-injection" title="Permanent link">&para;</a></h3>
+<p>I want to prevent command injection and SQL injection.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a># I do not allow direct command execution with user input
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>fn safe_run_command(filename: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>    if (not (is_safe_filename filename)) {
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>        return Err(&quot;Invalid filename&quot;)
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>    }
+<a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>
+<a id="__codelineno-48-7" name="__codelineno-48-7" href="#__codelineno-48-7"></a>    extern fn system(cmd: string) -&gt; int
+<a id="__codelineno-48-8" name="__codelineno-48-8" href="#__codelineno-48-8"></a>    let cmd: string = (str_concat &quot;ls &quot; filename)
+<a id="__codelineno-48-9" name="__codelineno-48-9" href="#__codelineno-48-9"></a>    return Ok((system cmd))
+<a id="__codelineno-48-10" name="__codelineno-48-10" href="#__codelineno-48-10"></a>}
+</code></pre></div>
+<p>I prefer prepared statements for SQL.</p>
+<hr />
+<h3 id="my-performance-considerations">My Performance Considerations<a class="headerlink" href="#my-performance-considerations" title="Permanent link">&para;</a></h3>
+<p>I know that FFI calls have overhead. I want you to optimize them.</p>
+<h4 id="batch-your-operations">Batch Your Operations<a class="headerlink" href="#batch-your-operations" title="Permanent link">&para;</a></h4>
+<p>Instead of calling FFI in a tight loop, I recommend batching.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a># I prefer this batch operation
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>fn process_fast(items: array&lt;string&gt;) -&gt; void {
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>    extern fn c_process_batch(items: array&lt;string&gt;, count: int) -&gt; void
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>    (c_process_batch items (array_length items))
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>}
+</code></pre></div>
+<h4 id="cache-your-results">Cache Your Results<a class="headerlink" href="#cache-your-results" title="Permanent link">&para;</a></h4>
+<p>I find it useful to cache the results of expensive FFI calls.</p>
+<hr />
+<h2 id="my-related-documentation">My Related Documentation<a class="headerlink" href="#my-related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>docs/MODULE_SYSTEM.md</code></li>
+<li><code>docs/DEBUGGING_GUIDE.md</code></li>
+<li><code>docs/SPECIFICATION.md</code></li>
+<li><code>docs/MEMORY_MANAGEMENT.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

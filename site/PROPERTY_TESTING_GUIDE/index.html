@@ -1,0 +1,1666 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/PROPERTY_TESTING_GUIDE/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>My Property-Based Testing Guide - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#my-property-based-testing-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              My Property-Based Testing Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="my-property-based-testing-guide">My Property-Based Testing Guide<a class="headerlink" href="#my-property-based-testing-guide" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>For LLM Agents:</strong> My property-based testing generates random inputs to validate algorithmic properties. It catches edge cases that example-based tests miss.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#why-i-use-property-based-testing">Why I Use Property-Based Testing</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+<li><a href="#common-properties">Common Properties</a></li>
+<li><a href="#advanced-patterns">Advanced Patterns</a></li>
+<li><a href="#ci-integration">CI Integration</a></li>
+</ol>
+<hr />
+<h2 id="why-i-use-property-based-testing">Why I Use Property-Based Testing<a class="headerlink" href="#why-i-use-property-based-testing" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-with-example-based-tests">The Problem with Example-Based Tests<a class="headerlink" href="#the-problem-with-example-based-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>fn reverse_list(lst: array&lt;int&gt;) -&gt; array&lt;int&gt; {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    # ... implementation ...
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>shadow reverse_list {
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    # Example-based: Only tests 3 specific cases
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    assert (arrays_equal (reverse_list [1, 2, 3]) [3, 2, 1])
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    assert (arrays_equal (reverse_list []) [])
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    assert (arrays_equal (reverse_list [5]) [5])
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>}
+</code></pre></div>
+<p><strong>What is missing?</strong>
+- Large arrays (100+ elements)
+- Negative numbers
+- Duplicates
+- Boundary values (INT_MIN, INT_MAX)
+- Random patterns</p>
+<h3 id="my-property-based-solution">My Property-Based Solution<a class="headerlink" href="#my-property-based-solution" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int_array
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>shadow reverse_list {
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    # Property-based: Tests 100 random arrays
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    (proptest_int_array &quot;reverse_twice_is_identity&quot; 100
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        (fn (lst: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            let once: array&lt;int&gt; = (reverse_list lst)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            let twice: array&lt;int&gt; = (reverse_list once)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            return (arrays_equal lst twice)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        }))
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>}
+</code></pre></div>
+<p><strong>What I test:</strong>
+- I automatically generate 100 random arrays.
+- I test the property: <code>reverse(reverse(x)) == x</code>.
+- If I find a failure, I shrink it to the minimal failing case.
+- Example output: "Failed on: [0, -1, 0]"</p>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># My property testing module is included with my source</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Located at: modules/proptest/proptest.nano</span>
+</code></pre></div>
+<h3 id="your-first-property-test">Your First Property Test<a class="headerlink" href="#your-first-property-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>fn absolute_value(x: int) -&gt; int {
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    if (&lt; x 0) {
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        return (* x -1)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    } else {
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        return x
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    }
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>}
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>shadow absolute_value {
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    # Property: abs(x) is always non-negative
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    (proptest_int &quot;always_non_negative&quot; 100
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        (fn (x: int) -&gt; bool {
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>            return (&gt;= (absolute_value x) 0)
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        }))
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    # Property: abs(-x) == abs(x)
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    (proptest_int &quot;symmetric&quot; 100
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>        (fn (x: int) -&gt; bool {
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>            return (== (absolute_value (* x -1)) (absolute_value x))
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>        }))
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>}
+</code></pre></div>
+<h3 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Compile and run (shadow tests execute automatically)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./bin/nanoc<span class="w"> </span>your_program.nano<span class="w"> </span>-o<span class="w"> </span>output
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>./output
+</code></pre></div>
+<p><strong>Success output:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>✓ Property &#39;always_non_negative&#39; passed (100 cases)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>✓ Property &#39;symmetric&#39; passed (100 cases)
+</code></pre></div></p>
+<p><strong>Failure output:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>✗ Property &#39;always_non_negative&#39; failed
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  Counterexample found after 42 tests
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  Minimal failing case (after shrinking): x = -2147483648
+</code></pre></div></p>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="1-properties-vs-examples">1. Properties vs. Examples<a class="headerlink" href="#1-properties-vs-examples" title="Permanent link">&para;</a></h3>
+<p>Example-based testing checks specific inputs:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>assert (== (add 2 3) 5)  # True for 2 and 3, but what about other inputs?
+</code></pre></div></p>
+<p>Property-based testing checks universal properties:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(proptest_int_pair &quot;commutative&quot; 100
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        return (== (add a b) (add b a))  # True for ALL integers
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    }))
+</code></pre></div></p>
+<h3 id="2-generators">2. Generators<a class="headerlink" href="#2-generators" title="Permanent link">&para;</a></h3>
+<p>My generators produce random test inputs:</p>
+<table>
+<thead>
+<tr>
+<th>Generator</th>
+<th>Input Type</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>proptest_int</code></td>
+<td><code>int</code></td>
+<td>Single integers</td>
+</tr>
+<tr>
+<td><code>proptest_int_pair</code></td>
+<td><code>(int, int)</code></td>
+<td>Pairs of integers</td>
+</tr>
+<tr>
+<td><code>proptest_int_array</code></td>
+<td><code>array&lt;int&gt;</code></td>
+<td>Integer arrays</td>
+</tr>
+<tr>
+<td><code>proptest_string</code></td>
+<td><code>string</code></td>
+<td>Strings (future)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-properties">3. Properties<a class="headerlink" href="#3-properties" title="Permanent link">&para;</a></h3>
+<p>A property is a function that returns <code>bool</code>:
+- <code>true</code> means the test passes for this input.
+- <code>false</code> means the test fails and a counterexample was found.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a># Property function signature
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>fn my_property(input: InputType) -&gt; bool {
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    # Test the property, return true/false
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>}
+</code></pre></div>
+<h3 id="4-shrinking">4. Shrinking<a class="headerlink" href="#4-shrinking" title="Permanent link">&para;</a></h3>
+<p>When a test fails, I use shrinking to find the minimal failing case:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Original failing input: [17, -99, 42, 5, 23, -8, 0, 1, 34]
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>After shrinking:        [0, -8]
+</code></pre></div>
+<p>This makes it easier for you to debug with a minimal reproduction case.</p>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="proptest_int">proptest_int<a class="headerlink" href="#proptest_int" title="Permanent link">&para;</a></h3>
+<p>I test properties with random integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>(proptest_int &quot;property_name&quot; num_tests property_function)
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>property_name</code>: String. A descriptive name for the test.
+- <code>num_tests</code>: Int. The number of random inputs I should generate. I typically use 50 to 100.
+- <code>property_function</code>: <code>fn(int) -&gt; bool</code>. The function that tests the property.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>shadow is_even {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    (proptest_int &quot;double_is_even&quot; 100
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        (fn (x: int) -&gt; bool {
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>            let doubled: int = (* x 2)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>            return (== (% doubled 2) 0)  # Always true
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>        }))
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
+</code></pre></div></p>
+<h3 id="proptest_int_pair">proptest_int_pair<a class="headerlink" href="#proptest_int_pair" title="Permanent link">&para;</a></h3>
+<p>I test properties with pairs of random integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int_pair
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>(proptest_int_pair &quot;property_name&quot; num_tests property_function)
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>property_function</code>: <code>fn(int, int) -&gt; bool</code>.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>shadow add {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    # Property: Addition is commutative
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    (proptest_int_pair &quot;commutative&quot; 100
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>            return (== (add a b) (add b a))
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>        }))
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    # Property: Addition is associative
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    # Note: Requires proptest_int_triple (not yet implemented)
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>}
+</code></pre></div></p>
+<h3 id="proptest_int_array">proptest_int_array<a class="headerlink" href="#proptest_int_array" title="Permanent link">&para;</a></h3>
+<p>I test properties with random integer arrays.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int_array
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>(proptest_int_array &quot;property_name&quot; num_tests property_function)
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>property_function</code>: <code>fn(array&lt;int&gt;) -&gt; bool</code>.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>shadow sort_array {
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    # Property: Sorted arrays have same length as input
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    (proptest_int_array &quot;length_preserved&quot; 100
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>            let sorted: array&lt;int&gt; = (sort_array arr)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>            return (== (array_length arr) (array_length sorted))
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>        }))
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    # Property: Sorted arrays are actually sorted
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    (proptest_int_array &quot;is_sorted&quot; 100
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>            let sorted: array&lt;int&gt; = (sort_array arr)
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>            return (is_ascending_order sorted)
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>        }))
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>}
+</code></pre></div></p>
+<h3 id="custom-properties-with-prop_passprop_fail">Custom Properties with prop_pass/prop_fail<a class="headerlink" href="#custom-properties-with-prop_passprop_fail" title="Permanent link">&para;</a></h3>
+<p>For more control, you can use explicit pass or fail results:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>from &quot;modules/proptest/proptest.nano&quot; import prop_pass, prop_fail
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>fn my_property(x: int) -&gt; string {
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    if (&gt;= x 0) {
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        return (prop_pass)
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    } else {
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>        return (prop_fail &quot;Expected non-negative, got negative&quot;)
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    }
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>}
+</code></pre></div>
+<hr />
+<h2 id="common-properties">Common Properties<a class="headerlink" href="#common-properties" title="Permanent link">&para;</a></h2>
+<h3 id="mathematical-properties">Mathematical Properties<a class="headerlink" href="#mathematical-properties" title="Permanent link">&para;</a></h3>
+<h4 id="commutativity">Commutativity<a class="headerlink" href="#commutativity" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a># Property: f(a, b) == f(b, a)
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>(proptest_int_pair &quot;add_commutative&quot; 100
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>        return (== (add a b) (add b a))
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    }))
+</code></pre></div>
+<h4 id="associativity">Associativity<a class="headerlink" href="#associativity" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a># Property: f(f(a, b), c) == f(a, f(b, c))
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a># Requires custom generator for triples
+</code></pre></div>
+<h4 id="identity-element">Identity Element<a class="headerlink" href="#identity-element" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a># Property: f(x, identity) == x
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>(proptest_int &quot;add_zero_identity&quot; 100
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    (fn (x: int) -&gt; bool {
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>        return (== (add x 0) x)
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    }))
+</code></pre></div>
+<h4 id="inverse-element">Inverse Element<a class="headerlink" href="#inverse-element" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a># Property: f(x, inverse(x)) == identity
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>(proptest_int &quot;add_inverse&quot; 100
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    (fn (x: int) -&gt; bool {
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>        return (== (add x (* x -1)) 0)
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    }))
+</code></pre></div>
+<h3 id="algorithmic-properties">Algorithmic Properties<a class="headerlink" href="#algorithmic-properties" title="Permanent link">&para;</a></h3>
+<h4 id="idempotence">Idempotence<a class="headerlink" href="#idempotence" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a># Property: f(f(x)) == f(x)
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>(proptest_string &quot;normalize_idempotent&quot; 100
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    (fn (s: string) -&gt; bool {
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        let once: string = (normalize s)
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>        let twice: string = (normalize once)
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>        return (str_equals once twice)
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>    }))
+</code></pre></div>
+<h4 id="inversion">Inversion<a class="headerlink" href="#inversion" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a># Property: inverse(f(x)) == x
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>(proptest_int_array &quot;sort_reverse&quot; 100
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        let sorted: array&lt;int&gt; = (sort_ascending arr)
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        let reversed: array&lt;int&gt; = (reverse sorted)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        let desc_sorted: array&lt;int&gt; = (sort_descending arr)
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>        return (arrays_equal reversed desc_sorted)
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    }))
+</code></pre></div>
+<h4 id="equivalence">Equivalence<a class="headerlink" href="#equivalence" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a># Property: Two implementations produce same result
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>(proptest_int_array &quot;bubble_vs_quick_sort&quot; 100
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>        let bubble: array&lt;int&gt; = (bubble_sort arr)
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>        let quick: array&lt;int&gt; = (quick_sort arr)
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>        return (arrays_equal bubble quick)
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    }))
+</code></pre></div>
+<h3 id="data-structure-properties">Data Structure Properties<a class="headerlink" href="#data-structure-properties" title="Permanent link">&para;</a></h3>
+<h4 id="length-preservation">Length Preservation<a class="headerlink" href="#length-preservation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>(proptest_int_array &quot;map_preserves_length&quot; 100
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>        let mapped: array&lt;int&gt; = (map double arr)
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>        return (== (array_length arr) (array_length mapped))
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    }))
+</code></pre></div>
+<h4 id="element-preservation">Element Preservation<a class="headerlink" href="#element-preservation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>(proptest_int_array &quot;filter_removes_only&quot; 100
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>        let filtered: array&lt;int&gt; = (filter is_even arr)
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>        # Every element in filtered must be in original
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>        return (all_elements_in filtered arr)
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    }))
+</code></pre></div>
+<h4 id="ordering-properties">Ordering Properties<a class="headerlink" href="#ordering-properties" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>(proptest_int_array &quot;sort_is_ascending&quot; 100
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>        let sorted: array&lt;int&gt; = (sort arr)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>        let mut i: int = 0
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>        while (&lt; i (- (array_length sorted) 1)) {
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>            if (&gt; (at sorted i) (at sorted (+ i 1))) {
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>                return false
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>            }
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>            set i (+ i 1)
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>        }
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>        return true
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>    }))
+</code></pre></div>
+<hr />
+<h2 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="conditional-properties">Conditional Properties<a class="headerlink" href="#conditional-properties" title="Permanent link">&para;</a></h3>
+<p>Sometimes properties only hold under certain conditions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>from &quot;modules/proptest/proptest.nano&quot; import prop_discard
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>(proptest_int_pair &quot;divide_inverse&quot; 100
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>        # I discard cases where b == 0 because division is undefined
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>        if (== b 0) {
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>            return (prop_discard &quot;Division by zero&quot;)
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>        }
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>        let quotient: int = (/ a b)
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>        let reconstructed: int = (* quotient b)
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>        # Property: (a / b) * b ≈ a (within integer division rounding)
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>        return (&lt;= (absolute_value (- a reconstructed)) (absolute_value b))
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a>    }))
+</code></pre></div>
+<p><strong>Output:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>✓ Property &#39;divide_inverse&#39; passed (87 cases, 13 discarded)
+</code></pre></div></p>
+<h3 id="stateful-properties">Stateful Properties<a class="headerlink" href="#stateful-properties" title="Permanent link">&para;</a></h3>
+<p>I test sequences of operations to ensure they maintain invariants:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>struct Stack {
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    items: array&lt;int&gt;,
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>    size: int
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>}
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>fn push(stack: Stack, value: int) -&gt; Stack {
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>    # ... implementation ...
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>}
+<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>
+<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>fn pop(stack: Stack) -&gt; Stack {
+<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>    # ... implementation ...
+<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>}
+<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a>
+<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a>shadow stack_operations {
+<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>    (proptest_int &quot;push_pop_identity&quot; 100
+<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a>        (fn (value: int) -&gt; bool {
+<a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a>            let empty: Stack = Stack { items: [], size: 0 }
+<a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a>            let after_push: Stack = (push empty value)
+<a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a>            let after_pop: Stack = (pop after_push)
+<a id="__codelineno-30-20" name="__codelineno-30-20" href="#__codelineno-30-20"></a>
+<a id="__codelineno-30-21" name="__codelineno-30-21" href="#__codelineno-30-21"></a>            # Property: push then pop returns to original state
+<a id="__codelineno-30-22" name="__codelineno-30-22" href="#__codelineno-30-22"></a>            return (== after_pop.size empty.size)
+<a id="__codelineno-30-23" name="__codelineno-30-23" href="#__codelineno-30-23"></a>        }))
+<a id="__codelineno-30-24" name="__codelineno-30-24" href="#__codelineno-30-24"></a>}
+</code></pre></div>
+<h3 id="oracle-testing">Oracle Testing<a class="headerlink" href="#oracle-testing" title="Permanent link">&para;</a></h3>
+<p>I compare my results against a known-correct implementation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>fn fast_fibonacci(n: int) -&gt; int {
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>    # Optimized O(log n) implementation
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>}
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>fn slow_fibonacci(n: int) -&gt; int {
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    # Simple O(2^n) recursive implementation (oracle)
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>}
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>shadow fast_fibonacci {
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>    (proptest_int &quot;matches_oracle&quot; 50
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>        (fn (n: int) -&gt; bool {
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a>            # I only test small n for the slow oracle
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a>            if (&gt; n 30) { return true }  # Skip large inputs
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a>
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a>            return (== (fast_fibonacci n) (slow_fibonacci n))
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a>        }))
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a>}
+</code></pre></div>
+<hr />
+<h2 id="ci-integration">CI Integration<a class="headerlink" href="#ci-integration" title="Permanent link">&para;</a></h2>
+<h3 id="basic-ci-pipeline">Basic CI Pipeline<a class="headerlink" href="#basic-ci-pipeline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># .github/workflows/test.yml</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Property Tests</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v2</span>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build my compiler</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run property tests</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a><span class="w">          </span><span class="no">./bin/nanoc tests/test_properties.nano -o test_runner</span>
+<a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a><span class="w">          </span><span class="no">./test_runner</span>
+</code></pre></div>
+<h3 id="test-organization">Test Organization<a class="headerlink" href="#test-organization" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>tests/
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>├── test_sorting_properties.nano      # Sorting algorithm properties
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>├── test_math_properties.nano         # Mathematical function properties
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>├── test_string_properties.nano       # String manipulation properties
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>└── test_data_structure_properties.nano  # DS invariant properties
+</code></pre></div>
+<h3 id="test-configuration">Test Configuration<a class="headerlink" href="#test-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a># tests/test_config.nano
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a># I adjust my test count based on the environment
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>let is_ci: bool = (not (str_equals (getenv &quot;CI&quot;) &quot;&quot;))
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>let test_count: int = (cond
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>    (is_ci 1000)  # I run more tests in CI
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>    (else 100)    # I run fewer tests locally for speed
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>)
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>shadow my_function {
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>    (proptest_int &quot;property&quot; test_count property_function)
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>}
+</code></pre></div>
+<h3 id="handling-flaky-tests">Handling Flaky Tests<a class="headerlink" href="#handling-flaky-tests" title="Permanent link">&para;</a></h3>
+<p>If property tests occasionally fail due to rare edge cases:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a># I document my known limitations
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>shadow sort_with_overflow {
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>    # Property: Sorting preserves all elements
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>    # Note: I may fail on extremely large arrays (&gt;10000 elements)
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>    # due to stack overflow in recursive quicksort
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>    (proptest_int_array &quot;elements_preserved&quot; 100
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>            if (&gt; (array_length arr) 10000) { return true }  # Skip
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a>            let sorted: array&lt;int&gt; = (sort arr)
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a>            return (same_elements arr sorted)
+<a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a>        }))
+<a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a>}
+</code></pre></div>
+<h3 id="reproducible-test-failures">Reproducible Test Failures<a class="headerlink" href="#reproducible-test-failures" title="Permanent link">&para;</a></h3>
+<p>When a property test fails in CI:</p>
+<ol>
+<li>
+<p><strong>Capture the seed.</strong> If my module supports it, I will report the seed.
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>✗ Property &#39;my_test&#39; failed (seed: 0x12345678)
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Reproduce locally:</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="nv">PROPTEST_SEED</span><span class="o">=</span>0x12345678<span class="w"> </span>./test_runner
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Fix the bug.</strong> I use the counterexample to reveal the error.</p>
+</li>
+</ol>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="start-simple">Start Simple<a class="headerlink" href="#start-simple" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a># I begin with basic properties
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>shadow add {
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>    (proptest_int_pair &quot;commutative&quot; 100
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>        (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>            return (== (add a b) (add b a))
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a>        }))
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>}
+<a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a>
+<a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a># Then I add more complex properties
+<a id="__codelineno-38-10" name="__codelineno-38-10" href="#__codelineno-38-10"></a>shadow add {
+<a id="__codelineno-38-11" name="__codelineno-38-11" href="#__codelineno-38-11"></a>    (proptest_int &quot;identity&quot; 100
+<a id="__codelineno-38-12" name="__codelineno-38-12" href="#__codelineno-38-12"></a>        (fn (x: int) -&gt; bool {
+<a id="__codelineno-38-13" name="__codelineno-38-13" href="#__codelineno-38-13"></a>            return (== (add x 0) x)
+<a id="__codelineno-38-14" name="__codelineno-38-14" href="#__codelineno-38-14"></a>        }))
+<a id="__codelineno-38-15" name="__codelineno-38-15" href="#__codelineno-38-15"></a>}
+</code></pre></div>
+<h3 id="name-properties-clearly">Name Properties Clearly<a class="headerlink" href="#name-properties-clearly" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a># GOOD: This describes exactly what I am testing
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>(proptest_int_array &quot;sort_preserves_length&quot; 100 ...)
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>(proptest_int &quot;abs_always_non_negative&quot; 100 ...)
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a># BAD: These names are vague
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>(proptest_int_array &quot;test1&quot; 100 ...)
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>(proptest_int &quot;property&quot; 100 ...)
+</code></pre></div>
+<h3 id="test-properties-not-implementation">Test Properties, Not Implementation<a class="headerlink" href="#test-properties-not-implementation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a># GOOD: I test observable behavior
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>(proptest_int_array &quot;sorted_output_is_ascending&quot; 100 ...)
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a># BAD: This tests implementation details
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>(proptest_int_array &quot;uses_quicksort_partition&quot; 100 ...)
+</code></pre></div>
+<h3 id="do-not-test-non-deterministic-functions">Do Not Test Non-Deterministic Functions<a class="headerlink" href="#do-not-test-non-deterministic-functions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a># BAD: Random functions do not have consistent properties
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>fn get_random() -&gt; int {
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>    return (random_int)
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>}
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>shadow get_random {
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>    # This will fail
+<a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>    (proptest_int &quot;always_returns_same&quot; 100
+<a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>        (fn (_: int) -&gt; bool {
+<a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a>            return (== (get_random) (get_random))
+<a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>        }))
+<a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a>}
+</code></pre></div>
+<h3 id="do-not-duplicate-the-implementation">Do Not Duplicate the Implementation<a class="headerlink" href="#do-not-duplicate-the-implementation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a># BAD: The property is just reimplementing my function
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>shadow add {
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>    (proptest_int_pair &quot;works&quot; 100
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>        (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>            return (== (add a b) (+ a b))  # This is a tautology
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>        }))
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>}
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>
+<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a># GOOD: I test mathematical properties
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>shadow add {
+<a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>    (proptest_int_pair &quot;commutative&quot; 100
+<a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a>        (fn (a: int, b: int) -&gt; bool {
+<a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a>            return (== (add a b) (add b a))
+<a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a>        }))
+<a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a>}
+</code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="property-failed-but-i-cannot-reproduce-it">"Property failed but I cannot reproduce it"<a class="headerlink" href="#property-failed-but-i-cannot-reproduce-it" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> Shrinking might have found a very specific edge case.</p>
+<p><strong>Solution:</strong> Pay attention to the counterexample I provide:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>✗ Counterexample: arr = [0, -2147483648, 1]
+</code></pre></div></p>
+<p>Test this specific input manually:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>shadow my_function {
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>    # Add an explicit test for the discovered edge case
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>    let edge_case: array&lt;int&gt; = [0, -2147483648, 1]
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>    assert (my_property edge_case)
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>}
+</code></pre></div></p>
+<h3 id="tests-pass-locally-but-fail-in-ci">"Tests pass locally but fail in CI"<a class="headerlink" href="#tests-pass-locally-but-fail-in-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> Different random seeds or timing.</p>
+<p><strong>Solution:</strong> Use a deterministic test count:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>let CI_TEST_COUNT: int = 1000
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>let LOCAL_TEST_COUNT: int = 100
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>shadow my_function {
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>    (proptest_int &quot;property&quot; CI_TEST_COUNT property_fn)
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>}
+</code></pre></div></p>
+<h3 id="property-test-is-too-slow">"Property test is too slow"<a class="headerlink" href="#property-test-is-too-slow" title="Permanent link">&para;</a></h3>
+<p><strong>Cause:</strong> You are using too many test cases or an expensive property function.</p>
+<p><strong>Solution:</strong> Reduce the test count or optimize the property:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a># Before: 1000 tests, which is slow
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>(proptest_int_array &quot;expensive_check&quot; 1000 slow_property)
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a># After: 100 tests, which is optimized
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>(proptest_int_array &quot;fast_check&quot; 100 optimized_property)
+</code></pre></div></p>
+<hr />
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>from &quot;modules/proptest/proptest.nano&quot; import 
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>    proptest_int, proptest_int_pair, proptest_int_array,
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>    prop_pass, prop_fail, prop_discard
+</code></pre></div>
+<h3 id="basic-pattern">Basic Pattern<a class="headerlink" href="#basic-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>shadow my_function {
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>    (proptest_TYPE &quot;property_name&quot; num_tests
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>        (fn (input: TYPE) -&gt; bool {
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>            # Test the property and return true or false
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>        }))
+<a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>}
+</code></pre></div>
+<h3 id="property-types-checklist">Property Types Checklist<a class="headerlink" href="#property-types-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Commutativity: <code>f(a,b) == f(b,a)</code></li>
+<li>[ ] Associativity: <code>f(f(a,b),c) == f(a,f(b,c))</code></li>
+<li>[ ] Identity: <code>f(x, id) == x</code></li>
+<li>[ ] Inverse: <code>f(x, inv(x)) == id</code></li>
+<li>[ ] Idempotence: <code>f(f(x)) == f(x)</code></li>
+<li>[ ] Length preservation: <code>len(f(x)) == len(x)</code></li>
+<li>[ ] Ordering: <code>is_sorted(sort(x))</code></li>
+</ul>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p><strong>My property-based testing:</strong>
+- I generate random inputs automatically.
+- I find edge cases you did not think of.
+- I shrink to minimal failing examples.
+- I validate algorithmic properties universally.</p>
+<p><strong>Use me when:</strong>
+- You are testing algorithms like sorting, searching, or math.
+- You are validating invariants in data structures or protocols.
+- You are comparing implementations.</p>
+<p><strong>Avoid me when:</strong>
+- You are testing I/O or side effects.
+- You have non-deterministic functions.
+- You are testing UI or visual output.</p>
+<p><strong>For LLM agents:</strong> Generate property tests alongside shadow tests. This catches edge cases and validates algorithmic correctness automatically.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

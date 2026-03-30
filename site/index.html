@@ -1,0 +1,1518 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/">
+      
+      
+      
+        <link rel="next" href="GETTING_STARTED/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#my-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Table of Contents">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Started
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-and-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing and Quality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-and-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Topics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roadmap-and-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Roadmap and Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-by-topic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation by Topic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation by Topic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#by-skill-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Skill Level
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-interest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By Interest
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planning-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planning Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#my-documentation-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        My Documentation Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-for-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Search for Content
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="my-documentation">My Documentation<a class="headerlink" href="#my-documentation" title="Permanent link">&para;</a></h1>
+<p>I organize my documentation to help you understand my structure, my syntax, and my proofs. I describe what I am and how I function. I do not use marketing language.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<h3 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h3>
+<p>I recommend starting here if you are new to my environment:</p>
+<ol>
+<li><strong><a href="GETTING_STARTED/">Getting Started Guide</a></strong> - My first steps</li>
+<li>Installation and setup</li>
+<li>Your first program</li>
+<li>My core concepts</li>
+<li>
+<p>Common patterns and mistakes</p>
+</li>
+<li>
+<p><strong><a href="QUICK_REFERENCE/">Quick Reference</a></strong> - Syntax cheat sheet</p>
+</li>
+<li>My operators at a glance</li>
+<li>My type system</li>
+<li>Common patterns</li>
+<li>
+<p>Quick examples</p>
+</li>
+<li>
+<p><strong><a href="../examples/README.md">Examples Directory</a></strong> - Learning by example</p>
+</li>
+<li>70+ programs I can run</li>
+<li>From "hello world" to games</li>
+<li>Progressive complexity</li>
+<li>All with shadow tests</li>
+</ol>
+<h3 id="language-reference">Language Reference<a class="headerlink" href="#language-reference" title="Permanent link">&para;</a></h3>
+<p>The details of my design:</p>
+<ol>
+<li><strong><a href="SPECIFICATION/">Language Specification</a></strong> - Complete language reference</li>
+<li>Formal syntax and semantics</li>
+<li>Type system details</li>
+<li>Standard library reference</li>
+<li>
+<p>Compilation model</p>
+</li>
+<li>
+<p><strong><a href="FEATURES/">Features Guide</a></strong> - My features</p>
+</li>
+<li>Data structures (structs, enums, unions, tuples)</li>
+<li>Generics and type parameters</li>
+<li>First-class functions</li>
+<li>Module system</li>
+</ol>
+<p>5.5. <strong>Type System Deep Dives</strong>
+   - <a href="TYPE_INFERENCE/">Type Inference Rules</a> - What I can and cannot infer
+   - <a href="GENERICS_DEEP_DIVE/">Generics Deep Dive</a> - How I handle monomorphization
+   - <a href="ERROR_MESSAGES/">Error Messages Guide</a> - How to read my compiler errors</p>
+<p>5.6. <strong>Strings and Text</strong>
+   - <a href="UNICODE/">Unicode Support</a> - UTF-8, string vs bstring, limitations</p>
+<p>5.7. <strong>Performance</strong>
+   - <a href="PERFORMANCE/">Performance Characteristics</a> - Speed, memory, optimization</p>
+<p>5.8. <strong>Arrays and Memory</strong>
+   - <a href="ARRAY_SAFETY/">Array Safety</a>
+   - <a href="DYNAMIC_ARRAYS/">Dynamic Arrays</a>
+   - <a href="MEMORY_MANAGEMENT/">Memory Management</a></p>
+<ol>
+<li><strong><a href="STDLIB/">Standard Library</a></strong> - My built-in functions</li>
+</ol>
+<h3 id="testing-and-quality">Testing and Quality<a class="headerlink" href="#testing-and-quality" title="Permanent link">&para;</a></h3>
+<p>My philosophy on honesty and verification:</p>
+<ol>
+<li><strong><a href="SHADOW_TESTS/">Shadow Tests</a></strong> - Mandatory compile-time testing</li>
+<li>What shadow tests are</li>
+<li>Why I require them</li>
+<li>Writing good tests</li>
+<li>
+<p>Best practices</p>
+</li>
+<li>
+<p><strong><a href="COVERAGE/">Code Coverage</a></strong> - Coverage reporting and tracking</p>
+</li>
+<li>Generating coverage reports</li>
+<li>Coverage targets by component</li>
+<li>
+<p>Interpreting results</p>
+</li>
+<li>
+<p><strong><a href="../tests/FEATURE_COVERAGE.md">Feature Coverage</a></strong> - My test suite</p>
+</li>
+</ol>
+<h3 id="architecture-and-design">Architecture and Design<a class="headerlink" href="#architecture-and-design" title="Permanent link">&para;</a></h3>
+<p>How I am built:</p>
+<ol>
+<li><strong><a href="NANOISA/">NanoISA Virtual Machine</a></strong> - My VM backend<ul>
+<li>178-opcode stack machine ISA</li>
+<li>.nvm binary format specification</li>
+<li>Co-process FFI isolation protocol</li>
+<li>VM daemon for distributed execution</li>
+<li>Trap model (pure-compute core and I/O handlers)</li>
+<li>Native binary generation from bytecode</li>
+</ul>
+</li>
+</ol>
+<p>10.5. <strong><a href="../formal/README.md">Formal Verification</a></strong> - My proofs in Coq
+    - Type soundness (preservation and progress)
+    - Determinism of evaluation
+    - Big-step / small-step semantic equivalence
+    - Computable reference interpreter with soundness proof
+    - 6,170 lines of Coq, 193 theorems, 0 axioms</p>
+<ol>
+<li>
+<p><strong>Design and implementation notes</strong></p>
+<ul>
+<li>Notes for those maintaining me live in <a href="../planning/">planning/</a></li>
+</ul>
+</li>
+<li>
+<p><strong><a href="LANGUAGE_DESIGN_REVIEW/">Language Design Review</a></strong> - My design philosophy</p>
+<ul>
+<li>Why I use prefix notation for calls and dual notation for operators</li>
+<li>My LLM-friendly design</li>
+<li>How I compare to other languages</li>
+<li>My design trade-offs</li>
+</ul>
+</li>
+</ol>
+<h3 id="advanced-topics">Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permanent link">&para;</a></h3>
+<p>For experienced users:</p>
+<ol>
+<li>
+<p><strong><a href="MODULE_SYSTEM/">Module System</a></strong> - Creating and using modules</p>
+<ul>
+<li>Module structure</li>
+<li>FFI (Foreign Function Interface)</li>
+<li>Building C extensions</li>
+<li>Automatic module building</li>
+<li><a href="NAMESPACE_USAGE/">Namespace Usage</a> - Import patterns and best practices</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="PLATFORM_COMPATIBILITY/">Platform Compatibility</a></strong> - Cross-platform guide</p>
+<ul>
+<li>macOS and Linux support</li>
+<li>SDL software renderer fallback</li>
+<li>Troubleshooting platform issues</li>
+<li>Known limitations</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="EXTERN_FFI/">Extern FFI</a></strong> - Calling C functions from me</p>
+<ul>
+<li>FFI safety guidelines</li>
+<li>Common vulnerabilities and fixes</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="BUILDING_HYBRID_APPS/">Building Hybrid Apps</a></strong> - Combining me with C</p>
+</li>
+</ol>
+<h3 id="roadmap-and-status">Roadmap and Status<a class="headerlink" href="#roadmap-and-status" title="Permanent link">&para;</a></h3>
+<p>My status and plans:</p>
+<ol>
+<li><strong><a href="ROADMAP/">Roadmap</a></strong> - Future development plans</li>
+<li><strong><a href="RFC_PROCESS/">RFC Process</a></strong> - How I evolve</li>
+<li><strong><a href="../SPEC_AUDIT.md">Spec / Coverage Audit</a></strong> - Gaps I track for parity</li>
+</ol>
+<h3 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h3>
+<p>How to help me:</p>
+<ol>
+<li>
+<p><strong><a href="CONTRIBUTING/">Contributing Guide</a></strong> - How to contribute</p>
+<ul>
+<li>Code contributions</li>
+<li>Documentation improvements</li>
+<li>Bug reports</li>
+<li>Feature requests</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="../CONTRIBUTORS.md">Contributors List</a></strong> - Those who have helped me</p>
+</li>
+</ol>
+<h2 id="documentation-by-topic">Documentation by Topic<a class="headerlink" href="#documentation-by-topic" title="Permanent link">&para;</a></h2>
+<h3 id="by-skill-level">By Skill Level<a class="headerlink" href="#by-skill-level" title="Permanent link">&para;</a></h3>
+<p><strong>I am new to you</strong>
+- <a href="GETTING_STARTED/">Getting Started Guide</a>
+- <a href="QUICK_REFERENCE/">Quick Reference</a>
+- <a href="../examples/README.md">Examples</a></p>
+<p><strong>You know my basics</strong>
+- <a href="SPECIFICATION/">Language Specification</a>
+- <a href="FEATURES/">Features Guide</a>
+- <a href="STDLIB/">Standard Library</a>
+- <a href="SHADOW_TESTS/">Shadow Tests</a></p>
+<p><strong>You seek deep understanding</strong>
+- <a href="NANOISA/">NanoISA Virtual Machine</a>
+- <a href="../formal/README.md">Formal Verification</a>
+- <a href="../planning/README.md">Planning / design notes</a>
+- <a href="MODULE_SYSTEM/">Module System</a>
+- <a href="LANGUAGE_DESIGN_REVIEW/">Language Design Review</a></p>
+<h3 id="by-interest">By Interest<a class="headerlink" href="#by-interest" title="Permanent link">&para;</a></h3>
+<p><strong>I want to learn the language:</strong>
+<a href="GETTING_STARTED/">Getting Started</a> -&gt; <a href="../examples/README.md">Examples</a> -&gt; <a href="QUICK_REFERENCE/">Quick Reference</a></p>
+<p><strong>I want to understand the design:</strong>
+<a href="LANGUAGE_DESIGN_REVIEW/">Language Design Review</a> -&gt; <a href="NANOISA/">NanoISA VM</a> -&gt; <a href="../formal/README.md">Formal Proofs</a> -&gt; <a href="../planning/">planning/</a></p>
+<p><strong>I want to contribute:</strong>
+<a href="CONTRIBUTING/">Contributing Guide</a> -&gt; <a href="../planning/">planning/</a> -&gt; <a href="ROADMAP/">Roadmap</a></p>
+<p><strong>I want to build something:</strong>
+<a href="../examples/README.md">Examples</a> -&gt; <a href="STDLIB/">Standard Library</a> -&gt; <a href="MODULE_SYSTEM/">Module System</a></p>
+<p><strong>I want to use C libraries:</strong>
+<a href="EXTERN_FFI/">Extern FFI</a> -&gt; <a href="MODULE_SYSTEM/">Module System</a> -&gt; <a href="BUILDING_HYBRID_APPS/">Building Hybrid Apps</a></p>
+<p><strong>I am having platform or compatibility issues:</strong>
+<a href="PLATFORM_COMPATIBILITY/">Platform Compatibility</a> -&gt; <a href="MODULE_SYSTEM/">Module System</a></p>
+<h2 id="planning-documents">Planning Documents<a class="headerlink" href="#planning-documents" title="Permanent link">&para;</a></h2>
+<p>I keep historical design documents and implementation plans in the <a href="../planning/">planning/</a> directory. I intend these for those interested in how I have evolved.</p>
+<h2 id="quick-links">Quick Links<a class="headerlink" href="#quick-links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../README.md">Main README</a></li>
+<li><a href="https://github.com/jordanhubbard/nanolang/issues/new?template=bug_report.md">Report a Bug</a></li>
+<li><a href="https://github.com/jordanhubbard/nanolang/issues/new?template=feature_request.md">Request a Feature</a></li>
+<li><a href="https://github.com/jordanhubbard/nanolang/discussions">Discussions</a></li>
+</ul>
+<h2 id="my-documentation-style">My Documentation Style<a class="headerlink" href="#my-documentation-style" title="Permanent link">&para;</a></h2>
+<p>When you write documentation for me, follow these principles:
+- <strong>Be concise.</strong> Respect the reader's time.
+- <strong>Use examples.</strong> Show what I do.
+- <strong>Be clear.</strong> Avoid jargon.
+- <strong>Be accurate.</strong> Keep my docs in sync with my code.
+- <strong>Be helpful.</strong> Provide what is needed.
+- <strong>Use my voice.</strong> Speak as me, in the first person.</p>
+<h2 id="search-for-content">Search for Content<a class="headerlink" href="#search-for-content" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Check the <a href="QUICK_REFERENCE/">Quick Reference</a> for syntax questions.</li>
+<li>Browse the <a href="../examples/README.md">Examples</a> for code patterns.</li>
+<li>Search the <a href="https://github.com/jordanhubbard/nanolang/issues">Issues</a> for discussions.</li>
+<li>Ask in <a href="https://github.com/jordanhubbard/nanolang/discussions">Discussions</a>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

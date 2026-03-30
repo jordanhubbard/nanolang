@@ -1,0 +1,1640 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/DEBUGGING_GUIDE/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>My Debugging and Tracing Guide - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#my-debugging-and-tracing-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              My Debugging and Tracing Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ERROR_HANDLING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="my-debugging-and-tracing-guide">My Debugging and Tracing Guide<a class="headerlink" href="#my-debugging-and-tracing-guide" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>For LLM Agents:</strong> This is your canonical reference for debugging programs I run and implementing self-validating code generation.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#structured-logging-api">My Structured Logging API</a></li>
+<li><a href="#shadow-tests">Shadow Tests for Compile-Time Validation</a></li>
+<li><a href="#property-based-testing">Property-Based Testing</a></li>
+<li><a href="#compiler-diagnostics">My Compiler Diagnostics</a></li>
+<li><a href="#common-debugging-patterns">Common Debugging Patterns</a></li>
+<li><a href="#llm-agent-feedback-loops">LLM Agent Feedback Loops</a></li>
+</ol>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="my-3-layer-debugging-strategy">My 3-Layer Debugging Strategy<a class="headerlink" href="#my-3-layer-debugging-strategy" title="Permanent link">&para;</a></h3>
+<p>I provide three complementary debugging mechanisms:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│ 1. Structured Logging (Runtime)        │ ← Use during development
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│    - Log levels (TRACE → FATAL)        │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│    - Category-based organization        │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└─────────────────────────────────────────┘
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│ 2. Shadow Tests (Compile-Time)         │ ← I require these for functions
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│    - Inline test assertions             │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│    - Run before program execution       │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>└─────────────────────────────────────────┘
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>┌─────────────────────────────────────────┐
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│ 3. Property Tests (Systematic)          │ ← For algorithmic validation
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│    - Randomized testing                 │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│    - Automatic shrinking                │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└─────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>My rule of thumb:</strong>
+- <strong>Shadow tests</strong> for correctness. I require these.
+- <strong>Logging</strong> for runtime behavior during your debugging process.
+- <strong>Property tests</strong> for algorithmic properties. These are optional but I find them powerful.</p>
+<hr />
+<h2 id="my-structured-logging-api">My Structured Logging API<a class="headerlink" href="#my-structured-logging-api" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>from &quot;stdlib/log.nano&quot; import log_info, log_debug, log_error
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>fn process_user_input(input: string) -&gt; bool {
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    (log_info &quot;validation&quot; &quot;Processing user input&quot;)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    if (str_equals input &quot;&quot;) {
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        (log_error &quot;validation&quot; &quot;Empty input received&quot;)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        return false
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    }
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    (log_debug &quot;validation&quot; (+ &quot;Input length: &quot; (int_to_string (str_length input))))
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    (log_info &quot;validation&quot; &quot;Input validated successfully&quot;)
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    return true
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>}
+</code></pre></div>
+<p><strong>Output:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[INFO] validation: Processing user input
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>[DEBUG] validation: Input length: 42
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>[INFO] validation: Input validated successfully
+</code></pre></div></p>
+<h3 id="log-levels">Log Levels<a class="headerlink" href="#log-levels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Severity</th>
+<th>Use Case</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TRACE</td>
+<td>Lowest</td>
+<td>Detailed execution flow</td>
+<td>Function entry and exit points</td>
+</tr>
+<tr>
+<td>DEBUG</td>
+<td>Low</td>
+<td>Development debugging</td>
+<td>Variable values, intermediate results</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>Normal</td>
+<td>Operational milestones</td>
+<td>"Server started", "File loaded"</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>Medium</td>
+<td>Potentially problematic</td>
+<td>Deprecated API usage, recoverable errors</td>
+</tr>
+<tr>
+<td>ERROR</td>
+<td>High</td>
+<td>Operation failures</td>
+<td>Failed validation, I/O errors</td>
+</tr>
+<tr>
+<td>FATAL</td>
+<td>Highest</td>
+<td>Critical failures</td>
+<td>Cannot continue execution</td>
+</tr>
+</tbody>
+</table>
+<p><strong>My default threshold:</strong> INFO. I suppress DEBUG and TRACE unless you tell me otherwise.</p>
+<h3 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h3>
+<h4 id="category-based-logging">Category-Based Logging<a class="headerlink" href="#category-based-logging" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>from &quot;stdlib/log.nano&quot; import log_trace, log_debug, log_info, 
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>                                log_warn, log_error, log_fatal
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>(log_trace &quot;module&quot; &quot;message&quot;)   # [TRACE] module: message
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(log_debug &quot;module&quot; &quot;message&quot;)   # [DEBUG] module: message
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>(log_info &quot;module&quot; &quot;message&quot;)    # [INFO] module: message
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>(log_warn &quot;module&quot; &quot;message&quot;)    # [WARN] module: message
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>(log_error &quot;module&quot; &quot;message&quot;)   # [ERROR] module: message
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>(log_fatal &quot;module&quot; &quot;message&quot;)   # [FATAL] module: message
+</code></pre></div>
+<h4 id="convenience-functions-no-category">Convenience Functions (No Category)<a class="headerlink" href="#convenience-functions-no-category" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>from &quot;stdlib/log.nano&quot; import trace, debug, info, warn, error, fatal
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>(info &quot;Simple message&quot;)          # [INFO] Simple message
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>(error &quot;Error occurred&quot;)         # [ERROR] Error occurred
+</code></pre></div>
+<h3 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h3>
+<h4 id="do-use-categories-for-organization">DO: Use Categories for Organization<a class="headerlink" href="#do-use-categories-for-organization" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn load_config(path: string) -&gt; bool {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    (log_info &quot;config&quot; &quot;Loading configuration&quot;)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    (log_debug &quot;config&quot; (+ &quot;Path: &quot; path))
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    # ...
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>}
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>fn validate_data(data: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    (log_info &quot;validation&quot; &quot;Starting validation&quot;)
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    # ...
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>}
+</code></pre></div>
+<p><strong>Benefit:</strong> You can easily filter my logs by subsystem.</p>
+<h4 id="do-log-state-transitions">DO: Log State Transitions<a class="headerlink" href="#do-log-state-transitions" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn connect_to_server(host: string) -&gt; bool {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    (log_info &quot;network&quot; &quot;Attempting connection&quot;)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    if (not (is_reachable host)) {
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        (log_error &quot;network&quot; (+ &quot;Host unreachable: &quot; host))
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        return false
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    (log_info &quot;network&quot; &quot;Connection established&quot;)
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    return true
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>}
+</code></pre></div>
+<h4 id="do-not-log-in-tight-loops">DO NOT: Log in Tight Loops<a class="headerlink" href="#do-not-log-in-tight-loops" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># BAD - floods output
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>for (let i: int = 0) (&lt; i 10000) (set i (+ i 1)) {
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    (log_debug &quot;loop&quot; (+ &quot;Iteration &quot; (int_to_string i)))  # Too verbose!
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a># GOOD - log summary
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>(log_debug &quot;loop&quot; (+ &quot;Processing &quot; (int_to_string 10000) &quot; items&quot;))
+</code></pre></div>
+<h4 id="do-not-log-sensitive-data">DO NOT: Log Sensitive Data<a class="headerlink" href="#do-not-log-sensitive-data" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a># BAD - exposes password
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>(log_info &quot;auth&quot; (+ &quot;Password: &quot; user_password))
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a># GOOD - log without sensitive info
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>(log_info &quot;auth&quot; (+ &quot;Authenticating user: &quot; username))
+</code></pre></div>
+<hr />
+<h2 id="shadow-tests">Shadow Tests<a class="headerlink" href="#shadow-tests" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p>Shadow tests are my <strong>mandatory inline tests</strong> that run at compile time. I will not compile a function unless it has a shadow test, unless it is an <code>extern</code> FFI function.</p>
+<h3 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fn add(a: int, b: int) -&gt; int {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    return (+ a b)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>}
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>shadow add {
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    assert (== (add 2 3) 5)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    assert (== (add 0 0) 0)
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    assert (== (add -1 1) 0)
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>}
+</code></pre></div>
+<h3 id="when-i-run-shadow-tests">When I Run Shadow Tests<a class="headerlink" href="#when-i-run-shadow-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>1. Code written → 2. Compiled → 3. I execute shadow tests → 4. Program runs
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>                                       ↓
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>                               [FAIL: I abort compilation]
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>                               [PASS: I continue to program]
+</code></pre></div>
+<h3 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h3>
+<h4 id="test-edge-cases">Test Edge Cases<a class="headerlink" href="#test-edge-cases" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn divide(a: int, b: int) -&gt; int {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    return (/ a b)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>}
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>shadow divide {
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    assert (== (divide 10 2) 5)      # Normal case
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    assert (== (divide 0 5) 0)       # Zero numerator
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    assert (== (divide 7 3) 2)       # Integer division (truncates)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    # Note: divide-by-zero would crash - handle in production code
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>}
+</code></pre></div>
+<h4 id="test-boundary-conditions">Test Boundary Conditions<a class="headerlink" href="#test-boundary-conditions" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn clamp(value: int, min: int, max: int) -&gt; int {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    if (&lt; value min) { return min } else {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    if (&gt; value max) { return max } else {
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        return value
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    }}
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>}
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>shadow clamp {
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    assert (== (clamp 5 0 10) 5)     # Within range
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    assert (== (clamp -5 0 10) 0)    # Below minimum
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    assert (== (clamp 15 0 10) 10)   # Above maximum
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    assert (== (clamp 0 0 10) 0)     # At minimum boundary
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    assert (== (clamp 10 0 10) 10)   # At maximum boundary
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>}
+</code></pre></div>
+<h4 id="test-type-specific-behaviors">Test Type-Specific Behaviors<a class="headerlink" href="#test-type-specific-behaviors" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn concat_with_separator(a: string, b: string, sep: string) -&gt; string {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    return (+ a (+ sep b))
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>}
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>shadow concat_with_separator {
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    assert (str_equals (concat_with_separator &quot;hello&quot; &quot;world&quot; &quot; &quot;) &quot;hello world&quot;)
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    assert (str_equals (concat_with_separator &quot;a&quot; &quot;b&quot; &quot;&quot;) &quot;ab&quot;)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    assert (str_equals (concat_with_separator &quot;&quot; &quot;&quot; &quot;,&quot;) &quot;,&quot;)
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>}
+</code></pre></div>
+<h3 id="my-shadow-test-limitations">My Shadow Test Limitations<a class="headerlink" href="#my-shadow-test-limitations" title="Permanent link">&para;</a></h3>
+<p><strong>I cannot test:</strong>
+- Side effects (I/O, global state)
+- Non-deterministic behavior (random numbers, time)
+- External dependencies (network, filesystem)</p>
+<p><strong>You should test:</strong>
+- Pure functions (same input produces same output)
+- Mathematical properties
+- Data transformations
+- Algorithm correctness</p>
+<hr />
+<h2 id="property-based-testing">Property-Based Testing<a class="headerlink" href="#property-based-testing" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>My property-based testing module <strong>generates random inputs</strong> to test algorithmic properties. I find this much more powerful than example-based testing.</p>
+<p><strong>Module:</strong> <code>modules/proptest/proptest.nano</code></p>
+<h3 id="example-testing-list-reversal">Example: Testing List Reversal<a class="headerlink" href="#example-testing-list-reversal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>from &quot;modules/proptest/proptest.nano&quot; import proptest_int_array
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>fn reverse_list(lst: array&lt;int&gt;) -&gt; array&lt;int&gt; {
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    let mut result: array&lt;int&gt; = []
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    let len: int = (array_length lst)
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    let mut i: int = (- len 1)
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    while (&gt;= i 0) {
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        set result (array_push result (at lst i))
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        set i (- i 1)
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>    }
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    return result
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>}
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>shadow reverse_list {
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    # Property: reverse(reverse(x)) == x
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    (proptest_int_array &quot;reverse_twice_is_identity&quot; 100 
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>        (fn (lst: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>            let reversed_once: array&lt;int&gt; = (reverse_list lst)
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>            let reversed_twice: array&lt;int&gt; = (reverse_list reversed_once)
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>            return (arrays_equal lst reversed_twice)
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>        }))
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>}
+</code></pre></div>
+<p><strong>What I do here:</strong>
+1. I generate 100 random integer arrays.
+2. I test the property for each array.
+3. If I find a failure, I <strong>shrink</strong> it to the minimal failing case.
+4. I report: "Failed on input: [1, 2]".</p>
+<h3 id="common-properties-to-test">Common Properties to Test<a class="headerlink" href="#common-properties-to-test" title="Permanent link">&para;</a></h3>
+<h4 id="idempotence">Idempotence<a class="headerlink" href="#idempotence" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a># Property: f(f(x)) == f(x)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>fn normalize(s: string) -&gt; string {
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    # Remove leading and trailing whitespace
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>}
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>shadow normalize {
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    (proptest_string &quot;normalize_is_idempotent&quot; 50
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        (fn (s: string) -&gt; bool {
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>            let once: string = (normalize s)
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>            let twice: string = (normalize once)
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>            return (str_equals once twice)
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        }))
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>}
+</code></pre></div>
+<h4 id="symmetry">Symmetry<a class="headerlink" href="#symmetry" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a># Property: distance(a, b) == distance(b, a)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>fn euclidean_distance(x1: int, y1: int, x2: int, y2: int) -&gt; float {
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    # Calculate distance
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>}
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>shadow euclidean_distance {
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    (proptest_int_array &quot;distance_is_symmetric&quot; 50
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        (fn (coords: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>            if (!= (array_length coords) 4) { return true }
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>            let d1: float = (euclidean_distance (at coords 0) (at coords 1) (at coords 2) (at coords 3))
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>            let d2: float = (euclidean_distance (at coords 2) (at coords 3) (at coords 0) (at coords 1))
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>            return (== d1 d2)
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>        }))
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>}
+</code></pre></div>
+<h4 id="invariants">Invariants<a class="headerlink" href="#invariants" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a># Property: length(concat(a, b)) == length(a) + length(b)
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>(proptest_two_strings &quot;concat_length_invariant&quot; 100
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    (fn (a: string, b: string) -&gt; bool {
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>        let concatenated: string = (+ a b)
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        let expected_len: int = (+ (str_length a) (str_length b))
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>        return (== (str_length concatenated) expected_len)
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    }))
+</code></pre></div>
+<hr />
+<h2 id="my-compiler-diagnostics">My Compiler Diagnostics<a class="headerlink" href="#my-compiler-diagnostics" title="Permanent link">&para;</a></h2>
+<h3 id="understanding-my-error-messages">Understanding My Error Messages<a class="headerlink" href="#understanding-my-error-messages" title="Permanent link">&para;</a></h3>
+<p>I provide detailed error messages with:
+- <strong>Line and column numbers</strong>
+- <strong>Error codes</strong> (E0001, E0002, etc.)
+- <strong>Contextual hints</strong></p>
+<h4 id="example-type-mismatch">Example: Type Mismatch<a class="headerlink" href="#example-type-mismatch" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>fn example() -&gt; int {
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    let x: int = &quot;wrong type&quot;  # Error!
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    return x
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>}
+</code></pre></div>
+<p><strong>Output:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Error at line 2, column 5: Type mismatch in let statement
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>  Expected: int
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>  Got: string
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>  Hint: Check the type annotation matches the assigned value
+</code></pre></div></p>
+<h3 id="my-verbose-mode">My Verbose Mode<a class="headerlink" href="#my-verbose-mode" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>./bin/nanoc<span class="w"> </span>program.nano<span class="w"> </span>--verbose
+</code></pre></div>
+<p><strong>I show:</strong>
+- Phase-by-phase compilation progress
+- Module loading details
+- C compilation commands
+- Shadow test execution</p>
+<hr />
+<h2 id="common-debugging-patterns">Common Debugging Patterns<a class="headerlink" href="#common-debugging-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-binary-search-for-bug-location">Pattern 1: Binary Search for Bug Location<a class="headerlink" href="#pattern-1-binary-search-for-bug-location" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>fn complex_algorithm(data: array&lt;int&gt;) -&gt; int {
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    (log_info &quot;algo&quot; &quot;Starting complex algorithm&quot;)
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    let step1: array&lt;int&gt; = (preprocess data)
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    (log_debug &quot;algo&quot; (+ &quot;After preprocessing: &quot; (int_to_string (array_length step1))))
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    let step2: array&lt;int&gt; = (transform step1)
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    (log_debug &quot;algo&quot; (+ &quot;After transform: &quot; (int_to_string (array_length step2))))
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    let result: int = (aggregate step2)
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    (log_info &quot;algo&quot; (+ &quot;Final result: &quot; (int_to_string result)))
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    return result
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>}
+</code></pre></div>
+<p><strong>Strategy:</strong> Add logging at each step, run the program, and identify where my output diverges from your expectation.</p>
+<h3 id="pattern-2-assertion-checkpoints">Pattern 2: Assertion Checkpoints<a class="headerlink" href="#pattern-2-assertion-checkpoints" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>fn validate_and_process(input: string) -&gt; bool {
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    assert (!= (str_length input) 0)  # Checkpoint: input not empty
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    let cleaned: string = (clean input)
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    assert (!= (str_length cleaned) 0)  # Checkpoint: cleaning didn&#39;t empty string
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>    let parsed: int = (parse_int cleaned)
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    assert (&gt;= parsed 0)  # Checkpoint: parsed value is non-negative
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>    return true
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>}
+</code></pre></div>
+<p><strong>Benefit:</strong> I crash immediately at the first violated invariant, pinpointing the bug location.</p>
+<h3 id="pattern-3-trace-logging-for-recursion">Pattern 3: Trace Logging for Recursion<a class="headerlink" href="#pattern-3-trace-logging-for-recursion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>fn factorial(n: int) -&gt; int {
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    (log_trace &quot;factorial&quot; (+ &quot;factorial(&quot; (+ (int_to_string n) &quot;)&quot;)))
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    if (&lt;= n 1) {
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        (log_trace &quot;factorial&quot; &quot;Base case reached&quot;)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        return 1
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    }
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    let result: int = (* n (factorial (- n 1)))
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>    (log_trace &quot;factorial&quot; (+ &quot;factorial(&quot; (+ (int_to_string n) (+ &quot;) = &quot; (int_to_string result)))))
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>    return result
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>}
+</code></pre></div>
+<p><strong>Output (with TRACE level enabled):</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>[TRACE] factorial: factorial(5)
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>[TRACE] factorial: factorial(4)
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>[TRACE] factorial: factorial(3)
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>[TRACE] factorial: factorial(2)
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>[TRACE] factorial: factorial(1)
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>[TRACE] factorial: Base case reached
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>[TRACE] factorial: factorial(2) = 2
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>[TRACE] factorial: factorial(3) = 6
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>[TRACE] factorial: factorial(4) = 24
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>[TRACE] factorial: factorial(5) = 120
+</code></pre></div></p>
+<hr />
+<h2 id="llm-agent-feedback-loops">LLM Agent Feedback Loops<a class="headerlink" href="#llm-agent-feedback-loops" title="Permanent link">&para;</a></h2>
+<h3 id="self-validating-code-generation">Self-Validating Code Generation<a class="headerlink" href="#self-validating-code-generation" title="Permanent link">&para;</a></h3>
+<p><strong>Goal:</strong> Enable LLM agents to automatically detect and correct errors without human intervention.</p>
+<h4 id="step-1-generate-with-shadow-tests">Step 1: Generate with Shadow Tests<a class="headerlink" href="#step-1-generate-with-shadow-tests" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a># LLM generates:
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>fn sort_array(arr: array&lt;int&gt;) -&gt; array&lt;int&gt; {
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    # ... sorting implementation ...
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>}
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>shadow sort_array {
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    assert (arrays_equal (sort_array [3, 1, 2]) [1, 2, 3])
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    assert (arrays_equal (sort_array []) [])
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    assert (arrays_equal (sort_array [5]) [5])
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>}
+</code></pre></div>
+<h4 id="step-2-compile-and-check">Step 2: Compile and Check<a class="headerlink" href="#step-2-compile-and-check" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>./bin/nanoc<span class="w"> </span>generated_code.nano<span class="w"> </span>-o<span class="w"> </span>output
+</code></pre></div>
+<p><strong>Possible outcomes:</strong>
+1. <strong>Success</strong> - My shadow tests pass. Your code is correct.
+2. <strong>Compile error</strong> - I provide a parse error message. Fix syntax.
+3. <strong>Shadow test failure</strong> - My assertion failed. Fix logic.</p>
+<h4 id="step-3-parse-feedback">Step 3: Parse Feedback<a class="headerlink" href="#step-3-parse-feedback" title="Permanent link">&para;</a></h4>
+<p><strong>Compile error example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>Error at line 5, column 12: Type mismatch
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>  Expected: int
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>  Got: string
+</code></pre></div></p>
+<p><strong>LLM action:</strong> Identify line 5, fix type error, and regenerate.</p>
+<p><strong>Shadow test failure:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>Assertion failed at line 12, column 5
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>Shadow test &#39;sort_array&#39; failed
+</code></pre></div></p>
+<p><strong>LLM action:</strong> Review the algorithm, check test case expectations, and fix the implementation.</p>
+<h4 id="step-4-iterate-until-success">Step 4: Iterate Until Success<a class="headerlink" href="#step-4-iterate-until-success" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>┌──────────────────────────────────────┐
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>│ 1. Generate code with shadow tests  │
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>└──────────────┬───────────────────────┘
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>               │
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>               ▼
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>┌──────────────────────────────────────┐
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>│ 2. Compile (./bin/nanoc)             │
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>└──────────────┬───────────────────────┘
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>               │
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>               ▼
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>         ┌─────┴─────┐
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>         │ Success?  │
+<a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>         └─────┬─────┘
+<a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>         ┌─────┴─────┐
+<a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>    YES  │           │  NO
+<a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>         ▼           ▼
+<a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>   ┌─────────┐  ┌─────────────────┐
+<a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>   │  Done!  │  │ Parse error msg │
+<a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a>   └─────────┘  │ Fix and retry   │
+<a id="__codelineno-29-20" name="__codelineno-29-20" href="#__codelineno-29-20"></a>                └─────────────────┘
+<a id="__codelineno-29-21" name="__codelineno-29-21" href="#__codelineno-29-21"></a>                         │
+<a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a>                         └─────────┐
+<a id="__codelineno-29-23" name="__codelineno-29-23" href="#__codelineno-29-23"></a>                                   │
+<a id="__codelineno-29-24" name="__codelineno-29-24" href="#__codelineno-29-24"></a>                         ┌─────────▼─────────┐
+<a id="__codelineno-29-25" name="__codelineno-29-25" href="#__codelineno-29-25"></a>                         │ Back to step 1    │
+<a id="__codelineno-29-26" name="__codelineno-29-26" href="#__codelineno-29-26"></a>                         └───────────────────┘
+</code></pre></div>
+<h3 id="my-structured-logging-for-runtime-debugging">My Structured Logging for Runtime Debugging<a class="headerlink" href="#my-structured-logging-for-runtime-debugging" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>fn llm_generated_function(data: array&lt;int&gt;) -&gt; int {
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    (log_info &quot;llm_code&quot; &quot;Starting generated function&quot;)
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>    # Log assumptions
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    (log_debug &quot;llm_code&quot; (+ &quot;Input size: &quot; (int_to_string (array_length data))))
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>    assert (&gt; (array_length data) 0)  # Validate assumption
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>    # Log intermediate results
+<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    let processed: array&lt;int&gt; = (process data)
+<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>    (log_debug &quot;llm_code&quot; (+ &quot;Processed size: &quot; (int_to_string (array_length processed))))
+<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>
+<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>    let result: int = (compute_result processed)
+<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a>    (log_info &quot;llm_code&quot; (+ &quot;Final result: &quot; (int_to_string result)))
+<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a>
+<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>    return result
+<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a>}
+</code></pre></div>
+<p><strong>Benefit:</strong> If runtime behavior is unexpected, my logs reveal where logic diverges.</p>
+<h3 id="property-based-testing-for-algorithmic-validation">Property-Based Testing for Algorithmic Validation<a class="headerlink" href="#property-based-testing-for-algorithmic-validation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a># LLM generates sorting algorithm
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>fn my_sort(arr: array&lt;int&gt;) -&gt; array&lt;int&gt; {
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>    # ... implementation ...
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>}
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>shadow my_sort {
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>    # Property 1: Output length equals input length
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>    (proptest_int_array &quot;length_preserved&quot; 100
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>            return (== (array_length (my_sort arr)) (array_length arr))
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>        }))
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a>    # Property 2: Output is sorted
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a>    (proptest_int_array &quot;is_sorted&quot; 100
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a>            let sorted: array&lt;int&gt; = (my_sort arr)
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a>            return (is_sorted_ascending sorted)
+<a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a>        }))
+<a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a>
+<a id="__codelineno-31-20" name="__codelineno-31-20" href="#__codelineno-31-20"></a>    # Property 3: Output contains same elements (permutation)
+<a id="__codelineno-31-21" name="__codelineno-31-21" href="#__codelineno-31-21"></a>    (proptest_int_array &quot;is_permutation&quot; 100
+<a id="__codelineno-31-22" name="__codelineno-31-22" href="#__codelineno-31-22"></a>        (fn (arr: array&lt;int&gt;) -&gt; bool {
+<a id="__codelineno-31-23" name="__codelineno-31-23" href="#__codelineno-31-23"></a>            let sorted: array&lt;int&gt; = (my_sort arr)
+<a id="__codelineno-31-24" name="__codelineno-31-24" href="#__codelineno-31-24"></a>            return (same_elements arr sorted)
+<a id="__codelineno-31-25" name="__codelineno-31-25" href="#__codelineno-31-25"></a>        }))
+<a id="__codelineno-31-26" name="__codelineno-31-26" href="#__codelineno-31-26"></a>}
+</code></pre></div>
+<p><strong>Benefit:</strong> I catch edge cases the LLM didn't anticipate, such as duplicate elements or negative numbers.</p>
+<hr />
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="my-logging-cheat-sheet">My Logging Cheat Sheet<a class="headerlink" href="#my-logging-cheat-sheet" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a># Import
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>from &quot;stdlib/log.nano&quot; import log_info, log_debug, log_error
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a># Basic usage
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>(log_info &quot;category&quot; &quot;message&quot;)
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>(log_debug &quot;category&quot; (+ &quot;Value: &quot; (int_to_string x)))
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>(log_error &quot;category&quot; &quot;Operation failed&quot;)
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a># Convenience
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a>from &quot;stdlib/log.nano&quot; import info, debug, error
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a>(info &quot;Simple message&quot;)
+</code></pre></div>
+<h3 id="my-shadow-test-template">My Shadow Test Template<a class="headerlink" href="#my-shadow-test-template" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>fn my_function(arg: type) -&gt; return_type {
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>    # Implementation
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>}
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>shadow my_function {
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>    # Test normal case
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>    assert (condition)
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>    # Test edge cases
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>    assert (edge_case_condition)
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a>
+<a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>    # Test boundary conditions
+<a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a>    assert (boundary_condition)
+<a id="__codelineno-33-14" name="__codelineno-33-14" href="#__codelineno-33-14"></a>}
+</code></pre></div>
+<h3 id="my-compilation-commands">My Compilation Commands<a class="headerlink" href="#my-compilation-commands" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1"># Normal compilation</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>./bin/nanoc<span class="w"> </span>program.nano<span class="w"> </span>-o<span class="w"> </span>output
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="c1"># Verbose (shows all steps)</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>./bin/nanoc<span class="w"> </span>program.nano<span class="w"> </span>-o<span class="w"> </span>output<span class="w"> </span>--verbose
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="c1"># Save generated C code for inspection</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>./bin/nanoc<span class="w"> </span>program.nano<span class="w"> </span>-o<span class="w"> </span>output<span class="w"> </span>-S
+</code></pre></div>
+<hr />
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Property Testing:</strong> <code>modules/proptest/README.md</code></li>
+<li><strong>Module System:</strong> <code>docs/MODULE_SYSTEM.md</code></li>
+<li><strong>Language Spec:</strong> <code>spec.json</code></li>
+<li><strong>Canonical Style:</strong> <code>docs/CANONICAL_STYLE.md</code></li>
+</ul>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p><strong>My 3 Debugging Tools:</strong>
+1. Structured Logging - Runtime behavior
+2. Shadow Tests - Compile-time correctness
+3. Property Testing - Algorithmic validation</p>
+<p><strong>For LLM Agents:</strong>
+- Always include shadow tests in generated code.
+- Use my logging during development and debugging.
+- Leverage property tests for complex algorithms.
+- Parse my compiler errors to auto-correct code.
+- Iterate until all my tests pass.</p>
+<p><strong>My Key Principle:</strong> <strong>Self-validating code generation</strong> = Generate + Test + Fix loop</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

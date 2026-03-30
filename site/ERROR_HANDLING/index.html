@@ -1,0 +1,2495 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="NanoLang — a minimal programming language designed for machines to write and humans to read.">
+      
+      
+      
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/ERROR_HANDLING/">
+      
+      
+        <link rel="prev" href="../TYPE_INFERENCE/">
+      
+      
+        <link rel="next" href="../MEMORY_MANAGEMENT/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Error Handling - NanoLang Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#error-handling-in-nanolang" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="NanoLang Documentation" class="md-header__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NanoLang Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Error Handling
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../GETTING_STARTED/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../QUICK_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../STDLIB/" class="md-tabs__link">
+          
+  
+  
+  Standard Library
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Language
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../MODULE_SYSTEM/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Modules
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../NANOISA/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  NanoISA VM
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="NanoLang Documentation" class="md-nav__button md-logo" aria-label="NanoLang Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    NanoLang Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jordanhubbard/nanolang" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    jordanhubbard/nanolang
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GETTING_STARTED/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../QUICK_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standard Library
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STDLIB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Math
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    String
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TYPE_INFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Philosophy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-no-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why No Exceptions?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling-mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling Mechanisms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Type
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checking-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#result_is_okr-resultt-e-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_is_ok(r: Result&lt;T, E&gt;) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_is_errr-resultt-e-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_is_err(r: Result&lt;T, E&gt;) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrapr-resultt-e-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap(r: Result&lt;T, E&gt;) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrap_orr-resultt-e-default-t-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap_or(r: Result&lt;T, E&gt;, default: T) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrap_errr-resultt-e-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap_err(r: Result&lt;T, E&gt;) -&gt; E
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_mapr-resultt-e-f-fnt-u-resultu-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_map(r: Result&lt;T, E&gt;, f: fn(T) -&gt; U) -&gt; Result&lt;U, E&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_and_then(r: Result&lt;T, E&gt;, f: fn(T) -&gt; Result&lt;U, E&gt;) -&gt; Result&lt;U, E&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option Type
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Option Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-vs-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option vs Result
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assertions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assertions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-assertions-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Assertions For
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assertion-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assertion Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-not-to-use-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When NOT to Use Assertions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#panic-and-abort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panic and Abort
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Panic and Abort">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-to-panic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Panic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-appropriate-panic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Appropriate Panic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-propagation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Propagation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Propagation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-early-return" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: Early Return
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-error-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Error Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-error-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: Error Accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-return-result-for-fallible-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Return Result for Fallible Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dont-ignore-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Don't Ignore Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-descriptive-error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use Descriptive Error Messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-handle-errors-at-the-right-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Handle Errors at the Right Level
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-document-error-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Document Error Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-retry-with-exponential-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Retry with Exponential Backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-graceful-degradation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Graceful Degradation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-transaction-all-or-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Transaction (All or Nothing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffi-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FFI Error Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FFI Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-errno-translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: errno Translation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-null-pointer-translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: NULL Pointer Translation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-status-code-translation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Status Code Translation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-error-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Error Paths
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Error Paths">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shadow-test-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shadow Test Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-case-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Case Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-type-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Type Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Type Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-string-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simple String Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-error-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enum Error Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#struct-error-types-with-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Struct Error Types (with context)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MEMORY_MANAGEMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GENERICS_DEEP_DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODULE_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NANOISA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NanoISA VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="error-handling-in-nanolang">Error Handling in NanoLang<a class="headerlink" href="#error-handling-in-nanolang" title="Permanent link">&para;</a></h1>
+<p><strong>Philosophy, patterns, and best practices for robust error handling</strong></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#philosophy">Philosophy</a></li>
+<li><a href="#error-handling-mechanisms">Error Handling Mechanisms</a></li>
+<li><a href="#result-type">Result Type</a></li>
+<li><a href="#option-type">Option Type</a></li>
+<li><a href="#assertions">Assertions</a></li>
+<li><a href="#panic-and-abort">Panic and Abort</a></li>
+<li><a href="#error-propagation">Error Propagation</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#common-patterns">Common Patterns</a></li>
+<li><a href="#ffi-error-handling">FFI Error Handling</a></li>
+<li><a href="#testing-error-paths">Testing Error Paths</a></li>
+</ol>
+<hr />
+<h2 id="philosophy">Philosophy<a class="headerlink" href="#philosophy" title="Permanent link">&para;</a></h2>
+<p><strong>Core Principle:</strong> <strong>Explicit error handling with zero-cost abstractions</strong></p>
+<p>NanoLang follows the principle that <strong>errors are part of your program's normal flow</strong>, not exceptional circumstances. This leads to:</p>
+<ol>
+<li><strong>Explicit over implicit</strong> - Errors are values, not exceptions</li>
+<li><strong>Compile-time safety</strong> - Errors must be handled or explicitly ignored</li>
+<li><strong>Zero runtime cost</strong> - Error handling compiles to efficient code</li>
+<li><strong>Fail-fast</strong> - Detect errors early, fail loudly</li>
+<li><strong>Recoverable vs unrecoverable</strong> - Clear distinction between errors you can handle and bugs</li>
+</ol>
+<h3 id="why-no-exceptions">Why No Exceptions?<a class="headerlink" href="#why-no-exceptions" title="Permanent link">&para;</a></h3>
+<p>NanoLang intentionally <strong>does not</strong> have exception handling (try/catch) because:</p>
+<p>❌ <strong>Problems with exceptions:</strong>
+- Hidden control flow (functions can exit via throw)
+- Performance overhead (stack unwinding)
+- Unclear error types (what can this function throw?)
+- Easy to ignore (forgot to catch)</p>
+<p>✅ <strong>Benefits of Result types:</strong>
+- Explicit in function signature (<code>-&gt; Result&lt;T, E&gt;</code>)
+- Zero runtime overhead (compile-time optimization)
+- Must be handled or explicitly ignored
+- Compiler catches forgotten error handling</p>
+<hr />
+<h2 id="error-handling-mechanisms">Error Handling Mechanisms<a class="headerlink" href="#error-handling-mechanisms" title="Permanent link">&para;</a></h2>
+<p>NanoLang provides four mechanisms for different situations:</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Use Case</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Result<T, E></strong></td>
+<td>Recoverable errors</td>
+<td>File not found, parsing failed</td>
+</tr>
+<tr>
+<td><strong>Option<T></strong></td>
+<td>Values that may not exist</td>
+<td>Array index, hash map lookup</td>
+</tr>
+<tr>
+<td><strong>assert</strong></td>
+<td>Invariant checking</td>
+<td>Preconditions, postconditions</td>
+</tr>
+<tr>
+<td><strong>panic/abort</strong></td>
+<td>Unrecoverable bugs</td>
+<td>Out of memory, programmer error</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="result-type">Result Type<a class="headerlink" href="#result-type" title="Permanent link">&para;</a></h2>
+<p>The <code>Result&lt;T, E&gt;</code> type represents either success (<code>Ok(T)</code>) or failure (<code>Err(E)</code>).</p>
+<h3 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>union Result&lt;T, E&gt; {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    Ok(T)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    Err(E)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>}
+</code></pre></div>
+<h3 id="creating-results">Creating Results<a class="headerlink" href="#creating-results" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fn divide(a: int, b: int) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    if (== b 0) {
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        return Result::Err(&quot;Division by zero&quot;)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    } else {
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        return Result::Ok((/ a b))
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    }
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>}
+</code></pre></div>
+<h3 id="checking-results">Checking Results<a class="headerlink" href="#checking-results" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>fn main() -&gt; int {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    let result: Result&lt;int, string&gt; = (divide 10 2)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    if (result_is_ok result) {
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        let value: int = (result_unwrap result)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        (println (int_to_string value))  # Prints 5
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    } else {
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        let error: string = (result_unwrap_err result)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        (println error)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    }
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    return 0
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>}
+</code></pre></div>
+<h3 id="result-operations">Result Operations<a class="headerlink" href="#result-operations" title="Permanent link">&para;</a></h3>
+<h4 id="result_is_okr-resultt-e-bool"><code>result_is_ok(r: Result&lt;T, E&gt;) -&gt; bool</code><a class="headerlink" href="#result_is_okr-resultt-e-bool" title="Permanent link">&para;</a></h4>
+<p>Check if Result is Ok variant.</p>
+<h4 id="result_is_errr-resultt-e-bool"><code>result_is_err(r: Result&lt;T, E&gt;) -&gt; bool</code><a class="headerlink" href="#result_is_errr-resultt-e-bool" title="Permanent link">&para;</a></h4>
+<p>Check if Result is Err variant.</p>
+<h4 id="result_unwrapr-resultt-e-t"><code>result_unwrap(r: Result&lt;T, E&gt;) -&gt; T</code><a class="headerlink" href="#result_unwrapr-resultt-e-t" title="Permanent link">&para;</a></h4>
+<p>Extract Ok value. <strong>Panics if Err!</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># ⚠️ Unsafe: panics on Err
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>let value: int = (result_unwrap result)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># ✅ Safe: check first
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>if (result_is_ok result) {
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    let value: int = (result_unwrap result)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>}
+</code></pre></div>
+<h4 id="result_unwrap_orr-resultt-e-default-t-t"><code>result_unwrap_or(r: Result&lt;T, E&gt;, default: T) -&gt; T</code><a class="headerlink" href="#result_unwrap_orr-resultt-e-default-t-t" title="Permanent link">&para;</a></h4>
+<p>Extract Ok value or return default.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a># Safe: always returns a value
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>let value: int = (result_unwrap_or result 0)
+</code></pre></div>
+<h4 id="result_unwrap_errr-resultt-e-e"><code>result_unwrap_err(r: Result&lt;T, E&gt;) -&gt; E</code><a class="headerlink" href="#result_unwrap_errr-resultt-e-e" title="Permanent link">&para;</a></h4>
+<p>Extract Err value. <strong>Panics if Ok!</strong></p>
+<h4 id="result_mapr-resultt-e-f-fnt-u-resultu-e"><code>result_map(r: Result&lt;T, E&gt;, f: fn(T) -&gt; U) -&gt; Result&lt;U, E&gt;</code><a class="headerlink" href="#result_mapr-resultt-e-f-fnt-u-resultu-e" title="Permanent link">&para;</a></h4>
+<p>Transform Ok value, pass through Err.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>fn double(x: int) -&gt; int {
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    return (* x 2)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>}
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>let result1: Result&lt;int, string&gt; = Result::Ok(5)
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>let result2: Result&lt;int, string&gt; = (result_map result1 double)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a># result2 is Ok(10)
+</code></pre></div>
+<h4 id="result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e"><code>result_and_then(r: Result&lt;T, E&gt;, f: fn(T) -&gt; Result&lt;U, E&gt;) -&gt; Result&lt;U, E&gt;</code><a class="headerlink" href="#result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e" title="Permanent link">&para;</a></h4>
+<p>Chain operations that can fail.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>fn parse_positive_int(s: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    let n: int = (string_to_int s)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    if (&lt;= n 0) {
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        return Result::Err(&quot;Not positive&quot;)
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    } else {
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        return Result::Ok(n)
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    }
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>}
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>fn divide_by_two(n: int) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    if (== (% n 2) 0) {
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        return Result::Ok((/ n 2))
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    } else {
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        return Result::Err(&quot;Not even&quot;)
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    }
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>}
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a># Chain: parse → divide
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>let result: Result&lt;int, string&gt; =
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    (result_and_then (parse_positive_int &quot;10&quot;) divide_by_two)
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a># result is Ok(5)
+</code></pre></div>
+<hr />
+<h2 id="option-type">Option Type<a class="headerlink" href="#option-type" title="Permanent link">&para;</a></h2>
+<p>The <code>Option&lt;T&gt;</code> type represents a value that may or may not exist.</p>
+<h3 id="definition_1">Definition<a class="headerlink" href="#definition_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>union Option&lt;T&gt; {
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    Some(T)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    None
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>}
+</code></pre></div>
+<h3 id="creating-options">Creating Options<a class="headerlink" href="#creating-options" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fn safe_array_get(arr: array&lt;int&gt;, index: int) -&gt; Option&lt;int&gt; {
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    let len: int = (array_length arr)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    if (or (&lt; index 0) (&gt;= index len)) {
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        return Option::None
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    } else {
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        return Option::Some((at arr index))
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    }
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>}
+</code></pre></div>
+<h3 id="using-options">Using Options<a class="headerlink" href="#using-options" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>let arr: array&lt;int&gt; = [1, 2, 3]
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>let maybe_value: Option&lt;int&gt; = (safe_array_get arr 1)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>match maybe_value {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    Option::Some(v) =&gt; (println (int_to_string v))
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    Option::None =&gt; (println &quot;Index out of bounds&quot;)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>}
+</code></pre></div>
+<h3 id="option-vs-result">Option vs Result<a class="headerlink" href="#option-vs-result" title="Permanent link">&para;</a></h3>
+<p><strong>Use Option when:</strong>
+- Value may not exist (not an error)
+- No context needed about why it's missing
+- Example: <code>array_get</code>, <code>hash_map_get</code></p>
+<p><strong>Use Result when:</strong>
+- Operation can fail with specific reasons
+- Error context is important
+- Example: <code>file_read</code>, <code>parse_json</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a># Option: value may not exist (not an error)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>fn find_max(arr: array&lt;int&gt;) -&gt; Option&lt;int&gt; {
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    if (== (array_length arr) 0) {
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        return Option::None  # Empty array has no max
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    }
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    # ... find and return max
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a># Result: operation can fail with reason
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>fn parse_config(path: string) -&gt; Result&lt;Config, string&gt; {
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    if (not (file_exists path)) {
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>        return Result::Err(&quot;Config file not found&quot;)
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    }
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    # ... parse and return config
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>}
+</code></pre></div>
+<hr />
+<h2 id="assertions">Assertions<a class="headerlink" href="#assertions" title="Permanent link">&para;</a></h2>
+<p>Assertions check invariants and preconditions. They should <strong>never fail</strong> in correct code.</p>
+<h3 id="use-assertions-for">Use Assertions For<a class="headerlink" href="#use-assertions-for" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Preconditions</strong> - Requirements that must be true before function executes</li>
+<li><strong>Postconditions</strong> - Guarantees after function executes</li>
+<li><strong>Invariants</strong> - Conditions that always hold</li>
+<li><strong>Shadow tests</strong> - Verify function behavior during compilation</li>
+</ol>
+<h3 id="assertion-examples">Assertion Examples<a class="headerlink" href="#assertion-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>fn sqrt_int(n: int) -&gt; int {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    # Precondition: n must be non-negative
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    assert (&gt;= n 0)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    let result: int = (isqrt n)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    # Postcondition: result * result &lt;= n &lt; (result+1) * (result+1)
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    assert (&lt;= (* result result) n)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    assert (&lt; n (* (+ result 1) (+ result 1)))
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    return result
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>}
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>shadow sqrt_int {
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    assert (== (sqrt_int 0) 0)
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    assert (== (sqrt_int 1) 1)
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    assert (== (sqrt_int 4) 2)
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    assert (== (sqrt_int 9) 3)
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>    assert (== (sqrt_int 15) 3)
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    assert (== (sqrt_int 16) 4)
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>}
+</code></pre></div>
+<h3 id="when-not-to-use-assertions">When NOT to Use Assertions<a class="headerlink" href="#when-not-to-use-assertions" title="Permanent link">&para;</a></h3>
+<p>❌ <strong>Don't use assertions for:</strong>
+- Validating user input (use Result instead)
+- Handling expected errors (use Result/Option)
+- Recoverable errors (use error handling)
+- Performance-critical checks in production</p>
+<p>✅ <strong>Do use assertions for:</strong>
+- Debugging during development
+- Shadow tests
+- Checking programmer errors
+- Documenting assumptions</p>
+<hr />
+<h2 id="panic-and-abort">Panic and Abort<a class="headerlink" href="#panic-and-abort" title="Permanent link">&para;</a></h2>
+<p>Panics terminate the program immediately. Use for <strong>unrecoverable errors</strong> only.</p>
+<h3 id="when-to-panic">When to Panic<a class="headerlink" href="#when-to-panic" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Appropriate panic situations:</strong>
+- Out of memory (allocation failed)
+- Programmer error (invariant violated)
+- Corrupt data structures
+- Impossible state reached</p>
+<p>❌ <strong>Don't panic for:</strong>
+- User input errors
+- File not found
+- Network timeout
+- Any recoverable error</p>
+<h3 id="example-appropriate-panic">Example: Appropriate Panic<a class="headerlink" href="#example-appropriate-panic" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>fn internal_assert(condition: bool, message: string) -&gt; void {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    if (not condition) {
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>        (println &quot;FATAL: Internal assertion failed&quot;)
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>        (println message)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        (exit 1)  # Panic: unrecoverable
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    }
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>}
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>fn buffer_allocate(size: int) -&gt; string {
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    if (&lt;= size 0) {
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>        (internal_assert false &quot;Invalid buffer size&quot;)
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    }
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    let buffer: string = (malloc size)
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    if (== buffer &quot;&quot;) {
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>        (internal_assert false &quot;Out of memory&quot;)  # Can&#39;t recover
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    }
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    return buffer
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>}
+</code></pre></div>
+<hr />
+<h2 id="error-propagation">Error Propagation<a class="headerlink" href="#error-propagation" title="Permanent link">&para;</a></h2>
+<p>Propagate errors up the call stack for handling at the appropriate level.</p>
+<h3 id="pattern-1-early-return">Pattern 1: Early Return<a class="headerlink" href="#pattern-1-early-return" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>fn process_file(path: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    # Check if file exists
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    if (not (file_exists path)) {
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        return Result::Err(&quot;File not found&quot;)
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    }
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    # Read file
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    let content: string = (file_read path)
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    if (== (str_length content) 0) {
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        return Result::Err(&quot;File is empty&quot;)
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    }
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    # Process content
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    let result: Result&lt;Data, string&gt; = (parse_content content)
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    if (result_is_err result) {
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>        return Result::Err((result_unwrap_err result))
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    }
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    return Result::Ok(void)
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>}
+</code></pre></div>
+<h3 id="pattern-2-error-context">Pattern 2: Error Context<a class="headerlink" href="#pattern-2-error-context" title="Permanent link">&para;</a></h3>
+<p>Add context as errors propagate up.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>fn load_config() -&gt; Result&lt;Config, string&gt; {
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    let result: Result&lt;string, string&gt; = (read_config_file)
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    if (result_is_err result) {
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>        let err: string = (result_unwrap_err result)
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        return Result::Err((+ &quot;Failed to load config: &quot; err))
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    }
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    let content: string = (result_unwrap result)
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    let parse_result: Result&lt;Config, string&gt; = (parse_config content)
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>    if (result_is_err parse_result) {
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        let err: string = (result_unwrap_err parse_result)
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        return Result::Err((+ &quot;Failed to parse config: &quot; err))
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    }
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>    return parse_result
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>}
+</code></pre></div>
+<h3 id="pattern-3-error-accumulation">Pattern 3: Error Accumulation<a class="headerlink" href="#pattern-3-error-accumulation" title="Permanent link">&para;</a></h3>
+<p>Collect multiple errors before failing.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>fn validate_user(user: User) -&gt; Result&lt;void, array&lt;string&gt;&gt; {
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    let mut errors: array&lt;string&gt; = []
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    # Check name
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    if (== (str_length user.name) 0) {
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>        (array_push errors &quot;Name is required&quot;)
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    }
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    # Check age
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    if (&lt; user.age 0) {
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        (array_push errors &quot;Age must be positive&quot;)
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    }
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    # Check email
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    if (not (str_contains user.email &quot;@&quot;)) {
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>        (array_push errors &quot;Invalid email&quot;)
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    }
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    # Return all errors or success
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    if (&gt; (array_length errors) 0) {
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>        return Result::Err(errors)
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>    } else {
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>        return Result::Ok(void)
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    }
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>}
+</code></pre></div>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-return-result-for-fallible-operations">1. Return Result for Fallible Operations<a class="headerlink" href="#1-return-result-for-fallible-operations" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>fn parse_int(s: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    let n: int = (string_to_int s)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    if (== n 0) {
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        if (!= s &quot;0&quot;) {
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>            return Result::Err(&quot;Invalid integer&quot;)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>        }
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    }
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    return Result::Ok(n)
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>}
+</code></pre></div></p>
+<p>❌ <strong>Bad:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>fn parse_int(s: string) -&gt; int {
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    return (string_to_int s)  # Returns 0 on error, ambiguous!
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>}
+</code></pre></div></p>
+<h3 id="2-dont-ignore-errors">2. Don't Ignore Errors<a class="headerlink" href="#2-dont-ignore-errors" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>fn save_data(data: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    let result: Result&lt;void, string&gt; = (file_write &quot;data.txt&quot; data)
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    if (result_is_err result) {
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>        (println &quot;Failed to save data&quot;)
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        return result
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    }
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    return Result::Ok(void)
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>}
+</code></pre></div></p>
+<p>❌ <strong>Bad:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>fn save_data(data: string) -&gt; void {
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    (file_write &quot;data.txt&quot; data)  # Ignores errors!
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>}
+</code></pre></div></p>
+<h3 id="3-use-descriptive-error-messages">3. Use Descriptive Error Messages<a class="headerlink" href="#3-use-descriptive-error-messages" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>return Result::Err(&quot;Failed to open file &#39;config.json&#39;: file not found&quot;)
+</code></pre></div></p>
+<p>❌ <strong>Bad:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>return Result::Err(&quot;error&quot;)
+</code></pre></div></p>
+<h3 id="4-handle-errors-at-the-right-level">4. Handle Errors at the Right Level<a class="headerlink" href="#4-handle-errors-at-the-right-level" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a># Low level: return errors
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>fn read_file(path: string) -&gt; Result&lt;string, string&gt; {
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    if (not (file_exists path)) {
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        return Result::Err(&quot;File not found&quot;)
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    }
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    return Result::Ok((file_read path))
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>}
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a># Mid level: add context
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>fn load_config() -&gt; Result&lt;Config, string&gt; {
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>    let result: Result&lt;string, string&gt; = (read_file &quot;config.json&quot;)
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>    if (result_is_err result) {
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>        return Result::Err(&quot;Failed to load config&quot;)
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>    }
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>    # ... parse config
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>}
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a># High level: handle and report to user
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>fn main() -&gt; int {
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>    let config_result: Result&lt;Config, string&gt; = (load_config)
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>    if (result_is_err config_result) {
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>        let err: string = (result_unwrap_err config_result)
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a>        (println (+ &quot;Error: &quot; err))
+<a id="__codelineno-22-24" name="__codelineno-22-24" href="#__codelineno-22-24"></a>        return 1
+<a id="__codelineno-22-25" name="__codelineno-22-25" href="#__codelineno-22-25"></a>    }
+<a id="__codelineno-22-26" name="__codelineno-22-26" href="#__codelineno-22-26"></a>    return 0
+<a id="__codelineno-22-27" name="__codelineno-22-27" href="#__codelineno-22-27"></a>}
+</code></pre></div>
+<h3 id="5-document-error-conditions">5. Document Error Conditions<a class="headerlink" href="#5-document-error-conditions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a># Parses a positive integer from string.
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>#
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a># Returns:
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a># - Ok(n) if string is a valid positive integer
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a># - Err(&quot;Invalid format&quot;) if string is not a number
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a># - Err(&quot;Not positive&quot;) if number is &lt;= 0
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>fn parse_positive_int(s: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    let n: int = (string_to_int s)
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    if (== n 0) {
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>        if (!= s &quot;0&quot;) {
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>            return Result::Err(&quot;Invalid format&quot;)
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>        }
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>        return Result::Err(&quot;Not positive&quot;)
+<a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>    }
+<a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    if (&lt;= n 0) {
+<a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>        return Result::Err(&quot;Not positive&quot;)
+<a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>    }
+<a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>    return Result::Ok(n)
+<a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a>}
+</code></pre></div>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-retry-with-exponential-backoff">Pattern: Retry with Exponential Backoff<a class="headerlink" href="#pattern-retry-with-exponential-backoff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>fn retry_operation&lt;T, E&gt;(
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    operation: fn() -&gt; Result&lt;T, E&gt;,
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    max_retries: int
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>) -&gt; Result&lt;T, E&gt; {
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    let mut attempt: int = 0
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    let mut delay: int = 100  # ms
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>    while (&lt; attempt max_retries) {
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>        let result: Result&lt;T, E&gt; = (operation)
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>        if (result_is_ok result) {
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>            return result
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>        }
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>        # Exponential backoff
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>        (sleep delay)
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>        set delay (* delay 2)
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>        set attempt (+ attempt 1)
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>    }
+<a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a>
+<a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>    return Result::Err(&quot;Max retries exceeded&quot;)
+<a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a>}
+</code></pre></div>
+<h3 id="pattern-graceful-degradation">Pattern: Graceful Degradation<a class="headerlink" href="#pattern-graceful-degradation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>fn get_user_data(user_id: int) -&gt; User {
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    # Try cache first
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    let cache_result: Option&lt;User&gt; = (cache_get user_id)
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    match cache_result {
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>        Option::Some(user) =&gt; return user
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        Option::None =&gt; {}
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    }
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    # Try database
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>    let db_result: Result&lt;User, string&gt; = (db_query user_id)
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>    if (result_is_ok db_result) {
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>        let user: User = (result_unwrap db_result)
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>        (cache_set user_id user)  # Update cache
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>        return user
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a>    }
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>    # Fallback: return default
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>    return User { id: user_id, name: &quot;Unknown&quot;, email: &quot;&quot; }
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a>}
+</code></pre></div>
+<h3 id="pattern-transaction-all-or-nothing">Pattern: Transaction (All or Nothing)<a class="headerlink" href="#pattern-transaction-all-or-nothing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>fn transfer_money(from: int, to: int, amount: int) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    # Begin transaction
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    let tx: Transaction = (transaction_begin)
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    # Debit from account
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    let debit_result: Result&lt;void, string&gt; = (account_debit from amount)
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    if (result_is_err debit_result) {
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>        (transaction_rollback tx)
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>        return debit_result
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>    }
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>    # Credit to account
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>    let credit_result: Result&lt;void, string&gt; = (account_credit to amount)
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a>    if (result_is_err credit_result) {
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a>        (transaction_rollback tx)
+<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a>        return credit_result
+<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a>    }
+<a id="__codelineno-26-18" name="__codelineno-26-18" href="#__codelineno-26-18"></a>
+<a id="__codelineno-26-19" name="__codelineno-26-19" href="#__codelineno-26-19"></a>    # Commit transaction
+<a id="__codelineno-26-20" name="__codelineno-26-20" href="#__codelineno-26-20"></a>    (transaction_commit tx)
+<a id="__codelineno-26-21" name="__codelineno-26-21" href="#__codelineno-26-21"></a>    return Result::Ok(void)
+<a id="__codelineno-26-22" name="__codelineno-26-22" href="#__codelineno-26-22"></a>}
+</code></pre></div>
+<hr />
+<h2 id="ffi-error-handling">FFI Error Handling<a class="headerlink" href="#ffi-error-handling" title="Permanent link">&para;</a></h2>
+<p>C functions use different error conventions. Translate to Result/Option.</p>
+<h3 id="pattern-errno-translation">Pattern: errno Translation<a class="headerlink" href="#pattern-errno-translation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>extern fn c_open(path: string, flags: int) -&gt; int
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>extern fn c_errno() -&gt; int
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>extern fn c_strerror(errno: int) -&gt; string
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>fn safe_open(path: string, flags: int) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    let fd: int = (c_open path flags)
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>    if (&lt; fd 0) {
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>        let err: int = (c_errno)
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>        let msg: string = (c_strerror err)
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>        return Result::Err(msg)
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>    }
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>    return Result::Ok(fd)
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>}
+</code></pre></div>
+<h3 id="pattern-null-pointer-translation">Pattern: NULL Pointer Translation<a class="headerlink" href="#pattern-null-pointer-translation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>extern fn c_fopen(path: string, mode: string) -&gt; int
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>fn safe_fopen(path: string, mode: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    let handle: int = (c_fopen path mode)
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>    if (== handle 0) {  # NULL
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>        return Result::Err(&quot;Failed to open file&quot;)
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>    }
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>    return Result::Ok(handle)
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>}
+</code></pre></div>
+<h3 id="pattern-status-code-translation">Pattern: Status Code Translation<a class="headerlink" href="#pattern-status-code-translation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>extern fn c_operation(arg: string) -&gt; int
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>fn safe_operation(arg: string) -&gt; Result&lt;void, string&gt; {
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>    let status: int = (c_operation arg)
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>    if (!= status 0) {
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>        return Result::Err((status_to_string status))
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>    }
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>    return Result::Ok(void)
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>}
+</code></pre></div>
+<hr />
+<h2 id="testing-error-paths">Testing Error Paths<a class="headerlink" href="#testing-error-paths" title="Permanent link">&para;</a></h2>
+<p>Always test both success and failure cases.</p>
+<h3 id="shadow-test-example">Shadow Test Example<a class="headerlink" href="#shadow-test-example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>fn divide(a: int, b: int) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    if (== b 0) {
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>        return Result::Err(&quot;Division by zero&quot;)
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>    }
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    return Result::Ok((/ a b))
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>}
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>shadow divide {
+<a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    # Test success case
+<a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>    let ok_result: Result&lt;int, string&gt; = (divide 10 2)
+<a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>    assert (result_is_ok ok_result)
+<a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>    assert (== (result_unwrap ok_result) 5)
+<a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a>
+<a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a>    # Test error case
+<a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a>    let err_result: Result&lt;int, string&gt; = (divide 10 0)
+<a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a>    assert (result_is_err err_result)
+<a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a>    let err_msg: string = (result_unwrap_err err_result)
+<a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a>    assert (str_contains err_msg &quot;zero&quot;)
+<a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a>}
+</code></pre></div>
+<h3 id="edge-case-testing">Edge Case Testing<a class="headerlink" href="#edge-case-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>fn parse_positive_int(s: string) -&gt; Result&lt;int, string&gt; {
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>    # ... implementation
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>}
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>shadow parse_positive_int {
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>    # Valid cases
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>    assert (result_is_ok (parse_positive_int &quot;123&quot;))
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>    assert (result_is_ok (parse_positive_int &quot;1&quot;))
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a>    # Invalid cases
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a>    assert (result_is_err (parse_positive_int &quot;&quot;))
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a>    assert (result_is_err (parse_positive_int &quot;0&quot;))
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a>    assert (result_is_err (parse_positive_int &quot;-5&quot;))
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a>    assert (result_is_err (parse_positive_int &quot;abc&quot;))
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a>    assert (result_is_err (parse_positive_int &quot;12.5&quot;))
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a>
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a>    # Edge cases
+<a id="__codelineno-31-18" name="__codelineno-31-18" href="#__codelineno-31-18"></a>    assert (result_is_err (parse_positive_int &quot;2147483648&quot;))  # Overflow
+<a id="__codelineno-31-19" name="__codelineno-31-19" href="#__codelineno-31-19"></a>}
+</code></pre></div>
+<hr />
+<h2 id="error-type-design">Error Type Design<a class="headerlink" href="#error-type-design" title="Permanent link">&para;</a></h2>
+<p>Design error types that are useful and composable.</p>
+<h3 id="simple-string-errors">Simple String Errors<a class="headerlink" href="#simple-string-errors" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good for:</strong> Prototypes, simple tools, error messages for humans</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>fn parse_config(s: string) -&gt; Result&lt;Config, string&gt; {
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>    if (== (str_length s) 0) {
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>        return Result::Err(&quot;Config string is empty&quot;)
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>    }
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>    # ...
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>}
+</code></pre></div>
+<h3 id="enum-error-types">Enum Error Types<a class="headerlink" href="#enum-error-types" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good for:</strong> Libraries, APIs, programmatic error handling</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>enum ParseError {
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>    EmptyInput
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>    InvalidFormat
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>    UnknownField
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>    MissingRequired
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>}
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a>
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a>fn parse_config(s: string) -&gt; Result&lt;Config, ParseError&gt; {
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a>    if (== (str_length s) 0) {
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a>        return Result::Err(ParseError::EmptyInput)
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a>    }
+<a id="__codelineno-33-12" name="__codelineno-33-12" href="#__codelineno-33-12"></a>    # ...
+<a id="__codelineno-33-13" name="__codelineno-33-13" href="#__codelineno-33-13"></a>}
+</code></pre></div>
+<h3 id="struct-error-types-with-context">Struct Error Types (with context)<a class="headerlink" href="#struct-error-types-with-context" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Good for:</strong> Complex errors, debugging, logging</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>struct ParseError {
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>    kind: ParseErrorKind
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>    line: int
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>    column: int
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>    context: string
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>}
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>enum ParseErrorKind {
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>    UnexpectedToken
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>    MissingBracket
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>    InvalidNumber
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>}
+<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>
+<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a>fn parse_expression(s: string) -&gt; Result&lt;Expr, ParseError&gt; {
+<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>    # ... parsing logic
+<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a>    if (unexpected_token) {
+<a id="__codelineno-34-17" name="__codelineno-34-17" href="#__codelineno-34-17"></a>        return Result::Err(ParseError {
+<a id="__codelineno-34-18" name="__codelineno-34-18" href="#__codelineno-34-18"></a>            kind: ParseErrorKind::UnexpectedToken,
+<a id="__codelineno-34-19" name="__codelineno-34-19" href="#__codelineno-34-19"></a>            line: current_line,
+<a id="__codelineno-34-20" name="__codelineno-34-20" href="#__codelineno-34-20"></a>            column: current_column,
+<a id="__codelineno-34-21" name="__codelineno-34-21" href="#__codelineno-34-21"></a>            context: (str_substring s start end)
+<a id="__codelineno-34-22" name="__codelineno-34-22" href="#__codelineno-34-22"></a>        })
+<a id="__codelineno-34-23" name="__codelineno-34-23" href="#__codelineno-34-23"></a>    }
+<a id="__codelineno-34-24" name="__codelineno-34-24" href="#__codelineno-34-24"></a>}
+</code></pre></div>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p><strong>Error Handling Checklist:</strong></p>
+<ul>
+<li>[ ] Use Result<T, E> for fallible operations</li>
+<li>[ ] Use Option<T> for values that may not exist</li>
+<li>[ ] Use assertions for invariants and shadow tests</li>
+<li>[ ] Only panic for unrecoverable errors</li>
+<li>[ ] Propagate errors with context</li>
+<li>[ ] Handle errors at the appropriate level</li>
+<li>[ ] Write descriptive error messages</li>
+<li>[ ] Test both success and error paths</li>
+<li>[ ] Document error conditions</li>
+<li>[ ] Translate FFI errors to Result/Option</li>
+</ul>
+<p><strong>Remember:</strong>
+- Errors are values, not exceptions
+- Explicit is better than implicit
+- Fail-fast, fail-loudly
+- Make errors impossible to ignore
+- Test error paths as thoroughly as success paths</p>
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../SPECIFICATION/">SPECIFICATION.md</a> - Result and Option types</li>
+<li><a href="../EXTERN_FFI/">EXTERN_FFI.md</a> - FFI error handling</li>
+<li><a href="../SHADOW_TESTS/">SHADOW_TESTS.md</a> - Testing philosophy</li>
+<li><a href="../STDLIB/">STDLIB.md</a> - Standard library error functions</li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> January 25, 2026
+<strong>Philosophy:</strong> Explicit errors, zero-cost abstractions
+<strong>Version:</strong> 0.3.0+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.integrate", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

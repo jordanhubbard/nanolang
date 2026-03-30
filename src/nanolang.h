@@ -319,6 +319,8 @@ struct ASTNode {
             bool is_extern;  /* Mark external C functions */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
+            int   effect_count;
         } function;
         struct {
             char *function_name;
@@ -562,6 +564,10 @@ typedef struct {
     bool requires_manual_free;   /* True if return value needs explicit free (e.g., opaque handles) */
     bool returns_borrowed;       /* True if return is borrowed ref (e.g., Json.get) - don't wrap/free */
     char *cleanup_function;      /* Name of cleanup function if requires_manual_free (e.g., "regex_free") */
+
+    /* Algebraic effects this function may perform */
+    char **effect_names;
+    int    effect_count;
 } Function;
 
 /* Struct definition entry */
@@ -737,6 +743,9 @@ typedef struct {
     const char *profile_flamegraph_path; /* --profile-runtime <path>: write flamegraph .nano.prof (NULL = <input>.nano.prof) */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
     bool gpu_target;               /* --target ptx: suppress main() requirement and shadow warnings */
+
+    /* Algebraic effects registry (opaque pointer; cast to EffectRegistry* in effects.c) */
+    void *effect_registry;
 } Environment;
 
 /* Function declarations */
