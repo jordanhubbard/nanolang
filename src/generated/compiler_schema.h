@@ -294,7 +294,8 @@ typedef enum {
     PNODE_UNSAFE_BLOCK = 37,
     PNODE_MODULE_QUALIFIED_CALL = 38,
     PNODE_GRAMMAR = 39,
-    PNODE_PAR_BLOCK = 40
+    PNODE_PAR_BLOCK = 40,
+    PNODE_ASYNC_FN = 41
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken

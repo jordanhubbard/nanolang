@@ -78,7 +78,9 @@
     "TOKEN_GRAMMAR",
     "TOKEN_LARROW",
     "TOKEN_QUESTION",
-    "TOKEN_PAR"
+    "TOKEN_PAR",
+    "TOKEN_ASYNC",
+    "TOKEN_AWAIT"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",
@@ -121,7 +123,8 @@
     "PNODE_UNSAFE_BLOCK",
     "PNODE_MODULE_QUALIFIED_CALL",
     "PNODE_GRAMMAR",
-    "PNODE_PAR_BLOCK"
+    "PNODE_PAR_BLOCK",
+    "PNODE_ASYNC_FN"
   ],
   "nano_enums": [
     {
