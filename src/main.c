@@ -9,6 +9,7 @@
 #include "toon_output.h"
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
+#include "wasm_backend.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 
@@ -50,6 +51,7 @@ typedef struct {
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool trust_report;         /* --trust-report: print formal verification trust levels */
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
+    const char *target;        /* --target <name>: compile target (default: native, wasm) */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -394,6 +396,35 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
+
+    /* ── WASM target: emit .wasm binary and exit ─────────────────────── */
+    if (opts->target && strcmp(opts->target, "wasm") == 0) {
+        /* Determine output path: use -o flag or derive from input */
+        const char *wasm_out = output_file;
+        char wasm_out_buf[PATH_MAX];
+        if (!wasm_out) {
+            /* Replace .nano with .wasm */
+            strncpy(wasm_out_buf, input_file, PATH_MAX - 6);
+            wasm_out_buf[PATH_MAX - 6] = '\0';
+            char *dot = strrchr(wasm_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(wasm_out_buf, ".wasm");
+            wasm_out = wasm_out_buf;
+        }
+        if (opts->verbose) printf("Emitting WASM → %s\n", wasm_out);
+        int wasm_rc = wasm_backend_emit(program, wasm_out, opts->verbose);
+        if (wasm_rc == 0 && opts->verbose) {
+            printf("✓ WASM binary emitted to %s\n", wasm_out);
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return wasm_rc;
+    }
 
     /* Phase 4.1: Trust Report (if requested) */
     if (opts->trust_report) {
@@ -1200,8 +1231,8 @@ int main(int argc, char *argv[]) {
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
-
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
+        printf("  --target <t>   Compile target: native (default), wasm\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1260,7 +1291,8 @@ int main(int argc, char *argv[]) {
         .warn_ffi = false,
         .forbid_unsafe = false,
         .trust_report = false,
-        .reference_eval = false
+        .reference_eval = false,
+        .target = NULL
     };
     
     /* Allocate arrays for flags */
@@ -1351,6 +1383,9 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--emit-typed-ast-json") == 0) {
             opts.emit_typed_ast = true;
+        } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
+            opts.target = argv[i + 1];
+            i++;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
