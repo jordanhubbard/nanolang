@@ -105,6 +105,44 @@ static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
     return out;
 }
 
+/* Helper: Recursively check if an AST expression references a given variable name.
+ * Used by par-let dependency validation to detect cross-binding references. */
+static bool ast_references_name(ASTNode *node, const char *name) {
+    if (!node || !name) return false;
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            return strcmp(node->as.identifier, name) == 0;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++)
+                if (ast_references_name(node->as.prefix_op.args[i], name)) return true;
+            return false;
+        case AST_CALL:
+            for (int i = 0; i < node->as.call.arg_count; i++)
+                if (ast_references_name(node->as.call.args[i], name)) return true;
+            return false;
+        case AST_IF:
+            return ast_references_name(node->as.if_stmt.condition, name) ||
+                   ast_references_name(node->as.if_stmt.then_branch, name) ||
+                   ast_references_name(node->as.if_stmt.else_branch, name);
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++)
+                if (ast_references_name(node->as.block.statements[i], name)) return true;
+            return false;
+        case AST_FIELD_ACCESS:
+            return ast_references_name(node->as.field_access.object, name);
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++)
+                if (ast_references_name(node->as.array_literal.elements[i], name)) return true;
+            return false;
+        case AST_LET:
+            return ast_references_name(node->as.let.value, name);
+        case AST_RETURN:
+            return ast_references_name(node->as.return_stmt.value, name);
+        default:
+            return false;
+    }
+}
+
 /* Helper: Check if symbol was explicitly imported via selective import */
 static bool is_symbol_imported(const char *symbol_name, const char *module_path, Environment *env) {
     if (!env->import_tracker) return true;  /* No tracking = allow all */
@@ -3930,6 +3968,37 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 check_statement(tc, stmt->as.par_block.bindings[i]);
             }
             return TYPE_VOID;
+        }
+
+        case AST_PAR_LET: {
+            int n = stmt->as.par_let.count;
+            if (n == 0) return TYPE_VOID;
+            if (n == 1) {
+                fprintf(stderr, "Warning at line %d, column %d: par-let with a single binding; consider using regular let\n",
+                        stmt->line, stmt->column);
+            }
+            /* Validate: no binding may reference a sibling binding (would create a data dependency) */
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (j == i) continue;
+                    if (ast_references_name(stmt->as.par_let.values[i], stmt->as.par_let.names[j])) {
+                        fprintf(stderr, "Error at line %d, column %d: par-let binding '%s' depends on sibling binding '%s' — use sequential let for dependent bindings\n",
+                                stmt->line, stmt->column,
+                                stmt->as.par_let.names[i], stmt->as.par_let.names[j]);
+                        return TYPE_VOID;
+                    }
+                }
+            }
+            /* Type-check each binding's RHS independently (siblings not yet in scope) */
+            for (int i = 0; i < n; i++) {
+                Type t = check_expression(stmt->as.par_let.values[i], tc->env);
+                /* Register binding in environment with inferred type */
+                Value dummy = create_void();
+                env_define_var_with_type_info(tc->env, stmt->as.par_let.names[i],
+                    t, TYPE_UNKNOWN, NULL, false, dummy);
+            }
+            /* Type-check body with all bindings in scope */
+            return check_expression(stmt->as.par_let.body, tc->env);
         }
 
         case AST_UNSAFE_BLOCK: {

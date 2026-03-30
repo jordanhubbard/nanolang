@@ -5385,6 +5385,19 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return par_result;
         }
 
+        case AST_PAR_LET: {
+            /* Evaluate all bindings (sequentially; parallelism is the runtime's job) */
+            for (int i = 0; i < stmt->as.par_let.count; i++) {
+                Value v = eval_expression(stmt->as.par_let.values[i], env);
+                if (v.is_return || v.is_break || v.is_continue) return v;
+                env_define_var_with_type_info(env,
+                    stmt->as.par_let.names[i],
+                    TYPE_UNKNOWN, TYPE_UNKNOWN, NULL, false, v);
+            }
+            /* Evaluate body with all bindings in scope */
+            return eval_expression(stmt->as.par_let.body, env);
+        }
+
         case AST_UNSAFE_BLOCK: {
             /* Unsafe blocks are treated like regular blocks in the interpreter */
             Value result = create_void();

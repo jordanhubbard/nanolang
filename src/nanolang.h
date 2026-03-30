@@ -457,6 +457,7 @@ struct ASTNode {
             int count;             /* Number of bindings */
         } par_block;
 
+
         /* Effect declaration: effect IO { print : String -> Unit; read : Unit -> String } */
         struct {
             char *effect_name;          /* e.g., "IO" */
@@ -482,10 +483,13 @@ struct ASTNode {
 
         /* ── Row-poly / effect extension union fields ─────────────────────── */
 
-        /* AST_PAR_LET: parallel let bindings */
+        /* AST_PAR_LET: parallel let bindings (extended form with names/values/body) */
         struct {
-            ASTNode **bindings;
-            int       count;
+            char    **names;       /* Binding names */
+            ASTNode **values;      /* Binding value expressions */
+            int       count;       /* Number of bindings */
+            ASTNode  *body;        /* Body expression evaluated after 'in' */
+            bool     *independent; /* Per-binding independence flag (set by par_let_pass) */
         } par_let;
 
         /* AST_EFFECT_HANDLER: extended handle expression (row-poly compat) */

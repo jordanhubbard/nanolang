@@ -16,6 +16,7 @@
 #include "cps_pass.h"
 #include "fold_constants.h"
 #include "dce_pass.h"
+#include "par_let_pass.h"
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
@@ -349,6 +350,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
+
+    /* Phase 2.4: par-let pass — validate cross-binding dependencies, annotate independence flags */
+    {
+        int par_errs = par_let_pass(program);
+        if (par_errs > 0) {
+            fprintf(stderr, "par-let validation failed (%d error(s))\n", par_errs);
+            return 1;
+        }
+        if (opts->verbose) printf("✓ par-let pass complete\n");
+    }
 
     /* Phase 2.5: Constant folding (--optimize / -O) */
     if (opts->optimize) {

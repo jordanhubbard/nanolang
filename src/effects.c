@@ -510,6 +510,11 @@ static void walk_node(EffectCtx *ctx, ASTNode *node, Environment *env) {
             for (int i = 0; i < node->as.par_block.count; i++)
                 walk_node(ctx, node->as.par_block.bindings[i], env);
             return;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; i++)
+                walk_node(ctx, node->as.par_let.values[i], env);
+            walk_node(ctx, node->as.par_let.body, env);
+            return;
         case AST_MATCH:
             walk_node(ctx, node->as.match_expr.expr, env);
             for (int i = 0; i < node->as.match_expr.arm_count; i++)

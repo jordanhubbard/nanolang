@@ -3163,6 +3163,64 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             int column = tok->column;
             advance(p);
 
+            /* Check for par-let syntax: par-let x=e1\ny=e2\nin body
+             * Lexed as: TOKEN_PAR TOKEN_MINUS TOKEN_LET bindings... TOKEN_IN body */
+            if (match(p, TOKEN_MINUS)) {
+                Token *next_after_minus = peek_token(p, 1);
+                if (next_after_minus && next_after_minus->token_type == TOKEN_LET) {
+                    advance(p); /* consume '-' */
+                    advance(p); /* consume 'let' */
+
+                    int capacity = 8, count = 0;
+                    char **names = malloc(sizeof(char *) * capacity);
+                    ASTNode **values = malloc(sizeof(ASTNode *) * capacity);
+
+                    while (!match(p, TOKEN_IN) && !match(p, TOKEN_EOF)) {
+                        if (count >= capacity) {
+                            capacity *= 2;
+                            names = realloc(names, sizeof(char *) * capacity);
+                            values = realloc(values, sizeof(ASTNode *) * capacity);
+                        }
+                        if (!match(p, TOKEN_IDENTIFIER)) {
+                            parser_error(p, line, column,
+                                "Error at line %d, column %d: Expected identifier in par-let binding\n",
+                                line, column);
+                            for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                            free(names); free(values);
+                            return NULL;
+                        }
+                        char *bname = strdup(current_token(p)->value);
+                        advance(p);
+                        if (!expect(p, TOKEN_ASSIGN, "Expected '=' in par-let binding")) {
+                            free(bname);
+                            for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                            free(names); free(values);
+                            return NULL;
+                        }
+                        ASTNode *val = parse_expression(p);
+                        names[count] = bname;
+                        values[count] = val;
+                        count++;
+                    }
+
+                    if (!expect(p, TOKEN_IN, "Expected 'in' after par-let bindings")) {
+                        for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                        free(names); free(values);
+                        return NULL;
+                    }
+
+                    ASTNode *body = parse_expression(p);
+
+                    node = create_node(AST_PAR_LET, line, column);
+                    node->as.par_let.names = names;
+                    node->as.par_let.values = values;
+                    node->as.par_let.count = count;
+                    node->as.par_let.body = body;
+                    node->as.par_let.independent = NULL; /* set by par_let_pass */
+                    return node;
+                }
+            }
+
             if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'par'")) {
                 return NULL;
             }
@@ -5751,6 +5809,16 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.par_block.bindings[i]);
             }
             free(node->as.par_block.bindings);
+            break;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; i++) {
+                free(node->as.par_let.names[i]);
+                free_ast(node->as.par_let.values[i]);
+            }
+            free(node->as.par_let.names);
+            free(node->as.par_let.values);
+            if (node->as.par_let.independent) free(node->as.par_let.independent);
+            free_ast(node->as.par_let.body);
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {

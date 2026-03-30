@@ -3108,6 +3108,26 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_indent_item(list, indent);
             emit_literal(list, "/* par end */\n");
             break;
+
+        case AST_PAR_LET:
+            /* par-let: emit bindings as sequential C declarations, then the body expression.
+             * Parallelism is the runtime's responsibility; this is the safe sequential fallback. */
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
+            for (int i = 0; i < stmt->as.par_let.count; i++) {
+                emit_indent_item(list, indent);
+                emit_literal(list, "__auto_type ");
+                emit_literal(list, stmt->as.par_let.names[i]);
+                emit_literal(list, " = ");
+                build_expr(list, stmt->as.par_let.values[i], env);
+                emit_literal(list, "; /* par-let binding */\n");
+            }
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par-let end */\n");
+            emit_indent_item(list, indent);
+            build_expr(list, stmt->as.par_let.body, env);
+            emit_literal(list, ";\n");
+            break;
         case AST_MATCH: {
             /* Detect int-pattern match first (before union_c_name check) */
             int is_int_match_stmt = 0;
