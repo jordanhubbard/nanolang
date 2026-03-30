@@ -648,7 +648,7 @@ fn get_sign(x: int) -> int {
 }
 
 fn greet() -> void {
-    print "Hello"
+    (println "Hello")
 }
 ```
 

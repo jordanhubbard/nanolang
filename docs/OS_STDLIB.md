@@ -244,7 +244,7 @@ For functions that return a boolean, false can mean "not found" or indicate an e
 fn process_file() -> int {
     # Check if file exists
     if (not (file_exists "input.txt")) {
-        print "Error: input.txt not found"
+        (println "Error: input.txt not found")
         return 1
     }
 
@@ -253,14 +253,14 @@ fn process_file() -> int {
 
     # Get file size
     let size: int = (file_size "input.txt")
-    print "File size: "
-    print size
-    print " bytes"
+    (print "File size: ")
+    (print (int_to_string size))
+    (println " bytes")
 
     # Write to output
     let result: int = (file_write "output.txt" content)
     if (!= result 0) {
-        print "Error writing file"
+        (println "Error writing file")
         return 1
     }
 

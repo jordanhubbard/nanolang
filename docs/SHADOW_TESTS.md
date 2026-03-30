@@ -226,8 +226,8 @@ Even if a function returns nothing, I require a test. It proves the code can at 
 
 ```nano
 fn print_greeting(name: string) -> void {
-    print "Hello, "
-    print name
+    (print "Hello, ")
+    (println name)
 }
 
 shadow print_greeting {
