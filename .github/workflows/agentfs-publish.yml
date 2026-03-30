@@ -1,0 +1,89 @@
+name: Publish WASM to AgentFS
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'examples/language/**/*.nano'
+      - 'src/wasm_backend.c'
+      - '.github/workflows/agentfs-publish.yml'
+  workflow_dispatch:
+
+jobs:
+  publish-wasm:
+    name: Compile examples to WASM and publish to AgentFS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run if AgentFS is reachable (sparky must be available)
+    # Set AGENTFS_URL secret to enable; skip if not set
+    if: vars.AGENTFS_PUBLISH_ENABLED == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libncurses-dev
+
+      - name: Build nanoc (stage1 only)
+        run: make stage1
+
+      - name: Compile language examples to WASM
+        run: |
+          mkdir -p wasm_artifacts
+          FAILED=0
+          for nano_file in examples/language/*.nano; do
+            name=$(basename "$nano_file" .nano)
+            echo "Compiling $nano_file -> wasm_artifacts/${name}.wasm"
+            if ./bin/nanoc --target wasm "$nano_file" -o "wasm_artifacts/${name}.wasm" 2>/dev/null; then
+              echo "  ✓ ${name}.wasm"
+            else
+              echo "  ⚠ ${name} skipped (unsupported features for WASM target)"
+            fi
+          done
+          ls -la wasm_artifacts/ || true
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nanolang-wasm-${{ github.sha }}
+          path: wasm_artifacts/*.wasm
+          retention-days: 30
+
+      - name: Publish to AgentFS
+        if: vars.AGENTFS_URL != ''
+        env:
+          AGENTFS_URL: ${{ vars.AGENTFS_URL }}
+        run: |
+          MANIFEST="{\"commit\":\"${{ github.sha }}\",\"branch\":\"main\",\"modules\":{}}"
+          MODULES="{}"
+          for wasm_file in wasm_artifacts/*.wasm; do
+            [ -f "$wasm_file" ] || continue
+            name=$(basename "$wasm_file" .wasm)
+            echo "Publishing $name to AgentFS..."
+            RESPONSE=$(curl -sf -X POST "${AGENTFS_URL}/upload" \
+              -H "Content-Type: application/wasm" \
+              --data-binary "@${wasm_file}" \
+              -o /tmp/agentfs_response.json \
+              -w "%{http_code}" 2>/dev/null) || RESPONSE="000"
+            if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "201" ]; then
+              HASH=$(cat /tmp/agentfs_response.json | python3 -c "import sys,json; print(json.load(sys.stdin).get('hash',''))" 2>/dev/null || echo "")
+              echo "  ✓ $name => $HASH"
+              MODULES=$(echo "$MODULES" | python3 -c "
+import sys, json
+m = json.load(sys.stdin)
+m['${name}'] = '${HASH}'
+print(json.dumps(m))
+" 2>/dev/null || echo "$MODULES")
+            else
+              echo "  ⚠ $name upload failed (HTTP $RESPONSE)"
+            fi
+          done
+          # Write manifest as CI artifact summary
+          echo "## AgentFS Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$MODULES" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY || echo "$MODULES" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
