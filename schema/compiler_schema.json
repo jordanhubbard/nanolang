@@ -84,7 +84,9 @@
     "TOKEN_HANDLE",
     "TOKEN_WITH",
     "TOKEN_RESUME",
-    "TOKEN_GPU"
+    "TOKEN_GPU",
+    "TOKEN_ASYNC",
+    "TOKEN_AWAIT"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",

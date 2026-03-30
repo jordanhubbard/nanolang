@@ -202,7 +202,9 @@ typedef enum {
     /* ── row-poly / effect extension nodes ──────────────────────────────── */
     AST_PAR_LET,           /* Parallel let binding (from par-let pass)       */
     AST_EFFECT_HANDLER,    /* Extended handle expression (row-poly compat)    */
-    AST_EFFECT_OP          /* perform Foo.op arg                              */
+    AST_EFFECT_OP,         /* perform Foo.op arg                              */
+    AST_ASYNC_FN,          /* async fn declaration: async fn name(...) -> T { body } */
+    AST_AWAIT              /* await expression: await expr */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -499,6 +501,16 @@ struct ASTNode {
             char    *op_name;
             ASTNode *arg;
         } effect_op;
+
+        /* AST_ASYNC_FN — async function declaration (wraps a normal function node) */
+        struct {
+            ASTNode *function;      /* The underlying AST_FUNCTION node */
+        } async_fn;
+
+        /* AST_AWAIT — await expression */
+        struct {
+            ASTNode *expr;          /* Expression being awaited */
+        } await_expr;
     } as;
 };
 

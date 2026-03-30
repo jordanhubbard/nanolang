@@ -254,7 +254,9 @@ typedef enum {
     TOKEN_HANDLE = 81,
     TOKEN_WITH = 82,
     TOKEN_RESUME = 83,
-    TOKEN_GPU = 84
+    TOKEN_GPU = 84,
+    TOKEN_ASYNC = 85,
+    TOKEN_AWAIT = 86
 } TokenType;
 
 typedef enum {
