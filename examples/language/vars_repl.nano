@@ -24,46 +24,6 @@ shadow print_banner {
     (print_banner)
 }
 
-fn str_trim(s: string) -> string {
-    let len: int = (str_length s)
-    if (== len 0) {
-        return s
-    } else { (print "") }
-
-    let mut start: int = 0
-    while (and (< start len) (is_whitespace (char_at s start))) {
-        set start (+ start 1)
-    }
-
-    let mut end: int = (- len 1)
-    while (and (> end start) (is_whitespace (char_at s end))) {
-        set end (- end 1)
-    }
-
-    if (> start end) {
-        return ""
-    } else { (print "") }
-
-    return (str_substring s start (+ (- end start) 1))
-}
-
-shadow str_trim {
-    assert (== (str_trim "  hello  ") "hello")
-}
-
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let slen: int = (str_length s)
-    let plen: int = (str_length prefix)
-    if (> plen slen) {
-        return false
-    } else { (print "") }
-    return (== (str_substring s 0 plen) prefix)
-}
-
-shadow str_starts_with {
-    assert (str_starts_with "hello" "hel")
-}
-
 # Find position of character in string (-1 if not found)
 fn find_char(s: string, ch: int) -> int {
     let len: int = (str_length s)
