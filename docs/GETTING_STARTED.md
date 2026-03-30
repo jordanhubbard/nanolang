@@ -18,7 +18,7 @@ This is how I expect a basic program to look.
 
 ```nano
 fn main() -> int {
-    print "Hello, World!"
+    (println "Hello, World!")
     return 0
 }
 
@@ -30,7 +30,7 @@ shadow main {
 ### Breaking it down:
 
 1. `fn main() -> int` - You define a function named `main` that returns an `int`.
-2. `print "Hello, World!"` - I output the string.
+2. `(println "Hello, World!")` - I output the string using prefix notation.
 3. `return 0` - You return a success code.
 4. `shadow main { ... }` - You provide the mandatory tests for your `main` function.
 
@@ -115,10 +115,10 @@ shadow add {
 ```
 
 What you should know about my tests:
-- I run them during compilation.
-- If a test fails, I will refuse to compile your program.
+- I run them at startup, before `main()` executes.
+- If a test fails, the program exits with an error immediately.
 - They serve as documentation for how your code should behave.
-- I remove them from the final production binary.
+- They are included in the compiled binary and run every time.
 
 ### 5. Immutable by Default
 
@@ -152,7 +152,7 @@ shadow abs {
 }
 ```
 
-I require both the `if` and the `else` branch. I do not allow ambiguity in control flow.
+The `else` branch is optional when the `if` block always returns or when the function returns `void`.
 
 ### Loops
 
@@ -160,7 +160,7 @@ I require both the `if` and the `else` branch. I do not allow ambiguity in contr
 ```nano
 let mut i: int = 0
 while (< i 10) {
-    print i
+    (println (int_to_string i))
     set i (+ i 1)
 }
 ```
@@ -168,7 +168,7 @@ while (< i 10) {
 **For loop:**
 ```nano
 for i in (range 0 10) {
-    print i
+    (println (int_to_string i))
 }
 ```
 

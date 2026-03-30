@@ -167,14 +167,18 @@ Unary `not` and `-` do not require parentheses: `not flag`, `-x`.
 ## Control Flow
 
 ### If Expression
-I require both branches.
+The `else` branch is optional.
 ```nano
 if condition {
     # then branch
 } else {
-    # else branch
+    # else branch (optional)
 }
-# Both branches required
+
+# Without else (valid for early returns or void branches)
+if condition {
+    return value
+}
 ```
 
 ### While Loop
@@ -188,6 +192,16 @@ while condition {
 ```nano
 for var in (range start end) {
     # body
+}
+```
+
+### Par Block (Parallel Hint)
+Declares that the enclosed statements have no ordering dependency.
+```nano
+par {
+    let a: int = (compute_a)
+    let b: int = (compute_b)
+    let c: int = (compute_c)
 }
 ```
 
