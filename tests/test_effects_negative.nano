@@ -1,0 +1,15 @@
+# Test: Effect system error detection
+# This file should FAIL type checking
+
+effect Console {
+    log : string -> void
+}
+
+# Duplicate effect — should error
+effect Console {
+    log : string -> void
+}
+
+fn main() -> int {
+    return 0
+}

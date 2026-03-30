@@ -24,6 +24,9 @@ Environment *create_environment(void) {
     env->opaque_types = malloc(sizeof(OpaqueTypeDef) * 8);
     env->opaque_type_count = 0;
     env->opaque_type_capacity = 8;
+    env->effects = NULL;
+    env->effect_count = 0;
+    env->effect_capacity = 0;
     env->generic_instances = malloc(sizeof(GenericInstantiation) * 8);
     env->generic_instance_count = 0;
     env->generic_instance_capacity = 8;
@@ -1553,4 +1556,38 @@ void env_add_module_exported_struct(Environment *env, const char *module_name, c
 
     mod->exported_structs = realloc(mod->exported_structs, sizeof(char*) * (mod->struct_count + 1));
     mod->exported_structs[mod->struct_count++] = strdup(struct_name);
+}
+
+/* ── Algebraic Effects ───────────────────────────────────────────────────── */
+
+void env_define_effect(Environment *env, EffectDef effect_def) {
+    if (!env) return;
+    /* Prevent duplicates */
+    if (env_get_effect(env, effect_def.name) != NULL) return;
+
+    if (env->effect_count >= env->effect_capacity) {
+        env->effect_capacity = env->effect_capacity ? env->effect_capacity * 2 : 8;
+        env->effects = realloc(env->effects, sizeof(EffectDef) * env->effect_capacity);
+    }
+    env->effects[env->effect_count++] = effect_def;
+}
+
+EffectDef *env_get_effect(Environment *env, const char *name) {
+    if (!env || !name) return NULL;
+    for (int i = 0; i < env->effect_count; i++) {
+        if (env->effects[i].name && strcmp(env->effects[i].name, name) == 0) {
+            return &env->effects[i];
+        }
+    }
+    return NULL;
+}
+
+EffectOp *effect_get_op(EffectDef *effect, const char *op_name) {
+    if (!effect || !op_name) return NULL;
+    for (int i = 0; i < effect->op_count; i++) {
+        if (effect->ops[i].name && strcmp(effect->ops[i].name, op_name) == 0) {
+            return &effect->ops[i];
+        }
+    }
+    return NULL;
 }

@@ -3113,6 +3113,91 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return udef->variant_field_types[ok_idx][0];
         }
 
+        case AST_HANDLE_EXPR: {
+            /* handle { body } with { op args -> handler_body ... }
+             *
+             * Typecheck the body first to determine what effects it may perform.
+             * Then verify each handler matches an operation in a known effect.
+             * The overall type is the type of the body expression.
+             *
+             * Effect inference: we scan handler op names against registered effects
+             * to identify which effect this handle block handles.
+             */
+            if (expr->as.handle_expr.handler_count == 0) {
+                emit_context_error("Empty handler", expr->line, expr->column, 6,
+                    "Handler block has no operation handlers",
+                    "E014: handle...with requires at least one operation handler");
+                g_typecheck_error_count++;
+                return TYPE_UNKNOWN;
+            }
+
+            /* Identify which effect is being handled by matching op names */
+            EffectDef *matched_effect = NULL;
+            const char *first_op = expr->as.handle_expr.handler_op_names[0];
+            for (int i = 0; i < env->effect_count; i++) {
+                for (int j = 0; j < env->effects[i].op_count; j++) {
+                    if (strcmp(env->effects[i].ops[j].name, first_op) == 0) {
+                        matched_effect = &env->effects[i];
+                        break;
+                    }
+                }
+                if (matched_effect) break;
+            }
+
+            if (!matched_effect) {
+                emit_context_error("Unknown effect operation", expr->line, expr->column,
+                    (int)strlen(first_op),
+                    "No registered effect declares this operation",
+                    "E015: define the effect before using handle...with");
+                g_typecheck_error_count++;
+                return TYPE_UNKNOWN;
+            }
+
+            /* Store resolved effect name for transpiler */
+            if (expr->as.handle_expr.effect_name) free(expr->as.handle_expr.effect_name);
+            expr->as.handle_expr.effect_name = strdup(matched_effect->name);
+
+            /* Verify every handler op exists in the matched effect */
+            for (int i = 0; i < expr->as.handle_expr.handler_count; i++) {
+                const char *op_name = expr->as.handle_expr.handler_op_names[i];
+                if (!effect_get_op(matched_effect, op_name)) {
+                    emit_context_error("Unknown operation in handler", expr->line, expr->column,
+                        (int)strlen(op_name),
+                        "This operation is not declared in the matched effect",
+                        "E015: check the effect declaration for valid operation names");
+                    g_typecheck_error_count++;
+                }
+            }
+
+            /* Typecheck each handler body — introduce params as symbols */
+            for (int i = 0; i < expr->as.handle_expr.handler_count; i++) {
+                const char *op_name = expr->as.handle_expr.handler_op_names[i];
+                EffectOp *op = effect_get_op(matched_effect, op_name);
+                int saved_count = env->symbol_count;
+
+                /* Bind handler parameters to their declared types */
+                if (op) {
+                    int param_count = expr->as.handle_expr.handler_param_counts[i];
+                    int bind_count = param_count < op->param_count ? param_count : op->param_count;
+                    for (int k = 0; k < bind_count; k++) {
+                        const char *pname = expr->as.handle_expr.handler_param_names[i][k];
+                        if (pname) {
+                            Value dummy = create_void();
+                            env_define_var(env, pname, op->params[k].type, false, dummy);
+                        }
+                    }
+                }
+
+                check_expression(expr->as.handle_expr.handler_bodies[i], env);
+
+                /* Pop handler-local symbols */
+                env->symbol_count = saved_count;
+            }
+
+            /* Type of handle expression = type of the handled body */
+            return check_expression(expr->as.handle_expr.body, env);
+        }
+
         default:
             fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
             return TYPE_UNKNOWN;
@@ -4059,6 +4144,15 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             return TYPE_VOID;
         }
+
+        case AST_EFFECT_DECL:
+            /* Already registered in pass 1 — nothing to do here */
+            return TYPE_VOID;
+
+        case AST_HANDLE_EXPR:
+            /* handle expression used as a statement — typecheck it */
+            check_expression(stmt, tc->env);
+            return TYPE_VOID;
 
         default: {
             /* Literals, identifiers, and other pure expressions used as statements */
@@ -5475,7 +5569,44 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             /* Register the opaque type in environment */
             env_define_opaque_type(env, type_name);
-            
+
+        } else if (item->type == AST_EFFECT_DECL) {
+            /* Register algebraic effect definition */
+            const char *eff_name = item->as.effect_decl.effect_name;
+            if (env_get_effect(env, eff_name)) {
+                emit_context_error("Duplicate effect", item->line, item->column, (int)strlen(eff_name),
+                    "Effect is already defined in this scope",
+                    "E013: effect names must be unique");
+                tc.has_error = true;
+                continue;
+            }
+
+            EffectDef edef;
+            edef.name = strdup(eff_name);
+            edef.op_count = item->as.effect_decl.op_count;
+            edef.is_pub = item->as.effect_decl.is_pub;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.ops = edef.op_count > 0 ? malloc(sizeof(EffectOp) * edef.op_count) : NULL;
+
+            for (int j = 0; j < edef.op_count; j++) {
+                edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
+                edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
+                edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
+                    ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
+                edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];
+                if (edef.ops[j].param_count > 0) {
+                    edef.ops[j].params = malloc(sizeof(Parameter) * edef.ops[j].param_count);
+                    for (int k = 0; k < edef.ops[j].param_count; k++) {
+                        edef.ops[j].params[k] = item->as.effect_decl.op_params[j][k];
+                        if (item->as.effect_decl.op_params[j][k].name)
+                            edef.ops[j].params[k].name = strdup(item->as.effect_decl.op_params[j][k].name);
+                    }
+                } else {
+                    edef.ops[j].params = NULL;
+                }
+            }
+            env_define_effect(env, edef);
+
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
             if (!item) {
@@ -6499,11 +6630,12 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         
-        /* Skip imports, struct/enum/union definitions, and shadow tests */
+        /* Skip imports, struct/enum/union/effect definitions, and shadow tests */
         if (item->type == AST_IMPORT || 
             item->type == AST_STRUCT_DEF ||
             item->type == AST_ENUM_DEF ||
             item->type == AST_UNION_DEF ||
+            item->type == AST_EFFECT_DECL ||
             item->type == AST_SHADOW) {
             continue;
         }

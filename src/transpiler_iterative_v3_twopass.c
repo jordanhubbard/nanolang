@@ -2937,6 +2937,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
             
+        case AST_HANDLE_EXPR: {
+            /* handle { body } with { handlers... }
+             * Phase 1: evaluate body directly. Effect dispatch via longjmp/handlers
+             * will be added in a later commit when perform/resume are wired.
+             * For now, the body expression is the result.
+             */
+            build_expr(list, expr->as.handle_expr.body, env);
+            break;
+        }
+
+        case AST_EFFECT_DECL:
+            /* Effect declarations are type-level only — no C code emitted */
+            break;
+
         default:
             emit_formatted(list, "/* unsupported expr type %d */", expr->type);
             break;
@@ -2987,6 +3001,17 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
+            break;
+
+        case AST_EFFECT_DECL:
+            /* Effect declarations are type-level only — no C code emitted */
+            break;
+
+        case AST_HANDLE_EXPR:
+            /* Handle expression used as statement: evaluate body */
+            emit_indent_item(list, indent);
+            build_expr(list, stmt->as.handle_expr.body, env);
+            emit_literal(list, ";\n");
             break;
 
         case AST_UNSAFE_BLOCK:
