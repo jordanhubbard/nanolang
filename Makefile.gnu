@@ -845,6 +845,20 @@ $(LSP_SERVER): $(LSP_OBJECTS) | $(BIN_DIR)
 .PHONY: lsp
 lsp: $(LSP_SERVER)
 
+# DAP server binary: bin/nanolang-dap speaks Debug Adapter Protocol over stdio
+DAP_SERVER = $(BIN_DIR)/nanolang-dap
+DAP_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/dap_server.o
+
+$(OBJ_DIR)/dap_server.o: $(SRC_DIR)/dap_server.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/dap_server.c -o $(OBJ_DIR)/dap_server.o
+
+$(DAP_SERVER): $(DAP_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(DAP_SERVER) $(DAP_OBJECTS) $(LDFLAGS)
+	@echo "✓ DAP Server: $(DAP_SERVER)"
+
+.PHONY: dap
+dap: $(DAP_SERVER)
+
 $(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
 

@@ -28,6 +28,10 @@
 extern int g_argc;
 extern char **g_argv;
 
+/* DAP hook — set by dap_server.c to intercept each statement for breakpoints/stepping.
+ * NULL when not debugging. */
+void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
+
 typedef struct {
     const char *test_name;
     int first_line;
@@ -4903,6 +4907,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 static Value eval_statement(ASTNode *stmt, Environment *env) {
     if (!stmt) return create_void();
 
+    /* DAP breakpoint/step hook — fires before each statement when debugging */
+    if (g_dap_statement_hook) g_dap_statement_hook(stmt, env);
 
     switch (stmt->type) {
         case AST_LET: {
