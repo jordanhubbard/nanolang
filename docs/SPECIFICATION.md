@@ -60,9 +60,9 @@ These are my reserved keywords. You cannot use them as identifiers.
 ```
 fn       let      mut      set      if       else
 while    for      in       return   assert   shadow
-extern   int      float    bool     string   void     
+extern   int      float    bool     string   void
 true     false    print    and      or       not
-array    struct   enum     union    match
+array    struct   enum     union    match    par
 ```
 
 ### 2.4 Literals
@@ -583,9 +583,23 @@ I use this to return a value from a function. I check that the expression type m
 I allow any expression to be used as a statement.
 
 ```nano
-print "hello"
+(println "hello")
 (add 2 3)  # I discard the result
 ```
+
+### 5.7 Par Block
+
+A `par` block is a statement that groups independent sub-blocks and declares to the compiler that they have no data dependencies on each other.
+
+```nano
+par {
+    { set a (compute_a) }
+    { set b (compute_b) }
+    { set c (compute_c) }
+}
+```
+
+This is an **independence annotation**, not a concurrency primitive. I do not automatically run the blocks in parallel threads. I use this information to enable optimizations (such as parallel compilation of the sub-blocks) and to help readers understand that the work inside is intentionally independent.
 
 ## 6. Functions
 
@@ -953,7 +967,7 @@ I transpile to C because it is portable and efficient. It allows me to use exist
 
 ## 12. Future Extensions
 
-**What I have implemented in v0.1:**
+**What I have implemented:**
 - Arrays (static and dynamic)
 - Structs
 - Enums
@@ -963,15 +977,20 @@ I transpile to C because it is portable and efficient. It allows me to use exist
 - Pattern matching
 - My standard library
 - My C transpiler
+- My self-hosted compiler (bootstrapped from NanoLang source)
+- A module system (native and FFI modules via module.json)
+- Parallel independence annotation: `par { }` blocks
+- WebAssembly backend (`--target wasm`)
+- Language Server Protocol server (`make lsp`)
+- Debug Adapter Protocol server (`make dap`)
 
 **What I am developing:**
 - Tuple types
-- My self-hosted compiler
+- Compiled-mode support for arrays of structs
+- Explicit type conversions (`float_to_int`, `int_to_float`)
 
 **My plans for the future:**
-- A module system
 - More generic types
-- Async primitives
 - Memory management hints
 - A package manager
 
