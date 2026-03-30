@@ -125,15 +125,15 @@ shadow grade {
 }
 ```
 
-## Coverage and the Required `else` Branch
+## Coverage and No-Op `else` Branches
 
-NanoLang requires `else` clauses in certain positions. Sometimes the else branch is a semantic no-op:
+When `if` is used as an expression (e.g. in a `let` assignment), both branches are required and must produce a value. When used as a statement, `else` is optional. You may still see no-op else branches in older code written before this was clarified:
 
 ```nano
 if (some_condition) {
     (do_something)
 } else {
-    (print "")   # required no-op
+    (print "")   # no-op else (not required for statements, but harmless)
 }
 ```
 
@@ -141,7 +141,7 @@ Coverage tools will report this `(print "")` as uncovered if `some_condition` is
 
 ```nano
 } else {
-    (print "")   # required no-op: condition always true in test scenarios
+    (print "")   # no-op: condition always true in test scenarios
 }
 ```
 
