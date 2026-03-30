@@ -81,6 +81,13 @@ static void emit_i64_leb(WasmBuf *b, int64_t val) {
     }
 }
 
+/* Return the number of bytes needed to encode val as unsigned LEB128 */
+static size_t leb_u32_size(uint32_t val) {
+    size_t n = 0;
+    do { n++; val >>= 7; } while (val);
+    return n;
+}
+
 /* ── WASM value types ────────────────────────────────────────────────── */
 #define WASM_I32 0x7F
 #define WASM_I64 0x7E
@@ -135,6 +142,34 @@ static void emit_i64_leb(WasmBuf *b, int64_t val) {
 #define SEC_FUNC    3
 #define SEC_EXPORT  7
 #define SEC_CODE   10
+#define SEC_CUSTOM  0
+
+/* ── Source map tracking ─────────────────────────────────────────────── */
+
+/* One mapping entry: function-relative code offset + source position */
+typedef struct {
+    int      func_idx;    /* index into ctx->funcs[] */
+    uint32_t rel_offset;  /* byte offset within the function's code buffer */
+    int      line;        /* 1-based source line */
+    int      col;         /* 1-based source column */
+} SrcMapEntry;
+
+typedef struct {
+    SrcMapEntry *entries;
+    int          count, cap;
+} SrcMap;
+
+static void sm_init(SrcMap *s) { memset(s, 0, sizeof(*s)); }
+static void sm_free(SrcMap *s) { free(s->entries); memset(s, 0, sizeof(*s)); }
+
+static void sm_add(SrcMap *s, int fi, uint32_t off, int ln, int col) {
+    if (ln <= 0) return;
+    if (s->count >= s->cap) {
+        s->cap = s->cap ? s->cap * 2 : 64;
+        s->entries = realloc(s->entries, s->cap * sizeof(*s->entries));
+    }
+    s->entries[s->count++] = (SrcMapEntry){ fi, off, ln, col };
+}
 
 /* ── Function info collected from AST ────────────────────────────────── */
 typedef struct {
@@ -158,17 +193,22 @@ typedef struct {
     int       func_cap;
     bool      verbose;
     const char *error;
+    /* source map state (populated during emit_expr) */
+    SrcMap    srcmap;
+    int       cur_func_idx;  /* set before calling emit_expr for a function */
 } WasmCtx;
 
 static void ctx_init(WasmCtx *c, bool verbose) {
     memset(c, 0, sizeof(*c));
     c->verbose = verbose;
+    sm_init(&c->srcmap);
 }
 static void ctx_free(WasmCtx *c) {
     for (int i = 0; i < c->func_count; i++) {
         free(c->funcs[i].local_names);
     }
     free(c->funcs);
+    sm_free(&c->srcmap);
 }
 
 /* Map nanolang Type → WASM value type byte */
@@ -247,6 +287,10 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
         ctx->error = "null AST node in expression";
         return -1;
     }
+    /* Record source position before emitting this node */
+    sm_add(&ctx->srcmap, ctx->cur_func_idx, (uint32_t)code->len,
+           node->line, node->column);
+
     switch (node->type) {
     case AST_NUMBER:
         buf_byte(code, OP_I64_CONST);
@@ -327,7 +371,7 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
     }
     case AST_IF: {
         /* Emit condition — result must be i32 for WASM if instruction.
-         * Comparisons already yield i32. Booleans are i32. 
+         * Comparisons already yield i32. Booleans are i32.
          * If condition is an i64 (e.g. raw integer), convert: (i64 != 0) */
         if (emit_expr(ctx, func, code, node->as.if_stmt.condition)) return -1;
         /* Condition type heuristic: if the node is a plain comparison/bool it
@@ -414,16 +458,97 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
 }
 
 /* ── Write a WASM section ────────────────────────────────────────────── */
+
+/* Forward declarations for the emit entry points */
+int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
+                             const char *wasm_path,
+                             const char *source_file,
+                             const char *sourcemap_path);
+
 static void emit_section(WasmBuf *out, uint8_t sec_id, const WasmBuf *content) {
     buf_byte(out, sec_id);
     emit_u32_leb(out, (uint32_t)content->len);
     buf_append(out, content);
 }
 
+/* Return the path's basename (pointer into path, no allocation) */
+static const char *path_basename(const char *path) {
+    const char *p = strrchr(path, '/');
+    return p ? p + 1 : path;
+}
+
+/* Escape a string for JSON output (writes to fp) */
+static void json_fwrite_str(FILE *fp, const char *s) {
+    fputc('"', fp);
+    for (; *s; s++) {
+        switch (*s) {
+            case '"':  fputs("\\\"", fp); break;
+            case '\\': fputs("\\\\", fp); break;
+            case '\n': fputs("\\n",  fp); break;
+            case '\r': fputs("\\r",  fp); break;
+            case '\t': fputs("\\t",  fp); break;
+            default:   fputc(*s, fp);     break;
+        }
+    }
+    fputc('"', fp);
+}
+
+/* ── Write .wasm.map JSON ────────────────────────────────────────────── */
+static int write_source_map(const char *sourcemap_path,
+                             const char *wasm_path,
+                             const char *source_file,
+                             WasmCtx *ctx,
+                             const uint32_t *func_code_abs_offsets)
+{
+    FILE *fp = fopen(sourcemap_path, "w");
+    if (!fp) {
+        fprintf(stderr, "[wasm] error: cannot open %s for writing\n", sourcemap_path);
+        return 1;
+    }
+
+    const char *wasm_base   = path_basename(wasm_path);
+    const char *source_base = path_basename(source_file);
+
+    fprintf(fp, "{\n");
+    fprintf(fp, "  \"version\": 3,\n");
+    fprintf(fp, "  \"file\": ");   json_fwrite_str(fp, wasm_base);   fputs(",\n", fp);
+    fprintf(fp, "  \"sourceRoot\": \"\",\n");
+    fprintf(fp, "  \"sources\": ["); json_fwrite_str(fp, source_base); fputs("],\n", fp);
+    fprintf(fp, "  \"mappings\": [\n");
+
+    SrcMap *sm = &ctx->srcmap;
+    for (int i = 0; i < sm->count; i++) {
+        SrcMapEntry *e = &sm->entries[i];
+        if (e->func_idx < 0 || e->func_idx >= ctx->func_count) continue;
+        uint32_t abs_off = func_code_abs_offsets[e->func_idx] + e->rel_offset;
+        const char *fname = ctx->funcs[e->func_idx].name;
+        fprintf(fp, "    {\"wasm_offset\":%u,\"line\":%d,\"col\":%d,\"func\":",
+                abs_off, e->line, e->col);
+        json_fwrite_str(fp, fname);
+        fputc('}', fp);
+        if (i < sm->count - 1) fputc(',', fp);
+        fputc('\n', fp);
+    }
+
+    fprintf(fp, "  ]\n}\n");
+    fclose(fp);
+    return 0;
+}
+
 /* ── Main emit routine ───────────────────────────────────────────────── */
 int wasm_backend_emit_fp(ASTNode *root, FILE *out, bool verbose) {
+    return wasm_backend_emit_fp_ex(root, out, verbose, NULL, NULL, NULL);
+}
+
+int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
+                             const char *wasm_path,
+                             const char *source_file,
+                             const char *sourcemap_path)
+{
     WasmCtx ctx;
     ctx_init(&ctx, verbose);
+
+    bool emit_srcmap = (sourcemap_path != NULL && source_file != NULL && wasm_path != NULL);
 
     /* Pass 1: collect all top-level functions */
     collect_functions(&ctx, root);
@@ -437,9 +562,6 @@ int wasm_backend_emit_fp(ASTNode *root, FILE *out, bool verbose) {
     /* Assign type indices (one type per function signature) */
     for (int i = 0; i < ctx.func_count; i++)
         ctx.funcs[i].type_idx = i;
-
-    /* Pass 2: pre-scan function bodies for let bindings (to know local count) */
-    /* (locals are added dynamically during emit, so we do a two-pass on code) */
 
     WasmBuf final_out;
     buf_init(&final_out);
@@ -503,54 +625,108 @@ int wasm_backend_emit_fp(ASTNode *root, FILE *out, bool verbose) {
     }
 
     /* ── Code section ─────────────────────────────────────────────────── */
+    /* Two-pass: build all function code/body buffers first so we know sizes,
+     * then compute absolute code offsets for source map, then emit. */
+    uint32_t *func_code_abs_offsets = NULL;
     {
-        WasmBuf sec;
-        buf_init(&sec);
-        emit_u32_leb(&sec, (uint32_t)ctx.func_count);
+        WasmBuf *all_codes  = calloc((size_t)ctx.func_count, sizeof(WasmBuf));
+        WasmBuf *all_bodies = calloc((size_t)ctx.func_count, sizeof(WasmBuf));
+        if (!all_codes || !all_bodies) {
+            fprintf(stderr, "[wasm] out of memory\n");
+            free(all_codes); free(all_bodies);
+            buf_free(&final_out);
+            ctx_free(&ctx);
+            return 1;
+        }
+
+        /* Build code and body buffers for each function */
         for (int i = 0; i < ctx.func_count; i++) {
             WasmFunc *f = &ctx.funcs[i];
-            WasmBuf body;
-            buf_init(&body);
+            buf_init(&all_codes[i]);
+            buf_init(&all_bodies[i]);
 
-            /* Emit function body bytecode */
-            WasmBuf code;
-            buf_init(&code);
-            if (emit_expr(&ctx, f, &code, f->body)) {
-                fprintf(stderr, "[wasm] error compiling %s: %s\n", f->name, ctx.error ? ctx.error : "unknown");
-                buf_free(&code);
-                buf_free(&body);
-                buf_free(&sec);
+            ctx.cur_func_idx = i;
+            if (emit_expr(&ctx, f, &all_codes[i], f->body)) {
+                fprintf(stderr, "[wasm] error compiling %s: %s\n",
+                        f->name, ctx.error ? ctx.error : "unknown");
+                for (int j = 0; j <= i; j++) {
+                    buf_free(&all_codes[j]);
+                    buf_free(&all_bodies[j]);
+                }
+                free(all_codes); free(all_bodies);
                 buf_free(&final_out);
                 ctx_free(&ctx);
                 return 1;
             }
-            buf_byte(&code, OP_END); /* function end */
+            buf_byte(&all_codes[i], OP_END); /* function end marker */
 
-            /* Now we know locals: emit local declarations then code */
-            /* Locals: one group per type (all i64 for simplicity in v1) */
+            /* Build body = locals_header + code */
             if (f->local_count > 0) {
-                emit_u32_leb(&body, 1); /* 1 group of locals */
-                emit_u32_leb(&body, (uint32_t)f->local_count);
-                buf_byte(&body, WASM_I64); /* all locals are i64 for now */
+                emit_u32_leb(&all_bodies[i], 1); /* 1 local group */
+                emit_u32_leb(&all_bodies[i], (uint32_t)f->local_count);
+                buf_byte(&all_bodies[i], WASM_I64); /* all locals are i64 for now */
             } else {
-                emit_u32_leb(&body, 0); /* no additional locals */
+                emit_u32_leb(&all_bodies[i], 0); /* no additional locals */
             }
-            buf_append(&body, &code);
-            buf_free(&code);
-
-            /* Emit function body size + body */
-            emit_u32_leb(&sec, (uint32_t)body.len);
-            buf_append(&sec, &body);
-            buf_free(&body);
+            buf_append(&all_bodies[i], &all_codes[i]);
         }
-        emit_section(&final_out, SEC_CODE, &sec);
-        buf_free(&sec);
+
+        /* Compute content size = leb(func_count) + Σ(leb(body[i].len) + body[i].len) */
+        size_t content_size = leb_u32_size((uint32_t)ctx.func_count);
+        for (int i = 0; i < ctx.func_count; i++)
+            content_size += leb_u32_size((uint32_t)all_bodies[i].len) + all_bodies[i].len;
+
+        /* Compute absolute code start offsets for source map:
+         *   base = final_out.len + 1 (sec_id) + leb_size(content_size)
+         *   For each function i, code starts at base + offset_within_content + body_leb_size + locals_size
+         */
+        if (emit_srcmap) {
+            func_code_abs_offsets = calloc((size_t)ctx.func_count, sizeof(uint32_t));
+            size_t base = final_out.len + 1 + leb_u32_size((uint32_t)content_size);
+            size_t off  = leb_u32_size((uint32_t)ctx.func_count); /* past leb(func_count) */
+            for (int i = 0; i < ctx.func_count; i++) {
+                size_t body_leb  = leb_u32_size((uint32_t)all_bodies[i].len);
+                size_t locals_sz = all_bodies[i].len - all_codes[i].len;
+                func_code_abs_offsets[i] = (uint32_t)(base + off + body_leb + locals_sz);
+                off += body_leb + all_bodies[i].len;
+            }
+        }
+
+        /* Emit the code section */
+        buf_byte(&final_out, SEC_CODE);
+        emit_u32_leb(&final_out, (uint32_t)content_size);
+        emit_u32_leb(&final_out, (uint32_t)ctx.func_count);
+        for (int i = 0; i < ctx.func_count; i++) {
+            emit_u32_leb(&final_out, (uint32_t)all_bodies[i].len);
+            buf_append(&final_out, &all_bodies[i]);
+            buf_free(&all_bodies[i]);
+            buf_free(&all_codes[i]);
+        }
+        free(all_codes);
+        free(all_bodies);
     }
 
-    /* Write to file */
+    /* ── sourceMappingURL custom section ─────────────────────────────── */
+    if (emit_srcmap) {
+        /* WASM custom section 0x00: leb(name_len) + name + url_bytes */
+        static const char sec_name[] = "sourceMappingURL";
+        size_t name_len = sizeof(sec_name) - 1; /* 16 */
+        const char *url  = path_basename(sourcemap_path);
+        size_t url_len   = strlen(url);
+        size_t content_sz = leb_u32_size((uint32_t)name_len) + name_len + url_len;
+
+        buf_byte(&final_out, SEC_CUSTOM);
+        emit_u32_leb(&final_out, (uint32_t)content_sz);
+        emit_u32_leb(&final_out, (uint32_t)name_len);
+        buf_bytes(&final_out, (const uint8_t *)sec_name, name_len);
+        buf_bytes(&final_out, (const uint8_t *)url, url_len);
+    }
+
+    /* Write .wasm binary to file */
     size_t written = fwrite(final_out.data, 1, final_out.len, out);
     if (written != final_out.len) {
         fprintf(stderr, "[wasm] error: short write (%zu/%zu bytes)\n", written, final_out.len);
+        free(func_code_abs_offsets);
         buf_free(&final_out);
         ctx_free(&ctx);
         return 1;
@@ -559,17 +735,33 @@ int wasm_backend_emit_fp(ASTNode *root, FILE *out, bool verbose) {
     if (verbose) fprintf(stderr, "[wasm] emitted %zu bytes\n", final_out.len);
 
     buf_free(&final_out);
+
+    /* Write .wasm.map JSON */
+    int rc = 0;
+    if (emit_srcmap) {
+        rc = write_source_map(sourcemap_path, wasm_path, source_file, &ctx,
+                              func_code_abs_offsets);
+        free(func_code_abs_offsets);
+        if (rc == 0) {
+            printf("Source map written to %s\n", sourcemap_path);
+        }
+    }
+
     ctx_free(&ctx);
-    return 0;
+    return rc;
 }
 
-int wasm_backend_emit(ASTNode *root, const char *output_path, bool verbose) {
+int wasm_backend_emit(ASTNode *root, const char *output_path,
+                      const char *source_file, const char *sourcemap_path,
+                      bool verbose)
+{
     FILE *f = fopen(output_path, "wb");
     if (!f) {
         fprintf(stderr, "[wasm] error: cannot open %s for writing\n", output_path);
         return 1;
     }
-    int rc = wasm_backend_emit_fp(root, f, verbose);
+    int rc = wasm_backend_emit_fp_ex(root, f, verbose,
+                                      output_path, source_file, sourcemap_path);
     fclose(f);
     return rc;
 }

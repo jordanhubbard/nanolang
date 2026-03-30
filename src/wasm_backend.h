@@ -20,10 +20,21 @@
 #include <stdbool.h>
 
 /* Emit a WASM binary file from the given AST root.
+ * source_file:    path to the .nano input file (used for source map "sources" field)
+ * sourcemap_path: path for the .wasm.map output; NULL = suppress source map
  * Returns 0 on success, non-zero on error. */
-int wasm_backend_emit(ASTNode *root, const char *output_path, bool verbose);
+int wasm_backend_emit(ASTNode *root, const char *output_path,
+                      const char *source_file, const char *sourcemap_path,
+                      bool verbose);
 
-/* Inline version: emit to a FILE* already opened. */
+/* Write to an already-open FILE* (no source map support). */
 int wasm_backend_emit_fp(ASTNode *root, FILE *out, bool verbose);
+
+/* Write to an already-open FILE* with optional source map support.
+ * wasm_path and source_file are needed only when sourcemap_path != NULL. */
+int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
+                             const char *wasm_path,
+                             const char *source_file,
+                             const char *sourcemap_path);
 
 #endif /* WASM_BACKEND_H */

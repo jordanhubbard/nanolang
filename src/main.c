@@ -52,6 +52,7 @@ typedef struct {
     bool trust_report;         /* --trust-report: print formal verification trust levels */
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
     const char *target;        /* --target <name>: compile target (default: native, wasm) */
+    bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -412,7 +413,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             wasm_out = wasm_out_buf;
         }
         if (opts->verbose) printf("Emitting WASM → %s\n", wasm_out);
-        int wasm_rc = wasm_backend_emit(program, wasm_out, opts->verbose);
+        /* Build source map path: <wasm_out>.map unless suppressed */
+        char srcmap_buf[PATH_MAX + 8];
+        const char *srcmap_path = NULL;
+        if (!opts->no_sourcemap) {
+            snprintf(srcmap_buf, sizeof(srcmap_buf), "%s.map", wasm_out);
+            srcmap_path = srcmap_buf;
+        }
+        int wasm_rc = wasm_backend_emit(program, wasm_out, input_file, srcmap_path, opts->verbose);
         if (wasm_rc == 0 && opts->verbose) {
             printf("✓ WASM binary emitted to %s\n", wasm_out);
         }
@@ -1292,7 +1300,8 @@ int main(int argc, char *argv[]) {
         .forbid_unsafe = false,
         .trust_report = false,
         .reference_eval = false,
-        .target = NULL
+        .target = NULL,
+        .no_sourcemap = false
     };
     
     /* Allocate arrays for flags */
@@ -1386,6 +1395,8 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
             opts.target = argv[i + 1];
             i++;
+        } else if (strcmp(argv[i], "--no-sourcemap") == 0) {
+            opts.no_sourcemap = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
