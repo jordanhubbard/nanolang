@@ -31,6 +31,7 @@ typedef enum {
 /* Maximum fields per record type node (additional fields via row tail). */
 #define HM_RECORD_MAX_FIELDS 64
 
+
 typedef struct HMType HMType;
 struct HMType {
     HMKind kind;
@@ -183,5 +184,6 @@ HMType *hm_record_field_type(InferCtx *ctx, HMType *rec,
 /* Effect-aware inference entry point */
 bool hm_infer_program_with_effects(ASTNode *program, const char *source_file,
                                     EffectRegistry *reg);
+
 
 #endif /* TYPE_INFER_H */
