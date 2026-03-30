@@ -11,6 +11,10 @@ extern void json_error(const char *code, const char *message, const char *file,
 extern void json_warning(const char *code, const char *message, const char *file,
                          int line, int column, const char *suggestion);
 
+/* Global typecheck error count — forward-declared so all functions can access it
+ * (definition appears later in this file after the builtin name table). */
+static int g_typecheck_error_count;
+
 static void emit_context_error(
     const char *title,
     int line,
