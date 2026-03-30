@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NanoLang Playground</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Status bar */
+        .status-bar {
+            font-size: 0.8em;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-ready   { color: #2d7a2d; background: #e8f5e9; }
+        .status-running { color: #7a6a00; background: #fff8e1; }
+        .status-error   { color: #7a1a1a; background: #fdecea; }
+        /* Remove old "tip" banner */
+        .info-banner { display: none; }
+    </style>
 </head>
 <body>
     <a href="#code-editor" class="skip-link">Skip to code editor</a>
@@ -13,14 +27,15 @@
         <header class="header">
             <div class="logo">
                 <h1>🔬 NanoLang Playground</h1>
-                <p class="tagline">Interactive NanoLang Development Environment</p>
+                <p class="tagline">Write and run NanoLang entirely in your browser</p>
             </div>
             <div class="header-actions">
-                <button id="run-btn" class="btn btn-primary" aria-label="Run code">
-                    ▶️ Run Code
+                <span id="status-bar" class="status-bar status-ready">Loading…</span>
+                <button id="run-btn" class="btn btn-primary" aria-label="Run code" disabled>
+                    ▶ Run Code
                 </button>
                 <button id="clear-btn" class="btn btn-secondary" aria-label="Clear code editor">
-                    🗑️ Clear
+                    🗑 Clear
                 </button>
             </div>
         </header>
@@ -39,7 +54,7 @@
                     <button class="example-btn" data-example="strings">String Manipulation</button>
                     <button class="example-btn" data-example="struct">Structs</button>
                     <button class="example-btn" data-example="cond">Conditionals (cond)</button>
-                    <button class="example-btn" data-example="loops">Loops (while & for)</button>
+                    <button class="example-btn" data-example="loops">Loops (while &amp; for)</button>
                     <button class="example-btn" data-example="recursion">Recursion</button>
                 </nav>
 
@@ -47,11 +62,15 @@
                     <h3>🔗 Quick Links</h3>
                     <nav aria-label="Quick links">
                         <ul class="quick-links">
-                            <li><a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in new tab)">GitHub</a></li>
-                            <li><a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer" aria-label="Documentation (opens in new tab)">Documentation</a></li>
-                            <li><a href="../../../docs/QUICK_REFERENCE.md" target="_blank" rel="noopener noreferrer" aria-label="Quick Reference (opens in new tab)">Quick Reference</a></li>
+                            <li><a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                            <li><a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                            <li><a href="../../../docs/QUICK_REFERENCE.md" target="_blank" rel="noopener noreferrer">Quick Reference</a></li>
                         </ul>
                     </nav>
+                    <p style="font-size:0.75em;margin-top:8px;color:#888;">
+                        Interpreter: NanoLang <span class="nl-version">…</span><br>
+                        Runs entirely in-browser via WebAssembly
+                    </p>
                 </div>
             </aside>
 
@@ -60,50 +79,43 @@
                 <div class="editor-header">
                     <span class="filename">playground.nano</span>
                     <div class="editor-controls">
-                        <button id="copy-btn" class="btn-icon" aria-label="Copy code to clipboard">
-                            📋
-                        </button>
-                        <button id="download-btn" class="btn-icon" aria-label="Download code as file">
-                            💾
-                        </button>
+                        <button id="copy-btn" class="btn-icon" aria-label="Copy code to clipboard">📋</button>
+                        <button id="download-btn" class="btn-icon" aria-label="Download code as file">💾</button>
                     </div>
                 </div>
-                <textarea id="code-editor" class="code-editor" spellcheck="false" aria-label="NanoLang code editor"></textarea>
+                <textarea id="code-editor" class="code-editor" spellcheck="false"
+                          aria-label="NanoLang code editor"></textarea>
             </div>
 
             <!-- Output panel -->
             <div class="output-pane">
                 <div class="output-header">
                     <h3>📄 Output</h3>
-                    <button id="clear-output-btn" class="btn-icon" aria-label="Clear output">🗑️</button>
+                    <button id="clear-output-btn" class="btn-icon" aria-label="Clear output">🗑</button>
                 </div>
-                <div id="output" class="output-content" role="log" aria-live="polite" aria-label="Code execution output"></div>
+                <div id="output" class="output-content" role="log" aria-live="polite"
+                     aria-label="Code execution output"></div>
 
                 <div class="output-header" style="margin-top: 20px;">
                     <h3>⚠️ Compiler Messages</h3>
                 </div>
-                <div id="errors" class="error-content" role="log" aria-live="polite" aria-label="Compiler messages and errors"></div>
-            </div>
-        </div>
-
-        <!-- Info banner -->
-        <div class="info-banner">
-            <div class="info-content">
-                <p><strong>💡 Tip:</strong> This playground validates NanoLang syntax and provides examples.
-                   To execute code, copy it and run with: <code>./bin/nanoc your_code.nano -o output && ./output</code></p>
+                <div id="errors" class="error-content" role="log" aria-live="polite"
+                     aria-label="Compiler messages and errors"></div>
             </div>
         </div>
 
         <!-- Footer -->
         <footer class="footer">
             <p>NanoLang Playground &copy; 2026 |
-               <a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository (opens in new tab)">GitHub</a> |
-               <a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer" aria-label="Documentation (opens in new tab)">Docs</a>
+               <a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer">GitHub</a> |
+               <a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer">Docs</a>
             </p>
-            <p class="version">Version 2.0.12</p>
+            <p class="version">NanoLang <span class="nl-version">…</span> — WebAssembly interpreter</p>
         </footer>
     </div>
 
+    <!-- Load WASM glue first, then app logic -->
+    <script src="nanolang.js"></script>
     <script src="examples.js"></script>
     <script src="app.js"></script>
 </body>

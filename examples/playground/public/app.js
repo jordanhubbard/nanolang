@@ -1,47 +1,74 @@
-// NanoLang Playground Application Logic
+// NanoLang Playground — app.js
+// Runs NanoLang directly in the browser via the Emscripten-compiled interpreter.
 
-// State
+// ── WASM module ───────────────────────────────────────────────────────────────
+let NL = null;          // createNanolang() result
+let nl_run   = null;    // cwrap'd nl_run(source) → int
+let nl_check = null;    // cwrap'd nl_check(source) → int
+let nl_ver   = null;    // cwrap'd nl_version() → string
+
+// Mutable print handlers — swapped per-run via the stable closures below.
+// Emscripten binds its internal `out`/`err` once at init, so we must
+// use an indirection layer rather than patching NL.print directly.
+let _printHandler    = s => console.log(s);
+let _printErrHandler = s => console.warn(s);
+
+const wasmReady = createNanolang({
+    // Stable closures — these are captured once by Emscripten at init.
+    print:    s => _printHandler(s),
+    printErr: s => _printErrHandler(s),
+    noInitialRun: true,
+    locateFile: (path) => path,   // serve from same directory
+}).then(module => {
+    NL       = module;
+    nl_run   = NL.cwrap('nl_run',    'number', ['string']);
+    nl_check = NL.cwrap('nl_check',  'number', ['string']);
+    nl_ver   = NL.cwrap('nl_version','string', []);
+    const ver = nl_ver();
+    document.querySelectorAll('.nl-version').forEach(el => el.textContent = ver);
+    setStatus('ready', `NanoLang ${ver} loaded — runs in browser`);
+    runBtn.disabled = false;
+}).catch(err => {
+    console.error('WASM load failed:', err);
+    setStatus('error', 'Failed to load NanoLang WASM — server fallback active');
+});
+
+// ── ANSI escape-code stripper ─────────────────────────────────────────────────
+const ANSI_RE = /\x1b\[[0-9;]*[A-Za-z]/g;
+function stripAnsi(s) { return s.replace(ANSI_RE, ''); }
+
+// ── State ─────────────────────────────────────────────────────────────────────
 let currentExample = null;
 let isDirty = false;
 
-// DOM Elements
-const codeEditor = document.getElementById('code-editor');
-const outputDiv = document.getElementById('output');
-const errorsDiv = document.getElementById('errors');
-const runBtn = document.getElementById('run-btn');
-const clearBtn = document.getElementById('clear-btn');
-const clearOutputBtn = document.getElementById('clear-output-btn');
-const copyBtn = document.getElementById('copy-btn');
-const downloadBtn = document.getElementById('download-btn');
-const examplesList = document.getElementById('examples-list');
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const codeEditor    = document.getElementById('code-editor');
+const outputDiv     = document.getElementById('output');
+const errorsDiv     = document.getElementById('errors');
+const runBtn        = document.getElementById('run-btn');
+const clearBtn      = document.getElementById('clear-btn');
+const clearOutputBtn= document.getElementById('clear-output-btn');
+const copyBtn       = document.getElementById('copy-btn');
+const downloadBtn   = document.getElementById('download-btn');
+const statusBar     = document.getElementById('status-bar');
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Load default example
+runBtn.disabled = true;  // enabled once WASM is ready
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
     loadExample('hello');
-
-    // Setup event listeners
     setupEventListeners();
-
-    // Add syntax highlighting on load
-    highlightSyntax();
 });
 
+// ── Event wiring ──────────────────────────────────────────────────────────────
 function setupEventListeners() {
-    // Example buttons
-    const exampleButtons = document.querySelectorAll('.example-btn');
-    exampleButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const exampleKey = this.getAttribute('data-example');
-            loadExample(exampleKey);
-        });
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', () => loadExample(btn.getAttribute('data-example')));
     });
 
-    // Run button
     runBtn.addEventListener('click', runCode);
 
-    // Clear button
-    clearBtn.addEventListener('click', function() {
+    clearBtn.addEventListener('click', () => {
         if (confirm('Clear the editor? This cannot be undone.')) {
             codeEditor.value = '';
             clearOutput();
@@ -49,289 +76,191 @@ function setupEventListeners() {
         }
     });
 
-    // Clear output button
     clearOutputBtn.addEventListener('click', clearOutput);
-
-    // Copy button
     copyBtn.addEventListener('click', copyToClipboard);
-
-    // Download button
     downloadBtn.addEventListener('click', downloadCode);
 
-    // Track changes
-    codeEditor.addEventListener('input', function() {
-        isDirty = true;
-    });
+    codeEditor.addEventListener('input', () => { isDirty = true; });
 
-    // Auto-resize textarea
-    codeEditor.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + Enter to run
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            e.preventDefault();
-            runCode();
-        }
-        // Ctrl/Cmd + S to save/download
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            downloadCode();
-        }
+    document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 's')     { e.preventDefault(); downloadCode(); }
     });
 }
 
+// ── Example loader ────────────────────────────────────────────────────────────
 function loadExample(key) {
     const example = EXAMPLES[key];
-    if (!example) {
-        console.error('Example not found:', key);
-        return;
-    }
-
-    // Check if editor has unsaved changes
-    if (isDirty && !confirm('You have unsaved changes. Load example anyway?')) {
-        return;
-    }
+    if (!example) return;
+    if (isDirty && !confirm('You have unsaved changes. Load example anyway?')) return;
 
     codeEditor.value = example.code;
     currentExample = key;
     isDirty = false;
-
-    // Clear output
     clearOutput();
 
-    // Show example info
     outputDiv.innerHTML = `<div class="info-message">
-        <strong>${example.title}</strong><br>
-        ${example.description}<br><br>
-        Press "Run Code" or Ctrl+Enter to validate syntax
+        <strong>${escapeHtml(example.title)}</strong><br>
+        ${escapeHtml(example.description)}<br><br>
+        Press ▶ Run Code or Ctrl+Enter to execute in browser.
     </div>`;
 
-    // Highlight active example button
     document.querySelectorAll('.example-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-example') === key) {
-            btn.classList.add('active');
-        }
+        btn.classList.toggle('active', btn.getAttribute('data-example') === key);
     });
 }
 
-function runCode() {
+// ── Core: run code ────────────────────────────────────────────────────────────
+async function runCode() {
     const code = codeEditor.value.trim();
-
-    if (!code) {
-        showError('No code to run. Please write some NanoLang code.');
-        return;
-    }
+    if (!code) { showError('No code to run. Please write some NanoLang code.'); return; }
 
     clearOutput();
-
-    // Show running state
-    outputDiv.innerHTML = '<div class="info-message">⏳ Compiling and running...</div>';
+    outputDiv.innerHTML = '<div class="info-message">⏳ Running in browser…</div>';
     runBtn.disabled = true;
-    runBtn.textContent = '⏳ Running...';
+    runBtn.textContent = '⏳ Running…';
+    setStatus('running', 'Executing…');
 
-    // Call the execute API
+    await wasmReady.catch(() => {});   // wait for WASM even if called early
+
+    if (NL) {
+        runWithWasm(code);
+    } else {
+        runWithServer(code);
+    }
+}
+
+function runWithWasm(code) {
+    let stdout = '';
+    let stderr = '';
+
+    // Swap in capture handlers via the indirection layer set up at init time
+    const savedPrint   = _printHandler;
+    const savedPrintErr= _printErrHandler;
+    _printHandler    = line => { stdout += line + '\n'; };
+    _printErrHandler = line => { stderr += line + '\n'; };
+
+    let rc;
+    try {
+        rc = nl_run(code);
+    } finally {
+        _printHandler    = savedPrint;
+        _printErrHandler = savedPrintErr;
+    }
+
+    stdout = stripAnsi(stdout);
+    stderr = stripAnsi(stderr);
+
+    runBtn.disabled = false;
+    runBtn.textContent = '▶ Run Code';
+
+    if (rc === 0) {
+        let html = '<div class="success-message">✅ <strong>Ran successfully (exit 0)</strong></div>';
+        if (stdout.trim()) {
+            html += '<div class="program-output"><strong>Output:</strong><pre>' + escapeHtml(stdout) + '</pre></div>';
+        } else {
+            html += '<div class="info-message">Program produced no output.</div>';
+        }
+        outputDiv.innerHTML = html;
+        errorsDiv.innerHTML = stderr.trim()
+            ? '<div class="warning-message"><strong>Warnings/diagnostics:</strong><pre>' + escapeHtml(stderr) + '</pre></div>'
+            : '<div class="success-message">No errors or warnings.</div>';
+        setStatus('ready', 'Done');
+    } else {
+        outputDiv.innerHTML = '<div class="error-message">❌ <strong>Program exited with code ' + rc + '</strong></div>';
+        let errHtml = '';
+        if (stderr.trim()) {
+            errHtml += '<div class="error-details"><pre>' + escapeHtml(stderr) + '</pre></div>';
+        }
+        if (stdout.trim()) {
+            errHtml += '<div class="compile-output"><strong>Output before error:</strong><pre>' + escapeHtml(stdout) + '</pre></div>';
+        }
+        errorsDiv.innerHTML = errHtml || '<div class="error-message">No diagnostic output.</div>';
+        setStatus('error', 'Error (exit ' + rc + ')');
+    }
+}
+
+// ── Server fallback (for programs that need OS resources) ─────────────────────
+function runWithServer(code) {
     fetch('/api/execute', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain'
-        },
-        body: code
+        headers: { 'Content-Type': 'text/plain' },
+        body: code,
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(result => {
         runBtn.disabled = false;
-        runBtn.textContent = '▶️ Run Code';
-        displayExecutionResult(result);
+        runBtn.textContent = '▶ Run Code';
+        displayServerResult(result);
     })
-    .catch(error => {
+    .catch(err => {
         runBtn.disabled = false;
-        runBtn.textContent = '▶️ Run Code';
-        // Fall back to client-side validation if server unavailable
-        console.warn('Server unavailable, falling back to syntax validation:', error);
-        outputDiv.innerHTML = '<div class="warning-message">⚠️ Server unavailable. Performing syntax validation only...</div>';
-        setTimeout(() => validateSyntax(code), 300);
+        runBtn.textContent = '▶ Run Code';
+        outputDiv.innerHTML = '<div class="error-message">❌ Server unavailable and WASM not loaded.</div>';
+        setStatus('error', 'Unavailable');
     });
 }
 
-function displayExecutionResult(result) {
+function displayServerResult(result) {
     if (result.success) {
-        let output = '<div class="success-message">✅ <strong>Execution successful!</strong></div>';
-        
-        if (result.compile_output && result.compile_output.trim()) {
-            output += '<div class="compile-output"><strong>Compile output:</strong><pre>' + 
-                      escapeHtml(result.compile_output) + '</pre></div>';
-        }
-        
-        if (result.output && result.output.trim()) {
-            output += '<div class="program-output"><strong>Program output:</strong><pre>' + 
-                      escapeHtml(result.output) + '</pre></div>';
-        } else {
-            output += '<div class="info-message">Program produced no output.</div>';
-        }
-        
-        outputDiv.innerHTML = output;
-        errorsDiv.innerHTML = '<div class="success-message">No errors</div>';
+        let html = '<div class="success-message">✅ <strong>Execution successful (server)</strong></div>';
+        if (result.output?.trim())
+            html += '<div class="program-output"><strong>Output:</strong><pre>' + escapeHtml(result.output) + '</pre></div>';
+        outputDiv.innerHTML = html;
+        errorsDiv.innerHTML = '<div class="success-message">No errors.</div>';
+        setStatus('ready', 'Done (server)');
     } else {
-        let errorOutput = '<div class="error-message">❌ <strong>Execution failed</strong></div>';
-        
-        if (result.error) {
-            errorOutput += '<div class="error-details"><strong>Error:</strong> ' + 
-                          escapeHtml(result.error) + '</div>';
-        }
-        
-        if (result.output && result.output.trim()) {
-            errorOutput += '<div class="compile-output"><strong>Output:</strong><pre>' + 
-                          escapeHtml(result.output) + '</pre></div>';
-        }
-        
-        errorsDiv.innerHTML = errorOutput;
+        let errHtml = '<div class="error-message">❌ <strong>Execution failed (server)</strong></div>';
+        if (result.error) errHtml += '<div class="error-details">' + escapeHtml(result.error) + '</div>';
+        if (result.output?.trim())
+            errHtml += '<pre>' + escapeHtml(result.output) + '</pre>';
+        errorsDiv.innerHTML = errHtml;
         outputDiv.innerHTML = '<div class="error-message">Please fix the errors and try again.</div>';
+        setStatus('error', 'Error');
     }
 }
 
-function validateSyntax(code) {
-    const errors = [];
-    const warnings = [];
-
-    // Basic syntax checks
-    if (!code.includes('fn main')) {
-        warnings.push({
-            line: 0,
-            message: 'No main() function found. Add: fn main() -> int { return 0 }'
-        });
-    }
-
-    // Check for shadow tests
-    const functionMatches = code.match(/fn\s+(\w+)/g);
-    if (functionMatches) {
-        functionMatches.forEach(match => {
-            const fnName = match.split(/\s+/)[1];
-            if (fnName !== 'main' && !code.includes(`shadow ${fnName}`)) {
-                warnings.push({
-                    line: 0,
-                    message: `Function '${fnName}' is missing a shadow test`
-                });
-            }
-        });
-    }
-
-    // Check for balanced braces
-    let braceCount = 0;
-    let parenCount = 0;
-    for (let char of code) {
-        if (char === '{') braceCount++;
-        if (char === '}') braceCount--;
-        if (char === '(') parenCount++;
-        if (char === ')') parenCount--;
-    }
-
-    if (braceCount !== 0) {
-        errors.push({
-            line: 0,
-            message: 'Unbalanced braces: ' + (braceCount > 0 ? 'missing }' : 'extra }')
-        });
-    }
-
-    if (parenCount !== 0) {
-        errors.push({
-            line: 0,
-            message: 'Unbalanced parentheses: ' + (parenCount > 0 ? 'missing )' : 'extra )')
-        });
-    }
-
-    // Display results
-    if (errors.length === 0) {
-        let output = '<div class="success-message">✅ <strong>Syntax validation passed!</strong><br><br>';
-        output += 'Your code appears to be valid NanoLang syntax.<br><br>';
-        output += '<strong>To execute this code:</strong><br>';
-        output += '1. Copy the code (📋 button)<br>';
-        output += '2. Save it to a .nano file<br>';
-        output += '3. Compile: <code>./bin/nanoc yourfile.nano -o output</code><br>';
-        output += '4. Run: <code>./output</code></div>';
-
-        outputDiv.innerHTML = output;
-
-        if (warnings.length > 0) {
-            let warningHtml = '<div class="warning-message"><strong>⚠️ Warnings:</strong><ul>';
-            warnings.forEach(w => {
-                warningHtml += `<li>${w.message}</li>`;
-            });
-            warningHtml += '</ul></div>';
-            errorsDiv.innerHTML = warningHtml;
-        } else {
-            errorsDiv.innerHTML = '<div class="success-message">No warnings or errors</div>';
-        }
-    } else {
-        let errorHtml = '<div class="error-message"><strong>❌ Syntax Errors:</strong><ul>';
-        errors.forEach(e => {
-            errorHtml += `<li>${e.message}</li>`;
-        });
-        errorHtml += '</ul></div>';
-
-        errorsDiv.innerHTML = errorHtml;
-        outputDiv.innerHTML = '<div class="error-message">Please fix syntax errors before running</div>';
-    }
-}
-
+// ── Utilities ─────────────────────────────────────────────────────────────────
 function clearOutput() {
     outputDiv.innerHTML = '';
     errorsDiv.innerHTML = '';
 }
 
-function showError(message) {
-    errorsDiv.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+function showError(msg) {
+    errorsDiv.innerHTML = `<div class="error-message">❌ ${escapeHtml(msg)}</div>`;
+}
+
+function setStatus(state, msg) {
+    if (!statusBar) return;
+    statusBar.textContent = msg;
+    statusBar.className = 'status-bar status-' + state;
 }
 
 function copyToClipboard() {
-    const code = codeEditor.value;
-    navigator.clipboard.writeText(code).then(() => {
-        // Show feedback
-        const originalText = copyBtn.textContent;
+    navigator.clipboard.writeText(codeEditor.value).then(() => {
+        const orig = copyBtn.textContent;
         copyBtn.textContent = '✅';
-        setTimeout(() => {
-            copyBtn.textContent = originalText;
-        }, 1500);
-    }).catch(err => {
-        showError('Failed to copy to clipboard');
-    });
+        setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+    }).catch(() => showError('Failed to copy to clipboard'));
 }
 
 function downloadCode() {
     const code = codeEditor.value;
     const filename = currentExample ? `${currentExample}.nano` : 'playground.nano';
-
     const blob = new Blob([code], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
-    // Show feedback
-    const originalText = downloadBtn.textContent;
+    const orig = downloadBtn.textContent;
     downloadBtn.textContent = '✅';
-    setTimeout(() => {
-        downloadBtn.textContent = originalText;
-    }, 1500);
+    setTimeout(() => { downloadBtn.textContent = orig; }, 1500);
 }
 
-function highlightSyntax() {
-    // Simple syntax highlighting (basic version)
-    // In a production version, you'd use a proper syntax highlighter
-    // like CodeMirror or Monaco Editor
-}
-
-// Utility function to escape HTML
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
 }

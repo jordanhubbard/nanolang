@@ -767,6 +767,99 @@ module-self-test: build
 # Backwards-compatible alias
 module-mvp: module-self-test
 
+# ── Web Playground (Emscripten) ───────────────────────────────────────────
+#
+# Compiles the NanoLang interpreter to WebAssembly via Emscripten.
+# Output lands in examples/playground/public/:
+#   nanolang.js   — JS glue (load with <script src="nanolang.js">)
+#   nanolang.wasm — WASM binary
+#
+# Prerequisites: emsdk installed and sourced, e.g.:
+#   source ~/emsdk/emsdk_env.sh
+#
+# Usage:
+#   make wasm-playground          # build
+#   make wasm-playground-clean    # remove build artifacts
+
+EMCC      ?= emcc
+WASM_OUT  = examples/playground/public
+WASM_JS   = $(WASM_OUT)/nanolang.js
+WASM_WASM = $(WASM_OUT)/nanolang.wasm
+
+# Sources for the interpreter-only WASM build.
+# Excludes: main.c nano_main.c (define main()), wasm_backend.c (emits .wasm
+# files — not needed when the interpreter IS the .wasm), and heavy OS-only
+# subsystems (DAP/LSP servers, transpiler, emit_typed_ast, nanocore_*,
+# reflection, ffi_bindgen, generate_module_index, lexer_bridge).
+WASM_SRCS = \
+	$(SRC_DIR)/lexer.c \
+	$(SRC_DIR)/parser.c \
+	$(SRC_DIR)/typechecker.c \
+	$(SRC_DIR)/stdlib_runtime.c \
+	$(SRC_DIR)/env.c \
+	$(SRC_DIR)/builtins_registry.c \
+	$(SRC_DIR)/module.c \
+	$(SRC_DIR)/module_metadata.c \
+	$(SRC_DIR)/module_builder.c \
+	$(SRC_DIR)/cJSON.c \
+	$(SRC_DIR)/toon_output.c \
+	$(SRC_DIR)/resource_tracking.c \
+	$(SRC_DIR)/eval.c \
+	$(SRC_DIR)/eval/eval_hashmap.c \
+	$(SRC_DIR)/eval/eval_math.c \
+	$(SRC_DIR)/eval/eval_string.c \
+	$(SRC_DIR)/eval/eval_io.c \
+	$(SRC_DIR)/interpreter_ffi.c \
+	$(SRC_DIR)/json_diagnostics.c \
+	$(SRC_DIR)/tracing.c \
+	$(SRC_DIR)/wasm_interface.c \
+	$(RUNTIME_SOURCES)
+
+WASM_EXPORTS = \
+	'["_nl_run","_nl_check","_nl_version"]'
+
+WASM_CFLAGS = \
+	-O2 \
+	-Isrc \
+	-D_GNU_SOURCE \
+	-DEMSCRIPTEN \
+	-Wno-error=unused-parameter \
+	-Wno-unused-parameter
+
+WASM_LDFLAGS = \
+	-s WASM=1 \
+	-s EXPORTED_FUNCTIONS=$(WASM_EXPORTS) \
+	-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8","lengthBytesUTF8"]' \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s INITIAL_MEMORY=67108864 \
+	-s MAXIMUM_MEMORY=536870912 \
+	-s MODULARIZE=1 \
+	-s EXPORT_NAME='createNanolang' \
+	-s ENVIRONMENT='web,worker,node' \
+	-s INVOKE_RUN=0 \
+	-s NO_EXIT_RUNTIME=1 \
+	--no-entry
+
+.PHONY: wasm-playground wasm-playground-clean
+
+wasm-playground: $(WASM_JS)
+
+$(WASM_JS): $(WASM_SRCS) src/wasm_interface.c | $(WASM_OUT)
+	@echo "Building NanoLang WASM playground..."
+	@command -v $(EMCC) >/dev/null 2>&1 || { \
+		echo "ERROR: emcc not found. Source the emsdk:"; \
+		echo "  source ~/emsdk/emsdk_env.sh"; \
+		exit 1; }
+	$(EMCC) $(WASM_CFLAGS) $(WASM_SRCS) $(WASM_LDFLAGS) -o $(WASM_JS)
+	@echo "✓ WASM playground built: $(WASM_JS)"
+
+$(WASM_OUT):
+	mkdir -p $(WASM_OUT)
+
+wasm-playground-clean:
+	rm -f $(WASM_JS) $(WASM_WASM)
+	@echo "WASM playground artifacts removed."
+
 # Clean: Remove all build artifacts and sentinels
 clean:
 	@echo "Cleaning all build artifacts..."
