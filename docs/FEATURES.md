@@ -517,6 +517,26 @@ I use this to allow for fast iteration and detailed execution traces without a c
 
 ---
 
+## Parallel Hints
+
+### Par Blocks
+
+I provide `par { }` blocks as an explicit independence annotation. When you write a `par` block, you declare that the enclosed statements have no ordering dependency between them. The runtime may evaluate them concurrently, in any order, or sequentially.
+
+```nano
+par {
+    let a: int = (expensive_compute_a)
+    let b: int = (expensive_compute_b)
+    let c: int = (expensive_compute_c)
+}
+# a, b, c are all available here
+let result: int = (+ a (+ b c))
+```
+
+**Important:** You are asserting independence. If statements in a `par` block actually depend on each other, behavior is undefined.
+
+---
+
 ## Safety Features
 
 ### Memory Safety
