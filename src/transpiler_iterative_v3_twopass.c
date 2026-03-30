@@ -2937,6 +2937,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
             
+        case AST_AWAIT:
+            /* In synchronous evaluation mode, await is transparent — emit the inner expr */
+            build_expr(list, expr->as.await_expr.expr, env);
+            break;
+
         default:
             emit_formatted(list, "/* unsupported expr type %d */", expr->type);
             break;
