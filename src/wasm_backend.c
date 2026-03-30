@@ -184,6 +184,9 @@ typedef struct {
     const char **local_names;
     int          local_count;
     int          local_cap;
+    /* source position of the function definition */
+    int          src_line;
+    int          src_col;
 } WasmFunc;
 
 /* ── Compilation context ─────────────────────────────────────────────── */
@@ -244,6 +247,8 @@ static void collect_functions(WasmCtx *ctx, ASTNode *root) {
     f->return_type = root->as.function.return_type;
     f->body        = root->as.function.body;
     f->is_extern   = root->as.function.is_extern;
+    f->src_line    = root->line;
+    f->src_col     = root->column;
 }
 
 /* Find the index of a local (param or let-binding) by name */
@@ -495,7 +500,6 @@ static void json_fwrite_str(FILE *fp, const char *s) {
 
 /* ── Write .wasm.map JSON ────────────────────────────────────────────── */
 static int write_source_map(const char *sourcemap_path,
-                             const char *wasm_path,
                              const char *source_file,
                              WasmCtx *ctx,
                              const uint32_t *func_code_abs_offsets)
@@ -506,31 +510,41 @@ static int write_source_map(const char *sourcemap_path,
         return 1;
     }
 
-    const char *wasm_base   = path_basename(wasm_path);
     const char *source_base = path_basename(source_file);
 
     fprintf(fp, "{\n");
-    fprintf(fp, "  \"version\": 3,\n");
-    fprintf(fp, "  \"file\": ");   json_fwrite_str(fp, wasm_base);   fputs(",\n", fp);
-    fprintf(fp, "  \"sourceRoot\": \"\",\n");
-    fprintf(fp, "  \"sources\": ["); json_fwrite_str(fp, source_base); fputs("],\n", fp);
-    fprintf(fp, "  \"mappings\": [\n");
+    fprintf(fp, "  \"version\": 1,\n");
+    fprintf(fp, "  \"source\": "); json_fwrite_str(fp, source_base); fputs(",\n", fp);
 
+    /* functions array: one entry per function with its definition site */
+    fprintf(fp, "  \"functions\": [\n");
+    for (int i = 0; i < ctx->func_count; i++) {
+        WasmFunc *f = &ctx->funcs[i];
+        fprintf(fp, "    {\"name\":");
+        json_fwrite_str(fp, f->name);
+        fprintf(fp, ",\"wasm_offset\":%u,\"src_line\":%d,\"src_col\":%d}",
+                func_code_abs_offsets[i], f->src_line, f->src_col);
+        if (i < ctx->func_count - 1) fputc(',', fp);
+        fputc('\n', fp);
+    }
+    fprintf(fp, "  ],\n");
+
+    /* instructions array: one entry per AST node emit point */
+    fprintf(fp, "  \"instructions\": [\n");
     SrcMap *sm = &ctx->srcmap;
+    bool first = true;
     for (int i = 0; i < sm->count; i++) {
         SrcMapEntry *e = &sm->entries[i];
         if (e->func_idx < 0 || e->func_idx >= ctx->func_count) continue;
         uint32_t abs_off = func_code_abs_offsets[e->func_idx] + e->rel_offset;
-        const char *fname = ctx->funcs[e->func_idx].name;
-        fprintf(fp, "    {\"wasm_offset\":%u,\"line\":%d,\"col\":%d,\"func\":",
+        if (!first) fputs(",\n", fp);
+        first = false;
+        fprintf(fp, "    {\"wasm_offset\":%u,\"src_line\":%d,\"src_col\":%d}",
                 abs_off, e->line, e->col);
-        json_fwrite_str(fp, fname);
-        fputc('}', fp);
-        if (i < sm->count - 1) fputc(',', fp);
-        fputc('\n', fp);
     }
-
+    if (!first) fputc('\n', fp);
     fprintf(fp, "  ]\n}\n");
+
     fclose(fp);
     return 0;
 }
@@ -739,7 +753,7 @@ int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
     /* Write .wasm.map JSON */
     int rc = 0;
     if (emit_srcmap) {
-        rc = write_source_map(sourcemap_path, wasm_path, source_file, &ctx,
+        rc = write_source_map(sourcemap_path, source_file, &ctx,
                               func_code_abs_offsets);
         free(func_code_abs_offsets);
         if (rc == 0) {

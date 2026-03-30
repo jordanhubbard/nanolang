@@ -59,6 +59,87 @@ static void resolve_project_root(const char *argv0) {
 }
 
 /* =========================================================================
+ * WASM source map (loaded alongside a .wasm target)
+ * ========================================================================= */
+
+typedef struct {
+    uint32_t wasm_offset;
+    int      src_line;
+    int      src_col;
+} WasmSrcInstr;
+
+typedef struct {
+    char          source[PATH_MAX]; /* .nano source basename from map */
+    WasmSrcInstr *instrs;
+    int           instr_count;
+    int           instr_cap;
+    bool          loaded;
+} WasmSrcMap;
+
+static void wasm_srcmap_free(WasmSrcMap *m) {
+    free(m->instrs);
+    memset(m, 0, sizeof(*m));
+}
+
+static void load_wasm_source_map(const char *path, WasmSrcMap *sm) {
+    memset(sm, 0, sizeof(*sm));
+    FILE *fp = fopen(path, "r");
+    if (!fp) return;
+    fseek(fp, 0, SEEK_END);
+    long sz = ftell(fp);
+    rewind(fp);
+    char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(fp); return; }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+    fread(buf, 1, (size_t)sz, fp);
+#pragma GCC diagnostic pop
+    fclose(fp);
+    buf[sz] = '\0';
+
+    cJSON *root = cJSON_Parse(buf);
+    free(buf);
+    if (!root) return;
+
+    cJSON *src = cJSON_GetObjectItem(root, "source");
+    if (src && src->valuestring)
+        strncpy(sm->source, src->valuestring, sizeof(sm->source) - 1);
+
+    cJSON *instrs = cJSON_GetObjectItem(root, "instructions");
+    if (instrs && cJSON_IsArray(instrs)) {
+        cJSON *e;
+        cJSON_ArrayForEach(e, instrs) {
+            cJSON *off = cJSON_GetObjectItem(e, "wasm_offset");
+            cJSON *ln  = cJSON_GetObjectItem(e, "src_line");
+            cJSON *col = cJSON_GetObjectItem(e, "src_col");
+            if (!off || !ln) continue;
+            if (sm->instr_count >= sm->instr_cap) {
+                sm->instr_cap = sm->instr_cap ? sm->instr_cap * 2 : 64;
+                sm->instrs = realloc(sm->instrs,
+                    (size_t)sm->instr_cap * sizeof(*sm->instrs));
+                if (!sm->instrs) { sm->instr_count = sm->instr_cap = 0; break; }
+            }
+            sm->instrs[sm->instr_count].wasm_offset = (uint32_t)off->valuedouble;
+            sm->instrs[sm->instr_count].src_line     = (int)ln->valuedouble;
+            sm->instrs[sm->instr_count].src_col      = col ? (int)col->valuedouble : 1;
+            sm->instr_count++;
+        }
+    }
+
+    cJSON_Delete(root);
+    sm->loaded = true;
+}
+
+/* Return the first WASM offset that maps to `line`, or UINT32_MAX if none. */
+static uint32_t wasm_offset_for_line(const WasmSrcMap *sm, int line) {
+    for (int i = 0; i < sm->instr_count; i++) {
+        if (sm->instrs[i].src_line == line)
+            return sm->instrs[i].wasm_offset;
+    }
+    return UINT32_MAX;
+}
+
+/* =========================================================================
  * Debug state
  * ========================================================================= */
 
@@ -123,6 +204,9 @@ typedef struct {
 
     /* The program being debugged */
     char        program_path[PATH_MAX];
+
+    /* WASM source map (loaded when program is a .wasm binary) */
+    WasmSrcMap  wasm_map;
 } DebugState;
 
 static DebugState g_dap = {0};
@@ -403,6 +487,28 @@ static void handle_launch(cJSON *msg, cJSON *args) {
     canonicalize_path(prog->valuestring, g_dap.program_path, sizeof(g_dap.program_path));
     g_dap.launched = true;
 
+    /* If program is a .wasm binary, try to load its source map */
+    {
+        size_t plen = strlen(g_dap.program_path);
+        if (plen >= 5 && strcmp(g_dap.program_path + plen - 5, ".wasm") == 0) {
+            char map_path[PATH_MAX];
+            snprintf(map_path, sizeof(map_path), "%s.map", g_dap.program_path);
+            wasm_srcmap_free(&g_dap.wasm_map);
+            load_wasm_source_map(map_path, &g_dap.wasm_map);
+            if (g_dap.wasm_map.loaded) {
+                char msg[PATH_MAX + 128];
+                snprintf(msg, sizeof(msg),
+                    "nanolang-dap: loaded WASM source map %s "
+                    "(%d instruction entries, source: %s)\n",
+                    map_path, g_dap.wasm_map.instr_count, g_dap.wasm_map.source);
+                dap_output("console", msg);
+            } else {
+                dap_output("console",
+                    "nanolang-dap: no .wasm.map found; source-line resolution unavailable\n");
+            }
+        }
+    }
+
     dap_send_response(seq, "launch", true, NULL);
     dap_output("console", "nanolang-dap: program loaded, waiting for configurationDone\n");
 }
@@ -451,6 +557,18 @@ static void handle_set_breakpoints(cJSON *msg, cJSON *args) {
 
                 cJSON_AddBoolToObject(rbp, "verified", true);
                 cJSON_AddNumberToObject(rbp, "line", line);
+                /* If WASM source map is loaded, resolve line → wasm_offset */
+                if (g_dap.wasm_map.loaded) {
+                    uint32_t woff = wasm_offset_for_line(&g_dap.wasm_map, line);
+                    if (woff != UINT32_MAX) {
+                        cJSON_AddNumberToObject(rbp, "wasm_offset", (double)woff);
+                        char msg[128];
+                        snprintf(msg, sizeof(msg),
+                            "nanolang-dap: bp line %d → WASM offset 0x%x\n",
+                            line, woff);
+                        dap_output("console", msg);
+                    }
+                }
             } else {
                 cJSON_AddBoolToObject(rbp, "verified", false);
             }
@@ -762,6 +880,26 @@ static void dap_eval_hook(ASTNode *stmt, Environment *env) {
 extern void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env);
 
 static int dap_run_program(void) {
+    /* If the program is a pre-compiled WASM binary, execution via the
+     * interpreter is not applicable.  The source map is already loaded;
+     * report that and exit the debug session gracefully. */
+    {
+        size_t plen = strlen(g_dap.program_path);
+        if (plen >= 5 && strcmp(g_dap.program_path + plen - 5, ".wasm") == 0) {
+            dap_output("console",
+                "nanolang-dap: WASM binary target — source map loaded for "
+                "offset resolution. Live execution debugging of .wasm files "
+                "is not yet supported.\n");
+            g_dap.running       = false;
+            g_dap.program_ended = true;
+            cJSON *xbody = cJSON_CreateObject();
+            cJSON_AddNumberToObject(xbody, "exitCode", 0);
+            dap_send_event("exited", xbody);
+            dap_send_event("terminated", NULL);
+            return 0;
+        }
+    }
+
     /* Install the hook */
     g_dap_statement_hook = dap_eval_hook;
 
