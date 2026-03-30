@@ -25,14 +25,14 @@ I distinguish between what I have verified and what I assume to work.
 |----------|-------------|--------|-------|
 | Fedora/RHEL | x86_64 | Untested | I should work with a standard toolchain |
 | Arch Linux | x86_64 | Untested | I require gcc, make, and pkg-config |
-| FreeBSD | x86_64 | Untested | I may need minor build script changes |
+| FreeBSD | x86_64 | Tested | Use `gmake` instead of `make`; requires clang and gmake |
 
 ### Unsupported
 
 | Platform | Status | Reason |
 |----------|--------|--------|
 | Windows | Not Supported | I rely on Unix-specific build systems and POSIX assumptions |
-| WebAssembly | Not Planned | My architecture is currently incompatible |
+| WebAssembly | Partial Support | `--target wasm` emits a WASM binary (int/float/bool, arithmetic, functions, if/else, recursion) |
 
 ---
 
