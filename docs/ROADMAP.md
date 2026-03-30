@@ -134,20 +134,14 @@ Success Criteria: All met
 Goal: Provide common functionality.
 
 Deliverables:
-- [ ] String operations (basic print only)
-- [x] I/O functions (print)
-- [ ] Math functions (basic operators only, no advanced functions)
-- [ ] Data structures (arrays, lists - not yet implemented)
-- [ ] Documentation (basic)
+- [x] String operations (concat, split, trim, length, format, etc.)
+- [x] I/O functions (print, println, file_read, file_write, file_exists)
+- [x] Math functions (abs, sqrt, pow, sin, cos, floor, ceil, round, etc.)
+- [x] Data structures (arrays with bounds checking, dynamic array_push, HashMap)
+- [x] Documentation (STDLIB.md)
 - [x] Shadow tests for built-in functions
 
-Current Status: Basic functionality only.
-
-Next Steps:
-- I will add more math functions (sin, cos, sqrt, etc.).
-- I will implement arrays.
-- I will add string manipulation functions.
-- I will expand I/O to include file operations.
+Current Status: Comprehensive stdlib with 40+ built-in functions.
 
 ## Phase 7 - Command-Line Tools Complete
 
@@ -306,13 +300,17 @@ Target Completion: Q1 2026
 I may add these features after I am fully self-hosting:
 
 ### Language Features
-- [ ] Dynamic Lists/Slices - Resizable collections
-- [ ] Generics/templates
-- [ ] Pattern matching
-- [ ] Modules/imports
-- [ ] Error handling (Result type)
-- [ ] Algebraic data types
-- [ ] Tuples
+- [x] Dynamic arrays/slices — `array_push`, bounds checking
+- [x] Generics/templates — monomorphized generic types
+- [x] Pattern matching — `match` statement with enum/union dispatch
+- [x] Modules/imports — native and FFI modules via module.json
+- [x] Error handling (Result type) — `Result<T, E>` in stdlib
+- [x] Algebraic data types — tagged unions with `union` keyword
+- [x] Tuples — heterogeneous tuples
+- [x] Parallel independence blocks — `par { }` annotation
+- [x] WASM backend — `--target wasm` emits WebAssembly binary
+- [ ] Explicit type conversions (`float_to_int`, `int_to_float`) in compiled mode
+- [ ] Arrays of structs in compiled mode
 
 ### Tooling
 - [ ] REPL (Read-Eval-Print Loop)
