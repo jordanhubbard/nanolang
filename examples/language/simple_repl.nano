@@ -75,35 +75,6 @@ shadow wrap_expression {
     assert (str_contains result "let _result")
 }
 
-fn str_trim(s: string) -> string {
-    let len: int = (str_length s)
-    if (== len 0) {
-        return s
-    } else { (print "") }
-    
-    let mut start: int = 0
-    while (and (< start len) (is_whitespace (char_at s start))) {
-        set start (+ start 1)
-    }
-    
-    let mut end: int = (- len 1)
-    while (and (> end start) (is_whitespace (char_at s end))) {
-        set end (- end 1)
-    }
-    
-    if (>= start end) {
-        return ""
-    } else { (print "") }
-    
-    return (str_substring s start (+ (- end start) 1))
-}
-
-shadow str_trim {
-    assert (== (str_trim "  hello  ") "hello")
-    assert (== (str_trim "test") "test")
-    assert (== (str_trim "   ") "")
-}
-
 # @pure
 fn is_command(input: string, cmd: string) -> bool {
     return (== (str_trim input) cmd)
