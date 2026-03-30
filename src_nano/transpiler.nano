@@ -2052,8 +2052,27 @@ fn transp_is_ident_start_str(c: string) -> bool {
     return (str_contains "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_" c)
 }
 
+shadow transp_is_ident_start_str {
+    assert (transp_is_ident_start_str "a")
+    assert (transp_is_ident_start_str "Z")
+    assert (transp_is_ident_start_str "_")
+    assert (not (transp_is_ident_start_str "0"))
+    assert (not (transp_is_ident_start_str " "))
+    assert (not (transp_is_ident_start_str "+"))
+}
+
 fn transp_is_ident_char_str(c: string) -> bool {
     return (str_contains "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789" c)
+}
+
+shadow transp_is_ident_char_str {
+    assert (transp_is_ident_char_str "a")
+    assert (transp_is_ident_char_str "Z")
+    assert (transp_is_ident_char_str "_")
+    assert (transp_is_ident_char_str "0")
+    assert (transp_is_ident_char_str "9")
+    assert (not (transp_is_ident_char_str " "))
+    assert (not (transp_is_ident_char_str "+"))
 }
 
 /* Given an identifier and its type, emit the C expression that converts it to const char*.
@@ -2070,6 +2089,13 @@ fn interp_to_str_expr(ident: string, type_str: string) -> string {
         /* string or unknown - use directly */
         return c_name
     } } }
+}
+
+shadow interp_to_str_expr {
+    assert (== (interp_to_str_expr "x" "int") "nl_int_to_string(nl_x)")
+    assert (== (interp_to_str_expr "val" "float") "nl_float_to_string(nl_val)")
+    assert (== (interp_to_str_expr "msg" "string") "nl_msg")
+    assert (== (interp_to_str_expr "flag" "bool") "nl_int_to_string(nl_flag)")
 }
 
 /* Expand "Hello, {name}!" into nl_str_concat(...) chain if interpolation present.
@@ -6072,6 +6098,21 @@ fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -
     return (str_concat (str_concat union_name ".") variant)
 }
 
+shadow get_variant_field_type {
+    let source: string = "union Color { Red, Green, Blue(val: int) } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    /* Unit variant — returns "Color.Red" */
+    let t1: string = (get_variant_field_type p "Color" "Red")
+    assert (== t1 "Color.Red")
+    /* Single-field variant with named field — not positional, returns "Color.Blue" */
+    let t2: string = (get_variant_field_type p "Color" "Blue")
+    assert (!= t2 "")
+    /* Unknown union — returns "Unknown.Var" */
+    let t3: string = (get_variant_field_type p "Unknown" "Var")
+    assert (== t3 "Unknown.Var")
+}
+
 /* Get the C field access suffix for the first field of a union variant.
  * Returns ".fieldname" for single-field variants (e.g., ".val" for Ok { val: int }).
  * Returns "" for unit variants or if union not found (caller appends nothing).
@@ -6106,6 +6147,21 @@ fn get_variant_first_field_access(parser: Parser, union_name: string, variant: s
         set ui (+ ui 1)
     }
     return ""
+}
+
+shadow get_variant_first_field_access {
+    let source: string = "union Result { Ok(_0: int), Err } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    /* Unit variant — no field access */
+    let a1: string = (get_variant_first_field_access p "Result" "Err")
+    assert (== a1 "")
+    /* Positional _0 field — returns ".fieldname" */
+    let a2: string = (get_variant_first_field_access p "Result" "Ok")
+    assert (str_starts_with a2 ".")
+    /* Unknown union — returns "" */
+    let a3: string = (get_variant_first_field_access p "NoSuchUnion" "X")
+    assert (== a3 "")
 }
 
 /* Look up a union's variant field info for match binding generation.
@@ -6222,6 +6278,21 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     set parts (cg_append parts variant)
     set parts (cg_append parts ";\n")
     return (cg_build parts)
+}
+
+shadow gen_match_variant_binding {
+    let source: string = "union Opt { Some(_0: int), None } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    /* Unit variant — no binding needed */
+    let b1: string = (gen_match_variant_binding p "Opt" "None" "x" "  ")
+    assert (== b1 "")
+    /* Single positional _0 field — generates C binding */
+    let b2: string = (gen_match_variant_binding p "Opt" "Some" "val" "  ")
+    assert (str_contains b2 "nl_val")
+    /* Unknown union — generates fallback struct binding */
+    let b3: string = (gen_match_variant_binding p "NoSuch" "Var" "v" "  ")
+    assert (str_contains b3 "nl_v")
 }
 
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {

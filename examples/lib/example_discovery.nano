@@ -39,38 +39,6 @@ shadow ed_ends_with {
     assert (not (ed_ends_with "hello" ".nano"))
 }
 
-fn str_trim(s: string) -> string {
-    let len: int = (str_length s)
-    let mut start: int = 0
-    let mut scanning: bool = true
-    while (and (< start len) scanning) {
-        let ch: string = (str_substring s start 1)
-        if (and (!= ch " ") (!= ch "\t")) {
-            set scanning false
-        } else {
-            set start (+ start 1)
-        }
-    }
-    let mut end: int = len
-    set scanning true
-    while (and (> end start) scanning) {
-        let ch: string = (str_substring s (- end 1) 1)
-        if (and (!= ch " ") (and (!= ch "\t") (and (!= ch "\n") (!= ch "\r")))) {
-            set scanning false
-        } else {
-            set end (- end 1)
-        }
-    }
-    if (>= start end) { return "" }
-    return (str_substring s start (- end start))
-}
-
-shadow str_trim {
-    assert (== (str_trim "  hello  ") "hello")
-    assert (== (str_trim "hello") "hello")
-    assert (== (str_trim "   ") "")
-}
-
 fn extract_hdr(line: string, prefix: string) -> string {
     if (not (ed_starts_with line prefix)) { return "" }
     return (str_trim (str_substring line (str_length prefix) (- (str_length line) (str_length prefix))))

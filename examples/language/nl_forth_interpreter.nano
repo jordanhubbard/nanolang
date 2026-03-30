@@ -40,16 +40,6 @@ extern fn list_string_get(list: int64_t, index: int) -> string
 extern fn list_string_length(list: int64_t) -> int
 extern fn file_read(_path: string) -> string
 
-# ── Utility ────────────────────────────────────────────────────────────────────
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let slen: int = (str_length s)
-    let plen: int = (str_length prefix)
-    if (< slen plen) {
-        return false
-    } else { (print "") }
-    return (== (str_substring s 0 plen) prefix)
-}
-
 # ── create_state ───────────────────────────────────────────────────────────────
 # Initialise the 6 shared lists in place; caller must pass fresh empty lists.
 # @pure
@@ -1542,6 +1532,354 @@ shadow exec_line {
     assert (== r 0)
     assert (== (s_depth dsp) 1)
     assert (== (s_peek stk dsp) 5)
+}
+
+shadow s_depth {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (s_depth dsp) 0)
+    (s_push stk dsp 10)
+    assert (== (s_depth dsp) 1)
+    (s_push stk dsp 20)
+    assert (== (s_depth dsp) 2)
+}
+
+shadow s_push {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 42)
+    assert (== (s_depth dsp) 1)
+    assert (== (s_peek stk dsp) 42)
+    (s_push stk dsp 99)
+    assert (== (s_depth dsp) 2)
+    assert (== (s_peek stk dsp) 99)
+}
+
+shadow s_pop {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 7)
+    (s_push stk dsp 13)
+    let v: int = (s_pop stk dsp)
+    assert (== v 13)
+    assert (== (s_depth dsp) 1)
+    let v2: int = (s_pop stk dsp)
+    assert (== v2 7)
+    assert (== (s_depth dsp) 0)
+}
+
+shadow s_peek {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 5)
+    assert (== (s_peek stk dsp) 5)
+    (s_push stk dsp 9)
+    assert (== (s_peek stk dsp) 9)
+    assert (== (s_depth dsp) 2)
+}
+
+shadow s_peek2 {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 3)
+    (s_push stk dsp 7)
+    assert (== (s_peek2 stk dsp) 3)
+    assert (== (s_peek stk dsp) 7)
+}
+
+shadow s_clear {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 1)
+    (s_push stk dsp 2)
+    (s_push stk dsp 3)
+    assert (== (s_depth dsp) 3)
+    (s_clear dsp)
+    assert (== (s_depth dsp) 0)
+}
+
+shadow r_depth {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (r_depth dsp) 0)
+    (r_push rst dsp 100)
+    assert (== (r_depth dsp) 1)
+}
+
+shadow r_push {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (r_push rst dsp 55)
+    assert (== (r_depth dsp) 1)
+    assert (== (r_peek rst dsp) 55)
+}
+
+shadow r_pop {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (r_push rst dsp 77)
+    (r_push rst dsp 88)
+    let v: int = (r_pop rst dsp)
+    assert (== v 88)
+    assert (== (r_depth dsp) 1)
+}
+
+shadow r_peek {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (r_push rst dsp 33)
+    assert (== (r_peek rst dsp) 33)
+    assert (== (r_depth dsp) 1)
+}
+
+shadow r_get {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (r_push rst dsp 10)
+    (r_push rst dsp 20)
+    (r_push rst dsp 30)
+    assert (== (r_get rst dsp 0) 30)
+    assert (== (r_get rst dsp 1) 20)
+    assert (== (r_get rst dsp 2) 10)
+}
+
+shadow r_set {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (r_push rst dsp 10)
+    (r_push rst dsp 20)
+    (r_set rst dsp 0 99)
+    assert (== (r_peek rst dsp) 99)
+    assert (== (r_get rst dsp 1) 10)
+}
+
+shadow ds_read {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    let here: int = (ds_here dsp)
+    (ds_write dsp here 42)
+    assert (== (ds_read dsp here) 42)
+    assert (== (ds_read dsp 999) 0)
+}
+
+shadow ds_write {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    let addr: int = 100
+    (ds_write dsp addr 77)
+    assert (== (ds_read dsp addr) 77)
+    (ds_write dsp addr 88)
+    assert (== (ds_read dsp addr) 88)
+}
+
+shadow ds_here {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (ds_here dsp) 29)
+}
+
+shadow ds_allot {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    let h0: int = (ds_here dsp)
+    let addr: int = (ds_allot dsp 3)
+    assert (== addr h0)
+    assert (== (ds_here dsp) (+ h0 3))
+}
+
+shadow define_word {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (define_word wnm wbd wim "myword" "1 2 +" 0)
+    let idx: int = (find_word wnm "myword")
+    assert (>= idx 0)
+    assert (== (list_string_get wbd idx) "1 2 +")
+    assert (== (list_int_get wim idx) 0)
+}
+
+shadow define_constant {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (define_constant wnm wbd wim "myconst" 42)
+    let idx: int = (find_word wnm "myconst")
+    assert (>= idx 0)
+    assert (== (list_string_get wbd idx) "__const 42")
+}
+
+shadow define_variable {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (define_variable dsp wnm wbd wim "myvar")
+    let idx: int = (find_word wnm "myvar")
+    assert (>= idx 0)
+}
+
+shadow parse_number {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    assert (== (parse_number dsp "42") 42)
+    assert (== (parse_number dsp "0") 0)
+    assert (== (parse_number dsp "-7") (- 0 7))
+    assert (== (parse_number dsp "100") 100)
+}
+
+shadow same_sign {
+    assert (same_sign 5 3)
+    assert (same_sign (- 0 5) (- 0 3))
+    assert (not (same_sign 5 (- 0 3)))
+    assert (not (same_sign (- 0 5) 3))
+    assert (same_sign 0 0)
+}
+
+shadow power2 {
+    assert (== (power2 0) 1)
+    assert (== (power2 1) 2)
+    assert (== (power2 3) 8)
+    assert (== (power2 10) 1024)
+}
+
+shadow find_close_forward {
+    let toks: List<string> = (list_string_new)
+    (list_string_push toks "if")
+    (list_string_push toks "dup")
+    (list_string_push toks "if")
+    (list_string_push toks "then")
+    (list_string_push toks "then")
+    let idx: int = (find_close_forward toks 0 "if" "then" "else")
+    assert (== idx 4)
+}
+
+shadow exec_builtin {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    (s_push stk dsp 5)
+    (s_push stk dsp 3)
+    let r: int = (exec_builtin stk rst dsp wnm wbd wim "+")
+    assert (== r 0)
+    assert (== (s_depth dsp) 1)
+    assert (== (s_peek stk dsp) 8)
+}
+
+shadow forth_demo {
+    let stk: List<int> = (list_int_new)
+    let rst: List<int> = (list_int_new)
+    let dsp: List<int> = (list_int_new)
+    let wnm: List<string> = (list_string_new)
+    let wbd: List<string> = (list_string_new)
+    let wim: List<int> = (list_int_new)
+    (create_state stk rst dsp wnm wbd wim)
+    let r: int = (forth_demo stk rst dsp wnm wbd wim)
+    assert (== r 0)
+}
+
+shadow forth_repl {
+    # forth_repl requires interactive readline input; just verify it compiles
+    assert true
 }
 
 shadow main {

@@ -298,6 +298,18 @@ fn resolve_module_path(import_path: string, current_file: string) -> string {
     return ""
 }
 
+shadow resolve_module_path {
+    /* std/ paths return modules/std/... without filesystem checks */
+    let r1: string = (resolve_module_path "std/math.nano" "test.nano")
+    assert (str_contains r1 "std/math.nano")
+    /* Non-existent absolute path returns "" */
+    let r2: string = (resolve_module_path "/nonexistent/path_xyz_123.nano" "test.nano")
+    assert (== r2 "")
+    /* Non-existent relative path returns "" */
+    let r3: string = (resolve_module_path "nonexistent_module_xyz_404.nano" "test.nano")
+    assert (== r3 "")
+}
+
 /* =============================================================================
  * SYMBOL EXTRACTION - Build symbol table from Parser AST
  * ============================================================================= */

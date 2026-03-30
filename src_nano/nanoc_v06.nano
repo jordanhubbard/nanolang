@@ -420,12 +420,12 @@ fn nl_path_dirname(path: string) -> string {
     }
 }
 
-/* Shadow test disabled: causes crash - needs investigation
 shadow nl_path_dirname {
-    let d1: string = (nl_path_dirname "/file")
-    assert (== d1 "/")
+    assert (== (nl_path_dirname "/file") "/")
+    assert (== (nl_path_dirname "/path/to/file") "/path/to")
+    assert (== (nl_path_dirname "file") ".")
+    assert (== (nl_path_dirname "/a/b/") "/a")
 }
-*/
 
 fn nl_path_join(dir: string, rel: string) -> string {
     if (or (== dir "") (== dir ".")) {
@@ -537,12 +537,12 @@ fn parse_import_path_from_line(line: string) -> string {
     }
 }
 
-/* Shadow test disabled: assertion fails - needs investigation
 shadow parse_import_path_from_line {
-    let p1: string = (parse_import_path_from_line "import \"std/io\"")
-    assert (== p1 "std/io")
+    assert (== (parse_import_path_from_line "import \"std/io\"") "std/io")
+    assert (== (parse_import_path_from_line "from \"modules/math\" import add") "modules/math")
+    assert (== (parse_import_path_from_line "module \"mymod\"") "mymod")
+    assert (== (parse_import_path_from_line "fn foo() -> int { return 0 }") "")
 }
-*/
 
 fn nlc_str_trim(s: string) -> string {
     let len: int = (str_length s)
