@@ -194,7 +194,7 @@ typedef enum {
     AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
     AST_UNSAFE_BLOCK,      /* Unsafe block: unsafe { ... } */
     AST_TRY_OP,            /* Postfix ? try operator: expr? */
-    AST_PAR_BLOCK          /* Parallel block: par { let a = ..., let b = ... } */
+    AST_PAR_BLOCK,         /* Parallel block: par { let a = ..., let b = ... } */
     AST_EFFECT_DECL,       /* Effect declaration: effect IO { print : String -> Unit } */
     AST_HANDLE_EXPR        /* Handle expression: handle { expr } with { op args -> ... } */
 } ASTNodeType;
