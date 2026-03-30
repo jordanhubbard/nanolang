@@ -5,6 +5,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.4] - 2026-03-30
+
+### Added
+- WebAssembly binary emit backend: `./bin/nanoc program.nano --target wasm -o program.wasm`
+  supports int/float/bool types, arithmetic, comparisons, function calls, if/else, and recursion
+- DAP-compatible debugger server (`bin/nanolang-dap`, `make dap`): breakpoints, step/next/stepIn/stepOut,
+  variable inspection, and stack traces over JSON-RPC stdio — compatible with VS Code and any DAP client
+- VS Code extension updated with DAP debug launch configuration
+- Shadow tests added for all previously-untested functions across
+  nl_forth_interpreter.nano, transpiler.nano, module_loader.nano, and nanoc_v06.nano
+- Enable previously-disabled shadow tests for nl_path_dirname and parse_import_path_from_line in nanoc_v06.nano
+
+### Fixed
+- Remove local `str_trim` definition in example_discovery.nano (stdlib builtin conflict)
+- Remove local `str_starts_with` definition in nl_forth_interpreter.nano (stdlib builtin conflict)
+
 ## [3.3.3] - 2026-03-28
 
 ### Added

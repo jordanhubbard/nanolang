@@ -217,7 +217,7 @@ A: Yes! It compiles to native code with excellent performance. Used for games, t
 A: Currently manual. Copy modules to `modules/` directory. Package manager coming soon!
 
 **Q: Is there an IDE?**  
-A: Syntax highlighting available for major editors. LSP server in development for full IDE support.
+A: I ship `bin/nanolang-lsp` (Language Server) and `bin/nanolang-dap` (Debug Adapter). Build them with `make lsp dap`. A VS Code extension in `editors/vscode/` wires both automatically.
 
 **Q: How fast is nanolang?**  
 A: Same as C (it compiles to C). Typical benchmarks show 90-100% of hand-written C performance.

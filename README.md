@@ -59,7 +59,7 @@ EOF
 - **NanoISA Virtual Machine** - I include a stack-based VM with 178 opcodes. It isolates FFI calls in a co-process and can run as a daemon.
 - **Automatic Memory Management (ARC)** - I use reference counting with zero overhead. I do not ask you to call free().
 - **Machine-Led Optimization** - I profile myself and apply optimizations through an automated loop.
-- **Dual Compilation** - I transpile to C for performance or compile to NanoISA bytecode for sandboxed execution.
+- **Multi-Target Compilation** - I transpile to C for performance, compile to NanoISA bytecode for sandboxed execution, or emit WebAssembly via `--target wasm`.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Mandatory Testing** - I refuse to compile a function unless you provide a `shadow` test block for it.
 - **Static Typing** - I use static types and I can infer them when the meaning is clear.
@@ -137,10 +137,28 @@ My proved subset includes integers, booleans, strings, arrays, records, variants
 cd formal/ && make    # Build all proofs (requires Rocq Prover >= 9.0)
 ```
 
+## IDE & Debugger Support
+
+I ship a Language Server (`bin/nanolang-lsp`) and a Debug Adapter (`bin/nanolang-dap`) for IDE integration.
+
+```bash
+make lsp   # Build bin/nanolang-lsp  (hover, go-to-definition, completion, diagnostics)
+make dap   # Build bin/nanolang-dap  (breakpoints, step-through, variable inspection)
+```
+
+A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP servers automatically.
+
+```bash
+# Compile to WebAssembly binary instead of native C
+./bin/nanoc program.nano --target wasm -o program.wasm
+```
+
 ## Building & Testing
 
 ```bash
 make build          # Build my compiler (bin/nanoc)
+make lsp            # Build my language server (bin/nanolang-lsp)
+make dap            # Build my debugger (bin/nanolang-dap)
 make vm             # Build my VM backend (bin/nano_virt, bin/nano_vm, bin/nano_cop, bin/nano_vmd)
 make test           # Run my full test suite
 make test-vm        # Run my tests through the NanoVM backend

@@ -350,6 +350,49 @@ shadow euclidean_distance {
 
 ---
 
+## DAP Debugger (Interactive Step-Through)
+
+I ship a Debug Adapter Protocol server (`bin/nanolang-dap`) that integrates with VS Code and any DAP-compatible IDE.
+
+### Setup
+
+```bash
+make dap   # builds bin/nanolang-dap
+```
+
+Install the VS Code extension from `editors/vscode/`. It auto-configures the DAP server.
+
+### Supported Operations
+
+| DAP Request | What I Do |
+|-------------|-----------|
+| `launch` | Start interpreting a `.nano` file |
+| `setBreakpoints` | Pause before a specific source line |
+| `continue` | Run until next breakpoint |
+| `next` | Step over the current statement |
+| `stepIn` | Step into a function call |
+| `stepOut` | Run until the current function returns |
+| `stackTrace` | Show the call stack |
+| `scopes` / `variables` | Inspect local variables at a breakpoint |
+| `pause` | Halt execution at the next statement |
+
+### How It Works
+
+My DAP server runs the interpreter in-process and registers a statement hook in `eval.c`. At each statement, the hook checks whether the current source line matches a breakpoint. If so, it enters an inner event loop to process `continue`, `step`, or `inspect` requests before resuming.
+
+### Launch Config (VS Code `launch.json`)
+
+```json
+{
+  "type": "nanolang",
+  "request": "launch",
+  "name": "Debug NanoLang",
+  "program": "${workspaceFolder}/program.nano"
+}
+```
+
+---
+
 ## My Compiler Diagnostics
 
 ### Understanding My Error Messages

@@ -273,8 +273,8 @@ High Priority:
 - [x] I have integrated fuzzing (AFL++/libFuzzer) (January 2026).
 
 Medium Priority:
-- [ ] I will have a VS Code extension for syntax highlighting.
-- [ ] I will add a --profile flag for performance profiling.
+- [x] I have a VS Code extension with DAP debug support (editors/vscode/).
+- [x] I have added a --profile flag and --profile-output for structured benchmark JSON.
 - [ ] I will create LEARNING_PATH.md for my examples.
 - [ ] I will document my error handling philosophy.
 - [ ] I will add build modes (--debug / --release).
@@ -316,8 +316,8 @@ I may add these features after I am fully self-hosting:
 
 ### Tooling
 - [ ] REPL (Read-Eval-Print Loop)
-- [ ] Language server (LSP)
-- [ ] Debugger
+- [x] Language server (LSP) — `bin/nanolang-lsp` (hover, definition, completion, diagnostics)
+- [x] Debugger — DAP server `bin/nanolang-dap` (breakpoints, step, inspect via VS Code)
 - [ ] Package manager
 - [ ] Build system
 - [ ] Documentation generator
@@ -330,7 +330,7 @@ I may add these features after I am fully self-hosting:
 - [x] NanoISA VM backend (alternative to C) - Complete (February 2026)
 
 ### Ecosystem
-- [ ] VS Code extension
+- [x] VS Code extension (editors/vscode/ — syntax highlighting, LSP, DAP debug)
 - [ ] Vim plugin
 - [ ] Emacs mode
 - [ ] Online playground

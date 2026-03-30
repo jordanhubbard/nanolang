@@ -1083,6 +1083,9 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("pkg_config", pkg_config, pkg_config_count);
     PARSE_STRING_ARRAY("include_dirs", include_dirs, include_dirs_count);
     PARSE_STRING_ARRAY("cflags", cflags, cflags_count);
+    PARSE_STRING_ARRAY("cflags_macos", cflags_macos, cflags_macos_count);
+    PARSE_STRING_ARRAY("cflags_linux", cflags_linux, cflags_linux_count);
+    PARSE_STRING_ARRAY("cflags_freebsd", cflags_freebsd, cflags_freebsd_count);
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
     PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
@@ -1263,6 +1266,9 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(pkg_config, pkg_config_count);
     FREE_STRING_ARRAY(include_dirs, include_dirs_count);
     FREE_STRING_ARRAY(cflags, cflags_count);
+    FREE_STRING_ARRAY(cflags_macos, cflags_macos_count);
+    FREE_STRING_ARRAY(cflags_linux, cflags_linux_count);
+    FREE_STRING_ARRAY(cflags_freebsd, cflags_freebsd_count);
     FREE_STRING_ARRAY(ldflags, ldflags_count);
     FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
@@ -1467,10 +1473,25 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             compile_flags[total_compile_flags++] = include_flag;
         }
 
-        // Add custom cflags
+        // Add custom cflags (all platforms)
         for (size_t i = 0; i < meta->cflags_count; i++) {
             compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
         }
+
+        // Add platform-specific cflags
+#ifdef __APPLE__
+        for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+            compile_flags[total_compile_flags++] = strdup(meta->cflags_macos[i]);
+        }
+#elif defined(__FreeBSD__)
+        for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+            compile_flags[total_compile_flags++] = strdup(meta->cflags_freebsd[i]);
+        }
+#else
+        for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+            compile_flags[total_compile_flags++] = strdup(meta->cflags_linux[i]);
+        }
+#endif
 
         info->compile_flags = compile_flags;
         info->compile_flags_count = total_compile_flags;
@@ -1578,10 +1599,24 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -I%s", meta->include_dirs[i]);
         }
 
-        // Add custom cflags
+        // Add custom cflags (all platforms)
         for (size_t i = 0; i < meta->cflags_count; i++) {
             prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags[i]);
         }
+        // Add platform-specific cflags
+#ifdef __APPLE__
+        for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_macos[i]);
+        }
+#elif defined(__FreeBSD__)
+        for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_freebsd[i]);
+        }
+#else
+        for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_linux[i]);
+        }
+#endif
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
@@ -1739,12 +1774,29 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 free(shared_ldflags[i]);
             }
             
-            /* Add custom cflags */
+            /* Add custom cflags (all platforms) */
             for (size_t i = 0; i < meta->cflags_count; i++) {
                 lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
                                    " %s", meta->cflags[i]);
             }
-            
+            /* Add platform-specific cflags */
+#ifdef __APPLE__
+            for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", meta->cflags_macos[i]);
+            }
+#elif defined(__FreeBSD__)
+            for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", meta->cflags_freebsd[i]);
+            }
+#else
+            for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                                   " %s", meta->cflags_linux[i]);
+            }
+#endif
+
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
             
             /* Build shared library */
@@ -1836,10 +1888,24 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         compile_flags[total_compile_flags++] = include_flag;
     }
 
-    // Add custom cflags
+    // Add custom cflags (all platforms)
     for (size_t i = 0; i < meta->cflags_count; i++) {
         compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
     }
+    // Add platform-specific cflags
+#ifdef __APPLE__
+    for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+        compile_flags[total_compile_flags++] = strdup(meta->cflags_macos[i]);
+    }
+#elif defined(__FreeBSD__)
+    for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+        compile_flags[total_compile_flags++] = strdup(meta->cflags_freebsd[i]);
+    }
+#else
+    for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+        compile_flags[total_compile_flags++] = strdup(meta->cflags_linux[i]);
+    }
+#endif
 
     info->compile_flags = compile_flags;
     info->compile_flags_count = total_compile_flags;

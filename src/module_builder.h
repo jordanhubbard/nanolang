@@ -46,10 +46,18 @@ typedef struct {
     char **include_dirs;
     size_t include_dirs_count;
     
-    // Custom compiler flags
+    // Custom compiler flags (all platforms)
     char **cflags;
     size_t cflags_count;
-    
+
+    // Platform-specific compiler flags
+    char **cflags_macos;
+    size_t cflags_macos_count;
+    char **cflags_linux;
+    size_t cflags_linux_count;
+    char **cflags_freebsd;
+    size_t cflags_freebsd_count;
+
     // Custom linker flags
     char **ldflags;
     size_t ldflags_count;
