@@ -1,0 +1,9 @@
+fn main() -> int {
+    let count = 5
+    (println f"Found {count} items")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
