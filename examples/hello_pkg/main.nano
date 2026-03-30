@@ -1,0 +1,19 @@
+// hello_pkg — a minimal package example
+//
+// This demonstrates how a NanoLang project uses nano.toml
+// to declare metadata and dependencies.
+//
+// Build:
+//   nanoc main.nano -o hello_pkg
+
+fn main() -> Int {
+    let greeting: String = "Hello from a NanoLang package!"
+    print(greeting)
+
+    // Shadow test: verify the greeting is what we expect
+    shadow_test "greeting content" {
+        assert(greeting == "Hello from a NanoLang package!")
+    }
+
+    return 0
+}

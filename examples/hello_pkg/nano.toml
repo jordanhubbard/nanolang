@@ -1,0 +1,22 @@
+[package]
+name = "hello_pkg"
+version = "0.1.0"
+description = "A minimal example of a NanoLang package with dependencies"
+authors = ["NanoLang Contributors"]
+license = "MIT"
+
+# Entry point for compilation
+entry = "main.nano"
+
+# Module paths to search (in addition to the default modules/ directory)
+module_paths = ["modules"]
+
+[dependencies]
+# Depend on the vector2d module from the registry
+# vector2d = ">=1.0.0"
+
+# Example of pinned exact version
+# some_lib = "2.1.0"
+
+# Example of compatible version (same major)
+# another_lib = "^3.0.0"
