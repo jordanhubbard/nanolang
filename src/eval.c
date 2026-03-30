@@ -2,6 +2,7 @@
 
 #include "nanolang.h"
 #include "coroutine.h"
+#include "effects.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
 #include "runtime/list_token.h"
@@ -5029,6 +5030,70 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return eval_expression(expr->as.await_expr.expr, env);
         }
 
+        case AST_EFFECT_DECL:
+            /* Effect declarations are registered at program-level; no runtime work. */
+            return create_void();
+
+        case AST_EFFECT_HANDLER: {
+            /* handle <body> with { Effect.op(param) -> handler_body }
+             * Push a handler frame, evaluate body, pop the frame, return body result. */
+            EffectHandlerFrame frame;
+            memset(&frame, 0, sizeof(frame));
+            frame.effect_name         = expr->as.effect_handler.effect_name;
+            frame.handler_op_names    = expr->as.effect_handler.handler_op_names;
+            frame.handler_param_names = expr->as.effect_handler.handler_param_names;
+            frame.handler_bodies      = expr->as.effect_handler.handler_bodies;
+            frame.handler_count       = expr->as.effect_handler.handler_count;
+            frame.env                 = env;
+
+            nl_effect_frame_push(&frame);
+            Value result = eval_expression(expr->as.effect_handler.body, env);
+            nl_effect_frame_pop();
+            return result;
+        }
+
+        case AST_EFFECT_OP: {
+            /* perform Effect.op(arg) — dispatch to the nearest matching handler. */
+            int arm_idx = -1;
+            EffectHandlerFrame *frame = nl_effect_find_handler(
+                expr->as.effect_op.effect_name,
+                expr->as.effect_op.op_name,
+                &arm_idx);
+
+            if (!frame || arm_idx < 0) {
+                fprintf(stderr,
+                    "Error at line %d: unhandled effect %s.%s\n",
+                    expr->line,
+                    expr->as.effect_op.effect_name ? expr->as.effect_op.effect_name : "?",
+                    expr->as.effect_op.op_name     ? expr->as.effect_op.op_name     : "?");
+                return create_void();
+            }
+
+            /* Use the handler's captured environment; save/restore symbol count for scope. */
+            Environment *henv = frame->env;
+            int saved_sym = henv->symbol_count;
+
+            /* Bind the parameter (if named) to the performed argument value. */
+            const char *param = frame->handler_param_names[arm_idx];
+            if (param && param[0] != '\0') {
+                Value arg_val = expr->as.effect_op.arg
+                                ? eval_expression(expr->as.effect_op.arg, env)
+                                : create_void();
+                env_define_var(henv, param, TYPE_UNKNOWN, false, arg_val);
+            }
+
+            Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
+
+            /* Restore scope. */
+            henv->symbol_count = saved_sym;
+
+            /* Strip control-flow flags — handler result is the perform's result. */
+            handler_result.is_return   = false;
+            handler_result.is_break    = false;
+            handler_result.is_continue = false;
+            return handler_result;
+        }
+
         default:
             return create_void();
     }
@@ -5482,6 +5547,15 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             }
             return create_void();
         }
+
+        case AST_EFFECT_DECL:
+            /* Effect declarations are registered at program-level; no runtime work. */
+            return create_void();
+
+        case AST_EFFECT_HANDLER:
+        case AST_EFFECT_OP:
+            /* Delegate to eval_expression — these produce values. */
+            return eval_expression(stmt, env);
 
         default:
             /* Expression statements */

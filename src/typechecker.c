@@ -3231,6 +3231,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* await expr: transparent in typechecker — returns the type of the inner expression */
             return check_expression_impl(expr->as.await_expr.expr, env);
 
+        case AST_EFFECT_DECL:
+            return TYPE_VOID;
+
+        case AST_EFFECT_HANDLER: {
+            if (expr->as.effect_handler.body)
+                check_expression(expr->as.effect_handler.body, env);
+            /* Type-check handler arm bodies with the param pre-defined. */
+            for (int i = 0; i < expr->as.effect_handler.handler_count; i++) {
+                int saved_sym = env ? env->symbol_count : 0;
+                const char *param = expr->as.effect_handler.handler_param_names
+                                    ? expr->as.effect_handler.handler_param_names[i]
+                                    : NULL;
+                if (param && param[0] != '\0' && env) {
+                    Value dummy = {0};
+                    env_define_var(env, param, TYPE_UNKNOWN, false, dummy);
+                }
+                if (expr->as.effect_handler.handler_bodies[i])
+                    check_expression(expr->as.effect_handler.handler_bodies[i], env);
+                if (env) env->symbol_count = saved_sym;
+            }
+            return TYPE_VOID;
+        }
+
+        case AST_EFFECT_OP: {
+            if (expr->as.effect_op.arg)
+                check_expression(expr->as.effect_op.arg, env);
+            return TYPE_VOID;
+        }
+
         default:
             fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
             return TYPE_UNKNOWN;
@@ -3907,15 +3936,60 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
             tc->in_unsafe_block = true;
-            
+
             /* Type check all statements in the unsafe block */
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
                 check_statement(tc, stmt->as.unsafe_block.statements[i]);
             }
-            
+
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
             return TYPE_VOID;
+        }
+
+        case AST_EFFECT_DECL:
+            /* Already registered in the first pass — nothing to type-check here */
+            return TYPE_VOID;
+
+        case AST_EFFECT_HANDLER: {
+            /* Type-check the body expression */
+            if (stmt->as.effect_handler.body)
+                check_statement(tc, stmt->as.effect_handler.body);
+            /* Type-check each handler arm body.
+             * Pre-define the arm's parameter so the body can reference it. */
+            for (int i = 0; i < stmt->as.effect_handler.handler_count; i++) {
+                int saved_sym = tc->env ? tc->env->symbol_count : 0;
+                const char *param = stmt->as.effect_handler.handler_param_names
+                                    ? stmt->as.effect_handler.handler_param_names[i]
+                                    : NULL;
+                if (param && param[0] != '\0' && tc->env) {
+                    Value dummy = {0};
+                    env_define_var(tc->env, param, TYPE_UNKNOWN, false, dummy);
+                }
+                if (stmt->as.effect_handler.handler_bodies[i])
+                    check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
+                /* Remove the temp param binding */
+                if (tc->env) tc->env->symbol_count = saved_sym;
+            }
+            return TYPE_VOID;
+        }
+
+        case AST_EFFECT_OP: {
+            /* Validate that the effect exists (if registry is available) */
+            if (tc->env) {
+                EffectDecl *decl = env_effect_lookup(tc->env,
+                                        stmt->as.effect_op.effect_name);
+                if (!decl && stmt->as.effect_op.effect_name) {
+                    /* effect not yet registered — may be declared later; just warn */
+                    fprintf(stderr,
+                        "Warning at line %d: Unknown effect '%s' (may not be declared yet)\n",
+                        stmt->line, stmt->as.effect_op.effect_name);
+                }
+            }
+            /* Type-check the argument */
+            if (stmt->as.effect_op.arg)
+                check_expression(stmt->as.effect_op.arg, tc->env);
+            return TYPE_VOID;  /* return type depends on op — use void as conservative */
         }
 
         case AST_IF: {
