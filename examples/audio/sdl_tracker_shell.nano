@@ -567,21 +567,21 @@ fn main() -> int {
                     let mut ch: int = 0
                     while (< ch 4) {
                         let cmd: int = (pt2_module_get_note_command pat pos_row ch)
-                        let par: int = (pt2_module_get_note_param pat pos_row ch)
+                        let note_par: int = (pt2_module_get_note_param pat pos_row ch)
 
                         # Fxx: set speed (1..31) or BPM (32..255)
                         if (== cmd 15) {
-                            if (and (> par 0) (< par 32)) { set new_speed par } else {}
-                            if (>= par 32) { set new_bpm par } else {}
+                            if (and (> note_par 0) (< note_par 32)) { set new_speed note_par } else {}
+                            if (>= note_par 32) { set new_bpm note_par } else {}
                         } else {}
 
                         # Bxx: position jump
-                        if (== cmd 11) { set jump_order par } else {}
+                        if (== cmd 11) { set jump_order note_par } else {}
 
                         # Dxx: pattern break (BCD)
                         if (== cmd 13) {
-                            let tens: int = (/ par 16)
-                            let ones: int = (% par 16)
+                            let tens: int = (/ note_par 16)
+                            let ones: int = (% note_par 16)
                             set break_row (+ (* tens 10) ones)
                         } else {}
 
@@ -915,15 +915,15 @@ fn main() -> int {
                     let period: int = (pt2_module_get_note_period cur_pat row ch)
                     let sample: int = (pt2_module_get_note_sample cur_pat row ch)
                     let cmd: int = (pt2_module_get_note_command cur_pat row ch)
-                    let par: int = (pt2_module_get_note_param cur_pat row ch)
+                    let note_par: int = (pt2_module_get_note_param cur_pat row ch)
 
                     let note_s: string = (period_to_note period)
                     let mut samp_s: string = ".."
                     if (!= sample 0) { set samp_s (byte_to_hex sample) } else {}
 
                     let mut eff_s: string = "..."
-                    if (or (!= cmd 0) (!= par 0)) {
-                        set eff_s (+ (hex_digit cmd) (byte_to_hex par))
+                    if (or (!= cmd 0) (!= note_par 0)) {
+                        set eff_s (+ (hex_digit cmd) (byte_to_hex note_par))
                     } else {}
 
                     let t1: string = (+ note_s " ")
