@@ -249,10 +249,11 @@ typedef enum {
     TOKEN_LARROW = 76,
     TOKEN_QUESTION = 77,
     TOKEN_PAR = 78,
-    TOKEN_EFFECT = 79,
-    TOKEN_HANDLE = 80,
-    TOKEN_WITH = 81,
-    TOKEN_RESUME = 82
+    TOKEN_BAR = 79,
+    TOKEN_EFFECT = 80,
+    TOKEN_HANDLE = 81,
+    TOKEN_WITH = 82,
+    TOKEN_RESUME = 83
 } TokenType;
 
 typedef enum {
