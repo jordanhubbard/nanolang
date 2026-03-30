@@ -302,7 +302,8 @@ typedef enum {
     PNODE_GRAMMAR = 39,
     PNODE_PAR_BLOCK = 40,
     PNODE_EFFECT_DECL = 41,
-    PNODE_HANDLE_EXPR = 42
+    PNODE_HANDLE_EXPR = 42,
+    PNODE_ASYNC_FN = 43
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken
