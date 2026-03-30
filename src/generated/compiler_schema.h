@@ -248,7 +248,9 @@ typedef enum {
     TOKEN_GRAMMAR = 75,
     TOKEN_LARROW = 76,
     TOKEN_QUESTION = 77,
-    TOKEN_PAR = 78
+    TOKEN_PAR = 78,
+    TOKEN_ASYNC = 79,
+    TOKEN_AWAIT = 80
 } TokenType;
 
 typedef enum {

@@ -124,7 +124,7 @@ BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -1646,6 +1646,34 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 .PHONY: all build vm test test-selfhosted test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch
+
+# ============================================================================
+# AGENTFS PUBLISH
+# ============================================================================
+# Compile a .nano file to WASM and publish to AgentFS for use in agentOS
+# Usage:
+#   make publish SOURCE=src/my_agent.nano
+#   make publish SOURCE=src/my_agent.nano CAPABILITIES=fs,net
+#   make publish SOURCE=src/my_agent.nano AGENTFS_URL=http://localhost:8791
+publish:
+ifndef SOURCE
+	@echo "Usage: make publish SOURCE=<file.nano> [CAPABILITIES=fs,net] [AGENTFS_URL=http://...]"
+	@echo "       make publish SOURCE=examples/hello.nano --dry-run ARGS=--dry-run"
+	@exit 1
+endif
+	@scripts/nanoc-publish.sh $(SOURCE) \
+		$(if $(CAPABILITIES),--capabilities "$(CAPABILITIES)") \
+		$(if $(AGENTFS_URL),--agentfs "$(AGENTFS_URL)") \
+		$(ARGS)
+
+publish-dry-run:
+ifndef SOURCE
+	@echo "Usage: make publish-dry-run SOURCE=<file.nano>"
+	@exit 1
+endif
+	@scripts/nanoc-publish.sh $(SOURCE) --dry-run --verbose
+
+.PHONY: publish publish-dry-run
 
 # ============================================================================
 # RELEASE AUTOMATION

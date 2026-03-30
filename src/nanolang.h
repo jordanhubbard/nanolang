@@ -194,7 +194,9 @@ typedef enum {
     AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
     AST_UNSAFE_BLOCK,      /* Unsafe block: unsafe { ... } */
     AST_TRY_OP,            /* Postfix ? try operator: expr? */
-    AST_PAR_BLOCK          /* Parallel block: par { let a = ..., let b = ... } */
+    AST_PAR_BLOCK,         /* Parallel block: par { let a = ..., let b = ... } */
+    AST_ASYNC_FN,          /* async fn declaration: async fn name(...) -> T { body } */
+    AST_AWAIT              /* await expression: await expr */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -442,6 +444,16 @@ struct ASTNode {
             ASTNode **bindings;    /* Let-binding statements (AST_LET nodes) */
             int count;             /* Number of bindings */
         } par_block;
+
+        /* AST_ASYNC_FN — async function declaration (wraps a normal function node) */
+        struct {
+            ASTNode *function;      /* The underlying AST_FUNCTION node */
+        } async_fn;
+
+        /* AST_AWAIT — await expression */
+        struct {
+            ASTNode *expr;          /* Expression being awaited */
+        } await_expr;
     } as;
 };
 

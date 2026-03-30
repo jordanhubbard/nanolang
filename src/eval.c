@@ -4898,6 +4898,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return uv->field_values[0];
         }
 
+        case AST_AWAIT: {
+            /*
+             * await expr — in the synchronous interpreter, await is transparent:
+             * evaluate the inner expression and return its value directly.
+             * The semantic boundary exists for the CPS pass and WASM asyncify target.
+             * Full cooperative scheduling is a future runtime enhancement.
+             */
+            return eval_expression(expr->as.await_expr.expr, env);
+        }
+
         default:
             return create_void();
     }
@@ -5334,6 +5344,13 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_FUNCTION:
         case AST_SHADOW:
             /* Function and shadow definitions are handled at program level */
+            return create_void();
+
+        case AST_ASYNC_FN:
+            /* async fn — the CPS pass has already marked the inner function;
+             * register the inner function in the environment like a regular fn. */
+            if (stmt->as.async_fn.function)
+                return eval_statement(stmt->as.async_fn.function, env);
             return create_void();
 
         default:
