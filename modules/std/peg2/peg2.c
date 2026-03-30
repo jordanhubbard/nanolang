@@ -28,6 +28,11 @@
  *   5. Choice: e1 / e2
  */
 
+/* Enable POSIX extensions (strdup, strndup) on Linux/GCC */
+#ifndef _POSIX_C_SOURCE
+#  define _POSIX_C_SOURCE 200809L
+#endif
+
 #include "peg2.h"
 
 #include <stdio.h>

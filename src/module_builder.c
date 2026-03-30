@@ -1585,6 +1585,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         int prefix_pos = 0;
         prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, "%s -c -fPIC", cc);
 
+        // On Linux/FreeBSD enable POSIX 2008 extensions (strdup, strndup, etc.)
+        // macOS provides these unconditionally; Linux/BSD require the feature-test macro.
+#if !defined(__APPLE__)
+        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -D_POSIX_C_SOURCE=200809L");
+#endif
+
         // Add pkg-config cflags
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
