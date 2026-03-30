@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/stdlib/">
+        <link rel="canonical" href="https://jordanhubbard.github.io/nanolang/STDLIB/">
       
       
-        <link rel="prev" href="../STDLIB/">
+        <link rel="prev" href="../QUICK_REFERENCE/">
       
       
-        <link rel="next" href="math/">
+        <link rel="next" href="../stdlib/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Standard Library Reference - NanoLang Documentation</title>
+        <title>Overview - NanoLang Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#standard-library-reference" class="md-skip">
+        <a href="#my-standard-library-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Standard Library Reference
+              Overview
             
           </span>
         </div>
@@ -286,7 +286,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../STDLIB/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -564,34 +564,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../STDLIB/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -611,7 +583,7 @@
   <span class="md-ellipsis">
     
   
-    Standard Library Reference
+    Overview
   
 
     
@@ -629,7 +601,7 @@
   <span class="md-ellipsis">
     
   
-    Standard Library Reference
+    Overview
   
 
     
@@ -655,22 +627,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#modules" class="md-nav__link">
+  <a href="#core-io-3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Modules
+        Core I/O (3)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Modules">
+    <nav class="md-nav" aria-label="Core I/O (3)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#io" class="md-nav__link">
+  <a href="#printvalue-any-void" class="md-nav__link">
     <span class="md-ellipsis">
       
-        I/O
+        print(value: any) -&gt; void
       
     </span>
   </a>
@@ -678,10 +650,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#math" class="md-nav__link">
+  <a href="#printlnvalue-any-void" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Math
+        println(value: any) -&gt; void
       
     </span>
   </a>
@@ -689,10 +661,1562 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#string" class="md-nav__link">
+  <a href="#rangestart-int-end-int-iterator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        String
+        range(start: int, end: int) -&gt; iterator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#math-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Math (20)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Math (20)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#absx-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abs(x: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mina-int-b-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        min(a: int, b: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maxa-int-b-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        max(a: int, b: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sqrtx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sqrt(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#powbase-float-exponent-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pow(base: float, exponent: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#floorx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        floor(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ceilx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ceil(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roundx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        round(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sinx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sin(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cosx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cos(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tan(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atan2y-float-x-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        atan2(y: float, x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#asinx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        asin(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acosx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        acos(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atanx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        atan(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log2x-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log2(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log10x-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log10(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expx-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exp(x: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fmodx-float-y-float-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fmod(x: float, y: float) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-casting-and-conversion-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Casting and Conversion (11)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Casting and Conversion (11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cast_intvalue-any-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cast_int(value: any) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cast_floatvalue-any-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cast_float(value: any) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cast_boolvalue-any-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cast_bool(value: any) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cast_stringvalue-any-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cast_string(value: any) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#to_stringvalue-any-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_string(value: any) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#int_to_stringn-int-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        int_to_string(n: int) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float_to_stringf-float-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        float_to_string(f: float) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bool_to_stringb-bool-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bool_to_string(b: bool) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string_to_ints-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        string_to_int(s: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string_to_floats-string-float" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        string_to_float(s: string) -&gt; float
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#null_opaque-opaque" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        null_opaque() -&gt; opaque
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#string-operations-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String Operations (7)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="String Operations (7)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#str_lengths-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        str_length(s: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#str_concats1-string-s2-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        str_concat(s1: string, s2: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#str_substrings-string-start-int-length-int-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        str_substring(s: string, start: int, length: int) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#str_containss-string-substr-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        str_contains(s: string, substr: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#str_equalss1-string-s2-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        str_equals(s1: string, s2: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#char_ats-string-index-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        char_at(s: string, index: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string_from_charc-int-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        string_from_char(c: int) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#character-classification-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Character Classification (10)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Character Classification (10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#is_digitc-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_digit(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_alphac-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_alpha(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_alnumc-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_alnum(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_spacec-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_space(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_whitespacec-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_whitespace(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_upperc-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_upper(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is_lowerc-int-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_lower(c: int) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#digit_valuec-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        digit_value(c: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#char_to_lowerc-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        char_to_lower(c: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#char_to_upperc-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        char_to_upper(c: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#array-operations-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Array Operations (13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Array Operations (13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atarr-arrayt-index-int-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        at(arr: array&lt;T&gt;, index: int) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_getarr-arrayt-index-int-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_get(arr: array&lt;T&gt;, index: int) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_lengtharr-arrayt-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_length(arr: array&lt;T&gt;) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_newsize-int-default-t-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_new(size: int, default: T) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_setarr-arrayt-index-int-value-t-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_set(arr: array&lt;T&gt;, index: int, value: T) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_pusharr-arrayt-value-t-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_push(arr: array&lt;T&gt;, value: T) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_poparr-arrayt-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_pop(arr: array&lt;T&gt;) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_remove_atarr-arrayt-index-int-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_remove_at(arr: array&lt;T&gt;, index: int) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_slicearr-arrayt-start-int-length-int-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_slice(arr: array&lt;T&gt;, start: int, length: int) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_concatarr1-arrayt-arr2-arrayt-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_concat(arr1: array&lt;T&gt;, arr2: array&lt;T&gt;) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_maparr-arrayt-f-fnt-u-arrayu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_map(arr: array&lt;T&gt;, f: fn(T) -&gt; U) -&gt; array&lt;U&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_filterarr-arrayt-pred-fnt-bool-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_filter(arr: array&lt;T&gt;, pred: fn(T) -&gt; bool) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array_foldarr-arrayt-init-u-f-fnu-t-u-u" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        array_fold(arr: array&lt;T&gt;, init: U, f: fn(U, T) -&gt; U) -&gt; U
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#higher-order-functions-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Higher-Order Functions (3)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Higher-Order Functions (3)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filterarr-arrayt-predicate-fnt-bool-arrayt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        filter(arr: array&lt;T&gt;, predicate: fn(T) -&gt; bool) -&gt; array&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maparr-arrayt-f-fnt-u-arrayu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map(arr: array&lt;T&gt;, f: fn(T) -&gt; U) -&gt; array&lt;U&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reducearr-arrayt-init-u-f-fnu-t-u-u" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reduce(arr: array&lt;T&gt;, init: U, f: fn(U, T) -&gt; U) -&gt; U
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hashmap-operations-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HashMap Operations (16)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HashMap Operations (16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_new-hashmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_new() -&gt; hashmap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_gethm-hashmap-key-string-any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_get(hm: hashmap, key: string) -&gt; any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_sethm-hashmap-key-string-value-any-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_set(hm: hashmap, key: string, value: any) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_hashm-hashmap-key-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_has(hm: hashmap, key: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_deletehm-hashmap-key-string-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_delete(hm: hashmap, key: string) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_keyshm-hashmap-arraystring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_keys(hm: hashmap) -&gt; array&lt;string&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_valueshm-hashmap-arrayany" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_values(hm: hashmap) -&gt; array&lt;any&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hashmap_lengthhm-hashmap-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hashmap_length(hm: hashmap) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_new-hashmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_new() -&gt; hashmap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_gethm-hashmap-key-string-any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_get(hm: hashmap, key: string) -&gt; any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_sethm-hashmap-key-string-value-any-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_set(hm: hashmap, key: string, value: any) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_hashm-hashmap-key-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_has(hm: hashmap, key: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_deletehm-hashmap-key-string-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_delete(hm: hashmap, key: string) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_keyshm-hashmap-arraystring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_keys(hm: hashmap) -&gt; array&lt;string&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_valueshm-hashmap-arrayany" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_values(hm: hashmap) -&gt; array&lt;any&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map_lengthhm-hashmap-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map_length(hm: hashmap) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-type-operations-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Type Operations (7)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Type Operations (7)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#result_is_okr-resultt-e-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_is_ok(r: Result&lt;T, E&gt;) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_is_errr-resultt-e-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_is_err(r: Result&lt;T, E&gt;) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrapr-resultt-e-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap(r: Result&lt;T, E&gt;) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrap_errr-resultt-e-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap_err(r: Result&lt;T, E&gt;) -&gt; E
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_unwrap_orr-resultt-e-default-t-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_unwrap_or(r: Result&lt;T, E&gt;, default: T) -&gt; T
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_mapr-resultt-e-f-fnt-u-resultu-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_map(r: Result&lt;T, E&gt;, f: fn(T) -&gt; U) -&gt; Result&lt;U, E&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_and_then(r: Result&lt;T, E&gt;, f: fn(T) -&gt; Result&lt;U, E&gt;) -&gt; Result&lt;U, E&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-io-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File I/O (8)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File I/O (8)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file_readpath-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_read(path: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_read_bytespath-string-arrayint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_read_bytes(path: string) -&gt; array&lt;int&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_writepath-string-content-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_write(path: string, content: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_appendpath-string-content-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_append(path: string, content: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_removepath-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_remove(path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_renameold_path-string-new_path-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_rename(old_path: string, new_path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_existspath-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_exists(path: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_sizepath-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        file_size(path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-and-navigation-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory and Navigation (10)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Directory and Navigation (10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dir_existspath-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dir_exists(path: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dir_createpath-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dir_create(path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dir_removepath-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dir_remove(path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dir_listpath-string-arraystring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dir_list(path: string) -&gt; array&lt;string&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getcwd-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getcwd() -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chdirpath-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        chdir(path: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fs_walkdirpath-string-arraystring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fs_walkdir(path: string) -&gt; array&lt;string&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmp_dir-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tmp_dir() -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mktempprefix-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mktemp(prefix: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mktemp_dirprefix-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mktemp_dir(prefix: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#path-operations-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Operations (6)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path Operations (6)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#path_isfilepath-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_isfile(path: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path_isdirpath-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_isdir(path: string) -&gt; bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path_joina-string-b-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_join(a: string, b: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path_basenamepath-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_basename(path: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path_dirnamepath-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_dirname(path: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path_normalizepath-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        path_normalize(path: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-and-environment-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process and Environment (5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process and Environment (5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#systemcommand-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        system(command: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exitcode-int-void" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exit(code: int) -&gt; void
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getenvname-string-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        getenv(name: string) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setenvname-string-value-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setenv(name: string, value: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process_runcommand-string-arraystring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        process_run(command: string) -&gt; array&lt;string&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binary-string-and-utf-8-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binary String and UTF-8 (5)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binary String and UTF-8 (5)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bytes_from_strings-string-arrayint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bytes_from_string(s: string) -&gt; array&lt;int&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string_from_bytesbytes-arrayint-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        string_from_bytes(bytes: array&lt;int&gt;) -&gt; string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bstr_utf8_lengths-string-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bstr_utf8_length(s: string) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bstr_utf8_char_ats-string-index-int-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bstr_utf8_char_at(s: string, index: int) -&gt; int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bstr_validate_utf8s-string-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bstr_validate_utf8(s: string) -&gt; bool
       
     </span>
   </a>
@@ -720,7 +2244,35 @@
   
   
     <li class="md-nav__item">
-      <a href="math/" class="md-nav__link">
+      <a href="../stdlib/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standard Library Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stdlib/math/" class="md-nav__link">
         
   
   
@@ -748,7 +2300,7 @@
   
   
     <li class="md-nav__item">
-      <a href="string/" class="md-nav__link">
+      <a href="../stdlib/string/" class="md-nav__link">
         
   
   
@@ -776,7 +2328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="io/" class="md-nav__link">
+      <a href="../stdlib/io/" class="md-nav__link">
         
   
   
@@ -1106,18 +2658,769 @@
   
 
 
-<h1 id="standard-library-reference">Standard Library Reference<a class="headerlink" href="#standard-library-reference" title="Permanent link">&para;</a></h1>
-<p>This reference is auto-generated from doc comments in the nanolang C source.</p>
-<h2 id="modules">Modules<a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
-<h3 id="io"><a href="io/">I/O</a><a class="headerlink" href="#io" title="Permanent link">&para;</a></h3>
-<p>File system and OS interaction functions.
-<em>3 function(s) documented.</em></p>
-<h3 id="math"><a href="math/">Math</a><a class="headerlink" href="#math" title="Permanent link">&para;</a></h3>
-<p>Built-in mathematical functions available without any imports.
-<em>5 function(s) documented.</em></p>
-<h3 id="string"><a href="string/">String</a><a class="headerlink" href="#string" title="Permanent link">&para;</a></h3>
-<p>Built-in string manipulation functions.
-<em>3 function(s) documented.</em></p>
+<h1 id="my-standard-library-reference">My Standard Library Reference<a class="headerlink" href="#my-standard-library-reference" title="Permanent link">&para;</a></h1>
+<p>I provide these built-in functions. They are my core capabilities, available to you without external modules.</p>
+<hr />
+<h2 id="core-io-3">Core I/O (3)<a class="headerlink" href="#core-io-3" title="Permanent link">&para;</a></h2>
+<h3 id="printvalue-any-void"><code>print(value: any) -&gt; void</code><a class="headerlink" href="#printvalue-any-void" title="Permanent link">&para;</a></h3>
+<p>I print a value without a trailing newline.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(print &quot;Hello&quot;)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>(print 42)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>(print 3.14)
+</code></pre></div>
+<h3 id="printlnvalue-any-void"><code>println(value: any) -&gt; void</code><a class="headerlink" href="#printlnvalue-any-void" title="Permanent link">&para;</a></h3>
+<p>I print a value with a trailing newline. I am polymorphic — I work with int, float, string, and bool.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>(println &quot;Hello, World!&quot;)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(println 42)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>(println true)
+</code></pre></div>
+<h3 id="rangestart-int-end-int-iterator"><code>range(start: int, end: int) -&gt; iterator</code><a class="headerlink" href="#rangestart-int-end-int-iterator" title="Permanent link">&para;</a></h3>
+<p>I provide this special function for use only in <code>for</code> loops. I create an iterator from <code>start</code> (inclusive) to <code>end</code> (exclusive).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>for i in (range 0 10) {
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    (println i)  # Prints 0, 1, 2, ..., 9
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>for i in (range 5 8) {
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    (println i)  # Prints 5, 6, 7
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>}
+</code></pre></div>
+<p>I only allow <code>range</code> to be used in for-loop contexts.</p>
+<hr />
+<h2 id="math-20">Math (20)<a class="headerlink" href="#math-20" title="Permanent link">&para;</a></h2>
+<h3 id="absx-int-int"><code>abs(x: int) -&gt; int</code><a class="headerlink" href="#absx-int-int" title="Permanent link">&para;</a></h3>
+<p>I return the absolute value of an integer.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(abs -5)    # Returns 5
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>(abs 5)     # Returns 5
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>(abs 0)     # Returns 0
+</code></pre></div>
+<h3 id="mina-int-b-int-int"><code>min(a: int, b: int) -&gt; int</code><a class="headerlink" href="#mina-int-b-int-int" title="Permanent link">&para;</a></h3>
+<p>I return the minimum of two integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(min 5 10)   # Returns 5
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(min -3 0)   # Returns -3
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>(min 7 7)    # Returns 7
+</code></pre></div>
+<h3 id="maxa-int-b-int-int"><code>max(a: int, b: int) -&gt; int</code><a class="headerlink" href="#maxa-int-b-int-int" title="Permanent link">&para;</a></h3>
+<p>I return the maximum of two integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>(max 5 10)   # Returns 10
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>(max -3 0)   # Returns 0
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>(max 7 7)    # Returns 7
+</code></pre></div>
+<h3 id="sqrtx-float-float"><code>sqrt(x: float) -&gt; float</code><a class="headerlink" href="#sqrtx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the square root of x.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(sqrt 16.0)   # Returns 4.0
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>(sqrt 2.0)    # Returns 1.41421...
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>(sqrt 9.0)    # Returns 3.0
+</code></pre></div>
+<h3 id="powbase-float-exponent-float-float"><code>pow(base: float, exponent: float) -&gt; float</code><a class="headerlink" href="#powbase-float-exponent-float-float" title="Permanent link">&para;</a></h3>
+<p>I return base raised to the power of exponent.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(pow 2.0 3.0)    # Returns 8.0
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>(pow 5.0 2.0)    # Returns 25.0
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>(pow 2.0 -1.0)   # Returns 0.5
+</code></pre></div>
+<h3 id="floorx-float-float"><code>floor(x: float) -&gt; float</code><a class="headerlink" href="#floorx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the largest integer ≤ x as a float.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(floor 3.7)    # Returns 3.0
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>(floor 3.2)    # Returns 3.0
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>(floor -2.3)   # Returns -3.0
+</code></pre></div>
+<h3 id="ceilx-float-float"><code>ceil(x: float) -&gt; float</code><a class="headerlink" href="#ceilx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the smallest integer ≥ x as a float.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(ceil 3.2)    # Returns 4.0
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>(ceil 3.7)    # Returns 4.0
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>(ceil -2.7)   # Returns -2.0
+</code></pre></div>
+<h3 id="roundx-float-float"><code>round(x: float) -&gt; float</code><a class="headerlink" href="#roundx-float-float" title="Permanent link">&para;</a></h3>
+<p>I round to the nearest integer as a float.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(round 3.4)   # Returns 3.0
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>(round 3.6)   # Returns 4.0
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>(round 3.5)   # Returns 4.0
+</code></pre></div>
+<h3 id="sinx-float-float"><code>sin(x: float) -&gt; float</code><a class="headerlink" href="#sinx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the sine of x in radians.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>(sin 0.0)      # Returns 0.0
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>(sin 1.5708)   # Returns ≈1.0 (π/2)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>(sin 3.14159)  # Returns ≈0.0 (π)
+</code></pre></div>
+<h3 id="cosx-float-float"><code>cos(x: float) -&gt; float</code><a class="headerlink" href="#cosx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the cosine of x in radians.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>(cos 0.0)      # Returns 1.0
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>(cos 3.14159)  # Returns ≈-1.0 (π)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>(cos 1.5708)   # Returns ≈0.0 (π/2)
+</code></pre></div>
+<h3 id="tanx-float-float"><code>tan(x: float) -&gt; float</code><a class="headerlink" href="#tanx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the tangent of x in radians.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>(tan 0.0)     # Returns 0.0
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>(tan 0.7854)  # Returns ≈1.0 (π/4)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>(tan 1.0)     # Returns ≈1.5574
+</code></pre></div>
+<h3 id="atan2y-float-x-float-float"><code>atan2(y: float, x: float) -&gt; float</code><a class="headerlink" href="#atan2y-float-x-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the angle in radians between the positive x-axis and the point (x, y). I handle the quadrant correctly, unlike <code>atan</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>(atan2 1.0 1.0)    # Returns ≈0.7854 (π/4, first quadrant)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>(atan2 1.0 -1.0)   # Returns ≈2.3562 (3π/4, second quadrant)
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>(atan2 0.0 1.0)    # Returns 0.0
+</code></pre></div>
+<h3 id="asinx-float-float"><code>asin(x: float) -&gt; float</code><a class="headerlink" href="#asinx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the arcsine of x (inverse sine) in radians. My domain is -1.0 to 1.0 and I return values in -π/2 to π/2.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>(asin 1.0)    # Returns ≈1.5708 (π/2)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>(asin 0.5)    # Returns ≈0.5236 (π/6)
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>(asin 0.0)    # Returns 0.0
+</code></pre></div>
+<h3 id="acosx-float-float"><code>acos(x: float) -&gt; float</code><a class="headerlink" href="#acosx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the arccosine of x (inverse cosine) in radians. My domain is -1.0 to 1.0 and I return values in 0 to π.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>(acos 1.0)    # Returns 0.0
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>(acos 0.0)    # Returns ≈1.5708 (π/2)
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>(acos -1.0)   # Returns ≈3.14159 (π)
+</code></pre></div>
+<h3 id="atanx-float-float"><code>atan(x: float) -&gt; float</code><a class="headerlink" href="#atanx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the arctangent of x (inverse tangent) in radians. I return values in -π/2 to π/2.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>(atan 1.0)    # Returns ≈0.7854 (π/4)
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>(atan 0.0)    # Returns 0.0
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>(atan -1.0)   # Returns ≈-0.7854 (-π/4)
+</code></pre></div>
+<h3 id="logx-float-float"><code>log(x: float) -&gt; float</code><a class="headerlink" href="#logx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the natural logarithm (base e) of x.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>(log 1.0)    # Returns 0.0
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>(log 2.718)  # Returns ≈1.0
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>(log 10.0)   # Returns ≈2.303
+</code></pre></div>
+<h3 id="log2x-float-float"><code>log2(x: float) -&gt; float</code><a class="headerlink" href="#log2x-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the base-2 logarithm of x.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>(log2 1.0)   # Returns 0.0
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>(log2 2.0)   # Returns 1.0
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>(log2 8.0)   # Returns 3.0
+</code></pre></div>
+<h3 id="log10x-float-float"><code>log10(x: float) -&gt; float</code><a class="headerlink" href="#log10x-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the base-10 logarithm of x.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>(log10 1.0)    # Returns 0.0
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>(log10 10.0)   # Returns 1.0
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>(log10 100.0)  # Returns 2.0
+</code></pre></div>
+<h3 id="expx-float-float"><code>exp(x: float) -&gt; float</code><a class="headerlink" href="#expx-float-float" title="Permanent link">&para;</a></h3>
+<p>I return e raised to the power of x.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>(exp 0.0)   # Returns 1.0
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>(exp 1.0)   # Returns ≈2.71828
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>(exp 2.0)   # Returns ≈7.389
+</code></pre></div>
+<h3 id="fmodx-float-y-float-float"><code>fmod(x: float, y: float) -&gt; float</code><a class="headerlink" href="#fmodx-float-y-float-float" title="Permanent link">&para;</a></h3>
+<p>I return the floating-point remainder of x divided by y.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>(fmod 5.5 2.0)    # Returns 1.5
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>(fmod 10.0 3.0)   # Returns 1.0
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>(fmod -5.5 2.0)   # Returns -1.5
+</code></pre></div>
+<hr />
+<h2 id="type-casting-and-conversion-11">Type Casting and Conversion (11)<a class="headerlink" href="#type-casting-and-conversion-11" title="Permanent link">&para;</a></h2>
+<h3 id="cast_intvalue-any-int"><code>cast_int(value: any) -&gt; int</code><a class="headerlink" href="#cast_intvalue-any-int" title="Permanent link">&para;</a></h3>
+<p>I cast any value to an integer. I truncate floats and parse strings.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>(cast_int 3.14)   # Returns 3
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>(cast_int &quot;42&quot;)   # Returns 42
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>(cast_int true)   # Returns 1
+</code></pre></div>
+<h3 id="cast_floatvalue-any-float"><code>cast_float(value: any) -&gt; float</code><a class="headerlink" href="#cast_floatvalue-any-float" title="Permanent link">&para;</a></h3>
+<p>I cast any value to a float. I parse strings and convert integers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>(cast_float 42)      # Returns 42.0
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>(cast_float &quot;3.14&quot;)  # Returns 3.14
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>(cast_float false)   # Returns 0.0
+</code></pre></div>
+<h3 id="cast_boolvalue-any-bool"><code>cast_bool(value: any) -&gt; bool</code><a class="headerlink" href="#cast_boolvalue-any-bool" title="Permanent link">&para;</a></h3>
+<p>I cast any value to a boolean. I treat 0, empty string, and null as false; everything else becomes true.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>(cast_bool 1)       # Returns true
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>(cast_bool 0)       # Returns false
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>(cast_bool &quot;hello&quot;) # Returns true
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>(cast_bool &quot;&quot;)      # Returns false
+</code></pre></div>
+<h3 id="cast_stringvalue-any-string"><code>cast_string(value: any) -&gt; string</code><a class="headerlink" href="#cast_stringvalue-any-string" title="Permanent link">&para;</a></h3>
+<p>I cast any value to its string representation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>(cast_string 42)    # Returns &quot;42&quot;
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>(cast_string 3.14)  # Returns &quot;3.14&quot;
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>(cast_string true)  # Returns &quot;true&quot;
+</code></pre></div>
+<h3 id="to_stringvalue-any-string"><code>to_string(value: any) -&gt; string</code><a class="headerlink" href="#to_stringvalue-any-string" title="Permanent link">&para;</a></h3>
+<p>I convert any value to its string representation. I am an alias for <code>cast_string</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>(to_string 99)      # Returns &quot;99&quot;
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>(to_string false)   # Returns &quot;false&quot;
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>(to_string 1.5)     # Returns &quot;1.5&quot;
+</code></pre></div>
+<h3 id="int_to_stringn-int-string"><code>int_to_string(n: int) -&gt; string</code><a class="headerlink" href="#int_to_stringn-int-string" title="Permanent link">&para;</a></h3>
+<p>I convert an integer to its string representation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>(int_to_string 42)    # Returns &quot;42&quot;
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>(int_to_string 0)     # Returns &quot;0&quot;
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>(int_to_string -100)  # Returns &quot;-100&quot;
+</code></pre></div>
+<h3 id="float_to_stringf-float-string"><code>float_to_string(f: float) -&gt; string</code><a class="headerlink" href="#float_to_stringf-float-string" title="Permanent link">&para;</a></h3>
+<p>I convert a float to its string representation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>(float_to_string 3.14)   # Returns &quot;3.14&quot;
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>(float_to_string 0.0)    # Returns &quot;0.0&quot;
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>(float_to_string -1.5)   # Returns &quot;-1.5&quot;
+</code></pre></div>
+<h3 id="bool_to_stringb-bool-string"><code>bool_to_string(b: bool) -&gt; string</code><a class="headerlink" href="#bool_to_stringb-bool-string" title="Permanent link">&para;</a></h3>
+<p>I convert a boolean to its string representation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>(bool_to_string true)   # Returns &quot;true&quot;
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>(bool_to_string false)  # Returns &quot;false&quot;
+</code></pre></div>
+<h3 id="string_to_ints-string-int"><code>string_to_int(s: string) -&gt; int</code><a class="headerlink" href="#string_to_ints-string-int" title="Permanent link">&para;</a></h3>
+<p>I parse a string to an integer. I return 0 if the string cannot be parsed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>(string_to_int &quot;42&quot;)     # Returns 42
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>(string_to_int &quot;-100&quot;)   # Returns -100
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>(string_to_int &quot;abc&quot;)    # Returns 0
+</code></pre></div>
+<h3 id="string_to_floats-string-float"><code>string_to_float(s: string) -&gt; float</code><a class="headerlink" href="#string_to_floats-string-float" title="Permanent link">&para;</a></h3>
+<p>I parse a string to a float. I return 0.0 if the string cannot be parsed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>(string_to_float &quot;3.14&quot;)  # Returns 3.14
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>(string_to_float &quot;1e-3&quot;)  # Returns 0.001
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>(string_to_float &quot;bad&quot;)   # Returns 0.0
+</code></pre></div>
+<h3 id="null_opaque-opaque"><code>null_opaque() -&gt; opaque</code><a class="headerlink" href="#null_opaque-opaque" title="Permanent link">&para;</a></h3>
+<p>I return a null opaque handle. I am useful as a sentinel value when working with foreign function interfaces.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>let handle: opaque = (null_opaque)
+</code></pre></div>
+<hr />
+<h2 id="string-operations-7">String Operations (7)<a class="headerlink" href="#string-operations-7" title="Permanent link">&para;</a></h2>
+<h3 id="str_lengths-string-int"><code>str_length(s: string) -&gt; int</code><a class="headerlink" href="#str_lengths-string-int" title="Permanent link">&para;</a></h3>
+<p>I return the length of a string in bytes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>(str_length &quot;Hello&quot;)   # Returns 5
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>(str_length &quot;&quot;)        # Returns 0
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>(str_length &quot;abc&quot;)     # Returns 3
+</code></pre></div>
+<h3 id="str_concats1-string-s2-string-string"><code>str_concat(s1: string, s2: string) -&gt; string</code><a class="headerlink" href="#str_concats1-string-s2-string-string" title="Permanent link">&para;</a></h3>
+<p>I concatenate two strings and return a new string.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>(str_concat &quot;Hello&quot; &quot; World&quot;)   # Returns &quot;Hello World&quot;
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>(str_concat &quot;foo&quot; &quot;bar&quot;)        # Returns &quot;foobar&quot;
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>(str_concat &quot;&quot; &quot;test&quot;)          # Returns &quot;test&quot;
+</code></pre></div>
+<h3 id="str_substrings-string-start-int-length-int-string"><code>str_substring(s: string, start: int, length: int) -&gt; string</code><a class="headerlink" href="#str_substrings-string-start-int-length-int-string" title="Permanent link">&para;</a></h3>
+<p>I extract a substring starting at <code>start</code> with the given <code>length</code>. The index is 0-based. I return until the end of the string if <code>start + length</code> exceeds the string length. I return an empty string if <code>start</code> is out of bounds.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>(str_substring &quot;Hello, World!&quot; 0 5)   # Returns &quot;Hello&quot;
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>(str_substring &quot;Hello, World!&quot; 7 5)   # Returns &quot;World&quot;
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>(str_substring &quot;Hello&quot; 2 100)         # Returns &quot;llo&quot;
+</code></pre></div>
+<h3 id="str_containss-string-substr-string-bool"><code>str_contains(s: string, substr: string) -&gt; bool</code><a class="headerlink" href="#str_containss-string-substr-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if string <code>s</code> contains substring <code>substr</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>(str_contains &quot;The quick brown fox&quot; &quot;quick&quot;)   # Returns true
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>(str_contains &quot;The quick brown fox&quot; &quot;slow&quot;)    # Returns false
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>(str_contains &quot;hello&quot; &quot;&quot;)                      # Returns true
+</code></pre></div>
+<h3 id="str_equalss1-string-s2-string-bool"><code>str_equals(s1: string, s2: string) -&gt; bool</code><a class="headerlink" href="#str_equalss1-string-s2-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if both strings are exactly equal.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>(str_equals &quot;Hello&quot; &quot;Hello&quot;)   # Returns true
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>(str_equals &quot;Hello&quot; &quot;World&quot;)   # Returns false
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>(str_equals &quot;&quot; &quot;&quot;)             # Returns true
+</code></pre></div>
+<h3 id="char_ats-string-index-int-int"><code>char_at(s: string, index: int) -&gt; int</code><a class="headerlink" href="#char_ats-string-index-int-int" title="Permanent link">&para;</a></h3>
+<p>I return the ASCII value of the character at the specified 0-based index. I terminate with an error if the index is out of bounds.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>(char_at &quot;Hello&quot; 0)   # Returns 72 (&#39;H&#39;)
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>(char_at &quot;Hello&quot; 1)   # Returns 101 (&#39;e&#39;)
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>(char_at &quot;Hello&quot; 4)   # Returns 111 (&#39;o&#39;)
+</code></pre></div>
+<h3 id="string_from_charc-int-string"><code>string_from_char(c: int) -&gt; string</code><a class="headerlink" href="#string_from_charc-int-string" title="Permanent link">&para;</a></h3>
+<p>I create a single-character string from an ASCII value.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>(string_from_char 65)   # Returns &quot;A&quot;
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>(string_from_char 90)   # Returns &quot;Z&quot;
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>(string_from_char 48)   # Returns &quot;0&quot;
+</code></pre></div>
+<hr />
+<h2 id="character-classification-10">Character Classification (10)<a class="headerlink" href="#character-classification-10" title="Permanent link">&para;</a></h2>
+<h3 id="is_digitc-int-bool"><code>is_digit(c: int) -&gt; bool</code><a class="headerlink" href="#is_digitc-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents a decimal digit ('0'–'9').</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>(is_digit 48)   # Returns true  (&#39;0&#39;)
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>(is_digit 53)   # Returns true  (&#39;5&#39;)
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>(is_digit 65)   # Returns false (&#39;A&#39;)
+</code></pre></div>
+<h3 id="is_alphac-int-bool"><code>is_alpha(c: int) -&gt; bool</code><a class="headerlink" href="#is_alphac-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents a letter (a–z, A–Z).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>(is_alpha 65)    # Returns true  (&#39;A&#39;)
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>(is_alpha 97)    # Returns true  (&#39;a&#39;)
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>(is_alpha 48)    # Returns false (&#39;0&#39;)
+</code></pre></div>
+<h3 id="is_alnumc-int-bool"><code>is_alnum(c: int) -&gt; bool</code><a class="headerlink" href="#is_alnumc-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents an alphanumeric character (digit or letter).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>(is_alnum 48)   # Returns true  (&#39;0&#39;)
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>(is_alnum 65)   # Returns true  (&#39;A&#39;)
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>(is_alnum 32)   # Returns false (&#39; &#39;)
+</code></pre></div>
+<h3 id="is_spacec-int-bool"><code>is_space(c: int) -&gt; bool</code><a class="headerlink" href="#is_spacec-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code is a space character (ASCII 32).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>(is_space 32)   # Returns true  (&#39; &#39;)
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>(is_space 65)   # Returns false (&#39;A&#39;)
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>(is_space 9)    # Returns false (&#39;\t&#39;)
+</code></pre></div>
+<h3 id="is_whitespacec-int-bool"><code>is_whitespace(c: int) -&gt; bool</code><a class="headerlink" href="#is_whitespacec-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents any whitespace: space, tab, newline, or carriage return.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>(is_whitespace 32)   # Returns true  (&#39; &#39;)
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>(is_whitespace 9)    # Returns true  (&#39;\t&#39;)
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>(is_whitespace 10)   # Returns true  (&#39;\n&#39;)
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>(is_whitespace 65)   # Returns false (&#39;A&#39;)
+</code></pre></div>
+<h3 id="is_upperc-int-bool"><code>is_upper(c: int) -&gt; bool</code><a class="headerlink" href="#is_upperc-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents an uppercase letter (A–Z).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>(is_upper 65)   # Returns true  (&#39;A&#39;)
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>(is_upper 90)   # Returns true  (&#39;Z&#39;)
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>(is_upper 97)   # Returns false (&#39;a&#39;)
+</code></pre></div>
+<h3 id="is_lowerc-int-bool"><code>is_lower(c: int) -&gt; bool</code><a class="headerlink" href="#is_lowerc-int-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the character code represents a lowercase letter (a–z).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>(is_lower 97)    # Returns true  (&#39;a&#39;)
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>(is_lower 122)   # Returns true  (&#39;z&#39;)
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>(is_lower 65)    # Returns false (&#39;A&#39;)
+</code></pre></div>
+<h3 id="digit_valuec-int-int"><code>digit_value(c: int) -&gt; int</code><a class="headerlink" href="#digit_valuec-int-int" title="Permanent link">&para;</a></h3>
+<p>I convert a digit character code to its numeric value. I return -1 if it is not a digit.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>(digit_value 48)   # Returns 0  (&#39;0&#39; -&gt; 0)
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>(digit_value 53)   # Returns 5  (&#39;5&#39; -&gt; 5)
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>(digit_value 57)   # Returns 9  (&#39;9&#39; -&gt; 9)
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>(digit_value 65)   # Returns -1 (&#39;A&#39; is not a digit)
+</code></pre></div>
+<h3 id="char_to_lowerc-int-int"><code>char_to_lower(c: int) -&gt; int</code><a class="headerlink" href="#char_to_lowerc-int-int" title="Permanent link">&para;</a></h3>
+<p>I convert an uppercase letter code to lowercase. I leave non-letters unchanged.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>(char_to_lower 65)   # Returns 97  (&#39;A&#39; -&gt; &#39;a&#39;)
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>(char_to_lower 90)   # Returns 122 (&#39;Z&#39; -&gt; &#39;z&#39;)
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>(char_to_lower 48)   # Returns 48  (&#39;0&#39; -&gt; &#39;0&#39;, unchanged)
+</code></pre></div>
+<h3 id="char_to_upperc-int-int"><code>char_to_upper(c: int) -&gt; int</code><a class="headerlink" href="#char_to_upperc-int-int" title="Permanent link">&para;</a></h3>
+<p>I convert a lowercase letter code to uppercase. I leave non-letters unchanged.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>(char_to_upper 97)    # Returns 65  (&#39;a&#39; -&gt; &#39;A&#39;)
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>(char_to_upper 122)   # Returns 90  (&#39;z&#39; -&gt; &#39;Z&#39;)
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>(char_to_upper 48)    # Returns 48  (&#39;0&#39; -&gt; &#39;0&#39;, unchanged)
+</code></pre></div>
+<hr />
+<h2 id="array-operations-13">Array Operations (13)<a class="headerlink" href="#array-operations-13" title="Permanent link">&para;</a></h2>
+<h3 id="atarr-arrayt-index-int-t"><code>at(arr: array&lt;T&gt;, index: int) -&gt; T</code><a class="headerlink" href="#atarr-arrayt-index-int-t" title="Permanent link">&para;</a></h3>
+<p>I return the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>let nums: array&lt;int&gt; = [1, 2, 3, 4, 5]
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>(at nums 0)   # Returns 1
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>(at nums 4)   # Returns 5
+</code></pre></div>
+<h3 id="array_getarr-arrayt-index-int-t"><code>array_get(arr: array&lt;T&gt;, index: int) -&gt; T</code><a class="headerlink" href="#array_getarr-arrayt-index-int-t" title="Permanent link">&para;</a></h3>
+<p>I return the element at the specified 0-based index. I am an alias for <code>at</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>let nums: array&lt;int&gt; = [10, 20, 30]
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>(array_get nums 0)   # Returns 10
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>(array_get nums 2)   # Returns 30
+</code></pre></div>
+<h3 id="array_lengtharr-arrayt-int"><code>array_length(arr: array&lt;T&gt;) -&gt; int</code><a class="headerlink" href="#array_lengtharr-arrayt-int" title="Permanent link">&para;</a></h3>
+<p>I return the number of elements in an array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>let nums: array&lt;int&gt; = [10, 20, 30]
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>(array_length nums)    # Returns 3
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>(array_length [])      # Returns 0
+</code></pre></div>
+<h3 id="array_newsize-int-default-t-arrayt"><code>array_new(size: int, default: T) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_newsize-int-default-t-arrayt" title="Permanent link">&para;</a></h3>
+<p>I create a new array of the specified size, filled with the default value.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>let zeros: array&lt;int&gt; = (array_new 5 0)
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a># [0, 0, 0, 0, 0]
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>let strs: array&lt;string&gt; = (array_new 3 &quot;&quot;)
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a># [&quot;&quot;, &quot;&quot;, &quot;&quot;]
+</code></pre></div>
+<h3 id="array_setarr-arrayt-index-int-value-t-void"><code>array_set(arr: array&lt;T&gt;, index: int, value: T) -&gt; void</code><a class="headerlink" href="#array_setarr-arrayt-index-int-value-t-void" title="Permanent link">&para;</a></h3>
+<p>I set the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds. I require a mutable array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>let mut nums: array&lt;int&gt; = [1, 2, 3]
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>(array_set nums 1 42)
+<a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a># nums is now [1, 42, 3]
+</code></pre></div>
+<h3 id="array_pusharr-arrayt-value-t-arrayt"><code>array_push(arr: array&lt;T&gt;, value: T) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_pusharr-arrayt-value-t-arrayt" title="Permanent link">&para;</a></h3>
+<p>I append an element to the end of an array and return the updated array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>let mut numbers: array&lt;int&gt; = [1, 2, 3]
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a>(array_push numbers 4)
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a># numbers is now [1, 2, 3, 4]
+</code></pre></div>
+<h3 id="array_poparr-arrayt-t"><code>array_pop(arr: array&lt;T&gt;) -&gt; T</code><a class="headerlink" href="#array_poparr-arrayt-t" title="Permanent link">&para;</a></h3>
+<p>I remove and return the last element of the array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>let mut stack: array&lt;int&gt; = [1, 2, 3]
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>let last: int = (array_pop stack)   # Returns 3
+<a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a># stack is now [1, 2]
+</code></pre></div>
+<h3 id="array_remove_atarr-arrayt-index-int-arrayt"><code>array_remove_at(arr: array&lt;T&gt;, index: int) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_remove_atarr-arrayt-index-int-arrayt" title="Permanent link">&para;</a></h3>
+<p>I remove the element at the specified index, shifting remaining elements left, and return the updated array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>let mut items: array&lt;int&gt; = [10, 20, 30, 40]
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a>(array_remove_at items 1)
+<a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a># items is now [10, 30, 40]
+</code></pre></div>
+<h3 id="array_slicearr-arrayt-start-int-length-int-arrayt"><code>array_slice(arr: array&lt;T&gt;, start: int, length: int) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_slicearr-arrayt-start-int-length-int-arrayt" title="Permanent link">&para;</a></h3>
+<p>I create a new array from a portion of the original, starting at <code>start</code> with the given <code>length</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>let numbers: array&lt;int&gt; = [1, 2, 3, 4, 5]
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a>let subset: array&lt;int&gt; = (array_slice numbers 1 3)
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a># subset is [2, 3, 4]
+</code></pre></div>
+<h3 id="array_concatarr1-arrayt-arr2-arrayt-arrayt"><code>array_concat(arr1: array&lt;T&gt;, arr2: array&lt;T&gt;) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_concatarr1-arrayt-arr2-arrayt-arrayt" title="Permanent link">&para;</a></h3>
+<p>I concatenate two arrays and return a new array containing all elements.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>let a: array&lt;int&gt; = [1, 2, 3]
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a>let b: array&lt;int&gt; = [4, 5, 6]
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a>let c: array&lt;int&gt; = (array_concat a b)
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a># c is [1, 2, 3, 4, 5, 6]
+</code></pre></div>
+<h3 id="array_maparr-arrayt-f-fnt-u-arrayu"><code>array_map(arr: array&lt;T&gt;, f: fn(T) -&gt; U) -&gt; array&lt;U&gt;</code><a class="headerlink" href="#array_maparr-arrayt-f-fnt-u-arrayu" title="Permanent link">&para;</a></h3>
+<p>I apply a function to each element of an array and return a new array of the results.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>fn square(x: int) -&gt; int { return (* x x) }
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>let nums: array&lt;int&gt; = [1, 2, 3, 4]
+<a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a>let squares: array&lt;int&gt; = (array_map nums square)
+<a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a># squares is [1, 4, 9, 16]
+</code></pre></div>
+<h3 id="array_filterarr-arrayt-pred-fnt-bool-arrayt"><code>array_filter(arr: array&lt;T&gt;, pred: fn(T) -&gt; bool) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#array_filterarr-arrayt-pred-fnt-bool-arrayt" title="Permanent link">&para;</a></h3>
+<p>I return a new array containing only the elements for which the predicate returns true.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>fn is_even(n: int) -&gt; bool { return (== (% n 2) 0) }
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>
+<a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a>let nums: array&lt;int&gt; = [1, 2, 3, 4, 5, 6]
+<a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a>let evens: array&lt;int&gt; = (array_filter nums is_even)
+<a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a># evens is [2, 4, 6]
+</code></pre></div>
+<h3 id="array_foldarr-arrayt-init-u-f-fnu-t-u-u"><code>array_fold(arr: array&lt;T&gt;, init: U, f: fn(U, T) -&gt; U) -&gt; U</code><a class="headerlink" href="#array_foldarr-arrayt-init-u-f-fnu-t-u-u" title="Permanent link">&para;</a></h3>
+<p>I reduce an array to a single value by applying a function cumulatively, starting with <code>init</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>fn add(acc: int, x: int) -&gt; int { return (+ acc x) }
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a>
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>let nums: array&lt;int&gt; = [1, 2, 3, 4]
+<a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a>let sum: int = (array_fold nums 0 add)
+<a id="__codelineno-63-5" name="__codelineno-63-5" href="#__codelineno-63-5"></a># sum is 10
+</code></pre></div>
+<hr />
+<h2 id="higher-order-functions-3">Higher-Order Functions (3)<a class="headerlink" href="#higher-order-functions-3" title="Permanent link">&para;</a></h2>
+<h3 id="filterarr-arrayt-predicate-fnt-bool-arrayt"><code>filter(arr: array&lt;T&gt;, predicate: fn(T) -&gt; bool) -&gt; array&lt;T&gt;</code><a class="headerlink" href="#filterarr-arrayt-predicate-fnt-bool-arrayt" title="Permanent link">&para;</a></h3>
+<p>I create a new array with elements that satisfy the predicate. I am equivalent to <code>array_filter</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>fn is_even(n: int) -&gt; bool { return (== (% n 2) 0) }
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>let numbers: array&lt;int&gt; = [1, 2, 3, 4, 5, 6]
+<a id="__codelineno-64-4" name="__codelineno-64-4" href="#__codelineno-64-4"></a>let evens: array&lt;int&gt; = (filter numbers is_even)
+<a id="__codelineno-64-5" name="__codelineno-64-5" href="#__codelineno-64-5"></a># evens is [2, 4, 6]
+</code></pre></div>
+<h3 id="maparr-arrayt-f-fnt-u-arrayu"><code>map(arr: array&lt;T&gt;, f: fn(T) -&gt; U) -&gt; array&lt;U&gt;</code><a class="headerlink" href="#maparr-arrayt-f-fnt-u-arrayu" title="Permanent link">&para;</a></h3>
+<p>I transform each element using the provided function. I am equivalent to <code>array_map</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>fn square(x: int) -&gt; int { return (* x x) }
+<a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>
+<a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>let numbers: array&lt;int&gt; = [1, 2, 3, 4]
+<a id="__codelineno-65-4" name="__codelineno-65-4" href="#__codelineno-65-4"></a>let squares: array&lt;int&gt; = (map numbers square)
+<a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a># squares is [1, 4, 9, 16]
+</code></pre></div>
+<h3 id="reducearr-arrayt-init-u-f-fnu-t-u-u"><code>reduce(arr: array&lt;T&gt;, init: U, f: fn(U, T) -&gt; U) -&gt; U</code><a class="headerlink" href="#reducearr-arrayt-init-u-f-fnu-t-u-u" title="Permanent link">&para;</a></h3>
+<p>I reduce an array to a single value. I am equivalent to <code>array_fold</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>fn add(acc: int, x: int) -&gt; int { return (+ acc x) }
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>
+<a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a>let numbers: array&lt;int&gt; = [1, 2, 3, 4]
+<a id="__codelineno-66-4" name="__codelineno-66-4" href="#__codelineno-66-4"></a>let sum: int = (reduce numbers 0 add)
+<a id="__codelineno-66-5" name="__codelineno-66-5" href="#__codelineno-66-5"></a># sum is 10
+</code></pre></div>
+<hr />
+<h2 id="hashmap-operations-16">HashMap Operations (16)<a class="headerlink" href="#hashmap-operations-16" title="Permanent link">&para;</a></h2>
+<p>I provide HashMap as a key-value collection with O(1) average lookup.</p>
+<h3 id="hashmap_new-hashmap"><code>hashmap_new() -&gt; hashmap</code><a class="headerlink" href="#hashmap_new-hashmap" title="Permanent link">&para;</a></h3>
+<p>I create a new empty hashmap.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>let hm: hashmap = (hashmap_new)
+</code></pre></div>
+<h3 id="hashmap_gethm-hashmap-key-string-any"><code>hashmap_get(hm: hashmap, key: string) -&gt; any</code><a class="headerlink" href="#hashmap_gethm-hashmap-key-string-any" title="Permanent link">&para;</a></h3>
+<p>I return the value associated with <code>key</code>, or null if the key does not exist.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>(hashmap_set hm &quot;name&quot; &quot;Alice&quot;)
+<a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a>let val: string = (hashmap_get hm &quot;name&quot;)   # Returns &quot;Alice&quot;
+</code></pre></div>
+<h3 id="hashmap_sethm-hashmap-key-string-value-any-void"><code>hashmap_set(hm: hashmap, key: string, value: any) -&gt; void</code><a class="headerlink" href="#hashmap_sethm-hashmap-key-string-value-any-void" title="Permanent link">&para;</a></h3>
+<p>I insert or update the value for <code>key</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>let hm: hashmap = (hashmap_new)
+<a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>(hashmap_set hm &quot;score&quot; 100)
+<a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a>(hashmap_set hm &quot;name&quot; &quot;Bob&quot;)
+</code></pre></div>
+<h3 id="hashmap_hashm-hashmap-key-string-bool"><code>hashmap_has(hm: hashmap, key: string) -&gt; bool</code><a class="headerlink" href="#hashmap_hashm-hashmap-key-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if <code>key</code> exists in the hashmap.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>(hashmap_set hm &quot;x&quot; 42)
+<a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a>(hashmap_has hm &quot;x&quot;)       # Returns true
+<a id="__codelineno-70-3" name="__codelineno-70-3" href="#__codelineno-70-3"></a>(hashmap_has hm &quot;missing&quot;)  # Returns false
+</code></pre></div>
+<h3 id="hashmap_deletehm-hashmap-key-string-void"><code>hashmap_delete(hm: hashmap, key: string) -&gt; void</code><a class="headerlink" href="#hashmap_deletehm-hashmap-key-string-void" title="Permanent link">&para;</a></h3>
+<p>I remove the key-value pair for <code>key</code>. I do nothing if the key does not exist.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>(hashmap_set hm &quot;temp&quot; 99)
+<a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a>(hashmap_delete hm &quot;temp&quot;)
+<a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>(hashmap_has hm &quot;temp&quot;)   # Returns false
+</code></pre></div>
+<h3 id="hashmap_keyshm-hashmap-arraystring"><code>hashmap_keys(hm: hashmap) -&gt; array&lt;string&gt;</code><a class="headerlink" href="#hashmap_keyshm-hashmap-arraystring" title="Permanent link">&para;</a></h3>
+<p>I return all keys in the hashmap as an array of strings.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>(hashmap_set hm &quot;a&quot; 1)
+<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>(hashmap_set hm &quot;b&quot; 2)
+<a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a>let keys: array&lt;string&gt; = (hashmap_keys hm)
+<a id="__codelineno-72-4" name="__codelineno-72-4" href="#__codelineno-72-4"></a># keys contains [&quot;a&quot;, &quot;b&quot;] (order may vary)
+</code></pre></div>
+<h3 id="hashmap_valueshm-hashmap-arrayany"><code>hashmap_values(hm: hashmap) -&gt; array&lt;any&gt;</code><a class="headerlink" href="#hashmap_valueshm-hashmap-arrayany" title="Permanent link">&para;</a></h3>
+<p>I return all values in the hashmap as an array.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>(hashmap_set hm &quot;x&quot; 10)
+<a id="__codelineno-73-2" name="__codelineno-73-2" href="#__codelineno-73-2"></a>(hashmap_set hm &quot;y&quot; 20)
+<a id="__codelineno-73-3" name="__codelineno-73-3" href="#__codelineno-73-3"></a>let vals: array&lt;int&gt; = (hashmap_values hm)
+<a id="__codelineno-73-4" name="__codelineno-73-4" href="#__codelineno-73-4"></a># vals contains [10, 20] (order may vary)
+</code></pre></div>
+<h3 id="hashmap_lengthhm-hashmap-int"><code>hashmap_length(hm: hashmap) -&gt; int</code><a class="headerlink" href="#hashmap_lengthhm-hashmap-int" title="Permanent link">&para;</a></h3>
+<p>I return the number of key-value pairs in the hashmap.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>let hm: hashmap = (hashmap_new)
+<a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>(hashmap_set hm &quot;a&quot; 1)
+<a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a>(hashmap_set hm &quot;b&quot; 2)
+<a id="__codelineno-74-4" name="__codelineno-74-4" href="#__codelineno-74-4"></a>(hashmap_length hm)   # Returns 2
+</code></pre></div>
+<h3 id="map_new-hashmap"><code>map_new() -&gt; hashmap</code><a class="headerlink" href="#map_new-hashmap" title="Permanent link">&para;</a></h3>
+<p>I create a new empty hashmap. I am an alias for <code>hashmap_new</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>let m: hashmap = (map_new)
+</code></pre></div>
+<h3 id="map_gethm-hashmap-key-string-any"><code>map_get(hm: hashmap, key: string) -&gt; any</code><a class="headerlink" href="#map_gethm-hashmap-key-string-any" title="Permanent link">&para;</a></h3>
+<p>I return the value for <code>key</code>. I am an alias for <code>hashmap_get</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>let score: int = (map_get hm &quot;alice&quot;)
+</code></pre></div>
+<h3 id="map_sethm-hashmap-key-string-value-any-void"><code>map_set(hm: hashmap, key: string, value: any) -&gt; void</code><a class="headerlink" href="#map_sethm-hashmap-key-string-value-any-void" title="Permanent link">&para;</a></h3>
+<p>I insert or update a key-value pair. I am an alias for <code>hashmap_set</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>(map_set hm &quot;alice&quot; 10)
+<a id="__codelineno-77-2" name="__codelineno-77-2" href="#__codelineno-77-2"></a>(map_set hm &quot;bob&quot; 20)
+</code></pre></div>
+<h3 id="map_hashm-hashmap-key-string-bool"><code>map_has(hm: hashmap, key: string) -&gt; bool</code><a class="headerlink" href="#map_hashm-hashmap-key-string-bool" title="Permanent link">&para;</a></h3>
+<p>I check if a key exists. I am an alias for <code>hashmap_has</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>if (map_has hm &quot;alice&quot;) { (println &quot;found&quot;) }
+</code></pre></div>
+<h3 id="map_deletehm-hashmap-key-string-void"><code>map_delete(hm: hashmap, key: string) -&gt; void</code><a class="headerlink" href="#map_deletehm-hashmap-key-string-void" title="Permanent link">&para;</a></h3>
+<p>I remove a key-value pair. I am an alias for <code>hashmap_delete</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>(map_delete hm &quot;temp&quot;)
+</code></pre></div>
+<h3 id="map_keyshm-hashmap-arraystring"><code>map_keys(hm: hashmap) -&gt; array&lt;string&gt;</code><a class="headerlink" href="#map_keyshm-hashmap-arraystring" title="Permanent link">&para;</a></h3>
+<p>I return all keys as an array. I am an alias for <code>hashmap_keys</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>let keys: array&lt;string&gt; = (map_keys hm)
+</code></pre></div>
+<h3 id="map_valueshm-hashmap-arrayany"><code>map_values(hm: hashmap) -&gt; array&lt;any&gt;</code><a class="headerlink" href="#map_valueshm-hashmap-arrayany" title="Permanent link">&para;</a></h3>
+<p>I return all values as an array. I am an alias for <code>hashmap_values</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>let vals: array&lt;int&gt; = (map_values hm)
+</code></pre></div>
+<h3 id="map_lengthhm-hashmap-int"><code>map_length(hm: hashmap) -&gt; int</code><a class="headerlink" href="#map_lengthhm-hashmap-int" title="Permanent link">&para;</a></h3>
+<p>I return the number of entries. I am an alias for <code>hashmap_length</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>let count: int = (map_length hm)
+</code></pre></div>
+<hr />
+<h2 id="result-type-operations-7">Result Type Operations (7)<a class="headerlink" href="#result-type-operations-7" title="Permanent link">&para;</a></h2>
+<p>My <code>Result&lt;T, E&gt;</code> type represents either success (<code>Ok</code>) or failure (<code>Err</code>).</p>
+<h3 id="result_is_okr-resultt-e-bool"><code>result_is_ok(r: Result&lt;T, E&gt;) -&gt; bool</code><a class="headerlink" href="#result_is_okr-resultt-e-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the result is an <code>Ok</code> value.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>let r: Result&lt;int, string&gt; = (divide 10 2)
+<a id="__codelineno-83-2" name="__codelineno-83-2" href="#__codelineno-83-2"></a>if (result_is_ok r) { (println &quot;Success!&quot;) }
+</code></pre></div>
+<h3 id="result_is_errr-resultt-e-bool"><code>result_is_err(r: Result&lt;T, E&gt;) -&gt; bool</code><a class="headerlink" href="#result_is_errr-resultt-e-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the result is an <code>Err</code> value.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>let r: Result&lt;int, string&gt; = (divide 10 0)
+<a id="__codelineno-84-2" name="__codelineno-84-2" href="#__codelineno-84-2"></a>if (result_is_err r) { (println &quot;Error occurred&quot;) }
+</code></pre></div>
+<h3 id="result_unwrapr-resultt-e-t"><code>result_unwrap(r: Result&lt;T, E&gt;) -&gt; T</code><a class="headerlink" href="#result_unwrapr-resultt-e-t" title="Permanent link">&para;</a></h3>
+<p>I extract the <code>Ok</code> value. I panic if the result is <code>Err</code> — use <code>result_is_ok</code> to check first.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>let r: Result&lt;int, string&gt; = (divide 10 2)
+<a id="__codelineno-85-2" name="__codelineno-85-2" href="#__codelineno-85-2"></a>let value: int = (result_unwrap r)   # Returns 5
+</code></pre></div>
+<h3 id="result_unwrap_errr-resultt-e-e"><code>result_unwrap_err(r: Result&lt;T, E&gt;) -&gt; E</code><a class="headerlink" href="#result_unwrap_errr-resultt-e-e" title="Permanent link">&para;</a></h3>
+<p>I extract the <code>Err</code> value. I panic if the result is <code>Ok</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>let r: Result&lt;int, string&gt; = (divide 10 0)
+<a id="__codelineno-86-2" name="__codelineno-86-2" href="#__codelineno-86-2"></a>if (result_is_err r) {
+<a id="__codelineno-86-3" name="__codelineno-86-3" href="#__codelineno-86-3"></a>    let msg: string = (result_unwrap_err r)
+<a id="__codelineno-86-4" name="__codelineno-86-4" href="#__codelineno-86-4"></a>    (println msg)
+<a id="__codelineno-86-5" name="__codelineno-86-5" href="#__codelineno-86-5"></a>}
+</code></pre></div>
+<h3 id="result_unwrap_orr-resultt-e-default-t-t"><code>result_unwrap_or(r: Result&lt;T, E&gt;, default: T) -&gt; T</code><a class="headerlink" href="#result_unwrap_orr-resultt-e-default-t-t" title="Permanent link">&para;</a></h3>
+<p>I extract the <code>Ok</code> value, or return <code>default</code> if the result is <code>Err</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>let r: Result&lt;int, string&gt; = (divide 10 0)
+<a id="__codelineno-87-2" name="__codelineno-87-2" href="#__codelineno-87-2"></a>let value: int = (result_unwrap_or r 0)   # Returns 0 (the default)
+</code></pre></div>
+<h3 id="result_mapr-resultt-e-f-fnt-u-resultu-e"><code>result_map(r: Result&lt;T, E&gt;, f: fn(T) -&gt; U) -&gt; Result&lt;U, E&gt;</code><a class="headerlink" href="#result_mapr-resultt-e-f-fnt-u-resultu-e" title="Permanent link">&para;</a></h3>
+<p>I apply a function to the <code>Ok</code> value and return a new result. I pass <code>Err</code> values through unchanged.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>fn double(x: int) -&gt; int { return (* x 2) }
+<a id="__codelineno-88-2" name="__codelineno-88-2" href="#__codelineno-88-2"></a>
+<a id="__codelineno-88-3" name="__codelineno-88-3" href="#__codelineno-88-3"></a>let r: Result&lt;int, string&gt; = (divide 10 2)
+<a id="__codelineno-88-4" name="__codelineno-88-4" href="#__codelineno-88-4"></a>let r2: Result&lt;int, string&gt; = (result_map r double)
+<a id="__codelineno-88-5" name="__codelineno-88-5" href="#__codelineno-88-5"></a># r2 is Ok(10)
+</code></pre></div>
+<h3 id="result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e"><code>result_and_then(r: Result&lt;T, E&gt;, f: fn(T) -&gt; Result&lt;U, E&gt;) -&gt; Result&lt;U, E&gt;</code><a class="headerlink" href="#result_and_thenr-resultt-e-f-fnt-resultu-e-resultu-e" title="Permanent link">&para;</a></h3>
+<p>I apply a function that itself returns a Result, and flatten the result. I pass <code>Err</code> values through unchanged. I use this to chain fallible operations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>fn safe_sqrt(x: int) -&gt; Result&lt;float, string&gt; {
+<a id="__codelineno-89-2" name="__codelineno-89-2" href="#__codelineno-89-2"></a>    if (&lt; x 0) { return (Err &quot;negative input&quot;) }
+<a id="__codelineno-89-3" name="__codelineno-89-3" href="#__codelineno-89-3"></a>    return (Ok (sqrt (cast_float x)))
+<a id="__codelineno-89-4" name="__codelineno-89-4" href="#__codelineno-89-4"></a>}
+<a id="__codelineno-89-5" name="__codelineno-89-5" href="#__codelineno-89-5"></a>
+<a id="__codelineno-89-6" name="__codelineno-89-6" href="#__codelineno-89-6"></a>let r: Result&lt;int, string&gt; = (divide 16 1)
+<a id="__codelineno-89-7" name="__codelineno-89-7" href="#__codelineno-89-7"></a>let r2: Result&lt;float, string&gt; = (result_and_then r safe_sqrt)
+<a id="__codelineno-89-8" name="__codelineno-89-8" href="#__codelineno-89-8"></a># r2 is Ok(4.0)
+</code></pre></div>
+<hr />
+<h2 id="file-io-8">File I/O (8)<a class="headerlink" href="#file-io-8" title="Permanent link">&para;</a></h2>
+<h3 id="file_readpath-string-string"><code>file_read(path: string) -&gt; string</code><a class="headerlink" href="#file_readpath-string-string" title="Permanent link">&para;</a></h3>
+<p>I read the entire contents of a file and return them as a string. I return an empty string on error.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>let content: string = (file_read &quot;data.txt&quot;)
+<a id="__codelineno-90-2" name="__codelineno-90-2" href="#__codelineno-90-2"></a>(println content)
+</code></pre></div>
+<h3 id="file_read_bytespath-string-arrayint"><code>file_read_bytes(path: string) -&gt; array&lt;int&gt;</code><a class="headerlink" href="#file_read_bytespath-string-arrayint" title="Permanent link">&para;</a></h3>
+<p>I read file contents as an array of byte values (0–255). I recommend this for binary files.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>let data: array&lt;int&gt; = (file_read_bytes &quot;image.png&quot;)
+<a id="__codelineno-91-2" name="__codelineno-91-2" href="#__codelineno-91-2"></a>let size: int = (array_length data)
+</code></pre></div>
+<h3 id="file_writepath-string-content-string-int"><code>file_write(path: string, content: string) -&gt; int</code><a class="headerlink" href="#file_writepath-string-content-string-int" title="Permanent link">&para;</a></h3>
+<p>I write string content to a file, overwriting it if it already exists. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>let status: int = (file_write &quot;output.txt&quot; &quot;Hello, World!&quot;)
+<a id="__codelineno-92-2" name="__codelineno-92-2" href="#__codelineno-92-2"></a>if (== status 0) { (println &quot;Write successful&quot;) }
+</code></pre></div>
+<h3 id="file_appendpath-string-content-string-int"><code>file_append(path: string, content: string) -&gt; int</code><a class="headerlink" href="#file_appendpath-string-content-string-int" title="Permanent link">&para;</a></h3>
+<p>I append string content to the end of a file, creating it if it does not exist. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>let status: int = (file_append &quot;log.txt&quot; &quot;New log entry\n&quot;)
+</code></pre></div>
+<h3 id="file_removepath-string-int"><code>file_remove(path: string) -&gt; int</code><a class="headerlink" href="#file_removepath-string-int" title="Permanent link">&para;</a></h3>
+<p>I delete a file permanently. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>let status: int = (file_remove &quot;temp.txt&quot;)
+</code></pre></div>
+<h3 id="file_renameold_path-string-new_path-string-int"><code>file_rename(old_path: string, new_path: string) -&gt; int</code><a class="headerlink" href="#file_renameold_path-string-new_path-string-int" title="Permanent link">&para;</a></h3>
+<p>I rename or move a file. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>let status: int = (file_rename &quot;old.txt&quot; &quot;new.txt&quot;)
+</code></pre></div>
+<h3 id="file_existspath-string-bool"><code>file_exists(path: string) -&gt; bool</code><a class="headerlink" href="#file_existspath-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the file exists and is accessible.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>if (file_exists &quot;config.json&quot;) {
+<a id="__codelineno-96-2" name="__codelineno-96-2" href="#__codelineno-96-2"></a>    let config: string = (file_read &quot;config.json&quot;)
+<a id="__codelineno-96-3" name="__codelineno-96-3" href="#__codelineno-96-3"></a>} else {
+<a id="__codelineno-96-4" name="__codelineno-96-4" href="#__codelineno-96-4"></a>    (println &quot;Config file not found&quot;)
+<a id="__codelineno-96-5" name="__codelineno-96-5" href="#__codelineno-96-5"></a>}
+</code></pre></div>
+<h3 id="file_sizepath-string-int"><code>file_size(path: string) -&gt; int</code><a class="headerlink" href="#file_sizepath-string-int" title="Permanent link">&para;</a></h3>
+<p>I return the file size in bytes, or -1 on error.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>let size: int = (file_size &quot;data.bin&quot;)
+<a id="__codelineno-97-2" name="__codelineno-97-2" href="#__codelineno-97-2"></a>(println (str_concat &quot;File size: &quot; (int_to_string size)))
+</code></pre></div>
+<hr />
+<h2 id="directory-and-navigation-10">Directory and Navigation (10)<a class="headerlink" href="#directory-and-navigation-10" title="Permanent link">&para;</a></h2>
+<h3 id="dir_existspath-string-bool"><code>dir_exists(path: string) -&gt; bool</code><a class="headerlink" href="#dir_existspath-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the path exists and is a directory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>if (not (dir_exists &quot;output&quot;)) {
+<a id="__codelineno-98-2" name="__codelineno-98-2" href="#__codelineno-98-2"></a>    (dir_create &quot;output&quot;)
+<a id="__codelineno-98-3" name="__codelineno-98-3" href="#__codelineno-98-3"></a>}
+</code></pre></div>
+<h3 id="dir_createpath-string-int"><code>dir_create(path: string) -&gt; int</code><a class="headerlink" href="#dir_createpath-string-int" title="Permanent link">&para;</a></h3>
+<p>I create a directory. Parent directories must already exist. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>let status: int = (dir_create &quot;build/output&quot;)
+</code></pre></div>
+<h3 id="dir_removepath-string-int"><code>dir_remove(path: string) -&gt; int</code><a class="headerlink" href="#dir_removepath-string-int" title="Permanent link">&para;</a></h3>
+<p>I remove an empty directory. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>let status: int = (dir_remove &quot;temp&quot;)
+</code></pre></div>
+<h3 id="dir_listpath-string-arraystring"><code>dir_list(path: string) -&gt; array&lt;string&gt;</code><a class="headerlink" href="#dir_listpath-string-arraystring" title="Permanent link">&para;</a></h3>
+<p>I list all entries in a directory and return an array of filenames (not full paths). I return an empty array on error.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>let entries: array&lt;string&gt; = (dir_list &quot;.&quot;)
+<a id="__codelineno-101-2" name="__codelineno-101-2" href="#__codelineno-101-2"></a>for entry in entries {
+<a id="__codelineno-101-3" name="__codelineno-101-3" href="#__codelineno-101-3"></a>    (println entry)
+<a id="__codelineno-101-4" name="__codelineno-101-4" href="#__codelineno-101-4"></a>}
+</code></pre></div>
+<h3 id="getcwd-string"><code>getcwd() -&gt; string</code><a class="headerlink" href="#getcwd-string" title="Permanent link">&para;</a></h3>
+<p>I return the current working directory as an absolute path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>let cwd: string = (getcwd)
+<a id="__codelineno-102-2" name="__codelineno-102-2" href="#__codelineno-102-2"></a>(println cwd)   # Prints e.g. &quot;/home/user/project&quot;
+</code></pre></div>
+<h3 id="chdirpath-string-int"><code>chdir(path: string) -&gt; int</code><a class="headerlink" href="#chdirpath-string-int" title="Permanent link">&para;</a></h3>
+<p>I change the current working directory. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>let status: int = (chdir &quot;/tmp&quot;)
+<a id="__codelineno-103-2" name="__codelineno-103-2" href="#__codelineno-103-2"></a>let cwd: string = (getcwd)
+<a id="__codelineno-103-3" name="__codelineno-103-3" href="#__codelineno-103-3"></a>(println cwd)   # Prints &quot;/tmp&quot;
+</code></pre></div>
+<h3 id="fs_walkdirpath-string-arraystring"><code>fs_walkdir(path: string) -&gt; array&lt;string&gt;</code><a class="headerlink" href="#fs_walkdirpath-string-arraystring" title="Permanent link">&para;</a></h3>
+<p>I recursively walk a directory tree and return an array of all file paths found.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>let files: array&lt;string&gt; = (fs_walkdir &quot;.&quot;)
+<a id="__codelineno-104-2" name="__codelineno-104-2" href="#__codelineno-104-2"></a>for f in files {
+<a id="__codelineno-104-3" name="__codelineno-104-3" href="#__codelineno-104-3"></a>    (println f)
+<a id="__codelineno-104-4" name="__codelineno-104-4" href="#__codelineno-104-4"></a>}
+</code></pre></div>
+<h3 id="tmp_dir-string"><code>tmp_dir() -&gt; string</code><a class="headerlink" href="#tmp_dir-string" title="Permanent link">&para;</a></h3>
+<p>I return the system's temporary directory path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>let tmp: string = (tmp_dir)
+<a id="__codelineno-105-2" name="__codelineno-105-2" href="#__codelineno-105-2"></a>(println tmp)   # Prints e.g. &quot;/tmp&quot;
+</code></pre></div>
+<h3 id="mktempprefix-string-string"><code>mktemp(prefix: string) -&gt; string</code><a class="headerlink" href="#mktempprefix-string-string" title="Permanent link">&para;</a></h3>
+<p>I create a new temporary file with the given prefix and return its path. The file is created and left open for writing.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>let path: string = (mktemp &quot;nano_work_&quot;)
+<a id="__codelineno-106-2" name="__codelineno-106-2" href="#__codelineno-106-2"></a>(file_write path &quot;some data&quot;)
+</code></pre></div>
+<h3 id="mktemp_dirprefix-string-string"><code>mktemp_dir(prefix: string) -&gt; string</code><a class="headerlink" href="#mktemp_dirprefix-string-string" title="Permanent link">&para;</a></h3>
+<p>I create a new temporary directory with the given prefix and return its path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>let dir: string = (mktemp_dir &quot;nano_build_&quot;)
+<a id="__codelineno-107-2" name="__codelineno-107-2" href="#__codelineno-107-2"></a>let out: string = (path_join dir &quot;output.txt&quot;)
+</code></pre></div>
+<hr />
+<h2 id="path-operations-6">Path Operations (6)<a class="headerlink" href="#path-operations-6" title="Permanent link">&para;</a></h2>
+<h3 id="path_isfilepath-string-bool"><code>path_isfile(path: string) -&gt; bool</code><a class="headerlink" href="#path_isfilepath-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the path exists and is a regular file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>if (path_isfile &quot;config.json&quot;) {
+<a id="__codelineno-108-2" name="__codelineno-108-2" href="#__codelineno-108-2"></a>    (println &quot;Found config file&quot;)
+<a id="__codelineno-108-3" name="__codelineno-108-3" href="#__codelineno-108-3"></a>}
+</code></pre></div>
+<h3 id="path_isdirpath-string-bool"><code>path_isdir(path: string) -&gt; bool</code><a class="headerlink" href="#path_isdirpath-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the path exists and is a directory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>if (path_isdir &quot;src&quot;) {
+<a id="__codelineno-109-2" name="__codelineno-109-2" href="#__codelineno-109-2"></a>    (println &quot;src directory exists&quot;)
+<a id="__codelineno-109-3" name="__codelineno-109-3" href="#__codelineno-109-3"></a>}
+</code></pre></div>
+<h3 id="path_joina-string-b-string-string"><code>path_join(a: string, b: string) -&gt; string</code><a class="headerlink" href="#path_joina-string-b-string-string" title="Permanent link">&para;</a></h3>
+<p>I join two path components with the appropriate separator. I use <code>/</code> on Unix.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-110-1" name="__codelineno-110-1" href="#__codelineno-110-1"></a>let full: string = (path_join &quot;/home/user&quot; &quot;documents&quot;)
+<a id="__codelineno-110-2" name="__codelineno-110-2" href="#__codelineno-110-2"></a># Returns &quot;/home/user/documents&quot;
+<a id="__codelineno-110-3" name="__codelineno-110-3" href="#__codelineno-110-3"></a>let nested: string = (path_join &quot;src&quot; &quot;main.nano&quot;)
+<a id="__codelineno-110-4" name="__codelineno-110-4" href="#__codelineno-110-4"></a># Returns &quot;src/main.nano&quot;
+</code></pre></div>
+<h3 id="path_basenamepath-string-string"><code>path_basename(path: string) -&gt; string</code><a class="headerlink" href="#path_basenamepath-string-string" title="Permanent link">&para;</a></h3>
+<p>I extract the filename component from a path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>(path_basename &quot;/path/to/file.txt&quot;)   # Returns &quot;file.txt&quot;
+<a id="__codelineno-111-2" name="__codelineno-111-2" href="#__codelineno-111-2"></a>(path_basename &quot;src/main.nano&quot;)       # Returns &quot;main.nano&quot;
+</code></pre></div>
+<h3 id="path_dirnamepath-string-string"><code>path_dirname(path: string) -&gt; string</code><a class="headerlink" href="#path_dirnamepath-string-string" title="Permanent link">&para;</a></h3>
+<p>I extract the directory component from a path.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-112-1" name="__codelineno-112-1" href="#__codelineno-112-1"></a>(path_dirname &quot;/path/to/file.txt&quot;)   # Returns &quot;/path/to&quot;
+<a id="__codelineno-112-2" name="__codelineno-112-2" href="#__codelineno-112-2"></a>(path_dirname &quot;src/main.nano&quot;)       # Returns &quot;src&quot;
+</code></pre></div>
+<h3 id="path_normalizepath-string-string"><code>path_normalize(path: string) -&gt; string</code><a class="headerlink" href="#path_normalizepath-string-string" title="Permanent link">&para;</a></h3>
+<p>I normalize a path by resolving <code>.</code>, <code>..</code>, and redundant separators.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-113-1" name="__codelineno-113-1" href="#__codelineno-113-1"></a>(path_normalize &quot;./foo/../bar/./baz&quot;)   # Returns &quot;bar/baz&quot;
+<a id="__codelineno-113-2" name="__codelineno-113-2" href="#__codelineno-113-2"></a>(path_normalize &quot;/a//b/./c&quot;)           # Returns &quot;/a/b/c&quot;
+</code></pre></div>
+<hr />
+<h2 id="process-and-environment-5">Process and Environment (5)<a class="headerlink" href="#process-and-environment-5" title="Permanent link">&para;</a></h2>
+<h3 id="systemcommand-string-int"><code>system(command: string) -&gt; int</code><a class="headerlink" href="#systemcommand-string-int" title="Permanent link">&para;</a></h3>
+<p>I execute a shell command and wait for it to complete. I return the exit code.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-114-1" name="__codelineno-114-1" href="#__codelineno-114-1"></a>let status: int = (system &quot;ls -la&quot;)
+<a id="__codelineno-114-2" name="__codelineno-114-2" href="#__codelineno-114-2"></a>if (!= status 0) { (println &quot;Command failed&quot;) }
+</code></pre></div>
+<h3 id="exitcode-int-void"><code>exit(code: int) -&gt; void</code><a class="headerlink" href="#exitcode-int-void" title="Permanent link">&para;</a></h3>
+<p>I terminate the program immediately with the given exit code.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-115-1" name="__codelineno-115-1" href="#__codelineno-115-1"></a>if (not (file_exists &quot;required.txt&quot;)) {
+<a id="__codelineno-115-2" name="__codelineno-115-2" href="#__codelineno-115-2"></a>    (println &quot;Error: required.txt not found&quot;)
+<a id="__codelineno-115-3" name="__codelineno-115-3" href="#__codelineno-115-3"></a>    (exit 1)
+<a id="__codelineno-115-4" name="__codelineno-115-4" href="#__codelineno-115-4"></a>}
+</code></pre></div>
+<h3 id="getenvname-string-string"><code>getenv(name: string) -&gt; string</code><a class="headerlink" href="#getenvname-string-string" title="Permanent link">&para;</a></h3>
+<p>I return the value of an environment variable. I return an empty string if it is not set.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-116-1" name="__codelineno-116-1" href="#__codelineno-116-1"></a>let home: string = (getenv &quot;HOME&quot;)
+<a id="__codelineno-116-2" name="__codelineno-116-2" href="#__codelineno-116-2"></a>let path: string = (getenv &quot;PATH&quot;)
+</code></pre></div>
+<h3 id="setenvname-string-value-string-int"><code>setenv(name: string, value: string) -&gt; int</code><a class="headerlink" href="#setenvname-string-value-string-int" title="Permanent link">&para;</a></h3>
+<p>I set an environment variable for the current process and its children. I return 0 on success and 1 on failure.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-117-1" name="__codelineno-117-1" href="#__codelineno-117-1"></a>let status: int = (setenv &quot;MY_VAR&quot; &quot;my_value&quot;)
+</code></pre></div>
+<h3 id="process_runcommand-string-arraystring"><code>process_run(command: string) -&gt; array&lt;string&gt;</code><a class="headerlink" href="#process_runcommand-string-arraystring" title="Permanent link">&para;</a></h3>
+<p>I execute a command and return its output as an array of strings. The first element is the exit code as a string, and subsequent elements are lines of stdout.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a>let result: array&lt;string&gt; = (process_run &quot;echo hello&quot;)
+<a id="__codelineno-118-2" name="__codelineno-118-2" href="#__codelineno-118-2"></a>let code: string = (at result 0)     # &quot;0&quot; (exit code)
+<a id="__codelineno-118-3" name="__codelineno-118-3" href="#__codelineno-118-3"></a>let line: string = (at result 1)     # &quot;hello&quot;
+</code></pre></div>
+<hr />
+<h2 id="binary-string-and-utf-8-5">Binary String and UTF-8 (5)<a class="headerlink" href="#binary-string-and-utf-8-5" title="Permanent link">&para;</a></h2>
+<h3 id="bytes_from_strings-string-arrayint"><code>bytes_from_string(s: string) -&gt; array&lt;int&gt;</code><a class="headerlink" href="#bytes_from_strings-string-arrayint" title="Permanent link">&para;</a></h3>
+<p>I convert a string to an array of byte values (0–255), one per character.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-119-1" name="__codelineno-119-1" href="#__codelineno-119-1"></a>let bytes: array&lt;int&gt; = (bytes_from_string &quot;Hello&quot;)
+<a id="__codelineno-119-2" name="__codelineno-119-2" href="#__codelineno-119-2"></a>(at bytes 0)   # Returns 72 (&#39;H&#39;)
+</code></pre></div>
+<h3 id="string_from_bytesbytes-arrayint-string"><code>string_from_bytes(bytes: array&lt;int&gt;) -&gt; string</code><a class="headerlink" href="#string_from_bytesbytes-arrayint-string" title="Permanent link">&para;</a></h3>
+<p>I construct a string from an array of byte values.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-120-1" name="__codelineno-120-1" href="#__codelineno-120-1"></a>let bytes: array&lt;int&gt; = [72, 101, 108, 108, 111]
+<a id="__codelineno-120-2" name="__codelineno-120-2" href="#__codelineno-120-2"></a>let s: string = (string_from_bytes bytes)   # Returns &quot;Hello&quot;
+</code></pre></div>
+<h3 id="bstr_utf8_lengths-string-int"><code>bstr_utf8_length(s: string) -&gt; int</code><a class="headerlink" href="#bstr_utf8_lengths-string-int" title="Permanent link">&para;</a></h3>
+<p>I return the number of Unicode code points in a UTF-8 encoded string, which may differ from its byte length for multi-byte characters.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-121-1" name="__codelineno-121-1" href="#__codelineno-121-1"></a>(bstr_utf8_length &quot;Hello&quot;)   # Returns 5
+<a id="__codelineno-121-2" name="__codelineno-121-2" href="#__codelineno-121-2"></a>(bstr_utf8_length &quot;café&quot;)    # Returns 4 (4 code points, 5 bytes)
+</code></pre></div>
+<h3 id="bstr_utf8_char_ats-string-index-int-int"><code>bstr_utf8_char_at(s: string, index: int) -&gt; int</code><a class="headerlink" href="#bstr_utf8_char_ats-string-index-int-int" title="Permanent link">&para;</a></h3>
+<p>I return the Unicode code point at the given character index (not byte index) in a UTF-8 string.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-122-1" name="__codelineno-122-1" href="#__codelineno-122-1"></a>(bstr_utf8_char_at &quot;Hello&quot; 0)   # Returns 72 (&#39;H&#39;)
+<a id="__codelineno-122-2" name="__codelineno-122-2" href="#__codelineno-122-2"></a>(bstr_utf8_char_at &quot;café&quot; 3)    # Returns the code point for &#39;é&#39;
+</code></pre></div>
+<h3 id="bstr_validate_utf8s-string-bool"><code>bstr_validate_utf8(s: string) -&gt; bool</code><a class="headerlink" href="#bstr_validate_utf8s-string-bool" title="Permanent link">&para;</a></h3>
+<p>I return true if the string contains valid UTF-8 encoded text.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-123-1" name="__codelineno-123-1" href="#__codelineno-123-1"></a>if (bstr_validate_utf8 content) {
+<a id="__codelineno-123-2" name="__codelineno-123-2" href="#__codelineno-123-2"></a>    (println &quot;Valid UTF-8&quot;)
+<a id="__codelineno-123-3" name="__codelineno-123-3" href="#__codelineno-123-3"></a>} else {
+<a id="__codelineno-123-4" name="__codelineno-123-4" href="#__codelineno-123-4"></a>    (println &quot;Invalid encoding&quot;)
+<a id="__codelineno-123-5" name="__codelineno-123-5" href="#__codelineno-123-5"></a>}
+</code></pre></div>
 
 
 
