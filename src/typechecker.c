@@ -5847,6 +5847,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             func.body = item->as.function.body;
             func.shadow_test = NULL;
             func.is_extern = item->as.function.is_extern;
+            func.is_gpu = item->as.function.is_gpu;  /* Store GPU annotation */
             func.is_pub = item->as.function.is_pub;  /* Store visibility */
             
             /* Store module context with independent copy */
@@ -6146,7 +6147,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 
             /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!env->suppress_shadow_warnings &&
+            if (!env->suppress_shadow_warnings && !env->gpu_target &&
                 !func->is_extern && !func->shadow_test &&
                 strcmp(item->as.function.name, "main") != 0 &&
                 strncmp(item->as.function.name, "__lambda_", 9) != 0) {
@@ -6178,13 +6179,13 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
         }
     }
     
-    /* Verify main function exists */
+    /* Verify main function exists (not required for GPU/PTX targets) */
     Function *main_func = env_get_function(env, "main");
-    if (!main_func) {
+    if (!main_func && !(env && env->gpu_target)) {
         fprintf(stderr, "Error: Program must define a 'main' function\n");
         fprintf(stderr, "  Hint: Add 'fn main() -> int { ... return 0 }' to your program.\n");
         tc.has_error = true;
-    } else if (main_func->return_type != TYPE_INT) {
+    } else if (main_func && main_func->return_type != TYPE_INT) {
         fprintf(stderr, "Error: 'main' function must return int\n");
         fprintf(stderr, "  Hint: Change the return type declaration to '-> int'.\n");
         tc.has_error = true;
@@ -6834,7 +6835,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 
             /* Verify function has shadow test (skip for extern functions, main, and functions that use extern functions) */
             Function *func = env_get_function(env, item->as.function.name);
-            if (!env->suppress_shadow_warnings &&
+            if (!env->suppress_shadow_warnings && !env->gpu_target &&
                 !func->is_extern && !func->shadow_test &&
                 strcmp(item->as.function.name, "main") != 0 &&
                 strncmp(item->as.function.name, "__lambda_", 9) != 0) {

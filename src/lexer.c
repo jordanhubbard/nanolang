@@ -27,6 +27,7 @@ static TokenType keyword_or_identifier(const char *str) {
     /* Keywords */
     if (strcmp(str, "module") == 0) return TOKEN_MODULE;
     if (strcmp(str, "pub") == 0) return TOKEN_PUB;
+    if (strcmp(str, "gpu") == 0) return TOKEN_GPU;
     if (strcmp(str, "from") == 0) return TOKEN_FROM;
     if (strcmp(str, "use") == 0) return TOKEN_USE;
     if (strcmp(str, "extern") == 0) return TOKEN_EXTERN;
@@ -543,6 +544,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_DOT: return "DOT";
         case TOKEN_MODULE: return "MODULE";
         case TOKEN_PUB: return "PUB";
+        case TOKEN_GPU: return "GPU";
         case TOKEN_FROM: return "FROM";
         case TOKEN_USE: return "USE";
         case TOKEN_FN: return "FN";

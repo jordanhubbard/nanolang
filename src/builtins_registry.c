@@ -213,6 +213,18 @@ const BuiltinEntry builtin_registry[] = {
     {"bstr_utf8_length",   "bstr_utf8_length",      1, {S,U,U,U}, I, OP_NOP, BUILTIN_PURE},
     {"bstr_utf8_char_at",  "bstr_utf8_char_at",     2, {S,I,U,U}, I, OP_NOP, BUILTIN_PURE},
     {"bstr_validate_utf8", "bstr_validate_utf8",    1, {S,U,U,U}, B, OP_NOP, BUILTIN_PURE},
+
+    /* ── GPU / PTX thread indexing builtins ─────────────────────────
+     * These are only meaningful inside `gpu fn` bodies.  Registered here
+     * so the typechecker does not reject them.  Emit is handled by ptx_backend.c.
+     */
+    {"thread_id_x",  "nl_gpu_thread_id_x",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"thread_id_y",  "nl_gpu_thread_id_y",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"thread_id_z",  "nl_gpu_thread_id_z",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"block_id_x",   "nl_gpu_block_id_x",   0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"block_id_y",   "nl_gpu_block_id_y",   0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"block_dim_x",  "nl_gpu_block_dim_x",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"block_dim_y",  "nl_gpu_block_dim_y",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
 };
 
 const int builtin_registry_count = sizeof(builtin_registry) / sizeof(builtin_registry[0]);

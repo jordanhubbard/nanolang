@@ -5087,6 +5087,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
         } else if (match(&parser, TOKEN_FN)) {
             /* Regular fn declarations (private by default) */
             parsed = parse_function(&parser, false, false);  /* is_extern=false, is_pub=false */
+        } else if (match(&parser, TOKEN_GPU)) {
+            /* gpu fn — GPU kernel: mark function as is_gpu */
+            advance(&parser);  /* consume 'gpu' */
+            parsed = parse_function(&parser, false, false);
+            if (parsed && parsed->type == AST_FUNCTION) {
+                parsed->as.function.is_gpu = true;
+            }
         } else if (match(&parser, TOKEN_SHADOW)) {
             parsed = parse_shadow(&parser);
         } else if (match(&parser, TOKEN_LET)) {
