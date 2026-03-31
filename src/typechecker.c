@@ -2410,6 +2410,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * Spread literals ({..base, overrides}) supply missing fields from
              * the spread source, so the explicit field_count may be less than
              * sdef->field_count; skip the arity check in that case. */
+            /* Type-check the spread source so the variable is marked as used */
+            if (expr->as.struct_literal.spread_source) {
+                check_expression(expr->as.struct_literal.spread_source, env);
+            }
+
             if (!expr->as.struct_literal.spread_source &&
                 expr->as.struct_literal.field_count != sdef->field_count) {
                 char hint[512];

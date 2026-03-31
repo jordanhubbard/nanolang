@@ -4614,8 +4614,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             
-            /* Handle spread syntax: {..base, extra: val} — anonymous struct only */
-            if (!struct_name && expr->as.struct_literal.spread_source) {
+            /* Handle spread syntax: {..base, extra: val}
+             * Note: struct_name may be non-NULL here if the typechecker inferred the
+             * target type from a 'let x: T = {..base, ...}' declaration. We must
+             * handle spread regardless of whether struct_name is set. */
+            if (expr->as.struct_literal.spread_source) {
                 Value base_val = eval_expression(expr->as.struct_literal.spread_source, env);
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
@@ -4646,8 +4649,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         expr->as.struct_literal.field_values[oi], env);
                     merged_count++;
                 }
-                const char *res_name = base_sv ? base_sv->struct_name : NULL;
-                Value result = create_struct(res_name, merged_names, merged_values, merged_count);
+                /* Prefer the declared struct_name (set by typechecker) over the
+                 * base value's name, so typed spreads like 'let x: T = {..base,...}'
+                 * produce a struct named T rather than whatever base's type was. */
+                const char *res_name = struct_name ? struct_name
+                                     : (base_sv ? base_sv->struct_name : NULL);
+                Value result = create_struct(res_name ? res_name : "anonymous",
+                                             merged_names, merged_values, merged_count);
                 free(merged_names);
                 free(merged_values);
                 return result;
