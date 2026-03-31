@@ -11,6 +11,7 @@
 #include "nanocore_export.h"
 #include "wasm_backend.h"
 #include "ptx_backend.h"
+#include "c_backend.h"
 #include "tco_pass.h"
 #include "cps_pass.h"
 #include "pgo_pass.h"
@@ -505,6 +506,36 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return ptx_rc;
+    }
+
+    /* ── C transpiler target: emit .c source and exit ─────────────────── */
+    if (opts->target && strcmp(opts->target, "c") == 0) {
+        const char *c_out = output_file;
+        char c_out_buf[PATH_MAX];
+        if (!c_out) {
+            strncpy(c_out_buf, input_file, PATH_MAX - 3);
+            c_out_buf[PATH_MAX - 3] = '\0';
+            char *dot = strrchr(c_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(c_out_buf, ".c");
+            c_out = c_out_buf;
+        }
+        if (opts->verbose) printf("Emitting C → %s\n", c_out);
+        int c_rc = c_backend_emit(program, c_out, input_file, opts->verbose);
+        if (c_rc == 0) {
+            printf("✓ C source emitted to %s\n", c_out);
+            printf("  Compile with: gcc -std=c11 %s -o %s\n",
+                   c_out, c_out_buf);
+        } else {
+            fprintf(stderr, "C backend failed\n");
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return c_rc;
     }
 
     /* Phase 4.1: Trust Report (if requested) */
@@ -1328,7 +1359,7 @@ int main(int argc, char *argv[]) {
         printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
         printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
-        printf("  --target <t>   Compile target: native (default), wasm, ptx\n");
+        printf("  --target <t>   Compile target: native (default), wasm, ptx, c\n");
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
