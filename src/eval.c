@@ -33,6 +33,28 @@ extern char **g_argv;
  * NULL when not debugging. */
 void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
 
+/* ── Coroutine spawn helpers ─────────────────────────────────────────── */
+
+/* Argument bundle for spawned coroutines */
+typedef struct {
+    char *func_name;    /* Name of the async function to call */
+    Value *args;        /* Argument array (malloc'd copy) */
+    int arg_count;
+    Environment *env;   /* Shared environment */
+} CoroCallArgs;
+
+/* Trampoline: called by the scheduler to run a spawned async function */
+static Value coro_trampoline(void *raw_arg, int coro_id) {
+    (void)coro_id;
+    CoroCallArgs *ca = (CoroCallArgs *)raw_arg;
+    extern Value call_function(const char *name, Value *args, int arg_count, Environment *env);
+    Value result = call_function(ca->func_name, ca->args, ca->arg_count, ca->env);
+    free(ca->args);
+    free(ca->func_name);
+    free(ca);
+    return result;
+}
+
 typedef struct {
     const char *test_name;
     int first_line;
@@ -514,6 +536,9 @@ static void print_value(Value val) {
             printf(")");
             break;
         }
+        case VAL_COROUTINE:
+            printf("<coroutine:%lld>", val.as.int_val);
+            break;
         case VAL_VOID:
             printf("void");
             break;
@@ -801,6 +826,12 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         case VAL_GC_STRUCT:
             eval_sb_append_cstr(sb, "<gc_struct>");
             break;
+        case VAL_COROUTINE: {
+            char coro_buf[32];
+            snprintf(coro_buf, sizeof(coro_buf), "<coroutine:%lld>", val.as.int_val);
+            eval_sb_append_cstr(sb, coro_buf);
+            break;
+        }
         case VAL_VOID:
             eval_sb_append_cstr(sb, "void");
             break;
@@ -2693,6 +2724,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case VAL_UNION:
                 case VAL_TUPLE:
                 case VAL_FUNCTION:
+                case VAL_COROUTINE:
                     /* These types don't support equality comparison yet */
                     equal = false;
                     break;
@@ -2793,6 +2825,101 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "range") == 0) {
         /* This should not be called directly */
         return create_void();
+    }
+
+    /* ── Coroutine builtins ─────────────────────────────────────────── */
+
+    /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
+     * Returns a VAL_COROUTINE value (int_val = coroutine id).
+     */
+    if (strcmp(name, "coro_spawn") == 0) {
+        if (node->as.call.arg_count < 1) {
+            fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
+            return create_void();
+        }
+        ASTNode *fn_arg = node->as.call.args[0];
+        const char *async_fn_name = NULL;
+        if (fn_arg->type == AST_IDENTIFIER) {
+            async_fn_name = fn_arg->as.identifier;
+        } else if (fn_arg->type == AST_STRING) {
+            async_fn_name = fn_arg->as.string_val;
+        } else {
+            Value fn_val = eval_expression(fn_arg, env);
+            if (fn_val.type == VAL_FUNCTION) {
+                async_fn_name = fn_val.as.function_val.function_name;
+            }
+        }
+        if (!async_fn_name) {
+            fprintf(stderr, "Error: spawn() first argument must be a function\n");
+            return create_void();
+        }
+
+        int extra_args = node->as.call.arg_count - 1;
+        Value *spawn_args = extra_args > 0
+            ? malloc(sizeof(Value) * extra_args)
+            : NULL;
+        for (int i = 0; i < extra_args; i++) {
+            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+        }
+
+        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        ca->func_name = strdup(async_fn_name);
+        ca->args = spawn_args;
+        ca->arg_count = extra_args;
+        ca->env = env;
+
+        if (!g_scheduler.initialized) nano_scheduler_init();
+        int coro_id = nano_coro_spawn(coro_trampoline, ca);
+        if (coro_id < 0) {
+            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
+            free(ca->func_name);
+            free(ca->args);
+            free(ca);
+            return create_void();
+        }
+
+        Value coro_val;
+        memset(&coro_val, 0, sizeof(coro_val));
+        coro_val.type = VAL_COROUTINE;
+        coro_val.as.int_val = (long long)coro_id;
+        return coro_val;
+    }
+
+    /* coro_yield() — cooperatively suspend the current coroutine */
+    if (strcmp(name, "coro_yield") == 0) {
+        nano_coro_yield();
+        return create_void();
+    }
+
+    /* coro_done(handle) — returns true if the coroutine is done */
+    if (strcmp(name, "coro_done") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        bool done = (h.type == VAL_COROUTINE)
+            ? nano_coro_is_done((int)h.as.int_val)
+            : true;
+        return create_bool(done);
+    }
+
+    /* coro_result(handle) — returns result of a completed coroutine */
+    if (strcmp(name, "coro_result") == 0) {
+        if (node->as.call.arg_count < 1) return create_void();
+        Value h = eval_expression(node->as.call.args[0], env);
+        return (h.type == VAL_COROUTINE)
+            ? nano_coro_result((int)h.as.int_val)
+            : create_void();
+    }
+
+    /* scheduler_run() — drain all pending coroutines */
+    if (strcmp(name, "scheduler_run") == 0) {
+        nano_scheduler_run_until_done();
+        return create_void();
+    }
+
+    /* scheduler_step() — run one scheduler step */
+    if (strcmp(name, "scheduler_step") == 0) {
+        bool did_work = nano_scheduler_step();
+        return create_bool(did_work);
     }
 
     /* Infer anonymous struct literal names from parameter types before evaluating */
@@ -5049,12 +5176,17 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_AWAIT: {
             /*
-             * await expr — in the synchronous interpreter, await is transparent:
-             * evaluate the inner expression and return its value directly.
-             * The semantic boundary exists for the CPS pass and WASM asyncify target.
-             * Full cooperative scheduling is a future runtime enhancement.
+             * await expr — evaluate the inner expression.
+             * If it yields a VAL_COROUTINE (from spawn), run the scheduler
+             * until that coroutine completes and return its result.
+             * Otherwise fall through (synchronous transparent await).
              */
-            return eval_expression(expr->as.await_expr.expr, env);
+            Value inner = eval_expression(expr->as.await_expr.expr, env);
+            if (inner.type == VAL_COROUTINE) {
+                int coro_id = (int)inner.as.int_val;
+                return nano_coro_await_id(coro_id);
+            }
+            return inner;
         }
 
         default:

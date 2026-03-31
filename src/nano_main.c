@@ -169,6 +169,9 @@ static int interpret_file(const char *input_file) {
     }
     /* If no main function, the program ran as a script and we're done */
 
+    /* Phase 6.5: Drain coroutine scheduler — run any pending async coroutines */
+    nano_scheduler_run_until_done();
+
     /* Cleanup */
     free_ast(program);
     free_tokens(tokens, token_count);
