@@ -3146,6 +3146,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return udef->variant_field_types[ok_idx][0];
         }
 
+        case AST_EFFECT_OP:
+            /* perform Effect.op arg — typecheck arg, return void */
+            if (expr->as.effect_op.arg)
+                check_expression(expr->as.effect_op.arg, env);
+            return TYPE_VOID;
+
         case AST_HANDLE_EXPR: {
             /* handle { body } with { op args -> handler_body ... }
              *
@@ -4184,6 +4190,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_EFFECT_DECL:
             /* Already registered in pass 1 — nothing to do here */
+            return TYPE_VOID;
+
+        case AST_EFFECT_OP:
+            /* perform Effect.op arg — type-check arg, return void for now */
+            if (stmt->as.effect_op.arg)
+                check_expression(stmt->as.effect_op.arg, tc->env);
             return TYPE_VOID;
 
         case AST_HANDLE_EXPR:

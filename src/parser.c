@@ -1624,6 +1624,46 @@ static ASTNode *parse_primary(Stage1Parser *p) {
 
         case TOKEN_IDENTIFIER:
         case TOKEN_SET: {
+            /* Handle `perform Effect.op arg` as a contextual keyword */
+            if (tok->value && strcmp(tok->value, "perform") == 0) {
+                int perf_line = tok->line, perf_col = tok->column;
+                advance(p); /* consume 'perform' */
+                /* Parse Effect.op — expect Identifier.Identifier */
+                Token *effect_tok = current_token(p);
+                char *effect_name = NULL;
+                char *op_name = NULL;
+                if (effect_tok && effect_tok->token_type == TOKEN_IDENTIFIER && effect_tok->value) {
+                    effect_name = strdup(effect_tok->value);
+                    advance(p);
+                    if (match(p, TOKEN_DOT)) {
+                        advance(p); /* consume '.' */
+                        Token *op_tok = current_token(p);
+                        if (op_tok && op_tok->token_type == TOKEN_IDENTIFIER && op_tok->value) {
+                            op_name = strdup(op_tok->value);
+                            advance(p);
+                        }
+                    }
+                }
+                /* Parse optional argument — handle both `perform E.op expr` and `perform E.op(expr)` */
+                ASTNode *arg = NULL;
+                if (match(p, TOKEN_LPAREN)) {
+                    /* perform E.op(arg) — paren wraps the argument */
+                    advance(p); /* consume '(' */
+                    if (!match(p, TOKEN_RPAREN)) {
+                        arg = parse_expression(p);
+                    }
+                    if (match(p, TOKEN_RPAREN)) advance(p); /* consume ')' */
+                } else if (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF) &&
+                           !match(p, TOKEN_RPAREN)) {
+                    arg = parse_primary(p);
+                }
+                ASTNode *perf_node = create_node(AST_EFFECT_OP, perf_line, perf_col);
+                perf_node->as.effect_op.effect_name = effect_name;
+                perf_node->as.effect_op.op_name = op_name;
+                perf_node->as.effect_op.arg = arg;
+                return perf_node;
+            }
+
             /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
             /* Only parse as struct literal if identifier starts with uppercase (type convention) */
             /* AND it's not followed by code keywords that indicate it's a condition */
@@ -3607,11 +3647,10 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
 
         op_count++;
 
-        /* Optional semicolon between operations */
-        if (match(p, TOKEN_COMMA) || (match(p, TOKEN_IDENTIFIER) && false)) {
-            /* Allow optional commas */
+        /* Optional comma between operations */
+        if (match(p, TOKEN_COMMA)) {
+            advance(p);
         }
-        /* Skip optional newline-style semicolons */
     }
 
     if (!expect(p, TOKEN_RBRACE, "Expected '}' to close effect declaration")) {
@@ -3657,20 +3696,33 @@ static ASTNode *parse_handle_expr(Stage1Parser *p) {
     int column = current_token(p)->column;
 
     if (!expect(p, TOKEN_HANDLE, "Expected 'handle'")) return NULL;
-    if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'handle'")) return NULL;
 
-    /* Parse the expression whose effects are being handled */
-    ASTNode *body = parse_expression(p);
-    if (!body) {
-        parser_error(p, current_token(p)->line, current_token(p)->column,
-            "Error at line %d, column %d: Expected expression in handle body\n",
-            current_token(p)->line, current_token(p)->column);
-        return NULL;
-    }
-
-    if (!expect(p, TOKEN_RBRACE, "Expected '}' after handle body")) {
-        free_ast(body);
-        return NULL;
+    /* Accept both `handle { expr }` and `handle expr` (no braces) forms.
+     * When expr starts with '(', that's a prefix-call: (fn args) — parse_expression handles it. */
+    ASTNode *body = NULL;
+    bool brace_form = match(p, TOKEN_LBRACE);
+    if (brace_form) {
+        advance(p); /* consume '{' */
+        body = parse_expression(p);
+        if (!body) {
+            parser_error(p, current_token(p)->line, current_token(p)->column,
+                "Error at line %d, column %d: Expected expression in handle body\n",
+                current_token(p)->line, current_token(p)->column);
+            return NULL;
+        }
+        if (!expect(p, TOKEN_RBRACE, "Expected '}' after handle body")) {
+            free_ast(body);
+            return NULL;
+        }
+    } else {
+        /* Bare expression form: handle (fn args) with { ... } */
+        body = parse_expression(p);
+        if (!body) {
+            parser_error(p, current_token(p)->line, current_token(p)->column,
+                "Error at line %d, column %d: Expected expression after 'handle'\n",
+                current_token(p)->line, current_token(p)->column);
+            return NULL;
+        }
     }
 
     if (!expect(p, TOKEN_WITH, "Expected 'with' after handle body")) {
