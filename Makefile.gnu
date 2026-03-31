@@ -1497,13 +1497,39 @@ coverage: CFLAGS += $(COVERAGE_FLAGS)
 coverage: LDFLAGS += $(COVERAGE_FLAGS)
 coverage: rebuild
 
-# Coverage report
+# Configurable coverage threshold (override with: make coverage-check COVERAGE_THRESHOLD=70)
+COVERAGE_THRESHOLD ?= 80.0
+
+# Coverage report: build with instrumentation, run tests, generate HTML
 coverage-report: coverage test
 	@echo "Generating coverage report..."
 	@$(TIMEOUT_CMD) lcov --capture --directory . --output-file coverage.info
 	@$(TIMEOUT_CMD) lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
-	@$(TIMEOUT_CMD) genhtml coverage.info --output-directory $(COV_DIR)
-	@echo "Coverage report generated in $(COV_DIR)/index.html"
+	@$(TIMEOUT_CMD) lcov --remove coverage.info '*/cJSON.c' --output-file coverage.info --ignore-errors unused
+	@$(TIMEOUT_CMD) genhtml coverage.info --output-directory $(COV_DIR) --branch-coverage
+	@echo "✅ Coverage report: $(COV_DIR)/index.html"
+	@$(MAKE) coverage-check
+
+# Coverage threshold check: parse coverage.info and fail if below COVERAGE_THRESHOLD
+coverage-check: coverage.info
+	@echo "Checking coverage threshold (>= $(COVERAGE_THRESHOLD)%)..."
+	@COVERAGE=$$(lcov --summary coverage.info 2>&1 | grep "lines\." | grep -oE '[0-9]+\.[0-9]+' | head -1); \
+	if [ -z "$$COVERAGE" ]; then \
+		echo "⚠️  Could not parse coverage percentage from coverage.info"; \
+		exit 1; \
+	fi; \
+	echo "Line coverage: $$COVERAGE%"; \
+	if command -v bc >/dev/null 2>&1; then \
+		if echo "$$COVERAGE < $(COVERAGE_THRESHOLD)" | bc -l | grep -q '^1'; then \
+			echo "❌ Coverage $$COVERAGE% is below threshold $(COVERAGE_THRESHOLD)%"; \
+			echo "   Add more tests or lower COVERAGE_THRESHOLD to override."; \
+			exit 1; \
+		else \
+			echo "✅ Coverage $$COVERAGE% meets threshold $(COVERAGE_THRESHOLD)%"; \
+		fi; \
+	else \
+		echo "⚠️  bc not found — skipping numeric threshold check"; \
+	fi
 
 # Install binaries
 install: $(COMPILER) vm
@@ -1628,7 +1654,8 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  make sanitize        - Build with sanitizers (AddressSanitizer + UBSan)"
 	@echo "  make coverage        - Build with coverage instrumentation"
-	@echo "  make coverage-report - Generate HTML coverage report (requires lcov)"
+	@echo "  make coverage-report - Generate HTML coverage report + threshold check (requires lcov)"
+	@echo "  make coverage-check  - Check coverage.info meets threshold (COVERAGE_THRESHOLD=$(COVERAGE_THRESHOLD))"
 	@echo "  make valgrind        - Run memory checks with valgrind"
 	@echo "  make install         - Install to $(PREFIX)/bin"
 	@echo ""
