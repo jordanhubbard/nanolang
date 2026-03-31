@@ -1,0 +1,102 @@
+-- stdlib/result.nano — Result<T, E> type for explicit error handling
+--
+-- Result<T, E> is either Ok(value) or Err(error).
+-- Forces the caller to handle the error case.
+--
+-- Usage:
+--   import result
+--   let r = result.ok(42)
+--   let e = result.err("bad input")
+--   print(result.is_ok(r))         -- true
+--   print(result.unwrap(r))        -- 42
+--   print(result.unwrap_err(e))    -- "bad input"
+
+struct Result {
+  is_ok:   bool,
+  value:   int,      -- valid when is_ok = true
+  err_msg: string,   -- valid when is_ok = false
+}
+
+-- Constructors
+pub fn ok(value: int) -> Result {
+  struct Result { is_ok: true, value: value, err_msg: "" }
+}
+
+pub fn err(msg: string) -> Result {
+  struct Result { is_ok: false, value: 0, err_msg: msg }
+}
+
+-- Predicates
+pub fn is_ok(r: Result) -> bool  { r.is_ok }
+pub fn is_err(r: Result) -> bool { !r.is_ok }
+
+-- Unwrap (panics on Err)
+pub fn unwrap(r: Result) -> int {
+  if r.is_ok {
+    r.value
+  } else {
+    panic("Result.unwrap called on Err: " + r.err_msg)
+    0
+  }
+}
+
+-- Unwrap error message (panics on Ok)
+pub fn unwrap_err(r: Result) -> string {
+  if !r.is_ok {
+    r.err_msg
+  } else {
+    panic("Result.unwrap_err called on Ok")
+    ""
+  }
+}
+
+-- Unwrap with default (returns default on Err)
+pub fn unwrap_or(r: Result, default: int) -> int {
+  if r.is_ok { r.value } else { default }
+}
+
+-- Map: transform Ok value, pass Err through
+pub fn map(r: Result, f: fn(int) -> int) -> Result {
+  if r.is_ok { ok(f(r.value)) } else { r }
+}
+
+-- map_err: transform Err message
+pub fn map_err(r: Result, f: fn(string) -> string) -> Result {
+  if !r.is_ok { err(f(r.err_msg)) } else { r }
+}
+
+-- and_then: monadic bind (flatMap on Ok)
+pub fn and_then(r: Result, f: fn(int) -> Result) -> Result {
+  if r.is_ok { f(r.value) } else { r }
+}
+
+-- or_else: fallback on Err
+pub fn or_else(r: Result, f: fn(string) -> Result) -> Result {
+  if !r.is_ok { f(r.err_msg) } else { r }
+}
+
+-- Convert Result to Option (discards error)
+pub fn ok_option(r: Result) -> import option.Option {
+  if r.is_ok { option.some(r.value) } else { option.none() }
+}
+
+-- Convert Result to string
+pub fn to_string(r: Result) -> string {
+  if r.is_ok {
+    "Ok(" + int_to_string(r.value) + ")"
+  } else {
+    "Err(" + r.err_msg + ")"
+  }
+}
+
+-- Try operator helper: propagate Err from inner block
+-- Usage: let v = try(fallible_fn())
+pub fn try_unwrap(r: Result) -> int {
+  if r.is_ok {
+    r.value
+  } else {
+    -- In a real effect system this would do an early return via Effect
+    panic("try_unwrap: " + r.err_msg)
+    0
+  }
+}

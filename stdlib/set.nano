@@ -1,0 +1,104 @@
+-- stdlib/set.nano — Persistent Set of ints (backed by sorted list)
+--
+-- A mathematical set: no duplicate elements, O(n) insert/member for v1.
+-- Uses stdlib/list.nano internally.
+--
+-- Usage:
+--   import set
+--   let s  = set.empty()
+--   let s2 = set.add(s, 5)
+--   let s3 = set.add(s2, 3)
+--   print(set.member(s3, 5))       -- true
+--   print(set.size(s3))            -- 2
+--   let s4 = set.union(s3, set.of(1, 2))
+
+pub fn empty() -> int { list.empty() }
+
+pub fn is_empty(s: int) -> bool { list.is_empty(s) }
+
+-- Add element (idempotent; no-op if already present)
+pub fn add(s: int, x: int) -> int {
+  if list.contains(s, x) { s }
+  else {
+    -- Insert in sorted order (keeps iteration deterministic)
+    if list.is_empty(s) {
+      list.of_one(x)
+    } else if x < list.head(s) {
+      list.cons(x, s)
+    } else {
+      list.cons(list.head(s), add(list.tail(s), x))
+    }
+  }
+}
+
+-- Remove element
+pub fn remove(s: int, x: int) -> int {
+  list.filter(s, fn(e) { e != x })
+}
+
+-- Test membership
+pub fn member(s: int, x: int) -> bool { list.contains(s, x) }
+
+-- Size
+pub fn size(s: int) -> int { list.length(s) }
+
+-- Set operations
+pub fn union(a: int, b: int) -> int {
+  list.fold(b, a, fn(acc, x) { add(acc, x) })
+}
+
+pub fn intersection(a: int, b: int) -> int {
+  list.filter(a, fn(x) { member(b, x) })
+}
+
+pub fn difference(a: int, b: int) -> int {
+  list.filter(a, fn(x) { !member(b, x) })
+}
+
+pub fn is_subset(a: int, b: int) -> bool {
+  list.fold(a, true, fn(acc, x) { acc and member(b, x) })
+}
+
+pub fn is_disjoint(a: int, b: int) -> bool {
+  list.is_empty(intersection(a, b))
+}
+
+-- Build set from list (deduplication)
+pub fn from_list(lst: int) -> int {
+  list.fold(lst, empty(), fn(acc, x) { add(acc, x) })
+}
+
+-- Convert to sorted list
+pub fn to_list(s: int) -> int { s }
+
+-- Convenience constructor
+pub fn of(a: int, b: int) -> int { add(add(empty(), a), b) }
+pub fn of3(a: int, b: int, c: int) -> int { add(of(a, b), c) }
+
+-- Map over elements (may produce non-set; caller must re-dedup)
+pub fn map(s: int, f: fn(int) -> int) -> int {
+  from_list(list.map(s, f))
+}
+
+-- Filter
+pub fn filter(s: int, pred: fn(int) -> bool) -> int {
+  list.filter(s, pred)
+}
+
+-- Fold
+pub fn fold(s: int, init: int, f: fn(int, int) -> int) -> int {
+  list.fold(s, init, f)
+}
+
+-- To string "{1, 2, 3}"
+pub fn to_string(s: int) -> string {
+  if is_empty(s) { "{}" }
+  else {
+    let inner = list.fold(
+      list.tail(s),
+      int_to_string(list.head(s)),
+      fn(acc, x) { acc + ", " + int_to_string(x) }
+    )
+    "{" + inner + "}"
+  }
+}

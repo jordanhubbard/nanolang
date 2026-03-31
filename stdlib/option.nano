@@ -1,0 +1,83 @@
+-- stdlib/option.nano — Option<T> type and combinators
+--
+-- Option<T> represents a value that may or may not be present.
+-- Use Some(value) to wrap a value; None for absence.
+--
+-- Usage:
+--   import option
+--   let x = Some(42)
+--   let y = None
+--   print(option.is_some(x))     -- true
+--   print(option.unwrap(x))      -- 42
+--   print(option.unwrap_or(y, 0)) -- 0
+
+-- Constructors (the type itself is an ADT with two variants)
+struct Option {
+  has_value: bool,
+  value: int,          -- NB: generic T encoded as int for v1; use casts
+}
+
+pub fn some(value: int) -> Option {
+  struct Option { has_value: true, value: value }
+}
+
+pub fn none() -> Option {
+  struct Option { has_value: false, value: 0 }
+}
+
+-- Predicates
+pub fn is_some(opt: Option) -> bool {
+  opt.has_value
+}
+
+pub fn is_none(opt: Option) -> bool {
+  !opt.has_value
+}
+
+-- Unwrap (panics with error message if None)
+pub fn unwrap(opt: Option) -> int {
+  if opt.has_value {
+    opt.value
+  } else {
+    panic("Option.unwrap called on None")
+    0
+  }
+}
+
+-- Unwrap with default
+pub fn unwrap_or(opt: Option, default: int) -> int {
+  if opt.has_value { opt.value } else { default }
+}
+
+-- Map: apply f to inner value if Some
+pub fn map(opt: Option, f: fn(int) -> int) -> Option {
+  if opt.has_value {
+    some(f(opt.value))
+  } else {
+    none()
+  }
+}
+
+-- and_then: flatMap / monadic bind
+pub fn and_then(opt: Option, f: fn(int) -> Option) -> Option {
+  if opt.has_value { f(opt.value) } else { none() }
+}
+
+-- or_else: fallback if None
+pub fn or_else(opt: Option, f: fn() -> Option) -> Option {
+  if opt.has_value { opt } else { f() }
+}
+
+-- filter: keep Some only if predicate holds
+pub fn filter(opt: Option, pred: fn(int) -> bool) -> Option {
+  if opt.has_value and pred(opt.value) { opt } else { none() }
+}
+
+-- Convert to string for debugging
+pub fn to_string(opt: Option) -> string {
+  if opt.has_value {
+    "Some(" + int_to_string(opt.value) + ")"
+  } else {
+    "None"
+  }
+}

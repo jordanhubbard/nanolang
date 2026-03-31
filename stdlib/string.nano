@@ -1,0 +1,101 @@
+-- stdlib/string.nano — String utilities
+--
+-- Wraps the built-in string operations with a functional API.
+-- All functions are pure; strings are immutable.
+
+-- Length in characters (not bytes — assumes UTF-8 with __builtin_strlen)
+pub fn length(s: string) -> int { __builtin_strlen(s) }
+
+-- Concatenation (operator + also works)
+pub fn concat(a: string, b: string) -> string { a + b }
+
+-- Repeat a string n times
+pub fn repeat(s: string, n: int) -> string {
+  if n <= 0 { "" }
+  else { s + repeat(s, n - 1) }
+}
+
+-- Slice: substring from start (inclusive) to end (exclusive)
+pub fn slice(s: string, start: int, end: int) -> string {
+  __builtin_string_slice(s, start, end)
+}
+
+-- Check prefix
+pub fn starts_with(s: string, prefix: string) -> bool {
+  if length(prefix) > length(s) { false }
+  else { slice(s, 0, length(prefix)) == prefix }
+}
+
+-- Check suffix
+pub fn ends_with(s: string, suffix: string) -> bool {
+  let n = length(s)
+  let m = length(suffix)
+  if m > n { false }
+  else { slice(s, n - m, n) == suffix }
+}
+
+-- Find first occurrence of sub in s; returns -1 if not found
+pub fn find(s: string, sub: string) -> int {
+  __builtin_string_find(s, sub)
+}
+
+pub fn contains(s: string, sub: string) -> bool { find(s, sub) >= 0 }
+
+-- Replace first occurrence
+pub fn replace(s: string, from: string, to: string) -> string {
+  __builtin_string_replace(s, from, to)
+}
+
+-- Replace all occurrences
+pub fn replace_all(s: string, from: string, to: string) -> string {
+  __builtin_string_replace_all(s, from, to)
+}
+
+-- Split on delimiter; returns list of strings (as list of int handles)
+pub fn split(s: string, delim: string) -> int {
+  __builtin_string_split(s, delim)
+}
+
+-- Join list of strings with separator
+pub fn join(parts: int, sep: string) -> string {
+  __builtin_string_join(parts, sep)
+}
+
+-- Trim whitespace
+pub fn trim(s: string) -> string       { __builtin_string_trim(s) }
+pub fn trim_left(s: string) -> string  { __builtin_string_trim_left(s) }
+pub fn trim_right(s: string) -> string { __builtin_string_trim_right(s) }
+
+-- Case conversion
+pub fn to_upper(s: string) -> string { __builtin_string_upper(s) }
+pub fn to_lower(s: string) -> string { __builtin_string_lower(s) }
+
+-- Character access (returns char as int codepoint)
+pub fn char_at(s: string, i: int) -> int { __builtin_string_char_at(s, i) }
+pub fn char_to_string(c: int) -> string  { __builtin_char_to_string(c) }
+
+-- Parsing
+pub fn parse_int(s: string) -> import result.Result {
+  let v = __builtin_parse_int(s)
+  let ok = __builtin_parse_int_ok(s)
+  if ok { result.ok(v) } else { result.err("parse_int: invalid: " + s) }
+}
+
+pub fn parse_float(s: string) -> import result.Result {
+  let v = __builtin_parse_float(s)
+  let ok = __builtin_parse_float_ok(s)
+  if ok { result.ok(v) } else { result.err("parse_float: invalid: " + s) }
+}
+
+-- Format int as padded string
+pub fn pad_left(s: string, width: int, pad_char: string) -> string {
+  let n = length(s)
+  if n >= width { s }
+  else { repeat(pad_char, width - n) + s }
+}
+
+pub fn pad_right(s: string, width: int, pad_char: string) -> string {
+  let n = length(s)
+  if n >= width { s }
+  else { s + repeat(pad_char, width - n) }
+}

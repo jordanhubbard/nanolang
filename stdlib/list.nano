@@ -1,0 +1,200 @@
+-- stdlib/list.nano — Persistent linked list with functional operations
+--
+-- Lists are singly-linked cons cells (head + tail pointer encoded as index).
+-- The underlying storage uses the interpreter's dynamic array via __builtin_list_*.
+--
+-- Usage:
+--   import list
+--   let xs = list.of(1, 2, 3)
+--   print(list.head(xs))         -- 1
+--   print(list.length(xs))       -- 3
+--   let doubled = list.map(xs, fn(x) { x * 2 })
+--   let evens   = list.filter(xs, fn(x) { x % 2 == 0 })
+--   let sum     = list.fold(xs, 0, fn(acc, x) { acc + x })
+
+-- List is an opaque handle (int index into interpreter's list store)
+-- Special value: -1 = empty list (Nil)
+
+pub fn empty() -> int { -1 }
+
+pub fn is_empty(lst: int) -> bool { lst == -1 }
+
+-- Cons: prepend element to list (returns new list handle)
+pub fn cons(head: int, tail: int) -> int {
+  __builtin_list_cons(head, tail)
+}
+
+-- Singleton list
+pub fn of_one(x: int) -> int { cons(x, empty()) }
+
+-- Build list from varargs (language limitation: up to 8 elements)
+pub fn of(a: int, b: int) -> int { cons(a, cons(b, empty())) }
+pub fn of3(a: int, b: int, c: int) -> int { cons(a, cons(b, cons(c, empty()))) }
+pub fn of4(a: int, b: int, c: int, d: int) -> int {
+  cons(a, cons(b, cons(c, cons(d, empty()))))
+}
+
+-- Head element (panics on empty)
+pub fn head(lst: int) -> int {
+  if is_empty(lst) {
+    panic("list.head: empty list")
+    0
+  } else {
+    __builtin_list_head(lst)
+  }
+}
+
+-- Tail (list minus head; panics on empty)
+pub fn tail(lst: int) -> int {
+  if is_empty(lst) {
+    panic("list.tail: empty list")
+    -1
+  } else {
+    __builtin_list_tail(lst)
+  }
+}
+
+-- Safe head as Option
+pub fn head_opt(lst: int) -> import option.Option {
+  if is_empty(lst) { option.none() } else { option.some(head(lst)) }
+}
+
+-- Length (O(n))
+pub fn length(lst: int) -> int {
+  if is_empty(lst) {
+    0
+  } else {
+    1 + length(tail(lst))
+  }
+}
+
+-- Append two lists (O(n) on first list)
+pub fn append(a: int, b: int) -> int {
+  if is_empty(a) {
+    b
+  } else {
+    cons(head(a), append(tail(a), b))
+  }
+}
+
+-- Reverse (O(n))
+pub fn reverse(lst: int) -> int {
+  let rec_rev = fn(src: int, acc: int) -> int {
+    if is_empty(src) { acc }
+    else { rec_rev(tail(src), cons(head(src), acc)) }
+  }
+  rec_rev(lst, empty())
+}
+
+-- Map: apply f to every element (preserves order)
+pub fn map(lst: int, f: fn(int) -> int) -> int {
+  if is_empty(lst) {
+    empty()
+  } else {
+    cons(f(head(lst)), map(tail(lst), f))
+  }
+}
+
+-- Filter: keep elements satisfying predicate
+pub fn filter(lst: int, pred: fn(int) -> bool) -> int {
+  if is_empty(lst) {
+    empty()
+  } else {
+    if pred(head(lst)) {
+      cons(head(lst), filter(tail(lst), pred))
+    } else {
+      filter(tail(lst), pred)
+    }
+  }
+}
+
+-- Fold left: reduce with accumulator (O(n))
+pub fn fold(lst: int, init: int, f: fn(int, int) -> int) -> int {
+  if is_empty(lst) {
+    init
+  } else {
+    fold(tail(lst), f(init, head(lst)), f)
+  }
+}
+
+-- Fold right
+pub fn foldr(lst: int, init: int, f: fn(int, int) -> int) -> int {
+  fold(reverse(lst), init, fn(acc, x) { f(x, acc) })
+}
+
+-- Sum / product shortcuts
+pub fn sum(lst: int) -> int     { fold(lst, 0,  fn(a, x) { a + x }) }
+pub fn product(lst: int) -> int { fold(lst, 1,  fn(a, x) { a * x }) }
+pub fn maximum(lst: int) -> int { fold(lst, head(lst), fn(a, x) { if x > a { x } else { a } }) }
+pub fn minimum(lst: int) -> int { fold(lst, head(lst), fn(a, x) { if x < a { x } else { a } }) }
+
+-- Take first n elements
+pub fn take(lst: int, n: int) -> int {
+  if is_empty(lst) or n <= 0 {
+    empty()
+  } else {
+    cons(head(lst), take(tail(lst), n - 1))
+  }
+}
+
+-- Drop first n elements
+pub fn drop(lst: int, n: int) -> int {
+  if is_empty(lst) or n <= 0 {
+    lst
+  } else {
+    drop(tail(lst), n - 1)
+  }
+}
+
+-- Nth element (0-indexed)
+pub fn nth(lst: int, n: int) -> import option.Option {
+  if is_empty(lst) {
+    option.none()
+  } else if n == 0 {
+    option.some(head(lst))
+  } else {
+    nth(tail(lst), n - 1)
+  }
+}
+
+-- Contains
+pub fn contains(lst: int, val: int) -> bool {
+  if is_empty(lst) { false }
+  else if head(lst) == val { true }
+  else { contains(tail(lst), val) }
+}
+
+-- Zip two lists into list of pairs (encoded as 2-element lists)
+pub fn zip(a: int, b: int) -> int {
+  if is_empty(a) or is_empty(b) {
+    empty()
+  } else {
+    cons(of(head(a), head(b)), zip(tail(a), tail(b)))
+  }
+}
+
+-- Flatten list of lists (one level)
+pub fn flatten(lst: int) -> int {
+  fold(reverse(lst), empty(), fn(acc, sub) { append(sub, acc) })
+}
+
+-- flat_map (map then flatten)
+pub fn flat_map(lst: int, f: fn(int) -> int) -> int {
+  flatten(map(lst, f))
+}
+
+-- Convert list to string "[a, b, c]"
+pub fn to_string(lst: int) -> string {
+  if is_empty(lst) {
+    "[]"
+  } else {
+    let rec_str = fn(l: int, first: bool) -> string {
+      if is_empty(l) { "]" }
+      else {
+        let sep = if first { "[" } else { ", " }
+        sep + int_to_string(head(l)) + rec_str(tail(l), false)
+      }
+    }
+    rec_str(lst, true)
+  }
+}
