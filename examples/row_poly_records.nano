@@ -1,0 +1,106 @@
+# row_poly_records.nano — Row-polymorphic record examples for nanolang
+#
+# These examples illustrate the row-polymorphic record type system described
+# in docs/ROW_POLYMORPHIC_RECORDS_DESIGN.md.
+#
+# NOTE: This file demonstrates the *type-level* semantics.  Full parser
+# support for {f:T|r} syntax is a planned extension; the HM type inferencer
+# already handles these types internally (see src/type_infer.c).
+
+# ── 1. Basic row polymorphism ──────────────────────────────────────────────
+#
+# The function `greet` works on any record that has at least a "name" field
+# of type string.  The row variable `r` captures any extra fields.
+#
+#   Type:  greet : {name: string | r} -> string
+
+fn greet(person: {name: string}) -> string {
+    return (format "Hello, %s!" person.name)
+}
+
+struct User {
+    name: string,
+    age:  int
+}
+
+fn main() -> void {
+    let u: User = User { name: "Alice", age: 30 }
+    let greeting: string = (greet u)
+    (println greeting)
+}
+
+# ── 2. Record spread expressions ──────────────────────────────────────────
+#
+# Spread copies all fields from a base record and adds or overrides fields.
+# Type of `extended`:  {age: int, name: string, role: string}
+
+struct Person {
+    name: string,
+    age:  int
+}
+
+struct Employee {
+    name: string,
+    age:  int,
+    role: string
+}
+
+fn promote(p: Person, new_role: string) -> Employee {
+    return Employee {
+        name: p.name,
+        age:  p.age,
+        role: new_role
+    }
+}
+
+# ── 3. Open record patterns ────────────────────────────────────────────────
+#
+# Pattern matching on messages that share a common "kind" discriminator.
+
+struct PingMsg  { kind: string }
+struct PongMsg  { kind: string, seq: int }
+struct DataMsg  { kind: string, payload: string }
+
+fn handle_message(kind: string, seq: int, payload: string) -> void {
+    (println (format "kind=%s seq=%d payload=%s" kind seq payload))
+}
+
+# ── 4. agentOS IPC schema ─────────────────────────────────────────────────
+#
+# All IPC messages share an envelope with id + ts fields.
+# Specific message types extend the envelope.
+
+struct IPCEnvelope {
+    id: string,
+    ts: int
+}
+
+struct SpawnRequest {
+    id:    string,
+    ts:    int,
+    op:    string,
+    image: string,
+    args:  string
+}
+
+struct QueryRequest {
+    id:    string,
+    ts:    int,
+    op:    string,
+    sql:   string,
+    limit: int
+}
+
+fn send_ack(msg_id: string) -> void {
+    (println (format "ACK %s" msg_id))
+}
+
+fn handle_spawn(req: SpawnRequest) -> void {
+    (println (format "Spawning %s with args: %s" req.image req.args))
+    (send_ack req.id)
+}
+
+fn handle_query(req: QueryRequest) -> void {
+    (println (format "Query: %s (limit=%d)" req.sql req.limit))
+    (send_ack req.id)
+}

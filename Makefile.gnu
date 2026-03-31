@@ -50,7 +50,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -march=native -ftree-vectorize -Isrc -D_GNU_SOURCE
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
-LDFLAGS = -lm
+LDFLAGS = -lm -lcrypto
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
@@ -124,7 +124,7 @@ BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -434,8 +434,29 @@ $(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Unit tests for C components
+.PHONY: test-optimizer
+test-optimizer: stage1
+	@echo "Running optimizer unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_optimizer tests/test_optimizer.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_optimizer
+	@rm -f tests/test_optimizer
+
+.PHONY: test-wasm-profiler
+test-wasm-profiler: stage1
+	@echo "Running WASM profiler unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_wasm_profiler tests/test_wasm_profiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_wasm_profiler
+	@rm -f tests/test_wasm_profiler
+
+.PHONY: test-row-poly
+test-row-poly: stage1
+	@echo "Running row-polymorphic records unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_row_poly tests/test_row_poly.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_row_poly
+	@rm -f tests/test_row_poly
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-row-poly
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -796,99 +817,6 @@ module-self-test: build
 
 # Backwards-compatible alias
 module-mvp: module-self-test
-
-# ── Web Playground (Emscripten) ───────────────────────────────────────────
-#
-# Compiles the NanoLang interpreter to WebAssembly via Emscripten.
-# Output lands in examples/playground/public/:
-#   nanolang.js   — JS glue (load with <script src="nanolang.js">)
-#   nanolang.wasm — WASM binary
-#
-# Prerequisites: emsdk installed and sourced, e.g.:
-#   source ~/emsdk/emsdk_env.sh
-#
-# Usage:
-#   make wasm-playground          # build
-#   make wasm-playground-clean    # remove build artifacts
-
-EMCC      ?= emcc
-WASM_OUT  = examples/playground/public
-WASM_JS   = $(WASM_OUT)/nanolang.js
-WASM_WASM = $(WASM_OUT)/nanolang.wasm
-
-# Sources for the interpreter-only WASM build.
-# Excludes: main.c nano_main.c (define main()), wasm_backend.c (emits .wasm
-# files — not needed when the interpreter IS the .wasm), and heavy OS-only
-# subsystems (DAP/LSP servers, transpiler, emit_typed_ast, nanocore_*,
-# reflection, ffi_bindgen, generate_module_index, lexer_bridge).
-WASM_SRCS = \
-	$(SRC_DIR)/lexer.c \
-	$(SRC_DIR)/parser.c \
-	$(SRC_DIR)/typechecker.c \
-	$(SRC_DIR)/stdlib_runtime.c \
-	$(SRC_DIR)/env.c \
-	$(SRC_DIR)/builtins_registry.c \
-	$(SRC_DIR)/module.c \
-	$(SRC_DIR)/module_metadata.c \
-	$(SRC_DIR)/module_builder.c \
-	$(SRC_DIR)/cJSON.c \
-	$(SRC_DIR)/toon_output.c \
-	$(SRC_DIR)/resource_tracking.c \
-	$(SRC_DIR)/eval.c \
-	$(SRC_DIR)/eval/eval_hashmap.c \
-	$(SRC_DIR)/eval/eval_math.c \
-	$(SRC_DIR)/eval/eval_string.c \
-	$(SRC_DIR)/eval/eval_io.c \
-	$(SRC_DIR)/interpreter_ffi.c \
-	$(SRC_DIR)/json_diagnostics.c \
-	$(SRC_DIR)/tracing.c \
-	$(SRC_DIR)/wasm_interface.c \
-	$(RUNTIME_SOURCES)
-
-WASM_EXPORTS = \
-	'["_nl_run","_nl_check","_nl_version"]'
-
-WASM_CFLAGS = \
-	-O2 \
-	-Isrc \
-	-D_GNU_SOURCE \
-	-DEMSCRIPTEN \
-	-Wno-error=unused-parameter \
-	-Wno-unused-parameter
-
-WASM_LDFLAGS = \
-	-s WASM=1 \
-	-s EXPORTED_FUNCTIONS=$(WASM_EXPORTS) \
-	-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString","stringToUTF8","lengthBytesUTF8"]' \
-	-s ALLOW_MEMORY_GROWTH=1 \
-	-s INITIAL_MEMORY=67108864 \
-	-s MAXIMUM_MEMORY=536870912 \
-	-s MODULARIZE=1 \
-	-s EXPORT_NAME='createNanolang' \
-	-s ENVIRONMENT='web,worker,node' \
-	-s INVOKE_RUN=0 \
-	-s NO_EXIT_RUNTIME=1 \
-	--no-entry
-
-.PHONY: wasm-playground wasm-playground-clean
-
-wasm-playground: $(WASM_JS)
-
-$(WASM_JS): $(WASM_SRCS) src/wasm_interface.c | $(WASM_OUT)
-	@echo "Building NanoLang WASM playground..."
-	@command -v $(EMCC) >/dev/null 2>&1 || { \
-		echo "ERROR: emcc not found. Source the emsdk:"; \
-		echo "  source ~/emsdk/emsdk_env.sh"; \
-		exit 1; }
-	$(EMCC) $(WASM_CFLAGS) $(WASM_SRCS) $(WASM_LDFLAGS) -o $(WASM_JS)
-	@echo "✓ WASM playground built: $(WASM_JS)"
-
-$(WASM_OUT):
-	mkdir -p $(WASM_OUT)
-
-wasm-playground-clean:
-	rm -f $(WASM_JS) $(WASM_WASM)
-	@echo "WASM playground artifacts removed."
 
 # Clean: Remove all build artifacts and sentinels
 clean:

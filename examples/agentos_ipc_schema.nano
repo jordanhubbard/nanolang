@@ -1,0 +1,113 @@
+# agentos_ipc_schema.nano — agentOS IPC message schemas using row-polymorphic records
+#
+# Demonstrates how row polymorphism models the agentOS IPC protocol, where:
+#   - All messages share a common envelope (id, ts, version)
+#   - Specific message types carry variant payloads
+#   - A generic router can accept any envelope variant
+
+# ── Common envelope fields ─────────────────────────────────────────────────
+#
+# Row-polymorphic type (conceptual): {id: string, ts: int, version: int | r}
+# Any concrete message type must supply these three fields.
+
+struct IPCBase {
+    id:      string,
+    ts:      int,
+    version: int
+}
+
+# ── Message variants ───────────────────────────────────────────────────────
+
+struct SpawnMsg {
+    id:      string,
+    ts:      int,
+    version: int,
+    op:      string,
+    image:   string,
+    args:    string
+}
+
+struct KillMsg {
+    id:      string,
+    ts:      int,
+    version: int,
+    op:      string,
+    target:  string
+}
+
+struct QueryMsg {
+    id:      string,
+    ts:      int,
+    version: int,
+    op:      string,
+    sql:     string,
+    limit:   int
+}
+
+struct StatusMsg {
+    id:      string,
+    ts:      int,
+    version: int,
+    op:      string
+}
+
+# ── Handlers ───────────────────────────────────────────────────────────────
+
+fn ack(msg_id: string, status: string) -> void {
+    (println (format "[IPC] ACK %s: %s" msg_id status))
+}
+
+fn handle_spawn(msg: SpawnMsg) -> void {
+    (println (format "[IPC] SPAWN image=%s args=%s" msg.image msg.args))
+    (ack msg.id "ok")
+}
+
+fn handle_kill(msg: KillMsg) -> void {
+    (println (format "[IPC] KILL target=%s" msg.target))
+    (ack msg.id "ok")
+}
+
+fn handle_query(msg: QueryMsg) -> void {
+    (println (format "[IPC] QUERY sql=%s limit=%d" msg.sql msg.limit))
+    (ack msg.id "ok")
+}
+
+fn handle_status(msg: StatusMsg) -> void {
+    (println "[IPC] STATUS request")
+    (ack msg.id "ok")
+}
+
+# ── Row-polymorphic router ─────────────────────────────────────────────────
+#
+# In a future parser extension, the router signature would be:
+#
+#   fn route_ipc(msg: {id: string, ts: int, op: string | r}) -> void
+#
+# The row variable `r` means this function accepts ANY IPC message that
+# carries at least id, ts, and op — regardless of additional payload fields.
+#
+# For now, expressed as a concrete overloaded dispatch:
+
+fn route_spawn(id: string, ts: int, version: int, image: string, args: string) -> void {
+    let msg: SpawnMsg = SpawnMsg {
+        id: id, ts: ts, version: version,
+        op: "spawn", image: image, args: args
+    }
+    (handle_spawn msg)
+}
+
+fn route_kill(id: string, ts: int, version: int, target: string) -> void {
+    let msg: KillMsg = KillMsg {
+        id: id, ts: ts, version: version,
+        op: "kill", target: target
+    }
+    (handle_kill msg)
+}
+
+# ── Example session ────────────────────────────────────────────────────────
+
+fn main() -> void {
+    (route_spawn "msg-001" 1743369600 1 "agent/worker:latest" "--mode=gpu")
+    (route_kill  "msg-002" 1743369601 1 "worker-42")
+    (println "[IPC] session complete")
+}
