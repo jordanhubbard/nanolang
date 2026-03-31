@@ -63,6 +63,8 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "handle") == 0) return TOKEN_HANDLE;
     if (strcmp(str, "with") == 0) return TOKEN_WITH;
     if (strcmp(str, "resume") == 0) return TOKEN_RESUME;
+    if (strcmp(str, "async") == 0) return TOKEN_ASYNC;
+    if (strcmp(str, "await") == 0) return TOKEN_AWAIT;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -604,6 +606,8 @@ const char *token_type_name(TokenType type) {
         case TOKEN_HANDLE: return "HANDLE";
         case TOKEN_WITH: return "WITH";
         case TOKEN_RESUME: return "RESUME";
+        case TOKEN_ASYNC: return "ASYNC";
+        case TOKEN_AWAIT: return "AWAIT";
         default: return "UNKNOWN";
     }
 }

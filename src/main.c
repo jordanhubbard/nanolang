@@ -11,8 +11,11 @@
 #include "nanocore_export.h"
 #include "wasm_backend.h"
 #include "ptx_backend.h"
-#include <unistd.h>  /* For getpid() on all POSIX systems */
+#include "tco_pass.h"
+#include "cps_pass.h"
+#include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
+#include <errno.h>   /* For errno/strerror in execv error reporting */
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -57,6 +60,7 @@ typedef struct {
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
     const char *target;        /* --target <name>: compile target (default: native, wasm) */
     bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
+    bool tco;                  /* --tco: enable tail-call optimization pass */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -404,6 +408,19 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return 1;
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
+
+    /* ── Tail-Call Optimization pass ─────────────────────────────────── */
+    if (opts->tco) {
+        tco_pass(program);
+        if (opts->verbose) printf("✓ TCO pass complete\n");
+    }
+
+    /* ── CPS transform pass (async/await) — always runs ──────────────── */
+    {
+        int async_count = cps_pass(program);
+        if (opts->verbose && async_count > 0)
+            printf("✓ CPS pass: %d async function(s) transformed\n", async_count);
+    }
 
     /* ── WASM target: emit .wasm binary and exit ─────────────────────── */
     if (opts->target && strcmp(opts->target, "wasm") == 0) {
@@ -1293,6 +1310,8 @@ int main(int argc, char *argv[]) {
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
         printf("  --target <t>   Compile target: native (default), wasm, ptx\n");
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
+        printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
+        printf("  publish <file> Compile to WASM and publish to AgentFS (nanoc-publish.sh)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1313,6 +1332,54 @@ int main(int argc, char *argv[]) {
         printf("  %s example.nano -o example --verbose\n", argv[0]);
         printf("  %s sdl_app.nano -o app -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2\n\n", argv[0]);
         return 0;
+    }
+
+    /* Handle 'publish' subcommand — delegates to scripts/nanoc-publish.sh */
+    if (argc >= 2 && strcmp(argv[1], "publish") == 0) {
+        /* Find the publish script relative to the binary.
+         * Use dynamic allocation to avoid -Werror=format-truncation issues. */
+        const char *suffix = "/scripts/nanoc-publish.sh";
+        char *publish_script = NULL;
+        const char *nano_root = getenv("NANOLANG_ROOT");
+        if (nano_root) {
+            size_t len = strlen(nano_root) + strlen(suffix) + 1;
+            publish_script = malloc(len);
+            if (!publish_script) { perror("malloc"); return 1; }
+            strcpy(publish_script, nano_root);
+            strcat(publish_script, suffix);
+        } else {
+            /* Derive from argv[0]: strip last path component to get bin dir */
+            char *argv0_copy = strdup(argv[0]);
+            if (!argv0_copy) { perror("strdup"); return 1; }
+            char *last_slash = strrchr(argv0_copy, '/');
+            if (last_slash) {
+                *last_slash = '\0';
+                size_t len = strlen(argv0_copy) + strlen(suffix) + 1;
+                publish_script = malloc(len);
+                if (!publish_script) { perror("malloc"); free(argv0_copy); return 1; }
+                strcpy(publish_script, argv0_copy);
+                strcat(publish_script, suffix);
+            } else {
+                publish_script = strdup("./scripts/nanoc-publish.sh");
+                if (!publish_script) { perror("strdup"); return 1; }
+            }
+            free(argv0_copy);
+        }
+        /* Build argv for execv: [publish_script, argv[2], argv[3], ..., NULL] */
+        const char **script_argv = malloc(((size_t)argc + 1) * sizeof(char *));
+        if (!script_argv) { perror("malloc"); free(publish_script); return 1; }
+        script_argv[0] = publish_script;
+        for (int i = 2; i < argc; i++) {
+            script_argv[i - 1] = argv[i];
+        }
+        script_argv[argc - 1] = NULL;
+        execv(publish_script, (char *const *)script_argv);
+        /* execv only returns on error */
+        fprintf(stderr, "nanoc publish: could not exec %s: %s\n", publish_script, strerror(errno));
+        fprintf(stderr, "Ensure nanoc-publish.sh is in scripts/ relative to NANOLANG_ROOT.\n");
+        free(script_argv);
+        free(publish_script);
+        return 1;
     }
 
     if (argc < 2) {
@@ -1464,6 +1531,8 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--no-sourcemap") == 0) {
             opts.no_sourcemap = true;
+        } else if (strcmp(argv[i], "--tco") == 0) {
+            opts.tco = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);

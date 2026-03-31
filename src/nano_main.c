@@ -12,6 +12,8 @@
 #include "nanolang.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
+#include "cps_pass.h"
+#include "coroutine.h"
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
@@ -137,6 +139,12 @@ static int interpret_file(const char *input_file) {
         if (meta) module_metadata_free(meta);
         free(module_dir);
     }
+
+    /* Phase 4.7: CPS transform (async/await) */
+    cps_pass(program);
+
+    /* Phase 4.8: Initialize coroutine scheduler */
+    coroutine_init();
 
     /* Phase 5: Run program (evaluates top-level lets, registers structs/enums/unions) */
     if (!run_program(program, env)) {

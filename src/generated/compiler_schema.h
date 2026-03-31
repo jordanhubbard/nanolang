@@ -254,7 +254,9 @@ typedef enum {
     TOKEN_HANDLE = 81,
     TOKEN_WITH = 82,
     TOKEN_RESUME = 83,
-    TOKEN_GPU = 84
+    TOKEN_GPU = 84,
+    TOKEN_ASYNC = 85,
+    TOKEN_AWAIT = 86
 } TokenType;
 
 typedef enum {
@@ -300,7 +302,8 @@ typedef enum {
     PNODE_GRAMMAR = 39,
     PNODE_PAR_BLOCK = 40,
     PNODE_EFFECT_DECL = 41,
-    PNODE_HANDLE_EXPR = 42
+    PNODE_HANDLE_EXPR = 42,
+    PNODE_ASYNC_FN = 43
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken

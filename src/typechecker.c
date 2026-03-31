@@ -3226,6 +3226,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return check_expression(expr->as.handle_expr.body, env);
         }
 
+        case AST_AWAIT:
+            /* await expr: transparent in typechecker — returns the type of the inner expression */
+            return check_expression_impl(expr->as.await_expr.expr, env);
+
         default:
             fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
             return TYPE_UNKNOWN;
@@ -5755,7 +5759,14 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             env_define_enum(env, edef);
             
+        } else if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
+                   item->as.async_fn.function->type == AST_FUNCTION) {
+            /* async fn: unwrap to inner function for registration */
+            item = item->as.async_fn.function;
+            /* fall through to function registration below */
+            goto register_function_pass1;
         } else if (item->type == AST_FUNCTION) {
+register_function_pass1:;
             const char *func_name = item->as.function.name;
             
             /* Check if function name collides with built-in (but allow extern functions) */
@@ -5994,6 +6005,10 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
     /* Third pass: type check all functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        /* Unwrap async fn to inner function for body checking */
+        if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
+            item->as.async_fn.function->type == AST_FUNCTION)
+            item = item->as.async_fn.function;
         if (item->type == AST_FUNCTION) {
             /* Skip extern functions - they have no body to check */
             if (item->as.function.is_extern) {
@@ -6508,7 +6523,12 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             
             env_define_enum(env, edef);
             
+        } else if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
+                   item->as.async_fn.function->type == AST_FUNCTION) {
+            item = item->as.async_fn.function;
+            goto register_function_pass2;
         } else if (item->type == AST_FUNCTION) {
+register_function_pass2:;
             const char *func_name = item->as.function.name;
             
             /* Check for duplicate function definitions */
@@ -6680,6 +6700,11 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             continue;
         }
         
+        /* Unwrap async fn */
+        if (item->type == AST_ASYNC_FN && item->as.async_fn.function &&
+            item->as.async_fn.function->type == AST_FUNCTION)
+            item = item->as.async_fn.function;
+
         if (item->type == AST_FUNCTION) {
             /* Save current symbol count */
             int saved_symbol_count = env->symbol_count;

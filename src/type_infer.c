@@ -1407,6 +1407,14 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
             return infer_block(ctx, env,
                                node->as.program.items,
                                node->as.program.count);
+
+        case AST_ASYNC_FN:
+            /* async fn: infer the underlying function */
+            return infer_expr(ctx, env, node->as.async_fn.function);
+
+        case AST_AWAIT:
+            /* await expr: transparent — infer the inner expression */
+            return infer_expr(ctx, env, node->as.await_expr.expr);
     }
     return hm_tv_fresh(ctx);
 }

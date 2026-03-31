@@ -3176,20 +3176,22 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
     sb_append(sb, "/* Forward declarations for program functions */\n");
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        /* async fn declarations wrap a normal function node — treat them identically */
+        if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
         if (item->type == AST_FUNCTION) {
             /* Skip extern functions - they're declared above */
             if (item->as.function.is_extern) {
                 continue;
             }
-            
-            /* Add static for private functions 
+
+            /* Add static for private functions
              * BUT: When compiling modules, export all functions by default
              * (static functions can't be linked from other compilation units)
              */
             if (!item->as.function.is_pub && !is_module) {
                 sb_append(sb, "static ");
             }
-            
+
             /* Regular functions - forward declare with nl_ prefix */
             /* Function return type */
             if (item->as.function.return_type == TYPE_FUNCTION && item->as.function.return_fn_sig) {
@@ -3364,6 +3366,8 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
     /* Transpile all functions (skip shadow tests and extern functions) */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
+        /* async fn declarations wrap a normal function node — treat them identically */
+        if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
         if (item->type == AST_FUNCTION) {
             /* Skip extern functions - they're declared only, no implementation */
             if (item->as.function.is_extern) {
@@ -3730,7 +3734,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     if (program && program->type == AST_PROGRAM) {
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = program->as.program.items[i];
-            if (!item || item->type != AST_FUNCTION) continue;
+            if (!item) continue;
+            if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
+            if (item->type != AST_FUNCTION) continue;
             if (!item->as.function.name) continue;
             if (strcmp(item->as.function.name, "main") != 0) continue;
             if (item->as.function.is_extern) continue;
@@ -3954,7 +3960,9 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
                                                TupleTypeRegistry *tuple_registry) {
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
-        
+        /* async fn declarations wrap a normal function node — treat them identically */
+        if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
+
         if (item->type == AST_FUNCTION) {
             /* Check parameters for function types */
             for (int j = 0; j < item->as.function.param_count; j++) {

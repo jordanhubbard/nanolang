@@ -1,0 +1,31 @@
+/* test_async.nano: async/await syntax tests for nanolang */
+
+/* Simple async fn that returns an int */
+async fn fetch_value() -> int {
+    let result = await 42
+    return result
+}
+
+/* Async fn using await on a computation */
+async fn compute_async(n: int) -> int {
+    let doubled = await (+ (* n 2) 0)
+    let tripled = await (* n 3)
+    return (+ doubled tripled)
+}
+
+fn main() -> int {
+    /* Test 1: basic async fn call */
+    let v = (fetch_value)
+    assert (== v 42)
+
+    /* Test 2: async computation */
+    let c = (compute_async 5)
+    assert (== c 25)
+
+    (println "async/await tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

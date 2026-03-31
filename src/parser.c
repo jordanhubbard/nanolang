@@ -1463,6 +1463,18 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             return id_node;
         }
 
+        case TOKEN_AWAIT: {
+            /* await expression: await <expr> */
+            int await_line = tok->line;
+            int await_col  = tok->column;
+            advance(p);  /* consume 'await' */
+            ASTNode *inner = parse_primary(p);
+            if (!inner) return NULL;
+            ASTNode *await_node = create_node(AST_AWAIT, await_line, await_col);
+            await_node->as.await_expr.expr = inner;
+            return await_node;
+        }
+
         case TOKEN_UNSAFE: {
             /* Unsafe block as expression: unsafe { expr } */
             int line = tok->line;
@@ -5150,6 +5162,31 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             parsed = parse_function(&parser, false, false);
             if (parsed && parsed->type == AST_FUNCTION) {
                 parsed->as.function.is_gpu = true;
+            }
+        } else if (match(&parser, TOKEN_ASYNC)) {
+            /* async fn declarations */
+            advance(&parser);  /* consume 'async' */
+            if (!match(&parser, TOKEN_FN)) {
+                Token *err_tok = current_token(&parser);
+                if (err_tok)
+                    parser_error(&parser, err_tok->line, err_tok->column,
+                        "Error at line %d, column %d: 'async' must be followed by 'fn'\n",
+                        err_tok->line, err_tok->column);
+                continue;
+            }
+            ASTNode *fn_node = parse_function(&parser, false, false);
+            if (fn_node) {
+                ASTNode *async_node = malloc(sizeof(ASTNode));
+                if (async_node) {
+                    memset(async_node, 0, sizeof(ASTNode));
+                    async_node->type = AST_ASYNC_FN;
+                    async_node->as.async_fn.function = fn_node;
+                    async_node->line = fn_node->line;
+                    async_node->column = fn_node->column;
+                    parsed = async_node;
+                } else {
+                    parsed = fn_node;  /* fallback: treat as regular fn */
+                }
             }
         } else if (match(&parser, TOKEN_SHADOW)) {
             parsed = parse_shadow(&parser);

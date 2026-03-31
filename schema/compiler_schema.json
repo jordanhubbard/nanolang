@@ -84,7 +84,9 @@
     "TOKEN_HANDLE",
     "TOKEN_WITH",
     "TOKEN_RESUME",
-    "TOKEN_GPU"
+    "TOKEN_GPU",
+    "TOKEN_ASYNC",
+    "TOKEN_AWAIT"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",
@@ -129,7 +131,8 @@
     "PNODE_GRAMMAR",
     "PNODE_PAR_BLOCK",
     "PNODE_EFFECT_DECL",
-    "PNODE_HANDLE_EXPR"
+    "PNODE_HANDLE_EXPR",
+    "PNODE_ASYNC_FN"
   ],
   "nano_enums": [
     {
