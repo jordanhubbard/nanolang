@@ -1,0 +1,73 @@
+/* test_coroutine.nano: coroutine runtime tests for nanolang
+ * Exercises the cooperative scheduler via async/await.
+ */
+
+/* Simple async fn with two awaits */
+async fn counter(n: int) -> int {
+    let a = await (+ n 1)
+    let b = await (+ a 1)
+    return b
+}
+
+/* Async fn with a single await (multiplication) */
+async fn double_async(x: int) -> int {
+    return await (* x 2)
+}
+
+/* Async fn calling another async fn */
+async fn chain_async(n: int) -> int {
+    let d = (double_async n)
+    return await (+ d 1)
+}
+
+/* Async fn with no await (still valid) */
+async fn add_async(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+fn main() -> int {
+    /* Test 1: counter with two await steps */
+    let r1 = (counter 10)
+    assert (== r1 12)
+
+    /* Test 2: double_async */
+    let r2 = (double_async 21)
+    assert (== r2 42)
+
+    /* Test 3: chain async fn calling async fn */
+    let r3 = (chain_async 5)
+    assert (== r3 11)
+
+    /* Test 4: async fn without await */
+    let r4 = (add_async 7 3)
+    assert (== r4 10)
+
+    (println "coroutine runtime tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
+shadow counter {
+    assert (== (counter 0) 2)
+    assert (== (counter 10) 12)
+    assert (== (counter 100) 102)
+}
+
+shadow double_async {
+    assert (== (double_async 0) 0)
+    assert (== (double_async 21) 42)
+    assert (== (double_async 5) 10)
+}
+
+shadow chain_async {
+    assert (== (chain_async 5) 11)
+    assert (== (chain_async 0) 1)
+}
+
+shadow add_async {
+    assert (== (add_async 7 3) 10)
+    assert (== (add_async 0 0) 0)
+}

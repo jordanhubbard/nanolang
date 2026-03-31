@@ -552,6 +552,7 @@ typedef struct {
     ASTNode *shadow_test;
     bool is_extern;  /* Mark external C functions */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
+    bool is_async;   /* Mark async functions (declared with `async fn`) */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
     char *alias_of;  /* For import aliases: original function name (NULL if not alias) */

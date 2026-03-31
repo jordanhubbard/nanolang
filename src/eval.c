@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "coroutine.h"
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
 #include "runtime/list_token.h"
@@ -4235,6 +4236,20 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_void();
     }
 
+    /* Coroutine scheduler: route async function calls through the run queue.
+     * When an async fn is called, spawn a coroutine and run it to completion.
+     * This sets g_current_coroutine_id so that await expressions inside the
+     * body know they're executing in a coroutine context.
+     * In synchronous/test mode the behaviour is identical to before. */
+    if (func->is_async && func->body != NULL) {
+        coroutine_init();
+        int coro_id = coroutine_spawn(name, args, node->as.call.arg_count, env);
+        if (coro_id >= 0) {
+            return coroutine_run_to_completion(coro_id);
+        }
+        /* Fall through to synchronous execution if spawn failed */
+    }
+
     /* If built-in with no body, already handled above */
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         /* Try FFI for extern functions */
@@ -5452,12 +5467,21 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             /* Function and shadow definitions are handled at program level */
             return create_void();
 
-        case AST_ASYNC_FN:
-            /* async fn — the CPS pass has already marked the inner function;
-             * register the inner function in the environment like a regular fn. */
-            if (stmt->as.async_fn.function)
-                return eval_statement(stmt->as.async_fn.function, env);
+        case AST_ASYNC_FN: {
+            /* async fn — register the inner function, then mark it as async
+             * so the coroutine scheduler can route calls through it. */
+            if (stmt->as.async_fn.function) {
+                Value r = eval_statement(stmt->as.async_fn.function, env);
+                /* Mark the function as async in the environment */
+                ASTNode *fn_node = stmt->as.async_fn.function;
+                if (fn_node && fn_node->type == AST_FUNCTION && fn_node->as.function.name) {
+                    Function *fn = env_get_function(env, fn_node->as.function.name);
+                    if (fn) fn->is_async = true;
+                }
+                return r;
+            }
             return create_void();
+        }
 
         default:
             /* Expression statements */
