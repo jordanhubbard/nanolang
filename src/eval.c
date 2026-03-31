@@ -2985,6 +2985,64 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_to_lower") == 0) return builtin_str_to_lower(args);
     if (strcmp(name, "str_to_upper") == 0) return builtin_str_to_upper(args);
     if (strcmp(name, "str_replace") == 0) return builtin_str_replace(args);
+    if (strcmp(name, "format") == 0) {
+        int arg_count = node->as.call.arg_count;
+        if (arg_count < 1 || args[0].type != VAL_STRING) {
+            fprintf(stderr, "Error: format requires a string template as first argument\n");
+            return create_string("");
+        }
+        const char *fmt = args[0].as.string_val;
+        /* Build result by scanning format string and substituting %s/%d/%f/%g */
+        size_t buf_cap = 256;
+        char *buf = malloc(buf_cap);
+        if (!buf) return create_string("");
+        size_t buf_len = 0;
+        int arg_idx = 1;
+        const char *p = fmt;
+        while (*p) {
+            if (*p == '%' && (p[1] == 's' || p[1] == 'd' || p[1] == 'f' || p[1] == 'g') && arg_idx < arg_count) {
+                /* Convert arg to string */
+                char tmp[64];
+                const char *s = NULL;
+                if (args[arg_idx].type == VAL_STRING) {
+                    s = args[arg_idx].as.string_val ? args[arg_idx].as.string_val : "";
+                } else if (args[arg_idx].type == VAL_INT) {
+                    snprintf(tmp, sizeof(tmp), "%lld", (long long)args[arg_idx].as.int_val);
+                    s = tmp;
+                } else if (args[arg_idx].type == VAL_FLOAT) {
+                    snprintf(tmp, sizeof(tmp), "%g", args[arg_idx].as.float_val);
+                    s = tmp;
+                } else if (args[arg_idx].type == VAL_BOOL) {
+                    s = args[arg_idx].as.bool_val ? "true" : "false";
+                } else {
+                    s = "";
+                }
+                size_t slen = strlen(s);
+                if (buf_len + slen + 1 > buf_cap) {
+                    buf_cap = (buf_len + slen + 1) * 2;
+                    char *new_buf = realloc(buf, buf_cap);
+                    if (!new_buf) { free(buf); return create_string(""); }
+                    buf = new_buf;
+                }
+                memcpy(buf + buf_len, s, slen);
+                buf_len += slen;
+                arg_idx++;
+                p += 2;
+            } else {
+                if (buf_len + 2 > buf_cap) {
+                    buf_cap *= 2;
+                    char *new_buf = realloc(buf, buf_cap);
+                    if (!new_buf) { free(buf); return create_string(""); }
+                    buf = new_buf;
+                }
+                buf[buf_len++] = *p++;
+            }
+        }
+        buf[buf_len] = '\0';
+        Value v = create_string(buf);
+        free(buf);
+        return v;
+    }
     if (strcmp(name, "str_split") == 0) {
         if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_split requires two string arguments\n");

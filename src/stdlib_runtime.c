@@ -1160,6 +1160,31 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
 
+    /* format - string interpolation: format(template, str_arg1, str_arg2, ...) */
+    sb_append(sb, "static const char* nl_format(const char *fmt, int n_args, ...) {\n");
+    sb_append(sb, "    if (!fmt) return \"\";\n");
+    sb_append(sb, "    va_list ap;\n");
+    sb_append(sb, "    va_start(ap, n_args);\n");
+    sb_append(sb, "    nl_fmt_sb_t out = nl_fmt_sb_new(128);\n");
+    sb_append(sb, "    const char *p = fmt;\n");
+    sb_append(sb, "    int used = 0;\n");
+    sb_append(sb, "    while (*p) {\n");
+    sb_append(sb, "        if (*p == '%' && (p[1] == 's' || p[1] == 'd' || p[1] == 'f' || p[1] == 'g') && used < n_args) {\n");
+    sb_append(sb, "            const char *arg = va_arg(ap, const char *);\n");
+    sb_append(sb, "            if (arg) nl_fmt_sb_append_cstr(&out, arg);\n");
+    sb_append(sb, "            used++;\n");
+    sb_append(sb, "            p += 2;\n");
+    sb_append(sb, "        } else {\n");
+    sb_append(sb, "            nl_fmt_sb_append_char(&out, *p++);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    va_end(ap);\n");
+    sb_append(sb, "    char *result = gc_alloc_string(out.len);\n");
+    sb_append(sb, "    if (result && out.buf) { memcpy(result, out.buf, out.len + 1); }\n");
+    sb_append(sb, "    if (out.buf) free(out.buf);\n");
+    sb_append(sb, "    return result ? result : \"\";\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "/* ========== End Advanced String Operations ========== */\n\n");
 }
 

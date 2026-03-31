@@ -1,0 +1,84 @@
+/* test_format.nano - Tests for the format() string interpolation builtin */
+
+fn test_format_string() -> bool {
+    let name: string = "world"
+    let result: string = (format "Hello, %s!" name)
+    return (str_equals result "Hello, world!")
+}
+
+fn test_format_int() -> bool {
+    let n: int = 42
+    let result: string = (format "The answer is %d." n)
+    return (str_equals result "The answer is 42.")
+}
+
+fn test_format_float() -> bool {
+    let x: float = 3.14
+    let result: string = (format "Pi is approximately %g." x)
+    return (str_equals result "Pi is approximately 3.14.")
+}
+
+fn test_format_multiple() -> bool {
+    let first: string = "Alice"
+    let age: int = 30
+    let result: string = (format "%s is %d years old." first age)
+    return (str_equals result "Alice is 30 years old.")
+}
+
+fn test_format_no_args() -> bool {
+    let result: string = (format "No substitutions here.")
+    return (str_equals result "No substitutions here.")
+}
+
+fn main() -> int {
+    let mut passed: int = 0
+    let mut failed: int = 0
+
+    if (test_format_string) {
+        (println "PASS: test_format_string")
+        set passed (+ passed 1)
+    } else {
+        (println "FAIL: test_format_string")
+        set failed (+ failed 1)
+    }
+
+    if (test_format_int) {
+        (println "PASS: test_format_int")
+        set passed (+ passed 1)
+    } else {
+        (println "FAIL: test_format_int")
+        set failed (+ failed 1)
+    }
+
+    if (test_format_float) {
+        (println "PASS: test_format_float")
+        set passed (+ passed 1)
+    } else {
+        (println "FAIL: test_format_float")
+        set failed (+ failed 1)
+    }
+
+    if (test_format_multiple) {
+        (println "PASS: test_format_multiple")
+        set passed (+ passed 1)
+    } else {
+        (println "FAIL: test_format_multiple")
+        set failed (+ failed 1)
+    }
+
+    if (test_format_no_args) {
+        (println "PASS: test_format_no_args")
+        set passed (+ passed 1)
+    } else {
+        (println "FAIL: test_format_no_args")
+        set failed (+ failed 1)
+    }
+
+    (print "Results: ")
+    (print passed)
+    (print " passed, ")
+    (print failed)
+    (println " failed")
+
+    return failed
+}

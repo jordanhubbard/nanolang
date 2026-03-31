@@ -1110,6 +1110,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
 
+            /* Special handling for format builtin - variadic string interpolation */
+            if (strcmp(expr->as.call.name, "format") == 0) {
+                if (expr->as.call.arg_count < 1) {
+                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1,
+                        "format requires at least 1 argument (the template string).",
+                        "Usage: format(\"Hello %s\", name)");
+                    return TYPE_UNKNOWN;
+                }
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    check_expression(expr->as.call.args[i], env);
+                }
+                return TYPE_STRING;
+            }
+
             /* Result<T, E> helper intrinsics (generic-function stopgap) */
             if (strcmp(expr->as.call.name, "result_is_ok") == 0 || strcmp(expr->as.call.name, "result_is_err") == 0) {
                 if (expr->as.call.arg_count != 1) {
@@ -4108,7 +4122,7 @@ static const char *builtin_function_names[] = {
     /* Type casting */
     "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
     /* String (C strings) */
-    "str_length", "str_concat", "str_substring", "str_contains", "str_equals",
+    "str_length", "str_concat", "str_substring", "str_contains", "str_equals", "format",
     /* Bytes (array<u8>) */
     "bytes_from_string", "string_from_bytes",
     /* Binary strings (nl_string_t) */
@@ -4551,7 +4565,18 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
-    
+
+    /* format(template: string, ...args) -> string  [variadic; handled specially above] */
+    func.name = "format";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
     /* Array operations */
     /* at(arr: array<T>, index: int) -> T */
     func.name = "at";

@@ -1324,6 +1324,40 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
+            /* format(template, arg1, arg2, ...) -> string interpolation */
+            else if (strcmp(func_name, "format") == 0 && expr->as.call.arg_count >= 1) {
+                int n_args = expr->as.call.arg_count - 1;
+                emit_literal(list, "nl_format(");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_formatted(list, ", %d", n_args);
+                for (int i = 1; i < expr->as.call.arg_count; i++) {
+                    emit_literal(list, ", ");
+                    ASTNode *farg = expr->as.call.args[i];
+                    Type farg_type = check_expression(farg, env);
+                    if (farg_type == TYPE_STRING) {
+                        build_expr(list, farg, env);
+                    } else if (farg_type == TYPE_INT || farg_type == TYPE_U8) {
+                        emit_literal(list, "int_to_string(");
+                        build_expr(list, farg, env);
+                        emit_literal(list, ")");
+                    } else if (farg_type == TYPE_FLOAT) {
+                        emit_literal(list, "float_to_string(");
+                        build_expr(list, farg, env);
+                        emit_literal(list, ")");
+                    } else if (farg_type == TYPE_BOOL) {
+                        emit_literal(list, "nl_to_string_bool(");
+                        build_expr(list, farg, env);
+                        emit_literal(list, ")");
+                    } else {
+                        /* Fallback: cast to string */
+                        emit_literal(list, "nl_to_string_int((int64_t)(");
+                        build_expr(list, farg, env);
+                        emit_literal(list, "))");
+                    }
+                }
+                emit_literal(list, ")");
+            }
+
             /* Result<T,E> helpers (intrinsics; generic-function stopgap) */
             else if (strcmp(func_name, "result_is_ok") == 0 && expr->as.call.arg_count == 1) {
                 emit_literal(list, "({ __auto_type _r = ");

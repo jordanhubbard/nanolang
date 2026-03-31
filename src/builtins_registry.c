@@ -95,6 +95,7 @@ const BuiltinEntry builtin_registry[] = {
     {"str_equals",      "nl_str_equals",     2, {S,S,U,U}, B, OP_STR_EQ,       L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_split",       "nl_str_split",      2, {S,S,U,U}, A, OP_NOP, L|BUILTIN_PURE},
     {"str_join",        "nl_str_join",       2, {A,S,U,U}, S, OP_NOP, L|BUILTIN_PURE},
+    {"format",          "nl_format",         1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_trim",        "nl_str_trim",       1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_trim_left",   "nl_str_trim_left",  1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_trim_right",  "nl_str_trim_right", 1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
