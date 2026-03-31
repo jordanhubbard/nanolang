@@ -767,6 +767,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
         case TYPE_HASHMAP: return "void*"; /* Specialized as HashMap_K_V* when TypeInfo is available */
         case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
+        case TYPE_OPEN_RECORD: return "int64_t"; /* row-poly: interpreter-only stub */
         default: return "void";
     }
 }
@@ -3557,6 +3558,26 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                         }
                     }
                 }
+            }
+
+            /* Functions with open-record (row-polymorphic) parameters can't be
+             * compiled to concrete C code — emit a stub and let the interpreter
+             * handle them via shadow blocks. */
+            bool has_open_record_param = false;
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (item->as.function.params[j].type == TYPE_OPEN_RECORD) {
+                    has_open_record_param = true; break;
+                }
+            }
+            if (has_open_record_param) {
+                Type ret = item->as.function.return_type;
+                if (ret == TYPE_VOID)        sb_append(sb, "{ /* row-poly: interpreter-only */ }\n");
+                else if (ret == TYPE_STRING) sb_append(sb, "{ return NULL; /* row-poly */ }\n");
+                else                         sb_append(sb, "{ return 0; /* row-poly */ }\n");
+                env->symbol_count = saved_symbol_count;
+                sb_append(sb, "\n");
+                g_current_function = NULL;
+                continue;
             }
 
             /* Function body */

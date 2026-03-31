@@ -449,14 +449,12 @@ test-wasm-profiler: stage1
 	@rm -f tests/test_wasm_profiler
 
 .PHONY: test-row-poly
-test-row-poly: stage1
-	@echo "Running row-polymorphic records unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_row_poly tests/test_row_poly.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_row_poly
-	@rm -f tests/test_row_poly
+test-row-poly: build
+	@echo "Running row-polymorphic records tests..."
+	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-row-poly
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

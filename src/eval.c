@@ -4579,6 +4579,45 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             
+            /* Handle spread syntax: {..base, extra: val} — anonymous struct only */
+            if (!struct_name && expr->as.struct_literal.spread_source) {
+                Value base_val = eval_expression(expr->as.struct_literal.spread_source, env);
+                StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
+                int base_count = base_sv ? base_sv->field_count : 0;
+                int over_count = expr->as.struct_literal.field_count;
+                int merged_cap = base_count + over_count;
+                char **merged_names  = malloc(sizeof(char*) * (merged_cap + 1));
+                Value *merged_values = malloc(sizeof(Value) * (merged_cap + 1));
+                int merged_count = 0;
+                /* Copy base fields not overridden */
+                for (int bi = 0; bi < base_count; bi++) {
+                    bool overridden = false;
+                    for (int oi = 0; oi < over_count; oi++) {
+                        if (strcmp(base_sv->field_names[bi],
+                                   expr->as.struct_literal.field_names[oi]) == 0) {
+                            overridden = true; break;
+                        }
+                    }
+                    if (!overridden) {
+                        merged_names[merged_count]  = base_sv->field_names[bi];
+                        merged_values[merged_count] = base_sv->field_values[bi];
+                        merged_count++;
+                    }
+                }
+                /* Add override/new fields */
+                for (int oi = 0; oi < over_count; oi++) {
+                    merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
+                    merged_values[merged_count] = eval_expression(
+                        expr->as.struct_literal.field_values[oi], env);
+                    merged_count++;
+                }
+                const char *res_name = base_sv ? base_sv->struct_name : NULL;
+                Value result = create_struct(res_name, merged_names, merged_values, merged_count);
+                free(merged_names);
+                free(merged_values);
+                return result;
+            }
+
             /* Get struct definition to verify field order */
             StructDef *struct_def = env_get_struct(env, struct_name);
             if (!struct_def) {

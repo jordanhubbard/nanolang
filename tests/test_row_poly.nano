@@ -1,0 +1,69 @@
+# Test row-polymorphic record types
+# Open-record functions run via interpreter (shadow blocks)
+
+struct Person {
+    name: string,
+    age: int
+}
+
+struct Employee {
+    name: string,
+    age: int,
+    company: string
+}
+
+# Open-record function: accepts any struct with a 'name: string' field
+fn get_name(rec: {name: string | r}) -> string {
+    return rec.name
+}
+
+# Open-record function: accepts any struct with 'name: string' and 'age: int' fields
+fn get_age(rec: {name: string, age: int | r}) -> int {
+    return rec.age
+}
+
+fn spread_basic() -> int {
+    let base = Person { name: "Carol", age: 40 }
+    let updated: Person = {..base, age: 41}
+    assert (== updated.name "Carol")
+    assert (== updated.age 41)
+    return 0
+}
+
+fn spread_extend() -> int {
+    let e = Employee { name: "Dave", age: 28, company: "BigCo" }
+    let promoted: Employee = {..e, company: "NewCo"}
+    assert (== promoted.name "Dave")
+    assert (== promoted.age 28)
+    assert (== promoted.company "NewCo")
+    return 0
+}
+
+shadow get_name {
+    let p = Person { name: "Alice", age: 30 }
+    assert (== (get_name p) "Alice")
+    let e = Employee { name: "Bob", age: 25, company: "Acme" }
+    assert (== (get_name e) "Bob")
+}
+
+shadow get_age {
+    let e = Employee { name: "Bob", age: 25, company: "Acme" }
+    assert (== (get_age e) 25)
+}
+
+shadow spread_basic {
+    assert (== (spread_basic) 0)
+}
+
+shadow spread_extend {
+    assert (== (spread_extend) 0)
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
+fn main() -> int {
+    println "✅ Row-polymorphic record tests passed!"
+    return 0
+}

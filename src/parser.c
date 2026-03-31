@@ -957,6 +957,49 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             
             return TYPE_TUPLE;
         }
+        case TOKEN_LBRACE: {
+            /* Open record type: {field: Type, field: Type | rowvar} */
+            advance(p);  /* consume '{' */
+            int field_cap = 4, field_cnt = 0;
+            char **fnames = malloc(sizeof(char*) * field_cap);
+            Type  *ftypes = malloc(sizeof(Type)  * field_cap);
+            while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_BAR) && !match(p, TOKEN_EOF)) {
+                if (field_cnt >= field_cap) {
+                    field_cap *= 2;
+                    fnames = realloc(fnames, sizeof(char*) * field_cap);
+                    ftypes = realloc(ftypes, sizeof(Type)  * field_cap);
+                }
+                if (!match(p, TOKEN_IDENTIFIER)) break;
+                fnames[field_cnt] = strdup(current_token(p)->value);
+                advance(p);
+                if (!expect(p, TOKEN_COLON, "Expected ':' in record type field")) { free(fnames[field_cnt]); break; }
+                TypeInfo *dummy_ti = NULL;
+                ftypes[field_cnt] = parse_type_with_element(p, NULL, NULL, NULL, &dummy_ti);
+                field_cnt++;
+                if (match(p, TOKEN_COMMA)) advance(p);
+            }
+            char *rowvar = NULL;
+            if (match(p, TOKEN_BAR)) {
+                advance(p);
+                if (match(p, TOKEN_IDENTIFIER)) {
+                    rowvar = strdup(current_token(p)->value);
+                    advance(p);
+                }
+            }
+            if (!expect(p, TOKEN_RBRACE, "Expected '}' closing record type")) {
+                free(fnames); free(ftypes); free(rowvar); return TYPE_UNKNOWN;
+            }
+            if (type_info_out) {
+                if (!*type_info_out) *type_info_out = calloc(1, sizeof(TypeInfo));
+                (*type_info_out)->tuple_type_names = fnames;
+                (*type_info_out)->tuple_types = ftypes;
+                (*type_info_out)->tuple_element_count = field_cnt;
+                (*type_info_out)->generic_name = rowvar ? rowvar : strdup("_");
+            } else {
+                free(fnames); free(ftypes); free(rowvar);
+            }
+            return TYPE_OPEN_RECORD;
+        }
         default:
             parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
             return TYPE_UNKNOWN;
@@ -1469,29 +1512,42 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             Token *first_tok = peek_token(p, 1);
             Token *second_tok = peek_token(p, 2);
             
-            /* Heuristic: if we see IDENTIFIER followed by COLON, it's likely a struct literal */
-            bool looks_like_struct_literal = first_tok && second_tok &&
+            /* Heuristic: if we see IDENTIFIER followed by COLON, it's likely a struct literal.
+             * Also detect {..base, ...} spread syntax. */
+            bool looks_like_spread = first_tok && second_tok &&
+                first_tok->token_type == TOKEN_DOT &&
+                second_tok->token_type == TOKEN_DOT;
+            bool looks_like_struct_literal = looks_like_spread || (first_tok && second_tok &&
                 first_tok->token_type == TOKEN_IDENTIFIER &&
-                second_tok->token_type == TOKEN_COLON;
+                second_tok->token_type == TOKEN_COLON);
             
             if (looks_like_struct_literal) {
-                /* Parse anonymous struct literal */
+                /* Parse anonymous struct literal, possibly with spread: {..base, field: val} */
                 int line = tok->line;
                 int column = tok->column;
                 advance(p);  /* consume '{' */
-                
+
+                /* Detect and consume spread prefix: ..identifier */
+                ASTNode *spread_src = NULL;
+                if (looks_like_spread) {
+                    advance(p);  /* consume first '.' */
+                    advance(p);  /* consume second '.' */
+                    spread_src = parse_expression(p);
+                    if (match(p, TOKEN_COMMA)) advance(p);
+                }
+
                 int capacity = 4;
                 int count = 0;
                 char **field_names = malloc(sizeof(char*) * capacity);
                 ASTNode **field_values = malloc(sizeof(ASTNode*) * capacity);
-                
+
                 while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
                     if (count >= capacity) {
                         capacity *= 2;
                         field_names = realloc(field_names, sizeof(char*) * capacity);
                         field_values = realloc(field_values, sizeof(ASTNode*) * capacity);
                     }
-                    
+
                     /* Parse field name */
                     if (!match(p, TOKEN_IDENTIFIER)) {
                         parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected field name in anonymous struct literal\n",
@@ -1500,13 +1556,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     }
                     field_names[count] = strdup(current_token(p)->value);
                     advance(p);
-                    
+
                     /* Expect ':' */
                     if (!expect(p, TOKEN_COLON, "Expected ':' after field name in struct literal")) {
                         free(field_names[count]);
                         break;
                     }
-                    
+
                     /* Parse field value */
                     field_values[count] = parse_expression(p);
                     if (!field_values[count]) {
@@ -1514,13 +1570,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         break;
                     }
                     count++;
-                    
+
                     /* Check for comma (optional before '}') */
                     if (match(p, TOKEN_COMMA)) {
                         advance(p);
                     }
                 }
-                
+
                 if (!expect(p, TOKEN_RBRACE, "Expected '}' after struct literal fields")) {
                     for (int i = 0; i < count; i++) {
                         free(field_names[i]);
@@ -1530,12 +1586,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     free(field_values);
                     return NULL;
                 }
-                
+
                 node = create_node(AST_STRUCT_LITERAL, line, column);
                 node->as.struct_literal.struct_name = NULL;  /* Anonymous - will be inferred by typechecker */
                 node->as.struct_literal.field_names = field_names;
                 node->as.struct_literal.field_values = field_values;
                 node->as.struct_literal.field_count = count;
+                node->as.struct_literal.spread_source = spread_src;
                 return node;
             }
             

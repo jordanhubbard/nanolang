@@ -104,6 +104,7 @@ typedef enum {
     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
+    TYPE_OPEN_RECORD,  /* Row-polymorphic record: {f1:T1, f2:T2 | r} */
     TYPE_UNKNOWN
 } Type;
 

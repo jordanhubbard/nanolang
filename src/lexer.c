@@ -480,6 +480,11 @@ Token *tokenize(const char *source, int *token_count) {
             i += 2;
             continue;
         }
+        if (source[i] == '|') {
+            tokens[count++] = create_token(TOKEN_BAR, NULL, line, column);
+            i++;
+            continue;
+        }
 
         /* Single-character tokens */
         switch (source[i]) {
@@ -592,6 +597,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_UNSAFE: return "UNSAFE";
         case TOKEN_RESOURCE: return "RESOURCE";
         case TOKEN_PIPE: return "PIPE";
+        case TOKEN_BAR: return "BAR";
         case TOKEN_QUESTION: return "QUESTION";
         case TOKEN_PAR: return "PAR";
         case TOKEN_EFFECT: return "EFFECT";

@@ -276,6 +276,7 @@ const char *type_to_string(Type type) {
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
         case TYPE_HASHMAP: return "HashMap";
+        case TYPE_OPEN_RECORD: return "open_record";
         case TYPE_UNKNOWN: return "unknown";
         default: return "unknown";
     }
@@ -395,7 +396,10 @@ static bool types_match(Type t1, Type t2) {
         (t1 == TYPE_U8 && t2 == TYPE_ENUM)) {
         return true;
     }
-    
+
+    /* Open records are compatible with any struct (row-polymorphism). */
+    if (t1 == TYPE_OPEN_RECORD || t2 == TYPE_OPEN_RECORD) return true;
+
     return false;
 }
 
@@ -2402,8 +2406,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 expr->as.struct_literal.struct_name = strdup(sdef->name);
             }
 
-            /* Check that all fields are provided and types match */
-            if (expr->as.struct_literal.field_count != sdef->field_count) {
+            /* Check that all fields are provided and types match.
+             * Spread literals ({..base, overrides}) supply missing fields from
+             * the spread source, so the explicit field_count may be less than
+             * sdef->field_count; skip the arity check in that case. */
+            if (!expr->as.struct_literal.spread_source &&
+                expr->as.struct_literal.field_count != sdef->field_count) {
                 char hint[512];
                 int hint_off = snprintf(hint, sizeof(hint), "Expected fields:");
                 for (int fi = 0; fi < sdef->field_count && hint_off < (int)sizeof(hint) - 3; fi++) {
@@ -2507,6 +2515,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Regular struct field access */
             /* Check the object type */
             Type object_type = check_expression(expr->as.field_access.object, env);
+            /* Open-record (row-poly) parameters are compatible with struct field access */
+            if (object_type == TYPE_OPEN_RECORD) return TYPE_UNKNOWN;
             if (object_type != TYPE_STRUCT) {
                 emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
                                    "Field access requires a struct value.",
