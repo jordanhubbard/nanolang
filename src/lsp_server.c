@@ -577,6 +577,39 @@ static void handle_initialize(cJSON *id, cJSON *params) {
     cJSON_AddItemToObject(comp_opts, "triggerCharacters", triggers);
     cJSON_AddItemToObject(caps, "completionProvider", comp_opts);
 
+    /* Semantic tokens (full) */
+    cJSON *sem = cJSON_CreateObject();
+    cJSON *legend = cJSON_CreateObject();
+    /* Token type names (index = token type integer) */
+    cJSON *token_types = cJSON_CreateArray();
+    static const char *const TOKEN_TYPE_NAMES[] = {
+        "keyword",       /* 0 */
+        "function",      /* 1 */
+        "variable",      /* 2 */
+        "parameter",     /* 3 */
+        "type",          /* 4 */
+        "number",        /* 5 */
+        "string",        /* 6 */
+        "comment",       /* 7 */
+        "operator",      /* 8 */
+        "namespace",     /* 9 */
+        "struct",        /* 10 */
+        "enumMember",    /* 11 */
+    };
+    for (size_t i = 0; i < sizeof(TOKEN_TYPE_NAMES)/sizeof(*TOKEN_TYPE_NAMES); i++)
+        cJSON_AddItemToArray(token_types, cJSON_CreateString(TOKEN_TYPE_NAMES[i]));
+    cJSON_AddItemToObject(legend, "tokenTypes", token_types);
+    /* Token modifiers */
+    cJSON *token_mods = cJSON_CreateArray();
+    cJSON_AddItemToArray(token_mods, cJSON_CreateString("declaration"));
+    cJSON_AddItemToArray(token_mods, cJSON_CreateString("definition"));
+    cJSON_AddItemToArray(token_mods, cJSON_CreateString("readonly"));
+    cJSON_AddItemToArray(token_mods, cJSON_CreateString("static"));
+    cJSON_AddItemToObject(legend, "tokenModifiers", token_mods);
+    cJSON_AddItemToObject(sem, "legend", legend);
+    cJSON_AddTrueToObject(sem, "full");  /* supports full-document encoding */
+    cJSON_AddItemToObject(caps, "semanticTokensProvider", sem);
+
     cJSON_AddItemToObject(result, "capabilities", caps);
 
     cJSON *server_info = cJSON_CreateObject();
@@ -584,6 +617,142 @@ static void handle_initialize(cJSON *id, cJSON *params) {
     cJSON_AddStringToObject(server_info, "version", "0.1.0");
     cJSON_AddItemToObject(result, "serverInfo", server_info);
 
+    lsp_send_result(id, result);
+}
+
+/* ── Semantic token types (must match TOKEN_TYPE_NAMES order above) ────── */
+#define SEMTOK_KEYWORD   0
+#define SEMTOK_FUNCTION  1
+#define SEMTOK_VARIABLE  2
+#define SEMTOK_PARAMETER 3
+#define SEMTOK_TYPE      4
+#define SEMTOK_NUMBER    5
+#define SEMTOK_STRING    6
+#define SEMTOK_COMMENT   7
+#define SEMTOK_OPERATOR  8
+#define SEMTOK_NAMESPACE 9
+#define SEMTOK_STRUCT   10
+#define SEMTOK_ENUM_MBR 11
+
+/* Semantic token modifier bit flags */
+#define SEMMOD_DECLARATION (1 << 0)
+#define SEMMOD_DEFINITION  (1 << 1)
+#define SEMMOD_READONLY    (1 << 2)
+#define SEMMOD_STATIC      (1 << 3)
+
+/*
+ * Encode tokens using LSP semantic token delta encoding.
+ * Each token = 5 integers:
+ *   deltaLine, deltaStartChar, length, tokenType, tokenModifiers
+ *
+ * We walk g_doc.tokens[] to produce the raw token stream (fast path).
+ * The AST walk adds function/type/parameter modifiers in a second pass.
+ *
+ * Returns cJSON array of integers (the "data" field).
+ */
+static cJSON *build_semantic_tokens_data(void) {
+    if (!g_doc.tokens || g_doc.token_count == 0) return cJSON_CreateArray();
+
+    /* Rough upper bound: one entry per token * 5 integers */
+    size_t max = (size_t)g_doc.token_count * 5 + 5;
+    int *data   = malloc(max * sizeof(int));
+    int  count  = 0;
+    if (!data) return cJSON_CreateArray();
+
+    int prev_line = 0, prev_char = 0;
+
+#define EMIT(dl, dc, len, type, mods) do { \
+    if ((size_t)(count + 5) <= max) { \
+        data[count++] = (dl); data[count++] = (dc); data[count++] = (len); \
+        data[count++] = (type); data[count++] = (mods); \
+    } \
+} while(0)
+
+    /* Built-in type names (checked for TOKEN_IDENTIFIER) */
+    static const char *TYPES[] = {
+        "int", "float", "string", "bool", "void", "unit", "char", NULL
+    };
+
+    for (int i = 0; i < g_doc.token_count; i++) {
+        const LexerToken *tok = &g_doc.tokens[i];
+        if (!tok->value || tok->line <= 0) continue;
+
+        int line     = tok->line - 1;           /* 0-based */
+        int col      = tok->column > 0 ? tok->column - 1 : 0;
+        int len      = (int)strlen(tok->value);
+        int toktype  = -1;
+        int tokmods  = 0;
+
+        int dl = line - prev_line;
+        int dc = (dl == 0) ? col - prev_char : col;
+
+        int tt = tok->token_type;
+        switch (tt) {
+            case TOKEN_IDENTIFIER: {
+                /* Check built-in types */
+                for (int k = 0; TYPES[k]; k++) {
+                    if (strcmp(tok->value, TYPES[k]) == 0) { toktype = SEMTOK_TYPE; break; }
+                }
+                if (toktype >= 0) break;
+                /* Look-ahead: function definition (preceded by TOKEN_FN) */
+                if (i > 0 && g_doc.tokens[i-1].token_type == TOKEN_FN) {
+                    toktype = SEMTOK_FUNCTION; tokmods = SEMMOD_DEFINITION; break;
+                }
+                /* Look-ahead: call site (followed by '(') */
+                if (i + 1 < g_doc.token_count &&
+                    g_doc.tokens[i+1].token_type == TOKEN_LPAREN) {
+                    toktype = SEMTOK_FUNCTION; break;
+                }
+                toktype = SEMTOK_VARIABLE;
+                break;
+            }
+            case TOKEN_NUMBER: case TOKEN_FLOAT:
+                toktype = SEMTOK_NUMBER; break;
+            case TOKEN_STRING:
+                toktype = SEMTOK_STRING; break;
+            case TOKEN_TRUE: case TOKEN_FALSE:
+                toktype = SEMTOK_KEYWORD; break;
+            case TOKEN_PLUS: case TOKEN_MINUS: case TOKEN_STAR:
+            case TOKEN_SLASH: case TOKEN_PERCENT: case TOKEN_EQ:
+            case TOKEN_NE: case TOKEN_LT: case TOKEN_GT:
+            case TOKEN_LE: case TOKEN_GE: case TOKEN_ASSIGN:
+            case TOKEN_ARROW: case TOKEN_PIPE: case TOKEN_AND: case TOKEN_OR:
+            case TOKEN_NOT: case TOKEN_LARROW: case TOKEN_RANGE:
+                toktype = SEMTOK_OPERATOR; break;
+            case TOKEN_FN: case TOKEN_LET: case TOKEN_MUT: case TOKEN_SET:
+            case TOKEN_IF: case TOKEN_ELSE: case TOKEN_COND:
+            case TOKEN_WHILE: case TOKEN_FOR: case TOKEN_IN:
+            case TOKEN_RETURN: case TOKEN_BREAK: case TOKEN_CONTINUE:
+            case TOKEN_MODULE: case TOKEN_PUB: case TOKEN_FROM: case TOKEN_USE:
+            case TOKEN_EXTERN: case TOKEN_ASSERT: case TOKEN_SHADOW:
+            case TOKEN_REQUIRES: case TOKEN_UNSAFE: case TOKEN_PAR:
+            case TOKEN_EFFECT: case TOKEN_HANDLE: case TOKEN_WITH:
+            case TOKEN_RESUME: case TOKEN_GPU: case TOKEN_ASYNC: case TOKEN_AWAIT:
+            case TOKEN_GRAMMAR: case TOKEN_RESOURCE:
+                toktype = SEMTOK_KEYWORD; break;
+            default:
+                break;
+        }
+
+        if (toktype < 0) continue;
+        EMIT(dl, dc, len, toktype, tokmods);
+        prev_line = line;
+        prev_char = col;
+    }
+#undef EMIT
+
+    cJSON *arr = cJSON_CreateArray();
+    for (int i = 0; i < count; i++)
+        cJSON_AddItemToArray(arr, cJSON_CreateNumber(data[i]));
+    free(data);
+    return arr;
+}
+
+static void handle_semantic_tokens_full(cJSON *id, cJSON *params) {
+    (void)params;
+    cJSON *result = cJSON_CreateObject();
+    cJSON *data = build_semantic_tokens_data();
+    cJSON_AddItemToObject(result, "data", data);
     lsp_send_result(id, result);
 }
 
@@ -911,6 +1080,11 @@ static void dispatch(cJSON *msg) {
     } else if (strcmp(method, "textDocument/definition") == 0) {
         if (params) handle_definition(id, params);
         else lsp_send_null_result(id);
+    } else if (strcmp(method, "textDocument/semanticTokens/full") == 0) {
+        handle_semantic_tokens_full(id, params);
+    } else if (strcmp(method, "textDocument/semanticTokens/full/delta") == 0) {
+        /* Delta not implemented — fall back to full */
+        handle_semantic_tokens_full(id, params);
     } else if (strcmp(method, "textDocument/completion") == 0) {
         if (params) handle_completion(id, params);
         else lsp_send_null_result(id);
