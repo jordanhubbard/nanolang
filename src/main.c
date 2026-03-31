@@ -14,6 +14,7 @@
 #include "tco_pass.h"
 #include "cps_pass.h"
 #include "pgo_pass.h"
+#include "llvm_backend.h"
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
@@ -63,6 +64,7 @@ typedef struct {
     bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
     bool tco;                  /* --tco: enable tail-call optimization pass */
     const char *pgo_profile;   /* --pgo <path>: apply profile-guided inlining from .nano.prof */
+    bool llvm;                 /* --llvm: emit LLVM IR (.ll) instead of transpiled C */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -1329,6 +1331,9 @@ int main(int argc, char *argv[]) {
         printf("  --target <t>   Compile target: native (default), wasm, ptx\n");
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
+        printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
+        printf("                 Compile: llc -march=aarch64 prog.ll -o prog.s\n");
+        printf("                          clang -O2 prog.ll -o prog\n");
         printf("  --pgo <file>   Profile-guided inlining: read .nano.prof from --profile-runtime,\n");
         printf("                 identify hot call sites and inline them. Combines with --tco.\n");
         printf("                 Example: nanoc --profile-runtime prog.nano -o prog\n");
@@ -1488,7 +1493,8 @@ int main(int argc, char *argv[]) {
         .reference_eval = false,
         .target = NULL,
         .no_sourcemap = false,
-        .pgo_profile = NULL
+        .pgo_profile = NULL,
+        .llvm = false
     };
     
     /* Allocate arrays for flags */
@@ -1600,6 +1606,8 @@ int main(int argc, char *argv[]) {
             opts.tco = true;
         } else if (strcmp(argv[i], "--pgo") == 0 && i + 1 < argc) {
             opts.pgo_profile = argv[++i];
+        } else if (strcmp(argv[i], "--llvm") == 0) {
+            opts.llvm = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
