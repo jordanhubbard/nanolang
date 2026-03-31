@@ -1350,6 +1350,8 @@ int main(int argc, char *argv[]) {
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  publish <file> Compile to WASM and publish to AgentFS (nanoc-publish.sh)\n");
+        printf("  pkg <cmd>      Package registry: search/info/install/publish/list/lock\n");
+        printf("                 (delegates to scripts/nanoc-registry.sh; NANO_REGISTRY=url)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1417,6 +1419,46 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Ensure nanoc-publish.sh is in scripts/ relative to NANOLANG_ROOT.\n");
         free(script_argv);
         free(publish_script);
+        return 1;
+    }
+
+    /* Handle 'pkg' subcommand — delegates to scripts/nanoc-registry.sh */
+    if (argc >= 2 && strcmp(argv[1], "pkg") == 0) {
+        const char *suffix = "/scripts/nanoc-registry.sh";
+        char *reg_script = NULL;
+        const char *nano_root2 = getenv("NANOLANG_ROOT");
+        if (nano_root2) {
+            size_t len = strlen(nano_root2) + strlen(suffix) + 1;
+            reg_script = malloc(len);
+            if (!reg_script) { perror("malloc"); return 1; }
+            strcpy(reg_script, nano_root2);
+            strcat(reg_script, suffix);
+        } else {
+            char *argv0_c = strdup(argv[0]);
+            if (!argv0_c) { perror("strdup"); return 1; }
+            char *last_s = strrchr(argv0_c, '/');
+            if (last_s) {
+                *last_s = '\0';
+                size_t len = strlen(argv0_c) + strlen(suffix) + 1;
+                reg_script = malloc(len);
+                if (!reg_script) { perror("malloc"); free(argv0_c); return 1; }
+                strcpy(reg_script, argv0_c);
+                strcat(reg_script, suffix);
+            } else {
+                reg_script = strdup("./scripts/nanoc-registry.sh");
+                if (!reg_script) { perror("strdup"); return 1; }
+            }
+            free(argv0_c);
+        }
+        const char **reg_argv = malloc(((size_t)argc + 1) * sizeof(char *));
+        if (!reg_argv) { perror("malloc"); free(reg_script); return 1; }
+        reg_argv[0] = reg_script;
+        for (int i = 2; i < argc; i++) reg_argv[i - 1] = argv[i];
+        reg_argv[argc - 1] = NULL;
+        execv(reg_script, (char *const *)reg_argv);
+        fprintf(stderr, "nanoc pkg: could not exec %s: %s\n", reg_script, strerror(errno));
+        free(reg_argv);
+        free(reg_script);
         return 1;
     }
 
