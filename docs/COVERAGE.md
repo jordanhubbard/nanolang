@@ -91,6 +91,21 @@ make coverage
 This adds these flags:
 - `-fprofile-arcs` - Instrument for arc profiling
 - `-ftest-coverage` - Instrument for coverage testing
+- `-fno-inline` - Disable inlining for accurate per-function data
+
+#### Compiling individual programs with coverage
+
+You can also instrument a single nanolang program using the `--coverage` flag:
+
+```bash
+nanoc --coverage myprog.nano -o myprog
+./myprog
+gcov myprog.c          # View coverage for generated C
+make coverage-report   # Or use full lcov HTML pipeline
+```
+
+The `--coverage` flag passes `-fprofile-arcs -ftest-coverage -fno-inline` to the
+C compiler when compiling your nanolang program's generated C output.
 
 ### 2. Run Tests
 
@@ -172,7 +187,9 @@ if (condition)     Branch 0: taken 10 times
 
 ### Project Coverage Goals
 
-**Current Status:** Unknown (coverage not yet measured)
+**Current Status:** Tracked via CI (see GitHub Actions coverage job)
+
+**Enforced threshold (CI gate):** ≥ 80% line coverage (configurable via `COVERAGE_THRESHOLD`)
 
 **Target for v1.0:**
 - **Line Coverage:** ≥ 80%
@@ -269,7 +286,7 @@ genhtml coverage_core.info --output-directory coverage_core
 
 ## CI Integration
 
-### GitHub Actions (Planned)
+### GitHub Actions
 
 ```yaml
 # .github/workflows/coverage.yml

@@ -31,6 +31,7 @@ typedef struct {
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     bool profile;             /* --profile: inject timing hooks into generated C */
+    bool coverage;            /* --coverage: instrument compiled output for gcov/lcov line+branch coverage */
 
     const char *profile_output_path; /* --profile-output <path>: write structured profile JSON to file */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
@@ -1127,9 +1128,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
+    /* Coverage flags for gcov/lcov line+branch coverage (--coverage option) */
+    const char *coverage_flags = "";
+    if (opts->coverage) {
+        coverage_flags = "-fprofile-arcs -ftest-coverage -fno-inline";
+        if (opts->verbose) {
+            printf("Coverage instrumentation enabled: adding %s\n", coverage_flags);
+        }
+    }
+
     int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s -o %s %s %s %s %s %s",
+            cc, profile_flags, coverage_flags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
@@ -1240,6 +1250,8 @@ int main(int argc, char *argv[]) {
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
+        printf("  --coverage     Instrument compiled output for gcov/lcov line+branch coverage\n");
+        printf("                 Run: gcov <source.c>, or use 'make coverage-report' for HTML\n");
         printf("  --target <t>   Compile target: native (default), wasm\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
@@ -1282,6 +1294,7 @@ int main(int argc, char *argv[]) {
         .json_errors = false,
         .profile_gprof = false,
         .profile = false,
+        .coverage = false,
 
         .profile_output_path = NULL,
         .llm_diags_json_path = NULL,
@@ -1331,6 +1344,9 @@ int main(int argc, char *argv[]) {
             opts.profile_gprof = true;
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
+
+        } else if (strcmp(argv[i], "--coverage") == 0) {
+            opts.coverage = true;
 
         } else if (strcmp(argv[i], "--profile-output") == 0 && i + 1 < argc) {
             opts.profile_output_path = argv[i + 1];
