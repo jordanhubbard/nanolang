@@ -663,6 +663,13 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    char* buffer = gc_alloc_string(63);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    snprintf(buffer, 64, \"%g\", x);\n");
+    sb_append(sb, "    /* Ensure at least one decimal place for whole-number floats\n");
+    sb_append(sb, "     * so 0.0 -> \"0.0\" rather than \"0\" */\n");
+    sb_append(sb, "    if (!strchr(buffer, '.') && !strchr(buffer, 'e')\n");
+    sb_append(sb, "            && !strchr(buffer, 'n') && !strchr(buffer, 'i')) {\n");
+    sb_append(sb, "        size_t len = strlen(buffer);\n");
+    sb_append(sb, "        if (len + 2 < 64) { buffer[len] = '.'; buffer[len+1] = '0'; buffer[len+2] = '\\0'; }\n");
+    sb_append(sb, "    }\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 

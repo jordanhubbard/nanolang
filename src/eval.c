@@ -696,6 +696,17 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         case VAL_FLOAT: {
             char tmp[64];
             snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            /* Ensure at least one decimal place for whole-number floats
+             * so 0.0 → "0.0" rather than "0" (matches Python/JS behaviour) */
+            if (strchr(tmp, '.') == NULL && strchr(tmp, 'e') == NULL
+                    && strchr(tmp, 'n') == NULL && strchr(tmp, 'i') == NULL) {
+                size_t len = strlen(tmp);
+                if (len + 2 < sizeof(tmp)) {
+                    tmp[len]     = '.';
+                    tmp[len + 1] = '0';
+                    tmp[len + 2] = '\0';
+                }
+            }
             eval_sb_append_cstr(sb, tmp);
             break;
         }
@@ -2895,6 +2906,15 @@ static Value eval_call(ASTNode *node, Environment *env) {
         double v = args[0].type == VAL_FLOAT ? args[0].as.float_val : (double)args[0].as.int_val;
         char buffer[64];
         snprintf(buffer, sizeof(buffer), "%g", v);
+        if (strchr(buffer, '.') == NULL && strchr(buffer, 'e') == NULL
+                && strchr(buffer, 'n') == NULL && strchr(buffer, 'i') == NULL) {
+            size_t len = strlen(buffer);
+            if (len + 2 < sizeof(buffer)) {
+                buffer[len]     = '.';
+                buffer[len + 1] = '0';
+                buffer[len + 2] = '\0';
+            }
+        }
         return create_string(buffer);
     }
     if (strcmp(name, "bool_to_string") == 0) {
