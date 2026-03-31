@@ -61,14 +61,13 @@ static int fresh_tmp(LLVMCtx *ctx)  { return ctx->tmp++; }
 static int fresh_blk(LLVMCtx *ctx)  { return ctx->blk++; }
 
 /* Map nanolang type to LLVM IR type string */
-static const char *ll_type(Type t, const char *struct_name) {
+static const char *ll_type(Type t, const char *struct_name __attribute__((unused))) {
     switch (t) {
         case TYPE_INT:    return "i64";
         case TYPE_FLOAT:  return "double";
         case TYPE_BOOL:   return "i1";
         case TYPE_STRING: return "i8*";
         case TYPE_VOID:   return "void";
-        case TYPE_UNIT:   return "void";
         case TYPE_STRUCT: return "i8*"; /* opaque pointer for now */
         default:          return "i64";
     }
@@ -163,18 +162,14 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
             return t;
         }
         case AST_STRING: {
-            int idx = intern_string(ctx, node->as.string ? node->as.string : "");
-            int len = (int)strlen(node->as.string ? node->as.string : "") + 1;
+            int idx = intern_string(ctx, node->as.string_val ? node->as.string_val : "");
+            int len = (int)strlen(node->as.string_val ? node->as.string_val : "") + 1;
             int t   = fresh_tmp(ctx);
             emit(ctx, "  %%%d = getelementptr inbounds [%d x i8], [%d x i8]* @.str.%d, i64 0, i64 0\n",
                  t, len, len, idx);
             return t;
         }
-        case AST_NIL: {
-            int t = fresh_tmp(ctx);
-            emit(ctx, "  %%%d = bitcast i8* null to i8*\n", t);
-            return t;
-        }
+        /* AST_NIL removed from AST — skip */
         case AST_IDENTIFIER: {
             const char *name = node->as.identifier;
             int idx = find_var(ctx, name);
@@ -190,37 +185,36 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
         }
         case AST_PREFIX_OP: {
             /* Binary/unary ops */
-            const char *op = node->as.prefix_op.op;
+            TokenType op = node->as.prefix_op.op;
             if (node->as.prefix_op.arg_count == 2) {
                 int lv = emit_expr(ctx, node->as.prefix_op.args[0]);
                 int rv = emit_expr(ctx, node->as.prefix_op.args[1]);
                 int t  = fresh_tmp(ctx);
-                if      (!strcmp(op, "+"))  emit(ctx, "  %%%d = add  i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "-"))  emit(ctx, "  %%%d = sub  i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "*"))  emit(ctx, "  %%%d = mul  i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "/"))  emit(ctx, "  %%%d = sdiv i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "%"))  emit(ctx, "  %%%d = srem i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "==")) emit(ctx, "  %%%d = icmp eq  i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "!=")) emit(ctx, "  %%%d = icmp ne  i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "<"))  emit(ctx, "  %%%d = icmp slt i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, ">"))  emit(ctx, "  %%%d = icmp sgt i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "<=")) emit(ctx, "  %%%d = icmp sle i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, ">=")) emit(ctx, "  %%%d = icmp sge i64 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "and") || !strcmp(op, "&&"))
-                    emit(ctx, "  %%%d = and i1 %%%d, %%%d\n", t, lv, rv);
-                else if (!strcmp(op, "or") || !strcmp(op, "||"))
-                    emit(ctx, "  %%%d = or  i1 %%%d, %%%d\n", t, lv, rv);
-                else {
-                    /* Unknown op — emit as add 0 */
-                    emit(ctx, "  %%%d = add i64 %%%d, 0  ; unknown op %s\n", t, lv, op);
+                switch (op) {
+                    case TOKEN_PLUS:    emit(ctx, "  %%%d = add  i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_MINUS:   emit(ctx, "  %%%d = sub  i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_STAR:    emit(ctx, "  %%%d = mul  i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_SLASH:   emit(ctx, "  %%%d = sdiv i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_PERCENT: emit(ctx, "  %%%d = srem i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_EQ:      emit(ctx, "  %%%d = icmp eq  i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_NE:      emit(ctx, "  %%%d = icmp ne  i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_LT:      emit(ctx, "  %%%d = icmp slt i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_GT:      emit(ctx, "  %%%d = icmp sgt i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_LE:      emit(ctx, "  %%%d = icmp sle i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_GE:      emit(ctx, "  %%%d = icmp sge i64 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_AND:     emit(ctx, "  %%%d = and i1 %%%d, %%%d\n", t, lv, rv); break;
+                    case TOKEN_OR:      emit(ctx, "  %%%d = or  i1 %%%d, %%%d\n", t, lv, rv); break;
+                    default:
+                        emit(ctx, "  %%%d = add i64 %%%d, 0  ; unknown op\n", t, lv);
+                        break;
                 }
                 return t;
             } else if (node->as.prefix_op.arg_count == 1) {
                 int v = emit_expr(ctx, node->as.prefix_op.args[0]);
                 int t = fresh_tmp(ctx);
-                if (!strcmp(op, "-"))
+                if (op == TOKEN_MINUS)
                     emit(ctx, "  %%%d = sub i64 0, %%%d\n", t, v);
-                else if (!strcmp(op, "not") || !strcmp(op, "!"))
+                else if (op == TOKEN_NOT)
                     emit(ctx, "  %%%d = xor i1 %%%d, true\n", t, v);
                 else
                     emit(ctx, "  %%%d = add i64 %%%d, 0\n", t, v);
@@ -268,7 +262,7 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
             emit(ctx, "bb%d:\n", then_lbl);
             int then_val = emit_expr(ctx, node->as.if_stmt.then_branch);
             emit(ctx, "  br label %%bb%d\n", merge_lbl);
-            int then_end = ctx->blk - 1;  /* track for phi */
+            (void)(ctx->blk - 1);  /* track for phi — unused */
             emit(ctx, "bb%d:\n", else_lbl);
             int else_val = -1;
             if (node->as.if_stmt.else_branch) {
@@ -377,7 +371,7 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
 
     const char *name  = fn->as.function.name ? fn->as.function.name : "anonymous";
     const char *ret_t = ll_type(fn->as.function.return_type,
-                                 fn->as.function.return_type_name);
+                                 fn->as.function.return_struct_type_name);
     char safe_name[128];
     ll_ident(safe_name, sizeof(safe_name), name);
 
@@ -409,8 +403,7 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
 
     /* Emit body */
     if (fn->as.function.body) {
-        if (fn->as.function.return_type == TYPE_VOID ||
-            fn->as.function.return_type == TYPE_UNIT) {
+        if (fn->as.function.return_type == TYPE_VOID) {
             emit_stmt(ctx, fn->as.function.body);
             emit(ctx, "  ret void\n");
         } else {

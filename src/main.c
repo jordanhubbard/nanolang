@@ -508,7 +508,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return ptx_rc;
     }
 
-    /* ── C transpiler target: emit .c source and exit ─────────────────── */
+    /* ── C target: emit .c source file and exit ─────────────────────── */
     if (opts->target && strcmp(opts->target, "c") == 0) {
         const char *c_out = output_file;
         char c_out_buf[PATH_MAX];
@@ -522,16 +522,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
         int c_rc = c_backend_emit(program, c_out, input_file, opts->verbose);
-        if (c_rc == 0) {
+        if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
-            printf("  Compile with: gcc -std=c11 %s -o %s\n",
-                   c_out, c_out_buf);
-        } else {
-            fprintf(stderr, "C backend failed\n");
+            printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
         }
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
+        free_module_list(modules);
         clear_module_cache();
         free(source);
         nl_list_CompilerDiagnostic_free(diags);

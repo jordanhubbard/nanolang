@@ -1,580 +1,1132 @@
 /*
- * c_backend.c — nanolang C transpiler backend
+ * c_backend.c — nanolang C source emit backend
  *
- * Emits readable, self-contained C source from the nanolang AST.
- * Designed for embedding nanolang logic in agentOS PD binaries on seL4
- * without a WASM interpreter or LLVM toolchain dependency.
+ * Emits readable, self-contained C99 source from the nanolang AST.
+ * Supports: numeric types, strings, arithmetic, comparisons, logical ops,
+ * function definitions, let/set bindings, if/else, while, for, return,
+ * print/println, structs, enums, unions, match, and basic effect stubs.
  *
- * Type mapping:
- *   int     → int64_t
- *   float   → double
- *   bool    → int  (C11 _Bool / stdbool.h)
- *   string  → const char*
- *   struct  → typedef struct { ... } Name;
- *   array   → nano_array_t (simple fat pointer: ptr + len)
- *
- * Generated output is C11-compliant and compiles with:
+ * Generated output is C99/C11-compliant and compiles with:
  *   gcc -std=c11 output.c -o output
+ *
+ * Usage:
+ *   nanoc --target c input.nano [-o output.c]
  */
 
 #include "c_backend.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
-#include <stdarg.h>
 
-/* ── Emit context ──────────────────────────────────────────────────────── */
+/* ── Symbol table for local type tracking ───────────────────────────────── */
+#define CB_MAX_SYMS   512
+#define CB_MAX_SCOPES  64
 
+typedef struct {
+    const char *name;
+    Type        type;
+} CBSym;
+
+/* ── Emit context ────────────────────────────────────────────────────────── */
 typedef struct {
     FILE       *out;
     int         indent;
-    const char *source_file;
     bool        verbose;
-    bool        error;
-    bool        in_function;    /* true while emitting a function body */
-    bool        has_string;     /* emitted at least one string op — need runtime? */
-} CCtx;
+    const char *error;
 
-static void cctx_init(CCtx *ctx, FILE *out, const char *source_file, bool verbose) {
-    ctx->out         = out;
-    ctx->indent      = 0;
-    ctx->source_file = source_file;
-    ctx->verbose     = verbose;
-    ctx->error       = false;
-    ctx->in_function = false;
-    ctx->has_string  = false;
+    /* Scoped symbol table */
+    CBSym syms[CB_MAX_SYMS];
+    int   sym_count;
+    int   scope_marks[CB_MAX_SCOPES];
+    int   scope_depth;
+} CBCtx;
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+
+static void ctx_push_scope(CBCtx *c) {
+    if (c->scope_depth < CB_MAX_SCOPES)
+        c->scope_marks[c->scope_depth++] = c->sym_count;
 }
 
-/* ── Indented printf ──────────────────────────────────────────────────── */
-
-static void iprintf(CCtx *ctx, const char *fmt, ...) {
-    for (int i = 0; i < ctx->indent; i++) fputs("    ", ctx->out);
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(ctx->out, fmt, ap);
-    va_end(ap);
+static void ctx_pop_scope(CBCtx *c) {
+    if (c->scope_depth > 0)
+        c->sym_count = c->scope_marks[--c->scope_depth];
 }
 
-static void emit(CCtx *ctx, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(ctx->out, fmt, ap);
-    va_end(ap);
+static void ctx_add_sym(CBCtx *c, const char *name, Type t) {
+    if (c->sym_count < CB_MAX_SYMS) {
+        c->syms[c->sym_count].name = name;
+        c->syms[c->sym_count].type = t;
+        c->sym_count++;
+    }
 }
 
-/* ── Type name ──────────────────────────────────────────────────────────── */
+static Type ctx_lookup_type(CBCtx *c, const char *name) {
+    for (int i = c->sym_count - 1; i >= 0; i--) {
+        if (strcmp(c->syms[i].name, name) == 0)
+            return c->syms[i].type;
+    }
+    return TYPE_UNKNOWN;
+}
 
-static const char *c_type_name(Type t, const char *struct_name) {
+/* Emit n*2 spaces of indentation */
+static void emit_indent(CBCtx *c) {
+    for (int i = 0; i < c->indent * 2; i++)
+        fputc(' ', c->out);
+}
+
+/* Map nanolang Type → C type string */
+static const char *c_type(Type t) {
     switch (t) {
-        case TYPE_INT:      return "int64_t";
-        case TYPE_U8:       return "uint8_t";
-        case TYPE_FLOAT:    return "double";
-        case TYPE_BOOL:     return "bool";
-        case TYPE_STRING:   return "const char*";
-        case TYPE_VOID:     return "void";
-        case TYPE_STRUCT:   return struct_name ? struct_name : "nano_record_t";
-        case TYPE_ENUM:     return struct_name ? struct_name : "int";
-        case TYPE_ARRAY:    return "nano_array_t";
-        case TYPE_UNKNOWN:  return "nano_val_t";
-        default:            return "nano_val_t";
+        case TYPE_INT:    return "int64_t";
+        case TYPE_U8:     return "uint8_t";
+        case TYPE_FLOAT:  return "double";
+        case TYPE_BOOL:   return "int";
+        case TYPE_STRING: return "const char*";
+        case TYPE_VOID:   return "void";
+        default:          return "int64_t";
     }
 }
 
-/* ── Forward declaration ─────────────────────────────────────────────── */
-static void emit_node(CCtx *ctx, ASTNode *node);
-static void emit_expr(CCtx *ctx, ASTNode *node);
-
-/* ── Preamble ─────────────────────────────────────────────────────────── */
-
-static void emit_preamble(CCtx *ctx) {
-    fprintf(ctx->out,
-        "/* Generated by nanoc --target c from: %s */\n"
-        "/* Do not edit — regenerate with: nanoc --target c %s */\n\n"
-        "#include <stdint.h>\n"
-        "#include <stdbool.h>\n"
-        "#include <string.h>\n"
-        "#include <stdio.h>\n"
-        "#include <stdlib.h>\n\n"
-        "/* ── nanolang runtime shims ──────────────────────────────────── */\n\n"
-        "/* Untyped value (for generic/unknown types) */\n"
-        "typedef union { int64_t i; double f; bool b; const char *s; void *p; } nano_val_t;\n\n"
-        "/* Fat-pointer array */\n"
-        "typedef struct { void *data; int64_t len; int64_t cap; } nano_array_t;\n\n"
-        "/* Dynamic record (row-polymorphic, heap allocated) */\n"
-        "typedef struct nano_record nano_record_t;\n"
-        "struct nano_record { int field_count; const char **field_names; nano_val_t *field_vals; };\n\n"
-        "static inline nano_val_t nano_record_get(nano_record_t *r, const char *name) {\n"
-        "    for (int i = 0; i < r->field_count; i++)\n"
-        "        if (strcmp(r->field_names[i], name) == 0) return r->field_vals[i];\n"
-        "    nano_val_t v = {0}; return v;\n"
-        "}\n\n",
-        ctx->source_file ? ctx->source_file : "<unknown>",
-        ctx->source_file ? ctx->source_file : "<unknown>"
-    );
-}
-
-/* ── Token → C operator ──────────────────────────────────────────────── */
-
-static const char *token_op_str(TokenType op) {
-    switch (op) {
-        case TOKEN_PLUS:    return "+";
-        case TOKEN_MINUS:   return "-";
-        case TOKEN_STAR:    return "*";
-        case TOKEN_SLASH:   return "/";
-        case TOKEN_PERCENT: return "%";
-        case TOKEN_EQ:      return "==";
-        case TOKEN_NE:      return "!=";
-        case TOKEN_LT:      return "<";
-        case TOKEN_LE:      return "<=";
-        case TOKEN_GT:      return ">";
-        case TOKEN_GE:      return ">=";
-        case TOKEN_AND:     return "&&";
-        case TOKEN_OR:      return "||";
-        case TOKEN_NOT:     return "!";
-        case TOKEN_PIPE:    return "|";
-        case TOKEN_BAR:     return "|";
-        default:            return "/* op */";
-    }
-}
-
-/* ── Emit expression ─────────────────────────────────────────────────── */
-
-static void emit_expr(CCtx *ctx, ASTNode *node) {
-    if (!node) { emit(ctx, "0"); return; }
-
+/* Infer expression type for format string selection */
+static Type infer_expr_type(CBCtx *c, ASTNode *node) {
+    if (!node) return TYPE_INT;
     switch (node->type) {
-        case AST_NUMBER:
-            emit(ctx, "%lld", (long long)node->as.number);
-            break;
-
-        case AST_FLOAT:
-            emit(ctx, "%g", node->as.float_val);
-            break;
-
-        case AST_BOOL:
-            emit(ctx, node->as.bool_val ? "true" : "false");
-            break;
-
-        case AST_STRING:
-            ctx->has_string = true;
-            emit(ctx, "\"");
-            /* Escape special chars */
-            for (const char *p = node->as.string_val; *p; p++) {
-                switch (*p) {
-                    case '"':  emit(ctx, "\\\""); break;
-                    case '\\': emit(ctx, "\\\\"); break;
-                    case '\n': emit(ctx, "\\n");  break;
-                    case '\t': emit(ctx, "\\t");  break;
-                    default:   fputc(*p, ctx->out); break;
-                }
+        case AST_NUMBER:     return TYPE_INT;
+        case AST_FLOAT:      return TYPE_FLOAT;
+        case AST_BOOL:       return TYPE_BOOL;
+        case AST_STRING:     return TYPE_STRING;
+        case AST_IDENTIFIER: return ctx_lookup_type(c, node->as.identifier);
+        case AST_LET:        return node->as.let.var_type;
+        case AST_CALL:
+            /* Heuristic: calls returning strings usually have "string" in name */
+            if (node->as.call.name) {
+                const char *n = node->as.call.name;
+                if (strstr(n, "to_string") || strstr(n, "string_of") ||
+                    strstr(n, "int_to_str") || strcmp(n, "nano_strcat") == 0)
+                    return TYPE_STRING;
             }
-            emit(ctx, "\"");
-            break;
-
-        case AST_IDENTIFIER:
-            emit(ctx, "%s", node->as.identifier);
-            break;
-
+            return TYPE_INT;
         case AST_PREFIX_OP: {
-            /* Binary ops have 2 args; unary ops have 1 */
-            if (node->as.prefix_op.arg_count == 2) {
-                emit(ctx, "(");
-                emit_expr(ctx, node->as.prefix_op.args[0]);
-                emit(ctx, " %s ", token_op_str(node->as.prefix_op.op));
-                emit_expr(ctx, node->as.prefix_op.args[1]);
-                emit(ctx, ")");
-            } else if (node->as.prefix_op.arg_count == 1) {
-                emit(ctx, "(%s", token_op_str(node->as.prefix_op.op));
-                emit_expr(ctx, node->as.prefix_op.args[0]);
-                emit(ctx, ")");
-            }
-            break;
+            TokenType op = node->as.prefix_op.op;
+            if (op == TOKEN_EQ || op == TOKEN_NE || op == TOKEN_LT ||
+                op == TOKEN_GT || op == TOKEN_LE || op == TOKEN_GE ||
+                op == TOKEN_AND || op == TOKEN_OR || op == TOKEN_NOT)
+                return TYPE_BOOL;
+            /* For arithmetic, check lhs */
+            if (node->as.prefix_op.arg_count > 0)
+                return infer_expr_type(c, node->as.prefix_op.args[0]);
+            return TYPE_INT;
         }
-
-        case AST_CALL: {
-            const char *fn = node->as.call.name;
-            if (!fn && node->as.call.func_expr) {
-                emit(ctx, "(");
-                emit_expr(ctx, node->as.call.func_expr);
-                emit(ctx, ")(");
-            } else {
-                emit(ctx, "%s(", fn ? fn : "unknown");
-            }
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                if (i > 0) emit(ctx, ", ");
-                emit_expr(ctx, node->as.call.args[i]);
-            }
-            emit(ctx, ")");
-            break;
-        }
-
-        case AST_MODULE_QUALIFIED_CALL: {
-            emit(ctx, "%s_%s(", node->as.module_qualified_call.module_alias,
-                                node->as.module_qualified_call.function_name);
-            for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
-                if (i > 0) emit(ctx, ", ");
-                emit_expr(ctx, node->as.module_qualified_call.args[i]);
-            }
-            emit(ctx, ")");
-            break;
-        }
-
-        case AST_FIELD_ACCESS:
-            emit_expr(ctx, node->as.field_access.object);
-            emit(ctx, ".%s", node->as.field_access.field_name);
-            break;
-
-        case AST_STRUCT_LITERAL: {
-            /* Emit as designated initializer: (TypeName){ .f1=v1, .f2=v2 } */
-            emit(ctx, "(%s){ ", node->as.struct_literal.struct_name
-                                 ? node->as.struct_literal.struct_name : "nano_record_t");
-            for (int i = 0; i < node->as.struct_literal.field_count; i++) {
-                if (i > 0) emit(ctx, ", ");
-                emit(ctx, ".%s = ", node->as.struct_literal.field_names[i]);
-                emit_expr(ctx, node->as.struct_literal.field_values[i]);
-            }
-            emit(ctx, " }");
-            break;
-        }
-
-        case AST_ARRAY_LITERAL: {
-            /* Emit as compound literal wrapped in nano_array_t */
-            emit(ctx, "(nano_array_t){ .data = (nano_val_t[]){");
-            for (int i = 0; i < node->as.array_literal.element_count; i++) {
-                if (i > 0) emit(ctx, ", ");
-                emit(ctx, "(nano_val_t){.i = (int64_t)(");
-                emit_expr(ctx, node->as.array_literal.elements[i]);
-                emit(ctx, ")}");
-            }
-            emit(ctx, "}, .len = %d, .cap = %d }",
-                 node->as.array_literal.element_count,
-                 node->as.array_literal.element_count);
-            break;
-        }
-
-        case AST_IF: {
-            emit(ctx, "(");
-            emit_expr(ctx, node->as.if_stmt.condition);
-            emit(ctx, " ? (");
-            if (node->as.if_stmt.then_branch)
-                emit_expr(ctx, node->as.if_stmt.then_branch);
-            else
-                emit(ctx, "0");
-            emit(ctx, ") : (");
-            if (node->as.if_stmt.else_branch)
-                emit_expr(ctx, node->as.if_stmt.else_branch);
-            else
-                emit(ctx, "0");
-            emit(ctx, "))");
-            break;
-        }
-
-        case AST_MATCH: {
-            /* Match as chained ternary (simplified) */
-            ASTNode *expr = node->as.match_expr.expr;
-            emit(ctx, "/* match */ (");
-            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
-                emit(ctx, "(");
-                emit_expr(ctx, expr);
-                emit(ctx, ".tag == %d) ? (", i);
-                emit_expr(ctx, node->as.match_expr.arm_bodies[i]);
-                emit(ctx, ") : ");
-            }
-            if (node->as.match_expr.arm_count > 0)
-                emit(ctx, "(__builtin_unreachable(), (int64_t)0)");
-            else
-                emit(ctx, "0");
-            emit(ctx, ")");
-            break;
-        }
-
-        case AST_TUPLE_LITERAL: {
-            /* Tuples as anonymous struct literal */
-            ASTNode **elems = node->as.struct_literal.field_values; /* reuse field */
-            int count = node->as.struct_literal.field_count;
-            emit(ctx, "(nano_val_t[%d]){", count);
-            for (int i = 0; i < count; i++) {
-                if (i > 0) emit(ctx, ", ");
-                emit(ctx, "{.i = (int64_t)(");
-                emit_expr(ctx, elems[i]);
-                emit(ctx, ")}");
-            }
-            emit(ctx, "}");
-            break;
-        }
-
-        default:
-            /* Fallback: emit statement form */
-            emit(ctx, "/* unsupported-expr(%d) */0", (int)node->type);
-            break;
+        default: return TYPE_INT;
     }
 }
 
-/* ── Emit statement ──────────────────────────────────────────────────── */
+/* Return printf format specifier for a type */
+static const char *fmt_for_type(Type t) {
+    switch (t) {
+        case TYPE_FLOAT:  return "%f";
+        case TYPE_BOOL:   return "%d";
+        case TYPE_STRING: return "%s";
+        default:          return "%lld";
+    }
+}
 
-static void emit_node(CCtx *ctx, ASTNode *node) {
-    if (!node) return;
+/* Forward declarations */
+static int emit_expr(CBCtx *c, ASTNode *node);
+static int emit_stmt(CBCtx *c, ASTNode *node);
+static int emit_block_body(CBCtx *c, ASTNode *node);
+
+/* ── Preamble ─────────────────────────────────────────────────────────────── */
+static void emit_preamble(CBCtx *c, const char *source_file) {
+    fprintf(c->out, "/* Generated by nanolang --target c");
+    if (source_file) fprintf(c->out, " from %s", source_file);
+    fprintf(c->out, " */\n");
+    fprintf(c->out, "#include <stdio.h>\n");
+    fprintf(c->out, "#include <stdlib.h>\n");
+    fprintf(c->out, "#include <stdint.h>\n");
+    fprintf(c->out, "#include <string.h>\n");
+    fprintf(c->out, "#include <setjmp.h>\n\n");
+
+    /* nano_strcat helper */
+    fprintf(c->out,
+        "static const char* nano_strcat(const char* a, const char* b) {\n"
+        "    size_t la = strlen(a), lb = strlen(b);\n"
+        "    char* r = (char*)malloc(la + lb + 1);\n"
+        "    memcpy(r, a, la); memcpy(r+la, b, lb); r[la+lb] = 0;\n"
+        "    return (const char*)r;\n"
+        "}\n\n");
+
+    /* nano_bool_to_string helper */
+    fprintf(c->out,
+        "static const char* nano_bool_to_string(int b) {\n"
+        "    return b ? \"true\" : \"false\";\n"
+        "}\n\n");
+
+    /* Effect stub support */
+    fprintf(c->out,
+        "/* Effect handler stubs */\n"
+        "static jmp_buf _nano_effect_jmp;\n"
+        "static int64_t _nano_effect_val;\n\n");
+}
+
+/* ── Expression emitter ───────────────────────────────────────────────────── */
+static int emit_expr(CBCtx *c, ASTNode *node) {
+    if (!node) {
+        if (c->verbose)
+            fprintf(stderr, "[c_backend] null AST node in expression\n");
+        c->error = "null AST node";
+        return -1;
+    }
 
     switch (node->type) {
-        case AST_PROGRAM:
-            for (int i = 0; i < node->as.program.count; i++)
-                emit_node(ctx, node->as.program.items[i]);
-            break;
+    case AST_NUMBER:
+        fprintf(c->out, "%lldLL", (long long)node->as.number);
+        return 0;
 
-        case AST_STRUCT_DEF: {
-            if (node->as.struct_def.is_extern) break; /* skip extern decls */
-            fprintf(ctx->out, "\ntypedef struct {\n");
-            for (int i = 0; i < node->as.struct_def.field_count; i++) {
-                const char *ft = c_type_name(node->as.struct_def.field_types[i],
-                                             node->as.struct_def.field_type_names
-                                                 ? node->as.struct_def.field_type_names[i]
-                                                 : NULL);
-                fprintf(ctx->out, "    %s %s;\n", ft, node->as.struct_def.field_names[i]);
+    case AST_FLOAT:
+        fprintf(c->out, "%g", node->as.float_val);
+        return 0;
+
+    case AST_BOOL:
+        fprintf(c->out, "%d", node->as.bool_val ? 1 : 0);
+        return 0;
+
+    case AST_STRING: {
+        /* Emit as a C string literal with escaping */
+        fputc('"', c->out);
+        const char *s = node->as.string_val;
+        for (; s && *s; s++) {
+            switch (*s) {
+                case '"':  fputs("\\\"", c->out); break;
+                case '\\': fputs("\\\\", c->out); break;
+                case '\n': fputs("\\n",  c->out); break;
+                case '\r': fputs("\\r",  c->out); break;
+                case '\t': fputs("\\t",  c->out); break;
+                default:   fputc(*s, c->out);     break;
             }
-            fprintf(ctx->out, "} %s;\n", node->as.struct_def.name);
-            break;
+        }
+        fputc('"', c->out);
+        return 0;
+    }
+
+    case AST_IDENTIFIER:
+        fputs(node->as.identifier, c->out);
+        return 0;
+
+    case AST_PREFIX_OP: {
+        int argc = node->as.prefix_op.arg_count;
+        TokenType op = node->as.prefix_op.op;
+
+        /* Unary not */
+        if (argc == 1 && op == TOKEN_NOT) {
+            fputc('!', c->out);
+            fputc('(', c->out);
+            if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
+            fputc(')', c->out);
+            return 0;
         }
 
-        case AST_ENUM_DEF: {
-            if (node->as.enum_def.is_extern) break;
-            fprintf(ctx->out, "\ntypedef enum {\n");
-            for (int i = 0; i < node->as.enum_def.variant_count; i++) {
-                fprintf(ctx->out, "    %s_%s",
-                        node->as.enum_def.name,
-                        node->as.enum_def.variant_names[i]);
-                if (node->as.enum_def.variant_values)
-                    fprintf(ctx->out, " = %d", node->as.enum_def.variant_values[i]);
-                fprintf(ctx->out, "%s\n", i + 1 < node->as.enum_def.variant_count ? "," : "");
-            }
-            fprintf(ctx->out, "} %s;\n", node->as.enum_def.name);
-            break;
+        /* Unary minus */
+        if (argc == 1 && op == TOKEN_MINUS) {
+            fputc('(', c->out);
+            fputc('-', c->out);
+            if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
+            fputc(')', c->out);
+            return 0;
         }
 
-        case AST_UNION_DEF: {
-            if (node->as.union_def.is_extern) break;
-            /* Tagged union: struct { int tag; union { ... } as; } */
-            fprintf(ctx->out, "\ntypedef struct {\n    int tag;\n    union {\n");
-            for (int i = 0; i < node->as.union_def.variant_count; i++) {
-                int fc = node->as.union_def.variant_field_counts[i];
-                if (fc == 0) continue;
-                fprintf(ctx->out, "        struct {\n");
-                for (int j = 0; j < fc; j++) {
-                    const char *ft = c_type_name(node->as.union_def.variant_field_types[i][j],
-                                                 node->as.union_def.variant_field_type_names
-                                                     ? node->as.union_def.variant_field_type_names[i][j]
-                                                     : NULL);
-                    fprintf(ctx->out, "            %s %s;\n", ft,
-                            node->as.union_def.variant_field_names[i][j]);
-                }
-                fprintf(ctx->out, "        } %s;\n", node->as.union_def.variant_names[i]);
+        /* Binary op: check for string concatenation */
+        if (argc == 2 && op == TOKEN_PLUS) {
+            Type lt = infer_expr_type(c, node->as.prefix_op.args[0]);
+            Type rt = infer_expr_type(c, node->as.prefix_op.args[1]);
+            if (lt == TYPE_STRING || rt == TYPE_STRING) {
+                fputs("nano_strcat(", c->out);
+                if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
+                fputs(", ", c->out);
+                if (emit_expr(c, node->as.prefix_op.args[1])) return -1;
+                fputc(')', c->out);
+                return 0;
             }
-            fprintf(ctx->out, "    } as;\n} %s;\n", node->as.union_def.name);
-            break;
         }
 
-        case AST_FUNCTION: {
-            if (node->as.function.is_extern) {
-                /* Emit extern declaration only */
-                const char *rt = c_type_name(node->as.function.return_type,
-                                             node->as.function.return_struct_type_name);
-                fprintf(ctx->out, "\nextern %s %s(", rt, node->as.function.name);
-                for (int i = 0; i < node->as.function.param_count; i++) {
-                    if (i > 0) fprintf(ctx->out, ", ");
-                    const char *pt = c_type_name(node->as.function.params[i].type,
-                                                  node->as.function.params[i].struct_type_name);
-                    const char *pn = node->as.function.params[i].name;
-                    fprintf(ctx->out, "%s %s", pt, pn ? pn : "_");
-                }
-                fprintf(ctx->out, ");\n");
-                break;
-            }
-
-            const char *rt = c_type_name(node->as.function.return_type,
-                                         node->as.function.return_struct_type_name);
-            fprintf(ctx->out, "\n%s %s(", rt, node->as.function.name);
-            for (int i = 0; i < node->as.function.param_count; i++) {
-                if (i > 0) fprintf(ctx->out, ", ");
-                const char *pt = c_type_name(node->as.function.params[i].type,
-                                              node->as.function.params[i].struct_type_name);
-                const char *pn = node->as.function.params[i].name;
-                fprintf(ctx->out, "%s %s", pt, pn ? pn : "_");
-            }
-            fprintf(ctx->out, ") {\n");
-            ctx->indent++;
-            ctx->in_function = true;
-            if (node->as.function.body)
-                emit_node(ctx, node->as.function.body);
-            ctx->in_function = false;
-            ctx->indent--;
-            fprintf(ctx->out, "}\n");
-            break;
+        if (argc != 2) {
+            c->error = "unsupported arity for prefix op";
+            return -1;
         }
 
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++)
-                emit_node(ctx, node->as.block.statements[i]);
-            break;
-
-        case AST_LET: {
-            const char *ct = c_type_name(node->as.let.var_type, node->as.let.type_name);
-            /* Use auto if type is unknown to let compiler infer */
-            if (node->as.let.var_type == TYPE_UNKNOWN)
-                ct = "__auto_type";
-            iprintf(ctx, "%s %s", ct, node->as.let.name);
-            if (node->as.let.value) {
-                emit(ctx, " = ");
-                emit_expr(ctx, node->as.let.value);
-            }
-            emit(ctx, ";\n");
-            break;
+        const char *op_str = NULL;
+        switch (op) {
+            case TOKEN_PLUS:    op_str = "+";  break;
+            case TOKEN_MINUS:   op_str = "-";  break;
+            case TOKEN_STAR:    op_str = "*";  break;
+            case TOKEN_SLASH:   op_str = "/";  break;
+            case TOKEN_PERCENT: op_str = "%";  break;
+            case TOKEN_EQ:      op_str = "=="; break;
+            case TOKEN_NE:      op_str = "!="; break;
+            case TOKEN_LT:      op_str = "<";  break;
+            case TOKEN_LE:      op_str = "<="; break;
+            case TOKEN_GT:      op_str = ">";  break;
+            case TOKEN_GE:      op_str = ">="; break;
+            case TOKEN_AND:     op_str = "&&"; break;
+            case TOKEN_OR:      op_str = "||"; break;
+            default:
+                c->error = "unsupported binary operator";
+                return -1;
         }
 
-        case AST_SET:
-            iprintf(ctx, "%s = ", node->as.set.name);
-            emit_expr(ctx, node->as.set.value);
-            emit(ctx, ";\n");
-            break;
+        fputc('(', c->out);
+        if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
+        fprintf(c->out, " %s ", op_str);
+        if (emit_expr(c, node->as.prefix_op.args[1])) return -1;
+        fputc(')', c->out);
+        return 0;
+    }
 
-        case AST_RETURN:
-            iprintf(ctx, "return");
-            if (node->as.return_stmt.value) {
-                emit(ctx, " ");
-                emit_expr(ctx, node->as.return_stmt.value);
-            }
-            emit(ctx, ";\n");
-            break;
-
-        case AST_IF: {
-            iprintf(ctx, "if (");
-            emit_expr(ctx, node->as.if_stmt.condition);
-            emit(ctx, ") {\n");
-            ctx->indent++;
-            if (node->as.if_stmt.then_branch)
-                emit_node(ctx, node->as.if_stmt.then_branch);
-            ctx->indent--;
-            if (node->as.if_stmt.else_branch) {
-                iprintf(ctx, "} else {\n");
-                ctx->indent++;
-                emit_node(ctx, node->as.if_stmt.else_branch);
-                ctx->indent--;
-            }
-            iprintf(ctx, "}\n");
-            break;
-        }
-
-        case AST_WHILE: {
-            iprintf(ctx, "while (");
-            emit_expr(ctx, node->as.while_stmt.condition);
-            emit(ctx, ") {\n");
-            ctx->indent++;
-            if (node->as.while_stmt.body)
-                emit_node(ctx, node->as.while_stmt.body);
-            ctx->indent--;
-            iprintf(ctx, "}\n");
-            break;
-        }
-
-        case AST_FOR: {
-            /* for var in range_expr { body } — emit as C for with counter */
-            iprintf(ctx, "/* for %s in */ {\n", node->as.for_stmt.var_name);
-            ctx->indent++;
-            iprintf(ctx, "nano_array_t _nano_range_ = ");
-            emit_expr(ctx, node->as.for_stmt.range_expr);
-            emit(ctx, ";\n");
-            iprintf(ctx, "for (int64_t _i_ = 0; _i_ < _nano_range_.len; _i_++) {\n");
-            ctx->indent++;
-            iprintf(ctx, "nano_val_t %s = ((nano_val_t*)_nano_range_.data)[_i_];\n",
-                    node->as.for_stmt.var_name);
-            if (node->as.for_stmt.body)
-                emit_node(ctx, node->as.for_stmt.body);
-            ctx->indent--;
-            iprintf(ctx, "}\n");
-            ctx->indent--;
-            iprintf(ctx, "}\n");
-            break;
-        }
-
-        case AST_PRINT: {
-            iprintf(ctx, "printf(");
-            if (node->as.print.is_println) {
-                emit(ctx, "\"%%s\\n\", (const char*)(");
-                emit_expr(ctx, node->as.print.expr);
-                emit(ctx, ")");
+    case AST_CALL: {
+        const char *name = node->as.call.name;
+        /* Handle built-in print/println */
+        if (name && (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) &&
+            node->as.call.arg_count == 1) {
+            bool is_println = (strcmp(name, "println") == 0);
+            Type t = infer_expr_type(c, node->as.call.args[0]);
+            if (t == TYPE_STRING) {
+                fprintf(c->out, "printf(\"%%s%s\", ", is_println ? "\\n" : "");
+            } else if (t == TYPE_FLOAT) {
+                fprintf(c->out, "printf(\"%%g%s\", ", is_println ? "\\n" : "");
+            } else if (t == TYPE_BOOL) {
+                fprintf(c->out, "printf(\"%%d%s\", ", is_println ? "\\n" : "");
             } else {
-                emit(ctx, "\"%%s\", (const char*)(");
-                emit_expr(ctx, node->as.print.expr);
-                emit(ctx, ")");
+                fprintf(c->out, "printf(\"%%lld%s\", (long long)(", is_println ? "\\n" : "");
             }
-            emit(ctx, ");\n");
-            break;
+            if (emit_expr(c, node->as.call.args[0])) return -1;
+            if (t != TYPE_STRING && t != TYPE_FLOAT && t != TYPE_BOOL)
+                fputc(')', c->out);
+            fputc(')', c->out);
+            return 0;
         }
+        /* Handle built-in int_to_string → snprintf pattern */
+        if (name && strcmp(name, "int_to_string") == 0 &&
+            node->as.call.arg_count == 1) {
+            fputs("({ static char _ibuf[32]; snprintf(_ibuf,sizeof(_ibuf),\"%lld\",(long long)(", c->out);
+            if (emit_expr(c, node->as.call.args[0])) return -1;
+            fputs(")); _ibuf; })", c->out);
+            return 0;
+        }
+        if (name && strcmp(name, "float_to_string") == 0 &&
+            node->as.call.arg_count == 1) {
+            fputs("({ static char _fbuf[64]; snprintf(_fbuf,sizeof(_fbuf),\"%g\",(double)(", c->out);
+            if (emit_expr(c, node->as.call.args[0])) return -1;
+            fputs(")); _fbuf; })", c->out);
+            return 0;
+        }
+        if (name && strcmp(name, "bool_to_string") == 0 &&
+            node->as.call.arg_count == 1) {
+            fputs("nano_bool_to_string(", c->out);
+            if (emit_expr(c, node->as.call.args[0])) return -1;
+            fputc(')', c->out);
+            return 0;
+        }
+        /* Regular function call */
+        if (name) {
+            fputs(name, c->out);
+        } else if (node->as.call.func_expr) {
+            fputc('(', c->out);
+            if (emit_expr(c, node->as.call.func_expr)) return -1;
+            fputc(')', c->out);
+        } else {
+            c->error = "call with no name or func_expr";
+            return -1;
+        }
+        fputc('(', c->out);
+        for (int i = 0; i < node->as.call.arg_count; i++) {
+            if (i > 0) fputs(", ", c->out);
+            if (emit_expr(c, node->as.call.args[i])) return -1;
+        }
+        fputc(')', c->out);
+        return 0;
+    }
 
-        case AST_ASSERT:
-            iprintf(ctx, "if (!(");
-            emit_expr(ctx, node->as.assert.condition);
-            emit(ctx, ")) { fprintf(stderr, \"assertion failed (line %d)\\n\"); __builtin_trap(); }\n",
-                 node->line);
-            break;
+    case AST_MODULE_QUALIFIED_CALL: {
+        /* Emit as alias_function(args) */
+        if (node->as.module_qualified_call.module_alias &&
+            node->as.module_qualified_call.function_name) {
+            fprintf(c->out, "%s_%s",
+                    node->as.module_qualified_call.module_alias,
+                    node->as.module_qualified_call.function_name);
+        } else if (node->as.module_qualified_call.function_name) {
+            fputs(node->as.module_qualified_call.function_name, c->out);
+        }
+        fputc('(', c->out);
+        for (int i = 0; i < node->as.module_qualified_call.arg_count; i++) {
+            if (i > 0) fputs(", ", c->out);
+            if (emit_expr(c, node->as.module_qualified_call.args[i])) return -1;
+        }
+        fputc(')', c->out);
+        return 0;
+    }
 
-        case AST_IMPORT:
-            /* Imports become comments in C output — types/functions must be linked externally */
-            iprintf(ctx, "/* import \"%s\" */\n",
-                    node->as.import_stmt.module_path ? node->as.import_stmt.module_path : "?");
-            break;
+    case AST_IF: {
+        /* Ternary for expression contexts */
+        fputc('(', c->out);
+        if (emit_expr(c, node->as.if_stmt.condition)) return -1;
+        fputs(" ? (", c->out);
+        if (emit_expr(c, node->as.if_stmt.then_branch)) return -1;
+        fputs(") : (", c->out);
+        if (node->as.if_stmt.else_branch) {
+            if (emit_expr(c, node->as.if_stmt.else_branch)) return -1;
+        } else {
+            fputs("0", c->out);
+        }
+        fputs("))", c->out);
+        return 0;
+    }
 
-        case AST_MODULE_DECL:
-            iprintf(ctx, "/* module %s */\n",
-                    node->as.module_decl.name ? node->as.module_decl.name : "?");
-            break;
+    case AST_BLOCK: {
+        /* Inline block (GNU statement expression) */
+        fputs("({\n", c->out);
+        c->indent++;
+        ctx_push_scope(c);
+        for (int i = 0; i < node->as.block.count; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.block.statements[i])) {
+                ctx_pop_scope(c);
+                c->indent--;
+                return -1;
+            }
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputs("})", c->out);
+        return 0;
+    }
 
-        default:
-            /* For expression statements at top level */
-            iprintf(ctx, "");
-            emit_expr(ctx, node);
-            emit(ctx, ";\n");
-            break;
+    case AST_RETURN:
+        /* Should be handled as a statement; if used as expr: */
+        if (node->as.return_stmt.value) {
+            return emit_expr(c, node->as.return_stmt.value);
+        }
+        fputs("0", c->out);
+        return 0;
+
+    case AST_STRUCT_LITERAL: {
+        /* Emit: (NanoStruct_Name){ .field = val, ... } */
+        fprintf(c->out, "(NanoStruct_%s){", node->as.struct_literal.struct_name);
+        for (int i = 0; i < node->as.struct_literal.field_count; i++) {
+            if (i > 0) fputs(", ", c->out);
+            fprintf(c->out, ".%s = ", node->as.struct_literal.field_names[i]);
+            if (emit_expr(c, node->as.struct_literal.field_values[i])) return -1;
+        }
+        fputc('}', c->out);
+        return 0;
+    }
+
+    case AST_FIELD_ACCESS: {
+        if (emit_expr(c, node->as.field_access.object)) return -1;
+        fprintf(c->out, ".%s", node->as.field_access.field_name);
+        return 0;
+    }
+
+    case AST_UNION_CONSTRUCT: {
+        fprintf(c->out, "(NanoUnion_%s){ .tag = NanoUnion_%s_TAG_%s",
+                node->as.union_construct.union_name,
+                node->as.union_construct.union_name,
+                node->as.union_construct.variant_name);
+        if (node->as.union_construct.field_count > 0) {
+            fprintf(c->out, ", .as.%s = {",
+                    node->as.union_construct.variant_name);
+            for (int i = 0; i < node->as.union_construct.field_count; i++) {
+                if (i > 0) fputs(", ", c->out);
+                fprintf(c->out, ".%s = ",
+                        node->as.union_construct.field_names[i]);
+                if (emit_expr(c, node->as.union_construct.field_values[i]))
+                    return -1;
+            }
+            fputc('}', c->out);
+        }
+        fputc('}', c->out);
+        return 0;
+    }
+
+    case AST_ARRAY_LITERAL: {
+        fputc('{', c->out);
+        for (int i = 0; i < node->as.array_literal.element_count; i++) {
+            if (i > 0) fputs(", ", c->out);
+            if (emit_expr(c, node->as.array_literal.elements[i])) return -1;
+        }
+        fputc('}', c->out);
+        return 0;
+    }
+
+    case AST_TUPLE_LITERAL: {
+        /* Tuples not fully supported; emit first element as fallback */
+        if (node->as.tuple_literal.element_count > 0) {
+            return emit_expr(c, node->as.tuple_literal.elements[0]);
+        }
+        fputs("0", c->out);
+        return 0;
+    }
+
+    case AST_EFFECT_OP: {
+        /* Simplified stub: longjmp to nearest handler */
+        fputs("(longjmp(_nano_effect_jmp, 1), 0)", c->out);
+        return 0;
+    }
+
+    case AST_AWAIT: {
+        /* Simplified stub: just evaluate the inner expression */
+        return emit_expr(c, node->as.await_expr.expr);
+    }
+
+    case AST_TRY_OP: {
+        /* Simplified stub: evaluate operand */
+        return emit_expr(c, node->as.try_op.operand);
+    }
+
+    default:
+        if (c->verbose)
+            fprintf(stderr, "[c_backend] unsupported expr node type %d\n",
+                    node->type);
+        c->error = "unsupported expression AST node";
+        return -1;
     }
 }
 
-/* ── Public API ─────────────────────────────────────────────────────────── */
+/* ── Statement emitter ────────────────────────────────────────────────────── */
+static int emit_stmt(CBCtx *c, ASTNode *node) {
+    if (!node) return 0;
 
-int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file, bool verbose) {
-    if (!root || !out) return 1;
+    switch (node->type) {
+    case AST_LET: {
+        Type t = node->as.let.var_type;
+        ctx_add_sym(c, node->as.let.name, t);
 
-    CCtx ctx;
-    cctx_init(&ctx, out, source_file, verbose);
+        if (t == TYPE_STRUCT && node->as.let.type_name) {
+            fprintf(c->out, "NanoStruct_%s %s", node->as.let.type_name,
+                    node->as.let.name);
+        } else if (t == TYPE_UNION && node->as.let.type_name) {
+            fprintf(c->out, "NanoUnion_%s %s", node->as.let.type_name,
+                    node->as.let.name);
+        } else if (t == TYPE_ARRAY) {
+            fprintf(c->out, "%s* %s", c_type(node->as.let.element_type),
+                    node->as.let.name);
+        } else {
+            fprintf(c->out, "%s %s", c_type(t), node->as.let.name);
+        }
+        if (node->as.let.value) {
+            fputs(" = ", c->out);
+            if (emit_expr(c, node->as.let.value)) return -1;
+        }
+        fputs(";\n", c->out);
+        return 0;
+    }
 
-    emit_preamble(&ctx);
-    emit_node(&ctx, root);
+    case AST_SET: {
+        fputs(node->as.set.name, c->out);
+        fputs(" = ", c->out);
+        if (emit_expr(c, node->as.set.value)) return -1;
+        fputs(";\n", c->out);
+        return 0;
+    }
 
-    /* Emit main() stub if no main function was found */
-    /* (detection would require a pre-pass — omit for now) */
+    case AST_RETURN:
+        fputs("return", c->out);
+        if (node->as.return_stmt.value) {
+            fputc(' ', c->out);
+            if (emit_expr(c, node->as.return_stmt.value)) return -1;
+        }
+        fputs(";\n", c->out);
+        return 0;
 
-    if (verbose)
-        fprintf(stderr, "[c_backend] emitted C source from %s\n",
-                source_file ? source_file : "<input>");
+    case AST_BREAK:
+        fputs("break;\n", c->out);
+        return 0;
 
-    return ctx.error ? 1 : 0;
+    case AST_CONTINUE:
+        fputs("continue;\n", c->out);
+        return 0;
+
+    case AST_PRINT: {
+        Type t = infer_expr_type(c, node->as.print.expr);
+        const char *fmt = fmt_for_type(t);
+        (void)fmt;
+        if (node->as.print.is_println) {
+            if (t == TYPE_STRING)
+                fprintf(c->out, "printf(\"%%s\\n\", ");
+            else if (t == TYPE_FLOAT)
+                fprintf(c->out, "printf(\"%%g\\n\", ");
+            else if (t == TYPE_BOOL)
+                fprintf(c->out, "printf(\"%%d\\n\", ");
+            else
+                fprintf(c->out, "printf(\"%%lld\\n\", (long long)(");
+        } else {
+            if (t == TYPE_STRING)
+                fprintf(c->out, "printf(\"%%s\", ");
+            else if (t == TYPE_FLOAT)
+                fprintf(c->out, "printf(\"%%g\", ");
+            else if (t == TYPE_BOOL)
+                fprintf(c->out, "printf(\"%%d\", ");
+            else
+                fprintf(c->out, "printf(\"%%lld\", (long long)(");
+        }
+        if (emit_expr(c, node->as.print.expr)) return -1;
+        if (t != TYPE_STRING && t != TYPE_FLOAT && t != TYPE_BOOL)
+            fputc(')', c->out);
+        fputs(");\n", c->out);
+        return 0;
+    }
+
+    case AST_ASSERT: {
+        fputs("if (!(", c->out);
+        if (emit_expr(c, node->as.assert.condition)) return -1;
+        fprintf(c->out,
+                ")) { fprintf(stderr, \"Assertion failed at line %d\\n\"); exit(1); }\n",
+                node->line);
+        return 0;
+    }
+
+    case AST_IF: {
+        fputs("if (", c->out);
+        if (emit_expr(c, node->as.if_stmt.condition)) return -1;
+        fputs(") {\n", c->out);
+        c->indent++;
+        ctx_push_scope(c);
+        if (emit_block_body(c, node->as.if_stmt.then_branch)) {
+            ctx_pop_scope(c); c->indent--;
+            return -1;
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputc('}', c->out);
+        if (node->as.if_stmt.else_branch) {
+            fputs(" else {\n", c->out);
+            c->indent++;
+            ctx_push_scope(c);
+            if (emit_block_body(c, node->as.if_stmt.else_branch)) {
+                ctx_pop_scope(c); c->indent--;
+                return -1;
+            }
+            ctx_pop_scope(c);
+            c->indent--;
+            emit_indent(c);
+            fputc('}', c->out);
+        }
+        fputc('\n', c->out);
+        return 0;
+    }
+
+    case AST_WHILE: {
+        fputs("while (", c->out);
+        if (emit_expr(c, node->as.while_stmt.condition)) return -1;
+        fputs(") {\n", c->out);
+        c->indent++;
+        ctx_push_scope(c);
+        if (emit_block_body(c, node->as.while_stmt.body)) {
+            ctx_pop_scope(c); c->indent--;
+            return -1;
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_FOR: {
+        ASTNode *range = node->as.for_stmt.range_expr;
+        const char *var = node->as.for_stmt.var_name;
+        ctx_add_sym(c, var, TYPE_INT);
+
+        if (range && range->type == AST_PREFIX_OP &&
+            range->as.prefix_op.op == TOKEN_RANGE &&
+            range->as.prefix_op.arg_count == 2) {
+            fprintf(c->out, "for (int64_t %s = ", var);
+            if (emit_expr(c, range->as.prefix_op.args[0])) return -1;
+            fprintf(c->out, "; %s < ", var);
+            if (emit_expr(c, range->as.prefix_op.args[1])) return -1;
+            fprintf(c->out, "; %s++) {\n", var);
+        } else {
+            fprintf(c->out, "for (int64_t %s = 0; %s < ", var, var);
+            if (emit_expr(c, range)) return -1;
+            fprintf(c->out, "; %s++) {\n", var);
+        }
+        c->indent++;
+        ctx_push_scope(c);
+        if (emit_block_body(c, node->as.for_stmt.body)) {
+            ctx_pop_scope(c); c->indent--;
+            return -1;
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_BLOCK: {
+        fputs("{\n", c->out);
+        c->indent++;
+        ctx_push_scope(c);
+        for (int i = 0; i < node->as.block.count; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.block.statements[i])) {
+                ctx_pop_scope(c); c->indent--;
+                return -1;
+            }
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_MATCH: {
+        ASTNode *expr = node->as.match_expr.expr;
+        fprintf(c->out, "/* match */ {\n");
+        c->indent++;
+        emit_indent(c);
+        const char *utype = node->as.match_expr.union_type_name;
+        if (utype) {
+            fprintf(c->out, "NanoUnion_%s _match_val = ", utype);
+        } else {
+            fputs("int64_t _match_val = ", c->out);
+        }
+        if (emit_expr(c, expr)) { c->indent--; return -1; }
+        fputs(";\n", c->out);
+
+        for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+            emit_indent(c);
+            if (i == 0) fputs("if (", c->out);
+            else        fputs("} else if (", c->out);
+
+            if (utype) {
+                fprintf(c->out, "_match_val.tag == NanoUnion_%s_TAG_%s",
+                        utype, node->as.match_expr.pattern_variants[i]);
+            } else {
+                fprintf(c->out, "1 /* %s */",
+                        node->as.match_expr.pattern_variants[i]);
+            }
+
+            if (node->as.match_expr.guard_exprs &&
+                node->as.match_expr.guard_exprs[i]) {
+                fputs(" && (", c->out);
+                if (emit_expr(c, node->as.match_expr.guard_exprs[i]))
+                    { c->indent--; return -1; }
+                fputc(')', c->out);
+            }
+
+            fputs(") {\n", c->out);
+            c->indent++;
+            ctx_push_scope(c);
+
+            if (node->as.match_expr.pattern_bindings &&
+                node->as.match_expr.pattern_bindings[i] &&
+                utype) {
+                emit_indent(c);
+                fprintf(c->out, "int64_t %s = _match_val.as.%s.value;\n",
+                        node->as.match_expr.pattern_bindings[i],
+                        node->as.match_expr.pattern_variants[i]);
+                ctx_add_sym(c, node->as.match_expr.pattern_bindings[i], TYPE_INT);
+            }
+
+            emit_indent(c);
+            if (emit_stmt(c, node->as.match_expr.arm_bodies[i])) {
+                ctx_pop_scope(c); c->indent -= 2;
+                return -1;
+            }
+            ctx_pop_scope(c);
+            c->indent--;
+        }
+        if (node->as.match_expr.arm_count > 0) {
+            emit_indent(c);
+            fputs("}\n", c->out);
+        }
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_HANDLE_EXPR: {
+        fputs("/* handle */ if (setjmp(_nano_effect_jmp) == 0) {\n", c->out);
+        c->indent++;
+        if (emit_block_body(c, node->as.handle_expr.body)) {
+            c->indent--;
+            return -1;
+        }
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_EFFECT_DECL:
+        fputs("/* effect declaration (stub) */\n", c->out);
+        return 0;
+
+    case AST_SHADOW:
+        fputs("/* shadow test (skipped) */\n", c->out);
+        return 0;
+
+    case AST_IMPORT:
+    case AST_MODULE_DECL:
+    case AST_OPAQUE_TYPE:
+        return 0;
+
+    case AST_PAR_BLOCK:
+    case AST_PAR_LET: {
+        ASTNode **bindings = (node->type == AST_PAR_BLOCK)
+            ? node->as.par_block.bindings
+            : node->as.par_let.bindings;
+        int cnt = (node->type == AST_PAR_BLOCK)
+            ? node->as.par_block.count
+            : node->as.par_let.count;
+        for (int i = 0; i < cnt; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, bindings[i])) return -1;
+        }
+        return 0;
+    }
+
+    case AST_UNSAFE_BLOCK: {
+        fputs("/* unsafe */ {\n", c->out);
+        c->indent++;
+        ctx_push_scope(c);
+        for (int i = 0; i < node->as.unsafe_block.count; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.unsafe_block.statements[i])) {
+                ctx_pop_scope(c); c->indent--;
+                return -1;
+            }
+        }
+        ctx_pop_scope(c);
+        c->indent--;
+        emit_indent(c);
+        fputs("}\n", c->out);
+        return 0;
+    }
+
+    case AST_COND: {
+        for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+            emit_indent(c);
+            if (i == 0) fputs("if (", c->out);
+            else        fputs("} else if (", c->out);
+            if (emit_expr(c, node->as.cond_expr.conditions[i])) return -1;
+            fputs(") {\n", c->out);
+            c->indent++;
+            ctx_push_scope(c);
+            emit_indent(c);
+            fputs("return ", c->out);
+            if (emit_expr(c, node->as.cond_expr.values[i])) {
+                ctx_pop_scope(c); c->indent--;
+                return -1;
+            }
+            fputs(";\n", c->out);
+            ctx_pop_scope(c);
+            c->indent--;
+        }
+        if (node->as.cond_expr.clause_count > 0) {
+            emit_indent(c);
+            fputs("} else {\n", c->out);
+            c->indent++;
+            emit_indent(c);
+            fputs("return ", c->out);
+            if (emit_expr(c, node->as.cond_expr.else_value)) {
+                c->indent--;
+                return -1;
+            }
+            fputs(";\n", c->out);
+            c->indent--;
+            emit_indent(c);
+            fputs("}\n", c->out);
+        }
+        return 0;
+    }
+
+    /* Expressions used as statements */
+    default: {
+        if (emit_expr(c, node)) return -1;
+        fputs(";\n", c->out);
+        return 0;
+    }
+    }
 }
 
-int c_backend_emit(ASTNode *root, const char *output_path, const char *source_file, bool verbose) {
-    FILE *out;
-    bool close_out = false;
-
-    if (output_path) {
-        out = fopen(output_path, "w");
-        if (!out) {
-            fprintf(stderr, "[c_backend] cannot open output: %s\n", output_path);
-            return 1;
+/*
+ * emit_block_body — emit the contents of a block node (or single statement)
+ * without surrounding braces.
+ */
+static int emit_block_body(CBCtx *c, ASTNode *node) {
+    if (!node) return 0;
+    if (node->type == AST_BLOCK) {
+        for (int i = 0; i < node->as.block.count; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.block.statements[i])) return -1;
         }
-        close_out = true;
+        return 0;
+    }
+    emit_indent(c);
+    return emit_stmt(c, node);
+}
+
+/* ── Type definitions ─────────────────────────────────────────────────────── */
+static void emit_struct_def(CBCtx *c, ASTNode *node) {
+    if (node->as.struct_def.is_extern) return;
+    fprintf(c->out, "typedef struct {\n");
+    for (int i = 0; i < node->as.struct_def.field_count; i++) {
+        Type ft = node->as.struct_def.field_types[i];
+        const char *fname = node->as.struct_def.field_names[i];
+        fputs("  ", c->out);
+        if (ft == TYPE_STRUCT && node->as.struct_def.field_type_names &&
+            node->as.struct_def.field_type_names[i]) {
+            fprintf(c->out, "NanoStruct_%s %s;\n",
+                    node->as.struct_def.field_type_names[i], fname);
+        } else if (ft == TYPE_ARRAY) {
+            Type et = node->as.struct_def.field_element_types
+                    ? node->as.struct_def.field_element_types[i]
+                    : TYPE_INT;
+            fprintf(c->out, "%s* %s;\n", c_type(et), fname);
+        } else {
+            fprintf(c->out, "%s %s;\n", c_type(ft), fname);
+        }
+    }
+    fprintf(c->out, "} NanoStruct_%s;\n\n", node->as.struct_def.name);
+}
+
+static void emit_enum_def(CBCtx *c, ASTNode *node) {
+    if (node->as.enum_def.is_extern) return;
+    fprintf(c->out, "typedef enum {\n");
+    for (int i = 0; i < node->as.enum_def.variant_count; i++) {
+        fputs("  ", c->out);
+        fprintf(c->out, "NanoEnum_%s_%s",
+                node->as.enum_def.name, node->as.enum_def.variant_names[i]);
+        if (node->as.enum_def.variant_values) {
+            fprintf(c->out, " = %d", node->as.enum_def.variant_values[i]);
+        }
+        if (i < node->as.enum_def.variant_count - 1) fputc(',', c->out);
+        fputc('\n', c->out);
+    }
+    fprintf(c->out, "} NanoEnum_%s;\n\n", node->as.enum_def.name);
+}
+
+static void emit_union_def(CBCtx *c, ASTNode *node) {
+    if (node->as.union_def.is_extern) return;
+    const char *uname = node->as.union_def.name;
+    /* Tag enum */
+    fprintf(c->out, "typedef enum {\n");
+    for (int i = 0; i < node->as.union_def.variant_count; i++) {
+        fprintf(c->out, "  NanoUnion_%s_TAG_%s%s\n",
+                uname, node->as.union_def.variant_names[i],
+                (i < node->as.union_def.variant_count - 1) ? "," : "");
+    }
+    fprintf(c->out, "} NanoUnion_%s_Tag;\n\n", uname);
+
+    fprintf(c->out, "typedef struct {\n");
+    fprintf(c->out, "  NanoUnion_%s_Tag tag;\n", uname);
+    fprintf(c->out, "  union {\n");
+    for (int v = 0; v < node->as.union_def.variant_count; v++) {
+        int fc = node->as.union_def.variant_field_counts[v];
+        if (fc == 0) continue;
+        fprintf(c->out, "    struct {\n");
+        for (int f = 0; f < fc; f++) {
+            Type ft = node->as.union_def.variant_field_types[v][f];
+            const char *fn = node->as.union_def.variant_field_names[v][f];
+            fprintf(c->out, "      %s %s;\n", c_type(ft), fn);
+        }
+        fprintf(c->out, "    } %s;\n", node->as.union_def.variant_names[v]);
+    }
+    fprintf(c->out, "  } as;\n");
+    fprintf(c->out, "} NanoUnion_%s;\n\n", uname);
+}
+
+/* ── Function emitter ─────────────────────────────────────────────────────── */
+static int emit_function(CBCtx *c, ASTNode *node) {
+    if (node->as.function.is_extern) return 0;
+
+    Type ret = node->as.function.return_type;
+    const char *ret_type_str;
+    static char struct_ret[128];
+    if (ret == TYPE_STRUCT && node->as.function.return_struct_type_name) {
+        snprintf(struct_ret, sizeof(struct_ret), "NanoStruct_%s",
+                 node->as.function.return_struct_type_name);
+        ret_type_str = struct_ret;
     } else {
-        out = stdout;
+        ret_type_str = c_type(ret);
     }
 
-    int rc = c_backend_emit_fp(root, out, source_file, verbose);
+    fprintf(c->out, "%s %s(", ret_type_str, node->as.function.name);
+    for (int i = 0; i < node->as.function.param_count; i++) {
+        if (i > 0) fputs(", ", c->out);
+        Parameter *p = &node->as.function.params[i];
+        if (p->type == TYPE_STRUCT && p->struct_type_name) {
+            fprintf(c->out, "NanoStruct_%s %s", p->struct_type_name, p->name);
+        } else if (p->type == TYPE_UNION && p->struct_type_name) {
+            fprintf(c->out, "NanoUnion_%s %s", p->struct_type_name, p->name);
+        } else {
+            fprintf(c->out, "%s %s", c_type(p->type), p->name);
+        }
+    }
+    fputs(") {\n", c->out);
 
-    if (close_out) fclose(out);
+    ctx_push_scope(c);
+    for (int i = 0; i < node->as.function.param_count; i++) {
+        Parameter *p = &node->as.function.params[i];
+        ctx_add_sym(c, p->name, p->type);
+    }
+
+    c->indent = 1;
+    if (node->as.function.body) {
+        if (node->as.function.body->type == AST_BLOCK) {
+            for (int i = 0; i < node->as.function.body->as.block.count; i++) {
+                emit_indent(c);
+                if (emit_stmt(c, node->as.function.body->as.block.statements[i])) {
+                    ctx_pop_scope(c);
+                    return -1;
+                }
+            }
+        } else {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.function.body)) {
+                ctx_pop_scope(c);
+                return -1;
+            }
+        }
+    }
+
+    ctx_pop_scope(c);
+    c->indent = 0;
+    fputs("}\n\n", c->out);
+    return 0;
+}
+
+/* ── Forward declarations ─────────────────────────────────────────────────── */
+static void emit_forward_decls(CBCtx *c, ASTNode *root) {
+    if (!root) return;
+    ASTNode **items = NULL;
+    int count = 0;
+    if (root->type == AST_PROGRAM) {
+        items = root->as.program.items;
+        count = root->as.program.count;
+    } else {
+        items = &root;
+        count = 1;
+    }
+    for (int i = 0; i < count; i++) {
+        ASTNode *n = items[i];
+        if (!n || n->type != AST_FUNCTION) continue;
+        if (n->as.function.is_extern) continue;
+        Type ret = n->as.function.return_type;
+        const char *ret_str;
+        static char sbuf[128];
+        if (ret == TYPE_STRUCT && n->as.function.return_struct_type_name) {
+            snprintf(sbuf, sizeof(sbuf), "NanoStruct_%s",
+                     n->as.function.return_struct_type_name);
+            ret_str = sbuf;
+        } else {
+            ret_str = c_type(ret);
+        }
+        fprintf(c->out, "%s %s(", ret_str, n->as.function.name);
+        for (int j = 0; j < n->as.function.param_count; j++) {
+            if (j > 0) fputs(", ", c->out);
+            Parameter *p = &n->as.function.params[j];
+            if (p->type == TYPE_STRUCT && p->struct_type_name)
+                fprintf(c->out, "NanoStruct_%s %s", p->struct_type_name, p->name);
+            else if (p->type == TYPE_UNION && p->struct_type_name)
+                fprintf(c->out, "NanoUnion_%s %s", p->struct_type_name, p->name);
+            else
+                fprintf(c->out, "%s %s", c_type(p->type), p->name);
+        }
+        fputs(");\n", c->out);
+    }
+    if (count > 0) fputc('\n', c->out);
+}
+
+/* ── Top-level program emitter ───────────────────────────────────────────── */
+static int emit_program(CBCtx *c, ASTNode *root) {
+    ASTNode **items = NULL;
+    int count = 0;
+
+    if (root->type == AST_PROGRAM) {
+        items = root->as.program.items;
+        count = root->as.program.count;
+    } else {
+        items = &root;
+        count = 1;
+    }
+
+    /* Pass 1: type definitions */
+    for (int i = 0; i < count; i++) {
+        ASTNode *n = items[i];
+        if (!n) continue;
+        switch (n->type) {
+            case AST_STRUCT_DEF: emit_struct_def(c, n); break;
+            case AST_ENUM_DEF:   emit_enum_def(c, n);   break;
+            case AST_UNION_DEF:  emit_union_def(c, n);  break;
+            default: break;
+        }
+    }
+
+    /* Pass 2: forward declarations */
+    emit_forward_decls(c, root);
+
+    /* Pass 3: function definitions */
+    for (int i = 0; i < count; i++) {
+        ASTNode *n = items[i];
+        if (!n) continue;
+        switch (n->type) {
+            case AST_ASYNC_FN:
+                if (n->as.async_fn.function)
+                    n = n->as.async_fn.function;
+                /* fall through */
+            case AST_FUNCTION:
+                if (emit_function(c, n)) return -1;
+                break;
+            default:
+                break;
+        }
+    }
+    return 0;
+}
+
+/* ── Public API ──────────────────────────────────────────────────────────── */
+int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
+                      bool verbose) {
+    CBCtx c;
+    memset(&c, 0, sizeof(c));
+    c.out     = out;
+    c.verbose = verbose;
+    c.indent  = 0;
+
+    emit_preamble(&c, source_file);
+    return emit_program(&c, root);
+}
+
+int c_backend_emit(ASTNode *root, const char *output_path,
+                   const char *source_file, bool verbose) {
+    FILE *fp = fopen(output_path, "w");
+    if (!fp) {
+        fprintf(stderr, "[c_backend] error: cannot open %s for writing\n",
+                output_path);
+        return 1;
+    }
+
+    CBCtx c;
+    memset(&c, 0, sizeof(c));
+    c.out     = fp;
+    c.verbose = verbose;
+    c.indent  = 0;
+
+    emit_preamble(&c, source_file);
+    int rc = emit_program(&c, root);
+
+    fclose(fp);
+    if (rc != 0) {
+        fprintf(stderr, "[c_backend] error: %s\n",
+                c.error ? c.error : "unknown error");
+    }
     return rc;
 }

@@ -1,18 +1,18 @@
 /*
- * c_backend.h — nanolang C transpiler backend
+ * c_backend.h — nanolang C source emit backend
  *
  * Emits readable, self-contained C source from the nanolang AST.
- * Designed for embedding nanolang logic in agentOS PD binaries on seL4
- * without a WASM interpreter or LLVM toolchain dependency.
+ * The resulting .c file can be compiled with any C99/C11-compatible compiler:
+ *   gcc -o prog prog.c
+ *   clang -o prog prog.c
  *
  * Type mapping:
  *   int      → int64_t
  *   float    → double
- *   bool     → bool
- *   string   → const char* (static strings only; no GC in PD context)
- *   record   → struct { ... } (row-polymorphic records become C structs)
- *   closure  → function pointer struct { fn_ptr fn; void *env; }
- *   effects  → setjmp/longjmp continuation passing
+ *   bool     → int
+ *   string   → const char*
+ *   struct   → typedef struct { ... } NanoStruct_Name;
+ *   effects  → setjmp/longjmp stubs
  *
  * Usage:
  *   nanoc --target c input.nano [-o output.c]
@@ -29,20 +29,19 @@
 #include <stdbool.h>
 
 /*
- * Emit a C source file from the given AST root.
+ * c_backend_emit — generate C source from a nanolang AST.
  *
- * output_path:  path to write the .c file (or NULL to write to stdout)
- * source_file:  path to the .nano input (used in comments/line directives)
- * verbose:      print progress messages to stderr
+ * root        — parsed + type-checked AST
+ * output_path — output .c file path
+ * source_file — original .nano path (used in comments)
+ * verbose     — print progress to stderr
  *
  * Returns 0 on success, non-zero on error.
  */
 int c_backend_emit(ASTNode *root, const char *output_path,
                    const char *source_file, bool verbose);
 
-/*
- * Emit to an already-open FILE*.
- */
+/* Write to an already-open FILE*. source_file may be NULL. */
 int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
                       bool verbose);
 
