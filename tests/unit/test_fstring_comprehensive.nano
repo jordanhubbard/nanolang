@@ -1,0 +1,167 @@
+/* test_fstring_comprehensive.nano — comprehensive f-string / string interpolation tests */
+
+/* ── Basic variable interpolation ──────────────────────────────────────────── */
+fn fstr_basic(name: string) -> string {
+    return f"Hello, {name}!"
+}
+
+shadow fstr_basic {
+    assert (str_equals (fstr_basic "World") "Hello, World!")
+    assert (str_equals (fstr_basic "NanoLang") "Hello, NanoLang!")
+    assert (str_equals (fstr_basic "") "Hello, !")
+}
+
+/* ── Integer interpolation ─────────────────────────────────────────────────── */
+fn fstr_int(n: int) -> string {
+    return f"n={n}"
+}
+
+shadow fstr_int {
+    assert (str_equals (fstr_int 42)   "n=42")
+    assert (str_equals (fstr_int 0)    "n=0")
+    assert (str_equals (fstr_int -7)   "n=-7")
+    assert (str_equals (fstr_int 1000) "n=1000")
+}
+
+/* ── Float interpolation ───────────────────────────────────────────────────── */
+fn fstr_float(x: float) -> string {
+    return f"x={x}"
+}
+
+shadow fstr_float {
+    assert (str_equals (fstr_float 3.14) "x=3.14")
+    assert (str_equals (fstr_float 0.0)  "x=0.0")
+    assert (str_equals (fstr_float -1.5) "x=-1.5")
+}
+
+/* ── Bool interpolation ────────────────────────────────────────────────────── */
+fn fstr_bool(b: bool) -> string {
+    return f"flag={b}"
+}
+
+shadow fstr_bool {
+    assert (str_equals (fstr_bool true)  "flag=true")
+    assert (str_equals (fstr_bool false) "flag=false")
+}
+
+/* ── Multiple interpolations ───────────────────────────────────────────────── */
+fn fstr_multi(a: int, b: int) -> string {
+    return f"{a}+{b}={(+ a b)}"
+}
+
+shadow fstr_multi {
+    assert (str_equals (fstr_multi 1 2) "1+2=3")
+    assert (str_equals (fstr_multi 0 0) "0+0=0")
+    assert (str_equals (fstr_multi 10 -3) "10+-3=7")
+}
+
+/* ── Expression interpolation ──────────────────────────────────────────────── */
+fn fstr_expr(n: int) -> string {
+    return f"double={(*  n 2)}, triple={(* n 3)}"
+}
+
+shadow fstr_expr {
+    assert (str_equals (fstr_expr 5) "double=10, triple=15")
+    assert (str_equals (fstr_expr 0) "double=0, triple=0")
+}
+
+/* ── No interpolation (plain f-string) ─────────────────────────────────────── */
+fn fstr_plain() -> string {
+    return f"just a plain string"
+}
+
+shadow fstr_plain {
+    assert (str_equals (fstr_plain) "just a plain string")
+}
+
+/* ── Empty f-string ─────────────────────────────────────────────────────────── */
+fn fstr_empty() -> string {
+    return f""
+}
+
+shadow fstr_empty {
+    assert (str_equals (fstr_empty) "")
+}
+
+/* ── f-string with only expression (no surrounding text) ───────────────────── */
+fn fstr_only_expr(n: int) -> string {
+    return f"{n}"
+}
+
+shadow fstr_only_expr {
+    assert (str_equals (fstr_only_expr 99) "99")
+    assert (str_equals (fstr_only_expr 0)  "0")
+}
+
+/* ── f-string with escape sequences ────────────────────────────────────────── */
+fn fstr_escapes(name: string) -> string {
+    return f"hi {name}\ttab\nnewline"
+}
+
+shadow fstr_escapes {
+    let result = (fstr_escapes "Ada")
+    assert (str_equals result "hi Ada\ttab\nnewline")
+}
+
+/* ── f-string as function argument ─────────────────────────────────────────── */
+fn identity(s: string) -> string {
+    return s
+}
+
+shadow identity {
+    assert (str_equals (identity "x") "x")
+    assert (str_equals (identity "") "")
+}
+
+fn fstr_as_arg(n: int) -> string {
+    return (identity f"value={n}")
+}
+
+shadow fstr_as_arg {
+    assert (str_equals (fstr_as_arg 7) "value=7")
+}
+
+/* ── f-string concatenated with str_concat ─────────────────────────────────── */
+fn fstr_concat(first: string, last: string, age: int) -> string {
+    return (str_concat f"{first} {last}" f" aged {age}")
+}
+
+shadow fstr_concat {
+    assert (str_equals (fstr_concat "Ada" "Lovelace" 36) "Ada Lovelace aged 36")
+}
+
+/* ── main: run all checks ───────────────────────────────────────────────────── */
+fn main() -> int {
+    /* Basic */
+    assert (str_equals (fstr_basic "World") "Hello, World!")
+
+    /* Int / float / bool */
+    assert (str_equals (fstr_int 42) "n=42")
+    assert (str_equals (fstr_int -7) "n=-7")
+    assert (str_equals (fstr_float 3.14) "x=3.14")
+    assert (str_equals (fstr_bool true) "flag=true")
+    assert (str_equals (fstr_bool false) "flag=false")
+
+    /* Multiple / expressions */
+    assert (str_equals (fstr_multi 3 4) "3+4=7")
+    assert (str_equals (fstr_expr 5) "double=10, triple=15")
+
+    /* Edge cases */
+    assert (str_equals (fstr_plain) "just a plain string")
+    assert (str_equals (fstr_empty) "")
+    assert (str_equals (fstr_only_expr 99) "99")
+
+    /* Escapes */
+    assert (str_equals (fstr_escapes "Ada") "hi Ada\ttab\nnewline")
+
+    /* As arg / concat */
+    assert (str_equals (fstr_as_arg 7) "value=7")
+    assert (str_equals (fstr_concat "Ada" "Lovelace" 36) "Ada Lovelace aged 36")
+
+    (println "f-string comprehensive tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
