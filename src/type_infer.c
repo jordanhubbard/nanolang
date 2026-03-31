@@ -1331,7 +1331,6 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
         case AST_OPAQUE_TYPE:
         case AST_SHADOW:
         case AST_PAR_BLOCK:
-        case AST_PAR_LET:
         case AST_UNSAFE_BLOCK:
         case AST_TRY_OP:
         case AST_TUPLE_INDEX:
@@ -1350,7 +1349,7 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
                 effect_register_from_ast(ctx->effect_registry, node);
             return hm_con_type(ctx, "void");
 
-        case AST_EFFECT_HANDLER: {
+        case AST_HANDLE_EXPR: {
             /* handle { body } with { op param -> handler_body }
              *
              * The type of the whole handle expression is the type of body
@@ -1360,7 +1359,7 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
              * add the handled effect to the current_effects set so callers
              * know it is consumed here. */
             HMType *body_type = hm_tv_fresh(ctx);
-            if (node->as.effect_handler.body) {
+            if (node->as.handle_expr.body) {
                 /* Save and isolate current_effects around the body */
                 EffectRow *outer_effects = ctx->current_effects;
                 EffectRow  inner_effects;
@@ -1368,16 +1367,16 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
                 inner_effects.is_open = true;
                 ctx->current_effects  = &inner_effects;
 
-                body_type = infer_expr(ctx, env, node->as.effect_handler.body);
+                body_type = infer_expr(ctx, env, node->as.handle_expr.body);
 
                 ctx->current_effects = outer_effects;
                 /* The handled effect is consumed — do NOT propagate it up. */
             }
             /* Infer each handler clause (for type consistency of bodies) */
-            for (int i = 0; i < node->as.effect_handler.handler_count; i++) {
-                if (node->as.effect_handler.handler_bodies[i])
+            for (int i = 0; i < node->as.handle_expr.handler_count; i++) {
+                if (node->as.handle_expr.handler_bodies[i])
                     infer_expr(ctx, env,
-                               node->as.effect_handler.handler_bodies[i]);
+                               node->as.handle_expr.handler_bodies[i]);
             }
             return hm_subst_apply(ctx, body_type);
         }

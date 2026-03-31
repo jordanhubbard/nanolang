@@ -196,7 +196,8 @@ typedef enum {
     AST_TRY_OP,            /* Postfix ? try operator: expr? */
     AST_PAR_BLOCK,         /* Parallel block: par { let a = ..., let b = ... } */
     AST_EFFECT_DECL,       /* Effect declaration: effect IO { print : String -> Unit } */
-    AST_HANDLE_EXPR        /* Handle expression: handle { expr } with { op args -> ... } */
+    AST_HANDLE_EXPR,       /* Handle expression: handle { expr } with { op args -> ... } */
+    AST_EFFECT_OP          /* Perform an effect operation: perform IO.print "hello" */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -468,6 +469,13 @@ struct ASTNode {
             int *handler_param_counts;  /* Parameter count for each handler */
             ASTNode **handler_bodies;   /* Handler body expressions */
         } handle_expr;
+
+        /* Perform an effect operation: perform IO.print "hello" */
+        struct {
+            char    *effect_name;   /* e.g. "IO" */
+            char    *op_name;       /* e.g. "print" */
+            ASTNode *arg;           /* Argument expression */
+        } effect_op;
     } as;
 };
 
@@ -572,6 +580,8 @@ typedef struct {
     char *name;              /* Operation name (e.g., "print") */
     Parameter *params;       /* Parameters */
     int param_count;
+    Type param_type;         /* Simple single-param type (for effects.c compat) */
+    char *param_type_name;   /* For struct param types */
     Type return_type;        /* Return type */
     char *return_type_name;  /* For struct return types */
 } EffectOp;
