@@ -1314,6 +1314,16 @@ int main(int argc, char *argv[]) {
     /* Resolve project root from binary location (enables compilation from any CWD) */
     resolve_project_root(argv[0]);
     
+    /* sign/verify subcommands: nanoc sign <file.wasm> / nanoc verify <file.wasm> */
+    if (argc >= 2 && strcmp(argv[1], "sign") == 0) {
+        extern int nanoc_sign_cmd(int argc, char **argv);
+        return nanoc_sign_cmd(argc - 2, argv + 2);
+    }
+    if (argc >= 2 && strcmp(argv[1], "verify") == 0) {
+        extern int nanoc_verify_cmd(int argc, char **argv);
+        return nanoc_verify_cmd(argc - 2, argv + 2);
+    }
+
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
         printf("nanoc %s\n", NANOLANG_VERSION);

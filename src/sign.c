@@ -31,11 +31,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/random.h>
 #include <pwd.h>
-
-#if defined(__linux__)
-#  include <sys/random.h>
-#endif
 
 #include <openssl/evp.h>
 #include <openssl/sha.h>
@@ -235,27 +232,12 @@ static int load_or_gen_keypair(const char *key_path,
         return -1;
     }
 
-    /* Fill seed with cryptographically secure random bytes */
-#if defined(__linux__)
+    /* Use getrandom(2) for the seed */
     ssize_t got = getrandom(seed, 32, 0);
     if (got != 32) {
         fprintf(stderr, "sign: getrandom failed: %s\n", strerror(errno));
         return -1;
     }
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-    arc4random_buf(seed, 32);
-#else
-    /* POSIX fallback: /dev/urandom */
-    {
-        FILE *urandom = fopen("/dev/urandom", "rb");
-        if (!urandom || fread(seed, 1, 32, urandom) != 32) {
-            fprintf(stderr, "sign: failed to read /dev/urandom\n");
-            if (urandom) fclose(urandom);
-            return -1;
-        }
-        fclose(urandom);
-    }
-#endif
 
     /* Derive public key via OpenSSL */
     EVP_PKEY *pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
