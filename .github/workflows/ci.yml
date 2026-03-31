@@ -54,7 +54,8 @@ jobs:
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf
+          brew install gcc pkg-config sdl2 sdl2_mixer sdl2_ttf openssl
+          echo "OPENSSL_PREFIX=$(brew --prefix openssl)" >> $GITHUB_ENV
 
       - name: Check dependencies
         shell: bash
