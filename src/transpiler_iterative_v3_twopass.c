@@ -2687,8 +2687,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 Type fn_ret = g_current_function->as.function.return_type;
                 if (fn_ret == TYPE_STRUCT && g_current_function->as.function.return_struct_type_name) {
                     const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
-                    strncpy(out_type_buf, temp, sizeof(out_type_buf) - 1);
-                    out_type_buf[sizeof(out_type_buf) - 1] = '\0';
+                    snprintf(out_type_buf, sizeof(out_type_buf), "%s", temp);
                     out_type = out_type_buf;
                 } else if (fn_ret == TYPE_STRING) {
                     out_type = "const char*";
