@@ -1350,7 +1350,8 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
                 effect_register_from_ast(ctx->effect_registry, node);
             return hm_con_type(ctx, "void");
 
-        case AST_EFFECT_HANDLER: {
+        case AST_EFFECT_HANDLER:  /* row-poly compat: handled same as AST_HANDLE_EXPR */
+        case AST_HANDLE_EXPR: {
             /* handle { body } with { op param -> handler_body }
              *
              * The type of the whole handle expression is the type of body
@@ -1360,7 +1361,7 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
              * add the handled effect to the current_effects set so callers
              * know it is consumed here. */
             HMType *body_type = hm_tv_fresh(ctx);
-            if (node->as.effect_handler.body) {
+            if (node->as.handle_expr.body) {
                 /* Save and isolate current_effects around the body */
                 EffectRow *outer_effects = ctx->current_effects;
                 EffectRow  inner_effects;
@@ -1368,47 +1369,38 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
                 inner_effects.is_open = true;
                 ctx->current_effects  = &inner_effects;
 
-                body_type = infer_expr(ctx, env, node->as.effect_handler.body);
+                body_type = infer_expr(ctx, env, node->as.handle_expr.body);
 
                 ctx->current_effects = outer_effects;
                 /* The handled effect is consumed — do NOT propagate it up. */
             }
             /* Infer each handler clause (for type consistency of bodies) */
-            for (int i = 0; i < node->as.effect_handler.handler_count; i++) {
-                if (node->as.effect_handler.handler_bodies[i])
+            for (int i = 0; i < node->as.handle_expr.handler_count; i++) {
+                if (node->as.handle_expr.handler_bodies[i])
                     infer_expr(ctx, env,
-                               node->as.effect_handler.handler_bodies[i]);
+                               node->as.handle_expr.handler_bodies[i]);
             }
             return hm_subst_apply(ctx, body_type);
         }
 
         case AST_EFFECT_OP: {
-            /* perform IO.print "hello"
-             *
-             * Look up the return type of the operation in the registry.
-             * Record the effect in current_effects (effect polymorphism). */
+            /* perform Foo.op arg — record the effect, return op return type */
             const char *eff_name = node->as.effect_op.effect_name;
             const char *op_name  = node->as.effect_op.op_name;
-
-            /* Infer arg type (for type propagation) */
             if (node->as.effect_op.arg)
                 infer_expr(ctx, env, node->as.effect_op.arg);
-
-            /* Record performed effect */
             if (ctx->current_effects && eff_name)
                 effect_row_add(ctx->current_effects, eff_name);
-
-            /* Determine return type from registry */
             if (ctx->effect_registry && eff_name && op_name) {
                 EffectDecl *decl = effect_lookup(ctx->effect_registry, eff_name);
                 if (decl) {
-                    EffectOp *op = effect_op_lookup(decl, op_name);
-                    if (op)
-                        return type_from_ast_type(ctx, op->return_type,
-                                                   op->return_type_name);
+                    EffectOp *op2 = effect_op_lookup(decl, op_name);
+                    if (op2)
+                        return type_from_ast_type(ctx, op2->return_type,
+                                                   op2->return_type_name);
                 }
             }
-            return hm_tv_fresh(ctx);  /* unknown op → fresh variable */
+            return hm_tv_fresh(ctx);
         }
 
         case AST_PROGRAM:
@@ -1546,8 +1538,11 @@ bool hm_infer_program_with_effects(ASTNode *program, const char *source_file,
             if (!qname) continue;
             snprintf(qname, qname_len, "%s.%s", d->name, op->name);
 
-            HMType *param_t  = type_from_ast_type(ctx, op->param_type,
-                                                    op->param_type_name);
+            /* EffectOp.params is a Parameter[] array; take first param or void */
+            HMType *param_t = (op->param_count > 0 && op->params)
+                ? type_from_ast_type(ctx, op->params[0].type,
+                                          op->params[0].struct_type_name)
+                : hm_con_type(ctx, "void");
             HMType *ret_t    = type_from_ast_type(ctx, op->return_type,
                                                    op->return_type_name);
 

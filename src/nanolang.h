@@ -196,7 +196,12 @@ typedef enum {
     AST_TRY_OP,            /* Postfix ? try operator: expr? */
     AST_PAR_BLOCK,         /* Parallel block: par { let a = ..., let b = ... } */
     AST_EFFECT_DECL,       /* Effect declaration: effect IO { print : String -> Unit } */
-    AST_HANDLE_EXPR        /* Handle expression: handle { expr } with { op args -> ... } */
+    AST_HANDLE_EXPR,       /* Handle expression: handle { expr } with { op args -> ... } */
+
+    /* ── row-poly / effect extension nodes ──────────────────────────────── */
+    AST_PAR_LET,           /* Parallel let binding (from par-let pass)       */
+    AST_EFFECT_HANDLER,    /* Extended handle expression (row-poly compat)    */
+    AST_EFFECT_OP          /* perform Foo.op arg                              */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -343,6 +348,7 @@ struct ASTNode {
             char **field_names;       // Array of field names (for initialization)
             ASTNode **field_values;   // Array of field value expressions
             int field_count;          // Number of fields
+            ASTNode *spread_source;   // For {..base, extra:val}: source to spread (NULL if none)
         } struct_literal;
         struct {
             ASTNode *object;          // The struct instance expression
@@ -468,6 +474,30 @@ struct ASTNode {
             int *handler_param_counts;  /* Parameter count for each handler */
             ASTNode **handler_bodies;   /* Handler body expressions */
         } handle_expr;
+
+        /* ── Row-poly / effect extension union fields ─────────────────────── */
+
+        /* AST_PAR_LET: parallel let bindings */
+        struct {
+            ASTNode **bindings;
+            int       count;
+        } par_let;
+
+        /* AST_EFFECT_HANDLER: extended handle expression (row-poly compat) */
+        struct {
+            ASTNode  *body;
+            ASTNode **handler_bodies;
+            char    **handler_op_names;
+            char    **handler_param_names;
+            int       handler_count;
+        } effect_handler;
+
+        /* AST_EFFECT_OP: perform Foo.op arg */
+        struct {
+            char    *effect_name;
+            char    *op_name;
+            ASTNode *arg;
+        } effect_op;
     } as;
 };
 
