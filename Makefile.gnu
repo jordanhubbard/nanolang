@@ -600,6 +600,17 @@ benchmark:
 
 .PHONY: benchmark
 
+# API documentation (nanodoc)
+DOCS_OUTPUT ?= docs/api
+NANODOC_SOURCES := $(wildcard std/*/*.nano) $(wildcard examples/language/*.nano)
+
+.PHONY: docs
+docs:
+	@echo "Generating API documentation..."
+	@mkdir -p $(DOCS_OUTPUT)
+	@node tools/nanodoc.mjs --output $(DOCS_OUTPUT) $(NANODOC_SOURCES)
+	@echo "✅ API docs written to $(DOCS_OUTPUT)/"
+
 # Test with Stage 1 only (C reference compiler)
 test-stage1: stage1
 	@echo ""

@@ -141,6 +141,36 @@ jobs:
       - name: Check markdown links
         run: python3 scripts/check_markdown_links.py
 
+  api-docs:
+    name: API Docs (nanodoc)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate API documentation
+        run: |
+          mkdir -p docs/api
+          node tools/nanodoc.mjs --output docs/api \
+            $(find std -name '*.nano' | sort) \
+            $(find examples/language -name '*.nano' | sort)
+
+      - name: Upload API docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-docs
+          path: docs/api/
+          retention-days: 30
+
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest

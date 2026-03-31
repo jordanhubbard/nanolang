@@ -3,7 +3,9 @@
 
 # --- Core Types ---
 
-# Opaque datetime object
+/// An opaque handle representing a point in time.
+/// Created via `now`, `parse_iso`, `parse`, `create`, or `from_timestamp`.
+/// Free with `free` when done to release the underlying C struct.
 opaque type DateTime
 
 # --- Constructors ---
@@ -76,12 +78,28 @@ extern fn nl_datetime_free(_dt: DateTime) -> void
 
 # --- High-Level API ---
 
+/// Return the current local date and time.
+///
+/// @returns  A DateTime representing the current moment.
+/// @example
+///   let dt: DateTime = (datetime::now)
+///   (println (datetime::to_iso dt))
+///   (datetime::free dt)
 pub fn now() -> DateTime {
     unsafe {
         return (nl_datetime_now)
     }
 }
 
+/// Parse an ISO 8601 datetime string into a DateTime.
+///
+/// Accepts `YYYY-MM-DDTHH:MM:SS` or the date-only form `YYYY-MM-DD`.
+///
+/// @param datetime_str  A string in ISO 8601 format.
+/// @returns             A DateTime handle, or an invalid DateTime on parse error.
+/// @example
+///   let dt: DateTime = (datetime::parse_iso "2024-06-15T12:34:56")
+///   (datetime::free dt)
 pub fn parse_iso(datetime_str: string) -> DateTime {
     unsafe {
         return (nl_datetime_parse_iso datetime_str)
@@ -107,6 +125,19 @@ shadow pad2 {
     assert (str_equals (pad2 12) "12")
 }
 
+/// Construct a DateTime from individual date/time components.
+///
+/// @param year_val    Four-digit year (e.g. 2024).
+/// @param month_val   Month, 1–12.
+/// @param day_val     Day of month, 1–31.
+/// @param hour_val    Hour, 0–23.
+/// @param minute_val  Minute, 0–59.
+/// @param second_val  Second, 0–59.
+/// @returns           A DateTime handle for the specified moment.
+/// @example
+///   let dt: DateTime = (datetime::create 2024 6 15 12 0 0)
+///   (println (datetime::to_iso dt))
+///   (datetime::free dt)
 pub fn create(year_val: int, month_val: int, day_val: int, hour_val: int, minute_val: int, second_val: int) -> DateTime {
     let year_str: string = (int_to_string year_val)
     let month_str: string = (pad2 month_val)
@@ -124,6 +155,10 @@ pub fn from_timestamp(timestamp: int) -> DateTime {
     }
 }
 
+/// Format a DateTime as an ISO 8601 string (`YYYY-MM-DDTHH:MM:SS`).
+///
+/// @param dt  A DateTime handle.
+/// @returns   ISO 8601 string representation.
 pub fn to_iso(dt: DateTime) -> string {
     unsafe {
         return (nl_datetime_to_iso dt)
@@ -208,6 +243,11 @@ pub fn add_days(dt: DateTime, days: int) -> DateTime {
     }
 }
 
+/// Return the signed difference in seconds between two DateTimes (`dt1 - dt2`).
+///
+/// @param dt1  The later DateTime.
+/// @param dt2  The earlier DateTime.
+/// @returns    Positive if dt1 is after dt2, negative if before.
 pub fn diff_seconds(dt1: DateTime, dt2: DateTime) -> int {
     unsafe {
         return (nl_datetime_diff_seconds dt1 dt2)
@@ -244,6 +284,12 @@ pub fn days_in_month(year_val: int, month_val: int) -> int {
     }
 }
 
+/// Free a DateTime handle and release the underlying C memory.
+///
+/// Every DateTime obtained from `now`, `parse_iso`, `parse`, `create`, or `from_timestamp`
+/// must be freed exactly once.
+///
+/// @param dt  The DateTime handle to release.
 pub fn free(dt: DateTime) -> void {
     unsafe {
         (nl_datetime_free dt)

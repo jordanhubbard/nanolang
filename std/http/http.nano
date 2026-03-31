@@ -3,7 +3,9 @@
 
 # --- Core Types ---
 
-# Opaque HTTP response
+/// An opaque handle to an HTTP response.
+/// Carries the status code, headers, and body returned by the server.
+/// Free with `free_response` when done to avoid memory leaks.
 opaque type HttpResponse
 
 # --- Basic Requests ---
@@ -58,18 +60,41 @@ extern fn nl_http_free_response(_response: HttpResponse) -> void
 
 # --- High-Level API ---
 
+/// Perform an HTTP GET request.
+///
+/// @param url  The URL to fetch (must be a valid http:// or https:// URL).
+/// @returns    An HttpResponse handle. Check with `is_ok` before reading the body.
+/// @example
+///   let resp: HttpResponse = (http::get "https://api.example.com/data")
+///   if (http::is_ok resp) {
+///       (println (http::body resp))
+///   }
 pub fn get(url: string) -> HttpResponse {
     return (nl_http_get url)
 }
 
+/// Perform an HTTP POST request with a plain-text body.
+///
+/// @param url   The endpoint URL.
+/// @param data  The request body as a string.
+/// @returns     An HttpResponse handle.
 pub fn post(url: string, data: string) -> HttpResponse {
     return (nl_http_post url data)
 }
 
+/// Perform an HTTP PUT request.
+///
+/// @param url   The resource URL.
+/// @param data  The new representation as a string.
+/// @returns     An HttpResponse handle.
 pub fn put(url: string, data: string) -> HttpResponse {
     return (nl_http_put url data)
 }
 
+/// Perform an HTTP DELETE request.
+///
+/// @param url  The resource URL to delete.
+/// @returns    An HttpResponse handle.
 pub fn delete(url: string) -> HttpResponse {
     return (nl_http_delete url)
 }
@@ -90,10 +115,18 @@ pub fn post_with_headers(url: string, data: string, headers: string) -> HttpResp
     return (nl_http_post_with_headers url data headers)
 }
 
+/// Return the HTTP status code of the response (e.g. 200, 404, 500).
+///
+/// @param response  A response handle returned by `get`, `post`, etc.
+/// @returns         Integer HTTP status code.
 pub fn status(response: HttpResponse) -> int {
     return (nl_http_response_status response)
 }
 
+/// Return the response body as a string.
+///
+/// @param response  A response handle.
+/// @returns         The response body. Empty string if the server sent no body.
 pub fn body(response: HttpResponse) -> string {
     return (nl_http_response_body response)
 }
@@ -102,6 +135,10 @@ pub fn header(response: HttpResponse, header_name: string) -> string {
     return (nl_http_response_header response header_name)
 }
 
+/// Return true if the response has a 2xx success status code.
+///
+/// @param response  A response handle.
+/// @returns         `true` for status 200–299, `false` otherwise.
 pub fn is_ok(response: HttpResponse) -> bool {
     return (== (nl_http_response_ok response) 1)
 }
@@ -123,6 +160,15 @@ shadow free_response {
 
 # --- Convenience Functions ---
 
+/// Perform a GET request with JSON `Accept` and `Content-Type` headers pre-set.
+///
+/// Equivalent to `get_with_headers` with `{"Content-Type":"application/json","Accept":"application/json"}`.
+///
+/// @param url  The JSON endpoint URL.
+/// @returns    An HttpResponse handle.
+/// @example
+///   let resp: HttpResponse = (http::get_json "https://api.example.com/users")
+///   (println (http::body resp))
 pub fn get_json(url: string) -> HttpResponse {
     let headers: string = "{\"Content-Type\": \"application/json\", \"Accept\": \"application/json\"}"
     return (get_with_headers url headers)
@@ -133,6 +179,11 @@ shadow get_json {
     assert true
 }
 
+/// Perform a POST request sending a JSON body with appropriate headers.
+///
+/// @param url        The JSON endpoint URL.
+/// @param json_data  A JSON-encoded string to send as the request body.
+/// @returns          An HttpResponse handle.
 pub fn post_json(url: string, json_data: string) -> HttpResponse {
     let headers: string = "{\"Content-Type\": \"application/json\", \"Accept\": \"application/json\"}"
     return (post_with_headers url json_data headers)
