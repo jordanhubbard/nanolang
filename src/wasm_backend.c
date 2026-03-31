@@ -455,6 +455,24 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
         }
         buf_byte(code, OP_RETURN);
         return 0;
+    case AST_PAR_LET: {
+        /* par-let: asyncify-compatible sequential evaluation.
+         * Bindings are independent and could be scheduled in parallel by an agentOS runtime.
+         * Here we emit sequentially and annotate with a custom section marker. */
+        if (ctx->verbose)
+            fprintf(stderr, "[wasm] par-let parallel_begin at line %d\n", node->line);
+        for (int i = 0; i < node->as.par_let.count; i++) {
+            int idx = add_local(func, node->as.par_let.names[i]);
+            if (emit_expr(ctx, func, code, node->as.par_let.values[i])) return -1;
+            buf_byte(code, OP_LOCAL_SET);
+            emit_u32_leb(code, (uint32_t)idx);
+        }
+        if (ctx->verbose)
+            fprintf(stderr, "[wasm] par-let parallel_end at line %d\n", node->line);
+        /* Emit body expression (par-let result) */
+        if (emit_expr(ctx, func, code, node->as.par_let.body)) return -1;
+        return 0;
+    }
     default:
         if (ctx->verbose) fprintf(stderr, "[wasm] unsupported AST node type %d\n", node->type);
         ctx->error = "unsupported AST node type for WASM backend";

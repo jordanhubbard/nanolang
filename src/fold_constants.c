@@ -312,6 +312,11 @@ static void fold_walk(ASTNode *node) {
             fold_walk_arr(node->as.par_block.bindings,
                           node->as.par_block.count);
             return;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; i++)
+                fold_walk(node->as.par_let.values[i]);
+            fold_walk(node->as.par_let.body);
+            return;
 
         case AST_STRUCT_DEF:
         case AST_UNION_DEF:

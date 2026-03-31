@@ -455,6 +455,15 @@ struct ASTNode {
             int count;             /* Number of bindings */
         } par_block;
 
+        /* par-let x=e1 y=e2 in body: concurrent bindings, sequential C fallback */
+        struct {
+            char    **names;       /* Binding names */
+            ASTNode **values;      /* Binding value expressions */
+            int       count;       /* Number of bindings */
+            ASTNode  *body;        /* Body expression evaluated after 'in' */
+            bool     *independent; /* Per-binding independence flag (set by par_let_pass) */
+        } par_let;
+
         /* Effect declaration: effect IO { print : String -> Unit; read : Unit -> String } */
         struct {
             char *effect_name;          /* e.g., "IO" */
