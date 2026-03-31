@@ -32,8 +32,10 @@ typedef struct {
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     bool profile;             /* --profile: inject timing hooks into generated C */
     bool coverage;            /* --coverage: instrument compiled output for gcov/lcov line+branch coverage */
+    bool profile_runtime;     /* --profile-runtime: also emit flamegraph collapsed-stack .nano.prof */
 
-    const char *profile_output_path; /* --profile-output <path>: write structured profile JSON to file */
+    const char *profile_output_path;     /* --profile-output <path>: write structured profile JSON to file */
+    const char *profile_flamegraph_path; /* --profile-runtime [<path>]: flamegraph .nano.prof output path */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
@@ -349,7 +351,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->forbid_unsafe = opts->forbid_unsafe;
     env->profile_gprof = opts->profile_gprof;
     env->profile = opts->profile;
-
+    env->profile_runtime = opts->profile_runtime;
+    env->profile_flamegraph_path = opts->profile_flamegraph_path;
 
     env->profile_output_path = opts->profile_output_path;
     
@@ -1252,6 +1255,10 @@ int main(int argc, char *argv[]) {
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
         printf("  --coverage     Instrument compiled output for gcov/lcov line+branch coverage\n");
         printf("                 Run: gcov <source.c>, or use 'make coverage-report' for HTML\n");
+        printf("  --profile-runtime     Implies --profile; also write flamegraph collapsed-stack\n");
+        printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
+        printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
+        printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
         printf("  --target <t>   Compile target: native (default), wasm\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
@@ -1295,8 +1302,10 @@ int main(int argc, char *argv[]) {
         .profile_gprof = false,
         .profile = false,
         .coverage = false,
+        .profile_runtime = false,
 
         .profile_output_path = NULL,
+        .profile_flamegraph_path = NULL,
         .llm_diags_json_path = NULL,
         .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
@@ -1347,6 +1356,15 @@ int main(int argc, char *argv[]) {
 
         } else if (strcmp(argv[i], "--coverage") == 0) {
             opts.coverage = true;
+
+        } else if (strcmp(argv[i], "--profile-runtime") == 0) {
+            opts.profile = true;        /* --profile-runtime implies --profile */
+            opts.profile_runtime = true;
+            /* path via --profile-runtime-output; leave flamegraph_path NULL for auto-derive */
+
+        } else if (strcmp(argv[i], "--profile-runtime-output") == 0 && i + 1 < argc) {
+            opts.profile_flamegraph_path = argv[i + 1];
+            i++;
 
         } else if (strcmp(argv[i], "--profile-output") == 0 && i + 1 < argc) {
             opts.profile_output_path = argv[i + 1];

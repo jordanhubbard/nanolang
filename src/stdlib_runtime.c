@@ -2271,3 +2271,85 @@ void generate_instrumented_profiling_system(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
     sb_append(sb, "/* ========== End Instrumented Profiling System ========== */\n\n");
 }
+
+/* Generate flamegraph collapsed-stack profiling report function.
+ * Emits a _nl_prof_flamegraph_report() that writes flamegraph.pl-compatible
+ * collapsed stack format to the specified file path (or <prog>.nano.prof).
+ *
+ * Flamegraph collapsed format (one line per sample):
+ *   fn_name_a;fn_name_b count
+ * For flat (non-nested) profiling we emit each function's call count as:
+ *   fn_name count
+ * Sorted by call count descending (hottest first).
+ *
+ * Usage: flamegraph.pl <input>.nano.prof > flame.svg && open flame.svg
+ */
+void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegraph_path) {
+    sb_append(sb, "\n/* ========== Flamegraph Profiling Output (--profile-runtime) ========== */\n\n");
+
+    /* Emit the output path as a C string literal, or NULL for auto-derive */
+    if (flamegraph_path && flamegraph_path[0]) {
+        /* Build path literal inline; avoid sb_appendf (not in scope here) */
+        char path_lit[4096 + 64];
+        snprintf(path_lit, sizeof(path_lit),
+                 "static const char *_nl_flamegraph_path = \"%s\";\n\n", flamegraph_path);
+        sb_append(sb, path_lit);
+    } else {
+        sb_append(sb, "static const char *_nl_flamegraph_path = NULL; /* auto: <argv[0]>.nano.prof */\n\n");
+    }
+
+    /* Comparator by calls descending */
+    sb_append(sb,
+        "static int _nl_prof_cmp_calls(const void *a, const void *b) {\n"
+        "    const _NlProfEntry *ea = (const _NlProfEntry *)a;\n"
+        "    const _NlProfEntry *eb = (const _NlProfEntry *)b;\n"
+        "    if (eb->calls > ea->calls) return 1;\n"
+        "    if (eb->calls < ea->calls) return -1;\n"
+        "    return 0;\n"
+        "}\n\n"
+    );
+
+    sb_append(sb,
+        "static void _nl_prof_flamegraph_report(void) {\n"
+        "    if (_nl_prof_count == 0) return;\n"
+        "\n"
+        "    /* Determine output path */\n"
+        "    char path_buf[4096];\n"
+        "    const char *out_path = _nl_flamegraph_path;\n"
+        "    if (!out_path || out_path[0] == '\\0') {\n"
+        "        /* Derive from argv[0]: <prog>.nano.prof */\n"
+        "        extern int g_argc;\n"
+        "        extern char **g_argv;\n"
+        "        const char *prog = (g_argc > 0 && g_argv) ? g_argv[0] : \"program\";\n"
+        "        snprintf(path_buf, sizeof(path_buf), \"%s.nano.prof\", prog);\n"
+        "        out_path = path_buf;\n"
+        "    }\n"
+        "\n"
+        "    FILE *f = fopen(out_path, \"w\");\n"
+        "    if (!f) {\n"
+        "        fprintf(stderr, \"[nano-prof] warning: cannot open %s for writing\\n\", out_path);\n"
+        "        return;\n"
+        "    }\n"
+        "\n"
+        "    /* Sort by calls descending */\n"
+        "    qsort(_nl_prof_table, (size_t)_nl_prof_count, sizeof(_NlProfEntry), _nl_prof_cmp_calls);\n"
+        "\n"
+        "    /* Emit collapsed stack format: 'fn_name count\\n' */\n"
+        "    int wrote = 0;\n"
+        "    for (int i = 0; i < _nl_prof_count; i++) {\n"
+        "        if (_nl_prof_table[i].calls == 0) continue;\n"
+        "        fprintf(f, \"%s %lld\\n\",\n"
+        "            _nl_prof_table[i].name,\n"
+        "            (long long)_nl_prof_table[i].calls);\n"
+        "        wrote++;\n"
+        "    }\n"
+        "    fclose(f);\n"
+        "    if (wrote > 0) {\n"
+        "        fprintf(stderr, \"[nano-prof] flamegraph data: %s (%d functions)\\n\", out_path, wrote);\n"
+        "        fprintf(stderr, \"[nano-prof] render: flamegraph.pl %s > flame.svg\\n\", out_path);\n"
+        "    }\n"
+        "}\n\n"
+    );
+
+    sb_append(sb, "/* ========== End Flamegraph Profiling Output ========== */\n\n");
+}

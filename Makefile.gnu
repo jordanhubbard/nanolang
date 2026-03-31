@@ -502,6 +502,15 @@ test: build shadow-check userguide-export
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+# Profile-runtime smoke test: compile with --profile-runtime, run, check .nano.prof exists
+test-profile-runtime: $(INTERPRETER) $(COMPILER)
+	@echo "🔥 Testing --profile-runtime flamegraph output..."
+	@$(COMPILER) tests/unit/test_profile_runtime.nano --profile-runtime -o /tmp/nano_prof_smoke 2>&1 | grep -v "shadow test" || true
+	@/tmp/nano_prof_smoke 2>/tmp/nano_prof_smoke.stderr
+	@grep -q "nl_count_down" /tmp/nano_prof_smoke.nano.prof || (echo "❌ .nano.prof missing nl_count_down"; exit 1)
+	@echo "✅ --profile-runtime: flamegraph .nano.prof generated OK"
+	@rm -f /tmp/nano_prof_smoke /tmp/nano_prof_smoke.nano.prof /tmp/nano_prof_smoke.stderr
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
