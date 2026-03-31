@@ -310,6 +310,7 @@ struct ASTNode {
             ASTNode *body;
             bool is_extern;  /* Mark external C functions */
             bool is_pub;     /* Visibility: public (pub) vs private */
+            bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
         } function;
         struct {
             char *function_name;
@@ -507,6 +508,7 @@ typedef struct {
     ASTNode *body;
     ASTNode *shadow_test;
     bool is_extern;  /* Mark external C functions */
+    bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
     char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
@@ -690,6 +692,7 @@ typedef struct {
     const char *profile_output_path;     /* --profile-output: write structured JSON to this file (NULL = stdout only) */
     const char *profile_flamegraph_path; /* --profile-runtime <path>: write flamegraph .nano.prof (NULL = <input>.nano.prof) */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
+    bool gpu_target;               /* --target ptx: suppress main() requirement and shadow warnings */
 } Environment;
 
 /* Function declarations */

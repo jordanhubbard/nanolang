@@ -2849,6 +2849,15 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "result_map") == 0) return builtin_result_map(args, env);
     if (strcmp(name, "result_and_then") == 0) return builtin_result_and_then(args, env);
 
+    /* GPU built-in stubs — return 0 in interpreter; real impl is in PTX backend */
+    if (strcmp(name, "thread_id_x") == 0) return create_int(0);
+    if (strcmp(name, "thread_id_y") == 0) return create_int(0);
+    if (strcmp(name, "thread_id_z") == 0) return create_int(0);
+    if (strcmp(name, "block_id_x")  == 0) return create_int(0);
+    if (strcmp(name, "block_id_y")  == 0) return create_int(0);
+    if (strcmp(name, "block_dim_x") == 0) return create_int(256);
+    if (strcmp(name, "block_dim_y") == 0) return create_int(256);
+
     /* Math and utility functions */
     if (strcmp(name, "abs") == 0) return builtin_abs(args);
     if (strcmp(name, "min") == 0) return builtin_min(args);

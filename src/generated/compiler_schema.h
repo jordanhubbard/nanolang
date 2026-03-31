@@ -253,7 +253,8 @@ typedef enum {
     TOKEN_EFFECT = 80,
     TOKEN_HANDLE = 81,
     TOKEN_WITH = 82,
-    TOKEN_RESUME = 83
+    TOKEN_RESUME = 83,
+    TOKEN_GPU = 84
 } TokenType;
 
 typedef enum {

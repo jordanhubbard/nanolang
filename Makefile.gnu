@@ -124,7 +124,7 @@ BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c $(SRC_DIR)/ptx_backend.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -531,6 +531,20 @@ test-profile-runtime: $(INTERPRETER) $(COMPILER)
 	@grep -q "nl_count_down" /tmp/nano_prof_smoke.nano.prof || (echo "❌ .nano.prof missing nl_count_down"; exit 1)
 	@echo "✅ --profile-runtime: flamegraph .nano.prof generated OK"
 	@rm -f /tmp/nano_prof_smoke /tmp/nano_prof_smoke.nano.prof /tmp/nano_prof_smoke.stderr
+
+# PTX backend test: compile gpu fn test to PTX and verify kernels are emitted
+test-ptx: $(COMPILER)
+	@echo "🔥 Testing --target ptx PTX backend..."
+	@$(COMPILER) tests/gpu/test_ptx_emit.nano --target ptx -o /tmp/nano_ptx_test.ptx 2>/dev/null
+	@grep -q "\.visible \.entry vec_add" /tmp/nano_ptx_test.ptx    || (echo "❌ vec_add kernel missing";  exit 1)
+	@grep -q "\.visible \.entry scale"   /tmp/nano_ptx_test.ptx    || (echo "❌ scale kernel missing";    exit 1)
+	@grep -q "\.visible \.entry lerp"    /tmp/nano_ptx_test.ptx    || (echo "❌ lerp kernel missing";     exit 1)
+	@grep -q "\.visible \.entry relu"    /tmp/nano_ptx_test.ptx    || (echo "❌ relu kernel missing";     exit 1)
+	@grep -qv "\.visible \.entry host_helper" /tmp/nano_ptx_test.ptx || (echo "❌ host_helper should not be a kernel"; exit 1)
+	@grep -q "\.target sm_90"            /tmp/nano_ptx_test.ptx    || (echo "❌ sm_90 target missing";    exit 1)
+	@grep -q "%tid\.x"                   /tmp/nano_ptx_test.ptx    || (echo "❌ thread_id_x builtin missing"; exit 1)
+	@echo "✅ PTX backend: 4 kernels emitted correctly"
+	@rm -f /tmp/nano_ptx_test.ptx
 
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
