@@ -112,6 +112,9 @@ record_result() {
 # Expected failures (features not fully implemented)
 # None currently - function variables are now fully supported!
 EXPECTED_FAILURES=(
+    # Negative tests: expected to fail compilation (semantic errors in algebraic effects)
+    test_effects_negative.nano
+    test_effects_neg2.nano
 )
 
 # Per-backend expected failures

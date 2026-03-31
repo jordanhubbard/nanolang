@@ -25,12 +25,12 @@ extern fn nl_sb_to_string(_sb: NLStringBuilder) -> string
 extern fn nl_sb_free(_sb: NLStringBuilder) -> void
 
 pub struct StringBuilder {
-    handle: NLStringBuilder
+    raw: NLStringBuilder
 }
 
 /* Create a new StringBuilder with default capacity */
 pub fn sb_new() -> StringBuilder {
-    return StringBuilder { handle: (nl_sb_new) }
+    return StringBuilder { raw: (nl_sb_new) }
 }
 
 shadow sb_new {
@@ -40,7 +40,7 @@ shadow sb_new {
 
 /* Create a new StringBuilder with specific initial capacity */
 pub fn sb_with_capacity(capacity: int) -> StringBuilder {
-    return StringBuilder { handle: (nl_sb_with_capacity capacity) }
+    return StringBuilder { raw: (nl_sb_with_capacity capacity) }
 }
 
 shadow sb_with_capacity {
@@ -51,7 +51,7 @@ shadow sb_with_capacity {
 /* Append a string to the StringBuilder (returns same StringBuilder) */
 pub fn sb_append(sb: StringBuilder, text: string) -> StringBuilder {
     unsafe {
-        (nl_sb_append sb.handle text)
+        (nl_sb_append sb.raw text)
     }
     return sb
 }
@@ -96,7 +96,7 @@ shadow sb_append_int {
 /* Append a character (ASCII value) */
 pub fn sb_append_char(sb: StringBuilder, c: int) -> StringBuilder {
     unsafe {
-        (nl_sb_append_char sb.handle c)
+        (nl_sb_append_char sb.raw c)
     }
     return sb
 }
@@ -110,22 +110,22 @@ shadow sb_append_char {
 
 /* Get the current content as a string */
 pub fn sb_to_string(sb: StringBuilder) -> string {
-    return (nl_sb_to_string sb.handle)
+    return (nl_sb_to_string sb.raw)
 }
 
 /* Get current length */
 pub fn sb_length(sb: StringBuilder) -> int {
-    return (nl_sb_length sb.handle)
+    return (nl_sb_length sb.raw)
 }
 
 pub fn sb_capacity(sb: StringBuilder) -> int {
-    return (nl_sb_capacity sb.handle)
+    return (nl_sb_capacity sb.raw)
 }
 
 /* Clear the StringBuilder (reset to empty) */
 pub fn sb_clear(sb: StringBuilder) -> StringBuilder {
     unsafe {
-        (nl_sb_clear sb.handle)
+        (nl_sb_clear sb.raw)
     }
     return sb
 }
@@ -153,7 +153,7 @@ shadow sb_is_empty {
 
 pub fn sb_free(sb: StringBuilder) -> void {
     unsafe {
-        (nl_sb_free sb.handle)
+        (nl_sb_free sb.raw)
     }
 }
 

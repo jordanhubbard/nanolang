@@ -19,58 +19,58 @@ extern fn nl_hm_clear(_hm: NLHashMap) -> void
 extern fn nl_hm_free(_hm: NLHashMap) -> void
 
 pub struct HashMap {
-    handle: NLHashMap
+    raw: NLHashMap
 }
 
 pub fn map_new() -> HashMap {
-    return HashMap { handle: (nl_hm_new) }
+    return HashMap { raw: (nl_hm_new) }
 }
 
 pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
     unsafe {
-        (nl_hm_put hm.handle key value)
+        (nl_hm_put hm.raw key value)
     }
     return hm
 }
 
 pub fn map_has(hm: HashMap, key: string) -> bool {
-    return (nl_hm_has hm.handle key)
+    return (nl_hm_has hm.raw key)
 }
 
 /* Returns "" if missing; use has() if you need to disambiguate. */
 pub fn map_get(hm: HashMap, key: string) -> string {
-    return (nl_hm_get hm.handle key)
+    return (nl_hm_get hm.raw key)
 }
 
 pub fn map_size(hm: HashMap) -> int {
-    return (nl_hm_size hm.handle)
+    return (nl_hm_size hm.raw)
 }
 
 pub fn map_keys(hm: HashMap) -> array<string> {
-    return (nl_hm_keys hm.handle)
+    return (nl_hm_keys hm.raw)
 }
 
 pub fn map_values(hm: HashMap) -> array<string> {
-    return (nl_hm_values hm.handle)
+    return (nl_hm_values hm.raw)
 }
 
 pub fn map_remove(hm: HashMap, key: string) -> HashMap {
     unsafe {
-        (nl_hm_remove hm.handle key)
+        (nl_hm_remove hm.raw key)
     }
     return hm
 }
 
 pub fn map_clear(hm: HashMap) -> HashMap {
     unsafe {
-        (nl_hm_clear hm.handle)
+        (nl_hm_clear hm.raw)
     }
     return hm
 }
 
 pub fn map_free(hm: HashMap) -> void {
     unsafe {
-        (nl_hm_free hm.handle)
+        (nl_hm_free hm.raw)
     }
 }
 

@@ -31,13 +31,13 @@ shadow test_basic {
 /* Test 2: Resource in struct */
 
 struct Connection {
-    handle: FileHandle
+    raw: FileHandle
 }
 
 fn test_resource_in_struct() -> int {
     let f: FileHandle = (create_file)
-    let conn: Connection = Connection { handle: f }
-    (close_file conn.handle)
+    let conn: Connection = Connection { raw: f }
+    (close_file conn.raw)
     return 0
 }
 

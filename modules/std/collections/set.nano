@@ -17,49 +17,49 @@ extern fn nl_set_clear(_s: NLStringSet) -> void
 extern fn nl_set_free(_s: NLStringSet) -> void
 
 pub struct Set {
-    handle: NLStringSet
+    raw: NLStringSet
 }
 
 pub fn set_new() -> Set {
-    return Set { handle: (nl_set_new) }
+    return Set { raw: (nl_set_new) }
 }
 
 pub fn set_add(s: Set, key: string) -> Set {
     unsafe {
-        (nl_set_add s.handle key)
+        (nl_set_add s.raw key)
     }
     return s
 }
 
 pub fn set_has(s: Set, key: string) -> bool {
-    return (nl_set_has s.handle key)
+    return (nl_set_has s.raw key)
 }
 
 pub fn set_size(s: Set) -> int {
-    return (nl_set_size s.handle)
+    return (nl_set_size s.raw)
 }
 
 pub fn set_values(s: Set) -> array<string> {
-    return (nl_set_values s.handle)
+    return (nl_set_values s.raw)
 }
 
 pub fn set_remove(s: Set, key: string) -> Set {
     unsafe {
-        (nl_set_remove s.handle key)
+        (nl_set_remove s.raw key)
     }
     return s
 }
 
 pub fn set_clear(s: Set) -> Set {
     unsafe {
-        (nl_set_clear s.handle)
+        (nl_set_clear s.raw)
     }
     return s
 }
 
 pub fn set_free(s: Set) -> void {
     unsafe {
-        (nl_set_free s.handle)
+        (nl_set_free s.raw)
     }
 }
 
