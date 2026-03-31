@@ -477,6 +477,16 @@ test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-prof
 	@./tests/test_transpiler
 	@rm -f tests/test_transpiler
 
+# Ring-buffer unit tests (no compiler or VM required)
+.PHONY: test-ringbuf
+test-ringbuf:
+	@echo "Building tests/test_ringbuf..."
+	@$(CC) -std=c99 -Wall -Wextra -Iinclude -o tests/test_ringbuf_bin tests/test_ringbuf.c
+	@echo "Running ringbuf tests..."
+	@./tests/test_ringbuf_bin
+	@rm -f tests/test_ringbuf_bin
+	@echo "ringbuf tests passed."
+
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
