@@ -347,6 +347,83 @@ shadow get_first_char {
 
 💡 **Pro Tip:** `char_at` returns the ASCII code as an `int`.
 
+### String Interpolation (f-strings)
+
+NanoLang supports Python-style f-strings for embedding expressions directly in strings.
+Prefix the string literal with `f` and wrap any expression in `{}`:
+
+```nano
+<!--nl-snippet {"name":"ug_fstring_basic","check":true}-->
+fn greet(name: string, age: int) -> string {
+    return f"Hello, {name}! You are {age} years old."
+}
+
+shadow greet {
+    assert (str_equals (greet "Ada" 30) "Hello, Ada! You are 30 years old.")
+}
+```
+
+#### How f-strings work
+
+The f-string `f"text {expr} more"` desugars at lex time into:
+
+```
+(str_concat "text " (to_string expr) " more")
+```
+
+- **`to_string`** converts any value (int, float, bool, string) to its string representation automatically.
+- **Arbitrary expressions** can appear inside `{}`, including function calls and arithmetic.
+- **Multiple interpolations** nest cleanly: `f"{a}+{b}={(+ a b)}"`.
+
+```nano
+<!--nl-snippet {"name":"ug_fstring_exprs","check":true}-->
+fn format_sum(a: int, b: int) -> string {
+    return f"{a} + {b} = {(+ a b)}"
+}
+
+shadow format_sum {
+    assert (str_equals (format_sum 3 4) "3 + 4 = 7")
+    assert (str_equals (format_sum 0 0) "0 + 0 = 0")
+}
+```
+
+#### Type auto-conversion in f-strings
+
+All basic types convert automatically inside `{}`:
+
+| Type    | Example              | Result        |
+|---------|----------------------|---------------|
+| `int`   | `f"n={n}"`           | `"n=42"`      |
+| `float` | `f"pi={pi}"`         | `"pi=3.14"`   |
+| `bool`  | `f"ok={flag}"`       | `"ok=true"`   |
+| `string`| `f"hi {name}"`       | `"hi Alice"`  |
+
+For custom types, call a conversion function explicitly:
+```nano
+f"point={point.x},{point.y}"   # direct field access
+f"item={(item_to_string item)}" # call explicit converter
+```
+
+#### f-strings as arguments
+
+f-strings are expressions — use them anywhere a string is expected:
+
+```nano
+<!--nl-snippet {"name":"ug_fstring_arg","check":true}-->
+fn main() -> int {
+    let count = 5
+    (println f"Found {count} items")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+```
+
+💡 **Pro Tip:** f-strings are the idiomatic way to format strings in NanoLang.
+Prefer `f"x={x}"` over `(str_concat "x=" (int_to_string x))`.
+
 ## 2.4 Booleans & Comparisons
 
 Booleans represent true/false values.
