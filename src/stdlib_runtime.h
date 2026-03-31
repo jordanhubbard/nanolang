@@ -112,6 +112,7 @@ void generate_profiling_system(StringBuilder *sb, const char *profile_output_pat
  * At program exit (via atexit), prints a hotspot table sorted by total time.
  */
 void generate_instrumented_profiling_system(StringBuilder *sb);
+void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegraph_path);
 
 #endif /* STDLIB_RUNTIME_H */
 

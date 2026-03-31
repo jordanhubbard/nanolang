@@ -1,0 +1,36 @@
+/* test_profile_runtime.nano — smoke test for --profile-runtime flamegraph output
+ * This file is not run via the interpreter (nano); it is compiled with --profile-runtime
+ * and executed to verify .nano.prof output is produced.
+ * Run: nanoc --profile-runtime test_profile_runtime.nano -o /tmp/prof_smoke && /tmp/prof_smoke
+ */
+
+fn count_down(n: int) -> int {
+    if (<= n 0) { return 0 }
+    return (count_down (- n 1))
+}
+
+shadow count_down {
+    assert (== (count_down 0) 0)
+    assert (== (count_down 5) 0)
+}
+
+fn add_two(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add_two {
+    assert (== (add_two 1 2) 3)
+}
+
+fn main() -> int {
+    let r = (count_down 100)
+    let s = (add_two 10 20)
+    assert (== r 0)
+    assert (== s 30)
+    (println "profile runtime smoke test OK")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
