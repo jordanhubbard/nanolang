@@ -582,6 +582,21 @@ test-coroutine: $(INTERPRETER)
 	@$(INTERPRETER) tests/test_coroutine.nano
 	@echo "✅ Coroutine runtime tests PASSED"
 
+# ── Benchmark suite ──────────────────────────────────────────────────────
+# Run the full benchmark suite and write results to bench/results.json
+.PHONY: bench bench-compare
+
+bench: build
+	@echo "📊 Running nanolang benchmark suite..."
+	@chmod +x scripts/run_bench.sh
+	@bash scripts/run_bench.sh
+
+# Compare against a baseline: make bench-compare BASELINE=bench/baseline.json
+bench-compare: build
+	@echo "📊 Running benchmark suite with regression check..."
+	@chmod +x scripts/run_bench.sh
+	@bash scripts/run_bench.sh --baseline $(BASELINE) --threshold $(or $(THRESHOLD),20)
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)

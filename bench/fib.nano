@@ -1,0 +1,28 @@
+/*
+ * bench/fib.nano — recursive Fibonacci benchmark
+ * Tests recursion depth, function call overhead, and basic arithmetic.
+ */
+
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+    assert (== (fib 20) 6765)
+}
+
+fn main() -> int {
+    let result: int = (fib 28)
+    assert (== result 317811)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

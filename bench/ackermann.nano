@@ -1,0 +1,28 @@
+/*
+ * bench/ackermann.nano — Ackermann function benchmark
+ * Extremely recursive; tests deep call stacks and memoisation needs.
+ * ackermann(3, 9) = 4093  (manageable for benchmark purposes)
+ */
+
+fn ackermann(m: int, n: int) -> int {
+    if (== m 0) { return (+ n 1) }
+    if (== n 0) { return (ackermann (- m 1) 1) }
+    return (ackermann (- m 1) (ackermann m (- n 1)))
+}
+
+shadow ackermann {
+    assert (== (ackermann 0 0) 1)
+    assert (== (ackermann 1 1) 3)
+    assert (== (ackermann 2 2) 7)
+    assert (== (ackermann 3 3) 61)
+}
+
+fn main() -> int {
+    let result: int = (ackermann 3 6)
+    assert (== result 509)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

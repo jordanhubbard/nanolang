@@ -1,0 +1,35 @@
+/*
+ * bench/fib_iter.nano — iterative Fibonacci benchmark
+ * Tests loop performance and local variable access.
+ */
+
+fn fib_iter(n: int) -> int {
+    if (<= n 1) { return n }
+    let mut a: int = 0
+    let mut b: int = 1
+    let mut i: int = 2
+    while (<= i n) {
+        let tmp: int = b
+        set b (+ a b)
+        set a tmp
+        set i (+ i 1)
+    }
+    return b
+}
+
+shadow fib_iter {
+    assert (== (fib_iter 0) 0)
+    assert (== (fib_iter 1) 1)
+    assert (== (fib_iter 10) 55)
+    assert (== (fib_iter 40) 102334155)
+}
+
+fn main() -> int {
+    let result: int = (fib_iter 50)
+    assert (== result 12586269025)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
