@@ -10,6 +10,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "nanolang.h"
+#include <stdbool.h>
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include <errno.h>

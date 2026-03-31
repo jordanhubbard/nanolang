@@ -505,6 +505,13 @@ docs-serve: docs
 	@echo "🌐 Serving docs at http://localhost:8080 (Ctrl+C to stop)"
 	@cd $(DOCS_OUTPUT) && python3 -m http.server 8080
 
+# Script mode tests
+test-script: $(INTERPRETER)
+	@echo "📜 Testing nano --script and -e modes..."
+	@chmod +x tests/test_script_mode.sh
+	@bash tests/test_script_mode.sh $(INTERPRETER)
+	@echo "✅ Script mode tests passed"
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
