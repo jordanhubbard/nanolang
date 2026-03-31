@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
+      checks: write
     strategy:
       matrix:
         include:
@@ -78,6 +79,7 @@ jobs:
       - name: Publish test results
         uses: dorny/test-reporter@v1
         if: always()
+        continue-on-error: true
         with:
           name: Nanolang Test Suite
           path: test-results.xml
