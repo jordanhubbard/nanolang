@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "colors.h"
 #include "version.h"
+#include "type_infer.h"
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include "reflection.h"
@@ -61,6 +62,7 @@ typedef struct {
     const char *target;        /* --target <name>: compile target (default: native, wasm) */
     bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
     bool tco;                  /* --tco: enable tail-call optimization pass */
+    bool infer;                /* --infer: run HM Algorithm W inference pass before type checking */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -386,11 +388,22 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char module_objs[2048] = "";
     char module_compile_flags[2048] = "";
 
+    /* Phase 3.5: HM Algorithm W inference (optional --infer flag) */
+    if (opts->infer) {
+        bool infer_ok = hm_infer_program(program, input_file);
+        if (!infer_ok) {
+            fprintf(stderr, "HM type inference found errors\n");
+        } else if (opts->verbose) {
+            printf("✓ HM type inference complete\n");
+        }
+        /* Non-fatal: existing typechecker still runs for definitive errors */
+    }
+
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
     /* Use type_check_module if reflection is requested (modules don't need main) */
-    bool typecheck_success = opts->reflect_output_path ? 
-        type_check_module(program, env) : 
+    bool typecheck_success = opts->reflect_output_path ?
+        type_check_module(program, env) :
         type_check(program, env);
     
     if (!typecheck_success) {
@@ -1423,7 +1436,8 @@ int main(int argc, char *argv[]) {
         .trust_report = false,
         .reference_eval = false,
         .target = NULL,
-        .no_sourcemap = false
+        .no_sourcemap = false,
+        .infer = false
     };
     
     /* Allocate arrays for flags */
@@ -1533,6 +1547,8 @@ int main(int argc, char *argv[]) {
             opts.no_sourcemap = true;
         } else if (strcmp(argv[i], "--tco") == 0) {
             opts.tco = true;
+        } else if (strcmp(argv[i], "--infer") == 0) {
+            opts.infer = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
