@@ -194,50 +194,66 @@ static bool result_is_pass(const Value *v) {
 
 /* ── Shrinking ─────────────────────────────────────────────────────────── */
 
-/* Try to shrink args[idx] to a simpler value of type t.
- * Returns true if there is a next candidate to try (written into *out).
- * step counts from 0 upward. */
-static bool shrink_step(int step, Type t, const Value *cur, Value *out) {
+/* Generate shrink candidates for a value.
+ * Fills cands[] (up to max_cands) with values strictly "simpler" than cur.
+ * For ints: closer to 0, smaller absolute value.
+ * Returns number of candidates filled. */
+static int make_shrink_candidates(Type t, const Value *cur,
+                                   Value *cands, int max_cands) {
+    int n = 0;
     switch (t) {
         case TYPE_INT: {
             long long v = cur->as.int_val;
-            if (step == 0) { *out = make_int_val(0);       return (v != 0); }
-            if (step == 1) { *out = make_int_val(v < 0 ? -v : v); return (v != 0 && v != (v < 0 ? -v : v)); }
-            if (step == 2) { *out = make_int_val(v / 2);   return (v != 0 && v / 2 != v); }
-            if (step == 3) { *out = make_int_val(1);        return (v != 1 && v > 0); }
-            if (step == 4) { *out = make_int_val(-1);       return (v != -1 && v < 0); }
-            return false;
+            if (v == 0) break;
+            /* Try 0 first */
+            if (n < max_cands) cands[n++] = make_int_val(0);
+            /* Try absolute value (positive form) if v is negative */
+            if (v < 0 && -v != v && n < max_cands)
+                cands[n++] = make_int_val(-v);
+            /* Try halving (towards 0) */
+            long long half = v / 2;
+            if (half != v && n < max_cands)
+                cands[n++] = make_int_val(half);
+            if (half != 0 && half / 2 != half && n < max_cands)
+                cands[n++] = make_int_val(half / 2);
+            /* Try v-1 towards zero */
+            long long towards0 = (v > 0) ? (v - 1) : (v + 1);
+            if (towards0 != v && n < max_cands)
+                cands[n++] = make_int_val(towards0);
+            break;
         }
         case TYPE_FLOAT: {
             double v = cur->as.float_val;
-            if (step == 0) { *out = make_float_val(0.0);   return (v != 0.0); }
-            if (step == 1) { *out = make_float_val(v < 0 ? -v : v); return true; }
-            if (step == 2) { *out = make_float_val(v / 2); return (v / 2 != v); }
-            return false;
+            if (v == 0.0) break;
+            if (n < max_cands) cands[n++] = make_float_val(0.0);
+            if (v < 0 && n < max_cands) cands[n++] = make_float_val(-v);
+            if (n < max_cands) cands[n++] = make_float_val(v / 2.0);
+            break;
         }
         case TYPE_BOOL: {
-            if (step == 0) { *out = make_bool_val(false); return cur->as.bool_val; }
-            return false;
+            if (!cur->as.bool_val) break;
+            if (n < max_cands) cands[n++] = make_bool_val(false);
+            break;
         }
         case TYPE_STRING: {
             const char *s = cur->as.string_val ? cur->as.string_val : "";
             int len = (int)strlen(s);
-            if (step == 0) { *out = make_string_val(""); return len > 0; }
-            if (step < len) {
+            if (len == 0) break;
+            if (n < max_cands) cands[n++] = make_string_val("");
+            /* Try progressively shorter prefixes */
+            for (int newlen = len - 1; newlen > 0 && n < max_cands; newlen -= (newlen > 4 ? newlen/2 : 1)) {
                 char buf[PROPTEST_MAX_STRING_LEN + 2];
-                int newlen = len - step;
-                if (newlen < 0) newlen = 0;
-                if (newlen > PROPTEST_MAX_STRING_LEN) newlen = PROPTEST_MAX_STRING_LEN;
-                memcpy(buf, s, (size_t)newlen);
-                buf[newlen] = '\0';
-                *out = make_string_val(buf);
-                return true;
+                int sz = newlen < PROPTEST_MAX_STRING_LEN ? newlen : PROPTEST_MAX_STRING_LEN;
+                memcpy(buf, s, (size_t)sz);
+                buf[sz] = '\0';
+                cands[n++] = make_string_val(buf);
             }
-            return false;
+            break;
         }
         default:
-            return false;
+            break;
     }
+    return n;
 }
 
 /* Given a failing set of args, find the smallest counterexample via shrinking.
@@ -252,28 +268,29 @@ static void shrink_args(const PropFn *fn, Value *args, Environment *env) {
         made_progress = false;
         for (int i = 0; i < n; i++) {
             Type t = params[i].type;
-            for (int step = 0; step < PROPTEST_SHRINK_STEPS; step++) {
-                Value candidate;
-                memset(&candidate, 0, sizeof(candidate));
-                bool has_next = shrink_step(step, t, &args[i], &candidate);
-                if (!has_next) break;
+            Value cands[8];
+            int ncands = make_shrink_candidates(t, &args[i], cands, 8);
 
-                /* Try the candidate */
+            for (int ci = 0; ci < ncands; ci++) {
                 Value saved = args[i];
-                args[i] = candidate;
+                args[i] = cands[ci];
                 Value result = call_function(fn->name, args, n, env);
                 if (!result_is_pass(&result)) {
-                    /* Smaller counterexample found — keep it */
+                    /* Smaller counterexample — keep it, free the rest, restart */
                     if (saved.type == VAL_STRING && saved.as.string_val)
                         free(saved.as.string_val);
+                    /* Free unused candidates */
+                    for (int ri = ci + 1; ri < ncands; ri++) {
+                        if (cands[ri].type == VAL_STRING && cands[ri].as.string_val)
+                            free(cands[ri].as.string_val);
+                    }
                     made_progress = true;
-                    /* Keep searching this arg */
-                } else {
-                    /* Candidate passed — restore original and free candidate */
-                    if (candidate.type == VAL_STRING && candidate.as.string_val)
-                        free(candidate.as.string_val);
-                    args[i] = saved;
                     break;
+                } else {
+                    /* Candidate passed — restore */
+                    if (cands[ci].type == VAL_STRING && cands[ci].as.string_val)
+                        free(cands[ci].as.string_val);
+                    args[i] = saved;
                 }
             }
         }

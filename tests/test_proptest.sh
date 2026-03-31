@@ -45,6 +45,9 @@ fn prop_mul_identity(a: int) -> bool {
 fn prop_bool_not_not(x: bool) -> bool {
     return (== (not (not x)) x)
 }
+
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
 NANO_EOF
 
 log "Test 1: All-passing properties should exit 0 and print PASS"
@@ -68,6 +71,9 @@ cat > "$BROKEN_FILE" <<'NANO_EOF'
 fn prop_broken_sub(a: int, b: int) -> bool {
     return (== (- a b) (- b a))
 }
+
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
 NANO_EOF
 
 broken_output=$("$NANO" --proptest --proptest-seed 42 "$BROKEN_FILE" 2>&1) && broken_exit=0 || broken_exit=$?
