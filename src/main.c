@@ -12,6 +12,7 @@
 #include "wasm_backend.h"
 #include "ptx_backend.h"
 #include "c_backend.h"
+#include "riscv_backend.h"
 #include "bench.h"
 #include "tco_pass.h"
 #include "cps_pass.h"
@@ -538,6 +539,36 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return c_rc;
+    }
+
+    /* ── RISC-V target: emit .s assembly and exit ─────────────────────── */
+    if (opts->target && strcmp(opts->target, "riscv") == 0) {
+        const char *rv_out = output_file;
+        char rv_out_buf[PATH_MAX];
+        if (!rv_out) {
+            strncpy(rv_out_buf, input_file, PATH_MAX - 3);
+            rv_out_buf[PATH_MAX - 3] = '\0';
+            char *dot = strrchr(rv_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(rv_out_buf, ".s");
+            rv_out = rv_out_buf;
+        }
+        if (opts->verbose) printf("Emitting RISC-V asm → %s\n", rv_out);
+        int rv_rc = riscv_backend_emit(program, rv_out, input_file, opts->verbose);
+        if (rv_rc == 0) {
+            printf("✓ RISC-V assembly emitted to %s\n", rv_out);
+            printf("  Assemble: riscv64-unknown-elf-gcc -nostdlib %s -o %s.elf\n",
+                   rv_out, rv_out_buf);
+        } else {
+            fprintf(stderr, "RISC-V backend failed\n");
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return rv_rc;
     }
 
     /* ── Bench mode: run @bench-annotated functions ──────────────────── */
@@ -1388,7 +1419,7 @@ int main(int argc, char *argv[]) {
         printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
         printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
-        printf("  --target <t>   Compile target: native (default), wasm, ptx, c\n");
+        printf("  --target <t>   Compile target: native (default), wasm, ptx, c, riscv\n");
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
