@@ -14,6 +14,7 @@
 #include "interpreter_ffi.h"
 #include "cps_pass.h"
 #include "coroutine.h"
+#include "proptest.h"
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
@@ -48,7 +49,8 @@ static void resolve_project_root(const char *argv0) {
 }
 
 /* Run a nanolang source file through the interpreter */
-static int interpret_file(const char *input_file) {
+static int interpret_file(const char *input_file, bool do_proptest,
+                           const PropTestOptions *proptest_opts) {
     /* Read source */
     FILE *file = fopen(input_file, "r");
     if (!file) {
@@ -158,6 +160,18 @@ static int interpret_file(const char *input_file) {
         return 1;
     }
 
+    /* Phase 5.5: Property-based testing mode */
+    if (do_proptest) {
+        int prop_rc = proptest_run_program(program, env, proptest_opts, input_file);
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        return prop_rc;
+    }
+
     /* Phase 6: Call main() */
     Function *main_fn = env_get_function(env, "main");
     int exit_code = 0;
@@ -192,8 +206,12 @@ int main(int argc, char *argv[]) {
         printf("Runs a nanolang program directly via the interpreter,\n");
         printf("without compiling to C.  Use 'nanoc' to compile instead.\n\n");
         printf("Options:\n");
-        printf("  --help, -h    Show this help message\n");
-        printf("  --version     Show version\n");
+        printf("  --help, -h        Show this help message\n");
+        printf("  --version         Show version\n");
+        printf("  --proptest        Run @property-annotated functions (QuickCheck-style)\n");
+        printf("  --proptest-seed N Set PRNG seed for reproducibility\n");
+        printf("  --proptest-n N    Number of random cases per property (default: 100)\n");
+        printf("  --proptest-v      Verbose: print each test case\n");
         return argc < 2 ? 1 : 0;
     }
 
@@ -202,5 +220,39 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    return interpret_file(argv[1]);
+    /* Parse flags before the script name */
+    bool do_proptest = false;
+    PropTestOptions proptest_opts = {
+        .n_runs  = PROPTEST_DEFAULT_RUNS,
+        .verbose = false,
+        .seed    = 0,
+    };
+
+    int script_arg = 1;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--proptest") == 0) {
+            do_proptest = true;
+            script_arg = i + 1;
+        } else if (strcmp(argv[i], "--proptest-v") == 0) {
+            proptest_opts.verbose = true;
+            script_arg = i + 1;
+        } else if (strcmp(argv[i], "--proptest-seed") == 0 && i + 1 < argc) {
+            proptest_opts.seed = (uint64_t)strtoull(argv[++i], NULL, 10);
+            script_arg = i + 1;
+        } else if (strcmp(argv[i], "--proptest-n") == 0 && i + 1 < argc) {
+            proptest_opts.n_runs = atoi(argv[++i]);
+            script_arg = i + 1;
+        } else {
+            /* First non-flag arg is the script */
+            script_arg = i;
+            break;
+        }
+    }
+
+    if (script_arg >= argc) {
+        fprintf(stderr, "nano: no script file specified\n");
+        return 1;
+    }
+
+    return interpret_file(argv[script_arg], do_proptest, &proptest_opts);
 }

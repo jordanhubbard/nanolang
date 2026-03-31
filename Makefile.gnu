@@ -161,7 +161,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
 INTERPRETER = $(BIN_DIR)/nano
-INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o
+INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o $(OBJ_DIR)/proptest.o
 
 # Self-hosted components
 SELFHOST_COMPONENTS = \
@@ -476,6 +476,13 @@ test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-prof
 	fi
 	@./tests/test_transpiler
 	@rm -f tests/test_transpiler
+
+# Property-based test oracle smoke tests
+.PHONY: test-proptest
+test-proptest: $(INTERPRETER)
+	@echo "Running proptest smoke tests..."
+	@bash tests/test_proptest.sh
+	@echo "proptest smoke tests passed."
 
 # Ring-buffer unit tests (no compiler or VM required)
 .PHONY: test-ringbuf

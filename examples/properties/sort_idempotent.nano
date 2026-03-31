@@ -1,0 +1,86 @@
+# Example property tests for nanolang --proptest mode
+#
+# Functions prefixed with prop_ are automatically discovered by the proptest
+# runner (nano --proptest sort_idempotent.nano).
+#
+# Each property function must:
+#   - Accept typed parameters (int, float, bool, string)
+#   - Return bool (true = property holds, false = counterexample found)
+#
+# The runner generates 100 random inputs per property and shrinks failures
+# to find a minimal counterexample.
+
+# ── Integer properties ────────────────────────────────────────────────────
+
+# @property
+# Addition is commutative: a + b == b + a
+fn prop_add_commutative(a: int, b: int) -> bool {
+    return (== (+ a b) (+ b a))
+}
+
+# @property
+# Adding zero is identity: a + 0 == a
+fn prop_add_identity(a: int) -> bool {
+    return (== (+ a 0) a)
+}
+
+# @property
+# Absolute value is non-negative
+fn prop_abs_nonnegative(x: int) -> bool {
+    let mut ax: int = 0
+    if (< x 0) {
+        set ax (* x -1)
+    } else {
+        set ax x
+    }
+    return (>= ax 0)
+}
+
+# @property
+# Multiplication is commutative: a * b == b * a
+fn prop_mul_commutative(a: int, b: int) -> bool {
+    return (== (* a b) (* b a))
+}
+
+# @property
+# Multiply by zero always yields zero
+fn prop_mul_zero(a: int) -> bool {
+    return (== (* a 0) 0)
+}
+
+# @property
+# Multiply by one is identity: a * 1 == a
+fn prop_mul_identity(a: int) -> bool {
+    return (== (* a 1) a)
+}
+
+# ── Boolean properties ───────────────────────────────────────────────────
+
+# @property
+# Bool negation is an involution: not (not x) == x
+fn prop_bool_double_neg(x: bool) -> bool {
+    return (== (not (not x)) x)
+}
+
+# @property
+# x or (not x) is always true (excluded middle)
+fn prop_bool_excluded_middle(x: bool) -> bool {
+    return (or x (not x))
+}
+
+# ── Deliberately broken property (for --proptest failure testing) ─────────
+
+# @property
+# INTENTIONALLY FALSE: a - b == b - a  (only true when a == b)
+fn prop_broken_sub_commutative(a: int, b: int) -> bool {
+    return (== (- a b) (- b a))
+}
+
+# ── Entry point ───────────────────────────────────────────────────────────
+# Run with:  nano --proptest examples/properties/sort_idempotent.nano
+fn main() -> int {
+    (println "Run with: nano --proptest examples/properties/sort_idempotent.nano")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }
