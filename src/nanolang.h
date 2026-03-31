@@ -685,8 +685,10 @@ typedef struct {
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool profile_gprof;        /* Enable gprof profiling analysis at exit */
     bool profile;              /* --profile: inject instrumented timing hooks into generated C */
+    bool profile_runtime;      /* --profile-runtime: also emit flamegraph collapsed-stack .nano.prof file */
 
-    const char *profile_output_path; /* --profile-output: write structured JSON to this file (NULL = stdout only) */
+    const char *profile_output_path;     /* --profile-output: write structured JSON to this file (NULL = stdout only) */
+    const char *profile_flamegraph_path; /* --profile-runtime <path>: write flamegraph .nano.prof (NULL = <input>.nano.prof) */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
 } Environment;
 

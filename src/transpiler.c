@@ -3744,6 +3744,10 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
         if (env && env->profile) {
             /* Register hotspot report to print at exit */
             sb_append(sb, "    atexit(_nl_prof_report);\n");
+            /* Register flamegraph report if --profile-runtime was used */
+            if (env->profile_runtime) {
+                sb_append(sb, "    atexit(_nl_prof_flamegraph_report);\n");
+            }
         }
         if (has_local_main) {
             const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
@@ -4400,6 +4404,10 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Instrumented profiling system (only when --profile flag is used) */
     if (env && env->profile) {
         generate_instrumented_profiling_system(sb);
+        /* Flamegraph output extension (--profile-runtime) */
+        if (env->profile_runtime) {
+            generate_flamegraph_profiling_system(sb, env->profile_flamegraph_path);
+        }
     }
 
     /* Math and utility built-in functions */
