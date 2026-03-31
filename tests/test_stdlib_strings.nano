@@ -215,3 +215,14 @@ fn test_new_string_functions() -> int {
 shadow test_new_string_functions {
     assert (== (test_new_string_functions) 0)
 }
+
+fn main() -> int {
+    let r1: int = (test_str_starts_with)
+    let r2: int = (test_str_ends_with)
+    let r3: int = (test_str_index_of)
+    return (+ (+ r1 r2) r3)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

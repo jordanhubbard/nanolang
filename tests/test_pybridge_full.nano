@@ -33,10 +33,10 @@ fn test_pybridge_full() -> int {
         return 0
     }
 
-    let handle = (pybridge_import "math")
-    assert (> handle 0)
+    let mod_handle = (pybridge_import "math")
+    assert (> mod_handle 0)
 
-    let call_resp = (pybridge_call handle "sqrt" "[9]" "{}")
+    let call_resp = (pybridge_call mod_handle "sqrt" "[9]" "{}")
     let call_result: Json = (pybridge_extract_result_object call_resp)
     assert (!= call_result 0)
     assert (object_has call_result "value")
@@ -46,7 +46,7 @@ fn test_pybridge_full() -> int {
     (free call_value)
     (free call_result)
 
-    let get_resp = (pybridge_get handle "pi")
+    let get_resp = (pybridge_get mod_handle "pi")
     let get_result: Json = (pybridge_extract_result_object get_resp)
     assert (!= get_result 0)
     let get_value: Json = (get get_result "value")
@@ -68,7 +68,7 @@ fn test_pybridge_full() -> int {
     (free got_value)
     (free got_result)
 
-    let rel_ok = (pybridge_release handle)
+    let rel_ok = (pybridge_release mod_handle)
     assert rel_ok
 
     let info = (pybridge_sysinfo)
