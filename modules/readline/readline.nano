@@ -37,6 +37,8 @@ extern fn rl_set_prompt_wrapper(_prompt: string) -> void
 # History file operations
 extern fn rl_read_history_wrapper(_filename: string) -> int
 extern fn rl_write_history_wrapper(_filename: string) -> int
+extern fn rl_stifle_history_wrapper(_max_entries: int) -> void
+extern fn rl_append_history_wrapper(_nelements: int, _filename: string) -> int
 
 # === PUBLIC API ===
 
@@ -151,6 +153,29 @@ pub fn rl_write_history(filename: string) -> int {
 
 shadow rl_write_history {
     # Can't test without a valid writable path
+    assert true
+}
+
+# Limit history to at most max_entries entries (oldest are dropped)
+pub fn rl_stifle_history(max_entries: int) -> void {
+    unsafe {
+        (rl_stifle_history_wrapper max_entries)
+    }
+}
+
+shadow rl_stifle_history {
+    (rl_stifle_history 1000)
+}
+
+# Append the last nelements history entries to a file (instead of overwriting)
+# Falls back to write_history on platforms without append_history (e.g. libedit/macOS)
+pub fn rl_append_history(nelements: int, filename: string) -> int {
+    unsafe {
+        return (rl_append_history_wrapper nelements filename)
+    }
+}
+
+shadow rl_append_history {
     assert true
 }
 
