@@ -1,92 +1,106 @@
 /*
  * coroutine.h — nanolang cooperative coroutine scheduler
  *
- * Provides a simple run-queue of suspended continuations for async/await.
+ * Implements a simple cooperative task scheduler for async/await.
+ * Each coroutine is a deferred function call in a run_queue.
+ * Coroutines run to completion when stepped; scheduler_run() drains all.
  *
- * Design
- * ──────
- * Each coroutine wraps a pending call to an async function.  The scheduler
- * holds it in a run_queue and executes it cooperatively:
- *
- *   - coroutine_spawn(fn_name, args, arg_count, env) — enqueue a coroutine
- *   - coroutine_run_to_completion(id)                — run one coroutine now
- *   - coroutine_run_all()                            — drain the run_queue
- *
- * await semantics
- * ───────────────
- * Inside an async function body, `await expr` evaluates `expr` immediately
- * (transparent/eager).  The g_current_coroutine_id global marks that we are
- * executing inside a coroutine context.  This enables future extensions
- * (true suspension, I/O integration) without changing the eval interface.
- *
- * Backward compatibility
- * ──────────────────────
- * When g_current_coroutine_id == -1 (synchronous context), async fn calls
- * and await both behave exactly as before — no scheduler overhead.
+ * Design:
+ *   - NanoCoroutine: a pending/running/done task with fn pointer + arg
+ *   - NanoScheduler: round-robin run_queue (fixed-size array, max 64)
+ *   - nano_coro_spawn(): enqueue a coroutine, returns handle (id)
+ *   - nano_coro_yield(): cooperative hint (no-op in simple scheduler)
+ *   - nano_coro_await_id(): run scheduler until target coro is done
+ *   - nano_scheduler_step(): run one READY coroutine to completion
+ *   - nano_scheduler_run_until_done(): drain all pending coroutines
  */
-#pragma once
+
+#ifndef COROUTINE_H
+#define COROUTINE_H
+
+#include <stdbool.h>
+#include <stdint.h>
+
+/* Include full Value type from nanolang.h */
 #include "nanolang.h"
 
-/* Maximum number of concurrent coroutines in the run queue */
-#define COROUTINE_MAX 64
-
-/* Coroutine status */
+/* ── Coroutine status ───────────────────────────────────────────────────── */
 typedef enum {
-    CORO_PENDING,    /* Spawned, not yet started */
-    CORO_RUNNING,    /* Currently executing */
-    CORO_DONE,       /* Completed — result valid */
-    CORO_ERROR       /* Failed */
-} CoroutineStatus;
+    CORO_READY,       /* In queue, not yet started */
+    CORO_RUNNING,     /* Currently executing */
+    CORO_SUSPENDED,   /* Waiting on another coroutine (awaiting_id >= 0) */
+    CORO_DONE,        /* Completed, result available */
+    CORO_ERROR        /* Terminated with error */
+} CoroStatus;
 
-/* A coroutine entry in the run queue */
+/* ── Coroutine entry function type ─────────────────────────────────────── */
+/* Called with (arg, coro_id); returns the coroutine's result Value */
+typedef Value (*CoroFn)(void *arg, int coro_id);
+
+/* ── NanoCoroutine ─────────────────────────────────────────────────────── */
+#define MAX_COROUTINES   64
+
+typedef struct NanoCoroutine {
+    int id;
+    CoroStatus status;
+    CoroFn fn;
+    void *arg;
+    Value result;        /* Result value when CORO_DONE */
+    char *error_msg;     /* Error message when CORO_ERROR */
+    int awaiting_id;     /* -1 = not awaiting; >= 0 = waiting for this coro */
+} NanoCoroutine;
+
+/* ── NanoScheduler ─────────────────────────────────────────────────────── */
 typedef struct {
-    int              id;
-    CoroutineStatus  status;
-    /* Call descriptor — used to invoke the async function */
-    char            *fn_name;
-    Value           *args;
-    int              arg_count;
-    Environment     *env;
-    /* Result (valid when status == CORO_DONE) */
-    Value            result;
-} Coroutine;
+    NanoCoroutine coroutines[MAX_COROUTINES];
+    int count;           /* Total coroutines ever allocated (monotonic) */
+    int current;         /* Slot index of running coroutine (-1 = scheduler) */
+    int step_count;      /* Total scheduler steps taken */
+    bool initialized;
+} NanoScheduler;
 
-/* ── Scheduler API ──────────────────────────────────────────────────────────── */
+/* ── Global scheduler ─────────────────────────────────────────────────── */
+extern NanoScheduler g_scheduler;
 
-/* Initialize the scheduler (idempotent). */
-void  coroutine_init(void);
+/* ── API ──────────────────────────────────────────────────────────────── */
 
-/* Spawn a new coroutine.
- * fn_name   : name of the async function to call
- * args      : argument array (caller-owned; scheduler copies)
- * arg_count : number of arguments
- * env       : execution environment
- * Returns coroutine id (>= 0) or -1 on failure.
- */
-int   coroutine_spawn(const char *fn_name, Value *args, int arg_count, Environment *env);
+/* Initialize the global scheduler */
+void nano_scheduler_init(void);
 
-/* Run a single coroutine to completion and return its result.
- * If already done, returns cached result.
- */
-Value coroutine_run_to_completion(int id);
+/* Spawn a new coroutine: returns coroutine id (>= 0) or -1 on failure */
+int nano_coro_spawn(CoroFn fn, void *arg);
 
-/* Drain all PENDING coroutines in FIFO order.
- * Returns number of coroutines completed.
- */
-int   coroutine_run_all(void);
+/* Cooperative yield hint — allows other coroutines to run.
+ * In the simple run-to-completion scheduler, this is a no-op.
+ * With ucontext/fiber support, this would switch contexts. */
+void nano_coro_yield(void);
 
-/* Fetch the result of a DONE coroutine.  Returns void if not done. */
-Value coroutine_get_result(int id);
+/* Run the scheduler until a specific coroutine is done. Returns its result. */
+Value nano_coro_await_id(int coro_id);
 
-/* True if any coroutine is still PENDING. */
-bool  coroutine_has_pending(void);
+/* Step the scheduler once: pick the next READY coroutine and run it.
+ * Returns false if no more coroutines are ready/running. */
+bool nano_scheduler_step(void);
 
-/* Free all coroutine state (call between test runs or at program exit). */
-void  coroutine_reset(void);
+/* Run the scheduler until all coroutines are DONE or ERROR. */
+void nano_scheduler_run_until_done(void);
 
-/* ── Context flag ────────────────────────────────────────────────────────────
- * Set to the running coroutine id while inside a coroutine body.
- * -1 = synchronous (non-coroutine) context.
- * eval.c reads this to decide cooperative-await vs transparent-await.
- */
-extern int g_current_coroutine_id;
+/* Get the result of a completed coroutine */
+Value nano_coro_result(int coro_id);
+
+/* Check if a coroutine is done (DONE or ERROR) */
+bool nano_coro_is_done(int coro_id);
+
+/* Get count of pending (non-done, non-error) coroutines */
+int nano_scheduler_pending_count(void);
+
+/* Mark current coroutine as done with result (called from within a coro) */
+void nano_coro_complete(Value result);
+
+/* Mark current coroutine as errored */
+void nano_coro_error(const char *msg);
+
+/* Get id of currently running coroutine (-1 if in scheduler context) */
+int nano_coro_current_id(void);
+
+#endif /* COROUTINE_H */

@@ -6,3 +6,5 @@ shadow format_sum {
     assert (str_equals (format_sum 3 4) "3 + 4 = 7")
     assert (str_equals (format_sum 0 0) "0 + 0 = 0")
 }
+
+fn main() -> int { return 0 }

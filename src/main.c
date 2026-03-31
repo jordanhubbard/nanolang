@@ -1144,6 +1144,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         "runtime/list_ASTTupleLiteral.c", "runtime/list_ASTTupleIndex.c",
         "runtime/token_helpers.c", "runtime/gc.c", "runtime/dyn_array.c",
         "runtime/gc_struct.c", "runtime/nl_string.c", "runtime/cli.c", "runtime/regex.c",
+        "coroutine.c",
         NULL
     };
     char runtime_files[65536];

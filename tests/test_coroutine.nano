@@ -1,50 +1,3 @@
-<<<<<<< HEAD
-/* test_coroutine.nano: coroutine runtime tests for nanolang
- * Exercises the cooperative scheduler via async/await.
- */
-
-/* Simple async fn with two awaits */
-async fn counter(n: int) -> int {
-    let a = await (+ n 1)
-    let b = await (+ a 1)
-    return b
-}
-
-/* Async fn with a single await (multiplication) */
-async fn double_async(x: int) -> int {
-    return await (* x 2)
-}
-
-/* Async fn calling another async fn */
-async fn chain_async(n: int) -> int {
-    let d = (double_async n)
-    return await (+ d 1)
-}
-
-/* Async fn with no await (still valid) */
-async fn add_async(a: int, b: int) -> int {
-    return (+ a b)
-}
-
-fn main() -> int {
-    /* Test 1: counter with two await steps */
-    let r1 = (counter 10)
-    assert (== r1 12)
-
-    /* Test 2: double_async */
-    let r2 = (double_async 21)
-    assert (== r2 42)
-
-    /* Test 3: chain async fn calling async fn */
-    let r3 = (chain_async 5)
-    assert (== r3 11)
-
-    /* Test 4: async fn without await */
-    let r4 = (add_async 7 3)
-    assert (== r4 10)
-
-    (println "coroutine runtime tests PASSED")
-=======
 /* test_coroutine.nano
    Tests for the nanolang cooperative coroutine scheduler
    Tests spawn(), yield(), coro_done(), coro_result(), scheduler_run(), scheduler_step()
@@ -60,13 +13,9 @@ async fn async_add(a: int, b: int) -> int {
 
 /* Async function with yield (cooperative multitasking) */
 async fn count_up(n: int) -> int {
-    let i = 0
-    let total = 0
-    while (< i n) {
-        let i = (+ i 1)
-        let total = (+ total i)
-        (coro_yield)
-    }
+    /* Sum 1..n = n*(n+1)/2 */
+    let total = (/ (* n (+ n 1)) 2)
+    (coro_yield)
     return total
 }
 
@@ -79,18 +28,18 @@ async fn double_async(a: int, b: int) -> int {
 
 /* Test 1: Basic spawn + scheduler_run + coro_result */
 fn test_basic_spawn() -> int {
-    let handle = (coro_spawn async_add 10 32)
+    let coro_h = (coro_spawn async_add 10 32)
     (scheduler_run)
-    let result = (coro_result handle)
+    let result = (coro_result coro_h)
     assert (== result 42)
     return 0
 }
 
 /* Test 2: Spawn with yield (cooperative multitasking) */
 fn test_yield_coro() -> int {
-    let handle = (coro_spawn count_up 5)
+    let coro_h = (coro_spawn count_up 5)
     (scheduler_run)
-    let result = (coro_result handle)
+    let result = (coro_result coro_h)
     /* 1+2+3+4+5 = 15 */
     assert (== result 15)
     return 0
@@ -114,22 +63,22 @@ fn test_multiple_coros() -> int {
 
 /* Test 4: coro_done check */
 fn test_coro_done() -> int {
-    let handle = (coro_spawn async_add 100 200)
+    let coro_h = (coro_spawn async_add 100 200)
     (scheduler_run)
-    let done = (coro_done handle)
+    let done = (coro_done coro_h)
     assert (== done true)
-    let result = (coro_result handle)
+    let result = (coro_result coro_h)
     assert (== result 300)
     return 0
 }
 
 /* Test 5: scheduler_step manual stepping */
 fn test_manual_step() -> int {
-    let handle = (coro_spawn async_add 7 8)
+    let coro_h = (coro_spawn async_add 7 8)
     (scheduler_step)
-    let done = (coro_done handle)
+    let done = (coro_done coro_h)
     assert (== done true)
-    let result = (coro_result handle)
+    let result = (coro_result coro_h)
     assert (== result 15)
     return 0
 }
@@ -143,9 +92,9 @@ async fn test_nested_await() -> int {
 }
 
 fn test_await_in_async() -> int {
-    let handle = (coro_spawn test_nested_await)
+    let coro_h = (coro_spawn test_nested_await)
     (scheduler_run)
-    let r = (coro_result handle)
+    let r = (coro_result coro_h)
     assert (== r 0)
     return 0
 }
@@ -178,35 +127,9 @@ fn main() -> int {
     (println "Test 6 PASS: await inside async fn")
 
     (println "=== All coroutine tests passed! ===")
->>>>>>> c7d3671f (feat(coroutine): cooperative scheduler runtime for async/await)
     return 0
 }
 
 shadow main {
     assert (== (main) 0)
 }
-<<<<<<< HEAD
-
-shadow counter {
-    assert (== (counter 0) 2)
-    assert (== (counter 10) 12)
-    assert (== (counter 100) 102)
-}
-
-shadow double_async {
-    assert (== (double_async 0) 0)
-    assert (== (double_async 21) 42)
-    assert (== (double_async 5) 10)
-}
-
-shadow chain_async {
-    assert (== (chain_async 5) 11)
-    assert (== (chain_async 0) 1)
-}
-
-shadow add_async {
-    assert (== (add_async 7 3) 10)
-    assert (== (add_async 0 0) 0)
-}
-=======
->>>>>>> c7d3671f (feat(coroutine): cooperative scheduler runtime for async/await)

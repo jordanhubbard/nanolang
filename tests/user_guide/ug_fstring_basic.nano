@@ -5,3 +5,5 @@ fn greet(name: string, age: int) -> string {
 shadow greet {
     assert (str_equals (greet "Ada" 30) "Hello, Ada! You are 30 years old.")
 }
+
+fn main() -> int { return 0 }

@@ -4446,6 +4446,9 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Math and utility built-in functions */
     generate_math_utility_builtins(sb);
 
+    /* Coroutine runtime builtins (coro_spawn, scheduler_run, etc.) */
+    generate_coroutine_builtins(sb);
+
     /* Generate enum typedefs first (before structs, since structs may use enums) */
     generate_enum_definitions(env, sb);
 

@@ -144,7 +144,7 @@ static int interpret_file(const char *input_file) {
     cps_pass(program);
 
     /* Phase 4.8: Initialize coroutine scheduler */
-    coroutine_init();
+    nano_scheduler_init();
 
     /* Phase 5: Run program (evaluates top-level lets, registers structs/enums/unions) */
     if (!run_program(program, env)) {

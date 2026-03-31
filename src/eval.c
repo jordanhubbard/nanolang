@@ -4385,14 +4385,21 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
     /* Coroutine scheduler: route async function calls through the run queue.
      * When an async fn is called, spawn a coroutine and run it to completion.
-     * This sets g_current_coroutine_id so that await expressions inside the
-     * body know they're executing in a coroutine context.
      * In synchronous/test mode the behaviour is identical to before. */
     if (func->is_async && func->body != NULL) {
-        coroutine_init();
-        int coro_id = coroutine_spawn(name, args, node->as.call.arg_count, env);
-        if (coro_id >= 0) {
-            return coroutine_run_to_completion(coro_id);
+        nano_scheduler_init();
+        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        if (ca) {
+            ca->func_name = strdup(name);
+            ca->args = malloc(sizeof(Value) * (size_t)(node->as.call.arg_count > 0 ? node->as.call.arg_count : 1));
+            if (ca->args) memcpy(ca->args, args, sizeof(Value) * (size_t)node->as.call.arg_count);
+            ca->arg_count = node->as.call.arg_count;
+            ca->env = env;
+            int coro_id = nano_coro_spawn(coro_trampoline, ca);
+            if (coro_id >= 0) {
+                return nano_coro_await_id(coro_id);
+            }
+            free(ca->func_name); free(ca->args); free(ca);
         }
         /* Fall through to synchronous execution if spawn failed */
     }

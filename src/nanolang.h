@@ -47,6 +47,7 @@ typedef enum {
     VAL_UNION,      /* Union values (tagged unions) */
     VAL_FUNCTION,   /* Function values (for first-class functions) */
     VAL_TUPLE,      /* Tuple values: (1, "hello", true) */
+    VAL_COROUTINE,  /* Coroutine handle (int_val = scheduler id) */
     VAL_VOID
 } ValueType;
 
