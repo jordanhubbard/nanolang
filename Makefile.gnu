@@ -481,6 +481,11 @@ test: build shadow-check userguide-export
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+# nano-docs search tool tests
+test-docs-tool: docs-tool
+	@chmod +x tests/test_nano_docs.sh
+	@bash tests/test_nano_docs.sh $(BIN_DIR)/nano-docs
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
