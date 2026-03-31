@@ -467,6 +467,12 @@ Token *tokenize(const char *source, int *token_count) {
             i += 2;
             continue;
         }
+        /* Standalone ! as logical-not / effect-row separator */
+        if (source[i] == '!' && source[i + 1] != '=') {
+            tokens[count++] = create_token(TOKEN_NOT, "!", line, column);
+            i++;
+            continue;
+        }
         if (source[i] == '<' && source[i + 1] == '=') {
             tokens[count++] = create_token(TOKEN_LE, NULL, line, column);
             i += 2;

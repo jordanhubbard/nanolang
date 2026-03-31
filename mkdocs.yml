@@ -1,0 +1,67 @@
+site_name: NanoLang Documentation
+site_description: "NanoLang — a minimal programming language designed for machines to write and humans to read."
+site_url: https://jordanhubbard.github.io/nanolang/
+repo_url: https://github.com/jordanhubbard/nanolang
+repo_name: jordanhubbard/nanolang
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - admonition
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Home: README.md
+  - Getting Started: GETTING_STARTED.md
+  - Quick Reference: QUICK_REFERENCE.md
+  - Standard Library:
+    - Overview: STDLIB.md
+    - stdlib/index.md
+    - Math: stdlib/math.md
+    - String: stdlib/string.md
+    - I/O: stdlib/io.md
+  - Language:
+    - Specification: SPECIFICATION.md
+    - Type Inference: TYPE_INFERENCE.md
+    - Error Handling: ERROR_HANDLING.md
+    - Memory Management: MEMORY_MANAGEMENT.md
+    - Generics: GENERICS_DEEP_DIVE.md
+  - Modules: MODULE_SYSTEM.md
+  - NanoISA VM: NANOISA.md
+  - Contributing: CONTRIBUTING.md
+
+docs_dir: docs
+site_dir: site

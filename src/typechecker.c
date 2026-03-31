@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"
 #include "colors.h"
@@ -5770,10 +5771,14 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             item = item->as.async_fn.function;
             /* fall through to function registration below */
             goto register_function_pass1;
+        } else if (item->type == AST_EFFECT_DECL) {
+            /* Register algebraic effect in the environment's effect registry */
+            env_effect_register(env, item);
+
         } else if (item->type == AST_FUNCTION) {
 register_function_pass1:;
             const char *func_name = item->as.function.name;
-            
+
             /* Check if function name collides with built-in (but allow extern functions) */
             if (!item->as.function.is_extern && is_builtin_name(func_name)) {
                 fprintf(stderr, "Error at line %d, column %d: Cannot redefine built-in function '%s'\n",
