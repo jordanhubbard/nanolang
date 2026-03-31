@@ -61,6 +61,14 @@ endif
 ifeq ($(UNAME_S),FreeBSD)
 LDFLAGS += -Wl,-E
 endif
+ifeq ($(UNAME_S),Darwin)
+# Homebrew OpenSSL is keg-only on macOS — add include/lib paths
+OPENSSL_PREFIX := $(shell brew --prefix openssl 2>/dev/null)
+ifneq ($(OPENSSL_PREFIX),)
+CFLAGS  += -I$(OPENSSL_PREFIX)/include
+LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+endif
+endif
 # Note: -fblocks/-ldispatch/-lBlocksRuntime are only needed when compiling programs
 # that use nanolang's `let mut` concurrency feature (nano_dispatch.h). They are NOT
 # needed for building the compiler tools themselves.
