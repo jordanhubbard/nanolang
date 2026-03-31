@@ -9,6 +9,7 @@
  */
 
 #include "nanolang.h"
+#include "fmt.h"
 #include "cJSON.h"
 /* json_diagnostics.h is NOT included here because it defines DiagnosticSeverity
  * with different member names than compiler_schema.h (included via nanolang.h).
@@ -562,6 +563,9 @@ static void handle_initialize(cJSON *id, cJSON *params) {
     /* Definition */
     cJSON_AddTrueToObject(caps, "definitionProvider");
 
+    /* Document formatting */
+    cJSON_AddTrueToObject(caps, "documentFormattingProvider");
+
     /* Completion */
     cJSON *comp_opts = cJSON_CreateObject();
     cJSON *triggers = cJSON_CreateArray();
@@ -754,6 +758,72 @@ static void handle_definition(cJSON *id, cJSON *params) {
     lsp_send_result(id, result);
 }
 
+/*
+ * textDocument/formatting — reformat the open document using nano-fmt.
+ *
+ * Returns a list of TextEdit objects replacing the entire document content
+ * with the formatted version.
+ */
+static void handle_formatting(cJSON *id, cJSON *params) {
+    if (!g_doc.source || !g_doc.source[0]) {
+        lsp_send_result(id, cJSON_CreateArray());
+        return;
+    }
+
+    /* Determine indent size from formattingOptions */
+    int tab_size = 4;
+    if (params) {
+        cJSON *fo = cJSON_GetObjectItemCaseSensitive(params, "options");
+        if (fo) {
+            cJSON *ts = cJSON_GetObjectItemCaseSensitive(fo, "tabSize");
+            if (ts && cJSON_IsNumber(ts)) tab_size = ts->valueint;
+        }
+    }
+
+    FmtOptions fmt_opts = {
+        .indent_size    = tab_size,
+        .write_in_place = false,
+        .check_only     = false,
+        .verbose        = false,
+    };
+
+    char *formatted = fmt_source(g_doc.source, g_doc.real_path, &fmt_opts);
+    if (!formatted) {
+        lsp_send_result(id, cJSON_CreateArray());
+        return;
+    }
+
+    /* Count lines in original source to build a full-document range */
+    int line_count = 0;
+    for (const char *p = g_doc.source; *p; p++) {
+        if (*p == '\n') line_count++;
+    }
+    /* Last line's last character */
+    const char *last_line_start = strrchr(g_doc.source, '\n');
+    int last_col = last_line_start
+                 ? (int)strlen(last_line_start + 1)
+                 : (int)strlen(g_doc.source);
+
+    /* Build TextEdit: replace entire file */
+    cJSON *edit  = cJSON_CreateObject();
+    cJSON *range = cJSON_CreateObject();
+    cJSON *start = cJSON_CreateObject();
+    cJSON *end   = cJSON_CreateObject();
+    cJSON_AddNumberToObject(start, "line",      0);
+    cJSON_AddNumberToObject(start, "character", 0);
+    cJSON_AddNumberToObject(end,   "line",      line_count);
+    cJSON_AddNumberToObject(end,   "character", last_col);
+    cJSON_AddItemToObject(range, "start", start);
+    cJSON_AddItemToObject(range, "end",   end);
+    cJSON_AddItemToObject(edit,  "range", range);
+    cJSON_AddStringToObject(edit, "newText", formatted);
+    free(formatted);
+
+    cJSON *edits = cJSON_CreateArray();
+    cJSON_AddItemToArray(edits, edit);
+    lsp_send_result(id, edits);
+}
+
 static void handle_completion(cJSON *id, cJSON *params) {
     cJSON *td = cJSON_GetObjectItemCaseSensitive(params, "textDocument");
     cJSON *pos = cJSON_GetObjectItemCaseSensitive(params, "position");
@@ -873,6 +943,8 @@ static void dispatch(cJSON *msg) {
     } else if (strcmp(method, "textDocument/completion") == 0) {
         if (params) handle_completion(id, params);
         else lsp_send_null_result(id);
+    } else if (strcmp(method, "textDocument/formatting") == 0) {
+        handle_formatting(id, params);
     } else if (id) {
         /* Unknown method with id — send method-not-found error */
         lsp_send_error(id, -32601, "Method not found");

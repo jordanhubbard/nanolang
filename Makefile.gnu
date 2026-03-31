@@ -481,6 +481,13 @@ test: build shadow-check userguide-export
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+# nano-fmt formatter tests
+test-fmt: fmt
+	@echo "✏️  Testing nano-fmt..."
+	@chmod +x tests/test_nano_fmt.sh
+	@bash tests/test_nano_fmt.sh $(BIN_DIR)/nano-fmt
+	@echo "✅ nano-fmt tests passed"
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
@@ -924,9 +931,26 @@ $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
 	@echo "✓ Interpreter: $(INTERPRETER)"
 
+# nano-fmt formatter binary
+NANOFMT = $(BIN_DIR)/nano-fmt
+NANOFMT_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/fmt.o $(OBJ_DIR)/fmt_main.o
+
+$(OBJ_DIR)/fmt.o: $(SRC_DIR)/fmt.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/fmt.c -o $(OBJ_DIR)/fmt.o
+
+$(OBJ_DIR)/fmt_main.o: $(SRC_DIR)/fmt_main.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/fmt_main.c -o $(OBJ_DIR)/fmt_main.o
+
+$(NANOFMT): $(NANOFMT_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(NANOFMT) $(NANOFMT_OBJECTS) $(LDFLAGS)
+	@echo "✓ Formatter: $(NANOFMT)"
+
+.PHONY: fmt
+fmt: $(NANOFMT)
+
 # LSP server binary: bin/nanolang-lsp speaks JSON-RPC 2.0 over stdio
 LSP_SERVER = $(BIN_DIR)/nanolang-lsp
-LSP_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lsp_server.o
+LSP_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/fmt.o $(OBJ_DIR)/lsp_server.o
 
 $(OBJ_DIR)/lsp_server.o: $(SRC_DIR)/lsp_server.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/lsp_server.c -o $(OBJ_DIR)/lsp_server.o
@@ -936,7 +960,7 @@ $(LSP_SERVER): $(LSP_OBJECTS) | $(BIN_DIR)
 	@echo "✓ LSP Server: $(LSP_SERVER)"
 
 .PHONY: lsp
-lsp: $(LSP_SERVER)
+lsp: $(LSP_SERVER) $(NANOFMT)
 
 # DAP server binary: bin/nanolang-dap speaks Debug Adapter Protocol over stdio
 DAP_SERVER = $(BIN_DIR)/nanolang-dap
