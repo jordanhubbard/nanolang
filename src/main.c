@@ -14,6 +14,8 @@
 #include "ptx_backend.h"
 #include "tco_pass.h"
 #include "cps_pass.h"
+#include "fold_constants.h"
+#include "dce_pass.h"
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
@@ -63,6 +65,7 @@ typedef struct {
     bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
     bool tco;                  /* --tco: enable tail-call optimization pass */
     bool infer;                /* --infer: run HM Algorithm W inference pass before type checking */
+    bool optimize;             /* --optimize / -O: run constant folding + dead code elimination */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -347,6 +350,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
     if (opts->verbose) printf("✓ Parsing complete\n");
 
+    /* Phase 2.5: Constant folding (--optimize / -O) */
+    if (opts->optimize) {
+        int folded = fold_constants(program, opts->verbose);
+        if (opts->verbose) printf("✓ Constant folding complete (%d fold(s))\n", folded);
+    }
+
     /* Phase 3: Create environment and process imports */
     clear_module_cache();  /* Clear cache from any previous compilation */
     Environment *env = create_environment();
@@ -433,6 +442,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         int async_count = cps_pass(program);
         if (opts->verbose && async_count > 0)
             printf("✓ CPS pass: %d async function(s) transformed\n", async_count);
+    }
+
+    /* Phase 4.05: Dead code elimination (--optimize / -O) */
+    if (opts->optimize) {
+        int elim = dce_pass(program, opts->verbose);
+        if (opts->verbose) printf("✓ Dead code elimination complete (%d elimination(s))\n", elim);
     }
 
     /* ── WASM target: emit .wasm binary and exit ─────────────────────── */
@@ -1324,6 +1339,7 @@ int main(int argc, char *argv[]) {
         printf("  --target <t>   Compile target: native (default), wasm, ptx\n");
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
+        printf("  --optimize, -O Run optimizer: constant folding + dead code elimination\n");
         printf("  publish <file> Compile to WASM and publish to AgentFS (nanoc-publish.sh)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
@@ -1437,7 +1453,8 @@ int main(int argc, char *argv[]) {
         .reference_eval = false,
         .target = NULL,
         .no_sourcemap = false,
-        .infer = false
+        .infer = false,
+        .optimize = false
     };
     
     /* Allocate arrays for flags */
@@ -1549,6 +1566,8 @@ int main(int argc, char *argv[]) {
             opts.tco = true;
         } else if (strcmp(argv[i], "--infer") == 0) {
             opts.infer = true;
+        } else if (strcmp(argv[i], "--optimize") == 0 || strcmp(argv[i], "-O") == 0) {
+            opts.optimize = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
