@@ -361,6 +361,8 @@ fn greet(name: string, age: int) -> string {
 shadow greet {
     assert (str_equals (greet "Ada" 30) "Hello, Ada! You are 30 years old.")
 }
+
+fn main() -> int { return 0 }
 ```
 
 #### How f-strings work
@@ -385,6 +387,8 @@ shadow format_sum {
     assert (str_equals (format_sum 3 4) "3 + 4 = 7")
     assert (str_equals (format_sum 0 0) "0 + 0 = 0")
 }
+
+fn main() -> int { return 0 }
 ```
 
 #### Type auto-conversion in f-strings
