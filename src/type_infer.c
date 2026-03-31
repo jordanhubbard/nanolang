@@ -1479,6 +1479,11 @@ static HMType *infer_block(InferCtx *ctx, HMEnv *env,
             if (!last) last = hm_con_type(ctx, "void");
         }
     }
+    /* Record the top-level env once (first infer_block call = top level) */
+    if (!ctx->top_level_env) {
+        ctx->top_level_env = cur_env;
+    }
+
     return hm_subst_apply(ctx, last);
 }
 
@@ -1499,6 +1504,43 @@ bool hm_infer_program(ASTNode *program, const char *source_file) {
     bool ok = !ctx->has_error;
     hm_ctx_free(ctx);
     return ok;
+}
+
+/* ── LSP helpers ─────────────────────────────────────────────────────────── */
+
+/*
+ * hm_infer_program_for_lsp — like hm_infer_program but keeps the InferCtx
+ * alive for post-inference hover queries.  The caller must call
+ * hm_infer_result_free() when finished with the result.
+ */
+HMInferResult hm_infer_program_for_lsp(ASTNode *program, const char *source_file) {
+    HMInferResult r = {NULL, NULL, false};
+    if (!program) { r.ok = true; return r; }
+
+    InferCtx *ctx = hm_ctx_new(source_file);
+    HMEnv    *env = make_builtin_env(ctx);
+
+    if (program->type == AST_PROGRAM) {
+        infer_block(ctx, env, program->as.program.items, program->as.program.count);
+    } else {
+        infer_expr(ctx, env, program);
+    }
+
+    r.ctx = ctx;
+    r.env = ctx->top_level_env ? ctx->top_level_env : env;
+    r.ok  = !ctx->has_error;
+    return r;
+}
+
+void hm_infer_result_free(HMInferResult *r) {
+    if (!r) return;
+    if (r->ctx) { hm_ctx_free(r->ctx); r->ctx = NULL; }
+    r->env = NULL;
+    r->ok  = false;
+}
+
+TypeScheme *hm_env_lookup_scheme(HMEnv *env, const char *name) {
+    return env_lookup(env, name);
 }
 
 /* ── Effect-aware entry point ────────────────────────────────────────────── */

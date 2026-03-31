@@ -100,6 +100,7 @@ typedef struct {
     AllocNode      *allocs;      /* all malloc'd memory; freed by hm_ctx_free */
     EffectRow      *current_effects; /* effects accumulated in current function body */
     EffectRegistry *effect_registry; /* shared effect registry (may be NULL) */
+    HMEnv          *top_level_env;   /* top-level env after inference (set by infer_block) */
 } InferCtx;
 
 /* ── Public API ──────────────────────────────────────────────────────────── */
@@ -183,5 +184,24 @@ HMType *hm_record_field_type(InferCtx *ctx, HMType *rec,
 /* Effect-aware inference entry point */
 bool hm_infer_program_with_effects(ASTNode *program, const char *source_file,
                                     EffectRegistry *reg);
+
+/* ── LSP helpers ──────────────────────────────────────────────────────────── */
+
+/* Result of LSP inference — ctx/env kept alive for hover queries.
+ * Caller must call hm_infer_result_free() when done. */
+typedef struct {
+    InferCtx *ctx;   /* inference context (owns all HM memory) */
+    HMEnv    *env;   /* top-level environment after inference */
+    bool      ok;    /* true iff no type errors */
+} HMInferResult;
+
+/* Run inference and keep ctx/env alive (not freed). */
+HMInferResult hm_infer_program_for_lsp(ASTNode *program, const char *source_file);
+
+/* Free an HMInferResult obtained from hm_infer_program_for_lsp(). */
+void hm_infer_result_free(HMInferResult *r);
+
+/* Public env lookup — returns TypeScheme* for name, or NULL. */
+TypeScheme *hm_env_lookup_scheme(HMEnv *env, const char *name);
 
 #endif /* TYPE_INFER_H */

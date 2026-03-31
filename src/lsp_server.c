@@ -9,6 +9,7 @@
  */
 
 #include "nanolang.h"
+#include "type_infer.h"
 #include "cJSON.h"
 /* json_diagnostics.h is NOT included here because it defines DiagnosticSeverity
  * with different member names than compiler_schema.h (included via nanolang.h).
@@ -396,6 +397,7 @@ typedef struct {
     Environment *env;   /* Last compiled environment (may be NULL) */
     Token *tokens;      /* Last token array (may be NULL) */
     int token_count;
+    HMInferResult hm;   /* HM inference result for row-poly hover (ctx may be NULL) */
 } Document;
 
 static Document g_doc = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0};
@@ -414,6 +416,9 @@ static void doc_free_compiled(void) {
         g_doc.tokens = NULL;
         g_doc.token_count = 0;
     }
+    /* Free HM inference context */
+    hm_infer_result_free(&g_doc.hm);
+    memset(&g_doc.hm, 0, sizeof(g_doc.hm));
 }
 
 static void doc_set(const char *uri, const char *source) {
@@ -533,6 +538,9 @@ static bool doc_compile(void) {
     /* Phase 4: Type check (module mode — no main() required) */
     typecheck_set_current_file(g_doc.real_path);
     bool ok = type_check_module(g_doc.ast, g_doc.env);
+
+    /* Phase 5: HM inference (best-effort; errors don't fail LSP compilation) */
+    g_doc.hm = hm_infer_program_for_lsp(g_doc.ast, g_doc.real_path);
 
     /* Clean up temp file */
     remove(g_doc.temp_path);
@@ -666,6 +674,23 @@ static void handle_hover(cJSON *id, cJSON *params) {
         snprintf(label + off, sizeof(label) - (size_t)off, ") -> %s", retname);
         free(retname);
 
+        /* Append HM scheme line if available (shows generalized/polymorphic type) */
+        if (g_doc.hm.ctx && g_doc.hm.env) {
+            TypeScheme *fn_scheme = hm_env_lookup_scheme(g_doc.hm.env, ident);
+            if (fn_scheme && fn_scheme->type) {
+                char *hm_str = hm_type_to_str(g_doc.hm.ctx, fn_scheme->type);
+                if (hm_str) {
+                    size_t orig_len = strlen(label);
+                    const char *quant = (fn_scheme->bound_count > 0) ? "forall a. " : "";
+                    int remaining = (int)sizeof(label) - (int)orig_len - 1;
+                    if (remaining > 16) {
+                        snprintf(label + orig_len, (size_t)remaining,
+                                 "\n\n%s%s  *(HM)*", quant, hm_str);
+                    }
+                }
+            }
+        }
+
         cJSON *result = cJSON_CreateObject();
         cJSON *contents = cJSON_CreateObject();
         cJSON_AddStringToObject(contents, "kind", "markdown");
@@ -677,7 +702,23 @@ static void handle_hover(cJSON *id, cJSON *params) {
 
     /* Symbol found — build type string */
     char *tname = build_type_label(sym->type, sym->struct_type_name, sym->type_info);
-    char label[256];
+
+    /* Prefer HM inferred type when available — shows row-polymorphic records */
+    if (g_doc.hm.ctx && g_doc.hm.env) {
+        TypeScheme *scheme = hm_env_lookup_scheme(g_doc.hm.env, ident);
+        if (scheme && scheme->type) {
+            HMType *inst = hm_subst_apply(g_doc.hm.ctx, scheme->type);
+            if (inst && inst->kind == HM_RECORD) {
+                char *hm_str = hm_type_to_str(g_doc.hm.ctx, inst);
+                if (hm_str) {
+                    free(tname);
+                    tname = strdup(hm_str);
+                }
+            }
+        }
+    }
+
+    char label[512];
     const char *mut_str = sym->is_mut ? "mut " : "";
     snprintf(label, sizeof(label), "%s%s: %s", mut_str, ident, tname);
     free(tname);
