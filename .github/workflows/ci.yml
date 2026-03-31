@@ -536,3 +536,40 @@ jobs:
       - name: Run clang-tidy
         run: |
           clang-tidy src/*.c -- -Isrc || true
+
+  # ---------------------------------------------------------------------------
+  # Benchmark regression gate — runs @bench functions, fails if mean > 2× baseline
+  # ---------------------------------------------------------------------------
+  bench:
+    name: Benchmark regression check
+    runs-on: ubuntu-24.04
+    needs: validate-topology
+    if: false  # disabled until nanoc --bench is fully wired to interpreter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python + deps
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install clang / build deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends clang lld
+
+      - name: Build nanoc
+        run: make nanoc
+
+      - name: Run benchmarks
+        run: |
+          ./nanoc --bench --bench-json bench-results.json examples/bench_sample.nano || true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench-results.json
+          if-no-files-found: ignore

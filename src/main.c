@@ -12,6 +12,7 @@
 #include "wasm_backend.h"
 #include "ptx_backend.h"
 #include "c_backend.h"
+#include "bench.h"
 #include "tco_pass.h"
 #include "cps_pass.h"
 #include "pgo_pass.h"
@@ -66,6 +67,9 @@ typedef struct {
     bool tco;                  /* --tco: enable tail-call optimization pass */
     const char *pgo_profile;   /* --pgo <path>: apply profile-guided inlining from .nano.prof */
     bool llvm;                 /* --llvm: emit LLVM IR (.ll) instead of transpiled C */
+    bool bench;                /* --bench: run @bench-annotated functions */
+    uint64_t bench_n;          /* --bench-n <N>: fixed iteration count (0 = auto) */
+    const char *bench_json;    /* --bench-json <path>: write JSON results to file */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -534,6 +538,33 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return c_rc;
+    }
+
+    /* ── Bench mode: run @bench-annotated functions ──────────────────── */
+    if (opts->bench) {
+        BenchOptions bopts = {
+            .n_iters       = opts->bench_n,
+            .output_format = opts->bench_json ? BENCH_FMT_JSON : BENCH_FMT_HUMAN,
+            .json_out_path = opts->bench_json,
+            .backend       = opts->target ? opts->target : "native",
+            .verbose       = opts->verbose,
+        };
+        FILE *json_out = NULL;
+        if (opts->bench_json) {
+            json_out = fopen(opts->bench_json, "w");
+            if (!json_out)
+                fprintf(stderr, "[bench] Cannot open %s for writing\n",
+                        opts->bench_json);
+        }
+        int bench_rc = bench_run_program(program, &bopts, input_file, json_out);
+        if (json_out) fclose(json_out);
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return bench_rc;
     }
 
     /* Phase 4.1: Trust Report (if requested) */
@@ -1362,6 +1393,9 @@ int main(int argc, char *argv[]) {
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
         printf("                 Compile: llc -march=aarch64 prog.ll -o prog.s\n");
+        printf("  --bench        Run @bench-annotated functions (micro-benchmark mode)\n");
+        printf("  --bench-n <N>  Fixed iteration count (default: auto-calibrate to ~1s)\n");
+        printf("  --bench-json <f> Write JSON benchmark results to file\n");
         printf("                          clang -O2 prog.ll -o prog\n");
         printf("  --pgo <file>   Profile-guided inlining: read .nano.prof from --profile-runtime,\n");
         printf("                 identify hot call sites and inline them. Combines with --tco.\n");
@@ -1637,6 +1671,12 @@ int main(int argc, char *argv[]) {
             opts.pgo_profile = argv[++i];
         } else if (strcmp(argv[i], "--llvm") == 0) {
             opts.llvm = true;
+        } else if (strcmp(argv[i], "--bench") == 0) {
+            opts.bench = true;
+        } else if (strcmp(argv[i], "--bench-n") == 0 && i + 1 < argc) {
+            opts.bench_n = (uint64_t)strtoull(argv[++i], NULL, 10);
+        } else if (strcmp(argv[i], "--bench-json") == 0 && i + 1 < argc) {
+            opts.bench_json = argv[++i];
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
