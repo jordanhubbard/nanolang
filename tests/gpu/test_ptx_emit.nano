@@ -1,0 +1,47 @@
+/*
+ * test_ptx_emit.nano — PTX backend smoke test
+ *
+ * Compile with: nanoc --target ptx test_ptx_emit.nano -o /tmp/test_ptx_emit.ptx
+ * The host_helper fn is also callable from the interpreter for shadow tests.
+ */
+
+/* Vector addition kernel — uses thread/block indexing */
+gpu fn vec_add(a: int, b: int) -> int {
+    let tid = (thread_id_x)
+    let bid = (block_id_x)
+    let bsz = (block_dim_x)
+    let gid = (+ (* bid bsz) tid)
+    return (+ (+ a b) gid)
+}
+
+/* Scalar multiply kernel */
+gpu fn scale(val: int, factor: int) -> int {
+    return (* val factor)
+}
+
+/* Float arithmetic kernel */
+gpu fn lerp(a: float, b: float, t: float) -> float {
+    return (+ (* a (- 1.0 t)) (* b t))
+}
+
+/* Conditional kernel */
+gpu fn relu(x: float) -> float {
+    if (> x 0.0) {
+        return x
+    }
+    return 0.0
+}
+
+/*
+ * host_helper — not a gpu fn, should be emitted to interpreter only.
+ * Used to verify the parser correctly distinguishes gpu fn from regular fn.
+ */
+fn host_helper(n: int) -> int {
+    return (+ n 1)
+}
+
+shadow host_helper {
+    assert (== (host_helper 0) 1)
+    assert (== (host_helper 41) 42)
+    assert (== (host_helper -1) 0)
+}

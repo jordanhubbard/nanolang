@@ -83,7 +83,8 @@
     "TOKEN_EFFECT",
     "TOKEN_HANDLE",
     "TOKEN_WITH",
-    "TOKEN_RESUME"
+    "TOKEN_RESUME",
+    "TOKEN_GPU"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",

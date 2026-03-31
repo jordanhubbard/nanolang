@@ -10,6 +10,7 @@
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
 #include "wasm_backend.h"
+#include "ptx_backend.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 
@@ -349,6 +350,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->forbid_unsafe = opts->forbid_unsafe;
     env->profile_gprof = opts->profile_gprof;
     env->profile = opts->profile;
+    env->gpu_target = (opts->target && strcmp(opts->target, "ptx") == 0);
 
 
     env->profile_output_path = opts->profile_output_path;
@@ -433,6 +435,35 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return wasm_rc;
+    }
+
+    /* ── PTX target: emit .ptx text and exit ────────────────────────── */
+    if (opts->target && strcmp(opts->target, "ptx") == 0) {
+        const char *ptx_out = output_file;
+        char ptx_out_buf[PATH_MAX];
+        if (!ptx_out) {
+            strncpy(ptx_out_buf, input_file, PATH_MAX - 5);
+            ptx_out_buf[PATH_MAX - 5] = '\0';
+            char *dot = strrchr(ptx_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(ptx_out_buf, ".ptx");
+            ptx_out = ptx_out_buf;
+        }
+        if (opts->verbose) printf("Emitting PTX → %s\n", ptx_out);
+        int ptx_rc = ptx_backend_emit(program, ptx_out, input_file, opts->verbose);
+        if (ptx_rc == 0) {
+            printf("✓ PTX assembly emitted to %s\n", ptx_out);
+            printf("  Load with: cuModuleLoad(&mod, \"%s\");\n", ptx_out);
+            printf("  Or compile: nvcc -ptx %s -o %s.cubin\n", ptx_out, ptx_out);
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return ptx_rc;
     }
 
     /* Phase 4.1: Trust Report (if requested) */
@@ -1252,7 +1283,8 @@ int main(int argc, char *argv[]) {
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
         printf("  --coverage     Instrument compiled output for gcov/lcov line+branch coverage\n");
         printf("                 Run: gcov <source.c>, or use 'make coverage-report' for HTML\n");
-        printf("  --target <t>   Compile target: native (default), wasm\n");
+        printf("  --target <t>   Compile target: native (default), wasm, ptx\n");
+        printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
