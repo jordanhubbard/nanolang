@@ -481,6 +481,13 @@ test: build shadow-check userguide-export
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+# LSP hover tests: validate textDocument/hover with row-polymorphic type display
+test-lsp-hover: lsp build
+	@echo "🔍 Testing LSP hover with row-polymorphic type display..."
+	@chmod +x tests/test_lsp_hover_rowpoly.sh
+	@bash tests/test_lsp_hover_rowpoly.sh $(BIN_DIR)/nanolang-lsp
+	@echo "✅ LSP hover tests passed"
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)

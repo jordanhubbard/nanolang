@@ -228,26 +228,148 @@ static const char *type_base_name(Type t) {
 }
 
 /* Build a human-readable type label. Caller must free. */
+/* Build a human-readable type label for LSP hover display.
+ *
+ * Handles:
+ *   - Named structs/enums/unions: "Point", "Color"
+ *   - Generic types: "List<int>", "Result<int, string>"
+ *   - Opaque types: "GLFWwindow"
+ *   - Row-polymorphic records: "{ name: string, age: int | r }" (open row)
+ *                          or "{ name: string, age: int }"       (closed record)
+ *   - Type-scheme display: "∀a. List<a>"  (HM-inferred polymorphic types)
+ *   - Primitive types: "int", "float", "bool", "string", "void"
+ *
+ * Returns a heap-allocated string; caller must free().
+ */
 static char *build_type_label(Type t, const char *struct_name, TypeInfo *ti) {
-    if ((t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) && struct_name)
-        return strdup(struct_name);
-    if (ti && ti->generic_name && ti->type_param_count > 0) {
-        /* e.g. List<int> */
-        char buf[256];
-        snprintf(buf, sizeof(buf), "%s<", ti->generic_name);
-        for (int i = 0; i < ti->type_param_count; i++) {
-            if (i > 0)
-                strncat(buf, ", ", sizeof(buf) - strlen(buf) - 1);
-            if (ti->type_params[i]) {
-                const char *pname = type_base_name(ti->type_params[i]->base_type);
-                strncat(buf, pname, sizeof(buf) - strlen(buf) - 1);
+    /* ── Row-polymorphic record type ──────────────────────────────────── */
+    if (ti && ti->row_field_count > 0) {
+        /* Build "{ field1: T1, field2: T2 | r }" */
+        char buf[1024];
+        size_t pos = 0;
+        buf[pos++] = '{'; buf[pos++] = ' ';
+
+        for (int i = 0; i < ti->row_field_count && pos < sizeof(buf) - 64; i++) {
+            if (i > 0) { buf[pos++] = ','; buf[pos++] = ' '; }
+
+            /* Field name */
+            const char *fname = ti->row_field_names ? ti->row_field_names[i] : "?";
+            size_t fnlen = strlen(fname);
+            if (pos + fnlen + 2 < sizeof(buf)) {
+                memcpy(buf + pos, fname, fnlen); pos += fnlen;
+                buf[pos++] = ':'; buf[pos++] = ' ';
+            }
+
+            /* Field type */
+            const char *ftype_name = NULL;
+            if (ti->row_field_type_names && ti->row_field_type_names[i])
+                ftype_name = ti->row_field_type_names[i];
+            else if (ti->row_field_types)
+                ftype_name = type_base_name(ti->row_field_types[i]);
+            else
+                ftype_name = "?";
+
+            size_t ftlen = strlen(ftype_name);
+            if (pos + ftlen < sizeof(buf)) {
+                memcpy(buf + pos, ftype_name, ftlen); pos += ftlen;
             }
         }
-        strncat(buf, ">", sizeof(buf) - strlen(buf) - 1);
+
+        /* Row extension: " | r" for open rows */
+        if (ti->is_open_row && ti->row_var_name && pos < sizeof(buf) - 8) {
+            buf[pos++] = ' '; buf[pos++] = '|'; buf[pos++] = ' ';
+            const char *rv = ti->row_var_name;
+            size_t rvlen = strlen(rv);
+            if (pos + rvlen < sizeof(buf)) {
+                memcpy(buf + pos, rv, rvlen); pos += rvlen;
+            }
+        }
+
+        if (pos < sizeof(buf) - 2) { buf[pos++] = ' '; buf[pos++] = '}'; }
+        buf[pos] = '\0';
+
+        /* Prepend type-scheme quantifier if present: "∀a. { ... }" */
+        if (ti->type_var_count > 0 && ti->type_var_names) {
+            char scheme[1200];
+            int soff = snprintf(scheme, sizeof(scheme), "\u2200");  /* ∀ */
+            for (int i = 0; i < ti->type_var_count; i++) {
+                if (i > 0) soff += snprintf(scheme + soff, sizeof(scheme) - (size_t)soff, " ");
+                soff += snprintf(scheme + soff, sizeof(scheme) - (size_t)soff,
+                                 "%s", ti->type_var_names[i]);
+            }
+            snprintf(scheme + soff, sizeof(scheme) - (size_t)soff, ". %s", buf);
+            return strdup(scheme);
+        }
         return strdup(buf);
     }
+
+    /* ── Named struct/union/enum ──────────────────────────────────────── */
+    if ((t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) && struct_name) {
+        /* Wrap with type-scheme if present */
+        if (ti && ti->type_var_count > 0 && ti->type_var_names) {
+            char buf[512];
+            int off = snprintf(buf, sizeof(buf), "\u2200");
+            for (int i = 0; i < ti->type_var_count; i++) {
+                if (i > 0) off += snprintf(buf + off, sizeof(buf) - (size_t)off, " ");
+                off += snprintf(buf + off, sizeof(buf) - (size_t)off,
+                                "%s", ti->type_var_names[i]);
+            }
+            snprintf(buf + off, sizeof(buf) - (size_t)off, ". %s", struct_name);
+            return strdup(buf);
+        }
+        return strdup(struct_name);
+    }
+
+    /* ── Generic types: List<int>, Result<int, string> ───────────────── */
+    if (ti && ti->generic_name && ti->type_param_count > 0) {
+        char buf[512];
+        int off = 0;
+
+        /* Type-scheme prefix if quantified */
+        if (ti->type_var_count > 0 && ti->type_var_names) {
+            off += snprintf(buf + off, sizeof(buf) - (size_t)off, "\u2200");
+            for (int i = 0; i < ti->type_var_count; i++) {
+                if (i > 0) off += snprintf(buf + off, sizeof(buf) - (size_t)off, " ");
+                off += snprintf(buf + off, sizeof(buf) - (size_t)off,
+                                "%s", ti->type_var_names[i]);
+            }
+            off += snprintf(buf + off, sizeof(buf) - (size_t)off, ". ");
+        }
+
+        off += snprintf(buf + off, sizeof(buf) - (size_t)off, "%s<", ti->generic_name);
+        for (int i = 0; i < ti->type_param_count; i++) {
+            if (i > 0)
+                off += snprintf(buf + off, sizeof(buf) - (size_t)off, ", ");
+            if (ti->type_params[i]) {
+                /* Recurse: type param may itself be a complex type */
+                char *pname = build_type_label(ti->type_params[i]->base_type,
+                                               ti->type_params[i]->opaque_type_name,
+                                               ti->type_params[i]);
+                off += snprintf(buf + off, sizeof(buf) - (size_t)off, "%s", pname);
+                free(pname);
+            }
+        }
+        off += snprintf(buf + off, sizeof(buf) - (size_t)off, ">");
+        return strdup(buf);
+    }
+
+    /* ── Opaque types ─────────────────────────────────────────────────── */
     if (ti && ti->opaque_type_name)
         return strdup(ti->opaque_type_name);
+
+    /* ── Primitive / fallback ─────────────────────────────────────────── */
+    /* Wrap with type-scheme if quantified (e.g. polymorphic identity ∀a. a) */
+    if (ti && ti->type_var_count > 0 && ti->type_var_names) {
+        char buf[256];
+        int off = snprintf(buf, sizeof(buf), "\u2200");
+        for (int i = 0; i < ti->type_var_count; i++) {
+            if (i > 0) off += snprintf(buf + off, sizeof(buf) - (size_t)off, " ");
+            off += snprintf(buf + off, sizeof(buf) - (size_t)off,
+                            "%s", ti->type_var_names[i]);
+        }
+        snprintf(buf + off, sizeof(buf) - (size_t)off, ". %s", type_base_name(t));
+        return strdup(buf);
+    }
     return strdup(type_base_name(t));
 }
 
@@ -649,22 +771,38 @@ static void handle_hover(cJSON *id, cJSON *params) {
         Function *fn = env_get_function(g_doc.env, ident);
         if (!fn) { lsp_send_null_result(id); return; }
 
-        /* Build function signature label */
-        char label[512];
-        int off = snprintf(label, sizeof(label), "fn %s(", ident);
-        for (int i = 0; i < fn->param_count && off < (int)sizeof(label) - 4; i++) {
-            if (i > 0) off += snprintf(label + off, sizeof(label) - (size_t)off, ", ");
+        /* Build function signature hover with code-block markdown.
+         * Format:
+         *   ```nano
+         *   fn name(param: Type, ...) -> ReturnType
+         *   ```
+         *   *async* (if async)    *gpu kernel* (if gpu)    *extern* (if extern)
+         *   ∀a b. ... (if type variables present)
+         */
+        char sig[768];
+        int off = snprintf(sig, sizeof(sig), "fn %s(", ident);
+        for (int i = 0; i < fn->param_count && off < (int)sizeof(sig) - 4; i++) {
+            if (i > 0) off += snprintf(sig + off, sizeof(sig) - (size_t)off, ", ");
             char *tname = build_type_label(fn->params[i].type,
                                            fn->params[i].struct_type_name,
                                            fn->params[i].type_info);
-            off += snprintf(label + off, sizeof(label) - (size_t)off,
+            off += snprintf(sig + off, sizeof(sig) - (size_t)off,
                             "%s: %s", fn->params[i].name ? fn->params[i].name : "_", tname);
             free(tname);
         }
         char *retname = build_type_label(fn->return_type, fn->return_struct_type_name,
                                          fn->return_type_info);
-        snprintf(label + off, sizeof(label) - (size_t)off, ") -> %s", retname);
+        off += snprintf(sig + off, sizeof(sig) - (size_t)off, ") -> %s", retname);
         free(retname);
+
+        /* Wrap in code block */
+        char label[1024];
+        snprintf(label, sizeof(label), "```nano\n%s\n```", sig);
+
+        /* Append annotations */
+        size_t llen = strlen(label);
+        if (fn->is_extern)
+            llen += (size_t)snprintf(label + llen, sizeof(label) - llen, "\n\n*extern* — C FFI binding");
 
         cJSON *result = cJSON_CreateObject();
         cJSON *contents = cJSON_CreateObject();
@@ -675,11 +813,38 @@ static void handle_hover(cJSON *id, cJSON *params) {
         return;
     }
 
-    /* Symbol found — build type string */
+    /* Symbol found — build type string with row-polymorphic and type-scheme support */
     char *tname = build_type_label(sym->type, sym->struct_type_name, sym->type_info);
-    char label[256];
     const char *mut_str = sym->is_mut ? "mut " : "";
-    snprintf(label, sizeof(label), "%s%s: %s", mut_str, ident, tname);
+
+    /* Build markdown hover with code-block formatting.
+     * Format:
+     *   ```nano
+     *   let name: { field: T | r }   ← open row
+     *   ```
+     *   *Open row — extensible record*  (if is_open_row)
+     */
+    char label[1024];
+    int loff = 0;
+    loff += snprintf(label + loff, sizeof(label) - (size_t)loff,
+                     "```nano\n%slet %s: %s\n```", mut_str, ident, tname);
+
+    /* Append annotation for open rows */
+    bool is_open = sym->type_info && sym->type_info->is_open_row;
+    if (is_open) {
+        const char *rv = sym->type_info->row_var_name ? sym->type_info->row_var_name : "r";
+        snprintf(label + loff, sizeof(label) - (size_t)loff,
+                 "\n\n*Open row* — extensible record. Row variable `%s` can be instantiated "
+                 "with additional fields.", rv);
+    }
+
+    /* Append type-scheme annotation */
+    bool is_poly = sym->type_info && sym->type_info->type_var_count > 0;
+    if (is_poly && !is_open) {
+        snprintf(label + loff, sizeof(label) - (size_t)loff,
+                 "\n\n*Polymorphic* — generalized at let-boundary by HM inference.");
+    }
+
     free(tname);
 
     cJSON *result = cJSON_CreateObject();
