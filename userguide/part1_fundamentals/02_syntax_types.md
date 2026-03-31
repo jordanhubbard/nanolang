@@ -352,8 +352,8 @@ shadow get_first_char {
 NanoLang supports Python-style f-strings for embedding expressions directly in strings.
 Prefix the string literal with `f` and wrap any expression in `{}`:
 
-```nano
 <!--nl-snippet {"name":"ug_fstring_basic","check":true}-->
+```nano
 fn greet(name: string, age: int) -> string {
     return f"Hello, {name}! You are {age} years old."
 }
@@ -375,8 +375,8 @@ The f-string `f"text {expr} more"` desugars at lex time into:
 - **Arbitrary expressions** can appear inside `{}`, including function calls and arithmetic.
 - **Multiple interpolations** nest cleanly: `f"{a}+{b}={(+ a b)}"`.
 
-```nano
 <!--nl-snippet {"name":"ug_fstring_exprs","check":true}-->
+```nano
 fn format_sum(a: int, b: int) -> string {
     return f"{a} + {b} = {(+ a b)}"
 }
@@ -408,8 +408,8 @@ f"item={(item_to_string item)}" # call explicit converter
 
 f-strings are expressions — use them anywhere a string is expected:
 
-```nano
 <!--nl-snippet {"name":"ug_fstring_arg","check":true}-->
+```nano
 fn main() -> int {
     let count = 5
     (println f"Found {count} items")
