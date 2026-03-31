@@ -23,11 +23,12 @@ static int count_type_infos(ModuleMetadata *meta) {
 /* Helper macro for appending to dynamic buffer */
 #define APPEND_TO_BUFFER(buf_ptr, pos_ptr, cap_ptr, str) do { \
     size_t len = strlen(str); \
-    if (*(pos_ptr) + len >= *(cap_ptr)) { \
-        *(cap_ptr) *= 2; \
+    if (*(pos_ptr) + len + 1 >= *(cap_ptr)) { \
+        while (*(pos_ptr) + len + 1 >= *(cap_ptr)) *(cap_ptr) *= 2; \
         *(buf_ptr) = realloc(*(buf_ptr), *(cap_ptr)); \
     } \
-    safe_strncpy(*(buf_ptr) + *(pos_ptr), str, *(cap_ptr) - *(pos_ptr)); \
+    memcpy(*(buf_ptr) + *(pos_ptr), str, len); \
+    (*(buf_ptr))[*(pos_ptr) + len] = '\0'; \
     *(pos_ptr) += len; \
 } while(0)
 
@@ -240,11 +241,12 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     /* Helper to append string */
     #define APPEND(str) do { \
         size_t len = strlen(str); \
-        if (pos + len >= capacity) { \
-            capacity *= 2; \
+        if (pos + len + 1 >= capacity) { \
+            while (pos + len + 1 >= capacity) capacity *= 2; \
             buffer = realloc(buffer, capacity); \
         } \
-        safe_strncpy(buffer + pos, str, capacity - pos); \
+        memcpy(buffer + pos, str, len); \
+        buffer[pos + len] = '\0'; \
         pos += len; \
     } while(0)
     

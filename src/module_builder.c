@@ -1511,12 +1511,14 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     bool needs_rebuild = module_needs_rebuild(meta->module_dir, meta);
 
     char *build_dir = module_get_build_dir(meta->module_dir);
+    if (!build_dir) return false;
     char object_file[1024];
-    snprintf(object_file, sizeof(object_file), "%s/%s.o", build_dir, meta->name);
+    snprintf(object_file, sizeof(object_file), "%s/%s.o",
+             build_dir, meta->name ? meta->name : "unknown");
 
     if (needs_rebuild) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] Building %s...\n", meta->name);
+            printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
 
         bool has_package_metadata = module_has_system_package_metadata(meta);

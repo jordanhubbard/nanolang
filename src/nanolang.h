@@ -920,19 +920,21 @@ static inline char *safe_strncpy(char *dest, const char *src, size_t dest_size) 
         return dest;
     }
     size_t src_len = safe_strnlen(src, dest_size - 1);
-    strncpy(dest, src, src_len);
+    memcpy(dest, src, src_len);
     dest[src_len] = '\0';
     return dest;
 }
 
-/* Safe strcat replacement - use strncat with bounds checking */
+/* Safe strcat replacement - use memcpy with bounds checking */
 static inline char *safe_strncat(char *dest, const char *src, size_t dest_size) {
     if (!dest || dest_size == 0) return dest;
     if (!src) return dest;
     size_t dest_len = safe_strnlen(dest, dest_size);
-    if (dest_len >= dest_size) return dest; /* No room */
-    size_t src_len = safe_strnlen(src, dest_size - dest_len - 1);
-    strncat(dest, src, src_len);
+    if (dest_len >= dest_size - 1) return dest; /* No room */
+    size_t avail = dest_size - dest_len - 1;
+    size_t src_len = safe_strnlen(src, avail);
+    memcpy(dest + dest_len, src, src_len);
+    dest[dest_len + src_len] = '\0';
     return dest;
 }
 
