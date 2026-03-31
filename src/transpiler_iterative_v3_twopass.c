@@ -4020,10 +4020,6 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "exit(1); }\n");
             break;
         }
-            
-        case AST_EFFECT_DECL:
-            /* Effect declarations have no C output. */
-            break;
 
         case AST_EFFECT_HANDLER:
         case AST_EFFECT_OP:

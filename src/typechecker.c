@@ -4321,10 +4321,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
-        case AST_EFFECT_DECL:
-            /* Already registered in pass 1 — nothing to do here */
-            return TYPE_VOID;
-
         case AST_HANDLE_EXPR:
             /* handle expression used as a statement — typecheck it */
             check_expression(stmt, tc->env);

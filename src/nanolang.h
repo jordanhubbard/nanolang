@@ -468,6 +468,9 @@ struct ASTNode {
             Type *op_return_types;      /* Return type for each operation */
             char **op_return_type_names;/* For struct return types */
             bool is_pub;
+            /* Alternative simple-type layout (used by parse_effect_def) */
+            Type  *op_param_types;      /* Simplified: one param type per op */
+            char **op_param_type_names; /* Struct/union name overrides for params */
         } effect_decl;
 
         /* Handle expression: handle { body } with { print s -> ...; read () -> ... } */
@@ -495,6 +498,7 @@ struct ASTNode {
         /* AST_EFFECT_HANDLER: extended handle expression (row-poly compat) */
         struct {
             ASTNode  *body;
+            char     *effect_name;         /* Which effect is being handled */
             ASTNode **handler_bodies;
             char    **handler_op_names;
             char    **handler_param_names;
