@@ -1,0 +1,53 @@
+/// Math utilities for nanolang.
+///
+/// Provides basic arithmetic operations with full type annotations.
+module math
+
+/// Add two integers together.
+/// @param a the first operand
+/// @param b the second operand
+/// @returns the sum a + b
+/// @example
+///   let result = (add 1 2)
+/// @end
+pub fn add(a: int, b: int) -> int {
+  return (+ a b)
+}
+
+/// Multiply two integers.
+/// @param a multiplicand
+/// @param b multiplier
+/// @returns the product a * b
+pub fn multiply(a: int, b: int) -> int {
+  return (* a b)
+}
+
+/// Check if an integer is even.
+pub fn is_even(n: int) -> bool {
+  return (== (% n 2) 0)
+}
+
+/// A 2D point in cartesian space.
+pub struct Point {
+  x: int,
+  y: int
+}
+
+/// Distance computation result.
+pub struct DistResult {
+  dist: float,
+  valid: bool
+}
+
+/// Primary color enum.
+pub enum Color {
+  Red,
+  Green,
+  Blue
+}
+
+/// A simple optional type.
+pub union Maybe {
+  Some { value: int },
+  None {}
+}

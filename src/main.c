@@ -4,6 +4,7 @@
 #include "module_builder.h"
 #include "interpreter_ffi.h"
 #include "reflection.h"
+#include "docgen.h"
 #include "emit_typed_ast.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
@@ -44,6 +45,7 @@ typedef struct {
     const char *llm_diags_toon_path; /* --llm-diags-toon <path> (agent-only): write diagnostics as TOON (~40% fewer tokens) */
     const char *llm_shadow_json_path; /* --llm-shadow-json <path> (agent-only): write shadow failure summary as JSON */
     const char *reflect_output_path;  /* --reflect <path>: emit module API as JSON */
+    bool doc_mode;                    /* --doc: emit HTML API documentation */
     bool emit_typed_ast;              /* --emit-typed-ast-json: emit typed AST as JSON to stdout */
     char **include_paths;      /* -I flags */
     int include_count;
@@ -388,9 +390,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
-    /* Use type_check_module if reflection is requested (modules don't need main) */
-    bool typecheck_success = opts->reflect_output_path ? 
-        type_check_module(program, env) : 
+    /* Use type_check_module for reflection/doc (modules don't need main) */
+    bool typecheck_success = (opts->reflect_output_path || opts->doc_mode) ?
+        type_check_module(program, env) :
         type_check(program, env);
     
     if (!typecheck_success) {
@@ -596,6 +598,41 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free_tokens(tokens, token_count);
         free_environment(env);
         free_module_list(modules);
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
+
+    /* Phase 4.42: Emit HTML documentation (--doc) */
+    if (opts->doc_mode) {
+        const char *module_name = strrchr(input_file, '/');
+        module_name = module_name ? module_name + 1 : input_file;
+        char *name_copy = strdup(module_name);
+        char *dot = strrchr(name_copy, '.');
+        if (dot && strcmp(dot, ".nano") == 0) *dot = '\0';
+
+        if (opts->verbose) printf("→ Emitting HTML docs to %s\n", output_file);
+
+        if (!emit_doc_html(output_file, program, source, name_copy)) {
+            fprintf(stderr, "Error: Failed to emit HTML documentation\n");
+            free(name_copy);
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            clear_module_cache();
+            free(source);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+
+        if (opts->verbose) printf("✓ HTML documentation written to %s\n", output_file);
+        free(name_copy);
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return 0;
@@ -1296,6 +1333,7 @@ int main(int argc, char *argv[]) {
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  --json-errors  Output errors in JSON format for tool integration\n");
         printf("  --reflect <path>  Emit module API as JSON (for documentation generation)\n");
+        printf("  --doc             Emit HTML API documentation; use -o to set output path\n");
         printf("  -I <path>      Add include path for C compilation\n");
         printf("  -L <path>      Add library path for C linking\n");
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
@@ -1382,6 +1420,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    /* Normalise: nanoc --doc <input> [opts] → nanoc <input> --doc [opts]
+     * so that the input file is always argv[1] going into the options loop. */
+    if (argc >= 3 && strcmp(argv[1], "--doc") == 0) {
+        char *tmp = argv[1];
+        argv[1] = argv[2];
+        argv[2] = tmp;
+    }
+
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <input.nano> [OPTIONS]\n", argv[0]);
         fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
@@ -1410,6 +1456,7 @@ int main(int argc, char *argv[]) {
         .llm_diags_toon_path = NULL,
         .llm_shadow_json_path = NULL,
         .reflect_output_path = NULL,
+        .doc_mode = false,
         .include_paths = NULL,
         .include_count = 0,
         .library_paths = NULL,
@@ -1524,6 +1571,8 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--reflect") == 0 && i + 1 < argc) {
             opts.reflect_output_path = argv[i + 1];
             i++;
+        } else if (strcmp(argv[i], "--doc") == 0) {
+            opts.doc_mode = true;
         } else if (strcmp(argv[i], "--emit-typed-ast-json") == 0) {
             opts.emit_typed_ast = true;
         } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
@@ -1555,7 +1604,26 @@ int main(int argc, char *argv[]) {
     if (getenv("NANO_VERBOSE_BUILD")) {
         opts.verbose = true;
     }
-    
+
+    /* In --doc mode, derive the HTML output path from -o (if given) or
+     * fall back to <basename>.html in the current directory. */
+    static char doc_html_auto[512];
+    if (opts.doc_mode) {
+        if (strcmp(output_file, default_output) == 0) {
+            /* No -o given: derive from input filename */
+            const char *base = strrchr(input_file, '/');
+            base = base ? base + 1 : input_file;
+            snprintf(doc_html_auto, sizeof(doc_html_auto), "%s", base);
+            char *dot = strrchr(doc_html_auto, '.');
+            if (dot && strcmp(dot, ".nano") == 0) *dot = '\0';
+            strncat(doc_html_auto, ".html",
+                    sizeof(doc_html_auto) - strlen(doc_html_auto) - 1);
+            output_file = doc_html_auto;
+        }
+        /* output_file now holds the HTML path; pass it as both args so
+         * compile_file can use it and won't try to build a binary. */
+    }
+
     int result = compile_file(input_file, output_file, &opts);
     
     /* Cleanup */

@@ -280,7 +280,14 @@ Token *tokenize(const char *source, int *token_count) {
             while (source[i] != '\0' && source[i] != '\n') i++;
             continue;
         }
-        
+
+        /* Skip // line comments (includes /// doc comments — content is
+         * extracted from raw source by the doc generator, not the lexer) */
+        if (source[i] == '/' && source[i+1] == '/') {
+            while (source[i] != '\0' && source[i] != '\n') i++;
+            continue;
+        }
+
         /* Skip C-style comments (slash-star ... star-slash) */
         if (source[i] == '/' && source[i+1] == '*') {
             i += 2;  /* Skip opening delimiter */
