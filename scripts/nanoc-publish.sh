@@ -326,6 +326,64 @@ if [[ $PROPOSE_TO_VIBE -eq 1 ]]; then
     fi
 fi
 
+# ── Step 5: Optional nano package registry publish ───────────────────────────
+# Set --registry <url> to also publish to the nano package registry.
+# Requires nano.manifest.json in the source directory (or auto-generates from
+# @agentos.name/@agentos.version annotations parsed earlier in this script).
+#
+# Usage: nanoc publish my_agent.nano --registry http://localhost:7891
+#
+NANO_REGISTRY="${NANO_REGISTRY:-}"
+REGISTRY_TOKEN="${NANO_REGISTRY_TOKEN:-}"
+
+# Parse --registry flag (search remaining argv)
+for arg in "${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"}"; do
+    if [[ "$arg" == --registry=* ]]; then
+        NANO_REGISTRY="${arg#--registry=}"
+    fi
+done
+
+if [[ -n "$NANO_REGISTRY" && -n "$NANO_PKG_NAME" && -n "$NANO_PKG_VERSION" ]]; then
+    info "Publishing to nano registry: $NANO_REGISTRY"
+
+    # Build manifest JSON
+    MANIFEST_JSON="{\"name\":\"$NANO_PKG_NAME\",\"version\":\"$NANO_PKG_VERSION\",\"main\":\"$(basename "$OUTPUT_WASM")\"}"
+
+    # Sign the tarball with Ed25519 if signing.key exists
+    SIG_ARGS=()
+    SIGNING_KEY="$HOME/.nanoc/signing.key"
+    if [[ -f "$SIGNING_KEY" ]] && command -v openssl &>/dev/null; then
+        TARBALL_HASH="$(sha256sum "$OUTPUT_WASM" | awk '{print $1}')"
+        TARBALL_HASH_BIN="$(echo -n "$TARBALL_HASH" | xxd -r -p 2>/dev/null || echo "$TARBALL_HASH")"
+        # Ed25519 sign: openssl pkeyutl -sign -inkey signing.key -rawin -in <(echo -n "$TARBALL_HASH")
+        SIG_B64="$(echo -n "$TARBALL_HASH" | openssl pkeyutl -sign -inkey "$SIGNING_KEY" -rawin 2>/dev/null | base64 -w0 2>/dev/null)" || SIG_B64=""
+        PUBKEY_B64="$(openssl pkey -in "$SIGNING_KEY" -pubout -outform DER 2>/dev/null | base64 -w0 2>/dev/null)" || PUBKEY_B64=""
+        if [[ -n "$SIG_B64" ]]; then
+            SIG_ARGS=(-F "signature=$SIG_B64" -F "pubkey=$PUBKEY_B64")
+            verbose "Ed25519 signature: ${SIG_B64:0:20}..."
+        fi
+    fi
+
+    AUTH_HEADER=()
+    [[ -n "$REGISTRY_TOKEN" ]] && AUTH_HEADER=(-H "Authorization: Bearer $REGISTRY_TOKEN")
+
+    PUBLISH_RESP="$(curl -sf \
+        --connect-timeout 10 \
+        "${AUTH_HEADER[@]+"${AUTH_HEADER[@]}"}" \
+        -F "manifest=$MANIFEST_JSON;type=application/json" \
+        -F "tarball=@$OUTPUT_WASM;type=application/wasm" \
+        "${SIG_ARGS[@]+"${SIG_ARGS[@]}"}" \
+        "$NANO_REGISTRY/api/v1/publish" 2>&1)" || { warn "Registry publish failed: $PUBLISH_RESP"; }
+
+    if echo "$PUBLISH_RESP" | python3 -c "import json,sys; d=json.load(sys.stdin); exit(0 if d.get('ok') else 1)" 2>/dev/null; then
+        ok "Published to registry: ${NANO_PKG_NAME}@${NANO_PKG_VERSION}"
+        REGISTRY_SHA="$(echo "$PUBLISH_RESP" | python3 -c "import json,sys; print(json.load(sys.stdin).get('sha256',''))" 2>/dev/null)"
+        verbose "  Registry SHA-256: $REGISTRY_SHA"
+    else
+        warn "Registry publish response: $PUBLISH_RESP"
+    fi
+fi
+
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 [[ $CLEANUP_WASM -eq 1 ]] && rm -f "$OUTPUT_WASM"
 

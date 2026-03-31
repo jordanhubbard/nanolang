@@ -1335,6 +1335,10 @@ int main(int argc, char *argv[]) {
         printf("                          ./prog                    # generates prog.nano.prof\n");
         printf("                          nanoc --pgo prog.nano.prof prog.nano -o prog_opt\n");
         printf("  publish <file> Compile to WASM and publish to AgentFS (nanoc-publish.sh)\n");
+        printf("  install [pkg@range ...]\n");
+        printf("                 Install nano packages from the registry (nanoc-install.sh)\n");
+        printf("                 Reads nano.packages.json + writes nano.lock\n");
+        printf("                 Example: nanoc install gpu-math@^1.0.0 nano-core@latest\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1402,6 +1406,43 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Ensure nanoc-publish.sh is in scripts/ relative to NANOLANG_ROOT.\n");
         free(script_argv);
         free(publish_script);
+        return 1;
+    }
+
+    /* Handle 'install' subcommand — delegates to scripts/nanoc-install.sh */
+    if (argc >= 2 && strcmp(argv[1], "install") == 0) {
+        const char *install_suffix = "/scripts/nanoc-install.sh";
+        char *install_script = NULL;
+        const char *nano_root = getenv("NANOLANG_ROOT");
+        if (nano_root) {
+            size_t len = strlen(nano_root) + strlen(install_suffix) + 1;
+            install_script = malloc(len);
+            if (install_script) { strcpy(install_script, nano_root); strcat(install_script, install_suffix); }
+        }
+        if (!install_script || 0) {
+            /* Fall back: look relative to argv[0] */
+            free(install_script);
+            char *argv0_copy = strdup(argv[0]);
+            char *last_slash = strrchr(argv0_copy, '/');
+            if (last_slash) { *last_slash = '\0';
+                size_t len = strlen(argv0_copy) + strlen(install_suffix) + 1;
+                install_script = malloc(len);
+                if (install_script) { strcpy(install_script, argv0_copy); strcat(install_script, install_suffix); }
+            }
+            free(argv0_copy);
+            if (!install_script) install_script = strdup("./scripts/nanoc-install.sh");
+        }
+        /* Build argv for install script */
+        const char **script_argv = malloc((size_t)(argc + 1) * sizeof(char *));
+        if (!script_argv) { perror("malloc"); free(install_script); return 1; }
+        script_argv[0] = install_script;
+        for (int i = 2; i < argc; i++) script_argv[i - 1] = argv[i];
+        script_argv[argc - 1] = NULL;
+        execv(install_script, (char *const *)script_argv);
+        fprintf(stderr, "nanoc install: could not exec %s: %s\n", install_script, strerror(errno));
+        fprintf(stderr, "Ensure nanoc-install.sh is in scripts/ relative to NANOLANG_ROOT.\n");
+        free(script_argv);
+        free(install_script);
         return 1;
     }
 
