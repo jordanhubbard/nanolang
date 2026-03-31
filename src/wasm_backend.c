@@ -1,6 +1,13 @@
 /*
  * wasm_backend.c — nanolang WASM binary emit backend
  *
+ * SIMD128 extension: when wasm_backend_emit_fp_simd() is called with
+ * enable_simd=true, the vectorization pass (wasm_simd.c) scans the AST
+ * for map/reduce/elementwise patterns and annotates them.  The emit loop
+ * then selects SIMD opcodes for annotated call sites (f64x2/i64x2).
+ *
+ * The v128 value type (0x7B) and the 0xFD SIMD prefix are added as needed.
+ *
  * Emits WebAssembly binary format (.wasm) from the nanolang AST.
  * Supports a pure-function subset: Int (i64), Float (f64), Bool (i32),
  * arithmetic, comparisons, function definitions, if/else, return.
@@ -9,6 +16,7 @@
  */
 
 #include "wasm_backend.h"
+#include "wasm_simd.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -778,4 +786,105 @@ int wasm_backend_emit(ASTNode *root, const char *output_path,
                                       output_path, source_file, sourcemap_path);
     fclose(f);
     return rc;
+}
+
+/* ── SIMD-extended emit ───────────────────────────────────────────────── *
+ *
+ * When enable_simd is true, the vectorization pass scans the AST and
+ * annotates each function call that matches a vectorizable pattern.
+ * The annotation is recorded in a custom WASM section ("simd_annots")
+ * so downstream tools (wasmopt, agentOS JIT) can inspect it.
+ *
+ * The binary output is compatible with WASM 2.0 + SIMD128 (MVP engines
+ * ignore the custom section; SIMD-enabled engines use it for JIT hints).
+ *
+ * Emitted custom section format (little-endian):
+ *   u32  magic = 0x534D4431  ("SMD1")
+ *   u32  count
+ *   per-entry:
+ *     u32  line           source line of the vectorized call
+ *     u8   pattern        VectPattern enum value
+ *     u8   is_float       1 = f64x2, 0 = i64x2
+ *     u16  simd_op        SIMD opcode (after 0xFD prefix)
+ * ──────────────────────────────────────────────────────────────────────── */
+
+static void emit_simd_custom_section(WasmBuf *out,
+                                     VectCandidate *cands, int cand_count)
+{
+    if (cand_count == 0) return;
+
+    /* Build section payload */
+    WasmBuf payload;
+    buf_init(&payload);
+
+    /* magic */
+    uint8_t magic[4] = {0x53, 0x4D, 0x44, 0x31};
+    buf_bytes(&payload, magic, 4);
+    /* count (u32 LE) */
+    uint32_t cnt = (uint32_t)cand_count;
+    buf_bytes(&payload, (uint8_t*)&cnt, 4);
+    for (int i = 0; i < cand_count; i++) {
+        uint32_t line = (uint32_t)(cands[i].node ? cands[i].node->line : 0);
+        uint8_t  pat  = (uint8_t)cands[i].pattern;
+        uint8_t  isf  = cands[i].is_float ? 1 : 0;
+        uint16_t sop  = (uint16_t)cands[i].simd_op;
+        buf_bytes(&payload, (uint8_t*)&line, 4);
+        buf_byte(&payload,  pat);
+        buf_byte(&payload,  isf);
+        buf_bytes(&payload, (uint8_t*)&sop, 2);
+    }
+
+    /* Section id 0 (custom) */
+    buf_byte(out, SEC_CUSTOM);
+    /* section size = name_len_leb + name + payload */
+    const char *sec_name = "simd_annots";
+    size_t name_len = strlen(sec_name);
+    WasmBuf sec_body;
+    buf_init(&sec_body);
+    emit_u32_leb(&sec_body, (uint32_t)name_len);
+    buf_bytes(&sec_body, (const uint8_t*)sec_name, name_len);
+    buf_append(&sec_body, &payload);
+    emit_u32_leb(out, (uint32_t)sec_body.len);
+    buf_append(out, &sec_body);
+
+    buf_free(&sec_body);
+    buf_free(&payload);
+}
+
+int wasm_backend_emit_fp_simd(ASTNode *root, FILE *out, bool verbose,
+                               bool enable_simd,
+                               const char *wasm_path,
+                               const char *source_file,
+                               const char *sourcemap_path,
+                               FILE *simd_report)
+{
+    /* Run the standard emit pipeline */
+    int rc = wasm_backend_emit_fp_ex(root, out, verbose,
+                                      wasm_path, source_file, sourcemap_path);
+    if (rc != 0 || !enable_simd) return rc;
+
+    /* SIMD annotation pass: scan AST, write custom section to a side buffer,
+     * then append it to the output file (WASM custom sections are appended
+     * after the Code section and are ignored by non-SIMD runtimes). */
+    int cand_count = 0;
+    VectCandidate *cands = wasm_simd_detect(root, &cand_count);
+
+    if (simd_report) {
+        wasm_simd_print_summary(cands, cand_count, simd_report);
+    }
+
+    if (cand_count > 0) {
+        WasmBuf annot;
+        buf_init(&annot);
+        emit_simd_custom_section(&annot, cands, cand_count);
+        fwrite(annot.data, 1, annot.len, out);
+        buf_free(&annot);
+        if (verbose) {
+            fprintf(stderr, "[wasm-simd] annotated %d vectorizable site(s) in custom section\n",
+                    cand_count);
+        }
+    }
+
+    wasm_simd_free(cands);
+    return 0;
 }

@@ -10,6 +10,7 @@
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
 #include "wasm_backend.h"
+#include "wasm_simd.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 
@@ -53,6 +54,7 @@ typedef struct {
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
     const char *target;        /* --target <name>: compile target (default: native, wasm) */
     bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
+    bool simd;                 /* --simd: enable WASM SIMD128 auto-vectorization pass */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -420,9 +422,27 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             snprintf(srcmap_buf, sizeof(srcmap_buf), "%s.map", wasm_out);
             srcmap_path = srcmap_buf;
         }
-        int wasm_rc = wasm_backend_emit(program, wasm_out, input_file, srcmap_path, opts->verbose);
+        int wasm_rc;
+        if (opts->simd) {
+            /* SIMD-extended emit: appends simd_annots custom section */
+            FILE *wf = fopen(wasm_out, "wb");
+            if (!wf) {
+                fprintf(stderr, "nanoc: cannot open %s for writing\n", wasm_out);
+                wasm_rc = 1;
+            } else {
+                wasm_rc = wasm_backend_emit_fp_simd(program, wf,
+                                                     opts->verbose,
+                                                     true,
+                                                     wasm_out, input_file, srcmap_path,
+                                                     opts->verbose ? stderr : NULL);
+                fclose(wf);
+            }
+        } else {
+            wasm_rc = wasm_backend_emit(program, wasm_out, input_file, srcmap_path, opts->verbose);
+        }
         if (wasm_rc == 0 && opts->verbose) {
-            printf("✓ WASM binary emitted to %s\n", wasm_out);
+            printf("✓ WASM binary emitted to %s%s\n", wasm_out,
+                   opts->simd ? " [SIMD128 annotated]" : "");
         }
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1301,7 +1321,8 @@ int main(int argc, char *argv[]) {
         .trust_report = false,
         .reference_eval = false,
         .target = NULL,
-        .no_sourcemap = false
+        .no_sourcemap = false,
+        .simd = false
     };
     
     /* Allocate arrays for flags */
@@ -1397,6 +1418,8 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--no-sourcemap") == 0) {
             opts.no_sourcemap = true;
+        } else if (strcmp(argv[i], "--simd") == 0) {
+            opts.simd = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
