@@ -444,17 +444,25 @@ $(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $
 # Unit tests for C components
 .PHONY: test-optimizer
 test-optimizer: stage1
-	@echo "Running optimizer unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_optimizer tests/test_optimizer.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_optimizer
-	@rm -f tests/test_optimizer
+	@if [ -f tests/test_optimizer.c ]; then \
+		echo "Running optimizer unit tests..."; \
+		$(CC) $(CFLAGS) -o tests/test_optimizer tests/test_optimizer.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) && \
+		./tests/test_optimizer && \
+		rm -f tests/test_optimizer; \
+	else \
+		echo "Skipping optimizer unit tests (test_optimizer.c not yet committed — lands with PR #44)"; \
+	fi
 
 .PHONY: test-wasm-profiler
 test-wasm-profiler: stage1
-	@echo "Running WASM profiler unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_wasm_profiler tests/test_wasm_profiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_wasm_profiler
-	@rm -f tests/test_wasm_profiler
+	@if [ -f tests/test_wasm_profiler.c ]; then \
+		echo "Running WASM profiler unit tests..."; \
+		$(CC) $(CFLAGS) -o tests/test_wasm_profiler tests/test_wasm_profiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) && \
+		./tests/test_wasm_profiler && \
+		rm -f tests/test_wasm_profiler; \
+	else \
+		echo "Skipping WASM profiler unit tests (test_wasm_profiler.c not yet committed)"; \
+	fi
 
 .PHONY: test-row-poly
 test-row-poly: build

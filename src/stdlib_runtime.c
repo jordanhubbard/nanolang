@@ -663,6 +663,16 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    char* buffer = gc_alloc_string(63);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
     sb_append(sb, "    snprintf(buffer, 64, \"%g\", x);\n");
+    sb_append(sb, "    /* Ensure result always contains a decimal point (e.g. 0.0 not 0) */\n");
+    sb_append(sb, "    int has_dot = 0, has_exp = 0;\n");
+    sb_append(sb, "    for (int i = 0; buffer[i]; i++) {\n");
+    sb_append(sb, "        if (buffer[i] == '.') has_dot = 1;\n");
+    sb_append(sb, "        if (buffer[i] == 'e' || buffer[i] == 'E' || buffer[i] == 'n' || buffer[i] == 'i') has_exp = 1;\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if (!has_dot && !has_exp) {\n");
+    sb_append(sb, "        size_t len = strlen(buffer);\n");
+    sb_append(sb, "        if (len < 62) { buffer[len] = '.'; buffer[len+1] = '0'; buffer[len+2] = '\\0'; }\n");
+    sb_append(sb, "    }\n");
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 

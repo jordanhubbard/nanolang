@@ -696,6 +696,16 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         case VAL_FLOAT: {
             char tmp[64];
             snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            /* Ensure result always contains a decimal point (e.g. 0.0 not 0) */
+            int has_dot = 0, has_exp = 0;
+            for (int i = 0; tmp[i]; i++) {
+                if (tmp[i] == '.') has_dot = 1;
+                if (tmp[i] == 'e' || tmp[i] == 'E' || tmp[i] == 'n' || tmp[i] == 'i') has_exp = 1;
+            }
+            if (!has_dot && !has_exp) {
+                size_t len = strlen(tmp);
+                if (len < 62) { tmp[len] = '.'; tmp[len+1] = '0'; tmp[len+2] = '\0'; }
+            }
             eval_sb_append_cstr(sb, tmp);
             break;
         }
