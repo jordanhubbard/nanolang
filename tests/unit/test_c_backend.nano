@@ -1,0 +1,56 @@
+struct Point {
+    x: int,
+    y: int
+}
+
+fn make_point(x: int, y: int) -> Point {
+    return { x: x, y: y }
+}
+
+shadow make_point {
+    let p: Point = (make_point 3 4)
+    assert (== p.x 3)
+    assert (== p.y 4)
+}
+
+fn distance_sq(p: Point) -> int {
+    return (+ (* p.x p.x) (* p.y p.y))
+}
+
+shadow distance_sq {
+    let p: Point = (make_point 3 4)
+    assert (== (distance_sq p) 25)
+}
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 1 2) 3)
+    assert (== (add 10 -10) 0)
+}
+
+fn fib(n: int) -> int {
+    if (<= n 1) { return n }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+}
+
+fn main() -> int {
+    let p: Point = (make_point 3 4)
+    let dsq: int = (distance_sq p)
+    assert (== dsq 25)
+    let f: int = (fib 10)
+    assert (== f 55)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

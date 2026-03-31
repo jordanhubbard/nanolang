@@ -10,6 +10,7 @@
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
 #include "wasm_backend.h"
+#include "c_backend.h"
 #include <unistd.h>  /* For getpid() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 
@@ -31,6 +32,8 @@ typedef struct {
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     bool profile;             /* --profile: inject timing hooks into generated C */
+    bool no_main;             /* --no-main: omit main() wrapper (for --target c) */
+    const char *target_env;   /* --target-env sel4|baremetal|native */
 
     const char *profile_output_path; /* --profile-output <path>: write structured profile JSON to file */
     const char *llm_diags_json_path; /* --llm-diags-json <path> (agent-only): write diagnostics as JSON */
@@ -432,6 +435,46 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return wasm_rc;
+    }
+
+    /* ── C target: emit readable C99 source and exit ────────────────── */
+    if (opts->target && strcmp(opts->target, "c") == 0) {
+        const char *c_out = output_file;
+        char c_out_buf[PATH_MAX];
+        if (!c_out) {
+            strncpy(c_out_buf, input_file, PATH_MAX - 5);
+            c_out_buf[PATH_MAX - 5] = '\0';
+            char *dot = strrchr(c_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(c_out_buf, ".c");
+            c_out = c_out_buf;
+        }
+        CBOptions cb_opts = {
+            .no_stdlib = false,
+            .no_main   = opts->no_main,
+            .verbose   = opts->verbose,
+        };
+        /* seL4/bare-metal mode: --no-stdlib flag */
+        const char *target_env = opts->target_env ? opts->target_env : "";
+        if (strcmp(target_env, "sel4") == 0 || strcmp(target_env, "baremetal") == 0)
+            cb_opts.no_stdlib = true;
+
+        if (opts->verbose) printf("Emitting C → %s\n", c_out);
+        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
+        if (c_rc == 0) {
+            printf("✓ C source emitted to %s\n", c_out);
+            printf("  Compile: cc -std=c99 -I. %s -o %s\n",
+                   c_out, c_out_buf[0] ? c_out_buf : "output");
+            printf("  seL4 PD: cc -std=c99 -DNL_NO_ASSERT -UPIC %s\n", c_out);
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return c_rc;
     }
 
     /* Phase 4.1: Trust Report (if requested) */
@@ -1240,7 +1283,12 @@ int main(int argc, char *argv[]) {
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
-        printf("  --target <t>   Compile target: native (default), wasm\n");
+        printf("  --target <t>   Compile target: native (default), wasm, c, ptx\n");
+        printf("                 c:   emit readable C99 source (for seL4 PD embedding)\n");
+        printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
+        printf("  --target-env <e>  Environment: native, sel4, baremetal\n");
+        printf("                 sel4/baremetal: omit stdlib #includes in C output\n");
+        printf("  --no-main      Omit main() entry point (for --target c library use)\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1282,6 +1330,8 @@ int main(int argc, char *argv[]) {
         .json_errors = false,
         .profile_gprof = false,
         .profile = false,
+        .no_main   = false,
+        .target_env = NULL,
 
         .profile_output_path = NULL,
         .llm_diags_json_path = NULL,
@@ -1329,6 +1379,13 @@ int main(int argc, char *argv[]) {
             opts.json_errors = true;
         } else if (strcmp(argv[i], "-pg") == 0) {
             opts.profile_gprof = true;
+        } else if (strcmp(argv[i], "--no-main") == 0) {
+            opts.no_main = true;
+
+        } else if (strcmp(argv[i], "--target-env") == 0 && i + 1 < argc) {
+            opts.target_env = argv[i + 1];
+            i++;
+
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
 
