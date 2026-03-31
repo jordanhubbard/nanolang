@@ -481,6 +481,30 @@ test: build shadow-check userguide-export
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+# ── Static documentation site ────────────────────────────────────────────
+# Build the static HTML docs site from userguide/**/*.md
+DOCS_OUTPUT ?= site
+SITE_TITLE ?= NanoLang
+
+.PHONY: docs docs-clean docs-serve
+
+docs:
+	@echo "📚 Building nanolang docs site..."
+	@python3 scripts/build_docs.py \
+		--input userguide \
+		--output $(DOCS_OUTPUT) \
+		--title "$(SITE_TITLE)" \
+		--version "$(shell git describe --tags --always 2>/dev/null || echo dev)"
+	@echo "Open: $(DOCS_OUTPUT)/index.html"
+
+docs-clean:
+	@rm -rf $(DOCS_OUTPUT)
+	@echo "✓ Cleaned $(DOCS_OUTPUT)/"
+
+docs-serve: docs
+	@echo "🌐 Serving docs at http://localhost:8080 (Ctrl+C to stop)"
+	@cd $(DOCS_OUTPUT) && python3 -m http.server 8080
+
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
