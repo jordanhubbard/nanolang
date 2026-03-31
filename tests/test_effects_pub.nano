@@ -1,0 +1,30 @@
+# Test: Public effect declarations
+
+pub effect Logger {
+    info : string -> void
+    warn : string -> void
+    error : string -> void
+}
+
+fn test_handle_logger() -> int {
+    let result = handle {
+        99
+    } with {
+        info msg -> {
+            (println msg)
+        }
+        warn msg -> {
+            (println msg)
+        }
+        error msg -> {
+            (println msg)
+        }
+    }
+    return result
+}
+
+fn main() -> int {
+    let r = (test_handle_logger)
+    (println (cast_string r))
+    return 0
+}

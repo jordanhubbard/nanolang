@@ -1,0 +1,52 @@
+# Test: Algebraic Effect System
+# Exercises effect declarations, handle expressions, and effect resolution.
+
+# ── Effect declarations ──────────────────────────────────────────────────
+
+effect Console {
+    log : string -> void
+}
+
+effect State {
+    get : int -> int
+    put : int -> void
+}
+
+# ── Handle expressions ──────────────────────────────────────────────────
+
+fn test_basic_handle() -> int {
+    let result = handle {
+        42
+    } with {
+        log msg -> {
+            (println msg)
+        }
+    }
+    return result
+}
+
+fn test_state_handle() -> int {
+    let result = handle {
+        100
+    } with {
+        get x -> {
+            return 0
+        }
+        put val -> {
+            (println "state updated")
+        }
+    }
+    return result
+}
+
+fn main() -> int {
+    let x = (test_basic_handle)
+    (println "basic handle returned:")
+    (println (cast_string x))
+
+    let y = (test_state_handle)
+    (println "state handle returned:")
+    (println (cast_string y))
+
+    return 0
+}

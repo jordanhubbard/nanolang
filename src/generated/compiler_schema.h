@@ -248,7 +248,12 @@ typedef enum {
     TOKEN_GRAMMAR = 75,
     TOKEN_LARROW = 76,
     TOKEN_QUESTION = 77,
-    TOKEN_PAR = 78
+    TOKEN_PAR = 78,
+    TOKEN_BAR = 79,
+    TOKEN_EFFECT = 80,
+    TOKEN_HANDLE = 81,
+    TOKEN_WITH = 82,
+    TOKEN_RESUME = 83
 } TokenType;
 
 typedef enum {
@@ -292,7 +297,9 @@ typedef enum {
     PNODE_UNSAFE_BLOCK = 37,
     PNODE_MODULE_QUALIFIED_CALL = 38,
     PNODE_GRAMMAR = 39,
-    PNODE_PAR_BLOCK = 40
+    PNODE_PAR_BLOCK = 40,
+    PNODE_EFFECT_DECL = 41,
+    PNODE_HANDLE_EXPR = 42
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken

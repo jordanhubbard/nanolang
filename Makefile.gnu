@@ -230,6 +230,27 @@ modules:
 install-deps:
 	@./scripts/install-deps.sh
 
+# ============================================================================
+# Package Manager
+# ============================================================================
+
+.PHONY: pkg-install pkg-publish pkg-update pkg-init pkg-list
+
+pkg-install:
+	@./scripts/nano-pkg.sh install
+
+pkg-publish:
+	@./scripts/nano-pkg.sh publish
+
+pkg-update:
+	@./scripts/nano-pkg.sh update
+
+pkg-init:
+	@./scripts/nano-pkg.sh init
+
+pkg-list:
+	@./scripts/nano-pkg.sh list
+
 # Hybrid compiler objects
 HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o $(OBJ_DIR)/lexer_nano.o $(OBJ_DIR)/main_stage1_5.o
 
@@ -592,6 +613,15 @@ test-lang: build
 	@echo "Running Core Language Tests (nl_*)"
 	@echo "=========================================="
 	@./tests/run_all_tests.sh --lang
+
+# CI test targets with structured output
+test-junit: build
+	@echo "Running all tests with JUnit XML output..."
+	@./tests/run_all_tests.sh --format=junit --output=test-results.xml
+
+test-tap: build
+	@echo "Running all tests with TAP output..."
+	@./tests/run_all_tests.sh --format=tap --output=test-results.tap
 
 # Test only application/integration tests
 test-app: build
@@ -1540,6 +1570,13 @@ help:
 	@echo "  sudo make install-deps  - Install all missing dependencies (requires sudo)"
 	@echo "  make module-package-audit - Validate module package metadata coverage"
 	@echo ""
+	@echo "Package Manager:"
+	@echo "  make pkg-install        - Install packages from nano.toml"
+	@echo "  make pkg-publish        - Publish package to registry"
+	@echo "  make pkg-update         - Update all packages to latest"
+	@echo "  make pkg-init           - Create a new nano.toml"
+	@echo "  make pkg-list           - List installed packages"
+	@echo ""
 	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
 	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
@@ -1645,7 +1682,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch
+.PHONY: all build vm test test-selfhosted test-docs test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # RELEASE AUTOMATION

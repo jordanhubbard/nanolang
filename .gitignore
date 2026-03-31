@@ -6,7 +6,7 @@
 *.exe
 *.out
 
-# Compiled binaries (ignore all bin/ except README)
+# Compiled binaries (ignore all bin/ except README and nanoc-pkg)
 /bin/*
 !/bin/README.md
 
@@ -87,7 +87,8 @@ src_nano/*.bak
 src_nano/*.genC
 
 # Compiled binaries
-bin/
+/bin/*
+!/bin/nanoc-pkg
 modules/index.json
 nanoc_self
 repl_test

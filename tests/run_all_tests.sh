@@ -61,20 +61,60 @@ RUN_LANG=true
 RUN_APP=true
 RUN_UNIT=true
 
-if [ "$1" = "--lang" ]; then
-    RUN_APP=false
-    RUN_UNIT=false
-elif [ "$1" = "--app" ]; then
-    RUN_LANG=false
-    RUN_UNIT=false
-elif [ "$1" = "--unit" ]; then
-    RUN_LANG=false
-    RUN_APP=false
+# Structured output format: "" (default human), "junit", "tap"
+OUTPUT_FORMAT=""
+OUTPUT_FILE=""
+
+# Parse all arguments (order-independent)
+for arg in "$@"; do
+    case "$arg" in
+        --lang)    RUN_APP=false; RUN_UNIT=false ;;
+        --app)     RUN_LANG=false; RUN_UNIT=false ;;
+        --unit)    RUN_LANG=false; RUN_APP=false ;;
+        --format=junit) OUTPUT_FORMAT="junit" ;;
+        --format=tap)   OUTPUT_FORMAT="tap" ;;
+        --format=*) echo "Unknown format: ${arg#--format=} (supported: junit, tap)" >&2; exit 1 ;;
+        --output=*) OUTPUT_FILE="${arg#--output=}" ;;
+        --help|-h)
+            echo "Usage: $0 [--lang|--app|--unit] [--format=junit|tap] [--output=FILE]"
+            exit 0 ;;
+    esac
+done
+
+# Default output file by format
+if [ -n "$OUTPUT_FORMAT" ] && [ -z "$OUTPUT_FILE" ]; then
+    case "$OUTPUT_FORMAT" in
+        junit) OUTPUT_FILE="test-results.xml" ;;
+        tap)   OUTPUT_FILE="test-results.tap" ;;
+    esac
 fi
+
+# Arrays to accumulate structured test results (parallel arrays)
+RESULT_NAMES=()
+RESULT_STATUS=()   # "pass" | "fail" | "skip"
+RESULT_TIMES=()    # elapsed seconds (float)
+RESULT_MESSAGES=() # failure message if any
+RESULT_CLASSES=()  # category: nl / app / unit
+
+# Wall-clock start for timing
+SUITE_START=$(date +%s%N 2>/dev/null || date +%s)
+
+# Helper: record a test result
+record_result() {
+    local name="$1" status="$2" elapsed="$3" message="$4" class="$5"
+    RESULT_NAMES+=("$name")
+    RESULT_STATUS+=("$status")
+    RESULT_TIMES+=("$elapsed")
+    RESULT_MESSAGES+=("$message")
+    RESULT_CLASSES+=("$class")
+}
 
 # Expected failures (features not fully implemented)
 # None currently - function variables are now fully supported!
 EXPECTED_FAILURES=(
+    # Negative tests: expected to fail compilation (semantic errors in algebraic effects)
+    test_effects_negative.nano
+    test_effects_neg2.nano
 )
 
 # Per-backend expected failures
@@ -130,8 +170,12 @@ run_test() {
     if is_expected_failure "$test_name"; then
         echo -e "${BLUE}⊘${NC} $test_name ${YELLOW}(expected failure)${NC}"
         TOTAL_SKIP=$((TOTAL_SKIP + 1))
+        record_result "$test_name" "skip" "0" "expected failure" "$category"
         return 0
     fi
+
+    local _t0
+    _t0=$(date +%s%N 2>/dev/null || date +%s)
     
     local log_file=".test_output/${category}_${test_name}.compile.log"
     local out_file=".test_output/${category}_${test_name}.out"
@@ -155,7 +199,12 @@ run_test() {
             ;;
     esac
 
-    if [ $? -ne 0 ]; then
+    local _compile_exit=$?
+    if [ $_compile_exit -ne 0 ]; then
+        local _elapsed_val
+        _elapsed_val=$(_elapsed)
+        local _compile_err
+        _compile_err=$(cat "$log_file" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
         echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
@@ -163,6 +212,7 @@ run_test() {
             "app") APP_FAIL=$((APP_FAIL + 1)) ;;
             "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
         esac
+        record_result "$test_name" "fail" "$_elapsed_val" "compilation failed: $_compile_err" "$category"
         return 1
     fi
 
@@ -183,10 +233,25 @@ run_test() {
             ;;
     esac
 
+    # Helper: compute elapsed time in seconds (float, 2 decimal places)
+    _elapsed() {
+        local t1
+        t1=$(date +%s%N 2>/dev/null || date +%s)
+        # If nanoseconds available, divide; otherwise just integer seconds
+        if echo "$t1" | grep -q '[0-9]\{10,\}'; then
+            echo "scale=2; ($t1 - $_t0) / 1000000000" | bc 2>/dev/null || echo "0"
+        else
+            echo "$((t1 - _t0))"
+        fi
+    }
+
     # Run the compiled artifact
     if [ -f "$run_artifact" ]; then
         perl -e "alarm $RUN_TIMEOUT; exec @ARGV" $run_cmd >"$run_log" 2>&1
-        if [ $? -eq 0 ]; then
+        local _run_exit=$?
+        local _elapsed_val
+        _elapsed_val=$(_elapsed)
+        if [ $_run_exit -eq 0 ]; then
             echo -e "${GREEN}✅${NC} $test_name"
             rm -f "$log_file" "$out_file" "${out_file}.nvm" "$run_log"
             TOTAL_PASS=$((TOTAL_PASS + 1))
@@ -195,8 +260,11 @@ run_test() {
                 "app") APP_PASS=$((APP_PASS + 1)) ;;
                 "unit") UNIT_PASS=$((UNIT_PASS + 1)) ;;
             esac
+            record_result "$test_name" "pass" "$_elapsed_val" "" "$category"
             return 0
         else
+            local _fail_msg
+            _fail_msg=$(cat "$run_log" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
             echo -e "${RED}❌${NC} $test_name ${RED}(runtime failure)${NC}"
             TOTAL_FAIL=$((TOTAL_FAIL + 1))
             case "$category" in
@@ -204,9 +272,14 @@ run_test() {
                 "app") APP_FAIL=$((APP_FAIL + 1)) ;;
                 "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
             esac
+            record_result "$test_name" "fail" "$_elapsed_val" "runtime failure: $_fail_msg" "$category"
             return 1
         fi
     else
+        local _elapsed_val
+        _elapsed_val=$(_elapsed)
+        local _compile_msg
+        _compile_msg=$(cat "$log_file" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
         echo -e "${RED}❌${NC} $test_name ${RED}(output not created)${NC}"
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
@@ -214,6 +287,7 @@ run_test() {
             "app") APP_FAIL=$((APP_FAIL + 1)) ;;
             "unit") UNIT_FAIL=$((UNIT_FAIL + 1)) ;;
         esac
+        record_result "$test_name" "fail" "$_elapsed_val" "compile failure: $_compile_msg" "$category"
         return 1
     fi
 }
@@ -443,6 +517,94 @@ fi
 echo ""
 echo -e "TOTAL: ${GREEN}$TOTAL_PASS passed${NC}, ${RED}$TOTAL_FAIL failed${NC}, ${BLUE}$TOTAL_SKIP skipped${NC}"
 echo ""
+
+# ── Structured output emission ────────────────────────────────────────────────
+
+emit_junit() {
+    local outfile="$1"
+    local suite_time
+    local _t1
+    _t1=$(date +%s%N 2>/dev/null || date +%s)
+    if echo "$_t1" | grep -q '[0-9]\{10,\}'; then
+        suite_time=$(echo "scale=2; ($_t1 - $SUITE_START) / 1000000000" | bc 2>/dev/null || echo "0")
+    else
+        suite_time=$(($(date +%s) - SUITE_START))
+    fi
+
+    local total=${#RESULT_NAMES[@]}
+    local failures=$TOTAL_FAIL
+    local skipped=$TOTAL_SKIP
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+    {
+        echo '<?xml version="1.0" encoding="UTF-8"?>'
+        echo "<testsuites name=\"nanolang\" tests=\"$total\" failures=\"$failures\" skipped=\"$skipped\" time=\"$suite_time\" timestamp=\"$timestamp\">"
+        echo "  <testsuite name=\"nanolang\" tests=\"$total\" failures=\"$failures\" skipped=\"$skipped\" time=\"$suite_time\" hostname=\"$(hostname)\">"
+        for i in "${!RESULT_NAMES[@]}"; do
+            local name="${RESULT_NAMES[$i]}"
+            local status="${RESULT_STATUS[$i]}"
+            local elapsed="${RESULT_TIMES[$i]:-0}"
+            local message="${RESULT_MESSAGES[$i]}"
+            local class="${RESULT_CLASSES[$i]:-nanolang}"
+            # Sanitise name: strip .nano suffix, replace / with .
+            local classname="nanolang.${class}.$(echo "$name" | sed 's/\.nano$//' | tr '/' '.')"
+            local testname
+            testname=$(echo "$name" | sed 's/\.nano$//')
+            echo "    <testcase classname=\"$classname\" name=\"$testname\" time=\"$elapsed\">"
+            case "$status" in
+                fail)
+                    local msg_escaped
+                    msg_escaped=$(echo "$message" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g')
+                    echo "      <failure message=\"$msg_escaped\" type=\"TestFailure\">$msg_escaped</failure>"
+                    ;;
+                skip)
+                    echo "      <skipped/>"
+                    ;;
+            esac
+            echo "    </testcase>"
+        done
+        echo "  </testsuite>"
+        echo "</testsuites>"
+    } > "$outfile"
+    echo -e "${CYAN}📋 JUnit XML written to: $outfile${NC}"
+}
+
+emit_tap() {
+    local outfile="$1"
+    local total=${#RESULT_NAMES[@]}
+    {
+        echo "TAP version 13"
+        echo "1..$total"
+        for i in "${!RESULT_NAMES[@]}"; do
+            local name="${RESULT_NAMES[$i]}"
+            local status="${RESULT_STATUS[$i]}"
+            local message="${RESULT_MESSAGES[$i]}"
+            local testname
+            testname=$(echo "$name" | sed 's/\.nano$//')
+            local n=$((i + 1))
+            case "$status" in
+                pass) echo "ok $n - $testname" ;;
+                fail) echo "not ok $n - $testname"
+                      if [ -n "$message" ]; then
+                          echo "  ---"
+                          echo "  message: '$message'"
+                          echo "  ..."
+                      fi ;;
+                skip) echo "ok $n - $testname # SKIP expected failure" ;;
+            esac
+        done
+    } > "$outfile"
+    echo -e "${CYAN}📋 TAP output written to: $outfile${NC}"
+}
+
+# Emit structured output if requested
+if [ -n "$OUTPUT_FORMAT" ]; then
+    case "$OUTPUT_FORMAT" in
+        junit) emit_junit "$OUTPUT_FILE" ;;
+        tap)   emit_tap   "$OUTPUT_FILE" ;;
+    esac
+fi
 
 if [ $TOTAL_FAIL -eq 0 ]; then
     echo -e "${GREEN}✅ All runnable tests passed!${NC}"

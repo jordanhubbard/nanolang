@@ -65,17 +65,17 @@ shadow pybridge_import {
     let reqs: array<string> = (array_new 0 "")
     let ok: bool = (pybridge_init reqs false)
     if ok {
-        let handle: int = (pybridge_import "math")
-        assert (> handle 0)
+        let mod_handle: int = (pybridge_import "math")
+        assert (> mod_handle 0)
         (pybridge_shutdown)
     } else {
         assert true
     }
 }
 
-pub fn pybridge_call(handle: int, method: string, args_json: string, kwargs_json: string) -> string {
+pub fn pybridge_call(mod_handle: int, method: string, args_json: string, kwargs_json: string) -> string {
     unsafe {
-        return (nl_pybridge_call handle method args_json kwargs_json)
+        return (nl_pybridge_call mod_handle method args_json kwargs_json)
     }
 }
 
@@ -83,8 +83,8 @@ shadow pybridge_call {
     let reqs: array<string> = (array_new 0 "")
     let ok: bool = (pybridge_init reqs false)
     if ok {
-        let handle: int = (pybridge_import "math")
-        let response: string = (pybridge_call handle "sqrt" "[9]" "{}")
+        let mod_handle: int = (pybridge_import "math")
+        let response: string = (pybridge_call mod_handle "sqrt" "[9]" "{}")
         assert (> (str_length response) 0)
         (pybridge_shutdown)
     } else {
@@ -92,9 +92,9 @@ shadow pybridge_call {
     }
 }
 
-pub fn pybridge_get(handle: int, attr: string) -> string {
+pub fn pybridge_get(mod_handle: int, attr: string) -> string {
     unsafe {
-        return (nl_pybridge_get handle attr)
+        return (nl_pybridge_get mod_handle attr)
     }
 }
 
@@ -102,8 +102,8 @@ shadow pybridge_get {
     let reqs: array<string> = (array_new 0 "")
     let ok: bool = (pybridge_init reqs false)
     if ok {
-        let handle: int = (pybridge_import "math")
-        let response: string = (pybridge_get handle "pi")
+        let mod_handle: int = (pybridge_import "math")
+        let response: string = (pybridge_get mod_handle "pi")
         assert (> (str_length response) 0)
         (pybridge_shutdown)
     } else {
@@ -111,9 +111,9 @@ shadow pybridge_get {
     }
 }
 
-pub fn pybridge_set(handle: int, attr: string, value_json: string) -> bool {
+pub fn pybridge_set(mod_handle: int, attr: string, value_json: string) -> bool {
     unsafe {
-        return (!= (nl_pybridge_set handle attr value_json) 0)
+        return (!= (nl_pybridge_set mod_handle attr value_json) 0)
     }
 }
 
@@ -121,8 +121,8 @@ shadow pybridge_set {
     let reqs: array<string> = (array_new 0 "")
     let ok: bool = (pybridge_init reqs false)
     if ok {
-        let handle: int = (pybridge_import "types")
-        let set_ok: bool = (pybridge_set handle "pybridge_test" "123")
+        let mod_handle: int = (pybridge_import "types")
+        let set_ok: bool = (pybridge_set mod_handle "pybridge_test" "123")
         assert set_ok
         (pybridge_shutdown)
     } else {
@@ -130,9 +130,9 @@ shadow pybridge_set {
     }
 }
 
-pub fn pybridge_release(handle: int) -> bool {
+pub fn pybridge_release(mod_handle: int) -> bool {
     unsafe {
-        return (!= (nl_pybridge_release handle) 0)
+        return (!= (nl_pybridge_release mod_handle) 0)
     }
 }
 
@@ -140,8 +140,8 @@ shadow pybridge_release {
     let reqs: array<string> = (array_new 0 "")
     let ok: bool = (pybridge_init reqs false)
     if ok {
-        let handle: int = (pybridge_import "math")
-        let rel_ok: bool = (pybridge_release handle)
+        let mod_handle: int = (pybridge_import "math")
+        let rel_ok: bool = (pybridge_release mod_handle)
         assert rel_ok
         (pybridge_shutdown)
     } else {

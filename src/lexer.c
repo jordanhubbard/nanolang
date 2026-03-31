@@ -58,6 +58,10 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
     if (strcmp(str, "resource") == 0) return TOKEN_RESOURCE;
     if (strcmp(str, "par") == 0) return TOKEN_PAR;
+    if (strcmp(str, "effect") == 0) return TOKEN_EFFECT;
+    if (strcmp(str, "handle") == 0) return TOKEN_HANDLE;
+    if (strcmp(str, "with") == 0) return TOKEN_WITH;
+    if (strcmp(str, "resume") == 0) return TOKEN_RESUME;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -588,6 +592,10 @@ const char *token_type_name(TokenType type) {
         case TOKEN_PIPE: return "PIPE";
         case TOKEN_QUESTION: return "QUESTION";
         case TOKEN_PAR: return "PAR";
+        case TOKEN_EFFECT: return "EFFECT";
+        case TOKEN_HANDLE: return "HANDLE";
+        case TOKEN_WITH: return "WITH";
+        case TOKEN_RESUME: return "RESUME";
         default: return "UNKNOWN";
     }
 }

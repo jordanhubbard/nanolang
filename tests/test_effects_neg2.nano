@@ -1,0 +1,16 @@
+# Test: Unknown effect operation in handler
+
+effect Console {
+    log : string -> void
+}
+
+fn main() -> int {
+    let x = handle {
+        42
+    } with {
+        nonexistent msg -> {
+            (println msg)
+        }
+    }
+    return x
+}

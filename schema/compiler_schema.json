@@ -78,7 +78,12 @@
     "TOKEN_GRAMMAR",
     "TOKEN_LARROW",
     "TOKEN_QUESTION",
-    "TOKEN_PAR"
+    "TOKEN_PAR",
+    "TOKEN_BAR",
+    "TOKEN_EFFECT",
+    "TOKEN_HANDLE",
+    "TOKEN_WITH",
+    "TOKEN_RESUME"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",
@@ -121,7 +126,9 @@
     "PNODE_UNSAFE_BLOCK",
     "PNODE_MODULE_QUALIFIED_CALL",
     "PNODE_GRAMMAR",
-    "PNODE_PAR_BLOCK"
+    "PNODE_PAR_BLOCK",
+    "PNODE_EFFECT_DECL",
+    "PNODE_HANDLE_EXPR"
   ],
   "nano_enums": [
     {

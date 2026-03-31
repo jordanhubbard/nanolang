@@ -194,7 +194,9 @@ typedef enum {
     AST_QUALIFIED_NAME,    /* Qualified name: module::symbol or std::io::read_file */
     AST_UNSAFE_BLOCK,      /* Unsafe block: unsafe { ... } */
     AST_TRY_OP,            /* Postfix ? try operator: expr? */
-    AST_PAR_BLOCK          /* Parallel block: par { let a = ..., let b = ... } */
+    AST_PAR_BLOCK,         /* Parallel block: par { let a = ..., let b = ... } */
+    AST_EFFECT_DECL,       /* Effect declaration: effect IO { print : String -> Unit } */
+    AST_HANDLE_EXPR        /* Handle expression: handle { expr } with { op args -> ... } */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -442,6 +444,29 @@ struct ASTNode {
             ASTNode **bindings;    /* Let-binding statements (AST_LET nodes) */
             int count;             /* Number of bindings */
         } par_block;
+
+        /* Effect declaration: effect IO { print : String -> Unit; read : Unit -> String } */
+        struct {
+            char *effect_name;          /* e.g., "IO" */
+            int op_count;               /* Number of operations */
+            char **op_names;            /* Operation names: ["print", "read"] */
+            Parameter **op_params;      /* Parameter list for each operation */
+            int *op_param_counts;       /* Param count for each operation */
+            Type *op_return_types;      /* Return type for each operation */
+            char **op_return_type_names;/* For struct return types */
+            bool is_pub;
+        } effect_decl;
+
+        /* Handle expression: handle { body } with { print s -> ...; read () -> ... } */
+        struct {
+            ASTNode *body;              /* Expression whose effects are handled */
+            char *effect_name;          /* Which effect this handle block handles (filled by TC) */
+            int handler_count;          /* Number of operation handlers */
+            char **handler_op_names;    /* Operation names being handled */
+            char ***handler_param_names;/* Parameter names for each handler */
+            int *handler_param_counts;  /* Parameter count for each handler */
+            ASTNode **handler_bodies;   /* Handler body expressions */
+        } handle_expr;
     } as;
 };
 
@@ -540,6 +565,24 @@ typedef struct {
     char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
 } OpaqueTypeDef;
 
+/* Effect operation signature */
+typedef struct {
+    char *name;              /* Operation name (e.g., "print") */
+    Parameter *params;       /* Parameters */
+    int param_count;
+    Type return_type;        /* Return type */
+    char *return_type_name;  /* For struct return types */
+} EffectOp;
+
+/* Effect definition entry: effect IO { print : String -> Unit } */
+typedef struct {
+    char *name;              /* Effect name (e.g., "IO") */
+    EffectOp *ops;           /* Operations */
+    int op_count;
+    bool is_pub;
+    char *module_name;       /* Module this effect belongs to (NULL for global) */
+} EffectDef;
+
 /* Constant definition entry (from C headers or nanolang) */
 typedef struct {
     char *name;
@@ -617,6 +660,9 @@ typedef struct {
     OpaqueTypeDef *opaque_types;
     int opaque_type_count;
     int opaque_type_capacity;
+    EffectDef *effects;          /* Registered algebraic effects */
+    int effect_count;
+    int effect_capacity;
     GenericInstantiation *generic_instances;
     int generic_instance_count;
     int generic_instance_capacity;
@@ -724,6 +770,11 @@ UnionDef *env_get_union(Environment *env, const char *name);
 void env_define_opaque_type(Environment *env, const char *name);
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name);
 int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
+
+/* Effect system */
+void env_define_effect(Environment *env, EffectDef effect_def);
+EffectDef *env_get_effect(Environment *env, const char *name);
+EffectOp *effect_get_op(EffectDef *effect, const char *op_name);
 
 /* Utilities */
 Type token_to_type(TokenType token);
