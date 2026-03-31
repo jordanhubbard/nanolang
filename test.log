@@ -1,0 +1,675 @@
+[modules] Generating module index from manifests...
+Generating module index...
+Found 44 module manifests
+  ✓ vector2d
+  ✓ preferences
+  ✓ audio_helpers
+  ✓ tools
+  ✓ pt2_state
+  ✓ ncurses
+  ✓ unicode
+  ✓ pty
+  ✓ pybridge_warp
+  ✓ math_ext
+  ✓ pt2_module
+  ✓ sdl_image
+  ✓ readline
+  ✓ std
+  ✓ log
+  ✓ filesystem
+  ✓ ui_widgets
+  ✓ sqlite
+  ✓ sdl_ttf
+  ✓ uv
+  ✓ curl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ glut
+  ✓ stdio
+  ✓ pybridge_matplotlib
+  ✓ github
+  ✓ http_server
+  ✓ sdl
+  ✓ bullet
+  ✓ audio_viz
+  ✓ stdlib
+  ✓ glew
+  ✓ pt2_audio
+  ✓ forth_see
+  ✓ glfw
+  ✓ sdl_term
+  ✓ event
+  ✓ nano_tools
+  ✓ sdl_helpers
+  ✓ proptest
+  ✓ openai
+  ✓ opengl
+  ✓ sdl_mixer
+
+✓ Generated modules/index.json
+  44 modules indexed
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • transpiler
+  ✅ Stage 3: Bootstrap validated
+
+
+shadow-check: no changed NanoLang files
+userguide-export: wrote snippets to tests/user_guide
+
+🎯 Testing with C REFERENCE compiler (nanoc_c)
+   (Use 'make test-selfhosted' to test with nanoc_stage2)
+
+Running NanoISA tests...
+=== NanoISA Test Suite ===
+
+[ISA]
+  test_tag_names...
+  test_instruction_info...
+  test_opcode_by_name...
+  test_encode_decode_no_operands...
+  test_encode_decode_i64...
+  test_encode_decode_i64_large...
+  test_encode_decode_f64...
+  test_encode_decode_u8...
+  test_encode_decode_u16...
+  test_encode_decode_u32...
+  test_encode_decode_i32...
+  test_encode_decode_multi_operand...
+  test_decode_truncated...
+  test_decode_invalid_opcode...
+  test_encode_all_categories...
+
+[NVM Format]
+  test_crc32...
+  test_module_new_free...
+  test_string_pool...
+  test_function_table...
+  test_code_append...
+  test_serialize_deserialize...
+  test_validate_header...
+  test_corrupt_checksum...
+
+[Assembler]
+  test_asm_simple_program...
+  test_asm_labels_and_jumps...
+  test_asm_all_operand_types...
+  test_asm_error_unknown_opcode...
+  test_asm_error_undefined_label...
+  test_asm_error_missing_end...
+  test_asm_error_instruction_outside_function...
+  test_asm_comments_and_whitespace...
+  test_asm_string_escapes...
+  test_asm_multiple_functions...
+
+[Disassembler]
+  test_disasm_basic...
+  test_disasm_labels...
+
+[Round-Trip]
+  test_roundtrip_assemble_serialize_deserialize_disassemble...
+
+=== Results: 472 passed, 0 failed, 472 total ===
+Running NanoVM tests...
+=== NanoVM Test Suite ===
+
+[Integer Arithmetic]
+  test_push_int_halt...
+  test_add_ints...
+  test_sub_ints...
+  test_mul_ints...
+  test_div_ints...
+  test_div_by_zero...
+  test_mod_ints...
+  test_neg_int...
+
+[Float Arithmetic]
+  test_float_add...
+  test_mixed_int_float_add...
+  test_float_div_by_zero...
+
+[Boolean & Comparison]
+  test_bool_push...
+  test_eq_ints...
+  test_ne_ints...
+  test_lt_ints...
+  test_logic_and...
+  test_logic_not...
+
+[Stack Operations]
+  test_dup...
+  test_swap...
+  test_pop...
+  test_push_void...
+  test_push_u8...
+
+[Local Variables]
+  test_locals...
+
+[Global Variables]
+  test_globals...
+
+[Control Flow]
+  test_jmp...
+  test_jmp_false...
+  test_jmp_true...
+  test_loop...
+
+[Function Calls]
+  test_call_function...
+  test_recursive_factorial...
+
+[Strings]
+  test_push_string...
+  test_string_concat...
+  test_string_len...
+  test_str_from_int...
+
+[Arrays]
+  test_array_literal...
+  test_array_push_get...
+  test_array_len...
+
+[Structs]
+  test_struct_literal...
+  test_struct_set...
+
+[Tuples]
+  test_tuple...
+
+[Enums & Unions]
+  test_enum_val...
+  test_union_construct_tag...
+  test_union_field...
+
+[Hashmaps]
+  test_hashmap_basic...
+  test_hashmap_len...
+
+[Type Casts]
+  test_cast_int_from_float...
+  test_cast_float_from_int...
+  test_cast_bool...
+  test_cast_string...
+
+[Closures]
+  test_closure...
+
+[I/O]
+  test_print...
+  test_assert_pass...
+  test_assert_fail...
+
+[Error Handling]
+  test_type_error_add...
+  test_no_entry_point...
+
+[Stack Trace / Debug Mode]
+  test_stack_trace_debug_mode...
+  test_stack_trace_col...
+
+[Opaque Proxy]
+  test_opaque_null...
+
+[Serialize/Execute Round-trip]
+  test_serialize_execute...
+
+[Complex Programs]
+  test_fibonacci...
+  test_gcd...
+
+[Assembler -> VM Integration]
+  test_assemble_and_run...
+  test_assemble_function_call...
+  test_assemble_loop...
+
+[Cross-Module Linking]
+  test_call_module...
+  test_call_module_bad_idx...
+  test_call_module_chain...
+
+=== Results: 159 passed, 0 failed, 159 total ===
+Running NanoVirt codegen tests...
+
+=== NanoVirt Codegen Tests ===
+
+Integer Arithmetic:
+  test_return_int... ok
+  test_addition... ok
+  test_subtraction... ok
+  test_multiplication... ok
+  test_division... ok
+  test_modulo... ok
+  test_nested_arithmetic... ok
+  test_negation... ok
+
+Variables (let/set):
+  test_let_simple... ok
+  test_set_mutable... ok
+  test_multiple_variables... ok
+  test_set_with_expression... ok
+
+Comparisons:
+  test_comparisons... ok
+
+Boolean/Logic:
+  test_bool_literal... ok
+  test_logic_and... ok
+  test_logic_or... ok
+  test_logic_not... ok
+
+Control Flow:
+  test_if_then_else... ok
+  test_if_else_branch... ok
+  test_nested_if... ok
+  test_while_loop... ok
+  test_while_break... ok
+  test_while_continue... ok
+
+Functions:
+  test_function_call... ok
+  test_function_multiple_calls... ok
+  test_recursion_factorial... ok
+  test_recursion_fibonacci... ok
+  test_function_nested_calls... ok
+
+Strings:
+  test_string_literal... ok
+
+Print/Assert:
+  test_print_int...42 ok
+  test_assert_true... ok
+  test_assert_false... ok
+
+Float:
+  test_float_arithmetic... ok
+
+Selfhost-Style Programs:
+  test_selfhost_arithmetic... ok
+  test_selfhost_let_set... ok
+  test_selfhost_if_else... ok
+  test_selfhost_while... ok
+  test_selfhost_functions... ok
+  test_selfhost_recursion... ok
+
+Array Literals:
+  test_array_literal... ok
+  test_array_length... ok
+  test_array_push... ok
+  test_array_set... ok
+
+Range:
+  test_range_two_args... ok
+  test_for_in_range... ok
+
+Type Cast Builtins:
+  test_int_to_string... ok
+
+Complex Types - Structs:
+  test_struct_literal... ok
+  test_struct_field_access... ok
+
+Complex Types - Tuples:
+  test_tuple_literal... ok
+  test_tuple_index... ok
+
+Complex Types - Enums:
+  test_enum_variant... ok
+
+Complex Types - Unions/Match:
+  test_union_construct_match... ok
+  test_union_match_err_path... ok
+
+Complex Types - Globals:
+  test_global_constant... ok
+
+Higher-Order Functions:
+  test_function_as_value... ok
+  test_filter_builtin... ok
+  test_map_builtin... ok
+
+Closure Captures:
+  test_closure_single_capture... ok
+  test_closure_multiple_captures... ok
+  test_closure_two_closures... ok
+  test_closure_capture_local_var... ok
+
+Round-Trip:
+  test_serialize_and_run... ok
+
+=== Results: 62 passed, 0 failed, 62 total ===
+Running optimizer unit tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -march=native -ftree-vectorize -Isrc -D_GNU_SOURCE -I/opt/homebrew/opt/openssl@3/include -o tests/test_optimizer tests/test_optimizer.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/wasm_backend.o obj/wasm_profiler.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/sign.o obj/ptx_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -L/opt/homebrew/opt/openssl@3/lib
+Optimizer tests
+---------------
+  test_fold_add_ints...                                  PASS
+  test_fold_mul_sub...                                   PASS
+  test_fold_bool_and...                                  PASS
+  test_dce_if_true...                                    PASS
+  test_dce_if_false...                                   PASS
+  test_combined_fold_then_dce...                         PASS
+  test_dce_dead_let...                                   PASS
+  test_fold_unary_minus...                               PASS
+  test_fold_float_lt...                                  PASS
+---------------
+All optimizer tests passed.
+Running WASM profiler unit tests (stub)...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -march=native -ftree-vectorize -Isrc -D_GNU_SOURCE -I/opt/homebrew/opt/openssl@3/include -o tests/test_wasm_profiler tests/test_wasm_profiler.c
+test_wasm_profiler stub: no tests implemented yet.
+Running C unit tests...
+Running transpiler component tests:
+
+StringBuilder Tests:
+  Testing stringbuilder_create... ✓
+  Testing stringbuilder_append_simple... ✓
+  Testing stringbuilder_append_empty... ✓
+  Testing stringbuilder_append_multiple... ✓
+  Testing stringbuilder_large_append... ✓
+  Testing stringbuilder_capacity_growth... ✓
+  Testing stringbuilder_null_termination... ✓
+
+Stdlib Runtime Generation Tests:
+  Testing generate_string_operations... ✓
+  Testing generate_file_operations... ✓
+  Testing generate_dir_operations... ✓
+  Testing generate_path_operations... ✓
+  Testing generate_math_utility_builtins... ✓
+  Testing stdlib_runtime_complete... ✓
+
+Memory Safety Tests:
+  Testing stringbuilder_no_buffer_overflow... ✓
+  Testing stringbuilder_empty_appends... ✓
+
+Integration Tests:
+  Testing generate_all_stdlib_functions... ✓
+
+✓ All 16 tests passed!
+[schema] Regenerating compiler schema artifacts...
+[schema] Compiler schema artifacts are up-to-date.
+
+==========================================
+Running Complete Test Suite
+==========================================
+
+[1m========================================
+NANOLANG COMPREHENSIVE TEST SUITE
+========================================[0m
+Backend: [0;36mc[0m
+
+[0;36m=== CORE LANGUAGE TESTS (nl_*) ===[0m
+
+[1m-- Syntax --[0m
+[0;32m✅[0m nl_syntax_literals.nano
+[0;32m✅[0m nl_syntax_operators.nano
+
+[1m-- Types --[0m
+[0;32m✅[0m nl_types_enum.nano
+[0;32m✅[0m nl_types_struct.nano
+
+[1m-- Control Flow --[0m
+
+[1m-- Functions --[0m
+[0;32m✅[0m nl_functions_filter.nano
+[0;32m✅[0m nl_functions_map_reduce.nano
+
+[0;36mLanguage Tests: [0;32m6 passed[0m, [0;31m0 failed[0m
+
+[0;36m=== APPLICATION TESTS ===[0m
+
+[1m-- Tuple Applications --[0m
+[0;32m✅[0m tuple_advanced.nano
+[0;32m✅[0m tuple_basic.nano
+[0;32m✅[0m tuple_params.nano
+[0;32m✅[0m tuple_typeinfo_test.nano
+
+[1m-- Nested Structures --[0m
+[0;32m✅[0m nested_structs.nano
+[0;32m✅[0m test_nested_3d_simple.nano
+[0;32m✅[0m test_nested_3d.nano
+[0;32m✅[0m test_nested_complex.nano
+[0;32m✅[0m test_nested_debug_root.nano
+[0;32m✅[0m test_nested_gc.nano
+[0;32m✅[0m test_nested_string_concat.nano
+
+[1m-- Other Applications --[0m
+[0;32m✅[0m test_affine_integration.nano
+[0;32m✅[0m test_algebraic_effects.nano
+[0;32m✅[0m test_all_imports.nano
+[0;32m✅[0m test_anonymous_struct_function_args.nano
+[0;32m✅[0m test_anonymous_struct_literal.nano
+[0;32m✅[0m test_array_lit.nano
+[0;32m✅[0m test_array_operators.nano
+[0;32m✅[0m test_array_slice.nano
+[0;32m✅[0m test_array_struct_comprehensive.nano
+[0;32m✅[0m test_async.nano
+[0;32m✅[0m test_boolean_precedence.nano
+[0;32m✅[0m test_break_continue.nano
+[0;32m✅[0m test_break_simple.nano
+[0;32m✅[0m test_bstring.nano
+[0;32m✅[0m test_builtins_phase1.nano
+[0;32m✅[0m test_builtins.nano
+[0;32m✅[0m test_bytes_conversion.nano
+[0;32m✅[0m test_casting.nano
+[0;32m✅[0m test_complex.nano
+[0;32m✅[0m test_concat.nano
+[0;32m✅[0m test_cond_comprehensive.nano
+[0;32m✅[0m test_cond_minimal.nano
+[0;32m✅[0m test_cond_simple.nano
+[0;32m✅[0m test_cond.nano
+[0;32m✅[0m test_coroutine.nano
+[0;32m✅[0m test_driver_hello.nano
+[0;32m✅[0m test_driver_integration.nano
+[0;32m✅[0m test_dynamic_arrays.nano
+[0;34m⊘[0m test_effects_neg2.nano [1;33m(expected failure)[0m
+[0;34m⊘[0m test_effects_negative.nano [1;33m(expected failure)[0m
+./tests/run_all_tests.sh: line 185:  4537 Segmentation fault: 11     perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" > "$log_file" 2>&1
+[0;31m❌[0m test_effects_pub.nano [0;31m(compilation failed)[0m
+[0;31m❌[0m test_effects.nano [0;31m(compilation failed)[0m
+[0;32m✅[0m test_ensures.nano
+[0;32m✅[0m test_env_noassert.nano
+[0;32m✅[0m test_env_simple.nano
+[0;32m✅[0m test_env.nano
+[0;32m✅[0m test_error_messages.nano
+[0;32m✅[0m test_fn_call_assign.nano
+[0;32m✅[0m test_for_in_loops.nano
+[0;32m✅[0m test_for_in_range_scope_bug.nano
+[0;32m✅[0m test_format.nano
+[0;32m✅[0m test_fs_walkdir.nano
+[0;32m✅[0m test_gc_string_leak.nano
+[0;32m✅[0m test_generic_list_struct.nano
+[0;32m✅[0m test_generic_list_workaround.nano
+[0;32m✅[0m test_generic_result.nano
+[0;32m✅[0m test_generic_union_match.nano
+[0;32m✅[0m test_generic_union_non_generic.nano
+[0;32m✅[0m test_generic_union.nano
+[0;32m✅[0m test_hashmap_generic_core.nano
+[0;32m✅[0m test_hashmap_set_advanced.nano
+[0;32m✅[0m test_hello.nano
+[0;32m✅[0m test_higher_order.nano
+[0;32m✅[0m test_hm_inference.nano
+[0;32m✅[0m test_import_aliasing.nano
+[0;32m✅[0m test_infix_operators.nano
+[0;32m✅[0m test_match_guards.nano
+[0;32m✅[0m test_math_complex.nano
+[0;32m✅[0m test_math_vector3d.nano
+[0;32m✅[0m test_math_vector4d.nano
+[0;32m✅[0m test_matrix4.nano
+[0;32m✅[0m test_minimal.nano
+[0;32m✅[0m test_module_introspection_exports.nano
+[0;32m✅[0m test_module_introspection_import.nano
+[0;32m✅[0m test_module_introspection_simple.nano
+[0;32m✅[0m test_module_introspection.nano
+[0;32m✅[0m test_module_qualified_comprehensive.nano
+[0;32m✅[0m test_module_qualified_struct.nano
+[0;32m✅[0m test_module_struct_qualification.nano
+[0;32m✅[0m test_module_system.nano
+[0;32m✅[0m test_module_visibility.nano
+[0;32m✅[0m test_namespace_basic.nano
+[0;32m✅[0m test_namespace_syntax.nano
+[0;32m✅[0m test_namespace_transpiler.nano
+[0;32m✅[0m test_nested.nano
+[0;32m✅[0m test_opaque_basic.nano
+[0;32m✅[0m test_opl_cases_runner.nano
+[0;32m✅[0m test_opl_compile_golden.nano
+[0;32m✅[0m test_par_blocks.nano
+[0;32m✅[0m test_par_let.nano
+[0;32m✅[0m test_path_ops_v2.nano
+[0;32m✅[0m test_path_ops.nano
+[0;31m❌[0m test_pretty_printer.nano [0;31m(compilation failed)[0m
+[0;32m✅[0m test_process.nano
+[0;32m✅[0m test_profile.nano
+[0;32m✅[0m test_proptest.nano
+[0;32m✅[0m test_pub_extern_fn.nano
+[0;32m✅[0m test_pybridge_full.nano
+[0;32m✅[0m test_pybridge_matplotlib_smoke.nano
+[0;32m✅[0m test_pybridge_smoke.nano
+[0;32m✅[0m test_qualified_names.nano
+[0;32m✅[0m test_qualified_type_simple.nano
+[0;32m✅[0m test_quaternion.nano
+[0;32m✅[0m test_requires.nano
+[0;32m✅[0m test_resource_double_close.nano
+[0;32m✅[0m test_resource_syntax.nano
+[0;32m✅[0m test_resource_tracking.nano
+[0;32m✅[0m test_resource_use_after_consume.nano
+[0;32m✅[0m test_resource_valid_use.nano
+[0;32m✅[0m test_result_basic.nano
+[0;32m✅[0m test_result_let.nano
+[0;32m✅[0m test_result_syntax.nano
+[0;31m❌[0m test_row_poly.nano [0;31m(compilation failed)[0m
+[0;32m✅[0m test_setenv_shadow.nano
+[0;32m✅[0m test_setenv_simple.nano
+[0;32m✅[0m test_shadow_scope_redefinition.nano
+[0;32m✅[0m test_simple_constant.nano
+[0;32m✅[0m test_simple_if.nano
+[0;32m✅[0m test_simple_math_introspection.nano
+[0;32m✅[0m test_split2.nano
+[0;32m✅[0m test_standalone_if_comprehensive.nano
+[0;32m✅[0m test_std_collections.nano
+[0;32m✅[0m test_std_fs_simple.nano
+[0;32m✅[0m test_std_fs.nano
+[0;32m✅[0m test_std_json.nano
+[0;32m✅[0m test_std_lib_collections.nano
+[0;32m✅[0m test_std_math_extended_full.nano
+[0;32m✅[0m test_std_math_extended.nano
+[0;32m✅[0m test_std_modules_env_fs_binary.nano
+[0;32m✅[0m test_std_modules_env_process_fs_binary.nano
+[0;32m✅[0m test_std_modules_simple.nano
+[0;32m✅[0m test_std_peg.nano
+[0;32m✅[0m test_std_regex_groups_uaf.nano
+[0;32m✅[0m test_stdlib_arrays.nano
+[0;32m✅[0m test_stdlib_coverage.nano
+[0;32m✅[0m test_stdlib_namespaces.nano
+[0;32m✅[0m test_stdlib_result.nano
+[0;32m✅[0m test_stdlib_strings.nano
+[0;32m✅[0m test_string_plus_nested.nano
+[0;32m✅[0m test_string_plus.nano
+[0;32m✅[0m test_struct_string_corruption.nano
+[0;32m✅[0m test_tmp_files.nano
+[0;32m✅[0m test_top_level_constants.nano
+[0;32m✅[0m test_types_comprehensive.nano
+[0;32m✅[0m test_u8_basic.nano
+[0;32m✅[0m test_unary_operators.nano
+[0;32m✅[0m test_unsafe_basic.nano
+[0;32m✅[0m test_unsafe_required.nano
+[0;32m✅[0m test_unsafe_syntax.nano
+[0;32m✅[0m test_vector2d.nano
+[0;32m✅[0m test_vector3d.nano
+[0;32m✅[0m test_vector4d.nano
+[0;32m✅[0m test_walkdir.nano
+
+[0;36mApplication Tests: [0;32m148 passed[0m, [0;31m4 failed[0m
+
+[0;36m=== USER GUIDE SNIPPETS ===[0m
+
+[0;32m✅[0m ug_canonical_arrays.nano
+[0;32m✅[0m ug_canonical_cond.nano
+[0;32m✅[0m ug_canonical_enum.nano
+[0;32m✅[0m ug_canonical_fn.nano
+[0;32m✅[0m ug_canonical_for.nano
+[0;32m✅[0m ug_canonical_if.nano
+[0;32m✅[0m ug_canonical_prefix.nano
+[0;32m✅[0m ug_canonical_strings.nano
+[0;32m✅[0m ug_canonical_struct.nano
+[0;32m✅[0m ug_canonical_while.nano
+[0;32m✅[0m ug_control_flow_cond.nano
+[0;32m✅[0m ug_control_flow_for.nano
+[0;32m✅[0m ug_control_flow_if.nano
+[0;32m✅[0m ug_control_flow_loops.nano
+[0;32m✅[0m ug_fn_contracts_combined.nano
+[0;32m✅[0m ug_fn_ensures_basic.nano
+[0;32m✅[0m ug_fn_requires_basic.nano
+[0;32m✅[0m ug_fstring_arg.nano
+[0;31m❌[0m ug_fstring_basic.nano [0;31m(compilation failed)[0m
+[0;31m❌[0m ug_fstring_exprs.nano [0;31m(compilation failed)[0m
+[0;32m✅[0m ug_getting_started_arithmetic.nano
+[0;32m✅[0m ug_getting_started_hello.nano
+[0;32m✅[0m ug_modules_std_json.nano
+[0;32m✅[0m ug_patterns_builtin_map_reduce.nano
+[0;32m✅[0m ug_patterns_first_class.nano
+[0;32m✅[0m ug_patterns_fold.nano
+[0;32m✅[0m ug_patterns_logging_trace_coverage.nano
+[0;32m✅[0m ug_patterns_match_union.nano
+[0;32m✅[0m ug_patterns_unsafe_extern.nano
+[0;32m✅[0m ug_types_arrays.nano
+[0;32m✅[0m ug_types_bools.nano
+[0;32m✅[0m ug_types_enums.nano
+[0;32m✅[0m ug_types_generics.nano
+[0;32m✅[0m ug_types_hashmap.nano
+[0;32m✅[0m ug_types_strings.nano
+[0;32m✅[0m ug_types_structs.nano
+[0;32m✅[0m ug_types_tuples.nano
+
+[0;36mUser Guide Snippets: [0;32m183 passed[0m, [0;31m6 failed[0m
+
+[0;36m=== UNIT TESTS ===[0m
+
+[0;32m✅[0m test_control_flow.nano
+[0;32m✅[0m test_enums_comprehensive.nano
+[0;32m✅[0m test_firstclass_functions.nano
+[0;32m✅[0m test_firstclass_simple.nano
+[0;32m✅[0m test_for_list.nano
+[0;31m❌[0m test_fstring_comprehensive.nano [0;31m(compilation failed)[0m
+[0;32m✅[0m test_generics_comprehensive.nano
+[0;32m✅[0m test_lambdas.nano
+[0;32m✅[0m test_match_wildcard.nano
+[0;32m✅[0m test_operators_comprehensive.nano
+[0;32m✅[0m test_pipe_operator.nano
+[0;32m✅[0m test_profile_runtime.nano
+[0;32m✅[0m test_stdlib_comprehensive.nano
+[0;32m✅[0m test_string_interpolation.nano
+[0;32m✅[0m test_tuple_destructuring.nano
+[0;32m✅[0m test_type_inference.nano
+[0;32m✅[0m test_unions_match_comprehensive.nano
+
+[0;36mUnit Tests: [0;32m16 passed[0m, [0;31m1 failed[0m
+
+[0;36m=== INTEGRATION TESTS ===[0m
+
+[0;32m✅[0m --llm-diags-json (error)
+[0;32m✅[0m --llm-diags-json (success)
+[0;32m✅[0m --llm-diags-toon (error)
+[0;32m✅[0m --llm-diags-toon (success)
+
+[0;36mIntegration Tests: [0;32m4 passed[0m, [0;31m0 failed[0m
+
+[1m========================================
+TEST RESULTS SUMMARY
+========================================[0m
+
+Core Language (nl_*):  [0;32m6 passed[0m, [0;31m0 failed[0m
+Application Tests:     [0;32m183 passed[0m, [0;31m6 failed[0m
+Unit Tests:            [0;32m16 passed[0m, [0;31m1 failed[0m
+
+TOTAL: [0;32m209 passed[0m, [0;31m7 failed[0m, [0;34m2 skipped[0m
+
+[0;31m❌ Some tests failed[0m
+make[1]: *** [test-impl] Error 1
+make: *** [test] Error 2

@@ -319,6 +319,8 @@ struct ASTNode {
             bool is_extern;  /* Mark external C functions */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            char **effect_names;  /* Effect annotations on function type */
+            int effect_count;
         } function;
         struct {
             char *function_name;
@@ -474,6 +476,9 @@ struct ASTNode {
             Type *op_return_types;      /* Return type for each operation */
             char **op_return_type_names;/* For struct return types */
             bool is_pub;
+            /* Row-poly / branch-compat fields */
+            Type *op_param_types;       /* Simplified per-op param type (branch compat) */
+            char **op_param_type_names; /* Simplified per-op param type name (branch compat) */
         } effect_decl;
 
         /* Handle expression: handle { body } with { print s -> ...; read () -> ... } */
@@ -489,12 +494,6 @@ struct ASTNode {
 
         /* ── Row-poly / effect extension union fields ─────────────────────── */
 
-        /* AST_PAR_LET: parallel let bindings */
-        struct {
-            ASTNode **bindings;
-            int       count;
-        } par_let;
-
         /* AST_EFFECT_HANDLER: extended handle expression (row-poly compat) */
         struct {
             ASTNode  *body;
@@ -502,6 +501,7 @@ struct ASTNode {
             char    **handler_op_names;
             char    **handler_param_names;
             int       handler_count;
+            char     *effect_name;  /* resolved effect name (filled by typechecker) */
         } effect_handler;
 
         /* AST_EFFECT_OP: perform Foo.op arg */

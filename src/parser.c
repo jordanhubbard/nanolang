@@ -5777,15 +5777,18 @@ void free_ast(ASTNode *node) {
         case AST_EFFECT_DECL:
             free(node->as.effect_decl.effect_name);
             for (int i = 0; i < node->as.effect_decl.op_count; i++) {
-                free(node->as.effect_decl.op_names[i]);
-                free(node->as.effect_decl.op_params[i]);
-                free(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_names) free(node->as.effect_decl.op_names[i]);
+                if (node->as.effect_decl.op_params) free(node->as.effect_decl.op_params[i]);
+                if (node->as.effect_decl.op_return_type_names) free(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_param_type_names) free(node->as.effect_decl.op_param_type_names[i]);
             }
             free(node->as.effect_decl.op_names);
             free(node->as.effect_decl.op_params);
             free(node->as.effect_decl.op_param_counts);
             free(node->as.effect_decl.op_return_types);
             free(node->as.effect_decl.op_return_type_names);
+            free(node->as.effect_decl.op_param_types);
+            free(node->as.effect_decl.op_param_type_names);
             break;
         case AST_HANDLE_EXPR:
             free_ast(node->as.handle_expr.body);
@@ -5939,23 +5942,6 @@ void free_ast(ASTNode *node) {
             if (node->as.match_expr.union_type_name) {
                 free(node->as.match_expr.union_type_name);
             }
-            break;
-        case AST_EFFECT_DECL:
-            free(node->as.effect_decl.effect_name);
-            for (int i = 0; i < node->as.effect_decl.op_count; i++) {
-                free(node->as.effect_decl.op_names[i]);
-                if (node->as.effect_decl.op_param_type_names)
-                    free(node->as.effect_decl.op_param_type_names[i]);
-                if (node->as.effect_decl.op_return_type_names)
-                    free(node->as.effect_decl.op_return_type_names[i]);
-            }
-            free(node->as.effect_decl.op_names);
-            free(node->as.effect_decl.op_param_types);
-            free(node->as.effect_decl.op_return_types);
-            if (node->as.effect_decl.op_param_type_names)
-                free(node->as.effect_decl.op_param_type_names);
-            if (node->as.effect_decl.op_return_type_names)
-                free(node->as.effect_decl.op_return_type_names);
             break;
         case AST_EFFECT_HANDLER:
             free_ast(node->as.effect_handler.body);
