@@ -1,52 +1,73 @@
-# Test: Algebraic Effect System
-# Exercises effect declarations, handle expressions, and effect resolution.
+/* test_effects.nano — Algebraic effect system tests */
 
-# ── Effect declarations ──────────────────────────────────────────────────
+/* ── Effect declarations ─────────────────────────────────────────────── */
 
 effect Console {
-    log : string -> void
+    print : string -> void,
+    read  : string -> string
 }
 
-effect State {
-    get : int -> int
-    put : int -> void
+effect Counter {
+    tick  : int -> void,
+    total : int -> int
 }
 
-# ── Handle expressions ──────────────────────────────────────────────────
+/* ── Functions that perform effects ──────────────────────────────────── */
 
-fn test_basic_handle() -> int {
-    let result = handle {
-        42
-    } with {
-        log msg -> {
-            (println msg)
+fn greet(name: string) -> void {
+    perform Console.print(name)
+}
+
+fn count_up(n: int) -> void {
+    let mut i = 0
+    while (< i n) {
+        perform Counter.tick(i)
+        set i (+ i 1)
+    }
+}
+
+fn emit_hello() -> void {
+    perform Console.print("hello effects")
+}
+
+/* ── Tests ───────────────────────────────────────────────────────────── */
+
+shadow greet {
+    /* Handler intercepts Console.print and records the argument */
+    let mut captured = ""
+    handle (greet "world") with {
+        Console.print(s) -> {
+            set captured s
         }
     }
-    return result
+    assert (== captured "world")
 }
 
-fn test_state_handle() -> int {
-    let result = handle {
-        100
-    } with {
-        get x -> {
-            return 0
-        }
-        put val -> {
-            (println "state updated")
+shadow count_up {
+    /* Handler intercepts Counter.tick and counts invocations */
+    let mut ticks = 0
+    handle (count_up 3) with {
+        Counter.tick(v) -> {
+            set ticks (+ ticks 1)
         }
     }
-    return result
+    assert (== ticks 3)
+}
+
+shadow emit_hello {
+    /* Handler intercepts Console.print from emit_hello */
+    let mut result = ""
+    handle (emit_hello) with {
+        Console.print(s) -> {
+            set result s
+        }
+    }
+    assert (== result "hello effects")
 }
 
 fn main() -> int {
-    let x = (test_basic_handle)
-    (println "basic handle returned:")
-    (println (cast_string x))
-
-    let y = (test_state_handle)
-    (println "state handle returned:")
-    (println (cast_string y))
-
+    (println "Effect system: declarations parsed, handlers registered.")
     return 0
 }
+
+shadow main { assert true }

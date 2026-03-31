@@ -4366,6 +4366,40 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
     #undef EMIT_EXTERN_DECL
 }
 
+/* Generate no-op stubs for nl_perform_EffectName_OpName().
+ * These allow effect-using programs to compile through the C path even though
+ * full CPS effect dispatch is only implemented in the interpreter. */
+static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
+    if (!program || program->type != AST_PROGRAM) return;
+    sb_append(sb, "/* ── Algebraic effect perform stubs (interpreter dispatches at runtime) ── */\n");
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (!item || item->type != AST_EFFECT_DECL) continue;
+        const char *eff = item->as.effect_decl.effect_name;
+        if (!eff) continue;
+        for (int j = 0; j < item->as.effect_decl.op_count; j++) {
+            const char *op   = item->as.effect_decl.op_names[j];
+            Type ptype       = item->as.effect_decl.op_param_types[j];
+            Type rtype       = item->as.effect_decl.op_return_types[j];
+            const char *cpt  = type_to_c(ptype);
+            const char *crt  = type_to_c(rtype);
+            /* Param: if void, emit no argument */
+            if (rtype == TYPE_VOID || rtype == TYPE_UNKNOWN) {
+                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
+                    sb_appendf(sb, "static void nl_perform_%s_%s(void) { /* effect stub */ }\n", eff, op);
+                else
+                    sb_appendf(sb, "static void nl_perform_%s_%s(%s _arg) { (void)_arg; /* effect stub */ }\n", eff, op, cpt);
+            } else {
+                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
+                    sb_appendf(sb, "static %s nl_perform_%s_%s(void) { %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, crt);
+                else
+                    sb_appendf(sb, "static %s nl_perform_%s_%s(%s _arg) { (void)_arg; %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, cpt, crt);
+            }
+        }
+    }
+    sb_append(sb, "\n");
+}
+
 /* Transpile program to C */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
     if (!program || program->type != AST_PROGRAM) {
@@ -4485,7 +4519,10 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     /* Generate extern function declarations */
     generate_extern_declarations(sb, program, env);
-    
+
+    /* Generate nl_perform_* stubs for algebraic effect operations */
+    generate_effect_perform_stubs(sb, program);
+
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env);
 

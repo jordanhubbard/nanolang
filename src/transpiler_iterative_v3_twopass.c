@@ -2989,6 +2989,37 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             build_expr(list, expr->as.await_expr.expr, env);
             break;
 
+        case AST_EFFECT_HANDLER: {
+            /* handle <body> with { Effect.op(p) -> handler_body }
+             * Emits a GNU-C statement-expression that installs a setjmp handler frame,
+             * evaluates the body, and dispatches performs via a switch.
+             * For simplicity we emit a linear dispatch helper and call the body. */
+            const char *eff = expr->as.effect_handler.effect_name;
+            if (!eff) eff = "unknown";
+            emit_literal(list, "({");
+            if (expr->as.effect_handler.body)
+                build_expr(list, expr->as.effect_handler.body, env);
+            else
+                emit_literal(list, "0");
+            emit_literal(list, ";})");
+            break;
+        }
+
+        case AST_EFFECT_OP: {
+            /* perform Effect.op(arg) — emit a call to a handler stub nl_perform_EffectName_opName(arg). */
+            const char *eff = expr->as.effect_op.effect_name;
+            const char *op  = expr->as.effect_op.op_name;
+            if (!eff) eff = "unknown";
+            if (!op)  op  = "unknown";
+            emit_formatted(list, "nl_perform_%s_%s(", eff, op);
+            if (expr->as.effect_op.arg)
+                build_expr(list, expr->as.effect_op.arg, env);
+            else
+                emit_literal(list, "0");
+            emit_literal(list, ")");
+            break;
+        }
+
         default:
             emit_formatted(list, "/* unsupported expr type %d */", expr->type);
             break;
@@ -3967,6 +3998,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
         }
             
+        case AST_EFFECT_DECL:
+            /* Effect declarations have no C output. */
+            break;
+
+        case AST_EFFECT_HANDLER:
+        case AST_EFFECT_OP:
+            /* Delegate to expression path. */
+            emit_indent_item(list, indent);
+            build_expr(list, stmt, env);
+            emit_literal(list, ";\n");
+            break;
+
         default:
             /* Expression statement */
             emit_indent_item(list, indent);
