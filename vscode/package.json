@@ -24,6 +24,32 @@
         "path": "./syntaxes/nanolang.tmLanguage.json"
       }
     ],
+    "commands": [
+      {
+        "command": "nanolang.format",
+        "title": "Format Nanolang File",
+        "category": "Nanolang"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "function":    ["entity.name.function.nanolang"],
+          "variable":    ["variable.other.nanolang"],
+          "parameter":   ["variable.parameter.nanolang"],
+          "type":        ["entity.name.type.nanolang"],
+          "struct":      ["entity.name.type.struct.nanolang"],
+          "keyword":     ["keyword.control.nanolang"],
+          "string":      ["string.quoted.double.nanolang"],
+          "number":      ["constant.numeric.nanolang"],
+          "operator":    ["keyword.operator.nanolang"],
+          "namespace":   ["entity.name.namespace.nanolang"],
+          "enumMember":  ["variable.other.enummember.nanolang"],
+          "comment":     ["comment.line.nanolang"],
+          "property":    ["variable.other.property.nanolang"]
+        }
+      }
+    ],
     "configuration": {
       "title": "Nanolang",
       "properties": {
@@ -37,6 +63,11 @@
           "default": "nano-fmt",
           "description": "Path to the nano-fmt binary (used for format on save)"
         },
+        "nanolang.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run nano-fmt on save (requires nanolang.fmtPath to be set)"
+        },
         "nanolang.trace.server": {
           "type": "string",
           "enum": ["off", "messages", "verbose"],
@@ -49,12 +80,15 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "vscode:prepublish": "npm run compile"
+    "vscode:prepublish": "npm run compile",
+    "package": "npm run compile && vsce package --no-dependencies",
+    "publish": "npm run compile && vsce publish --no-dependencies"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.24.0"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.0"

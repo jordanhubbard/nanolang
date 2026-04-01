@@ -1741,13 +1741,11 @@ examples-beads-ci:
 # VS Code extension
 vscode-ext:
 	@echo "Building VS Code extension..."
-	@cd vscode && npm install && npm run compile
-	@if command -v vsce >/dev/null 2>&1; then \
-		cd vscode && npx vsce package; \
-		echo "Extension packaged: vscode/nanolang-*.vsix"; \
-	else \
-		echo "vsce not found — skipping .vsix packaging (run 'npm install -g @vscode/vsce' to package)"; \
-	fi
+	@cd vscode && npm install
+	@cd vscode && npm run compile
+	@cd vscode && npm run package
+	@echo "Extension packaged: vscode/nanolang-*.vsix"
+	@echo "Install with: code --install-extension vscode/nanolang-*.vsix"
 
 # Directory creation
 $(OBJ_DIR):
