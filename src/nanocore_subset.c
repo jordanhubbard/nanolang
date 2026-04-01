@@ -370,6 +370,12 @@ static SubsetResult check_subset(ASTNode *node, Environment *env) {
         /* ── Par block: check each binding ── */
         case AST_PAR_BLOCK:
             return check_subset_list(node->as.par_block.bindings, node->as.par_block.count, env);
+        case AST_PAR_LET: {
+            SubsetResult r = ok_result();
+            for (int i = 0; i < node->as.par_let.count; i++)
+                r = merge_results(r, check_subset(node->as.par_let.values[i], env));
+            return merge_results(r, check_subset(node->as.par_let.body, env));
+        }
 
         /* ── Shadow tests: transparent (check inner body) ── */
         case AST_SHADOW:

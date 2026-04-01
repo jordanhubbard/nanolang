@@ -341,6 +341,8 @@ struct ASTNode {
             bool is_extern;  /* Mark external C functions */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
+            int   effect_count;
         } function;
         struct {
             char *function_name;
@@ -477,6 +479,7 @@ struct ASTNode {
             int count;             /* Number of bindings */
         } par_block;
 
+
         /* Effect declaration: effect IO { print : String -> Unit; read : Unit -> String } */
         struct {
             char *effect_name;          /* e.g., "IO" */
@@ -487,6 +490,9 @@ struct ASTNode {
             Type *op_return_types;      /* Return type for each operation */
             char **op_return_type_names;/* For struct return types */
             bool is_pub;
+            /* Alternative simple-type layout (used by parse_effect_def) */
+            Type  *op_param_types;      /* Simplified: one param type per op */
+            char **op_param_type_names; /* Struct/union name overrides for params */
         } effect_decl;
 
         /* Handle expression: handle { body } with { print s -> ...; read () -> ... } */
@@ -502,15 +508,19 @@ struct ASTNode {
 
         /* ── Row-poly / effect extension union fields ─────────────────────── */
 
-        /* AST_PAR_LET: parallel let bindings */
+        /* AST_PAR_LET: parallel let bindings (extended form with names/values/body) */
         struct {
-            ASTNode **bindings;
-            int       count;
+            char    **names;       /* Binding names */
+            ASTNode **values;      /* Binding value expressions */
+            int       count;       /* Number of bindings */
+            ASTNode  *body;        /* Body expression evaluated after 'in' */
+            bool     *independent; /* Per-binding independence flag (set by par_let_pass) */
         } par_let;
 
         /* AST_EFFECT_HANDLER: extended handle expression (row-poly compat) */
         struct {
             ASTNode  *body;
+            char     *effect_name;         /* Which effect is being handled */
             ASTNode **handler_bodies;
             char    **handler_op_names;
             char    **handler_param_names;
@@ -584,6 +594,10 @@ typedef struct {
     bool requires_manual_free;   /* True if return value needs explicit free (e.g., opaque handles) */
     bool returns_borrowed;       /* True if return is borrowed ref (e.g., Json.get) - don't wrap/free */
     char *cleanup_function;      /* Name of cleanup function if requires_manual_free (e.g., "regex_free") */
+
+    /* Algebraic effects this function may perform */
+    char **effect_names;
+    int    effect_count;
 } Function;
 
 /* Struct definition entry */
@@ -759,6 +773,9 @@ typedef struct {
     const char *profile_flamegraph_path; /* --profile-runtime <path>: write flamegraph .nano.prof (NULL = <input>.nano.prof) */
     bool suppress_shadow_warnings;  /* Suppress missing shadow test warnings (for test harnesses) */
     bool gpu_target;               /* --target ptx: suppress main() requirement and shadow warnings */
+
+    /* Algebraic effects registry (opaque pointer; cast to EffectRegistry* in effects.c) */
+    void *effect_registry;
 } Environment;
 
 /* Function declarations */

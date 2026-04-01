@@ -3202,6 +3202,64 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             int column = tok->column;
             advance(p);
 
+            /* Check for par-let syntax: par-let x=e1\ny=e2\nin body
+             * Lexed as: TOKEN_PAR TOKEN_MINUS TOKEN_LET bindings... TOKEN_IN body */
+            if (match(p, TOKEN_MINUS)) {
+                Token *next_after_minus = peek_token(p, 1);
+                if (next_after_minus && next_after_minus->token_type == TOKEN_LET) {
+                    advance(p); /* consume '-' */
+                    advance(p); /* consume 'let' */
+
+                    int capacity = 8, count = 0;
+                    char **names = malloc(sizeof(char *) * capacity);
+                    ASTNode **values = malloc(sizeof(ASTNode *) * capacity);
+
+                    while (!match(p, TOKEN_IN) && !match(p, TOKEN_EOF)) {
+                        if (count >= capacity) {
+                            capacity *= 2;
+                            names = realloc(names, sizeof(char *) * capacity);
+                            values = realloc(values, sizeof(ASTNode *) * capacity);
+                        }
+                        if (!match(p, TOKEN_IDENTIFIER)) {
+                            parser_error(p, line, column,
+                                "Error at line %d, column %d: Expected identifier in par-let binding\n",
+                                line, column);
+                            for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                            free(names); free(values);
+                            return NULL;
+                        }
+                        char *bname = strdup(current_token(p)->value);
+                        advance(p);
+                        if (!expect(p, TOKEN_ASSIGN, "Expected '=' in par-let binding")) {
+                            free(bname);
+                            for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                            free(names); free(values);
+                            return NULL;
+                        }
+                        ASTNode *val = parse_expression(p);
+                        names[count] = bname;
+                        values[count] = val;
+                        count++;
+                    }
+
+                    if (!expect(p, TOKEN_IN, "Expected 'in' after par-let bindings")) {
+                        for (int i = 0; i < count; i++) { free(names[i]); free_ast(values[i]); }
+                        free(names); free(values);
+                        return NULL;
+                    }
+
+                    ASTNode *body = parse_expression(p);
+
+                    node = create_node(AST_PAR_LET, line, column);
+                    node->as.par_let.names = names;
+                    node->as.par_let.values = values;
+                    node->as.par_let.count = count;
+                    node->as.par_let.body = body;
+                    node->as.par_let.independent = NULL; /* set by par_let_pass */
+                    return node;
+                }
+            }
+
             if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'par'")) {
                 return NULL;
             }
@@ -3256,6 +3314,174 @@ static ASTNode *parse_statement(Stage1Parser *p) {
         default: {
             /* Special handling for print/println statements: print expr or println expr */
             if (tok->token_type == TOKEN_IDENTIFIER) {
+                /* ── perform Effect.op(arg) ───────────────────────────── */
+                if (strcmp(tok->value, "perform") == 0) {
+                    int line   = tok->line;
+                    int column = tok->column;
+                    advance(p);  /* consume "perform" */
+
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        parser_error(p, line, column,
+                            "Error at line %d, column %d: Expected effect name after 'perform'\n",
+                            line, column);
+                        return NULL;
+                    }
+                    char *eff_name = strdup(current_token(p)->value);
+                    advance(p);
+
+                    if (!expect(p, TOKEN_DOT, "Expected '.' after effect name in 'perform'")) {
+                        free(eff_name);
+                        return NULL;
+                    }
+
+                    if (!match(p, TOKEN_IDENTIFIER)) {
+                        parser_error(p, line, column,
+                            "Error at line %d, column %d: Expected operation name after '.'\n",
+                            line, column);
+                        free(eff_name);
+                        return NULL;
+                    }
+                    char *op_name = strdup(current_token(p)->value);
+                    advance(p);
+
+                    /* argument in parens: op(arg)  or no-arg: op() */
+                    ASTNode *arg = NULL;
+                    if (match(p, TOKEN_LPAREN)) {
+                        advance(p);  /* consume ( */
+                        if (!match(p, TOKEN_RPAREN)) {
+                            arg = parse_expression(p);
+                        }
+                        if (!expect(p, TOKEN_RPAREN, "Expected ')' after perform argument")) {
+                            free(eff_name); free(op_name);
+                            if (arg) free_ast(arg);
+                            return NULL;
+                        }
+                    }
+
+                    ASTNode *perf = create_node(AST_EFFECT_OP, line, column);
+                    perf->as.effect_op.effect_name = eff_name;
+                    perf->as.effect_op.op_name     = op_name;
+                    perf->as.effect_op.arg         = arg;
+                    return perf;
+                }
+
+                /* ── handle expr with { Effect.op(binding) -> body } ── */
+                if (strcmp(tok->value, "handle") == 0) {
+                    int line   = tok->line;
+                    int column = tok->column;
+                    advance(p);  /* consume "handle" */
+
+                    ASTNode *body = parse_expression(p);
+                    if (!body) {
+                        parser_error(p, line, column,
+                            "Error at line %d, column %d: Expected expression after 'handle'\n",
+                            line, column);
+                        return NULL;
+                    }
+
+                    /* "with" keyword */
+                    if (!match(p, TOKEN_IDENTIFIER) ||
+                        strcmp(current_token(p)->value, "with") != 0) {
+                        parser_error(p, line, column,
+                            "Error at line %d, column %d: Expected 'with' after handle expression\n",
+                            line, column);
+                        free_ast(body);
+                        return NULL;
+                    }
+                    advance(p);  /* consume "with" */
+
+                    if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'with'")) {
+                        free_ast(body);
+                        return NULL;
+                    }
+
+                    int hcap = 4, hcount = 0;
+                    char     *effect_name   = NULL;
+                    char    **hop_names     = malloc(sizeof(char *)    * (size_t)hcap);
+                    char    **hparam_names  = calloc((size_t)hcap, sizeof(char *));
+                    ASTNode **hbodies       = malloc(sizeof(ASTNode *) * (size_t)hcap);
+
+                    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+                        if (hcount >= hcap) {
+                            hcap *= 2;
+                            hop_names    = realloc(hop_names,    sizeof(char *)    * (size_t)hcap);
+                            hparam_names = realloc(hparam_names, sizeof(char *)    * (size_t)hcap);
+                            hbodies      = realloc(hbodies,      sizeof(ASTNode *) * (size_t)hcap);
+                        }
+
+                        /* Effect.op(binding) -> body */
+                        if (!match(p, TOKEN_IDENTIFIER)) {
+                            parser_error(p, current_token(p)->line, current_token(p)->column,
+                                "Error at line %d, column %d: Expected effect name in handler arm\n",
+                                current_token(p)->line, current_token(p)->column);
+                            break;
+                        }
+                        char *arm_eff = strdup(current_token(p)->value);
+                        advance(p);
+
+                        if (!effect_name)
+                            effect_name = arm_eff;
+                        else
+                            free(arm_eff);
+
+                        if (!expect(p, TOKEN_DOT, "Expected '.' in handler arm")) break;
+
+                        if (!match(p, TOKEN_IDENTIFIER)) {
+                            parser_error(p, current_token(p)->line, current_token(p)->column,
+                                "Error at line %d, column %d: Expected operation name in handler arm\n",
+                                current_token(p)->line, current_token(p)->column);
+                            break;
+                        }
+                        hop_names[hcount] = strdup(current_token(p)->value);
+                        advance(p);
+
+                        /* (binding) */
+                        hparam_names[hcount] = NULL;
+                        if (match(p, TOKEN_LPAREN)) {
+                            advance(p);  /* consume ( */
+                            if (match(p, TOKEN_IDENTIFIER)) {
+                                hparam_names[hcount] = strdup(current_token(p)->value);
+                                advance(p);
+                            }
+                            if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding name")) break;
+                        }
+
+                        if (!expect(p, TOKEN_ARROW, "Expected '->' in handler arm")) break;
+
+                        /* arm body */
+                        ASTNode *arm_body;
+                        if (match(p, TOKEN_LBRACE))
+                            arm_body = parse_block(p);
+                        else
+                            arm_body = parse_expression(p);
+                        hbodies[hcount] = arm_body;
+                        hcount++;
+
+                        if (match(p, TOKEN_COMMA)) advance(p);
+                    }
+
+                    if (!expect(p, TOKEN_RBRACE, "Expected '}' after handler arms")) {
+                        if (effect_name) free(effect_name);
+                        for (int i = 0; i < hcount; i++) {
+                            free(hop_names[i]);
+                            if (hparam_names[i]) free(hparam_names[i]);
+                            if (hbodies[i]) free_ast(hbodies[i]);
+                        }
+                        free(hop_names); free(hparam_names); free(hbodies);
+                        free_ast(body);
+                        return NULL;
+                    }
+
+                    ASTNode *hnd = create_node(AST_EFFECT_HANDLER, line, column);
+                    hnd->as.effect_handler.body               = body;
+                    hnd->as.effect_handler.effect_name        = effect_name;
+                    hnd->as.effect_handler.handler_op_names   = hop_names;
+                    hnd->as.effect_handler.handler_param_names = hparam_names;
+                    hnd->as.effect_handler.handler_bodies     = hbodies;
+                    hnd->as.effect_handler.handler_count      = hcount;
+                    return hnd;
+                }
+
                 if (strcmp(tok->value, "print") == 0 || strcmp(tok->value, "println") == 0) {
                     int line = tok->line;
                     int column = tok->column;
@@ -4632,6 +4858,27 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
         }
     }
 
+    /* Parse optional ! EffectName effect annotations */
+    char **effect_names = NULL;
+    int effect_count = 0;
+    int effect_capacity = 0;
+    while (match(p, TOKEN_NOT)) {
+        Token *bang = current_token(p);
+        advance(p);  /* consume '!' */
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            parser_error(p, bang->line, bang->column,
+                         "Error at line %d, column %d: Expected effect name after '!'\n",
+                         bang->line, bang->column);
+            break;
+        }
+        if (effect_count >= effect_capacity) {
+            effect_capacity = effect_capacity ? effect_capacity * 2 : 4;
+            effect_names = realloc(effect_names, sizeof(char *) * (size_t)effect_capacity);
+        }
+        effect_names[effect_count++] = strdup(current_token(p)->value);
+        advance(p);
+    }
+
     ASTNode **preconditions = NULL;
     int precondition_count = 0;
     int precondition_capacity = 0;
@@ -4764,6 +5011,8 @@ static ASTNode *parse_function(Stage1Parser *p, bool is_extern, bool is_pub) {
     node->as.function.body = body;
     node->as.function.is_extern = is_extern;
     node->as.function.is_pub = is_pub;
+    node->as.function.effect_names = effect_names;
+    node->as.function.effect_count = effect_count;
     return node;
 }
 
@@ -5421,6 +5670,11 @@ void free_ast(ASTNode *node) {
             if (node->as.function.body) {  /* Extern functions have no body */
                 free_ast(node->as.function.body);
             }
+            if (node->as.function.effect_names) {
+                for (int i = 0; i < node->as.function.effect_count; i++)
+                    free(node->as.function.effect_names[i]);
+                free(node->as.function.effect_names);
+            }
             break;
         case AST_SHADOW:
             free(node->as.shadow.function_name);
@@ -5513,6 +5767,16 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.par_block.bindings[i]);
             }
             free(node->as.par_block.bindings);
+            break;
+        case AST_PAR_LET:
+            for (int i = 0; i < node->as.par_let.count; i++) {
+                free(node->as.par_let.names[i]);
+                free_ast(node->as.par_let.values[i]);
+            }
+            free(node->as.par_let.names);
+            free(node->as.par_let.values);
+            if (node->as.par_let.independent) free(node->as.par_let.independent);
+            free_ast(node->as.par_let.body);
             break;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++) {
@@ -5628,6 +5892,11 @@ void free_ast(ASTNode *node) {
             if (node->as.match_expr.union_type_name) {
                 free(node->as.match_expr.union_type_name);
             }
+            break;
+        case AST_EFFECT_OP:
+            free(node->as.effect_op.effect_name);
+            free(node->as.effect_op.op_name);
+            if (node->as.effect_op.arg) free_ast(node->as.effect_op.arg);
             break;
         default:
             break;

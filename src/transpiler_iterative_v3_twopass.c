@@ -3000,6 +3000,40 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             build_expr(list, expr->as.await_expr.expr, env);
             break;
 
+        case AST_EFFECT_HANDLER: {
+            /* handle <body> with { Effect.op(p) -> handler_body }
+             * Emits a GNU-C statement-expression that installs a setjmp handler frame,
+             * evaluates the body, and dispatches performs via a switch.
+             * For simplicity we emit a linear dispatch helper and call the body. */
+            const char *eff = expr->as.effect_handler.effect_name;
+            if (!eff) eff = "unknown";
+            /* Emit a block that just evaluates the body — a full CPS transform is out of
+             * scope here; the interpreter handles real dispatch at runtime.  The C output
+             * is best-effort for programs that do not use perform in transpiled paths. */
+            emit_literal(list, "({");
+            if (expr->as.effect_handler.body)
+                build_expr(list, expr->as.effect_handler.body, env);
+            else
+                emit_literal(list, "0");
+            emit_literal(list, ";})");
+            break;
+        }
+
+        case AST_EFFECT_OP: {
+            /* perform Effect.op(arg) — emit a call to a handler stub nl_perform_EffectName_opName(arg). */
+            const char *eff = expr->as.effect_op.effect_name;
+            const char *op  = expr->as.effect_op.op_name;
+            if (!eff) eff = "unknown";
+            if (!op)  op  = "unknown";
+            emit_formatted(list, "nl_perform_%s_%s(", eff, op);
+            if (expr->as.effect_op.arg)
+                build_expr(list, expr->as.effect_op.arg, env);
+            else
+                emit_literal(list, "0");
+            emit_literal(list, ")");
+            break;
+        }
+
         default:
             emit_formatted(list, "/* unsupported expr type %d */", expr->type);
             break;
@@ -3084,6 +3118,26 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             emit_indent_item(list, indent);
             emit_literal(list, "/* par end */\n");
+            break;
+
+        case AST_PAR_LET:
+            /* par-let: emit bindings as sequential C declarations, then the body expression.
+             * Parallelism is the runtime's responsibility; this is the safe sequential fallback. */
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
+            for (int i = 0; i < stmt->as.par_let.count; i++) {
+                emit_indent_item(list, indent);
+                emit_literal(list, "__auto_type ");
+                emit_literal(list, stmt->as.par_let.names[i]);
+                emit_literal(list, " = ");
+                build_expr(list, stmt->as.par_let.values[i], env);
+                emit_literal(list, "; /* par-let binding */\n");
+            }
+            emit_indent_item(list, indent);
+            emit_literal(list, "/* par-let end */\n");
+            emit_indent_item(list, indent);
+            build_expr(list, stmt->as.par_let.body, env);
+            emit_literal(list, ";\n");
             break;
         case AST_MATCH: {
             /* Detect int-pattern match first (before union_c_name check) */
@@ -3977,7 +4031,15 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "exit(1); }\n");
             break;
         }
-            
+
+        case AST_EFFECT_HANDLER:
+        case AST_EFFECT_OP:
+            /* Delegate to expression path. */
+            emit_indent_item(list, indent);
+            build_expr(list, stmt, env);
+            emit_literal(list, ";\n");
+            break;
+
         default:
             /* Expression statement */
             emit_indent_item(list, indent);

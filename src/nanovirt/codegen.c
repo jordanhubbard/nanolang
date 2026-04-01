@@ -2443,6 +2443,18 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         break;
     }
 
+    case AST_PAR_LET: {
+        /* par-let: bindings evaluated sequentially, then body (result discarded as stmt) */
+        for (int i = 0; i < node->as.par_let.count; i++) {
+            compile_expr(cg, node->as.par_let.values[i]);
+            uint16_t slot = local_add(cg, node->as.par_let.names[i], node->line);
+            emit_op(cg, OP_STORE_LOCAL, (int)slot);
+        }
+        compile_expr(cg, node->as.par_let.body);
+        emit_op(cg, OP_POP);
+        break;
+    }
+
     default:
         cg_error(cg, node->line, "unsupported AST node type %d in statement position", node->type);
         break;

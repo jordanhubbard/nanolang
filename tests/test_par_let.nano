@@ -1,0 +1,63 @@
+# test_par_let.nano
+# Tests for par-let: concurrent evaluation semantics for independent let bindings.
+
+fn fib(n: int) -> int {
+    if n <= 1 {
+        return n
+    } else {
+        return (fib (n - 1)) + (fib (n - 2))
+    }
+}
+
+# Test 1: Basic par-let — two independent bindings used in body
+fn test_basic() -> int {
+    par-let
+        x = 1 + 2
+        y = 3 * 4
+    in
+        (println (x + y))
+    return 0
+}
+
+# Test 2: Fibonacci pair — canonical par-let use case
+fn test_fib_pair() -> int {
+    par-let
+        a = (fib 10)
+        b = (fib 11)
+    in
+        (println (a + b))
+    return 0
+}
+
+# Test 3: Three independent bindings
+fn test_three_bindings() -> int {
+    par-let
+        p = 6 * 7
+        q = 100 + 200
+        r = 1000 - 1
+    in
+        (println (p + q + r))
+    return 0
+}
+
+# Test 4: Nested par-let — outer scope reference in bindings
+fn test_nested(base: int) -> int {
+    par-let
+        doubled = base * 2
+        tripled = base * 3
+    in
+        (println (doubled + tripled))
+    return 0
+}
+
+fn main() -> int {
+    (print "test_basic: ")
+    (test_basic)
+    (print "test_fib_pair: ")
+    (test_fib_pair)
+    (print "test_three_bindings: ")
+    (test_three_bindings)
+    (print "test_nested(10): ")
+    (test_nested 10)
+    return 0
+}

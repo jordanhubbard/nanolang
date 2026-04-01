@@ -1394,7 +1394,7 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
             if (ctx->effect_registry && eff_name && op_name) {
                 EffectDecl *decl = effect_lookup(ctx->effect_registry, eff_name);
                 if (decl) {
-                    EffectOp *op2 = effect_op_lookup(decl, op_name);
+                    EffectSysOp *op2 = effect_op_lookup(decl, op_name);
                     if (op2)
                         return type_from_ast_type(ctx, op2->return_type,
                                                    op2->return_type_name);
@@ -1581,17 +1581,16 @@ bool hm_infer_program_with_effects(ASTNode *program, const char *source_file,
     for (int i = 0; i < reg->count; i++) {
         EffectDecl *d = &reg->decls[i];
         for (int j = 0; j < d->op_count; j++) {
-            EffectOp *op = &d->ops[j];
+            EffectSysOp *op = &d->ops[j];
             /* Build qualified name "EffectName.opName" */
             size_t qname_len = strlen(d->name) + strlen(op->name) + 2;
             char  *qname     = malloc(qname_len);
             if (!qname) continue;
             snprintf(qname, qname_len, "%s.%s", d->name, op->name);
 
-            /* EffectOp.params is a Parameter[] array; take first param or void */
-            HMType *param_t = (op->param_count > 0 && op->params)
-                ? type_from_ast_type(ctx, op->params[0].type,
-                                          op->params[0].struct_type_name)
+            /* EffectSysOp.param_type is a single Type value */
+            HMType *param_t = (op->param_type != TYPE_VOID)
+                ? type_from_ast_type(ctx, op->param_type, op->param_type_name)
                 : hm_con_type(ctx, "void");
             HMType *ret_t    = type_from_ast_type(ctx, op->return_type,
                                                    op->return_type_name);

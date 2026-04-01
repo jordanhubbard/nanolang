@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"
 #include "colors.h"
@@ -102,6 +103,44 @@ static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info) {
     }
 
     return out;
+}
+
+/* Helper: Recursively check if an AST expression references a given variable name.
+ * Used by par-let dependency validation to detect cross-binding references. */
+static bool ast_references_name(ASTNode *node, const char *name) {
+    if (!node || !name) return false;
+    switch (node->type) {
+        case AST_IDENTIFIER:
+            return strcmp(node->as.identifier, name) == 0;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++)
+                if (ast_references_name(node->as.prefix_op.args[i], name)) return true;
+            return false;
+        case AST_CALL:
+            for (int i = 0; i < node->as.call.arg_count; i++)
+                if (ast_references_name(node->as.call.args[i], name)) return true;
+            return false;
+        case AST_IF:
+            return ast_references_name(node->as.if_stmt.condition, name) ||
+                   ast_references_name(node->as.if_stmt.then_branch, name) ||
+                   ast_references_name(node->as.if_stmt.else_branch, name);
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++)
+                if (ast_references_name(node->as.block.statements[i], name)) return true;
+            return false;
+        case AST_FIELD_ACCESS:
+            return ast_references_name(node->as.field_access.object, name);
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++)
+                if (ast_references_name(node->as.array_literal.elements[i], name)) return true;
+            return false;
+        case AST_LET:
+            return ast_references_name(node->as.let.value, name);
+        case AST_RETURN:
+            return ast_references_name(node->as.return_stmt.value, name);
+        default:
+            return false;
+    }
 }
 
 /* Helper: Check if symbol was explicitly imported via selective import */
@@ -1716,8 +1755,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
 
-            /* Check argument count (-1 = variadic, skip check) */
-            if (func->param_count != -1 && expr->as.call.arg_count != func->param_count) {
+            /* Check argument count */
+            if (expr->as.call.arg_count != func->param_count) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Function `%s` expects %d argument(s), but got %d.",
@@ -2410,11 +2449,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * Spread literals ({..base, overrides}) supply missing fields from
              * the spread source, so the explicit field_count may be less than
              * sdef->field_count; skip the arity check in that case. */
-            /* Type-check the spread source so the variable is marked as used */
-            if (expr->as.struct_literal.spread_source) {
-                check_expression(expr->as.struct_literal.spread_source, env);
-            }
-
             if (!expr->as.struct_literal.spread_source &&
                 expr->as.struct_literal.field_count != sdef->field_count) {
                 char hint[512];
@@ -3146,12 +3180,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return udef->variant_field_types[ok_idx][0];
         }
 
-        case AST_EFFECT_OP:
-            /* perform Effect.op arg — typecheck arg, return void */
-            if (expr->as.effect_op.arg)
-                check_expression(expr->as.effect_op.arg, env);
-            return TYPE_VOID;
-
         case AST_HANDLE_EXPR: {
             /* handle { body } with { op args -> handler_body ... }
              *
@@ -3240,6 +3268,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         case AST_AWAIT:
             /* await expr: transparent in typechecker — returns the type of the inner expression */
             return check_expression_impl(expr->as.await_expr.expr, env);
+
+        case AST_EFFECT_DECL:
+            return TYPE_VOID;
+
+        case AST_EFFECT_HANDLER: {
+            if (expr->as.effect_handler.body)
+                check_expression(expr->as.effect_handler.body, env);
+            /* Type-check handler arm bodies with the param pre-defined. */
+            for (int i = 0; i < expr->as.effect_handler.handler_count; i++) {
+                int saved_sym = env ? env->symbol_count : 0;
+                const char *param = expr->as.effect_handler.handler_param_names
+                                    ? expr->as.effect_handler.handler_param_names[i]
+                                    : NULL;
+                if (param && param[0] != '\0' && env) {
+                    Value dummy = {0};
+                    env_define_var(env, param, TYPE_UNKNOWN, false, dummy);
+                }
+                if (expr->as.effect_handler.handler_bodies[i])
+                    check_expression(expr->as.effect_handler.handler_bodies[i], env);
+                if (env) env->symbol_count = saved_sym;
+            }
+            return TYPE_VOID;
+        }
+
+        case AST_EFFECT_OP: {
+            if (expr->as.effect_op.arg)
+                check_expression(expr->as.effect_op.arg, env);
+            return TYPE_VOID;
+        }
 
         default:
             fprintf(stderr, "Error at line %d, column %d: Invalid expression type\n", expr->line, expr->column);
@@ -3913,19 +3970,95 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
+        case AST_PAR_LET: {
+            int n = stmt->as.par_let.count;
+            if (n == 0) return TYPE_VOID;
+            if (n == 1) {
+                fprintf(stderr, "Warning at line %d, column %d: par-let with a single binding; consider using regular let\n",
+                        stmt->line, stmt->column);
+            }
+            /* Validate: no binding may reference a sibling binding (would create a data dependency) */
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (j == i) continue;
+                    if (ast_references_name(stmt->as.par_let.values[i], stmt->as.par_let.names[j])) {
+                        fprintf(stderr, "Error at line %d, column %d: par-let binding '%s' depends on sibling binding '%s' — use sequential let for dependent bindings\n",
+                                stmt->line, stmt->column,
+                                stmt->as.par_let.names[i], stmt->as.par_let.names[j]);
+                        return TYPE_VOID;
+                    }
+                }
+            }
+            /* Type-check each binding's RHS independently (siblings not yet in scope) */
+            for (int i = 0; i < n; i++) {
+                Type t = check_expression(stmt->as.par_let.values[i], tc->env);
+                /* Register binding in environment with inferred type */
+                Value dummy = create_void();
+                env_define_var_with_type_info(tc->env, stmt->as.par_let.names[i],
+                    t, TYPE_UNKNOWN, NULL, false, dummy);
+            }
+            /* Type-check body with all bindings in scope */
+            return check_expression(stmt->as.par_let.body, tc->env);
+        }
+
         case AST_UNSAFE_BLOCK: {
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
             tc->in_unsafe_block = true;
-            
+
             /* Type check all statements in the unsafe block */
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
                 check_statement(tc, stmt->as.unsafe_block.statements[i]);
             }
-            
+
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
             return TYPE_VOID;
+        }
+
+        case AST_EFFECT_DECL:
+            /* Already registered in the first pass — nothing to type-check here */
+            return TYPE_VOID;
+
+        case AST_EFFECT_HANDLER: {
+            /* Type-check the body expression */
+            if (stmt->as.effect_handler.body)
+                check_statement(tc, stmt->as.effect_handler.body);
+            /* Type-check each handler arm body.
+             * Pre-define the arm's parameter so the body can reference it. */
+            for (int i = 0; i < stmt->as.effect_handler.handler_count; i++) {
+                int saved_sym = tc->env ? tc->env->symbol_count : 0;
+                const char *param = stmt->as.effect_handler.handler_param_names
+                                    ? stmt->as.effect_handler.handler_param_names[i]
+                                    : NULL;
+                if (param && param[0] != '\0' && tc->env) {
+                    Value dummy = {0};
+                    env_define_var(tc->env, param, TYPE_UNKNOWN, false, dummy);
+                }
+                if (stmt->as.effect_handler.handler_bodies[i])
+                    check_statement(tc, stmt->as.effect_handler.handler_bodies[i]);
+                /* Remove the temp param binding */
+                if (tc->env) tc->env->symbol_count = saved_sym;
+            }
+            return TYPE_VOID;
+        }
+
+        case AST_EFFECT_OP: {
+            /* Validate that the effect exists (if registry is available) */
+            if (tc->env) {
+                EffectDecl *decl = env_effect_lookup(tc->env,
+                                        stmt->as.effect_op.effect_name);
+                if (!decl && stmt->as.effect_op.effect_name) {
+                    /* effect not yet registered — may be declared later; just warn */
+                    fprintf(stderr,
+                        "Warning at line %d: Unknown effect '%s' (may not be declared yet)\n",
+                        stmt->line, stmt->as.effect_op.effect_name);
+                }
+            }
+            /* Type-check the argument */
+            if (stmt->as.effect_op.arg)
+                check_expression(stmt->as.effect_op.arg, tc->env);
+            return TYPE_VOID;  /* return type depends on op — use void as conservative */
         }
 
         case AST_IF: {
@@ -4188,16 +4321,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
         }
 
-        case AST_EFFECT_DECL:
-            /* Already registered in pass 1 — nothing to do here */
-            return TYPE_VOID;
-
-        case AST_EFFECT_OP:
-            /* perform Effect.op arg — type-check arg, return void for now */
-            if (stmt->as.effect_op.arg)
-                check_expression(stmt->as.effect_op.arg, tc->env);
-            return TYPE_VOID;
-
         case AST_HANDLE_EXPR:
             /* handle expression used as a statement — typecheck it */
             check_expression(stmt, tc->env);
@@ -4296,9 +4419,7 @@ static const char *builtin_function_names[] = {
     "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
     "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
     "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
-    "nl_list_Token_free",
-    /* Coroutine runtime */
-    "coro_spawn", "coro_yield", "coro_done", "coro_result", "scheduler_run", "scheduler_step"
+    "nl_list_Token_free"
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
@@ -5352,74 +5473,6 @@ static void register_builtin_functions(Environment *env) {
     func.shadow_test = NULL;
     func.is_extern = false;
     env_define_function(env, func);
-
-    /* ── Coroutine runtime builtins ───────────────────────────────── */
-
-    /* coro_spawn(fn, args...) -> int (coroutine handle) — variadic, accept any arg count */
-    func.name = "coro_spawn";
-    func.params = NULL;
-    func.param_count = -1;   /* variadic: -1 = typechecker skips arity check */
-    func.return_type = TYPE_INT;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
-
-    /* coro_yield() -> void — suspend current coroutine */
-    func.name = "coro_yield";
-    func.params = NULL;
-    func.param_count = 0;
-    func.return_type = TYPE_VOID;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
-
-    /* coro_done(handle: int) -> bool */
-    func.name = "coro_done";
-    func.params = NULL;
-    func.param_count = 1;
-    func.return_type = TYPE_BOOL;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
-
-    /* coro_result(handle: int) -> int (actual type depends on async fn) */
-    func.name = "coro_result";
-    func.params = NULL;
-    func.param_count = 1;
-    func.return_type = TYPE_INT;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
-
-    /* scheduler_run() -> void — drain all pending coroutines */
-    func.name = "scheduler_run";
-    func.params = NULL;
-    func.param_count = 0;
-    func.return_type = TYPE_VOID;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
-
-    /* scheduler_step() -> bool — run one scheduler step */
-    func.name = "scheduler_step";
-    func.params = NULL;
-    func.param_count = 0;
-    func.return_type = TYPE_BOOL;
-    func.return_type_info = NULL;
-    func.body = NULL;
-    func.shadow_test = NULL;
-    func.is_extern = false;
-    env_define_function(env, func);
 }
 
 /* Check if two functions have matching signatures */
@@ -5852,10 +5905,15 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             item = item->as.async_fn.function;
             /* fall through to function registration below */
             goto register_function_pass1;
+        } else if (item->type == AST_EFFECT_DECL) {
+            /* Register algebraic effect in the environment's effect registry */
+            env_effect_register(env, item);
+
+
         } else if (item->type == AST_FUNCTION) {
 register_function_pass1:;
             const char *func_name = item->as.function.name;
-            
+
             /* Check if function name collides with built-in (but allow extern functions) */
             if (!item->as.function.is_extern && is_builtin_name(func_name)) {
                 fprintf(stderr, "Error at line %d, column %d: Cannot redefine built-in function '%s'\n",
@@ -5950,11 +6008,6 @@ register_function_pass1:;
             func.return_type = return_type;
             func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
-            /* Propagate return type variable name for generic return type resolution */
-            if (func.return_type == TYPE_UNKNOWN)
-                func.return_type_name = item->as.function.return_type_name;
-            else
-                func.return_type_name = NULL;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
             func.return_type_info = item->as.function.return_type_info;  /* Store tuple type info for TYPE_TUPLE returns */
             func.body = item->as.function.body;

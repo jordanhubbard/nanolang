@@ -368,6 +368,12 @@ static const char *find_identifier_at(ASTNode *node, int line, int col) {
         case AST_PAR_BLOCK:
             return check_children(node->as.par_block.bindings,
                                   node->as.par_block.count, line, col);
+        case AST_PAR_LET: {
+            const char *id = check_children(node->as.par_let.values,
+                                            node->as.par_let.count, line, col);
+            if (id) return id;
+            return find_identifier_at(node->as.par_let.body, line, col);
+        }
 
         case AST_COND: {
             const char *id = check_children(node->as.cond_expr.conditions,
