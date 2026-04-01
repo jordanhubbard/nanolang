@@ -1,0 +1,115 @@
+/* Test: or-patterns in match expressions (A | B => body) */
+
+/* Test 1: basic or-pattern on a 3-variant union */
+union Shape {
+    Circle { radius: int },
+    Square { side: int },
+    Triangle { base: int }
+}
+
+fn classify_shape(s: Shape) -> string {
+    match s {
+        Circle | Square => {
+            return "round-or-four-sided"
+        }
+        Triangle(t) => {
+            return "three-sided"
+        }
+    }
+    return "unreachable"
+}
+
+shadow classify_shape {
+    assert true
+}
+
+/* Test 2: or-pattern with wildcard fallback */
+union Color {
+    Red {},
+    Green {},
+    Blue {},
+    Yellow {}
+}
+
+fn is_primary(c: Color) -> bool {
+    match c {
+        Red | Green | Blue => {
+            return true
+        }
+        _ => {
+            return false
+        }
+    }
+    return false
+}
+
+shadow is_primary {
+    assert true
+}
+
+/* Test 3: or-pattern for error handling */
+union Result {
+    Ok { value: int },
+    NotFound {},
+    Timeout {}
+}
+
+fn is_error(r: Result) -> bool {
+    match r {
+        Ok(v) => {
+            return false
+        }
+        NotFound | Timeout => {
+            return true
+        }
+    }
+    return false
+}
+
+shadow is_error {
+    assert true
+}
+
+/* Test 4: two-variant or-pattern exhausts a 2-variant union */
+union Direction {
+    Left {},
+    Right {}
+}
+
+fn dir_label(d: Direction) -> string {
+    match d {
+        Left | Right => {
+            return "horizontal"
+        }
+    }
+    return "unreachable"
+}
+
+shadow dir_label {
+    assert true
+}
+
+fn main() -> int {
+    let c: Shape = Shape.Circle { radius: 1 }
+    let sq: Shape = Shape.Square { side: 2 }
+    let tri: Shape = Shape.Triangle { base: 3 }
+    assert (== (classify_shape c) "round-or-four-sided")
+    assert (== (classify_shape sq) "round-or-four-sided")
+    assert (== (classify_shape tri) "three-sided")
+
+    let r2: Color = Color.Red {}
+    let y2: Color = Color.Yellow {}
+    assert (is_primary r2)
+    assert (not (is_primary y2))
+
+    let ok2: Result = Result.Ok { value: 1 }
+    let nf2: Result = Result.NotFound {}
+    assert (not (is_error ok2))
+    assert (is_error nf2)
+
+    return 0
+}
+
+shadow main {
+    assert true
+}

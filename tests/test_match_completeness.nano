@@ -1,0 +1,92 @@
+/* Test: match completeness — guard clauses, wildcards, integer patterns */
+
+union Status {
+    Active {},
+    Inactive {},
+    Pending {}
+}
+
+/* Test wildcard match */
+fn status_label(s: Status) -> string {
+    match s {
+        Active(a) => {
+            return "active"
+        }
+        _ => {
+            return "other"
+        }
+    }
+    return "unreachable"
+}
+
+shadow status_label {
+    assert true
+}
+
+/* Test integer pattern match */
+fn int_label(n: int) -> string {
+    match n {
+        1 => {
+            return "one"
+        }
+        2 => {
+            return "two"
+        }
+        _ => {
+            return "other"
+        }
+    }
+    return "unreachable"
+}
+
+shadow int_label {
+    assert true
+}
+
+/* Test guard clause match */
+union Num {
+    Val { n: int }
+}
+
+fn classify_num(x: Num) -> string {
+    match x {
+        Val(v) if (> v.n 0) => {
+            return "positive"
+        }
+        Val(v) if (< v.n 0) => {
+            return "negative"
+        }
+        _ => {
+            return "zero"
+        }
+    }
+    return "unreachable"
+}
+
+shadow classify_num {
+    assert true
+}
+
+fn main() -> int {
+    let a: Status = Status.Active {}
+    let i: Status = Status.Inactive {}
+    assert (== (status_label a) "active")
+    assert (== (status_label i) "other")
+
+    assert (== (int_label 1) "one")
+    assert (== (int_label 2) "two")
+    assert (== (int_label 5) "other")
+
+    let pos: Num = Num.Val { n: 42 }
+    let neg: Num = Num.Val { n: -1 }
+    let zer: Num = Num.Val { n: 0 }
+    assert (== (classify_num pos) "positive")
+    assert (== (classify_num neg) "negative")
+    assert (== (classify_num zer) "zero")
+
+    return 0
+}
+
+shadow main {
+    assert true
+}

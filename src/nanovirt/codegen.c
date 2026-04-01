@@ -1954,21 +1954,58 @@ static void compile_expr(CG *cg, ASTNode *node) {
             const char *variant = node->as.match_expr.pattern_variants[i];
             const char *binding = node->as.match_expr.pattern_bindings[i];
 
-            /* DUP the union value for tag check */
-            emit_op(cg, OP_DUP);
-            emit_op(cg, OP_UNION_TAG);
+            uint32_t jf_instr, jf_off;
 
-            /* Push variant index */
-            int16_t vi = 0;
-            if (ud) {
-                vi = union_variant_index(ud, variant);
+            if (strncmp(variant, "OR:", 3) == 0) {
+                /* Or-pattern: split alternatives, emit chain of checks */
+                char or_buf[512]; strncpy(or_buf, variant + 3, sizeof(or_buf)-1); or_buf[sizeof(or_buf)-1]='\0';
+                char *alts[64]; int n_alts = 0;
+                char *tok = strtok(or_buf, ":"); while (tok && n_alts < 64) { alts[n_alts++] = tok; tok = strtok(NULL, ":"); }
+
+                /* For each alt except last: DUP UNION_TAG PUSH vi EQ JMP_TRUE body, then continue to next alt */
+                uint32_t body_patch_offs[64];
+                uint32_t body_patch_instrs[64];
+                int n_body_patches = 0;
+                for (int ai = 0; ai < n_alts - 1; ai++) {
+                    int16_t vi_alt = ud ? union_variant_index(ud, alts[ai]) : (int16_t)ai;
+                    emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                    emit_op(cg, OP_PUSH_I64, (int64_t)vi_alt); emit_op(cg, OP_EQ);
+                    uint32_t jt_instr = cg->code_size;
+                    uint32_t jt_off = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
+                    if (n_body_patches < 64) {
+                        body_patch_offs[n_body_patches] = jt_off + 1;
+                        body_patch_instrs[n_body_patches] = jt_instr;
+                        n_body_patches++;
+                    }
+                }
+                /* Last alt: DUP UNION_TAG PUSH vi EQ JMP_FALSE to next */
+                int16_t vi_last = ud ? union_variant_index(ud, alts[n_alts-1]) : (int16_t)(n_alts-1);
+                emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                emit_op(cg, OP_PUSH_I64, (int64_t)vi_last); emit_op(cg, OP_EQ);
+                jf_instr = cg->code_size;
+                jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+
+                /* Patch all JMP_TRUE targets to here (body start, after JMP_FALSE) */
+                for (int bp = 0; bp < n_body_patches; bp++) {
+                    patch_jump(cg, body_patch_offs[bp], body_patch_instrs[bp], cg->code_size);
+                }
+            } else {
+                /* DUP the union value for tag check */
+                emit_op(cg, OP_DUP);
+                emit_op(cg, OP_UNION_TAG);
+
+                /* Push variant index */
+                int16_t vi = 0;
+                if (ud) {
+                    vi = union_variant_index(ud, variant);
+                }
+                emit_op(cg, OP_PUSH_I64, (int64_t)vi);
+                emit_op(cg, OP_EQ);
+
+                /* Jump to next arm if not matching */
+                jf_instr = cg->code_size;
+                jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
             }
-            emit_op(cg, OP_PUSH_I64, (int64_t)vi);
-            emit_op(cg, OP_EQ);
-
-            /* Jump to next arm if not matching */
-            uint32_t jf_instr = cg->code_size;
-            uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
 
             /* Match succeeded: bind the entire union to the pattern variable
              * so v.value / v.error etc. can access variant fields via UNION_FIELD */

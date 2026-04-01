@@ -4391,6 +4391,46 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
                 if (guard_exprs[count]) free_ast(guard_exprs[count]);
                 break;
             }
+        } else if (match(p, TOKEN_BAR)) {
+            /* Or-pattern: A | B | C => { body }  — no binding, encode as "OR:A:B:C" */
+            char or_buf[512];
+            snprintf(or_buf, sizeof(or_buf), "OR:%s", pattern_variants[count]);
+            free(pattern_variants[count]);
+            while (match(p, TOKEN_BAR)) {
+                advance(p);  /* consume | */
+                if (!match(p, TOKEN_IDENTIFIER)) {
+                    parser_error(p, current_token(p)->line, current_token(p)->column,
+                        "Error at line %d, column %d: Expected variant name after '|' in or-pattern\n",
+                        current_token(p)->line, current_token(p)->column);
+                    break;
+                }
+                size_t remaining = sizeof(or_buf) - strlen(or_buf) - 1;
+                strncat(or_buf, ":", remaining);
+                remaining = sizeof(or_buf) - strlen(or_buf) - 1;
+                strncat(or_buf, current_token(p)->value, remaining);
+                advance(p);
+            }
+            pattern_variants[count] = strdup(or_buf);
+            pattern_bindings[count] = strdup("_");
+
+            /* Optional guard: if <expr> */
+            if (match(p, TOKEN_IF)) {
+                advance(p);
+                guard_exprs[count] = parse_expression(p);
+                if (!guard_exprs[count]) {
+                    free(pattern_variants[count]);
+                    free(pattern_bindings[count]);
+                    break;
+                }
+            }
+
+            /* Expect arrow */
+            if (!expect(p, TOKEN_ARROW, "Expected '=>' after or-pattern in match")) {
+                free(pattern_variants[count]);
+                free(pattern_bindings[count]);
+                if (guard_exprs[count]) free_ast(guard_exprs[count]);
+                break;
+            }
         } else {
             /* Normal arm: VariantName(binding) => { body } */
 

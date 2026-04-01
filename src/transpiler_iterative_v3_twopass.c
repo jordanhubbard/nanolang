@@ -2784,6 +2784,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         emit_literal(list, "if (!_matched && _m == ");
                         emit_literal(list, variant_name + 4);
                         emit_literal(list, ") { ");
+                    } else if (strncmp(variant_name, "OR:", 3) == 0) {
+                        /* Or-pattern expr (guard mode): emit _m.tag == A || _m.tag == B */
+                        char or_copy_g[512]; strncpy(or_copy_g, variant_name + 3, sizeof(or_copy_g)-1); or_copy_g[sizeof(or_copy_g)-1]='\0';
+                        char *alts_g[64]; int n_alts_g = 0;
+                        char *tok_og = strtok(or_copy_g, ":"); while (tok_og && n_alts_g < 64) { alts_g[n_alts_g++] = tok_og; tok_og = strtok(NULL, ":"); }
+                        emit_literal(list, "if (!_matched && (");
+                        for (int oi = 0; oi < n_alts_g; oi++) {
+                            if (oi > 0) emit_literal(list, " || ");
+                            emit_literal(list, "_m.tag == nl_"); emit_literal(list, union_c_name);
+                            emit_literal(list, "_TAG_"); emit_literal(list, alts_g[oi]);
+                        }
+                        emit_literal(list, ")) { ");
                     } else {
                         emit_literal(list, "if (!_matched && _m.tag == nl_");
                         emit_literal(list, union_c_name);
@@ -2923,6 +2935,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             }
                         }
 
+                        emit_literal(list, "break; } ");
+                    } else if (strncmp(variant_name, "OR:", 3) == 0) {
+                        /* Or-pattern expr (no guard): emit fall-through cases */
+                        char or_copy[512]; strncpy(or_copy, variant_name + 3, sizeof(or_copy)-1); or_copy[sizeof(or_copy)-1]='\0';
+                        char *alts_expr[64]; int n_alts_expr = 0;
+                        char *tok_oe = strtok(or_copy, ":"); while (tok_oe && n_alts_expr < 64) { alts_expr[n_alts_expr++] = tok_oe; tok_oe = strtok(NULL, ":"); }
+                        for (int oi = 0; oi < n_alts_expr - 1; oi++) {
+                            emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
+                            emit_literal(list, "_TAG_"); emit_literal(list, alts_expr[oi]); emit_literal(list, ": ");
+                        }
+                        emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
+                        emit_literal(list, "_TAG_"); emit_literal(list, alts_expr[n_alts_expr-1]); emit_literal(list, ": { ");
+                        if (arm_body) {
+                            if (arm_body->type == AST_BLOCK) {
+                                for (int j = 0; j < arm_body->as.block.count; j++) {
+                                    ASTNode *s = arm_body->as.block.statements[j];
+                                    if (s && s->type == AST_RETURN && s->as.return_stmt.value) {
+                                        emit_literal(list, "_out = "); build_expr(list, s->as.return_stmt.value, env); emit_literal(list, "; "); break;
+                                    }
+                                }
+                            } else { emit_literal(list, "_out = "); build_expr(list, arm_body, env); emit_literal(list, "; "); }
+                        }
                         emit_literal(list, "break; } ");
                     } else {
                         /* case nl_UnionName_TAG_Variant: { */
@@ -3230,6 +3264,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_literal(list, "if (!_matched && _m == ");
                         emit_literal(list, variant_name + 4);
                         emit_literal(list, ") {\n");
+                    } else if (strncmp(variant_name, "OR:", 3) == 0) {
+                        /* Or-pattern stmt (guard mode): emit _m.tag == A || _m.tag == B */
+                        char or_copy_sg[512]; strncpy(or_copy_sg, variant_name + 3, sizeof(or_copy_sg)-1); or_copy_sg[sizeof(or_copy_sg)-1]='\0';
+                        char *alts_sg[64]; int n_alts_sg = 0;
+                        char *tok_osg = strtok(or_copy_sg, ":"); while (tok_osg && n_alts_sg < 64) { alts_sg[n_alts_sg++] = tok_osg; tok_osg = strtok(NULL, ":"); }
+                        emit_literal(list, "if (!_matched && (");
+                        for (int oi = 0; oi < n_alts_sg; oi++) {
+                            if (oi > 0) emit_literal(list, " || ");
+                            emit_literal(list, "_m.tag == nl_"); emit_literal(list, union_c_name);
+                            emit_literal(list, "_TAG_"); emit_literal(list, alts_sg[oi]);
+                        }
+                        emit_literal(list, ")) {\n");
                     } else {
                         emit_literal(list, "if (!_matched && _m.tag == nl_");
                         emit_literal(list, union_c_name);
@@ -3370,6 +3416,27 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_literal(list, "break;\n");
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "}\n");
+                    } else if (strncmp(variant_name, "OR:", 3) == 0) {
+                        /* Or-pattern stmt (no guard): fall-through cases */
+                        char or_copy_s[512]; strncpy(or_copy_s, variant_name + 3, sizeof(or_copy_s)-1); or_copy_s[sizeof(or_copy_s)-1]='\0';
+                        char *alts_s[64]; int n_alts_s = 0;
+                        char *tok_os = strtok(or_copy_s, ":"); while (tok_os && n_alts_s < 64) { alts_s[n_alts_s++] = tok_os; tok_os = strtok(NULL, ":"); }
+                        for (int oi = 0; oi < n_alts_s - 1; oi++) {
+                            emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
+                            emit_literal(list, "_TAG_"); emit_literal(list, alts_s[oi]); emit_literal(list, ":\n");
+                            emit_indent_item(list, indent + 2);
+                        }
+                        emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
+                        emit_literal(list, "_TAG_"); emit_literal(list, alts_s[n_alts_s-1]); emit_literal(list, ": {\n");
+                        if (arm_body) {
+                            if (arm_body->type == AST_BLOCK) {
+                                for (int j = 0; j < arm_body->as.block.count; j++) {
+                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
+                                }
+                            } else { emit_indent_item(list, indent + 3); build_expr(list, arm_body, env); emit_literal(list, ";\n"); }
+                        }
+                        emit_indent_item(list, indent + 3); emit_literal(list, "break;\n");
+                        emit_indent_item(list, indent + 2); emit_literal(list, "}\n");
                     } else {
                         emit_literal(list, "case nl_");
                         emit_literal(list, union_c_name);

@@ -5011,7 +5011,20 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     continue;  /* try specific arms first */
                 }
 
-                if (strcmp(uval->variant_name, pattern_variant) == 0) {
+                /* Check or-pattern: OR:A:B means match if variant is A or B */
+                bool or_matches = false;
+                if (strncmp(pattern_variant, "OR:", 3) == 0) {
+                    char or_copy[512];
+                    strncpy(or_copy, pattern_variant + 3, sizeof(or_copy) - 1);
+                    or_copy[sizeof(or_copy) - 1] = '\0';
+                    char *tok_or = strtok(or_copy, ":");
+                    while (tok_or) {
+                        if (strcmp(uval->variant_name, tok_or) == 0) { or_matches = true; break; }
+                        tok_or = strtok(NULL, ":");
+                    }
+                }
+
+                if (or_matches || strcmp(uval->variant_name, pattern_variant) == 0) {
                     /* This arm's pattern matches — now check guard */
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
 

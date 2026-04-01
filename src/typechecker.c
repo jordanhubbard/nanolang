@@ -2879,9 +2879,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 int saved_symbol_count __attribute__((unused)) = env->symbol_count;
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
-                /* Wildcard arm: _ => { body }  — no binding to add */
+                /* Wildcard arm: _ => { body }  — no binding to add; also skip or-patterns */
                 if (strcmp(variant_name_i, "_") != 0 &&
-                    strncmp(variant_name_i, "INT:", 4) != 0) {
+                    strncmp(variant_name_i, "INT:", 4) != 0 &&
+                    strncmp(variant_name_i, "OR:", 3) != 0) {
                     /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
                      * This allows us to distinguish union variant fields from regular struct fields
                      */
@@ -2958,11 +2959,27 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             continue;
                         }
 
-                        /* Find which variant this pattern covers */
-                        for (int j = 0; j < union_def->variant_count; j++) {
-                            if (strcmp(union_def->variant_names[j], pattern_variant) == 0) {
-                                covered[j] = true;
-                                break;
+                        if (strncmp(pattern_variant, "OR:", 3) == 0) {
+                            /* Or-pattern: OR:A:B covers variants A and B */
+                            char or_copy[512];
+                            strncpy(or_copy, pattern_variant + 3, sizeof(or_copy) - 1);
+                            or_copy[sizeof(or_copy) - 1] = '\0';
+                            char *tok_or = strtok(or_copy, ":");
+                            while (tok_or) {
+                                for (int j = 0; j < union_def->variant_count; j++) {
+                                    if (strcmp(union_def->variant_names[j], tok_or) == 0) {
+                                        covered[j] = true; break;
+                                    }
+                                }
+                                tok_or = strtok(NULL, ":");
+                            }
+                        } else {
+                            /* Find which variant this pattern covers */
+                            for (int j = 0; j < union_def->variant_count; j++) {
+                                if (strcmp(union_def->variant_names[j], pattern_variant) == 0) {
+                                    covered[j] = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -4185,9 +4202,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
-                /* Only add binding for non-wildcard, non-int-pattern arms */
+                /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
                 if (strcmp(variant_name_s, "_") != 0 &&
-                    strncmp(variant_name_s, "INT:", 4) != 0) {
+                    strncmp(variant_name_s, "INT:", 4) != 0 &&
+                    strncmp(variant_name_s, "OR:", 3) != 0) {
                     Value binding_val = create_void();
                     env_define_var_with_type_info(tc->env,
                         stmt->as.match_expr.pattern_bindings[i],
