@@ -272,7 +272,7 @@ PREFIX ?= /usr/local
 
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
-build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER)
+build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER) $(REPL_BINARY)
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Build Complete (3-Stage Bootstrap)"
@@ -979,6 +979,24 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 $(INTERPRETER): $(INTERPRETER_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(INTERPRETER) $(INTERPRETER_OBJECTS) $(LDFLAGS)
 	@echo "✓ Interpreter: $(INTERPRETER)"
+
+# REPL binary: bin/nanolang-repl — interactive read-eval-print loop
+REPL_BINARY   = $(BIN_DIR)/nanolang-repl
+REPL_OBJECTS  = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
+                $(OBJ_DIR)/repl.o $(OBJ_DIR)/repl_main.o $(OBJ_DIR)/proptest.o
+
+$(OBJ_DIR)/repl.o: $(SRC_DIR)/repl.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/repl.c -o $(OBJ_DIR)/repl.o
+
+$(OBJ_DIR)/repl_main.o: $(SRC_DIR)/repl_main.c $(HEADERS) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/repl_main.c -o $(OBJ_DIR)/repl_main.o
+
+$(REPL_BINARY): $(REPL_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(REPL_BINARY) $(REPL_OBJECTS) $(LDFLAGS)
+	@echo "✓ REPL: $(REPL_BINARY)"
+
+.PHONY: repl
+repl: $(REPL_BINARY)
 
 # LSP server binary: bin/nanolang-lsp speaks JSON-RPC 2.0 over stdio
 LSP_SERVER = $(BIN_DIR)/nanolang-lsp

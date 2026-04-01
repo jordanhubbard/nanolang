@@ -6,6 +6,9 @@
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
 
+/* When true, parse_program accepts expressions/statements at top level (REPL mode) */
+static bool g_parse_repl_mode = false;
+
 #define MAX_PARSER_ERRORS 20
 
 /* Forward declarations */
@@ -5538,6 +5541,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             /* Go back one token so parse_statement can handle it properly */
             parser.pos--;
             parsed = parse_statement(&parser);
+        } else if (g_parse_repl_mode) {
+            /* REPL mode: accept any statement or expression at top level */
+            parsed = parse_statement(&parser);
+            if (!parsed) {
+                advance(&parser);
+                continue;
+            }
         } else {
             Token *err_tok = current_token(&parser);
             if (err_tok) {
@@ -5585,6 +5595,14 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     program->as.program.items = items;
     program->as.program.count = count;
     return program;
+}
+
+/* REPL variant of parse_program: also accepts statements and expressions at top level */
+ASTNode *parse_repl_input(Token *tokens, int token_count) {
+    g_parse_repl_mode = true;
+    ASTNode *result = parse_program(tokens, token_count);
+    g_parse_repl_mode = false;
+    return result;
 }
 
 /* Free AST */

@@ -335,6 +335,7 @@ static void cmd_reload(const char *path, Environment *env) {
 int run_repl(void) {
     print_banner();
     g_repl_program_count = 0;
+    g_mod_count = 0;
 
     clear_module_cache();
     Environment *env = create_environment();
@@ -383,6 +384,25 @@ int run_repl(void) {
         if (strcmp(trimmed, ":clear") == 0) {
             env->symbol_count = 0;
             printf("(bindings cleared)\n");
+            free(src);
+            continue;
+        }
+        if (strcmp(trimmed, ":modules") == 0) {
+            cmd_modules(env);
+            free(src);
+            continue;
+        }
+        /* :reload <path> */
+        if (strncmp(trimmed, ":reload", 7) == 0 &&
+            (trimmed[7] == ' ' || trimmed[7] == '\t')) {
+            const char *path = trimmed + 8;
+            while (*path == ' ' || *path == '\t') path++;
+            if (*path == '\0') {
+                fprintf(stderr, "Usage: :reload <file.nano>\n");
+            } else {
+                /* [wasm] note: WASM hot-reload is not supported; use interpreter mode */
+                cmd_reload(path, env);
+            }
             free(src);
             continue;
         }
@@ -445,9 +465,20 @@ int run_repl(void) {
          * reference nodes inside this program -- freeing early causes crashes. */
         repl_track(program, src);
 
+        /* Process any import statements in the input */
+        ModuleList *mods = create_module_list();
+        process_imports(program, env, mods, "<repl>");
+        free_module_list(mods);
+
+        /* Typecheck: registers function/struct/enum definitions in env */
+        type_check_module(program, env);
+
         /* Evaluate each top-level node in the persistent environment */
         for (int i = 0; i < program->as.program.count; i++) {
-            Value result = repl_eval_node(program->as.program.items[i], env);
+            ASTNode *node = program->as.program.items[i];
+            /* Imports already handled above; function defs registered by typecheck */
+            if (node->type == AST_IMPORT) continue;
+            Value result = repl_eval_node(node, env);
             show_result(result);
         }
     }
