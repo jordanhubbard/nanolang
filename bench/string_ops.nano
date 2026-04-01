@@ -1,0 +1,58 @@
+/*
+ * bench/string_ops.nano — string operations benchmark
+ * Tests string concatenation, length checks, and comparisons.
+ */
+
+fn repeat_concat(s: string, n: int) -> int {
+    /* Returns the length of the string after n concatenations */
+    let mut result: string = s
+    let mut i: int = 1
+    while (< i n) {
+        set result (str_concat result s)
+        set i (+ i 1)
+    }
+    return (str_length result)
+}
+
+shadow repeat_concat {
+    assert (== (repeat_concat "ab" 1) 2)
+    assert (== (repeat_concat "ab" 3) 6)
+    assert (== (repeat_concat "x" 10) 10)
+}
+
+fn count_char_a(s: string) -> int {
+    /* Count occurrences of 'a' (ASCII 97) using char_at */
+    let len: int = (str_length s)
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i len) {
+        if (== (char_at s i) 97) {
+            set count (+ count 1)
+        }
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow count_char_a {
+    assert (== (count_char_a "banana") 3)
+    assert (== (count_char_a "abc") 1)
+    assert (== (count_char_a "") 0)
+}
+
+fn main() -> int {
+    /* Build a string of 500 'a' chars via repeated concat */
+    let len: int = (repeat_concat "aaaaaaaaaa" 50)
+    assert (== len 500)
+
+    /* Count the 'a' chars */
+    let s: string = "aaabaaabaaab"
+    let cnt: int = (count_char_a s)
+    assert (== cnt 9)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

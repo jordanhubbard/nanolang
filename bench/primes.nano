@@ -1,0 +1,52 @@
+/*
+ * bench/primes.nano — prime sieve benchmark
+ * Tests loop performance, modular arithmetic, nested loops.
+ * Counts primes up to N using trial division.
+ */
+
+fn is_prime(n: int) -> bool {
+    if (<= n 1) { return false }
+    if (== n 2) { return true }
+    if (== (% n 2) 0) { return false }
+    let mut i: int = 3
+    while (<= (* i i) n) {
+        if (== (% n i) 0) { return false }
+        set i (+ i 2)
+    }
+    return true
+}
+
+shadow is_prime {
+    assert (== (is_prime 2) true)
+    assert (== (is_prime 7) true)
+    assert (== (is_prime 9) false)
+    assert (== (is_prime 97) true)
+    assert (== (is_prime 100) false)
+}
+
+fn count_primes(limit: int) -> int {
+    let mut count: int = 0
+    let mut n: int = 2
+    while (<= n limit) {
+        if (is_prime n) {
+            set count (+ count 1)
+        }
+        set n (+ n 1)
+    }
+    return count
+}
+
+shadow count_primes {
+    assert (== (count_primes 10) 4)
+    assert (== (count_primes 100) 25)
+}
+
+fn main() -> int {
+    let result: int = (count_primes 50000)
+    assert (== result 5133)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
