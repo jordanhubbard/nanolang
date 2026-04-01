@@ -470,6 +470,8 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
          * emit SIMD128 v128 opcodes for 2-4× throughput.
          * Falls back to scalar loop if pattern doesn't match.
          */
+        /* SIMD vectorization path — disabled until SimdInfo type is fully defined in wasm_simd.h */
+#if 0
         SimdInfo simd;
         if (wasm_simd_supported(NULL) && wasm_simd_analyze(node, &simd)) {
             if (ctx->verbose)
@@ -481,6 +483,7 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
                 return 0;
             /* If SIMD emit failed, fall through to scalar */
         }
+#endif
         /* Scalar fallback: emit as a no-op placeholder (loop body handled
          * by the interpreter; full scalar WASM for-loop would be added here) */
         buf_byte(code, 0x01); /* nop */

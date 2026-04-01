@@ -5181,13 +5181,6 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             return uv->field_values[0];
         }
-
-        case AST_EFFECT_OP:
-            /* perform Effect.op arg — stub: evaluate arg, return void */
-            if (expr->as.effect_op.arg)
-                eval_expression(expr->as.effect_op.arg, env);
-            return create_void();
-
         case AST_AWAIT: {
             /*
              * await expr — evaluate the inner expression.
