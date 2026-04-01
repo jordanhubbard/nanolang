@@ -1738,6 +1738,12 @@ examples-beads-ci:
 	@echo "  .bootstrap{0,1,2,3}.built - True bootstrap"
 	@echo ""
 
+# Interactive playground (browser editor + eval server)
+.PHONY: playground
+playground:
+	@echo "Starting Nanolang Playground on http://localhost:8792 ..."
+	@node playground/server.mjs
+
 # VS Code extension
 vscode-ext:
 	@echo "Building VS Code extension..."
