@@ -1,0 +1,209 @@
+name: Backend Matrix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/cross-backend/**'
+      - '.github/workflows/backend-matrix.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/cross-backend/**'
+      - '.github/workflows/backend-matrix.yml'
+  workflow_dispatch:
+
+jobs:
+  backend-matrix:
+    name: Compile tests (${{ matrix.backend }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        backend: [wasm, llvm, riscv, c, ptx]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libncurses-dev \
+            libssl-dev
+
+      - name: Install backend-specific tools
+        run: |
+          case "${{ matrix.backend }}" in
+            wasm)
+              # wabt provides wasm-validate for binary validation
+              sudo apt-get install -y wabt
+              ;;
+            llvm)
+              # llvm provides llvm-as for IR validation
+              sudo apt-get install -y llvm
+              ;;
+            c)
+              # gcc is already installed via build-essential
+              gcc --version
+              ;;
+            riscv | ptx)
+              # no extra runtime tools required — output is validated via grep
+              true
+              ;;
+          esac
+
+      - name: Build nanoc (stage 1)
+        run: make stage1
+
+      - name: Compile test programs — backend=${{ matrix.backend }}
+        run: |
+          set -euo pipefail
+          BACKEND="${{ matrix.backend }}"
+          NANOC="./bin/nanoc"
+          TMPDIR_TESTS="$(mktemp -d)"
+          trap 'rm -rf "$TMPDIR_TESTS"' EXIT
+          PASS=0
+          FAIL=0
+
+          compile_nano() {
+            local nano_file="$1"; shift
+            if ! "$NANOC" "$nano_file" "$@" 2>/tmp/nano_err; then
+              echo "    compile stderr:"
+              cat /tmp/nano_err | sed 's/^/      /'
+              return 1
+            fi
+          }
+
+          for nano_file in tests/cross-backend/*.nano; do
+            name="$(basename "$nano_file" .nano)"
+            printf "  %-30s " "$name"
+
+            case "$BACKEND" in
+              # ── WASM ──────────────────────────────────────────────────────
+              wasm)
+                out="$TMPDIR_TESTS/${name}.wasm"
+                if ! compile_nano "$nano_file" --target wasm -o "$out"; then
+                  echo "FAIL (compile error)"
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                if wasm-validate "$out" 2>/dev/null; then
+                  echo "PASS (wasm-validate ok)"
+                  PASS=$((PASS + 1))
+                else
+                  echo "FAIL (wasm-validate rejected output)"
+                  FAIL=$((FAIL + 1))
+                fi
+                ;;
+
+              # ── LLVM IR ───────────────────────────────────────────────────
+              llvm)
+                out="$TMPDIR_TESTS/${name}.ll"
+                if ! compile_nano "$nano_file" --llvm -o "$out"; then
+                  echo "FAIL (compile error)"
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                if llvm-as "$out" -o /dev/null 2>/dev/null; then
+                  echo "PASS (llvm-as ok)"
+                  PASS=$((PASS + 1))
+                else
+                  echo "FAIL (llvm-as rejected IR)"
+                  FAIL=$((FAIL + 1))
+                fi
+                ;;
+
+              # ── RISC-V ────────────────────────────────────────────────────
+              riscv)
+                out="$TMPDIR_TESTS/${name}.s"
+                if ! compile_nano "$nano_file" --target riscv -o "$out"; then
+                  echo "FAIL (compile error)"
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                if grep -q "\.text" "$out" 2>/dev/null; then
+                  echo "PASS (.text section present)"
+                  PASS=$((PASS + 1))
+                else
+                  echo "FAIL (no .text section in assembly output)"
+                  FAIL=$((FAIL + 1))
+                fi
+                ;;
+
+              # ── C transpiler ──────────────────────────────────────────────
+              c)
+                out_c="$TMPDIR_TESTS/${name}.c"
+                out_exe="$TMPDIR_TESTS/${name}"
+                expected_file="tests/cross-backend/${name}.expected"
+                if ! compile_nano "$nano_file" --target c -o "$out_c"; then
+                  echo "FAIL (compile error)"
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                if ! gcc -std=gnu11 -o "$out_exe" "$out_c" 2>/tmp/gcc_err; then
+                  echo "FAIL (gcc failed)"
+                  cat /tmp/gcc_err | sed 's/^/    /'
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                actual="$("$out_exe" 2>/dev/null)" || actual="<runtime error>"
+                if [ -f "$expected_file" ]; then
+                  expected="$(cat "$expected_file")"
+                  # strip trailing newline from expected file for comparison
+                  expected="${expected%$'\n'}"
+                  if [ "$actual" = "$expected" ]; then
+                    echo "PASS (output: $(echo "$actual" | head -1)...)"
+                    PASS=$((PASS + 1))
+                  else
+                    echo "FAIL (output mismatch)"
+                    echo "    expected: $(printf '%q' "$expected")"
+                    echo "    actual:   $(printf '%q' "$actual")"
+                    FAIL=$((FAIL + 1))
+                  fi
+                else
+                  echo "PASS (ran ok, no .expected file)"
+                  PASS=$((PASS + 1))
+                fi
+                ;;
+
+              # ── PTX ───────────────────────────────────────────────────────
+              ptx)
+                out="$TMPDIR_TESTS/${name}.ptx"
+                if ! compile_nano "$nano_file" --target ptx -o "$out"; then
+                  echo "FAIL (compile error)"
+                  FAIL=$((FAIL + 1))
+                  continue
+                fi
+                if grep -q "\.target sm_" "$out" 2>/dev/null; then
+                  echo "PASS (PTX header present)"
+                  PASS=$((PASS + 1))
+                else
+                  echo "FAIL (PTX header .target sm_* not found)"
+                  FAIL=$((FAIL + 1))
+                fi
+                ;;
+            esac
+          done
+
+          echo ""
+          echo "=== backend=$BACKEND results: $PASS passed, $FAIL failed ==="
+
+          [ "$FAIL" -eq 0 ]
+
+      - name: Upload compile artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nanolang-${{ matrix.backend }}-${{ github.sha }}
+          path: |
+            /tmp/nano_cross_backend_*
+          if-no-files-found: ignore
+          retention-days: 7

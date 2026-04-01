@@ -582,6 +582,14 @@ test-c-backend: $(COMPILER_C)
 	@bash tests/test_c_backend.sh $(COMPILER_C)
 	@echo "✅ C backend tests PASSED"
 
+# Cross-backend compile suite: compile canonical test programs across all 5 backends
+.PHONY: test-cross-backend
+test-cross-backend: $(COMPILER)
+	@echo "🔀 Running cross-backend compile suite (wasm, llvm, riscv, c, ptx)..."
+	@chmod +x tests/cross-backend/run-all.sh
+	@bash tests/cross-backend/run-all.sh $(COMPILER)
+	@echo "✅ Cross-backend tests PASSED"
+
 # Coroutine runtime test: runs tests/test_coroutine.nano through the interpreter
 test-coroutine: $(INTERPRETER)
 	@echo "🔄 Running coroutine runtime tests..."

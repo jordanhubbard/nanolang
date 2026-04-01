@@ -1,0 +1,15 @@
+/* cross-backend/02_fibonacci.nano
+ * Tests: recursive functions, branching
+ * Expected output: 55  (fib(10))
+ */
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+fn main() -> int {
+    (println (int_to_string (fib 10)))
+    return 0
+}

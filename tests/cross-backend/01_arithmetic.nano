@@ -1,0 +1,9 @@
+/* cross-backend/01_arithmetic.nano
+ * Tests: integer arithmetic, operator precedence equivalent
+ * Expected output: 7
+ */
+fn main() -> int {
+    let result: int = (+ 1 (* 2 3))
+    (println (int_to_string result))
+    return 0
+}

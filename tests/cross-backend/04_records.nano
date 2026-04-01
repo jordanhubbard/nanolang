@@ -1,0 +1,18 @@
+/* cross-backend/04_records.nano
+ * Tests: struct definition, struct literals, field access
+ * Expected output: 3
+ */
+struct Point {
+    x: int,
+    y: int
+}
+
+fn make_point(x: int, y: int) -> Point {
+    return Point { x: x, y: y }
+}
+
+fn main() -> int {
+    let p: Point = (make_point 3 4)
+    (println (int_to_string p.x))
+    return 0
+}
