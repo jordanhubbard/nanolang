@@ -10,8 +10,27 @@
 
 #include "nanolang.h"
 #include "module_builder.h"
+#include "stdlib_runtime.h"
 #include <stdarg.h>
 #include <string.h>
+
+/* Forward declarations for types defined in transpiler.c (only when not included from transpiler.c) */
+#ifndef TRANSPILER_INTERNAL_TYPES_DEFINED
+#define TRANSPILER_INTERNAL_TYPES_DEFINED
+typedef struct {
+    char **typedef_names;
+    void **signatures;
+    int count;
+    int capacity;
+} FunctionTypeRegistry;
+
+typedef struct {
+    void **tuples;
+    char **typedef_names;
+    int count;
+    int capacity;
+} TupleTypeRegistry;
+#endif /* TRANSPILER_INTERNAL_TYPES_DEFINED */
 
 /* ============================================================================
  * TRANSPILER CONTEXT - Track current function for type resolution
@@ -2969,17 +2988,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             break;
         }
-            
-        case AST_EFFECT_OP:
-            /* perform Effect.op arg — stub: evaluate arg, suppress unused-value warning */
-            emit_literal(list, "(void)(");
-            if (expr->as.effect_op.arg)
-                build_expr(list, expr->as.effect_op.arg, env);
-            else
-                emit_literal(list, "0");
-            emit_literal(list, ")");
-            break;
-
         case AST_HANDLE_EXPR: {
             /* handle { body } with { handlers... }
              * Phase 1: evaluate body directly. Effect dispatch via longjmp/handlers

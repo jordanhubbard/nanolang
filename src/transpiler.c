@@ -890,6 +890,7 @@ const char *g_source_file_for_line_directives = NULL;
 bool g_profile_mode = false;          /* --profile: emit timing guard in next function body block */
 const char *g_profile_func_name = NULL; /* name of function being profiled */
 
+#define TRANSPILER_INTERNAL_TYPES_DEFINED
 #include "transpiler_iterative_v3_twopass.c"
 
 

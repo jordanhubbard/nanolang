@@ -777,17 +777,25 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
     case AST_OPAQUE_TYPE:
         return 0;
 
-    case AST_PAR_BLOCK:
-    case AST_PAR_LET: {
-        ASTNode **bindings = (node->type == AST_PAR_BLOCK)
-            ? node->as.par_block.bindings
-            : node->as.par_let.bindings;
-        int cnt = (node->type == AST_PAR_BLOCK)
-            ? node->as.par_block.count
-            : node->as.par_let.count;
+    case AST_PAR_BLOCK: {
+        ASTNode **bindings = node->as.par_block.bindings;
+        int cnt = node->as.par_block.count;
         for (int i = 0; i < cnt; i++) {
             emit_indent(c);
             if (emit_stmt(c, bindings[i])) return -1;
+        }
+        return 0;
+    }
+    case AST_PAR_LET: {
+        /* par-let: emit each binding value as a statement, then the body */
+        int cnt = node->as.par_let.count;
+        for (int i = 0; i < cnt; i++) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.par_let.values[i])) return -1;
+        }
+        if (node->as.par_let.body) {
+            emit_indent(c);
+            if (emit_stmt(c, node->as.par_let.body)) return -1;
         }
         return 0;
     }
@@ -1094,11 +1102,11 @@ static int emit_program(CBCtx *c, ASTNode *root) {
 
 /* ── Public API ──────────────────────────────────────────────────────────── */
 int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
-                      bool verbose) {
+                      const CBOptions *opts) {
     CBCtx c;
     memset(&c, 0, sizeof(c));
     c.out     = out;
-    c.verbose = verbose;
+    c.verbose = opts ? opts->verbose : false;
     c.indent  = 0;
 
     emit_preamble(&c, source_file);
@@ -1106,7 +1114,7 @@ int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
 }
 
 int c_backend_emit(ASTNode *root, const char *output_path,
-                   const char *source_file, bool verbose) {
+                   const char *source_file, const CBOptions *opts) {
     FILE *fp = fopen(output_path, "w");
     if (!fp) {
         fprintf(stderr, "[c_backend] error: cannot open %s for writing\n",
@@ -1117,7 +1125,7 @@ int c_backend_emit(ASTNode *root, const char *output_path,
     CBCtx c;
     memset(&c, 0, sizeof(c));
     c.out     = fp;
-    c.verbose = verbose;
+    c.verbose = opts ? opts->verbose : false;
     c.indent  = 0;
 
     emit_preamble(&c, source_file);

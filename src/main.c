@@ -526,7 +526,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             c_out = c_out_buf;
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
-        int c_rc = c_backend_emit(program, c_out, input_file, opts->verbose);
+        CBOptions cb_opts = {0}; cb_opts.verbose = opts->verbose;
+        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
         if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
