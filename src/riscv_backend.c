@@ -474,7 +474,7 @@ int riscv_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
 
     rv_emit_preamble(&ctx);
     rv_emit_print_strings(&ctx);
-    rv_emit(ctx.out, "\n");
+    rv_emit(&ctx, "\n");
     rv_emit_stmt(&ctx, root);
 
     if (verbose)

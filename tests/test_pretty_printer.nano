@@ -1,24 +1,24 @@
 # Comprehensive tests for stdlib/tidy.nano pretty printer
 # Tests only PUBLIC functions (pub fn) from tidy.nano
 
-from "stdlib/tidy.nano" import format, format_with_wrap, format_pretty
+from "stdlib/tidy.nano" import tidy_format, format_with_wrap, format_pretty
 
 # Test format() - passthrough function
 fn test_format() -> bool {
     let input1 = "hello world"
-    let output1 = (format input1)
+    let output1 = (tidy_format input1)
     if (not (== input1 output1)) {
         return false
     } else {}
 
     let input2 = "fn test() -> int { return 42 }"
-    let output2 = (format input2)
+    let output2 = (tidy_format input2)
     if (not (== input2 output2)) {
         return false
     } else {}
 
     let empty = ""
-    let output_empty = (format empty)
+    let output_empty = (tidy_format empty)
     if (not (== empty output_empty)) {
         return false
     } else {}

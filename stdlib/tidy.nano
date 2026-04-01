@@ -3,7 +3,7 @@
 
 # Format source code with basic line breaking
 # For launcher display - simple and reliable
-pub fn format(source: string) -> string {
+pub fn tidy_format(source: string) -> string {
     # For now, just return the source as-is
     # The launcher will handle line breaking
     return source
