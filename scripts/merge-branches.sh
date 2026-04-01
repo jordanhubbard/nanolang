@@ -25,7 +25,7 @@ merge_branch() {
     log "=== $br ==="
 
     # Check if branch exists on origin
-    if ! git ls-remote --exit-code --heads origin "$br" > /dev/null 2>&1; then
+    if ! git branch -r | grep -q "origin/$br$"; then
         skip "$br: not found on origin"
         SKIP=$((SKIP+1))
         return
