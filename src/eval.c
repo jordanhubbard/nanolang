@@ -6150,3 +6150,15 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
 
     return return_value;
 }
+
+/* ============================================================================
+ * REPL support: public wrappers around static functions
+ * ========================================================================== */
+
+Value repl_eval_node(ASTNode *node, Environment *env) {
+    return eval_statement(node, env);
+}
+
+void repl_print_value(Value val) {
+    print_value(val);
+}

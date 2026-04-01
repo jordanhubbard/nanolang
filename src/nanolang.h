@@ -802,6 +802,7 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
+ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);
 
 /* Type Checker */
@@ -816,6 +817,9 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 /* Interpreter */
 bool run_program(ASTNode *program, Environment *env);
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
+/* REPL support */
+Value repl_eval_node(ASTNode *node, Environment *env);
+void  repl_print_value(Value val);
 
 /* C Transpiler */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file);
