@@ -1702,6 +1702,7 @@ help:
 	@echo "  make coverage-check  - Check coverage.info meets threshold (COVERAGE_THRESHOLD=$(COVERAGE_THRESHOLD))"
 	@echo "  make valgrind        - Run memory checks with valgrind"
 	@echo "  make install         - Install to $(PREFIX)/bin"
+	@echo "  make vscode-ext      - Build VS Code extension (npm install + compile + vsce package)"
 	@echo ""
 	@echo "Coverage: Requires lcov (brew install lcov / apt-get install lcov)"
 	@echo "Report generated in: coverage/index.html"
@@ -1736,6 +1737,17 @@ examples-beads-ci:
 	@echo "  .stage{1,2,3}.built - Component build"
 	@echo "  .bootstrap{0,1,2,3}.built - True bootstrap"
 	@echo ""
+
+# VS Code extension
+vscode-ext:
+	@echo "Building VS Code extension..."
+	@cd vscode && npm install && npm run compile
+	@if command -v vsce >/dev/null 2>&1; then \
+		cd vscode && npx vsce package; \
+		echo "Extension packaged: vscode/nanolang-*.vsix"; \
+	else \
+		echo "vsce not found — skipping .vsix packaging (run 'npm install -g @vscode/vsce' to package)"; \
+	fi
 
 # Directory creation
 $(OBJ_DIR):

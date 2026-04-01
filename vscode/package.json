@@ -1,0 +1,62 @@
+{
+  "name": "nanolang",
+  "displayName": "Nanolang",
+  "description": "Nanolang language support: LSP, syntax highlighting, formatting",
+  "version": "0.1.0",
+  "publisher": "nanolang",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages", "Linters", "Formatters"],
+  "activationEvents": ["onLanguage:nanolang"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "nanolang",
+        "aliases": ["Nano", "nanolang"],
+        "extensions": [".nano"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nanolang",
+        "scopeName": "source.nano",
+        "path": "./syntaxes/nanolang.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Nanolang",
+      "properties": {
+        "nanolang.lspPath": {
+          "type": "string",
+          "default": "nanolang-lsp",
+          "description": "Path to the nanolang-lsp binary"
+        },
+        "nanolang.fmtPath": {
+          "type": "string",
+          "default": "nano-fmt",
+          "description": "Path to the nano-fmt binary (used for format on save)"
+        },
+        "nanolang.trace.server": {
+          "type": "string",
+          "enum": ["off", "messages", "verbose"],
+          "default": "off",
+          "description": "Trace LSP communication (for debugging)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.0"
+  }
+}
