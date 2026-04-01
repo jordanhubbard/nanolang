@@ -37,4 +37,15 @@ int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
                              const char *source_file,
                              const char *sourcemap_path);
 
+/* Extended emit with SIMD128 auto-vectorization.
+ * enable_simd: if true, detect and emit v128 opcodes for vectorizable sites.
+ * A --simd flag in nanoc passes enable_simd=true.
+ * When simd_report is non-NULL, a summary is printed to that FILE*. */
+int wasm_backend_emit_fp_simd(ASTNode *root, FILE *out, bool verbose,
+                               bool enable_simd,
+                               const char *wasm_path,
+                               const char *source_file,
+                               const char *sourcemap_path,
+                               FILE *simd_report);
+
 #endif /* WASM_BACKEND_H */

@@ -1,29 +1,16 @@
 /*
- * wasm_simd.h — WASM SIMD128 auto-vectorization for nanolang
+ * wasm_simd.h — WASM SIMD128 vectorization for nanolang
  *
- * Detects numeric array reduction patterns in the nanolang AST and emits
- * WASM SIMD128 v128 opcodes instead of scalar f64/i64 ops.
+ * Detects vectorizable patterns in the nanolang AST and emits
+ * WASM SIMD128 (v128) opcodes for numeric array operations.
  *
- * WASM SIMD128 (WebAssembly 2.0 v128 proposal, §5.4):
- *   Prefix opcode: 0xFD (simd_prefix)
- *   Lane operations: v128.load/store, f64x2.add/sub/mul, i32x4.add/mul, etc.
+ * Supported patterns:
+ *   - map(fn, array)  where fn is a pure elementwise numeric function
+ *   - elementwise arithmetic: (+ a b) where a,b are Float/Int arrays
+ *   - reduce/fold with commutative ops (+, *, min, max)
  *
- * Vectorization patterns detected:
- *   1. Elementwise loop:  for i in 0..n: c[i] = a[i] op b[i]
- *      → f64x2.load × 2, f64x2.add/sub/mul/div, f64x2.store
- *      → 2× throughput on 2-lane f64x2, 4× on i32x4
- *
- *   2. Reduction (fold):  let sum = 0.0; for i in 0..n: sum += a[i]
- *      → f64x2.load, f64x2.add to accumulator, horizontal add at end
- *
- *   3. Map (scalar fn over array elements):
- *      → if fn is {neg, abs, sqrt}: emit corresponding v128 op
- *
- * Usage: call wasm_simd_try_vectorize() from emit_stmt() on AST_FOR nodes.
- * Returns true and emits SIMD opcodes if the pattern matches; caller should
- * skip the scalar fallback. Returns false if pattern doesn't match (scalar).
- *
- * Copyright 2026 nanolang Project (MIT)
+ * WASM SIMD128 spec: https://github.com/WebAssembly/simd/blob/master/proposals/simd/SIMD.md
+ * All SIMD opcodes use the 0xFD prefix followed by a u32 LEB128 opcode.
  */
 
 #pragma once
@@ -31,80 +18,121 @@
 #define WASM_SIMD_H
 
 #include "nanolang.h"
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 
-/* ── WASM SIMD opcode prefix and immediate opcodes ─────────────────── */
+/* ── WASM SIMD128 type ────────────────────────────────────────────────── */
+#define WASM_V128      0x7B  /* v128 value type */
 
-/* Prefix byte for all SIMD instructions */
-#define SIMD_PREFIX     0xFD
+/* ── SIMD prefix byte ─────────────────────────────────────────────────── */
+#define WASM_SIMD_PREFIX 0xFD
 
-/* SIMD immediate opcodes (u32 LEB128 after 0xFD prefix) */
-#define SIMD_V128_LOAD          0x00  /* v128.load memarg */
-#define SIMD_V128_STORE         0x0B  /* v128.store memarg */
-#define SIMD_I8X16_SPLAT        0x0F
-#define SIMD_I32X4_SPLAT        0x11
-#define SIMD_F64X2_SPLAT        0x13
-#define SIMD_I32X4_ADD          0xAE  /* i32x4.add */
-#define SIMD_I32X4_SUB          0xAF
-#define SIMD_I32X4_MUL          0xB5
-#define SIMD_F64X2_ADD          0xF0  /* f64x2.add */
-#define SIMD_F64X2_SUB          0xF1
-#define SIMD_F64X2_MUL          0xF2
-#define SIMD_F64X2_DIV          0xF3
-#define SIMD_F64X2_ABS          0xEC
-#define SIMD_F64X2_NEG          0xED
-#define SIMD_F64X2_SQRT         0xEF
-#define SIMD_F64X2_EXTRACT_LANE 0x1F  /* f64x2.extract_lane imm */
-#define SIMD_F64X2_REPLACE_LANE 0x21
+/* ── SIMD128 opcodes (after 0xFD prefix, LEB128-encoded) ──────────────── */
 
-/* ── Vectorization context (per-loop analysis) ──────────────────────── */
+/* v128 memory ops */
+#define SIMD_V128_LOAD            0   /* v128.load         memarg */
+#define SIMD_V128_LOAD8X8_S       1   /* v128.load8x8_s    memarg */
+#define SIMD_V128_LOAD8X8_U       2
+#define SIMD_V128_LOAD16X4_S      3
+#define SIMD_V128_LOAD16X4_U      4
+#define SIMD_V128_LOAD32X2_S      5
+#define SIMD_V128_LOAD32X2_U      6
+#define SIMD_V128_LOAD8_SPLAT     7
+#define SIMD_V128_LOAD16_SPLAT    8
+#define SIMD_V128_LOAD32_SPLAT    9
+#define SIMD_V128_LOAD64_SPLAT    10
+#define SIMD_V128_STORE           11  /* v128.store        memarg */
 
+/* v128 constants */
+#define SIMD_V128_CONST           12  /* v128.const        i8x16 immediate */
+
+/* Shuffle/swizzle */
+#define SIMD_I8X16_SHUFFLE        13
+#define SIMD_I8X16_SWIZZLE        14
+
+/* Splat (broadcast scalar → v128) */
+#define SIMD_I8X16_SPLAT          15
+#define SIMD_I16X8_SPLAT          16
+#define SIMD_I32X4_SPLAT          17
+#define SIMD_I64X2_SPLAT          18  /* i64x2.splat  i64 → v128 */
+#define SIMD_F32X4_SPLAT          19
+#define SIMD_F64X2_SPLAT          20  /* f64x2.splat  f64 → v128 */
+
+/* Lane extract/replace */
+#define SIMD_I64X2_EXTRACT_LANE   19  /* i64x2.extract_lane laneimm */
+#define SIMD_F64X2_EXTRACT_LANE   32  /* f64x2.extract_lane laneimm */
+
+/* f64x2 arithmetic */
+#define SIMD_F64X2_ABS            236 /* 0xEC */
+#define SIMD_F64X2_NEG            237
+#define SIMD_F64X2_SQRT           239
+#define SIMD_F64X2_ADD            240 /* 0xF0 */
+#define SIMD_F64X2_SUB            241
+#define SIMD_F64X2_MUL            242
+#define SIMD_F64X2_DIV            243
+#define SIMD_F64X2_MIN            244
+#define SIMD_F64X2_MAX            245
+#define SIMD_F64X2_PMIN           246
+#define SIMD_F64X2_PMAX           247
+
+/* i64x2 arithmetic */
+#define SIMD_I64X2_NEG            193
+#define SIMD_I64X2_ALL_TRUE       195
+#define SIMD_I64X2_EQ             214
+#define SIMD_I64X2_NE             215
+#define SIMD_I64X2_LT_S           216
+#define SIMD_I64X2_GT_S           217
+#define SIMD_I64X2_LE_S           218
+#define SIMD_I64X2_GE_S           219
+#define SIMD_I64X2_ADD            197 /* 0xC5 */
+#define SIMD_I64X2_SUB            198
+#define SIMD_I64X2_MUL            221
+
+/* v128 bitwise */
+#define SIMD_V128_AND             78
+#define SIMD_V128_ANDNOT          79
+#define SIMD_V128_OR              80
+#define SIMD_V128_XOR             81
+#define SIMD_V128_NOT             77
+
+/* ── Vectorization context ────────────────────────────────────────────── */
+
+/* A vectorizable loop/map/fold pattern detected in the AST */
 typedef enum {
-    SIMD_PATTERN_NONE        = 0,
-    SIMD_PATTERN_ELEMENTWISE = 1,  /* c[i] = a[i] op b[i] */
-    SIMD_PATTERN_REDUCTION   = 2,  /* acc += a[i]          */
-    SIMD_PATTERN_MAP         = 3,  /* c[i] = fn(a[i])      */
-} SimdPattern;
+    VECT_MAP_FLOAT,   /* map(fn, float_array)  → f64x2 lanes */
+    VECT_MAP_INT,     /* map(fn, int_array)    → i64x2 lanes */
+    VECT_REDUCE_FLOAT,/* reduce(op, float_array) with +,* */
+    VECT_REDUCE_INT,  /* reduce(op, int_array)   with +,* */
+    VECT_ELEMENTWISE, /* (+ a b) where a,b are arrays */
+} VectPattern;
 
 typedef struct {
-    SimdPattern pattern;
-    Type        elem_type;      /* TYPE_FLOAT or TYPE_INT */
-    int         lanes;          /* 2 for f64x2, 4 for i32x4 */
-    const char *arr_a;          /* source array local name */
-    const char *arr_b;          /* second source (elementwise only) */
-    const char *arr_out;        /* output array local name */
-    const char *acc_var;        /* accumulator variable (reduction) */
-    const char *map_fn;         /* function name (map only) */
-    TokenType   op;             /* arithmetic operator */
-} SimdInfo;
+    VectPattern pattern;
+    ASTNode    *node;         /* the original AST node */
+    int         elem_type;    /* TYPE_INT or TYPE_FLOAT */
+    int         simd_op;      /* SIMD opcode for the inner op */
+    bool        is_float;
+} VectCandidate;
 
-/* ── API ─────────────────────────────────────────────────────────────── */
+/* ── Public API ───────────────────────────────────────────────────────── */
 
-/*
- * Analyse a for-loop AST node and determine if it can be vectorized.
- * Returns true and fills *info if the loop matches a SIMD pattern.
- */
-bool wasm_simd_analyze(ASTNode *for_node, SimdInfo *info);
+/* Scan program AST for vectorizable patterns.
+ * Returns a malloc'd array of VectCandidate (count in *out_count).
+ * Caller must free() the returned array. */
+VectCandidate *wasm_simd_detect(ASTNode *program, int *out_count);
 
-/*
- * Emit SIMD opcodes for a vectorizable for-loop.
- * buf: the WasmBuf to write into.
- * info: analysis result from wasm_simd_analyze().
- * array_base_local: local index for the array base pointer.
- * Returns 0 on success, -1 on error.
- *
- * NOTE: This function emits the SIMD instructions into a raw byte buffer.
- * Caller is responsible for providing the correct local variable indices.
- */
-int wasm_simd_emit_loop(void *wasm_buf, const SimdInfo *info,
-                         uint32_t idx_local, uint32_t len_local,
-                         uint32_t acc_local);
+/* Emit WASM SIMD code for a single candidate into a WasmBuf.
+ * Used by wasm_backend.c when --simd is enabled.
+ * buf:    byte buffer being written
+ * cand:   vectorization candidate
+ * Returns 0 on success, -1 on error. */
+int wasm_simd_emit_candidate(void *buf /*WasmBuf*/, VectCandidate *cand);
 
-/*
- * Check if the WASM runtime target supports SIMD128.
- * Returns true for WebAssembly 2.0 targets (V8 ≥9.0, wasmtime ≥0.26, etc.)
- */
-bool wasm_simd_supported(const char *target);
+/* Print a summary of detected candidates to stderr (for --verbose). */
+void wasm_simd_print_summary(VectCandidate *cands, int count, FILE *out);
+
+/* Free candidates array */
+void wasm_simd_free(VectCandidate *cands);
 
 #endif /* WASM_SIMD_H */

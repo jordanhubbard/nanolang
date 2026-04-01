@@ -6,7 +6,7 @@
 *.exe
 *.out
 
-# Compiled binaries (ignore all bin/ except README and nanoc-pkg)
+# Compiled binaries (ignore all bin/ except README)
 /bin/*
 !/bin/README.md
 
@@ -87,8 +87,7 @@ src_nano/*.bak
 src_nano/*.genC
 
 # Compiled binaries
-/bin/*
-!/bin/nanoc-pkg
+bin/
 modules/index.json
 nanoc_self
 repl_test
@@ -125,4 +124,7 @@ tests/fuzzing/*.log
 
 # Beads task tracker runtime data
 .beads/ephemeral.sqlite3
+bench/*.nano
+
+# Generated docs site
 site/
