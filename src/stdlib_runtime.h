@@ -114,5 +114,6 @@ void generate_profiling_system(StringBuilder *sb, const char *profile_output_pat
 void generate_instrumented_profiling_system(StringBuilder *sb);
 void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegraph_path);
 
-#endif /* STDLIB_RUNTIME_H */
+void generate_coroutine_builtins(StringBuilder *sb);
 
+#endif /* STDLIB_RUNTIME_H */

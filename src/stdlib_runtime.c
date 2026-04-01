@@ -2360,3 +2360,72 @@ void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegr
 
     sb_append(sb, "/* ========== End Flamegraph Profiling Output ========== */\n\n");
 }
+
+/* ── Coroutine runtime builtins ─────────────────────────────────────────────
+ * Expose the nanolang coroutine scheduler as nanolang builtins.
+ * These wrap coroutine.h's nano_* API into nl_* C functions that the
+ * transpiler can call directly from generated code.
+ * ─────────────────────────────────────────────────────────────────────────── */
+void generate_coroutine_builtins(StringBuilder *sb) {
+    sb_append(sb,
+        "/* ========== Coroutine Runtime Builtins ========== */\n"
+        "#include \"coroutine.h\"\n\n"
+
+        /* nl_coro_spawn: spawn a named function as a coroutine.
+         * Transpiler generates: nl_coro_spawn(nl_fn, arg0, arg1, ...)
+         * We use a counted-args trampoline approach. */
+        "typedef struct { void *fn; int64_t args[8]; int nargs; } NlSpawnCtx;\n"
+        "static Value nl_coro_spawn_trampoline(void *raw, int coro_id) {\n"
+        "    (void)coro_id;\n"
+        "    NlSpawnCtx *ctx = (NlSpawnCtx *)raw;\n"
+        "    Value v; memset(&v, 0, sizeof(v)); v.type = VAL_INT;\n"
+        "    switch (ctx->nargs) {\n"
+        "        case 0: v.as.int_val = ((int64_t(*)(void))ctx->fn)(); break;\n"
+        "        case 1: v.as.int_val = ((int64_t(*)(int64_t))ctx->fn)(ctx->args[0]); break;\n"
+        "        case 2: v.as.int_val = ((int64_t(*)(int64_t,int64_t))ctx->fn)(ctx->args[0],ctx->args[1]); break;\n"
+        "        case 3: v.as.int_val = ((int64_t(*)(int64_t,int64_t,int64_t))ctx->fn)(ctx->args[0],ctx->args[1],ctx->args[2]); break;\n"
+        "        default: break;\n"
+        "    }\n"
+        "    return v;\n"
+        "}\n\n"
+        "static int64_t nl_coro_spawn_n(void *fn, int nargs, int64_t a0, int64_t a1, int64_t a2) {\n"
+        "    nano_scheduler_init();\n"
+        "    NlSpawnCtx *ctx = (NlSpawnCtx *)malloc(sizeof(NlSpawnCtx));\n"
+        "    if (!ctx) return -1;\n"
+        "    ctx->fn = fn; ctx->nargs = nargs;\n"
+        "    ctx->args[0] = a0; ctx->args[1] = a1; ctx->args[2] = a2;\n"
+        "    return (int64_t)nano_coro_spawn(nl_coro_spawn_trampoline, ctx);\n"
+        "}\n"
+        "/* nl_coro_spawn: select correct overload by argument count */\n"
+        "#define _nl_cs0(fn)           nl_coro_spawn_n((void*)(fn),0,0LL,0LL,0LL)\n"
+        "#define _nl_cs1(fn,a)         nl_coro_spawn_n((void*)(fn),1,(int64_t)(a),0LL,0LL)\n"
+        "#define _nl_cs2(fn,a,b)       nl_coro_spawn_n((void*)(fn),2,(int64_t)(a),(int64_t)(b),0LL)\n"
+        "#define _nl_cs3(fn,a,b,c)     nl_coro_spawn_n((void*)(fn),3,(int64_t)(a),(int64_t)(b),(int64_t)(c))\n"
+        "#define _nl_cs_pick(_1,_2,_3,_4,X,...) X\n"
+        "#define nl_coro_spawn(fn,...) _nl_cs_pick(fn,##__VA_ARGS__,_nl_cs3,_nl_cs2,_nl_cs1,_nl_cs0)(fn,##__VA_ARGS__)\n\n"
+
+        "/* nl_scheduler_run(): drain all pending coroutines */\n"
+        "static void nl_scheduler_run(void) {\n"
+        "    nano_scheduler_init();\n"
+        "    nano_scheduler_run_until_done();\n"
+        "}\n\n"
+        "/* nl_scheduler_step(): run one step */\n"
+        "static int64_t nl_scheduler_step(void) {\n"
+        "    nano_scheduler_init();\n"
+        "    return nano_scheduler_step() ? 1 : 0;\n"
+        "}\n\n"
+        "/* nl_coro_result(id): get result value of completed coroutine */\n"
+        "static int64_t nl_coro_result(int64_t id) {\n"
+        "    Value v = nano_coro_result((int)id);\n"
+        "    return v.as.int_val;\n"
+        "}\n\n"
+        "/* nl_coro_done(id): 1 if coroutine completed */\n"
+        "static int64_t nl_coro_done(int64_t id) {\n"
+        "    return nano_coro_is_done((int)id) ? 1 : 0;\n"
+        "}\n\n"
+        "/* nl_coro_yield(): cooperative yield hint */\n"
+        "static void nl_coro_yield(void) { nano_coro_yield(); }\n"
+        "/* ========== End Coroutine Runtime Builtins ========== */\n\n"
+    );
+}
+

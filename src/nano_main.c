@@ -146,7 +146,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     cps_pass(program);
 
     /* Phase 4.8: Initialize coroutine scheduler */
-    coroutine_init();
+    nano_scheduler_init();
 
     /* Phase 5: Run program (evaluates top-level lets, registers structs/enums/unions) */
     if (!run_program(program, env)) {
@@ -182,6 +182,9 @@ static int interpret_file(const char *input_file, bool do_proptest,
         }
     }
     /* If no main function, the program ran as a script and we're done */
+
+    /* Phase 6.5: Drain coroutine scheduler — run any pending async coroutines */
+    nano_scheduler_run_until_done();
 
     /* Cleanup */
     free_ast(program);

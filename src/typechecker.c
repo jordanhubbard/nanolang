@@ -1716,8 +1716,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
 
-            /* Check argument count */
-            if (expr->as.call.arg_count != func->param_count) {
+            /* Check argument count (-1 = variadic, skip check) */
+            if (func->param_count != -1 && expr->as.call.arg_count != func->param_count) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "Function `%s` expects %d argument(s), but got %d.",
@@ -4296,7 +4296,9 @@ static const char *builtin_function_names[] = {
     "nl_list_Token_new", "nl_list_Token_with_capacity", "nl_list_Token_push", "nl_list_Token_pop",
     "nl_list_Token_get", "nl_list_Token_set", "nl_list_Token_insert", "nl_list_Token_remove",
     "nl_list_Token_length", "nl_list_Token_capacity", "nl_list_Token_is_empty", "nl_list_Token_clear",
-    "nl_list_Token_free"
+    "nl_list_Token_free",
+    /* Coroutine runtime */
+    "coro_spawn", "coro_yield", "coro_done", "coro_result", "scheduler_run", "scheduler_step"
 };
 
 static const int builtin_function_name_count = sizeof(builtin_function_names) / sizeof(char*);
@@ -5345,6 +5347,74 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* ── Coroutine runtime builtins ───────────────────────────────── */
+
+    /* coro_spawn(fn, args...) -> int (coroutine handle) — variadic, accept any arg count */
+    func.name = "coro_spawn";
+    func.params = NULL;
+    func.param_count = -1;   /* variadic: -1 = typechecker skips arity check */
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* coro_yield() -> void — suspend current coroutine */
+    func.name = "coro_yield";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* coro_done(handle: int) -> bool */
+    func.name = "coro_done";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* coro_result(handle: int) -> int (actual type depends on async fn) */
+    func.name = "coro_result";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* scheduler_run() -> void — drain all pending coroutines */
+    func.name = "scheduler_run";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* scheduler_step() -> bool — run one scheduler step */
+    func.name = "scheduler_step";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_BOOL;
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;

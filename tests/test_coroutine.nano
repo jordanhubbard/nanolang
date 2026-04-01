@@ -1,73 +1,135 @@
-/* test_coroutine.nano: coroutine runtime tests for nanolang
- * Exercises the cooperative scheduler via async/await.
- */
+/* test_coroutine.nano
+   Tests for the nanolang cooperative coroutine scheduler
+   Tests spawn(), yield(), coro_done(), coro_result(), scheduler_run(), scheduler_step()
+   Note: await is only legal inside async functions (CPS pass requirement).
+   These tests use coro_result() + scheduler_run() for non-async callers.
+*/
 
-/* Simple async fn with two awaits */
-async fn counter(n: int) -> int {
-    let a = await (+ n 1)
-    let b = await (+ a 1)
-    return b
+/* Simple async function that adds two numbers */
+async fn async_add(a: int, b: int) -> int {
+    let result = (+ a b)
+    return result
 }
 
-/* Async fn with a single await (multiplication) */
-async fn double_async(x: int) -> int {
-    return await (* x 2)
+/* Async function with yield (cooperative multitasking) */
+async fn count_up(n: int) -> int {
+    /* Sum 1..n = n*(n+1)/2 */
+    let total = (/ (* n (+ n 1)) 2)
+    (coro_yield)
+    return total
 }
 
-/* Async fn calling another async fn */
-async fn chain_async(n: int) -> int {
-    let d = (double_async n)
-    return await (+ d 1)
+/* Async function that uses await on another async fn */
+async fn double_async(a: int, b: int) -> int {
+    let partial = await (async_add a b)
+    let result = (+ partial partial)
+    return result
 }
 
-/* Async fn with no await (still valid) */
-async fn add_async(a: int, b: int) -> int {
-    return (+ a b)
+/* Test 1: Basic spawn + scheduler_run + coro_result */
+fn test_basic_spawn() -> int {
+    let coro_h = (coro_spawn async_add 10 32)
+    (scheduler_run)
+    let result = (coro_result coro_h)
+    assert (== result 42)
+    return 0
+}
+
+/* Test 2: Spawn with yield (cooperative multitasking) */
+fn test_yield_coro() -> int {
+    let coro_h = (coro_spawn count_up 5)
+    (scheduler_run)
+    let result = (coro_result coro_h)
+    /* 1+2+3+4+5 = 15 */
+    assert (== result 15)
+    return 0
+}
+
+/* Test 3: Multiple concurrent coroutines */
+fn test_multiple_coros() -> int {
+    let h1 = (coro_spawn async_add 1 2)
+    let h2 = (coro_spawn async_add 3 4)
+    let h3 = (coro_spawn count_up 3)
+    (scheduler_run)
+    let r1 = (coro_result h1)
+    let r2 = (coro_result h2)
+    let r3 = (coro_result h3)
+    assert (== r1 3)
+    assert (== r2 7)
+    /* 1+2+3 = 6 */
+    assert (== r3 6)
+    return 0
+}
+
+/* Test 4: coro_done check */
+fn test_coro_done() -> int {
+    let coro_h = (coro_spawn async_add 100 200)
+    (scheduler_run)
+    let done = (coro_done coro_h)
+    assert (== done true)
+    let result = (coro_result coro_h)
+    assert (== result 300)
+    return 0
+}
+
+/* Test 5: scheduler_step manual stepping */
+fn test_manual_step() -> int {
+    let coro_h = (coro_spawn async_add 7 8)
+    (scheduler_step)
+    let done = (coro_done coro_h)
+    assert (== done true)
+    let result = (coro_result coro_h)
+    assert (== result 15)
+    return 0
+}
+
+/* Test 6: await works inside async fn (nested async calls) */
+async fn test_nested_await() -> int {
+    let result = await (double_async 5 3)
+    /* double_async(5,3) = (5+3)*2 = 16 */
+    assert (== result 16)
+    return 0
+}
+
+fn test_await_in_async() -> int {
+    let coro_h = (coro_spawn test_nested_await)
+    (scheduler_run)
+    let r = (coro_result coro_h)
+    assert (== r 0)
+    return 0
 }
 
 fn main() -> int {
-    /* Test 1: counter with two await steps */
-    let r1 = (counter 10)
-    assert (== r1 12)
+    (println "=== Coroutine Runtime Tests ===")
 
-    /* Test 2: double_async */
-    let r2 = (double_async 21)
-    assert (== r2 42)
+    let r1 = (test_basic_spawn)
+    assert (== r1 0)
+    (println "Test 1 PASS: basic spawn + scheduler_run + coro_result")
 
-    /* Test 3: chain async fn calling async fn */
-    let r3 = (chain_async 5)
-    assert (== r3 11)
+    let r2 = (test_yield_coro)
+    assert (== r2 0)
+    (println "Test 2 PASS: spawn + yield")
 
-    /* Test 4: async fn without await */
-    let r4 = (add_async 7 3)
-    assert (== r4 10)
+    let r3 = (test_multiple_coros)
+    assert (== r3 0)
+    (println "Test 3 PASS: multiple concurrent coroutines")
 
-    (println "coroutine runtime tests PASSED")
+    let r4 = (test_coro_done)
+    assert (== r4 0)
+    (println "Test 4 PASS: coro_done + coro_result")
+
+    let r5 = (test_manual_step)
+    assert (== r5 0)
+    (println "Test 5 PASS: manual scheduler_step")
+
+    let r6 = (test_await_in_async)
+    assert (== r6 0)
+    (println "Test 6 PASS: await inside async fn")
+
+    (println "=== All coroutine tests passed! ===")
     return 0
 }
 
 shadow main {
     assert (== (main) 0)
-}
-
-shadow counter {
-    assert (== (counter 0) 2)
-    assert (== (counter 10) 12)
-    assert (== (counter 100) 102)
-}
-
-shadow double_async {
-    assert (== (double_async 0) 0)
-    assert (== (double_async 21) 42)
-    assert (== (double_async 5) 10)
-}
-
-shadow chain_async {
-    assert (== (chain_async 5) 11)
-    assert (== (chain_async 0) 1)
-}
-
-shadow add_async {
-    assert (== (add_async 7 3) 10)
-    assert (== (add_async 0 0) 0)
 }
