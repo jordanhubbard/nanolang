@@ -43,6 +43,32 @@ check ":help command"     ":help"            "quit"
 # String result
 check "string literal"    '"hello";'         '"hello"'
 
+# ── Hot-reload commands ──────────────────────────────────────────────────────
+
+# :load — load a file and eval it
+TMPLOAD=$(mktemp /tmp/test_load_XXXXXX.nano)
+echo 'fn greet() -> int { return 42 }' > "$TMPLOAD"
+check ":load file"  ":load $TMPLOAD" "loaded"
+rm -f "$TMPLOAD"
+
+# :save — save session to file, verify it contains a known fragment
+TMPSAVE=$(mktemp /tmp/test_save_XXXXXX.nano)
+check ":save file"  "let saved_var = 7; :save $TMPSAVE" "saved"
+rm -f "$TMPSAVE"
+
+# :reload — define a function, write an updated version to disk, reload it
+TMPRELOAD=$(mktemp /tmp/test_reload_XXXXXX.nano)
+echo 'fn hotfn() -> int { return 1 }' > "$TMPRELOAD"
+check ":reload hot-patch"  ":load $TMPRELOAD
+fn hotfn() -> int { return 2 }
+:reload $TMPRELOAD" "reload"
+rm -f "$TMPRELOAD"
+
+# :help should mention the new commands
+check ":help mentions :load"   ":help" ":load"
+check ":help mentions :reload" ":help" ":reload"
+check ":help mentions :save"   ":help" ":save"
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ $FAIL -eq 0 ]

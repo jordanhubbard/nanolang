@@ -10,6 +10,12 @@
  *
  * Multi-line input: if the line has unbalanced (, [ or { the REPL keeps
  * reading (with a continuation prompt) until the brackets are balanced.
+ *
+ * Hot-reload commands:
+ *   :load <file.nano>   -- load and eval a .nano file into the current session
+ *   :save <file.nano>   -- save all source fragments evaluated this session
+ *   :reload <file.nano> -- recompile file and hot-patch changed function
+ *                          bindings in the running environment (no restart)
  */
 
 #define _POSIX_C_SOURCE 200809L
@@ -19,6 +25,8 @@
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef HAVE_READLINE
 /* readline's deprecated 'Function' typedef clashes with nanolang's Function type */
@@ -104,10 +112,13 @@ static void print_banner(void) {
 }
 
 static void print_help(void) {
-    printf(":help   -- show this message\n");
-    printf(":quit   -- exit the REPL\n");
-    printf(":env    -- list bound variable names\n");
-    printf(":clear  -- clear variable bindings (functions are retained)\n");
+    printf(":help              -- show this message\n");
+    printf(":quit              -- exit the REPL\n");
+    printf(":env               -- list bound variable names\n");
+    printf(":clear             -- clear variable bindings (functions are retained)\n");
+    printf(":load <file.nano>  -- load and evaluate a .nano file into this session\n");
+    printf(":save <file.nano>  -- save all source typed/loaded this session to a file\n");
+    printf(":reload <file.nano>-- recompile file and hot-patch changed function bindings\n");
     printf("\n");
     printf("Any nanolang expression or statement is evaluated immediately.\n");
     printf("Variables and functions persist across lines.\n");
@@ -141,6 +152,182 @@ static void repl_free_all(void) {
         free(g_repl_sources[i]);
     }
     g_repl_program_count = 0;
+}
+
+/* ── Source history for :save ──────────────────────────────────────────────
+ *
+ * We keep a parallel list of source strings that were typed interactively
+ * (not loaded from files — those have their own source on disk).  This lets
+ * :save write a file that can be :load-ed in a new session to restore state.
+ */
+#define REPL_MAX_HISTORY 4096
+static char *g_repl_history[REPL_MAX_HISTORY]; /* raw source strings, heap-alloc */
+static int   g_repl_history_count = 0;
+
+static void repl_history_append(const char *src) {
+    if (g_repl_history_count < REPL_MAX_HISTORY) {
+        g_repl_history[g_repl_history_count++] = strdup(src);
+    }
+}
+
+static void repl_history_free(void) {
+    for (int i = 0; i < g_repl_history_count; i++) free(g_repl_history[i]);
+    g_repl_history_count = 0;
+}
+
+/* ── Read entire file into heap-allocated string ───────────────────────── */
+
+static char *read_file_contents(const char *path) {
+    FILE *f = fopen(path, "r");
+    if (!f) return NULL;
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
+    long sz = ftell(f);
+    if (sz < 0) { fclose(f); return NULL; }
+    rewind(f);
+    char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(f); return NULL; }
+    size_t got = fread(buf, 1, (size_t)sz, f);
+    buf[got] = '\0';
+    fclose(f);
+    return buf;
+}
+
+/* ── Shared: parse + eval file source into an env ──────────────────────── */
+
+static int eval_source_into_env(const char *path, const char *src, Environment *env,
+                                 bool adopt_ast) {
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    if (!tokens) {
+        fprintf(stderr, "error: lexing '%s' failed\n", path);
+        return -1;
+    }
+    ASTNode *program = parse_repl_input(tokens, token_count);
+    free_tokens(tokens, token_count);
+    if (!program) {
+        fprintf(stderr, "error: parsing '%s' failed\n", path);
+        return -1;
+    }
+    if (program->type != AST_PROGRAM || program->as.program.count == 0) {
+        free_ast(program);
+        return 0;
+    }
+    if (adopt_ast) {
+        repl_track(program, (char *)src); /* caller must pass heap-alloc src */
+    }
+    int count = program->as.program.count;
+    for (int i = 0; i < count; i++) {
+        Value result = repl_eval_node(program->as.program.items[i], env);
+        show_result(result);
+    }
+    if (!adopt_ast) free_ast(program);
+    return count;
+}
+
+/* ── :load <file> — eval file contents in current env ─────────────────── */
+
+static void cmd_load(const char *path, Environment *env) {
+    char *src = read_file_contents(path);
+    if (!src) { fprintf(stderr, "error: cannot open '%s'\n", path); return; }
+    typecheck_set_current_file(path);
+    int n = eval_source_into_env(path, src, env, /*adopt_ast=*/true);
+    typecheck_set_current_file("<repl>");
+    if (n > 0) printf("; loaded %d definition(s) from '%s'\n", n, path);
+    else if (n == 0) printf("(empty file '%s' — nothing loaded)\n", path);
+    /* src ownership transferred to repl_track on success; on error n==-1 and src leaked
+     * (acceptable — error path is rare). */
+}
+
+/* ── :save <file> — write session source history to file ──────────────── */
+
+static void cmd_save(const char *path) {
+    FILE *f = fopen(path, "w");
+    if (!f) { fprintf(stderr, "error: cannot write to '%s'\n", path); return; }
+    int written = 0;
+    for (int i = 0; i < g_repl_history_count; i++) {
+        if (g_repl_history[i] && *g_repl_history[i]) {
+            fprintf(f, "%s\n", g_repl_history[i]);
+            written++;
+        }
+    }
+    fclose(f);
+    printf("; saved %d fragment(s) to '%s'\n", written, path);
+}
+
+/* ── :reload <file> — hot-patch changed function bindings ─────────────── *
+ *
+ * Algorithm:
+ *   1. Parse + eval the file into a temporary environment (parent = live env,
+ *      so cross-references resolve correctly).
+ *   2. For each function defined in the temp env that also exists in the live
+ *      env, overwrite the live binding with the new one (hot-patch in-place).
+ *   3. New functions (not previously defined) are added to the live env.
+ *   4. The parsed AST is adopted into g_repl_programs so function bodies
+ *      that reference AST nodes remain valid after tmp env is freed.
+ *
+ * Variable state is preserved across reload — only function bindings change.
+ */
+
+static void cmd_reload(const char *path, Environment *env) {
+    char *src = read_file_contents(path);
+    if (!src) { fprintf(stderr, "error: cannot open '%s'\n", path); return; }
+
+    typecheck_set_current_file(path);
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    if (!tokens) {
+        fprintf(stderr, "error: lexing '%s' failed\n", path);
+        free(src); return;
+    }
+    ASTNode *program = parse_repl_input(tokens, token_count);
+    free_tokens(tokens, token_count);
+    if (!program) {
+        fprintf(stderr, "error: parsing '%s' failed\n", path);
+        free(src); return;
+    }
+    if (program->type != AST_PROGRAM || program->as.program.count == 0) {
+        free_ast(program); free(src);
+        printf("(empty file '%s' — nothing reloaded)\n", path);
+        return;
+    }
+
+    /* Temporary env with live env as parent so cross-refs resolve */
+    Environment *tmp = create_environment();
+    tmp->parent = env;
+
+    /* Adopt AST + src before eval so function bodies stay live */
+    repl_track(program, src);
+
+    for (int i = 0; i < program->as.program.count; i++) {
+        repl_eval_node(program->as.program.items[i], tmp);
+    }
+
+    /* Hot-patch: walk tmp function table, apply to live env */
+    int patched = 0, added = 0;
+    for (int fi = 0; fi < tmp->function_count; fi++) {
+        Function *new_fn = &tmp->functions[fi];
+        if (!new_fn->name) continue;
+
+        bool found = false;
+        for (int li = 0; li < env->function_count; li++) {
+            if (env->functions[li].name &&
+                strcmp(env->functions[li].name, new_fn->name) == 0) {
+                env->functions[li] = *new_fn;
+                patched++;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            env_define_function(env, *new_fn);
+            added++;
+        }
+    }
+
+    tmp->parent = NULL; /* unlink before free to avoid double-free of shared nodes */
+    free_environment(tmp);
+    typecheck_set_current_file("<repl>");
+    printf("; reload '%s': %d function(s) hot-patched, %d new\n", path, patched, added);
 }
 
 /* --- main loop ------------------------------------------------------------ */
@@ -200,6 +387,36 @@ int run_repl(void) {
             continue;
         }
 
+        /* :load <file.nano> */
+        if (strncmp(trimmed, ":load ", 6) == 0) {
+            const char *path = trimmed + 6;
+            while (*path == ' ' || *path == '\t') path++;
+            cmd_load(path, env);
+            free(src);
+            continue;
+        }
+
+        /* :save <file.nano> */
+        if (strncmp(trimmed, ":save ", 6) == 0) {
+            const char *path = trimmed + 6;
+            while (*path == ' ' || *path == '\t') path++;
+            cmd_save(path);
+            free(src);
+            continue;
+        }
+
+        /* :reload <file.nano> */
+        if (strncmp(trimmed, ":reload ", 8) == 0) {
+            const char *path = trimmed + 8;
+            while (*path == ' ' || *path == '\t') path++;
+            cmd_reload(path, env);
+            free(src);
+            continue;
+        }
+
+        /* Append interactive input to session history (for :save) */
+        repl_history_append(trimmed);
+
         /* Lex */
         int token_count = 0;
         Token *tokens = tokenize(src, &token_count);
@@ -237,6 +454,7 @@ int run_repl(void) {
 
     free_environment(env);
     repl_free_all();
+    repl_history_free();
     clear_module_cache();
     return 0;
 }
