@@ -145,3 +145,20 @@ int64_t rl_write_history_wrapper(const char* filename) {
     if (!filename) return -1;
     return (int64_t)write_history(filename);
 }
+
+/* Stifle history to max entries (keeps last N entries) */
+void rl_stifle_history_wrapper(int64_t max_entries) {
+    stifle_history((int)max_entries);
+}
+
+/* Append history to a file (instead of overwriting) */
+int64_t rl_append_history_wrapper(int64_t nelements, const char* filename) {
+    if (!filename) return -1;
+#ifdef __APPLE__
+    /* libedit doesn't have append_history; fall back to write */
+    (void)nelements;
+    return (int64_t)write_history(filename);
+#else
+    return (int64_t)append_history((int)nelements, filename);
+#endif
+}
