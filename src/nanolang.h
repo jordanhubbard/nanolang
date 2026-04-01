@@ -128,6 +128,27 @@ typedef struct TypeInfo {
     
     /* For function types: fn(int, int) -> int */
     struct FunctionSignature *fn_sig;  /* Function signature with param/return types */
+
+    /* For row-polymorphic record types: { name: String, age: Int | r }
+     * When is_open_row is true, the record has an unconstrained row variable
+     * (represented by row_var_name, e.g. "r") that allows extension.
+     * row_field_names / row_field_types are the known fields; row_field_count
+     * is the number of fields.  row_var_name == NULL means a closed record.
+     */
+    bool   is_open_row;        /* True if this is an open/extensible row type */
+    char  *row_var_name;       /* Name of the row variable, e.g. "r" (NULL = closed) */
+    char **row_field_names;    /* Field names array (NULL-terminated or row_field_count) */
+    Type  *row_field_types;    /* Field types parallel to row_field_names */
+    char **row_field_type_names; /* Struct/enum names for TYPE_STRUCT fields */
+    int    row_field_count;    /* Number of known fields */
+
+    /* Type-scheme generalization: ∀ type variables (HM inference)
+     * When type_var_count > 0, this TypeInfo represents a polymorphic type scheme.
+     * type_var_names holds the quantified variables, e.g. ["a", "b"].
+     * Display: ∀a. List<a>
+     */
+    char **type_var_names;     /* Quantified type variable names (for display) */
+    int    type_var_count;     /* Number of quantified type variables */
 } TypeInfo;
 
 /* Value structure */
