@@ -35,6 +35,9 @@
 #define LLVM_MAX_VARS   256    /* local variable slots per function */
 #define LLVM_MAX_BLOCKS 1024   /* block label counter */
 
+/* Max functions tracked for debug metadata */
+#define LLVM_MAX_DEBUG_FNS 256
+
 typedef struct {
     FILE       *out;           /* output .ll file */
     int         tmp;           /* SSA temporary counter (%0, %1, ...) */
@@ -46,6 +49,15 @@ typedef struct {
     int         var_count;
     bool        verbose;
     int         error;         /* non-zero = error occurred */
+    /* Debug info */
+    bool        debug;
+    const char *source_file;
+    /* Per-function debug info (name + line) for metadata emission */
+    struct {
+        char name[128];
+        int  line;
+    } fn_dbg[LLVM_MAX_DEBUG_FNS];
+    int fn_count;              /* number of functions emitted */
 } LLVMCtx;
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -375,6 +387,14 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
     char safe_name[128];
     ll_ident(safe_name, sizeof(safe_name), name);
 
+    /* Record debug info for this function */
+    int fn_idx = ctx->fn_count;
+    if (ctx->debug && fn_idx < LLVM_MAX_DEBUG_FNS) {
+        snprintf(ctx->fn_dbg[fn_idx].name, 128, "%s", name);
+        ctx->fn_dbg[fn_idx].line = fn->line;
+        ctx->fn_count++;
+    }
+
     /* Function signature */
     emit(ctx, "define %s @nano_%s(", ret_t, safe_name);
     for (int i = 0; i < fn->as.function.param_count; i++) {
@@ -384,7 +404,12 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
         emit(ctx, "%s %%arg_%s", pt,
              fn->as.function.params[i].name ? fn->as.function.params[i].name : "_");
     }
-    emit(ctx, ") {\nentry:\n");
+    if (ctx->debug && fn_idx < LLVM_MAX_DEBUG_FNS) {
+        /* metadata ID for this function's DISubprogram: 7 + fn_idx*3 */
+        emit(ctx, ") !dbg !%d {\nentry:\n", 7 + fn_idx * 3);
+    } else {
+        emit(ctx, ") {\nentry:\n");
+    }
 
     /* Reset per-function state */
     ctx->tmp = 0;
@@ -420,7 +445,7 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
 /* ── Top-level emitter ───────────────────────────────────────────────────── */
 
 int llvm_backend_emit(ASTNode *program, const char *out_path,
-                       const char *source_file, bool verbose) {
+                       const char *source_file, bool verbose, bool debug) {
     if (!program || !out_path) return 1;
 
     FILE *out = fopen(out_path, "w");
@@ -429,7 +454,8 @@ int llvm_backend_emit(ASTNode *program, const char *out_path,
         return 1;
     }
 
-    LLVMCtx ctx = { .out = out, .verbose = verbose };
+    LLVMCtx ctx = { .out = out, .verbose = verbose,
+                    .debug = debug, .source_file = source_file };
 
     /* ── Pass 1: collect all string literals (two-pass to hoist globals) ── */
     /* We do a single-pass with a deferred globals list — see emit_str_globals */
@@ -482,6 +508,73 @@ int llvm_backend_emit(ASTNode *program, const char *out_path,
     /* ── Write function IR ─────────────────────────────────────────────── */
     fwrite(fn_buf, 1, fn_size, out);
     free(fn_buf);
+
+    /* ── Emit DWARF v4 debug metadata ─────────────────────────────────── */
+    if (debug && ctx.fn_count >= 0) {
+        const char *sf = source_file ? source_file : "<unknown>";
+        /* Extract directory and filename */
+        const char *slash = strrchr(sf, '/');
+        const char *base  = slash ? slash + 1 : sf;
+        char dir[256] = ".";
+        if (slash) {
+            size_t dlen = (size_t)(slash - sf);
+            if (dlen < sizeof(dir)) {
+                strncpy(dir, sf, dlen);
+                dir[dlen] = '\0';
+            }
+        }
+
+        /* Module-level metadata references */
+        fprintf(out, "\n!llvm.dbg.cu = !{!0}\n");
+        fprintf(out, "!llvm.module.flags = !{!3, !4, !5}\n");
+        fprintf(out, "!llvm.ident = !{!6}\n\n");
+
+        /* Fixed metadata nodes:
+         *   !0 = DICompileUnit
+         *   !1 = DIFile
+         *   !2 = empty array
+         *   !3 = Dwarf Version flag
+         *   !4 = Debug Info Version flag
+         *   !5 = wchar_size flag
+         *   !6 = producer string
+         *   For function i: !{7+i*3} = DISubprogram
+         *                   !{7+i*3+1} = DISubroutineType
+         *                   !{7+i*3+2} = types array
+         */
+        fprintf(out,
+            "!0 = distinct !DICompileUnit("
+            "language: DW_LANG_C99, file: !1, producer: \"nanoc\", "
+            "isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, "
+            "splitDebugInlining: false, nameTableKind: None)\n");
+        fprintf(out,
+            "!1 = !DIFile(filename: \"%s\", directory: \"%s\")\n",
+            base, dir);
+        fprintf(out, "!2 = !{}\n");
+        fprintf(out,
+            "!3 = !{i32 7, !\"Dwarf Version\", i32 4}\n"
+            "!4 = !{i32 2, !\"Debug Info Version\", i32 3}\n"
+            "!5 = !{i32 1, !\"wchar_size\", i32 4}\n"
+            "!6 = !{!\"nanoc\"}\n");
+
+        for (int i = 0; i < ctx.fn_count; i++) {
+            int sp_id   = 7 + i * 3;
+            int ty_id   = sp_id + 1;
+            int arr_id  = sp_id + 2;
+            int ln      = ctx.fn_dbg[i].line > 0 ? ctx.fn_dbg[i].line : 1;
+            fprintf(out,
+                "!%d = distinct !DISubprogram("
+                "name: \"%s\", scope: !1, file: !1, line: %d, "
+                "type: !%d, isLocal: false, isDefinition: true, "
+                "scopeLine: %d, flags: DIFlagPrototyped, "
+                "spFlags: DISPFlagDefinition, unit: !0, "
+                "retainedNodes: !2)\n",
+                sp_id, ctx.fn_dbg[i].name, ln, ty_id, ln);
+            fprintf(out,
+                "!%d = !DISubroutineType(types: !%d)\n",
+                ty_id, arr_id);
+            fprintf(out, "!%d = !{null}\n", arr_id);
+        }
+    }
 
     fclose(out);
 

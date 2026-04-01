@@ -23,14 +23,15 @@
 /*
  * llvm_backend_emit — generate LLVM IR from a nanolang AST.
  *
- * program    — parsed + type-checked AST
- * out_path   — output .ll file path
+ * program     — parsed + type-checked AST
+ * out_path    — output .ll file path
  * source_file — original .nano path (for !DIFile metadata)
- * verbose    — print progress
+ * verbose     — print progress
+ * debug       — emit DWARF v4 debug metadata (!DICompileUnit, !DISubprogram)
  *
  * Returns 0 on success, non-zero on error.
  */
 int llvm_backend_emit(ASTNode *program, const char *out_path,
-                       const char *source_file, bool verbose);
+                       const char *source_file, bool verbose, bool debug);
 
 #endif /* NANOLANG_LLVM_BACKEND_H */

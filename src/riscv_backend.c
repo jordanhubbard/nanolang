@@ -29,6 +29,7 @@
  */
 
 #include "riscv_backend.h"
+#include "dwarf_info.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -52,11 +53,13 @@ typedef struct {
     const char *source_file;
     bool        verbose;
     bool        error;
+    bool        debug;           /* emit DWARF .file/.loc directives */
     int         label_seq;      /* for unique branch labels */
     int         frame_size;     /* current function frame size */
     RVLocal     locals[RISCV_MAX_LOCALS];
     int         local_count;
     const char *fn_name;        /* current function being emitted */
+    int         dbg_file_idx;   /* .file directive index (1-based) */
 } RVCtx;
 
 static void rv_emit(RVCtx *ctx, const char *fmt, ...) {
@@ -114,13 +117,20 @@ static void rv_emit_preamble(RVCtx *ctx) {
         "# Assembles with: riscv64-unknown-elf-as %s.s -o %s.o\n"
         "#                 riscv64-unknown-elf-ld  %s.o -o %s.elf\n\n"
         "\t.option arch, rv64imafdc\n"
-        "\t.option pic, off\n\n"
-        "\t.section\t.rodata\n",
+        "\t.option pic, off\n\n",
         ctx->source_file ? ctx->source_file : "<unknown>",
         ctx->source_file ? ctx->source_file : "out",
         ctx->source_file ? ctx->source_file : "out",
         ctx->source_file ? ctx->source_file : "out",
         ctx->source_file ? ctx->source_file : "out");
+
+    /* Emit .file directive for DWARF source file table */
+    if (ctx->debug && ctx->source_file) {
+        ctx->dbg_file_idx = 1;
+        rv_emit(ctx, "\t.file\t%d \"%s\"\n\n", ctx->dbg_file_idx, ctx->source_file);
+    }
+
+    rv_emit(ctx, "\t.section\t.rodata\n");
 }
 
 /* ── String literals pool ─────────────────────────────────────────── */
@@ -328,6 +338,15 @@ static void rv_emit_stmt(RVCtx *ctx, ASTNode *node) {
             rv_emit(ctx, "\n\t.section\t.text\n");
             rv_emit(ctx, "\t.global\t%s\n", fn);
             rv_emit(ctx, "\t.type\t%s, @function\n", fn);
+
+            /* Emit .loc directive for source-level debugging */
+            if (ctx->debug && ctx->dbg_file_idx > 0) {
+                int ln = node->line > 0 ? node->line : 1;
+                int cl = node->column > 0 ? node->column : 0;
+                rv_emit(ctx, "\t.loc\t%d %d %d\n",
+                        ctx->dbg_file_idx, ln, cl);
+            }
+
             rv_emit(ctx, "%s:\n", fn);
 
             /* Prologue */
@@ -464,18 +483,43 @@ static void rv_emit_print_strings(RVCtx *ctx) {
 /* ── Public API ───────────────────────────────────────────────────── */
 
 int riscv_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
-                          bool verbose) {
+                          bool verbose, bool debug) {
     if (!root || !out) return 1;
 
     RVCtx ctx = {0};
     ctx.out         = out;
     ctx.source_file = source_file;
     ctx.verbose     = verbose;
+    ctx.debug       = debug;
 
     rv_emit_preamble(&ctx);
     rv_emit_print_strings(&ctx);
-    rv_emit(&ctx, "\n");
-    rv_emit_stmt(&ctx, root);
+
+    /* When debug mode is on, emit DWARF sections at end of file */
+    if (debug) {
+        /* Use a two-pass approach: emit code first, then DWARF sections */
+        rv_emit(&ctx, "\n");
+        rv_emit_stmt(&ctx, root);
+
+        DwarfBuilder *db = dwarf_begin(source_file ? source_file : "<unknown>");
+        if (db) {
+            /* Walk top-level functions to register them */
+            if (root->type == AST_PROGRAM) {
+                for (int i = 0; i < root->as.program.count; i++) {
+                    ASTNode *n = root->as.program.items[i];
+                    if (n && n->type == AST_FUNCTION && !n->as.function.is_extern)
+                        dwarf_function(db, n->as.function.name,
+                                       0, n->line, n->column,
+                                       (int)n->as.function.return_type);
+                }
+            }
+            dwarf_emit_asm_sections(db, out);
+            dwarf_free(db);
+        }
+    } else {
+        rv_emit(&ctx, "\n");
+        rv_emit_stmt(&ctx, root);
+    }
 
     if (verbose)
         fprintf(stderr, "[riscv_backend] emitted RISC-V RV64IMA asm from %s\n",
@@ -484,7 +528,7 @@ int riscv_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
 }
 
 int riscv_backend_emit(ASTNode *root, const char *output_path,
-                       const char *source_file, bool verbose) {
+                       const char *source_file, bool verbose, bool debug) {
     FILE *out;
     bool close_out = false;
 
@@ -499,7 +543,7 @@ int riscv_backend_emit(ASTNode *root, const char *output_path,
         out = stdout;
     }
 
-    int rc = riscv_backend_emit_fp(root, out, source_file, verbose);
+    int rc = riscv_backend_emit_fp(root, out, source_file, verbose, debug);
     if (close_out) fclose(out);
     return rc;
 }

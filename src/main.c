@@ -68,6 +68,7 @@ typedef struct {
     bool tco;                  /* --tco: enable tail-call optimization pass */
     const char *pgo_profile;   /* --pgo <path>: apply profile-guided inlining from .nano.prof */
     bool llvm;                 /* --llvm: emit LLVM IR (.ll) instead of transpiled C */
+    bool debug;                /* --debug / -g: emit DWARF v4 debug information */
     bool bench;                /* --bench: run @bench-annotated functions */
     uint64_t bench_n;          /* --bench-n <N>: fixed iteration count (0 = auto) */
     const char *bench_json;    /* --bench-json <path>: write JSON results to file */
@@ -542,6 +543,37 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         return c_rc;
     }
 
+    /* ── LLVM IR: emit .ll and exit ──────────────────────────────────────── */
+    if (opts->llvm) {
+        const char *ll_out = output_file;
+        char ll_out_buf[PATH_MAX];
+        if (!ll_out) {
+            strncpy(ll_out_buf, input_file, PATH_MAX - 4);
+            ll_out_buf[PATH_MAX - 4] = '\0';
+            char *dot = strrchr(ll_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(ll_out_buf, ".ll");
+            ll_out = ll_out_buf;
+        }
+        if (opts->verbose) printf("Emitting LLVM IR → %s\n", ll_out);
+        int ll_rc = llvm_backend_emit(program, ll_out, input_file,
+                                      opts->verbose, opts->debug);
+        if (ll_rc == 0) {
+            printf("✓ LLVM IR emitted to %s\n", ll_out);
+            printf("  Compile: clang -O2 %s -o %s.out\n", ll_out, ll_out);
+        } else {
+            fprintf(stderr, "LLVM backend failed\n");
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return ll_rc;
+    }
+
     /* ── RISC-V target: emit .s assembly and exit ─────────────────────── */
     if (opts->target && strcmp(opts->target, "riscv") == 0) {
         const char *rv_out = output_file;
@@ -555,7 +587,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             rv_out = rv_out_buf;
         }
         if (opts->verbose) printf("Emitting RISC-V asm → %s\n", rv_out);
-        int rv_rc = riscv_backend_emit(program, rv_out, input_file, opts->verbose);
+        int rv_rc = riscv_backend_emit(program, rv_out, input_file,
+                                       opts->verbose, opts->debug);
         if (rv_rc == 0) {
             printf("✓ RISC-V assembly emitted to %s\n", rv_out);
             printf("  Assemble: riscv64-unknown-elf-gcc -nostdlib %s -o %s.elf\n",
@@ -1425,6 +1458,7 @@ int main(int argc, char *argv[]) {
         printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
+        printf("  --debug / -g   Emit DWARF v4 debug info (with --llvm or --target riscv)\n");
         printf("                 Compile: llc -march=aarch64 prog.ll -o prog.s\n");
         printf("  --bench        Run @bench-annotated functions (micro-benchmark mode)\n");
         printf("  --bench-n <N>  Fixed iteration count (default: auto-calibrate to ~1s)\n");
@@ -1590,7 +1624,8 @@ int main(int argc, char *argv[]) {
         .target = NULL,
         .no_sourcemap = false,
         .pgo_profile = NULL,
-        .llvm = false
+        .llvm = false,
+        .debug = false
     };
     
     /* Allocate arrays for flags */
@@ -1704,6 +1739,8 @@ int main(int argc, char *argv[]) {
             opts.pgo_profile = argv[++i];
         } else if (strcmp(argv[i], "--llvm") == 0) {
             opts.llvm = true;
+        } else if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-g") == 0) {
+            opts.debug = true;
         } else if (strcmp(argv[i], "--bench") == 0) {
             opts.bench = true;
         } else if (strcmp(argv[i], "--bench-n") == 0 && i + 1 < argc) {

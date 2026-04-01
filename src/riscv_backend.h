@@ -22,9 +22,9 @@
 #include <stdbool.h>
 
 int riscv_backend_emit(ASTNode *root, const char *output_path,
-                       const char *source_file, bool verbose);
+                       const char *source_file, bool verbose, bool debug);
 
 int riscv_backend_emit_fp(ASTNode *root, FILE *out,
-                          const char *source_file, bool verbose);
+                          const char *source_file, bool verbose, bool debug);
 
 #endif /* RISCV_BACKEND_H */
