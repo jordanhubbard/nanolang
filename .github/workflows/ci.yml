@@ -543,7 +543,6 @@ jobs:
   bench:
     name: Benchmark regression check
     runs-on: ubuntu-24.04
-    needs: validate-topology
     if: false  # disabled until nanoc --bench is fully wired to interpreter
 
     steps:
