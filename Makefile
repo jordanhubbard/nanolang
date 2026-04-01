@@ -27,7 +27,7 @@ all:
 		exit 1; \
 	fi
 
-build test test-docs examples clean help install uninstall coverage coverage-report module-package-audit wasm-playground wasm-playground-clean test-ringbuf:
+build test test-docs test-doc-md examples clean help install uninstall coverage coverage-report module-package-audit wasm-playground wasm-playground-clean test-ringbuf:
 	@if $(MAKE) --version 2>/dev/null | grep -q 'GNU Make' 2>/dev/null; then \
 		$(MAKE) -f GNUmakefile $@; \
 	elif command -v gmake >/dev/null 2>&1; then \

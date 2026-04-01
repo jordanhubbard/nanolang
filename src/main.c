@@ -5,6 +5,7 @@
 #include "interpreter_ffi.h"
 #include "reflection.h"
 #include "emit_typed_ast.h"
+#include "docgen_md.h"
 #include "runtime/list_CompilerDiagnostic.h"
 #include "toon_output.h"
 #include "nanocore_subset.h"
@@ -72,6 +73,7 @@ typedef struct {
     bool bench;                /* --bench: run @bench-annotated functions */
     uint64_t bench_n;          /* --bench-n <N>: fixed iteration count (0 = auto) */
     const char *bench_json;    /* --bench-json <path>: write JSON results to file */
+    bool doc_md;               /* --doc-md / -dm: emit GFM Markdown API docs */
 } CompilerOptions;
 
 /* Return TMPDIR if set, otherwise "/tmp" (matches pattern in eval_io.c:177) */
@@ -399,9 +401,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
-    /* Use type_check_module if reflection is requested (modules don't need main) */
-    bool typecheck_success = opts->reflect_output_path ? 
-        type_check_module(program, env) : 
+    /* Use type_check_module if reflection or doc-md is requested (no main needed) */
+    bool typecheck_success = (opts->reflect_output_path || opts->doc_md) ?
+        type_check_module(program, env) :
         type_check(program, env);
     
     if (!typecheck_success) {
@@ -737,6 +739,54 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(name_copy);
         
         /* Clean up and exit - no need to compile when reflecting */
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 0;
+    }
+
+    /* Phase 4.42: Emit GFM Markdown docs (--doc-md) */
+    if (opts->doc_md) {
+        /* Extract module name from input file */
+        const char *module_name = strrchr(input_file, '/');
+        module_name = module_name ? module_name + 1 : input_file;
+        char *name_copy = strdup(module_name);
+        char *dot = strrchr(name_copy, '.');
+        if (dot && strcmp(dot, ".nano") == 0) *dot = '\0';
+
+        /* Determine output path: use -o if provided, else <module>.md */
+        char md_out_buf[512];
+        const char *md_out = output_file;
+        /* output_file defaults to TMPDIR/nanoc_a.out; treat that as "not set" */
+        {
+            char default_prefix[64];
+            snprintf(default_prefix, sizeof(default_prefix), "%s/nanoc_a.out",
+                     get_tmp_dir());
+            if (strcmp(md_out, default_prefix) == 0) {
+                snprintf(md_out_buf, sizeof(md_out_buf), "%s.md", name_copy);
+                md_out = md_out_buf;
+            }
+        }
+
+        if (opts->verbose) printf("→ Emitting Markdown docs to %s\n", md_out);
+
+        if (!emit_doc_md(md_out, program, source, name_copy)) {
+            fprintf(stderr, "Error: Failed to emit Markdown docs\n");
+            free(name_copy);
+            free_ast(program);
+            free_tokens(tokens, token_count);
+            free_environment(env);
+            free_module_list(modules);
+            free(source);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+
+        if (opts->verbose) printf("✓ Markdown docs written to %s\n", md_out);
+        free(name_copy);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1625,7 +1675,8 @@ int main(int argc, char *argv[]) {
         .no_sourcemap = false,
         .pgo_profile = NULL,
         .llvm = false,
-        .debug = false
+        .debug = false,
+        .doc_md = false
     };
     
     /* Allocate arrays for flags */
@@ -1747,6 +1798,9 @@ int main(int argc, char *argv[]) {
             opts.bench_n = (uint64_t)strtoull(argv[++i], NULL, 10);
         } else if (strcmp(argv[i], "--bench-json") == 0 && i + 1 < argc) {
             opts.bench_json = argv[++i];
+        } else if (strcmp(argv[i], "--doc-md") == 0 ||
+                   strcmp(argv[i], "-dm") == 0) {
+            opts.doc_md = true;
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
