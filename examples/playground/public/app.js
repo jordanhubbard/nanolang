@@ -50,7 +50,72 @@ const clearBtn      = document.getElementById('clear-btn');
 const clearOutputBtn= document.getElementById('clear-output-btn');
 const copyBtn       = document.getElementById('copy-btn');
 const downloadBtn   = document.getElementById('download-btn');
+const shareBtn      = document.getElementById('share-btn');
 const statusBar     = document.getElementById('status-bar');
+
+// ── CodeMirror integration ────────────────────────────────────────────────────
+// When CodeMirror 6 initialises (via the ES module in index.html) it exposes
+// window._cmGetSource and window._cmSetSource.  We prefer CM over the textarea
+// but fall back gracefully if CM hasn't loaded (e.g. offline / CDN blocked).
+function getSource() {
+    return window._cmGetSource ? window._cmGetSource() : codeEditor.value;
+}
+function setSource(src) {
+    if (window._cmSetSource) window._cmSetSource(src);
+    else setSource(src);
+}
+
+// ── URL-hash permalink ────────────────────────────────────────────────────────
+// Format: #v1/<base64url-encoded gzipped source>
+// Falls back to plain base64 when CompressionStream is unavailable.
+
+async function encodeSource(src) {
+    try {
+        const buf = new TextEncoder().encode(src);
+        const cs  = new CompressionStream('gzip');
+        const w   = cs.writable.getWriter();
+        w.write(buf); w.close();
+        const out = await new Response(cs.readable).arrayBuffer();
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(out)));
+        return 'v1/' + b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    } catch {
+        return 'v0/' + btoa(unescape(encodeURIComponent(src))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    }
+}
+
+async function decodeSource(hash) {
+    const m = hash.match(/^#(v[01])\/(.+)$/);
+    if (!m) return null;
+    const [, ver, b64] = m;
+    const padded = b64.replace(/-/g,'+').replace(/_/g,'/') + '=='.slice(0, (4 - b64.length % 4) % 4);
+    const bytes = Uint8Array.from(atob(padded), c => c.charCodeAt(0));
+    if (ver === 'v1') {
+        try {
+            const ds  = new DecompressionStream('gzip');
+            const w   = ds.writable.getWriter();
+            w.write(bytes); w.close();
+            const buf = await new Response(ds.readable).arrayBuffer();
+            return new TextDecoder().decode(buf);
+        } catch { /* fall through */ }
+    }
+    // v0 or decompression failed — plain base64
+    return decodeURIComponent(escape(atob(padded)));
+}
+
+// Restore from URL hash on load
+(async () => {
+    if (location.hash.length > 2) {
+        const src = await decodeSource(location.hash);
+        if (src) {
+            // Wait for CM to be ready before setting source
+            if (window._cmSetSource) setSource(src);
+            else {
+                setSource(src);
+                window.addEventListener('cm-ready', () => setSource(src), { once: true });
+            }
+        }
+    }
+})();
 
 runBtn.disabled = true;  // enabled once WASM is ready
 
@@ -70,7 +135,7 @@ function setupEventListeners() {
 
     clearBtn.addEventListener('click', () => {
         if (confirm('Clear the editor? This cannot be undone.')) {
-            codeEditor.value = '';
+            setSource('');
             clearOutput();
             isDirty = false;
         }
@@ -94,7 +159,7 @@ function loadExample(key) {
     if (!example) return;
     if (isDirty && !confirm('You have unsaved changes. Load example anyway?')) return;
 
-    codeEditor.value = example.code;
+    setSource(example.code);
     currentExample = key;
     isDirty = false;
     clearOutput();
@@ -112,7 +177,7 @@ function loadExample(key) {
 
 // ── Core: run code ────────────────────────────────────────────────────────────
 async function runCode() {
-    const code = codeEditor.value.trim();
+    const code = getSource().trim();
     if (!code) { showError('No code to run. Please write some NanoLang code.'); return; }
 
     clearOutput();
@@ -237,7 +302,7 @@ function setStatus(state, msg) {
 }
 
 function copyToClipboard() {
-    navigator.clipboard.writeText(codeEditor.value).then(() => {
+    navigator.clipboard.writeText(getSource()).then(() => {
         const orig = copyBtn.textContent;
         copyBtn.textContent = '✅';
         setTimeout(() => { copyBtn.textContent = orig; }, 1500);
@@ -245,7 +310,7 @@ function copyToClipboard() {
 }
 
 function downloadCode() {
-    const code = codeEditor.value;
+    const code = getSource();
     const filename = currentExample ? `${currentExample}.nano` : 'playground.nano';
     const blob = new Blob([code], { type: 'text/plain' });
     const url  = URL.createObjectURL(blob);
@@ -263,4 +328,25 @@ function escapeHtml(text) {
     const d = document.createElement('div');
     d.textContent = text;
     return d.innerHTML;
+}
+
+// ── Share permalink ───────────────────────────────────────────────────────────
+if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+        const src = getSource();
+        if (!src.trim()) { showError('Nothing to share — editor is empty'); return; }
+        const encoded = await encodeSource(src);
+        const url = location.origin + location.pathname + '#' + encoded;
+        try {
+            await navigator.clipboard.writeText(url);
+            const orig = shareBtn.textContent;
+            shareBtn.textContent = '✅';
+            setStatus('ready', 'Permalink copied to clipboard');
+            setTimeout(() => { shareBtn.textContent = orig; }, 2000);
+        } catch {
+            // Clipboard blocked — show in prompt
+            window.prompt('Copy this permalink:', url);
+        }
+        history.replaceState(null, '', '#' + encoded);
+    });
 }

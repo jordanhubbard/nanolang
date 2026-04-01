@@ -1747,6 +1747,30 @@ vscode-ext:
 	@echo "Extension packaged: vscode/nanolang-*.vsix"
 	@echo "Install with: code --install-extension vscode/nanolang-*.vsix"
 
+# ── wasm-playground: build nanolang.wasm for the browser playground ──────────
+# Requires Emscripten SDK: source emsdk/emsdk_env.sh before running.
+WASM_OUT_DIR  = examples/playground/public
+WASM_SRCS     = src/lexer.c src/parser.c src/eval.c src/env.c src/module.c \
+                src/typechecker.c src/builtins.c src/gc.c src/repl.c \
+                src/stdlib_io.c src/stdlib_math.c src/stdlib_string.c \
+                src/stdlib_collections.c src/interpreter_ffi.c
+WASM_EXPORTED = '["_nl_run","_nl_check","_nl_version","_malloc","_free"]'
+WASM_FLAGS    = -O2 -s WASM=1 -s MODULARIZE=1 -s EXPORT_NAME=createNanolang \
+                -s EXPORTED_FUNCTIONS=$(WASM_EXPORTED) \
+                -s EXPORTED_RUNTIME_METHODS='["cwrap","ccall"]' \
+                -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_MEMORY=67108864 \
+                -s ENVIRONMENT=web -s NO_EXIT_RUNTIME=1 \
+                -I src/ -I src/generated/ \
+                --output-file $(WASM_OUT_DIR)/nanolang.js
+
+wasm-playground:
+	@echo "Building NanoLang WASM playground (requires Emscripten)..."
+	@command -v emcc >/dev/null 2>&1 || (echo "ERROR: emcc not found. Source emsdk/emsdk_env.sh first." && exit 1)
+	@mkdir -p $(WASM_OUT_DIR)
+	emcc $(WASM_SRCS) $(WASM_FLAGS)
+	@echo "Built: $(WASM_OUT_DIR)/nanolang.wasm + nanolang.js"
+	@echo "Serve: python3 -m http.server 8000 --directory $(WASM_OUT_DIR)"
+
 # Directory creation
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)

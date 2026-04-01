@@ -1,203 +1,68 @@
-# 🔬 NanoLang Playground
+# NanoLang Interactive Playground
 
-**Interactive web-based development environment for NanoLang**
+A zero-install, browser-based NanoLang editor that runs the interpreter
+entirely via WebAssembly — no server needed for execution.
 
-Inspired by Swift Playgrounds, the NanoLang Playground provides an interactive way to learn, explore, and experiment with NanoLang directly in your web browser.
+## Features
 
-## ✨ Features
+- **WASM interpreter** — `nanolang.wasm` (Emscripten build of the full nano interpreter)
+- **CodeMirror 6 editor** — syntax highlighting (keywords, types, strings, numbers, comments) via a custom StreamLanguage mode; one-dark theme
+- **Share/permalink** — 🔗 button encodes source in URL hash (`#v1/<base64url-gzip>`); paste the URL to share a snippet; opened links restore automatically
+- **Format on run** — integrated with the nano-fmt output path
+- **9 built-in examples** — hello world through recursion and structs
+- **Download** — save current source as `<example>.nano`
 
-- **📝 Code Editor** - Syntax-aware editor with monospace font and line numbers
-- **📚 Example Gallery** - 10+ curated examples covering key language features
-- **▶️ Code Execution** - Compile and run NanoLang code in the browser
-- **📋 Copy & Download** - Export your code for local compilation
-- **⌨️ Keyboard Shortcuts** - Ctrl+Enter to run, Ctrl+S to download
-- **📱 Responsive Design** - Works on desktop, tablet, and mobile
-- **🎨 Beautiful UI** - Modern, clean interface inspired by Swift Playgrounds
+## Run locally
 
-## 🚀 Quick Start
-
-### Build and Run
-
-```bash
-# From the nanolang repository root:
-
-# 1. Compile the playground server
-./bin/nanoc examples/playground/playground_server.nano -o bin/playground
-
-# 2. Start the server
-./bin/playground
-
-# 3. Open your browser
-open http://localhost:8080
+```sh
+# Any static file server works:
+python3 -m http.server 8000 --directory examples/playground/public
+# then open http://localhost:8000
 ```
 
-### Alternative: Simple Static Server
+## Host on AgentFS (sparky:8791)
 
-If you prefer to use a simple HTTP server without compiling:
+AgentFS serves static files from its content-addressed store. To publish:
 
-```bash
-# Using Python
-cd examples/playground/public
-python3 -m http.server 8080
+```sh
+# Upload the playground directory
+curl -X PUT http://100.87.229.125:8791/agentos/playground/ \
+  -H "Content-Type: application/x-directory" \
+  --data-binary @- < /dev/null
 
-# Or using Node.js
-npx http-server -p 8080
+# Upload each file (repeat for index.html, app.js, examples.js, style.css, nanolang.js, nanolang.wasm)
+for f in examples/playground/public/*; do
+  curl -X PUT "http://100.87.229.125:8791/agentos/playground/$(basename $f)" \
+    --data-binary "@$f"
+done
+
+# Access at:
+# http://100.87.229.125:8791/agentos/playground/index.html
 ```
 
-Then open `http://localhost:8080` in your browser.
+## Build (update nanolang.wasm)
 
-## 📖 Examples Included
+The WASM binary is built from the nanolang interpreter via Emscripten:
 
-The playground comes with 10 interactive examples:
-
-1. **Hello World** - Basic function definitions and shadow tests
-2. **Factorial** - Recursive factorial calculation
-3. **Fibonacci** - Fibonacci sequence generation
-4. **Prime Numbers** - Prime number checker with loops
-5. **Array Operations** - Array manipulation (sum, max, etc.)
-6. **String Manipulation** - String operations and character handling
-7. **Structs** - Defining and using struct types
-8. **Conditionals (cond)** - Multi-way branching with cond expressions
-9. **Loops** - while and for loop patterns
-10. **Recursion** - Various recursive algorithms
-
-## 🎮 How to Use
-
-### Loading Examples
-
-1. Click any example in the sidebar
-2. The code appears in the editor
-3. Click "Run Code" or press **Ctrl+Enter** to validate
-4. View output and any warnings/errors
-
-### Writing Your Own Code
-
-1. Click "Clear" to start with a blank editor
-2. Write your NanoLang code
-3. Include shadow tests for all functions
-4. Run to validate syntax
-
-### Exporting Code
-
-- **Copy to Clipboard**: Click the 📋 button
-- **Download as File**: Click the 💾 button or press **Ctrl+S**
-
-### Code Execution
-
-When running with the NanoLang playground server, your code is compiled and executed on the server:
-
-1. Click "Run Code" or press **Ctrl+Enter**
-2. The code is sent to the server's `/api/execute` endpoint
-3. The server compiles and runs your code
-4. Output (or errors) are displayed in real-time
-
-**Note:** If the server is unavailable (e.g., using a simple static file server), the playground falls back to client-side syntax validation only.
-
-## 🏗️ Architecture
-
-### Frontend (Static HTML/JS/CSS)
-
-- **index.html** - Main page structure
-- **app.js** - Application logic and UI interactions
-- **examples.js** - Example code library
-- **style.css** - Visual styling
-
-### Backend (NanoLang HTTP Server)
-
-- **playground_server.nano** - HTTP server serving static files
-- Uses `http_server` module with built-in `/api/execute` endpoint
-- Server compiles and executes submitted code, returning JSON results
-- Set `PLAYGROUND_PORT` environment variable to change the port (default: 8080)
-
-### Execution Flow
-
-1. User writes code in the browser editor
-2. Code is sent to `/api/execute` via POST
-3. Server writes code to temp file, compiles with `nanoc`
-4. If compilation succeeds, runs the binary and captures output
-5. Returns JSON with success/failure, compile output, and program output
-
-## 🎯 Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Enter` (or `Cmd+Enter`) | Run code |
-| `Ctrl+S` (or `Cmd+S`) | Download code |
-
-## 🔧 Customization
-
-### Adding New Examples
-
-Edit `public/examples.js` and add to the `EXAMPLES` object:
-
-```javascript
-myexample: {
-    title: "My Example",
-    description: "What this example demonstrates",
-    code: `fn my_function() -> int {
-    return 42
-}
-
-shadow my_function {
-    assert (== (my_function) 42)
-}`
-}
+```sh
+# Requires emscripten SDK (source emsdk/emsdk_env.sh first)
+make -f Makefile.gnu wasm-playground
+# Outputs: examples/playground/public/nanolang.wasm + nanolang.js
 ```
 
-Then add a button in `index.html`:
+## Architecture
 
-```html
-<button class="example-btn" data-example="myexample">My Example</button>
+```
+index.html   — shell + CodeMirror 6 ES module (CDN, no build step)
+app.js       — WASM init + run/check loop + share/permalink + CM glue
+examples.js  — built-in example snippets
+nanolang.js  — Emscripten JS glue (auto-generated)
+nanolang.wasm— Emscripten WASM binary (~360KB)
+style.css    — layout + dark theme
 ```
 
-### Styling
+## Permalink format
 
-Modify `public/style.css` to customize:
-- Colors (CSS variables in `:root`)
-- Layout (grid configuration)
-- Fonts
-- Animations
-
-## 🚧 Future Enhancements
-- [ ] **Syntax Highlighting** - Full syntax highlighting with CodeMirror/Monaco
-- [ ] **Auto-completion** - IntelliSense-style code completion
-- [ ] **Share Links** - Share code via URLs
-- [ ] **Mobile App** - Native iOS/Android apps
-- [ ] **Collaborative Editing** - Real-time collaboration
-- [ ] **REPL Mode** - Interactive line-by-line execution
-- [ ] **Debugger** - Step-through debugging
-- [ ] **Performance Profiling** - Timing and memory analysis
-- [ ] **Package Explorer** - Browse standard library and modules
-
-## 📚 Learning Resources
-
-- [NanoLang Documentation](https://jordanhubbard.github.io/nanolang/)
-- [Quick Reference](../../docs/QUICK_REFERENCE.md)
-- [Getting Started Guide](../../docs/GETTING_STARTED.md)
-- [Language Specification](../../docs/SPECIFICATION.md)
-
-## 🤝 Contributing
-
-Contributions welcome! Areas to improve:
-
-1. **More Examples** - Add examples for advanced features (unions, generics, FFI)
-2. **Better Validation** - Improve client-side syntax checking
-3. **UI Enhancements** - Better error messages, syntax highlighting
-4. **Sandboxed Execution** - Add sandboxing for safer code execution
-5. **Mobile Optimization** - Improve mobile user experience
-
-## 📄 License
-
-Apache License 2.0 - See [LICENSE](../../LICENSE) for details
-
-## 🙏 Acknowledgments
-
-- Inspired by [Swift Playgrounds](https://www.apple.com/swift/playgrounds/)
-- Built with vanilla JavaScript (no frameworks!)
-- Uses the NanoLang `http_server` module
-
----
-
-**Happy Coding! 🎉**
-
-For questions or feedback, open an issue on [GitHub](https://github.com/jordanhubbard/nanolang/issues).
+`#v1/<base64url(gzip(source))>` — compresses with `CompressionStream('gzip')`,
+encodes as URL-safe base64 (no padding).  Falls back to `#v0/<base64url(source)>`
+if CompressionStream is unavailable (old browsers).
