@@ -5880,6 +5880,11 @@ register_function_pass1:;
             func.return_type = return_type;
             func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
+            /* Propagate return type variable name for generic return type resolution */
+            if (func.return_type == TYPE_UNKNOWN)
+                func.return_type_name = item->as.function.return_type_name;
+            else
+                func.return_type_name = NULL;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
             func.return_type_info = item->as.function.return_type_info;  /* Store tuple type info for TYPE_TUPLE returns */
             func.body = item->as.function.body;

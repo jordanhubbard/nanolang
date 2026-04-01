@@ -1,0 +1,104 @@
+/*
+ * test_generics.nano — typechecker generic type variable unification tests
+ *
+ * Tests the per-call type variable binding:
+ *   - Type variables bind to the first argument's concrete type
+ *   - Subsequent uses of the same type variable in the same call are checked
+ *     for consistency
+ *   - Generic return types resolve to the bound type
+ */
+
+/* ── identity: T → T ──────────────────────────────────────────────────── */
+fn identity(x: T) -> T {
+    return x
+}
+
+shadow identity {
+    /* Works with int */
+    let r1: int = (identity 42)
+    assert (== r1 42)
+    /* Works with bool */
+    let r2: bool = (identity true)
+    assert (== r2 true)
+    /* Works with different types in different calls */
+    assert (== (identity 100) 100)
+}
+
+/* ── pair_first: returns first element of consistent pair ──────────────── */
+fn pair_first(a: T, b: T) -> T {
+    return a
+}
+
+shadow pair_first {
+    /* Both int — fine */
+    let r: int = (pair_first 10 20)
+    assert (== r 10)
+    /* Both bool — fine */
+    let rb: bool = (pair_first true false)
+    assert (== rb true)
+}
+
+/* ── wrap_add: T+T → T (int arithmetic through generic) ───────────────── */
+fn clamp_zero(x: T) -> T {
+    /* Just returns the value — tests generic passthrough */
+    return x
+}
+
+shadow clamp_zero {
+    assert (== (clamp_zero 5) 5)
+    assert (== (clamp_zero -3) -3)
+    assert (str_equals (clamp_zero "hello") "hello")
+}
+
+/* ── Generic with Maybe ────────────────────────────────────────────────── */
+fn safe_divide(a: int, b: int) -> Maybe<int> {
+    if (== b 0) { return none }
+    return (some (/ a b))
+}
+
+shadow safe_divide {
+    let r1: Maybe<int> = (safe_divide 10 2)
+    assert (is_some r1)
+    assert (== (unwrap_or r1 0) 5)
+
+    let r2: Maybe<int> = (safe_divide 7 0)
+    assert (is_none r2)
+}
+
+/* ── max_of: same type T for both args ────────────────────────────────── */
+fn max_of(a: T, b: T) -> T {
+    if (> a b) { return a }
+    return b
+}
+
+shadow max_of {
+    assert (== (max_of 3 7) 7)
+    assert (== (max_of 10 2) 10)
+    assert (== (max_of 0 0) 0)
+}
+
+/* ── main ──────────────────────────────────────────────────────────────── */
+fn main() -> int {
+    /* Identity with int */
+    let a: int = (identity 99)
+    assert (== a 99)
+
+    /* pair_first with consistent types */
+    let b: int = (pair_first 5 10)
+    assert (== b 5)
+
+    /* Generic with Maybe */
+    let d: Maybe<int> = (safe_divide 20 4)
+    assert (== (unwrap_or d -1) 5)
+
+    /* max_of */
+    let e: int = (max_of 7 3)
+    assert (== e 7)
+
+    (println "generics typechecker tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
