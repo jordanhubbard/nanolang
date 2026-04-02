@@ -1848,12 +1848,12 @@ endif
 #   make release-major        # Bump major version (X.0.0)
 release:
 	@echo "Creating patch release..."
-	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh patch
+	@$(RELEASE_TIMEOUT_CMD) ./scripts/release.sh patch
 
 release-minor:
 	@echo "Creating minor release..."
-	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh minor
+	@$(RELEASE_TIMEOUT_CMD) ./scripts/release.sh minor
 
 release-major:
 	@echo "Creating major release..."
-	@BATCH=$(BATCH) $(RELEASE_TIMEOUT_CMD) ./scripts/release.sh major
+	@$(RELEASE_TIMEOUT_CMD) ./scripts/release.sh major
