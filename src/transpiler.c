@@ -746,6 +746,79 @@ static const char *get_sdl_c_type(const char *func_name, int param_index, bool i
     return NULL;
 }
 
+/* Returns true if name is a single uppercase letter (generic type variable) */
+static bool is_type_var(const char *name) {
+    return name && name[0] != '\0' && name[1] == '\0' && (name[0] >= 'A' && name[0] <= 'Z');
+}
+
+/* Returns true if an AST function node has any type-variable parameters */
+static bool func_node_is_generic(const ASTNode *item) {
+    if (!item->as.function.params) return false;
+    for (int i = 0; i < item->as.function.param_count; i++) {
+        if (item->as.function.params[i].type == TYPE_STRUCT &&
+            is_type_var(item->as.function.params[i].struct_type_name))
+            return true;
+    }
+    return false;
+}
+
+/* Resolve a type variable to its concrete bound type; returns the original type if not a var */
+static const char *resolve_generic_param_c(Type type, const char *struct_name,
+                                             const GenericFuncInstance *inst) {
+    if (type == TYPE_STRUCT && is_type_var(struct_name)) {
+        for (int i = 0; i < inst->binding_count; i++) {
+            if (strcmp(inst->var_names[i], struct_name) == 0) {
+                /* Primitive bound type */
+                if (inst->bound_types[i] == TYPE_INT)    return "int64_t";
+                if (inst->bound_types[i] == TYPE_FLOAT)  return "double";
+                if (inst->bound_types[i] == TYPE_BOOL)   return "bool";
+                if (inst->bound_types[i] == TYPE_STRING) return "const char*";
+                if (inst->bound_types[i] == TYPE_STRUCT && inst->bound_type_names[i]) {
+                    static _Thread_local char buf[256];
+                    snprintf(buf, sizeof(buf), "nl_%s", inst->bound_type_names[i]);
+                    return buf;
+                }
+                return "int64_t";  /* fallback */
+            }
+        }
+    }
+    /* Not a type variable: fall through to regular type_to_c */
+    if (type == TYPE_STRUCT && struct_name) {
+        static _Thread_local char sbuf[256];
+        snprintf(sbuf, sizeof(sbuf), "nl_%s", struct_name);
+        return sbuf;
+    }
+    return NULL;  /* caller should use type_to_c() */
+}
+
+/* Emit forward declaration for one generic function instance */
+static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
+                                        const GenericFuncInstance *inst,
+                                        Environment *env, bool is_module) {
+    if (!orig->as.function.is_pub && !is_module) sb_append(sb, "static ");
+
+    /* Return type */
+    Type rt = orig->as.function.return_type;
+    const char *rs = orig->as.function.return_struct_type_name;
+    const char *rname = resolve_generic_param_c(rt, rs, inst);
+    if (rname) sb_append(sb, rname);
+    else        sb_append(sb, type_to_c(rt));
+
+    sb_appendf(sb, " nl_%s(", inst->mono_name);
+
+    /* Parameters */
+    for (int j = 0; j < orig->as.function.param_count; j++) {
+        if (j > 0) sb_append(sb, ", ");
+        Type pt = orig->as.function.params[j].type;
+        const char *ps = orig->as.function.params[j].struct_type_name;
+        const char *pname = resolve_generic_param_c(pt, ps, inst);
+        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
+        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+    }
+    sb_append(sb, ");\n");
+    (void)env;
+}
+
 /* Transpile type to C type */
 static const char *type_to_c(Type type) {
     switch (type) {
@@ -3197,6 +3270,9 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 continue;
             }
 
+            /* Skip generic functions — monomorphized forward decls emitted below */
+            if (func_node_is_generic(item)) continue;
+
             /* Add static for private functions
              * BUT: When compiling modules, export all functions by default
              * (static functions can't be linked from other compilation units)
@@ -3365,10 +3441,77 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             sb_append(sb, ");\n");
         }
     }
+
+    /* Emit forward declarations for monomorphized generic function instances */
+    for (int gi = 0; gi < env->generic_func_instance_count; gi++) {
+        GenericFuncInstance *inst = &env->generic_func_instances[gi];
+        /* Find original AST node */
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *it = program->as.program.items[j];
+            if (it->type == AST_ASYNC_FN) it = it->as.async_fn.function;
+            if (it->type == AST_FUNCTION && strcmp(it->as.function.name, inst->orig_name) == 0) {
+                emit_generic_forward_decl(sb, it, inst, env, is_module);
+                break;
+            }
+        }
+    }
+
     sb_append(sb, "\n");
 }
 
 /* Functions for stdlib runtime generation moved to stdlib_runtime.c */
+
+/* Emit implementation for one generic function instance (must appear after transpile_statement macro) */
+static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
+                                          const GenericFuncInstance *inst,
+                                          Environment *env,
+                                          FunctionTypeRegistry *fn_registry,
+                                          bool is_module) {
+    if (!orig->as.function.is_pub && !is_module) sb_append(sb, "static ");
+
+    /* Return type */
+    Type rt = orig->as.function.return_type;
+    const char *rs = orig->as.function.return_struct_type_name;
+    const char *rname = resolve_generic_param_c(rt, rs, inst);
+    if (rname) sb_append(sb, rname);
+    else        sb_append(sb, type_to_c(rt));
+
+    sb_appendf(sb, " nl_%s(", inst->mono_name);
+
+    /* Parameters */
+    for (int j = 0; j < orig->as.function.param_count; j++) {
+        if (j > 0) sb_append(sb, ", ");
+        Type pt = orig->as.function.params[j].type;
+        const char *ps = orig->as.function.params[j].struct_type_name;
+        const char *pname = resolve_generic_param_c(pt, ps, inst);
+        if (pname) sb_appendf(sb, "%s %s", pname, orig->as.function.params[j].name);
+        else        sb_appendf(sb, "%s %s", type_to_c(pt), orig->as.function.params[j].name);
+    }
+    sb_append(sb, ") ");
+
+    /* Add parameters with concrete types to env for body transpilation */
+    int saved_sym_count = env->symbol_count;
+    for (int j = 0; j < orig->as.function.param_count; j++) {
+        Type pt = orig->as.function.params[j].type;
+        const char *ps = orig->as.function.params[j].struct_type_name;
+        Type concrete_t = pt;
+        if (pt == TYPE_STRUCT && is_type_var(ps)) {
+            for (int k = 0; k < inst->binding_count; k++) {
+                if (strcmp(inst->var_names[k], ps) == 0) {
+                    concrete_t = inst->bound_types[k];
+                    break;
+                }
+            }
+        }
+        Value dummy = {0};
+        env_define_var(env, orig->as.function.params[j].name, concrete_t, true, dummy);
+    }
+
+    transpile_statement(sb, orig->as.function.body, 0, env, fn_registry);
+    sb_append(sb, "\n");
+    env->symbol_count = saved_sym_count;
+}
+
 /* Generate function implementations from program AST */
 static void generate_function_implementations(StringBuilder *sb, ASTNode *program, Environment *env,
                                               FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
@@ -3386,8 +3529,11 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             if (item->as.function.is_extern) {
                 continue;
             }
-            
-            /* Add static for private functions 
+
+            /* Skip generic functions — monomorphized implementations emitted below */
+            if (func_node_is_generic(item)) continue;
+
+            /* Add static for private functions
              * BUT: When compiling modules, export all functions by default
              * (static functions can't be linked from other compilation units)
              */
@@ -3617,6 +3763,19 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
              * 3. This is a short-lived compiler process, not a long-running server
              * The memory leak is acceptable for this use case. */
             env->symbol_count = saved_symbol_count;
+        }
+    }
+
+    /* Emit implementations for monomorphized generic function instances */
+    for (int gi = 0; gi < env->generic_func_instance_count; gi++) {
+        GenericFuncInstance *inst = &env->generic_func_instances[gi];
+        for (int j = 0; j < program->as.program.count; j++) {
+            ASTNode *it = program->as.program.items[j];
+            if (it->type == AST_ASYNC_FN) it = it->as.async_fn.function;
+            if (it->type == AST_FUNCTION && strcmp(it->as.function.name, inst->orig_name) == 0) {
+                emit_generic_implementation(sb, it, inst, env, fn_registry, is_module);
+                break;
+            }
         }
     }
 }
@@ -4392,7 +4551,18 @@ static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
         if (!eff) continue;
         for (int j = 0; j < item->as.effect_decl.op_count; j++) {
             const char *op   = item->as.effect_decl.op_names[j];
-            Type ptype       = item->as.effect_decl.op_param_types[j];
+            /* Use op_params if available; fall back to op_param_types */
+            Type ptype;
+            if (item->as.effect_decl.op_param_types) {
+                ptype = item->as.effect_decl.op_param_types[j];
+            } else if (item->as.effect_decl.op_params &&
+                       item->as.effect_decl.op_param_counts &&
+                       item->as.effect_decl.op_param_counts[j] > 0 &&
+                       item->as.effect_decl.op_params[j]) {
+                ptype = item->as.effect_decl.op_params[j][0].type;
+            } else {
+                ptype = TYPE_VOID;
+            }
             Type rtype       = item->as.effect_decl.op_return_types[j];
             const char *cpt  = type_to_c(ptype);
             const char *crt  = type_to_c(rtype);

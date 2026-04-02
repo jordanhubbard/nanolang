@@ -274,6 +274,7 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types (e.g., list_Point_get) */
+            char *concrete_func_name;  /* For generic function calls: monomorphized name (e.g., "identity_int") */
         } call;
         struct {
             char *module_alias;       /* Module alias (e.g., "Vec" from "as Vec") */
@@ -681,6 +682,16 @@ typedef struct {
     char *concrete_name;       /* e.g., "List_int" or "List_Point" (generated name) */
 } GenericInstantiation;
 
+/* Generic function instantiation (for user-defined generic functions like fn identity(x: T) -> T) */
+typedef struct {
+    char *orig_name;         /* Original function name: "identity" */
+    char *mono_name;         /* Monomorphized name: "identity_int" */
+    char **var_names;        /* Type variable names: ["T"] */
+    Type *bound_types;       /* Concrete types: [TYPE_INT] */
+    char **bound_type_names; /* For TYPE_STRUCT bounds: ["Point"]; NULL for primitives */
+    int binding_count;       /* Number of unique type variables */
+} GenericFuncInstance;
+
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
@@ -748,6 +759,9 @@ typedef struct {
     GenericInstantiation *generic_instances;
     int generic_instance_count;
     int generic_instance_capacity;
+    GenericFuncInstance *generic_func_instances;   /* User-defined generic function instances */
+    int generic_func_instance_count;
+    int generic_func_instance_capacity;
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
@@ -858,6 +872,11 @@ UnionDef *env_get_union(Environment *env, const char *name);
 void env_define_opaque_type(Environment *env, const char *name);
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name);
 int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
+
+/* Generic function instantiation registry */
+void env_register_generic_func_instance(Environment *env, const char *orig_name, const char *mono_name,
+                                         const char **var_names, Type *bound_types, const char **bound_type_names,
+                                         int binding_count);
 
 /* Effect system */
 void env_define_effect(Environment *env, EffectDef effect_def);
