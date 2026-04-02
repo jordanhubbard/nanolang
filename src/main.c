@@ -19,6 +19,7 @@
 #include "cps_pass.h"
 #include "pgo_pass.h"
 #include "llvm_backend.h"
+#include "sign.h"
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
@@ -1629,6 +1630,16 @@ int main(int argc, char *argv[]) {
         free(script_argv);
         free(install_script);
         return 1;
+    }
+
+    /* Handle 'sign' subcommand — Ed25519 WASM module signing */
+    if (argc >= 2 && strcmp(argv[1], "sign") == 0) {
+        return nanoc_sign_cmd(argc - 2, (char **)(argv + 2));
+    }
+
+    /* Handle 'verify' subcommand — Ed25519 WASM signature verification */
+    if (argc >= 2 && strcmp(argv[1], "verify") == 0) {
+        return nanoc_verify_cmd(argc - 2, (char **)(argv + 2));
     }
 
     if (argc < 2) {

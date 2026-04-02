@@ -237,7 +237,15 @@ static const char *get_prefixed_type_name(const char *name) {
     if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
         return name;
     }
-    
+
+    /* Free type variables (single-letter uppercase, e.g. T, U, V, K, E):
+     * These are bare generic type parameters not yet monomorphized.
+     * Emit void* so the generated C compiles; correctness is tested
+     * via shadow tests (interpreter path) which handle generics natively. */
+    if (name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0') {
+        return "void*";
+    }
+
     /* User types: add nl_ prefix */
     snprintf(buffer, sizeof(buffer), "nl_%s", name);
     return buffer;
@@ -4392,7 +4400,13 @@ static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
         if (!eff) continue;
         for (int j = 0; j < item->as.effect_decl.op_count; j++) {
             const char *op   = item->as.effect_decl.op_names[j];
-            Type ptype       = item->as.effect_decl.op_param_types[j];
+            /* op_param_types is the simplified layout; fall back to op_params[j][0] */
+            Type ptype = TYPE_VOID;
+            if (item->as.effect_decl.op_param_types && item->as.effect_decl.op_param_types[j] != TYPE_UNKNOWN) {
+                ptype = item->as.effect_decl.op_param_types[j];
+            } else if (item->as.effect_decl.op_params && item->as.effect_decl.op_param_counts[j] > 0) {
+                ptype = item->as.effect_decl.op_params[j][0].type;
+            }
             Type rtype       = item->as.effect_decl.op_return_types[j];
             const char *cpt  = type_to_c(ptype);
             const char *crt  = type_to_c(rtype);

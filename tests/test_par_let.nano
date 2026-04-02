@@ -1,5 +1,11 @@
-# test_par_let.nano
-# Tests for par-let: concurrent evaluation semantics for independent let bindings.
+/* test_par_let.nano
+ * Tests for par-let: concurrent evaluation semantics for independent let bindings.
+ * Verifies computed values match expected results (same as sequential evaluation).
+ *
+ * par-let binds variables whose VALUES are independent of each other, allowing
+ * concurrent evaluation. In the C backend they evaluate sequentially; the
+ * interpreter likewise evaluates left-to-right.  Correctness: results identical.
+ */
 
 fn fib(n: int) -> int {
     if n <= 1 {
@@ -9,55 +15,86 @@ fn fib(n: int) -> int {
     }
 }
 
-# Test 1: Basic par-let — two independent bindings used in body
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+}
+
+/* Test 1: Basic par-let — two independent bindings, use both after 'in' body */
 fn test_basic() -> int {
     par-let
         x = 1 + 2
         y = 3 * 4
     in
-        (println (x + y))
-    return 0
+        (println x)
+    return x + y
 }
 
-# Test 2: Fibonacci pair — canonical par-let use case
+shadow test_basic {
+    /* x=3, y=12, x+y=15 */
+    assert (== (test_basic) 15)
+}
+
+/* Test 2: Fibonacci pair — canonical par-let use case */
 fn test_fib_pair() -> int {
     par-let
         a = (fib 10)
         b = (fib 11)
     in
-        (println (a + b))
-    return 0
+        (println a)
+    return a + b
 }
 
-# Test 3: Three independent bindings
+shadow test_fib_pair {
+    /* fib(10)=55, fib(11)=89, sum=144 */
+    assert (== (test_fib_pair) 144)
+}
+
+/* Test 3: Three independent bindings */
 fn test_three_bindings() -> int {
     par-let
         p = 6 * 7
         q = 100 + 200
         r = 1000 - 1
     in
-        (println (p + q + r))
-    return 0
+        (println p)
+    return p + q + r
 }
 
-# Test 4: Nested par-let — outer scope reference in bindings
+shadow test_three_bindings {
+    /* p=42, q=300, r=999, sum=1341 */
+    assert (== (test_three_bindings) 1341)
+}
+
+/* Test 4: Outer scope reference in bindings */
 fn test_nested(base: int) -> int {
     par-let
         doubled = base * 2
         tripled = base * 3
     in
-        (println (doubled + tripled))
-    return 0
+        (println doubled)
+    return doubled + tripled
+}
+
+shadow test_nested {
+    /* base=10: doubled=20, tripled=30, sum=50 */
+    assert (== (test_nested 10) 50)
+    /* base=0: all zeros */
+    assert (== (test_nested 0) 0)
+    /* base=7: doubled=14, tripled=21, sum=35 */
+    assert (== (test_nested 7) 35)
 }
 
 fn main() -> int {
-    (print "test_basic: ")
-    (test_basic)
-    (print "test_fib_pair: ")
-    (test_fib_pair)
-    (print "test_three_bindings: ")
-    (test_three_bindings)
-    (print "test_nested(10): ")
-    (test_nested 10)
+    assert (== (test_basic) 15)
+    assert (== (test_fib_pair) 144)
+    assert (== (test_three_bindings) 1341)
+    assert (== (test_nested 10) 50)
+    (println "par-let tests PASSED")
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
