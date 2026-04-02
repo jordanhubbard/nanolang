@@ -7,6 +7,7 @@
 # Expected Output: FIG-Forth demo output
 
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+from "modules/readline/readline.nano" import rl_readline, rl_add_history
 
 # ── Bitwise helpers (nanolang lacks native bitwise operators) ─────────────────
 
@@ -2521,11 +2522,46 @@ shadow run_demo {
     assert (== result.error_flag false)
 }
 
+# ── Interactive REPL ───────────────────────────────────────────────────────────
+
+fn forth_repl(fs: ForthState) -> ForthState {
+    (print "FIG-Forth v1.0  (type BYE to exit)\n")
+    let mut s: ForthState = fs
+    let mut running: bool = true
+    while running {
+        let line: string = (rl_readline "> ")
+        # EOF (Ctrl-D) returns empty string
+        if (== (str_length line) 0) {
+            set running false
+        } else {
+            (rl_add_history line)
+            let upper: string = (forth_to_upper line)
+            # BYE exits the REPL
+            if (str_equals upper "BYE") {
+                set running false
+            } else {
+                set s (forth_interpret_line s line)
+                if (== s.state 0) {
+                    (print " ok\n")
+                }
+            }
+        }
+    }
+    (print "\n")
+    return s
+}
+
+shadow forth_repl {
+    # Cannot test interactive input; just verify the function type-checks
+    assert true
+}
+
 fn main() -> int {
     let fs0: ForthState = (forth_init)
     let fs: ForthState = (forth_bootstrap fs0)
-    let result: ForthState = (run_demo fs)
-    (print "\nFIG-Forth interpreter ready.\n")
+    let after_demo: ForthState = (run_demo fs)
+    (print "\n")
+    let _result: ForthState = (forth_repl after_demo)
     return 0
 }
 

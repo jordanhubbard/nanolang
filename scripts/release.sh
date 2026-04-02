@@ -245,10 +245,14 @@ Release highlights from v$prev_version
 Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
     fi
 
-    # Create annotated git tag (after changelog commit so tag includes it)
+    # Rebase on any commits that landed on origin since we started
+    info "Syncing with origin before tagging..."
+    git pull --rebase origin main
+
+    # Create annotated git tag (after changelog commit and rebase so tag is at final HEAD)
     info "Creating git tag v$version..."
     git tag -a "v$version" -m "Release v$version"
-    
+
     # Push commits and tags
     info "Pushing to origin..."
     git push origin main
