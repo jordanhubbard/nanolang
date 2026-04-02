@@ -2148,12 +2148,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             else {
                 /* Regular function call */
                 const char *mapped_name = func_name;
-                if (is_generic_list_runtime_fn(func_name)) {
+                /* Use monomorphized name for generic function calls */
+                if (expr->as.call.concrete_func_name) {
+                    static _Thread_local char generic_buf[512];
+                    snprintf(generic_buf, sizeof(generic_buf), "nl_%s", expr->as.call.concrete_func_name);
+                    mapped_name = generic_buf;
+                } else if (is_generic_list_runtime_fn(func_name)) {
                     static _Thread_local char buf[512];
                     snprintf(buf, sizeof(buf), "nl_%s", func_name);
                     mapped_name = buf;
+                } else {
+                    mapped_name = map_function_name(mapped_name, env);
                 }
-                mapped_name = map_function_name(mapped_name, env);
 
                 /* ARC: Check if function returns opaque type requiring manual free
                  * Be very defensive - only apply to extern functions we can safely lookup */
