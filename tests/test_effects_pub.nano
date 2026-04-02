@@ -23,8 +23,12 @@ fn test_handle_logger() -> int {
     return result
 }
 
+shadow test_handle_logger { assert true }
+
 fn main() -> int {
     let r = (test_handle_logger)
     (println (cast_string r))
     return 0
 }
+
+shadow main { assert true }

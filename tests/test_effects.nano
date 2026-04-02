@@ -25,10 +25,10 @@ fn greet(name: string) -> void {
 }
 
 fn count_up(n: int) -> int {
-    let i = 0
+    let mut i: int = 0
     while (< i n) {
         perform Counter.tick(i)
-        let i = (+ i 1)
+        set i (+ i 1)
     }
     return n
 }
