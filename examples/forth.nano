@@ -1,0 +1,2534 @@
+# Example: FIG-Forth Interpreter
+# Purpose: A complete FIG-Forth compatible interpreter in nanolang showcasing language capabilities
+# Features: structs, arrays, HashMap, token threading, REPL, colon definitions, control structures
+# Difficulty: Expert
+# Category: language
+# Prerequisites: nl_struct, nl_hashmap, nl_array_complete, simple_repl
+# Expected Output: FIG-Forth demo output
+
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+
+# ── Bitwise helpers (nanolang lacks native bitwise operators) ─────────────────
+
+fn floored_div2(n: int) -> int {
+    # Floored division by 2: truncated, but adjusted for negatives
+    let q: int = (/ n 2)
+    let r: int = (% n 2)
+    if (and (< r 0) (> 2 0)) { return (- q 1) }
+    return q
+}
+
+shadow floored_div2 {
+    assert (== (floored_div2 8) 4)
+    assert (== (floored_div2 7) 3)
+    assert (== (floored_div2 -1) -1)
+}
+
+fn floored_mod2(n: int) -> int {
+    # Floored modulo by 2: result is always 0 or 1
+    let r: int = (% n 2)
+    if (< r 0) { return (+ r 2) }
+    return r
+}
+
+shadow floored_mod2 {
+    assert (== (floored_mod2 0) 0)
+    assert (== (floored_mod2 1) 1)
+    assert (== (floored_mod2 4) 0)
+    assert (== (floored_mod2 -1) 1)
+}
+
+fn bit_and(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (and (== (floored_mod2 av) 1) (== (floored_mod2 bv) 1)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div2 av)
+        set bv (floored_div2 bv)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    if (and (< av 0) (< bv 0)) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+shadow bit_and {
+    assert (== (bit_and 5 3) 1)
+    assert (== (bit_and 12 10) 8)
+    assert (== (bit_and 0 255) 0)
+    assert (== (bit_and -1 -1) -1)
+}
+
+fn bit_or(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (or (== (floored_mod2 av) 1) (== (floored_mod2 bv) 1)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div2 av)
+        set bv (floored_div2 bv)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    if (or (< av 0) (< bv 0)) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+shadow bit_or {
+    assert (== (bit_or 5 3) 7)
+    assert (== (bit_or 12 10) 14)
+    assert (== (bit_or 0 0) 0)
+}
+
+fn bit_xor(a: int, b: int) -> int {
+    let mut result: int = 0
+    let mut power: int = 1
+    let mut av: int = a
+    let mut bv: int = b
+    let mut i: int = 0
+    while (< i 63) {
+        if (!= (floored_mod2 av) (floored_mod2 bv)) {
+            set result (+ result power)
+        } else { (print "") }
+        set av (floored_div2 av)
+        set bv (floored_div2 bv)
+        if (< i 62) { set power (* power 2) } else { (print "") }
+        set i (+ i 1)
+    }
+    let a_neg: bool = (< av 0)
+    let b_neg: bool = (< bv 0)
+    if (and (or a_neg b_neg) (not (and a_neg b_neg))) {
+        set result (+ result (- (- 0 9223372036854775807) 1))
+    } else { (print "") }
+    return result
+}
+
+shadow bit_xor {
+    assert (== (bit_xor 5 3) 6)
+    assert (== (bit_xor 12 10) 6)
+    assert (== (bit_xor 0 0) 0)
+}
+
+fn bit_not(a: int) -> int {
+    return (- (- 0 a) 1)
+}
+
+shadow bit_not {
+    assert (== (bit_not 0) -1)
+    assert (== (bit_not -1) 0)
+    assert (== (bit_not 5) -6)
+}
+
+fn power2(n: int) -> int {
+    let mut result: int = 1
+    let mut i: int = 0
+    while (< i n) {
+        set result (* result 2)
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow power2 {
+    assert (== (power2 0) 1)
+    assert (== (power2 1) 2)
+    assert (== (power2 8) 256)
+}
+
+fn bit_lshift(a: int, n: int) -> int {
+    return (* a (power2 n))
+}
+
+shadow bit_lshift {
+    assert (== (bit_lshift 1 3) 8)
+    assert (== (bit_lshift 5 2) 20)
+}
+
+fn bit_rshift(a: int, n: int) -> int {
+    return (/ a (power2 n))
+}
+
+shadow bit_rshift {
+    assert (== (bit_rshift 8 3) 1)
+    assert (== (bit_rshift 20 2) 5)
+}
+
+# ── Opcode constants ────────────────────────────────────────────────────────────
+fn OP_LIT() -> int { return -1 }
+fn OP_CALL() -> int { return -2 }
+fn OP_RET() -> int { return -3 }
+fn OP_BRANCH() -> int { return -4 }
+fn OP_BRANCH0() -> int { return -5 }
+fn OP_DO() -> int { return -6 }
+fn OP_LOOP() -> int { return -7 }
+fn OP_PLUS_LOOP() -> int { return -8 }
+fn OP_I() -> int { return -9 }
+fn OP_J() -> int { return -10 }
+fn OP_LEAVE() -> int { return -11 }
+fn OP_LIT_STRING() -> int { return -12 }
+fn OP_EXIT() -> int { return -13 }
+
+shadow OP_LIT { assert (== (OP_LIT) -1) }
+shadow OP_CALL { assert (== (OP_CALL) -2) }
+shadow OP_RET { assert (== (OP_RET) -3) }
+shadow OP_BRANCH { assert (== (OP_BRANCH) -4) }
+shadow OP_BRANCH0 { assert (== (OP_BRANCH0) -5) }
+shadow OP_DO { assert (== (OP_DO) -6) }
+shadow OP_LOOP { assert (== (OP_LOOP) -7) }
+shadow OP_PLUS_LOOP { assert (== (OP_PLUS_LOOP) -8) }
+shadow OP_I { assert (== (OP_I) -9) }
+shadow OP_J { assert (== (OP_J) -10) }
+shadow OP_LEAVE { assert (== (OP_LEAVE) -11) }
+shadow OP_LIT_STRING { assert (== (OP_LIT_STRING) -12) }
+shadow OP_EXIT { assert (== (OP_EXIT) -13) }
+
+# ── Word definition type constants ────────────────────────────────────────────
+fn WORD_NATIVE() -> int { return 0 }
+fn WORD_COMPILED() -> int { return 1 }
+fn WORD_VARIABLE() -> int { return 2 }
+fn WORD_CONSTANT() -> int { return 3 }
+fn WORD_CREATE() -> int { return 4 }
+fn WORD_DOES() -> int { return 5 }
+
+shadow WORD_NATIVE { assert (== (WORD_NATIVE) 0) }
+shadow WORD_COMPILED { assert (== (WORD_COMPILED) 1) }
+shadow WORD_VARIABLE { assert (== (WORD_VARIABLE) 2) }
+shadow WORD_CONSTANT { assert (== (WORD_CONSTANT) 3) }
+
+# ── Flag constants ─────────────────────────────────────────────────────────────
+fn FLAG_IMMEDIATE() -> int { return 1 }
+fn FLAG_HIDDEN() -> int { return 2 }
+
+shadow FLAG_IMMEDIATE { assert (== (FLAG_IMMEDIATE) 1) }
+shadow FLAG_HIDDEN { assert (== (FLAG_HIDDEN) 2) }
+
+# ── Native word IDs ────────────────────────────────────────────────────────────
+# Stack words
+fn NID_DUP() -> int { return 1 }
+fn NID_DROP() -> int { return 2 }
+fn NID_SWAP() -> int { return 3 }
+fn NID_OVER() -> int { return 4 }
+fn NID_ROT() -> int { return 5 }
+fn NID_NROT() -> int { return 6 }
+fn NID_QDUP() -> int { return 7 }
+fn NID_NIP() -> int { return 8 }
+fn NID_TUCK() -> int { return 9 }
+fn NID_2DUP() -> int { return 10 }
+fn NID_2DROP() -> int { return 11 }
+fn NID_2SWAP() -> int { return 12 }
+fn NID_2OVER() -> int { return 13 }
+fn NID_DEPTH() -> int { return 14 }
+fn NID_DOT_S() -> int { return 15 }
+# Arithmetic
+fn NID_ADD() -> int { return 20 }
+fn NID_SUB() -> int { return 21 }
+fn NID_MUL() -> int { return 22 }
+fn NID_DIV() -> int { return 23 }
+fn NID_MOD() -> int { return 24 }
+fn NID_DIVMOD() -> int { return 25 }
+fn NID_STAR_SLASH() -> int { return 26 }
+fn NID_STAR_SLASH_MOD() -> int { return 27 }
+fn NID_NEGATE() -> int { return 28 }
+fn NID_ABS() -> int { return 29 }
+fn NID_MIN() -> int { return 30 }
+fn NID_MAX() -> int { return 31 }
+fn NID_AND() -> int { return 32 }
+fn NID_OR() -> int { return 33 }
+fn NID_XOR() -> int { return 34 }
+fn NID_INVERT() -> int { return 35 }
+fn NID_LSHIFT() -> int { return 36 }
+fn NID_RSHIFT() -> int { return 37 }
+fn NID_ONE_PLUS() -> int { return 38 }
+fn NID_ONE_MINUS() -> int { return 39 }
+fn NID_TWO_PLUS() -> int { return 40 }
+fn NID_TWO_MINUS() -> int { return 41 }
+fn NID_TWO_MUL() -> int { return 42 }
+fn NID_TWO_DIV() -> int { return 43 }
+# Comparison
+fn NID_EQ() -> int { return 50 }
+fn NID_NEQ() -> int { return 51 }
+fn NID_LT() -> int { return 52 }
+fn NID_GT() -> int { return 53 }
+fn NID_LE() -> int { return 54 }
+fn NID_GE() -> int { return 55 }
+fn NID_ZERO_EQ() -> int { return 56 }
+fn NID_ZERO_LT() -> int { return 57 }
+fn NID_ZERO_GT() -> int { return 58 }
+fn NID_ZERO_NEQ() -> int { return 59 }
+# Return stack
+fn NID_TO_R() -> int { return 60 }
+fn NID_R_FROM() -> int { return 61 }
+fn NID_R_FETCH() -> int { return 62 }
+# Memory
+fn NID_STORE() -> int { return 70 }
+fn NID_FETCH() -> int { return 71 }
+fn NID_PLUS_STORE() -> int { return 72 }
+fn NID_C_STORE() -> int { return 73 }
+fn NID_C_FETCH() -> int { return 74 }
+fn NID_FILL() -> int { return 75 }
+fn NID_MOVE() -> int { return 76 }
+fn NID_HERE_W() -> int { return 77 }
+fn NID_ALLOT() -> int { return 78 }
+fn NID_COMMA() -> int { return 79 }
+# I/O
+fn NID_DOT() -> int { return 80 }
+fn NID_U_DOT() -> int { return 81 }
+fn NID_EMIT() -> int { return 82 }
+fn NID_CR() -> int { return 83 }
+fn NID_SPACE() -> int { return 84 }
+fn NID_SPACES() -> int { return 85 }
+fn NID_TYPE() -> int { return 86 }
+fn NID_KEY() -> int { return 87 }
+# System / compile
+fn NID_COLON() -> int { return 90 }
+fn NID_SEMICOLON() -> int { return 91 }
+fn NID_CONSTANT() -> int { return 92 }
+fn NID_VARIABLE() -> int { return 93 }
+fn NID_CREATE() -> int { return 94 }
+fn NID_DOES() -> int { return 95 }
+fn NID_IMMEDIATE() -> int { return 96 }
+fn NID_FORGET() -> int { return 97 }
+fn NID_TICK() -> int { return 98 }
+fn NID_EXECUTE() -> int { return 99 }
+fn NID_IF() -> int { return 100 }
+fn NID_ELSE() -> int { return 101 }
+fn NID_THEN() -> int { return 102 }
+fn NID_BEGIN() -> int { return 103 }
+fn NID_UNTIL() -> int { return 104 }
+fn NID_WHILE() -> int { return 105 }
+fn NID_REPEAT() -> int { return 106 }
+fn NID_AGAIN() -> int { return 107 }
+fn NID_DO() -> int { return 108 }
+fn NID_LOOP() -> int { return 109 }
+fn NID_PLUS_LOOP() -> int { return 110 }
+fn NID_I() -> int { return 111 }
+fn NID_J() -> int { return 112 }
+fn NID_LEAVE() -> int { return 113 }
+fn NID_RECURSE() -> int { return 114 }
+fn NID_EXIT() -> int { return 115 }
+fn NID_WORDS() -> int { return 116 }
+fn NID_BYE() -> int { return 117 }
+fn NID_ABORT() -> int { return 118 }
+fn NID_QUIT() -> int { return 119 }
+fn NID_BASE_W() -> int { return 120 }
+fn NID_DECIMAL() -> int { return 121 }
+fn NID_HEX() -> int { return 122 }
+fn NID_OCTAL() -> int { return 123 }
+fn NID_DOT_QUOTE() -> int { return 124 }
+fn NID_S_QUOTE() -> int { return 125 }
+fn NID_DOT_PAREN() -> int { return 126 }
+fn NID_STATE_W() -> int { return 127 }
+
+shadow NID_DUP { assert (== (NID_DUP) 1) }
+shadow NID_ADD { assert (== (NID_ADD) 20) }
+shadow NID_EQ { assert (== (NID_EQ) 50) }
+shadow NID_TO_R { assert (== (NID_TO_R) 60) }
+shadow NID_DOT { assert (== (NID_DOT) 80) }
+shadow NID_COLON { assert (== (NID_COLON) 90) }
+
+# ── Stack sizes ────────────────────────────────────────────────────────────────
+fn DSTACK_SIZE() -> int { return 256 }
+fn RSTACK_SIZE() -> int { return 256 }
+fn MEMORY_SIZE() -> int { return 65536 }
+fn IP_STACK_SIZE() -> int { return 256 }
+fn CODE_INIT_SIZE() -> int { return 4096 }
+fn DICT_INIT_SIZE() -> int { return 256 }
+
+shadow DSTACK_SIZE { assert (== (DSTACK_SIZE) 256) }
+shadow RSTACK_SIZE { assert (== (RSTACK_SIZE) 256) }
+
+# ── ForthState struct ──────────────────────────────────────────────────────────
+# All mutable interpreter state in one struct.
+# Arrays are pre-allocated with fixed sizes; pointers (sp, rsp, etc.) track usage.
+struct ForthState {
+    # Data stack
+    dstack: array<int>,
+    sp: int,
+    # Return stack
+    rstack: array<int>,
+    rsp: int,
+    # Linear memory (for @, !, variables, etc.)
+    memory: array<int>,
+    here: int,
+    # Compiled code array
+    code: array<int>,
+    code_len: int,
+    # Dictionary parallel arrays
+    dict_names: HashMap<string, int>,
+    def_names: array<string>,
+    def_flags: array<int>,
+    def_types: array<int>,
+    def_native_ids: array<int>,
+    def_code_start: array<int>,
+    def_code_len: array<int>,
+    def_body_addr: array<int>,
+    def_count: int,
+    # String literals (for .")
+    strings: array<string>,
+    strings_len: int,
+    # Interpreter state
+    state: int,
+    base: int,
+    current_def: int,
+    # Input
+    input_buffer: string,
+    input_pos: int,
+    # Control flow
+    ip_stack: array<int>,
+    isp: int,
+    # Flags
+    running: bool,
+    error_flag: bool
+}
+
+# ── forth_init: create and initialize a fresh ForthState ──────────────────────
+fn forth_init() -> ForthState {
+    let dstack: array<int> = (array_new (DSTACK_SIZE) 0)
+    let rstack: array<int> = (array_new (RSTACK_SIZE) 0)
+    let memory: array<int> = (array_new (MEMORY_SIZE) 0)
+    let code: array<int> = (array_new (CODE_INIT_SIZE) 0)
+    let ip_stack: array<int> = (array_new (IP_STACK_SIZE) 0)
+    let def_names: array<string> = (array_new (DICT_INIT_SIZE) "")
+    let def_flags: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let def_types: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let def_native_ids: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let def_code_start: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let def_code_len: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let def_body_addr: array<int> = (array_new (DICT_INIT_SIZE) 0)
+    let strings: array<string> = (array_new 256 "")
+    let dict_names: HashMap<string, int> = (map_new)
+    # BASE lives at memory[0], STATE at memory[1]
+    (array_set memory 0 10)   # BASE = 10
+    (array_set memory 1 0)    # STATE = 0 (interpreting)
+    return ForthState {
+        dstack: dstack, sp: 0,
+        rstack: rstack, rsp: 0,
+        memory: memory, here: 4,
+        code: code, code_len: 0,
+        dict_names: dict_names,
+        def_names: def_names,
+        def_flags: def_flags,
+        def_types: def_types,
+        def_native_ids: def_native_ids,
+        def_code_start: def_code_start,
+        def_code_len: def_code_len,
+        def_body_addr: def_body_addr,
+        def_count: 0,
+        strings: strings, strings_len: 0,
+        state: 0,
+        base: 10,
+        current_def: -1,
+        input_buffer: "",
+        input_pos: 0,
+        ip_stack: ip_stack, isp: 0,
+        running: true,
+        error_flag: false
+    }
+}
+
+shadow forth_init {
+    let fs: ForthState = (forth_init)
+    assert (== fs.sp 0)
+    assert (== fs.rsp 0)
+    assert (== fs.here 4)
+    assert (== fs.state 0)
+    assert (== fs.base 10)
+    assert (== fs.def_count 0)
+    assert (== fs.running true)
+}
+
+# ── Stack operations ───────────────────────────────────────────────────────────
+
+fn forth_push(fs: ForthState, val: int) -> ForthState {
+    (array_set fs.dstack fs.sp val)
+    return ForthState {
+        dstack: fs.dstack, sp: (+ fs.sp 1),
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_push {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_push fs 42)
+    assert (== fs2.sp 1)
+    assert (== (at fs2.dstack 0) 42)
+    let fs3: ForthState = (forth_push fs2 99)
+    assert (== fs3.sp 2)
+    assert (== (at fs3.dstack 1) 99)
+}
+
+fn forth_pop(fs: ForthState) -> ForthState {
+    if (<= fs.sp 0) {
+        (print "Stack underflow\n")
+        return ForthState {
+            dstack: fs.dstack, sp: 0,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: fs.base, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: true
+        }
+    }
+    return ForthState {
+        dstack: fs.dstack, sp: (- fs.sp 1),
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_pop {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_push fs 10)
+    let fs2: ForthState = (forth_push fs1 20)
+    assert (== fs2.sp 2)
+    let fs3: ForthState = (forth_pop fs2)
+    assert (== fs3.sp 1)
+    assert (== (at fs3.dstack 0) 10)
+}
+
+fn forth_top(fs: ForthState) -> int {
+    if (<= fs.sp 0) {
+        return 0
+    }
+    return (at fs.dstack (- fs.sp 1))
+}
+
+shadow forth_top {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_push fs 77)
+    assert (== (forth_top fs1) 77)
+    let fs2: ForthState = (forth_push fs1 88)
+    assert (== (forth_top fs2) 88)
+}
+
+fn forth_second(fs: ForthState) -> int {
+    if (< fs.sp 2) {
+        return 0
+    }
+    return (at fs.dstack (- fs.sp 2))
+}
+
+shadow forth_second {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_push fs 10)
+    let fs2: ForthState = (forth_push fs1 20)
+    assert (== (forth_second fs2) 10)
+}
+
+fn forth_third(fs: ForthState) -> int {
+    if (< fs.sp 3) {
+        return 0
+    }
+    return (at fs.dstack (- fs.sp 3))
+}
+
+shadow forth_third {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_push fs 5)
+    let fs2: ForthState = (forth_push fs1 6)
+    let fs3: ForthState = (forth_push fs2 7)
+    assert (== (forth_third fs3) 5)
+}
+
+# ── Return stack operations ────────────────────────────────────────────────────
+
+fn forth_rpush(fs: ForthState, val: int) -> ForthState {
+    (array_set fs.rstack fs.rsp val)
+    return ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: (+ fs.rsp 1),
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_rpush {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_rpush fs 123)
+    assert (== fs2.rsp 1)
+    assert (== (at fs2.rstack 0) 123)
+}
+
+fn forth_rpop(fs: ForthState) -> ForthState {
+    if (<= fs.rsp 0) {
+        (print "Return stack underflow\n")
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: 0,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: fs.base, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: true
+        }
+    }
+    return ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: (- fs.rsp 1),
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_rpop {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_rpush fs 55)
+    let fs2: ForthState = (forth_rpop fs1)
+    assert (== fs2.rsp 0)
+}
+
+fn forth_rtop(fs: ForthState) -> int {
+    if (<= fs.rsp 0) { return 0 }
+    return (at fs.rstack (- fs.rsp 1))
+}
+
+shadow forth_rtop {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_rpush fs 77)
+    assert (== (forth_rtop fs1) 77)
+}
+
+# ── Code emission ──────────────────────────────────────────────────────────────
+
+fn forth_emit_code(fs: ForthState, val: int) -> ForthState {
+    (array_set fs.code fs.code_len val)
+    return ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: (+ fs.code_len 1),
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_emit_code {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_emit_code fs 99)
+    assert (== fs2.code_len 1)
+    assert (== (at fs2.code 0) 99)
+}
+
+fn forth_patch_code(fs: ForthState, addr: int, val: int) -> ForthState {
+    (array_set fs.code addr val)
+    return fs
+}
+
+shadow forth_patch_code {
+    let fs: ForthState = (forth_init)
+    let fs1: ForthState = (forth_emit_code fs 0)
+    let fs2: ForthState = (forth_patch_code fs1 0 42)
+    assert (== (at fs2.code 0) 42)
+}
+
+# ── Dictionary operations ──────────────────────────────────────────────────────
+
+fn forth_define_native(fs: ForthState, name: string, native_id: int, flags: int) -> ForthState {
+    let idx: int = fs.def_count
+    let dn: HashMap<string, int> = fs.dict_names
+    (map_put dn name idx)
+    (array_set fs.def_names idx name)
+    (array_set fs.def_flags idx flags)
+    (array_set fs.def_types idx (WORD_NATIVE))
+    (array_set fs.def_native_ids idx native_id)
+    (array_set fs.def_code_start idx 0)
+    (array_set fs.def_code_len idx 0)
+    (array_set fs.def_body_addr idx 0)
+    return ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: dn,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: (+ idx 1),
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_define_native {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_define_native fs "DUP" (NID_DUP) 0)
+    assert (== fs2.def_count 1)
+    let dn: HashMap<string, int> = fs2.dict_names
+    assert (== (map_has dn "DUP") true)
+    assert (== (map_get dn "DUP") 0)
+}
+
+fn forth_find_word(fs: ForthState, name: string) -> int {
+    let dn: HashMap<string, int> = fs.dict_names
+    if (map_has dn name) {
+        return (map_get dn name)
+    }
+    return -1
+}
+
+shadow forth_find_word {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_define_native fs "SWAP" (NID_SWAP) 0)
+    assert (== (forth_find_word fs2 "SWAP") 0)
+    assert (== (forth_find_word fs2 "UNKNOWN") -1)
+}
+
+fn forth_word_is_immediate(fs: ForthState, idx: int) -> bool {
+    if (< idx 0) { return false }
+    let flags: int = (at fs.def_flags idx)
+    return (!= (bit_and flags (FLAG_IMMEDIATE)) 0)
+}
+
+shadow forth_word_is_immediate {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_define_native fs "IF" (NID_IF) (FLAG_IMMEDIATE))
+    assert (== (forth_word_is_immediate fs2 0) true)
+    let fs3: ForthState = (forth_define_native fs2 "DUP" (NID_DUP) 0)
+    assert (== (forth_word_is_immediate fs3 1) false)
+}
+
+# ── String helpers ────────────────────────────────────────────────────────────
+
+fn forth_to_upper(s: string) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    let length: int = (str_length s)
+    while (< i length) {
+        let ch: int = (char_at s i)
+        if (and (>= ch 97) (<= ch 122)) {
+            set result (+ result (string_from_char (- ch 32)))
+        } else {
+            set result (+ result (string_from_char ch))
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow forth_to_upper {
+    assert (== (forth_to_upper "hello") "HELLO")
+    assert (== (forth_to_upper "DUP") "DUP")
+    assert (== (forth_to_upper "dup") "DUP")
+    assert (== (forth_to_upper "") "")
+}
+
+# ── Number formatting ──────────────────────────────────────────────────────────
+
+fn int_to_base_string(n: int, base: int) -> string {
+    if (== n 0) { return "0" }
+    let negative: bool = (< n 0)
+    let mut abs_n: int = n
+    if negative {
+        set abs_n (* n -1)
+    }
+    let digits: string = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    let mut result: string = ""
+    let mut remaining: int = abs_n
+    while (> remaining 0) {
+        let d: int = (% remaining base)
+        let char_idx: int = d
+        set result (+ (str_substring digits char_idx 1) result)
+        set remaining (/ remaining base)
+    }
+    if negative {
+        set result (+ "-" result)
+    }
+    return result
+}
+
+shadow int_to_base_string {
+    assert (== (int_to_base_string 0 10) "0")
+    assert (== (int_to_base_string 42 10) "42")
+    assert (== (int_to_base_string 255 16) "FF")
+    assert (== (int_to_base_string -5 10) "-5")
+    assert (== (int_to_base_string 8 8) "10")
+}
+
+# ── Tokenizer ──────────────────────────────────────────────────────────────────
+
+fn forth_skip_spaces(buf: string, pos: int) -> int {
+    let len: int = (str_length buf)
+    let mut i: int = pos
+    while (< i len) {
+        let ch: string = (str_substring buf i 1)
+        if (!= ch " ") {
+            return i
+        }
+        set i (+ i 1)
+    }
+    return i
+}
+
+shadow forth_skip_spaces {
+    assert (== (forth_skip_spaces "  hello" 0) 2)
+    assert (== (forth_skip_spaces "hello" 0) 0)
+    assert (== (forth_skip_spaces "   " 0) 3)
+}
+
+fn forth_parse_word_at(buf: string, pos: int) -> string {
+    let len: int = (str_length buf)
+    let start: int = (forth_skip_spaces buf pos)
+    if (>= start len) { return "" }
+    let mut end: int = start
+    while (< end len) {
+        let ch: string = (str_substring buf end 1)
+        if (== ch " ") {
+            return (str_substring buf start (- end start))
+        }
+        set end (+ end 1)
+    }
+    return (str_substring buf start (- end start))
+}
+
+shadow forth_parse_word_at {
+    assert (== (forth_parse_word_at "hello world" 0) "hello")
+    assert (== (forth_parse_word_at "  DUP  SWAP" 0) "DUP")
+    assert (== (forth_parse_word_at "hello world" 6) "world")
+    assert (== (forth_parse_word_at "   " 0) "")
+}
+
+fn forth_advance_pos(buf: string, pos: int) -> int {
+    let len: int = (str_length buf)
+    let start: int = (forth_skip_spaces buf pos)
+    let mut end: int = start
+    while (< end len) {
+        let ch: string = (str_substring buf end 1)
+        if (== ch " ") {
+            return end
+        }
+        set end (+ end 1)
+    }
+    return end
+}
+
+shadow forth_advance_pos {
+    assert (== (forth_advance_pos "hello world" 0) 5)
+    assert (== (forth_advance_pos "  DUP SWAP" 0) 5)
+    assert (== (forth_advance_pos "   " 0) 3)
+}
+
+# Parse word from state's input buffer, advance input_pos
+fn forth_next_word(fs: ForthState) -> ForthState {
+    let word: string = (forth_parse_word_at fs.input_buffer fs.input_pos)
+    let new_pos: int = (forth_advance_pos fs.input_buffer fs.input_pos)
+    return ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: word, input_pos: new_pos,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+}
+
+shadow forth_next_word {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: "DUP SWAP", input_pos: 0,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: fs.error_flag
+    }
+    let fs3: ForthState = (forth_next_word fs2)
+    assert (== fs3.input_buffer "DUP")
+}
+
+# ── Number parsing ─────────────────────────────────────────────────────────────
+
+fn is_digit_in_base(ch: string, base: int) -> bool {
+    let digits: string = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    let len: int = (str_length digits)
+    let mut i: int = 0
+    while (< i base) {
+        if (== i len) { return false }
+        let d: string = (str_substring digits i 1)
+        if (== ch d) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow is_digit_in_base {
+    assert (== (is_digit_in_base "5" 10) true)
+    assert (== (is_digit_in_base "A" 16) true)
+    assert (== (is_digit_in_base "G" 16) false)
+    assert (== (is_digit_in_base "8" 8) false)
+}
+
+fn forth_digit_value(ch: string) -> int {
+    let digits: string = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    let len: int = (str_length digits)
+    let mut i: int = 0
+    while (< i len) {
+        let d: string = (str_substring digits i 1)
+        if (== ch d) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow forth_digit_value {
+    assert (== (forth_digit_value "0") 0)
+    assert (== (forth_digit_value "9") 9)
+    assert (== (forth_digit_value "A") 10)
+    assert (== (forth_digit_value "F") 15)
+}
+
+fn forth_try_parse_number(word: string, base: int) -> int {
+    # Returns the number, or sets a flag via a special sentinel.
+    # We use a two-value approach: return 0 if not a number, use forth_is_number to check.
+    let len: int = (str_length word)
+    if (== len 0) { return 0 }
+    let mut start: int = 0
+    let first: string = (str_substring word 0 1)
+    let negative: bool = (== first "-")
+    if negative {
+        set start 1
+        if (<= len 1) { return 0 }
+    }
+    let mut result: int = 0
+    let mut i: int = start
+    while (< i len) {
+        let ch: string = (str_substring word i 1)
+        if (!= (is_digit_in_base ch base) true) { return -999999999 }
+        set result (+ (* result base) (forth_digit_value ch))
+        set i (+ i 1)
+    }
+    if negative {
+        return (* result -1)
+    }
+    return result
+}
+
+fn forth_is_number(word: string, base: int) -> bool {
+    let len: int = (str_length word)
+    if (== len 0) { return false }
+    let mut start: int = 0
+    let first: string = (str_substring word 0 1)
+    let negative: bool = (== first "-")
+    if negative {
+        set start 1
+        if (<= len 1) { return false }
+    }
+    let upper: string = (forth_to_upper word)
+    let mut i: int = start
+    while (< i len) {
+        let ch: string = (str_substring upper i 1)
+        if (!= (is_digit_in_base ch base) true) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow forth_is_number {
+    assert (== (forth_is_number "42" 10) true)
+    assert (== (forth_is_number "-5" 10) true)
+    assert (== (forth_is_number "FF" 16) true)
+    assert (== (forth_is_number "DUP" 10) false)
+    assert (== (forth_is_number "" 10) false)
+    assert (== (forth_is_number "-" 10) false)
+}
+
+shadow forth_try_parse_number {
+    assert (== (forth_try_parse_number "42" 10) 42)
+    assert (== (forth_try_parse_number "-5" 10) -5)
+    assert (== (forth_try_parse_number "FF" 16) 255)
+    assert (== (forth_try_parse_number "10" 8) 8)
+}
+
+# ── Bootstrap: register all native words ──────────────────────────────────────
+
+fn forth_bootstrap(fs: ForthState) -> ForthState {
+    let mut s: ForthState = fs
+    # Stack words
+    set s (forth_define_native s "DUP" (NID_DUP) 0)
+    set s (forth_define_native s "DROP" (NID_DROP) 0)
+    set s (forth_define_native s "SWAP" (NID_SWAP) 0)
+    set s (forth_define_native s "OVER" (NID_OVER) 0)
+    set s (forth_define_native s "ROT" (NID_ROT) 0)
+    set s (forth_define_native s "-ROT" (NID_NROT) 0)
+    set s (forth_define_native s "?DUP" (NID_QDUP) 0)
+    set s (forth_define_native s "NIP" (NID_NIP) 0)
+    set s (forth_define_native s "TUCK" (NID_TUCK) 0)
+    set s (forth_define_native s "2DUP" (NID_2DUP) 0)
+    set s (forth_define_native s "2DROP" (NID_2DROP) 0)
+    set s (forth_define_native s "2SWAP" (NID_2SWAP) 0)
+    set s (forth_define_native s "2OVER" (NID_2OVER) 0)
+    set s (forth_define_native s "DEPTH" (NID_DEPTH) 0)
+    set s (forth_define_native s ".S" (NID_DOT_S) 0)
+    # Arithmetic
+    set s (forth_define_native s "+" (NID_ADD) 0)
+    set s (forth_define_native s "-" (NID_SUB) 0)
+    set s (forth_define_native s "*" (NID_MUL) 0)
+    set s (forth_define_native s "/" (NID_DIV) 0)
+    set s (forth_define_native s "MOD" (NID_MOD) 0)
+    set s (forth_define_native s "/MOD" (NID_DIVMOD) 0)
+    set s (forth_define_native s "*/" (NID_STAR_SLASH) 0)
+    set s (forth_define_native s "*/MOD" (NID_STAR_SLASH_MOD) 0)
+    set s (forth_define_native s "NEGATE" (NID_NEGATE) 0)
+    set s (forth_define_native s "ABS" (NID_ABS) 0)
+    set s (forth_define_native s "MIN" (NID_MIN) 0)
+    set s (forth_define_native s "MAX" (NID_MAX) 0)
+    set s (forth_define_native s "AND" (NID_AND) 0)
+    set s (forth_define_native s "OR" (NID_OR) 0)
+    set s (forth_define_native s "XOR" (NID_XOR) 0)
+    set s (forth_define_native s "INVERT" (NID_INVERT) 0)
+    set s (forth_define_native s "LSHIFT" (NID_LSHIFT) 0)
+    set s (forth_define_native s "RSHIFT" (NID_RSHIFT) 0)
+    set s (forth_define_native s "1+" (NID_ONE_PLUS) 0)
+    set s (forth_define_native s "1-" (NID_ONE_MINUS) 0)
+    set s (forth_define_native s "2+" (NID_TWO_PLUS) 0)
+    set s (forth_define_native s "2-" (NID_TWO_MINUS) 0)
+    set s (forth_define_native s "2*" (NID_TWO_MUL) 0)
+    set s (forth_define_native s "2/" (NID_TWO_DIV) 0)
+    # Comparison
+    set s (forth_define_native s "=" (NID_EQ) 0)
+    set s (forth_define_native s "<>" (NID_NEQ) 0)
+    set s (forth_define_native s "<" (NID_LT) 0)
+    set s (forth_define_native s ">" (NID_GT) 0)
+    set s (forth_define_native s "<=" (NID_LE) 0)
+    set s (forth_define_native s ">=" (NID_GE) 0)
+    set s (forth_define_native s "0=" (NID_ZERO_EQ) 0)
+    set s (forth_define_native s "0<" (NID_ZERO_LT) 0)
+    set s (forth_define_native s "0>" (NID_ZERO_GT) 0)
+    set s (forth_define_native s "0<>" (NID_ZERO_NEQ) 0)
+    # Return stack
+    set s (forth_define_native s ">R" (NID_TO_R) 0)
+    set s (forth_define_native s "R>" (NID_R_FROM) 0)
+    set s (forth_define_native s "R@" (NID_R_FETCH) 0)
+    # Memory
+    set s (forth_define_native s "!" (NID_STORE) 0)
+    set s (forth_define_native s "@" (NID_FETCH) 0)
+    set s (forth_define_native s "+!" (NID_PLUS_STORE) 0)
+    set s (forth_define_native s "C!" (NID_C_STORE) 0)
+    set s (forth_define_native s "C@" (NID_C_FETCH) 0)
+    set s (forth_define_native s "FILL" (NID_FILL) 0)
+    set s (forth_define_native s "MOVE" (NID_MOVE) 0)
+    set s (forth_define_native s "HERE" (NID_HERE_W) 0)
+    set s (forth_define_native s "ALLOT" (NID_ALLOT) 0)
+    set s (forth_define_native s "," (NID_COMMA) 0)
+    # I/O
+    set s (forth_define_native s "." (NID_DOT) 0)
+    set s (forth_define_native s "U." (NID_U_DOT) 0)
+    set s (forth_define_native s "EMIT" (NID_EMIT) 0)
+    set s (forth_define_native s "CR" (NID_CR) 0)
+    set s (forth_define_native s "SPACE" (NID_SPACE) 0)
+    set s (forth_define_native s "SPACES" (NID_SPACES) 0)
+    set s (forth_define_native s "TYPE" (NID_TYPE) 0)
+    set s (forth_define_native s "KEY" (NID_KEY) 0)
+    # Compilation/control
+    set s (forth_define_native s ":" (NID_COLON) 0)
+    set s (forth_define_native s ";" (NID_SEMICOLON) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "CONSTANT" (NID_CONSTANT) 0)
+    set s (forth_define_native s "VARIABLE" (NID_VARIABLE) 0)
+    set s (forth_define_native s "CREATE" (NID_CREATE) 0)
+    set s (forth_define_native s "DOES>" (NID_DOES) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "IMMEDIATE" (NID_IMMEDIATE) 0)
+    set s (forth_define_native s "FORGET" (NID_FORGET) 0)
+    set s (forth_define_native s "'" (NID_TICK) 0)
+    set s (forth_define_native s "EXECUTE" (NID_EXECUTE) 0)
+    set s (forth_define_native s "IF" (NID_IF) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "ELSE" (NID_ELSE) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "THEN" (NID_THEN) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "BEGIN" (NID_BEGIN) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "UNTIL" (NID_UNTIL) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "WHILE" (NID_WHILE) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "REPEAT" (NID_REPEAT) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "AGAIN" (NID_AGAIN) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "DO" (NID_DO) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "LOOP" (NID_LOOP) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "+LOOP" (NID_PLUS_LOOP) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "I" (NID_I) 0)
+    set s (forth_define_native s "J" (NID_J) 0)
+    set s (forth_define_native s "LEAVE" (NID_LEAVE) 0)
+    set s (forth_define_native s "RECURSE" (NID_RECURSE) (FLAG_IMMEDIATE))
+    set s (forth_define_native s "EXIT" (NID_EXIT) 0)
+    set s (forth_define_native s "WORDS" (NID_WORDS) 0)
+    set s (forth_define_native s "BYE" (NID_BYE) 0)
+    set s (forth_define_native s "ABORT" (NID_ABORT) 0)
+    set s (forth_define_native s "QUIT" (NID_QUIT) 0)
+    set s (forth_define_native s "BASE" (NID_BASE_W) 0)
+    set s (forth_define_native s "DECIMAL" (NID_DECIMAL) 0)
+    set s (forth_define_native s "HEX" (NID_HEX) 0)
+    set s (forth_define_native s "OCTAL" (NID_OCTAL) 0)
+    let dq: string = (string_from_char 34)
+    let dotquote: string = (+ "." dq)
+    let squote: string = (+ "S" dq)
+    set s (forth_define_native s dotquote (NID_DOT_QUOTE) (FLAG_IMMEDIATE))
+    set s (forth_define_native s squote (NID_S_QUOTE) (FLAG_IMMEDIATE))
+    set s (forth_define_native s ".(" (NID_DOT_PAREN) 0)
+    set s (forth_define_native s "STATE" (NID_STATE_W) 0)
+    return s
+}
+
+shadow forth_bootstrap {
+    let fs: ForthState = (forth_init)
+    let fs2: ForthState = (forth_bootstrap fs)
+    assert (> fs2.def_count 50)
+    assert (== (forth_find_word fs2 "DUP") 0)
+    assert (>= (forth_find_word fs2 "+") 0)
+    assert (>= (forth_find_word fs2 "IF") 0)
+    let if_idx: int = (forth_find_word fs2 "IF")
+    assert (== (forth_word_is_immediate fs2 if_idx) true)
+    assert (== (forth_word_is_immediate fs2 0) false)
+}
+
+# ── Native word execution ──────────────────────────────────────────────────────
+# We break this into groups for manageability.
+
+fn forth_exec_stack(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    let b: int = (forth_second fs)
+    let c: int = (forth_third fs)
+    if (== nid (NID_DUP)) { return (forth_push fs a) }
+    if (== nid (NID_DROP)) { return (forth_pop fs) }
+    if (== nid (NID_SWAP)) {
+        let s1: ForthState = (forth_pop (forth_pop fs))
+        let s2: ForthState = (forth_push s1 a)
+        return (forth_push s2 b)
+    }
+    if (== nid (NID_OVER)) { return (forth_push fs b) }
+    if (== nid (NID_ROT)) {
+        let s1: ForthState = (forth_pop (forth_pop (forth_pop fs)))
+        let s2: ForthState = (forth_push s1 b)
+        let s3: ForthState = (forth_push s2 a)
+        return (forth_push s3 c)
+    }
+    if (== nid (NID_NROT)) {
+        let s1: ForthState = (forth_pop (forth_pop (forth_pop fs)))
+        let s2: ForthState = (forth_push s1 a)
+        let s3: ForthState = (forth_push s2 c)
+        return (forth_push s3 b)
+    }
+    if (== nid (NID_QDUP)) {
+        if (!= a 0) { return (forth_push fs a) }
+        return fs
+    }
+    if (== nid (NID_NIP)) {
+        let s1: ForthState = (forth_pop (forth_pop fs))
+        return (forth_push s1 a)
+    }
+    if (== nid (NID_TUCK)) {
+        let s1: ForthState = (forth_pop (forth_pop fs))
+        let s2: ForthState = (forth_push s1 a)
+        let s3: ForthState = (forth_push s2 b)
+        return (forth_push s3 a)
+    }
+    if (== nid (NID_2DUP)) {
+        let s1: ForthState = (forth_push fs b)
+        return (forth_push s1 a)
+    }
+    if (== nid (NID_2DROP)) { return (forth_pop (forth_pop fs)) }
+    if (== nid (NID_2SWAP)) {
+        let d: int = (at fs.dstack (- fs.sp 4))
+        let s1: ForthState = (forth_pop (forth_pop (forth_pop (forth_pop fs))))
+        let s2: ForthState = (forth_push s1 b)
+        let s3: ForthState = (forth_push s2 a)
+        let s4: ForthState = (forth_push s3 d)
+        return (forth_push s4 c)
+    }
+    if (== nid (NID_2OVER)) {
+        let c2: int = (at fs.dstack (- fs.sp 4))
+        let d2: int = (at fs.dstack (- fs.sp 3))
+        let s1: ForthState = (forth_push fs c2)
+        return (forth_push s1 d2)
+    }
+    if (== nid (NID_DEPTH)) { return (forth_push fs fs.sp) }
+    if (== nid (NID_DOT_S)) {
+        (print "<")
+        (print (int_to_string fs.sp))
+        (print ">")
+        let mut i: int = 0
+        while (< i fs.sp) {
+            (print " ")
+            (print (int_to_base_string (at fs.dstack i) fs.base))
+            set i (+ i 1)
+        }
+        (print " ")
+        return fs
+    }
+    return fs
+}
+
+shadow forth_exec_stack {
+    # DUP: 10 20 -> 10 20 20
+    let fdup: ForthState = (forth_exec_stack (forth_push (forth_push (forth_init) 10) 20) (NID_DUP))
+    assert (== fdup.sp 3)
+    assert (== (forth_top fdup) 20)
+    # SWAP: 10 20 -> 20 10
+    let fswap: ForthState = (forth_exec_stack (forth_push (forth_push (forth_init) 10) 20) (NID_SWAP))
+    assert (== (forth_top fswap) 10)
+    assert (== (forth_second fswap) 20)
+    # DROP: 10 20 -> 10
+    let fdrop: ForthState = (forth_exec_stack (forth_push (forth_push (forth_init) 10) 20) (NID_DROP))
+    assert (== fdrop.sp 1)
+    assert (== (forth_top fdrop) 10)
+    # OVER: 10 20 -> 10 20 10
+    let fover: ForthState = (forth_exec_stack (forth_push (forth_push (forth_init) 10) 20) (NID_OVER))
+    assert (== fover.sp 3)
+    assert (== (forth_top fover) 10)
+}
+
+fn forth_exec_arith(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    # Unary operations — handle before computing pop2 to avoid spurious stack underflow
+    if (== nid (NID_NEGATE)) { return (forth_push (forth_pop fs) (* a -1)) }
+    if (== nid (NID_ABS)) {
+        if (< a 0) { return (forth_push (forth_pop fs) (* a -1)) }
+        return fs
+    }
+    if (== nid (NID_INVERT)) { return (forth_push (forth_pop fs) (bit_not a)) }
+    if (== nid (NID_ONE_PLUS)) { return (forth_push (forth_pop fs) (+ a 1)) }
+    if (== nid (NID_ONE_MINUS)) { return (forth_push (forth_pop fs) (- a 1)) }
+    if (== nid (NID_TWO_PLUS)) { return (forth_push (forth_pop fs) (+ a 2)) }
+    if (== nid (NID_TWO_MINUS)) { return (forth_push (forth_pop fs) (- a 2)) }
+    if (== nid (NID_TWO_MUL)) { return (forth_push (forth_pop fs) (* a 2)) }
+    if (== nid (NID_TWO_DIV)) { return (forth_push (forth_pop fs) (/ a 2)) }
+    # Binary operations
+    let b: int = (forth_second fs)
+    let pop2: ForthState = (forth_pop (forth_pop fs))
+    if (== nid (NID_ADD)) { return (forth_push pop2 (+ b a)) }
+    if (== nid (NID_SUB)) { return (forth_push pop2 (- b a)) }
+    if (== nid (NID_MUL)) { return (forth_push pop2 (* b a)) }
+    if (== nid (NID_DIV)) {
+        if (== a 0) {
+            (print "Division by zero\n")
+            return ForthState {
+                dstack: fs.dstack, sp: fs.sp,
+                rstack: fs.rstack, rsp: fs.rsp,
+                memory: fs.memory, here: fs.here,
+                code: fs.code, code_len: fs.code_len,
+                dict_names: fs.dict_names,
+                def_names: fs.def_names, def_flags: fs.def_flags,
+                def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+                def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+                def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+                strings: fs.strings, strings_len: fs.strings_len,
+                state: fs.state, base: fs.base, current_def: fs.current_def,
+                input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+                ip_stack: fs.ip_stack, isp: fs.isp,
+                running: fs.running, error_flag: true
+            }
+        }
+        return (forth_push pop2 (/ b a))
+    }
+    if (== nid (NID_MOD)) { return (forth_push pop2 (% b a)) }
+    if (== nid (NID_DIVMOD)) {
+        let s1: ForthState = (forth_push pop2 (% b a))
+        return (forth_push s1 (/ b a))
+    }
+    if (== nid (NID_STAR_SLASH)) {
+        let c: int = (forth_third fs)
+        let pop3: ForthState = (forth_pop pop2)
+        return (forth_push pop3 (/ (* c b) a))
+    }
+    if (== nid (NID_STAR_SLASH_MOD)) {
+        let c: int = (forth_third fs)
+        let pop3: ForthState = (forth_pop pop2)
+        let prod: int = (* c b)
+        let s1: ForthState = (forth_push pop3 (% prod a))
+        return (forth_push s1 (/ prod a))
+    }
+    if (== nid (NID_MIN)) {
+        if (< a b) { return (forth_push pop2 a) }
+        return (forth_push pop2 b)
+    }
+    if (== nid (NID_MAX)) {
+        if (> a b) { return (forth_push pop2 a) }
+        return (forth_push pop2 b)
+    }
+    if (== nid (NID_AND)) { return (forth_push pop2 (bit_and b a)) }
+    if (== nid (NID_OR)) { return (forth_push pop2 (bit_or b a)) }
+    if (== nid (NID_XOR)) { return (forth_push pop2 (bit_xor b a)) }
+    if (== nid (NID_LSHIFT)) { return (forth_push pop2 (bit_lshift b a)) }
+    if (== nid (NID_RSHIFT)) { return (forth_push pop2 (bit_rshift b a)) }
+    return fs
+}
+
+shadow forth_exec_arith {
+    # 10 3 + = 13
+    let fadd: ForthState = (forth_exec_arith (forth_push (forth_push (forth_init) 10) 3) (NID_ADD))
+    assert (== (forth_top fadd) 13)
+    assert (== fadd.sp 1)
+    # 10 3 - = 7
+    let fsub: ForthState = (forth_exec_arith (forth_push (forth_push (forth_init) 10) 3) (NID_SUB))
+    assert (== (forth_top fsub) 7)
+    # 10 3 * = 30
+    let fmul: ForthState = (forth_exec_arith (forth_push (forth_push (forth_init) 10) 3) (NID_MUL))
+    assert (== (forth_top fmul) 30)
+    # 10 3 / = 3
+    let fdiv: ForthState = (forth_exec_arith (forth_push (forth_push (forth_init) 10) 3) (NID_DIV))
+    assert (== (forth_top fdiv) 3)
+    # 10 3 MOD = 1
+    let fmod: ForthState = (forth_exec_arith (forth_push (forth_push (forth_init) 10) 3) (NID_MOD))
+    assert (== (forth_top fmod) 1)
+}
+
+fn forth_bool(b: bool) -> int {
+    if b { return -1 }
+    return 0
+}
+
+shadow forth_bool {
+    assert (== (forth_bool true) -1)
+    assert (== (forth_bool false) 0)
+}
+
+fn forth_exec_compare(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    # Unary comparisons — handle before computing pop2 to avoid spurious stack underflow
+    if (== nid (NID_ZERO_EQ)) { return (forth_push (forth_pop fs) (forth_bool (== a 0))) }
+    if (== nid (NID_ZERO_LT)) { return (forth_push (forth_pop fs) (forth_bool (< a 0))) }
+    if (== nid (NID_ZERO_GT)) { return (forth_push (forth_pop fs) (forth_bool (> a 0))) }
+    if (== nid (NID_ZERO_NEQ)) { return (forth_push (forth_pop fs) (forth_bool (!= a 0))) }
+    # Binary comparisons
+    let b: int = (forth_second fs)
+    let pop2: ForthState = (forth_pop (forth_pop fs))
+    if (== nid (NID_EQ)) { return (forth_push pop2 (forth_bool (== b a))) }
+    if (== nid (NID_NEQ)) { return (forth_push pop2 (forth_bool (!= b a))) }
+    if (== nid (NID_LT)) { return (forth_push pop2 (forth_bool (< b a))) }
+    if (== nid (NID_GT)) { return (forth_push pop2 (forth_bool (> b a))) }
+    if (== nid (NID_LE)) { return (forth_push pop2 (forth_bool (<= b a))) }
+    if (== nid (NID_GE)) { return (forth_push pop2 (forth_bool (>= b a))) }
+    return fs
+}
+
+shadow forth_exec_compare {
+    let fs0: ForthState = (forth_init)
+    # 3 5 = -> 0 (false)
+    let fs1: ForthState = (forth_push (forth_push fs0 3) 5)
+    let feq: ForthState = (forth_exec_compare fs1 (NID_EQ))
+    assert (== (forth_top feq) 0)
+    # 5 5 = -> -1 (true)
+    let fs2: ForthState = (forth_push (forth_push fs0 5) 5)
+    let feq2: ForthState = (forth_exec_compare fs2 (NID_EQ))
+    assert (== (forth_top feq2) -1)
+    # 3 5 < -> -1 (true: 3 < 5)
+    let flt: ForthState = (forth_exec_compare fs1 (NID_LT))
+    assert (== (forth_top flt) -1)
+    # 0= on 0 -> -1
+    let fs3: ForthState = (forth_push fs0 0)
+    let fzeq: ForthState = (forth_exec_compare fs3 (NID_ZERO_EQ))
+    assert (== (forth_top fzeq) -1)
+}
+
+fn forth_exec_return_stack(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    if (== nid (NID_TO_R)) { return (forth_rpush (forth_pop fs) a) }
+    if (== nid (NID_R_FROM)) { return (forth_push (forth_rpop fs) (forth_rtop fs)) }
+    if (== nid (NID_R_FETCH)) { return (forth_push fs (forth_rtop fs)) }
+    return fs
+}
+
+shadow forth_exec_return_stack {
+    let fs0: ForthState = (forth_init)
+    let fs1: ForthState = (forth_push fs0 42)
+    # >R moves from data to return
+    let fs2: ForthState = (forth_exec_return_stack fs1 (NID_TO_R))
+    assert (== fs2.sp 0)
+    assert (== fs2.rsp 1)
+    assert (== (forth_rtop fs2) 42)
+    # R> moves from return to data
+    let fs3: ForthState = (forth_exec_return_stack fs2 (NID_R_FROM))
+    assert (== fs3.sp 1)
+    assert (== fs3.rsp 0)
+    assert (== (forth_top fs3) 42)
+    # R@ copies from return to data
+    let fs4: ForthState = (forth_rpush fs0 99)
+    let fs5: ForthState = (forth_exec_return_stack fs4 (NID_R_FETCH))
+    assert (== (forth_top fs5) 99)
+    assert (== fs5.rsp 1)
+}
+
+fn forth_exec_memory(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    let b: int = (forth_second fs)
+    let pop1: ForthState = (forth_pop fs)
+    let pop2: ForthState = (forth_pop pop1)
+    if (== nid (NID_STORE)) {
+        (array_set fs.memory a b)
+        return pop2
+    }
+    if (== nid (NID_FETCH)) {
+        let val: int = (at fs.memory a)
+        return (forth_push pop1 val)
+    }
+    if (== nid (NID_PLUS_STORE)) {
+        let cur: int = (at fs.memory a)
+        (array_set fs.memory a (+ cur b))
+        return pop2
+    }
+    if (== nid (NID_C_STORE)) {
+        (array_set fs.memory a b)
+        return pop2
+    }
+    if (== nid (NID_C_FETCH)) {
+        let val: int = (at fs.memory a)
+        return (forth_push pop1 val)
+    }
+    if (== nid (NID_FILL)) {
+        let c: int = (forth_third fs)
+        let pop3: ForthState = (forth_pop pop2)
+        let mut i: int = 0
+        while (< i b) {
+            (array_set fs.memory (+ c i) a)
+            set i (+ i 1)
+        }
+        return pop3
+    }
+    if (== nid (NID_MOVE)) {
+        let src: int = (forth_third fs)
+        let pop3: ForthState = (forth_pop pop2)
+        let mut i: int = 0
+        while (< i a) {
+            let val: int = (at fs.memory (+ src i))
+            (array_set fs.memory (+ b i) val)
+            set i (+ i 1)
+        }
+        return pop3
+    }
+    if (== nid (NID_HERE_W)) { return (forth_push fs fs.here) }
+    if (== nid (NID_ALLOT)) {
+        return ForthState {
+            dstack: fs.dstack, sp: pop1.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: (+ fs.here a),
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: fs.base, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: fs.error_flag
+        }
+    }
+    if (== nid (NID_COMMA)) {
+        (array_set fs.memory fs.here a)
+        return ForthState {
+            dstack: fs.dstack, sp: pop1.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: (+ fs.here 1),
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: fs.base, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: fs.error_flag
+        }
+    }
+    return fs
+}
+
+shadow forth_exec_memory {
+    let fs0: ForthState = (forth_init)
+    # Store 42 at address 10: 42 10 !
+    let fs1: ForthState = (forth_push (forth_push fs0 42) 10)
+    let fs2: ForthState = (forth_exec_memory fs1 (NID_STORE))
+    assert (== fs2.sp 0)
+    assert (== (at fs2.memory 10) 42)
+    # Fetch from address 10: 10 @ -> 42
+    let fs3: ForthState = (forth_push fs2 10)
+    let fs4: ForthState = (forth_exec_memory fs3 (NID_FETCH))
+    assert (== (forth_top fs4) 42)
+    # +! : 5 10 +! -> memory[10] = 47
+    let fs5: ForthState = (forth_push (forth_push fs2 5) 10)
+    let fs6: ForthState = (forth_exec_memory fs5 (NID_PLUS_STORE))
+    assert (== (at fs6.memory 10) 47)
+}
+
+fn forth_exec_io(fs: ForthState, nid: int) -> ForthState {
+    let a: int = (forth_top fs)
+    let b: int = (forth_second fs)
+    let pop1: ForthState = (forth_pop fs)
+    if (== nid (NID_DOT)) {
+        (print (int_to_base_string a fs.base))
+        (print " ")
+        return pop1
+    }
+    if (== nid (NID_U_DOT)) {
+        (print (int_to_base_string a fs.base))
+        (print " ")
+        return pop1
+    }
+    if (== nid (NID_EMIT)) {
+        (print (string_from_char a))
+        return pop1
+    }
+    if (== nid (NID_CR)) {
+        (print "\n")
+        return fs
+    }
+    if (== nid (NID_SPACE)) {
+        (print " ")
+        return fs
+    }
+    if (== nid (NID_SPACES)) {
+        let mut i: int = 0
+        while (< i a) {
+            (print " ")
+            set i (+ i 1)
+        }
+        return pop1
+    }
+    if (== nid (NID_TYPE)) {
+        # addr len -- prints len chars starting at addr from strings
+        # In our implementation, TYPE is limited: addr is string index, len ignored
+        let str_idx: int = b
+        if (< str_idx fs.strings_len) {
+            (print (at fs.strings str_idx))
+        }
+        return (forth_pop pop1)
+    }
+    if (== nid (NID_KEY)) {
+        # Push 0 as placeholder (no keyboard input in non-interactive mode)
+        return (forth_push fs 0)
+    }
+    return fs
+}
+
+shadow forth_exec_io {
+    let fs0: ForthState = (forth_init)
+    # SPACES: 3 SPACES should leave stack empty
+    let fs1: ForthState = (forth_push fs0 3)
+    let fs2: ForthState = (forth_exec_io fs1 (NID_SPACES))
+    assert (== fs2.sp 0)
+    # CR: no stack effect
+    let fs3: ForthState = (forth_exec_io fs0 (NID_CR))
+    assert (== fs3.sp 0)
+}
+
+# ── Inner interpreter ──────────────────────────────────────────────────────────
+# Forward declaration placeholder — defined after forth_exec_native
+
+# ── Compilation words (IMMEDIATE and compile-time primitives) ─────────────────
+
+fn forth_exec_compile(fs: ForthState, nid: int) -> ForthState {
+    # Loop index words
+    if (== nid (NID_I)) { return (forth_push fs (forth_rtop fs)) }
+    if (== nid (NID_J)) {
+        if (>= fs.rsp 4) {
+            return (forth_push fs (at fs.rstack (- fs.rsp 4)))
+        }
+        return fs
+    }
+    if (== nid (NID_LEAVE)) { return (forth_rpop (forth_rpop fs)) }
+    # STATE -- push address of STATE variable
+    if (== nid (NID_STATE_W)) { return (forth_push fs 1) }
+    # BASE -- push address of BASE variable
+    if (== nid (NID_BASE_W)) { return (forth_push fs 0) }
+    # DECIMAL, HEX, OCTAL -- change base
+    if (== nid (NID_DECIMAL)) {
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: 10, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: fs.error_flag
+        }
+    }
+    if (== nid (NID_HEX)) {
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: 16, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: fs.error_flag
+        }
+    }
+    if (== nid (NID_OCTAL)) {
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: 8, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: fs.running, error_flag: fs.error_flag
+        }
+    }
+    if (== nid (NID_WORDS)) {
+        let mut i: int = 0
+        while (< i fs.def_count) {
+            (print (at fs.def_names i))
+            (print " ")
+            set i (+ i 1)
+        }
+        (print "\n")
+        return fs
+    }
+    if (== nid (NID_BYE)) {
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: fs.rsp,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: fs.state, base: fs.base, current_def: fs.current_def,
+            input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+            ip_stack: fs.ip_stack, isp: fs.isp,
+            running: false, error_flag: fs.error_flag
+        }
+    }
+    if (== nid (NID_ABORT)) {
+        return ForthState {
+            dstack: fs.dstack, sp: 0,
+            rstack: fs.rstack, rsp: 0,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: 0, base: fs.base, current_def: -1,
+            input_buffer: "", input_pos: 0,
+            ip_stack: fs.ip_stack, isp: 0,
+            running: fs.running, error_flag: false
+        }
+    }
+    if (== nid (NID_QUIT)) {
+        return ForthState {
+            dstack: fs.dstack, sp: fs.sp,
+            rstack: fs.rstack, rsp: 0,
+            memory: fs.memory, here: fs.here,
+            code: fs.code, code_len: fs.code_len,
+            dict_names: fs.dict_names,
+            def_names: fs.def_names, def_flags: fs.def_flags,
+            def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+            def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+            def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+            strings: fs.strings, strings_len: fs.strings_len,
+            state: 0, base: fs.base, current_def: -1,
+            input_buffer: "", input_pos: 0,
+            ip_stack: fs.ip_stack, isp: 0,
+            running: fs.running, error_flag: false
+        }
+    }
+    return fs
+}
+
+shadow forth_exec_compile {
+    let fs0: ForthState = (forth_init)
+    # DECIMAL: set base to 10
+    let fs1: ForthState = ForthState {
+        dstack: fs0.dstack, sp: fs0.sp,
+        rstack: fs0.rstack, rsp: fs0.rsp,
+        memory: fs0.memory, here: fs0.here,
+        code: fs0.code, code_len: fs0.code_len,
+        dict_names: fs0.dict_names,
+        def_names: fs0.def_names, def_flags: fs0.def_flags,
+        def_types: fs0.def_types, def_native_ids: fs0.def_native_ids,
+        def_code_start: fs0.def_code_start, def_code_len: fs0.def_code_len,
+        def_body_addr: fs0.def_body_addr, def_count: fs0.def_count,
+        strings: fs0.strings, strings_len: fs0.strings_len,
+        state: fs0.state, base: 16, current_def: fs0.current_def,
+        input_buffer: fs0.input_buffer, input_pos: fs0.input_pos,
+        ip_stack: fs0.ip_stack, isp: fs0.isp,
+        running: fs0.running, error_flag: fs0.error_flag
+    }
+    let fs2: ForthState = (forth_exec_compile fs1 (NID_DECIMAL))
+    assert (== fs2.base 10)
+    let fs3: ForthState = (forth_exec_compile fs0 (NID_HEX))
+    assert (== fs3.base 16)
+    let fs4: ForthState = (forth_exec_compile fs0 (NID_BYE))
+    assert (== fs4.running false)
+    let fs5: ForthState = (forth_push (forth_push fs0 1) 2)
+    let fs6: ForthState = (forth_exec_compile fs5 (NID_ABORT))
+    assert (== fs6.sp 0)
+    assert (== fs6.state 0)
+}
+
+# ── Native dispatch (top-level, routes to group handlers) ────────────────────
+
+fn forth_exec_native(fs: ForthState, nid: int) -> ForthState {
+    # Stack words: 1-19
+    if (and (>= nid 1) (<= nid 19)) { return (forth_exec_stack fs nid) }
+    # Arithmetic: 20-49
+    if (and (>= nid 20) (<= nid 49)) { return (forth_exec_arith fs nid) }
+    # Comparison: 50-59
+    if (and (>= nid 50) (<= nid 59)) { return (forth_exec_compare fs nid) }
+    # Return stack: 60-69
+    if (and (>= nid 60) (<= nid 69)) { return (forth_exec_return_stack fs nid) }
+    # Memory: 70-79
+    if (and (>= nid 70) (<= nid 79)) { return (forth_exec_memory fs nid) }
+    # I/O: 80-89
+    if (and (>= nid 80) (<= nid 89)) { return (forth_exec_io fs nid) }
+    # Compile/system: 90+
+    if (>= nid 90) { return (forth_exec_compile fs nid) }
+    return fs
+}
+
+shadow forth_exec_native {
+    let fs0: ForthState = (forth_init)
+    # Test through dispatch: DUP
+    let fs1: ForthState = (forth_push fs0 7)
+    let fs2: ForthState = (forth_exec_native fs1 (NID_DUP))
+    assert (== fs2.sp 2)
+    assert (== (forth_top fs2) 7)
+    # Test ADD
+    let fs3: ForthState = (forth_push (forth_push fs0 5) 3)
+    let fs4: ForthState = (forth_exec_native fs3 (NID_ADD))
+    assert (== (forth_top fs4) 8)
+    # Test BYE
+    let fs5: ForthState = (forth_exec_native fs0 (NID_BYE))
+    assert (== fs5.running false)
+}
+
+# ── Inner interpreter ─────────────────────────────────────────────────────────
+
+fn forth_run(fs: ForthState, start_ip: int) -> ForthState {
+    let mut s: ForthState = fs
+    let mut ip: int = start_ip
+    let mut running_inner: bool = true
+    while (and running_inner s.running) {
+        if (>= ip s.code_len) {
+            set running_inner false
+        } else {
+            let instr: int = (at s.code ip)
+            set ip (+ ip 1)
+            if (== instr (OP_LIT)) {
+                let val: int = (at s.code ip)
+                set ip (+ ip 1)
+                set s (forth_push s val)
+            } else {
+                if (== instr (OP_CALL)) {
+                    let word_idx: int = (at s.code ip)
+                    set ip (+ ip 1)
+                    let wtype: int = (at s.def_types word_idx)
+                    if (== wtype (WORD_NATIVE)) {
+                        let nid: int = (at s.def_native_ids word_idx)
+                        set s (forth_exec_native s nid)
+                    } else {
+                        if (== wtype (WORD_VARIABLE)) {
+                            let addr: int = (at s.def_body_addr word_idx)
+                            set s (forth_push s addr)
+                        } else {
+                            if (== wtype (WORD_CONSTANT)) {
+                                let val: int = (at s.def_body_addr word_idx)
+                                set s (forth_push s val)
+                            } else {
+                                # WORD_COMPILED: save ip, jump
+                                (array_set s.ip_stack s.isp ip)
+                                set s ForthState {
+                                    dstack: s.dstack, sp: s.sp,
+                                    rstack: s.rstack, rsp: s.rsp,
+                                    memory: s.memory, here: s.here,
+                                    code: s.code, code_len: s.code_len,
+                                    dict_names: s.dict_names,
+                                    def_names: s.def_names, def_flags: s.def_flags,
+                                    def_types: s.def_types, def_native_ids: s.def_native_ids,
+                                    def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                                    def_body_addr: s.def_body_addr, def_count: s.def_count,
+                                    strings: s.strings, strings_len: s.strings_len,
+                                    state: s.state, base: s.base, current_def: s.current_def,
+                                    input_buffer: s.input_buffer, input_pos: s.input_pos,
+                                    ip_stack: s.ip_stack, isp: (+ s.isp 1),
+                                    running: s.running, error_flag: s.error_flag
+                                }
+                                set ip (at s.def_code_start word_idx)
+                            }
+                        }
+                    }
+                } else {
+                    if (== instr (OP_RET)) {
+                        if (<= s.isp 0) {
+                            set running_inner false
+                        } else {
+                            let ret_ip: int = (at s.ip_stack (- s.isp 1))
+                            set s ForthState {
+                                dstack: s.dstack, sp: s.sp,
+                                rstack: s.rstack, rsp: s.rsp,
+                                memory: s.memory, here: s.here,
+                                code: s.code, code_len: s.code_len,
+                                dict_names: s.dict_names,
+                                def_names: s.def_names, def_flags: s.def_flags,
+                                def_types: s.def_types, def_native_ids: s.def_native_ids,
+                                def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                                def_body_addr: s.def_body_addr, def_count: s.def_count,
+                                strings: s.strings, strings_len: s.strings_len,
+                                state: s.state, base: s.base, current_def: s.current_def,
+                                input_buffer: s.input_buffer, input_pos: s.input_pos,
+                                ip_stack: s.ip_stack, isp: (- s.isp 1),
+                                running: s.running, error_flag: s.error_flag
+                            }
+                            set ip ret_ip
+                        }
+                    } else {
+                        if (== instr (OP_BRANCH)) {
+                            set ip (at s.code ip)
+                        } else {
+                            if (== instr (OP_BRANCH0)) {
+                                let flag: int = (forth_top s)
+                                set s (forth_pop s)
+                                if (== flag 0) {
+                                    set ip (at s.code ip)
+                                } else {
+                                    set ip (+ ip 1)
+                                }
+                            } else {
+                                if (== instr (OP_LIT_STRING)) {
+                                    let str_idx: int = (at s.code ip)
+                                    set ip (+ ip 1)
+                                    set s (forth_push s str_idx)
+                                    set s (forth_push s 1)
+                                } else {
+                                    if (== instr (OP_DO)) {
+                                        # Limit and index are on data stack (index on top)
+                                        let limit: int = (forth_second s)
+                                        let idx: int = (forth_top s)
+                                        set s (forth_pop (forth_pop s))
+                                        set s (forth_rpush (forth_rpush s limit) idx)
+                                    } else {
+                                        if (== instr (OP_LOOP)) {
+                                            let target: int = (at s.code ip)
+                                            set ip (+ ip 1)
+                                            let cur_idx: int = (forth_rtop s)
+                                            let new_idx: int = (+ cur_idx 1)
+                                            let limit: int = (at s.rstack (- s.rsp 2))
+                                            if (< new_idx limit) {
+                                                (array_set s.rstack (- s.rsp 1) new_idx)
+                                                set ip target
+                                            } else {
+                                                set s (forth_rpop (forth_rpop s))
+                                            }
+                                        } else {
+                                            if (== instr (OP_PLUS_LOOP)) {
+                                                let target: int = (at s.code ip)
+                                                set ip (+ ip 1)
+                                                let step: int = (forth_top s)
+                                                set s (forth_pop s)
+                                                let cur_idx: int = (forth_rtop s)
+                                                let new_idx: int = (+ cur_idx step)
+                                                let limit: int = (at s.rstack (- s.rsp 2))
+                                                if (< new_idx limit) {
+                                                    (array_set s.rstack (- s.rsp 1) new_idx)
+                                                    set ip target
+                                                } else {
+                                                    set s (forth_rpop (forth_rpop s))
+                                                }
+                                            } else {
+                                                if (== instr (OP_I)) {
+                                                    set s (forth_push s (forth_rtop s))
+                                                } else {
+                                                    if (== instr (OP_J)) {
+                                                        if (>= s.rsp 4) {
+                                                            let j_val: int = (at s.rstack (- s.rsp 4))
+                                                            set s (forth_push s j_val)
+                                                        }
+                                                    } else {
+                                                        if (== instr (OP_EXIT)) {
+                                                            if (<= s.isp 0) {
+                                                                set running_inner false
+                                                            } else {
+                                                                let ret_ip: int = (at s.ip_stack (- s.isp 1))
+                                                                set s ForthState {
+                                                                    dstack: s.dstack, sp: s.sp,
+                                                                    rstack: s.rstack, rsp: s.rsp,
+                                                                    memory: s.memory, here: s.here,
+                                                                    code: s.code, code_len: s.code_len,
+                                                                    dict_names: s.dict_names,
+                                                                    def_names: s.def_names, def_flags: s.def_flags,
+                                                                    def_types: s.def_types, def_native_ids: s.def_native_ids,
+                                                                    def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                                                                    def_body_addr: s.def_body_addr, def_count: s.def_count,
+                                                                    strings: s.strings, strings_len: s.strings_len,
+                                                                    state: s.state, base: s.base, current_def: s.current_def,
+                                                                    input_buffer: s.input_buffer, input_pos: s.input_pos,
+                                                                    ip_stack: s.ip_stack, isp: (- s.isp 1),
+                                                                    running: s.running, error_flag: s.error_flag
+                                                                }
+                                                                set ip ret_ip
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return s
+}
+
+shadow forth_run {
+    let fs0: ForthState = (forth_init)
+    let fs_b: ForthState = (forth_bootstrap fs0)
+    # Build a small program: push 3, push 4, ADD, RET
+    # code[0] = OP_LIT, code[1] = 3, code[2] = OP_LIT, code[3] = 4
+    # code[4] = OP_CALL idx(+), code[5] = idx_of_+, code[6] = OP_RET
+    let add_idx: int = (forth_find_word fs_b "+")
+    let mut fs: ForthState = fs_b
+    set fs (forth_emit_code fs (OP_LIT))
+    set fs (forth_emit_code fs 3)
+    set fs (forth_emit_code fs (OP_LIT))
+    set fs (forth_emit_code fs 4)
+    set fs (forth_emit_code fs (OP_CALL))
+    set fs (forth_emit_code fs add_idx)
+    set fs (forth_emit_code fs (OP_RET))
+    let start: int = 0
+    let result: ForthState = (forth_run fs start)
+    assert (== (forth_top result) 7)
+}
+
+# ── Outer interpreter: process one token ──────────────────────────────────────
+
+fn forth_process_token(fs: ForthState, token: string) -> ForthState {
+    if (== token "") { return fs }
+    let upper_token: string = (forth_to_upper token)
+    let idx: int = (forth_find_word fs upper_token)
+    if (>= idx 0) {
+        # Word found
+        if (or (== fs.state 0) (forth_word_is_immediate fs idx)) {
+            # Execute immediately
+            let wtype: int = (at fs.def_types idx)
+            if (== wtype (WORD_NATIVE)) {
+                let nid: int = (at fs.def_native_ids idx)
+                # Handle compile-time immediate words specially
+                if (and (== fs.state 1) (forth_word_is_immediate fs idx)) {
+                    return (forth_exec_native_immediate fs nid idx)
+                }
+                return (forth_exec_native fs nid)
+            } else {
+                if (== wtype (WORD_VARIABLE)) {
+                    return (forth_push fs (at fs.def_body_addr idx))
+                } else {
+                    if (== wtype (WORD_CONSTANT)) {
+                        return (forth_push fs (at fs.def_body_addr idx))
+                    } else {
+                        # WORD_COMPILED: run inner interpreter
+                        let start: int = (at fs.def_code_start idx)
+                        return (forth_run fs start)
+                    }
+                }
+            }
+        } else {
+            # Compiling: compile reference to word
+            let s1: ForthState = (forth_emit_code fs (OP_CALL))
+            return (forth_emit_code s1 idx)
+        }
+    } else {
+        # Not a word: try number
+        if (forth_is_number upper_token fs.base) {
+            let num: int = (forth_try_parse_number upper_token fs.base)
+            if (== fs.state 0) {
+                return (forth_push fs num)
+            } else {
+                let s1: ForthState = (forth_emit_code fs (OP_LIT))
+                return (forth_emit_code s1 num)
+            }
+        } else {
+            (print upper_token)
+            (print " ? \n")
+            # ABORT semantics
+            return ForthState {
+                dstack: fs.dstack, sp: 0,
+                rstack: fs.rstack, rsp: 0,
+                memory: fs.memory, here: fs.here,
+                code: fs.code, code_len: fs.code_len,
+                dict_names: fs.dict_names,
+                def_names: fs.def_names, def_flags: fs.def_flags,
+                def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+                def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+                def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+                strings: fs.strings, strings_len: fs.strings_len,
+                state: 0, base: fs.base, current_def: -1,
+                input_buffer: fs.input_buffer, input_pos: fs.input_pos,
+                ip_stack: fs.ip_stack, isp: 0,
+                running: fs.running, error_flag: true
+            }
+        }
+    }
+}
+
+shadow forth_process_token {
+    let fs0: ForthState = (forth_init)
+    let fs_b: ForthState = (forth_bootstrap fs0)
+    # Process "42" in interpret mode -> push 42
+    let fs1: ForthState = (forth_process_token fs_b "42")
+    assert (== fs1.sp 1)
+    assert (== (forth_top fs1) 42)
+    # Process "DUP" -> duplicate
+    let fs2: ForthState = (forth_process_token fs1 "DUP")
+    assert (== fs2.sp 2)
+    # Process "+" -> add
+    let fs3: ForthState = (forth_process_token fs2 "+")
+    assert (== fs3.sp 1)
+    assert (== (forth_top fs3) 84)
+}
+
+# ── Immediate word execution during compilation ───────────────────────────────
+
+fn forth_exec_native_immediate(fs: ForthState, nid: int, word_idx: int) -> ForthState {
+    # ; ends the current definition
+    if (== nid (NID_SEMICOLON)) {
+        let cur: int = fs.current_def
+        if (>= cur 0) {
+            let clen: int = (- fs.code_len (at fs.def_code_start cur))
+            (array_set fs.def_code_len cur clen)
+        }
+        let s1: ForthState = (forth_emit_code fs (OP_RET))
+        return ForthState {
+            dstack: s1.dstack, sp: s1.sp,
+            rstack: s1.rstack, rsp: s1.rsp,
+            memory: s1.memory, here: s1.here,
+            code: s1.code, code_len: s1.code_len,
+            dict_names: s1.dict_names,
+            def_names: s1.def_names, def_flags: s1.def_flags,
+            def_types: s1.def_types, def_native_ids: s1.def_native_ids,
+            def_code_start: s1.def_code_start, def_code_len: s1.def_code_len,
+            def_body_addr: s1.def_body_addr, def_count: s1.def_count,
+            strings: s1.strings, strings_len: s1.strings_len,
+            state: 0, base: s1.base, current_def: -1,
+            input_buffer: s1.input_buffer, input_pos: s1.input_pos,
+            ip_stack: s1.ip_stack, isp: s1.isp,
+            running: s1.running, error_flag: s1.error_flag
+        }
+    }
+    # IF: emit OP_BRANCH0 + placeholder, push placeholder addr onto data stack
+    if (== nid (NID_IF)) {
+        let placeholder: int = fs.code_len + 1
+        let s1: ForthState = (forth_emit_code fs (OP_BRANCH0))
+        let s2: ForthState = (forth_emit_code s1 0)
+        return (forth_push s2 placeholder)
+    }
+    # ELSE: emit OP_BRANCH + placeholder, patch IF's placeholder
+    if (== nid (NID_ELSE)) {
+        let if_placeholder: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let new_placeholder: int = s1.code_len + 1
+        let s2: ForthState = (forth_emit_code s1 (OP_BRANCH))
+        let s3: ForthState = (forth_emit_code s2 0)
+        let s4: ForthState = (forth_patch_code s3 if_placeholder s3.code_len)
+        return (forth_push s4 new_placeholder)
+    }
+    # THEN: patch the placeholder from IF or ELSE
+    if (== nid (NID_THEN)) {
+        let placeholder: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        return (forth_patch_code s1 placeholder s1.code_len)
+    }
+    # BEGIN: push current code position
+    if (== nid (NID_BEGIN)) { return (forth_push fs fs.code_len) }
+    # UNTIL: emit OP_BRANCH0 + target (BEGIN position)
+    if (== nid (NID_UNTIL)) {
+        let target: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let s2: ForthState = (forth_emit_code s1 (OP_BRANCH0))
+        return (forth_emit_code s2 target)
+    }
+    # WHILE: emit OP_BRANCH0 + placeholder, keep BEGIN position below
+    if (== nid (NID_WHILE)) {
+        let begin_pos: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let placeholder: int = s1.code_len + 1
+        let s2: ForthState = (forth_emit_code s1 (OP_BRANCH0))
+        let s3: ForthState = (forth_emit_code s2 0)
+        let s4: ForthState = (forth_push s3 begin_pos)
+        return (forth_push s4 placeholder)
+    }
+    # REPEAT: emit OP_BRANCH + BEGIN position, patch WHILE placeholder
+    if (== nid (NID_REPEAT)) {
+        let while_placeholder: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let begin_pos: int = (forth_top s1)
+        let s2: ForthState = (forth_pop s1)
+        let s3: ForthState = (forth_emit_code s2 (OP_BRANCH))
+        let s4: ForthState = (forth_emit_code s3 begin_pos)
+        return (forth_patch_code s4 while_placeholder s4.code_len)
+    }
+    # AGAIN: emit OP_BRANCH + BEGIN position (no condition)
+    if (== nid (NID_AGAIN)) {
+        let begin_pos: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let s2: ForthState = (forth_emit_code s1 (OP_BRANCH))
+        return (forth_emit_code s2 begin_pos)
+    }
+    # DO: emit OP_DO, push body start for LOOP to patch
+    if (== nid (NID_DO)) {
+        let s1: ForthState = (forth_emit_code fs (OP_DO))
+        return (forth_push s1 s1.code_len)
+    }
+    # LOOP: emit OP_LOOP + target (DO body start)
+    if (== nid (NID_LOOP)) {
+        let target: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let s2: ForthState = (forth_emit_code s1 (OP_LOOP))
+        return (forth_emit_code s2 target)
+    }
+    # +LOOP: emit OP_PLUS_LOOP + target
+    if (== nid (NID_PLUS_LOOP)) {
+        let target: int = (forth_top fs)
+        let s1: ForthState = (forth_pop fs)
+        let s2: ForthState = (forth_emit_code s1 (OP_PLUS_LOOP))
+        return (forth_emit_code s2 target)
+    }
+    # RECURSE: compile call to current word
+    if (== nid (NID_RECURSE)) {
+        if (>= fs.current_def 0) {
+            let s1: ForthState = (forth_emit_code fs (OP_CALL))
+            return (forth_emit_code s1 fs.current_def)
+        }
+        return fs
+    }
+    # For everything else in compile mode, just execute normally
+    return (forth_exec_native fs nid)
+}
+
+shadow forth_exec_native_immediate {
+    let fs0: ForthState = (forth_init)
+    let fs_b: ForthState = (forth_bootstrap fs0)
+    let if_idx: int = (forth_find_word fs_b "IF")
+    let then_idx: int = (forth_find_word fs_b "THEN")
+    # Put state=1 for these tests
+    let fs1: ForthState = ForthState {
+        dstack: fs_b.dstack, sp: fs_b.sp,
+        rstack: fs_b.rstack, rsp: fs_b.rsp,
+        memory: fs_b.memory, here: fs_b.here,
+        code: fs_b.code, code_len: fs_b.code_len,
+        dict_names: fs_b.dict_names,
+        def_names: fs_b.def_names, def_flags: fs_b.def_flags,
+        def_types: fs_b.def_types, def_native_ids: fs_b.def_native_ids,
+        def_code_start: fs_b.def_code_start, def_code_len: fs_b.def_code_len,
+        def_body_addr: fs_b.def_body_addr, def_count: fs_b.def_count,
+        strings: fs_b.strings, strings_len: fs_b.strings_len,
+        state: 1, base: fs_b.base, current_def: 0,
+        input_buffer: fs_b.input_buffer, input_pos: fs_b.input_pos,
+        ip_stack: fs_b.ip_stack, isp: fs_b.isp,
+        running: fs_b.running, error_flag: fs_b.error_flag
+    }
+    # IF should emit OP_BRANCH0 + placeholder and push placeholder addr
+    let nid_if: int = (NID_IF)
+    let fs2: ForthState = (forth_exec_native_immediate fs1 nid_if if_idx)
+    assert (== (at fs2.code 0) (OP_BRANCH0))
+    assert (== fs2.sp 1)
+}
+
+# ── Outer interpreter: process a line ────────────────────────────────────────
+
+fn forth_interpret_line(fs: ForthState, line: string) -> ForthState {
+    let upper_line: string = (forth_to_upper line)
+    let len: int = (str_length upper_line)
+    let fs1: ForthState = ForthState {
+        dstack: fs.dstack, sp: fs.sp,
+        rstack: fs.rstack, rsp: fs.rsp,
+        memory: fs.memory, here: fs.here,
+        code: fs.code, code_len: fs.code_len,
+        dict_names: fs.dict_names,
+        def_names: fs.def_names, def_flags: fs.def_flags,
+        def_types: fs.def_types, def_native_ids: fs.def_native_ids,
+        def_code_start: fs.def_code_start, def_code_len: fs.def_code_len,
+        def_body_addr: fs.def_body_addr, def_count: fs.def_count,
+        strings: fs.strings, strings_len: fs.strings_len,
+        state: fs.state, base: fs.base, current_def: fs.current_def,
+        input_buffer: upper_line, input_pos: 0,
+        ip_stack: fs.ip_stack, isp: fs.isp,
+        running: fs.running, error_flag: false
+    }
+    let mut s: ForthState = fs1
+    while (and (< s.input_pos len) s.running) {
+        let token: string = (forth_parse_word_at s.input_buffer s.input_pos)
+        if (== token "") {
+            # End of input
+            set s ForthState {
+                dstack: s.dstack, sp: s.sp,
+                rstack: s.rstack, rsp: s.rsp,
+                memory: s.memory, here: s.here,
+                code: s.code, code_len: s.code_len,
+                dict_names: s.dict_names,
+                def_names: s.def_names, def_flags: s.def_flags,
+                def_types: s.def_types, def_native_ids: s.def_native_ids,
+                def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                def_body_addr: s.def_body_addr, def_count: s.def_count,
+                strings: s.strings, strings_len: s.strings_len,
+                state: s.state, base: s.base, current_def: s.current_def,
+                input_buffer: s.input_buffer, input_pos: len,
+                ip_stack: s.ip_stack, isp: s.isp,
+                running: s.running, error_flag: s.error_flag
+            }
+        } else {
+            # Handle special case: : (colon definition)
+            if (and (== token ":") (== s.state 0)) {
+                # Read next token as the new word's name
+                let new_pos: int = (forth_advance_pos s.input_buffer s.input_pos)
+                let name_token: string = (forth_parse_word_at s.input_buffer new_pos)
+                let after_name: int = (forth_advance_pos s.input_buffer new_pos)
+                # Register the new word
+                let new_idx: int = s.def_count
+                let dn: HashMap<string, int> = s.dict_names
+                (map_put dn name_token new_idx)
+                (array_set s.def_names new_idx name_token)
+                (array_set s.def_flags new_idx 0)
+                (array_set s.def_types new_idx (WORD_COMPILED))
+                (array_set s.def_native_ids new_idx 0)
+                (array_set s.def_code_start new_idx s.code_len)
+                (array_set s.def_code_len new_idx 0)
+                (array_set s.def_body_addr new_idx 0)
+                set s ForthState {
+                    dstack: s.dstack, sp: s.sp,
+                    rstack: s.rstack, rsp: s.rsp,
+                    memory: s.memory, here: s.here,
+                    code: s.code, code_len: s.code_len,
+                    dict_names: dn,
+                    def_names: s.def_names, def_flags: s.def_flags,
+                    def_types: s.def_types, def_native_ids: s.def_native_ids,
+                    def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                    def_body_addr: s.def_body_addr, def_count: (+ s.def_count 1),
+                    strings: s.strings, strings_len: s.strings_len,
+                    state: 1, base: s.base, current_def: new_idx,
+                    input_buffer: s.input_buffer, input_pos: after_name,
+                    ip_stack: s.ip_stack, isp: s.isp,
+                    running: s.running, error_flag: s.error_flag
+                }
+            } else {
+                # Handle CONSTANT and VARIABLE specially
+                if (and (== token "CONSTANT") (== s.state 0)) {
+                    let val: int = (forth_top s)
+                    let s1: ForthState = (forth_pop s)
+                    let new_pos: int = (forth_advance_pos s1.input_buffer s1.input_pos)
+                    let name_token: string = (forth_parse_word_at s1.input_buffer new_pos)
+                    let after_name: int = (forth_advance_pos s1.input_buffer new_pos)
+                    let new_idx: int = s1.def_count
+                    let dn: HashMap<string, int> = s1.dict_names
+                    (map_put dn name_token new_idx)
+                    (array_set s1.def_names new_idx name_token)
+                    (array_set s1.def_flags new_idx 0)
+                    (array_set s1.def_types new_idx (WORD_CONSTANT))
+                    (array_set s1.def_native_ids new_idx 0)
+                    (array_set s1.def_code_start new_idx 0)
+                    (array_set s1.def_code_len new_idx 0)
+                    (array_set s1.def_body_addr new_idx val)
+                    set s ForthState {
+                        dstack: s1.dstack, sp: s1.sp,
+                        rstack: s1.rstack, rsp: s1.rsp,
+                        memory: s1.memory, here: s1.here,
+                        code: s1.code, code_len: s1.code_len,
+                        dict_names: dn,
+                        def_names: s1.def_names, def_flags: s1.def_flags,
+                        def_types: s1.def_types, def_native_ids: s1.def_native_ids,
+                        def_code_start: s1.def_code_start, def_code_len: s1.def_code_len,
+                        def_body_addr: s1.def_body_addr, def_count: (+ s1.def_count 1),
+                        strings: s1.strings, strings_len: s1.strings_len,
+                        state: s1.state, base: s1.base, current_def: s1.current_def,
+                        input_buffer: s1.input_buffer, input_pos: after_name,
+                        ip_stack: s1.ip_stack, isp: s1.isp,
+                        running: s1.running, error_flag: s1.error_flag
+                    }
+                } else {
+                    if (and (== token "VARIABLE") (== s.state 0)) {
+                        let new_pos: int = (forth_advance_pos s.input_buffer s.input_pos)
+                        let name_token: string = (forth_parse_word_at s.input_buffer new_pos)
+                        let after_name: int = (forth_advance_pos s.input_buffer new_pos)
+                        let new_idx: int = s.def_count
+                        let var_addr: int = s.here
+                        let dn: HashMap<string, int> = s.dict_names
+                        (map_put dn name_token new_idx)
+                        (array_set s.def_names new_idx name_token)
+                        (array_set s.def_flags new_idx 0)
+                        (array_set s.def_types new_idx (WORD_VARIABLE))
+                        (array_set s.def_native_ids new_idx 0)
+                        (array_set s.def_code_start new_idx 0)
+                        (array_set s.def_code_len new_idx 0)
+                        (array_set s.def_body_addr new_idx var_addr)
+                        set s ForthState {
+                            dstack: s.dstack, sp: s.sp,
+                            rstack: s.rstack, rsp: s.rsp,
+                            memory: s.memory, here: (+ s.here 1),
+                            code: s.code, code_len: s.code_len,
+                            dict_names: dn,
+                            def_names: s.def_names, def_flags: s.def_flags,
+                            def_types: s.def_types, def_native_ids: s.def_native_ids,
+                            def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                            def_body_addr: s.def_body_addr, def_count: (+ s.def_count 1),
+                            strings: s.strings, strings_len: s.strings_len,
+                            state: s.state, base: s.base, current_def: s.current_def,
+                            input_buffer: s.input_buffer, input_pos: after_name,
+                            ip_stack: s.ip_stack, isp: s.isp,
+                            running: s.running, error_flag: s.error_flag
+                        }
+                    } else {
+                        # Normal token processing
+                        let new_pos: int = (forth_advance_pos s.input_buffer s.input_pos)
+                        let fs_before: ForthState = ForthState {
+                            dstack: s.dstack, sp: s.sp,
+                            rstack: s.rstack, rsp: s.rsp,
+                            memory: s.memory, here: s.here,
+                            code: s.code, code_len: s.code_len,
+                            dict_names: s.dict_names,
+                            def_names: s.def_names, def_flags: s.def_flags,
+                            def_types: s.def_types, def_native_ids: s.def_native_ids,
+                            def_code_start: s.def_code_start, def_code_len: s.def_code_len,
+                            def_body_addr: s.def_body_addr, def_count: s.def_count,
+                            strings: s.strings, strings_len: s.strings_len,
+                            state: s.state, base: s.base, current_def: s.current_def,
+                            input_buffer: s.input_buffer, input_pos: new_pos,
+                            ip_stack: s.ip_stack, isp: s.isp,
+                            running: s.running, error_flag: s.error_flag
+                        }
+                        set s (forth_process_token fs_before token)
+                        if s.error_flag {
+                            return s
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return s
+}
+
+shadow forth_interpret_line {
+    let fs0: ForthState = (forth_init)
+    let fs_b: ForthState = (forth_bootstrap fs0)
+    # "2 3 +" -> stack has 5
+    let fs1: ForthState = (forth_interpret_line fs_b "2 3 +")
+    assert (== fs1.sp 1)
+    assert (== (forth_top fs1) 5)
+    # "DUP" -> 5 5
+    let fs2: ForthState = (forth_interpret_line fs1 "DUP")
+    assert (== fs2.sp 2)
+    # "DROP DROP" -> empty
+    let fs3: ForthState = (forth_interpret_line fs2 "DROP DROP")
+    assert (== fs3.sp 0)
+    # Colon definition: ": DOUBLE DUP + ;"
+    let fs4: ForthState = (forth_interpret_line fs3 ": DOUBLE DUP + ;")
+    assert (== fs4.state 0)
+    assert (>= (forth_find_word fs4 "DOUBLE") 0)
+    # Use DOUBLE: "5 DOUBLE" -> 10
+    let fs5: ForthState = (forth_interpret_line fs4 "5 DOUBLE")
+    assert (== (forth_top fs5) 10)
+}
+
+# ── Demo and main ─────────────────────────────────────────────────────────────
+
+fn run_demo(fs: ForthState) -> ForthState {
+    (print "=== FIG-Forth Demo ===\n")
+    let mut s: ForthState = fs
+
+    (print "\n-- Arithmetic --\n")
+    set s (forth_interpret_line s "2 3 + .")
+    set s (forth_interpret_line s "10 3 - .")
+    set s (forth_interpret_line s "4 5 * .")
+    set s (forth_interpret_line s "20 4 / .")
+    set s (forth_interpret_line s "17 5 MOD .")
+    (print "\n")
+
+    (print "-- Stack words --\n")
+    set s (forth_interpret_line s "1 DUP + .")
+    set s (forth_interpret_line s "3 4 SWAP - .")
+    set s (forth_interpret_line s "5 6 OVER + .")
+    (print "\n")
+
+    (print "-- Comparisons (FIG-Forth: -1=true, 0=false) --\n")
+    set s (forth_interpret_line s "3 3 = .")
+    set s (forth_interpret_line s "3 4 < .")
+    set s (forth_interpret_line s "5 0> .")
+    (print "\n")
+
+    (print "-- User definitions --\n")
+    set s (forth_interpret_line s ": SQUARE DUP * ;")
+    set s (forth_interpret_line s "5 SQUARE .")
+    set s (forth_interpret_line s ": CUBE DUP SQUARE * ;")
+    set s (forth_interpret_line s "3 CUBE .")
+    (print "\n")
+
+    (print "-- Variables and constants --\n")
+    set s (forth_interpret_line s "VARIABLE X")
+    set s (forth_interpret_line s "42 X !")
+    set s (forth_interpret_line s "X @ .")
+    set s (forth_interpret_line s "100 CONSTANT HUNDRED")
+    set s (forth_interpret_line s "HUNDRED .")
+    (print "\n")
+
+    (print "-- Conditionals --\n")
+    set s (forth_interpret_line s ": ABS-VAL DUP 0< IF NEGATE THEN ;")
+    set s (forth_interpret_line s "-7 ABS-VAL .")
+    set s (forth_interpret_line s "7 ABS-VAL .")
+    (print "\n")
+
+    (print "-- DO/LOOP --\n")
+    set s (forth_interpret_line s ": COUNT5 5 0 DO I . LOOP ;")
+    set s (forth_interpret_line s "COUNT5")
+    (print "\n")
+
+    (print "-- Recursion --\n")
+    set s (forth_interpret_line s ": FACT DUP 1 > IF DUP 1- RECURSE * THEN ;")
+    set s (forth_interpret_line s "5 FACT .")
+    (print "\n")
+
+    (print "-- BEGIN/UNTIL --\n")
+    set s (forth_interpret_line s ": COUNTDOWN BEGIN DUP . 1- DUP 0= UNTIL DROP ;")
+    set s (forth_interpret_line s "3 COUNTDOWN")
+    (print "\n")
+
+    (print "-- HEX output --\n")
+    set s (forth_interpret_line s "255 HEX . DECIMAL")
+    (print "\n")
+
+    return s
+}
+
+shadow run_demo {
+    # Just verify it compiles and runs without crashing
+    let fs0: ForthState = (forth_init)
+    let fs_b: ForthState = (forth_bootstrap fs0)
+    let result: ForthState = (run_demo fs_b)
+    assert (== result.error_flag false)
+}
+
+fn main() -> int {
+    let fs0: ForthState = (forth_init)
+    let fs: ForthState = (forth_bootstrap fs0)
+    let result: ForthState = (run_demo fs)
+    (print "\nFIG-Forth interpreter ready.\n")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
