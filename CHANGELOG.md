@@ -5,6 +5,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.5] - 2026-04-02
+
+### Added
+- forth REPL + release sync fix
+- add FIG-Forth interpreter example (token-threaded, ~2500 lines)
+- generic function monomorphization (type-variable T in fn signatures)
+- --doc-md flag — GFM Markdown doc export from triple-slash comments
+- CodeMirror 6 editor, share permalink, AgentFS hosting
+- nanolang interactive playground (browser editor + eval server, port 8792)
+- complete installable .vsix — semantic tokens, format-on-save, tasks, packaging
+- VS Code extension for nanolang (LSP, syntax highlighting, format-on-save)
+- hot-reload — :load, :save, :reload commands
+- REPL hot-reload (:reload <module>) — live module reloading without restart
+
+### Changed
+- make release script non-interactive by default
+
+### Fixed
+- effects tests — mut variable and missing shadow stubs
+
 ## [3.3.4] - 2026-04-02
 
 ### Added
