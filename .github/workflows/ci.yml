@@ -318,6 +318,14 @@ jobs:
             echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
           fi
 
+      - name: Post coverage to RCC metrics
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          curl -sf -X POST "${{ secrets.RCC_URL }}/api/metrics/nanolang.coverage" \
+            -H "Authorization: Bearer ${{ secrets.RCC_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"value\": ${{ steps.coverage.outputs.coverage }}}"
+
       - name: Upload coverage report to artifacts
         uses: actions/upload-artifact@v4
         with:
