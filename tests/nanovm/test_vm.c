@@ -1484,6 +1484,68 @@ static void test_stack_trace_col(void) {
     ASSERT(strstr(buf, "5:7") != NULL, "debug_trace_col: output contains line:col '5:7'");
 }
 
+static void test_stack_trace_multi_frame(void) {
+    /*
+     * Build a two-function module: main calls helper, helper traps.
+     *
+     *  fn helper():           fn main():
+     *    DEBUG_LINE 42          DEBUG_LINE 100
+     *    PUSH_I64 1             CALL helper (fn_idx=0)
+     *    PUSH_BOOL false        RET
+     *    ADD  <- type trap
+     *    RET
+     *
+     * Expected trace (innermost first):
+     *   #0  helper  multi.nano:42
+     *   #1  main    multi.nano:100
+     */
+    uint8_t helper_code[64];
+    uint32_t ho = 0;
+    ho += emit(helper_code + ho, OP_DEBUG_LINE, (uint32_t)42);
+    ho += emit(helper_code + ho, OP_PUSH_I64,   (int64_t)1);
+    ho += emit(helper_code + ho, OP_PUSH_BOOL,  (int)0);
+    ho += emit(helper_code + ho, OP_ADD);
+    ho += emit(helper_code + ho, OP_RET);
+
+    uint8_t main_code[64];
+    uint32_t mo = 0;
+    mo += emit(main_code + mo, OP_DEBUG_LINE, (uint32_t)100);
+    /* OP_CALL fn_idx=0 (helper) */
+    mo += emit(main_code + mo, OP_CALL, (uint32_t)0);
+    mo += emit(main_code + mo, OP_RET);
+
+    NvmModule *mod = make_multi_fn_module();
+    uint32_t helper_idx = add_fn(mod, "helper", helper_code, ho, 0, 0);
+    uint32_t main_idx   = add_fn(mod, "main",   main_code,   mo, 0, 0);
+    (void)helper_idx;
+
+    nvm_add_debug_entry(mod, 0, 42,  1);   /* helper at bytecode offset 0 -> line 42 */
+    nvm_add_debug_entry(mod, ho, 100, 1);  /* main   at bytecode offset ho -> line 100 */
+    mod->header.flags |= NVM_FLAG_DEBUG_INFO | NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = main_idx;
+    mod->source_file_idx = nvm_add_string(mod, "multi.nano", 10);
+
+    char buf[2048];
+    memset(buf, 0, sizeof(buf));
+    FILE *memf = fmemopen(buf, sizeof(buf) - 1, "w");
+    ASSERT(memf != NULL, "fmemopen for multi-frame test");
+
+    VmState vm;
+    vm_init(&vm, mod);
+    vm.debug_mode = true;
+    vm.output = memf;
+    VmResult r = vm_execute(&vm);
+    fclose(memf);
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "multi_frame: type error in helper");
+    ASSERT(strstr(buf, "Stack trace") != NULL, "multi_frame: contains 'Stack trace'");
+    ASSERT(strstr(buf, "helper") != NULL, "multi_frame: contains 'helper'");
+    ASSERT(strstr(buf, "42") != NULL,     "multi_frame: contains line 42 (helper)");
+    ASSERT(strstr(buf, "multi.nano") != NULL, "multi_frame: contains source file");
+}
+
 /* ========================================================================
  * Tests: Opaque Proxy
  * ======================================================================== */
@@ -2033,6 +2095,7 @@ int main(void) {
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);
     RUN_TEST(test_stack_trace_col);
+    RUN_TEST(test_stack_trace_multi_frame);
 
     printf("\n[Opaque Proxy]\n");
     RUN_TEST(test_opaque_null);

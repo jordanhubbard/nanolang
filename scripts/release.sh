@@ -1,12 +1,8 @@
 #!/bin/bash
 # Automated release script for NanoLang
 # Usage: ./scripts/release.sh [major|minor|patch]
-# Batch mode: BATCH=yes ./scripts/release.sh [major|minor|patch]
 
 set -euo pipefail
-
-# Batch mode detection
-BATCH_MODE="${BATCH:-no}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -55,15 +51,7 @@ check_prerequisites() {
     # Check we're on main branch
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     if [[ "$CURRENT_BRANCH" != "main" ]]; then
-        warn "Not on main branch (currently on: $CURRENT_BRANCH)"
-        if [[ "$BATCH_MODE" == "yes" ]]; then
-            error "Not on main branch in batch mode. Switch to main first."
-        fi
-        read -p "Continue anyway? (y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            error "Aborted by user"
-        fi
+        error "Not on main branch (currently on: $CURRENT_BRANCH). Switch to main first."
     fi
     
     success "Prerequisites check passed"
@@ -257,10 +245,14 @@ Release highlights from v$prev_version
 Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
     fi
 
-    # Create annotated git tag (after changelog commit so tag includes it)
+    # Rebase on any commits that landed on origin since we started
+    info "Syncing with origin before tagging..."
+    git pull --rebase origin main
+
+    # Create annotated git tag (after changelog commit and rebase so tag is at final HEAD)
     info "Creating git tag v$version..."
     git tag -a "v$version" -m "Release v$version"
-    
+
     # Push commits and tags
     info "Pushing to origin..."
     git push origin main
@@ -285,10 +277,6 @@ main() {
     echo "║   NanoLang Automated Release Script   ║"
     echo "╚═══════════════════════════════════════╝"
     echo ""
-    
-    if [[ "$BATCH_MODE" == "yes" ]]; then
-        info "Running in BATCH mode (non-interactive)"
-    fi
     
     # Check prerequisites
     check_prerequisites
@@ -323,18 +311,6 @@ main() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    # Confirm
-    if [[ "$BATCH_MODE" == "yes" ]]; then
-        info "Batch mode: proceeding with release v$NEXT_VERSION"
-    else
-        read -p "Proceed with release v$NEXT_VERSION? (y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            warn "Release cancelled by user"
-            exit 0
-        fi
-    fi
-    
     # Generate changelog entry
     CHANGELOG_ENTRY=$(generate_changelog_entry "$CURRENT_VERSION" "$NEXT_VERSION")
     
@@ -345,17 +321,6 @@ main() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    if [[ "$BATCH_MODE" == "yes" ]]; then
-        info "Batch mode: accepting changelog entry"
-    else
-        read -p "Does this look correct? (y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            warn "Please edit planning/CHANGELOG.md manually and re-run"
-            exit 0
-        fi
-    fi
-    
     # Update changelog
     update_changelog "$CHANGELOG_ENTRY"
     
@@ -363,17 +328,8 @@ main() {
     info "Running tests..."
     local test_output_file=$(mktemp)
     if ! make test > "$test_output_file" 2>&1; then
-        if [[ "$BATCH_MODE" == "yes" ]]; then
-            rm -f "$test_output_file"
-            error "Tests failed in batch mode. Fix tests before releasing."
-        fi
-        warn "Tests failed! Continue anyway?"
-        read -p "(y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            rm -f "$test_output_file"
-            error "Release cancelled due to test failures"
-        fi
+        rm -f "$test_output_file"
+        error "Tests failed. Fix tests before releasing."
     fi
     success "Tests passed"
     

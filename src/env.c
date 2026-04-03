@@ -30,6 +30,9 @@ Environment *create_environment(void) {
     env->generic_instances = malloc(sizeof(GenericInstantiation) * 8);
     env->generic_instance_count = 0;
     env->generic_instance_capacity = 8;
+    env->generic_func_instances = malloc(sizeof(GenericFuncInstance) * 8);
+    env->generic_func_instance_count = 0;
+    env->generic_func_instance_capacity = 8;
     env->namespaces = malloc(sizeof(ModuleNamespace) * 8);
     env->namespace_count = 0;
     env->namespace_capacity = 8;
@@ -183,6 +186,23 @@ void free_environment(Environment *env) {
         }
     }
     free(env->generic_instances);
+
+    /* Free generic function instances */
+    if (env->generic_func_instances) {
+        for (int i = 0; i < env->generic_func_instance_count; i++) {
+            GenericFuncInstance *inst = &env->generic_func_instances[i];
+            free(inst->orig_name);
+            free(inst->mono_name);
+            for (int j = 0; j < inst->binding_count; j++) {
+                free(inst->var_names[j]);
+                if (inst->bound_type_names[j]) free(inst->bound_type_names[j]);
+            }
+            free(inst->var_names);
+            free(inst->bound_types);
+            free(inst->bound_type_names);
+        }
+        free(env->generic_func_instances);
+    }
 
     /* Free opaque types */
     for (int i = 0; i < env->opaque_type_count; i++) {
@@ -1590,4 +1610,34 @@ EffectOp *effect_get_op(EffectDef *effect, const char *op_name) {
         }
     }
     return NULL;
+}
+
+/* Register a generic function instantiation for monomorphization */
+void env_register_generic_func_instance(Environment *env, const char *orig_name, const char *mono_name,
+                                         const char **var_names, Type *bound_types, const char **bound_type_names,
+                                         int binding_count) {
+    if (!env || !orig_name || !mono_name) return;
+    /* Check if already registered (avoid duplicates) */
+    for (int i = 0; i < env->generic_func_instance_count; i++) {
+        if (strcmp(env->generic_func_instances[i].mono_name, mono_name) == 0) return;
+    }
+    /* Grow if needed */
+    if (env->generic_func_instance_count >= env->generic_func_instance_capacity) {
+        env->generic_func_instance_capacity *= 2;
+        env->generic_func_instances = realloc(env->generic_func_instances,
+            sizeof(GenericFuncInstance) * env->generic_func_instance_capacity);
+    }
+    GenericFuncInstance inst;
+    inst.orig_name = strdup(orig_name);
+    inst.mono_name = strdup(mono_name);
+    inst.binding_count = binding_count;
+    inst.var_names = malloc(sizeof(char*) * binding_count);
+    inst.bound_types = malloc(sizeof(Type) * binding_count);
+    inst.bound_type_names = malloc(sizeof(char*) * binding_count);
+    for (int i = 0; i < binding_count; i++) {
+        inst.var_names[i] = strdup(var_names[i]);
+        inst.bound_types[i] = bound_types[i];
+        inst.bound_type_names[i] = bound_type_names[i] ? strdup(bound_type_names[i]) : NULL;
+    }
+    env->generic_func_instances[env->generic_func_instance_count++] = inst;
 }

@@ -3,6 +3,46 @@
 #include "tracing.h"
 #include "resource_tracking.h"
 #include "colors.h"
+#include <ctype.h>
+
+/* Returns true if name is a single uppercase letter — a generic type variable */
+static bool is_type_variable_name(const char *name) {
+    return name != NULL && name[0] != '\0' && name[1] == '\0' && isupper((unsigned char)name[0]);
+}
+
+/* Returns true if any parameter of func uses a type variable */
+static bool func_is_generic(const Function *func) {
+    if (!func->params) return false;
+    for (int i = 0; i < func->param_count; i++) {
+        if (func->params[i].type == TYPE_STRUCT && is_type_variable_name(func->params[i].struct_type_name))
+            return true;
+    }
+    return false;
+}
+
+/* Build monomorphized name: "identity" + T->int => "identity_int" */
+static void build_generic_mono_name(char *out, size_t out_size,
+                                     const char *func_name,
+                                     char **var_names, Type *bound_types, char **bound_type_names,
+                                     int binding_count) {
+    size_t pos = (size_t)snprintf(out, out_size, "%s", func_name);
+    for (int i = 0; i < binding_count && pos < out_size - 1; i++) {
+        const char *suffix = NULL;
+        if (bound_types[i] == TYPE_STRUCT && bound_type_names[i]) {
+            suffix = bound_type_names[i];
+        } else {
+            switch (bound_types[i]) {
+                case TYPE_INT:    suffix = "int"; break;
+                case TYPE_FLOAT:  suffix = "float"; break;
+                case TYPE_BOOL:   suffix = "bool"; break;
+                case TYPE_STRING: suffix = "string"; break;
+                default:          suffix = "unknown"; break;
+            }
+        }
+        pos += (size_t)snprintf(out + pos, out_size - pos, "_%s", suffix);
+    }
+    (void)var_names; /* used for identity-resolution; not needed in name build */
+}
 
 /* Use json_diagnostics without including json_diagnostics.h (DiagnosticSeverity conflict
  * with compiler_schema.h). Declare only what we need via extern. */
@@ -1770,6 +1810,86 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     "Add or remove arguments to match the function signature."
                 );
                 return TYPE_UNKNOWN;
+            }
+
+            /* ── Generic function handling ─────────────────────────────────────── */
+            /* If the function has type-variable parameters (T, E, etc.), collect
+             * the concrete types from the call site, register a monomorphized
+             * instance, and store the concrete function name on the call node.   */
+            if (func_is_generic(func)) {
+                /* Collect unique type variables in first-appearance order */
+                char *var_names_buf[16];
+                Type  bound_types_buf[16];
+                char *bound_names_buf[16];
+                int   binding_count = 0;
+
+                for (int i = 0; i < func->param_count && binding_count < 16; i++) {
+                    if (func->params[i].type != TYPE_STRUCT ||
+                        !is_type_variable_name(func->params[i].struct_type_name)) continue;
+                    const char *var = func->params[i].struct_type_name;
+                    bool already = false;
+                    for (int k = 0; k < binding_count; k++) {
+                        if (strcmp(var_names_buf[k], var) == 0) { already = true; break; }
+                    }
+                    if (!already) {
+                        var_names_buf[binding_count] = (char *)var;
+                        bound_types_buf[binding_count] = TYPE_UNKNOWN;
+                        bound_names_buf[binding_count] = NULL;
+                        binding_count++;
+                    }
+                }
+
+                /* Resolve each type variable from the argument types */
+                for (int i = 0; i < func->param_count && i < expr->as.call.arg_count; i++) {
+                    if (func->params[i].type != TYPE_STRUCT ||
+                        !is_type_variable_name(func->params[i].struct_type_name)) continue;
+                    const char *var = func->params[i].struct_type_name;
+                    Type arg_type = check_expression(expr->as.call.args[i], env);
+                    for (int k = 0; k < binding_count; k++) {
+                        if (strcmp(var_names_buf[k], var) == 0) {
+                            if (bound_types_buf[k] == TYPE_UNKNOWN) {
+                                bound_types_buf[k] = arg_type;
+                                /* Capture struct name for struct-typed args */
+                                if (arg_type == TYPE_STRUCT) {
+                                    ASTNode *a = expr->as.call.args[i];
+                                    if (a->type == AST_IDENTIFIER) {
+                                        Symbol *sym = env_get_var_visible_at(env, a->as.identifier, a->line, a->column);
+                                        if (sym) bound_names_buf[k] = sym->struct_type_name;
+                                    }
+                                }
+                            } else if (bound_types_buf[k] != arg_type) {
+                                char message[256];
+                                snprintf(message, sizeof(message),
+                                        "Type variable `%s` is bound to %s but argument %d has type %s.",
+                                        var, type_to_string(bound_types_buf[k]), i + 1, type_to_string(arg_type));
+                                emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                                        "All uses of the same type variable must have the same concrete type.");
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                /* Build monomorphized name and register instance */
+                char mono_name[256];
+                build_generic_mono_name(mono_name, sizeof(mono_name), func->name,
+                                        var_names_buf, bound_types_buf, bound_names_buf, binding_count);
+                env_register_generic_func_instance(env, func->name, mono_name,
+                                                    (const char **)var_names_buf,
+                                                    bound_types_buf,
+                                                    (const char **)bound_names_buf,
+                                                    binding_count);
+                if (expr->as.call.concrete_func_name) free(expr->as.call.concrete_func_name);
+                expr->as.call.concrete_func_name = strdup(mono_name);
+
+                /* Determine return type — substitute type variable if needed */
+                if (func->return_type == TYPE_STRUCT && is_type_variable_name(func->return_struct_type_name)) {
+                    for (int k = 0; k < binding_count; k++) {
+                        if (strcmp(var_names_buf[k], func->return_struct_type_name) == 0)
+                            return bound_types_buf[k];
+                    }
+                }
+                return func->return_type;
             }
 
             /* Check argument types (skip for built-ins with NULL params like range) */

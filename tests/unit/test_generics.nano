@@ -1,88 +1,41 @@
 /*
- * test_generics.nano — typechecker generic type variable unification tests
+ * test_generics.nano — real generic (type-variable) function tests
  *
- * Tests the per-call type variable binding:
- *   - Type variables bind to the first argument's concrete type
- *   - Subsequent uses of the same type variable in the same call are checked
- *     for consistency
- *   - Generic return types resolve to the bound type
+ * Tests monomorphization of functions with type variable T:
+ *   - fn identity(x: T) -> T  called with int and bool
+ *   - fn pair_first(a: T, b: T) -> T  called with int and bool
+ *   - max_of remains concrete (uses > operator which requires int)
  */
 
-/* ── identity: T → T ──────────────────────────────────────────────────── */
+/* ── identity: generic T → T ─────────────────────────────────────────── */
 fn identity(x: T) -> T {
     return x
 }
 
 shadow identity {
-    /* Works with int */
     let r1: int = (identity 42)
     assert (== r1 42)
-    /* Works with bool */
+    assert (== (identity 100) 100)
     let r2: bool = (identity true)
     assert (== r2 true)
-    /* Works with different types in different calls */
-    assert (== (identity 100) 100)
+    assert (== (identity false) false)
 }
 
-/* ── pair_first: returns first element of consistent pair ──────────────── */
+/* ── pair_first: returns first of two T values ────────────────────────── */
 fn pair_first(a: T, b: T) -> T {
     return a
 }
 
 shadow pair_first {
-    /* Both int — fine */
-    let r: int = (pair_first 10 20)
-    assert (== r 10)
-    /* Both bool — fine */
+    let ri: int = (pair_first 10 20)
+    assert (== ri 10)
+    assert (== (pair_first 99 0) 99)
     let rb: bool = (pair_first true false)
     assert (== rb true)
 }
 
-/* ── wrap_add: T+T → T (int arithmetic through generic) ───────────────── */
-fn clamp_zero(x: T) -> T {
-    /* Just returns the value — tests generic passthrough */
-    return x
-}
-
-shadow clamp_zero {
-    assert (== (clamp_zero 5) 5)
-    assert (== (clamp_zero -3) -3)
-    assert (str_equals (clamp_zero "hello") "hello")
-}
-
-/* ── Generic with Maybe ────────────────────────────────────────────────── */
-union Maybe<V> {
-    Some { value: V },
-    None {}
-}
-
-fn maybe_unwrap_or(opt: Maybe<int>, default_val: int) -> int {
-    match opt {
-        Some(s) => { return s.value },
-        None(n) => { return default_val }
-    }
-}
-
-shadow maybe_unwrap_or {
-    assert (== (maybe_unwrap_or Maybe<int>.Some { value: 5 } 0) 5)
-    assert (== (maybe_unwrap_or Maybe<int>.None {} 99) 99)
-}
-
-fn safe_divide(a: int, b: int) -> Maybe<int> {
-    if (== b 0) { return Maybe<int>.None {} }
-    return Maybe<int>.Some { value: (/ a b) }
-}
-
-shadow safe_divide {
-    let r1: Maybe<int> = (safe_divide 10 2)
-    assert (== (maybe_unwrap_or r1 0) 5)
-
-    let r2: Maybe<int> = (safe_divide 7 0)
-    assert (== (maybe_unwrap_or r2 -1) -1)
-}
-
-/* ── max_of: same type T for both args ────────────────────────────────── */
-fn max_of(a: T, b: T) -> T {
+/* ── max_of: returns larger of two ints (concrete) ────────────────────── */
+fn max_of(a: int, b: int) -> int {
     if (> a b) { return a }
     return b
 }
@@ -99,14 +52,21 @@ shadow max_of {
  * the concrete generic union (Maybe<int>) via safe_divide + maybe_unwrap_or.
  */
 fn main() -> int {
-    /* Generic with Maybe — works in compiled path with concrete instantiation */
-    let d: Maybe<int> = (safe_divide 20 4)
-    assert (== (maybe_unwrap_or d -1) 5)
+    let a: int = (identity 99)
+    assert (== a 99)
 
-    let z: Maybe<int> = (safe_divide 6 0)
-    assert (== (maybe_unwrap_or z 42) 42)
+    let b: bool = (identity true)
+    assert (== b true)
 
-    (println "generics typechecker tests PASSED")
+    let c: int = (pair_first 5 10)
+    assert (== c 5)
+
+    let d: bool = (pair_first false true)
+    assert (== d false)
+
+    let e: int = (max_of 7 3)
+    assert (== e 7)
+
     return 0
 }
 

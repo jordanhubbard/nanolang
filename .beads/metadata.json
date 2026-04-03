@@ -1,9 +1,9 @@
 {
   "database": "dolt",
-  "jsonl_export": "issues.jsonl",
   "backend": "dolt",
-  "dolt_database": "beads_nanolang",
+  "dolt_mode": "server",
   "dolt_server_host": "127.0.0.1",
   "dolt_server_port": 3307,
-  "dolt_mode": "server"
+  "dolt_database": "beads_nanolang",
+  "project_id": "54dee489-fdf2-4fed-b6f5-41d284bbee5e"
 }

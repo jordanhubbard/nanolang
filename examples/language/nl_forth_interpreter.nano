@@ -39,6 +39,7 @@ extern fn list_string_push(list: int64_t, value: string) -> void
 extern fn list_string_get(list: int64_t, index: int) -> string
 extern fn list_string_length(list: int64_t) -> int
 extern fn file_read(_path: string) -> string
+extern fn isatty(_fd: int) -> int
 
 # ── create_state ───────────────────────────────────────────────────────────────
 # Initialise the 6 shared lists in place; caller must pass fresh empty lists.
@@ -1417,7 +1418,7 @@ fn main() -> int {
         return (run_file stack rstack dspace wnames wbodies wimm forth_file)
     } else {
         let interactive: string = (getenv "FORTH_INTERACTIVE")
-        if (> (str_length interactive) 0) {
+        if (or (> (str_length interactive) 0) (== (isatty 0) 1)) {
             return (forth_repl stack rstack dspace wnames wbodies wimm)
         } else {
             return (forth_demo stack rstack dspace wnames wbodies wimm)
