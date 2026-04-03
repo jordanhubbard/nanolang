@@ -205,9 +205,76 @@ par {
 }
 ```
 
+### Par-Let (Parallel Binding)
+Binds multiple variables simultaneously. Both initializers are independent.
+```nano
+par-let x = (compute_x)  y = (compute_y)  in (println (+ x y))
+```
+
 ### Return
 ```nano
 return expression
+```
+
+### Match Guards
+A `if` condition after a pattern arm; the arm only matches when the guard is true.
+```nano
+match result {
+    Ok(v) if v.value > 0 => (println "positive"),
+    Ok(v)                => (println "zero or negative"),
+    Err(e)               => (println e.message)
+}
+```
+
+### Or-Patterns
+Multiple patterns separated by `|` share a single arm body.
+```nano
+match status {
+    | Active | Pending => (println "in progress"),
+    Complete           => (println "done")
+}
+```
+
+### Algebraic Effects
+```nano
+effect Log { log : string -> void }
+
+fn greet(name: string) -> void {
+    perform Log.log(f"Hello, {name}!")
+}
+
+shadow greet { assert true }
+
+fn main() -> int {
+    handle (greet "World") with {
+        Log.log(msg) -> { (println msg) }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+```
+
+### Async / Await
+```nano
+async fn fetch(url: string) -> string {
+    let data: string = await (http_get url)
+    return data
+}
+
+shadow fetch { assert true }
+```
+
+### F-String Interpolation
+```nano
+let name: string = "World"
+let n: int = 42
+let s: string = f"Hello, {name}! n={n}"
+```
+
+### Pipe Operator
+```nano
+let result: int = x |> double |> increment
+# equivalent to: (increment (double x))
 ```
 
 ## Standard Library (72 Functions)
@@ -313,7 +380,8 @@ while    for      in       return   assert   shadow
 int      float    bool     string   void
 true     false    print    and      or       not
 range    module   pub      from     import   use
-struct   enum     union    extern   as
+struct   enum     union    extern   as       match
+effect   perform  handle   async    await    par-let
 ```
 
 **Namespace Keywords:**
@@ -480,8 +548,24 @@ I explain namespaces in detail in `docs/NAMESPACE_USAGE.md`.
 ### C Backend (default)
 I transpile to C for native performance.
 ```bash
-nanoc program.nano -o program       # Compile to native binary
-nanoc program.nano --keep-c -o prog # Keep generated C source
+nanoc program.nano -o program        # Compile to native binary
+nanoc program.nano --keep-c -o prog  # Keep generated C source
+nanoc program.nano -g -o prog        # Include DWARF debug info
+nanoc program.nano --doc-md -o doc.md  # Export triple-slash comments as Markdown
+```
+
+### Additional Compilation Backends
+```bash
+nanoc program.nano --target wasm  -o program.wasm  # WebAssembly (+ .wasm.map sidecar)
+nanoc program.nano --target llvm  -o program.ll    # LLVM IR
+nanoc program.nano --target ptx   -o program.ptx   # CUDA PTX
+nanoc program.nano --target riscv -o program.s     # RISC-V assembly
+```
+
+### WASM Signing
+```bash
+nanoc sign   program.wasm   # Sign with ~/.nanoc/signing.key (created on first use)
+nanoc verify program.wasm   # Verify embedded Ed25519 signature
 ```
 
 ### NanoISA VM Backend
@@ -499,6 +583,8 @@ nano_vm --daemon p.nvm                    # Run via VM daemon
 ```bash
 make build        # Build C compiler (nanoc)
 make vm           # Build VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)
+make lsp          # Build language server (nanolang-lsp)
+make dap          # Build debug adapter (nanolang-dap)
 make test         # Run tests with C backend
 make test-vm      # Run tests with VM backend
 make install      # Install all binaries

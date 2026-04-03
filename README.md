@@ -58,21 +58,28 @@ EOF
 - **Formally Proved Semantics** - I have proved my type soundness, progress, determinism, and semantic equivalence in Coq. I use zero axioms.
 - **NanoISA Virtual Machine** - I include a stack-based VM with 178 opcodes. It isolates FFI calls in a co-process and can run as a daemon.
 - **Automatic Memory Management (ARC)** - I use reference counting with zero overhead. I do not ask you to call free().
-- **Machine-Led Optimization** - I profile myself and apply optimizations through an automated loop.
-- **Multi-Target Compilation** - I transpile to C for performance, compile to NanoISA bytecode for sandboxed execution, or emit WebAssembly via `--target wasm`.
+- **Machine-Led Optimization** - I profile myself and apply optimizations through an automated loop. I also run constant folding and dead-code elimination on the AST before code generation.
+- **Multi-Target Compilation** - I transpile to C for native performance, emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519.
+- **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
+- **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
+- **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking.
 - **Mandatory Testing** - I refuse to compile a function unless you provide a `shadow` test block for it.
-- **Static Typing** - I use static types and I can infer them when the meaning is clear.
+- **Type Inference** - I use Hindley-Milner inference. Explicit annotations are optional when the type is unambiguous (`let x = 42`).
+- **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
+- **VS Code Extension** - I ship a Language Server, Debug Adapter Protocol server, and a packaged `.vsix` extension with semantic tokens, format-on-save, and task integration.
+- **Web Playground** - I include a browser-based CodeMirror 6 editor with share permalink and live evaluation.
 
 ## Language Overview
 
 ```nano
-# Variables (immutable by default)
+# Variables — immutable by default, type annotation optional when inferrable
 let x: int = 42
+let y = "hello"            # type inferred as string
 let mut counter: int = 0
 
-# Functions with mandatory tests
+# Functions with mandatory shadow tests
 fn add(a: int, b: int) -> int {
     return (+ a b)
 }
@@ -81,18 +88,38 @@ shadow add {
     assert (== (add 2 3) 5)
 }
 
+# F-string interpolation
+let msg = f"Result: {(add 2 3)}"
+
+# Pipe operator
+let result = 5 |> add 3 |> double   # equivalent to double(add(3, 5))
+
 # Control flow
 if (> x 0) {
     (println "positive")
 }
 
-# Structs and enums
+# Pattern matching with guards and or-patterns
+union Shape { Circle { r: float }, Square { side: float }, Point {} }
+match shape {
+    Circle(c) if c.r > 0.0 => (println "circle"),
+    | Square(_) | Point(_) => (println "other")
+}
+
+# Structs, enums, and generic types
 struct Point { x: int, y: int }
 enum Status { Pending = 0, Active = 1 }
-
-# Generic types
 let numbers: List<int> = (List_int_new)
 (List_int_push numbers 42)
+
+# Algebraic effects
+effect Log { log : string -> void }
+handle (perform Log.log "hi") with {
+    Log.log(msg) -> { (println msg) }
+}
+
+# Parallel binding hint
+par-let a = (compute_x)  b = (compute_y)  in (println (+ a b))
 ```
 
 ## NanoISA Virtual Machine
@@ -149,8 +176,23 @@ make dap   # Build bin/nanolang-dap  (breakpoints, step-through, variable inspec
 A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP servers automatically.
 
 ```bash
-# Compile to WebAssembly binary instead of native C
+# Compile to native C (default)
+./bin/nanoc program.nano -o program
+
+# Compile to WebAssembly (emits program.wasm + program.wasm.map source map)
 ./bin/nanoc program.nano --target wasm -o program.wasm
+
+# Other backends
+./bin/nanoc program.nano --target llvm  -o program.ll   # LLVM IR
+./bin/nanoc program.nano --target ptx   -o program.ptx  # CUDA PTX
+./bin/nanoc program.nano --target riscv -o program.s    # RISC-V assembly
+
+# Sign and verify WASM modules
+./bin/nanoc sign   program.wasm   # Signs with ~/.nanoc/signing.key
+./bin/nanoc verify program.wasm   # Verifies embedded Ed25519 signature
+
+# Export documentation from triple-slash comments
+./bin/nanoc program.nano --doc-md -o program.md
 ```
 
 ## Building & Testing

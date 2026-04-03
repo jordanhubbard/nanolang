@@ -415,6 +415,102 @@ let counts: HashMap<string, int> = (map_new)
 let f: fn(int) -> int = double
 ```
 
+## B.7 Advanced Syntax Quick Reference
+
+### Match Guards
+```nano
+match result {
+    Ok(v) if v.value > 0 => (println "positive"),
+    Ok(v)                => (println "zero or less"),
+    Err(e)               => (println e.message)
+}
+```
+
+### Or-Patterns
+```nano
+match status {
+    | Active | Pending => (println "in progress"),
+    Complete           => (println "done")
+}
+```
+
+### Par-Let (Parallel Binding)
+```nano
+par-let x = (compute_x)  y = (compute_y)  in (println (+ x y))
+```
+
+### F-String Interpolation
+```nano
+let name: string = "World"
+let msg: string = f"Hello, {name}! Count: {42}"
+```
+
+### Pipe Operator
+```nano
+let result: int = x |> double |> increment
+# equivalent to (increment (double x))
+```
+
+### Algebraic Effects
+```nano
+effect Log { log : string -> void }
+
+fn greet(name: string) -> void {
+    perform Log.log(f"Hello, {name}!")
+}
+
+shadow greet { assert true }
+
+fn main() -> int {
+    handle (greet "World") with {
+        Log.log(msg) -> { (println msg) }
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+```
+
+### Async / Await
+```nano
+async fn fetch(url: string) -> string {
+    let data: string = await (http_get url)
+    return data
+}
+shadow fetch { assert true }
+```
+
+## B.8 CLI Quick Reference
+
+```bash
+# Compile to native binary (default C backend)
+nanoc program.nano -o program
+
+# Additional compilation backends
+nanoc program.nano --target wasm  -o program.wasm   # WebAssembly
+nanoc program.nano --target llvm  -o program.ll     # LLVM IR
+nanoc program.nano --target ptx   -o program.ptx    # CUDA PTX
+nanoc program.nano --target riscv -o program.s      # RISC-V assembly
+
+# Debug info
+nanoc program.nano -g -o program
+
+# WASM signing
+nanoc sign   program.wasm    # Sign with ~/.nanoc/signing.key
+nanoc verify program.wasm    # Verify embedded Ed25519 signature
+
+# Documentation export
+nanoc program.nano --doc-md -o docs.md
+
+# Keep generated C source
+nanoc program.nano --keep-c -o program
+
+# NanoISA VM
+nano_virt program.nano --run              # Compile + run
+nano_virt program.nano --emit-nvm -o p.nvm
+nano_vm p.nvm
+nano_vm --isolate-ffi p.nvm
+```
+
 ---
 
 **Previous:** [Appendix A: Examples Gallery](a_examples_gallery.html)  

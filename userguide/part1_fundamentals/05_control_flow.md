@@ -750,6 +750,68 @@ shadow gcd {
 }
 ```
 
+## 5.7 Match Guards
+
+Pattern arms may include a `if` guard expression. The arm only fires when the pattern matches *and* the guard is true.
+
+```nano
+union Status {
+    Active { score: int },
+    Inactive {}
+}
+
+fn describe_status(s: Status) -> string {
+    match s {
+        Active(a) if a.score > 100 => { return "high scorer" },
+        Active(a) if a.score > 0   => { return "active" },
+        Active(a)                  => { return "zero score" },
+        Inactive(_)                => { return "inactive" }
+    }
+}
+
+shadow describe_status {
+    assert (str_equals (describe_status (Status.Active { score: 150 })) "high scorer")
+    assert (str_equals (describe_status (Status.Active { score: 50 }))  "active")
+    assert (str_equals (describe_status (Status.Inactive {}))           "inactive")
+}
+```
+
+Guards may reference the variables bound by the pattern. They must have type `bool`.
+
+## 5.8 Or-Patterns
+
+Multiple pattern alternatives may share a single arm by separating them with `|`.
+
+```nano
+fn is_weekend(day: string) -> bool {
+    match day {
+        | "Saturday" | "Sunday" => { return true },
+        _                       => { return false }
+    }
+}
+
+shadow is_weekend {
+    assert (is_weekend "Saturday")
+    assert (is_weekend "Sunday")
+    assert (not (is_weekend "Monday"))
+}
+```
+
+Or-patterns work with union variants too:
+
+```nano
+union Expr { Lit { n: int }, Neg { e: Expr }, Add { l: Expr, r: Expr } }
+
+fn is_leaf(e: Expr) -> bool {
+    match e {
+        Lit(_)         => { return true },
+        | Neg(_) | Add(_, _) => { return false }
+    }
+}
+
+shadow is_leaf { assert (is_leaf (Expr.Lit { n: 1 })) }
+```
+
 ---
 
 **Previous:** [Chapter 4: Functions](04_functions.html)  

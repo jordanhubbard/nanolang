@@ -300,19 +300,17 @@ My syntax for function types is `fn(param_types) -> return_type`. I do not expos
 
 ### Tuples
 
-Planned: I am adding tuples to allow returning multiple values.
+I support tuple destructuring for binding multiple return values.
 
 ```nano
 fn divide_with_remainder(a: int, b: int) -> (int, int) {
     return ((/ a b), (% a b))
 }
 
-let result: (int, int) = (divide_with_remainder 10 3)
-let quotient: int = result.0
-let remainder: int = result.1
+let (quotient, remainder): (int, int) = (divide_with_remainder 10 3)
 ```
 
-Development status: My type system support is complete, and I am currently implementing the parser.
+Full first-class tuple types (as standalone function return types across all backends) are partially implemented.
 
 ---
 
@@ -421,14 +419,38 @@ See [`STDLIB.md`](STDLIB.md) for full reference.
 
 ## Compilation and Tooling
 
-### Dual Compilation: C Transpilation and NanoISA Virtual Machine
+### Multi-Backend Compilation
 
-I offer two compilation backends.
+I offer five compilation backends.
 
 **C Transpilation** (default, maximum performance):
 ```bash
-nanoc program.nano -o program    # Transpile to C, compile to native binary
-./program
+nanoc program.nano -o program         # Transpile to C, compile to native binary
+nanoc program.nano --keep-c -o prog   # Keep generated C source
+nanoc program.nano -g -o program      # Include DWARF debug info
+```
+
+**WebAssembly** (portable, sandboxed):
+```bash
+nanoc program.nano --target wasm -o program.wasm
+# Also emits program.wasm.map — source map sidecar
+nanoc sign   program.wasm             # Sign with Ed25519
+nanoc verify program.wasm             # Verify signature
+```
+
+**LLVM IR** (LLVM-based optimization and codegen):
+```bash
+nanoc program.nano --target llvm -o program.ll
+```
+
+**PTX / CUDA** (GPU kernels):
+```bash
+nanoc program.nano --target ptx -o program.ptx
+```
+
+**RISC-V Assembly**:
+```bash
+nanoc program.nano --target riscv -o program.s
 ```
 
 **NanoISA Virtual Machine** (sandboxed, portable):
@@ -442,13 +464,12 @@ nano_vm --isolate-ffi program.nvm     # Execute with FFI in separate process
 
 Comparison of my backends:
 
-| | C Backend (`nanoc`) | VM Backend (`nano_virt`) |
-|-|---------------------|--------------------------|
-| **Performance** | Native speed | Interpreted |
-| **FFI safety** | In-process | Process-isolated (crash-safe) |
-| **Dependencies** | Needs gcc/clang | Self-contained |
-| **Debugging** | GDB/LLDB on C output | Source-line debug info in bytecode |
-| **Formal grounding** | Semantics verified in Coq | Semantics verified in Coq + differential testing |
+| | C (`nanoc`) | WASM | LLVM | PTX | RISC-V | NanoISA VM |
+|-|-------------|------|------|-----|--------|-----------|
+| **Performance** | Native | Near-native (JIT) | Optimized native | GPU | Native | Interpreted |
+| **FFI safety** | In-process | Sandboxed | In-process | Device only | In-process | Process-isolated |
+| **Debug info** | DWARF (`-g`) | Source map | DWARF (`-g`) | — | DWARF (`-g`) | Line info in bytecode |
+| **Signing** | — | Ed25519 | — | — | — | — |
 
 **My VM Architecture:**
 - I use a 178-opcode stack machine with reference-counted GC.
@@ -546,6 +567,145 @@ let result: int = (+ a (+ b c))
 
 **Important:** You are asserting independence. If statements in a `par` block actually depend on each other, behavior is undefined.
 
+### Par-Let (Parallel Binding)
+
+`par-let` binds multiple variables with a declared independence between their initializers. Both `x` and `y` are bound simultaneously and are in scope after the `in` keyword.
+
+```nano
+par-let x = 1 + 2  y = 3 * 4  in (println (+ x y))
+```
+
+This is equivalent to a `par` block followed by a `let`, but expressed as an inline expression.
+
+---
+
+## Advanced Language Features
+
+### Match Guards
+
+Pattern arms may carry a guard condition after `if`. The guard must evaluate to `bool`.
+
+```nano
+match result {
+    Ok(v) if v.value > 0 => (println "positive result"),
+    Ok(v)                => (println "non-positive result"),
+    Err(e)               => (println e.message)
+}
+```
+
+### Or-Patterns
+
+Multiple patterns in a single arm are separated by `|`.
+
+```nano
+match status {
+    | Active | Pending => (println "not done"),
+    Complete           => (println "done")
+}
+```
+
+---
+
+## Algebraic Effects
+
+I support algebraic effects as a typed, resumable side-effect mechanism.
+
+```nano
+effect Log {
+    log : string -> void
+}
+
+fn greet(name: string) -> void {
+    perform Log.log(f"Hello, {name}!")
+}
+
+shadow greet { assert true }
+
+fn main() -> int {
+    handle (greet "World") with {
+        Log.log(msg) -> { (println msg) }
+    }
+    return 0
+}
+
+shadow main { assert (== (main) 0) }
+```
+
+I declare effects with `effect EffectName { op : input_type -> output_type }`. I perform them with `perform EffectName.op(arg)`. I install handlers with `handle expr with { EffectName.op(param) -> body }`.
+
+---
+
+## Async / Await
+
+I support async/await through a CPS (continuation-passing style) transformation applied at compile time.
+
+```nano
+async fn fetch_data(url: string) -> string {
+    let response: string = await (http_get url)
+    return response
+}
+
+shadow fetch_data { assert true }
+```
+
+I lower `async fn` to a state machine and `await` to a CPS callback. The transformation is transparent to the caller.
+
+---
+
+## F-String Interpolation
+
+I support f-string interpolation with automatic type conversion.
+
+```nano
+let name: string = "World"
+let count: int = 42
+let msg: string = f"Hello, {name}! Count: {count}"
+```
+
+I desugar `f"..."` to a sequence of `str_concat` calls at compile time. Embedded expressions may be any typed expression.
+
+---
+
+## Pipe Operator
+
+I support the pipe operator `|>` for readable left-to-right function chains.
+
+```nano
+let result: int = x |> double |> increment |> negate
+# equivalent to: (negate (increment (double x)))
+```
+
+---
+
+## Documentation Export
+
+I can export triple-slash doc comments as GFM Markdown.
+
+```nano
+/// Adds two integers and returns the sum.
+/// @param a  First operand
+/// @param b  Second operand
+fn add(a: int, b: int) -> int { return (+ a b) }
+```
+
+```bash
+nanoc program.nano --doc-md -o program.md
+```
+
+---
+
+## WASM Module Signing
+
+I can sign compiled WASM binaries with an Ed25519 key pair. The signature is embedded as a `agentos.signature` custom section.
+
+```bash
+nanoc program.nano --target wasm -o program.wasm
+nanoc sign program.wasm          # Signs with ~/.nanoc/signing.key
+nanoc verify program.wasm        # Verifies the embedded signature
+```
+
+I generate the key pair automatically on first use. Re-signing an already-signed WASM is idempotent. Tampered bytes cause `nanoc verify` to return a non-zero exit code.
+
 ---
 
 ## Safety Features
@@ -589,28 +749,64 @@ I provide type-safe bindings for direct C function calls with no overhead, facil
 
 ## Development Status
 
-What I have completed:
+**Status: Production-ready.** I am self-hosting, formally verified, and ship multiple compilation backends.
+
+### Completed
+
+**Core Language:**
 - Complete: Core language (types, expressions, statements)
-- Complete: Structs, enums, unions
-- Complete: Generics with monomorphization
+- Complete: Structs, enums, unions with generics
+- Complete: Generic types with monomorphization
 - Complete: First-class functions
-- Complete: Pattern matching
-- Complete: Standard library (72 functions)
-- Complete: C transpilation with namespacing
-- Complete: Interpreter with tracing
-- Complete: Shadow-test system
-- Complete: FFI support
-- Complete: Zero compiler warnings
+- Complete: Pattern matching with match guards (`Val(u) if u.n > 0 =>`) and or-patterns (`| A | B =>`)
+- Complete: Algebraic effects (`effect`, `perform`, `handle`)
+- Complete: Async/await with CPS transformation
+- Complete: Coroutines
+- Complete: Par-let (`par-let x=e1 y=e2 in body`) for parallel evaluation hints
+- Complete: Local type inference (`let x = 42` — annotation optional when unambiguous)
+- Complete: Hindley-Milner type inference
+- Complete: F-string interpolation (`f"Hello {name}!"`)
+- Complete: Pipe operator (`x |> f |> g`)
+- Complete: Anonymous functions (`fn(x: int) -> int { return (* x 2) }`)
+- Complete: Tuple destructuring (`let (q, r) = (divmod 17 5)`)
+- Complete: Wildcard `_` in match arms
 
-What I am currently developing:
-- In development: Tuple types (type system complete, parser implementation pending)
-- In development: Self-hosted compiler (I am writing myself in myself)
+**Compilation Backends:**
+- Complete: C transpilation (default, native performance)
+- Complete: NanoISA Virtual Machine (178 opcodes, process-isolated FFI)
+- Complete: WebAssembly binary emit (`--target wasm`)
+- Complete: LLVM IR backend (`--target llvm`)
+- Complete: PTX (CUDA) backend (`--target ptx`)
+- Complete: RISC-V assembly backend (`--target riscv`)
+- Complete: DWARF debug info emission (`--debug` / `-g` flag)
+- Complete: Source map sidecar for WASM (`program.wasm.map`)
+- Complete: Ed25519 WASM module signing (`nanoc sign / nanoc verify`)
 
-What I have planned:
-- Planned: Module system
-- Planned: More generic types (Map<K,V>, Set<T>)
-- Planned: Package manager
-- Planned: Standard library expansion
+**Standard Library:**
+- Complete: Standard library (72+ built-in functions)
+- Complete: Module system with `module`, `pub`, `from … import`, `use`
+- Complete: Package registry / manager
+- Complete: 30+ FFI modules (SDL, ncurses, OpenGL, curl, readline, Python bridge, JSON, regex, PEG2…)
+
+**Tooling:**
+- Complete: Self-hosted compiler (100% bootstrap — stage1 → stage2 → stage3)
+- Complete: Interpreter with tracing (`--trace-all`, `--trace-function=<name>`, …)
+- Complete: Shadow-test system (compile-time execution, 100% function coverage required)
+- Complete: Interactive REPL with history, hot-reload (`:load`, `:save`, `:reload`)
+- Complete: Language Server (`bin/nanolang-lsp`) — hover, go-to-definition, completion, diagnostics
+- Complete: Debug Adapter Protocol server (`bin/nanolang-dap`) — breakpoints, step-through, variable inspection
+- Complete: VS Code extension (`editors/vscode/`) — LSP + DAP wired automatically, format-on-save
+- Complete: Web playground (CodeMirror 6 editor, share permalink, AgentFS hosting — port 8792)
+- Complete: `--doc-md` flag for GFM Markdown documentation export from triple-slash comments
+- Complete: `--emit-typed-ast-json` for tooling integration
+- Complete: DWARF debug info (`-g`) for LLVM IR and RISC-V backends
+- Complete: Constant folding and dead-code elimination (AST-level optimizer passes)
+- Complete: Formally verified semantics (6,170 lines of Coq, zero axioms)
+
+### What I Am Not Yet Doing
+
+- Tuple types are implemented for destructuring but not as first-class function return types in all backends.
+- Map<K,V> and Set<T> generic containers are not yet in the standard library.
 
 ---
 

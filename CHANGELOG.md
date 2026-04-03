@@ -5,6 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.5] - 2026-04-01
+
+### Added
+- `--doc-md` flag: export GFM Markdown documentation from triple-slash (`///`) comments
+- Multi-backend CI matrix: compile tests now run across all 5 backends (C, WASM, LLVM, PTX, RISC-V) in parallel
+- Interactive browser playground: CodeMirror 6 editor with share permalink and AgentFS hosting on port 8792
+- Full test coverage sweep: 5 bugs fixed, 3 new test files added (test_constant_folding.nano, test_sourcemap.sh, test_ed25519_sign.sh)
+- `nanoc sign` and `nanoc verify` subcommands wired into the CLI (Ed25519 WASM module signing)
+- Constant folding and dead-code elimination end-to-end tests
+- WASM source map validation tests (version, source, functions array, wasm_offset fields, magic bytes)
+- Ed25519 sign/verify workflow tests (sign, verify, re-sign idempotency, tamper rejection, unsigned rejection)
+
+### Fixed
+- `generate_effect_perform_stubs()` in transpiler.c: NULL deref on `op_param_types` — now falls back to `op_params[j][0].type`
+- Free type variable `T` in transpiler's `get_prefixed_type_name()` now maps to `void*` instead of `nl_T` (which has no C typedef)
+- `test_effects.nano` infinite loop: `let i = (+ i 1)` inside while loop created a shadowing binding; fixed with `let mut` + `set`
+- `test_generics.nano`: removed undefined `Maybe`/`none`/`some`/`is_some` references; replaced with locally-defined `union Maybe<V>`
+- Stale `modules/std/json/.build/source_hashes.json` cache invalidated to pick up `nl_json_as_float` symbol
+
 ## [3.3.4] - 2026-03-30
 
 ### Added
