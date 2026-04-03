@@ -65,7 +65,7 @@ vendor/
 Thumbs.db
 .Spotlight-V100
 .Trashes
-modules/*/.build/
+modules/**/.build/
 *.genC
 
 # Build sentinels (old and new)

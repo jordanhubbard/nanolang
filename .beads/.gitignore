@@ -11,6 +11,7 @@ last-touched
 
 # Daemon runtime (lock, log, pid)
 daemon.*
+dolt-monitor.pid
 
 # Interactions log (runtime, not versioned)
 interactions.jsonl
