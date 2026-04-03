@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.6] - 2026-04-02
+
+### Added
+- source-mapped stack trace tests + multi-frame coverage
+
+### Fixed
+- sdl_forth_ide native binary path + nl_forth_interpreter TTY REPL
+
 ## [3.3.5] - 2026-04-02
 
 ### Added
