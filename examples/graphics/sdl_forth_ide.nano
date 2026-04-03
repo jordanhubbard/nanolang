@@ -217,11 +217,11 @@ fn main() -> int {
     if (== pty_fd -1) { (println "nl_pty_open failed") return 1 } else { (print "") }
 
     let pty_pid: int = (nl_pty_fork_exec pty_fd
-        "bin/nano_vm" "bin/nl_forth_interpreter_vm"
+        "bin/nl_forth_interpreter" ""
         "FORTH_INTERACTIVE" "1")
     if (== pty_pid -1) {
         (nl_pty_close pty_fd)
-        (println "nl_pty_fork_exec failed — did you run 'make examples-vm' first?")
+        (println "nl_pty_fork_exec failed — is bin/nl_forth_interpreter built?")
         return 1
     } else { (print "") }
 
