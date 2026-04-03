@@ -3808,6 +3808,11 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "/* isatty() wrapper - avoids int64_t type clash with unistd.h */\n");
+    sb_append(sb, "static inline int64_t nl_isatty(int64_t fd) {\n");
+    sb_append(sb, "    return (int64_t)isatty((int)fd);\n");
+    sb_append(sb, "}\n\n");
+
     sb_append(sb, "/* Capture stdout from a shell command */\n");
     sb_append(sb, "static inline const char* nl_exec_capture(const char* cmd) {\n");
     sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
