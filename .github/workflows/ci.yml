@@ -318,13 +318,21 @@ jobs:
             echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
           fi
 
-      - name: Post coverage to RCC metrics
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Report coverage to RCC metrics
+        if: github.ref == 'refs/heads/main'
+        env:
+          RCC_CI_TOKEN: ${{ secrets.RCC_CI_TOKEN }}
         run: |
-          curl -sf -X POST "${{ secrets.RCC_URL }}/api/metrics/nanolang.coverage" \
-            -H "Authorization: Bearer ${{ secrets.RCC_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"value\": ${{ steps.coverage.outputs.coverage }}}"
+          COVERAGE=${{ steps.coverage.outputs.coverage }}
+          if [ -n "$RCC_CI_TOKEN" ] && [ -n "$COVERAGE" ]; then
+            curl -s -X POST "https://api.yourmom.photos/api/projects/jordanhubbard/nanolang/metrics" \
+              -H "Authorization: Bearer $RCC_CI_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"metric\":\"coverage_pct\",\"value\":$COVERAGE,\"commit_sha\":\"$GITHUB_SHA\",\"branch\":\"main\"}" \
+              || echo "RCC metrics upload skipped (non-fatal)"
+          else
+            echo "Skipping RCC metrics: no token or coverage value"
+          fi
 
       - name: Upload coverage report to artifacts
         uses: actions/upload-artifact@v4
