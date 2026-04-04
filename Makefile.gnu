@@ -645,8 +645,25 @@ test-proptest-unit: stage1
 	@./tests/test_proptest_unit
 	@rm -f tests/test_proptest_unit
 
+.PHONY: test-verifier
+test-verifier: $(NANOISA_OBJECTS)
+	@echo "Running NVM verifier tests..."
+	$(CC) $(CFLAGS) -o tests/nanoisa/test_verifier \
+		tests/nanoisa/test_verifier.c $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanoisa/test_verifier
+	@rm -f tests/nanoisa/test_verifier
+
+.PHONY: test-value
+test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running NanoVM value tests..."
+	$(CC) $(CFLAGS) -o tests/nanovm/test_value \
+		tests/nanovm/test_value.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_value
+	@rm -f tests/nanovm/test_value
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

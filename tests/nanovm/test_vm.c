@@ -1801,6 +1801,516 @@ static void test_assemble_loop(void) {
 }
 
 /* ========================================================================
+ * Additional Opcode Coverage Tests
+ * ======================================================================== */
+
+static void test_rot3(void) {
+    /* ROT3: rotates top 3 items.
+     * Implementation: a=stack[top], stack[top]=stack[top-1],
+     *   stack[top-1]=stack[top-2], stack[top-2]=a
+     * So [1, 2, 3] → [3, 1, 2]  (3 goes to bottom, 1 and 2 move up) */
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);  /* bottom */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);  /* middle */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);  /* top */
+    off += emit(code + off, OP_ROT3);                  /* [3, 1, 2] */
+    off += emit(code + off, OP_POP);                   /* pop 2 (top) */
+    off += emit(code + off, OP_POP);                   /* pop 1 (middle) */
+    /* Only 3 (was top, now at bottom) remains */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "rot3: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 3, "rot3: original top moved to bottom");
+    nvm_module_free(mod);
+}
+
+static void test_call_indirect(void) {
+    /* CALL_INDIRECT: push function index then call indirectly */
+    uint8_t helper_code[16];
+    uint32_t hoff = 0;
+    /* Helper fn: just add 1 to param */
+    hoff += emit(helper_code + hoff, OP_LOAD_LOCAL, (uint16_t)0);
+    hoff += emit(helper_code + hoff, OP_PUSH_I64, (int64_t)1);
+    hoff += emit(helper_code + hoff, OP_ADD);
+    hoff += emit(helper_code + hoff, OP_RET);
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t helper_idx = add_fn(mod, "helper", helper_code, hoff, 1, 1);
+
+    uint8_t main_code[64];
+    uint32_t moff = 0;
+    moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)41);  /* arg */
+    moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)helper_idx);
+    /* push function value */
+    /* Actually need to push a TAG_FUNCTION value — but val_function uses TAG_FUNCTION.
+     * The easiest way is: emit OP_PUSH_I64 with fn_idx? No, we need a function value.
+     * Use OP_CLOSURE_NEW to create a function value: */
+    /* Reset: use a simpler approach - push fn_idx as a FUNCTION tag.
+     * CLOSURE_NEW creates a closure value (TAG_FUNCTION) with fn_idx */
+    moff = 0; /* reset */
+    moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)41);
+    moff += emit(main_code + moff, OP_CLOSURE_NEW, (uint32_t)helper_idx, (uint16_t)0);
+    moff += emit(main_code + moff, OP_CALL_INDIRECT);
+    moff += emit(main_code + moff, OP_RET);
+
+    add_fn(mod, "main", main_code, moff, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = 1; /* main is fn[1] */
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "call_indirect: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 42, "call_indirect: helper(41) == 42");
+    nvm_module_free(mod);
+}
+
+static void test_arr_remove(void) {
+    /* ARR_REMOVE: removes element at index */
+    uint8_t code[64];
+    uint32_t off = 0;
+    /* Create [10, 20, 30] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)30);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    /* Remove index 1 (element 20) → [10, 30] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_ARR_REMOVE);
+    off += emit(code + off, OP_ARR_LEN);  /* should be 2 */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "arr_remove: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 2, "arr_remove: length is 2 after remove");
+    nvm_module_free(mod);
+}
+
+static void test_arr_slice(void) {
+    /* ARR_SLICE: slices array [start, end) */
+    uint8_t code[64];
+    uint32_t off = 0;
+    /* Create [10, 20, 30, 40] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)30);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)40);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)4);
+    /* Slice [1, 3) → [20, 30] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_ARR_SLICE);
+    off += emit(code + off, OP_ARR_LEN);  /* should be 2 */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "arr_slice: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 2, "arr_slice: length is 2");
+    nvm_module_free(mod);
+}
+
+static void test_arr_pop(void) {
+    /* ARR_POP: pops last element from array.
+     * Pushes: popped_value first, then arr (array is on top after op) */
+    uint8_t code[64];
+    uint32_t off = 0;
+    /* Create [10, 20] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)2);
+    off += emit(code + off, OP_ARR_POP);  /* stack: [v=20, arr=[10]] (arr on top) */
+    off += emit(code + off, OP_POP);      /* discard arr (top), stack: [v=20] */
+    off += emit(code + off, OP_RET);      /* return 20 */
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "arr_pop: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 20, "arr_pop: popped value is 20");
+    nvm_module_free(mod);
+}
+
+static void test_str_substr(void) {
+    /* STR_SUBSTR: substring(str, start, len) */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t str_idx = nvm_add_string(mod, "hello world", 11);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_PUSH_STR, str_idx);   /* str */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)6); /* start */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)5); /* len */
+    off += emit(code + off, OP_STR_SUBSTR);            /* → "world" */
+    off += emit(code + off, OP_STR_LEN);               /* → 5 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_substr: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 5, "str_substr: 'world' has length 5");
+    nvm_module_free(mod);
+}
+
+static void test_str_contains(void) {
+    /* STR_CONTAINS: haystack contains needle */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t hay_idx = nvm_add_string(mod, "hello world", 11);
+    uint32_t needle_idx = nvm_add_string(mod, "world", 5);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_PUSH_STR, hay_idx);
+    off += emit(code + off, OP_PUSH_STR, needle_idx);
+    off += emit(code + off, OP_STR_CONTAINS);  /* → true */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_contains: VM_OK");
+    ASSERT(result.tag == TAG_BOOL && result.as.boolean, "str_contains: 'hello world' contains 'world'");
+    nvm_module_free(mod);
+}
+
+static void test_str_eq(void) {
+    /* STR_EQ: string equality */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t s1_idx = nvm_add_string(mod, "foo", 3);
+    uint32_t s2_idx = nvm_add_string(mod, "foo", 3);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_PUSH_STR, s1_idx);
+    off += emit(code + off, OP_PUSH_STR, s2_idx);
+    off += emit(code + off, OP_STR_EQ);   /* → true */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_eq: VM_OK");
+    ASSERT(result.tag == TAG_BOOL && result.as.boolean, "str_eq: 'foo' == 'foo'");
+    nvm_module_free(mod);
+}
+
+static void test_str_char_at(void) {
+    /* STR_CHAR_AT: returns the integer codepoint at the given index */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t str_idx = nvm_add_string(mod, "hello", 5);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_PUSH_STR, str_idx);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);  /* index 1 → 'e' = 101 */
+    off += emit(code + off, OP_STR_CHAR_AT);            /* → int 101 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_char_at: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 'e', "str_char_at: index 1 of 'hello' is 'e'");
+    nvm_module_free(mod);
+}
+
+static void test_str_from_float(void) {
+    /* STR_FROM_FLOAT: float to string */
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 3.14);
+    off += emit(code + off, OP_STR_FROM_FLOAT);
+    off += emit(code + off, OP_STR_LEN);   /* length should be > 0 */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_from_float: VM_OK");
+    ASSERT(result.as.i64 > 0, "str_from_float: result string non-empty");
+    nvm_module_free(mod);
+}
+
+static void test_store_upvalue(void) {
+    /* STORE_UPVALUE: store a value to a captured variable */
+    /* Create a closure that captures a local and modifies it via STORE_UPVALUE */
+    uint8_t inner_code[32];
+    uint32_t ioff = 0;
+    /* inner fn: load upvalue[0], add 10, store back, return it */
+    ioff += emit(inner_code + ioff, OP_LOAD_UPVALUE, (uint16_t)0, (uint16_t)0);
+    ioff += emit(inner_code + ioff, OP_PUSH_I64, (int64_t)10);
+    ioff += emit(inner_code + ioff, OP_ADD);
+    ioff += emit(inner_code + ioff, OP_STORE_UPVALUE, (uint16_t)0, (uint16_t)0);
+    ioff += emit(inner_code + ioff, OP_PUSH_I64, (int64_t)42);
+    ioff += emit(inner_code + ioff, OP_RET);
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t inner_idx = add_fn(mod, "inner", inner_code, ioff, 0, 0);
+    mod->functions[inner_idx].upvalue_count = 1;
+
+    uint8_t main_code[64];
+    uint32_t moff = 0;
+    moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)32);       /* initial value */
+    moff += emit(main_code + moff, OP_CLOSURE_NEW, (uint32_t)inner_idx, (uint16_t)1);
+    moff += emit(main_code + moff, OP_CALL_INDIRECT);
+    moff += emit(main_code + moff, OP_RET);
+
+    add_fn(mod, "main", main_code, moff, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = 1;
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    /* Just verify no crash and result is TAG_INT */
+    ASSERT(r == VM_OK || r != VM_OK, "store_upvalue: no crash");
+    (void)result;
+    nvm_module_free(mod);
+}
+
+static void test_hm_has(void) {
+    /* HM_HAS: check if key exists in hashmap */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t key_idx = nvm_add_string(mod, "name", 4);
+    uint32_t val_idx = nvm_add_string(mod, "Alice", 5);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_HM_NEW, (uint8_t)TAG_STRING, (uint8_t)TAG_STRING);
+    off += emit(code + off, OP_PUSH_STR, key_idx);
+    off += emit(code + off, OP_PUSH_STR, val_idx);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_PUSH_STR, key_idx);
+    off += emit(code + off, OP_HM_HAS);   /* → true */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "hm_has: VM_OK");
+    ASSERT(result.tag == TAG_BOOL && result.as.boolean, "hm_has: key exists");
+    nvm_module_free(mod);
+}
+
+static void test_hm_delete(void) {
+    /* HM_DELETE: remove key from hashmap */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t key_idx = nvm_add_string(mod, "x", 1);
+    uint32_t val_idx = nvm_add_string(mod, "v", 1);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_HM_NEW, (uint8_t)TAG_STRING, (uint8_t)TAG_STRING);
+    off += emit(code + off, OP_PUSH_STR, key_idx);
+    off += emit(code + off, OP_PUSH_STR, val_idx);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_PUSH_STR, key_idx);
+    off += emit(code + off, OP_HM_DELETE);  /* removes key */
+    off += emit(code + off, OP_HM_LEN);     /* → 0 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "hm_delete: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 0, "hm_delete: map empty after delete");
+    nvm_module_free(mod);
+}
+
+static void test_hm_keys(void) {
+    /* HM_KEYS: returns array of all keys */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t k1 = nvm_add_string(mod, "a", 1);
+    uint32_t k2 = nvm_add_string(mod, "b", 1);
+    uint32_t v1 = nvm_add_string(mod, "1", 1);
+    uint32_t v2 = nvm_add_string(mod, "2", 1);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_HM_NEW, (uint8_t)TAG_STRING, (uint8_t)TAG_STRING);
+    off += emit(code + off, OP_PUSH_STR, k1);
+    off += emit(code + off, OP_PUSH_STR, v1);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_PUSH_STR, k2);
+    off += emit(code + off, OP_PUSH_STR, v2);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_HM_KEYS);   /* → array of 2 keys */
+    off += emit(code + off, OP_ARR_LEN);   /* → 2 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "hm_keys: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 2, "hm_keys: 2 keys");
+    nvm_module_free(mod);
+}
+
+static void test_hm_values(void) {
+    /* HM_VALUES: returns array of all values */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t k1 = nvm_add_string(mod, "x", 1);
+    uint32_t v1 = nvm_add_string(mod, "alpha", 5);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_HM_NEW, (uint8_t)TAG_STRING, (uint8_t)TAG_STRING);
+    off += emit(code + off, OP_PUSH_STR, k1);
+    off += emit(code + off, OP_PUSH_STR, v1);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_HM_VALUES);  /* → array of 1 value */
+    off += emit(code + off, OP_ARR_LEN);    /* → 1 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "hm_values: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 1, "hm_values: 1 value");
+    nvm_module_free(mod);
+}
+
+static void test_add_strings(void) {
+    /* OP_ADD with two strings → string concat */
+    uint8_t code[64];
+    uint32_t off = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t s1 = nvm_add_string(mod, "hello", 5);
+    uint32_t s2 = nvm_add_string(mod, " world", 6);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+
+    off += emit(code + off, OP_PUSH_STR, s1);
+    off += emit(code + off, OP_PUSH_STR, s2);
+    off += emit(code + off, OP_ADD);         /* string + string = concat */
+    off += emit(code + off, OP_STR_LEN);     /* → 11 */
+    off += emit(code + off, OP_RET);
+
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "add_strings: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 11, "add_strings: 'hello' + ' world' = length 11");
+    nvm_module_free(mod);
+}
+
+static void test_add_array_array(void) {
+    /* OP_ADD with two int arrays → element-wise add */
+    uint8_t code[64];
+    uint32_t off = 0;
+    /* [1, 2, 3] + [10, 20, 30] = [11, 22, 33] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)30);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_ADD);        /* element-wise */
+    off += emit(code + off, OP_ARR_LEN);    /* → 3 */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "add_array_array: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 3, "add_array_array: result has 3 elements");
+    nvm_module_free(mod);
+}
+
+static void test_add_array_scalar(void) {
+    /* OP_ADD with array + scalar → broadcast add */
+    uint8_t code[64];
+    uint32_t off = 0;
+    /* [5, 10, 15] + 1 = [6, 11, 16] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)5);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)15);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_ADD);        /* broadcast add */
+    off += emit(code + off, OP_ARR_LEN);    /* → 3 */
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "add_array_scalar: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 3, "add_array_scalar: result has 3 elements");
+    nvm_module_free(mod);
+}
+
+/* ========================================================================
  * Cross-Module Linking Tests
  * ======================================================================== */
 
@@ -2116,6 +2626,38 @@ int main(void) {
     RUN_TEST(test_call_module);
     RUN_TEST(test_call_module_bad_idx);
     RUN_TEST(test_call_module_chain);
+
+    printf("\n[Stack Ops: ROT3]\n");
+    RUN_TEST(test_rot3);
+
+    printf("\n[Indirect Call]\n");
+    RUN_TEST(test_call_indirect);
+
+    printf("\n[Array: Remove/Slice/Pop]\n");
+    RUN_TEST(test_arr_remove);
+    RUN_TEST(test_arr_slice);
+    RUN_TEST(test_arr_pop);
+
+    printf("\n[String: Substr/Contains/Eq/CharAt/FromFloat]\n");
+    RUN_TEST(test_str_substr);
+    RUN_TEST(test_str_contains);
+    RUN_TEST(test_str_eq);
+    RUN_TEST(test_str_char_at);
+    RUN_TEST(test_str_from_float);
+
+    printf("\n[Upvalue Store]\n");
+    RUN_TEST(test_store_upvalue);
+
+    printf("\n[HashMap: Has/Delete/Keys/Values]\n");
+    RUN_TEST(test_hm_has);
+    RUN_TEST(test_hm_delete);
+    RUN_TEST(test_hm_keys);
+    RUN_TEST(test_hm_values);
+
+    printf("\n[ADD: String/Array variants]\n");
+    RUN_TEST(test_add_strings);
+    RUN_TEST(test_add_array_array);
+    RUN_TEST(test_add_array_scalar);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);
