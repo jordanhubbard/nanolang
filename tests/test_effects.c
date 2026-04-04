@@ -285,6 +285,103 @@ void test_env_effect_lookup_missing(void) {
     free_environment(env);
 }
 
+static ASTNode *parse_nano_effects(const char *src) {
+    int n = 0;
+    Token *t = tokenize(src, &n);
+    if (!t) return NULL;
+    ASTNode *p = parse_program(t, n);
+    free_tokens(t, n);
+    return p;
+}
+
+void test_effect_arrow_type_str_no_row(void) {
+    /* Without row effects */
+    char *s = effect_arrow_type_str("int", "string", NULL);
+    ASSERT_NOT_NULL(s);
+    ASSERT(strstr(s, "int") != NULL);
+    ASSERT(strstr(s, "string") != NULL);
+    free(s);
+}
+
+void test_effect_arrow_type_str_with_row(void) {
+    EffectRow *row = effect_row_new();
+    effect_row_add(row, "IO");
+    char *s = effect_arrow_type_str("int", "void", row);
+    ASSERT_NOT_NULL(s);
+    ASSERT(strstr(s, "IO") != NULL);
+    free(s);
+    effect_row_free(row);
+}
+
+void test_effect_arrow_type_str_empty_row(void) {
+    EffectRow *row = effect_row_new();  /* empty */
+    char *s = effect_arrow_type_str("string", "int", row);
+    ASSERT_NOT_NULL(s);
+    free(s);
+    effect_row_free(row);
+}
+
+void test_effect_check_program_no_effects(void) {
+    /* Program with no effect declarations should pass cleanly */
+    ASTNode *prog = parse_nano_effects(
+        "fn add(a: int, b: int) -> int { return (+ a b) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
+void test_effect_check_program_null(void) {
+    /* Null program should return true (nothing to check) */
+    EffectRegistry *reg = effect_registry_new();
+    bool ok = effect_check_program(NULL, reg, NULL);
+    ASSERT(ok);
+    effect_registry_free(reg);
+
+    /* Null registry should also return true */
+    ASTNode *prog = parse_nano_effects("fn f() -> int { return 0 }\n");
+    ok = effect_check_program(prog, NULL, NULL);
+    ASSERT(ok);
+    free_ast(prog);
+}
+
+void test_effect_register_from_ast_null(void) {
+    /* NULL node should return false */
+    EffectRegistry *reg = effect_registry_new();
+    bool ok = effect_register_from_ast(reg, NULL);
+    ASSERT(!ok);
+
+    /* Non-effect-decl node should return false */
+    ASTNode *prog = parse_nano_effects("fn f() -> int { return 0 }\n");
+    if (prog && prog->as.program.count > 0) {
+        ok = effect_register_from_ast(reg, prog->as.program.items[0]);
+        ASSERT(!ok);
+    }
+    if (prog) free_ast(prog);
+    effect_registry_free(reg);
+}
+
+void test_effect_check_program_with_no_effect_nodes(void) {
+    /* Program with functions but no effect declarations */
+    ASTNode *prog = parse_nano_effects(
+        "fn double(x: int) -> int { return (* x 2) }\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -310,6 +407,13 @@ int main(void) {
     TEST(effect_frame_push_pop);
     TEST(effect_find_handler_empty_stack);
     TEST(env_effect_lookup_missing);
+    TEST(effect_arrow_type_str_no_row);
+    TEST(effect_arrow_type_str_with_row);
+    TEST(effect_arrow_type_str_empty_row);
+    TEST(effect_check_program_no_effects);
+    TEST(effect_check_program_null);
+    TEST(effect_register_from_ast_null);
+    TEST(effect_check_program_with_no_effect_nodes);
 
     printf("\n✓ All effects tests passed!\n");
     return 0;

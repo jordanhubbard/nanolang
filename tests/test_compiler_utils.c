@@ -432,6 +432,104 @@ static void test_reflection_private_only(void) {
     PASS(test_name);
 }
 
+static void test_reflection_with_let_constant(void) {
+    const char *test_name = "emit_module_reflection: let constant exported";
+    const char *src =
+        "let MAX_SIZE: int = 100\n"
+        "pub fn get_max() -> int { return MAX_SIZE }\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+
+    suppress_stderr();
+    Environment *env = create_environment();
+    type_check(prog, env);
+    restore_stderr();
+
+    const char *out_path = "/tmp/test_reflection_const.json";
+    bool ok = emit_module_reflection(out_path, prog, env, "consts");
+    ASSERT(ok, "emit_module_reflection should succeed");
+
+    free_environment(env);
+    free_ast(prog);
+    PASS(test_name);
+}
+
+static void test_reflection_underscore_fn_skipped(void) {
+    const char *test_name = "emit_module_reflection: _private fn skipped";
+    const char *src =
+        "fn _internal(x: int) -> int { return x }\n"
+        "pub fn public_fn(x: int) -> int { return x }\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+
+    suppress_stderr();
+    Environment *env = create_environment();
+    type_check(prog, env);
+    restore_stderr();
+
+    const char *out_path = "/tmp/test_reflection_underscore.json";
+    bool ok = emit_module_reflection(out_path, prog, env, "mod");
+    ASSERT(ok, "emit_module_reflection should succeed");
+
+    /* Read output and verify _internal is not in the JSON */
+    FILE *f = fopen(out_path, "r");
+    if (f) {
+        fseek(f, 0, SEEK_END);
+        long sz = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        char *buf = malloc((size_t)sz + 1);
+        if (buf) {
+            if (fread(buf, 1, (size_t)sz, f) > 0) {
+                buf[sz] = '\0';
+                ASSERT(strstr(buf, "_internal") == NULL,
+                       "_internal should not appear in reflection output");
+            }
+            free(buf);
+        }
+        fclose(f);
+    }
+
+    free_environment(env);
+    free_ast(prog);
+    PASS(test_name);
+}
+
+static void test_reflection_opaque_type(void) {
+    const char *test_name = "emit_module_reflection: opaque type exported";
+    const char *src =
+        "opaque type Handle\n"
+        "pub fn create_handle() -> int { return 0 }\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+
+    suppress_stderr();
+    Environment *env = create_environment();
+    type_check(prog, env);
+    restore_stderr();
+
+    const char *out_path = "/tmp/test_reflection_opaque.json";
+    bool ok = emit_module_reflection(out_path, prog, env, "opaque_mod");
+    ASSERT(ok, "emit_module_reflection should succeed");
+
+    free_environment(env);
+    free_ast(prog);
+    PASS(test_name);
+}
+
+static void test_reflection_null_path(void) {
+    const char *test_name = "emit_module_reflection: NULL output path fails";
+    ASTNode *prog = parse_nano("pub fn f() -> int { return 0 }\n");
+    ASSERT(prog != NULL, "parse failed");
+    Environment *env = create_environment();
+    suppress_stderr();
+    bool ok = emit_module_reflection(NULL, prog, env, "mod");
+    restore_stderr();
+    ASSERT(!ok, "should fail with NULL path");
+    free_environment(env);
+    free_ast(prog);
+    PASS(test_name);
+}
+
 /* ── bench.c tests ──────────────────────────────────────────────────────── */
 
 static void test_bench_print_json(void) {
@@ -551,6 +649,10 @@ int main(void) {
     test_reflection_simple();
     test_reflection_struct();
     test_reflection_private_only();
+    test_reflection_with_let_constant();
+    test_reflection_underscore_fn_skipped();
+    test_reflection_opaque_type();
+    test_reflection_null_path();
 
     printf("\nBenchmark Harness:\n");
     test_bench_print_json();
