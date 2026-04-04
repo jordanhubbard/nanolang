@@ -541,6 +541,215 @@ void test_io_dir_create_remove(void) {
 }
 
 /* ============================================================================
+ * eval_io.c — additional uncovered functions
+ * ============================================================================ */
+
+void test_io_file_read_bytes(void) {
+    /* Write a temp file, read as bytes */
+    Value tmp_args[1] = { make_str("nanotest_rb_") };
+    Value tmp = builtin_mktemp(tmp_args);
+    ASSERT_EQ(tmp.type, VAL_STRING);
+    const char *path = tmp.as.string_val;
+
+    Value write_args[2] = { make_str(path), make_str("ABC") };
+    builtin_file_write(write_args);
+
+    Value read_args[1] = { make_str(path) };
+    Value r = builtin_file_read_bytes(read_args);
+    ASSERT_EQ(r.type, VAL_DYN_ARRAY);
+    ASSERT(r.as.dyn_array_val != NULL);
+    ASSERT(dyn_array_length(r.as.dyn_array_val) == 3);
+    ASSERT_EQ(dyn_array_get_int(r.as.dyn_array_val, 0), 'A');
+    ASSERT_EQ(dyn_array_get_int(r.as.dyn_array_val, 1), 'B');
+    ASSERT_EQ(dyn_array_get_int(r.as.dyn_array_val, 2), 'C');
+
+    /* Non-existent file → empty array */
+    Value no_args[1] = { make_str("/no_such_file_nanolang_xyz") };
+    Value r2 = builtin_file_read_bytes(no_args);
+    ASSERT_EQ(r2.type, VAL_DYN_ARRAY);
+    ASSERT(dyn_array_length(r2.as.dyn_array_val) == 0);
+
+    remove(path);
+}
+
+void test_io_bytes_string_conversions(void) {
+    /* bytes_from_string → string_from_bytes round-trip */
+    Value str_args[1] = { make_str("Hello") };
+    Value bytes = builtin_bytes_from_string(str_args);
+    ASSERT_EQ(bytes.type, VAL_DYN_ARRAY);
+    ASSERT(dyn_array_length(bytes.as.dyn_array_val) == 5);
+    ASSERT_EQ(dyn_array_get_int(bytes.as.dyn_array_val, 0), 'H');
+
+    /* string_from_bytes */
+    Value str2_args[1] = { bytes };
+    Value str2 = builtin_string_from_bytes(str2_args);
+    ASSERT_EQ(str2.type, VAL_STRING);
+    ASSERT(strcmp(str2.as.string_val, "Hello") == 0);
+
+    /* bytes_from_string with non-string → VAL_VOID */
+    Value bad_args[1] = { make_int(42) };
+    suppress_stderr();
+    Value bad = builtin_bytes_from_string(bad_args);
+    restore_stderr();
+    ASSERT_EQ(bad.type, VAL_VOID);
+
+    /* string_from_bytes with non-array → VAL_VOID */
+    Value bad2_args[1] = { make_int(42) };
+    suppress_stderr();
+    Value bad2 = builtin_string_from_bytes(bad2_args);
+    restore_stderr();
+    ASSERT_EQ(bad2.type, VAL_VOID);
+}
+
+void test_io_file_rename(void) {
+    /* Create a temp file, rename it */
+    Value tmp_args[1] = { make_str("nanotest_rn_") };
+    Value tmp = builtin_mktemp(tmp_args);
+    const char *src = tmp.as.string_val;
+
+    Value write_args[2] = { make_str(src), make_str("data") };
+    builtin_file_write(write_args);
+
+    char dst[256];
+    snprintf(dst, sizeof(dst), "%s_renamed", src);
+
+    Value rename_args[2] = { make_str(src), make_str(dst) };
+    Value r = builtin_file_rename(rename_args);
+    ASSERT_EQ(r.as.int_val, 0);  /* 0 = success */
+
+    Value exists_args[1] = { make_str(dst) };
+    ASSERT(builtin_file_exists(exists_args).as.bool_val == true);
+
+    remove(dst);
+}
+
+void test_io_chdir(void) {
+    /* Save current dir, chdir to /tmp, restore */
+    Value cwd_args[1] = { make_str("") };
+    Value orig_cwd = builtin_getcwd(cwd_args);
+    ASSERT_EQ(orig_cwd.type, VAL_STRING);
+
+    Value chdir_args[1] = { make_str("/tmp") };
+    Value r = builtin_chdir(chdir_args);
+    ASSERT(r.as.int_val == 0);
+
+    Value new_cwd = builtin_getcwd(cwd_args);
+    ASSERT(strstr(new_cwd.as.string_val, "tmp") != NULL);
+
+    /* Restore */
+    Value restore_args[1] = { make_str(orig_cwd.as.string_val) };
+    builtin_chdir(restore_args);
+}
+
+void test_io_walkdir(void) {
+    /* Walk /tmp - should return a non-empty array */
+    Value args[1] = { make_str("/tmp") };
+    Value r = builtin_fs_walkdir(args);
+    ASSERT_EQ(r.type, VAL_DYN_ARRAY);
+    ASSERT(r.as.dyn_array_val != NULL);
+    /* Just verify it doesn't crash - may have 0+ entries */
+}
+
+void test_io_system(void) {
+    /* Run a simple command that should succeed (exit 0) */
+    Value args[1] = { make_str("true") };
+    Value r = builtin_system(args);
+    ASSERT_EQ(r.type, VAL_INT);
+    ASSERT_EQ(r.as.int_val, 0);
+}
+
+void test_io_getenv_setenv_unsetenv(void) {
+    /* Set a test env var */
+    Value set_args[3] = { make_str("NANO_TEST_VAR_XYZ"), make_str("testval"), make_int(1) };
+    Value sr = builtin_setenv(set_args);
+    ASSERT_EQ(sr.as.int_val, 0);
+
+    /* Get it back */
+    Value get_args[1] = { make_str("NANO_TEST_VAR_XYZ") };
+    Value gr = builtin_getenv(get_args);
+    ASSERT_EQ(gr.type, VAL_STRING);
+    ASSERT(strcmp(gr.as.string_val, "testval") == 0);
+
+    /* Unset */
+    Value unset_args[1] = { make_str("NANO_TEST_VAR_XYZ") };
+    Value ur = builtin_unsetenv(unset_args);
+    ASSERT_EQ(ur.as.int_val, 0);
+
+    /* Now getenv should return empty string */
+    Value gr2 = builtin_getenv(get_args);
+    ASSERT(strcmp(gr2.as.string_val, "") == 0);
+}
+
+void test_io_process_run(void) {
+    /* Run echo and verify output */
+    Value args[1] = { make_str("echo hello") };
+    Value r = builtin_process_run(args);
+    ASSERT_EQ(r.type, VAL_DYN_ARRAY);
+    ASSERT(dyn_array_length(r.as.dyn_array_val) == 3);
+
+    /* r[0] = exit code string, r[1] = stdout, r[2] = stderr */
+    char *code_str = dyn_array_get_string(r.as.dyn_array_val, 0);
+    ASSERT(strcmp(code_str, "0") == 0);
+    char *stdout_str = dyn_array_get_string(r.as.dyn_array_val, 1);
+    ASSERT(strstr(stdout_str, "hello") != NULL);
+}
+
+void test_io_result_non_union(void) {
+    /* result_is_ok / result_is_err on non-union → false */
+    Value args[1] = { make_int(42) };
+    ASSERT(builtin_result_is_ok(args).as.bool_val == false);
+    ASSERT(builtin_result_is_err(args).as.bool_val == false);
+
+    /* result_unwrap_or on non-union → returns default */
+    Value or_args[2] = { make_int(42), make_str("default") };
+    Value r = builtin_result_unwrap_or(or_args);
+    ASSERT_EQ(r.type, VAL_STRING);
+    ASSERT(strcmp(r.as.string_val, "default") == 0);
+}
+
+void test_io_result_with_union(void) {
+    /* Create an Ok union value manually */
+    char *field_names[1] = { "value" };
+    Value field_values[1] = { make_int(99) };
+    Value ok_val = create_union("Result", 0, "Ok", field_names, field_values, 1);
+    ASSERT_EQ(ok_val.type, VAL_UNION);
+
+    /* result_is_ok → true, result_is_err → false */
+    Value args[1] = { ok_val };
+    ASSERT(builtin_result_is_ok(args).as.bool_val == true);
+    ASSERT(builtin_result_is_err(args).as.bool_val == false);
+
+    /* result_unwrap → returns the value */
+    Value unwrapped = builtin_result_unwrap(args);
+    ASSERT_EQ(unwrapped.as.int_val, 99);
+
+    /* result_unwrap_or with Ok → returns Ok value */
+    Value or_args[2] = { ok_val, make_int(0) };
+    Value or_result = builtin_result_unwrap_or(or_args);
+    ASSERT_EQ(or_result.as.int_val, 99);
+
+    /* Create an Err union value */
+    char *err_names[1] = { "error" };
+    Value err_values[1] = { make_str("oh no") };
+    Value err_val = create_union("Result", 1, "Err", err_names, err_values, 1);
+
+    /* result_is_err → true, result_is_ok → false */
+    Value err_args[1] = { err_val };
+    ASSERT(builtin_result_is_err(err_args).as.bool_val == true);
+    ASSERT(builtin_result_is_ok(err_args).as.bool_val == false);
+
+    /* result_unwrap_err → returns the error value */
+    Value err_unwrapped = builtin_result_unwrap_err(err_args);
+    ASSERT_EQ(err_unwrapped.type, VAL_STRING);
+    ASSERT(strcmp(err_unwrapped.as.string_val, "oh no") == 0);
+
+    /* result_unwrap_or on Err → returns default */
+    Value err_or_args[2] = { err_val, make_int(42) };
+    Value err_or = builtin_result_unwrap_or(err_or_args);
+    ASSERT_EQ(err_or.as.int_val, 42);
+}
+
+/* ============================================================================
  * eval_hashmap.c tests
  * ============================================================================ */
 
@@ -701,6 +910,16 @@ int main(void) {
     TEST(io_mktemp_dir);
     TEST(io_file_write_read_remove);
     TEST(io_dir_create_remove);
+    TEST(io_file_read_bytes);
+    TEST(io_bytes_string_conversions);
+    TEST(io_file_rename);
+    TEST(io_chdir);
+    TEST(io_walkdir);
+    TEST(io_system);
+    TEST(io_getenv_setenv_unsetenv);
+    TEST(io_process_run);
+    TEST(io_result_non_union);
+    TEST(io_result_with_union);
 
     printf("\n--- eval_hashmap.c ---\n");
     TEST(hm_hash_functions);
