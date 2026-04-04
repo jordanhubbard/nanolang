@@ -470,13 +470,20 @@ test-module-metadata: stage1
 	@./tests/test_module_metadata
 	@rm -f tests/test_module_metadata
 
+.PHONY: test-type-infer
+test-type-infer: stage1
+	@echo "Running type inference unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_type_infer tests/test_type_infer.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_type_infer
+	@rm -f tests/test_type_infer
+
 .PHONY: test-row-poly
 test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
