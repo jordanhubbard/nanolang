@@ -271,6 +271,77 @@ static void test_module_import_count(void) {
     PASS(test_name);
 }
 
+static void test_module_get_import_path(void) {
+    const char *test_name = "module_get_import_path: returns NULL for uncached";
+    /* Returns NULL for uncached/nonexistent modules */
+    const char *path = module_get_import_path("/tmp/nonexistent.nano", 0);
+    ASSERT(path == NULL, "expected NULL for uncached module");
+
+    const char *null_path = module_get_import_path(NULL, 0);
+    ASSERT(null_path == NULL, "expected NULL for NULL module path");
+
+    const char *neg_idx = module_get_import_path("/tmp/nonexistent.nano", -1);
+    ASSERT(neg_idx == NULL, "expected NULL for negative index");
+
+    PASS(test_name);
+}
+
+static void test_module_generate_forward_decls(void) {
+    const char *test_name = "module_generate_forward_declarations: NULL path returns NULL";
+    const char *result = module_generate_forward_declarations(NULL);
+    ASSERT(result == NULL, "expected NULL for NULL path");
+
+    /* Uncached module also returns NULL */
+    const char *uncached = module_generate_forward_declarations("/tmp/no_such_module.nano");
+    ASSERT(uncached == NULL, "expected NULL for uncached module");
+
+    /* Load a module and get forward declarations */
+    const char *path = write_test_module(
+        "pub fn add(a: int, b: int) -> int { return (+ a b) }\n"
+    );
+    if (path) {
+        clear_module_cache();
+        Environment *env = create_environment();
+        suppress_stderr();
+        ASTNode *mod = load_module(path, env);
+        restore_stderr();
+        if (mod) {
+            const char *decls = module_generate_forward_declarations(path);
+            /* May return NULL or a string -- just verify no crash */
+            if (decls) free((void *)decls);
+        }
+        free_environment(env);
+        clear_module_cache();
+    }
+
+    PASS(test_name);
+}
+
+static void test_module_list_operations(void) {
+    const char *test_name = "ModuleList: create/add/free";
+    ModuleList *modules = create_module_list();
+    ASSERT(modules != NULL, "create_module_list returned NULL");
+
+    /* Test adding paths to module list */
+    module_list_add(modules, "/tmp/a.nano");
+    module_list_add(modules, "/tmp/b.nano");
+    ASSERT(modules->count == 2, "expected 2 modules in list");
+    ASSERT(strcmp(modules->module_paths[0], "/tmp/a.nano") == 0, "first path mismatch");
+    ASSERT(strcmp(modules->module_paths[1], "/tmp/b.nano") == 0, "second path mismatch");
+
+    /* Adding duplicate should not increase count */
+    module_list_add(modules, "/tmp/a.nano");
+    ASSERT(modules->count == 2, "duplicate add should not increase count");
+
+    /* Free the list */
+    free_module_list(modules);
+
+    /* NULL-safe free */
+    free_module_list(NULL);
+
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -288,6 +359,9 @@ int main(void) {
     test_process_imports_with_import();
     test_load_module_invalid_nano();
     test_module_import_count();
+    test_module_get_import_path();
+    test_module_generate_forward_decls();
+    test_module_list_operations();
 
     printf("\n");
     if (g_fail == 0) {
