@@ -456,13 +456,27 @@ test-wasm-profiler: stage1
 	@./tests/test_wasm_profiler
 	@rm -f tests/test_wasm_profiler
 
+.PHONY: test-diagnostics
+test-diagnostics: stage1
+	@echo "Running diagnostics unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_diagnostics tests/test_diagnostics.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_diagnostics
+	@rm -f tests/test_diagnostics
+
+.PHONY: test-module-metadata
+test-module-metadata: stage1
+	@echo "Running module metadata unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_module_metadata tests/test_module_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_module_metadata
+	@rm -f tests/test_module_metadata
+
 .PHONY: test-row-poly
 test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -507,6 +521,19 @@ test-impl: test-units
 	@echo "Running self-hosted compiler tests..."
 	@if [ -f tests/selfhost/run_selfhost_tests.sh ]; then \
 		./tests/selfhost/run_selfhost_tests.sh; \
+	fi
+	@echo ""
+	@echo "Testing C backend (--target c)..."
+	@bash tests/test_c_backend.sh $(COMPILER_C)
+	@echo ""
+	@echo "Testing Markdown docgen (--doc-md)..."
+	@bash tests/test_docgen_md.sh $(COMPILER_C)
+	@echo ""
+	@if [ -x $(INTERPRETER) ]; then \
+		echo "Running property-based tests (interpreter)..."; \
+		bash tests/test_proptest.sh; \
+	else \
+		echo "Skipping proptest: $(INTERPRETER) not built (run 'make build' first)"; \
 	fi
 	@echo ""
 	@echo "✅ All tests completed!"
