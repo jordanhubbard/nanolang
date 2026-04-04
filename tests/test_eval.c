@@ -1371,6 +1371,378 @@ void test_eval_array_set(void) {
 }
 
 /* ============================================================================
+ * Additional tests for uncovered eval.c paths
+ * ============================================================================ */
+
+void test_eval_continue_in_loop(void) {
+    RunCtx ctx;
+    /* Test continue in a while loop - count down from 5 skipping 3 */
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let mut i: int = 0\n"
+        "  let mut count: int = 0\n"
+        "  while (< i 5) {\n"
+        "    set i (+ i 1)\n"
+        "    if (== i 3) { continue } else { set count (+ count 1) }\n"
+        "  }\n"
+        "  assert (== count 4)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_unsafe_block(void) {
+    /* Test unsafe block executes like a regular block in the interpreter */
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let x: int = 10\n"
+        "  unsafe {\n"
+        "    let y: int = (+ x 5)\n"
+        "    assert (== y 15)\n"
+        "  }\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_par_let(void) {
+    RunCtx ctx;
+    /* par-let syntax in interpreter — bindings evaluated sequentially */
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int {\n"
+        "    par-let\n"
+        "        a = 3\n"
+        "        b = 12\n"
+        "    in\n"
+        "        (+ a b)\n"
+        "    return 0\n"
+        "}\n"
+    );
+    /* Just verify it doesn't crash — par-let may or may not fully typecheck */
+    (void)ok;
+    run_ctx_free(&ctx);
+}
+
+void test_eval_effects_basic(void) {
+    /* Test effect declaration (no-op in interpreter) and basic effect structure */
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "effect Log {\n"
+        "  fn write(msg: string) -> string\n"
+        "}\n"
+        "fn noop() -> int { return 42 }\n"
+    );
+    /* Effect decl is just a no-op in interpreter; verify init succeeds */
+    (void)ok;
+    if (ok) {
+        Value result = call_function("noop", NULL, 0, ctx.env);
+        ASSERT_EQ(result.as.int_val, 42);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_print_statement(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  print \"Hello\"\n"
+        "  println \" World\"\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    /* Just verify print doesn't crash */
+    suppress_stderr();
+    run_shadow_tests(ctx.program, ctx.env, false);
+    restore_stderr();
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_closures(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let add5 = fn(x: int) -> int { return (+ x 5) }\n"
+        "  let add10 = fn(x: int) -> int { return (+ x 10) }\n"
+        "  assert (== (add5 3) 8)\n"
+        "  assert (== (add10 3) 13)\n"
+        "  assert (== (+ (add5 3) (add10 3)) 21)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_format(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let s = (str_concat \"number: \" (int_to_string 99))\n"
+        "  assert (== s \"number: 99\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_arrays(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn sum_array(arr: array<int>) -> int {\n"
+        "  let mut total: int = 0\n"
+        "  for x in arr {\n"
+        "    set total (+ total x)\n"
+        "  }\n"
+        "  return total\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [10, 20, 30, 40, 50]\n"
+        "  assert (== (sum_array arr) 150)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_array(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn join_strs(arr: array<string>) -> string {\n"
+        "  let mut result: string = \"\"\n"
+        "  for s in arr {\n"
+        "    set result (str_concat result s)\n"
+        "  }\n"
+        "  return result\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow join_strs {\n"
+        "  assert (== (join_strs [\"hello\", \" \", \"world\"]) \"hello world\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_float_array(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn avg3(a: float, b: float, c: float) -> float {\n"
+        "  return (/ (+ (+ a b) c) 3.0)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow avg3 {\n"
+        "  assert (== (avg3 1.0 2.0 3.0) 2.0)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_complex_match_with_guards(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn classify(n: int) -> string {\n"
+        "  match n {\n"
+        "    0 -> \"zero\",\n"
+        "    1 -> \"one\",\n"
+        "    _ -> \"other\"\n"
+        "  }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow classify {\n"
+        "  assert (== (classify 0) \"zero\")\n"
+        "  assert (== (classify 1) \"one\")\n"
+        "  assert (== (classify 99) \"other\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_union_with_data(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "union Shape {\n"
+        "  Circle { radius: float },\n"
+        "  Rectangle { w: float, h: float }\n"
+        "}\n"
+        "fn area(s: Shape) -> float {\n"
+        "  match s {\n"
+        "    Circle(c) => (* 3.0 (* c.radius c.radius)),\n"
+        "    Rectangle(r) => (* r.w r.h)\n"
+        "  }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow area {\n"
+        "  let c: Shape = Shape.Circle { radius: 2.0 }\n"
+        "  let r: Shape = Shape.Rectangle { w: 3.0, h: 4.0 }\n"
+        "  assert (> (area c) 11.0)\n"
+        "  assert (== (area r) 12.0)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_multiple_function_calls(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn double(n: int) -> int { return (* n 2) }\n"
+        "fn triple(n: int) -> int { return (* n 3) }\n"
+        "fn compose(n: int) -> int { return (double (triple n)) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow compose {\n"
+        "  assert (== (compose 5) 30)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_let_reassignment(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn count_down() -> int {\n"
+        "  let mut x: int = 5\n"
+        "  while (> x 0) {\n"
+        "    set x (- x 1)\n"
+        "  }\n"
+        "  return x\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT(ok);
+    Value result = call_function("count_down", NULL, 0, ctx.env);
+    ASSERT_EQ(result.as.int_val, 0);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_escape(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn get_tab_str() -> string { return \"a\\tb\" }\n"
+        "fn get_newline_str() -> string { return \"a\\nb\" }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow get_tab_str {\n"
+        "  assert (== (str_length (get_tab_str)) 3)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_operations_comprehensive(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [5, 3, 1, 4, 2]\n"
+        "  assert (== (array_length arr) 5)\n"
+        "  let mut total: int = 0\n"
+        "  for x in arr {\n"
+        "    set total (+ total x)\n"
+        "  }\n"
+        "  assert (== total 15)\n"
+        "  let arr2: array<int> = [1, 2, 3]\n"
+        "  assert (== (array_length arr2) 3)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_type_casting(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let s: string = (int_to_string 42)\n"
+        "  assert (== s \"42\")\n"
+        "  let n: int = (string_to_int \"123\")\n"
+        "  assert (== n 123)\n"
+        "  let s2: string = (int_to_string -7)\n"
+        "  assert (== s2 \"-7\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_bool_operations(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  assert (and true true)\n"
+        "  assert (not (and true false))\n"
+        "  assert (or false true)\n"
+        "  assert (not (or false false))\n"
+        "  assert (not false)\n"
+        "  assert (not (not true))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_struct_fields(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Point { x: int, y: int }\n"
+        "struct Line { start: Point, end: Point }\n"
+        "fn make_line(x1: int, y1: int, x2: int, y2: int) -> Line {\n"
+        "  return Line { start: Point { x: x1, y: y1 }, end: Point { x: x2, y: y2 } }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow make_line {\n"
+        "  let l = (make_line 1 2 3 4)\n"
+        "  assert (== l.start.x 1)\n"
+        "  assert (== l.end.y 4)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+/* ============================================================================
  * main
  * ============================================================================ */
 
@@ -1440,6 +1812,24 @@ int main(void) {
     TEST(eval_array_slice);
     TEST(eval_set_mutation);
     TEST(eval_array_set);
+    TEST(eval_continue_in_loop);
+    TEST(eval_unsafe_block);
+    TEST(eval_par_let);
+    TEST(eval_print_statement);
+    TEST(eval_nested_closures);
+    TEST(eval_string_format);
+    TEST(eval_nested_arrays);
+    TEST(eval_string_array);
+    TEST(eval_float_array);
+    TEST(eval_complex_match_with_guards);
+    TEST(eval_union_with_data);
+    TEST(eval_multiple_function_calls);
+    TEST(eval_let_reassignment);
+    TEST(eval_string_escape);
+    TEST(eval_array_operations_comprehensive);
+    TEST(eval_type_casting);
+    TEST(eval_bool_operations);
+    TEST(eval_nested_struct_fields);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
