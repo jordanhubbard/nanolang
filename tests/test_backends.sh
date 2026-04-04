@@ -267,6 +267,49 @@ fi
 
 echo ""
 
+# ── Benchmark mode (--bench) ──────────────────────────────────────────────────
+echo "  Testing benchmark mode (--bench)..."
+
+cat > "$TMP/bench.nano" << 'NANO'
+fn bench_add() -> int {
+    return (+ 1 2)
+}
+
+fn bench_mul() -> int {
+    return (* 6 7)
+}
+
+fn main() -> int { return 0 }
+NANO
+
+BENCH_OUT="$TMP/bench_out"
+if "$COMPILER" "$TMP/bench.nano" --bench -o "$BENCH_OUT" 2>/dev/null; then
+    pass "bench: --bench mode ran without error"
+else
+    fail "bench: --bench mode returned non-zero"
+fi
+
+# Test --bench-n for fixed iteration count
+if "$COMPILER" "$TMP/bench.nano" --bench --bench-n 100 -o "$BENCH_OUT" 2>/dev/null; then
+    pass "bench: --bench-n fixed iteration count works"
+else
+    fail "bench: --bench-n returned non-zero"
+fi
+
+# Test --bench-json output
+BENCH_JSON="$TMP/bench_results.json"
+if "$COMPILER" "$TMP/bench.nano" --bench --bench-n 10 --bench-json "$BENCH_JSON" -o "$BENCH_OUT" 2>/dev/null; then
+    if [ -f "$BENCH_JSON" ] && [ -s "$BENCH_JSON" ]; then
+        pass "bench: --bench-json writes JSON results file"
+    else
+        fail "bench: --bench-json did not produce output file"
+    fi
+else
+    fail "bench: --bench-json returned non-zero"
+fi
+
+echo ""
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 TOTAL=$((PASS + FAIL))
 echo "Backend tests: $PASS/$TOTAL passed"
