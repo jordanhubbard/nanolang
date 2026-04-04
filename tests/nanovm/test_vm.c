@@ -2504,6 +2504,260 @@ static void test_call_module_chain(void) {
 }
 
 /* ========================================================================
+ * Additional coverage tests: vm_error_string, float/mixed arith,
+ * OP_STR_CONCAT, and type-error paths
+ * ======================================================================== */
+
+static void test_vm_error_string(void) {
+    /* Exercise all switch cases in vm_error_string (lines 29-44 in vm.c) */
+    ASSERT(vm_error_string(VM_OK) != NULL, "VM_OK string");
+    ASSERT(vm_error_string(VM_ERR_STACK_OVERFLOW) != NULL, "STACK_OVERFLOW string");
+    ASSERT(vm_error_string(VM_ERR_STACK_UNDERFLOW) != NULL, "STACK_UNDERFLOW string");
+    ASSERT(vm_error_string(VM_ERR_CALL_DEPTH) != NULL, "CALL_DEPTH string");
+    ASSERT(vm_error_string(VM_ERR_INVALID_OPCODE) != NULL, "INVALID_OPCODE string");
+    ASSERT(vm_error_string(VM_ERR_TYPE_ERROR) != NULL, "TYPE_ERROR string");
+    ASSERT(vm_error_string(VM_ERR_OUT_OF_BOUNDS) != NULL, "OUT_OF_BOUNDS string");
+    ASSERT(vm_error_string(VM_ERR_DIV_ZERO) != NULL, "DIV_ZERO string");
+    ASSERT(vm_error_string(VM_ERR_ASSERT_FAILED) != NULL, "ASSERT_FAILED string");
+    ASSERT(vm_error_string(VM_ERR_UNDEFINED_GLOBAL) != NULL, "UNDEFINED_GLOBAL string");
+    ASSERT(vm_error_string(VM_ERR_UNDEFINED_FUNCTION) != NULL, "UNDEFINED_FUNCTION string");
+    ASSERT(vm_error_string(VM_ERR_NOT_IMPLEMENTED) != NULL, "NOT_IMPLEMENTED string");
+    ASSERT(vm_error_string(VM_ERR_MEMORY) != NULL, "MEMORY string");
+    ASSERT(vm_error_string(VM_ERR_DECODE) != NULL, "DECODE string");
+    ASSERT(vm_error_string((VmResult)9999) != NULL, "unknown error string");
+}
+
+/* OP_ADD float+int (a=float first on stack, b=int): hits line 355 in vm.c */
+static void test_add_float_int(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 3.0);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "add_float_int: VM_OK");
+    ASSERT_EQ_INT(result.tag, TAG_FLOAT, "add_float_int: tag float");
+    ASSERT_EQ_F64(result.as.f64, 5.0, "add_float_int: 3.0+2==5.0");
+    nvm_module_free(mod);
+}
+
+/* OP_SUB float-float */
+static void test_sub_floats(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 5.0);
+    off += emit(code + off, OP_PUSH_F64, 2.0);
+    off += emit(code + off, OP_SUB);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "sub_floats: VM_OK");
+    ASSERT_EQ_F64(result.as.f64, 3.0, "sub_floats: 5.0-2.0==3.0");
+    nvm_module_free(mod);
+}
+
+/* OP_SUB float-int (a=float, b=int): hits line 451 */
+static void test_sub_float_int(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 7.5);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_SUB);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "sub_float_int: VM_OK");
+    ASSERT_EQ_F64(result.as.f64, 5.5, "sub_float_int: 7.5-2==5.5");
+    nvm_module_free(mod);
+}
+
+/* OP_SUB int-float (a=int, b=float): hits line 453 */
+static void test_sub_int_float(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_F64, 2.5);
+    off += emit(code + off, OP_SUB);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "sub_int_float: VM_OK");
+    ASSERT_EQ_F64(result.as.f64, 7.5, "sub_int_float: 10-2.5==7.5");
+    nvm_module_free(mod);
+}
+
+/* OP_MUL float*float */
+static void test_mul_floats(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 3.0);
+    off += emit(code + off, OP_PUSH_F64, 4.0);
+    off += emit(code + off, OP_MUL);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "mul_floats: VM_OK");
+    ASSERT_EQ_F64(result.as.f64, 12.0, "mul_floats: 3.0*4.0==12.0");
+    nvm_module_free(mod);
+}
+
+/* OP_MUL float*int (a=float, b=int): hits line 521 */
+static void test_mul_float_int(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_F64, 2.5);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)4);
+    off += emit(code + off, OP_MUL);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "mul_float_int: VM_OK");
+    ASSERT_EQ_F64(result.as.f64, 10.0, "mul_float_int: 2.5*4==10.0");
+    nvm_module_free(mod);
+}
+
+/* OP_SUB with two int arrays (element-wise): covers lines 454-479 */
+static void test_sub_array_array(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    /* [10, 20, 30] - [1, 2, 3] = [9, 18, 27] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)30);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_SUB);
+    off += emit(code + off, OP_ARR_LEN);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "sub_array_array: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 3, "sub_array_array: length 3");
+    nvm_module_free(mod);
+}
+
+/* OP_MUL with two int arrays (element-wise): covers lines 524-549 */
+static void test_mul_array_array(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    /* [2, 3, 4] * [5, 6, 7] = [10, 18, 28] */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)4);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)5);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)6);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)3);
+    off += emit(code + off, OP_MUL);
+    off += emit(code + off, OP_ARR_LEN);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "mul_array_array: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 3, "mul_array_array: length 3");
+    nvm_module_free(mod);
+}
+
+/* OP_STR_CONCAT (opcode 0x41): covers lines 1008-1019 */
+static void test_str_concat_op(void) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t s1_idx = nvm_add_string(mod, "hello ", 6);
+    uint32_t s2_idx = nvm_add_string(mod, "world", 5);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, s1_idx);
+    off += emit(code + off, OP_PUSH_STR, s2_idx);
+    off += emit(code + off, OP_STR_CONCAT);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "str_concat_op: VM_OK");
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.tag, TAG_STRING, "str_concat_op: tag string");
+    ASSERT_EQ_STR(vmstring_cstr(result.as.string), "hello world", "str_concat_op: value");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* OP_STR_CONCAT with non-string args → type error path */
+static void test_str_concat_type_error(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_STR_CONCAT);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "str_concat_type_error: type error");
+    nvm_module_free(mod);
+}
+
+/* ARR_PUSH on a non-array value → type error path (lines 1113-1115) */
+static void test_arr_push_type_error(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);  /* not an array */
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_ARR_PUSH);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "arr_push_type_error: type error");
+    nvm_module_free(mod);
+}
+
+/* STR_LEN on a non-string → type error path (lines 998-999) */
+static void test_str_len_type_error(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);  /* not a string */
+    off += emit(code + off, OP_STR_LEN);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "str_len_type_error: type error");
+    nvm_module_free(mod);
+}
+
+/* STRUCT_GET on a non-struct → type error path (lines 1235-1236) */
+static void test_struct_get_type_error(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)99); /* not a struct */
+    off += emit(code + off, OP_STRUCT_GET, (uint16_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_ERR_TYPE_ERROR, "struct_get_type_error: type error");
+    nvm_module_free(mod);
+}
+
+/* ========================================================================
  * Main
  * ======================================================================== */
 
@@ -2658,6 +2912,28 @@ int main(void) {
     RUN_TEST(test_add_strings);
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
+
+    printf("\n[vm_error_string]\n");
+    RUN_TEST(test_vm_error_string);
+
+    printf("\n[Float/mixed arithmetic]\n");
+    RUN_TEST(test_add_float_int);
+    RUN_TEST(test_sub_floats);
+    RUN_TEST(test_sub_float_int);
+    RUN_TEST(test_sub_int_float);
+    RUN_TEST(test_mul_floats);
+    RUN_TEST(test_mul_float_int);
+    RUN_TEST(test_sub_array_array);
+    RUN_TEST(test_mul_array_array);
+
+    printf("\n[OP_STR_CONCAT]\n");
+    RUN_TEST(test_str_concat_op);
+    RUN_TEST(test_str_concat_type_error);
+
+    printf("\n[Type error paths]\n");
+    RUN_TEST(test_arr_push_type_error);
+    RUN_TEST(test_str_len_type_error);
+    RUN_TEST(test_struct_get_type_error);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);
