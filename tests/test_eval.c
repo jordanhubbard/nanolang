@@ -571,6 +571,271 @@ void test_eval_negative_zero(void) {
 }
 
 /* ============================================================================
+ * Additional tests for broader coverage
+ * ============================================================================ */
+
+void test_eval_struct_creation_and_access(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Point {\n"
+        "    x: int,\n"
+        "    y: int\n"
+        "}\n"
+        "fn make_point(x: int, y: int) -> Point {\n"
+        "    return Point { x: x, y: y }\n"
+        "}\n"
+        "fn get_x(p: Point) -> int { return p.x }\n"
+        "fn get_y(p: Point) -> int { return p.y }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow make_point {\n"
+        "    assert (== ((make_point 3 4).x) 3)\n"
+        "    assert (== ((make_point 3 4).y) 4)\n"
+        "}\n"
+        "shadow get_x { assert (== (get_x (make_point 7 8)) 7) }\n"
+        "shadow get_y { assert (== (get_y (make_point 7 8)) 8) }\n"
+    );
+    ASSERT(ok);
+
+    /* make_point should set fields correctly */
+    Value three = {.type = VAL_INT, .as.int_val = 3};
+    Value four = {.type = VAL_INT, .as.int_val = 4};
+    Value args[2] = {three, four};
+    Value pt = call_function("make_point", args, 2, ctx.env);
+    ASSERT(pt.type == VAL_STRUCT);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_struct_pythagorean(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Point {\n"
+        "    x: int,\n"
+        "    y: int\n"
+        "}\n"
+        "fn make_point(x: int, y: int) -> Point {\n"
+        "    return Point { x: x, y: y }\n"
+        "}\n"
+        "fn distance_sq(p: Point) -> int {\n"
+        "    return (+ (* p.x p.x) (* p.y p.y))\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow make_point { assert (== ((make_point 3 4).x) 3) }\n"
+        "shadow distance_sq { assert (== (distance_sq (make_point 3 4)) 25) }\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_match_expression(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn classify(x: int) -> string {\n"
+        "    match x {\n"
+        "        0 -> \"zero\",\n"
+        "        1 -> \"one\",\n"
+        "        _ -> \"other\"\n"
+        "    }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow classify {\n"
+        "    assert (== (classify 0) \"zero\")\n"
+        "    assert (== (classify 1) \"one\")\n"
+        "    assert (== (classify 99) \"other\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value zero = {.type = VAL_INT, .as.int_val = 0};
+    Value r = call_function("classify", &zero, 1, ctx.env);
+    ASSERT(r.type == VAL_STRING);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_list_iteration(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn sum_list(lst: List<int>) -> int {\n"
+        "    let mut total: int = 0\n"
+        "    for x in lst {\n"
+        "        set total (+ total x)\n"
+        "    }\n"
+        "    return total\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow sum_list { assert (== (sum_list [1, 2, 3, 4, 5]) 15) }\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_builtins(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn first_char(s: string) -> string { return (str_substring s 0 1) }\n"
+        "fn char_code(s: string) -> int { return (char_at s 0) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow first_char { assert (== (first_char \"hello\") \"h\") }\n"
+        "shadow char_code { assert (== (char_code \"A\") 65) }\n"
+    );
+    ASSERT(ok);
+
+    Value hello = {.type = VAL_STRING, .as.string_val = "hello"};
+    Value r = call_function("first_char", &hello, 1, ctx.env);
+    ASSERT(r.type == VAL_STRING);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_higher_order_returns(void) {
+    /* Test functions that call other functions indirectly */
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn apply_twice(x: int) -> int {\n"
+        "    let r1: int = (* x 2)\n"
+        "    let r2: int = (* r1 2)\n"
+        "    return r2\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow apply_twice {\n"
+        "    assert (== (apply_twice 3) 12)\n"
+        "    assert (== (apply_twice 5) 20)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value v = {.type = VAL_INT, .as.int_val = 3};
+    Value r = call_function("apply_twice", &v, 1, ctx.env);
+    ASSERT_EQ(r.as.int_val, 12);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_mutual_recursion(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn is_even(n: int) -> bool {\n"
+        "    if (== n 0) { return true } else { return (is_odd (- n 1)) }\n"
+        "}\n"
+        "fn is_odd(n: int) -> bool {\n"
+        "    if (== n 0) { return false } else { return (is_even (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow is_even {\n"
+        "    assert (is_even 4)\n"
+        "    assert (not (is_even 3))\n"
+        "}\n"
+        "shadow is_odd {\n"
+        "    assert (is_odd 3)\n"
+        "    assert (not (is_odd 4))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value four = {.type = VAL_INT, .as.int_val = 4};
+    Value r = call_function("is_even", &four, 1, ctx.env);
+    ASSERT(r.type == VAL_BOOL);
+    ASSERT(r.as.bool_val == true);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_match(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn sign(x: int) -> string {\n"
+        "    if (> x 0) {\n"
+        "        return \"positive\"\n"
+        "    } else {\n"
+        "        if (< x 0) {\n"
+        "            return \"negative\"\n"
+        "        } else {\n"
+        "            return \"zero\"\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow sign {\n"
+        "    assert (== (sign 5) \"positive\")\n"
+        "    assert (== (sign -3) \"negative\")\n"
+        "    assert (== (sign 0) \"zero\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value five = {.type = VAL_INT, .as.int_val = 5};
+    Value r = call_function("sign", &five, 1, ctx.env);
+    ASSERT(r.type == VAL_STRING);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_contains(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn has_prefix(s: string, prefix: string) -> bool {\n"
+        "    return (== (str_substring s 0 (str_length prefix)) prefix)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow has_prefix {\n"
+        "    assert (has_prefix \"hello world\" \"hello\")\n"
+        "    assert (not (has_prefix \"hello world\" \"world\"))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_multiple_lets(void) {
+    /* Multiple let bindings, some mutable, some immutable */
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn compute(n: int) -> int {\n"
+        "    let a: int = (* n 2)\n"
+        "    let b: int = (* a 3)\n"
+        "    let c: int = (+ a b)\n"
+        "    let mut acc: int = 0\n"
+        "    set acc (+ acc c)\n"
+        "    set acc (+ acc 1)\n"
+        "    return acc\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow compute {\n"
+        "    assert (== (compute 2) 17)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value two = {.type = VAL_INT, .as.int_val = 2};
+    Value r = call_function("compute", &two, 1, ctx.env);
+    /* n=2: a=4, b=12, c=16, acc=0+16+1=17 */
+    ASSERT_EQ(r.as.int_val, 17);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_not_operator(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn negate_bool(b: bool) -> bool { return (not b) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow negate_bool {\n"
+        "    assert (negate_bool false)\n"
+        "    assert (not (negate_bool true))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+
+    Value t = {.type = VAL_BOOL, .as.bool_val = true};
+    Value r = call_function("negate_bool", &t, 1, ctx.env);
+    ASSERT(r.type == VAL_BOOL);
+    ASSERT(r.as.bool_val == false);
+
+    run_ctx_free(&ctx);
+}
+
+/* ============================================================================
  * main
  * ============================================================================ */
 
@@ -601,6 +866,17 @@ int main(void) {
     TEST(eval_abs);
     TEST(eval_program_with_top_level_let);
     TEST(eval_negative_zero);
+    TEST(eval_struct_creation_and_access);
+    TEST(eval_struct_pythagorean);
+    TEST(eval_match_expression);
+    TEST(eval_list_iteration);
+    TEST(eval_string_builtins);
+    TEST(eval_higher_order_returns);
+    TEST(eval_mutual_recursion);
+    TEST(eval_nested_match);
+    TEST(eval_string_contains);
+    TEST(eval_multiple_lets);
+    TEST(eval_not_operator);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
