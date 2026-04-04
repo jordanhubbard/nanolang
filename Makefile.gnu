@@ -364,6 +364,24 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@./tests/test_gc_struct
 	@rm -f tests/test_gc_struct
 
+.PHONY: test-vm-ffi
+test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running vm_ffi unit tests..."
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vm_ffi \
+		tests/nanovm/test_vm_ffi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_vm_ffi
+	@rm -f tests/nanovm/test_vm_ffi
+
+.PHONY: test-wrapper-gen
+test-wrapper-gen: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running wrapper_gen unit tests..."
+	$(CC) $(CFLAGS) -I$(NANOVIRT_DIR) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovirt/test_wrapper_gen \
+		tests/nanovirt/test_wrapper_gen.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovirt/test_wrapper_gen
+	@rm -f tests/nanovirt/test_wrapper_gen
+
 # ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
 VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
@@ -688,7 +706,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
