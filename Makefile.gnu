@@ -629,6 +629,15 @@ test-channel: stage1
 	@./tests/test_channel
 	@rm -f tests/test_channel
 
+.PHONY: test-vm-builtins
+test-vm-builtins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running vm_builtins unit tests..."
+	$(CC) $(CFLAGS) -o tests/nanovm/test_vm_builtins \
+		tests/nanovm/test_vm_builtins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_vm_builtins
+	@rm -f tests/nanovm/test_vm_builtins
+
 .PHONY: test-proptest-unit
 test-proptest-unit: stage1
 	@echo "Running proptest unit tests..."
@@ -637,7 +646,7 @@ test-proptest-unit: stage1
 	@rm -f tests/test_proptest_unit
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
