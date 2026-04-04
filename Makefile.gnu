@@ -536,6 +536,9 @@ test-impl: test-units
 	@echo "Testing Markdown docgen (--doc-md)..."
 	@bash tests/test_docgen_md.sh $(COMPILER_C)
 	@echo ""
+	@echo "Testing alternative backends (riscv, ptx, reflect)..."
+	@bash tests/test_backends.sh $(COMPILER_C)
+	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
 		bash tests/test_proptest.sh; \
