@@ -10,6 +10,7 @@
  */
 
 #include "../src/nanolang.h"
+#include "../src/builtins_registry.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -815,6 +816,66 @@ void test_eval_multiple_lets(void) {
     run_ctx_free(&ctx);
 }
 
+void test_builtins_registry_lookup(void) {
+    /* Test the builtins registry directly */
+    ASSERT(builtin_is_known("print"));
+    ASSERT(builtin_is_known("str_length"));
+    ASSERT(builtin_is_known("map_new"));
+    ASSERT(!builtin_is_known("nonexistent_function_xyz"));
+
+    const BuiltinEntry *e = builtin_find("str_length");
+    ASSERT(e != NULL);
+
+    const char *c_name = builtin_c_name("str_length");
+    ASSERT(c_name != NULL);
+}
+
+void test_eval_hashmap_operations(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn test_map() -> int {\n"
+        "    let mut m: HashMap<string, int> = (map_new)\n"
+        "    (map_put m \"a\" 10)\n"
+        "    (map_put m \"b\" 20)\n"
+        "    let va: int = (map_get m \"a\")\n"
+        "    let vb: int = (map_get m \"b\")\n"
+        "    let sz: int = (map_size m)\n"
+        "    return (+ va vb)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow test_map { assert (== (test_map) 30) }\n"
+    );
+    ASSERT(ok);
+
+    Value r = call_function("test_map", NULL, 0, ctx.env);
+    ASSERT_EQ(r.as.int_val, 30);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_hashmap_has_and_remove(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn test_has() -> bool {\n"
+        "    let mut m: HashMap<string, int> = (map_new)\n"
+        "    (map_put m \"x\" 99)\n"
+        "    let before: bool = (map_has m \"x\")\n"
+        "    (map_remove m \"x\")\n"
+        "    let after: bool = (map_has m \"x\")\n"
+        "    return (and before (not after))\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow test_has { assert (test_has) }\n"
+    );
+    ASSERT(ok);
+
+    Value r = call_function("test_has", NULL, 0, ctx.env);
+    ASSERT(r.type == VAL_BOOL);
+    ASSERT(r.as.bool_val == true);
+
+    run_ctx_free(&ctx);
+}
+
 void test_eval_union_types(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -937,6 +998,9 @@ int main(void) {
     TEST(eval_string_contains);
     TEST(eval_multiple_lets);
     TEST(eval_not_operator);
+    TEST(builtins_registry_lookup);
+    TEST(eval_hashmap_operations);
+    TEST(eval_hashmap_has_and_remove);
     TEST(eval_union_types);
     TEST(eval_tuple_types);
 
