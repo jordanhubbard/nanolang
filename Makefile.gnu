@@ -477,13 +477,20 @@ test-type-infer: stage1
 	@./tests/test_type_infer
 	@rm -f tests/test_type_infer
 
+.PHONY: test-opt-passes
+test-opt-passes: stage1
+	@echo "Running optimization pass unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_opt_passes tests/test_opt_passes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_opt_passes
+	@rm -f tests/test_opt_passes
+
 .PHONY: test-row-poly
 test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

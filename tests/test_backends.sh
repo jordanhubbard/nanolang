@@ -174,6 +174,29 @@ fi
 
 echo ""
 
+# ── DWARF debug info (riscv + --debug) ───────────────────────────────────────
+echo "  Testing DWARF debug info (--target riscv --debug)..."
+
+DWARF_OUT="$TMP/simple_debug.riscv"
+if "$COMPILER" "$TMP/simple.nano" --target riscv --debug -o "$DWARF_OUT" 2>/dev/null; then
+    if [ -f "$DWARF_OUT" ] && [ -s "$DWARF_OUT" ]; then
+        pass "dwarf: output file created and non-empty"
+    else
+        fail "dwarf: output file missing or empty"
+    fi
+
+    # DWARF sections should contain .debug or DW_ markers
+    if grep -qE "\.debug|DW_|debug_info|debug_abbrev" "$DWARF_OUT" 2>/dev/null; then
+        pass "dwarf: output contains DWARF debug sections"
+    else
+        fail "dwarf: output missing DWARF debug sections"
+    fi
+else
+    fail "dwarf: compiler returned non-zero for --target riscv --debug"
+fi
+
+echo ""
+
 # ── Reflection / --reflect ───────────────────────────────────────────────────
 echo "  Testing reflection API (--reflect)..."
 
