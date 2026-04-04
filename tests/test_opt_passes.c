@@ -249,6 +249,82 @@ void test_par_let_multiple_functions(void) {
     free_ast(prog);
 }
 
+void test_par_let_actual_par_let_node(void) {
+    /* Use actual par-let syntax to exercise AST_PAR_LET processing */
+    ASTNode *prog = parse_nano(
+        "fn main() -> int {\n"
+        "    par-let\n"
+        "        x = 10\n"
+        "        y = 20\n"
+        "    in\n"
+        "        (+ x y)\n"
+        "    return 0\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = par_let_pass(prog);
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
+void test_par_let_dependent_bindings(void) {
+    /* Dependent bindings: y references x — pass should detect dependency */
+    ASTNode *prog = parse_nano(
+        "fn main() -> int {\n"
+        "    par-let\n"
+        "        x = 5\n"
+        "        y = (+ x 1)\n"
+        "    in\n"
+        "        y\n"
+        "    return 0\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    suppress_stderr();
+    int result = par_let_pass(prog);
+    restore_stderr();
+    ASSERT(result >= 0); /* may return warnings but should not crash */
+    free_ast(prog);
+}
+
+void test_par_let_single_binding(void) {
+    /* Single binding par-let — pass should warn about using regular let */
+    ASTNode *prog = parse_nano(
+        "fn main() -> int {\n"
+        "    par-let\n"
+        "        x = 42\n"
+        "    in\n"
+        "        x\n"
+        "    return 0\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    suppress_stderr();
+    int result = par_let_pass(prog);
+    restore_stderr();
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
+void test_par_let_three_bindings(void) {
+    /* Three independent bindings */
+    ASTNode *prog = parse_nano(
+        "fn main() -> int {\n"
+        "    par-let\n"
+        "        a = 6\n"
+        "        b = 7\n"
+        "        c = 8\n"
+        "    in\n"
+        "        (+ a (+ b c))\n"
+        "    return 0\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = par_let_pass(prog);
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
 /* ============================================================================
  * pgo_pass tests — exercise the PGO profile API
  * ============================================================================ */
@@ -439,6 +515,10 @@ int main(void) {
     TEST(par_let_simple_function);
     TEST(par_let_with_let_bindings);
     TEST(par_let_multiple_functions);
+    TEST(par_let_actual_par_let_node);
+    TEST(par_let_dependent_bindings);
+    TEST(par_let_single_binding);
+    TEST(par_let_three_bindings);
 
     printf("\n=== PGO Pass Tests ===\n");
     TEST(pgo_load_null_path);
