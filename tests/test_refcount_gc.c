@@ -165,7 +165,7 @@ TEST(gc_suspect_added_on_partial_release) {
     nl_rc_release(uv);             /* uv RC drops: 2→1, added to cycle buf */
     uint32_t cb_before = _nl_cycle_count;
     nl_rc_release(cl);             /* cl RC drops: 2→1, added to cycle buf */
-    ASSERT(_nl_cycle_count > cb_before || _nl_cycle_count >= 0);
+    ASSERT(_nl_cycle_count >= cb_before); /* count should not decrease after a release */
     nl_rc_release(cl);             /* final release */
     nl_rc_release(uv);
 }
