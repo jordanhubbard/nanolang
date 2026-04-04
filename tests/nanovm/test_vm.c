@@ -2267,7 +2267,7 @@ static void test_add_strings(void) {
 
 static void test_add_array_array(void) {
     /* OP_ADD with two int arrays → element-wise add */
-    uint8_t code[64];
+    uint8_t code[128]; /* Need >64 bytes: 6×PUSH_I64(9) + 2×ARR_LITERAL(4) + ops */
     uint32_t off = 0;
     /* [1, 2, 3] + [10, 20, 30] = [11, 22, 33] */
     off += emit(code + off, OP_PUSH_I64, (int64_t)1);
