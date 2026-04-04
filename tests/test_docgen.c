@@ -12,6 +12,7 @@
 
 #include "nanolang.h"
 #include "docgen.h"
+#include "docgen_md.h"
 
 /* cli.c requires these globals */
 int g_argc = 0;
@@ -240,6 +241,95 @@ static void test_doc_comment_association(void) {
     free_tokens(tokens, token_count);
 }
 
+/* ── Markdown doc generator tests ────────────────────────────────────────── */
+
+static void test_md_basic_generation(void) {
+    int token_count = 0;
+    Token *tokens = tokenize(NANO_SRC, &token_count);
+    ASSERT(tokens != NULL, "tokenize should succeed");
+    if (!tokens) return;
+
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parse_program should succeed");
+    if (!program) { free_tokens(tokens, token_count); return; }
+
+    const char *out_path = "/tmp/test_docgen_out.md";
+    bool ok = emit_doc_md(out_path, program, NANO_SRC, "testmod");
+    ASSERT(ok, "emit_doc_md should return true");
+
+    char *md = read_file(out_path);
+    ASSERT(md != NULL, "output MD file should be readable");
+    if (md) {
+        ASSERT(strstr(md, "testmod") != NULL, "MD should contain module name");
+        ASSERT(strstr(md, "add") != NULL, "MD should contain exported function 'add'");
+        ASSERT(strstr(md, "multiply") != NULL, "MD should contain exported function 'multiply'");
+        ASSERT(strstr(md, "Point") != NULL, "MD should contain struct 'Point'");
+        ASSERT(strstr(md, "Color") != NULL, "MD should contain enum 'Color'");
+        free(md);
+    }
+
+    free_ast(program);
+    free_tokens(tokens, token_count);
+}
+
+static void test_md_no_exported_items(void) {
+    const char *src = "fn private_fn(x: int) -> int { return x }\n";
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    ASSERT(tokens != NULL, "tokenize should succeed");
+    if (!tokens) return;
+
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parse_program should succeed");
+    if (!program) { free_tokens(tokens, token_count); return; }
+
+    const char *out_path = "/tmp/test_docgen_empty.md";
+    bool ok = emit_doc_md(out_path, program, src, "private_mod");
+    ASSERT(ok, "emit_doc_md should succeed even with no exported items");
+
+    char *md = read_file(out_path);
+    ASSERT(md != NULL, "output MD should be readable");
+    if (md) {
+        ASSERT(strstr(md, "private_fn") == NULL, "Private function should not appear");
+        free(md);
+    }
+
+    free_ast(program);
+    free_tokens(tokens, token_count);
+}
+
+static void test_md_doc_comment(void) {
+    const char *src =
+        "/// Compute the square of n.\n"
+        "pub fn square(n: int) -> int {\n"
+        "  return (* n n)\n"
+        "}\n";
+
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    ASSERT(tokens != NULL, "tokenize should succeed");
+    if (!tokens) return;
+
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parse_program should succeed");
+    if (!program) { free_tokens(tokens, token_count); return; }
+
+    const char *out_path = "/tmp/test_docgen_comment.md";
+    bool ok = emit_doc_md(out_path, program, src, "sq");
+    ASSERT(ok, "emit_doc_md should succeed");
+
+    char *md = read_file(out_path);
+    ASSERT(md != NULL, "output should be readable");
+    if (md) {
+        ASSERT(strstr(md, "square") != NULL, "MD should contain function name");
+        ASSERT(strstr(md, "Compute the square of n") != NULL, "MD should contain doc comment");
+        free(md);
+    }
+
+    free_ast(program);
+    free_tokens(tokens, token_count);
+}
+
 /* ── Entry point ──────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -248,6 +338,11 @@ int main(void) {
     test_basic_generation();
     test_no_exported_items();
     test_doc_comment_association();
+
+    printf("\nRunning docgen_md unit tests...\n");
+    test_md_basic_generation();
+    test_md_no_exported_items();
+    test_md_doc_comment();
 
     if (tests_failed == 0) {
         printf("docgen tests: %d/%d passed\n", tests_run, tests_run);
