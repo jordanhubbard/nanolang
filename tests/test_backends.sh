@@ -267,6 +267,69 @@ fi
 
 echo ""
 
+# ── Trust report (--trust-report) → nanocore_subset.c ────────────────────────
+echo "  Testing trust report (--trust-report)..."
+
+TRUST_OUT="$TMP/trust_output.txt"
+if "$COMPILER" "$TMP/module.nano" --trust-report > "$TRUST_OUT" 2>/dev/null; then
+    if [ -s "$TRUST_OUT" ]; then
+        pass "trust-report: output generated"
+    else
+        fail "trust-report: no output produced"
+    fi
+    if grep -qi "verified\|typechecked\|nanocore" "$TRUST_OUT" 2>/dev/null; then
+        pass "trust-report: output contains trust level information"
+    else
+        fail "trust-report: output missing trust level information"
+    fi
+else
+    fail "trust-report: compiler returned non-zero"
+fi
+
+echo ""
+
+# ── NanoCore export (--reference-eval) → nanocore_export.c ───────────────────
+echo "  Testing NanoCore reference eval (--reference-eval)..."
+
+REF_OUT="$TMP/ref_eval.txt"
+if "$COMPILER" "$TMP/module.nano" --reference-eval > "$REF_OUT" 2>/dev/null; then
+    if [ -s "$REF_OUT" ]; then
+        pass "reference-eval: output generated"
+    else
+        fail "reference-eval: no output produced"
+    fi
+    if grep -qi "NanoCore Reference\|checked\|Summary" "$REF_OUT" 2>/dev/null; then
+        pass "reference-eval: output contains reference eval information"
+    else
+        fail "reference-eval: output missing reference eval information"
+    fi
+else
+    fail "reference-eval: compiler returned non-zero"
+fi
+
+echo ""
+
+# ── Typed AST JSON (--emit-typed-ast-json) → emit_typed_ast.c ────────────────
+echo "  Testing typed AST JSON (--emit-typed-ast-json)..."
+
+TYPED_AST_OUT="$TMP/typed_ast.json"
+if "$COMPILER" "$TMP/module.nano" --emit-typed-ast-json > "$TYPED_AST_OUT" 2>/dev/null; then
+    if [ -s "$TYPED_AST_OUT" ]; then
+        pass "emit-typed-ast-json: output generated"
+    else
+        fail "emit-typed-ast-json: no output produced"
+    fi
+    if grep -q '"functions"\|"format_version"' "$TYPED_AST_OUT" 2>/dev/null; then
+        pass "emit-typed-ast-json: output contains JSON structure"
+    else
+        fail "emit-typed-ast-json: output missing JSON structure"
+    fi
+else
+    fail "emit-typed-ast-json: compiler returned non-zero"
+fi
+
+echo ""
+
 # ── Benchmark mode (--bench) ──────────────────────────────────────────────────
 echo "  Testing benchmark mode (--bench)..."
 
