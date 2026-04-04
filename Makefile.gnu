@@ -132,7 +132,7 @@ BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/wasm_simd.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/llvm_backend.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/wasm_simd.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/llvm_backend.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -559,8 +559,36 @@ test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
+.PHONY: test-nl-string
+test-nl-string: stage1
+	@echo "Running nl_string unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_nl_string tests/test_nl_string.c $(OBJ_DIR)/runtime/nl_string.o $(LDFLAGS)
+	@./tests/test_nl_string
+	@rm -f tests/test_nl_string
+
+.PHONY: test-refcount-gc
+test-refcount-gc:
+	@echo "Running refcount_gc unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_refcount_gc tests/test_refcount_gc.c $(LDFLAGS)
+	@./tests/test_refcount_gc
+	@rm -f tests/test_refcount_gc
+
+.PHONY: test-pgo-pass
+test-pgo-pass: stage1
+	@echo "Running PGO pass unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_pgo_pass tests/test_pgo_pass.c $(OBJ_DIR)/pgo_pass.o $(LDFLAGS)
+	@./tests/test_pgo_pass
+	@rm -f tests/test_pgo_pass
+
+.PHONY: test-docgen
+test-docgen: stage1
+	@echo "Running docgen unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_docgen tests/test_docgen.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_docgen
+	@rm -f tests/test_docgen
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
