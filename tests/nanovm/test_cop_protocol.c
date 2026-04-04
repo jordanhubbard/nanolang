@@ -220,6 +220,88 @@ TEST(send_recv_shutdown_msg) {
     close(fds[1]);
 }
 
+/* ── String and Array serialization (covers lines 43-79, 120-157) ───────── */
+
+TEST(serialize_string_roundtrip) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+
+    VmString *s = vm_string_new(&heap, "hello", 5);
+    ASSERT(s != NULL);
+    NanoValue v = val_string(s);
+
+    uint8_t buf[64];
+    uint32_t n = cop_serialize_value(&v, buf, sizeof(buf));
+    /* TAG_STRING: 1 tag + 4 len + 5 data = 10 bytes */
+    ASSERT(n == 10);
+    ASSERT(buf[0] == TAG_STRING);
+
+    VmHeap heap2 = {0};
+    vm_heap_init(&heap2);
+    NanoValue out;
+    uint32_t consumed = cop_deserialize_value(buf, n, &out, &heap2);
+    ASSERT(consumed == n);
+    ASSERT(out.tag == TAG_STRING);
+    ASSERT(out.as.string != NULL);
+    ASSERT(memcmp(out.as.string->data, "hello", 5) == 0);
+
+    vm_heap_destroy(&heap);
+    vm_heap_destroy(&heap2);
+}
+
+TEST(serialize_string_null) {
+    /* TAG_STRING with NULL VmString: serializes as empty string */
+    NanoValue v;
+    memset(&v, 0, sizeof(v));
+    v.tag = TAG_STRING;
+    v.as.string = NULL;
+
+    uint8_t buf[64];
+    uint32_t n = cop_serialize_value(&v, buf, sizeof(buf));
+    /* 1 tag + 4 len(=0) = 5 bytes */
+    ASSERT(n == 5);
+    ASSERT(buf[0] == TAG_STRING);
+
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    NanoValue out;
+    uint32_t consumed = cop_deserialize_value(buf, n, &out, &heap);
+    ASSERT(consumed == n);
+    ASSERT(out.tag == TAG_STRING);
+    vm_heap_destroy(&heap);
+}
+
+TEST(serialize_array_roundtrip) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+
+    /* Build an int array [1, 2, 3] */
+    VmArray *arr = vm_array_new(&heap, TAG_INT, 4);
+    ASSERT(arr != NULL);
+    vm_array_push(arr, val_int(1));
+    vm_array_push(arr, val_int(2));
+    vm_array_push(arr, val_int(3));
+
+    NanoValue v = val_array(arr);
+    uint8_t buf[256];
+    uint32_t n = cop_serialize_value(&v, buf, sizeof(buf));
+    /* 1 tag + 1 etype + 4 count + 3*(1 tag + 8 val) = 6 + 27 = 33 */
+    ASSERT(n > 0);
+    ASSERT(buf[0] == TAG_ARRAY);
+
+    VmHeap heap2 = {0};
+    vm_heap_init(&heap2);
+    NanoValue out;
+    uint32_t consumed = cop_deserialize_value(buf, n, &out, &heap2);
+    ASSERT(consumed == n);
+    ASSERT(out.tag == TAG_ARRAY);
+    ASSERT(out.as.array != NULL);
+    ASSERT(out.as.array->length == 3);
+
+    vm_heap_destroy(&heap);
+    vm_heap_destroy(&heap2);
+}
+
 /* ── main ──────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -237,6 +319,9 @@ int main(void) {
     RUN(send_recv_with_payload);
     RUN(recv_header_closed_pipe);
     RUN(send_recv_shutdown_msg);
+    RUN(serialize_string_roundtrip);
+    RUN(serialize_string_null);
+    RUN(serialize_array_roundtrip);
 
     printf("\n");
     if (g_fail == 0) {
