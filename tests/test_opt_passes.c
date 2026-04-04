@@ -11,6 +11,8 @@
 #include "../src/fold_constants.h"
 #include "../src/par_let_pass.h"
 #include "../src/pgo_pass.h"
+#include "../src/tco_pass.h"
+#include "../src/cps_pass.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +20,9 @@
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
     if (!(cond)) { printf("\n    FAILED: %s at line %d\n", #cond, __LINE__); exit(1); }
+#define ASSERT_EQ(a, b) \
+    if ((a) != (b)) { printf("\n    FAILED: %s == %s at line %d (got %d, expected %d)\n", \
+        #a, #b, __LINE__, (int)(a), (int)(b)); exit(1); }
 #define ASSERT_NOT_NULL(p) \
     if ((p) == NULL) { printf("\n    FAILED: unexpected NULL at line %d\n", __LINE__); exit(1); }
 #define ASSERT_NULL(p) \
@@ -281,6 +286,109 @@ void test_pgo_print_report_null(void) {
 }
 
 /* ============================================================================
+ * tco_pass tests
+ * ============================================================================ */
+
+void test_tco_empty_program(void) {
+    ASTNode *prog = parse_nano("fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_run(prog, false);
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
+void test_tco_non_recursive_function(void) {
+    /* A non-recursive function should not be transformed */
+    ASTNode *prog = parse_nano(
+        "fn add(x: int, y: int) -> int { return (+ x y) }\n"
+        "fn main() -> int { return (add 1 2) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_run(prog, false);
+    ASSERT_EQ(result, 0);  /* no TCO transformations */
+    free_ast(prog);
+}
+
+void test_tco_tail_recursive_function(void) {
+    /* A tail-recursive function should be detected and possibly transformed */
+    ASTNode *prog = parse_nano(
+        "fn count_down(n: int) -> int {\n"
+        "    if (<= n 0) { return 0 } else { return (count_down (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return (count_down 5) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_run(prog, false);
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
+void test_tco_verbose_flag(void) {
+    ASTNode *prog = parse_nano(
+        "fn sum(n: int, acc: int) -> int {\n"
+        "    if (<= n 0) { return acc } else { return (sum (- n 1) (+ acc n)) }\n"
+        "}\n"
+        "fn main() -> int { return (sum 5 0) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    suppress_stderr();
+    int result = tco_pass_run(prog, true);
+    restore_stderr();
+    ASSERT(result >= 0);
+    free_ast(prog);
+}
+
+void test_tco_convenience_wrapper(void) {
+    /* tco_pass() is the non-verbose wrapper */
+    ASTNode *prog = parse_nano(
+        "fn loop(n: int) -> int {\n"
+        "    if (<= n 0) { return 0 } else { return (loop (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return (loop 3) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    tco_pass(prog);  /* just verify it doesn't crash */
+    free_ast(prog);
+}
+
+/* ============================================================================
+ * cps_pass tests
+ * ============================================================================ */
+
+void test_cps_empty_program(void) {
+    ASTNode *prog = parse_nano("fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    int async_count = cps_pass(prog);
+    ASSERT_EQ(async_count, 0);  /* no async functions */
+    free_ast(prog);
+}
+
+void test_cps_non_async_functions(void) {
+    ASTNode *prog = parse_nano(
+        "fn add(x: int, y: int) -> int { return (+ x y) }\n"
+        "fn mul(x: int, y: int) -> int { return (* x y) }\n"
+        "fn main() -> int { return (add 1 2) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int async_count = cps_pass(prog);
+    ASSERT_EQ(async_count, 0);  /* no async functions → no CPS transform */
+    free_ast(prog);
+}
+
+void test_cps_multiple_functions(void) {
+    ASTNode *prog = parse_nano(
+        "fn f(x: int) -> int { return (* x x) }\n"
+        "fn g(x: int) -> int { return (+ x 1) }\n"
+        "fn h(x: int) -> int { return (f (g x)) }\n"
+        "fn main() -> int { return (h 3) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int async_count = cps_pass(prog);
+    ASSERT(async_count >= 0);
+    free_ast(prog);
+}
+
+/* ============================================================================
  * Combined pass pipeline: run all three passes in sequence
  * ============================================================================ */
 
@@ -337,6 +445,18 @@ int main(void) {
     TEST(pgo_is_hot_null_profile);
     TEST(pgo_apply_empty_profile);
     TEST(pgo_print_report_null);
+
+    printf("\n=== TCO Pass Tests ===\n");
+    TEST(tco_empty_program);
+    TEST(tco_non_recursive_function);
+    TEST(tco_tail_recursive_function);
+    TEST(tco_verbose_flag);
+    TEST(tco_convenience_wrapper);
+
+    printf("\n=== CPS Pass Tests ===\n");
+    TEST(cps_empty_program);
+    TEST(cps_non_async_functions);
+    TEST(cps_multiple_functions);
 
     printf("\n=== Combined Pipeline Test ===\n");
     TEST(full_opt_pipeline);
