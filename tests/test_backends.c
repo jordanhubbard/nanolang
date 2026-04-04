@@ -485,8 +485,125 @@ static void test_ptx_to_file(void) {
     PASS();
 }
 
+static void test_ptx_gpu_fn_simple(void) {
+    const char *test_name = "ptx_backend: gpu fn emits kernel";
+    const char *src =
+        "gpu fn vec_add(a: int, b: int) -> int {\n"
+        "  return (+ a b)\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "gpu_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "ptx_backend_emit_fp with gpu fn should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_thread_id(void) {
+    const char *test_name = "ptx_backend: gpu fn with thread_id_x builtin";
+    const char *src =
+        "gpu fn thread_fn(val: int) -> int {\n"
+        "  let tid = (thread_id_x)\n"
+        "  return (+ val tid)\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "thread_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "ptx gpu fn with thread_id_x should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_float(void) {
+    const char *test_name = "ptx_backend: gpu fn with float arithmetic";
+    const char *src =
+        "gpu fn scale(val: float, factor: float) -> float {\n"
+        "  return (* val factor)\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "float_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "ptx gpu fn with floats should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_if_else(void) {
+    const char *test_name = "ptx_backend: gpu fn with if/else";
+    const char *src =
+        "gpu fn relu(x: float) -> float {\n"
+        "  if (> x 0.0) {\n"
+        "    return x\n"
+        "  } else {\n"
+        "    return 0.0\n"
+        "  }\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "relu_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "ptx gpu fn relu should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_multiple(void) {
+    const char *test_name = "ptx_backend: multiple gpu fn kernels";
+    const char *src =
+        "gpu fn add_kernel(a: int, b: int) -> int { return (+ a b) }\n"
+        "gpu fn mul_kernel(a: int, b: int) -> int { return (* a b) }\n"
+        "gpu fn sub_kernel(a: int, b: int) -> int { return (- a b) }\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "multi_kernel.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "multiple ptx gpu kernels should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_verbose(void) {
+    const char *test_name = "ptx_backend: gpu fn with verbose mode";
+    const char *src =
+        "gpu fn kernel(x: int) -> int { return (* x 2) }\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "verbose_kernel.nano", true);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "verbose ptx gpu fn should succeed");
+    PASS();
+}
+
 static void test_ptx_verbose(void) {
-    const char *test_name = "ptx_backend: verbose mode";
+    const char *test_name = "ptx_backend: verbose mode (no gpu fn)";
     ASTNode *prog = parse_nano(SRC_SIMPLE);
     ASSERT(prog != NULL, "parse failed");
     FILE *out = fopen("/dev/null", "w");
@@ -652,6 +769,12 @@ int main(void) {
     test_ptx_loop();
     test_ptx_to_file();
     test_ptx_verbose();
+    test_ptx_gpu_fn_simple();
+    test_ptx_gpu_fn_thread_id();
+    test_ptx_gpu_fn_float();
+    test_ptx_gpu_fn_if_else();
+    test_ptx_gpu_fn_multiple();
+    test_ptx_gpu_fn_verbose();
 
     printf("\nWASM Backend:\n");
     test_wasm_simple();
