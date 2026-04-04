@@ -2,7 +2,7 @@
  * test_compiler_utils.c — unit tests for compiler utility modules
  *
  * Exercises: dwarf_info.c, nanocore_subset.c, nanocore_export.c,
- *            emit_typed_ast.c, reflection.c
+ *            emit_typed_ast.c, reflection.c, bench.c
  */
 
 #include "../src/nanolang.h"
@@ -11,6 +11,7 @@
 #include "../src/nanocore_export.h"
 #include "../src/emit_typed_ast.h"
 #include "../src/reflection.h"
+#include "../src/bench.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -431,6 +432,91 @@ static void test_reflection_private_only(void) {
     PASS(test_name);
 }
 
+/* ── bench.c tests ──────────────────────────────────────────────────────── */
+
+static void test_bench_print_json(void) {
+    const char *test_name = "bench_print_json: success result";
+    BenchResult r = {
+        .name       = "bench_add",
+        .n          = 1000,
+        .mean_ns    = 12.5,
+        .stddev_ns  = 0.5,
+        .min_ns     = 11.0,
+        .max_ns     = 15.0,
+        .ops_per_sec = 80000000.0,
+        .backend    = "native",
+        .source_file = "test.nano",
+        .error      = NULL,
+    };
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen failed");
+    bench_print_json(&r, out);
+    fclose(out);
+    PASS(test_name);
+}
+
+static void test_bench_print_json_error(void) {
+    const char *test_name = "bench_print_json: error result";
+    BenchResult r = {
+        .name       = "bench_fail",
+        .n          = 0,
+        .mean_ns    = 0.0,
+        .stddev_ns  = 0.0,
+        .min_ns     = 0.0,
+        .max_ns     = 0.0,
+        .ops_per_sec = 0.0,
+        .backend    = "native",
+        .source_file = "test.nano",
+        .error      = "function not found",
+    };
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen failed");
+    bench_print_json(&r, out);
+    fclose(out);
+    PASS(test_name);
+}
+
+static void test_bench_print_human(void) {
+    const char *test_name = "bench_print_human: success result";
+    BenchResult r = {
+        .name       = "bench_mul",
+        .n          = 5000,
+        .mean_ns    = 8.2,
+        .stddev_ns  = 0.3,
+        .min_ns     = 7.9,
+        .max_ns     = 9.0,
+        .ops_per_sec = 121951219.0,
+        .backend    = "native",
+        .source_file = "test.nano",
+        .error      = NULL,
+    };
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen failed");
+    bench_print_human(&r, out);
+    fclose(out);
+    PASS(test_name);
+}
+
+static void test_bench_run_no_bench_fns(void) {
+    const char *test_name = "bench_run_program: no @bench functions";
+    /* Program with no bench_ functions should return error */
+    ASTNode *prog = parse_nano("fn add(a: int, b: int) -> int { return (+ a b) }\n");
+    ASSERT(prog != NULL, "parse failed");
+    BenchOptions opts = {
+        .n_iters = 0,
+        .output_format = BENCH_FMT_HUMAN,
+        .json_out_path = NULL,
+        .backend = "native",
+        .verbose = false,
+    };
+    suppress_stderr();
+    int rc = bench_run_program(prog, &opts, "<test>", NULL);
+    restore_stderr();
+    ASSERT(rc != 0, "expected non-zero return with no bench functions");
+    free_ast(prog);
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -465,6 +551,12 @@ int main(void) {
     test_reflection_simple();
     test_reflection_struct();
     test_reflection_private_only();
+
+    printf("\nBenchmark Harness:\n");
+    test_bench_print_json();
+    test_bench_print_json_error();
+    test_bench_print_human();
+    test_bench_run_no_bench_fns();
 
     printf("\n");
     if (g_fail == 0) {
