@@ -728,6 +728,66 @@ static void test_asm_error_instruction_outside_function(void) {
     ASSERT_EQ_INT(result.error, ASM_ERR_NO_FUNCTION, "Error type");
 }
 
+static void test_asm_error_bad_u8_operand(void) {
+    /* PUSH_U8 expects a u8; provide a non-numeric → ASM_ERR_BAD_OPERAND */
+    const char *src =
+        ".function test 0 0 0\n"
+        "  PUSH_U8 notanumber\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Bad u8 operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
+static void test_asm_error_bad_u32_operand(void) {
+    /* PUSH_STR expects a u32; provide garbage → ASM_ERR_BAD_OPERAND */
+    const char *src =
+        ".function test 0 0 0\n"
+        "  PUSH_STR @#$\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Bad u32 operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
+static void test_asm_error_bad_i64_operand(void) {
+    /* PUSH_I64 expects an i64; provide garbage → ASM_ERR_BAD_OPERAND */
+    const char *src =
+        ".function test 0 0 0\n"
+        "  PUSH_I64 notanumber\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Bad i64 operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
+static void test_asm_error_bad_f64_operand(void) {
+    /* PUSH_F64 expects an f64; provide garbage → ASM_ERR_BAD_OPERAND */
+    const char *src =
+        ".function test 0 0 0\n"
+        "  PUSH_F64 notanumber\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Bad f64 operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
+static void test_asm_error_bad_u16_operand(void) {
+    /* ARR_LITERAL expects u8 then u16; provide bad u16 → ASM_ERR_BAD_OPERAND */
+    const char *src =
+        ".function test 0 0 0\n"
+        "  ARR_LITERAL 1 notanumber\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Bad u16 operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
 static void test_asm_comments_and_whitespace(void) {
     const char *src =
         "; This is a comment\n"
@@ -970,6 +1030,11 @@ int main(void) {
     RUN_TEST(test_asm_error_undefined_label);
     RUN_TEST(test_asm_error_missing_end);
     RUN_TEST(test_asm_error_instruction_outside_function);
+    RUN_TEST(test_asm_error_bad_u8_operand);
+    RUN_TEST(test_asm_error_bad_u32_operand);
+    RUN_TEST(test_asm_error_bad_i64_operand);
+    RUN_TEST(test_asm_error_bad_f64_operand);
+    RUN_TEST(test_asm_error_bad_u16_operand);
     RUN_TEST(test_asm_comments_and_whitespace);
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_multiple_functions);
