@@ -383,6 +383,162 @@ void test_effect_check_program_with_no_effect_nodes(void) {
 }
 
 /* ============================================================================
+ * effect_register_builtins tests
+ * ============================================================================ */
+
+void test_effect_register_builtins(void) {
+    EffectRegistry *reg = effect_registry_new();
+    effect_register_builtins(reg);
+
+    /* Should have IO, Err, State */
+    ASSERT_NOT_NULL(effect_lookup(reg, "IO"));
+    ASSERT_NOT_NULL(effect_lookup(reg, "Err"));
+    ASSERT_NOT_NULL(effect_lookup(reg, "State"));
+
+    /* IO should have print and read ops */
+    EffectDecl *io = effect_lookup(reg, "IO");
+    ASSERT_NOT_NULL(effect_op_lookup(io, "print"));
+    ASSERT_NOT_NULL(effect_op_lookup(io, "read"));
+
+    effect_registry_free(reg);
+}
+
+/* ============================================================================
+ * effect_check_decl / effect_check_handler / effect_check_perform null tests
+ * ============================================================================ */
+
+void test_effect_check_decl_null(void) {
+    EffectRegistry *reg = effect_registry_new();
+    EffectCtx *ctx = effect_ctx_new(reg);
+    ASSERT_NOT_NULL(ctx);
+
+    /* NULL node should return false */
+    bool ok = effect_check_decl(ctx, NULL);
+    ASSERT(!ok);
+
+    effect_ctx_free(ctx);
+    effect_registry_free(reg);
+}
+
+void test_effect_check_handler_null(void) {
+    EffectRegistry *reg = effect_registry_new();
+    EffectCtx *ctx = effect_ctx_new(reg);
+
+    /* NULL node should return false */
+    bool ok = effect_check_handler(ctx, NULL, NULL);
+    ASSERT(!ok);
+
+    effect_ctx_free(ctx);
+    effect_registry_free(reg);
+}
+
+void test_effect_check_perform_null(void) {
+    EffectRegistry *reg = effect_registry_new();
+    EffectCtx *ctx = effect_ctx_new(reg);
+
+    /* NULL node should return false */
+    bool ok = effect_check_perform(ctx, NULL);
+    ASSERT(!ok);
+
+    effect_ctx_free(ctx);
+    effect_registry_free(reg);
+}
+
+/* ============================================================================
+ * env_effect_register tests
+ * ============================================================================ */
+
+void test_env_effect_register_null_inputs(void) {
+    /* NULL env and NULL node should not crash */
+    env_effect_register(NULL, NULL);
+
+    Environment *env = create_environment();
+    env_effect_register(env, NULL);  /* NULL node, valid env */
+    free_environment(env);
+}
+
+/* ============================================================================
+ * walk_node coverage via effect_check_program with complex programs
+ * ============================================================================ */
+
+void test_effect_check_program_with_if(void) {
+    /* Program with if/else exercises walk_node AST_IF path */
+    ASTNode *prog = parse_nano_effects(
+        "fn check(x: int) -> int {\n"
+        "    if (> x 0) {\n"
+        "        return x\n"
+        "    } else {\n"
+        "        return 0\n"
+        "    }\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
+void test_effect_check_program_with_while(void) {
+    /* Program with while loop exercises walk_node AST_WHILE path */
+    ASTNode *prog = parse_nano_effects(
+        "fn countdown(n: int) -> int {\n"
+        "    let result = 0\n"
+        "    while (> n 0) {\n"
+        "        let n = (- n 1)\n"
+        "    }\n"
+        "    return result\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
+void test_effect_check_program_with_let_and_return(void) {
+    /* Program with let + return exercises AST_LET and AST_RETURN paths */
+    ASTNode *prog = parse_nano_effects(
+        "fn compute() -> int {\n"
+        "    let a = 10\n"
+        "    let b = (+ a 5)\n"
+        "    return b\n"
+        "}\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
+void test_effect_check_program_with_call(void) {
+    /* Program with function call exercises AST_CALL path */
+    ASTNode *prog = parse_nano_effects(
+        "fn add(a: int, b: int) -> int { return (+ a b) }\n"
+        "fn main() -> int { return (add 1 2) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    bool ok = effect_check_program(prog, reg, env);
+    ASSERT(ok);
+    free_environment(env);
+    effect_registry_free(reg);
+    free_ast(prog);
+}
+
+/* ============================================================================
  * main
  * ============================================================================ */
 
@@ -414,6 +570,15 @@ int main(void) {
     TEST(effect_check_program_null);
     TEST(effect_register_from_ast_null);
     TEST(effect_check_program_with_no_effect_nodes);
+    TEST(effect_register_builtins);
+    TEST(effect_check_decl_null);
+    TEST(effect_check_handler_null);
+    TEST(effect_check_perform_null);
+    TEST(env_effect_register_null_inputs);
+    TEST(effect_check_program_with_if);
+    TEST(effect_check_program_with_while);
+    TEST(effect_check_program_with_let_and_return);
+    TEST(effect_check_program_with_call);
 
     printf("\n✓ All effects tests passed!\n");
     return 0;
