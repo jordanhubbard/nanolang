@@ -526,13 +526,20 @@ test-runtime-lists: stage1
 	@./tests/test_runtime_lists
 	@rm -f tests/test_runtime_lists
 
+.PHONY: test-builtins-direct
+test-builtins-direct: stage1
+	@echo "Running builtin functions direct unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_builtins_direct tests/test_builtins_direct.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
+	@./tests/test_builtins_direct
+	@rm -f tests/test_builtins_direct
+
 .PHONY: test-row-poly
 test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
