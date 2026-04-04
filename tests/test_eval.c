@@ -1142,6 +1142,234 @@ void test_eval_float_comparison(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_map_builtin(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn double_it(x: int) -> int { return (* x 2) }\n"
+        "fn main() -> int {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5]\n"
+        "  let doubled: array<int> = (map nums double_it)\n"
+        "  return (array_get doubled 0)\n"
+        "}\n"
+        "shadow main {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5]\n"
+        "  let doubled: array<int> = (map nums double_it)\n"
+        "  assert (== (array_length doubled) 5)\n"
+        "  assert (== (array_get doubled 0) 2)\n"
+        "  assert (== (array_get doubled 4) 10)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_filter_builtin(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn is_even(x: int) -> bool { return (== (% x 2) 0) }\n"
+        "fn main() -> int {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5, 6]\n"
+        "  let evens: array<int> = (filter nums is_even)\n"
+        "  return (array_length evens)\n"
+        "}\n"
+        "shadow main {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5, 6]\n"
+        "  let evens: array<int> = (filter nums is_even)\n"
+        "  assert (== (array_length evens) 3)\n"
+        "  assert (== (array_get evens 0) 2)\n"
+        "  assert (== (array_get evens 2) 6)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_reduce_builtin(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn add_ints(a: int, b: int) -> int { return (+ a b) }\n"
+        "fn main() -> int {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5]\n"
+        "  return (reduce nums 0 add_ints)\n"
+        "}\n"
+        "shadow main {\n"
+        "  let nums: array<int> = [1, 2, 3, 4, 5]\n"
+        "  let sum: int = (reduce nums 0 add_ints)\n"
+        "  assert (== sum 15)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_push_pop(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int {\n"
+        "  let arr: array<int> = [1, 2, 3]\n"
+        "  let arr2: array<int> = (array_push arr 4)\n"
+        "  return (array_length arr2)\n"
+        "}\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [1, 2, 3]\n"
+        "  let arr2: array<int> = (array_push arr 99)\n"
+        "  assert (== (array_length arr2) 4)\n"
+        "  assert (== (array_get arr2 3) 99)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_sort(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int {\n"
+        "  let arr: array<int> = [5, 3, 1, 4, 2]\n"
+        "  let sorted: array<int> = (array_sort arr)\n"
+        "  return (array_get sorted 0)\n"
+        "}\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [5, 3, 1, 4, 2]\n"
+        "  let sorted: array<int> = (array_sort arr)\n"
+        "  assert (== (array_get sorted 0) 1)\n"
+        "  assert (== (array_get sorted 4) 5)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_contains(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int {\n"
+        "  let arr: array<int> = [1, 2, 3, 4, 5]\n"
+        "  if (array_contains arr 3) { return 1 }\n"
+        "  else { return 0 }\n"
+        "}\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [10, 20, 30]\n"
+        "  assert (array_contains arr 20)\n"
+        "  assert (not (array_contains arr 99))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_type_casts(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let f: float = (int_to_float 42)\n"
+        "  let i: int = (float_to_int 3.7)\n"
+        "  let b: bool = (int_to_bool 1)\n"
+        "  assert (== i 3)\n"
+        "  assert b\n"
+        "  assert (not (int_to_bool 0))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_format_ops(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let s: string = (str_to_lower \"HELLO\")\n"
+        "  assert (== s \"hello\")\n"
+        "  let u: string = (str_to_upper \"world\")\n"
+        "  assert (== u \"WORLD\")\n"
+        "  let t: string = (str_trim \"  hello  \")\n"
+        "  assert (== t \"hello\")\n"
+        "  let r: string = (str_replace \"hello world\" \"world\" \"nano\")\n"
+        "  assert (== r \"hello nano\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_reverse(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [1, 2, 3, 4, 5]\n"
+        "  let rev: array<int> = (array_reverse arr)\n"
+        "  assert (== (array_get rev 0) 5)\n"
+        "  assert (== (array_get rev 4) 1)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_index_of(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [10, 20, 30, 40]\n"
+        "  assert (== (array_index_of arr 20) 1)\n"
+        "  assert (== (array_index_of arr 99) (- 0 1))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_slice(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [1, 2, 3, 4, 5]\n"
+        "  let sl: array<int> = (array_slice arr 1 3)\n"
+        "  assert (== (array_length sl) 2)\n"
+        "  assert (== (array_get sl 0) 2)\n"
+        "  assert (== (array_get sl 1) 3)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_set_mutation(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let mut x: int = 5\n"
+        "  set x 10\n"
+        "  assert (== x 10)\n"
+        "  set x (* x 2)\n"
+        "  assert (== x 20)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_set(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn main() -> int { return 0 }\n"
+        "shadow main {\n"
+        "  let arr: array<int> = [1, 2, 3]\n"
+        "  let updated: array<int> = (array_set arr 1 99)\n"
+        "  assert (== (array_get updated 1) 99)\n"
+        "  assert (== (array_get arr 1) 2)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -1199,6 +1427,19 @@ int main(void) {
     TEST(eval_string_to_int_back);
     TEST(eval_shadowed_functions_reuse);
     TEST(eval_float_comparison);
+    TEST(eval_map_builtin);
+    TEST(eval_filter_builtin);
+    TEST(eval_reduce_builtin);
+    TEST(eval_array_push_pop);
+    TEST(eval_array_sort);
+    TEST(eval_array_contains);
+    TEST(eval_type_casts);
+    TEST(eval_string_format_ops);
+    TEST(eval_array_reverse);
+    TEST(eval_array_index_of);
+    TEST(eval_array_slice);
+    TEST(eval_set_mutation);
+    TEST(eval_array_set);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
