@@ -498,6 +498,20 @@ test-opt-passes: stage1
 	@./tests/test_opt_passes
 	@rm -f tests/test_opt_passes
 
+.PHONY: test-ffi
+test-ffi: stage1
+	@echo "Running interpreter FFI unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_ffi tests/test_ffi.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_ffi
+	@rm -f tests/test_ffi
+
+.PHONY: test-wasm-simd
+test-wasm-simd: stage1
+	@echo "Running WASM SIMD unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_wasm_simd tests/test_wasm_simd.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_wasm_simd
+	@rm -f tests/test_wasm_simd
+
 .PHONY: test-runtime-lists
 test-runtime-lists: stage1
 	@echo "Running runtime list unit tests..."
@@ -511,7 +525,7 @@ test-row-poly: build
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

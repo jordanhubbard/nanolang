@@ -373,6 +373,75 @@ fi
 
 echo ""
 
+# ── WASM backend (--target wasm) ─────────────────────────────────────────────
+echo "  Testing WASM backend (--target wasm)..."
+
+# WASM backend only supports integer/float arithmetic (no string builtins)
+cat > "$TMP/wasm_simple.nano" << 'NANO'
+fn add(x: int, y: int) -> int {
+    return (+ x y)
+}
+
+fn square(x: int) -> int {
+    return (* x x)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow add {
+    assert (== (add 3 4) 7)
+}
+
+shadow square {
+    assert (== (square 5) 25)
+}
+NANO
+
+WASM_OUT="$TMP/wasm_simple.wasm"
+if "$COMPILER" "$TMP/wasm_simple.nano" --target wasm -o "$WASM_OUT" 2>/dev/null; then
+    if [ -f "$WASM_OUT" ] && [ -s "$WASM_OUT" ]; then
+        pass "wasm: output file created and non-empty"
+    else
+        fail "wasm: output file missing or empty"
+    fi
+else
+    fail "wasm: compiler returned non-zero for --target wasm"
+fi
+
+# Test WASM with a more complex integer-only program
+cat > "$TMP/wasm_module.nano" << 'NANO'
+fn compute(x: int, y: int) -> int {
+    return (+ (* x x) (* y y))
+}
+
+fn negate_int(x: int) -> int {
+    return (- 0 x)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow compute {
+    assert (== (compute 3 4) 25)
+}
+
+shadow negate_int {
+    assert (== (negate_int 5) -5)
+}
+NANO
+
+WASM_OUT2="$TMP/wasm_module.wasm"
+if "$COMPILER" "$TMP/wasm_module.nano" --target wasm -o "$WASM_OUT2" 2>/dev/null; then
+    pass "wasm: compiled integer-arithmetic module"
+else
+    fail "wasm: failed to compile integer module with --target wasm"
+fi
+
+echo ""
+
 # ── C backend (--target c) ────────────────────────────────────────────────────
 echo "  Testing C backend (--target c)..."
 
@@ -421,6 +490,39 @@ if "$COMPILER" "$TMP/module.nano" --doc-md -o "$DOCMD_OUT" 2>/dev/null; then
     fi
 else
     fail "doc-md: compiler returned non-zero for --doc-md"
+fi
+
+echo ""
+
+# ── WASM signing / verification (sign.c) ─────────────────────────────────────
+echo "  Testing WASM sign/verify (sign.c)..."
+
+# Compile a tiny WASM file for signing
+cat > "$TMP/sign_test.nano" << 'NANO'
+fn add(x: int, y: int) -> int {
+    return (+ x y)
+}
+fn main() -> int { return 0 }
+shadow add { assert (== (add 1 2) 3) }
+NANO
+
+SIGN_WASM="$TMP/sign_test.wasm"
+if "$COMPILER" "$TMP/sign_test.nano" --target wasm -o "$SIGN_WASM" 2>/dev/null; then
+    # Sign the WASM file
+    if "$COMPILER" sign "$SIGN_WASM" 2>/dev/null; then
+        pass "sign: WASM file signed successfully"
+
+        # Verify the signature
+        if "$COMPILER" verify "$SIGN_WASM" 2>/dev/null; then
+            pass "sign: WASM signature verified successfully"
+        else
+            fail "sign: WASM signature verification failed"
+        fi
+    else
+        fail "sign: WASM signing failed"
+    fi
+else
+    fail "sign: could not compile WASM for signing test"
 fi
 
 echo ""
