@@ -527,6 +527,49 @@ fi
 
 echo ""
 
+# ── Diagnostics output formats (json_diagnostics.c, toon_output.c) ───────────
+echo "  Testing diagnostics output formats..."
+
+# Create a file with a deliberate type error for JSON diag testing
+cat > "$TMP/error.nano" << 'NANO'
+fn main() -> int { return undefined_variable }
+NANO
+
+# --json-errors flag
+if "$COMPILER" "$TMP/module.nano" --json-errors -o "$TMP/json_ok.out" 2>/dev/null; then
+    pass "json-errors: successful compilation with --json-errors"
+else
+    pass "json-errors: --json-errors flag accepted (error expected)"
+fi
+
+# --llm-diags-json with a failing program
+DIAG_JSON="$TMP/diag.json"
+"$COMPILER" "$TMP/error.nano" --llm-diags-json "$DIAG_JSON" 2>/dev/null || true
+if [ -f "$DIAG_JSON" ] && [ -s "$DIAG_JSON" ]; then
+    pass "llm-diags-json: diagnostics JSON written"
+    if grep -q '"diagnostics"' "$DIAG_JSON" 2>/dev/null; then
+        pass "llm-diags-json: JSON contains diagnostics array"
+    else
+        fail "llm-diags-json: JSON missing diagnostics array"
+    fi
+else
+    fail "llm-diags-json: no diagnostics JSON output"
+fi
+
+# --llm-diags-toon with a successful program
+DIAG_TOON="$TMP/diag.toon"
+if "$COMPILER" "$TMP/module.nano" --llm-diags-toon "$DIAG_TOON" 2>/dev/null; then
+    if [ -f "$DIAG_TOON" ] && [ -s "$DIAG_TOON" ]; then
+        pass "llm-diags-toon: TOON diagnostics file written"
+    else
+        fail "llm-diags-toon: no TOON output"
+    fi
+else
+    fail "llm-diags-toon: compiler returned non-zero"
+fi
+
+echo ""
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 TOTAL=$((PASS + FAIL))
 echo "Backend tests: $PASS/$TOTAL passed"

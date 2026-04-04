@@ -815,6 +815,66 @@ void test_eval_multiple_lets(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_union_types(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "union Status {\n"
+        "    Ok {},\n"
+        "    Error {}\n"
+        "}\n"
+        "fn test_ok() -> int {\n"
+        "    let s = Status.Ok {}\n"
+        "    return match s {\n"
+        "        Ok(x) => 1,\n"
+        "        Error(e) => 0\n"
+        "    }\n"
+        "}\n"
+        "fn test_err() -> int {\n"
+        "    let s = Status.Error {}\n"
+        "    return match s {\n"
+        "        Ok(x) => 0,\n"
+        "        Error(e) => 1\n"
+        "    }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow test_ok { assert (== (test_ok) 1) }\n"
+        "shadow test_err { assert (== (test_err) 1) }\n"
+    );
+    ASSERT(ok);
+
+    Value r = call_function("test_ok", NULL, 0, ctx.env);
+    ASSERT_EQ(r.as.int_val, 1);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_tuple_types(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn make_pair(a: int, b: int) -> (int, int) {\n"
+        "    return (a, b)\n"
+        "}\n"
+        "fn first(p: (int, int)) -> int { return p.0 }\n"
+        "fn second(p: (int, int)) -> int { return p.1 }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow make_pair {\n"
+        "    assert (== ((make_pair 3 4).0) 3)\n"
+        "    assert (== ((make_pair 3 4).1) 4)\n"
+        "}\n"
+        "shadow first { assert (== (first (make_pair 5 6)) 5) }\n"
+        "shadow second { assert (== (second (make_pair 5 6)) 6) }\n"
+    );
+    ASSERT(ok);
+
+    Value three = {.type = VAL_INT, .as.int_val = 3};
+    Value four = {.type = VAL_INT, .as.int_val = 4};
+    Value args[2] = {three, four};
+    Value pair = call_function("make_pair", args, 2, ctx.env);
+    ASSERT(pair.type == VAL_TUPLE);
+
+    run_ctx_free(&ctx);
+}
+
 void test_eval_not_operator(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -877,6 +937,8 @@ int main(void) {
     TEST(eval_string_contains);
     TEST(eval_multiple_lets);
     TEST(eval_not_operator);
+    TEST(eval_union_types);
+    TEST(eval_tuple_types);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
