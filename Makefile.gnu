@@ -587,8 +587,15 @@ test-docgen: stage1
 	@./tests/test_docgen
 	@rm -f tests/test_docgen
 
+.PHONY: test-backends
+test-backends: stage1
+	@echo "Running alternative backend unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_backends tests/test_backends.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
+	@./tests/test_backends
+	@rm -f tests/test_backends
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
