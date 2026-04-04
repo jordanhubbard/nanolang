@@ -956,6 +956,192 @@ void test_eval_not_operator(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_cond_expression(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn classify(x: int) -> string {\n"
+        "    return (cond\n"
+        "        ((< x 0) \"negative\")\n"
+        "        ((== x 0) \"zero\")\n"
+        "        (else \"positive\"))\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow classify {\n"
+        "    assert (== (classify -1) \"negative\")\n"
+        "    assert (== (classify 0) \"zero\")\n"
+        "    assert (== (classify 5) \"positive\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_break_in_for(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn first_positive(lst: List<int>) -> int {\n"
+        "    let mut result: int = -1\n"
+        "    for x in lst {\n"
+        "        if (> x 0) {\n"
+        "            set result x\n"
+        "            break\n"
+        "        } else { (print \"\") }\n"
+        "    }\n"
+        "    return result\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow first_positive {\n"
+        "    assert (== (first_positive [-3, -1, 5, 2]) 5)\n"
+        "    assert (== (first_positive [10, 20]) 10)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_for_loops(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn count_pairs(n: int) -> int {\n"
+        "    let mut count: int = 0\n"
+        "    for i in (range 0 n) {\n"
+        "        for j in (range 0 n) {\n"
+        "            set count (+ count 1)\n"
+        "        }\n"
+        "    }\n"
+        "    return count\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow count_pairs { assert (== (count_pairs 3) 9) }\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_length(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn array_sum(arr: array<int>) -> int {\n"
+        "    let mut total: int = 0\n"
+        "    let n: int = (array_length arr)\n"
+        "    for i in (range 0 n) {\n"
+        "        set total (+ total (array_get arr i))\n"
+        "    }\n"
+        "    return total\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow array_sum { assert (== (array_sum [1, 2, 3, 4, 5]) 15) }\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_math_functions(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn hypotenuse(a: float, b: float) -> float {\n"
+        "    return (sqrt (+ (* a a) (* b b)))\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow hypotenuse {\n"
+        "    let h: float = (hypotenuse 3.0 4.0)\n"
+        "    assert (== (round h) 5.0)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_conversion(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn format_pair(a: int, b: int) -> string {\n"
+        "    let sa: string = (int_to_string a)\n"
+        "    let sb: string = (int_to_string b)\n"
+        "    return (str_concat (str_concat sa \",\") sb)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow format_pair {\n"
+        "    assert (== (format_pair 3 4) \"3,4\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_enum_access(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "enum Direction { North, South, East, West }\n"
+        "fn is_north(d: Direction) -> bool {\n"
+        "    return (== d Direction.North)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow is_north {\n"
+        "    assert (is_north Direction.North)\n"
+        "    assert (not (is_north Direction.South))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_string_to_int_back(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn round_trip(n: int) -> int {\n"
+        "    let s: string = (int_to_string n)\n"
+        "    return (string_to_int s)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow round_trip {\n"
+        "    assert (== (round_trip 42) 42)\n"
+        "    assert (== (round_trip -17) -17)\n"
+        "    assert (== (round_trip 0) 0)\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_shadowed_functions_reuse(void) {
+    /* Run shadow tests explicitly via run_shadow_tests */
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn double(x: int) -> int { return (* x 2) }\n"
+        "fn triple(x: int) -> int { return (* x 3) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow double { assert (== (double 5) 10) }\n"
+        "shadow triple { assert (== (triple 5) 15) }\n"
+    );
+    ASSERT(ok);
+
+    /* Also run shadow tests directly */
+    suppress_stderr();
+    bool shadow_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    restore_stderr();
+    ASSERT(shadow_ok);
+
+    run_ctx_free(&ctx);
+}
+
+void test_eval_float_comparison(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn is_close(a: float, b: float) -> bool {\n"
+        "    let diff: float = (abs (- a b))\n"
+        "    return (< diff 0.001)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow is_close {\n"
+        "    assert (is_close 3.14 3.14)\n"
+        "    assert (not (is_close 1.0 2.0))\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -1003,6 +1189,16 @@ int main(void) {
     TEST(eval_hashmap_has_and_remove);
     TEST(eval_union_types);
     TEST(eval_tuple_types);
+    TEST(eval_cond_expression);
+    TEST(eval_break_in_for);
+    TEST(eval_nested_for_loops);
+    TEST(eval_array_length);
+    TEST(eval_math_functions);
+    TEST(eval_string_conversion);
+    TEST(eval_enum_access);
+    TEST(eval_string_to_int_back);
+    TEST(eval_shadowed_functions_reuse);
+    TEST(eval_float_comparison);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
