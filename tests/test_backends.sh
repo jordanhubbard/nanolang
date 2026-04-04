@@ -373,6 +373,58 @@ fi
 
 echo ""
 
+# ── C backend (--target c) ────────────────────────────────────────────────────
+echo "  Testing C backend (--target c)..."
+
+C_OUT="$TMP/simple.c"
+if "$COMPILER" "$TMP/simple.nano" --target c -o "$C_OUT" 2>/dev/null; then
+    if [ -f "$C_OUT" ] && [ -s "$C_OUT" ]; then
+        pass "c-backend: output file created and non-empty"
+    else
+        fail "c-backend: output file missing or empty"
+    fi
+
+    if grep -q "#include\|int\|void\|return" "$C_OUT" 2>/dev/null; then
+        pass "c-backend: output contains C code"
+    else
+        fail "c-backend: output missing expected C constructs"
+    fi
+else
+    fail "c-backend: compiler returned non-zero for --target c"
+fi
+
+C_OUT2="$TMP/module.c"
+if "$COMPILER" "$TMP/module.nano" --target c -o "$C_OUT2" 2>/dev/null; then
+    pass "c-backend: compiled module with multiple functions"
+else
+    fail "c-backend: failed to compile module with --target c"
+fi
+
+echo ""
+
+# ── Markdown doc generation (--doc-md) ───────────────────────────────────────
+echo "  Testing Markdown doc generation (--doc-md)..."
+
+DOCMD_OUT="$TMP/module.md"
+if "$COMPILER" "$TMP/module.nano" --doc-md -o "$DOCMD_OUT" 2>/dev/null; then
+    if [ -f "$DOCMD_OUT" ] && [ -s "$DOCMD_OUT" ]; then
+        pass "doc-md: output file created and non-empty"
+    else
+        fail "doc-md: output file missing or empty"
+    fi
+
+    # Markdown docs should contain function names and # headings
+    if grep -qi "compute\|greet\|negate\|#\|fn\|function" "$DOCMD_OUT" 2>/dev/null; then
+        pass "doc-md: output contains function documentation"
+    else
+        fail "doc-md: output missing function documentation"
+    fi
+else
+    fail "doc-md: compiler returned non-zero for --doc-md"
+fi
+
+echo ""
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 TOTAL=$((PASS + FAIL))
 echo "Backend tests: $PASS/$TOTAL passed"
