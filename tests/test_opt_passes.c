@@ -465,6 +465,108 @@ void test_cps_multiple_functions(void) {
 }
 
 /* ============================================================================
+ * Additional DCE tests: dead lets with array/struct/tuple literals,
+ * and programs with if/while/for constructs for count_refs coverage.
+ * ============================================================================ */
+
+void test_dce_dead_array_literal(void) {
+    /* Dead let with array literal — exercises has_side_effect(ARRAY_LITERAL) */
+    ASTNode *prog = parse_nano(
+        "fn test() -> int {\n"
+        "    let arr: array<int> = [1, 2, 3]\n"
+        "    return 42\n"
+        "}\n"
+        "fn main() -> int { return (test) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+void test_dce_dead_struct_literal(void) {
+    /* Dead let with struct literal — exercises has_side_effect(STRUCT_LITERAL) */
+    ASTNode *prog = parse_nano(
+        "struct Pt { x: int, y: int }\n"
+        "fn test() -> int {\n"
+        "    let p: Pt = Pt { x: 1, y: 2 }\n"
+        "    return 42\n"
+        "}\n"
+        "fn main() -> int { return (test) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+void test_dce_dead_if_expression(void) {
+    /* Dead let with if-expression — exercises has_side_effect(IF) */
+    ASTNode *prog = parse_nano(
+        "fn test(x: int) -> int {\n"
+        "    let dead: int = if (> x 0) { 1 } else { 0 }\n"
+        "    return 42\n"
+        "}\n"
+        "fn main() -> int { return (test 5) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+void test_dce_count_refs_set(void) {
+    /* Program with set statement — exercises count_refs(SET) */
+    ASTNode *prog = parse_nano(
+        "fn test() -> int {\n"
+        "    let unused: int = 10\n"
+        "    let mut x: int = 0\n"
+        "    set x 5\n"
+        "    return x\n"
+        "}\n"
+        "fn main() -> int { return (test) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+void test_dce_count_refs_while(void) {
+    /* Program with while loop — exercises count_refs(WHILE) */
+    ASTNode *prog = parse_nano(
+        "fn test() -> int {\n"
+        "    let unused: int = 7\n"
+        "    let mut n: int = 0\n"
+        "    while (< n 3) { set n (+ n 1) }\n"
+        "    return n\n"
+        "}\n"
+        "fn main() -> int { return (test) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+void test_dce_count_refs_for(void) {
+    /* Program with for-range loop — exercises count_refs(FOR) */
+    ASTNode *prog = parse_nano(
+        "fn test() -> int {\n"
+        "    let unused: int = 3\n"
+        "    let mut s: int = 0\n"
+        "    for i in (range 0 5) { set s (+ s i) }\n"
+        "    return s\n"
+        "}\n"
+        "fn main() -> int { return (test) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int elim = dce_pass(prog, false);
+    ASSERT(elim >= 0);
+    free_ast(prog);
+}
+
+/* ============================================================================
  * Combined pass pipeline: run all three passes in sequence
  * ============================================================================ */
 
@@ -537,6 +639,14 @@ int main(void) {
     TEST(cps_empty_program);
     TEST(cps_non_async_functions);
     TEST(cps_multiple_functions);
+
+    printf("\n=== DCE: Dead literal / count_refs branch coverage ===\n");
+    TEST(dce_dead_array_literal);
+    TEST(dce_dead_struct_literal);
+    TEST(dce_dead_if_expression);
+    TEST(dce_count_refs_set);
+    TEST(dce_count_refs_while);
+    TEST(dce_count_refs_for);
 
     printf("\n=== Combined Pipeline Test ===\n");
     TEST(full_opt_pipeline);
