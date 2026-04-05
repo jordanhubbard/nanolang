@@ -1,0 +1,187 @@
+# matmul.nano — 2D GPU operations demo using gpu_launch2d
+#
+# Demonstrates:
+#   - 2D thread indexing with global_id_x / global_id_y
+#   - gpu_launch2d for 2D grid/block configuration
+#   - Strided 2D memory layout (row-major, int64 elements)
+#   - Real GPU load/store with gpu_load / gpu_store
+#
+# Implements two kernels on square NxN matrices:
+#   matrix_scale     — C[i][j] = a * A[i][j]
+#   matrix_hadamard  — C[i][j] = A[i][j] * B[i][j]  (element-wise product)
+#
+# Note: Full matrix multiply (C = A @ B) requires a k-loop inside gpu fn.
+# Loop support in gpu fn (PTX while/for) is planned for a future release.
+#
+# Compile kernels to PTX:
+#   NANO_MODULE_PATH=modules nanoc --target ptx matmul.nano -o matmul.ptx
+#
+# Compile host program and run:
+#   NANO_MODULE_PATH=modules nanoc matmul.nano -o matmul
+#   ./matmul
+
+import "modules/gpu/gpu.nano"
+
+# ── GPU kernels ───────────────────────────────────────────────────────────────
+
+# Scale every element: C[row][col] = a * A[row][col]
+# Matrices are square NxN (row-major int64).  n = side length.
+# Launched with a 2D grid: grid(ceil(n/16), ceil(n/16)), block(16,16).
+gpu fn matrix_scale(a: int, mat_a: int, mat_c: int, n: int) -> void {
+    let row: int = (global_id_y)
+    let col: int = (global_id_x)
+    if (and (< row n) (< col n)) {
+        let idx: int    = (+ (* row n) col)
+        let offset: int = (* idx 8)
+        let val: int    = (gpu_load (+ mat_a offset))
+        let scaled: int = (* a val)
+        (gpu_store (+ mat_c offset) scaled)
+        return
+    }
+}
+
+shadow matrix_scale { assert true }
+
+# Element-wise (Hadamard) product: C[row][col] = A[row][col] * B[row][col]
+gpu fn matrix_hadamard(mat_a: int, mat_b: int, mat_c: int, n: int) -> void {
+    let row: int = (global_id_y)
+    let col: int = (global_id_x)
+    if (and (< row n) (< col n)) {
+        let idx: int    = (+ (* row n) col)
+        let offset: int = (* idx 8)
+        let a_val: int  = (gpu_load (+ mat_a offset))
+        let b_val: int  = (gpu_load (+ mat_b offset))
+        let result: int = (* a_val b_val)
+        (gpu_store (+ mat_c offset) result)
+        return
+    }
+}
+
+shadow matrix_hadamard { assert true }
+
+# ── Host program ─────────────────────────────────────────────────────────────
+
+fn main() -> int {
+    if (not (gpu_init)) {
+        print "No CUDA GPU found"
+        return 1
+    }
+    print (str_concat "GPU: " (gpu_device_info 0))
+
+    # 32x32 matrix of int64 values
+    let n: int     = 32
+    let elems: int = (* n n)
+    let bytes: int = (* elems 8)
+    let scale: int = 3
+
+    # Build host matrices: A[i][j] = i*n + j + 1,  B[i][j] = 2
+    let mut h_a: array<int> = []
+    let mut h_b: array<int> = []
+    let mut idx: int = 0
+    while (< idx elems) {
+        set h_a (array_push h_a (+ idx 1))
+        set h_b (array_push h_b 2)
+        set idx (+ idx 1)
+    }
+
+    # Allocate device memory
+    let d_a: int = (gpu_alloc bytes)
+    let d_b: int = (gpu_alloc bytes)
+    let d_c: int = (gpu_alloc bytes)
+    if (or (== d_a 0) (or (== d_b 0) (== d_c 0))) {
+        print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        return 1
+    }
+
+    # Copy inputs to device
+    (gpu_memcpy_to_device d_a h_a bytes)
+    (gpu_memcpy_to_device d_b h_b bytes)
+
+    # 2D launch: ceil(n/16) blocks in each dimension, 16x16 threads per block
+    let tile: int = 16
+    let grid: int = (/ (+ n (- tile 1)) tile)
+
+    # ── matrix_scale ──────────────────────────────────────────────────────────
+    let ok1: bool = (gpu_launch2d "matmul.ptx" "matrix_scale"
+                                  grid grid tile tile
+                                  scale d_a d_c n)
+    if (not ok1) {
+        print (str_concat "matrix_scale launch failed: " (gpu_last_error))
+        (gpu_free d_a)
+        (gpu_free d_b)
+        (gpu_free d_c)
+        return 1
+    }
+    (gpu_sync)
+
+    # Verify matrix_scale: C[k] should equal scale * (k + 1)
+    let mut h_c: array<int> = []
+    let mut fi: int = 0
+    while (< fi elems) {
+        set h_c (array_push h_c 0)
+        set fi (+ fi 1)
+    }
+    (gpu_memcpy_from_device h_c d_c bytes)
+
+    let mut errs1: int = 0
+    let mut vi: int = 0
+    while (< vi elems) {
+        let expected: int = (* scale (+ vi 1))
+        let got: int = (at h_c vi)
+        if (not (== got expected)) {
+            set errs1 (+ errs1 1)
+        }
+        set vi (+ vi 1)
+    }
+    if (== errs1 0) {
+        print "matrix_scale:    PASSED"
+    }
+    if (not (== errs1 0)) {
+        print (str_concat "matrix_scale:    FAILED — " (str_concat (int_to_string errs1) " errors"))
+    }
+
+    # ── matrix_hadamard ───────────────────────────────────────────────────────
+    let ok2: bool = (gpu_launch2d "matmul.ptx" "matrix_hadamard"
+                                  grid grid tile tile
+                                  d_a d_b d_c n)
+    if (not ok2) {
+        print (str_concat "matrix_hadamard launch failed: " (gpu_last_error))
+        (gpu_free d_a)
+        (gpu_free d_b)
+        (gpu_free d_c)
+        return 1
+    }
+    (gpu_sync)
+
+    (gpu_memcpy_from_device h_c d_c bytes)
+
+    let mut errs2: int = 0
+    let mut wi: int = 0
+    while (< wi elems) {
+        # A[k] = k+1, B[k] = 2, so C[k] = (k+1)*2
+        let expected2: int = (* (+ wi 1) 2)
+        let got2: int      = (at h_c wi)
+        if (not (== got2 expected2)) {
+            set errs2 (+ errs2 1)
+        }
+        set wi (+ wi 1)
+    }
+    if (== errs2 0) {
+        print "matrix_hadamard: PASSED"
+    }
+    if (not (== errs2 0)) {
+        print (str_concat "matrix_hadamard: FAILED — " (str_concat (int_to_string errs2) " errors"))
+    }
+
+    (gpu_free d_a)
+    (gpu_free d_b)
+    (gpu_free d_c)
+
+    let total_errs: int = (+ errs1 errs2)
+    if (== total_errs 0) {
+        let grid_str: string = (str_concat (int_to_string grid) (str_concat "x" (int_to_string grid)))
+        print (str_concat "PASSED — " (str_concat (int_to_string n) (str_concat "x" (str_concat (int_to_string n) (str_concat " matrix, 2D grid " grid_str)))))
+        return 0
+    }
+    return 1
+}
