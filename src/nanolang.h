@@ -1135,4 +1135,23 @@ static inline void print_backtrace(void) {
 /* Project root resolution (set by main.c, used by module.c for CWD-independent paths) */
 const char *get_project_root(void);
 
+/* GPU intrinsic stubs — forward declarations for C code generated from gpu fn bodies.
+ * Defined in modules/gpu/cuda_runtime.c; stubs return 0/void on the host.
+ * The PTX backend emits real special-register reads for these when targeting GPU. */
+int64_t nl_gpu_thread_id_x(void);
+int64_t nl_gpu_thread_id_y(void);
+int64_t nl_gpu_thread_id_z(void);
+int64_t nl_gpu_block_id_x(void);
+int64_t nl_gpu_block_id_y(void);
+int64_t nl_gpu_block_id_z(void);
+int64_t nl_gpu_block_dim_x(void);
+int64_t nl_gpu_block_dim_y(void);
+int64_t nl_gpu_block_dim_z(void);
+int64_t nl_gpu_grid_dim_x(void);
+int64_t nl_gpu_grid_dim_y(void);
+int64_t nl_gpu_grid_dim_z(void);
+int64_t nl_gpu_global_id_x(void);
+int64_t nl_gpu_global_id_y(void);
+void    nl_gpu_barrier(void);
+
 #endif /* NANOLANG_H */

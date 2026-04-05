@@ -345,3 +345,24 @@ int64_t nl_gpu_atomic_add(int64_t ptr, int64_t delta) {
     (void)ptr; (void)delta;
     return 0;
 }
+
+/* ── GPU intrinsic stubs for native C compilation ────────────────────────────
+ * When nanoc compiles a file containing `gpu fn` to native C (not PTX),
+ * the transpiler emits calls to nl_gpu_* for all GPU builtins used in the
+ * kernel body. These stubs satisfy the linker; they are never called at
+ * runtime since gpu fn bodies only execute on-device via PTX. */
+int64_t nl_gpu_thread_id_x(void) { return 0; }
+int64_t nl_gpu_thread_id_y(void) { return 0; }
+int64_t nl_gpu_thread_id_z(void) { return 0; }
+int64_t nl_gpu_block_id_x(void)  { return 0; }
+int64_t nl_gpu_block_id_y(void)  { return 0; }
+int64_t nl_gpu_block_id_z(void)  { return 0; }
+int64_t nl_gpu_block_dim_x(void) { return 256; }
+int64_t nl_gpu_block_dim_y(void) { return 256; }
+int64_t nl_gpu_block_dim_z(void) { return 1; }
+int64_t nl_gpu_grid_dim_x(void)  { return 1; }
+int64_t nl_gpu_grid_dim_y(void)  { return 1; }
+int64_t nl_gpu_grid_dim_z(void)  { return 1; }
+int64_t nl_gpu_global_id_x(void) { return 0; }
+int64_t nl_gpu_global_id_y(void) { return 0; }
+void    nl_gpu_barrier(void)      { }

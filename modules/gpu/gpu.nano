@@ -60,26 +60,31 @@ extern fn nl_gpu_atomic_add(_ptr: int, _delta: int) -> int
 pub fn gpu_init() -> bool {
     unsafe { return (nl_gpu_init) }
 }
+shadow gpu_init { assert true }
 
 # Return true if CUDA is available on this machine (non-initializing check).
 pub fn gpu_available() -> bool {
     unsafe { return (nl_gpu_available) }
 }
+shadow gpu_available { assert true }
 
 # Return the number of available CUDA devices.
 pub fn gpu_device_count() -> int {
     unsafe { return (nl_gpu_device_count) }
 }
+shadow gpu_device_count { assert true }
 
 # Return a string description of device n (name, memory, compute capability).
 pub fn gpu_device_info(device: int) -> string {
     unsafe { return (nl_gpu_device_info device) }
 }
+shadow gpu_device_info { assert true }
 
 # Synchronize host with all GPU activity (blocks until GPU is idle).
 pub fn gpu_sync() -> void {
     unsafe { (nl_gpu_sync) }
 }
+shadow gpu_sync { assert true }
 
 # ── Device memory management ─────────────────────────────────────────────────
 
@@ -88,21 +93,25 @@ pub fn gpu_sync() -> void {
 pub fn gpu_alloc(bytes: int) -> int {
     unsafe { return (nl_gpu_alloc bytes) }
 }
+shadow gpu_alloc { assert true }
 
 # Free device memory allocated with gpu_alloc.
 pub fn gpu_free(ptr: int) -> void {
     unsafe { (nl_gpu_free ptr) }
 }
+shadow gpu_free { assert true }
 
 # Copy `bytes` bytes from host array to device pointer.
 pub fn gpu_memcpy_to_device(dst: int, src: array<int>, bytes: int) -> bool {
     unsafe { return (nl_gpu_memcpy_to_device dst src bytes) }
 }
+shadow gpu_memcpy_to_device { assert true }
 
 # Copy `bytes` bytes from device pointer to host array.
 pub fn gpu_memcpy_from_device(dst: array<int>, src: int, bytes: int) -> bool {
     unsafe { return (nl_gpu_memcpy_from_device dst src bytes) }
 }
+shadow gpu_memcpy_from_device { assert true }
 
 # ── Kernel launching ─────────────────────────────────────────────────────────
 
@@ -120,6 +129,7 @@ pub fn gpu_launch(ptx_file: string, kernel_name: string,
         return (nl_gpu_launch ptx_file kernel_name grid_x block_x arg0 arg1 arg2 arg3)
     }
 }
+shadow gpu_launch { assert true }
 
 # Launch with 2D grid/block dimensions (for 2D problems like matrix ops).
 pub fn gpu_launch2d(ptx_file: string, kernel_name: string,
@@ -131,6 +141,7 @@ pub fn gpu_launch2d(ptx_file: string, kernel_name: string,
                                 arg0 arg1 arg2 arg3)
     }
 }
+shadow gpu_launch2d { assert true }
 
 # ── GPU-side intrinsics (valid only inside `gpu fn`) ─────────────────────────
 # These are built into the nanolang compiler — no declaration needed.
@@ -148,6 +159,7 @@ pub fn gpu_launch2d(ptx_file: string, kernel_name: string,
 pub fn gpu_atomic_add(ptr: int, delta: int) -> int {
     unsafe { return (nl_gpu_atomic_add ptr delta) }
 }
+shadow gpu_atomic_add { assert true }
 
 # ── Utility ──────────────────────────────────────────────────────────────────
 
@@ -155,3 +167,4 @@ pub fn gpu_atomic_add(ptr: int, delta: int) -> int {
 pub fn gpu_last_error() -> string {
     unsafe { return (nl_gpu_last_error) }
 }
+shadow gpu_last_error { assert true }

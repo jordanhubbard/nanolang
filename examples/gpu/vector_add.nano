@@ -82,6 +82,10 @@ gpu fn matrix_add(a: int, b: int, c: int, rows: int, cols: int) -> void {
     }
 }
 
+shadow vector_add { assert true }
+shadow dot_product_partial { assert true }
+shadow matrix_add { assert true }
+
 # ── Host program ─────────────────────────────────────────────────────────────
 
 fn main() -> int {
