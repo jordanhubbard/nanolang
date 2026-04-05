@@ -150,8 +150,13 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
             {"thread_id_z", "%tid.z"},
             {"block_id_x",  "%ctaid.x"},
             {"block_id_y",  "%ctaid.y"},
+            {"block_id_z",  "%ctaid.z"},
             {"block_dim_x", "%ntid.x"},
             {"block_dim_y", "%ntid.y"},
+            {"block_dim_z", "%ntid.z"},
+            {"grid_dim_x",  "%nctaid.x"},
+            {"grid_dim_y",  "%nctaid.y"},
+            {"grid_dim_z",  "%nctaid.z"},
             {NULL, NULL}
         };
         for (int i = 0; builtins[i].name; i++) {
@@ -166,6 +171,44 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
                 return r;
             }
         }
+
+        /* global_id_x = block_id_x * block_dim_x + thread_id_x */
+        if (strcmp(fn, "global_id_x") == 0 || strcmp(fn, "global_id_y") == 0) {
+            int is_y = (fn[9] == 'y');
+            const char *bid_reg  = is_y ? "%ctaid.y" : "%ctaid.x";
+            const char *bdim_reg = is_y ? "%ntid.y"  : "%ntid.x";
+            const char *tid_reg  = is_y ? "%tid.y"   : "%tid.x";
+            int bid_raw  = new_reg(ctx); int bid  = new_reg(ctx);
+            int bdim_raw = new_reg(ctx); int bdim = new_reg(ctx);
+            int tid_raw  = new_reg(ctx); int tid  = new_reg(ctx);
+            int mul_r    = new_reg(ctx); int r    = new_reg(ctx);
+            *ok = VK_INT;
+            psb_appendf(&ctx->sb,
+                "    mov.u32 %%rd%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
+                "    mov.u32 %%rd%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
+                "    mov.u32 %%rd%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
+                "    mul.lo.s64 %%rd%d, %%rd%d, %%rd%d;\n"
+                "    add.s64 %%rd%d, %%rd%d, %%rd%d;\n",
+                bid_raw, bid_reg, bid, bid_raw,
+                bdim_raw, bdim_reg, bdim, bdim_raw,
+                tid_raw, tid_reg, tid, tid_raw,
+                mul_r, bid, bdim,
+                r, mul_r, tid);
+            return r;
+        }
+
+        /* gpu_barrier() → bar.sync 0; */
+        if (strcmp(fn, "gpu_barrier") == 0) {
+            *ok = VK_INT;
+            psb_append(&ctx->sb, "    bar.sync 0;\n");
+            int r = new_reg(ctx);
+            psb_appendf(&ctx->sb, "    mov.s64 %%rd%d, 0;\n", r);
+            return r;
+        }
+
         ptx_err(ctx, "unsupported call '%s' in gpu fn", fn);
         return -1;
     }
@@ -214,6 +257,20 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
 
         /* Determine result kind */
         VK reskind = (lk == VK_FLOAT || rk == VK_FLOAT) ? VK_FLOAT : VK_INT;
+
+        /* Logical and/or — both operands become predicates */
+        if (op == TOKEN_AND || op == TOKEN_OR) {
+            /* Convert each operand to predicate if not already */
+            int lp, rp;
+            if (lk == VK_PRED) { lp = lv; }
+            else { lp = new_reg(ctx); psb_appendf(&ctx->sb, "    setp.ne.s64 %%p%d, %%rd%d, 0;\n", lp, lv); }
+            if (rk == VK_PRED) { rp = rv; }
+            else { rp = new_reg(ctx); psb_appendf(&ctx->sb, "    setp.ne.s64 %%p%d, %%rd%d, 0;\n", rp, rv); }
+            int pr = new_reg(ctx); *ok = VK_PRED;
+            const char *logop = (op == TOKEN_AND) ? "and" : "or";
+            psb_appendf(&ctx->sb, "    %s.pred %%p%d, %%p%d, %%p%d;\n", logop, pr, lp, rp);
+            return pr;
+        }
 
         /* Comparison → predicate */
         bool is_cmp = (op == TOKEN_EQ || op == TOKEN_NE ||

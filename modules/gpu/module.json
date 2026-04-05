@@ -1,0 +1,9 @@
+{
+  "name": "gpu",
+  "version": "1.0.0",
+  "description": "CUDA GPU computing module for nanolang. Provides kernel launching, device memory management, and GPU intrinsics. Requires CUDA driver API (libcuda.so / cuda.lib) at runtime; gracefully falls back to CPU simulation when CUDA is unavailable.",
+  "c_sources": ["cuda_runtime.c"],
+  "cflags": [],
+  "ldflags": [],
+  "dependencies": []
+}

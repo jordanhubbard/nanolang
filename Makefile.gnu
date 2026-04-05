@@ -533,6 +533,13 @@ test-opt-passes: stage1
 	@./tests/test_opt_passes
 	@rm -f tests/test_opt_passes
 
+.PHONY: test-nanocore
+test-nanocore: stage1
+	@echo "Running nanocore_export and emit_typed_ast unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_nanocore tests/test_nanocore.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_nanocore
+	@rm -f tests/test_nanocore
+
 .PHONY: test-effects
 test-effects: stage1
 	@echo "Running effects system unit tests..."
@@ -706,7 +713,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
