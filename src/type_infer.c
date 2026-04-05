@@ -1429,10 +1429,11 @@ static HMType *infer_block(InferCtx *ctx, HMEnv *env,
     HMType *last = hm_con_type(ctx, "void");
 
     /* We mutate a local env chain head so each let/fn binding is visible
-     * to subsequent statements in the block.  The parent env is unaffected. */
-    HMEnv local_env;
-    local_env.head = env ? env->head : NULL;
-    HMEnv *cur_env = &local_env;
+     * to subsequent statements in the block.  The parent env is unaffected.
+     * Must be heap-allocated (via arena) so ctx->top_level_env remains valid
+     * after this function returns. */
+    HMEnv *cur_env = ctx_alloc(ctx, sizeof(HMEnv));
+    cur_env->head = env ? env->head : NULL;
 
     for (int i = 0; i < count; i++) {
         ASTNode *s = stmts[i];

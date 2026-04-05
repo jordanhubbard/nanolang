@@ -617,6 +617,161 @@ static void test_ptx_verbose(void) {
     PASS();
 }
 
+static void test_ptx_gpu_fn_global_id(void) {
+    const char *test_name = "ptx_backend: gpu fn with global_id_x builtin";
+    const char *src =
+        "gpu fn index_fn(data: int, n: int) -> void {\n"
+        "  let i: int = (global_id_x)\n"
+        "  if (< i n) {\n"
+        "    return\n"
+        "  }\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "global_id_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with global_id_x should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_memory_ops(void) {
+    const char *test_name = "ptx_backend: gpu fn with gpu_load and gpu_store";
+    const char *src =
+        "gpu fn copy_kernel(src: int, dst: int, n: int) -> void {\n"
+        "  let i: int = (global_id_x)\n"
+        "  if (< i n) {\n"
+        "    let offset: int = (* i 8)\n"
+        "    let val: int = (gpu_load (+ src offset))\n"
+        "    (gpu_store (+ dst offset) val)\n"
+        "    return\n"
+        "  }\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "memops_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with gpu_load/gpu_store should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_float_memory(void) {
+    const char *test_name = "ptx_backend: gpu fn with gpu_load_float and gpu_store_float";
+    const char *src =
+        "gpu fn scale_float(src: int, dst: int, n: int) -> void {\n"
+        "  let i: int = (global_id_x)\n"
+        "  if (< i n) {\n"
+        "    let offset: int = (* i 8)\n"
+        "    let val: float = (gpu_load_float (+ src offset))\n"
+        "    let result: float = (* val 2.0)\n"
+        "    (gpu_store_float (+ dst offset) result)\n"
+        "    return\n"
+        "  }\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "float_mem_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with gpu_load_float/gpu_store_float should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_atomic(void) {
+    const char *test_name = "ptx_backend: gpu fn with gpu_atomic_add";
+    const char *src =
+        "gpu fn reduce_kernel(data: int, acc: int, n: int) -> void {\n"
+        "  let i: int = (global_id_x)\n"
+        "  if (< i n) {\n"
+        "    let offset: int = (* i 8)\n"
+        "    let val: int = (gpu_load (+ data offset))\n"
+        "    (gpu_atomic_add acc val)\n"
+        "    return\n"
+        "  }\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "atomic_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with gpu_atomic_add should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_barrier(void) {
+    const char *test_name = "ptx_backend: gpu fn with gpu_barrier";
+    const char *src =
+        "gpu fn barrier_kernel(data: int, n: int) -> void {\n"
+        "  let i: int = (global_id_x)\n"
+        "  (gpu_barrier)\n"
+        "  if (< i n) {\n"
+        "    return\n"
+        "  }\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "barrier_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with gpu_barrier should succeed");
+    PASS();
+}
+
+static void test_ptx_gpu_fn_grid_builtins(void) {
+    const char *test_name = "ptx_backend: gpu fn with block/grid dimension builtins";
+    const char *src =
+        "gpu fn grid_fn(data: int) -> void {\n"
+        "  let bx: int = (block_id_x)\n"
+        "  let by: int = (block_id_y)\n"
+        "  let bz: int = (block_id_z)\n"
+        "  let gx: int = (grid_dim_x)\n"
+        "  let gy: int = (grid_dim_y)\n"
+        "  let gz: int = (grid_dim_z)\n"
+        "  let bdx: int = (block_dim_x)\n"
+        "  let bdy: int = (block_dim_y)\n"
+        "  let bdz: int = (block_dim_z)\n"
+        "  let gid: int = (global_id_x)\n"
+        "  return\n"
+        "}\n";
+    ASTNode *prog = parse_nano(src);
+    ASSERT(prog != NULL, "parse failed");
+    FILE *out = fopen("/dev/null", "w");
+    ASSERT(out != NULL, "fopen /dev/null failed");
+    suppress_stderr();
+    int rc = ptx_backend_emit_fp(prog, out, "grid_test.nano", false);
+    restore_stderr();
+    fclose(out);
+    free_ast(prog);
+    ASSERT(rc == 0, "gpu fn with grid/block builtins should succeed");
+    PASS();
+}
+
 /* ── WASM backend tests ──────────────────────────────────────────────────── */
 
 static void test_wasm_simple(void) {
@@ -775,6 +930,12 @@ int main(void) {
     test_ptx_gpu_fn_if_else();
     test_ptx_gpu_fn_multiple();
     test_ptx_gpu_fn_verbose();
+    test_ptx_gpu_fn_global_id();
+    test_ptx_gpu_fn_memory_ops();
+    test_ptx_gpu_fn_float_memory();
+    test_ptx_gpu_fn_atomic();
+    test_ptx_gpu_fn_barrier();
+    test_ptx_gpu_fn_grid_builtins();
 
     printf("\nWASM Backend:\n");
     test_wasm_simple();
