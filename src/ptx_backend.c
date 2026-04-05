@@ -281,7 +281,7 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
             VK dk; int dlt = emit_expr(ctx, l, node->as.call.args[1], &dk);
             if (ptr < 0 || dlt < 0) return -1;
             int r = new_reg(ctx); *ok = VK_INT;
-            psb_appendf(&ctx->sb, "    atom.global.add.s64 %%rd%d, [%%rd%d], %%rd%d;\n",
+            psb_appendf(&ctx->sb, "    atom.global.add.u64 %%rd%d, [%%rd%d], %%rd%d;\n",
                         r, ptr, dlt);
             return r;
         }
