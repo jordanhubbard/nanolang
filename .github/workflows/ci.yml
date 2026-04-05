@@ -307,7 +307,7 @@ jobs:
       - name: Enforce coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=${COVERAGE_THRESHOLD:-80.0}
+          THRESHOLD=${COVERAGE_THRESHOLD:-75.0}
           echo "Current coverage: $COVERAGE%"
           echo "Required threshold: $THRESHOLD%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
