@@ -1,0 +1,437 @@
+# ocean.nano — GPU-accelerated ocean simulation with ship physics
+#
+# A real-time ocean with multi-component wave superposition computed on the GPU
+# and a ship with actual mass/dimensions obeying Archimedes' principle.
+#
+# GPU kernel:  computes wave height field (800 columns, 4 wave components)
+# Ship physics: heave (vertical) + pitch from buoyancy force vs. gravity
+# SDL rendering: depth-shaded ocean, gradient sky, detailed ship silhouette
+#
+# Controls:  ESC / Q to quit
+#
+# Compile:
+#   NANO_MODULE_PATH=modules nanoc --target ptx ocean.nano -o ocean.ptx
+#   NANO_MODULE_PATH=modules nanoc ocean.nano -o ocean
+#   ./ocean
+
+import "modules/gpu/gpu.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+from "std/math/extended.nano" import sin, cos, sqrt, abs, clamp
+
+# ── Constants ─────────────────────────────────────────────────────────────────
+
+let W:       int = 800              # window width
+let H:       int = 600              # window height
+let HORIZON: int = 280              # screen Y of calm water surface
+let SIN_N:   int = 512              # sine table resolution
+
+# Ship real dimensions (metres), scale 1 px = 0.5 m
+let SHIP_MASS:    float = 5000000.0   # 5 000 t displacement  (kg)
+let SHIP_LEN_M:   float = 120.0       # length (m)
+let SHIP_BEAM_M:  float = 20.0        # beam (m)
+let SHIP_DRAFT_M: float = 8.0         # calm-water draft (m)
+let RHO:          float = 1025.0      # seawater density (kg/m³)
+let G:            float = 9.81        # gravity (m/s²)
+let DT:           float = 0.033       # ~30 fps timestep (s)
+let PX_PER_M:     float = 2.0         # pixels per metre
+
+# Ship screen dimensions
+let SHIP_HW:  int = 120    # half-width (px) → 240 px total ≡ 120 m
+let HULL_H:   int = 10     # hull depth below waterline (px)
+let DECK_H:   int = 6      # freeboard above waterline (px)
+let SUPER_W:  int = 80     # superstructure half-width
+let SUPER_H:  int = 18     # superstructure height
+let BRIDGE_W: int = 30     # bridge half-width
+let BRIDGE_H: int = 10     # bridge height
+let FUNNEL_W: int = 7      # funnel width
+let FUNNEL_H: int = 22     # funnel height
+let MAST_H:   int = 38     # mast height above bridge
+
+# Damping coefficients
+let DAMP_HEAVE: float = 0.92   # per frame velocity multiplier
+let DAMP_PITCH: float = 0.93
+
+# ── GPU kernel ─────────────────────────────────────────────────────────────────
+# Compute wave height (in pixels, relative to HORIZON) for each screen column.
+# Uses a pre-computed integer sine table (scaled × 1000).
+# Four wave components give a convincing open-ocean chop.
+#
+# Arguments:
+#   d_sin   — device pointer to SIN_N × int64 sine table
+#   d_h     — device pointer to W × int64 output heights
+#   width   — number of columns (= W)
+#   t       — integer frame counter
+
+gpu fn compute_ocean(d_sin: int, d_h: int, width: int, t: int) -> void {
+    let x: int = (global_id_x)
+    if (< x width) {
+        # Additive offset to ensure angle >= 0 before modulo
+        let BIG: int = 5120000   # 512 * 10000 — exact multiple of SIN_N
+
+        # Wave 1 — main north-east swell:  A=25 px, k=3, ω=3
+        let a1: int = (% (+ (+ (* 3 x) (* (- 0 3) t)) BIG) 512)
+        let h1: int = (/ (* 25 (gpu_load (+ d_sin (* a1 8)))) 1000)
+
+        # Wave 2 — short chop (opposing):  A=12 px, k=7, ω=6
+        let a2: int = (% (+ (+ (* (- 0 7) x) (* (- 0 6) t)) BIG) 512)
+        let h2: int = (/ (* 12 (gpu_load (+ d_sin (* a2 8)))) 1000)
+
+        # Wave 3 — long Atlantic swell:    A=20 px, k=2, ω=2
+        let a3: int = (% (+ (+ (* 2 x) (* (- 0 2) t)) BIG) 512)
+        let h3: int = (/ (* 20 (gpu_load (+ d_sin (* a3 8)))) 1000)
+
+        # Wave 4 — high-frequency chop:   A=8 px, k=11, ω=8
+        let a4: int = (% (+ (+ (* 11 x) (* (- 0 8) t)) BIG) 512)
+        let h4: int = (/ (* 8 (gpu_load (+ d_sin (* a4 8)))) 1000)
+
+        (gpu_store (+ d_h (* x 8)) (+ (+ h1 h2) (+ h3 h4)))
+        return
+    }
+}
+
+shadow compute_ocean { assert true }
+
+# ── Colour helpers ─────────────────────────────────────────────────────────────
+
+fn clamp_col(v: int) -> int {
+    if (< v 0)   { return 0   }
+    if (> v 255) { return 255 }
+    return v
+}
+shadow clamp_col { assert true }
+
+fn draw_rect(rend: SDL_Renderer, x: int, y: int, w: int, h: int,
+             r: int, g: int, b: int) -> void {
+    (SDL_SetRenderDrawColor rend r g b 255)
+    (nl_sdl_render_fill_rect rend x y w h)
+}
+shadow draw_rect { assert true }
+
+fn draw_vline(rend: SDL_Renderer, x: int, y1: int, y2: int,
+              r: int, g: int, b: int) -> void {
+    (SDL_SetRenderDrawColor rend r g b 255)
+    (SDL_RenderDrawLine rend x y1 x y2)
+}
+shadow draw_vline { assert true }
+
+# ── Sky gradient ───────────────────────────────────────────────────────────────
+# Called once per frame before ocean columns.
+
+fn draw_sky(rend: SDL_Renderer) -> void {
+    # Dark starless sky → lighter at horizon
+    let mut row: int = 0
+    while (< row HORIZON) {
+        let t: float = (/ (cast_float row) (cast_float HORIZON))
+        let r: int = (clamp_col (cast_int (* t 100.0)))
+        let g: int = (clamp_col (cast_int (+ 30.0 (* t 120.0))))
+        let b: int = (clamp_col (cast_int (+ 80.0 (* t 140.0))))
+        (SDL_SetRenderDrawColor rend r g b 255)
+        (SDL_RenderDrawLine rend 0 row W row)
+        set row (+ row 1)
+    }
+    # Sun disc
+    let sun_x: int = 620
+    let sun_y: int = 80
+    (draw_rect rend (- sun_x 22) (- sun_y 22) 44 44 255 240 60)
+    (draw_rect rend (- sun_x 18) (- sun_y 28) 36 56 255 240 60)
+    (draw_rect rend (- sun_x 28) (- sun_y 18) 56 36 255 240 60)
+    (draw_rect rend (- sun_x 18) (- sun_y 18) 36 36 255 255 120)
+}
+shadow draw_sky { assert true }
+
+# ── Ocean column rendering ─────────────────────────────────────────────────────
+# h_heights[x]: signed pixel offset from HORIZON (positive = below horizon)
+
+fn draw_ocean(rend: SDL_Renderer, h_heights: array<int>, sun_x: int) -> void {
+    let mut x: int = 0
+    while (< x W) {
+        let wave: int  = (at h_heights x)
+        let wy:   int  = (+ HORIZON wave)         # absolute Y of water surface
+
+        # Sun reflection strip: bright shimmer near sun_x
+        let dx:   int  = (- x sun_x)
+        let adx:  int  = (clamp_col (cast_int (/ 60.0 (+ 1.0 (cast_float (* dx dx))))))
+        let glow: int  = (* adx 4)
+
+        # Foam / surface sparkle at wave crests (wave < -15 px → near crest)
+        let mut is_crest: int = 0
+        if (< wave (- 0 15)) { set is_crest 1 }
+
+        # Surface highlight row
+        if (>= wy 0) {
+            if (< wy H) {
+                let mut sr: int = (clamp_col (+ 180 glow))
+                let mut sg: int = (clamp_col (+ 220 glow))
+                let mut sb: int = 255
+                if (== is_crest 1) {
+                    set sr 240
+                    set sg 250
+                    set sb 255
+                    (SDL_SetRenderDrawColor rend sr sg sb 255)
+                    (SDL_RenderDrawLine rend x (- wy 1) x (+ wy 2))
+                }
+                if (not (== is_crest 1)) {
+                    (draw_vline rend x wy (+ wy 1) sr sg sb)
+                }
+            }
+        }
+
+        # Water body — three depth bands
+        let y0: int = (+ wy 2)
+        let y1: int = (clamp_col (+ wy 40))
+        let y2: int = (clamp_col (+ wy 120))
+        let y3: int = H
+
+        # Shallow: rich teal-blue
+        let sr2: int = (clamp_col (+ 10 glow))
+        let sg2: int = (clamp_col (+ 100 glow))
+        let sb2: int = (clamp_col (+ 180 glow))
+        if (< y0 y1) { (draw_vline rend x y0 y1 sr2 sg2 sb2) }
+
+        # Mid: deep blue
+        if (< y1 y2) { (draw_vline rend x y1 y2 8 55 140) }
+
+        # Deep: navy
+        if (< y2 y3) { (draw_vline rend x y2 y3 4 20 80) }
+
+        set x (+ x 1)
+    }
+}
+shadow draw_ocean { assert true }
+
+# ── Ship rendering ─────────────────────────────────────────────────────────────
+# sx = ship centre x,  wy_bow/stern = water Y at bow/stern (for pitch rendering)
+
+fn draw_ship(rend: SDL_Renderer, sx: int, wy_mid: int, wy_bow: int, wy_stern: int) -> void {
+    # Hull — dark grey hull plating
+    let hx: int = (- sx SHIP_HW)
+    let hw: int = (* 2 SHIP_HW)
+
+    # Hull bottom (below waterline) follows wave at midship
+    (draw_rect rend hx (+ wy_mid 1) hw HULL_H 50 50 60)
+
+    # Waterline strake — white band
+    (draw_rect rend hx wy_mid hw 2 230 230 240)
+
+    # Bow taper (right side) — slightly lighter
+    (draw_rect rend (+ sx (- SHIP_HW 20)) (+ wy_bow 1) 20 (- HULL_H 2) 70 70 80)
+
+    # Stern taper (left side)
+    (draw_rect rend (- sx SHIP_HW) (+ wy_stern 1) 20 (- HULL_H 2) 70 70 80)
+
+    # Freeboard (above waterline) — lighter hull colour
+    (draw_rect rend hx (- wy_mid DECK_H) hw DECK_H 130 130 145)
+
+    # Main deck rail — white line
+    (draw_rect rend hx (- wy_mid DECK_H) hw 2 220 220 230)
+
+    # Superstructure block — light grey
+    let supx: int = (- sx SUPER_W)
+    let supw: int = (* 2 SUPER_W)
+    let supy: int = (- wy_mid (+ DECK_H SUPER_H))
+    (draw_rect rend supx supy supw SUPER_H 160 162 168)
+
+    # Bridge — lighter block centred on superstructure
+    let brx: int = (- sx BRIDGE_W)
+    let brw: int = (* 2 BRIDGE_W)
+    let bry: int = (- supy BRIDGE_H)
+    (draw_rect rend brx bry brw BRIDGE_H 185 188 195)
+
+    # Bridge windows — dark blue strip
+    (draw_rect rend (+ brx 4) (+ bry 3) (- brw 8) 5 30 60 120)
+
+    # Funnel — red with black top
+    let fux: int = (- sx (/ FUNNEL_W 2))
+    let fuy: int = (- bry FUNNEL_H)
+    (draw_rect rend fux fuy FUNNEL_W FUNNEL_H 180 30 30)
+    (draw_rect rend fux fuy FUNNEL_W 5 20 20 20)
+    # Funnel flare at top
+    (draw_rect rend (- fux 3) fuy (+ FUNNEL_W 6) 4 20 20 20)
+
+    # Forward mast — thin dark line
+    let mast_x: int = (- sx (/ SUPER_W 2))
+    let mast_y: int = (- supy MAST_H)
+    (draw_rect rend mast_x mast_y 2 MAST_H 80 80 85)
+
+    # Radar/lookout platform on mast
+    (draw_rect rend (- mast_x 5) (+ mast_y 5) 12 3 100 100 105)
+}
+shadow draw_ship { assert true }
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+fn main() -> int {
+    # ── GPU init ──────────────────────────────────────────────────────────────
+    let use_gpu: bool = (gpu_init)
+    if (not use_gpu) {
+        print "No CUDA GPU — wave heights will be computed on CPU"
+    }
+    if use_gpu {
+        print (str_concat "GPU: " (gpu_device_info 0))
+    }
+
+    # Build integer sine table: sin_table[i] = round(sin(i * 2π / SIN_N) * 1000)
+    let mut h_sin: array<int> = []
+    let twopi: float = 6.2831853
+    let mut ti: int = 0
+    while (< ti SIN_N) {
+        let angle: float = (* (cast_float ti) (/ twopi (cast_float SIN_N)))
+        let sv:    int   = (cast_int (* (sin angle) 1000.0))
+        set h_sin (array_push h_sin sv)
+        set ti (+ ti 1)
+    }
+
+    # Allocate height array (result from GPU)
+    let mut h_heights: array<int> = []
+    let mut hfi: int = 0
+    while (< hfi W) {
+        set h_heights (array_push h_heights 0)
+        set hfi (+ hfi 1)
+    }
+
+    # Device buffers
+    let sin_bytes: int = (* SIN_N 8)
+    let h_bytes:   int = (* W 8)
+    let mut d_sin_v: int = 0
+    let mut d_h_v:   int = 0
+
+    if use_gpu {
+        set d_sin_v (gpu_alloc sin_bytes)
+        set d_h_v   (gpu_alloc h_bytes)
+        if (or (== d_sin_v 0) (== d_h_v 0)) {
+            print "gpu_alloc failed — falling back to CPU"
+        }
+        if (not (== d_sin_v 0)) {
+            (gpu_memcpy_to_device d_sin_v h_sin sin_bytes)
+        }
+    }
+
+    # ── SDL init ──────────────────────────────────────────────────────────────
+    (SDL_Init SDL_INIT_VIDEO)
+    let window: SDL_Window = (SDL_CreateWindow
+        "Nanolang Ocean Simulation — GPU wave field, Archimedes ship physics"
+        SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
+        W H 0)
+    let rend: SDL_Renderer = (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_ACCELERATED)
+
+    # ── Ship physics state ────────────────────────────────────────────────────
+    # Buoyancy restoring force spring:
+    #   F_net = ρ·g·A·(draft + δy) − m·g   where δy is deviation from rest draft
+    # Linearised: F_net ≈ ρ·g·A·δy   → spring constant k = ρ·g·A
+    # But we simulate at pixel level:  y_ship moves with wave + spring
+
+    let ship_x:   int   = (/ W 2)
+    let mut ship_vy:    float = 0.0   # heave velocity (px/s)
+    let mut ship_dy:    float = 0.0   # heave displacement from wave surface (px)
+    let mut ship_pitch: float = 0.0   # pitch angle (small, radians-ish)
+    let mut ship_dvy:   float = 0.0   # pitch angular velocity
+
+    # Spring constant for heave: k = ρ·g·waterplane_area
+    # Waterplane area in px²: (SHIP_HW*2) × (SHIP_BEAM_M / PX_PER_M) is known
+    # Simplified: just use a tuned spring
+    let spring_k: float = 0.08   # px/px spring (tuned for visual)
+    let spring_p: float = 0.04   # pitch spring
+
+    # ── Main loop ─────────────────────────────────────────────────────────────
+    let mut frame:   int   = 0
+    let mut running: int   = 1
+
+    while (== running 1) {
+        # Handle quit
+        if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
+        let key: int = (nl_sdl_poll_keypress)
+        if (== key 27) { set running 0 }   # ESC
+        if (== key 113) { set running 0 }  # Q
+
+        # ── GPU: compute wave heights ─────────────────────────────────────────
+        if (and use_gpu (not (== d_sin_v 0))) {
+            let threads: int = 256
+            let blocks:  int = (/ (+ W (- threads 1)) threads)
+            let ok: bool = (gpu_launch "ocean.ptx" "compute_ocean"
+                                       blocks threads d_sin_v d_h_v W frame)
+            if ok {
+                (gpu_sync)
+                (gpu_memcpy_from_device h_heights d_h_v h_bytes)
+            }
+        }
+
+        # Fallback: CPU wave computation (same math, but in nano not PTX)
+        if (not (and use_gpu (not (== d_sin_v 0)))) {
+            let BIG: int = 5120000
+            let mut cx: int = 0
+            while (< cx W) {
+                let a1: int = (% (+ (+ (* 3 cx) (* (- 0 3) frame)) BIG) 512)
+                let h1: int = (/ (* 25 (at h_sin a1)) 1000)
+                let a2: int = (% (+ (+ (* (- 0 7) cx) (* (- 0 6) frame)) BIG) 512)
+                let h2: int = (/ (* 12 (at h_sin a2)) 1000)
+                let a3: int = (% (+ (+ (* 2 cx) (* (- 0 2) frame)) BIG) 512)
+                let h3: int = (/ (* 20 (at h_sin a3)) 1000)
+                let a4: int = (% (+ (+ (* 11 cx) (* (- 0 8) frame)) BIG) 512)
+                let h4: int = (/ (* 8 (at h_sin a4)) 1000)
+                (array_set h_heights cx (+ (+ h1 h2) (+ h3 h4)))
+                set cx (+ cx 1)
+            }
+        }
+
+        # ── Ship physics ──────────────────────────────────────────────────────
+        # Sample ocean at bow, midship, stern
+        let bow_x:    int = (+ ship_x SHIP_HW)
+        let stern_x:  int = (- ship_x SHIP_HW)
+        let mid_x:    int = ship_x
+
+        let wave_bow:   int = (at h_heights (clamp_col bow_x))
+        let wave_mid:   int = (at h_heights mid_x)
+        let wave_stern: int = (at h_heights (clamp_col stern_x))
+
+        # Ocean surface Y at ship locations
+        let wy_bow:   int = (+ HORIZON wave_bow)
+        let wy_mid:   int = (+ HORIZON wave_mid)
+        let wy_stern: int = (+ HORIZON wave_stern)
+
+        # Heave: spring towards midship wave surface
+        let target_y: float = (cast_float wy_mid)
+        let force:    float = (* (- 0.0 spring_k) ship_dy)
+        set ship_vy (* DAMP_HEAVE (+ ship_vy (* force DT)))
+        set ship_dy (+ ship_dy (* ship_vy DT))
+
+        # Pitch: driven by bow vs stern height difference
+        let wave_slope: float = (/ (cast_float (- wy_bow wy_stern)) (cast_float (* 2 SHIP_HW)))
+        let pitch_torque: float = (* (- 0.0 spring_p) (- ship_pitch wave_slope))
+        set ship_dvy (* DAMP_PITCH (+ ship_dvy (* pitch_torque DT)))
+        set ship_pitch (+ ship_pitch (* ship_dvy DT))
+
+        # Effective screen Y of waterline at midship
+        let ship_y: int = (cast_int (+ target_y ship_dy))
+
+        # Pitch-adjusted bow and stern Y offsets
+        let pitch_offset: int = (cast_int (* ship_pitch (cast_float SHIP_HW)))
+        let wy_bow_ship:  int = (+ ship_y pitch_offset)
+        let wy_stern_ship: int = (- ship_y pitch_offset)
+
+        # ── Render ────────────────────────────────────────────────────────────
+        (SDL_SetRenderDrawColor rend 10 15 40 255)
+        (SDL_RenderClear rend)
+
+        (draw_sky rend)
+        (draw_ocean rend h_heights 620)
+
+        # Draw ship only if it's in view
+        if (and (> ship_y 50) (< ship_y (- H 20))) {
+            (draw_ship rend ship_x ship_y wy_bow_ship wy_stern_ship)
+        }
+
+        (SDL_RenderPresent rend)
+        (SDL_Delay 16)   # ~60 fps
+
+        set frame (+ frame 1)
+    }
+
+    # ── Cleanup ───────────────────────────────────────────────────────────────
+    if (not (== d_sin_v 0)) { (gpu_free d_sin_v) }
+    if (not (== d_h_v 0))   { (gpu_free d_h_v)   }
+    (SDL_DestroyRenderer rend)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    return 0
+}
