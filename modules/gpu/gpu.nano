@@ -53,6 +53,10 @@ extern fn nl_gpu_launch2d(_ptx_file: string, _kernel_name: string,
                           _arg0: int, _arg1: int, _arg2: int, _arg3: int) -> bool
 extern fn nl_gpu_last_error() -> string
 extern fn nl_gpu_atomic_add(_ptr: int, _delta: int) -> int
+extern fn nl_gpu_load(_ptr: int) -> int
+extern fn nl_gpu_store(_ptr: int, _val: int) -> void
+extern fn nl_gpu_load_float(_ptr: int) -> float
+extern fn nl_gpu_store_float(_ptr: int, _val: float) -> void
 
 # ── Device management ────────────────────────────────────────────────────────
 
@@ -160,6 +164,30 @@ pub fn gpu_atomic_add(ptr: int, delta: int) -> int {
     unsafe { return (nl_gpu_atomic_add ptr delta) }
 }
 shadow gpu_atomic_add { assert true }
+
+# ── Global device memory access (use inside gpu fn) ───────────────────────────
+# These map to PTX ld.global / st.global instructions.
+# ptr is a device pointer (opaque int from gpu_alloc arithmetic).
+
+pub fn gpu_load(ptr: int) -> int {
+    unsafe { return (nl_gpu_load ptr) }
+}
+shadow gpu_load { assert true }
+
+pub fn gpu_store(ptr: int, val: int) -> void {
+    unsafe { (nl_gpu_store ptr val) }
+}
+shadow gpu_store { assert true }
+
+pub fn gpu_load_float(ptr: int) -> float {
+    unsafe { return (nl_gpu_load_float ptr) }
+}
+shadow gpu_load_float { assert true }
+
+pub fn gpu_store_float(ptr: int, val: float) -> void {
+    unsafe { (nl_gpu_store_float ptr val) }
+}
+shadow gpu_store_float { assert true }
 
 # ── Utility ──────────────────────────────────────────────────────────────────
 

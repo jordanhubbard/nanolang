@@ -212,6 +212,80 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
             return r;
         }
 
+        /* gpu_load(ptr) → ld.global.s64 — load 64-bit int from device pointer */
+        if (strcmp(fn, "gpu_load") == 0) {
+            if (node->as.call.arg_count != 1) {
+                ptx_err(ctx, "gpu_load takes 1 argument"); return -1;
+            }
+            VK pk; int ptr = emit_expr(ctx, l, node->as.call.args[0], &pk);
+            if (ptr < 0) return -1;
+            int r = new_reg(ctx); *ok = VK_INT;
+            psb_appendf(&ctx->sb, "    ld.global.s64 %%rd%d, [%%rd%d];\n", r, ptr);
+            return r;
+        }
+
+        /* gpu_store(ptr, val) → st.global.s64 — store 64-bit int to device pointer */
+        if (strcmp(fn, "gpu_store") == 0) {
+            if (node->as.call.arg_count != 2) {
+                ptx_err(ctx, "gpu_store takes 2 arguments"); return -1;
+            }
+            VK pk; int ptr = emit_expr(ctx, l, node->as.call.args[0], &pk);
+            VK vk; int val = emit_expr(ctx, l, node->as.call.args[1], &vk);
+            if (ptr < 0 || val < 0) return -1;
+            *ok = VK_INT;
+            psb_appendf(&ctx->sb, "    st.global.s64 [%%rd%d], %%rd%d;\n", ptr, val);
+            int r = new_reg(ctx);
+            psb_appendf(&ctx->sb, "    mov.s64 %%rd%d, 0;\n", r);
+            return r;
+        }
+
+        /* gpu_load_float(ptr) → ld.global.f64 — load 64-bit float from device pointer */
+        if (strcmp(fn, "gpu_load_float") == 0) {
+            if (node->as.call.arg_count != 1) {
+                ptx_err(ctx, "gpu_load_float takes 1 argument"); return -1;
+            }
+            VK pk; int ptr = emit_expr(ctx, l, node->as.call.args[0], &pk);
+            if (ptr < 0) return -1;
+            int r = new_reg(ctx); *ok = VK_FLOAT;
+            psb_appendf(&ctx->sb, "    ld.global.f64 %%fd%d, [%%rd%d];\n", r, ptr);
+            return r;
+        }
+
+        /* gpu_store_float(ptr, val) → st.global.f64 — store 64-bit float to device pointer */
+        if (strcmp(fn, "gpu_store_float") == 0) {
+            if (node->as.call.arg_count != 2) {
+                ptx_err(ctx, "gpu_store_float takes 2 arguments"); return -1;
+            }
+            VK pk; int ptr = emit_expr(ctx, l, node->as.call.args[0], &pk);
+            VK vk; int val = emit_expr(ctx, l, node->as.call.args[1], &vk);
+            if (ptr < 0 || val < 0) return -1;
+            *ok = VK_INT;
+            /* coerce val to f64 if needed */
+            int fval = val;
+            if (vk != VK_FLOAT) {
+                fval = new_reg(ctx);
+                psb_appendf(&ctx->sb, "    cvt.rn.f64.s64 %%fd%d, %%rd%d;\n", fval, val);
+            }
+            psb_appendf(&ctx->sb, "    st.global.f64 [%%rd%d], %%fd%d;\n", ptr, fval);
+            int r = new_reg(ctx);
+            psb_appendf(&ctx->sb, "    mov.s64 %%rd%d, 0;\n", r);
+            return r;
+        }
+
+        /* gpu_atomic_add(ptr, delta) → atom.global.add.s64 */
+        if (strcmp(fn, "gpu_atomic_add") == 0) {
+            if (node->as.call.arg_count != 2) {
+                ptx_err(ctx, "gpu_atomic_add takes 2 arguments"); return -1;
+            }
+            VK pk; int ptr = emit_expr(ctx, l, node->as.call.args[0], &pk);
+            VK dk; int dlt = emit_expr(ctx, l, node->as.call.args[1], &dk);
+            if (ptr < 0 || dlt < 0) return -1;
+            int r = new_reg(ctx); *ok = VK_INT;
+            psb_appendf(&ctx->sb, "    atom.global.add.s64 %%rd%d, [%%rd%d], %%rd%d;\n",
+                        r, ptr, dlt);
+            return r;
+        }
+
         ptx_err(ctx, "unsupported call '%s' in gpu fn", fn);
         return -1;
     }

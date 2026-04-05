@@ -366,3 +366,8 @@ int64_t nl_gpu_grid_dim_z(void)  { return 1; }
 int64_t nl_gpu_global_id_x(void) { return 0; }
 int64_t nl_gpu_global_id_y(void) { return 0; }
 void    nl_gpu_barrier(void)      { }
+/* GPU memory access stubs (no-op on CPU; real work done by PTX ld/st.global) */
+int64_t nl_gpu_load(int64_t ptr)             { (void)ptr; return 0; }
+void    nl_gpu_store(int64_t ptr, int64_t v) { (void)ptr; (void)v; }
+double  nl_gpu_load_float(int64_t ptr)       { (void)ptr; return 0.0; }
+void    nl_gpu_store_float(int64_t ptr, double v) { (void)ptr; (void)v; }

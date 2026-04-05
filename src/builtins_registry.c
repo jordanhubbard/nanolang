@@ -230,9 +230,11 @@ const BuiltinEntry builtin_registry[] = {
     {"grid_dim_x",   "nl_gpu_grid_dim_x",   0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"grid_dim_y",   "nl_gpu_grid_dim_y",   0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"grid_dim_z",   "nl_gpu_grid_dim_z",   0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
-    {"global_id_x",  "nl_gpu_global_id_x",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
-    {"global_id_y",  "nl_gpu_global_id_y",  0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
-    {"gpu_barrier",  "nl_gpu_barrier",       0, {U,U,U,U}, V, OP_NOP, L},
+    {"global_id_x",    "nl_gpu_global_id_x",    0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"global_id_y",    "nl_gpu_global_id_y",    0, {U,U,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"gpu_barrier",    "nl_gpu_barrier",         0, {U,U,U,U}, V, OP_NOP, L},
+    /* gpu_load/gpu_store are pub fn in modules/gpu/gpu.nano — NOT builtins.
+     * The PTX backend intercepts them by name in emit_expr (AST_CALL case). */
 };
 
 const int builtin_registry_count = sizeof(builtin_registry) / sizeof(builtin_registry[0]);

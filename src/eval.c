@@ -3004,7 +3004,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "grid_dim_z")  == 0) return create_int(1);
     if (strcmp(name, "global_id_x") == 0) return create_int(0);
     if (strcmp(name, "global_id_y") == 0) return create_int(0);
-    if (strcmp(name, "gpu_barrier")  == 0) return create_void();
+    if (strcmp(name, "gpu_barrier")    == 0) return create_void();
 
     /* Math and utility functions */
     if (strcmp(name, "abs") == 0) return builtin_abs(args);

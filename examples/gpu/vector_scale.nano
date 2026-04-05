@@ -1,0 +1,124 @@
+# vector_scale.nano — GPU vector scaling: y[i] = scalar * x[i]
+#
+# The simplest possible real GPU kernel: one load, one multiply, one store.
+# Uses float64 arithmetic via gpu_load_float / gpu_store_float.
+# The float scalar is bit-cast to int64 for passing through gpu_launch,
+# then the PTX kernel loads it from a device pointer (avoids the arg encoding issue).
+#
+# Simpler version: pass scalar as int, compute integer scaling.
+#
+# Compile kernel to PTX:
+#   NANO_MODULE_PATH=modules nanoc --target ptx vector_scale.nano -o vector_scale.ptx
+#
+# Compile host program and run:
+#   NANO_MODULE_PATH=modules nanoc vector_scale.nano -o vector_scale
+#   ./vector_scale
+
+import "modules/gpu/gpu.nano"
+
+# ── GPU kernel ───────────────────────────────────────────────────────────────
+# y[i] = scalar * x[i]   (integer arithmetic)
+# scalar is passed as a direct int argument.
+
+gpu fn scale_kernel(x: int, y: int, scalar: int, n: int) -> void {
+    let i: int = (global_id_x)
+    if (< i n) {
+        let offset: int = (* i 8)
+        let x_val: int = (gpu_load (+ x offset))
+        let result: int = (* scalar x_val)
+        (gpu_store (+ y offset) result)
+        return
+    }
+}
+
+shadow scale_kernel { assert true }
+
+# ── GPU kernel (float version) ────────────────────────────────────────────────
+# y[i] = x[i] * x[i]   (squaring — no float arg needed from host)
+
+gpu fn square_kernel(x: int, y: int, n: int) -> void {
+    let i: int = (global_id_x)
+    if (< i n) {
+        let offset: int = (* i 8)
+        let x_val: float = (gpu_load_float (+ x offset))
+        let result: float = (* x_val x_val)
+        (gpu_store_float (+ y offset) result)
+        return
+    }
+}
+
+shadow square_kernel { assert true }
+
+# ── Host program ─────────────────────────────────────────────────────────────
+
+fn main() -> int {
+    if (not (gpu_init)) {
+        print "No CUDA GPU found"
+        return 1
+    }
+    print (str_concat "GPU: " (gpu_device_info 0))
+
+    let n:      int = 512
+    let scalar: int = 7
+    let bytes:  int = (* n 8)
+
+    # Build host array: x[i] = i+1
+    let mut h_x: array<int> = []
+    let mut i: int = 0
+    while (< i n) {
+        set h_x (array_push h_x (+ i 1))
+        set i (+ i 1)
+    }
+
+    # Allocate and copy
+    let d_x: int = (gpu_alloc bytes)
+    let d_y: int = (gpu_alloc bytes)
+    if (or (== d_x 0) (== d_y 0)) {
+        print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        return 1
+    }
+    (gpu_memcpy_to_device d_x h_x bytes)
+
+    # Launch scale_kernel: y[i] = scalar * x[i]
+    let threads: int = 256
+    let blocks: int = (/ (+ n (- threads 1)) threads)
+    let ok: bool = (gpu_launch "vector_scale.ptx" "scale_kernel"
+                               blocks threads d_x d_y scalar n)
+    if (not ok) {
+        print (str_concat "gpu_launch failed: " (gpu_last_error))
+        (gpu_free d_x)
+        (gpu_free d_y)
+        return 1
+    }
+    (gpu_sync)
+
+    # Copy back and verify
+    let mut h_y: array<int> = []
+    let mut j: int = 0
+    while (< j n) {
+        set h_y (array_push h_y 0)
+        set j (+ j 1)
+    }
+    (gpu_memcpy_from_device h_y d_y bytes)
+
+    let mut errors: int = 0
+    let mut k: int = 0
+    while (< k n) {
+        let expected: int = (* scalar (+ k 1))
+        let got: int = (at h_y k)
+        if (not (== got expected)) {
+            set errors (+ errors 1)
+        }
+        set k (+ k 1)
+    }
+
+    (gpu_free d_x)
+    (gpu_free d_y)
+
+    if (== errors 0) {
+        print (str_concat "VECTOR_SCALE PASSED — " (str_concat (int_to_string n) " elements correct"))
+        return 0
+    }
+    print (str_concat "VECTOR_SCALE FAILED — " (str_concat (int_to_string errors) " errors"))
+    return 1
+}

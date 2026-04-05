@@ -1153,5 +1153,10 @@ int64_t nl_gpu_grid_dim_z(void);
 int64_t nl_gpu_global_id_x(void);
 int64_t nl_gpu_global_id_y(void);
 void    nl_gpu_barrier(void);
+/* GPU global memory intrinsics (PTX ld.global / st.global) */
+int64_t nl_gpu_load(int64_t ptr);
+void    nl_gpu_store(int64_t ptr, int64_t val);
+double  nl_gpu_load_float(int64_t ptr);
+void    nl_gpu_store_float(int64_t ptr, double val);
 
 #endif /* NANOLANG_H */

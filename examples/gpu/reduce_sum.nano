@@ -1,0 +1,97 @@
+# reduce_sum.nano — Parallel reduction: sum of an integer array
+#
+# Each thread atomically adds its element to a global accumulator.
+# Demonstrates gpu_atomic_add (→ atom.global.add.s64 in PTX).
+#
+# Compile kernel to PTX:
+#   NANO_MODULE_PATH=modules nanoc --target ptx reduce_sum.nano -o reduce_sum.ptx
+#
+# Compile host program and run:
+#   NANO_MODULE_PATH=modules nanoc reduce_sum.nano -o reduce_sum
+#   ./reduce_sum
+
+import "modules/gpu/gpu.nano"
+
+# ── GPU kernel ───────────────────────────────────────────────────────────────
+# Each thread: sum_ptr += input[i]  (atomic)
+
+gpu fn reduce_sum_kernel(input: int, sum_ptr: int, n: int) -> void {
+    let i: int = (global_id_x)
+    if (< i n) {
+        let offset: int = (* i 8)
+        let val: int = (gpu_load (+ input offset))
+        (gpu_atomic_add sum_ptr val)
+        return
+    }
+}
+
+shadow reduce_sum_kernel { assert true }
+
+# ── Host program ─────────────────────────────────────────────────────────────
+
+fn main() -> int {
+    if (not (gpu_init)) {
+        print "No CUDA GPU found"
+        return 1
+    }
+    print (str_concat "GPU: " (gpu_device_info 0))
+
+    # Sum 1..n; Gauss formula: expected = n*(n+1)/2
+    let n: int = 1024
+    let bytes: int = (* n 8)
+    let expected: int = (/ (* n (+ n 1)) 2)
+
+    # Build host array: input[i] = i+1
+    let mut h_input: array<int> = []
+    let mut i: int = 0
+    while (< i n) {
+        set h_input (array_push h_input (+ i 1))
+        set i (+ i 1)
+    }
+
+    # Allocate device memory
+    let d_input: int = (gpu_alloc bytes)
+    let d_sum:   int = (gpu_alloc 8)
+    if (or (== d_input 0) (== d_sum 0)) {
+        print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        return 1
+    }
+
+    # Copy input; zero the accumulator
+    (gpu_memcpy_to_device d_input h_input bytes)
+    let h_zero: array<int> = [0]
+    (gpu_memcpy_to_device d_sum h_zero 8)
+
+    # Launch: ceil(n/256) blocks of 256 threads
+    let threads: int = 256
+    let blocks: int = (/ (+ n (- threads 1)) threads)
+    # gpu_launch takes 4 kernel args; pad unused with 0
+    let ok: bool = (gpu_launch "reduce_sum.ptx" "reduce_sum_kernel"
+                               blocks threads d_input d_sum n 0)
+    if (not ok) {
+        print (str_concat "gpu_launch failed: " (gpu_last_error))
+        (gpu_free d_input)
+        (gpu_free d_sum)
+        return 1
+    }
+    (gpu_sync)
+
+    # Read result back
+    let mut h_result: array<int> = [0]
+    (gpu_memcpy_from_device h_result d_sum 8)
+    let got: int = (at h_result 0)
+
+    (gpu_free d_input)
+    (gpu_free d_sum)
+
+    print (str_concat "Sum 1.." (str_concat (int_to_string n)
+           (str_concat ": expected=" (str_concat (int_to_string expected)
+           (str_concat " got=" (int_to_string got))))))
+
+    if (== got expected) {
+        print "REDUCE_SUM PASSED"
+        return 0
+    }
+    print "REDUCE_SUM FAILED"
+    return 1
+}
