@@ -270,21 +270,32 @@ void nl_gpu_free(int64_t ptr) {
     cuda_set_error(r);
 }
 
-/*
- * nanolang array<int> / array<float> layout (from runtime/dyn_array.h):
- *   typedef struct { void *data; int64_t len; int64_t cap; } NanoArray;
- * The first field is a pointer to the element data.
- */
-typedef struct { void *data; int64_t len; int64_t cap; } NanoArray;
+/* nanolang array<int> / array<float> is passed as DynArray* from generated C.
+ * DynArray layout (from runtime/dyn_array.h — must stay in sync):
+ *   int64_t length;        offset 0
+ *   int64_t capacity;      offset 8
+ *   int32_t elem_type;     offset 16   (ElementType enum)
+ *   uint8_t elem_size;     offset 20
+ *   [3 bytes padding]
+ *   void *data;            offset 24
+ * We use a local mirror struct to access .data without a header dependency. */
+typedef struct {
+    int64_t  length;
+    int64_t  capacity;
+    int32_t  elem_type;
+    uint8_t  elem_size;
+    uint8_t  _pad[3];
+    void    *data;
+} NLArray;
 
-bool nl_gpu_memcpy_to_device(int64_t dst, NanoArray *src, int64_t bytes) {
+bool nl_gpu_memcpy_to_device(int64_t dst, NLArray *src, int64_t bytes) {
     if (!cuda_load() || !src || !src->data || bytes <= 0) return false;
     CUresult r = g_cuda.cuMemcpyHtoD((CUdeviceptr)dst, src->data, (size_t)bytes);
     cuda_set_error(r);
     return r == CUDA_SUCCESS;
 }
 
-bool nl_gpu_memcpy_from_device(NanoArray *dst, int64_t src, int64_t bytes) {
+bool nl_gpu_memcpy_from_device(NLArray *dst, int64_t src, int64_t bytes) {
     if (!cuda_load() || !dst || !dst->data || bytes <= 0) return false;
     CUresult r = g_cuda.cuMemcpyDtoH(dst->data, (CUdeviceptr)src, (size_t)bytes);
     cuda_set_error(r);
