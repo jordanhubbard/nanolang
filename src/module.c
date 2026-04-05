@@ -148,10 +148,12 @@ void module_list_add(ModuleList *list, const char *module_path) {
     }
     
     if (list->count >= list->capacity) {
-        list->capacity *= 2;
-        list->module_paths = realloc(list->module_paths, sizeof(char*) * list->capacity);
+        list->capacity = list->capacity > 0 ? list->capacity * 2 : 8;
+        char **new_paths = realloc(list->module_paths, sizeof(char*) * list->capacity);
+        if (!new_paths) return;
+        list->module_paths = new_paths;
     }
-    
+
     list->module_paths[list->count++] = strdup(module_path);
 }
 
