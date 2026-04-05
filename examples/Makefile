@@ -360,7 +360,7 @@ test-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libfo
 run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter_vm $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT) ../modules/forth_see/.build/libforth_see.so
+forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching Forth IDE..."
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
