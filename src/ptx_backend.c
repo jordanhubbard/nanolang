@@ -66,7 +66,8 @@ typedef struct {
 
 typedef struct {
     PtxSB    sb;
-    int      next_reg;
+    int      next_reg;     /* counter for %rd (s64) and %fd (f64) and %p (pred) */
+    int      next_u32;     /* counter for %r (u32) temporaries — special reg reads */
     int      next_lbl;
     bool     verbose;
     const char *src;
@@ -81,8 +82,9 @@ static void ptx_err(PCtx *ctx, const char *fmt, ...) {
     ctx->err = true;
 }
 
-static int  new_reg(PCtx *ctx)  { return ctx->next_reg++; }
-static int  new_lbl(PCtx *ctx)  { return ctx->next_lbl++; }
+static int  new_reg(PCtx *ctx)     { return ctx->next_reg++; }
+static int  new_u32(PCtx *ctx)     { return ctx->next_u32++; }
+static int  new_lbl(PCtx *ctx)     { return ctx->next_lbl++; }
 
 static void loc_init(VLocals *l) { l->n = 0; }
 static VLocal *loc_find(VLocals *l, const char *name) {
@@ -161,12 +163,12 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
         };
         for (int i = 0; builtins[i].name; i++) {
             if (strcmp(fn, builtins[i].name) == 0) {
-                int tmp = new_reg(ctx);
-                int r   = new_reg(ctx);
+                int tmp = new_u32(ctx);  /* %r — u32 for special register read */
+                int r   = new_reg(ctx);  /* %rd — s64 result */
                 *ok = VK_INT;
                 psb_appendf(&ctx->sb,
-                    "    mov.u32 %%rd%d, %s;\n"
-                    "    cvt.s64.u32 %%rd%d, %%rd%d;\n",
+                    "    mov.u32 %%r%d, %s;\n"
+                    "    cvt.s64.u32 %%rd%d, %%r%d;\n",
                     tmp, builtins[i].ptx_reg, r, tmp);
                 return r;
             }
@@ -178,18 +180,19 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
             const char *bid_reg  = is_y ? "%ctaid.y" : "%ctaid.x";
             const char *bdim_reg = is_y ? "%ntid.y"  : "%ntid.x";
             const char *tid_reg  = is_y ? "%tid.y"   : "%tid.x";
-            int bid_raw  = new_reg(ctx); int bid  = new_reg(ctx);
-            int bdim_raw = new_reg(ctx); int bdim = new_reg(ctx);
-            int tid_raw  = new_reg(ctx); int tid  = new_reg(ctx);
+            /* u32 intermediates for special register reads */
+            int bid_raw  = new_u32(ctx); int bid  = new_reg(ctx);
+            int bdim_raw = new_u32(ctx); int bdim = new_reg(ctx);
+            int tid_raw  = new_u32(ctx); int tid  = new_reg(ctx);
             int mul_r    = new_reg(ctx); int r    = new_reg(ctx);
             *ok = VK_INT;
             psb_appendf(&ctx->sb,
-                "    mov.u32 %%rd%d, %s;\n"
-                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
-                "    mov.u32 %%rd%d, %s;\n"
-                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
-                "    mov.u32 %%rd%d, %s;\n"
-                "    cvt.s64.u32 %%rd%d, %%rd%d;\n"
+                "    mov.u32 %%r%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%r%d;\n"
+                "    mov.u32 %%r%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%r%d;\n"
+                "    mov.u32 %%r%d, %s;\n"
+                "    cvt.s64.u32 %%rd%d, %%r%d;\n"
                 "    mul.lo.s64 %%rd%d, %%rd%d, %%rd%d;\n"
                 "    add.s64 %%rd%d, %%rd%d, %%rd%d;\n",
                 bid_raw, bid_reg, bid, bid_raw,
@@ -406,6 +409,7 @@ static void emit_kernel(PCtx *ctx, ASTNode *fn) {
     if (!fn || fn->type != AST_FUNCTION || !fn->as.function.is_gpu) return;
 
     ctx->next_reg = 0;
+    ctx->next_u32 = 0;
     ctx->next_lbl = 0;
 
     const char *name = fn->as.function.name;
