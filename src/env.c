@@ -63,7 +63,8 @@ Environment *create_environment(void) {
     env->import_tracker->import_capacity = 8;
     
     env->builtins_registered = false;
-    
+    env->effect_registry = NULL;
+
     return env;
 }
 
