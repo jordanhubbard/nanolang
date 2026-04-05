@@ -69,8 +69,8 @@ fn main() -> int {
     # Launch: ceil(n/256) blocks of 256 threads
     let threads: int = 256
     let blocks: int = (/ (+ n (- threads 1)) threads)
-    let ok: bool = (gpu_launch "saxpy.ptx" "saxpy_kernel"
-                               blocks threads a d_x d_y d_z)
+    let ok: bool = (gpu_launch5 "saxpy.ptx" "saxpy_kernel"
+                                blocks threads a d_x d_y d_z n)
     if (not ok) {
         print (str_concat "gpu_launch failed: " (gpu_last_error))
         (gpu_free d_x)

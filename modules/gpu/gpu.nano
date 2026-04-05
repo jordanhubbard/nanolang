@@ -47,6 +47,10 @@ extern fn nl_gpu_memcpy_from_device(_dst: array<int>, _src: int, _bytes: int) ->
 extern fn nl_gpu_launch(_ptx_file: string, _kernel_name: string,
                         _grid_x: int, _block_x: int,
                         _arg0: int, _arg1: int, _arg2: int, _arg3: int) -> bool
+extern fn nl_gpu_launch5(_ptx_file: string, _kernel_name: string,
+                         _grid_x: int, _block_x: int,
+                         _arg0: int, _arg1: int, _arg2: int,
+                         _arg3: int, _arg4: int) -> bool
 extern fn nl_gpu_launch2d(_ptx_file: string, _kernel_name: string,
                           _grid_x: int, _grid_y: int,
                           _block_x: int, _block_y: int,
@@ -134,6 +138,17 @@ pub fn gpu_launch(ptx_file: string, kernel_name: string,
     }
 }
 shadow gpu_launch { assert true }
+
+# Launch a kernel with 5 arguments (for kernels that need more than 4 parameters).
+pub fn gpu_launch5(ptx_file: string, kernel_name: string,
+                   grid_x: int, block_x: int,
+                   arg0: int, arg1: int, arg2: int,
+                   arg3: int, arg4: int) -> bool {
+    unsafe {
+        return (nl_gpu_launch5 ptx_file kernel_name grid_x block_x arg0 arg1 arg2 arg3 arg4)
+    }
+}
+shadow gpu_launch5 { assert true }
 
 # Launch with 2D grid/block dimensions (for 2D problems like matrix ops).
 pub fn gpu_launch2d(ptx_file: string, kernel_name: string,

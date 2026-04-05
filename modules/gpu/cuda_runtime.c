@@ -323,6 +323,28 @@ bool nl_gpu_launch(const char *ptx_file, const char *kernel_name,
     return r == CUDA_SUCCESS;
 }
 
+bool nl_gpu_launch5(const char *ptx_file, const char *kernel_name,
+                 int64_t grid_x, int64_t block_x,
+                 int64_t arg0, int64_t arg1, int64_t arg2,
+                 int64_t arg3, int64_t arg4) {
+    if (!cuda_load()) return false;
+
+    CUmodule mod = get_or_load_module(ptx_file);
+    if (!mod) return false;
+
+    CUfunction fn = NULL;
+    CUresult r = g_cuda.cuModuleGetFunction(&fn, mod, kernel_name);
+    if (r != CUDA_SUCCESS) { cuda_set_error(r); return false; }
+
+    void *args[] = { &arg0, &arg1, &arg2, &arg3, &arg4 };
+    r = g_cuda.cuLaunchKernel(fn,
+        (unsigned int)grid_x,  1, 1,
+        (unsigned int)block_x, 1, 1,
+        0, NULL, args, NULL);
+    cuda_set_error(r);
+    return r == CUDA_SUCCESS;
+}
+
 bool nl_gpu_launch2d(const char *ptx_file, const char *kernel_name,
                   int64_t grid_x, int64_t grid_y,
                   int64_t block_x, int64_t block_y,
