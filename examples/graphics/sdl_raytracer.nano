@@ -390,13 +390,20 @@ fn main() -> int {
     let mut cam_pos: Vec3 = Vec3 { x: 0.0, y: 0.5, z: 2.0 }
     let mut yaw: float = 0.0
     let mut pitch: float = 0.0
-    
+
+    # Dirty flag: only retrace when scene actually changes
+    let mut dirty: bool = true
+    let mut prev_yaw: float = -9999.0
+    let mut prev_pitch: float = -9999.0
+    let mut prev_cam_x: float = -9999.0
+    let mut prev_cam_y: float = -9999.0
+    let mut prev_cam_z: float = -9999.0
+    let mut prev_light_x: float = -9999.0
+    let mut prev_light_y: float = -9999.0
+
     let mut running: int = 1
-    
+
     while (== running 1) {
-        (SDL_SetRenderDrawColor renderer 50 50 80 255) 
-        (SDL_RenderClear renderer) 
-        
         # Handle keyboard
         let key: int = (nl_sdl_poll_keypress)
         if (== key 21) {  # R - reset
@@ -451,33 +458,59 @@ fn main() -> int {
         
         let light_pos: Vec3 = Vec3 { x: light_x, y: light_y, z: light_z }
 
-        let mut y: int = 0
-        while (< y RENDER_H) {
-            let mut x: int = 0
-            while (< x RENDER_W) {
-                let ray: Ray = (get_ray x y yaw pitch cam_pos)
-                let color: Vec3 = (trace ray spheres light_pos 0)
-                
-                let r: int = (cast_int (clamp (* color.x 255.0) 0.0 255.0))
-                let g: int = (cast_int (clamp (* color.y 255.0) 0.0 255.0))
-                let b: int = (cast_int (clamp (* color.z 255.0) 0.0 255.0))
-                
-                (SDL_SetRenderDrawColor renderer r g b 255) 
-                (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE) 
-                
-                set x (+ x 1)
-            }
-            set y (+ y 1)
-        }
-        
-        # Draw on-screen controls (bottom-left, semi-transparent white)
-        let ty: int = (- WINDOW_HEIGHT 68)
-        (nl_draw_text_blended renderer font "Arrow keys: rotate camera" 8 ty 220 220 220 200)
-        (nl_draw_text_blended renderer font "A/D: strafe left/right  S/F: move back/forward" 8 (+ ty 16) 220 220 220 200)
-        (nl_draw_text_blended renderer font "Mouse click/drag: move light   R: reset" 8 (+ ty 32) 220 220 220 200)
-        (nl_draw_text_blended renderer font "ESC: quit" 8 (+ ty 48) 220 220 220 200)
+        # Check if scene changed since last render
+        if (not (== yaw prev_yaw)) { set dirty true } else {}
+        if (not (== pitch prev_pitch)) { set dirty true } else {}
+        if (not (== cam_pos.x prev_cam_x)) { set dirty true } else {}
+        if (not (== cam_pos.y prev_cam_y)) { set dirty true } else {}
+        if (not (== cam_pos.z prev_cam_z)) { set dirty true } else {}
+        if (not (== light_x prev_light_x)) { set dirty true } else {}
+        if (not (== light_y prev_light_y)) { set dirty true } else {}
 
-        (SDL_RenderPresent renderer) 
+        if dirty {
+            set prev_yaw yaw
+            set prev_pitch pitch
+            set prev_cam_x cam_pos.x
+            set prev_cam_y cam_pos.y
+            set prev_cam_z cam_pos.z
+            set prev_light_x light_x
+            set prev_light_y light_y
+            set dirty false
+
+            (SDL_SetRenderDrawColor renderer 50 50 80 255)
+            (SDL_RenderClear renderer)
+
+            let mut y: int = 0
+            while (< y RENDER_H) {
+                let mut x: int = 0
+                while (< x RENDER_W) {
+                    let ray: Ray = (get_ray x y yaw pitch cam_pos)
+                    let color: Vec3 = (trace ray spheres light_pos 0)
+
+                    let r: int = (cast_int (clamp (* color.x 255.0) 0.0 255.0))
+                    let g: int = (cast_int (clamp (* color.y 255.0) 0.0 255.0))
+                    let b: int = (cast_int (clamp (* color.z 255.0) 0.0 255.0))
+
+                    (SDL_SetRenderDrawColor renderer r g b 255)
+                    (nl_sdl_render_fill_rect renderer (* x RENDER_SCALE) (* y RENDER_SCALE) RENDER_SCALE RENDER_SCALE)
+
+                    set x (+ x 1)
+                }
+                set y (+ y 1)
+            }
+
+            # Draw on-screen controls (bottom-left, semi-transparent white)
+            let ty: int = (- WINDOW_HEIGHT 68)
+            (nl_draw_text_blended renderer font "Arrow keys: rotate camera" 8 ty 220 220 220 200)
+            (nl_draw_text_blended renderer font "A/D: strafe left/right  S/F: move back/forward" 8 (+ ty 16) 220 220 220 200)
+            (nl_draw_text_blended renderer font "Mouse click/drag: move light   R: reset" 8 (+ ty 32) 220 220 220 200)
+            (nl_draw_text_blended renderer font "ESC: quit" 8 (+ ty 48) 220 220 220 200)
+
+            (SDL_RenderPresent renderer)
+        } else {
+            # Nothing changed - sleep briefly to avoid burning CPU
+            (SDL_Delay 8)
+        }
 
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
     }
