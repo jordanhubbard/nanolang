@@ -11,6 +11,9 @@ extern fn nl_os_system(_command: string) -> int
 extern fn nl_os_process_spawn(_command: string) -> int
 extern fn nl_os_process_is_running(_pid: int) -> int
 extern fn nl_os_process_wait(_pid: int) -> int
+extern fn nl_os_process_spawn_with_pipes(_command: string) -> array<string>
+extern fn nl_os_fd_read_available(_fd: int) -> string
+extern fn nl_os_fd_close(_fd: int) -> int
 
 pub struct Output {
     code: int
@@ -104,5 +107,66 @@ shadow wait {
     assert (> pid 0)
     let result: int = (wait pid)
     assert (== result 42)
+}
+
+/* Spawn a process non-blocking with pipes for stdout/stderr capture.
+ * Returns array<string> [pid, stdout_fd, stderr_fd].
+ * Both fds are non-blocking; use fd_read_available() to drain them each frame.
+ * Returns ["-1", "-1", "-1"] on error.
+ */
+pub fn spawn_with_pipes(command: string) -> array<string> {
+    let mut raw: array<string> = []
+    unsafe {
+        set raw (nl_os_process_spawn_with_pipes command)
+    }
+    return raw
+}
+
+shadow spawn_with_pipes {
+    let result: array<string> = (spawn_with_pipes "echo hello")
+    let pid: int = (string_to_int (at result 0))
+    assert (> pid 0)
+    let stdout_fd: int = (string_to_int (at result 1))
+    assert (>= stdout_fd 0)
+    (wait pid)
+    (fd_close stdout_fd)
+    (fd_close (string_to_int (at result 2)))
+}
+
+/* Non-blocking read from a pipe fd returned by spawn_with_pipes.
+ * Returns whatever bytes are currently available, or "" if none ready.
+ */
+pub fn fd_read_available(fd: int) -> string {
+    let mut data: string = ""
+    unsafe {
+        set data (nl_os_fd_read_available fd)
+    }
+    return data
+}
+
+shadow fd_read_available {
+    let result: array<string> = (spawn_with_pipes "echo world")
+    let pid: int = (string_to_int (at result 0))
+    let stdout_fd: int = (string_to_int (at result 1))
+    let stderr_fd: int = (string_to_int (at result 2))
+    (wait pid)
+    let data: string = (fd_read_available stdout_fd)
+    assert (> (str_length data) 0)
+    (fd_close stdout_fd)
+    (fd_close stderr_fd)
+}
+
+/* Close a pipe fd. Call this for both stdout_fd and stderr_fd when the process exits. */
+pub fn fd_close(fd: int) -> int {
+    let mut result: int = 0
+    unsafe {
+        set result (nl_os_fd_close fd)
+    }
+    return result
+}
+
+shadow fd_close {
+    let code: int = (fd_close -1)
+    assert (== code -1)
 }
 

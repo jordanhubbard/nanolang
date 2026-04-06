@@ -7,8 +7,10 @@
 # Expected Output: graphical
 
 # Controls:
-#   Mouse click/drag: Move light position
 #   Arrow keys: Rotate camera (yaw/pitch)
+#   A/D: Strafe camera left/right
+#   S/F: Move camera backward/forward
+#   Mouse click/drag: Move light position
 #   R: Reset camera
 #   ESC: Quit
 
@@ -408,9 +410,29 @@ fn main() -> int {
         if (== (nl_sdl_key_state 80) 1) { set yaw (+ yaw 2.0) }
         if (== (nl_sdl_key_state 82) 1) { set pitch (+ pitch 1.0) }
         if (== (nl_sdl_key_state 81) 1) { set pitch (- pitch 1.0) }
-        
+
         if (> pitch 89.0) { set pitch 89.0 }
         if (< pitch -89.0) { set pitch -89.0 }
+
+        # ASDF keys: move camera in world space (A=left, D=right, S=back, F=forward)
+        let step: float = 0.05
+        let yaw_rad: float = (deg_to_rad yaw)
+        let fwd_x: float = (sin yaw_rad)
+        let fwd_z: float = (* -1.0 (cos yaw_rad))
+        let rgt_x: float = (cos yaw_rad)
+        let rgt_z: float = (sin yaw_rad)
+        if (== (nl_sdl_key_state 4) 1) {   # A = strafe left
+            set cam_pos Vec3 { x: (- cam_pos.x (* rgt_x step)), y: cam_pos.y, z: (- cam_pos.z (* rgt_z step)) }
+        } else {}
+        if (== (nl_sdl_key_state 7) 1) {   # D = strafe right
+            set cam_pos Vec3 { x: (+ cam_pos.x (* rgt_x step)), y: cam_pos.y, z: (+ cam_pos.z (* rgt_z step)) }
+        } else {}
+        if (== (nl_sdl_key_state 22) 1) {  # S = move back
+            set cam_pos Vec3 { x: (- cam_pos.x (* fwd_x step)), y: cam_pos.y, z: (- cam_pos.z (* fwd_z step)) }
+        } else {}
+        if (== (nl_sdl_key_state 9) 1) {   # F = move forward
+            set cam_pos Vec3 { x: (+ cam_pos.x (* fwd_x step)), y: cam_pos.y, z: (+ cam_pos.z (* fwd_z step)) }
+        } else {}
         
         # Handle mouse drag input to move light interactively
         let drag_state: int = (nl_sdl_poll_mouse_state)
@@ -448,8 +470,13 @@ fn main() -> int {
             set y (+ y 1)
         }
         
-        # Draw on-screen help (standard position: top-left, white text)
-        
+        # Draw on-screen controls (bottom-left, semi-transparent white)
+        let ty: int = (- WINDOW_HEIGHT 68)
+        (nl_draw_text_blended renderer font "Arrow keys: rotate camera" 8 ty 220 220 220 200)
+        (nl_draw_text_blended renderer font "A/D: strafe left/right  S/F: move back/forward" 8 (+ ty 16) 220 220 220 200)
+        (nl_draw_text_blended renderer font "Mouse click/drag: move light   R: reset" 8 (+ ty 32) 220 220 220 200)
+        (nl_draw_text_blended renderer font "ESC: quit" 8 (+ ty 48) 220 220 220 200)
+
         (SDL_RenderPresent renderer) 
 
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }

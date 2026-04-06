@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 
 /* Use runtime DynArray API */
@@ -162,10 +163,10 @@ int64_t nl_os_process_is_running(int64_t pid) {
  */
 int64_t nl_os_process_wait(int64_t pid) {
     if (pid <= 0) return -1;
-    
+
     int status;
     pid_t result = waitpid((pid_t)pid, &status, 0);
-    
+
     if (result == (pid_t)pid) {
         if (WIFEXITED(status)) {
             return (int64_t)WEXITSTATUS(status);
@@ -179,4 +180,83 @@ int64_t nl_os_process_wait(int64_t pid) {
         /* waitpid failed */
         return -1;
     }
+}
+
+/* Spawn a process non-blocking with pipes for stdout/stderr capture.
+ * Returns array<string> with [pid, stdout_fd, stderr_fd].
+ * Both fds are set non-blocking so fd_read_available() never blocks the caller.
+ * Caller must close fds with fd_close() when done (typically on process exit).
+ * Returns ["-1", "-1", "-1"] on error.
+ */
+DynArray* nl_os_process_spawn_with_pipes(const char* command) {
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 3);
+
+    int out_pipe[2], err_pipe[2];
+    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        return result;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        close(out_pipe[0]); close(out_pipe[1]);
+        close(err_pipe[0]); close(err_pipe[1]);
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        return result;
+    }
+
+    if (pid == 0) {
+        /* Child: wire stdout/stderr into the pipes and exec */
+        close(out_pipe[0]);
+        close(err_pipe[0]);
+        dup2(out_pipe[1], STDOUT_FILENO);
+        dup2(err_pipe[1], STDERR_FILENO);
+        close(out_pipe[1]);
+        close(err_pipe[1]);
+        execl("/bin/sh", "sh", "-c", command, (char*)NULL);
+        _exit(127);
+    }
+
+    /* Parent: keep read ends, close write ends, mark non-blocking */
+    close(out_pipe[1]);
+    close(err_pipe[1]);
+    fcntl(out_pipe[0], F_SETFL, O_NONBLOCK);
+    fcntl(err_pipe[0], F_SETFL, O_NONBLOCK);
+
+    char pid_str[32], out_str[32], err_str[32];
+    snprintf(pid_str,  sizeof(pid_str),  "%d", (int)pid);
+    snprintf(out_str,  sizeof(out_str),  "%d", out_pipe[0]);
+    snprintf(err_str,  sizeof(err_str),  "%d", err_pipe[0]);
+
+    dyn_array_push_string_copy(result, pid_str);
+    dyn_array_push_string_copy(result, out_str);
+    dyn_array_push_string_copy(result, err_str);
+    return result;
+}
+
+/* Non-blocking read from a file descriptor.
+ * Returns whatever bytes are currently available, or "" if none.
+ * The fd must have been opened non-blocking (as returned by spawn_with_pipes).
+ */
+const char* nl_os_fd_read_available(int64_t fd_val) {
+    /* Static buffer is safe for the single-threaded SDL launcher;
+     * NanoLang copies string values into struct fields before the next call. */
+    static char buf[65536];
+    if (fd_val < 0) return "";
+    ssize_t n = read((int)fd_val, buf, sizeof(buf) - 1);
+    if (n <= 0) return "";
+    buf[n] = '\0';
+    return buf;
+}
+
+/* Close a file descriptor (pipe read-end).
+ * Returns 0 on success, -1 on error.
+ */
+int64_t nl_os_fd_close(int64_t fd_val) {
+    if (fd_val < 0) return -1;
+    return (int64_t)close((int)fd_val);
 }

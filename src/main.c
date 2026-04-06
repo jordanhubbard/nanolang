@@ -1417,9 +1417,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
+    /* Extra C flags from environment — set NANO_CFLAGS to inject flags into every compilation.
+     * Example: NANO_CFLAGS="-pg" make launcher  — instruments the launcher and every example it builds. */
+    const char *nano_cflags = getenv("NANO_CFLAGS");
+    if (!nano_cflags) nano_cflags = "";
+
     int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
+            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));

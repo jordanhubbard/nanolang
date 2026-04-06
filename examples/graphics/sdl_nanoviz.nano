@@ -365,14 +365,14 @@ fn main() -> int {
     # Get audio file from command line
     let argc: int = (get_argc)
     let mut audio_file: string = ""
-    
+
     if (< argc 2) {
-        set audio_file "examples/audio/demo.mp3"
-        (println "Usage: nanoviz [path/to/audio.mp3]")
-        (println "Using default: examples/audio/demo.mp3")
+        set audio_file "examples/audio/gabba-studies-12.mod"
+        (println "Usage: nanoviz [path/to/audio.mod|mp3]")
+        (println "Using default: examples/audio/gabba-studies-12.mod")
         (println "")
     } else {
-        set audio_file (get_argv 1) 
+        set audio_file (get_argv 1)
         (print "Loading: ")
         (println audio_file)
         (println "")
@@ -417,9 +417,9 @@ fn main() -> int {
     # Initialize SDL for audio
     (SDL_Init SDL_INIT_AUDIO) 
     
-    # Initialize SDL_mixer
-    let mixer_init: int = (Mix_Init 8)  # MP3 support
-    if (!= mixer_init 8) {
+    # Initialize SDL_mixer (2=MOD, 8=MP3, 10=both)
+    let mixer_init: int = (Mix_Init 10)
+    if (== mixer_init 0) {
         (println "✗ SDL_mixer initialization failed")
         (glfwTerminate) 
         (SDL_Quit) 

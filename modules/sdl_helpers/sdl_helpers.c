@@ -46,7 +46,8 @@ static void nl__sdl_drain_events(void) {
         nl_sdl_event_buf_len = 0;
         nl_sdl_has_mousemotion = 0;
         nl_sdl_events_drained_this_tick = 0;
-        nl_sdl_quit_received = 0;  /* Reset quit flag for new frame */
+        /* NOTE: nl_sdl_quit_received is intentionally NOT reset here.
+         * SDL_QUIT is a one-shot event; once the window is closed it stays closed. */
     }
     
     /* Only drain if not already drained this tick */

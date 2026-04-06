@@ -833,7 +833,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     return;
                 }
             }
-            
+
+            /* If a local/global variable with this name is in scope, emit it directly.
+             * A local variable shadows any same-named function from an imported module.
+             * Only fall through to the function-name check when no variable is in scope. */
+            if (sym) {
+                emit_literal(list, expr->as.identifier);
+                break;
+            }
+
             /* Check if it's a function identifier */
             Function *func_def = env_get_function(env, expr->as.identifier);
             if (func_def && !func_def->is_extern && func_def->body != NULL) {

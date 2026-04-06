@@ -3946,6 +3946,7 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
         sb_append(sb, "int main(int argc, char **argv) {\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
+        sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
         sb_appendf(sb, "    return _nl_run_with_profiling(argc, argv, %s);\n", c_main_name);
         sb_append(sb, "}\n");
     } else {
@@ -3953,6 +3954,8 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
         sb_append(sb, "int main(int argc, char **argv) {\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
+        /* Line-buffer stdout so println output appears immediately even when piped */
+        sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
         if (env && env->profile) {
             /* Register hotspot report to print at exit */
             sb_append(sb, "    atexit(_nl_prof_report);\n");
