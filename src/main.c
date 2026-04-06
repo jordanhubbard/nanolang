@@ -12,6 +12,7 @@
 #include "nanocore_export.h"
 #include "wasm_backend.h"
 #include "ptx_backend.h"
+#include "opencl_backend.h"
 #include "c_backend.h"
 #include "riscv_backend.h"
 #include "bench.h"
@@ -372,7 +373,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->profile = opts->profile;
     env->profile_runtime = opts->profile_runtime;
     env->profile_flamegraph_path = opts->profile_flamegraph_path;
-    env->gpu_target = (opts->target && strcmp(opts->target, "ptx") == 0);
+    env->gpu_target = (opts->target &&
+        (strcmp(opts->target, "ptx") == 0 || strcmp(opts->target, "opencl") == 0));
 
 
     env->profile_output_path = opts->profile_output_path;
@@ -515,6 +517,35 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return ptx_rc;
+    }
+
+    /* ── OpenCL target: emit .cl kernel source and exit ─────────────── */
+    if (opts->target && strcmp(opts->target, "opencl") == 0) {
+        const char *cl_out = output_file;
+        char cl_out_buf[PATH_MAX];
+        if (!cl_out) {
+            strncpy(cl_out_buf, input_file, PATH_MAX - 4);
+            cl_out_buf[PATH_MAX - 4] = '\0';
+            char *dot = strrchr(cl_out_buf, '.');
+            if (dot) *dot = '\0';
+            strcat(cl_out_buf, ".cl");
+            cl_out = cl_out_buf;
+        }
+        if (opts->verbose) printf("Emitting OpenCL C → %s\n", cl_out);
+        int cl_rc = ocl_backend_emit(program, cl_out, input_file, opts->verbose);
+        if (cl_rc == 0) {
+            printf("✓ OpenCL C kernel emitted to %s\n", cl_out);
+            printf("  Load with: clCreateProgramWithSource + clBuildProgram\n");
+            printf("  CPU fallback: set POCL_DEVICES=cpu (POCL required)\n");
+        }
+        free_ast(program);
+        free_tokens(tokens, token_count);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free(source);
+        nl_list_CompilerDiagnostic_free(diags);
+        return cl_rc;
     }
 
     /* ── C target: emit .c source file and exit ─────────────────────── */
@@ -1505,8 +1536,10 @@ int main(int argc, char *argv[]) {
         printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
         printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
-        printf("  --target <t>   Compile target: native (default), wasm, ptx, c, riscv\n");
-        printf("                 ptx: emit NVIDIA PTX assembly for `gpu fn` functions\n");
+        printf("  --target <t>   Compile target: native (default), wasm, ptx, opencl, c, riscv\n");
+        printf("                 ptx:    emit NVIDIA PTX assembly for `gpu fn` functions\n");
+        printf("                 opencl: emit OpenCL C kernel source (.cl) for `gpu fn` functions\n");
+        printf("                         CPU fallback via POCL when no GPU present\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
         printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
         printf("  --debug / -g   Emit DWARF v4 debug info (with --llvm or --target riscv)\n");

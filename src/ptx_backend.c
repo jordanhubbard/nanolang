@@ -176,7 +176,7 @@ static int emit_expr(PCtx *ctx, VLocals *l, ASTNode *node, VK *ok) {
 
         /* global_id_x = block_id_x * block_dim_x + thread_id_x */
         if (strcmp(fn, "global_id_x") == 0 || strcmp(fn, "global_id_y") == 0) {
-            int is_y = (fn[9] == 'y');
+            int is_y = (fn[10] == 'y');  /* fn = "global_id_x/y"; [10] is 'x' or 'y' */
             const char *bid_reg  = is_y ? "%ctaid.y" : "%ctaid.x";
             const char *bdim_reg = is_y ? "%ntid.y"  : "%ntid.x";
             const char *tid_reg  = is_y ? "%tid.y"   : "%tid.x";
