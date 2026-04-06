@@ -193,13 +193,13 @@ fn create_scene() -> array<Sphere> {
 shadow create_scene { assert true }
 
 # === Ray-Sphere Intersection ===
+# Assumes normalized ray direction (a = dot(dir,dir) = 1.0)
 fn intersect_sphere(ray: Ray, sphere: Sphere) -> Hit {
     let oc: Vec3 = (vec_sub ray.origin sphere.center)
-    let a: float = (vec_dot ray.direction ray.direction)
     let b: float = (* 2.0 (vec_dot oc ray.direction))
     let c: float = (- (vec_dot oc oc) (* sphere.radius sphere.radius))
-    let disc: float = (- (* b b) (* 4.0 (* a c)))
-    
+    let disc: float = (- (* b b) (* 4.0 c))
+
     if (< disc 0.0) {
         return Hit {
             hit: 0, t: 0.0,
@@ -208,8 +208,8 @@ fn intersect_sphere(ray: Ray, sphere: Sphere) -> Hit {
             r: 0.0, g: 0.0, b: 0.0, refl: 0.0
         }
     }
-    
-    let t: float = (/ (- (- 0.0 b) (sqrt disc)) (* 2.0 a))
+
+    let t: float = (/ (- (- 0.0 b) (sqrt disc)) 2.0)
     
     if (< t 0.001) {
         return Hit {
@@ -264,26 +264,36 @@ fn intersect_scene(ray: Ray, spheres: array<Sphere>) -> Hit {
 
 shadow intersect_scene { assert true }
 
+# === Any-hit test (early exit for shadows) ===
+fn any_hit_before(ray: Ray, max_t: float, spheres: array<Sphere>) -> int {
+    let count: int = (array_length spheres)
+    let mut i: int = 0
+    let mut found: int = 0
+    while (and (< i count) (== found 0)) {
+        let sphere: Sphere = (at spheres i)
+        let hit: Hit = (intersect_sphere ray sphere)
+        if (== hit.hit 1) {
+            if (< hit.t max_t) {
+                set found 1
+            }
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+
+shadow any_hit_before { assert true }
+
 # === Shadow Test ===
 fn in_shadow(point: Vec3, light_pos: Vec3, spheres: array<Sphere>) -> int {
     let to_light: Vec3 = (vec_sub light_pos point)
     let dist: float = (vec_length to_light)
     let dir: Vec3 = (vec_normalize to_light)
-    
     let shadow_ray: Ray = Ray {
         origin: (vec_add point (vec_scale dir 0.001)),
         direction: dir
     }
-    
-    let hit: Hit = (intersect_scene shadow_ray spheres)
-    
-    if (== hit.hit 1) {
-        if (< hit.t dist) {
-            return 1
-        }
-    }
-    
-    return 0
+    return (any_hit_before shadow_ray dist spheres)
 }
 
 shadow in_shadow { assert true }
@@ -337,32 +347,23 @@ fn trace(ray: Ray, spheres: array<Sphere>, light_pos: Vec3, depth: int) -> Vec3 
 shadow trace { assert true }
 
 # === Camera Ray ===
-fn get_ray(x: int, y: int, yaw: float, pitch: float, cam_pos: Vec3) -> Ray {
+# Accepts precomputed per-frame trig/projection constants to avoid per-pixel trig
+fn get_ray(x: int, y: int, cos_yaw: float, sin_yaw: float, cos_pitch: float, sin_pitch: float, scale: float, aspect: float, cam_pos: Vec3) -> Ray {
     let ndc_x: float = (/ (- (* (cast_float x) 2.0) (cast_float RENDER_W)) (cast_float RENDER_W))
     let ndc_y: float = (/ (- (cast_float RENDER_H) (* (cast_float y) 2.0)) (cast_float RENDER_H))
-    
-    let aspect: float = (/ (cast_float RENDER_W) (cast_float RENDER_H))
-    let scale: float = (tan (/ (* 60.0 3.14159) 360.0))
-    
+
     let cam_x: float = (* (* ndc_x aspect) scale)
     let cam_y: float = (* ndc_y scale)
     let cam_z: float = -1.0
-    
-    let yaw_rad: float = (deg_to_rad yaw)
-    let pitch_rad: float = (deg_to_rad pitch)
-    
-    let cos_yaw: float = (cos yaw_rad)
-    let sin_yaw: float = (sin yaw_rad)
+
     let rot_x: float = (- (* cam_x cos_yaw) (* cam_z sin_yaw))
     let rot_z: float = (+ (* cam_x sin_yaw) (* cam_z cos_yaw))
-    
-    let cos_pitch: float = (cos pitch_rad)
-    let sin_pitch: float = (sin pitch_rad)
+
     let final_y: float = (- (* cam_y cos_pitch) (* rot_z sin_pitch))
     let final_z: float = (+ (* cam_y sin_pitch) (* rot_z cos_pitch))
-    
+
     let dir: Vec3 = (vec_normalize Vec3 { x: rot_x, y: final_y, z: final_z })
-    
+
     return Ray { origin: cam_pos, direction: dir }
 }
 
@@ -480,11 +481,21 @@ fn main() -> int {
             (SDL_SetRenderDrawColor renderer 50 50 80 255)
             (SDL_RenderClear renderer)
 
+            # Pre-compute per-frame camera constants (avoids 6 trig calls per pixel)
+            let yaw_rad: float = (deg_to_rad yaw)
+            let pitch_rad: float = (deg_to_rad pitch)
+            let frame_cos_yaw: float = (cos yaw_rad)
+            let frame_sin_yaw: float = (sin yaw_rad)
+            let frame_cos_pitch: float = (cos pitch_rad)
+            let frame_sin_pitch: float = (sin pitch_rad)
+            let frame_aspect: float = (/ (cast_float RENDER_W) (cast_float RENDER_H))
+            let frame_scale: float = (tan (/ (* 60.0 3.14159) 360.0))
+
             let mut y: int = 0
             while (< y RENDER_H) {
                 let mut x: int = 0
                 while (< x RENDER_W) {
-                    let ray: Ray = (get_ray x y yaw pitch cam_pos)
+                    let ray: Ray = (get_ray x y frame_cos_yaw frame_sin_yaw frame_cos_pitch frame_sin_pitch frame_scale frame_aspect cam_pos)
                     let color: Vec3 = (trace ray spheres light_pos 0)
 
                     let r: int = (cast_int (clamp (* color.x 255.0) 0.0 255.0))
