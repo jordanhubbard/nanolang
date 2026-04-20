@@ -3,6 +3,7 @@
 #include "tracing.h"
 #include "resource_tracking.h"
 #include "colors.h"
+#include "builtins_registry.h"
 #include <ctype.h>
 
 /* Returns true if name is a single uppercase letter — a generic type variable */
@@ -471,8 +472,14 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
         case AST_CALL: {
             const char *callee = node->as.call.name;
             Function *callee_fn = env_get_function(env, callee);
-            /* non-pure functions are impure; pure extern fn is explicitly allowed */
-            if (callee_fn && !callee_fn->is_pure) {
+            /* Builtins flagged BUILTIN_PURE in the registry are always allowed */
+            bool callee_is_builtin_pure = false;
+            if (callee_fn) {
+                const BuiltinEntry *be = builtin_find(callee);
+                if (be && (be->flags & BUILTIN_PURE)) callee_is_builtin_pure = true;
+            }
+            /* non-pure functions are impure; pure extern fn / BUILTIN_PURE are allowed */
+            if (callee_fn && !callee_fn->is_pure && !callee_is_builtin_pure) {
                 char msg[256];
                 snprintf(msg, sizeof(msg),
                     "Call to impure function '%s' is not allowed in a pure fn", callee);
@@ -6997,8 +7004,9 @@ register_function_pass2:;
             f.shadow_test = NULL;  /* Will be linked in second pass */
             f.is_extern = item->as.function.is_extern;
             f.is_pub = item->as.function.is_pub;  /* Store visibility */
+            f.is_pure = item->as.function.is_pure;  /* Propagate purity annotation */
             f.module_name = env->current_module ? strdup(env->current_module) : NULL;
-            
+
             env_define_function(env, f);
 
             /* Module introspection: track exported functions (public only) */

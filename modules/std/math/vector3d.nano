@@ -12,7 +12,7 @@ pub struct Vector3D {
     z: float
 }
 
-pub fn vec3_new(x: float, y: float, z: float) -> Vector3D {
+pub pure fn vec3_new(x: float, y: float, z: float) -> Vector3D {
     return Vector3D { x: x, y: y, z: z }
 }
 
@@ -23,7 +23,7 @@ shadow vec3_new {
     assert (== v.z 3.0)
 }
 
-pub fn vec3_zero() -> Vector3D {
+pub pure fn vec3_zero() -> Vector3D {
     return Vector3D { x: 0.0, y: 0.0, z: 0.0 }
 }
 
@@ -34,7 +34,7 @@ shadow vec3_zero {
     assert (== v.z 0.0)
 }
 
-pub fn vec3_add(a: Vector3D, b: Vector3D) -> Vector3D {
+pub pure fn vec3_add(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D { x: (+ a.x b.x), y: (+ a.y b.y), z: (+ a.z b.z) }
 }
 
@@ -47,7 +47,7 @@ shadow vec3_add {
     assert (== result.z 9.0)
 }
 
-pub fn vec3_sub(a: Vector3D, b: Vector3D) -> Vector3D {
+pub pure fn vec3_sub(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D { x: (- a.x b.x), y: (- a.y b.y), z: (- a.z b.z) }
 }
 
@@ -60,7 +60,7 @@ shadow vec3_sub {
     assert (== result.z 6.0)
 }
 
-pub fn vec3_scale(v: Vector3D, s: float) -> Vector3D {
+pub pure fn vec3_scale(v: Vector3D, s: float) -> Vector3D {
     return Vector3D { x: (* v.x s), y: (* v.y s), z: (* v.z s) }
 }
 
@@ -72,7 +72,7 @@ shadow vec3_scale {
     assert (== result.z 6.0)
 }
 
-pub fn vec3_dot(a: Vector3D, b: Vector3D) -> float {
+pub pure fn vec3_dot(a: Vector3D, b: Vector3D) -> float {
     return (+ (+ (* a.x b.x) (* a.y b.y)) (* a.z b.z))
 }
 
@@ -83,7 +83,7 @@ shadow vec3_dot {
     assert (== (vec3_dot a b) 32.0)
 }
 
-pub fn vec3_cross(a: Vector3D, b: Vector3D) -> Vector3D {
+pub pure fn vec3_cross(a: Vector3D, b: Vector3D) -> Vector3D {
     return Vector3D {
         x: (- (* a.y b.z) (* a.z b.y)),
         y: (- (* a.z b.x) (* a.x b.z)),
@@ -101,7 +101,7 @@ shadow vec3_cross {
     assert (== k.z 1.0)
 }
 
-pub fn vec3_length_squared(v: Vector3D) -> float {
+pub pure fn vec3_length_squared(v: Vector3D) -> float {
     return (vec3_dot v v)
 }
 
@@ -111,7 +111,7 @@ shadow vec3_length_squared {
     assert (== (vec3_length_squared v) 49.0)
 }
 
-pub fn vec3_length(v: Vector3D) -> float {
+pub pure fn vec3_length(v: Vector3D) -> float {
     return (sqrt (vec3_length_squared v))
 }
 
@@ -121,7 +121,7 @@ shadow vec3_length {
     assert (== (vec3_length v) 7.0)
 }
 
-pub fn vec3_distance(a: Vector3D, b: Vector3D) -> float {
+pub pure fn vec3_distance(a: Vector3D, b: Vector3D) -> float {
     return (vec3_length (vec3_sub b a))
 }
 
@@ -132,7 +132,7 @@ shadow vec3_distance {
     assert (== (vec3_distance a b) 5.0)
 }
 
-pub fn vec3_normalize(v: Vector3D) -> Vector3D {
+pub pure fn vec3_normalize(v: Vector3D) -> Vector3D {
     let len: float = (vec3_length v)
     if (> len 0.0) {
         return (vec3_scale v (/ 1.0 len))
@@ -150,7 +150,7 @@ shadow vec3_normalize {
     assert (< len 1.01)
 }
 
-pub fn vec3_lerp(a: Vector3D, b: Vector3D, t: float) -> Vector3D {
+pub pure fn vec3_lerp(a: Vector3D, b: Vector3D, t: float) -> Vector3D {
     return Vector3D {
         x: (+ a.x (* (- b.x a.x) t)),
         y: (+ a.y (* (- b.y a.y) t)),
@@ -167,7 +167,7 @@ shadow vec3_lerp {
     assert (== mid.z 15.0)
 }
 
-pub fn vec3_reflect(v: Vector3D, normal: Vector3D) -> Vector3D {
+pub pure fn vec3_reflect(v: Vector3D, normal: Vector3D) -> Vector3D {
     let d: float = (vec3_dot v normal)
     return (vec3_sub v (vec3_scale normal (* 2.0 d)))
 }
@@ -182,7 +182,7 @@ shadow vec3_reflect {
     assert (== reflected.z 0.0)
 }
 
-pub fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
+pub pure fn vec3_clamp_length(v: Vector3D, max_len: float) -> Vector3D {
     let len: float = (vec3_length v)
     if (> len max_len) {
         return (vec3_scale (vec3_normalize v) max_len)

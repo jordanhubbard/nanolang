@@ -6,8 +6,7 @@
 # Prerequisites: nl_hello, nl_factorial
 # Expected Output: Fibonacci sequence (first 15 numbers):
 
-# @pure
-fn fib(n: int) -> int {
+pure fn fib(n: int) -> int {
     if (<= n 1) {
         return n
     }

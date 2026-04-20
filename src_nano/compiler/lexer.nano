@@ -10,7 +10,7 @@ import "src_nano/compiler/ir.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
 from "std/fs.nano" import read
 
-fn is_identifier_start(c: int) -> bool {
+pure fn is_identifier_start(c: int) -> bool {
     return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
 }
 
@@ -24,7 +24,7 @@ shadow is_identifier_start {
     assert (not (is_identifier_start 32)) /* space */
 }
 
-fn is_identifier_char(c: int) -> bool {
+pure fn is_identifier_char(c: int) -> bool {
     return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
 }
 
@@ -38,7 +38,7 @@ shadow is_identifier_char {
     assert (not (is_identifier_char 45))  /* - */
 }
 
-fn is_whitespace_char(c: int) -> bool {
+pure fn is_whitespace_char(c: int) -> bool {
     return (or (or (or (== c 32) (== c 9)) (== c 10)) (== c 13))
 }
 
@@ -50,7 +50,7 @@ shadow is_whitespace_char {
     assert (not (is_whitespace_char 65))  /* A */
 }
 
-fn is_digit_char(c: int) -> bool {
+pure fn is_digit_char(c: int) -> bool {
     return (and (>= c 48) (<= c 57))
 }
 
@@ -63,7 +63,7 @@ shadow is_digit_char {
     assert (not (is_digit_char 58))  /* : (after 9) */
 }
 
-fn keyword_group1(s: string) -> int {
+pure fn keyword_group1(s: string) -> int {
     if (== s "module") { return LexerTokenType.TOKEN_MODULE } else {
         if (== s "pub") { return LexerTokenType.TOKEN_PUB } else {
             if (== s "from") { return LexerTokenType.TOKEN_FROM } else {
@@ -83,7 +83,7 @@ shadow keyword_group1 {
     assert (== (keyword_group1 "unknown") (- 0 1))  /* not a keyword */
 }
 
-fn keyword_group2(s: string) -> int {
+pure fn keyword_group2(s: string) -> int {
     if (== s "extern") { return LexerTokenType.TOKEN_EXTERN } else {
         if (== s "fn") { return LexerTokenType.TOKEN_FN } else {
             if (== s "let") { return LexerTokenType.TOKEN_LET } else {
@@ -150,7 +150,7 @@ shadow keyword_group2 {
     assert (== (keyword_group2 "unknown") (- 0 1))
 }
 
-fn keyword_group3(s: string) -> int {
+pure fn keyword_group3(s: string) -> int {
     if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
         if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
             if (== s "bool") { return LexerTokenType.TOKEN_TYPE_BOOL } else {
@@ -175,7 +175,7 @@ shadow keyword_group3 {
     assert (== (keyword_group3 "unknown") (- 0 1))
 }
 
-fn keyword_group4(s: string) -> int {
+pure fn keyword_group4(s: string) -> int {
     if (== s "and") { return LexerTokenType.TOKEN_AND } else {
         if (== s "or") { return LexerTokenType.TOKEN_OR } else {
             if (== s "not") { return LexerTokenType.TOKEN_NOT } else {
@@ -192,7 +192,7 @@ shadow keyword_group4 {
     assert (== (keyword_group4 "unknown") (- 0 1))
 }
 
-fn keyword_group5(s: string) -> int {
+pure fn keyword_group5(s: string) -> int {
     if (== s "grammar") { return LexerTokenType.TOKEN_GRAMMAR } else {
         return -1
     }
@@ -203,7 +203,7 @@ shadow keyword_group5 {
     assert (== (keyword_group5 "unknown") (- 0 1))
 }
 
-fn keyword_or_identifier(s: string) -> int {
+pure fn keyword_or_identifier(s: string) -> int {
     let t1: int = (keyword_group1 s)
     if (!= t1 -1) {
         return t1

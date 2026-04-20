@@ -6,14 +6,14 @@
 module std_math_complex
 
 /* libm */
-extern fn exp(_x: float) -> float
+pure extern fn exp(_x: float) -> float
 
 pub struct Complex {
     re: float,
     im: float
 }
 
-pub fn complex_new(re: float, im: float) -> Complex {
+pub pure fn complex_new(re: float, im: float) -> Complex {
     return Complex { re: re, im: im }
 }
 
@@ -23,7 +23,7 @@ shadow complex_new {
     assert (< (abs (- c.im 4.0)) 0.001)
 }
 
-pub fn complex_add(a: Complex, b: Complex) -> Complex {
+pub pure fn complex_add(a: Complex, b: Complex) -> Complex {
     return Complex { re: (+ a.re b.re), im: (+ a.im b.im) }
 }
 
@@ -35,7 +35,7 @@ shadow complex_add {
     assert (< (abs (- result.im 6.0)) 0.001)
 }
 
-pub fn complex_sub(a: Complex, b: Complex) -> Complex {
+pub pure fn complex_sub(a: Complex, b: Complex) -> Complex {
     return Complex { re: (- a.re b.re), im: (- a.im b.im) }
 }
 
@@ -47,7 +47,7 @@ shadow complex_sub {
     assert (< (abs (- result.im 2.0)) 0.001)
 }
 
-pub fn complex_mul(a: Complex, b: Complex) -> Complex {
+pub pure fn complex_mul(a: Complex, b: Complex) -> Complex {
     return Complex {
         re: (- (* a.re b.re) (* a.im b.im)),
         im: (+ (* a.re b.im) (* a.im b.re))
@@ -62,7 +62,7 @@ shadow complex_mul {
     assert (< (abs (- result.im 22.0)) 0.001)
 }
 
-pub fn complex_conj(a: Complex) -> Complex {
+pub pure fn complex_conj(a: Complex) -> Complex {
     return Complex { re: a.re, im: (- a.im) }
 }
 
@@ -73,7 +73,7 @@ shadow complex_conj {
     assert (< (abs (- result.im (- 4.0))) 0.001)
 }
 
-pub fn complex_abs(a: Complex) -> float {
+pub pure fn complex_abs(a: Complex) -> float {
     return (sqrt (+ (* a.re a.re) (* a.im a.im)))
 }
 
@@ -83,7 +83,7 @@ shadow complex_abs {
     assert (< (abs (- result 5.0)) 0.001)
 }
 
-pub fn complex_arg(a: Complex) -> float {
+pub pure fn complex_arg(a: Complex) -> float {
     return (atan2 a.im a.re)
 }
 
@@ -93,7 +93,7 @@ shadow complex_arg {
     assert (< (abs result) 0.001)
 }
 
-pub fn complex_div(a: Complex, b: Complex) -> Complex {
+pub pure fn complex_div(a: Complex, b: Complex) -> Complex {
     let denom: float = (+ (* b.re b.re) (* b.im b.im))
     if (== denom 0.0) {
         return (complex_new 0.0 0.0)
@@ -112,7 +112,7 @@ shadow complex_div {
     assert (< (abs (- result.im 1.0)) 0.001)
 }
 
-pub fn complex_from_polar(r: float, theta: float) -> Complex {
+pub pure fn complex_from_polar(r: float, theta: float) -> Complex {
     return Complex { re: (* r (cos theta)), im: (* r (sin theta)) }
 }
 
@@ -122,7 +122,7 @@ shadow complex_from_polar {
     assert (< (abs c.im) 0.001)
 }
 
-pub fn complex_exp(z: Complex) -> Complex {
+pub pure fn complex_exp(z: Complex) -> Complex {
     let er: float = (exp z.re)
     return Complex { re: (* er (cos z.im)), im: (* er (sin z.im)) }
 }

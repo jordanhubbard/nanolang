@@ -6,8 +6,7 @@
 # Prerequisites: nl_hello
 # Expected Output: === Comparison Operations ===
 
-# @pure
-fn equals(a: int, b: int) -> bool {
+pure fn equals(a: int, b: int) -> bool {
     return (== a b)
 }
 
@@ -17,8 +16,7 @@ shadow equals {
     assert (== (equals 0 0) true)
 }
 
-# @pure
-fn not_equals(a: int, b: int) -> bool {
+pure fn not_equals(a: int, b: int) -> bool {
     return (!= a b)
 }
 
@@ -28,8 +26,7 @@ shadow not_equals {
     assert (== (not_equals 0 1) true)
 }
 
-# @pure
-fn less_than(a: int, b: int) -> bool {
+pure fn less_than(a: int, b: int) -> bool {
     return (< a b)
 }
 
@@ -39,8 +36,7 @@ shadow less_than {
     assert (== (less_than 5 5) false)
 }
 
-# @pure
-fn less_or_equal(a: int, b: int) -> bool {
+pure fn less_or_equal(a: int, b: int) -> bool {
     return (<= a b)
 }
 
@@ -50,8 +46,7 @@ shadow less_or_equal {
     assert (== (less_or_equal 5 5) true)
 }
 
-# @pure
-fn greater_than(a: int, b: int) -> bool {
+pure fn greater_than(a: int, b: int) -> bool {
     return (> a b)
 }
 
@@ -61,8 +56,7 @@ shadow greater_than {
     assert (== (greater_than 5 5) false)
 }
 
-# @pure
-fn greater_or_equal(a: int, b: int) -> bool {
+pure fn greater_or_equal(a: int, b: int) -> bool {
     return (>= a b)
 }
 
@@ -75,8 +69,7 @@ shadow greater_or_equal {
 # Note: abs, min, and max are now built-in stdlib functions!
 # No need to define them - just use them directly.
 
-# @pure
-fn btos(b: bool) -> string {
+pure fn btos(b: bool) -> string {
     return (cond ((== b true) "true") (else "false"))
 }
 

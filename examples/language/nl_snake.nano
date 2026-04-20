@@ -32,8 +32,7 @@ let MAX_MOVES: int = 50
 
 # === GRID OPERATIONS ===
 
-# @pure
-fn grid_index(x: int, y: int, width: int) -> int {
+pure fn grid_index(x: int, y: int, width: int) -> int {
     return (+ (* y width) x)
 }
 
@@ -42,8 +41,7 @@ shadow grid_index {
     assert (== (grid_index 5 2 10) 25)
 }
 
-# @pure
-fn is_valid_pos(x: int, y: int, width: int, height: int) -> bool {
+pure fn is_valid_pos(x: int, y: int, width: int, height: int) -> bool {
     return (and (and (>= x 0) (< x width))
                 (and (>= y 0) (< y height)))
 }
@@ -54,8 +52,7 @@ shadow is_valid_pos {
     assert (== (is_valid_pos 10 5 10 10) false)
 }
 
-# @pure
-fn move_in_direction(x: int, y: int, dir: int) -> (int, int) {
+pure fn move_in_direction(x: int, y: int, dir: int) -> (int, int) {
     if (== dir Direction.UP) {
         return (x, (- y 1))
     } else {
