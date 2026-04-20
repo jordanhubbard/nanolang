@@ -34,4 +34,12 @@ int tco_pass_run(ASTNode *program, bool verbose);
  */
 void tco_pass(ASTNode *program);
 
+/*
+ * Auto-TCO for pure fn functions only. Called automatically after typechecking
+ * whenever the program contains pure fn declarations, regardless of --tco flag.
+ * Pure functions cannot use while/for loops, so tail-recursion must be safe.
+ * Returns the number of pure functions transformed.
+ */
+int tco_pass_pure(ASTNode *program);
+
 #endif /* TCO_PASS_H */

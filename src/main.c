@@ -441,6 +441,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
+    /* ── Auto-TCO for pure fn (always on — pure fns cannot use loops) ── */
+    {
+        int pure_tco = tco_pass_pure(program);
+        if (opts->verbose && pure_tco > 0)
+            printf("✓ Auto-TCO: %d pure fn(s) transformed\n", pure_tco);
+    }
+
     /* ── Tail-Call Optimization pass ─────────────────────────────────── */
     if (opts->tco) {
         tco_pass(program);

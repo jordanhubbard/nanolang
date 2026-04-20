@@ -5423,9 +5423,14 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
             } else if (match(&parser, TOKEN_PURE)) {
-                /* pub pure fn declarations */
+                /* pub pure fn / pub pure extern fn */
                 advance(&parser);  /* consume 'pure' */
-                parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
+                bool pub_pure_is_extern = false;
+                if (match(&parser, TOKEN_EXTERN)) {
+                    advance(&parser);  /* consume 'extern' */
+                    pub_pure_is_extern = true;
+                }
+                parsed = parse_function(&parser, pub_pure_is_extern, true);
                 if (parsed && parsed->type == AST_FUNCTION) {
                     parsed->as.function.is_pure = true;
                 }
@@ -5515,9 +5520,14 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 parsed->as.function.is_gpu = true;
             }
         } else if (match(&parser, TOKEN_PURE)) {
-            /* pure fn — purity-checked function: no mutation, no I/O, only pure callees */
+            /* pure fn / pure extern fn */
             advance(&parser);  /* consume 'pure' */
-            parsed = parse_function(&parser, false, false);
+            bool pure_is_extern = false;
+            if (match(&parser, TOKEN_EXTERN)) {
+                advance(&parser);  /* consume 'extern' */
+                pure_is_extern = true;
+            }
+            parsed = parse_function(&parser, pure_is_extern, false);
             if (parsed && parsed->type == AST_FUNCTION) {
                 parsed->as.function.is_pure = true;
             }

@@ -471,8 +471,8 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
         case AST_CALL: {
             const char *callee = node->as.call.name;
             Function *callee_fn = env_get_function(env, callee);
-            /* extern functions and non-pure functions are impure */
-            if (callee_fn && (callee_fn->is_extern || !callee_fn->is_pure)) {
+            /* non-pure functions are impure; pure extern fn is explicitly allowed */
+            if (callee_fn && !callee_fn->is_pure) {
                 char msg[256];
                 snprintf(msg, sizeof(msg),
                     "Call to impure function '%s' is not allowed in a pure fn", callee);

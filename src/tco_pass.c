@@ -399,3 +399,22 @@ int tco_pass_run(ASTNode *program, bool verbose) {
 void tco_pass(ASTNode *program) {
     tco_pass_run(program, false);
 }
+
+/* Auto-TCO for pure fn only — called automatically when pure functions are present.
+ * Pure functions cannot use while/for, so recursion is the only iteration mechanism.
+ * Without TCO, deep recursion would stack-overflow on large inputs. */
+int tco_pass_pure(ASTNode *program) {
+    if (!program || program->type != AST_PROGRAM) return 0;
+
+    int transformed = 0;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (!item || item->type != AST_FUNCTION) continue;
+        if (!item->as.function.is_pure) continue;
+        if (item->as.function.is_extern) continue;
+        if (!has_tail_call(item->as.function.body, item->as.function.name)) continue;
+        transform_function(item, false);
+        transformed++;
+    }
+    return transformed;
+}
