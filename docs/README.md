@@ -84,7 +84,8 @@ How I am built:
 10. **[NanoISA Virtual Machine](NANOISA.md)** - My VM backend
     - 178-opcode stack machine ISA
     - .nvm binary format specification
-    - Co-process FFI isolation protocol
+    - Co-process FFI isolation: shared-memory mailbox fast path (2 syscalls/call) with pipe fallback
+    - Per-call FFI timeout via `poll()` (configurable with `COP_TIMEOUT_MS`)
     - VM daemon for distributed execution
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode

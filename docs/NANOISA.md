@@ -215,23 +215,40 @@ Each function call I execute pushes a frame with:
 
 ## Co-Process FFI Protocol
 
-I isolate external function calls in a separate `nano_cop` process. I communicate over pipes using a binary protocol.
+I isolate external function calls in a `nano_cop` co-process. I use a **shared-memory mailbox** as the fast path, with a pipe-based fallback for large payloads.
 
-### Wire Format
+### Fast Path: Shared-Memory Mailbox
+
+I `mmap` a `CopMailbox` region with `MAP_SHARED | MAP_ANON` before `fork()`. Because I fork without `exec`, the mailbox pointer is valid in both parent and child address spaces at zero copy cost.
+
+**Per-call cost: 2 syscalls** — one 1-byte write to wake the child, one 1-byte read to receive the ack. All payload data lives in the shared region; no kernel copies of arguments or results.
+
+**Mailbox layout:**
+
+```
+Request slot (written by parent, read by child):
+  req_import_idx (u32)
+  req_argc       (u16)
+  req_data_size  (u16)
+  req_data       [4096 bytes]   ← serialized args
+
+Response slot (written by child, read by parent):
+  resp_is_error  (u8)           ← 0=result, 1=error string
+  resp_data_size (u32)
+  resp_data      [4096 bytes]   ← serialized result
+  resp_error     [256 bytes]    ← error message if resp_is_error=1
+```
+
+**Per-call timeout** — I use `poll()` with a configurable timeout (default 5000 ms, override with `COP_TIMEOUT_MS` env var). If the child does not ack in time, I kill and restart it.
+
+### Pipe Fallback (large payloads)
+
+When serialized args exceed 4096 bytes, I fall back to the original pipe protocol:
 
 8-byte header: `[version (1B)] [msg_type (1B)] [reserved (2B)] [payload_len (4B)]`
 
-### Message Types
-
-**VM to Co-Process:**
-- `COP_MSG_INIT` (0x01) - I send the import table
-- `COP_MSG_FFI_REQ` (0x02) - I call an external function (import index + serialized args)
-- `COP_MSG_SHUTDOWN` (0x03) - I terminate the process
-
-**Co-Process to VM:**
-- `COP_MSG_FFI_RESULT` (0x10) - Serialized return value
-- `COP_MSG_FFI_ERROR` (0x11) - Error string
-- `COP_MSG_READY` (0x12) - Init complete
+**VM to Co-Process:** `COP_MSG_FFI_REQ` (0x02) — import index + serialized args  
+**Co-Process to VM:** `COP_MSG_FFI_RESULT` (0x10) — serialized return value; `COP_MSG_FFI_ERROR` (0x11) — error string
 
 ### Value Serialization
 
@@ -247,13 +264,13 @@ I isolate external function calls in a separate `nano_cop` process. I communicat
 
 ### Lifecycle
 
-1. I fork a `nano_cop` subprocess connected via pipes
-2. I send `COP_MSG_INIT` with the import table
-3. My co-process loads FFI modules and sends `COP_MSG_READY`
-4. For each FFI call: I send `COP_MSG_FFI_REQ`, and the co-process sends the result
-5. I send `COP_MSG_SHUTDOWN` on exit
+1. I `mmap` a `CopMailbox` and create two 1-byte signal pipes
+2. I `fork()` without `exec` — the child calls `cop_child_main()` directly
+3. The child initializes FFI and writes a 1-byte ready signal
+4. For each FFI call: I write 1 byte to wake the child, the child dispatches, writes 1 byte ack
+5. On shutdown: I close the send pipe (child sees EOF and exits cleanly)
 
-If my co-process crashes, I detect the broken pipe and recover. I isolate FFI crashes from my execution.
+If my co-process crashes, I detect it via `waitpid(WNOHANG)` and recover. I isolate FFI crashes from my execution.
 
 ## Compiler Backend (Codegen)
 
@@ -293,9 +310,9 @@ My wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 | `value.h` / `value.c` | 225 | My NanoValue constructors, type checking |
 | `heap.h` / `heap.c` | 595 | My reference-counting GC |
 | `vm_builtins.c` | 297 | My runtime builtins |
-| `vm_ffi.h` / `vm_ffi.c` | 611 | My fork/pipe/exec FFI lifecycle |
-| `cop_protocol.h` / `cop_protocol.c` | 227 | My co-process wire protocol |
-| `cop_main.c` | 212 | My `nano_cop` binary |
+| `vm_ffi.h` / `vm_ffi.c` | ~700 | My FFI lifecycle: shared-memory mailbox fast path, pipe fallback, per-call timeout |
+| `cop_protocol.h` / `cop_protocol.c` | ~350 | My co-process wire protocol and `cop_child_main` service loop |
+| `cop_main.c` | ~175 | My `nano_cop` binary (pipe-protocol main loop for legacy/standalone use) |
 | `vmd_protocol.h` / `vmd_protocol.c` | 150 | My daemon wire protocol |
 | `vmd_client.c` | 275 | My daemon client connector |
 | `vmd_server.c` | 430 | My daemon server handler |
