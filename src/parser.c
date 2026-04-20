@@ -5422,6 +5422,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else if (match(&parser, TOKEN_FN)) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
+            } else if (match(&parser, TOKEN_PURE)) {
+                /* pub pure fn declarations */
+                advance(&parser);  /* consume 'pure' */
+                parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
+                if (parsed && parsed->type == AST_FUNCTION) {
+                    parsed->as.function.is_pure = true;
+                }
             } else if (match(&parser, TOKEN_STRUCT)) {
                 parsed = parse_struct_def(&parser);
                 if (parsed && parsed->type == AST_STRUCT_DEF) {
@@ -5445,7 +5452,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, struct, enum, union, use, opaque, or effect\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, pure, struct, enum, union, use, opaque, or effect\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
@@ -5506,6 +5513,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             parsed = parse_function(&parser, false, false);
             if (parsed && parsed->type == AST_FUNCTION) {
                 parsed->as.function.is_gpu = true;
+            }
+        } else if (match(&parser, TOKEN_PURE)) {
+            /* pure fn — purity-checked function: no mutation, no I/O, only pure callees */
+            advance(&parser);  /* consume 'pure' */
+            parsed = parse_function(&parser, false, false);
+            if (parsed && parsed->type == AST_FUNCTION) {
+                parsed->as.function.is_pure = true;
             }
         } else if (match(&parser, TOKEN_ASYNC)) {
             /* async fn declarations */

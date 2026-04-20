@@ -233,7 +233,7 @@ static void test_nanocore_trust_report_print(void) {
 
 static void test_nanocore_function_trust(void) {
     const char *test_name = "nanocore_function_trust: pure function";
-    ASTNode *prog = parse_nano("fn pure(x: int) -> int { return (* x x) }\n");
+    ASTNode *prog = parse_nano("fn square(x: int) -> int { return (* x x) }\n");
     ASSERT(prog != NULL, "parse failed");
     suppress_stderr();
     Environment *env = create_environment();

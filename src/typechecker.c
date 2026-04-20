@@ -436,6 +436,119 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
     }
 }
 
+/* Check that a pure fn body contains no purity violations.
+ * Violations: AST_SET, mutable AST_LET, AST_PRINT (I/O), calls to non-pure functions.
+ * Reports errors via emit_context_error and increments g_typecheck_error_count.
+ */
+static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
+    if (!node) return;
+
+    switch (node->type) {
+        case AST_SET:
+            emit_context_error("PURITY VIOLATION", node->line, node->column, 3,
+                "Assignment ('set') is not allowed in a pure fn",
+                "Remove 'set' or change 'pure fn' to 'fn'");
+            g_typecheck_error_count++;
+            break;
+
+        case AST_LET:
+            if (node->as.let.is_mut) {
+                emit_context_error("PURITY VIOLATION", node->line, node->column, 7,
+                    "'let mut' is not allowed in a pure fn",
+                    "Use 'let' (immutable) or change 'pure fn' to 'fn'");
+                g_typecheck_error_count++;
+            }
+            check_purity(node->as.let.value, env, fn_name);
+            break;
+
+        case AST_PRINT:
+            emit_context_error("PURITY VIOLATION", node->line, node->column, 5,
+                "I/O (print/println) is not allowed in a pure fn",
+                "Remove print/println or change 'pure fn' to 'fn'");
+            g_typecheck_error_count++;
+            break;
+
+        case AST_CALL: {
+            const char *callee = node->as.call.name;
+            Function *callee_fn = env_get_function(env, callee);
+            /* extern functions and non-pure functions are impure */
+            if (callee_fn && (callee_fn->is_extern || !callee_fn->is_pure)) {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                    "Call to impure function '%s' is not allowed in a pure fn", callee);
+                emit_context_error("PURITY VIOLATION", node->line, node->column,
+                    (int)strlen(callee), msg,
+                    "Annotate the callee as 'pure fn' or change this fn to 'fn'");
+                g_typecheck_error_count++;
+            }
+            /* Recurse into arguments regardless */
+            for (int i = 0; i < node->as.call.arg_count; i++)
+                check_purity(node->as.call.args[i], env, fn_name);
+            break;
+        }
+
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++)
+                check_purity(node->as.block.statements[i], env, fn_name);
+            break;
+
+        case AST_IF:
+            check_purity(node->as.if_stmt.condition, env, fn_name);
+            check_purity(node->as.if_stmt.then_branch, env, fn_name);
+            check_purity(node->as.if_stmt.else_branch, env, fn_name);
+            break;
+
+        case AST_WHILE:
+            emit_context_error("PURITY VIOLATION", node->line, node->column, 5,
+                "'while' loops are not allowed in a pure fn",
+                "Use recursion instead, or change 'pure fn' to 'fn'");
+            g_typecheck_error_count++;
+            break;
+
+        case AST_FOR:
+            emit_context_error("PURITY VIOLATION", node->line, node->column, 3,
+                "'for' loops are not allowed in a pure fn",
+                "Use recursion instead, or change 'pure fn' to 'fn'");
+            g_typecheck_error_count++;
+            break;
+
+        case AST_RETURN:
+            check_purity(node->as.return_stmt.value, env, fn_name);
+            break;
+
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; i++)
+                check_purity(node->as.prefix_op.args[i], env, fn_name);
+            break;
+
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < node->as.array_literal.element_count; i++)
+                check_purity(node->as.array_literal.elements[i], env, fn_name);
+            break;
+
+        case AST_FIELD_ACCESS:
+            check_purity(node->as.field_access.object, env, fn_name);
+            break;
+
+        case AST_MATCH:
+            check_purity(node->as.match_expr.expr, env, fn_name);
+            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+                check_purity(node->as.match_expr.arm_bodies[i], env, fn_name);
+            break;
+
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
+                check_purity(node->as.cond_expr.conditions[i], env, fn_name);
+                check_purity(node->as.cond_expr.values[i], env, fn_name);
+            }
+            check_purity(node->as.cond_expr.else_value, env, fn_name);
+            break;
+
+        default:
+            break;
+    }
+}
+
 /* Check if types are compatible */
 static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
 static bool types_match(Type t1, Type t2) {
@@ -6152,6 +6265,7 @@ register_function_pass1:;
             func.shadow_test = NULL;
             func.is_extern = item->as.function.is_extern;
             func.is_gpu = item->as.function.is_gpu;  /* Store GPU annotation */
+            func.is_pure = item->as.function.is_pure;  /* Store purity annotation */
             func.is_pub = item->as.function.is_pub;  /* Store visibility */
             
             /* Store module context with independent copy */
@@ -6441,6 +6555,11 @@ register_function_pass1:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+
+            /* Purity check: verify pure fn body obeys purity rules */
+            if (item->as.function.is_pure) {
+                check_purity(item->as.function.body, env, item->as.function.name);
+            }
 
             /* Check for unused variables before leaving scope */
             check_unused_variables(&tc, saved_symbol_count);
@@ -7139,6 +7258,11 @@ register_function_pass2:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+
+            /* Purity check: verify pure fn body obeys purity rules */
+            if (item->as.function.is_pure) {
+                check_purity(item->as.function.body, env, item->as.function.name);
+            }
 
             /* Check for unused variables before leaving scope */
             check_unused_variables(&tc, saved_symbol_count);

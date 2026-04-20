@@ -342,6 +342,7 @@ struct ASTNode {
             bool is_extern;  /* Mark external C functions */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
             char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
             int   effect_count;
         } function;
@@ -586,6 +587,7 @@ typedef struct {
     bool is_extern;  /* Mark external C functions */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_async;   /* Mark async functions (declared with `async fn`) */
+    bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
     char *alias_of;  /* For import aliases: original function name (NULL if not alias) */

@@ -256,7 +256,8 @@ typedef enum {
     TOKEN_RESUME = 83,
     TOKEN_GPU = 84,
     TOKEN_ASYNC = 85,
-    TOKEN_AWAIT = 86
+    TOKEN_AWAIT = 86,
+    TOKEN_PURE = 87
 } TokenType;
 
 typedef enum {

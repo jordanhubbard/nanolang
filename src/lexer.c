@@ -65,6 +65,7 @@ static TokenType keyword_or_identifier(const char *str) {
     if (strcmp(str, "resume") == 0) return TOKEN_RESUME;
     if (strcmp(str, "async") == 0) return TOKEN_ASYNC;
     if (strcmp(str, "await") == 0) return TOKEN_AWAIT;
+    if (strcmp(str, "pure") == 0) return TOKEN_PURE;
 
     if (strcmp(str, "as") == 0) return TOKEN_AS;
     /* Boolean literals */
@@ -621,6 +622,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_RESUME: return "RESUME";
         case TOKEN_ASYNC: return "ASYNC";
         case TOKEN_AWAIT: return "AWAIT";
+        case TOKEN_PURE: return "PURE";
         default: return "UNKNOWN";
     }
 }
