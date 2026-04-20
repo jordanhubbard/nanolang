@@ -325,6 +325,67 @@ void test_parse_extern_fn(void) {
     free_ast(prog);
 }
 
+void test_parse_pure_fn(void) {
+    ASTNode *prog = parse_ok(
+        "pure fn square(x: int) -> int { return (* x x) }\n"
+        "fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->as.program.count, 2);
+    ASTNode *fn = prog->as.program.items[0];
+    ASSERT_EQ(fn->type, AST_FUNCTION);
+    ASSERT(fn->as.function.is_pure == true);
+    ASSERT(fn->as.function.is_pub  == false);
+    free_ast(prog);
+}
+
+void test_parse_pub_pure_fn(void) {
+    ASTNode *prog = parse_ok(
+        "pub pure fn add(a: int, b: int) -> int { return (+ a b) }\n"
+        "fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    ASTNode *fn = prog->as.program.items[0];
+    ASSERT_EQ(fn->type, AST_FUNCTION);
+    ASSERT(fn->as.function.is_pure == true);
+    ASSERT(fn->as.function.is_pub  == true);
+    free_ast(prog);
+}
+
+void test_parse_pure_extern_fn(void) {
+    ASTNode *prog = parse_ok(
+        "pure extern fn fabs(x: float) -> float\n"
+        "fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    ASTNode *fn = prog->as.program.items[0];
+    ASSERT_EQ(fn->type, AST_FUNCTION);
+    ASSERT(fn->as.function.is_pure   == true);
+    ASSERT(fn->as.function.is_extern == true);
+    free_ast(prog);
+}
+
+void test_parse_pub_pure_extern_fn(void) {
+    ASTNode *prog = parse_ok(
+        "pub pure extern fn sin(x: float) -> float\n"
+        "fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    ASTNode *fn = prog->as.program.items[0];
+    ASSERT_EQ(fn->type, AST_FUNCTION);
+    ASSERT(fn->as.function.is_pure   == true);
+    ASSERT(fn->as.function.is_pub    == true);
+    ASSERT(fn->as.function.is_extern == true);
+    free_ast(prog);
+}
+
+void test_parse_pure_fn_not_set_on_regular(void) {
+    ASTNode *prog = parse_ok(
+        "fn regular(x: int) -> int { return x }\n"
+        "fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    ASTNode *fn = prog->as.program.items[0];
+    ASSERT_EQ(fn->type, AST_FUNCTION);
+    ASSERT(fn->as.function.is_pure == false);
+    free_ast(prog);
+}
+
 void test_parse_shadow(void) {
     ASTNode *prog = parse_ok(
         "fn double(x: int) -> int { return (* x 2) }\n"
@@ -689,6 +750,11 @@ int main(void) {
     TEST(parse_constants);
     TEST(parse_pub_functions);
     TEST(parse_extern_fn);
+    TEST(parse_pure_fn);
+    TEST(parse_pub_pure_fn);
+    TEST(parse_pure_extern_fn);
+    TEST(parse_pub_pure_extern_fn);
+    TEST(parse_pure_fn_not_set_on_regular);
     TEST(parse_shadow);
     TEST(parse_break_continue);
     TEST(parse_print_println);

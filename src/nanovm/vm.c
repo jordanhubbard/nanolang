@@ -309,10 +309,9 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_LOAD_UPVALUE: {
-            uint16_t depth = instr.operands[0].u16;
             uint16_t idx = instr.operands[1].u16;
-            (void)depth;
-            /* Find the closure in the current frame */
+            /* depth (operands[0]) is always 0: codegen flattens upvalue chains so
+             * every captured variable lives in the immediate closure's capture array. */
             if (frame->closure && idx < frame->closure->capture_count) {
                 NanoValue v = frame->closure->captures[idx];
                 vm_retain(v);
@@ -324,9 +323,8 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_STORE_UPVALUE: {
-            uint16_t depth = instr.operands[0].u16;
             uint16_t idx = instr.operands[1].u16;
-            (void)depth;
+            /* depth (operands[0]) always 0 — see OP_LOAD_UPVALUE note above */
             NanoValue v = stack_pop(vm);
             if (frame->closure && idx < frame->closure->capture_count) {
                 vm_release(&vm->heap, frame->closure->captures[idx]);

@@ -637,6 +637,120 @@ void test_tc_shadow(void) {
 }
 
 /* ============================================================================
+ * Pure fn tests — purity enforcement via check_purity()
+ * ============================================================================ */
+
+void test_tc_pure_fn_simple(void) {
+    /* Pure fn with only immutable lets and arithmetic — should pass */
+    ASSERT(tc_passes(
+        "pure fn square(x: int) -> int { return (* x x) }\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_calls_pure(void) {
+    /* Pure fn calling another pure fn — should pass */
+    ASSERT(tc_passes(
+        "pure fn double(x: int) -> int { return (* x 2) }\n"
+        "pure fn quad(x: int) -> int { return (double (double x)) }\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_recursive(void) {
+    /* Pure recursive fn — should pass */
+    ASSERT(tc_passes(
+        "pure fn fib(n: int) -> int {\n"
+        "  if (<= n 1) { return n } else {\n"
+        "    return (+ (fib (- n 1)) (fib (- n 2)))\n"
+        "  }\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_extern_fn(void) {
+    /* Pure extern fn — should pass typechecking as a module */
+    ASSERT(tc_module_passes(
+        "pub pure extern fn fabs(x: float) -> float\n"));
+}
+
+void test_tc_pure_fn_violation_set(void) {
+    /* set inside pure fn — should fail */
+    ASSERT(!tc_passes(
+        "pure fn bad(x: int) -> int {\n"
+        "  let mut v: int = x\n"
+        "  set v (+ v 1)\n"
+        "  return v\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_violation_let_mut(void) {
+    /* let mut inside pure fn — should fail */
+    ASSERT(!tc_passes(
+        "pure fn bad(x: int) -> int {\n"
+        "  let mut acc: int = 0\n"
+        "  return acc\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_violation_while(void) {
+    /* while loop inside pure fn — should fail */
+    ASSERT(!tc_passes(
+        "pure fn bad(n: int) -> int {\n"
+        "  while (> n 0) { return 0 }\n"
+        "  return n\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_violation_for(void) {
+    /* for loop inside pure fn — should fail */
+    ASSERT(!tc_passes(
+        "pure fn bad(n: int) -> int {\n"
+        "  for i in (range 0 n) { return 0 }\n"
+        "  return n\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_violation_print(void) {
+    /* print inside pure fn — should fail */
+    ASSERT(!tc_passes(
+        "pure fn bad(x: int) -> int {\n"
+        "  print x\n"
+        "  return x\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_pure_fn_violation_calls_impure(void) {
+    /* pure fn calling an impure fn — should fail */
+    ASSERT(!tc_passes(
+        "fn impure(x: int) -> int {\n"
+        "  let mut v: int = x\n"
+        "  set v (+ v 1)\n"
+        "  return v\n"
+        "}\n"
+        "pure fn bad(x: int) -> int { return (impure x) }\n"
+        "fn main() -> int { return 0 }"));
+}
+
+void test_tc_impure_fn_not_affected(void) {
+    /* Regular fn with let mut / set / while — should still pass */
+    ASSERT(tc_passes(
+        "fn mutable_ok(n: int) -> int {\n"
+        "  let mut acc: int = 0\n"
+        "  let mut i: int = 0\n"
+        "  while (< i n) {\n"
+        "    set acc (+ acc i)\n"
+        "    set i (+ i 1)\n"
+        "  }\n"
+        "  return acc\n"
+        "}\n"
+        "fn main() -> int { return 0 }"));
+}
+
+/* ============================================================================
  * main
  * ============================================================================ */
 
@@ -707,6 +821,19 @@ int main(void) {
     TEST(tc_int_to_string);
     TEST(tc_string_to_int);
     TEST(tc_shadow);
+
+    printf("\n--- Pure fn: purity enforcement ---\n");
+    TEST(tc_pure_fn_simple);
+    TEST(tc_pure_fn_calls_pure);
+    TEST(tc_pure_fn_recursive);
+    TEST(tc_pure_extern_fn);
+    TEST(tc_pure_fn_violation_set);
+    TEST(tc_pure_fn_violation_let_mut);
+    TEST(tc_pure_fn_violation_while);
+    TEST(tc_pure_fn_violation_for);
+    TEST(tc_pure_fn_violation_print);
+    TEST(tc_pure_fn_violation_calls_impure);
+    TEST(tc_impure_fn_not_affected);
 
     printf("\n✓ All typechecker tests passed!\n");
     return 0;

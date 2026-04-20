@@ -352,14 +352,87 @@ static void test_op_load_upvalue_valid(void) {
 }
 
 static void test_op_load_upvalue_invalid(void) {
-    const char *test_name = "nvm_verify: OP_LOAD_UPVALUE slot >= upvalue_count fails";
+    const char *test_name = "nvm_verify: OP_LOAD_UPVALUE index >= upvalue_count fails";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_LOAD_UPVALUE, (uint16_t)5, (uint16_t)0);
+    /* depth=0, idx=5 — idx out of range for upvalue_count=2 */
+    off += emit(code + off, OP_LOAD_UPVALUE, (uint16_t)0, (uint16_t)5);
     off += emit(code + off, OP_RET);
-    NvmModule *mod = make_simple_module(code, off, 0, 2 /* upvalue_count=2, slot=5 */);
+    NvmModule *mod = make_simple_module(code, off, 0, 2 /* upvalue_count=2, idx=5 */);
     NvmVerifyResult r = nvm_verify(mod);
-    ASSERT(!r.ok, "OP_LOAD_UPVALUE slot >= upvalue_count should fail");
+    ASSERT(!r.ok, "OP_LOAD_UPVALUE index >= upvalue_count should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_op_struct_new_valid(void) {
+    const char *test_name = "nvm_verify: OP_STRUCT_NEW with valid def_idx passes";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_STRUCT_NEW, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->struct_count = 2;  /* def_idx=0 is valid */
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "OP_STRUCT_NEW def_idx=0 with struct_count=2 should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_op_struct_new_invalid(void) {
+    const char *test_name = "nvm_verify: OP_STRUCT_NEW with def_idx >= struct_count fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_STRUCT_NEW, (uint32_t)5);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->struct_count = 3;  /* def_idx=5 is out of range */
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "OP_STRUCT_NEW def_idx >= struct_count should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_op_struct_new_zero_count_skips(void) {
+    const char *test_name = "nvm_verify: OP_STRUCT_NEW with struct_count=0 skips validation";
+    uint8_t code[16];
+    uint32_t off = 0;
+    /* Any def_idx should be tolerated when struct_count is 0 (module has no
+     * struct definitions registered — e.g., hand-assembled bytecode). */
+    off += emit(code + off, OP_STRUCT_NEW, (uint32_t)999);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->struct_count = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "OP_STRUCT_NEW with struct_count=0 should skip validation");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_op_enum_val_invalid(void) {
+    const char *test_name = "nvm_verify: OP_ENUM_VAL with def_idx >= enum_count fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_ENUM_VAL, (uint32_t)4, (uint16_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->enum_count = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "OP_ENUM_VAL def_idx >= enum_count should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_op_union_construct_invalid(void) {
+    const char *test_name = "nvm_verify: OP_UNION_CONSTRUCT with def_idx >= union_count fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_UNION_CONSTRUCT, (uint32_t)7, (uint16_t)0, (uint16_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->union_count = 4;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "OP_UNION_CONSTRUCT def_idx >= union_count should fail");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -477,6 +550,11 @@ int main(void) {
     test_op_store_local_invalid();
     test_op_load_upvalue_valid();
     test_op_load_upvalue_invalid();
+    test_op_struct_new_valid();
+    test_op_struct_new_invalid();
+    test_op_struct_new_zero_count_skips();
+    test_op_enum_val_invalid();
+    test_op_union_construct_invalid();
     test_op_closure_new_invalid();
     test_op_closure_new_valid();
     test_match_tag_out_of_bounds();

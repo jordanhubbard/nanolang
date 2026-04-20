@@ -173,19 +173,50 @@ static NvmVerifyResult verify_function(const NvmModule *mod, uint32_t fn_idx) {
         /* --- Upvalue indices --- */
         case OP_LOAD_UPVALUE:
         case OP_STORE_UPVALUE: {
-            uint16_t slot = instr.operands[0].u16;
-            if (slot >= fn->upvalue_count)
-                return fail("function[%u] %s at offset %u: slot %u >= upvalue_count %u",
+            /* Encoding: operands[0]=depth (always 0, codegen flattens captures),
+             * operands[1]=index into this closure's capture array. */
+            uint16_t idx = instr.operands[1].u16;
+            if (idx >= fn->upvalue_count)
+                return fail("function[%u] %s at offset %u: upvalue index %u >= upvalue_count %u",
                             fn_idx, info->name, fn->code_offset + pos,
-                            slot, fn->upvalue_count);
+                            idx, fn->upvalue_count);
             break;
         }
 
         /* --- Struct definition indices --- */
         case OP_STRUCT_NEW:
         case OP_STRUCT_LITERAL: {
-            /* Struct indices are not tracked in module — skip for now.
-             * TODO: add struct_count to NvmModule and validate here. */
+            if (mod->struct_count > 0) {
+                uint32_t def_idx = instr.operands[0].u32;
+                if (def_idx >= mod->struct_count)
+                    return fail("function[%u] %s at offset %u: struct def_idx %u >= struct_count %u",
+                                fn_idx, info->name, fn->code_offset + pos,
+                                def_idx, mod->struct_count);
+            }
+            break;
+        }
+
+        /* --- Enum definition indices --- */
+        case OP_ENUM_VAL: {
+            if (mod->enum_count > 0) {
+                uint32_t def_idx = instr.operands[0].u32;
+                if (def_idx >= mod->enum_count)
+                    return fail("function[%u] %s at offset %u: enum def_idx %u >= enum_count %u",
+                                fn_idx, info->name, fn->code_offset + pos,
+                                def_idx, mod->enum_count);
+            }
+            break;
+        }
+
+        /* --- Union definition indices --- */
+        case OP_UNION_CONSTRUCT: {
+            if (mod->union_count > 0) {
+                uint32_t def_idx = instr.operands[0].u32;
+                if (def_idx >= mod->union_count)
+                    return fail("function[%u] %s at offset %u: union def_idx %u >= union_count %u",
+                                fn_idx, info->name, fn->code_offset + pos,
+                                def_idx, mod->union_count);
+            }
             break;
         }
 

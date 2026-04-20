@@ -3128,6 +3128,11 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         main_fn_idx = (int)syn_idx;
     }
 
+    /* Publish type definition counts so the verifier can validate def_idx operands */
+    cg.module->struct_count = (uint32_t)cg.struct_count;
+    cg.module->enum_count   = (uint32_t)cg.enum_count;
+    cg.module->union_count  = (uint32_t)cg.union_count;
+
     /* Set entry point and flags */
     if (main_fn_idx >= 0) {
         cg.module->header.flags = NVM_FLAG_HAS_MAIN;

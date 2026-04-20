@@ -170,6 +170,11 @@ typedef struct {
     uint8_t **import_param_types; /* param type arrays, one per import */
     uint32_t import_count;
     uint32_t import_capacity;
+
+    /* Type definition counts — populated by codegen, used by verifier */
+    uint32_t struct_count;
+    uint32_t enum_count;
+    uint32_t union_count;
 } NvmModule;
 
 /* ========================================================================

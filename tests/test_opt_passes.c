@@ -428,6 +428,87 @@ void test_tco_convenience_wrapper(void) {
 }
 
 /* ============================================================================
+ * tco_pass_pure tests — selective auto-TCO for pure fn only
+ * ============================================================================ */
+
+void test_tco_pure_empty_program(void) {
+    ASTNode *prog = parse_nano("fn main() -> int { return 0 }");
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 0);
+    free_ast(prog);
+}
+
+void test_tco_pure_non_recursive_pure_fn(void) {
+    /* A non-recursive pure fn should not be TCO-transformed */
+    ASTNode *prog = parse_nano(
+        "pure fn square(x: int) -> int { return (* x x) }\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 0);
+    free_ast(prog);
+}
+
+void test_tco_pure_tail_recursive_pure_fn(void) {
+    /* A tail-recursive pure fn should be transformed */
+    ASTNode *prog = parse_nano(
+        "pure fn countdown(n: int) -> int {\n"
+        "    if (<= n 0) { return 0 } else { return (countdown (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 1);
+    free_ast(prog);
+}
+
+void test_tco_pure_impure_fn_not_transformed(void) {
+    /* A tail-recursive IMPURE fn should NOT be touched by tco_pass_pure */
+    ASTNode *prog = parse_nano(
+        "fn countdown(n: int) -> int {\n"
+        "    if (<= n 0) { return 0 } else { return (countdown (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 0);  /* impure fn not touched */
+    free_ast(prog);
+}
+
+void test_tco_pure_extern_fn_not_transformed(void) {
+    /* A pure extern fn has no body — should not be transformed */
+    ASTNode *prog = parse_nano(
+        "pure extern fn fabs(x: float) -> float\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 0);
+    free_ast(prog);
+}
+
+void test_tco_pure_multiple_fns(void) {
+    /* Two tail-recursive pure fns → both transformed */
+    ASTNode *prog = parse_nano(
+        "pure fn sum(n: int, acc: int) -> int {\n"
+        "    if (<= n 0) { return acc } else { return (sum (- n 1) (+ acc n)) }\n"
+        "}\n"
+        "pure fn count(n: int) -> int {\n"
+        "    if (<= n 0) { return 0 } else { return (count (- n 1)) }\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    int result = tco_pass_pure(prog);
+    ASSERT_EQ(result, 2);
+    free_ast(prog);
+}
+
+/* ============================================================================
  * cps_pass tests
  * ============================================================================ */
 
@@ -634,6 +715,14 @@ int main(void) {
     TEST(tco_tail_recursive_function);
     TEST(tco_verbose_flag);
     TEST(tco_convenience_wrapper);
+
+    printf("\n=== TCO Pure Pass Tests ===\n");
+    TEST(tco_pure_empty_program);
+    TEST(tco_pure_non_recursive_pure_fn);
+    TEST(tco_pure_tail_recursive_pure_fn);
+    TEST(tco_pure_impure_fn_not_transformed);
+    TEST(tco_pure_extern_fn_not_transformed);
+    TEST(tco_pure_multiple_fns);
 
     printf("\n=== CPS Pass Tests ===\n");
     TEST(cps_empty_program);
