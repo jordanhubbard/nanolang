@@ -5,6 +5,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.7] - 2026-04-20
+
+### Added
+- shared-memory mailbox fast path for nano_cop FFI
+- apply pure fn across codebase; fix BUILTIN_PURE and module import propagation
+- phase 2+3 — pure extern fn and auto-TCO for pure functions
+- add 'pure fn' annotation with compile-time purity enforcement
+- add OpenCL C backend — --target opencl + transparent CPU fallback
+- add ocean.nano — GPU ocean simulation with Archimedes ship physics
+- add matmul.nano — 2D GPU operations demo using gpu_launch2d
+- gpu_load/gpu_store PTX intrinsics + saxpy/reduce_sum/vector_scale examples
+- full CUDA GPU support — PTX builtins, runtime module, and example
+- REPL persistent history and session save/load
+
+### Fixed
+- correct upvalue index validation and add struct/enum/union def_idx bounds checking
+- transpiler variable shadowing, SDL quit, profiling CWD, and process capture
+- handle zero-capacity ModuleList in module_list_add
+- initialize env->effect_registry = NULL in create_environment()
+- resolve both CI failures — ASAN stack-use-after-return + add GPU intrinsic tests
+- add gpu_launch5 for 5-arg kernels; fix saxpy missing n arg
+- correct DynArray layout in cuda_runtime.c + atom.global.add.u64
+- use atom.global.add.u64 for gpu_atomic_add
+- C forward decls for GPU intrinsics + shadow tests for gpu.nano
+- use u32 register pool (%r) for special register reads
+- replace em-dash with colon in PTX header comment
+- fix -Werror=type-limits for uint32_t >= 0 comparison
+- increase code buffer size to prevent overflow in test_add_array_array
+- resolve isatty type clash in nl_forth_interpreter
+
 ## [3.3.6] - 2026-04-02
 
 ### Added
