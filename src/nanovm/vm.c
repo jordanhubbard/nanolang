@@ -57,6 +57,13 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm->cop_in_fd = -1;
     vm->cop_out_fd = -1;
     vm->cop_pid = -1;
+    vm->cop_mailbox = NULL;
+    vm->cop_mailbox_size = 0;
+    vm->cop_sig_send_fd = -1;
+    vm->cop_sig_recv_fd = -1;
+    /* Read per-call timeout from env (default 5 s); -1 = unlimited */
+    const char *tenv = getenv("COP_TIMEOUT_MS");
+    vm->cop_timeout_ms = tenv ? atoi(tenv) : 5000;
     vm_heap_init(&vm->heap);
 }
 

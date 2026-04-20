@@ -425,65 +425,79 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
 #include "cop_protocol.h"
 #include <signal.h>
+#include <sys/mman.h>
 #include <sys/wait.h>
+#include <poll.h>
+
+/* MAP_ANON is BSD; MAP_ANONYMOUS is the POSIX/Linux name */
+#ifndef MAP_ANON
+#  ifdef MAP_ANONYMOUS
+#    define MAP_ANON MAP_ANONYMOUS
+#  else
+#    define MAP_ANON 0x1000  /* macOS value */
+#  endif
+#endif
+
+/* ========================================================================
+ * Co-process lifecycle (shared-memory mailbox fast path)
+ * ======================================================================== */
 
 bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
-    if (vm->cop_pid > 0) return true;  /* Already running */
+    if (vm->cop_pid > 0) return true;
 
-    /* Serialize the module to send to co-process */
-    uint32_t blob_size = 0;
-    uint8_t *blob = nvm_serialize(module, &blob_size);
-    if (!blob) return false;
+    /* Create the shared-memory mailbox — inherited across fork() */
+    size_t mbox_size = sizeof(CopMailbox);
+    CopMailbox *mailbox = (CopMailbox *)mmap(NULL, mbox_size,
+                                             PROT_READ | PROT_WRITE,
+                                             MAP_SHARED | MAP_ANON, -1, 0);
+    if (mailbox == MAP_FAILED) return false;
+    memset(mailbox, 0, mbox_size);
 
-    /* Create pipes: parent writes to child stdin, reads from child stdout */
-    int pipe_to_child[2];    /* parent writes [1], child reads [0] */
-    int pipe_from_child[2];  /* child writes [1], parent reads [0] */
-
-    if (pipe(pipe_to_child) != 0 || pipe(pipe_from_child) != 0) {
-        free(blob);
+    /* Two 1-byte signal pipes (replace the old full-payload pipes) */
+    int sig_to_child[2], sig_from_child[2];
+    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0) {
+        munmap(mailbox, mbox_size);
         return false;
     }
 
     pid_t pid = fork();
     if (pid < 0) {
-        free(blob);
-        close(pipe_to_child[0]); close(pipe_to_child[1]);
-        close(pipe_from_child[0]); close(pipe_from_child[1]);
+        munmap(mailbox, mbox_size);
+        close(sig_to_child[0]);  close(sig_to_child[1]);
+        close(sig_from_child[0]); close(sig_from_child[1]);
         return false;
     }
 
     if (pid == 0) {
-        /* Child: set up stdin/stdout from pipes, exec nano_cop */
-        close(pipe_to_child[1]);
-        close(pipe_from_child[0]);
-        dup2(pipe_to_child[0], STDIN_FILENO);
-        dup2(pipe_from_child[1], STDOUT_FILENO);
-        close(pipe_to_child[0]);
-        close(pipe_from_child[1]);
-
-        execlp("nano_cop", "nano_cop", (char *)NULL);
-        execl("bin/nano_cop", "nano_cop", (char *)NULL);
-        _exit(127);
+        /* Child: close parent-side pipe ends and run the cop logic inline
+         * (no exec — mailbox pointer is valid because we forked, not exec'd) */
+        close(sig_to_child[1]);
+        close(sig_from_child[0]);
+        cop_child_main(mailbox, mbox_size,
+                       sig_to_child[0], sig_from_child[1], module);
+        _exit(0);  /* cop_child_main never returns normally */
     }
 
-    /* Parent */
-    close(pipe_to_child[0]);
-    close(pipe_from_child[1]);
-    vm->cop_pid = pid;
-    vm->cop_in_fd = pipe_to_child[1];
-    vm->cop_out_fd = pipe_from_child[0];
+    /* Parent: close child-side pipe ends */
+    close(sig_to_child[0]);
+    close(sig_from_child[1]);
 
-    /* Send INIT with serialized module */
-    if (!cop_send(vm->cop_in_fd, COP_MSG_INIT, blob, blob_size)) {
-        free(blob);
+    vm->cop_pid = pid;
+    vm->cop_mailbox = mailbox;
+    vm->cop_mailbox_size = mbox_size;
+    vm->cop_sig_send_fd = sig_to_child[1];
+    vm->cop_sig_recv_fd = sig_from_child[0];
+    vm->cop_in_fd  = -1;  /* not used in mailbox mode */
+    vm->cop_out_fd = -1;
+
+    /* Wait for ready signal from child (up to 5 s) */
+    struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
+    if (poll(&pfd, 1, 5000) <= 0) {
         vm_ffi_cop_stop(vm);
         return false;
     }
-    free(blob);
-
-    /* Wait for READY */
-    CopMsgHeader hdr;
-    if (!cop_recv_header(vm->cop_out_fd, &hdr) || hdr.msg_type != COP_MSG_READY) {
+    uint8_t byte;
+    if (read(vm->cop_sig_recv_fd, &byte, 1) != 1) {
         vm_ffi_cop_stop(vm);
         return false;
     }
@@ -494,7 +508,16 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
 void vm_ffi_cop_stop(VmState *vm) {
     if (vm->cop_pid <= 0) return;
 
-    /* Try graceful shutdown */
+    /* Close the send pipe — child sees EOF and exits cleanly */
+    if (vm->cop_sig_send_fd >= 0) {
+        close(vm->cop_sig_send_fd);
+        vm->cop_sig_send_fd = -1;
+    }
+    if (vm->cop_sig_recv_fd >= 0) {
+        close(vm->cop_sig_recv_fd);
+        vm->cop_sig_recv_fd = -1;
+    }
+    /* Legacy pipe fds (may be -1 in mailbox mode) */
     if (vm->cop_in_fd >= 0) {
         cop_send_simple(vm->cop_in_fd, COP_MSG_SHUTDOWN);
         close(vm->cop_in_fd);
@@ -505,74 +528,151 @@ void vm_ffi_cop_stop(VmState *vm) {
         vm->cop_out_fd = -1;
     }
 
-    /* Wait for child with timeout */
+    /* Wait up to 50 ms for graceful exit, then SIGTERM */
     int status;
     pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
     if (w == 0) {
-        usleep(50000); /* 50ms */
+        usleep(50000);
         w = waitpid(vm->cop_pid, &status, WNOHANG);
         if (w == 0) {
             kill(vm->cop_pid, SIGTERM);
             waitpid(vm->cop_pid, &status, 0);
         }
     }
-
     vm->cop_pid = -1;
+
+    if (vm->cop_mailbox) {
+        munmap(vm->cop_mailbox, vm->cop_mailbox_size);
+        vm->cop_mailbox = NULL;
+        vm->cop_mailbox_size = 0;
+    }
 }
 
-/* Check if the co-process is still alive. Reaps zombie if dead. */
+/* Check if the co-process is still alive, reaping zombie if dead. */
 static bool cop_is_alive(VmState *vm) {
     if (vm->cop_pid <= 0) return false;
     int status;
     pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
     if (w > 0) {
-        /* Child exited (crash or normal exit) — reap it */
         vm->cop_pid = -1;
-        if (vm->cop_in_fd >= 0) { close(vm->cop_in_fd); vm->cop_in_fd = -1; }
+        if (vm->cop_sig_send_fd >= 0) { close(vm->cop_sig_send_fd); vm->cop_sig_send_fd = -1; }
+        if (vm->cop_sig_recv_fd >= 0) { close(vm->cop_sig_recv_fd); vm->cop_sig_recv_fd = -1; }
+        if (vm->cop_in_fd  >= 0) { close(vm->cop_in_fd);  vm->cop_in_fd  = -1; }
         if (vm->cop_out_fd >= 0) { close(vm->cop_out_fd); vm->cop_out_fd = -1; }
-        return false;
-    }
-    return true;  /* Still running (w == 0) or error (w < 0, treat as alive) */
-}
-
-/* Ensure the co-process is running. Launches on demand or relaunches
- * after a crash. Blocks until the cop is initialized and ready. */
-static bool cop_ensure(VmState *vm, const NvmModule *module,
-                       char *error_msg, size_t error_msg_size) {
-    /* Already running? */
-    if (cop_is_alive(vm)) return true;
-
-    /* Launch (or relaunch after crash) */
-    if (!vm_ffi_cop_start(vm, module)) {
-        snprintf(error_msg, error_msg_size,
-                 "COP: failed to launch co-process");
+        if (vm->cop_mailbox) {
+            munmap(vm->cop_mailbox, vm->cop_mailbox_size);
+            vm->cop_mailbox = NULL;
+            vm->cop_mailbox_size = 0;
+        }
         return false;
     }
     return true;
 }
 
+static bool cop_ensure(VmState *vm, const NvmModule *module,
+                       char *error_msg, size_t error_msg_size) {
+    if (cop_is_alive(vm)) return true;
+    if (!vm_ffi_cop_start(vm, module)) {
+        snprintf(error_msg, error_msg_size, "COP: failed to launch co-process");
+        return false;
+    }
+    return true;
+}
+
+/* ========================================================================
+ * vm_ffi_call_cop — fast mailbox path + pipe fallback
+ * ======================================================================== */
+
 bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
-    /* Lazy launch: start cop on first FFI call, or relaunch after crash */
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
-        /* Could not start cop — fall back to in-process FFI */
         return vm_ffi_call(module, import_idx, args, arg_count,
                            result, heap, error_msg, error_msg_size);
     }
 
-    /* Build request payload: u32 import_idx + u16 argc + serialized args */
+    CopMailbox *mbox = vm->cop_mailbox;
+
+    /* ── Fast path: mailbox ──────────────────────────────────────────── */
+    if (mbox) {
+        /* Serialize args directly into the mailbox request slot */
+        uint32_t pos = 0;
+        bool fits = true;
+        for (int i = 0; i < arg_count && i < 16 && fits; i++) {
+            uint32_t n = cop_serialize_value(&args[i],
+                                             mbox->req_data + pos,
+                                             COP_MAILBOX_SLOT_SIZE - pos);
+            if (n == 0) { fits = false; break; }
+            pos += n;
+        }
+
+        if (fits) {
+            mbox->req_import_idx = import_idx;
+            mbox->req_argc       = (uint16_t)arg_count;
+            mbox->req_data_size  = (uint16_t)pos;
+
+            /* Wake the child — pipe write is a full memory barrier on POSIX */
+            uint8_t sig = 1;
+            if (write(vm->cop_sig_send_fd, &sig, 1) != 1) {
+                vm_ffi_cop_stop(vm);
+                snprintf(error_msg, error_msg_size,
+                         "COP: signal pipe broken (child crash?)");
+                return false;
+            }
+
+            /* Wait for response with per-call timeout */
+            struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
+            int n = poll(&pfd, 1, vm->cop_timeout_ms);
+            if (n == 0) {
+                /* Timeout: kill cop, return error */
+                vm_ffi_cop_stop(vm);
+                snprintf(error_msg, error_msg_size,
+                         "COP: timeout after %d ms", vm->cop_timeout_ms);
+                return false;
+            }
+            if (n < 0 || read(vm->cop_sig_recv_fd, &sig, 1) != 1) {
+                vm_ffi_cop_stop(vm);
+                snprintf(error_msg, error_msg_size, "COP: ack pipe broken");
+                return false;
+            }
+
+            /* Read result from mailbox */
+            if (mbox->resp_is_error) {
+                snprintf(error_msg, error_msg_size, "%s", mbox->resp_error);
+                return false;
+            }
+            if (mbox->resp_data_size > 0) {
+                uint32_t consumed = cop_deserialize_value(
+                    mbox->resp_data, mbox->resp_data_size, result, heap);
+                if (consumed == 0) {
+                    snprintf(error_msg, error_msg_size,
+                             "COP: failed to deserialize mailbox result");
+                    return false;
+                }
+            } else {
+                *result = val_void();
+            }
+            return true;
+        }
+        /* Args too large for mailbox slot — fall through to pipe path */
+    }
+
+    /* ── Pipe fallback: for large payloads or when mailbox unavailable ─ */
+    if (vm->cop_in_fd < 0) {
+        /* Mailbox-only mode has no legacy pipes; fall back to in-process */
+        return vm_ffi_call(module, import_idx, args, arg_count,
+                           result, heap, error_msg, error_msg_size);
+    }
+
     uint8_t payload[8192];
     uint32_t pos = 0;
-    memcpy(payload + pos, &import_idx, 4);
-    pos += 4;
+    memcpy(payload + pos, &import_idx, 4); pos += 4;
     uint16_t argc = (uint16_t)arg_count;
-    memcpy(payload + pos, &argc, 2);
-    pos += 2;
-
+    memcpy(payload + pos, &argc, 2); pos += 2;
     for (int i = 0; i < arg_count && i < 16; i++) {
-        uint32_t n = cop_serialize_value(&args[i], payload + pos, sizeof(payload) - pos);
+        uint32_t n = cop_serialize_value(&args[i], payload + pos,
+                                         sizeof(payload) - pos);
         if (n == 0) {
             snprintf(error_msg, error_msg_size, "COP: failed to serialize arg %d", i);
             return false;
@@ -580,43 +680,38 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         pos += n;
     }
 
-    /* Send request */
     if (!cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
-        /* Pipe broken — cop crashed during our call */
         vm_ffi_cop_stop(vm);
         snprintf(error_msg, error_msg_size,
-                 "COP: co-process died during FFI request (will relaunch on next call)");
+                 "COP: pipe broken during FFI request");
         return false;
     }
 
-    /* Receive response */
     CopMsgHeader hdr;
     if (!cop_recv_header(vm->cop_out_fd, &hdr)) {
-        /* Pipe broken — cop crashed while we waited for response */
         vm_ffi_cop_stop(vm);
         snprintf(error_msg, error_msg_size,
-                 "COP: co-process died during FFI response (will relaunch on next call)");
+                 "COP: pipe broken waiting for FFI response");
         return false;
     }
 
     if (hdr.msg_type == COP_MSG_FFI_RESULT) {
         if (hdr.payload_len > 0) {
-            /* Use stack buffer for small payloads, heap for large (arrays) */
             uint8_t *recv_buf = (hdr.payload_len <= sizeof(payload))
-                                ? payload
-                                : malloc(hdr.payload_len);
+                                ? payload : malloc(hdr.payload_len);
             if (!recv_buf) {
-                snprintf(error_msg, error_msg_size, "COP: OOM for result (%u bytes)",
-                         hdr.payload_len);
+                snprintf(error_msg, error_msg_size,
+                         "COP: OOM for result (%u bytes)", hdr.payload_len);
                 return false;
             }
             bool ok = cop_recv_payload(vm->cop_out_fd, recv_buf, hdr.payload_len);
             if (!ok) {
                 if (recv_buf != payload) free(recv_buf);
-                snprintf(error_msg, error_msg_size, "COP: failed to receive result payload");
+                snprintf(error_msg, error_msg_size, "COP: failed to receive result");
                 return false;
             }
-            uint32_t consumed = cop_deserialize_value(recv_buf, hdr.payload_len, result, heap);
+            uint32_t consumed = cop_deserialize_value(recv_buf, hdr.payload_len,
+                                                       result, heap);
             if (recv_buf != payload) free(recv_buf);
             if (consumed == 0) {
                 snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
@@ -626,17 +721,13 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
             *result = val_void();
         }
         return true;
-    } else if (hdr.msg_type == COP_MSG_FFI_ERROR) {
-        uint32_t err_len = hdr.payload_len < (uint32_t)(error_msg_size - 1)
-                           ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
-        if (err_len > 0) {
-            cop_recv_payload(vm->cop_out_fd, error_msg, err_len);
-            error_msg[err_len] = '\0';
-        }
-        return false;
-    } else {
-        snprintf(error_msg, error_msg_size, "COP: unexpected response type 0x%02x",
-                 hdr.msg_type);
+    }
+    if (hdr.msg_type == COP_MSG_FFI_ERROR) {
+        uint32_t elen = hdr.payload_len < (uint32_t)(error_msg_size - 1)
+                        ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
+        if (elen > 0) { cop_recv_payload(vm->cop_out_fd, error_msg, elen); error_msg[elen] = '\0'; }
         return false;
     }
+    snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);
+    return false;
 }

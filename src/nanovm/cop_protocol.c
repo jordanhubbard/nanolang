@@ -1,14 +1,27 @@
 /*
  * cop_protocol.c - Co-Process FFI Protocol Implementation
  *
- * Serialization/deserialization for NanoValues and pipe-based I/O.
+ * Serialization/deserialization for NanoValues, pipe-based I/O,
+ * and the shared-memory mailbox child main loop.
  */
 
 #include "cop_protocol.h"
+#include "vm_ffi.h"
 #include "heap.h"
+#include "../nanoisa/nvm_format.h"
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <poll.h>
+
+/* MAP_ANON compat */
+#ifndef MAP_ANON
+#  ifdef MAP_ANONYMOUS
+#    define MAP_ANON MAP_ANONYMOUS
+#  else
+#    define MAP_ANON 0x1000
+#  endif
+#endif
 
 /* ========================================================================
  * NanoValue Serialization
@@ -224,4 +237,108 @@ bool cop_recv_payload(int fd, void *buf, uint32_t len) {
 
 bool cop_send_simple(int fd, CopMsgType type) {
     return cop_send(fd, type, NULL, 0);
+}
+
+/* ========================================================================
+ * cop_child_main — shared-memory mailbox fast path (in-process child)
+ *
+ * Called after fork() in vm_ffi_cop_start(). The module pointer is valid
+ * because we forked (not exec'd), so the parent's deserialized module is
+ * directly accessible.  Communication uses two 1-byte signal pipes and the
+ * mmap'd CopMailbox for all request/response data.
+ * ======================================================================== */
+
+void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
+                    int sig_in_fd, int sig_out_fd,
+                    const NvmModule *module) {
+    (void)mailbox_size;
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* Initialize FFI — module is already deserialized in the parent's address space */
+    vm_ffi_init();
+    for (uint32_t i = 0; i < module->import_count; i++) {
+        const char *mod_name = nvm_get_string(module, module->imports[i].module_name_idx);
+        if (mod_name && mod_name[0]) {
+            vm_ffi_load_module(mod_name);
+        }
+    }
+
+    /* Prefix-based fallback for bare extern declarations */
+    static const struct { const char *prefix; const char *mod; } known[] = {
+        {"path_",    "std/fs"},    {"fs_",      "std/fs"},
+        {"file_",    "std/fs"},    {"dir_",     "std/fs"},
+        {"regex_",   "std/regex"}, {"process_", "std/process"},
+        {"json_",    "std/json"},  {"bstr_",    "std/bstring"},
+        {NULL, NULL}
+    };
+    for (uint32_t i = 0; i < module->import_count; i++) {
+        const char *fn  = nvm_get_string(module, module->imports[i].function_name_idx);
+        const char *mod = nvm_get_string(module, module->imports[i].module_name_idx);
+        if (fn && (!mod || mod[0] == '\0')) {
+            for (int k = 0; known[k].prefix; k++) {
+                if (strncmp(fn, known[k].prefix, strlen(known[k].prefix)) == 0) {
+                    vm_ffi_load_module(known[k].mod);
+                    break;
+                }
+            }
+        }
+    }
+
+    /* Signal ready to parent */
+    uint8_t sig = 1;
+    if (write(sig_out_fd, &sig, 1) != 1) goto done;
+
+    {
+        struct pollfd pfd = { .fd = sig_in_fd, .events = POLLIN };
+        for (;;) {
+            if (poll(&pfd, 1, -1) <= 0) break;
+
+            uint8_t trigger;
+            if (read(sig_in_fd, &trigger, 1) != 1) break;
+
+            uint32_t import_idx = mailbox->req_import_idx;
+            uint16_t argc       = mailbox->req_argc;
+            uint16_t data_size  = mailbox->req_data_size;
+
+            NanoValue args[16] = {0};
+            int actual_argc = 0;
+            uint32_t pos = 0;
+            for (int i = 0; i < argc && i < 16 && pos < data_size; i++) {
+                uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
+                                                          data_size - pos,
+                                                          &args[i], &heap);
+                if (consumed == 0) break;
+                pos += consumed;
+                actual_argc++;
+            }
+
+            NanoValue result;
+            char errmsg[256] = {0};
+            if (!vm_ffi_call(module, import_idx, args, actual_argc, &result, &heap,
+                             errmsg, sizeof(errmsg))) {
+                mailbox->resp_is_error  = 1;
+                mailbox->resp_data_size = 0;
+                strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
+                mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
+            } else {
+                uint32_t rlen = cop_serialize_value(&result,
+                                                    mailbox->resp_data,
+                                                    COP_MAILBOX_SLOT_SIZE);
+                mailbox->resp_is_error  = 0;
+                mailbox->resp_data_size = rlen;
+                vm_release(&heap, result);
+            }
+
+            for (int i = 0; i < actual_argc; i++) vm_release(&heap, args[i]);
+
+            if (write(sig_out_fd, &sig, 1) != 1) break;
+        }
+    }
+
+done:
+    vm_ffi_shutdown();
+    vm_heap_destroy(&heap);
+    _exit(0);
 }

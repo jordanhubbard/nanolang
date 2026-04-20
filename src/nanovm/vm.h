@@ -94,9 +94,18 @@ typedef struct VmState {
 
     /* FFI isolation: if true, use co-process for extern calls */
     bool isolate_ffi;
+
+    /* Original pipe fds (used for INIT/SHUTDOWN and large-payload fallback) */
     int cop_in_fd;            /* Pipe to co-process stdin (-1 if none) */
     int cop_out_fd;           /* Pipe from co-process stdout (-1 if none) */
     int cop_pid;              /* Co-process PID (-1 if none) */
+
+    /* Shared-memory mailbox (fast path for small FFI calls, e.g. pixels) */
+    struct CopMailbox *cop_mailbox;   /* mmap'd before fork, inherited by child */
+    size_t cop_mailbox_size;
+    int    cop_sig_send_fd;   /* Parent writes 1 byte to wake child (-1 if none) */
+    int    cop_sig_recv_fd;   /* Parent reads 1 byte when child done (-1 if none) */
+    int    cop_timeout_ms;    /* Per-call timeout in ms; -1 = unlimited */
 
     /* Error info */
     VmResult last_error;

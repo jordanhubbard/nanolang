@@ -67,6 +67,45 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
                                NanoValue *out, VmHeap *heap);
 
 /* ========================================================================
+ * Shared-Memory Mailbox (fast path)
+ *
+ * For high-frequency FFI (e.g. pixel rendering), the pipe protocol pays
+ * 4+ syscalls per call and copies payload bytes through kernel buffers.
+ * The mailbox eliminates the payload copies: only a 1-byte signal travels
+ * through each pipe, and all argument/result data lives in a shared mmap
+ * region inherited across fork().
+ *
+ * Per-call cost: 2 pipe syscalls (signal + ack) instead of 4+ pipe I/O
+ * syscalls, and zero kernel copies of the payload.
+ *
+ * The parent uses poll() with cop_timeout_ms for the per-call timeout.
+ * ======================================================================== */
+
+#define COP_MAILBOX_SLOT_SIZE 4096   /* fits any scalar/pixel FFI call */
+
+typedef struct CopMailbox {
+    /* Request slot — written by parent, read by child */
+    uint32_t req_import_idx;
+    uint16_t req_argc;
+    uint16_t req_data_size;
+    uint8_t  req_data[COP_MAILBOX_SLOT_SIZE];
+
+    /* Response slot — written by child, read by parent */
+    uint8_t  resp_is_error;          /* 0=result, 1=error string */
+    uint8_t  _pad[3];
+    uint32_t resp_data_size;
+    uint8_t  resp_data[COP_MAILBOX_SLOT_SIZE];
+    char     resp_error[256];
+} CopMailbox;
+
+/* Run the cop logic in a forked child (no exec).  Never returns.
+ * mailbox, sig_in_fd, sig_out_fd are inherited from the parent's
+ * address space.  module is the NvmModule whose imports are served. */
+void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
+                    int sig_in_fd, int sig_out_fd,
+                    const NvmModule *module);
+
+/* ========================================================================
  * Send / Receive Helpers (pipe-based I/O)
  * ======================================================================== */
 
