@@ -1570,6 +1570,9 @@ int main(int argc, char *argv[]) {
         printf("                 Install nano packages from the registry (nanoc-install.sh)\n");
         printf("                 Reads nano.packages.json + writes nano.lock\n");
         printf("                 Example: nanoc install gpu-math@^1.0.0 nano-core@latest\n");
+        printf("  add [pkg@range ...]\n");
+        printf("                 Add package(s) to nano.packages.json and install them\n");
+        printf("                 Example: nanoc add gpu-math@^1.0.0\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
         printf("\nVerification Options:\n");
@@ -1640,8 +1643,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* Handle 'install' subcommand — delegates to scripts/nanoc-install.sh */
-    if (argc >= 2 && strcmp(argv[1], "install") == 0) {
+    /* Handle 'install' and 'add' subcommands — delegates to scripts/nanoc-install.sh */
+    if (argc >= 2 && (strcmp(argv[1], "install") == 0 || strcmp(argv[1], "add") == 0)) {
+        bool add_mode = (strcmp(argv[1], "add") == 0);
         const char *install_suffix = "/scripts/nanoc-install.sh";
         char *install_script = NULL;
         const char *nano_root = getenv("NANOLANG_ROOT");
@@ -1664,13 +1668,20 @@ int main(int argc, char *argv[]) {
             if (!install_script) install_script = strdup("./scripts/nanoc-install.sh");
         }
         /* Build argv for install script */
-        const char **script_argv = malloc((size_t)(argc + 1) * sizeof(char *));
+        size_t script_argc = (size_t)argc + (add_mode ? 1 : 0);
+        const char **script_argv = malloc((script_argc + 1) * sizeof(char *));
         if (!script_argv) { perror("malloc"); free(install_script); return 1; }
         script_argv[0] = install_script;
-        for (int i = 2; i < argc; i++) script_argv[i - 1] = argv[i];
-        script_argv[argc - 1] = NULL;
+        size_t out_idx = 1;
+        if (add_mode) {
+            script_argv[out_idx++] = "--save";
+        }
+        for (int i = 2; i < argc; i++) {
+            script_argv[out_idx++] = argv[i];
+        }
+        script_argv[out_idx] = NULL;
         execv(install_script, (char *const *)script_argv);
-        fprintf(stderr, "nanoc install: could not exec %s: %s\n", install_script, strerror(errno));
+        fprintf(stderr, "nanoc %s: could not exec %s: %s\n", add_mode ? "add" : "install", install_script, strerror(errno));
         fprintf(stderr, "Ensure nanoc-install.sh is in scripts/ relative to NANOLANG_ROOT.\n");
         free(script_argv);
         free(install_script);

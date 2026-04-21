@@ -8,7 +8,7 @@
 # Options:
 #   --registry <url>   Registry base URL (default: $NANO_REGISTRY or https://packages.nanolang.org)
 #   --packages-dir <d> Install directory (default: ./nano_packages)
-#   --save             Update nano.packages.json with resolved versions
+#   --save             Update nano.packages.json dependencies and write nano.lock
 #   --dry-run          Resolve and print, but do not download
 #   --verbose          Show detailed output
 #
@@ -146,6 +146,48 @@ update_lockfile() {
   log "Updated $LOCK_FILE"
 }
 
+update_packages_json_from_args() {
+  local project_name
+  project_name="$(basename "$(pwd)")"
+  python3 - "$PKG_JSON" "$project_name" "$@" <<'PY'
+import json, os, sys
+
+pkg_json = sys.argv[1]
+project_name = sys.argv[2]
+specs = sys.argv[3:]
+
+data = {"name": project_name, "dependencies": {}}
+if os.path.exists(pkg_json):
+    try:
+        with open(pkg_json, "r", encoding="utf-8") as f:
+            loaded = json.load(f)
+        if isinstance(loaded, dict):
+            data.update(loaded)
+    except Exception:
+        pass
+
+deps = data.get("dependencies")
+if not isinstance(deps, dict):
+    deps = {}
+
+for spec in specs:
+    if "@" in spec:
+        name, rng = spec.split("@", 1)
+    else:
+        name, rng = spec, "latest"
+    name = name.strip()
+    rng = rng.strip() or "latest"
+    if name:
+        deps[name] = rng
+
+data["dependencies"] = deps
+with open(pkg_json, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, sort_keys=True)
+    f.write("\n")
+PY
+  log "Updated $PKG_JSON"
+}
+
 # ── Main ───────────────────────────────────────────────────────────────── #
 mkdir -p "$PACKAGES_DIR"
 
@@ -204,6 +246,10 @@ for name in "${!resolved_map[@]}"; do
 done
 
 # Optionally update lock file
+if $SAVE && [[ ${#PACKAGES[@]} -gt 0 ]]; then
+  update_packages_json_from_args "${PACKAGES[@]}"
+fi
+
 if $SAVE || [[ ${#PACKAGES[@]} -gt 0 && ! -f "$LOCK_FILE" ]]; then
   update_lockfile resolved_map
 fi
