@@ -173,19 +173,19 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
     DisasmLabel labels[MAX_DISASM_LABELS];
     uint32_t label_count = collect_jump_targets(code, code_size, labels, MAX_DISASM_LABELS);
 
-    uint32_t fn_code_offset = 0;
+    uint32_t function_base_offset = 0;
     if (mod && mod->code && code >= mod->code && code <= mod->code + mod->code_size) {
-        fn_code_offset = (uint32_t)(code - mod->code);
+        function_base_offset = (uint32_t)(code - mod->code);
     }
 
     const char *src_file = "<unknown>";
     if (mod) {
         if (mod->source_file_idx > 0) {
-            const char *s = nvm_get_string(mod, mod->source_file_idx);
-            if (s && s[0]) src_file = s;
+            const char *source_string = nvm_get_string(mod, mod->source_file_idx);
+            if (source_string && source_string[0]) src_file = source_string;
         } else {
-            const char *s0 = nvm_get_string(mod, 0);
-            if (s0 && s0[0]) src_file = s0;
+            const char *fallback_string = nvm_get_string(mod, 0);
+            if (fallback_string && fallback_string[0]) src_file = fallback_string;
         }
     }
 
@@ -203,13 +203,13 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
         uint32_t consumed = isa_decode(code + pos, code_size - pos, &instr);
         if (consumed == 0) {
             fprintf(out, "  ; ERROR: invalid opcode 0x%02x at offset %u (abs %u)\n",
-                    code[pos], pos, fn_code_offset + pos);
+                    code[pos], pos, function_base_offset + pos);
             pos++;
             continue;
         }
 
         const InstructionInfo *info = isa_get_info(instr.opcode);
-        fprintf(out, "  [%04u|%04u] %s", pos, fn_code_offset + pos, info ? info->name : "???");
+        fprintf(out, "  [%04u|%04u] %s", pos, function_base_offset + pos, info ? info->name : "???");
 
         for (int i = 0; i < instr.operand_count; i++) {
             format_operand(out, &instr, i, mod, pos, labels, label_count);

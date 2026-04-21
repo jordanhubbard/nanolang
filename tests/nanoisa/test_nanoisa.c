@@ -512,8 +512,10 @@ static void test_strip_debug_info(void) {
     nvm_add_string(mod, "main", 4);
     mod->source_file_idx = src_idx;
 
-    NvmFunctionEntry fn = { .name_idx = 1, .arity = 0, .code_offset = 0,
-                            .code_length = 0, .local_count = 1, .upvalue_count = 0 };
+    NvmFunctionEntry fn = {
+        .name_idx = 1, .arity = 0, .code_offset = 0,
+        .code_length = 0, .local_count = 1, .upvalue_count = 0
+    };
     nvm_add_function(mod, &fn);
 
     uint8_t code[] = { OP_DEBUG_LINE, 42, 0, 0, 0, OP_PUSH_I64, 0, 0, 0, 0, 0, 0, 0, 0, OP_RET };
@@ -995,6 +997,7 @@ static void test_disasm_source_annotations_and_cfg(void) {
     ASSERT(strstr(output, "; @ tests/disasm_sample.nano:42") != NULL, "Propagates line annotation");
     ASSERT(strstr(output, "; cfg:branch-if-false") == NULL, "No unrelated branch note");
     ASSERT(strstr(output, "; cfg:jump") != NULL, "Shows jump CFG annotation");
+    ASSERT(strstr(output, "JMP L") != NULL, "Shows resolved jump target label reference");
     ASSERT(strstr(output, "<== jump target") != NULL, "Shows jump target marker");
 
     free(output);
