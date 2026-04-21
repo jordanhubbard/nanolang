@@ -117,7 +117,6 @@ EXPECTED_FAILURES=(
     test_effects_neg2.nano
     # These tests require unmerged feature branches and compile against stub implementations.
     # They will be un-skipped as the corresponding branches land in main.
-    test_async.nano          # requires feat/async-await-cps
     test_coroutine.nano      # requires feat/coroutine-runtime
     test_pretty_printer.nano # requires feat/nano-fmt or similar formatting branch
 )

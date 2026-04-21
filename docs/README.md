@@ -90,6 +90,12 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
+10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
+    - Source-level `async fn` / `await`
+    - Cooperative CPS/coroutine execution model
+    - VM trap boundary for suspension/resumption integration
+    - libdispatch-backed queue integrations where available
+
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)
     - Determinism of evaluation
@@ -218,4 +224,3 @@ When you write documentation for me, follow these principles:
 - Browse the [Examples](../examples/README.md) for code patterns.
 - Search the [Issues](https://github.com/jordanhubbard/nanolang/issues) for discussions.
 - Ask in [Discussions](https://github.com/jordanhubbard/nanolang/discussions).
-

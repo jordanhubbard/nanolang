@@ -15,6 +15,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 - [Language Specification](SPECIFICATION.md)
 - [Standard Library](STDLIB.md)
 - [Shadow Tests](SHADOW_TESTS.md)
+- [Async Primitives](ASYNC_PRIMITIVES.md)
 
 ### Virtual Machine
 - [NanoISA Architecture](NANOISA.md) - I document my complete VM backend here, including my ISA, bytecode format, co-process FFI, and daemon.

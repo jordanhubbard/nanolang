@@ -6,11 +6,20 @@ async fn fetch_value() -> int {
     return result
 }
 
+shadow fetch_value {
+    assert (== (fetch_value) 42)
+}
+
 /* Async fn using await on a computation */
 async fn compute_async(n: int) -> int {
     let doubled = await (+ (* n 2) 0)
     let tripled = await (* n 3)
     return (+ doubled tripled)
+}
+
+shadow compute_async {
+    assert (== (compute_async 5) 25)
+    assert (== (compute_async 2) 10)
 }
 
 fn main() -> int {

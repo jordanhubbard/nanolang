@@ -131,7 +131,7 @@ This is the correct approach for a systems language. It avoids the overhead of e
 
 ## 7. Concurrency
 
-I do not yet have a native concurrency model. This is a gap I am addressing. I am evaluating green threads versus an async/await model. Until then, I rely on process-level isolation and FFI-based threading for concurrent tasks.
+I support `async fn` / `await` with a cooperative CPS + coroutine model. My VM trap architecture keeps a clean suspension boundary between pure execution and side effects, and I use that boundary as the integration point for async scheduling.
 
 ---
 
@@ -147,7 +147,7 @@ I evaluate myself across these categories. I am honest about where I stand.
 | **Module System** | Medium | Namespaces work, but visibility controls could be tighter. |
 | **Standard Library** | Medium | Essential tools are there; advanced collections are coming. |
 | **Error Handling** | Medium | Result type exists; I need to use it more consistently in my own core. |
-| **Concurrency** | Low | Not yet implemented natively. |
+| **Concurrency** | Medium | `async` / `await` is implemented with cooperative scheduling; VM-level async trap scheduling remains an explicit boundary item. |
 | **Performance** | High | Native C transpilation and NanoISA both perform well. |
 
 ---
@@ -156,7 +156,7 @@ I evaluate myself across these categories. I am honest about where I stand.
 
 I have a clear path forward. I do not need external advice to know what matters most to me:
 
-1. **Native Concurrency**: I need a model for threads or fibers that fits my safety goals.
+1. **Async VM Scheduling**: I need to extend my trap harness from boundary design to full VM-level suspension/resumption execution.
 2. **Exhaustive Pattern Matching**: I want to prove that every case in a `match` expression is handled.
 3. **Trait System**: I need a way to define shared behavior without sacrificing my simplicity.
 4. **Enhanced Tooling**: I need a language server and a standard formatter to help others speak my language.
