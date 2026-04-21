@@ -231,6 +231,13 @@ void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
     mod->debug_count++;
 }
 
+void nvm_strip_debug_info(NvmModule *mod) {
+    if (!mod) return;
+    mod->debug_count = 0;
+    mod->source_file_idx = 0;
+    mod->header.flags &= ~NVM_FLAG_DEBUG_INFO;
+}
+
 /* ========================================================================
  * Import Table
  * ======================================================================== */

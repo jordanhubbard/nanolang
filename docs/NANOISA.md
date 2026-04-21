@@ -34,12 +34,13 @@ nano_virt (compiler)
 ### nano_virt (Compiler)
 
 ```bash
-nano_virt input.nano [-o output] [--run] [--emit-nvm] [--daemon-wrapper] [-v]
+nano_virt input.nano [-o output] [--run] [--emit-nvm] [--strip-debug] [--daemon-wrapper] [-v]
 ```
 
 - `-o <path>`: Output file (native binary or .nvm)
 - `--run`: Execute immediately after compilation (in-process VM)
 - `--emit-nvm`: Write raw .nvm bytecode instead of native binary
+- `--strip-debug`: Remove debug/source-map data from emitted module
 - `--daemon-wrapper`: Generate thin daemon-mode binary (requires nano_vmd)
 - `-v`: Verbose output
 

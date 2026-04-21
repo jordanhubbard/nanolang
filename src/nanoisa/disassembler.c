@@ -80,6 +80,29 @@ static const char *find_label_at(const DisasmLabel *labels, uint32_t count, uint
     return NULL;
 }
 
+static bool is_control_flow_opcode(NanoOpcode opcode) {
+    return opcode == OP_JMP ||
+           opcode == OP_JMP_FALSE ||
+           opcode == OP_JMP_TRUE ||
+           opcode == OP_CALL ||
+           opcode == OP_CALL_EXTERN ||
+           opcode == OP_RET ||
+           opcode == OP_HALT;
+}
+
+static const char *control_flow_note(NanoOpcode opcode) {
+    switch (opcode) {
+        case OP_JMP: return "jump";
+        case OP_JMP_FALSE: return "branch-if-false";
+        case OP_JMP_TRUE: return "branch-if-true";
+        case OP_CALL: return "call";
+        case OP_CALL_EXTERN: return "extern-call";
+        case OP_RET: return "return";
+        case OP_HALT: return "halt";
+        default: return NULL;
+    }
+}
+
 /* ========================================================================
  * Operand Formatting
  * ======================================================================== */
@@ -150,28 +173,60 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
     DisasmLabel labels[MAX_DISASM_LABELS];
     uint32_t label_count = collect_jump_targets(code, code_size, labels, MAX_DISASM_LABELS);
 
+    uint32_t fn_code_offset = 0;
+    if (mod && mod->code && code >= mod->code && code <= mod->code + mod->code_size) {
+        fn_code_offset = (uint32_t)(code - mod->code);
+    }
+
+    const char *src_file = "<unknown>";
+    if (mod) {
+        if (mod->source_file_idx > 0) {
+            const char *s = nvm_get_string(mod, mod->source_file_idx);
+            if (s && s[0]) src_file = s;
+        } else {
+            const char *s0 = nvm_get_string(mod, 0);
+            if (s0 && s0[0]) src_file = s0;
+        }
+    }
+
+    uint32_t current_line = 0;
+
     uint32_t pos = 0;
     while (pos < code_size) {
         /* Check if there's a label at this offset */
         const char *label = find_label_at(labels, label_count, pos);
         if (label) {
-            fprintf(out, "%s:\n", label);
+            fprintf(out, "%s:  ; <== jump target\n", label);
         }
 
         DecodedInstruction instr;
         uint32_t consumed = isa_decode(code + pos, code_size - pos, &instr);
         if (consumed == 0) {
-            fprintf(out, "  ; ERROR: invalid opcode 0x%02x at offset %u\n",
-                    code[pos], pos);
+            fprintf(out, "  ; ERROR: invalid opcode 0x%02x at offset %u (abs %u)\n",
+                    code[pos], pos, fn_code_offset + pos);
             pos++;
             continue;
         }
 
         const InstructionInfo *info = isa_get_info(instr.opcode);
-        fprintf(out, "  %s", info ? info->name : "???");
+        fprintf(out, "  [%04u|%04u] %s", pos, fn_code_offset + pos, info ? info->name : "???");
 
         for (int i = 0; i < instr.operand_count; i++) {
             format_operand(out, &instr, i, mod, pos, labels, label_count);
+        }
+
+        if (instr.opcode == OP_DEBUG_LINE && instr.operand_count > 0) {
+            current_line = instr.operands[0].u32;
+            if (current_line > 0) {
+                fprintf(out, "  ; source %s:%u", src_file, current_line);
+            }
+        } else if (current_line > 0) {
+            fprintf(out, "  ; @ %s:%u", src_file, current_line);
+        }
+
+        if (is_control_flow_opcode(instr.opcode)) {
+            const char *note = control_flow_note(instr.opcode);
+            if (note) fprintf(out, "  ; cfg:%s", note);
         }
 
         fprintf(out, "\n");

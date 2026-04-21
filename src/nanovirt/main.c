@@ -47,12 +47,13 @@ static char *read_file(const char *path) {
 }
 
 static void usage(const char *prog) {
-    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--daemon-wrapper] [-v]\n", prog);
+    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -o <path>          Output file (native binary, or .nvm if --emit-nvm)\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
 }
@@ -68,6 +69,7 @@ int main(int argc, char **argv) {
     const char *output = NULL;
     bool run = false;
     bool emit_nvm = false;
+    bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
 
@@ -78,6 +80,8 @@ int main(int argc, char **argv) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
             emit_nvm = true;
+        } else if (strcmp(argv[i], "--strip-debug") == 0) {
+            strip_debug = true;
         } else if (strcmp(argv[i], "--daemon-wrapper") == 0) {
             daemon_wrapper = true;
         } else if (strcmp(argv[i], "-v") == 0) {
@@ -158,6 +162,10 @@ int main(int argc, char **argv) {
         free_tokens(tokens, token_count);
         free(source);
         return 1;
+    }
+
+    if (strip_debug) {
+        nvm_strip_debug_info(cg.module);
     }
 
     /* Write output if requested */

@@ -202,6 +202,10 @@ uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
 void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
                          uint32_t source_line, uint32_t source_col);
 
+/* Remove all debug info from a module for production builds.
+ * Clears debug entries, source file index, and debug-info header flag. */
+void nvm_strip_debug_info(NvmModule *mod);
+
 /* Serialize module to a byte buffer. Caller must free returned buffer.
  * Sets *out_size to the total size. Returns NULL on error. */
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size);
