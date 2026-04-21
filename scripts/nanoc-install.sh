@@ -163,16 +163,22 @@ if os.path.exists(pkg_json):
             loaded = json.load(f)
         if isinstance(loaded, dict):
             data.update(loaded)
-    except Exception:
-        pass
+    except Exception as exc:
+        print(f"[nanoc-install] WARN: ignoring unreadable {pkg_json}: {exc}", file=sys.stderr)
 
 deps = data.get("dependencies")
 if not isinstance(deps, dict):
     deps = {}
 
 for spec in specs:
-    if "@" in spec:
-        name, rng = spec.split("@", 1)
+    if spec.startswith("@"):
+        split_at = spec.rfind("@")
+        if split_at > 0:
+            name, rng = spec[:split_at], spec[split_at + 1:]
+        else:
+            name, rng = spec, "latest"
+    elif "@" in spec:
+        name, rng = spec.rsplit("@", 1)
     else:
         name, rng = spec, "latest"
     name = name.strip()
@@ -226,9 +232,18 @@ for k,v in d.get('dependencies',{}).items():
 else
   # Parse name[@range] args
   for pkg_arg in "${PACKAGES[@]}"; do
-    if [[ "$pkg_arg" == *@* ]]; then
-      name="${pkg_arg%%@*}"
-      range="${pkg_arg#*@}"
+    if [[ "$pkg_arg" == @* ]]; then
+      scoped_spec="${pkg_arg#@}"
+      if [[ "$scoped_spec" == *"@"* ]]; then
+        name="@${scoped_spec%@*}"
+        range="${scoped_spec##*@}"
+      else
+        name="$pkg_arg"
+        range="latest"
+      fi
+    elif [[ "$pkg_arg" == *@* ]]; then
+      name="${pkg_arg%@*}"
+      range="${pkg_arg##*@}"
     else
       name="$pkg_arg"
       range="latest"
@@ -250,6 +265,8 @@ if $SAVE && [[ ${#PACKAGES[@]} -gt 0 ]]; then
   update_packages_json_from_args "${PACKAGES[@]}"
 fi
 
+# With --save I update both nano.packages.json and nano.lock. For explicit
+# package installs without an existing lock file, I still create nano.lock.
 if $SAVE || [[ ${#PACKAGES[@]} -gt 0 && ! -f "$LOCK_FILE" ]]; then
   update_lockfile resolved_map
 fi
