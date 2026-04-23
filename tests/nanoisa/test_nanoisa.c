@@ -503,6 +503,51 @@ static void test_serialize_deserialize(void) {
     nvm_module_free(mod2);
 }
 
+static void test_strip_debug_info(void) {
+    NvmModule *mod = nvm_module_new();
+    mod->header.flags = NVM_FLAG_HAS_MAIN | NVM_FLAG_DEBUG_INFO;
+    mod->header.entry_point = 0;
+
+    uint32_t src_idx = nvm_add_string(mod, "tests/sample.nano", 17);
+    nvm_add_string(mod, "main", 4);
+    mod->source_file_idx = src_idx;
+
+    NvmFunctionEntry fn = {
+        .name_idx = 1, .arity = 0, .code_offset = 0,
+        .code_length = 0, .local_count = 1, .upvalue_count = 0
+    };
+    nvm_add_function(mod, &fn);
+
+    uint8_t code[] = { OP_DEBUG_LINE, 42, 0, 0, 0, OP_PUSH_I64, 0, 0, 0, 0, 0, 0, 0, 0, OP_RET };
+    uint32_t off = nvm_append_code(mod, code, sizeof(code));
+    mod->functions[0].code_offset = off;
+    mod->functions[0].code_length = sizeof(code);
+
+    nvm_add_debug_entry(mod, 0, 42, 1);
+    ASSERT_EQ_INT(mod->debug_count, 1, "Debug entry added");
+    ASSERT((mod->header.flags & NVM_FLAG_DEBUG_INFO) != 0, "Debug flag set before strip");
+
+    nvm_strip_debug_info(mod);
+
+    ASSERT_EQ_INT(mod->debug_count, 0, "Debug entries stripped");
+    ASSERT_EQ_INT(mod->source_file_idx, 0, "Source file index stripped");
+    ASSERT((mod->header.flags & NVM_FLAG_DEBUG_INFO) == 0, "Debug flag cleared");
+
+    uint32_t out_size = 0;
+    uint8_t *data = nvm_serialize(mod, &out_size);
+    ASSERT(data != NULL, "Serialization after strip succeeded");
+
+    NvmModule *mod2 = nvm_deserialize(data, out_size);
+    ASSERT(mod2 != NULL, "Deserialization after strip succeeded");
+    ASSERT_EQ_INT(mod2->debug_count, 0, "No debug entries serialized");
+    ASSERT((mod2->header.flags & NVM_FLAG_DEBUG_INFO) == 0, "No debug flag serialized");
+    ASSERT_EQ_INT(mod2->source_file_idx, 0, "Source file index remains stripped");
+
+    free(data);
+    nvm_module_free(mod);
+    nvm_module_free(mod2);
+}
+
 static void test_validate_header(void) {
     NvmHeader header;
     header.magic[0] = 'N';
@@ -928,6 +973,37 @@ static void test_disasm_labels(void) {
     nvm_module_free(mod);
 }
 
+static void test_disasm_source_annotations_and_cfg(void) {
+    const char *src =
+        ".string \"tests/disasm_sample.nano\"\n"
+        ".function main 0 1 0\n"
+        "  DEBUG_LINE 42\n"
+        "  PUSH_I64 1\n"
+        "  JMP done\n"
+        "  PUSH_I64 0\n"
+        "done:\n"
+        "  RET\n"
+        ".end\n";
+
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod != NULL, "Assembly with DEBUG_LINE succeeded");
+    mod->source_file_idx = 0;
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "Disassembly produced output");
+    ASSERT(strstr(output, "[0000|0000] DEBUG_LINE 42") != NULL, "Shows instruction offsets");
+    ASSERT(strstr(output, "source tests/disasm_sample.nano:42") != NULL, "Shows source annotation");
+    ASSERT(strstr(output, "; @ tests/disasm_sample.nano:42") != NULL, "Propagates line annotation");
+    ASSERT(strstr(output, "; cfg:branch-if-false") == NULL, "No unrelated branch note");
+    ASSERT(strstr(output, "; cfg:jump") != NULL, "Shows jump CFG annotation");
+    ASSERT(strstr(output, "JMP L") != NULL, "Shows resolved jump target label reference");
+    ASSERT(strstr(output, "<== jump target") != NULL, "Shows jump target marker");
+
+    free(output);
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Round-Trip Test
  * ======================================================================== */
@@ -1019,6 +1095,7 @@ int main(void) {
     RUN_TEST(test_function_table);
     RUN_TEST(test_code_append);
     RUN_TEST(test_serialize_deserialize);
+    RUN_TEST(test_strip_debug_info);
     RUN_TEST(test_validate_header);
     RUN_TEST(test_corrupt_checksum);
 
@@ -1042,6 +1119,7 @@ int main(void) {
     printf("\n[Disassembler]\n");
     RUN_TEST(test_disasm_basic);
     RUN_TEST(test_disasm_labels);
+    RUN_TEST(test_disasm_source_annotations_and_cfg);
 
     printf("\n[Round-Trip]\n");
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);

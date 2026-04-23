@@ -137,6 +137,9 @@ I provide a virtual machine as an alternative to C transpilation.
 ./bin/nano_virt hello.nano --emit-nvm -o hello.nvm
 ./bin/nano_vm hello.nvm
 
+# Strip source-map debug info for production .nvm output
+./bin/nano_virt hello.nano --emit-nvm --strip-debug -o hello.prod.nvm
+
 # Run with FFI isolation (external calls in separate process)
 ./bin/nano_vm --isolate-ffi hello.nvm
 ```
