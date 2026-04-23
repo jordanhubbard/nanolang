@@ -164,6 +164,10 @@ Install all dependencies declared in `nano.toml`, or a specific package.
 - Writes/updates `nano.lock`
 - Recursively installs sub-dependencies
 
+### `nanoc add <package>[@range] ...`
+
+I also expose a compiler-level shortcut. `nanoc add` forwards to my installer with `--save`, so I record the dependency in `nano.packages.json`, install it, and update `nano.lock` in one step.
+
 ### `nanoc-pkg publish`
 
 Package and stage the current directory for registry publication.
