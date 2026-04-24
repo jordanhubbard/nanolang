@@ -684,6 +684,9 @@ shadow token_as { assert (== (token_as) LexerTokenType.TOKEN_AS) }
 fn token_pub() -> int { return LexerTokenType.TOKEN_PUB }
 shadow token_pub { assert (== (token_pub) LexerTokenType.TOKEN_PUB) }
 
+fn token_pure() -> int { return LexerTokenType.TOKEN_PURE }
+shadow token_pure { assert (== (token_pure) LexerTokenType.TOKEN_PURE) }
+
 fn token_opaque() -> int { return LexerTokenType.TOKEN_OPAQUE }
 shadow token_opaque { assert (== (token_opaque) LexerTokenType.TOKEN_OPAQUE) }
 
@@ -7151,6 +7154,24 @@ fn parse_definition(p: Parser) -> Parser {
                 }
             }
         } else {
+            if (== tok.token_type (token_pure)) {
+                /* pure fn / pure extern fn - consume 'pure' and parse as regular fn */
+                let p_after_pure: Parser = (parser_advance p_work)
+                if (parser_is_at_end p_after_pure) {
+                    return (parser_with_error p_after_pure true)
+                } else {
+                    let next_tok: LexerToken = (parser_current p_after_pure)
+                    if (== next_tok.token_type (token_fn)) {
+                        return (parse_function_definition p_after_pure)
+                    } else {
+                        if (== next_tok.token_type (token_extern)) {
+                            return (parse_extern_function_definition p_after_pure)
+                        } else {
+                            return (parser_with_error p_after_pure true)
+                        }
+                    }
+                }
+            } else {
             if (== tok.token_type (token_fn)) {
                 return (parse_function_definition p_work)
             } else {
@@ -7187,6 +7208,7 @@ fn parse_definition(p: Parser) -> Parser {
                     }
                 }
                 }
+            }
             }
         }
     }

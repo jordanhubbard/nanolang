@@ -108,10 +108,12 @@ pure fn keyword_group2(s: string) -> int {
                                                                                 if (== s "as") { return LexerTokenType.TOKEN_AS } else {
                                                 if (== s "opaque") { return LexerTokenType.TOKEN_OPAQUE } else {
                                                     if (== s "unsafe") { return LexerTokenType.TOKEN_UNSAFE } else {
+                                                        if (== s "pure") { return LexerTokenType.TOKEN_PURE } else {
                                                         if (== s "true") { return LexerTokenType.TOKEN_TRUE } else {
                                                             if (== s "false") { return LexerTokenType.TOKEN_FALSE } else {
                                                                 return -1
                                                             }
+                                                        }
                                                         }
                                     }
                                                     }
@@ -145,6 +147,7 @@ shadow keyword_group2 {
     assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
     assert (== (keyword_group2 "return") 34)   /* TOKEN_RETURN */
     assert (== (keyword_group2 "struct") 43)   /* TOKEN_STRUCT */
+    assert (== (keyword_group2 "pure") 87)     /* TOKEN_PURE */
     assert (== (keyword_group2 "true") 5)      /* TOKEN_TRUE */
     assert (== (keyword_group2 "false") 6)     /* TOKEN_FALSE */
     assert (== (keyword_group2 "unknown") (- 0 1))
