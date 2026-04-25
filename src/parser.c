@@ -1696,7 +1696,14 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) || 
                              (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
             
-            if (has_lbrace && looks_like_struct && !looks_like_code_block) {
+            /* If both parts are uppercase (UppercaseName.UppercaseName), this is a
+             * union construct (e.g. Shape.Circle { ... }), not a module-qualified
+             * struct literal.  Let parse_postfix handle it via the union-construct path. */
+            bool is_union_construct = is_qualified &&
+                tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z' &&
+                looks_like_struct;  /* looks_like_struct already checks after_next uppercase */
+
+            if (has_lbrace && looks_like_struct && !looks_like_code_block && !is_union_construct) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;

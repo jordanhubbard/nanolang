@@ -474,6 +474,15 @@ int llvm_backend_emit(ASTNode *program, const char *out_path,
     fprintf(out, "declare void @free(i8*) nounwind\n");
     fprintf(out, "declare i64 @strlen(i8* nocapture) nounwind readonly\n\n");
 
+    /* nanolang runtime builtin declarations */
+    fprintf(out, "declare i64 @nano_int_to_string(i64)\n");
+    fprintf(out, "declare i64 @nano_float_to_string(double)\n");
+    fprintf(out, "declare i64 @nano_bool_to_string(i64)\n");
+    fprintf(out, "declare i64 @nano_str_length(i64)\n");
+    fprintf(out, "declare i64 @nano_str_concat(i64, i64)\n");
+    fprintf(out, "declare void @nano_println(i64)\n");
+    fprintf(out, "declare void @nano_print(i64)\n\n");
+
     /* ── Emit all functions ────────────────────────────────────────────── */
     /* Collect function bodies into temporary buffer so we can prepend globals */
     char  *fn_buf  = NULL;

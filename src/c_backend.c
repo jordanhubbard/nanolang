@@ -328,6 +328,13 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
+        if (name && strcmp(name, "str_length") == 0 &&
+            node->as.call.arg_count == 1) {
+            fputs("(int64_t)strlen(", c->out);
+            if (emit_expr(c, node->as.call.args[0])) return -1;
+            fputc(')', c->out);
+            return 0;
+        }
         /* Regular function call */
         if (name) {
             fputs(name, c->out);
@@ -727,10 +734,11 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                 node->as.match_expr.pattern_bindings[i] &&
                 utype) {
                 emit_indent(c);
-                fprintf(c->out, "int64_t %s = _match_val.as.%s.value;\n",
+                fprintf(c->out, "__typeof__(_match_val.as.%s) %s = _match_val.as.%s;\n",
+                        node->as.match_expr.pattern_variants[i],
                         node->as.match_expr.pattern_bindings[i],
                         node->as.match_expr.pattern_variants[i]);
-                ctx_add_sym(c, node->as.match_expr.pattern_bindings[i], TYPE_INT);
+                ctx_add_sym(c, node->as.match_expr.pattern_bindings[i], TYPE_STRUCT);
             }
 
             emit_indent(c);
