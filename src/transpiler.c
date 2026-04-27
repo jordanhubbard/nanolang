@@ -4104,13 +4104,15 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 }
 
 /* Collect module headers from all import statements */
-static void collect_module_headers_from_imports(ASTNode *program) {
+static void collect_module_headers_from_imports(ASTNode *program, const char *current_file) {
     clear_module_headers();
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers */
-            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            /* Resolve module path and collect headers.
+             * Pass current_file so resolve_module_path can walk up from the
+             * source file to the project root and find modules/ properly. */
+            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, current_file);
             if (module_path) {
                 collect_headers_from_module(module_path);
                 free((char*)module_path);  /* Cast away const for free() */
@@ -4613,8 +4615,10 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Set source file for #line directive emission */
     g_source_file_for_line_directives = input_file;
 
-    /* Clear and collect headers from imported modules */
-    collect_module_headers_from_imports(program);
+    /* Clear and collect headers from imported modules.
+     * Pass input_file so module paths are resolved relative to the source file's
+     * project root (fixes -Wimplicit-function-declaration for SDL/UI helpers). */
+    collect_module_headers_from_imports(program, input_file);
 
     StringBuilder *sb = sb_create();
 

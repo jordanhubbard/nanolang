@@ -194,6 +194,13 @@ fn square(x: int) -> int {
     return (* x x)
 }
 
+shadow square {
+    assert (== (square 0) 0)
+    assert (== (square 1) 1)
+    assert (== (square 5) 25)
+    assert (== (square -3) 9)
+}
+
 # @pure
 fn cube(x: int) -> int {
     return (* (square x) x)

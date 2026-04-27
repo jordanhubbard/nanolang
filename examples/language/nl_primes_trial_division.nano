@@ -22,6 +22,16 @@ fn is_prime(n: int) -> bool {
     return true
 }
 
+shadow is_prime {
+    assert (== (is_prime 0) false)
+    assert (== (is_prime 1) false)
+    assert (== (is_prime 2) true)
+    assert (== (is_prime 3) true)
+    assert (== (is_prime 4) false)
+    assert (== (is_prime 17) true)
+    assert (== (is_prime 100) false)
+}
+
 # @pure
 fn count_primes(limit: int) -> int {
     let mut count: int = 0
@@ -33,6 +43,14 @@ fn count_primes(limit: int) -> int {
         set i (+ i 1)
     }
     return count
+}
+
+shadow count_primes {
+    assert (== (count_primes 2) 0)
+    assert (== (count_primes 3) 1)
+    assert (== (count_primes 10) 4)
+    assert (== (count_primes 20) 8)
+    assert (== (count_primes 100) 25)
 }
 
 fn main() -> int {

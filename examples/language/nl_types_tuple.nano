@@ -290,6 +290,12 @@ fn double(x: int) -> int {
     return (* x 2)
 }
 
+shadow double {
+    assert (== (double 0) 0)
+    assert (== (double 5) 10)
+    assert (== (double -3) -6)
+}
+
 # @pure
 fn test_tuple_as_arg() -> int {
     let t: (int, int) = (5, 10)

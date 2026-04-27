@@ -1604,7 +1604,138 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "static bool file_exists(const char* path) {\n");
     sb_append(sb, "    return nl_os_file_exists(path);\n");
     sb_append(sb, "}\n\n");
-    
+
+    /* Filesystem wrapper functions called by NanoLang std::fs wrappers.
+     * Without these definitions the generated C sees undeclared functions
+     * and defaults their return type to int, causing -Wimplicit-function-declaration
+     * and cascading -Wint-conversion errors.
+     *
+     * Affected callers in the generated C:
+     *   nl_mkdir_p   -> fs_mkdir_p
+     *   nl_relpath   -> path_relpath
+     *   nl_copy_file -> file_copy
+     *   nl_copy_dir  -> dir_copy
+     */
+    sb_append(sb, "#include <errno.h>\n\n");
+
+    sb_append(sb, "/* fs_mkdir_p: create directory and all parents (like mkdir -p) */\n");
+    sb_append(sb, "static int64_t fs_mkdir_p(const char* path) {\n");
+    sb_append(sb, "    if (!path || path[0] == '\\0') return -1;\n");
+    sb_append(sb, "    char tmp[2048];\n");
+    sb_append(sb, "    snprintf(tmp, sizeof(tmp), \"%s\", path);\n");
+    sb_append(sb, "    size_t len = strlen(tmp);\n");
+    sb_append(sb, "    if (len == 0) return -1;\n");
+    sb_append(sb, "    if (tmp[len - 1] == '/') tmp[len - 1] = '\\0';\n");
+    sb_append(sb, "    for (char* p = tmp + 1; *p; p++) {\n");
+    sb_append(sb, "        if (*p == '/') {\n");
+    sb_append(sb, "            *p = '\\0';\n");
+    sb_append(sb, "            if (mkdir(tmp, 0755) != 0 && errno != EEXIST) { *p = '/'; return -1; }\n");
+    sb_append(sb, "            *p = '/';\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if (mkdir(tmp, 0755) != 0 && errno != EEXIST) return -1;\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* path_relpath: compute relative path from base to target */\n");
+    sb_append(sb, "static void _nl_path_normalize_into(const char* path, char* result, size_t result_size) {\n");
+    sb_append(sb, "    if (!path || path[0] == '\\0') { snprintf(result, result_size, \".\"); return; }\n");
+    sb_append(sb, "    int is_absolute = (path[0] == '/');\n");
+    sb_append(sb, "    char* copy = strdup(path);\n");
+    sb_append(sb, "    if (!copy) { snprintf(result, result_size, \"%s\", path); return; }\n");
+    sb_append(sb, "    const char* parts[512]; int count = 0;\n");
+    sb_append(sb, "    char* saveptr = NULL;\n");
+    sb_append(sb, "    char* token = strtok_r(copy, \"/\", &saveptr);\n");
+    sb_append(sb, "    while (token) {\n");
+    sb_append(sb, "        if (strcmp(token, \"\") == 0 || strcmp(token, \".\") == 0) {\n");
+    sb_append(sb, "        } else if (strcmp(token, \"..\") == 0) {\n");
+    sb_append(sb, "            if (count > 0 && strcmp(parts[count-1], \"..\") != 0) count--;\n");
+    sb_append(sb, "            else if (!is_absolute && count < 512) parts[count++] = token;\n");
+    sb_append(sb, "        } else if (count < 512) { parts[count++] = token; }\n");
+    sb_append(sb, "        token = strtok_r(NULL, \"/\", &saveptr);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    result[0] = '\\0';\n");
+    sb_append(sb, "    if (is_absolute) strcat(result, \"/\");\n");
+    sb_append(sb, "    for (int i = 0; i < count; i++) {\n");
+    sb_append(sb, "        if (i > 0 || is_absolute) {\n");
+    sb_append(sb, "            if (result[strlen(result)-1] != '/') strncat(result, \"/\", result_size - strlen(result) - 1);\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "        strncat(result, parts[i], result_size - strlen(result) - 1);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if (result[0] == '\\0') snprintf(result, result_size, \".\");\n");
+    sb_append(sb, "    free(copy);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static void _nl_path_append(char* out, size_t out_size, const char* part) {\n");
+    sb_append(sb, "    if (!out || !part) return;\n");
+    sb_append(sb, "    if (out[0] != '\\0') strncat(out, \"/\", out_size - strlen(out) - 1);\n");
+    sb_append(sb, "    strncat(out, part, out_size - strlen(out) - 1);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "static const char* path_relpath(const char* target, const char* base) {\n");
+    sb_append(sb, "    if (!target || !base) return strdup(\".\");\n");
+    sb_append(sb, "    char target_norm[2048], base_norm[2048];\n");
+    sb_append(sb, "    _nl_path_normalize_into(target, target_norm, sizeof(target_norm));\n");
+    sb_append(sb, "    _nl_path_normalize_into(base, base_norm, sizeof(base_norm));\n");
+    sb_append(sb, "    char target_copy[2048], base_copy[2048];\n");
+    sb_append(sb, "    snprintf(target_copy, sizeof(target_copy), \"%s\", target_norm);\n");
+    sb_append(sb, "    snprintf(base_copy,   sizeof(base_copy),   \"%s\", base_norm);\n");
+    sb_append(sb, "    char* target_parts[256]; int target_count = 0;\n");
+    sb_append(sb, "    char* base_parts[256];   int base_count   = 0;\n");
+    sb_append(sb, "    char* saveptr = NULL;\n");
+    sb_append(sb, "    char* token = strtok_r(target_copy, \"/\", &saveptr);\n");
+    sb_append(sb, "    while (token && target_count < 256) { target_parts[target_count++] = token; token = strtok_r(NULL, \"/\", &saveptr); }\n");
+    sb_append(sb, "    saveptr = NULL;\n");
+    sb_append(sb, "    token = strtok_r(base_copy, \"/\", &saveptr);\n");
+    sb_append(sb, "    while (token && base_count < 256) { base_parts[base_count++] = token; token = strtok_r(NULL, \"/\", &saveptr); }\n");
+    sb_append(sb, "    int common = 0;\n");
+    sb_append(sb, "    while (common < target_count && common < base_count && strcmp(target_parts[common], base_parts[common]) == 0) common++;\n");
+    sb_append(sb, "    char result[4096]; result[0] = '\\0';\n");
+    sb_append(sb, "    for (int i = common; i < base_count;   i++) _nl_path_append(result, sizeof(result), \"..\");\n");
+    sb_append(sb, "    for (int i = common; i < target_count; i++) _nl_path_append(result, sizeof(result), target_parts[i]);\n");
+    sb_append(sb, "    if (result[0] == '\\0') snprintf(result, sizeof(result), \".\");\n");
+    sb_append(sb, "    return strdup(result);\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* file_copy: binary-safe single file copy */\n");
+    sb_append(sb, "static int64_t file_copy(const char* src, const char* dst) {\n");
+    sb_append(sb, "    FILE* in = fopen(src, \"rb\");\n");
+    sb_append(sb, "    if (!in) return -1;\n");
+    sb_append(sb, "    FILE* out = fopen(dst, \"wb\");\n");
+    sb_append(sb, "    if (!out) { fclose(in); return -1; }\n");
+    sb_append(sb, "    char buf[8192]; size_t n;\n");
+    sb_append(sb, "    while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {\n");
+    sb_append(sb, "        if (fwrite(buf, 1, n, out) != n) { fclose(in); fclose(out); return -1; }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    if (ferror(in)) { fclose(in); fclose(out); return -1; }\n");
+    sb_append(sb, "    fclose(in); fclose(out);\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* dir_copy: recursively copy a directory tree */\n");
+    sb_append(sb, "static int64_t dir_copy(const char* src, const char* dst) {\n");
+    sb_append(sb, "    struct stat st;\n");
+    sb_append(sb, "    if (stat(src, &st) != 0 || !S_ISDIR(st.st_mode)) return -1;\n");
+    sb_append(sb, "    if (fs_mkdir_p(dst) != 0) return -1;\n");
+    sb_append(sb, "    DIR* dir = opendir(src);\n");
+    sb_append(sb, "    if (!dir) return -1;\n");
+    sb_append(sb, "    struct dirent* entry;\n");
+    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
+    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
+    sb_append(sb, "        char src_path[2048], dst_path[2048];\n");
+    sb_append(sb, "        snprintf(src_path, sizeof(src_path), \"%s/%s\", src, entry->d_name);\n");
+    sb_append(sb, "        snprintf(dst_path, sizeof(dst_path), \"%s/%s\", dst, entry->d_name);\n");
+    sb_append(sb, "        if (stat(src_path, &st) != 0) { closedir(dir); return -1; }\n");
+    sb_append(sb, "        if (S_ISDIR(st.st_mode)) {\n");
+    sb_append(sb, "            if (dir_copy(src_path, dst_path) != 0) { closedir(dir); return -1; }\n");
+    sb_append(sb, "        } else if (S_ISREG(st.st_mode)) {\n");
+    sb_append(sb, "            if (file_copy(src_path, dst_path) != 0) { closedir(dir); return -1; }\n");
+    sb_append(sb, "        }\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    closedir(dir);\n");
+    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "}\n\n");
+
     /* Re-enable warnings after stdlib functions */
     sb_append(sb, "#pragma GCC diagnostic pop\n\n");
 
