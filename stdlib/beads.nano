@@ -330,26 +330,188 @@ shadow bead_from_text {
     assert (== bead.id "")
 }
 
+# Extract the bead ID from bd create output.
+#
+# bd create prints one line per created issue in the form:
+#   <status_glyph> Created issue: <id>
+# e.g.
+#   "✓ Created issue: nanolang-a1b2c3"
+#   "  Created issue: nanolang-a1b2c3"   (plain, no glyph)
+#
+# Strategy: split the full output on newlines, then for each line that
+# contains the literal token "Created", take everything after the last
+# space — that trailing word is always the bead ID.
 fn extract_bead_id(output: string) -> string {
-    # Extract ID from "Created nanolang-xxxx" or "✓ Created nanolang-xxxx"
-    # TODO: Implement string parsing
+    let lines: array<string> = (str_split output "\n")
+    let n: int = (array_length lines)
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+        if (str_contains line "Created") {
+            # Find the last space in the line; everything after it is the ID.
+            # Walk backwards: find the rightmost space by scanning forward and
+            # keeping track of the highest index where a space occurs.
+            let line_len: int = (str_length line)
+            let mut last_space: int = -1
+            let mut j: int = 0
+            while (< j line_len) {
+                let ch: string = (str_substring line j 1)
+                if (str_equals ch " ") {
+                    set last_space j
+                } else {}
+                set j (+ j 1)
+            }
+            if (>= last_space 0) {
+                # Slice from (last_space + 1) to end of line
+                let id_start: int = (+ last_space 1)
+                let id_len: int = (- line_len id_start)
+                if (> id_len 0) {
+                    return (str_trim (str_substring line id_start id_len))
+                } else {}
+            } else {}
+        } else {}
+        set i (+ i 1)
+    }
     return ""
 }
 
 shadow extract_bead_id {
-    let id: string = (extract_bead_id "Created nanolang-abc123")
-    # Returns empty until implemented
-    assert (== id "")
+    # Plain "Created nanolang-xxxx" form (as documented in the comment above bd_create)
+    assert (str_equals (extract_bead_id "Created nanolang-abc123") "nanolang-abc123")
+
+    # Full bd output line with checkmark glyph
+    assert (str_equals (extract_bead_id "✓ Created issue: nanolang-a1b2c3") "nanolang-a1b2c3")
+
+    # Plain line without glyph (space-padded prefix)
+    assert (str_equals (extract_bead_id "  Created issue: nanolang-x9y8z7") "nanolang-x9y8z7")
+
+    # Multi-line output — should pick the first "Created" line
+    assert (str_equals (extract_bead_id "Running...\n✓ Created issue: nanolang-deadbeef\nDone.") "nanolang-deadbeef")
+
+    # No "Created" line at all — must return empty string
+    assert (str_equals (extract_bead_id "Error: something went wrong") "")
+
+    # Empty input
+    assert (str_equals (extract_bead_id "") "")
 }
 
+# Parse the human-readable output of `bd stats` / `bd status` into a BeadStats.
+#
+# bd stats prints fixed-width lines of the form (leading spaces included):
+#   "  Total Issues:           <n>"
+#   "  Open:                   <n>"
+#   "  In Progress:            <n>"
+#   "  Blocked:                <n>"
+#   "  Closed:                 <n>"
+#   "  Ready to Work:          <n>"
+#
+# Strategy: split on newlines, find each labelled line with str_contains,
+# then extract the value as the trimmed text after the colon.
 fn parse_bead_stats(output: string) -> BeadStats {
-    # TODO: Parse bd stats output
-    return (bead_stats_empty)
+    let lines: array<string> = (str_split output "\n")
+    let n: int = (array_length lines)
+    let mut total: int = 0
+    let mut open: int = 0
+    let mut in_progress: int = 0
+    let mut blocked: int = 0
+    let mut closed: int = 0
+    let mut ready_to_work: int = 0
+
+    let mut i: int = 0
+    while (< i n) {
+        let line: string = (at lines i)
+
+        if (str_contains line "Total Issues:") {
+            set total (parse_stat_value line)
+        } else {
+            if (str_contains line "In Progress:") {
+                set in_progress (parse_stat_value line)
+            } else {
+                if (str_contains line "Ready to Work:") {
+                    set ready_to_work (parse_stat_value line)
+                } else {
+                    # "Open:", "Blocked:", "Closed:" — check after the more
+                    # specific labels above so a line can't match twice.
+                    if (str_contains line "Open:") {
+                        set open (parse_stat_value line)
+                    } else {
+                        if (str_contains line "Blocked:") {
+                            set blocked (parse_stat_value line)
+                        } else {
+                            if (str_contains line "Closed:") {
+                                set closed (parse_stat_value line)
+                            } else {}
+                        }
+                    }
+                }
+            }
+        }
+
+        set i (+ i 1)
+    }
+
+    return BeadStats {
+        total: total,
+        open: open,
+        in_progress: in_progress,
+        blocked: blocked,
+        closed: closed,
+        ready_to_work: ready_to_work
+    }
+}
+
+# Extract the integer value from a "  Label:   <n>" line.
+# Finds the colon, takes the substring after it, trims whitespace, then
+# converts to int.  Returns 0 if the colon is absent or the value is empty.
+fn parse_stat_value(line: string) -> int {
+    let colon_pos: int = (str_index_of line ":")
+    if (< colon_pos 0) {
+        return 0
+    } else {}
+    let after_colon_start: int = (+ colon_pos 1)
+    let after_colon_len: int = (- (str_length line) after_colon_start)
+    if (<= after_colon_len 0) {
+        return 0
+    } else {}
+    let value_str: string = (str_trim (str_substring line after_colon_start after_colon_len))
+    if (str_equals value_str "") {
+        return 0
+    } else {}
+    return (string_to_int value_str)
+}
+
+shadow parse_stat_value {
+    assert (== (parse_stat_value "  Total Issues:           42") 42)
+    assert (== (parse_stat_value "  Open:                   7")   7)
+    assert (== (parse_stat_value "  In Progress:            3")   3)
+    assert (== (parse_stat_value "  Ready to Work:          5")   5)
+    assert (== (parse_stat_value "  Closed:                 0")   0)
+    assert (== (parse_stat_value "no colon here")                 0)
+    assert (== (parse_stat_value "")                              0)
 }
 
 shadow parse_bead_stats {
-    let stats: BeadStats = (parse_bead_stats "test output")
-    assert (== stats.total 0)
+    # Well-formed bd stats output
+    let sample: string = "  Total Issues:           10\n  Open:                   4\n  In Progress:            2\n  Blocked:                1\n  Closed:                 3\n  Ready to Work:          2"
+    let stats: BeadStats = (parse_bead_stats sample)
+    assert (== stats.total        10)
+    assert (== stats.open          4)
+    assert (== stats.in_progress   2)
+    assert (== stats.blocked       1)
+    assert (== stats.closed        3)
+    assert (== stats.ready_to_work 2)
+
+    # Empty / no-match output returns all zeros
+    let empty_stats: BeadStats = (parse_bead_stats "no stats here")
+    assert (== empty_stats.total 0)
+    assert (== empty_stats.open  0)
+
+    # Partial output — only some fields present
+    let partial: string = "  Total Issues:           5\n  Closed:                 5"
+    let partial_stats: BeadStats = (parse_bead_stats partial)
+    assert (== partial_stats.total  5)
+    assert (== partial_stats.closed 5)
+    assert (== partial_stats.open   0)
 }
 
 # === Future: assert_with_bead ===

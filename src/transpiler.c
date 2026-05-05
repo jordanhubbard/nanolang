@@ -1210,9 +1210,20 @@ static void generate_c_headers(StringBuilder *sb) {
         
         sb_append(sb, "\n/* Headers from imported modules (sorted by priority) */\n");
         for (size_t i = 0; i < g_module_headers_count; i++) {
-            sb_appendf(sb, "#include <%s>  /* priority: %d */\n", 
-                       g_module_headers[i].name, 
-                       g_module_headers[i].priority);
+            /* Local module headers (no subdirectory) need "..." quotes so the
+             * compiler searches -I paths (module directories).  System headers
+             * with a path separator (e.g. SDL2/SDL.h) keep angle brackets. */
+            if (strchr(g_module_headers[i].name, '/') != NULL) {
+                /* System-style header: #include <SDL2/SDL.h> */
+                sb_appendf(sb, "#include <%s>  /* priority: %d */\n",
+                           g_module_headers[i].name,
+                           g_module_headers[i].priority);
+            } else {
+                /* Local module header: #include "sdl_helpers.h" */
+                sb_appendf(sb, "#include \"%s\"  /* priority: %d */\n",
+                           g_module_headers[i].name,
+                           g_module_headers[i].priority);
+            }
         }
     }
     
@@ -1229,6 +1240,21 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include <sys/wait.h>\n");
     sb_append(sb, "#include <spawn.h>\n");
     sb_append(sb, "#include <fcntl.h>\n");
+    /* std module filesystem helpers: forward-declare fs_mkdir_p,
+     * path_relpath, file_copy, and dir_copy directly in the generated C
+     * so the intermediate C compiler always sees the correct signatures
+     * regardless of the -I search path.  Signatures are kept in sync with
+     * modules/std/fs.h. */
+    sb_append(sb, "/* fs.h forward declarations */\n");
+    sb_append(sb, "int64_t  fs_mkdir_p(const char* path);\n");
+    sb_append(sb, "const char* path_relpath(const char* target, const char* base);\n");
+    sb_append(sb, "int64_t  file_copy(const char* src, const char* dst);\n");
+    sb_append(sb, "int64_t  dir_copy(const char* src, const char* dst);\n");
+    /* std module process helpers: declares nl_os_process_spawn,
+     * nl_os_process_is_running, nl_os_process_wait — must be included so
+     * the C compiler sees the correct signatures before any call site in
+     * the generated C. */
+    sb_append(sb, "#include \"process.h\"\n");
     sb_append(sb, "\n");
 }
 
@@ -3850,7 +3876,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return buf;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
+    sb_append(sb, "DynArray* nl_os_process_run(const char* command) {\n");
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
     sb_append(sb, "    if (!command) {\n");
     sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");
@@ -4104,13 +4130,19 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 }
 
 /* Collect module headers from all import statements */
-static void collect_module_headers_from_imports(ASTNode *program) {
+static void collect_module_headers_from_imports(ASTNode *program, const char *source_file) {
     clear_module_headers();
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_IMPORT) {
-            /* Resolve module path and collect headers */
-            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, NULL);
+            /* Resolve module path and collect headers.
+             * Pass source_file so resolve_module_path can walk up from the
+             * source file's directory to find the project root.  Without
+             * this, the resolver falls back to CWD-relative probing which
+             * fails when the compiler runs with CWD=/tmp and no module
+             * headers are emitted, causing -Wimplicit-function-declaration
+             * for every SDL/UI helper called in the generated C. */
+            const char *module_path = resolve_module_path(item->as.import_stmt.module_path, source_file);
             if (module_path) {
                 collect_headers_from_module(module_path);
                 free((char*)module_path);  /* Cast away const for free() */
@@ -4274,8 +4306,21 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                  * All module wrapper functions start with "nl_" prefix
                  * These are declared in their module headers (e.g., sdl_helpers.h, ui_widgets.h) */
                 bool is_module_with_header = (strncmp(func->name, "nl_", 3) == 0);
-                
-                if (is_system_function || is_module_with_header) {
+
+                /* std module fs functions: forward-declared inline in the
+                 * generated C preamble by generate_c_headers() — no #include
+                 * needed and no -I path dependency.  Skip them here so we do
+                 * not emit a second extern declaration that would conflict with
+                 * the already-correct signature in the preamble. */
+                bool is_fs_h_function = (
+                    strcmp(func->name, "fs_mkdir_p")       == 0 ||
+                    strcmp(func->name, "path_relpath")      == 0 ||
+                    strcmp(func->name, "file_copy")         == 0 ||
+                    strcmp(func->name, "dir_copy")          == 0 ||
+                    strcmp(func->name, "nl_os_process_run") == 0
+                );
+
+                if (is_system_function || is_module_with_header || is_fs_h_function) {
                     continue;  /* Skip - already in system/module header */
                 }
             }
@@ -4614,7 +4659,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     g_source_file_for_line_directives = input_file;
 
     /* Clear and collect headers from imported modules */
-    collect_module_headers_from_imports(program);
+    collect_module_headers_from_imports(program, input_file);
 
     StringBuilder *sb = sb_create();
 
