@@ -1250,11 +1250,15 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "const char* path_relpath(const char* target, const char* base);\n");
     sb_append(sb, "int64_t  file_copy(const char* src, const char* dst);\n");
     sb_append(sb, "int64_t  dir_copy(const char* src, const char* dst);\n");
-    /* std module process helpers: declares nl_os_process_spawn,
-     * nl_os_process_is_running, nl_os_process_wait — must be included so
-     * the C compiler sees the correct signatures before any call site in
-     * the generated C. */
-    sb_append(sb, "#include \"process.h\"\n");
+    /* std module process helpers: forward-declare directly so generated C
+     * compiles even when no module include path is present. Signatures are
+     * kept in sync with modules/std/process.h. */
+    sb_append(sb, "int64_t  nl_os_process_spawn(const char* command);\n");
+    sb_append(sb, "int64_t  nl_os_process_is_running(int64_t pid);\n");
+    sb_append(sb, "int64_t  nl_os_process_wait(int64_t pid);\n");
+    sb_append(sb, "DynArray* nl_os_process_spawn_with_pipes(const char* command);\n");
+    sb_append(sb, "const char* nl_os_fd_read_available(int64_t fd);\n");
+    sb_append(sb, "int64_t  nl_os_fd_close(int64_t fd);\n");
     sb_append(sb, "\n");
 }
 
@@ -3876,7 +3880,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return buf;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "DynArray* nl_os_process_run(const char* command) {\n");
+    sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
     sb_append(sb, "    if (!command) {\n");
     sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");

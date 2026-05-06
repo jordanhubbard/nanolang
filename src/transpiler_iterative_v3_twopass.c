@@ -3592,8 +3592,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
                 emit_literal(list, ";\n");
             }
-            /* Handle struct/enum types that need prefixing */
-            else if (stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) {
+            /* Handle struct/enum/union types that need prefixing */
+            else if (stmt->as.let.var_type == TYPE_STRUCT ||
+                     stmt->as.let.var_type == TYPE_ENUM ||
+                     stmt->as.let.var_type == TYPE_UNION) {
                 /* Check if this is a generic union instantiation */
                 if (stmt->as.let.var_type == TYPE_UNION && stmt->as.let.type_info && 
                     stmt->as.let.type_info->generic_name && stmt->as.let.type_info->type_param_count > 0) {
