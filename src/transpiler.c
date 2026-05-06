@@ -378,6 +378,68 @@ static bool module_headers_contain(const char *substr) {
     return false;
 }
 
+static bool module_header_declares_nl_wrapper(const char *func_name) {
+    if (!func_name || strncmp(func_name, "nl_", 3) != 0) return false;
+
+    static const struct {
+        const char *prefix;
+        const char *header;
+    } header_wrappers[] = {
+        {"nl_audio_viz_", "audio_viz.h"},
+        {"nl_bullet_", "bullet_bindings.h"},
+        {"nl_event_", "event_helpers.h"},
+        {"nl_evtimer_", "event_helpers.h"},
+        {"nl_examples_", "examples_io.h"},
+        {"nl_forth_see", "forth_see.h"},
+        {"nl_fs_", "filesystem.h"},
+        {"nl_github_", "github.h"},
+        {"nl_gl", "glew_wrappers.h"},
+        {"nl_group_", "dispatch.h"},
+        {"nl_hm_", "collections.h"},
+        {"nl_img_", "sdl_image_helpers.h"},
+        {"nl_json_", "json.h"},
+        {"nl_keypad", "ncurses_helpers.h"},
+        {"nl_log_", "log.h"},
+        {"nl_nodelay", "ncurses_helpers.h"},
+        {"nl_open_font_portable", "sdl_ttf_helpers.h"},
+        {"nl_openai_", "openai.h"},
+        {"nl_os_fd_", "process.h"},
+        {"nl_os_process_", "process.h"},
+        {"nl_peg2_ffi_", "peg2.h"},
+        {"nl_peg_", "peg.h"},
+        {"nl_prefs_", "preferences.h"},
+        {"nl_pybridge_", "pybridge.h"},
+        {"nl_queue_", "dispatch.h"},
+        {"nl_render_text_", "sdl_ttf_helpers.h"},
+        {"nl_draw_text_", "sdl_ttf_helpers.h"},
+        {"nl_sb_", "collections.h"},
+        {"nl_sdl_term_", "sdl_term.h"},
+        {"nl_sdl_", "sdl_helpers.h"},
+        {"nl_set_", "collections.h"},
+        {"nl_term_", "sdl_term.h"},
+        {"nl_ui_", "ui_widgets.h"},
+        {"nl_uv_", "uv_helpers.h"},
+        {"nl_ws_", "websocket_helpers.h"},
+        {NULL, NULL}
+    };
+
+    for (int i = 0; header_wrappers[i].prefix; i++) {
+        size_t len = strlen(header_wrappers[i].prefix);
+        if (strncmp(func_name, header_wrappers[i].prefix, len) == 0 &&
+            module_headers_contain(header_wrappers[i].header)) {
+            return true;
+        }
+    }
+
+    if ((strcmp(func_name, "nl_system") == 0 ||
+         strcmp(func_name, "nl_flush_stdout") == 0) &&
+        module_headers_contain("sdl_helpers.h")) {
+        return true;
+    }
+
+    return false;
+}
+
 static void collect_headers_from_module(const char *module_path) {
     if (!module_path) return;
     
@@ -1240,14 +1302,23 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include <sys/wait.h>\n");
     sb_append(sb, "#include <spawn.h>\n");
     sb_append(sb, "#include <fcntl.h>\n");
-    /* std module filesystem helpers: forward-declare fs_mkdir_p,
-     * path_relpath, file_copy, and dir_copy directly in the generated C
-     * so the intermediate C compiler always sees the correct signatures
-     * regardless of the -I search path.  Signatures are kept in sync with
-     * modules/std/fs.h. */
+    /* std module filesystem helpers: forward-declare directly in the
+     * generated C so the intermediate C compiler always sees the correct
+     * signatures regardless of the -I search path.  Signatures are kept in
+     * sync with modules/std/fs.h. */
     sb_append(sb, "/* fs.h forward declarations */\n");
+    sb_append(sb, "DynArray* fs_walkdir(const char* root);\n");
+    sb_append(sb, "const char* path_normalize(const char* path);\n");
+    sb_append(sb, "const char* path_join(const char* a, const char* b);\n");
+    sb_append(sb, "const char* path_basename(const char* path);\n");
+    sb_append(sb, "const char* path_dirname(const char* path);\n");
     sb_append(sb, "int64_t  fs_mkdir_p(const char* path);\n");
     sb_append(sb, "const char* path_relpath(const char* target, const char* base);\n");
+    sb_append(sb, "const char* file_read(const char* path);\n");
+    sb_append(sb, "int64_t  file_write(const char* path, const char* content);\n");
+    sb_append(sb, "int64_t  file_append(const char* path, const char* content);\n");
+    sb_append(sb, "bool     file_exists(const char* path);\n");
+    sb_append(sb, "int64_t  file_delete(const char* path);\n");
     sb_append(sb, "int64_t  file_copy(const char* src, const char* dst);\n");
     sb_append(sb, "int64_t  dir_copy(const char* src, const char* dst);\n");
     /* std module process helpers: forward-declare directly so generated C
@@ -3146,12 +3217,15 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 if (strncmp(c_name, "sqlite3_", 8) == 0 && module_headers_contain("sqlite3.h")) continue;
                 if (strncmp(c_name, "curl_", 5) == 0 && module_headers_contain("curl")) continue;
                 if (strncmp(c_name, "glfw", 4) == 0 && module_headers_contain("glfw")) continue;
+                if (module_header_declares_nl_wrapper(c_name)) continue;
             }
 
             /* If the module's own header is included, don't redeclare its exported wrapper functions. */
             if (mi->as.function.is_extern && g_module_headers_count > 0 && module_name && strncmp(c_name, "nl_", 3) == 0) {
                 char module_header_needle[300];
                 snprintf(module_header_needle, sizeof(module_header_needle), "%s.h", module_name);
+                if (module_headers_contain(module_header_needle)) continue;
+                snprintf(module_header_needle, sizeof(module_header_needle), "%s_helpers.h", module_name);
                 if (module_headers_contain(module_header_needle)) continue;
             }
 
@@ -4471,6 +4545,18 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             if (strncmp(func_name, "glfw", 4) == 0 && module_headers_contain("glfw")) break; \
             if (strncmp(func_name, "nl_queue_", 9) == 0 && module_headers_contain("dispatch.h")) break; \
             if (strncmp(func_name, "nl_group_", 9) == 0 && module_headers_contain("dispatch.h")) break; \
+            if (module_header_declares_nl_wrapper(func_name)) break; \
+            if (strncmp(func_name, "nl_", 3) == 0) { \
+                Function *decl_func = env ? env_get_function(env, func_name) : NULL; \
+                const char *decl_module_name = decl_func ? decl_func->module_name : NULL; \
+                if (decl_module_name && decl_module_name[0] != '\0') { \
+                    char module_header_needle[300]; \
+                    snprintf(module_header_needle, sizeof(module_header_needle), "%s.h", decl_module_name); \
+                    if (module_headers_contain(module_header_needle)) break; \
+                    snprintf(module_header_needle, sizeof(module_header_needle), "%s_helpers.h", decl_module_name); \
+                    if (module_headers_contain(module_header_needle)) break; \
+                } \
+            } \
         } \
         \
         sb_append(sb, "extern "); \

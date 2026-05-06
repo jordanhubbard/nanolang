@@ -1159,9 +1159,9 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "mktemp") { return "nl_os_mktemp" } else { (print "") }
     if (== func_name "mktemp_dir") { return "nl_os_mktemp_dir" } else { (print "") }
     if (== func_name "path_relpath") { return "nl_path_relpath" } else { (print "") }
-    if (== func_name "fs_mkdir_p") { return "nl_mkdir_p" } else { (print "") }
-    if (== func_name "file_copy") { return "nl_copy_file" } else { (print "") }
-    if (== func_name "dir_copy") { return "nl_copy_dir" } else { (print "") }
+    if (== func_name "fs_mkdir_p") { return "nl_fs_mkdir_p" } else { (print "") }
+    if (== func_name "file_copy") { return "nl_file_copy" } else { (print "") }
+    if (== func_name "dir_copy") { return "nl_dir_copy" } else { (print "") }
     if (== func_name "process_run") { return "nl_os_process_run" } else { (print "") }
     
     /* HashMap/map builtins (self-hosted runtime provides nl_map_*) */
@@ -3141,8 +3141,18 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#endif\n\n")
     /* Module standard library helpers are forward-declared here so generated C
      * does not depend on module include paths when a program does not import them. */
-    set parts (cg_append parts "int64_t  fs_mkdir_p(const char* path);\n")
+    set parts (cg_append parts "DynArray* fs_walkdir(const char* root);\n")
+    set parts (cg_append parts "const char* path_normalize(const char* path);\n")
+    set parts (cg_append parts "const char* path_join(const char* a, const char* b);\n")
+    set parts (cg_append parts "const char* path_basename(const char* path);\n")
+    set parts (cg_append parts "const char* path_dirname(const char* path);\n")
     set parts (cg_append parts "const char* path_relpath(const char* target, const char* base);\n")
+    set parts (cg_append parts "const char* file_read(const char* path);\n")
+    set parts (cg_append parts "int64_t  file_write(const char* path, const char* content);\n")
+    set parts (cg_append parts "int64_t  file_append(const char* path, const char* content);\n")
+    set parts (cg_append parts "bool     file_exists(const char* path);\n")
+    set parts (cg_append parts "int64_t  file_delete(const char* path);\n")
+    set parts (cg_append parts "int64_t  fs_mkdir_p(const char* path);\n")
     set parts (cg_append parts "int64_t  file_copy(const char* src, const char* dst);\n")
     set parts (cg_append parts "int64_t  dir_copy(const char* src, const char* dst);\n")
     set parts (cg_append parts "int64_t  nl_os_process_spawn(const char* command);\n")
@@ -3362,9 +3372,9 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "static const char* nl_path_dirname(const char* p) { return path_dirname(p); }\n")
     set sb (cg_append sb "static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }\n")
     set sb (cg_append sb "static const char* nl_file_read(const char* p) { return file_read(p); }\n\n")
-    set sb (cg_append sb "static int64_t nl_mkdir_p(const char* p) { return fs_mkdir_p(p); }\n")
-    set sb (cg_append sb "static int64_t nl_copy_file(const char* s, const char* d) { return file_copy(s, d); }\n")
-    set sb (cg_append sb "static int64_t nl_copy_dir(const char* s, const char* d) { return dir_copy(s, d); }\n\n")
+    set sb (cg_append sb "static int64_t nl_fs_mkdir_p(const char* p) { return fs_mkdir_p(p); }\n")
+    set sb (cg_append sb "static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }\n")
+    set sb (cg_append sb "static int64_t nl_dir_copy(const char* s, const char* d) { return dir_copy(s, d); }\n\n")
 
     /* process.h does not declare nl_os_process_run (nanoc_c generates a static version that
      * would conflict); declare it here as extern so user code can call process_run(...). */

@@ -1412,10 +1412,32 @@ void module_builder_free(ModuleBuilder *builder) {
 }
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
-    if (!meta || meta->c_sources_count == 0) {
+    if (!meta) return NULL;
+
+    if (meta->c_sources_count == 0) {
         // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
         if (!info) return NULL;
+
+        bool has_package_metadata = module_has_system_package_metadata(meta);
+        if (has_package_metadata) {
+            if (!install_system_packages(meta)) {
+                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
+                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
+            }
+        }
+
+        const char *missing_pkg = NULL;
+        if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
+            fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
+            if (has_package_metadata) {
+                fprintf(stderr,
+                        "[Module] Module '%s' declared system_packages, but '%s' is still missing after auto-install\n",
+                        meta->name, missing_pkg);
+            }
+            free(info);
+            return NULL;
+        }
 
         // Collect link flags from pkg-config and system_libs
         size_t total_link_flags = 0;
@@ -2040,4 +2062,3 @@ char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t 
     *out_count = pos;
     return all_flags;
 }
-
