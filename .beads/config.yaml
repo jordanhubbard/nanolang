@@ -51,4 +51,4 @@ no-db: true
 # - github.org
 # - github.repo
 
-sync.remote: "git+https://github.com/jordanhubbard/nanolang.git"
+sync.remote: "git+ssh://git@github.com/jordanhubbard/nanolang.git"
