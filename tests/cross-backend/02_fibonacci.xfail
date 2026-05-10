@@ -1,5 +1,4 @@
 # Backends with known-broken codegen for this program.
 # Remove an entry once the underlying bead is fixed.
-# See bead nl-3du (wasm) and nl-d7n (llvm).
+# wasm — nl-3du: feature support pending (println/int_to_string error rather than miscompile)
 wasm
-llvm

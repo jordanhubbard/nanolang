@@ -42,6 +42,7 @@ typedef struct {
     FILE       *out;           /* output .ll file */
     int         tmp;           /* SSA temporary counter (%0, %1, ...) */
     int         blk;           /* basic block label counter */
+    int         cur_blk;       /* label of the basic block we're currently emitting into */
     int         str_count;     /* number of @.str.<n> globals */
     char       *str_vals[LLVM_MAX_STRS]; /* string constant contents */
     /* Variable name → alloca slot name (%var_name) */
@@ -302,11 +303,19 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
             int else_lbl = fresh_blk(ctx);
             int merge_lbl= fresh_blk(ctx);
             emit(ctx, "  br i1 %%%d, label %%bb%d, label %%bb%d\n", cond, then_lbl, else_lbl);
+
             emit(ctx, "bb%d:\n", then_lbl);
+            ctx->cur_blk = then_lbl;
             int then_val = emit_expr(ctx, node->as.if_stmt.then_branch);
+            /* If the then-branch contained a `return`, emit_stmt(AST_RETURN)
+             * opened a post-ret block — ctx->cur_blk now points at that.
+             * The phi must reference whichever block actually ends with the
+             * branch to merge, not the original then_lbl. See bead nl-phi. */
+            int then_exit_blk = ctx->cur_blk;
             emit(ctx, "  br label %%bb%d\n", merge_lbl);
-            (void)(ctx->blk - 1);  /* track for phi — unused */
+
             emit(ctx, "bb%d:\n", else_lbl);
+            ctx->cur_blk = else_lbl;
             int else_val = -1;
             if (node->as.if_stmt.else_branch) {
                 else_val = emit_expr(ctx, node->as.if_stmt.else_branch);
@@ -314,11 +323,14 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
                 else_val = fresh_tmp(ctx);
                 emit(ctx, "  %%%d = add i64 0, 0\n", else_val);
             }
+            int else_exit_blk = ctx->cur_blk;
             emit(ctx, "  br label %%bb%d\n", merge_lbl);
+
             emit(ctx, "bb%d:\n", merge_lbl);
+            ctx->cur_blk = merge_lbl;
             int phi = fresh_tmp(ctx);
             emit(ctx, "  %%%d = phi i64 [ %%%d, %%bb%d ], [ %%%d, %%bb%d ]\n",
-                 phi, then_val, then_lbl, else_val, else_lbl);
+                 phi, then_val, then_exit_blk, else_val, else_exit_blk);
             return phi;
         }
         case AST_BLOCK: {
@@ -374,6 +386,7 @@ static void emit_stmt(LLVMCtx *ctx, ASTNode *node) {
             /* Unreachable after ret */
             int bb = fresh_blk(ctx);
             emit(ctx, "bb%d:  ; post-ret block\n", bb);
+            ctx->cur_blk = bb;
             break;
         }
         case AST_WHILE: {
@@ -382,12 +395,15 @@ static void emit_stmt(LLVMCtx *ctx, ASTNode *node) {
             int exit_lbl = fresh_blk(ctx);
             emit(ctx, "  br label %%bb%d\n", cond_lbl);
             emit(ctx, "bb%d:  ; while-cond\n", cond_lbl);
+            ctx->cur_blk = cond_lbl;
             int cond = emit_expr(ctx, node->as.while_stmt.condition);
             emit(ctx, "  br i1 %%%d, label %%bb%d, label %%bb%d\n", cond, body_lbl, exit_lbl);
             emit(ctx, "bb%d:  ; while-body\n", body_lbl);
+            ctx->cur_blk = body_lbl;
             emit_stmt(ctx, node->as.while_stmt.body);
             emit(ctx, "  br label %%bb%d\n", cond_lbl);
             emit(ctx, "bb%d:  ; while-exit\n", exit_lbl);
+            ctx->cur_blk = exit_lbl;
             break;
         }
         case AST_FOR: {
@@ -397,9 +413,11 @@ static void emit_stmt(LLVMCtx *ctx, ASTNode *node) {
             int exit_lbl = fresh_blk(ctx);
             emit(ctx, "  br label %%bb%d\n", loop_lbl);
             emit(ctx, "bb%d:  ; for-body\n", loop_lbl);
+            ctx->cur_blk = loop_lbl;
             emit_stmt(ctx, node->as.for_stmt.body);
             emit(ctx, "  br label %%bb%d\n", loop_lbl);
             emit(ctx, "bb%d:  ; for-exit\n", exit_lbl);
+            ctx->cur_blk = exit_lbl;
             break;
         }
         case AST_BLOCK:
