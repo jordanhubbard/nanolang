@@ -733,6 +733,29 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
             if (node->as.match_expr.pattern_bindings &&
                 node->as.match_expr.pattern_bindings[i] &&
                 utype) {
+                /* Bind the pattern variable to a copy of the variant's
+                 * payload struct (which lives inside the union's anonymous
+                 * `union { struct { ... } Circle; struct { ... } Square; }`).
+                 *
+                 * __typeof__ is required because the inner variant struct
+                 * is emitted as an anonymous struct member inside the
+                 * union (see emit_union_def) — it has no nameable C type
+                 * to reference directly. This makes the emitted C
+                 * GCC/Clang only; MSVC has __typeof__ as a non-standard
+                 * extension behind /experimental:c11.
+                 *
+                 * Language convention: the binding refers to the variant
+                 * struct, so the user writes `Circle(c) => c.radius`,
+                 * not `Circle(c) => c`. ctx_add_sym registers TYPE_STRUCT
+                 * accordingly — that affects only format-string selection
+                 * in downstream codegen (infer_expr_type → ctx_lookup_type),
+                 * which never sees a bare variant binding in well-formed
+                 * programs because users always access fields.
+                 *
+                 * Originally `int64_t name = _match_val.as.X.value` (which
+                 * assumed every variant had a single `.value` int field —
+                 * wrong for multi-field variants). Fixed in edf4ceb.
+                 * Documentation/tightening: see bead nl-8k8. */
                 emit_indent(c);
                 fprintf(c->out, "__typeof__(_match_val.as.%s) %s = _match_val.as.%s;\n",
                         node->as.match_expr.pattern_variants[i],
