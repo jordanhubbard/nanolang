@@ -3587,6 +3587,18 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
+            /* INVARIANT (bead nl-ico): declared_type is a local working copy
+             * of stmt->as.let.var_type. Any place that reclassifies the
+             * inferred/declared type (struct→union, struct→enum, etc.) must
+             * write back to BOTH declared_type AND stmt->as.let.var_type so
+             * downstream backends see the corrected type. The original bug
+             * fixed in edf4ceb was that backends saw a stale var_type while
+             * declared_type drifted ahead.
+             *
+             * The dual state is kept (rather than always reading
+             * stmt->as.let.var_type) because the local is a natural
+             * "working type" abstraction; eliminating it would touch ~20
+             * sites with no clear safety gain over enforcing this invariant. */
             Type declared_type = stmt->as.let.var_type;
 
             /* Type inference: let x = expr  (no declared type annotation) */
