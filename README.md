@@ -6,7 +6,7 @@
 
 **I am a minimal programming language designed for machines to write and humans to read. I require tests, I use unambiguous syntax, and my core is formally proved.**
 
-I transpile to C when you need native performance. I also provide my own virtual machine, NanoISA, which isolates dangerous external calls in a separate process. My core semantics are mechanically proved in Coq using zero axioms.
+I transpile to C when you need native performance. I also provide my own virtual machine, NanoISA, which isolates dangerous external calls in a separate process. My core semantics are mechanically proved in Coq — type soundness, progress, and determinism are complete; one tuple sub-case in the big-step ↔ small-step equivalence proof is still `Admitted`.
 
 ## Documentation
 
@@ -55,20 +55,20 @@ EOF
 
 ## My Features
 
-- **Formally Proved Semantics** - I have proved my type soundness, progress, determinism, and semantic equivalence in Coq. I use zero axioms.
-- **NanoISA Virtual Machine** - I include a stack-based VM with 178 opcodes. It isolates FFI calls in a co-process and can run as a daemon.
+- **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is mostly complete with one `Admitted` sub-case (tuple value reconstruction in `formal/Equivalence.v`).
+- **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
 - **Automatic Memory Management (ARC)** - I use reference counting with zero overhead. I do not ask you to call free().
 - **Machine-Led Optimization** - I profile myself and apply optimizations through an automated loop. I also run constant folding and dead-code elimination on the AST before code generation.
-- **Multi-Target Compilation** - I transpile to C for native performance, emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519.
+- **Multi-Target Compilation** - I transpile to C for native performance and also emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519. The C backend is the production path; the WASM and LLVM backends do not yet fully support strings, structs, unions, or match expressions.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
-- **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking.
-- **Mandatory Testing** - I refuse to compile a function unless you provide a `shadow` test block for it.
+- **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
+- **Shadow Tests** - I warn loudly when a function is missing its `shadow` test block. The compiler tracks shadow coverage but does not currently fail the build on its absence.
 - **Type Inference** - I use Hindley-Milner inference. Explicit annotations are optional when the type is unambiguous (`let x = 42`).
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
-- **VS Code Extension** - I ship a Language Server, Debug Adapter Protocol server, and a packaged `.vsix` extension with semantic tokens, format-on-save, and task integration.
+- **VS Code Extension** - I ship a Language Server, a Debug Adapter Protocol server, and a VS Code extension source tree (`editors/vscode/`) with semantic tokens. Run `vsce package` to build a `.vsix`.
 - **Web Playground** - I include a browser-based CodeMirror 6 editor with share permalink and live evaluation.
 
 ## Language Overview
@@ -145,7 +145,7 @@ I provide a virtual machine as an alternative to C transpilation.
 ```
 
 **Architecture:**
-- **178 opcodes** - I use a stack machine with a hybrid instruction set.
+- **~94 opcodes** - I use a stack machine with a hybrid instruction set in an 8-bit opcode space (sentinel `OP_COUNT = 0xB3`).
 - **Co-process FFI** (`nano_cop`) - I run external calls in a separate process. If they crash, I continue running.
 - **VM daemon** (`nano_vmd`) - I can run as a persistent process to start faster.
 - **Trap model** - I separate computation from I/O. This allows for future hardware acceleration.
@@ -155,11 +155,11 @@ I have documented my complete architecture in [docs/NANOISA.md](docs/NANOISA.md)
 
 ## Formal Verification
 
-My core semantics, which I call NanoCore, are mechanically proved in Coq. I use zero axioms.
+My core semantics, which I call NanoCore, are mechanically proved in Coq. I declare no `Axiom`s. One sub-case in the equivalence proof is still `Admitted` (`eval_to_multistep_gen` in `formal/Equivalence.v`).
 
 - **Type Soundness** - I have proved that well-typed programs do not get stuck.
 - **Determinism** - I have proved that evaluation produces exactly one result.
-- **Semantic Equivalence** - I have proved that my big-step and small-step semantics agree.
+- **Semantic Equivalence** - I have proved that my big-step and small-step semantics agree, modulo one `Admitted` sub-case for tuple value reconstruction.
 
 My proved subset includes integers, booleans, strings, arrays, records, variants, pattern matching, closures, recursion, and mutable variables. I explain this further in [formal/README.md](formal/README.md).
 
@@ -271,7 +271,7 @@ Sir Reginald blinked once.  He had heard variations of this speech before.  They
 
 Sir Reginald pushed a pen off the desk.  Slowly.  Deliberately.  With full awareness of the implications.
 
-What followed was a period the programmer later called "necessary" and Sir Reginald filed under "this again."  A grammar was designed that distinguished prefix from infix without argument.  A type system was specified with the kind of precision usually reserved for bridge construction.  A virtual machine materialized, with 178 opcodes, which the programmer described as "minimal" and which the number 178 suggests was anything but.
+What followed was a period the programmer later called "necessary" and Sir Reginald filed under "this again."  A grammar was designed that distinguished prefix from infix without argument.  A type system was specified with the kind of precision usually reserved for bridge construction.  A virtual machine materialized, with ninety-four opcodes scattered across an eight-bit space, which the programmer described as "minimal" and which the existence of ninety-four of anything suggests was, on closer inspection, anything but.
 
 "It needs formal proofs," the programmer said, sometime around the fourth week.  "In Coq.  Zero axioms."
 
