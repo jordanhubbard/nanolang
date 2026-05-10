@@ -196,7 +196,7 @@ test_llvm() {
     local out="$TMPDIR_TESTS/${name}.ll"
     local expected_file="${nano_file%.nano}.expected"
 
-    if ! compile_nano "$nano_file" --target llvm -o "$out"; then
+    if ! compile_nano "$nano_file" --llvm -o "$out"; then
         report_outcome fail llvm "$nano_file" "$name" "compile error"
         return
     fi
@@ -207,8 +207,10 @@ test_llvm() {
             emit_result SKIP llvm "$name" "no .expected file"
             return
         fi
+        # The LLVM backend prefixes function names with "nano_", so
+        # entry point is "nano_main", not "main".
         local actual
-        actual="$(lli "$out" 2>/dev/null)" || true
+        actual="$(lli --entry-function=nano_main "$out" 2>/dev/null)" || true
         if diff_output "$actual" "$expected_file"; then
             report_outcome pass llvm "$nano_file" "$name"
         else
