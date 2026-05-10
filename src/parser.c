@@ -1698,11 +1698,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
 
             /* When both halves of a qualified name are uppercase (e.g. Shape.Circle),
              * prefer the union-construct interpretation handled by parse_postfix.
-             * Module names are lowercase by convention, so this guard only diverts
-             * away from struct-literal parsing in cases that would have produced
-             * invalid C anyway (struct_name "Shape.Circle" → NanoStruct_Shape.Circle).
-             * Originally added in edf4ceb; reintroduced after an unrelated revert
-             * in 2394b14 — see bead nl-cuc. */
+             *
+             * LANGUAGE CONVENTION: module aliases that start with uppercase
+             * (e.g. `module "x" as DT`) work fine for function calls
+             * `(DT.now)` but cannot be used to write a struct literal
+             * `DT.Date { year: 2026 }` — this parser routes those to
+             * union-construct, which then errors if DT is not actually a
+             * union. The principled fix (symbol-table-driven disambiguation
+             * in a post-parse resolution pass) is tracked in nl-421; in
+             * practice no current example uses a Module.Type struct literal,
+             * so the convention is "if you alias a module with an uppercase
+             * name, don't expect Module.Type{} struct literal syntax to
+             * work — lowercase the alias or define the struct locally."
+             *
+             * Originally added in edf4ceb; reintroduced after an unrelated
+             * revert in 2394b14 — see bead nl-cuc. */
             bool is_union_construct = is_qualified &&
                 tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z' &&
                 looks_like_struct;  /* looks_like_struct already requires after_next uppercase */
