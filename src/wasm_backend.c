@@ -369,27 +369,21 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
     }
     case AST_CALL: {
         const char *name = node->as.call.name;
-        /* Handle builtin functions that have no WASM definition */
-        if (name && (strcmp(name, "println") == 0 || strcmp(name, "print") == 0)) {
-            /* Emit args (for side-effect ordering), then drop them; push i64 0 */
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                if (emit_expr(ctx, func, code, node->as.call.args[i])) return -1;
-                buf_byte(code, OP_DROP);
-            }
-            buf_byte(code, OP_I64_CONST); emit_i64_leb(code, 0);
-            return 0;
-        }
-        if (name && (strcmp(name, "int_to_string") == 0 ||
+        /* I/O and string-conversion builtins require a host runtime
+         * (linear memory + WASI fd_write). The previous "stub by dropping
+         * args and pushing 0" silently miscompiled programs — it produced
+         * a wasm binary that ran without crashing but emitted nothing.
+         * Until real codegen is in place (tracked separately from nl-3du),
+         * fail loudly so the cross-backend driver xfails the test. */
+        if (name && (strcmp(name, "println") == 0 || strcmp(name, "print") == 0 ||
+                     strcmp(name, "int_to_string") == 0 ||
                      strcmp(name, "float_to_string") == 0 ||
                      strcmp(name, "bool_to_string") == 0 ||
                      strcmp(name, "str_length") == 0)) {
-            /* Emit arg, drop it; push i64 0 as placeholder */
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                if (emit_expr(ctx, func, code, node->as.call.args[i])) return -1;
-                buf_byte(code, OP_DROP);
-            }
-            buf_byte(code, OP_I64_CONST); emit_i64_leb(code, 0);
-            return 0;
+            if (ctx->verbose)
+                fprintf(stderr, "[wasm] builtin '%s' not yet implemented (would require linear memory + WASI)\n", name);
+            ctx->error = "WASM backend: I/O and string-conversion builtins not yet implemented";
+            return -1;
         }
         int fidx = find_func(ctx, name);
         if (fidx < 0) {
@@ -517,10 +511,28 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
     case AST_FIELD_ACCESS:
     case AST_MATCH:
     case AST_ARRAY_LITERAL:
-    case AST_TUPLE_LITERAL:
-        /* Features not yet fully supported in WASM backend — emit i64 0 stub */
-        buf_byte(code, OP_I64_CONST); emit_i64_leb(code, 0);
-        return 0;
+    case AST_TUPLE_LITERAL: {
+        /* These require linear memory + a real runtime representation.
+         * The previous "push i64.const 0" stub silently produced binaries
+         * that compiled and ran but emitted no meaningful output.
+         * Until real codegen is in place, fail loudly so the cross-backend
+         * driver xfails the test rather than masquerading a broken binary
+         * as a pass. */
+        static const char *names[] = {
+            [AST_STRING]         = "string literal",
+            [AST_STRUCT_LITERAL] = "struct literal",
+            [AST_UNION_CONSTRUCT]= "union construct",
+            [AST_FIELD_ACCESS]   = "field access",
+            [AST_MATCH]          = "match expression",
+            [AST_ARRAY_LITERAL]  = "array literal",
+            [AST_TUPLE_LITERAL]  = "tuple literal",
+        };
+        if (ctx->verbose)
+            fprintf(stderr, "[wasm] %s not yet implemented (would require linear memory)\n",
+                    names[node->type]);
+        ctx->error = "WASM backend: feature not yet implemented (strings/structs/unions/match/arrays/tuples)";
+        return -1;
+    }
     default:
         if (ctx->verbose) fprintf(stderr, "[wasm] unsupported AST node type %d\n", node->type);
         ctx->error = "unsupported AST node type for WASM backend";
