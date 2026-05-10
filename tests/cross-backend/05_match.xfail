@@ -2,7 +2,5 @@
 # Remove an entry once the underlying bead is fixed.
 # wasm — nl-3du: feature support pending (strings/structs/unions/match)
 # llvm — nl-d7n: dangling externs to nano_* runtime
-# c    — nl-cuc: union-construct emits invalid C syntax (NanoStruct_X.Y)
 wasm
 llvm
-c

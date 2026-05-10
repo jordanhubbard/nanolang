@@ -1693,10 +1693,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 after_brace->token_type == TOKEN_FOR
             );
             
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) || 
+            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
                              (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
-            
-            if (has_lbrace && looks_like_struct && !looks_like_code_block) {
+
+            /* When both halves of a qualified name are uppercase (e.g. Shape.Circle),
+             * prefer the union-construct interpretation handled by parse_postfix.
+             * Module names are lowercase by convention, so this guard only diverts
+             * away from struct-literal parsing in cases that would have produced
+             * invalid C anyway (struct_name "Shape.Circle" → NanoStruct_Shape.Circle).
+             * Originally added in edf4ceb; reintroduced after an unrelated revert
+             * in 2394b14 — see bead nl-cuc. */
+            bool is_union_construct = is_qualified &&
+                tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z' &&
+                looks_like_struct;  /* looks_like_struct already requires after_next uppercase */
+
+            if (has_lbrace && looks_like_struct && !looks_like_code_block && !is_union_construct) {
                 /* Parse struct literal */
                 int line = tok->line;
                 int column = tok->column;
