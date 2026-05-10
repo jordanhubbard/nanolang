@@ -7,7 +7,7 @@
 
 ## TL;DR
 
-NanoISA today is a hand-written 94-opcode stack VM with its own bytecode format, FFI co-process protocol, daemon, verifier, and disassembler — about 15.7k lines of C across `src/nanoisa/`, `src/nanovm/`, `src/nanovirt/`, and `src/nanocore_*.c`. It exists to serve two goals: **isolation** (FFI in a separate process, deterministic execution) and **provability** (small enough that NanoCore semantics fit in Coq with no axioms).
+NanoISA today is a hand-written 94-opcode stack VM with its own bytecode format, FFI co-process protocol, daemon, verifier, and disassembler — **14,753 lines** of C across `src/nanoisa/`, `src/nanovm/`, `src/nanovirt/`, and `src/nanocore_*.c`. It exists to serve two goals: **isolation** (FFI in a separate process, deterministic execution) and **provability** (small enough that NanoCore semantics fit in Coq with no axioms).
 
 WebAssembly already provides both: it has a sandboxed execution model with a documented trap semantics, multiple production runtimes (`wasmtime`, `wasm3`, V8), and multiple mechanized formalizations (WasmCert-Coq, WasmCert-Isabelle). The existing `nanoc --target wasm` backend is the right delivery mechanism — it just needs to be completed.
 
@@ -18,19 +18,19 @@ This proposal: **make Wasm the bytecode format**, delete NanoISA, retarget NanoC
 Three concrete problems with the current architecture:
 
 1. **The proof story doesn't connect to the compiler.** `formal/*.v` proves a small λ-calculus is sound and deterministic. The C/LLVM/WASM backends emit code that has no formal relationship to those proofs. Soundness on the source side is a separate artifact from "what `nanoc` actually emits."
-2. **NanoISA is parallel, not synergistic, with the LLVM/Wasm/RISC-V backends.** `--target wasm`, `--target llvm`, `--target riscv` already exist and produce real artifacts. NanoISA is a fourth target with its own bytecode, runtime, and isolation protocol — and right now it carries almost all the maintenance burden of the other three combined (15.7k lines vs. ~2k lines for the wasm backend).
+2. **NanoISA is parallel, not synergistic, with the LLVM/Wasm/RISC-V backends.** `--target wasm`, `--target llvm`, `--target riscv` already exist and produce real artifacts. NanoISA is a fourth target with its own bytecode, runtime, and isolation protocol — and right now it carries almost all the maintenance burden of the other three combined (14.7k lines vs. ~950 lines for the wasm backend).
 3. **Recent Backend Matrix fixes (commit edf4ceb) had to paper over WASM/LLVM gaps with stubs** because the wasm backend was incomplete and the test harness only checked "didn't crash." See nl-3du, nl-d7n, nl-2tg. The right response to those gaps is to invest in the wasm backend, not to keep NanoISA as a parallel runtime.
 
 ## Current state
 
 ```
-src/nanoisa/        ~955 lines    Custom 94-opcode ISA (94 of 179 slots used)
-src/nanovm/        ~5,500 lines   Stack VM, GC, FFI, daemon, co-process protocol
-src/nanovirt/      ~3,973 lines   Codegen from AST to NanoISA bytecode
-src/nanocore_*.c   ~1,139 lines   "NanoCore subset" exporter + extraction support
-src/wasm_backend.c   ~948 lines   Wasm backend (incomplete — see nl-3du)
+src/nanoisa/        2,923 lines   Custom 94-opcode ISA (94 of 179 slots used)
+src/nanovm/         6,519 lines   Stack VM, GC, FFI, daemon, co-process protocol
+src/nanovirt/       4,172 lines   Codegen from AST to NanoISA bytecode
+src/nanocore_*.c    1,139 lines   "NanoCore subset" exporter + extraction support
+src/wasm_backend.c    948 lines   Wasm backend (incomplete — see nl-3du)
 ─────────────────────────────────
-Total VM stack    ~12,517 lines   (excluding wasm backend which we keep)
+Total VM stack     14,753 lines   (excluding wasm backend which we keep)
 ```
 
 The `bin/` outputs of all this work: `nano_virt`, `nano_vm`, `nano_cop`, `nano_vmd`. Plus the `.nvm` bytecode format, its source-map sidecar, and the `--strip-debug`, `--isolate-ffi`, daemon, etc. CLI surface.
@@ -107,7 +107,7 @@ Each phase is independently shippable. None of them require deleting code from p
 - Delete `src/nanocore_subset.c`, `nanocore_export.c` (~1,139 lines) — replaced by direct codegen-to-Wasm in `src/wasm_backend.c`.
 - Delete `bin/nano_virt`, `nano_vm`, `nano_cop`, `nano_vmd` from build targets.
 - Drop the `.nvm` format entirely.
-- Net deletion: ~11–13k lines, depending on how much support code goes with it.
+- Net deletion: ~14.7k lines, plus whatever support code goes with it (build rules, test wiring, scripts).
 
 ## What we keep
 
@@ -191,9 +191,9 @@ Phases 2–4 are a separate decision once Phase 1 lands and we have empirical si
 
 ## Appendix: concrete impact
 
-**Lines deleted (Phase 4):** ~11,500
+**Lines deleted (Phase 4):** ~14,750 (`src/nanoisa/` + `src/nanovm/` + `src/nanovirt/` + `src/nanocore_*.c`)
 **Lines added (Phases 1–2):** ~500–1,500 (wasm backend completion + runtime wrapper)
-**Net codebase reduction:** ~10,000–11,000 lines (~10% of repo)
+**Net codebase reduction:** ~13,000–14,000 lines (~5% of the ~280k-line repo, but ~25% of the C compiler/runtime portion).
 
 **Binaries removed:** `nano_virt`, `nano_vm`, `nano_cop`, `nano_vmd`
 **Binaries added:** none (relies on `wasmtime`/`wasm3`)

@@ -57,15 +57,15 @@ EOF
 
 - **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is mostly complete with one `Admitted` sub-case (tuple value reconstruction in `formal/Equivalence.v`).
 - **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
-- **Automatic Memory Management (ARC)** - I use reference counting with zero overhead. I do not ask you to call free().
-- **Machine-Led Optimization** - I profile myself and apply optimizations through an automated loop. I also run constant folding and dead-code elimination on the AST before code generation.
+- **Automatic Memory Management** - I use reference counting (with a cycle collector for cyclic graphs) so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic.
+- **Machine-Led Optimization** - I run constant folding and dead-code elimination on the AST before code generation. I also support profile-guided inlining: build with profiling, run a representative workload to produce a `.nano.prof`, then recompile with `--pgo <path>` to apply hot-path inlining.
 - **Multi-Target Compilation** - I transpile to C for native performance and also emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519. The C backend is the production path; the WASM and LLVM backends do not yet fully support strings, structs, unions, or match expressions.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
 - **Shadow Tests** - I warn loudly when a function is missing its `shadow` test block. The compiler tracks shadow coverage but does not currently fail the build on its absence.
-- **Type Inference** - I use Hindley-Milner inference. Explicit annotations are optional when the type is unambiguous (`let x = 42`).
+- **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
 - **VS Code Extension** - I ship a Language Server, a Debug Adapter Protocol server, and a VS Code extension source tree (`editors/vscode/`) with semantic tokens. Run `vsce package` to build a `.vsix`.
