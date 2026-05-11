@@ -446,7 +446,7 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
 
     switch (node->type) {
         case AST_SET:
-            emit_context_error("PURITY VIOLATION", node->line, node->column, 3,
+            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 3,
                 "Assignment ('set') is not allowed in a pure fn",
                 "Remove 'set' or change 'pure fn' to 'fn'");
             g_typecheck_error_count++;
@@ -454,7 +454,7 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
 
         case AST_LET:
             if (node->as.let.is_mut) {
-                emit_context_error("PURITY VIOLATION", node->line, node->column, 7,
+                emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 7,
                     "'let mut' is not allowed in a pure fn",
                     "Use 'let' (immutable) or change 'pure fn' to 'fn'");
                 g_typecheck_error_count++;
@@ -463,7 +463,7 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
             break;
 
         case AST_PRINT:
-            emit_context_error("PURITY VIOLATION", node->line, node->column, 5,
+            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 5,
                 "I/O (print/println) is not allowed in a pure fn",
                 "Remove print/println or change 'pure fn' to 'fn'");
             g_typecheck_error_count++;
@@ -483,7 +483,7 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
                 char msg[256];
                 snprintf(msg, sizeof(msg),
                     "Call to impure function '%s' is not allowed in a pure fn", callee);
-                emit_context_error("PURITY VIOLATION", node->line, node->column,
+                emit_context_error("E002 PURITY VIOLATION", node->line, node->column,
                     (int)strlen(callee), msg,
                     "Annotate the callee as 'pure fn' or change this fn to 'fn'");
                 g_typecheck_error_count++;
@@ -506,14 +506,14 @@ static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
             break;
 
         case AST_WHILE:
-            emit_context_error("PURITY VIOLATION", node->line, node->column, 5,
+            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 5,
                 "'while' loops are not allowed in a pure fn",
                 "Use recursion instead, or change 'pure fn' to 'fn'");
             g_typecheck_error_count++;
             break;
 
         case AST_FOR:
-            emit_context_error("PURITY VIOLATION", node->line, node->column, 3,
+            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 3,
                 "'for' loops are not allowed in a pure fn",
                 "Use recursion instead, or change 'pure fn' to 'fn'");
             g_typecheck_error_count++;
@@ -978,12 +978,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         if (elem == TYPE_UNKNOWN || elem == TYPE_INT || elem == TYPE_ENUM || elem == TYPE_FLOAT) {
                             return TYPE_ARRAY;
                         }
-                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                             "Unary minus requires array<int> or array<float>",
                             "Only numeric arrays support element-wise negation");
                         return TYPE_UNKNOWN;
                     }
-                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "Unary minus requires a numeric type (int or float)",
                         "Check that the operand is an int or float variable");
                     return TYPE_UNKNOWN;
@@ -992,7 +992,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Binary arithmetic operations */
                 if (arg_count != 2) {
                     emit_context_error(
-                        "ARITY MISMATCH",
+                        "E003 ARITY MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1049,7 +1049,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             "Array arithmetic requires matching numeric element types (got %s and %s).",
                             type_to_string(left), type_to_string(right));
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1083,7 +1083,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Arithmetic expects numeric types or string concatenation with + (got %s and %s).",
                         type_to_string(left), type_to_string(right));
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     expr->line,
                     expr->column,
                     1,
@@ -1097,7 +1097,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_LT || op == TOKEN_LE || op == TOKEN_GT || op == TOKEN_GE) {
                 if (arg_count != 2) {
                     emit_context_error(
-                        "ARITY MISMATCH",
+                        "E003 ARITY MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1115,7 +1115,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             "Comparison requires both operands to be the same type (got %s and %s).",
                             type_to_string(left), type_to_string(right));
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1130,7 +1130,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_EQ || op == TOKEN_NE) {
                 if (arg_count != 2) {
                     emit_context_error(
-                        "ARITY MISMATCH",
+                        "E003 ARITY MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1158,7 +1158,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             "Equality requires both operands to be the same type (got %s and %s).",
                             type_to_string(left), type_to_string(right));
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1173,7 +1173,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_AND || op == TOKEN_OR) {
                 if (arg_count != 2) {
                     emit_context_error(
-                        "ARITY MISMATCH",
+                        "E003 ARITY MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1187,7 +1187,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (left != TYPE_BOOL || right != TYPE_BOOL) {
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1201,7 +1201,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_NOT) {
                 if (arg_count != 1) {
                     emit_context_error(
-                        "ARITY MISMATCH",
+                        "E003 ARITY MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1213,7 +1213,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 Type arg = check_expression(expr->as.prefix_op.args[0], env);
                 if (arg != TYPE_BOOL) {
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -1227,14 +1227,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (op == TOKEN_QUESTION) {
                 /* ? try-propagate operator: expr? returns the Ok value type */
                 if (arg_count != 1) {
-                    emit_context_error("SYNTAX ERROR", expr->line, expr->column, 1,
+                    emit_context_error("E008 SYNTAX ERROR", expr->line, expr->column, 1,
                         "? operator requires exactly 1 operand",
                         "Use 'expr?' — the ? operator is a postfix unary operator");
                     return TYPE_UNKNOWN;
                 }
                 Type inner_type = check_expression(expr->as.prefix_op.args[0], env);
                 if (inner_type != TYPE_UNION) {
-                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "? operator requires a Result union type",
                         "Declare your union with Ok and Err variants: 'union Result { Ok { val: T }, Err { msg: string } }'");
                     return TYPE_UNKNOWN;
@@ -1265,7 +1265,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* First, check the inner function call */
                 Type inner_type = check_expression(expr->as.call.func_expr, env);
                 if (inner_type != TYPE_FUNCTION) {
-                    emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "Expression does not return a function",
                         "Only function-typed values can be called — check the return type of the inner expression");
                     return TYPE_UNKNOWN;
@@ -1320,7 +1320,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Special handling for format builtin - variadic string interpolation */
             if (strcmp(expr->as.call.name, "format") == 0) {
                 if (expr->as.call.arg_count < 1) {
-                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1,
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
                         "format requires at least 1 argument (the template string).",
                         "Usage: format(\"Hello %s\", name)");
                     return TYPE_UNKNOWN;
@@ -1337,7 +1337,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "%s requires exactly 1 argument, got %d.",
                              expr->as.call.name, expr->as.call.arg_count);
-                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1, message,
                                        "Pass a single Result<T, E> value.");
                     return TYPE_UNKNOWN;
                 }
@@ -1353,7 +1353,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "%s requires %d argument(s), got %d.",
                              expr->as.call.name, expected, expr->as.call.arg_count);
-                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1, message,
                                        "Pass a Result<T, E> value and (for result_unwrap_or) a default value.");
                     return TYPE_UNKNOWN;
                 }
@@ -1387,7 +1387,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         snprintf(message, sizeof(message),
                                  "result_unwrap_or default value type mismatch: got %s, expected %s.",
                                  type_to_string(default_type), type_to_string(out_type));
-                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1, message,
                                            "The default value must be the same type as the Ok result.");
                     }
                 }
@@ -1922,7 +1922,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Function `%s` expects %d argument(s), but got %d.",
                         safe_format_string(expr->as.call.name), func->param_count, expr->as.call.arg_count);
                 emit_context_error(
-                    "ARITY MISMATCH",
+                    "E003 ARITY MISMATCH",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(expr->as.call.name),
@@ -1982,7 +1982,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 snprintf(message, sizeof(message),
                                         "Type variable `%s` is bound to %s but argument %d has type %s.",
                                         var, type_to_string(bound_types_buf[k]), i + 1, type_to_string(arg_type));
-                                emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1, message,
                                         "All uses of the same type variable must have the same concrete type.");
                             }
                             break;
@@ -2022,7 +2022,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Argument must be an identifier (function name or function-typed variable) */
                         if (arg->type != AST_IDENTIFIER) {
                             emit_context_error(
-                                "TYPE MISMATCH",
+                                "E001 TYPE MISMATCH",
                                 arg->line,
                                 arg->column,
                                 1,
@@ -2078,7 +2078,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                     "Argument %d expects a function with a different signature.",
                                     i + 1);
                             emit_context_error(
-                                "TYPE MISMATCH",
+                                "E001 TYPE MISMATCH",
                                 arg->line,
                                 arg->column,
                                 (int)safe_strlen(arg->as.identifier),
@@ -2133,7 +2133,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                             func->params[i].struct_type_name,
                                             type_to_string(arg_type));
                                     emit_context_error(
-                                        "TYPE MISMATCH",
+                                        "E001 TYPE MISMATCH",
                                         expr->line,
                                         expr->column,
                                         1,
@@ -2178,7 +2178,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                     type_to_string(func->params[i].type),
                                     type_to_string(arg_type));
                             emit_context_error(
-                                "TYPE MISMATCH",
+                                "E001 TYPE MISMATCH",
                                 expr->line,
                                 expr->column,
                                 1,
@@ -2409,7 +2409,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     snprintf(priv_hint, sizeof(priv_hint),
                              "Use 'pub fn %s(...)' to make it accessible from other modules.",
                              func->name);
-                    emit_context_error("PRIVATE ACCESS", expr->line, expr->column,
+                    emit_context_error("E009 PRIVATE ACCESS", expr->line, expr->column,
                                        (int)safe_strlen(function_name), priv_msg, priv_hint);
                     free(qualified_name);
                     return TYPE_UNKNOWN;
@@ -2444,7 +2444,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         module_alias, function_name,
                         func->param_count, expr->as.module_qualified_call.arg_count);
                 emit_context_error(
-                    "ARITY MISMATCH",
+                    "E003 ARITY MISMATCH",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(function_name),
@@ -2486,7 +2486,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             "Array elements must all have the same type (expected %s, got %s).",
                             type_to_string(first_type), type_to_string(elem_type));
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -2507,7 +2507,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             Type cond_type = check_expression(expr->as.if_stmt.condition, env);
             if (cond_type != TYPE_BOOL) {
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     expr->line,
                     expr->column,
                     1,
@@ -2528,7 +2528,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 Type cond_type = check_expression(expr->as.cond_expr.conditions[i], env);
                 if (cond_type != TYPE_BOOL) {
                     emit_context_error(
-                        "TYPE MISMATCH",
+                        "E001 TYPE MISMATCH",
                         expr->line,
                         expr->column,
                         1,
@@ -2598,7 +2598,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     char message[256];
                     snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.", variant_name, union_name);
-                    emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
+                    emit_context_error("E005 UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                     free(union_name);
                     return TYPE_UNKNOWN;
                 }
@@ -2609,7 +2609,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     snprintf(message, sizeof(message), "Variant '%s.%s' expects %d field(s), got %d.",
                              union_name, variant_name,
                              udef->variant_field_counts[variant_idx], expr->as.struct_literal.field_count);
-                    emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1, message,
                                        "Provide all required fields for the variant.");
                     free(union_name);
                     return TYPE_UNKNOWN;
@@ -2651,7 +2651,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                  "Field type mismatch in variant '%s.%s': got %s, expected %s.",
                                  union_name, variant_name,
                                  type_to_string(field_type), type_to_string(expected));
-                        emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1, message,
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1, message,
                                            "Ensure each field value matches the variant's declared type.");
                     }
 
@@ -2672,7 +2672,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 char message[256];
                 snprintf(message, sizeof(message), "Undefined struct '%s'.",
                          expr->as.struct_literal.struct_name);
-                emit_context_error("UNDEFINED STRUCT", expr->line, expr->column,
+                emit_context_error("E006 UNDEFINED STRUCT", expr->line, expr->column,
                                    (int)safe_strlen(expr->as.struct_literal.struct_name),
                                    message,
                                    "Define 'struct Name { ... }' before using it in a literal.");
@@ -2699,7 +2699,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 char message[256];
                 snprintf(message, sizeof(message), "Struct '%s' expects %d field(s), got %d.",
                          expr->as.struct_literal.struct_name, sdef->field_count, expr->as.struct_literal.field_count);
-                emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message, hint);
+                emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1, message, hint);
                 return TYPE_UNKNOWN;
             }
             
@@ -2725,7 +2725,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "Unknown field '%s' in struct '%s'.",
                              field_name, expr->as.struct_literal.struct_name);
-                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                    emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message, hint);
                     continue;
                 }
@@ -2738,7 +2738,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                              "Field '%s' type mismatch in struct '%s': got %s, expected %s.",
                              field_name, expr->as.struct_literal.struct_name,
                              type_to_string(field_type), type_to_string(sdef->field_types[field_index]));
-                    emit_context_error("TYPE MISMATCH", expr->line, expr->column,
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message,
                                        "Ensure the field value matches the declared field type.");
                 }
@@ -2797,7 +2797,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Open-record (row-poly) parameters are compatible with struct field access */
             if (object_type == TYPE_OPEN_RECORD) return TYPE_UNKNOWN;
             if (object_type != TYPE_STRUCT) {
-                emit_context_error("TYPE MISMATCH", expr->line, expr->column, 1,
+                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                                    "Field access requires a struct value.",
                                    "Ensure the object before '.' is a struct type.");
                 return TYPE_UNKNOWN;
@@ -2839,7 +2839,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     char message[256];
                     snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.", variant_name, union_name);
-                    emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
+                    emit_context_error("E005 UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                     free(union_name);
                     return TYPE_UNKNOWN;
                 }
@@ -2895,7 +2895,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "Variant '%s' of union '%s' has no field '%s'.",
                              variant_name, union_name, field_name);
-                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                    emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message, hint);
                 }
                 free(union_name);
@@ -2910,7 +2910,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (!sdef) {
                 char message[256];
                 snprintf(message, sizeof(message), "Undefined struct '%s'.", struct_name);
-                emit_context_error("UNDEFINED STRUCT", expr->line, expr->column,
+                emit_context_error("E006 UNDEFINED STRUCT", expr->line, expr->column,
                                    (int)safe_strlen(struct_name), message,
                                    "Define 'struct Name { ... }' before accessing its fields.");
                 return TYPE_UNKNOWN;
@@ -2933,7 +2933,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
                 char message[256];
                 snprintf(message, sizeof(message), "Struct '%s' has no field '%s'.", struct_name, field_name);
-                emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
                                    (int)safe_strlen(field_name), message, hint);
             }
             return TYPE_UNKNOWN;
@@ -2946,7 +2946,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 char message[256];
                 snprintf(message, sizeof(message), "Undefined union '%s'.",
                          expr->as.union_construct.union_name);
-                emit_context_error("UNDEFINED UNION", expr->line, expr->column,
+                emit_context_error("E007 UNDEFINED UNION", expr->line, expr->column,
                                    (int)safe_strlen(expr->as.union_construct.union_name),
                                    message, "Define 'union Name { ... }' before constructing it.");
                 return TYPE_UNKNOWN;
@@ -2965,7 +2965,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 char message[256];
                 snprintf(message, sizeof(message), "Unknown variant '%s' in union '%s'.",
                          expr->as.union_construct.variant_name, expr->as.union_construct.union_name);
-                emit_context_error("UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
+                emit_context_error("E005 UNKNOWN VARIANT", expr->line, expr->column, 1, message, hint);
                 return TYPE_UNKNOWN;
             }
 
@@ -2976,7 +2976,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 snprintf(message, sizeof(message), "Variant '%s' expects %d field(s), got %d.",
                          expr->as.union_construct.variant_name,
                          expected_field_count, expr->as.union_construct.field_count);
-                emit_context_error("ARITY MISMATCH", expr->line, expr->column, 1, message,
+                emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1, message,
                                    "Provide all required fields for the variant.");
                 return TYPE_UNKNOWN;
             }
@@ -3004,7 +3004,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "Unknown field '%s' in variant '%s'.",
                              field_name, expr->as.union_construct.variant_name);
-                    emit_context_error("UNKNOWN FIELD", expr->line, expr->column,
+                    emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message, hint);
                     return TYPE_UNKNOWN;
                 }
@@ -3023,7 +3023,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     char message[256];
                     snprintf(message, sizeof(message), "Field '%s' expects type '%s', got '%s'.",
                              field_name, type_to_string(expected_type), type_to_string(actual_type));
-                    emit_context_error("TYPE MISMATCH", expr->line, expr->column,
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message,
                                        "Ensure the field value matches the variant's declared field type.");
                     return TYPE_UNKNOWN;
@@ -3869,7 +3869,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         "Let binding expects %s but got %s.",
                         type_to_string(declared_type), type_to_string(value_type));
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     stmt->line,
                     stmt->column,
                     1,
@@ -4043,7 +4043,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         "Assignment expects %s but got %s.",
                         type_to_string(sym->type), type_to_string(value_type));
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     stmt->line,
                     stmt->column,
                     1,
@@ -4060,7 +4060,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             Type cond_type = check_expression(stmt->as.while_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     stmt->line,
                     stmt->column,
                     1,
@@ -4175,7 +4175,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             /* Fill in the struct name for type checking */
                             struct_lit->as.struct_literal.struct_name = strdup(tc->current_function_return_struct_name);
                         } else {
-                            emit_context_error("TYPE MISMATCH", struct_lit->line, struct_lit->column, 1,
+                            emit_context_error("E001 TYPE MISMATCH", struct_lit->line, struct_lit->column, 1,
                                                "Cannot infer struct type for anonymous literal in return.",
                                                "Specify the struct name explicitly, e.g. 'StructName { field: value }'.");
                             tc->has_error = true;
@@ -4188,7 +4188,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     char message[256];
                     snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
                              type_to_string(return_type), type_to_string(tc->current_function_return_type));
-                    emit_context_error("TYPE MISMATCH", stmt->line, stmt->column, 1, message,
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1, message,
                                        "Ensure the returned value matches the function's declared return type.");
                     tc->has_error = true;
                 }
@@ -4197,7 +4197,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     char hint[256];
                     snprintf(hint, sizeof(hint), "Add 'return <value>' of type %s.",
                              type_to_string(tc->current_function_return_type));
-                    emit_context_error("MISSING RETURN", stmt->line, stmt->column, 1,
+                    emit_context_error("E010 MISSING RETURN", stmt->line, stmt->column, 1,
                                        "Empty return in a non-void function.", hint);
                     tc->has_error = true;
                 }
@@ -4338,7 +4338,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             Type cond_type = check_expression(stmt->as.if_stmt.condition, tc->env);
             if (cond_type != TYPE_BOOL) {
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     stmt->line,
                     stmt->column,
                     1,
@@ -4385,7 +4385,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             if (match_type != TYPE_UNION && !has_int_patterns_stmt) {
                 emit_context_error(
-                    "TYPE MISMATCH",
+                    "E001 TYPE MISMATCH",
                     stmt->line,
                     stmt->column,
                     1,
