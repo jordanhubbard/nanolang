@@ -1,0 +1,19 @@
+{
+  "name": "mujoco",
+  "version": "0.1.0",
+  "description": "MuJoCo simulation handles and rendering-friendly queries",
+  "headers": ["mujoco.h"],
+  "c_sources": ["mujoco.c"],
+  "cflags": ["-Imodules/mujoco"],
+  "ldflags": ["-ldl"],
+  "install": {
+    "macos": {
+      "brew": "mujoco",
+      "command": "brew install --cask mujoco"
+    },
+    "linux": {
+      "command": "Download a MuJoCo release from https://github.com/google-deepmind/mujoco/releases and put mujoco/mujoco.h on the C include path."
+    }
+  },
+  "notes": "The C wrapper loads libmujoco at runtime. Set NANOLANG_MUJOCO_LIB when the shared library is not on the platform loader path."
+}

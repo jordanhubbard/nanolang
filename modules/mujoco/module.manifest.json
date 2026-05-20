@@ -1,0 +1,35 @@
+{
+  "name": "mujoco",
+  "version": "0.1.0",
+  "stability": "experimental",
+  "summary": "MuJoCo simulation handles with body, geom, site, state, and control queries.",
+  "use_when": [
+    "User needs articulated physics simulation",
+    "User says 'mujoco', 'robotics', 'MJCF', 'controls', or 'rigid contact'",
+    "User wants simulation data rendered through OpenGL"
+  ],
+  "avoid_when": [
+    "User only needs simple game collision (use a smaller local model)",
+    "User needs deformable soft bodies (use bullet)"
+  ],
+  "capabilities": [
+    "load_mjcf",
+    "step_simulation",
+    "query_body_transforms",
+    "query_geom_transforms",
+    "set_controls",
+    "read_qpos_qvel"
+  ],
+  "keywords": ["mujoco", "physics", "robotics", "mjcf", "simulation", "opengl"],
+  "examples": [
+    "examples/mujoco/mujoco_opengl_cartpole.nano",
+    "examples/mujoco/mujoco_opengl_drop_lab.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["opengl", "glfw", "glew"],
+    "system": [{"id": "mujoco", "install": {"brew": "mujoco", "source": "https://github.com/google-deepmind/mujoco/releases"}}]
+  },
+  "io_surfaces": ["files", "window"],
+  "alternatives": [{"when": "soft body physics", "module": "bullet"}]
+}

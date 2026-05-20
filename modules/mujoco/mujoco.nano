@@ -1,0 +1,222 @@
+# MuJoCo bindings.
+#
+# I keep ownership in one opaque simulation handle. The handle owns MuJoCo's
+# mjModel and mjData pair, so NanoLang code can step a model and ask for the
+# positions that a renderer needs.
+
+opaque type MjSim
+
+# Geometry types from mjtGeom. I expose the common ones used by renderers.
+let MJ_GEOM_PLANE: int = 0
+let MJ_GEOM_HFIELD: int = 1
+let MJ_GEOM_SPHERE: int = 2
+let MJ_GEOM_CAPSULE: int = 3
+let MJ_GEOM_ELLIPSOID: int = 4
+let MJ_GEOM_CYLINDER: int = 5
+let MJ_GEOM_BOX: int = 6
+let MJ_GEOM_MESH: int = 7
+
+pub extern fn nl_mj_available() -> int
+pub extern fn nl_mj_last_error() -> string
+pub extern fn nl_mj_version_string() -> string
+pub extern fn nl_mj_version() -> int
+
+pub extern fn nl_mj_load(_path: string) -> MjSim
+pub extern fn nl_mj_free(_sim: MjSim) -> void
+pub extern fn nl_mj_valid(_sim: MjSim) -> int
+pub extern fn nl_mj_reset(_sim: MjSim) -> void
+pub extern fn nl_mj_forward(_sim: MjSim) -> void
+pub extern fn nl_mj_step(_sim: MjSim) -> void
+pub extern fn nl_mj_step_n(_sim: MjSim, _count: int) -> void
+
+pub extern fn nl_mj_time(_sim: MjSim) -> float
+pub extern fn nl_mj_timestep(_sim: MjSim) -> float
+pub extern fn nl_mj_set_timestep(_sim: MjSim, _dt: float) -> void
+
+pub extern fn nl_mj_nq(_sim: MjSim) -> int
+pub extern fn nl_mj_nv(_sim: MjSim) -> int
+pub extern fn nl_mj_nu(_sim: MjSim) -> int
+pub extern fn nl_mj_nbody(_sim: MjSim) -> int
+pub extern fn nl_mj_ngeom(_sim: MjSim) -> int
+pub extern fn nl_mj_nsite(_sim: MjSim) -> int
+pub extern fn nl_mj_njoint(_sim: MjSim) -> int
+
+pub extern fn nl_mj_body_id(_sim: MjSim, _name: string) -> int
+pub extern fn nl_mj_geom_id(_sim: MjSim, _name: string) -> int
+pub extern fn nl_mj_site_id(_sim: MjSim, _name: string) -> int
+pub extern fn nl_mj_joint_id(_sim: MjSim, _name: string) -> int
+pub extern fn nl_mj_actuator_id(_sim: MjSim, _name: string) -> int
+pub extern fn nl_mj_body_name(_sim: MjSim, _id: int) -> string
+pub extern fn nl_mj_geom_name(_sim: MjSim, _id: int) -> string
+
+pub extern fn nl_mj_body_x(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_body_y(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_body_z(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_body_quat(_sim: MjSim, _id: int, _axis: int) -> float
+
+pub extern fn nl_mj_geom_x(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_geom_y(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_geom_z(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_geom_xmat(_sim: MjSim, _id: int, _axis: int) -> float
+pub extern fn nl_mj_geom_size(_sim: MjSim, _id: int, _axis: int) -> float
+pub extern fn nl_mj_geom_rgba(_sim: MjSim, _id: int, _axis: int) -> float
+pub extern fn nl_mj_geom_type(_sim: MjSim, _id: int) -> int
+pub extern fn nl_mj_geom_body(_sim: MjSim, _id: int) -> int
+
+pub extern fn nl_mj_site_x(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_site_y(_sim: MjSim, _id: int) -> float
+pub extern fn nl_mj_site_z(_sim: MjSim, _id: int) -> float
+
+pub extern fn nl_mj_qpos(_sim: MjSim, _index: int) -> float
+pub extern fn nl_mj_set_qpos(_sim: MjSim, _index: int, _value: float) -> void
+pub extern fn nl_mj_qvel(_sim: MjSim, _index: int) -> float
+pub extern fn nl_mj_set_qvel(_sim: MjSim, _index: int, _value: float) -> void
+pub extern fn nl_mj_ctrl(_sim: MjSim, _index: int) -> float
+pub extern fn nl_mj_set_ctrl(_sim: MjSim, _index: int, _value: float) -> void
+
+pub struct MjVec3 {
+    x: float,
+    y: float,
+    z: float
+}
+
+pub struct MjQuat {
+    w: float,
+    x: float,
+    y: float,
+    z: float
+}
+
+pub fn mujoco_available() -> bool {
+    unsafe {
+        return (!= (nl_mj_available) 0)
+    }
+}
+
+pub fn mujoco_last_error() -> string {
+    unsafe {
+        return (nl_mj_last_error)
+    }
+}
+
+pub fn mujoco_version_string() -> string {
+    unsafe {
+        return (nl_mj_version_string)
+    }
+}
+
+pub fn mujoco_load(path: string) -> MjSim {
+    unsafe {
+        return (nl_mj_load path)
+    }
+}
+
+pub fn mujoco_free(sim: MjSim) -> void {
+    unsafe {
+        (nl_mj_free sim)
+    }
+}
+
+pub fn mujoco_valid(sim: MjSim) -> bool {
+    unsafe {
+        return (!= (nl_mj_valid sim) 0)
+    }
+}
+
+pub fn mujoco_step_seconds(sim: MjSim, seconds: float) -> void {
+    unsafe {
+        let dt: float = (nl_mj_timestep sim)
+        if (<= dt 0.0) {
+            return
+        } else {}
+
+        let raw_count: int = (cast_int (/ seconds dt))
+        let mut count: int = raw_count
+        if (< count 1) {
+            set count 1
+        } else {}
+        (nl_mj_step_n sim count)
+    }
+}
+
+pub fn mujoco_body_pos(sim: MjSim, id: int) -> MjVec3 {
+    unsafe {
+        return MjVec3 {
+            x: (nl_mj_body_x sim id),
+            y: (nl_mj_body_y sim id),
+            z: (nl_mj_body_z sim id)
+        }
+    }
+}
+
+pub fn mujoco_geom_pos(sim: MjSim, id: int) -> MjVec3 {
+    unsafe {
+        return MjVec3 {
+            x: (nl_mj_geom_x sim id),
+            y: (nl_mj_geom_y sim id),
+            z: (nl_mj_geom_z sim id)
+        }
+    }
+}
+
+pub fn mujoco_site_pos(sim: MjSim, id: int) -> MjVec3 {
+    unsafe {
+        return MjVec3 {
+            x: (nl_mj_site_x sim id),
+            y: (nl_mj_site_y sim id),
+            z: (nl_mj_site_z sim id)
+        }
+    }
+}
+
+pub fn mujoco_body_quat(sim: MjSim, id: int) -> MjQuat {
+    unsafe {
+        return MjQuat {
+            w: (nl_mj_body_quat sim id 0),
+            x: (nl_mj_body_quat sim id 1),
+            y: (nl_mj_body_quat sim id 2),
+            z: (nl_mj_body_quat sim id 3)
+        }
+    }
+}
+
+pub fn mujoco_set_ctrl_clamped(sim: MjSim, index: int, value: float, lo: float, hi: float) -> void {
+    let mut v: float = value
+    if (< v lo) {
+        set v lo
+    } else {
+        if (> v hi) {
+            set v hi
+        } else {}
+    }
+    unsafe {
+        (nl_mj_set_ctrl sim index v)
+    }
+}
+
+pub fn mujoco_geom_is_sphere(sim: MjSim, id: int) -> bool {
+    unsafe {
+        return (== (nl_mj_geom_type sim id) MJ_GEOM_SPHERE)
+    }
+}
+
+pub fn mujoco_geom_is_box(sim: MjSim, id: int) -> bool {
+    unsafe {
+        return (== (nl_mj_geom_type sim id) MJ_GEOM_BOX)
+    }
+}
+
+shadow mujoco_available { assert true }
+shadow mujoco_last_error { assert true }
+shadow mujoco_version_string { assert true }
+shadow mujoco_load { assert true }
+shadow mujoco_free { assert true }
+shadow mujoco_valid { assert true }
+shadow mujoco_step_seconds { assert true }
+shadow mujoco_body_pos { assert true }
+shadow mujoco_geom_pos { assert true }
+shadow mujoco_site_pos { assert true }
+shadow mujoco_body_quat { assert true }
+shadow mujoco_set_ctrl_clamped { assert true }
+shadow mujoco_geom_is_sphere { assert true }
+shadow mujoco_geom_is_box { assert true }

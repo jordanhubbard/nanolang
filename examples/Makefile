@@ -7,6 +7,7 @@
 #   make ncurses      - Build NCurses examples only
 #   make nl           - Build nanolang-only examples
 #   make opengl       - Build OpenGL examples only
+#   make mujoco       - Build MuJoCo + OpenGL examples only
 #   make clean        - Remove build artifacts
 #
 # Naming Convention:
@@ -14,6 +15,7 @@
 #   sdl_*      - SDL2 graphics examples
 #   ncurses_*  - NCurses terminal UI examples
 #   opengl_*   - OpenGL 3D graphics examples
+#   mujoco_*   - MuJoCo simulation rendered with OpenGL
 
 BIN_DIR = ../bin
 EXAMPLES_BACKEND ?= native
@@ -156,6 +158,7 @@ OPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPL_EXAMPLES)))
 # Require SDL2 library
 
 GLFW_AVAILABLE := $(shell pkg-config --exists glfw3 2>/dev/null && echo yes || echo no)
+GLEW_AVAILABLE := $(shell pkg-config --exists glew 2>/dev/null && echo yes || echo no)
 
 SDL_GRAPHICS_SOURCES := $(wildcard graphics/sdl_*.nano)
 # sdl_nanoviz requires GLFW (OpenGL windowing); skip when GLFW is not installed
@@ -190,6 +193,16 @@ endif
 OPENGL_EXAMPLES := $(patsubst opengl/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(OPENGL_SOURCES))
 OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
 
+# === MuJoCo + OpenGL Examples (mujoco_*) ===
+
+ifeq ($(and $(filter yes,$(GLFW_AVAILABLE)),$(filter yes,$(GLEW_AVAILABLE))),yes)
+MUJOCO_SOURCES := $(wildcard mujoco/*.nano)
+else
+MUJOCO_SOURCES :=
+endif
+MUJOCO_EXAMPLES := $(patsubst mujoco/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(MUJOCO_SOURCES))
+MUJOCO_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(MUJOCO_EXAMPLES)))
+
 # === Self-hosted compiler restrictions ===
 # Self-hosted compiler can only link: fs.c, collections.c, json.c, cJSON.c, -lm
 # It cannot link SDL2, ncurses, OpenGL, libevent, libuv, libcurl, or other external libs
@@ -203,6 +216,9 @@ NCURSES_NAMES :=
 OPENGL_SOURCES :=
 OPENGL_EXAMPLES :=
 OPENGL_NAMES :=
+MUJOCO_SOURCES :=
+MUJOCO_EXAMPLES :=
+MUJOCO_NAMES :=
 ROOT_SOURCES :=
 ROOT_EXAMPLES :=
 ROOT_NAMES :=
@@ -246,11 +262,12 @@ ALL_EXAMPLES = \
 	$(OPL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
 	$(NCURSES_EXAMPLES) \
-	$(OPENGL_EXAMPLES)
+	$(OPENGL_EXAMPLES) \
+	$(MUJOCO_EXAMPLES)
 
 # === Targets ===
 
-.PHONY: all build examples-available nl verified opl sdl ncurses opengl debug clean help launcher test test-forth run-forth forth-ide
+.PHONY: all build examples-available nl verified opl sdl ncurses opengl mujoco debug clean help launcher test test-forth run-forth forth-ide
 
 # Default: build all examples
 all: build
@@ -304,6 +321,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "OpenGL examples (opengl_*):"
 	@$(if $(strip $(OPENGL_NAMES)),$(foreach ex,$(OPENGL_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
+	@echo "MuJoCo + OpenGL examples (mujoco_*):"
+	@$(if $(strip $(MUJOCO_NAMES)),$(foreach ex,$(MUJOCO_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "To launch the example browser:"
 	@echo "  cd examples && make launcher"
@@ -385,6 +405,7 @@ opl: $(COMPILER) $(OPL_EXAMPLES)
 sdl: $(COMPILER) $(SDL_EXAMPLES)
 ncurses: $(COMPILER) $(NCURSES_EXAMPLES)
 opengl: $(COMPILER) $(OPENGL_EXAMPLES)
+mujoco: $(COMPILER) $(MUJOCO_EXAMPLES)
 
 # Ensure compiler exists
 $(BIN_DIR)/nanoc:
@@ -510,6 +531,11 @@ $(BIN_DIR)/opengl_%$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_%.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 
+# MuJoCo examples (in mujoco/ subdirectory)
+$(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+
 # === Clean ===
 
 clean:
@@ -532,6 +558,7 @@ help:
 	@echo "  make sdl          - Build SDL examples"
 	@echo "  make ncurses      - Build NCurses examples"
 	@echo "  make opengl       - Build OpenGL examples"
+	@echo "  make mujoco       - Build MuJoCo + OpenGL examples"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"
@@ -539,4 +566,5 @@ help:
 	@echo "  sdl_*      - SDL2 graphics"
 	@echo "  ncurses_*  - NCurses terminal UI"
 	@echo "  opengl_*   - OpenGL 3D graphics"
+	@echo "  mujoco_*   - MuJoCo simulation rendered with OpenGL"
 	@echo ""

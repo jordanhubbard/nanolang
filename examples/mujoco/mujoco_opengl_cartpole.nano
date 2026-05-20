@@ -1,0 +1,209 @@
+# Example: MuJoCo OpenGL Cartpole
+# I load an MJCF cartpole, step it with MuJoCo, and draw the state with the
+# OpenGL module. I draw from body and site positions instead of duplicating the
+# physics in NanoLang.
+# Category: mujoco
+# Expected Output: graphical
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+unsafe module "modules/mujoco/mujoco.nano"
+
+let WINDOW_WIDTH: int = 1100
+let WINDOW_HEIGHT: int = 720
+let TRAIL_COUNT: int = 160
+
+fn clamp_float(v: float, lo: float, hi: float) -> float {
+    if (< v lo) { return lo } else {
+        if (> v hi) { return hi } else { return v }
+    }
+}
+
+shadow clamp_float {
+    assert (== (clamp_float 3.0 0.0 1.0) 1.0)
+}
+
+fn setup_opengl() -> void {
+    (glEnable GL_DEPTH_TEST)
+    (glEnable GL_BLEND)
+    (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+    (glClearColor 0.035 0.04 0.05 1.0)
+
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+    (glOrtho -4.0 4.0 -1.0 3.2 -8.0 8.0)
+    (glMatrixMode GL_MODELVIEW)
+}
+
+shadow setup_opengl { assert true }
+
+fn draw_rect(cx: float, cy: float, hx: float, hy: float) -> void {
+    (glBegin GL_QUADS)
+    (glVertex3f (- cx hx) (- cy hy) 0.0)
+    (glVertex3f (+ cx hx) (- cy hy) 0.0)
+    (glVertex3f (+ cx hx) (+ cy hy) 0.0)
+    (glVertex3f (- cx hx) (+ cy hy) 0.0)
+    (glEnd)
+}
+
+shadow draw_rect { assert true }
+
+fn draw_circle(cx: float, cy: float, radius: float, segments: int) -> void {
+    (glBegin GL_TRIANGLE_FAN)
+    (glVertex3f cx cy 0.0)
+    let mut i: int = 0
+    while (<= i segments) {
+        let a: float = (* (/ (cast_float i) (cast_float segments)) 6.28318530718)
+        (glVertex3f (+ cx (* (cos a) radius)) (+ cy (* (sin a) radius)) 0.0)
+        set i (+ i 1)
+    }
+    (glEnd)
+}
+
+shadow draw_circle { assert true }
+
+fn trail_push(xs: array<float>, ys: array<float>, len: int, x: float, y: float) -> int {
+    if (< len TRAIL_COUNT) {
+        (array_set xs len x)
+        (array_set ys len y)
+        return (+ len 1)
+    } else {
+        let mut i: int = 0
+        while (< i (- TRAIL_COUNT 1)) {
+            (array_set xs i (array_get xs (+ i 1)))
+            (array_set ys i (array_get ys (+ i 1)))
+            set i (+ i 1)
+        }
+        (array_set xs (- TRAIL_COUNT 1) x)
+        (array_set ys (- TRAIL_COUNT 1) y)
+        return TRAIL_COUNT
+    }
+}
+
+shadow trail_push { assert true }
+
+fn draw_trail(xs: array<float>, ys: array<float>, len: int) -> void {
+    (glLineWidth 2.0)
+    (glBegin GL_LINE_STRIP)
+    let mut i: int = 0
+    while (< i len) {
+        let t: float = (/ (cast_float i) (cast_float TRAIL_COUNT))
+        (glColor4f 0.25 0.70 1.0 (* t 0.75))
+        (glVertex3f (array_get xs i) (array_get ys i) 0.0)
+        set i (+ i 1)
+    }
+    (glEnd)
+    (glLineWidth 1.0)
+}
+
+shadow draw_trail { assert true }
+
+fn render_scene(sim: MjSim, cart_id: int, pole_id: int, tip_site: int, trail_x: array<float>, trail_y: array<float>, trail_len: int) -> void {
+    let cart_x: float = (nl_mj_body_x sim cart_id)
+    let cart_z: float = (nl_mj_body_z sim cart_id)
+    let pole_x: float = (nl_mj_body_x sim pole_id)
+    let pole_z: float = (nl_mj_body_z sim pole_id)
+    let tip_x: float = (nl_mj_site_x sim tip_site)
+    let tip_z: float = (nl_mj_site_z sim tip_site)
+
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (glLoadIdentity)
+
+    (glColor4f 0.18 0.20 0.24 1.0)
+    (draw_rect 0.0 -0.08 3.8 0.04)
+
+    (draw_trail trail_x trail_y trail_len)
+
+    (glLineWidth 7.0)
+    (glColor4f 0.95 0.72 0.24 1.0)
+    (glBegin GL_LINES)
+    (glVertex3f pole_x pole_z 0.0)
+    (glVertex3f tip_x tip_z 0.0)
+    (glEnd)
+    (glLineWidth 1.0)
+
+    (glColor4f 0.12 0.44 0.82 1.0)
+    (draw_rect cart_x cart_z 0.28 0.12)
+
+    (glColor4f 0.95 0.22 0.18 1.0)
+    (draw_circle tip_x tip_z 0.08 24)
+
+    (glColor4f 0.55 0.58 0.62 1.0)
+    (glBegin GL_LINES)
+    (glVertex3f -3.2 0.05 0.0)
+    (glVertex3f 3.2 0.05 0.0)
+    (glEnd)
+}
+
+shadow render_scene { assert true }
+
+fn main() -> int {
+    if (not (mujoco_available)) {
+        (println (mujoco_last_error))
+        return 0
+    } else {}
+
+    if (== (glfwInit) 0) {
+        (println "I could not initialize GLFW.")
+        return 1
+    } else {}
+
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "NanoLang MuJoCo Cartpole" 0 0)
+    if (== window 0) {
+        (println "I could not create the OpenGL window.")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    (glfwMakeContextCurrent window)
+    (glfwSwapInterval 1)
+    if (!= (glewInit) GLEW_OK) {
+        (println "I could not initialize GLEW.")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    let sim: MjSim = (mujoco_load "examples/mujoco/assets/cartpole.xml")
+    if (not (mujoco_valid sim)) {
+        (println (mujoco_last_error))
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    let cart_id: int = (nl_mj_body_id sim "cart")
+    let pole_id: int = (nl_mj_body_id sim "pole")
+    let tip_site: int = (nl_mj_site_id sim "tip_site")
+    let motor_id: int = (nl_mj_actuator_id sim "cart_motor")
+
+    (setup_opengl)
+    (println "I am drawing MuJoCo cartpole state with OpenGL.")
+
+    let mut trail_x: array<float> = (array_new TRAIL_COUNT 0.0)
+    let mut trail_y: array<float> = (array_new TRAIL_COUNT 0.0)
+    let mut trail_len: int = 0
+
+    while (== (glfwWindowShouldClose window) 0) {
+        let now: float = (glfwGetTime)
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) GLFW_PRESS) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+
+        let control: float = (* (sin (* now 1.25)) 0.65)
+        (mujoco_set_ctrl_clamped sim motor_id control -1.0 1.0)
+        (nl_mj_step_n sim 4)
+
+        set trail_len (trail_push trail_x trail_y trail_len (nl_mj_site_x sim tip_site) (nl_mj_site_z sim tip_site))
+        (render_scene sim cart_id pole_id tip_site trail_x trail_y trail_len)
+
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+    }
+
+    (mujoco_free sim)
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    return 0
+}
+
+shadow main { assert true }
