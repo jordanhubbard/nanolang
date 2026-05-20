@@ -2,8 +2,14 @@
 # Provides programmatic access to bd (beads) command-line tool
 # Enables creating, querying, and managing issues from NanoLang code
 
-# Note: exec_command uses C FFI (nl_exec_capture, nl_exec_shell) — see below.
-# from "stdlib/json.nano" import parse_json, JsonValue  (future: replace stub)
+# JSON parsing is provided by the modules/std/json module (cJSON-backed).
+# See: modules/std/json/json.nano
+from "modules/std/json/json.nano" import parse as json_parse, free as json_free,
+    is_array as json_is_array, is_null as json_is_null,
+    array_size as json_array_size, get_index as json_get_index,
+    get as json_get,
+    get_string as json_get_string, get_int as json_get_int,
+    object_has as json_object_has, as_string as json_as_string, Json
 
 # C FFI: run command capturing stdout; run command returning exit code
 extern fn nl_exec_capture(cmd: string) -> string
@@ -31,20 +37,7 @@ shadow exec_command {
     assert (>= result.exit_code 0)
 }
 
-# Stub JSON types until stdlib/json.nano is implemented
-struct JsonValue {
-    placeholder: int
-}
-
-fn parse_json(text: string) -> JsonValue {
-    # Stub implementation - returns empty JsonValue
-    return JsonValue { placeholder: 0 }
-}
-
-shadow parse_json {
-    let json: JsonValue = (parse_json "{}")
-    assert (== json.placeholder 0)
-}
+# JSON parsing is handled by the imported std_json module (Json type + helpers above).
 
 # Core Bead structure matching bd JSON output
 struct Bead {
@@ -97,8 +90,10 @@ fn bd_list(status: string) -> array<Bead> {
     }
     
     # Parse JSON output
-    let json_val: JsonValue = (parse_json result.stdout)
-    return (beads_from_json json_val)
+    let json_val: Json = (json_parse result.stdout)
+    let beads: array<Bead> = (beads_from_json json_val)
+    (json_free json_val)
+    return beads
 }
 
 shadow bd_list {
@@ -124,8 +119,10 @@ fn bd_ready() -> array<Bead> {
         return []
     }
     
-    let json_val: JsonValue = (parse_json result.stdout)
-    return (beads_from_json json_val)
+    let json_val: Json = (json_parse result.stdout)
+    let beads: array<Bead> = (beads_from_json json_val)
+    (json_free json_val)
+    return beads
 }
 
 shadow bd_ready {
@@ -144,8 +141,10 @@ fn bd_by_priority(priority: int) -> array<Bead> {
         return []
     }
     
-    let json_val: JsonValue = (parse_json result.stdout)
-    return (beads_from_json json_val)
+    let json_val: Json = (json_parse result.stdout)
+    let beads: array<Bead> = (beads_from_json json_val)
+    (json_free json_val)
+    return beads
 }
 
 shadow bd_by_priority {
@@ -307,21 +306,124 @@ fn bead_stats_empty() -> BeadStats {
     }
 }
 
-fn beads_from_json(json_val: JsonValue) -> array<Bead> {
-    # TODO: Implement JSON array parsing when json module is complete
-    # For now, return empty array
-    return []
+fn beads_from_json(json_val: Json) -> array<Bead> {
+    # Guard: top-level value must be a non-null JSON array
+    if (json_is_null json_val) {
+        return []
+    }
+    if (!= (json_is_array json_val) true) {
+        return []
+    }
+
+    let count: int = (json_array_size json_val)
+    let mut result: array<Bead> = []
+
+    let mut i: int = 0
+    while (< i count) {
+        let item: Json = (json_get_index json_val i)
+
+        # Skip null or non-object entries
+        if (!= (json_is_null item) true) {
+            # Read string fields, falling back to "" when absent
+            let id: string       = (json_get_string item "id")
+            let title: string    = (json_get_string item "title")
+            let desc: string     = (json_get_string item "description")
+            let status: string   = (json_get_string item "status")
+            let itype: string    = (json_get_string item "issue_type")
+            let created: string  = (json_get_string item "created_at")
+            let updated: string  = (json_get_string item "updated_at")
+            let reason: string   = (json_get_string item "close_reason")
+
+            # Read int fields, falling back to 0 when absent
+            let priority: int    = (json_get_int item "priority")
+            let dep_cnt: int     = (json_get_int item "dependency_count")
+            let depd_cnt: int    = (json_get_int item "dependent_count")
+
+            # Parse the "labels" array field if present
+            let mut labels: array<string> = []
+            if (json_object_has item "labels") {
+                let labels_json: Json = (json_get item "labels")
+                if (json_is_array labels_json) {
+                    let lcount: int = (json_array_size labels_json)
+                    let mut li: int = 0
+                    while (< li lcount) {
+                        let litem: Json = (json_get_index labels_json li)
+                        if (!= (json_is_null litem) true) {
+                            set labels (array_push labels (json_as_string litem))
+                        }
+                        (json_free litem)
+                        set li (+ li 1)
+                    }
+                }
+                (json_free labels_json)
+            }
+
+            let bead: Bead = Bead {
+                id: id,
+                title: title,
+                description: desc,
+                status: status,
+                priority: priority,
+                issue_type: itype,
+                created_at: created,
+                updated_at: updated,
+                labels: labels,
+                close_reason: reason,
+                dependency_count: dep_cnt,
+                dependent_count: depd_cnt
+            }
+
+            set result (array_push result bead)
+        }
+
+        (json_free item)
+
+        set i (+ i 1)
+    }
+
+    return result
 }
 
 shadow beads_from_json {
-    let json: JsonValue = JsonValue { placeholder: 0 }
+    # Empty JSON array -> empty Bead array
+    let json: Json = (json_parse "[]")
     let beads: array<Bead> = (beads_from_json json)
     assert (== (array_length beads) 0)
+    (json_free json)
+
+    # Non-array JSON -> empty Bead array (guard path)
+    let obj: Json = (json_parse "{}")
+    let beads2: array<Bead> = (beads_from_json obj)
+    assert (== (array_length beads2) 0)
+    (json_free obj)
+
+    # Minimal well-formed bead entry
+    let arr_json: Json = (json_parse "[{\"id\":\"nl-001\",\"title\":\"Test bead\",\"description\":\"\",\"status\":\"open\",\"priority\":3,\"issue_type\":\"task\",\"created_at\":\"\",\"updated_at\":\"\",\"close_reason\":\"\",\"dependency_count\":0,\"dependent_count\":0}]")
+    let beads3: array<Bead> = (beads_from_json arr_json)
+    assert (== (array_length beads3) 1)
+    let b: Bead = (at beads3 0)
+    assert (== b.id "nl-001")
+    assert (== b.title "Test bead")
+    assert (== b.priority 3)
+    (json_free arr_json)
+
+    # Bead entry with labels array
+    let labeled_json: Json = (json_parse "[{\"id\":\"nl-002\",\"title\":\"Labeled\",\"description\":\"\",\"status\":\"open\",\"priority\":1,\"issue_type\":\"bug\",\"created_at\":\"\",\"updated_at\":\"\",\"close_reason\":\"\",\"dependency_count\":0,\"dependent_count\":0,\"labels\":[\"p0\",\"urgent\"]}]")
+    let beads4: array<Bead> = (beads_from_json labeled_json)
+    assert (== (array_length beads4) 1)
+    let b2: Bead = (at beads4 0)
+    assert (== (array_length b2.labels) 2)
+    assert (== (at b2.labels 0) "p0")
+    assert (== (at b2.labels 1) "urgent")
+    (json_free labeled_json)
 }
 
 fn bead_from_text(text: string) -> Bead {
     # TODO: Parse bd show text output
     # For now, return empty bead
+    if (== text "") {
+        return (bead_empty)
+    }
     return (bead_empty)
 }
 

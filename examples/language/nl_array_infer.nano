@@ -6,10 +6,23 @@
 # @pure
 fn sum(arr: array<int>) -> int {
     let mut s: int = 0
-    for x in arr {
-        set s (+ s x)
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set s (+ s (at arr i))
+        set i (+ i 1)
     }
     return s
+}
+
+shadow sum {
+    let empty: array<int> = []
+    assert (== (sum empty) 0)
+
+    let nums = [1, 2, 3, 4, 5]
+    assert (== (sum nums) 15)
+
+    let negatives = [-1, -2, -3]
+    assert (== (sum negatives) -6)
 }
 
 fn join(words: array<string>, sep: string) -> string {
@@ -24,20 +37,35 @@ fn join(words: array<string>, sep: string) -> string {
     return result
 }
 
+shadow join {
+    let empty: array<string> = []
+    assert (== (join empty ",") "")
+
+    let single = ["hello"]
+    assert (== (join single ",") "hello")
+
+    let words = ["nano", "lang", "rocks"]
+    assert (== (join words "-") "nano-lang-rocks")
+}
+
 fn main() -> int {
     /* Type inferred as array<int> */
     let nums = [10, 20, 30, 40]
     let s1: int = (sum nums)
-    (print "Sum: {s1}")
+    (println (+ "Sum: " (int_to_string s1)))
 
     /* Type inferred as array<string> */
     let words = ["nano", "lang", "rocks"]
-    (print (join words "-"))
+    (println (join words "-"))
 
     /* Mixed usage */
     let primes = [2, 3, 5, 7, 11]
     let s2: int = (sum primes)
-    (print "Primes sum: {s2}")
+    (println (+ "Primes sum: " (int_to_string s2)))
 
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

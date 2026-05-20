@@ -1408,7 +1408,7 @@ void generate_dir_operations(StringBuilder *sb) {
 /* Generate file operations for OS stdlib */
 void generate_file_operations(StringBuilder *sb) {
     /* File operations */
-    sb_append(sb, "static char* nl_os_file_read(const char* path) {\n");
+    sb_append(sb, "static const char* nl_os_file_read(const char* path) {\n");
     sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
     sb_append(sb, "    if (!f) return gc_alloc_string(0);\n");
     sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
@@ -1592,8 +1592,12 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     /* File I/O aliases for self-hosted compiler compatibility */
+    /* Guard with fs.h sentinel so static aliases are skipped when fs.h is
+       already included -- avoids "conflicting types" from static vs extern
+       linkage on file_read / file_write / file_exists. */
+    sb_append(sb, "#ifndef NANOLANG_STD_FS_H\n");
     sb_append(sb, "/* File I/O aliases (without nl_os_ prefix for compiler use) */\n");
-    sb_append(sb, "static char* file_read(const char* path) {\n");
+    sb_append(sb, "static const char* file_read(const char* path) {\n");
     sb_append(sb, "    return nl_os_file_read(path);\n");
     sb_append(sb, "}\n\n");
 
@@ -1604,6 +1608,7 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "static bool file_exists(const char* path) {\n");
     sb_append(sb, "    return nl_os_file_exists(path);\n");
     sb_append(sb, "}\n\n");
+    sb_append(sb, "#endif /* NANOLANG_STD_FS_H */\n\n");
     
     /* Re-enable warnings after stdlib functions */
     sb_append(sb, "#pragma GCC diagnostic pop\n\n");

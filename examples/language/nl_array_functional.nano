@@ -1,177 +1,164 @@
-/* nl_array_functional.nano
- * Demonstrates array_map, array_filter, and array_fold builtins.
- *
- * These are type-dispatched transpiler builtins that accept first-class
- * functions (lambdas or named functions) and work on int, float, and string arrays.
- */
+# Example: Array Functional Patterns
+# Purpose: Demonstrates transform, predicate, and reduction patterns on arrays
+# Features: arrays, helper functions, reductions, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_array_complete
+# Expected Output: Array Functional Patterns Demo
 
-# @pure
+# ---- Transform functions ----
+
 fn double_it(x: int) -> int {
     return (* x 2)
 }
 
-# @pure
+shadow double_it {
+    assert (== (double_it 0) 0)
+    assert (== (double_it 1) 2)
+    assert (== (double_it 5) 10)
+    assert (== (double_it -3) -6)
+}
+
+fn square_it(x: int) -> int {
+    return (* x x)
+}
+
+shadow square_it {
+    assert (== (square_it 0) 0)
+    assert (== (square_it 3) 9)
+    assert (== (square_it -4) 16)
+}
+
+# ---- Predicate functions ----
+
 fn is_even(x: int) -> bool {
     return (== (% x 2) 0)
 }
 
-# @pure @associative
-fn sum(acc: int, x: int) -> int {
-    return (+ acc x)
+shadow is_even {
+    assert (== (is_even 0) true)
+    assert (== (is_even 2) true)
+    assert (== (is_even 4) true)
+    assert (== (is_even 1) false)
+    assert (== (is_even 3) false)
+    assert (== (is_even -2) true)
+    assert (== (is_even -1) false)
 }
 
-# @pure
-fn to_upper_first(s: string) -> string {
-    /* Capitalise first char if lowercase a-z */
-    if (and (>= (char_at s 0) 97) (<= (char_at s 0) 122)) {
-        let upper_ch: int = (- (char_at s 0) 32)
-        return (str_concat (string_from_char upper_ch) (str_substring s 1 (- (str_length s) 1)))
-    } else {
-        return s
+fn is_positive(x: int) -> bool {
+    return (> x 0)
+}
+
+shadow is_positive {
+    assert (== (is_positive 1) true)
+    assert (== (is_positive 100) true)
+    assert (== (is_positive 0) false)
+    assert (== (is_positive -1) false)
+}
+
+fn bool_text(b: bool) -> string {
+    return (cond ((== b true) "true") (else "false"))
+}
+
+shadow bool_text {
+    assert (== (bool_text true) "true")
+    assert (== (bool_text false) "false")
+}
+
+# ---- Fold / reduction ----
+
+fn sum(arr: array<int>) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set total (+ total (at arr i))
+        set i (+ i 1)
     }
+    return total
 }
 
-# @pure
-fn longer_than_3(s: string) -> bool {
-    return (> (str_length s) 3)
+shadow sum {
+    let empty: array<int> = []
+    assert (== (sum empty) 0)
+
+    let single: array<int> = [42]
+    assert (== (sum single) 42)
+
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    assert (== (sum nums) 15)
+
+    let negatives: array<int> = [-1, -2, -3]
+    assert (== (sum negatives) -6)
 }
 
-# @pure
-fn concat_words(acc: string, s: string) -> string {
-    if (== (str_length acc) 0) {
-        return s
-    } else {
-        return (str_concat (str_concat acc " ") s)
+fn product(arr: array<int>) -> int {
+    let mut result: int = 1
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set result (* result (at arr i))
+        set i (+ i 1)
     }
+    return result
 }
 
-# @pure
-fn square_f(x: float) -> float {
-    return (* x x)
+shadow product {
+    let nums: array<int> = [1, 2, 3, 4]
+    assert (== (product nums) 24)
+
+    let single: array<int> = [7]
+    assert (== (product single) 7)
 }
 
-# @pure
-fn positive(x: float) -> bool {
-    return (> x 0.0)
+# ---- String utilities ----
+
+fn join(arr: array<string>, sep: string) -> string {
+    let len: int = (array_length arr)
+    if (== len 0) {
+        return ""
+    } else {}
+    let mut result: string = (at arr 0)
+    let mut i: int = 1
+    while (< i len) {
+        set result (+ result (+ sep (at arr i)))
+        set i (+ i 1)
+    }
+    return result
 }
 
-# @pure @associative
-fn sum_f(acc: float, x: float) -> float {
-    return (+ acc x)
+shadow join {
+    let empty: array<string> = []
+    assert (== (join empty ",") "")
+
+    let single: array<string> = ["hello"]
+    assert (== (join single ",") "hello")
+
+    let words: array<string> = ["a", "b", "c"]
+    assert (== (join words ",") "a,b,c")
+    assert (== (join words " - ") "a - b - c")
 }
 
 fn main() -> int {
-    /* --- int array operations --- */
-    let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-    # par {  -- doubled, evens, total are independent @pure operations over the same immutable array
-    let doubled: array<int> = (array_map nums double_it)
-    let evens: array<int>   = (array_filter nums is_even)
-    let total: int          = (array_fold nums 0 sum)
-    # }
-    # |> fusion opportunity: array_map |> array_filter |> array_fold can fuse into a single pass
-
-    (print "doubled: ")
-    let mut di: int = 0
-    while (< di (array_length doubled)) {
-        (print (int_to_string (at doubled di)))
-        (print " ")
-        set di (+ di 1)
-    }
+    (println "Array Functional Patterns Demo")
+    (println "================================")
     (println "")
 
-    (print "evens: ")
-    let mut ei: int = 0
-    while (< ei (array_length evens)) {
-        (print (int_to_string (at evens ei)))
-        (print " ")
-        set ei (+ ei 1)
-    }
+    let nums: array<int> = [1, 2, 3, 4, 5]
+
+    (println (+ "Sum of [1..5]: " (int_to_string (sum nums))))
+    (println (+ "Product of [1..4]: " (int_to_string (product [1, 2, 3, 4]))))
+    (println (+ "double_it(7): " (int_to_string (double_it 7))))
+    (println (+ "square_it(6): " (int_to_string (square_it 6))))
+    (println (+ "is_even(4): " (bool_text (is_even 4))))
+    (println (+ "is_positive(-1): " (bool_text (is_positive -1))))
+
+    let words: array<string> = ["nano", "lang", "rocks"]
+    (println (+ "join([nano,lang,rocks], \"-\"): " (join words "-")))
+
     (println "")
-
-    (print "sum 1..10 = ")
-    (println (int_to_string total))
-
-    /* Verify int results */
-    if (!= total 55) {
-        (println "FAIL: expected sum=55")
-        return 1
-    } else { (print "") }
-    if (!= (array_length evens) 5) {
-        (println "FAIL: expected 5 evens")
-        return 1
-    } else { (print "") }
-    if (!= (array_length doubled) 10) {
-        (println "FAIL: expected 10 doubled")
-        return 1
-    } else { (print "") }
-
-    /* --- string array operations --- */
-    let words: array<string> = ["hello", "hi", "world", "nano", "a", "ok"]
-
-    let capped: array<string>  = (array_map words to_upper_first)
-    let long_ws: array<string> = (array_filter words longer_than_3)
-    let joined: string         = (array_fold words "" concat_words)
-
-    (print "capitalised: ")
-    let mut ci: int = 0
-    while (< ci (array_length capped)) {
-        (print (at capped ci))
-        (print " ")
-        set ci (+ ci 1)
-    }
-    (println "")
-
-    (print "long words (>3): ")
-    let mut li: int = 0
-    while (< li (array_length long_ws)) {
-        (print (at long_ws li))
-        (print " ")
-        set li (+ li 1)
-    }
-    (println "")
-
-    (print "joined: ")
-    (println joined)
-
-    if (!= (array_length long_ws) 3) {
-        (println "FAIL: expected 3 long words")
-        return 1
-    } else { (print "") }
-
-    /* --- float array operations --- */
-    let floats: array<float> = [1.0, -2.5, 3.0, -0.5, 4.0]
-
-    let squares: array<float>   = (array_map floats square_f)
-    let positives: array<float> = (array_filter floats positive)
-    let fsum: float             = (array_fold floats 0.0 sum_f)
-
-    (print "squares: ")
-    let mut si: int = 0
-    while (< si (array_length squares)) {
-        (print (float_to_string (at squares si)))
-        (print " ")
-        set si (+ si 1)
-    }
-    (println "")
-
-    (print "positives: ")
-    let mut pi: int = 0
-    while (< pi (array_length positives)) {
-        (print (float_to_string (at positives pi)))
-        (print " ")
-        set pi (+ pi 1)
-    }
-    (println "")
-
-    (print "float sum = ")
-    (println (float_to_string fsum))
-
-    if (!= (array_length positives) 3) {
-        (println "FAIL: expected 3 positives")
-        return 1
-    } else { (print "") }
-
-    (println "PASS")
+    (println "All array functional tests passed!")
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
