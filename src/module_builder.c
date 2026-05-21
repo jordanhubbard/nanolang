@@ -169,19 +169,38 @@ static const char* get_package_manager_name(PackageManager pm) {
     }
 }
 
-// Look up a package name in the registry for the current platform
-// Returns NULL if not found or registry not available
-static const char* lookup_package_name(const char *logical_name, PackageManager pm) {
+// Internal: locate the per-package-manager install entry in packages.json.
+// Returns the cJSON node (string or object) for the requested platform, or
+// NULL if the logical name / platform combination isn't represented.
+static cJSON* lookup_pm_entry(const char *logical_name, PackageManager pm) {
     cJSON *registry = load_package_registry();
-    if (!registry) {
-        // No registry - return logical name as-is (legacy fallback)
-        return logical_name;
-    }
+    if (!registry) return NULL;
 
     cJSON *packages = cJSON_GetObjectItem(registry, "packages");
-    if (!packages) {
-        return logical_name;
-    }
+    if (!packages) return NULL;
+
+    cJSON *package = cJSON_GetObjectItem(packages, logical_name);
+    if (!package) return NULL;
+
+    cJSON *install = cJSON_GetObjectItem(package, "install");
+    if (!install) return NULL;
+
+    const char *pm_name = get_package_manager_name(pm);
+    if (!pm_name) return NULL;
+
+    return cJSON_GetObjectItem(install, pm_name);
+}
+
+// Look up a package name in the registry for the current platform.
+// Returns NULL if the registry exists but the package/platform isn't listed
+// (so the caller can skip), or the logical name unchanged when the registry
+// itself is missing (legacy fallback).
+static const char* lookup_package_name(const char *logical_name, PackageManager pm) {
+    cJSON *registry = load_package_registry();
+    if (!registry) return logical_name;
+
+    cJSON *packages = cJSON_GetObjectItem(registry, "packages");
+    if (!packages) return logical_name;
 
     cJSON *package = cJSON_GetObjectItem(packages, logical_name);
     if (!package) {
@@ -191,36 +210,45 @@ static const char* lookup_package_name(const char *logical_name, PackageManager 
         return logical_name;
     }
 
-    cJSON *install = cJSON_GetObjectItem(package, "install");
-    if (!install) {
-        return logical_name;
-    }
-
-    const char *pm_name = get_package_manager_name(pm);
-    if (!pm_name) {
-        return logical_name;
-    }
-
-    cJSON *pm_entry = cJSON_GetObjectItem(install, pm_name);
+    cJSON *pm_entry = lookup_pm_entry(logical_name, pm);
     if (!pm_entry) {
-        // Package not available for this package manager
         if (module_builder_verbose) {
-            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not available for %s\n", logical_name, pm_name);
+            fprintf(stderr, "[PackageRegistry] Warning: Package '%s' not available for %s\n",
+                    logical_name, get_package_manager_name(pm));
         }
         return NULL;
     }
 
-    // Can be either a string or an object with "package" field
     if (cJSON_IsString(pm_entry)) {
         return pm_entry->valuestring;
-    } else if (cJSON_IsObject(pm_entry)) {
+    }
+    if (cJSON_IsObject(pm_entry)) {
         cJSON *pkg_name = cJSON_GetObjectItem(pm_entry, "package");
         if (pkg_name && cJSON_IsString(pkg_name)) {
             return pkg_name->valuestring;
         }
     }
-
     return logical_name;
+}
+
+// Optional shell command that overrides the default install incantation
+// (e.g., `brew install --cask mujoco`). Returns NULL when the registry
+// entry doesn't specify one.
+static const char* lookup_install_command(const char *logical_name, PackageManager pm) {
+    cJSON *pm_entry = lookup_pm_entry(logical_name, pm);
+    if (!pm_entry || !cJSON_IsObject(pm_entry)) return NULL;
+    cJSON *cmd = cJSON_GetObjectItem(pm_entry, "install_command");
+    return (cmd && cJSON_IsString(cmd)) ? cmd->valuestring : NULL;
+}
+
+// Optional shell command that probes whether the package is already
+// installed (exit 0 = installed). Mirrors `install_command`. NULL → fall
+// back to the package-manager default (e.g., `brew list <pkg>`).
+static const char* lookup_test_command(const char *logical_name, PackageManager pm) {
+    cJSON *pm_entry = lookup_pm_entry(logical_name, pm);
+    if (!pm_entry || !cJSON_IsObject(pm_entry)) return NULL;
+    cJSON *cmd = cJSON_GetObjectItem(pm_entry, "test_command");
+    return (cmd && cJSON_IsString(cmd)) ? cmd->valuestring : NULL;
 }
 
 static void append_flag_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flag) {
@@ -537,8 +565,13 @@ static const char* module_builder_sudo_prefix(void) {
     return prefix;
 }
 
-// Install a single package using the detected package manager
-static bool install_single_package(const char *package_name, PackageManager pm) {
+// Install a single package using the detected package manager.
+// When install_cmd_override / test_cmd_override are non-NULL they win over
+// the built-in defaults — used for things that don't fit a simple template
+// like `brew install --cask mujoco` or `pip3 install --user <pkg>`.
+static bool install_single_package_ex(const char *package_name, PackageManager pm,
+                                      const char *install_cmd_override,
+                                      const char *test_cmd_override) {
     char cmd[2048];
     int result;
     const char *sudo_cmd = module_builder_sudo_prefix();
@@ -547,6 +580,23 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
     bool needs_sudo = (pm == PKG_MGR_APT || pm == PKG_MGR_DNF || pm == PKG_MGR_YUM ||
                       pm == PKG_MGR_PKG || pm == PKG_MGR_PACMAN || pm == PKG_MGR_ZYPPER ||
                       pm == PKG_MGR_APK);
+
+    if (test_cmd_override) {
+        if (system(test_cmd_override) == 0) {
+            printf("[Module]   ✓ %s already installed\n", package_name);
+            return true;
+        }
+    }
+    if (install_cmd_override) {
+        printf("[Module]   Running: %s\n", install_cmd_override);
+        result = system(install_cmd_override);
+        if (result == 0) {
+            printf("[Module]   ✓ Successfully installed %s\n", package_name);
+            return true;
+        }
+        fprintf(stderr, "[Module]   ❌ Failed to install %s (custom command exit=%d)\n", package_name, result);
+        return false;
+    }
 
     if (needs_sudo && !module_builder_can_prompt_sudo && !has_passwordless_sudo()) {
         // Non-interactive run without passwordless sudo cannot install automatically.
@@ -694,6 +744,10 @@ static bool install_single_package(const char *package_name, PackageManager pm) 
     }
 }
 
+static bool install_single_package(const char *package_name, PackageManager pm) {
+    return install_single_package_ex(package_name, pm, NULL, NULL);
+}
+
 static bool module_has_system_package_metadata(ModuleBuildMetadata *meta) {
     if (!meta) return false;
     return meta->system_packages_count > 0 ||
@@ -745,17 +799,19 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
         
         for (size_t i = 0; i < pkg_count; i++) {
             const char *logical_name = pkg_names[i];
-            
+
             // Look up actual package name for this platform in registry
             const char *actual_name = lookup_package_name(logical_name, pm);
-            
+
             if (!actual_name) {
                 fprintf(stderr, "[Module]   ⚠️  Package '%s' not available for this platform\n", logical_name);
                 all_installed = false;
                 continue;
             }
 
-            if (!install_single_package(actual_name, pm)) {
+            const char *install_cmd = lookup_install_command(logical_name, pm);
+            const char *test_cmd = lookup_test_command(logical_name, pm);
+            if (!install_single_package_ex(actual_name, pm, install_cmd, test_cmd)) {
                 all_installed = false;
             }
         }

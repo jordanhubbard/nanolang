@@ -316,6 +316,31 @@
         "pkg": {"package": "bullet"}
       }
     },
+    "mujoco": {
+      "description": "MuJoCo rigid-body physics simulator (DeepMind)",
+      "homepage": "https://mujoco.org/",
+      "version": ">=3.0.0",
+      "detection": {
+        "headers": ["mujoco/mujoco.h"]
+      },
+      "install": {
+        "brew": {
+          "package": "mujoco",
+          "test_command": "brew list --cask mujoco >/dev/null 2>&1",
+          "install_command": "brew install --cask mujoco"
+        },
+        "apt": {
+          "package": "mujoco",
+          "test_command": "test -f /usr/local/include/mujoco/mujoco.h || test -f /opt/mujoco/include/mujoco/mujoco.h",
+          "install_command": "echo 'Install MuJoCo from https://github.com/google-deepmind/mujoco/releases and place headers on the C include path. Set NANOLANG_MUJOCO_LIB to the libmujoco.so path.' && false"
+        },
+        "pkg": {
+          "package": "mujoco",
+          "test_command": "test -f /usr/local/include/mujoco/mujoco.h",
+          "install_command": "echo 'Install MuJoCo manually from https://github.com/google-deepmind/mujoco/releases on FreeBSD.' && false"
+        }
+      }
+    },
     "pkg-config": {
       "description": "Package configuration tool for library detection",
       "version": ">=0.29",
