@@ -8,7 +8,6 @@
   "cflags_macos": ["-fblocks"],
   "ldflags_macos": [],
   "ldflags_linux": ["-ldispatch"],
-  "system_packages": ["libdispatch"],
   "dependencies": [],
-  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem; the libdispatch registry entry no-ops on brew. Linux/FreeBSD: auto-installs swift-corelibs-libdispatch via the platform package manager."
+  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem (no install needed). Non-Apple: dispatch.c compiles in stub mode via #ifdef __APPLE__ — calls return early without performing real concurrency. To get real GCD on Linux, build swift-corelibs-libdispatch from source; Ubuntu/Debian/Fedora do not package it as of 2026."
 }

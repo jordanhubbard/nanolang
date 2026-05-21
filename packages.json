@@ -316,27 +316,6 @@
         "pkg": {"package": "bullet"}
       }
     },
-    "libdispatch": {
-      "description": "Grand Central Dispatch (libdispatch) — concurrent task queues",
-      "homepage": "https://github.com/apple/swift-corelibs-libdispatch",
-      "detection": {
-        "headers": ["dispatch/dispatch.h"]
-      },
-      "install": {
-        "brew": {
-          "package": "libdispatch",
-          "test_command": "true",
-          "install_command": "echo '[Module] libdispatch is part of libSystem on macOS; nothing to install.'"
-        },
-        "apt": { "package": "libdispatch-dev" },
-        "dnf": { "package": "libdispatch-devel" },
-        "yum": { "package": "libdispatch-devel" },
-        "pacman": { "package": "libdispatch" },
-        "zypper": { "package": "libdispatch-devel" },
-        "apk": { "package": "libdispatch-dev" },
-        "pkg": { "package": "libdispatch" }
-      }
-    },
     "mujoco": {
       "description": "MuJoCo rigid-body physics simulator (DeepMind)",
       "homepage": "https://mujoco.org/",

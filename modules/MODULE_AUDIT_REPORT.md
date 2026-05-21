@@ -12,11 +12,11 @@
 
 50 modules, three categories:
 
-### 1. Canonical — declares `system_packages` (23)
+### 1. Canonical — declares `system_packages` (22)
 
 These wrap a native library and let `install_system_packages` resolve the platform package via `packages.json`:
 
-`audio_viz`, `bullet`, `curl`, `dispatch`, `event`, `glew`, `glfw`, `glut`, `http_server`, `mujoco`, `ncurses`, `pt2_audio`, `readline`, `sdl`, `sdl_helpers`, `sdl_image`, `sdl_mixer`, `sdl_term`, `sdl_ttf`, `sqlite`, `ui_widgets`, `unicode`, `uv`.
+`audio_viz`, `bullet`, `curl`, `event`, `glew`, `glfw`, `glut`, `http_server`, `mujoco`, `ncurses`, `pt2_audio`, `readline`, `sdl`, `sdl_helpers`, `sdl_image`, `sdl_mixer`, `sdl_term`, `sdl_ttf`, `sqlite`, `ui_widgets`, `unicode`, `uv`.
 
 ### 2. Transitive — inherits via `dependencies` (2)
 
@@ -24,14 +24,15 @@ These declare `dependencies: ["curl", ...]` so the `curl` module's `system_packa
 
 `github`, `openai` — both `#include <curl/curl.h>` and rely on the `curl` module's auto-install to make libcurl available.
 
-### 3. Pure / internal — no external build-time deps (25)
+### 3. Pure / internal — no external build-time deps (26)
 
-Either pure NanoLang, libc-only, or runtime-only Python via socket IPC. Correctly need no `system_packages`:
+Either pure NanoLang, libc-only, runtime-only Python via socket IPC, or has internal `#ifdef` fallbacks for platforms where the native library isn't available. Correctly need no `system_packages`:
 
-`audio_helpers`, `filesystem`, `forth_see`, `gpu`, `libc`, `log`, `math_ext`, `nano_highlight`, `nano_tools`, `preferences`, `proptest`, `pt2_module`, `pt2_state`, `pty`, `pybridge`, `pybridge_matplotlib`, `pybridge_warp`, `std`, `std/collections`, `std/json`, `std/peg`, `std/peg2`, `stdio`, `vector2d`, `websocket`.
+`audio_helpers`, `dispatch`, `filesystem`, `forth_see`, `gpu`, `libc`, `log`, `math_ext`, `nano_highlight`, `nano_tools`, `preferences`, `proptest`, `pt2_module`, `pt2_state`, `pty`, `pybridge`, `pybridge_matplotlib`, `pybridge_warp`, `std`, `std/collections`, `std/json`, `std/peg`, `std/peg2`, `stdio`, `vector2d`, `websocket`.
 
 Notes:
 - **`websocket`** explicitly declares `system_packages: []` — RFC 6455 implementation over plain POSIX sockets; no system dep.
+- **`dispatch`** wraps libdispatch (GCD) under `#ifdef __APPLE__`. macOS gets the real API from libSystem; non-Apple platforms compile to stubs that return early at runtime. Ubuntu/Debian/Fedora do not package libdispatch natively, so auto-install isn't viable; users wanting real GCD on Linux must build swift-corelibs-libdispatch from source.
 - **`pybridge_*`** spawn a Python subprocess over a socket — at build time they need only `<dlfcn.h>` and `<stdio.h>`. Their runtime Python package requirements (matplotlib, warp) are handled inside the subprocess.
 
 ## How auto-install works
@@ -68,7 +69,7 @@ unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages
 | Module | Change |
 |---|---|
 | `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; `mujoco.c` scans `mujoco.framework/Versions/{Current,A}` for `libmujoco.*.dylib`. |
-| `dispatch` | Added `system_packages: ["libdispatch"]` (2026-05-21). `packages.json` brew entry no-ops with `test_command: "true"` since libdispatch ships with libSystem on macOS. |
+| `dispatch` | Re-classified as pure/internal after Linux validation on Ubuntu 26.04 (2026-05-21). The wrapper's existing `#ifdef __APPLE__` gate handles the macOS-vs-Linux split; no `libdispatch-dev` package exists in Debian/Ubuntu/Fedora archives, so the auto-install path was a false promise. The original aspirational `ldflags_linux: ["-ldispatch"]` is harmless because dispatch.o contains only stubs on non-Apple. |
 | `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Previously the fields existed in `packages.json` for chocolatey but were never read — they're now active for all package managers. |
 | `audio_viz`, `bullet`, `http_server`, `pt2_audio`, `sdl_*`, `sdl_term`, `ui_widgets`, `unicode` | Migrated to `system_packages` since 2024-11. |
 
