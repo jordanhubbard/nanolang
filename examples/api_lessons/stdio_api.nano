@@ -1,0 +1,48 @@
+# Example: Stdio API Lesson
+# Purpose: I show stdio file handles through safe size/existence helpers and raw close
+# Features: fopen, fclose, fflush, file_size, file_exists
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: fs_api
+# Track: modules
+# Build: broken
+# Dependencies: modules/std/io/stdio, modules/std/fs
+# Reason: modules/std/io/stdio.nano declares extern fgetc/clearerr signatures that
+#         conflict with system <stdio.h> — independent of this lesson.
+# Tags: api-lesson, io, shadow-tested
+# Expected Output: stdio size: 5
+
+from "modules/std/io/stdio.nano" import fopen, fclose, fflush, file_size, stdio_file_readable
+from "modules/std/fs.nano" import write, delete, exists
+
+fn stdio_size_after_write() -> int {
+    let path: string = "/tmp/nanolang_stdio_api.txt"
+    (write path "abcde")
+    assert (exists path)
+    assert (stdio_file_readable path)
+    let size: int = (file_size path)
+    let mut file: int = 0
+    unsafe {
+        set file (fopen path "rb")
+    }
+    assert (!= file 0)
+    unsafe {
+        (fflush file)
+        (fclose file)
+    }
+    (delete path)
+    return size
+}
+
+shadow stdio_size_after_write {
+    assert (== (stdio_size_after_write) 5)
+}
+
+fn main() -> int {
+    (println (+ "stdio size: " (int_to_string (stdio_size_after_write))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

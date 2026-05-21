@@ -1,0 +1,47 @@
+# Example: Result API Lesson
+# Purpose: I show the generic Result union as a small success-or-error contract
+# Features: Result<T,E>, union construction, match, shadow tests
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_types_union_construct
+# Track: modules
+# Build: local
+# Dependencies: modules/std/result
+# Tags: api-lesson, result, shadow-tested
+# Expected Output: result value: 42
+
+from "modules/std/result.nano" import Result
+
+fn parse_count(text: string) -> Result<int, string> {
+    if (== text "") {
+        return Result.Err { error: "empty" }
+    }
+    return Result.Ok { value: (string_to_int text) }
+}
+
+shadow parse_count {
+    let ok: Result<int, string> = (parse_count "42")
+    match ok {
+        Ok(v) => { assert (== v.value 42) }
+        Err(e) => { assert false }
+    }
+
+    let bad: Result<int, string> = (parse_count "")
+    match bad {
+        Ok(v) => { assert false }
+        Err(e) => { assert (== e.error "empty") }
+    }
+}
+
+fn main() -> int {
+    let parsed: Result<int, string> = (parse_count "42")
+    match parsed {
+        Ok(v) => { (println (+ "result value: " (int_to_string v.value))) }
+        Err(e) => { (println e.error) }
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

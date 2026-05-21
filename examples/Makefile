@@ -58,8 +58,9 @@ ifeq ($(EXAMPLES_BACKEND),vm)
 NL_SOURCES := $(filter-out language/nl_boids.nano language/nl_random_sentence.nano language/nl_demo_selfhosting.nano,$(NL_SOURCES))
 endif
 # Self-hosted compiler can't link C-backed modules (readline, forth_see)
+# Self-hosted compiler also doesn't know newer language keywords (resource, etc.)
 ifneq ($(IS_SELFHOSTED),)
-NL_SOURCES := $(filter-out language/nl_forth_interpreter.nano,$(NL_SOURCES))
+NL_SOURCES := $(filter-out language/nl_forth_interpreter.nano language/nl_affine_resource_demo.nano,$(NL_SOURCES))
 endif
 
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
@@ -98,6 +99,22 @@ ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
 DATA_SOURCES := $(wildcard data/*.nano)
 DATA_EXAMPLES := $(patsubst data/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(DATA_SOURCES))
 DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
+
+# === API Lessons (api_lessons/) ===
+# Single-file focused lessons for one module API surface.
+# Headers carry `# Build: local` (always built) or `# Build: external-deps`
+# (built when libs available) or `# Build: broken` (skipped).
+API_LESSONS_EXCLUDE := \
+	api_lessons/stdio_api.nano \
+	api_lessons/websocket_api.nano \
+	api_lessons/tidy_api.nano
+API_LESSONS_SOURCES := $(filter-out $(API_LESSONS_EXCLUDE),$(wildcard api_lessons/*.nano))
+# Self-hosted compilers can't link many of the C-backed module helpers
+ifneq ($(IS_SELFHOSTED),)
+API_LESSONS_SOURCES :=
+endif
+API_LESSONS_EXAMPLES := $(patsubst api_lessons/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(API_LESSONS_SOURCES))
+API_LESSONS_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(API_LESSONS_EXAMPLES)))
 
 # === Verified Examples (formally proven NanoCore programs) ===
 
@@ -253,6 +270,7 @@ ALL_EXAMPLES = \
 	$(REPL_EXAMPLES) \
 	$(ADVANCED_EXAMPLES) \
 	$(DATA_EXAMPLES) \
+	$(API_LESSONS_EXAMPLES) \
 	$(VERIFIED_EXAMPLES) \
 	$(DEBUG_EXAMPLES) \
 	$(NETWORK_EXAMPLES) \
@@ -267,7 +285,7 @@ ALL_EXAMPLES = \
 
 # === Targets ===
 
-.PHONY: all build examples-available nl verified opl sdl ncurses opengl mujoco debug clean help launcher test test-forth run-forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher test test-forth run-forth forth-ide
 
 # Default: build all examples
 all: build
@@ -291,6 +309,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo ""
 	@echo "Data examples:"
 	@$(if $(strip $(DATA_NAMES)),$(foreach ex,$(DATA_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
+	@echo "API lessons (api_lessons/):"
+	@$(if $(strip $(API_LESSONS_NAMES)),$(foreach ex,$(API_LESSONS_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "Verified examples (formally proven):"
 	@$(if $(strip $(VERIFIED_NAMES)),$(foreach ex,$(VERIFIED_NAMES),echo "  ./bin/$(ex)";),:)
@@ -386,6 +407,11 @@ forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter $(BIN_DIR)/sdl_forth_ide$
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
+api-lessons: $(COMPILER) $(API_LESSONS_EXAMPLES)
+	@echo ""
+	@echo "API lessons built successfully!"
+	@$(if $(strip $(API_LESSONS_NAMES)),$(foreach ex,$(API_LESSONS_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
 verified: $(COMPILER) $(VERIFIED_EXAMPLES)
 	@echo ""
 	@echo "Verified examples built successfully!"
@@ -471,6 +497,11 @@ $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): advanced/%.nano $(COMPILER)
 
 # Data examples (in data/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): data/%.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+
+# API lesson examples (in api_lessons/ subdirectory) — all end in _api
+$(BIN_DIR)/%_api$(BIN_SUFFIX)$(BIN_EXT): api_lessons/%_api.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
 

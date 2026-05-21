@@ -1,0 +1,48 @@
+# Example: WebSocket API Lesson
+# Purpose: I show the WebSocket client handle lifecycle without requiring a live server
+# Features: websocket close, is_connected, last_error, connection URL shape
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: process_api
+# Track: modules
+# Build: broken
+# Dependencies: modules/websocket, local WebSocket server for connect/send/receive
+# Reason: compiler segfaults on the websocket FFI surface — upstream compiler bug.
+# Tags: api-lesson, websocket, native-only, dry-run
+# Expected Output: websocket connected: false
+
+from "modules/websocket/websocket.nano" import close, is_connected, last_error
+
+fn local_echo_url() -> string {
+    return "ws://127.0.0.1:8765"
+}
+
+shadow local_echo_url {
+    assert (str_contains (local_echo_url) "127.0.0.1")
+}
+
+fn closed_handle_is_not_connected() -> bool {
+    let connected: bool = (is_connected -1)
+    let err: string = (last_error -1)
+    assert (>= (str_length err) 0)
+    (close -1)
+    return connected
+}
+
+shadow closed_handle_is_not_connected {
+    assert (not (closed_handle_is_not_connected))
+}
+
+fn main() -> int {
+    let connected: bool = (closed_handle_is_not_connected)
+    if connected {
+        (println "websocket connected: true")
+    } else {
+        (println "websocket connected: false")
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -48,7 +48,7 @@ let COLOR_OBSTACLE_B: int = 50
 
 /* Global state */
 struct BeadState {
-    handle: int,
+    body_id: int,
     active: bool,
     spawn_time: float
 }
@@ -215,7 +215,7 @@ fn main() -> int {
 
             if (!= bead_handle (- 0 1)) {
                 let new_bead: BeadState = BeadState {
-                    handle: bead_handle,
+                    body_id: bead_handle,
                     active: true,
                     spawn_time: total_time
                 }
@@ -233,9 +233,9 @@ fn main() -> int {
 
         let mut i: int = 0
         while (< i (array_length obstacle_handles)) {
-            let handle: int = (at obstacle_handles i)
-            let mut x: float = (nl_bullet_get_rigid_body_x handle)
-            let mut y: float = (nl_bullet_get_rigid_body_y handle)
+            let body_id: int = (at obstacle_handles i)
+            let mut x: float = (nl_bullet_get_rigid_body_x body_id)
+            let mut y: float = (nl_bullet_get_rigid_body_y body_id)
 
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
@@ -260,7 +260,7 @@ fn main() -> int {
         while (< i (array_length beads)) {
             let bead: BeadState = (at beads i)
             if bead.active {
-                let bead_handle: int = bead.handle
+                let bead_handle: int = bead.body_id
                 let mut node_count: int = (nl_bullet_get_soft_body_node_count bead_handle)
 
                 /* Draw each node as a small circle */

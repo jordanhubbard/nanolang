@@ -157,10 +157,13 @@ pub fn file_size(filename: string) -> int {
     if (== file 0) {
         return -1
     } else {
-        /* Seek to end */
-        (fseek file 0 SEEK_END)
+        unsafe {
+            (fseek file 0 SEEK_END)
+        }
         let size: int = (ftell file)
-        (fclose file)
+        unsafe {
+            (fclose file)
+        }
         return size
     }
 }
@@ -170,22 +173,24 @@ shadow file_size {
     assert (>= (file_size "/nonexistent") -1)
 }
 
-/* Check if file exists
+/* Check if file is readable
  * Returns: true if file can be opened for reading
+ * Named stdio_file_readable to avoid clashing with fs.file_exists.
  */
-pub fn file_exists(filename: string) -> bool {
+pub fn stdio_file_readable(filename: string) -> bool {
     let file: int = (fopen filename FILE_MODE_READ)
     if (== file 0) {
         return false
     } else {
-        (fclose file)
+        unsafe {
+            (fclose file)
+        }
         return true
     }
 }
 
-shadow file_exists {
-    /* Verify it handles nonexistent files */
-    assert (== (file_exists "/nonexistent") false)
+shadow stdio_file_readable {
+    assert (== (stdio_file_readable "/nonexistent") false)
 }
 
 

@@ -1,0 +1,48 @@
+# Example: HashMap API Lesson
+# Purpose: I show the built-in HashMap API in one small lookup table
+# Features: HashMap<K,V>, map_new, map_put, map_has, map_get, map_size
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_hashmap
+# Track: modules
+# Build: local
+# Dependencies: builtin HashMap
+# Tags: api-lesson, collections, shadow-tested
+# Expected Output: hashmap answer: language
+
+fn build_terms() -> HashMap<string, string> {
+    let hm: HashMap<string, string> = (map_new)
+    (map_put hm "nano" "language")
+    (map_put hm "shadow" "test")
+    return hm
+}
+
+shadow build_terms {
+    let terms: HashMap<string, string> = (build_terms)
+    assert (== (map_size terms) 2)
+    assert (map_has terms "nano")
+    assert (== (map_get terms "shadow") "test")
+}
+
+fn lookup_or_default(key: string, fallback: string) -> string {
+    let terms: HashMap<string, string> = (build_terms)
+    if (map_has terms key) {
+        return (map_get terms key)
+    }
+    return fallback
+}
+
+shadow lookup_or_default {
+    assert (== (lookup_or_default "nano" "?") "language")
+    assert (== (lookup_or_default "missing" "default") "default")
+}
+
+fn main() -> int {
+    let terms: HashMap<string, string> = (build_terms)
+    (println (+ "hashmap answer: " (map_get terms "nano")))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

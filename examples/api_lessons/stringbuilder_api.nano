@@ -1,0 +1,56 @@
+# Example: StringBuilder API Lesson
+# Purpose: I show efficient string construction without repeated raw concatenation
+# Features: StringBuilder, append, append_line, append_int, append_char, join, repeat, indent
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_string_operations
+# Track: modules
+# Build: local
+# Dependencies: modules/std/collections/stringbuilder
+# Tags: api-lesson, collections, shadow-tested
+# Expected Output: builder text: item 7
+
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_with_capacity, sb_append, sb_append_line, sb_append_int, sb_append_char, sb_to_string, sb_length, sb_capacity, sb_clear, sb_is_empty, sb_free, sb_from_parts, sb_join, sb_repeat, sb_indent
+
+fn build_label(n: int) -> string {
+    let sb: StringBuilder = (sb_with_capacity 32)
+    let sb2: StringBuilder = (sb_append sb "item ")
+    let sb3: StringBuilder = (sb_append_int sb2 n)
+    let text: string = (sb_to_string sb3)
+    assert (>= (sb_capacity sb3) 32)
+    assert (> (sb_length sb3) 0)
+    (sb_free sb3)
+    return text
+}
+
+shadow build_label {
+    assert (== (build_label 7) "item 7")
+}
+
+fn build_lines() -> string {
+    let sb: StringBuilder = (sb_new)
+    let sb2: StringBuilder = (sb_append_line sb "alpha")
+    let sb3: StringBuilder = (sb_append_char sb2 '!')
+    let text: string = (sb_to_string sb3)
+    let cleared: StringBuilder = (sb_clear sb3)
+    assert (sb_is_empty cleared)
+    (sb_free cleared)
+    return text
+}
+
+shadow build_lines {
+    assert (== (build_lines) "alpha\n!")
+    assert (== (sb_from_parts ["a", "b", "c"]) "abc")
+    assert (== (sb_join ["a", "b", "c"] ":") "a:b:c")
+    assert (== (sb_repeat "na" 2) "nana")
+    assert (== (sb_indent 2 2) "    ")
+}
+
+fn main() -> int {
+    (println (+ "builder text: " (build_label 7)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

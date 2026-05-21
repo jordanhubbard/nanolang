@@ -522,11 +522,11 @@ fn main() -> int {
         let ball_count: int = (array_length ball_handles)
         let mut i: int = 0
         while (< i ball_count) {
-            let handle: int = (at ball_handles i)
+            let body_id: int = (at ball_handles i)
             let color: int = (at ball_colors i)
-            
-            let ball_x: float = (nl_bullet_get_rigid_body_x handle)
-            let ball_y: float = (nl_bullet_get_rigid_body_y handle)
+
+            let ball_x: float = (nl_bullet_get_rigid_body_x body_id)
+            let ball_y: float = (nl_bullet_get_rigid_body_y body_id)
             
             let screen_x: int = (project_x ball_x)
             let screen_y: int = (project_y ball_y)

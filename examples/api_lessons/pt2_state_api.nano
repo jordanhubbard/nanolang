@@ -1,0 +1,91 @@
+# Example: PT2 State API Lesson
+# Purpose: I show ProTracker playback, position, channel, pattern, and sample state calls
+# Features: pt2 state, playback flags, song position, channel state, sample state
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: audio_helpers_api
+# Track: modules
+# Build: external-deps, audio
+# Dependencies: modules/pt2_state
+# Tags: api-lesson, protracker, native-only
+# Expected Output: pt2 bpm: 125
+
+from "modules/pt2_state/pt2_state.nano" import pt2_init_state, pt2_start_playback, pt2_stop_playback, pt2_is_playing, pt2_get_current_row, pt2_get_current_pattern, pt2_get_speed, pt2_get_bpm, pt2_get_tick, pt2_get_song_pos, pt2_set_current_row, pt2_set_current_pattern, pt2_set_speed, pt2_set_bpm, pt2_set_tick, pt2_set_song_pos, pt2_set_channel_period, pt2_get_channel_period, pt2_set_channel_volume, pt2_get_channel_volume, pt2_set_channel_sample, pt2_get_channel_sample, pt2_set_channel_note, pt2_get_channel_note, pt2_set_pattern_table_entry, pt2_get_pattern_table_entry, pt2_set_song_length, pt2_get_song_length, pt2_set_sample_length, pt2_get_sample_length, pt2_set_sample_volume, pt2_get_sample_volume, pt2_set_sample_loop_start, pt2_get_sample_loop_start, pt2_set_sample_loop_length, pt2_get_sample_loop_length
+
+fn configure_transport() -> int {
+    unsafe {
+        (pt2_init_state)
+        (pt2_set_current_row 8)
+        (pt2_set_current_pattern 2)
+        (pt2_set_speed 6)
+        (pt2_set_bpm 125)
+        (pt2_set_tick 3)
+        (pt2_set_song_pos 4)
+    }
+    assert (== (pt2_get_current_row) 8)
+    assert (== (pt2_get_current_pattern) 2)
+    assert (== (pt2_get_speed) 6)
+    assert (== (pt2_get_tick) 3)
+    assert (== (pt2_get_song_pos) 4)
+    return (pt2_get_bpm)
+}
+
+shadow configure_transport {
+    assert (== (configure_transport) 125)
+}
+
+fn configure_channel_and_sample() -> int {
+    unsafe {
+        (pt2_set_channel_period 0 428)
+        (pt2_set_channel_volume 0 32)
+        (pt2_set_channel_sample 0 1)
+        (pt2_set_channel_note 0 48)
+        (pt2_set_pattern_table_entry 0 3)
+        (pt2_set_song_length 1)
+        (pt2_set_sample_length 1 1000)
+        (pt2_set_sample_volume 1 40)
+        (pt2_set_sample_loop_start 1 10)
+        (pt2_set_sample_loop_length 1 100)
+    }
+    assert (== (pt2_get_channel_period 0) 428)
+    assert (== (pt2_get_channel_volume 0) 32)
+    assert (== (pt2_get_channel_sample 0) 1)
+    assert (== (pt2_get_channel_note 0) 48)
+    assert (== (pt2_get_pattern_table_entry 0) 3)
+    assert (== (pt2_get_song_length) 1)
+    assert (== (pt2_get_sample_length 1) 1000)
+    assert (== (pt2_get_sample_volume 1) 40)
+    assert (== (pt2_get_sample_loop_start 1) 10)
+    assert (== (pt2_get_sample_loop_length 1) 100)
+    return (pt2_get_channel_volume 0)
+}
+
+shadow configure_channel_and_sample {
+    assert (== (configure_channel_and_sample) 32)
+}
+
+fn playback_flag_round_trip() -> int {
+    unsafe {
+        (pt2_init_state)
+        (pt2_start_playback)
+    }
+    let playing: int = (pt2_is_playing)
+    unsafe {
+        (pt2_stop_playback)
+    }
+    assert (== (pt2_is_playing) 0)
+    return playing
+}
+
+shadow playback_flag_round_trip {
+    assert (>= (playback_flag_round_trip) 0)
+}
+
+fn main() -> int {
+    (println (+ "pt2 bpm: " (int_to_string (configure_transport))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

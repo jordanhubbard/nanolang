@@ -1,0 +1,34 @@
+# Example: Audio Helpers API Lesson
+# Purpose: I show the raw PCM to WAV helper call with deterministic missing-input behavior
+# Features: audio_convert_raw_to_wav, error return
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: none
+# Track: modules
+# Build: external-deps, audio
+# Dependencies: modules/audio_helpers
+# Tags: api-lesson, audio, native-only
+# Expected Output: audio helper code: -1
+
+from "modules/audio_helpers/audio_helpers.nano" import audio_convert_raw_to_wav
+
+fn missing_input_returns_error() -> int {
+    let mut code: int = 0
+    unsafe {
+        set code (audio_convert_raw_to_wav "/tmp/nanolang_missing.raw" "/tmp/nanolang_missing.wav" 44100)
+    }
+    return code
+}
+
+shadow missing_input_returns_error {
+    assert (== (missing_input_returns_error) -1)
+}
+
+fn main() -> int {
+    (println (+ "audio helper code: " (int_to_string (missing_input_returns_error))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

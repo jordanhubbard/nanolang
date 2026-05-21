@@ -1,0 +1,35 @@
+# Example: stdlib::tidy API Lesson
+# Purpose: I show the legacy stdlib/tidy.nano code-formatter helpers (build currently broken)
+# Features: tidy_format, format_with_wrap, format_pretty
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: stringbuilder_api
+# Track: modules
+# Build: broken
+# Dependencies: stdlib/tidy
+# Tags: api-lesson, tidy, formatter, broken
+# Expected Output: (does not compile)
+
+# Build failure reason:
+#   `stdlib/tidy.nano` ships with its own `fn main() -> int { ... }` at the
+#   bottom of the file. Importing it with `from "stdlib/tidy.nano" import ...`
+#   or `module "stdlib/tidy.nano" as Tidy` pulls that `main` into the current
+#   compilation unit, which then collides with the lesson's own `main`:
+#       Error at line N, column 1: Function 'main' is already defined
+#         Previous definition at line 151, column 18
+#   The module would need to be refactored to remove the example/test main()
+#   (or guard it behind a feature flag) before this lesson can be authored.
+#
+# Status: skipped, awaiting upstream fix.
+
+# Placeholder so the file remains valid metadata; the body below is the smallest
+# valid NanoLang program and does NOT exercise the tidy API.
+
+fn main() -> int {
+    (println "tidy_api lesson is currently blocked by main() collision in stdlib/tidy.nano")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

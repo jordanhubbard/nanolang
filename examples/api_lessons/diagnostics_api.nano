@@ -1,0 +1,84 @@
+# Example: std::diagnostics API Lesson
+# Purpose: I show building Loc/Span/Diagnostic values and formatting an error report
+# Features: Loc, Span, Diagnostic, Severity, diag_error, diag_warning, diag_note, shadow tests
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: result_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/diagnostics
+# Tags: api-lesson, diagnostics, shadow-tested
+# Expected Output: diag: foo.nano:3:5 error: unexpected token
+
+from "modules/std/diagnostics.nano" import Loc, Span, Diagnostic, Severity, loc, span_single, diag_error, diag_warning, diag_note
+
+fn severity_label(s: Severity) -> string {
+    if (== s Severity.Error) { return "error" }
+    if (== s Severity.Warning) { return "warning" }
+    return "note"
+}
+
+shadow severity_label {
+    assert (== (severity_label Severity.Error) "error")
+    assert (== (severity_label Severity.Warning) "warning")
+    assert (== (severity_label Severity.Note) "note")
+}
+
+fn format_diag(d: Diagnostic) -> string {
+    let head: string = d.span.start.file
+    let line_s: string = (int_to_string d.span.start.line)
+    let col_s: string = (int_to_string d.span.start.column)
+    let prefix: string = (+ head (+ ":" (+ line_s (+ ":" col_s))))
+    let sev: string = (severity_label d.severity)
+    let msg: string = d.message
+    return (+ prefix (+ " " (+ sev (+ ": " msg))))
+}
+
+shadow format_diag {
+    let s: Span = (span_single "foo.nano" 3 5)
+    let d: Diagnostic = (diag_error "unexpected token" s)
+    assert (== (format_diag d) "foo.nano:3:5 error: unexpected token")
+}
+
+fn make_warning(file: string, line: int, col: int, msg: string) -> Diagnostic {
+    let s: Span = (span_single file line col)
+    return (diag_warning msg s)
+}
+
+shadow make_warning {
+    let w: Diagnostic = (make_warning "bar.nano" 7 2 "unused variable")
+    assert (== w.span.start.line 7)
+    assert (== w.message "unused variable")
+}
+
+fn loc_round_trip() -> Loc {
+    return (loc "main.nano" 1 1)
+}
+
+shadow loc_round_trip {
+    let l: Loc = (loc_round_trip)
+    assert (== l.file "main.nano")
+    assert (== l.line 1)
+    assert (== l.column 1)
+}
+
+fn note_message() -> string {
+    let s: Span = (span_single "x.nano" 1 1)
+    let n: Diagnostic = (diag_note "consider adding a type" s)
+    return n.message
+}
+
+shadow note_message {
+    assert (== (note_message) "consider adding a type")
+}
+
+fn main() -> int {
+    let s: Span = (span_single "foo.nano" 3 5)
+    let d: Diagnostic = (diag_error "unexpected token" s)
+    (println (+ "diag: " (format_diag d)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

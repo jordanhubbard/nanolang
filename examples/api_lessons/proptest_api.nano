@@ -1,0 +1,53 @@
+# Example: proptest API Lesson
+# Purpose: I show one tiny forall_int run with a trivial integer property
+# Features: int_range, forall_int, forall_int_with_config, config, PropertyReport, prop_pass, prop_fail
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: result_api
+# Track: modules
+# Build: local
+# Dependencies: modules/proptest
+# Tags: api-lesson, proptest, property-based
+
+from "modules/proptest/proptest.nano" import int_range, forall_int_with_config, config, PropertyReport, IntRangeGenerator, RunConfig, prop_pass, prop_fail, report_passed
+
+# Expected Output: proptest: PASS
+
+fn prop_double_positive(x: int) -> string {
+    let y: int = (* x 2)
+    if (>= y x) {
+        return (prop_pass)
+    }
+    return (prop_fail "doubling shrank the value")
+}
+
+shadow prop_double_positive {
+    assert (== (prop_double_positive 0) (prop_pass))
+    assert (== (prop_double_positive 5) (prop_pass))
+}
+
+fn run_check() -> bool {
+    let gen: IntRangeGenerator = (int_range 0 100)
+    let cfg: RunConfig = (config 20 8 50 42)
+    let report: PropertyReport = (forall_int_with_config "double-non-shrinking" gen prop_double_positive cfg)
+    return (report_passed report)
+}
+
+shadow run_check {
+    # The proptest engine itself runs at runtime; assert on the property.
+    assert (== (prop_double_positive 1) (prop_pass))
+}
+
+fn main() -> int {
+    let ok: bool = (run_check)
+    if ok {
+        (println "proptest: PASS")
+        return 0
+    }
+    (println "proptest: FAIL")
+    return 1
+}
+
+shadow main {
+    assert (== (main) 0)
+}

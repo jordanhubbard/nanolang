@@ -1,0 +1,56 @@
+# Example: Filesystem API Lesson
+# Purpose: I show path helpers, glob matching, and a deterministic file round trip
+# Features: fs paths, glob_match, read, write, append, exists, copy_file, delete
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_string_operations
+# Track: modules
+# Build: local
+# Dependencies: modules/std/fs
+# Tags: api-lesson, filesystem, shadow-tested
+# Expected Output: fs file: ok
+
+from "modules/std/fs.nano" import normalize, join, basename, dirname, relpath, cwd, glob_match, write, read, append, exists, delete, mkdir_p, copy_file
+
+fn path_summary() -> string {
+    let path: string = (join "/tmp" "nano_api/file.txt")
+    assert (== (basename path) "file.txt")
+    assert (== (dirname path) "/tmp/nano_api")
+    assert (== (normalize "/tmp/./nano_api/../nano_api") "/tmp/nano_api")
+    assert (== (relpath "/tmp/nano_api/file.txt" "/tmp") "nano_api/file.txt")
+    assert (> (str_length (cwd)) 0)
+    return path
+}
+
+shadow path_summary {
+    assert (glob_match "*.txt" "file.txt")
+    assert (not (glob_match "*.nano" "file.txt"))
+    assert (== (path_summary) "/tmp/nano_api/file.txt")
+}
+
+fn file_round_trip() -> string {
+    (mkdir_p "/tmp/nano_api")
+    let path: string = (path_summary)
+    let copy: string = (join "/tmp/nano_api" "copy.txt")
+    assert (== (write path "o") 0)
+    assert (== (append path "k") 0)
+    assert (exists path)
+    assert (== (copy_file path copy) 0)
+    let text: string = (read copy)
+    (delete path)
+    (delete copy)
+    return text
+}
+
+shadow file_round_trip {
+    assert (== (file_round_trip) "ok")
+}
+
+fn main() -> int {
+    (println (+ "fs file: " (file_round_trip)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

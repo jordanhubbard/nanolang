@@ -141,9 +141,9 @@ fn build_tower_field() -> TowerField {
             let lean_amount: float = (* (cast_float layer) (* LAYER_LEAN lean_dir))
             let block_x: float = (+ tower_center_x lean_amount)
             let block_y: float = (+ base_y (* (cast_float layer) layer_step))
-            let mut handle: int = 0
-            set handle (nl_bullet_create_rigid_box block_x block_y 0.0 BLOCK_HALF_WIDTH BLOCK_HALF_HEIGHT BLOCK_HALF_DEPTH BLOCK_MASS 0.15)
-            set handles (array_push handles handle)
+            let mut body_id: int = 0
+            set body_id (nl_bullet_create_rigid_box block_x block_y 0.0 BLOCK_HALF_WIDTH BLOCK_HALF_HEIGHT BLOCK_HALF_DEPTH BLOCK_MASS 0.15)
+            set handles (array_push handles body_id)
             set tower_ids (array_push tower_ids tower_index)
             set layer (+ layer 1)
         }
@@ -285,10 +285,10 @@ fn main() -> int {
             let tower_ids: array<int> = field.tower_ids
             let mut i: int = 0
             while (< i (array_length handles)) {
-                let handle: int = (at handles i)
+                let body_id: int = (at handles i)
                 let tower_id: int = (at tower_ids i)
                 let mut y: float = 0.0
-                set y (nl_bullet_get_rigid_body_y handle) 
+                set y (nl_bullet_get_rigid_body_y body_id)
                 let existing: float = (at current_tops tower_id)
                 if (> y existing) {
                     (array_set current_tops tower_id y)
@@ -314,12 +314,12 @@ fn main() -> int {
         let tower_ids_draw: array<int> = field.tower_ids
         let mut j: int = 0
         while (< j (array_length handles_draw)) {
-            let handle: int = (at handles_draw j)
+            let body_id: int = (at handles_draw j)
             let tower_id: int = (at tower_ids_draw j)
             let mut x: float = 0.0
             let mut y: float = 0.0
-            set x (nl_bullet_get_rigid_body_x handle)
-            set y (nl_bullet_get_rigid_body_y handle)
+            set x (nl_bullet_get_rigid_body_x body_id)
+            set y (nl_bullet_get_rigid_body_y body_id)
             let screen_x: int = (project_x x)
             let screen_y: int = (project_y y)
             let brightness: int = (+ 60 (* (% tower_id 3) 30))

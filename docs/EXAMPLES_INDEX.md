@@ -195,6 +195,42 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | GPU | `examples/gpu/*.nano` | gpu/external-deps |
 | OPL | `examples/opl/*.nano` | local showcase with generated output |
 | packages | `examples/hello_pkg/`, `examples/large_project/` | local package layout |
+| API lessons | `examples/api_lessons/*_api.nano` | one focused lesson per module surface (see table below) |
+
+### API lessons (`examples/api_lessons/`)
+
+| File | Module | Build |
+| --- | --- | --- |
+| `array_utils_api.nano` | `modules/std/collections/array_utils` | local |
+| `audio_helpers_api.nano` | `modules/audio_helpers` | local |
+| `binary_api.nano` | `modules/std/binary`, `modules/std/result` | local |
+| `collections_hashmap_api.nano` | builtin `HashMap<K,V>` | local |
+| `collections_set_api.nano` | `modules/std/collections/set` | local |
+| `diagnostics_api.nano` | `modules/std/diagnostics` | local |
+| `dispatch_api.nano` | `modules/dispatch` (libdispatch / GCD) | local on macOS |
+| `env_api.nano` | `modules/std/env` | local |
+| `fs_api.nano` | `modules/std/fs` | local |
+| `json_api.nano` | `modules/std/json` | local |
+| `log_api.nano` | `modules/std/log` | local |
+| `math_ext_api.nano` | `modules/math_ext` | local |
+| `math_extended_api.nano` | `modules/std/math/extended` | local |
+| `math_vector2d_api.nano` | `modules/std/math/vector2d` | local |
+| `nano_highlight_api.nano` | `modules/nano_highlight` | local |
+| `peg_api.nano` | `modules/std/peg` | local |
+| `peg2_api.nano` | `modules/std/peg2` | local |
+| `preferences_api.nano` | `modules/preferences` | external-deps |
+| `process_api.nano` | `modules/std/process` | local |
+| `proptest_api.nano` | `modules/proptest` | local |
+| `pt2_module_api.nano` | `modules/pt2_module` | external-deps |
+| `pt2_state_api.nano` | `modules/pt2_state` | local |
+| `pybridge_api.nano` | `modules/pybridge` | external-deps (Python) |
+| `pybridge_matplotlib_api.nano` | `modules/pybridge_matplotlib` | external-deps (Python + matplotlib) |
+| `result_api.nano` | `modules/std/result` | local |
+| `stringbuilder_api.nano` | `modules/std/collections/stringbuilder` | local |
+| `vector2d_api.nano` | `modules/vector2d` | local |
+| `stdio_api.nano` | `modules/std/io/stdio` | broken — upstream extern signatures (`fgetc`, `clearerr`) clash with system `<stdio.h>` |
+| `websocket_api.nano` | `modules/websocket` | broken — compiler segfaults on the websocket FFI surface |
+| `tidy_api.nano` | `stdlib/tidy` | broken — `stdlib/tidy.nano` defines its own `fn main()` that clashes with importers |
 
 ## Showcases
 
@@ -237,7 +273,7 @@ These gaps remain visible so future work does not rediscover them.
 | package manifests | Fixed `hello_pkg` and added `examples/large_project/`. | Add registry publish/install dry-run once the registry CLI is stable. |
 | cross-backend execution | Added `hello_cross_backend.nano`. | Add a small runner that executes native, VM, and WASM when those backends are present. |
 | deterministic integrations | Added `file_pipeline.nano`. | Add local HTTP fixture with fixed input and no internet dependency. |
-| stdlib modules | Coverage is uneven. | Add focused examples for option/result/list/iter/map/set/tidy/binary/io/preferences/websocket/pybridge/nano_highlight/audio_helpers/pt2_state. |
+| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket (broken), pybridge, nano_highlight, audio_helpers, pt2_state, stdio (broken), stringbuilder, array_utils, diagnostics, dispatch, json, log, math_ext, math/extended, math/vector2d, peg, peg2, process, proptest, pt2_module, vector2d, hashmap. | Outstanding gaps: option/list/iter/map/string lessons require `stdlib/*.nano` rewrites (currently use a non-supported dialect); math/vector3d, vector4d, matrix4, quaternion, complex still need lessons. |
 | side-effect shadows | Many graphical and I/O demos still use `assert true`. | Extract pure helpers and test those helpers with concrete inputs. |
 | structured headers | Parser support exists now. | Normalize old headers opportunistically rather than churning every file at once. |
 

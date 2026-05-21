@@ -1,0 +1,55 @@
+# Example: Set API Lesson
+# Purpose: I show the string Set API with add, membership, values, remove, and clear
+# Features: Set, add, has, size, values, remove, clear
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: collections_hashmap_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/collections/set
+# Tags: api-lesson, collections, shadow-tested
+# Expected Output: set size: 2
+
+from "modules/std/collections/set.nano" import Set, set_new, set_add, set_has, set_size, set_values, set_remove, set_clear, set_free
+
+fn build_tags() -> Set {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "local")
+    let s2: Set = (set_add s1 "tested")
+    return (set_add s2 "local")
+}
+
+shadow build_tags {
+    let tags: Set = (build_tags)
+    assert (set_has tags "local")
+    assert (set_has tags "tested")
+    assert (== (set_size tags) 2)
+    let vals: array<string> = (set_values tags)
+    assert (== (array_length vals) 2)
+    (set_free tags)
+}
+
+fn remove_local() -> int {
+    let tags: Set = (build_tags)
+    let removed: Set = (set_remove tags "local")
+    assert (not (set_has removed "local"))
+    let cleared: Set = (set_clear removed)
+    let final_size: int = (set_size cleared)
+    (set_free cleared)
+    return final_size
+}
+
+shadow remove_local {
+    assert (== (remove_local) 0)
+}
+
+fn main() -> int {
+    let tags: Set = (build_tags)
+    (println (+ "set size: " (int_to_string (set_size tags))))
+    (set_free tags)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

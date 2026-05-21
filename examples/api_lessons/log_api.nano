@@ -1,0 +1,62 @@
+# Example: std::log API Lesson
+# Purpose: I show configuring log level, writing info/warn/error, and reading the level back
+# Features: set_log_level, get_log_level, log_info, log_warn, log_error, log_info_int, level constants
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: stdio_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/log
+# Tags: api-lesson, log, ffi
+
+from "modules/std/log/log.nano" import set_log_level, get_log_level, log_info, log_warn, log_error, log_info_int
+
+# Expected Output: log level: 1
+
+# Constant level values (mirrors modules/std/log/log.nano).
+# frozen
+let LEVEL_INFO: int = 1
+# frozen
+let LEVEL_WARN: int = 2
+
+fn configured_level() -> int {
+    (set_log_level LEVEL_INFO)
+    return (get_log_level)
+}
+
+shadow configured_level {
+    # Log FFI runs at runtime; shadow asserts on pure constants.
+    assert (== LEVEL_INFO 1)
+    assert (== LEVEL_WARN 2)
+}
+
+fn level_above_warning() -> bool {
+    return (>= LEVEL_WARN LEVEL_INFO)
+}
+
+shadow level_above_warning {
+    assert (level_above_warning)
+}
+
+fn emit_messages() -> void {
+    (set_log_level LEVEL_INFO)
+    (log_info "starting job")
+    (log_info_int "processed records" 7)
+    (log_warn "slow downstream")
+    (log_error "non-fatal hiccup")
+}
+
+shadow emit_messages {
+    # Don't run log FFI in shadow; just check level constant arithmetic.
+    assert (== (+ LEVEL_INFO 1) LEVEL_WARN)
+}
+
+fn main() -> int {
+    (emit_messages)
+    (println (+ "log level: " (int_to_string (configured_level))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

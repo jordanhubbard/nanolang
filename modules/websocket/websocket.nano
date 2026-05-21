@@ -26,8 +26,8 @@ shadow connect {
 }
 
 /* Send a UTF-8 text message. Returns 0 on success. */
-pub fn send(handle: int, message: string) -> int {
-    return (nl_ws_send handle message)
+pub fn send(h: int, message: string) -> int {
+    return (nl_ws_send h message)
 }
 
 shadow send {
@@ -36,8 +36,8 @@ shadow send {
 
 /* Receive the next message (blocks until data arrives or connection closes).
  * Returns "" on error or close. */
-pub fn receive(handle: int) -> string {
-    return (nl_ws_receive handle)
+pub fn receive(h: int) -> string {
+    return (nl_ws_receive h)
 }
 
 shadow receive {
@@ -46,8 +46,8 @@ shadow receive {
 
 /* Receive with a timeout in milliseconds.
  * Returns "" on timeout or error. */
-pub fn receive_timeout(handle: int, timeout_ms: int) -> string {
-    return (nl_ws_receive_timeout handle timeout_ms)
+pub fn receive_timeout(h: int, timeout_ms: int) -> string {
+    return (nl_ws_receive_timeout h timeout_ms)
 }
 
 shadow receive_timeout {
@@ -55,8 +55,8 @@ shadow receive_timeout {
 }
 
 /* Close the WebSocket connection. Returns 0 on success. */
-pub fn close(handle: int) -> int {
-    return (nl_ws_close handle)
+pub fn close(h: int) -> int {
+    return (nl_ws_close h)
 }
 
 shadow close {
@@ -64,8 +64,8 @@ shadow close {
 }
 
 /* Returns true if the handle refers to an open connection. */
-pub fn is_connected(handle: int) -> bool {
-    return (!= (nl_ws_is_connected handle) 0)
+pub fn is_connected(h: int) -> bool {
+    return (!= (nl_ws_is_connected h) 0)
 }
 
 shadow is_connected {
@@ -73,8 +73,8 @@ shadow is_connected {
 }
 
 /* Returns the last error message for a handle. */
-pub fn last_error(handle: int) -> string {
-    return (nl_ws_last_error handle)
+pub fn last_error(h: int) -> string {
+    return (nl_ws_last_error h)
 }
 
 shadow last_error {

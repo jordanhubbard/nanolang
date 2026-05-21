@@ -1,0 +1,71 @@
+# Example: Vector2D API Lesson
+# Purpose: I show 2D vector construction, arithmetic, and a small interpolated path
+# Features: Vector2D, vec_new, vec_add, vec_scale, vec_dot, vec_length, vec_normalize, vec_lerp, shadow tests
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: nl_floats
+# Track: modules
+# Build: local
+# Dependencies: modules/vector2d
+# Tags: api-lesson, vector2d, shadow-tested
+# Expected Output: midpoint length: 5.0
+
+from "modules/vector2d/vector2d.nano" import Vector2D, vec_new, vec_add, vec_scale, vec_dot, vec_length, vec_normalize, vec_lerp
+
+fn midpoint_length(a: Vector2D, b: Vector2D) -> float {
+    let sum: Vector2D = (vec_add a b)
+    let mid: Vector2D = (vec_scale sum 0.5)
+    return (vec_length mid)
+}
+
+shadow midpoint_length {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 6.0 8.0)
+    let mid_len: float = (midpoint_length a b)
+    assert (and (> mid_len 4.99) (< mid_len 5.01))
+}
+
+fn perpendicular_dot_is_zero() -> bool {
+    let v: Vector2D = (vec_new 3.0 0.0)
+    let w: Vector2D = (vec_new 0.0 7.0)
+    let d: float = (vec_dot v w)
+    return (and (> d -0.0001) (< d 0.0001))
+}
+
+shadow perpendicular_dot_is_zero {
+    assert (perpendicular_dot_is_zero)
+}
+
+fn unit_length() -> float {
+    let v: Vector2D = (vec_new 3.0 4.0)
+    let u: Vector2D = (vec_normalize v)
+    return (vec_length u)
+}
+
+shadow unit_length {
+    let len: float = (unit_length)
+    assert (and (> len 0.999) (< len 1.001))
+}
+
+fn path_step(a: Vector2D, b: Vector2D, t: float) -> Vector2D {
+    return (vec_lerp a b t)
+}
+
+shadow path_step {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 10.0 0.0)
+    let half: Vector2D = (path_step a b 0.5)
+    assert (== half.x 5.0)
+    assert (== half.y 0.0)
+}
+
+fn main() -> int {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 6.0 8.0)
+    (println (+ "midpoint length: " (float_to_string (midpoint_length a b))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
