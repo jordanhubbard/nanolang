@@ -1,6 +1,14 @@
-# Source Editor Module
-# Text buffer with cursor, insert/delete, save, new-file templates
-# No SDL dependency - rendering handled by launcher_ui
+# Example: Source Editor Library
+# Purpose: Maintain text buffers and file edits for the examples launcher
+# Features: text buffers, cursor movement, file IO, templates
+# Difficulty: Advanced
+# Category: internal
+# Prerequisites: none
+# Track: internal
+# Build: local
+# Dependencies: modules/std/fs
+# Tags: launcher, editor, internal
+# Expected Output: none
 
 from "modules/std/fs.nano" import read, write, exists
 

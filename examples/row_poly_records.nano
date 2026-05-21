@@ -1,11 +1,17 @@
-# row_poly_records.nano — Row-polymorphic record examples for nanolang
+# Example: Row-Polymorphic Records
+# Purpose: Document conceptual row-polymorphic record behavior from the design notes
+# Features: records, conceptual row variables, agentOS schema sketch
+# Difficulty: Advanced
+# Category: concept
+# Prerequisites: nl_struct
+# Track: experimental
+# Build: concept
+# Dependencies: none
+# Tags: row-polymorphism, design-only, not-runnable
+# Expected Output: concept
 #
-# These examples illustrate the row-polymorphic record type system described
-# in docs/ROW_POLYMORPHIC_RECORDS_DESIGN.md.
-#
-# NOTE: This file demonstrates the *type-level* semantics.  Full parser
-# support for {f:T|r} syntax is a planned extension; the HM type inferencer
-# already handles these types internally (see src/type_infer.c).
+# I demonstrate type-level semantics here. Full parser support for open row
+# syntax is still a design boundary.
 
 # ── 1. Basic row polymorphism ──────────────────────────────────────────────
 #

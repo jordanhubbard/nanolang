@@ -1,3 +1,15 @@
+# Example: GPU SAXPY
+# Purpose: Demonstrate the SAXPY benchmark pattern on the GPU
+# Features: gpu fn, vector arithmetic, device memory, shadow tests
+# Difficulty: Advanced
+# Category: gpu
+# Prerequisites: vector_add
+# Track: modules
+# Build: gpu, external-deps
+# Dependencies: modules/gpu, CUDA or OpenCL runtime
+# Tags: gpu, native-only
+# Expected Output: saxpy:
+
 # saxpy.nano — SAXPY: z[i] = a*x[i] + y[i] on the GPU
 #
 # SAXPY (A*X Plus Y) is the classic GPU benchmark.

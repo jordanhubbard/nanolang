@@ -1,3 +1,15 @@
+# Example: String Interpolation
+# Purpose: Demonstrate f-string interpolation and automatic value conversion
+# Features: f-strings, string concatenation, value conversion, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_string_operations
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: strings, shadow-tested
+# Expected Output: string interpolation
+
 # nl_string_interp.nano - demonstrates f-string interpolation
 #
 # f"..." strings embed expressions in {expr} placeholders.

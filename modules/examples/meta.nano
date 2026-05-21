@@ -9,6 +9,10 @@
 #   # Difficulty: Beginner|Intermediate|Advanced
 #   # Category: language|graphics|audio|games|opengl|terminal|physics|debug|verified|data|network|advanced
 #   # Prerequisites: none
+#   # Track: learn|modules|showcase|internal|experimental
+#   # Build: local|external-deps|network|api-key|graphical|audio|gpu|generated|concept|expected-failure
+#   # Dependencies: none
+#   # Tags: shadow-tested, native-only
 #   # Expected Output: Hello from NanoLang!
 
 from "modules/std/fs.nano" import read, exists
@@ -20,6 +24,10 @@ pub struct ExampleMeta {
     difficulty: string,
     category: string,
     prerequisites: string,
+    track: string,
+    build: string,
+    dependencies: string,
+    tags: string,
     expected_output: string,
     source_file: string
 }
@@ -33,6 +41,10 @@ pub fn meta_empty(source_file: string) -> ExampleMeta {
         difficulty: "",
         category: "",
         prerequisites: "",
+        track: "",
+        build: "",
+        dependencies: "",
+        tags: "",
         expected_output: "",
         source_file: source_file
     }
@@ -152,6 +164,10 @@ pub fn parse_meta_from_content(content: string, source_file: string) -> ExampleM
     let mut difficulty: string = ""
     let mut category: string = ""
     let mut prerequisites: string = ""
+    let mut track: string = ""
+    let mut build: string = ""
+    let mut dependencies: string = ""
+    let mut tags: string = ""
     let mut expected_output: string = ""
 
     while (and (< pos content_len) (< lines_read 30)) {
@@ -177,8 +193,20 @@ pub fn parse_meta_from_content(content: string, source_file: string) -> ExampleM
         let v6: string = (extract_field line "# Prerequisites: ")
         if (!= v6 "") { set prerequisites v6 } else { (print "") }
 
-        let v7: string = (extract_field line "# Expected Output: ")
-        if (!= v7 "") { set expected_output v7 } else { (print "") }
+        let v7: string = (extract_field line "# Track: ")
+        if (!= v7 "") { set track v7 } else { (print "") }
+
+        let v8: string = (extract_field line "# Build: ")
+        if (!= v8 "") { set build v8 } else { (print "") }
+
+        let v9: string = (extract_field line "# Dependencies: ")
+        if (!= v9 "") { set dependencies v9 } else { (print "") }
+
+        let v10: string = (extract_field line "# Tags: ")
+        if (!= v10 "") { set tags v10 } else { (print "") }
+
+        let v11: string = (extract_field line "# Expected Output: ")
+        if (!= v11 "") { set expected_output v11 } else { (print "") }
     }
 
     return ExampleMeta {
@@ -188,13 +216,17 @@ pub fn parse_meta_from_content(content: string, source_file: string) -> ExampleM
         difficulty: difficulty,
         category: category,
         prerequisites: prerequisites,
+        track: track,
+        build: build,
+        dependencies: dependencies,
+        tags: tags,
         expected_output: expected_output,
         source_file: source_file
     }
 }
 
 shadow parse_meta_from_content {
-    let content: string = "# Example: Hello World\n# Purpose: Test greeting\n# Features: println\n# Difficulty: Beginner\n# Category: language\n# Prerequisites: none\n# Expected Output: Hello!\n\nfn main() -> int {\n    return 0\n}\n"
+    let content: string = "# Example: Hello World\n# Purpose: Test greeting\n# Features: println\n# Difficulty: Beginner\n# Category: language\n# Prerequisites: none\n# Track: learn\n# Build: local\n# Dependencies: none\n# Tags: shadow-tested\n# Expected Output: Hello!\n\nfn main() -> int {\n    return 0\n}\n"
     let meta: ExampleMeta = (parse_meta_from_content content "test.nano")
     assert (== meta.name "Hello World")
     assert (== meta.purpose "Test greeting")
@@ -202,6 +234,10 @@ shadow parse_meta_from_content {
     assert (== meta.difficulty "Beginner")
     assert (== meta.category "language")
     assert (== meta.prerequisites "none")
+    assert (== meta.track "learn")
+    assert (== meta.build "local")
+    assert (== meta.dependencies "none")
+    assert (== meta.tags "shadow-tested")
     assert (== meta.expected_output "Hello!")
     assert (== meta.source_file "test.nano")
 }
@@ -260,6 +296,14 @@ pub fn meta_to_json(meta: ExampleMeta) -> string {
     set json (+ json (+ (json_escape meta.category) "\","))
     set json (+ json "\"prerequisites\":\"")
     set json (+ json (+ (json_escape meta.prerequisites) "\","))
+    set json (+ json "\"track\":\"")
+    set json (+ json (+ (json_escape meta.track) "\","))
+    set json (+ json "\"build\":\"")
+    set json (+ json (+ (json_escape meta.build) "\","))
+    set json (+ json "\"dependencies\":\"")
+    set json (+ json (+ (json_escape meta.dependencies) "\","))
+    set json (+ json "\"tags\":\"")
+    set json (+ json (+ (json_escape meta.tags) "\","))
     set json (+ json "\"expected_output\":\"")
     set json (+ json (+ (json_escape meta.expected_output) "\","))
     set json (+ json "\"source_file\":\"")

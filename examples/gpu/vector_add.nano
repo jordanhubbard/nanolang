@@ -1,3 +1,15 @@
+# Example: GPU Vector Add
+# Purpose: Show the smallest useful GPU vector kernel
+# Features: gpu fn, global_id_x, device memory, kernel launch
+# Difficulty: Advanced
+# Category: gpu
+# Prerequisites: nl_array_complete
+# Track: modules
+# Build: gpu, external-deps
+# Dependencies: modules/gpu, CUDA or OpenCL runtime
+# Tags: gpu, native-only
+# Expected Output: vector add:
+
 # vector_add.nano — GPU vector addition using nanolang gpu fn + import gpu
 #
 # Demonstrates:

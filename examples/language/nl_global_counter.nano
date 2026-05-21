@@ -1,3 +1,15 @@
+# Example: Global Counter
+# Purpose: Demonstrate module-scope mutable state guarded by dispatch support
+# Features: module-scope let mut, guarded reads, guarded writes, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_mutable
+# Track: modules
+# Build: external-deps
+# Dependencies: libdispatch
+# Tags: concurrency, native-only
+# Expected Output: global counter
+
 # nl_global_counter.nano — demonstrates module-scope let mut with dispatch safety
 #
 # Module-scope `let mut` primitive variables are automatically wrapped in

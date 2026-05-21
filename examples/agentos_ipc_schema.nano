@@ -1,9 +1,17 @@
-# agentos_ipc_schema.nano — agentOS IPC message schemas using row-polymorphic records
+# Example: agentOS IPC Schema
+# Purpose: Document conceptual row-polymorphic IPC message schemas
+# Features: records, conceptual row variables, IPC envelope pattern
+# Difficulty: Advanced
+# Category: concept
+# Prerequisites: row_poly_records
+# Track: experimental
+# Build: concept
+# Dependencies: none
+# Tags: row-polymorphism, design-only, not-runnable
+# Expected Output: concept
 #
-# Demonstrates how row polymorphism models the agentOS IPC protocol, where:
-#   - All messages share a common envelope (id, ts, version)
-#   - Specific message types carry variant payloads
-#   - A generic router can accept any envelope variant
+# I use this file to sketch how row polymorphism models the agentOS IPC
+# protocol. It is not a runnable learning example.
 
 # ── Common envelope fields ─────────────────────────────────────────────────
 #

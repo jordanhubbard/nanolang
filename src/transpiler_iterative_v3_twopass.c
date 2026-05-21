@@ -3898,7 +3898,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     /* Vectorization hints for numeric element types */
                     if (dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) {
                         emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#if defined(__GNUC__) && !defined(__clang__)\n");
+                        emit_indent_item(list, indent + 1);
                         emit_literal(list, "#pragma GCC ivdep\n");
+                        emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#endif\n");
                         emit_indent_item(list, indent + 1);
                         emit_literal(list, "#pragma clang loop vectorize(enable) interleave(enable)\n");
                     }

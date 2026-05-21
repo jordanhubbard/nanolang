@@ -1,3 +1,15 @@
+# Example: GPU Reduce Sum
+# Purpose: Demonstrate a parallel reduction using GPU atomics
+# Features: gpu fn, atomics, device memory, shadow tests
+# Difficulty: Advanced
+# Category: gpu
+# Prerequisites: vector_add
+# Track: modules
+# Build: gpu, external-deps
+# Dependencies: modules/gpu, CUDA or OpenCL runtime
+# Tags: gpu, native-only
+# Expected Output: reduction sum:
+
 # reduce_sum.nano — Parallel reduction: sum of an integer array
 #
 # Each thread atomically adds its element to a global accumulator.

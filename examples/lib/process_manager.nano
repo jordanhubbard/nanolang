@@ -1,5 +1,14 @@
-# Process Manager Module
-# Manages child processes: spawn, poll, kill, build integration, resource tracking
+# Example: Process Manager Library
+# Purpose: Manage child processes for the examples launcher
+# Features: process spawning, polling, build output, pipes
+# Difficulty: Advanced
+# Category: internal
+# Prerequisites: none
+# Track: internal
+# Build: local
+# Dependencies: modules/std/process, modules/std/fs, modules/std/env
+# Tags: launcher, process, internal
+# Expected Output: none
 
 from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, Output
 from "modules/std/fs.nano" import exists, read, basename, dirname

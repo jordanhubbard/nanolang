@@ -1,436 +1,248 @@
 # My Examples Index
-## Complete Guide to My 80 Examples
 
-**Last Updated**: 2026-02-26
-**Total Examples**: 80
-**Organization**: By difficulty and topic
+Last audited: 2026-05-21.
 
----
+I have 211 `.nano` files under `examples/`. The audit began at 204 files; this update adds missing package, resource, diagnostics, cross-backend, and deterministic integration examples.
 
-## Quick Start: My Learning Paths
+This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
-### Beginner Path (Start Here)
-Follow this sequence to learn my basics:
-1. `nl_hello.nano` : Hello World, basic syntax
-2. `nl_calculator.nano` : Functions and prefix/infix notation
-3. `nl_operators.nano` : Arithmetic operators
-4. `nl_comparisons.nano` : Comparison operators
-5. `nl_types.nano` : Type system basics
-6. `nl_mutable.nano` : Immutable vs mutable
-7. `nl_array_complete.nano` : Arrays and collections
-8. `nl_struct.nano` : User-defined types
-9. `nl_factorial.nano` : Recursion
-10. `nl_fibonacci.nano` : Iteration and recursion
-11. `namespace_demo.nano` : Module system and visibility (NEW)
+## Tracks
 
-**Estimated Time**: 4, 7 hours
+I sort examples by what they are for, not only by directory.
 
----
+| Track | Meaning | Rule |
+| --- | --- | --- |
+| Learn | Small deterministic programs that teach my syntax. | No API keys, no network, no GUI loop, no hidden service dependency. |
+| Modules | Focused examples for one module or integration surface. | State external libraries, build mode, and runtime assumptions. |
+| Showcases | Larger programs that prove I can build complete tools, games, or systems. | Keep pure helpers tested even when rendering or I/O is hard to assert. |
+| Internal | Shared helper code, generated output, runners, fixtures, and support modules. | Do not present these as teaching examples. |
+| Experimental | Concept sketches, expected-failure diagnostics, or features not ready for a beginner path. | Label the boundary plainly. |
 
-### Graphics and Games Path
-For visual applications and game development:
-1. `sdl_drawing_primitives.nano` : SDL basics
-2. `sdl_mouse_click.nano` : Input handling
-3. `sdl_particles.nano` : Particle systems
-4. `sdl_pong.nano` : Complete game
-5. `sdl_asteroids.nano` : Advanced game (SHOWCASE)
-6. `sdl_terrain_explorer.nano` : 3D graphics (SHOWCASE)
-7. `opengl_cube.nano` : OpenGL 3D
-8. `sdl_raytracer.nano` : Ray tracing
+## Metadata
 
-**Estimated Time**: 8, 12 hours
+Every new example should use this header shape.
 
----
-
-### C FFI and Integration Path
-For calling C libraries and external integrations:
-1. `nl_extern_math.nano` : C math functions
-2. `nl_extern_string.nano` : C string functions
-3. `curl_example.nano` : HTTP requests with libcurl
-4. `sqlite_simple.nano` : Database operations
-5. `uv_example.nano` : Async I/O with libuv
-6. `event_example.nano" : Event loops with libevent
-
-**Estimated Time**: 6, 8 hours
-
----
-
-### Advanced Features Path
-For advanced language features and metaprogramming:
-1. `nl_generics_demo.nano` : Generic types
-2. `nl_first_class_functions.nano` : Higher-order functions
-3. `nl_filter_map_fold.nano` : Functional programming
-4. `stdlib_ast_demo.nano` : AST manipulation (SHOWCASE)
-5. `nl_demo_selfhosting.nano` : Self-hosting demo
-6. `nl_tracing.nano` : Execution tracing
-
-**Estimated Time**: 8, 10 hours
-
----
-
-## My Complete Examples Catalog
-
-### 1. LANGUAGE BASICS (15 examples)
-
-#### Core Syntax
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_hello.nano` | Beginner | Hello World, print | 5 min |
-| `nl_calculator.nano` | Beginner | Functions, arithmetic | 10 min |
-| `nl_operators.nano` | Beginner | +, -, *, /, % | 10 min |
-| `nl_comparisons.nano` | Beginner | ==, !=, <, >, etc | 10 min |
-| `nl_logical.nano` | Beginner | and, or, not | 10 min |
-| `nl_floats.nano` | Beginner | Float arithmetic | 10 min |
-
-#### Types and Variables
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_types.nano` | Beginner | Type system | 15 min |
-| `nl_mutable.nano` | Beginner | let vs let mut | 15 min |
-
-#### Control Flow
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_factorial.nano` | Intermediate | Recursion | 15 min |
-| `nl_fibonacci.nano` | Intermediate | Recursion, memoization | 20 min |
-| `nl_primes.nano` | Intermediate | Algorithms | 20 min |
-| `nl_pi_chudnovsky.nano` | Advanced | Machin's formula, timing, verification | 30 min |
-
-#### Language Features
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_random_sentence.nano` | Beginner | RNG, strings | 15 min |
-| `nl_forth_interpreter.nano` | Expert | ANS Forth / Forth 2012 subset, interpreter, List<T>, token-threaded execution, REPL, T{→}T test harness, 280 tests | 60-90 min |
-
----
-
-### 2. DATA STRUCTURES (12 examples)
-
-#### Arrays
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_array_complete.nano` | Intermediate | Arrays (comprehensive) | 30 min |
-| `nl_array_bounds.nano` | Intermediate | Bounds checking | 15 min |
-| `vector2d_demo.nano` | Intermediate | 2D vectors | 20 min |
-
-#### User-Defined Types
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_struct.nano` | Intermediate | Structs | 20 min |
-| `nl_enum.nano` | Intermediate | Enumerations | 20 min |
-| `nl_union_types.nano` | Advanced | Tagged unions | 30 min |
-
-#### Generics
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_generics_demo.nano` | Advanced | Generic List<T> | 40 min |
-
----
-
-### 3. FUNCTIONS AND FUNCTIONAL PROGRAMMING (4 examples)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_first_class_functions.nano` | Advanced | Functions as values | 30 min |
-| `nl_function_factories_v2.nano` | Advanced | Closures, factories | 30 min |
-| `nl_filter_map_fold.nano` | Advanced | FP patterns | 40 min |
-| `nl_function_variables.nano` | Intermediate | Function references | 20 min |
-
----
-
-### 4. STRINGS (2 examples)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_string_operations.nano` | Intermediate | String manipulation | 25 min |
-| `nl_extern_string.nano` | Advanced | C FFI strings | 25 min |
-
----
-
-### 5. MATH (5 examples)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_advanced_math.nano` | Intermediate | Trig, logarithms | 25 min |
-| `nl_extern_math.nano` | Intermediate | C math FFI | 20 min |
-| `nl_extern_char.nano` | Intermediate | C char FFI | 15 min |
-| `nl_matrix_operations.nano` | Expert | Linear algebra (SHOWCASE) | 60 min |
-| `nl_pi_calculator.nano` | Intermediate | Pi calculation | 20 min |
-
----
-
-### 6. STANDARD LIBRARY (2 examples)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `stdlib_ast_demo.nano` | Expert | AST manipulation (SHOWCASE) | 60 min |
-| `nl_tracing.nano` | Intermediate | Execution tracing | 25 min |
-
----
-
-### 7. EXTERNAL LIBRARIES (7 examples)
-
-#### HTTP and Networking
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `curl_example.nano` | Advanced | HTTP with libcurl | 30 min |
-| `uv_example.nano` | Expert | Async I/O (libuv) | 40 min |
-| `event_example.nano` | Expert | Event loops (libevent) | 40 min |
-
-#### Database
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sqlite_simple.nano` | Advanced | SQLite database | 30 min |
-
-#### Machine Learning
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `onnx_classifier.nano` | Expert | ML inference (ONNX) | 45 min |
-| `onnx_inference.nano` | Advanced | ONNX basics | 30 min |
-| `onnx_simple.nano` | Intermediate | Simple ONNX | 20 min |
-
----
-
-### 8. GAMES (8 examples)
-
-#### Cellular Automata
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_game_of_life.nano` | Advanced | Conway's Life | 40 min |
-| `nl_falling_sand.nano` | Advanced | Particle physics | 40 min |
-
-#### Classic Games
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_snake.nano` | Intermediate | Snake game | 30 min |
-| `nl_tictactoe.nano` | Intermediate | Tic-tac-toe | 30 min |
-| `nl_maze.nano` | Advanced | Maze generation | 35 min |
-
-#### AI and Simulation
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_boids.nano` | Expert | Flocking AI | 50 min |
-
-#### Ncurses Games
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `ncurses_snake.nano` | Advanced | Terminal snake | 35 min |
-| `ncurses_game_of_life.nano` | Advanced | Terminal Life | 35 min |
-
----
-
-### 9. SDL GRAPHICS AND GAMES (22 examples)
-
-#### SDL Basics
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_drawing_primitives.nano` | Intermediate | Drawing basics | 25 min |
-| `sdl_texture_demo.nano` | Intermediate | Textures | 25 min |
-| `sdl_mouse_click.nano` | Intermediate | Mouse input | 20 min |
-
-#### SDL Audio
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_audio_wav.nano` | Advanced | WAV playback | 30 min |
-| `sdl_audio_player.nano` | Expert | Full audio player | 60 min |
-| `sdl_nanoamp.nano` | Expert | Music visualizer (SHOWCASE) | 90 min |
-| `sdl_mod_visualizer.nano` | Expert | MOD player | 50 min |
-
-#### SDL UI
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_ui_widgets_extended.nano` | Expert | Complete UI suite | 60 min |
-
-#### SDL Visual Effects
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_fire.nano` | Advanced | Fire effect | 35 min |
-| `sdl_particles.nano` | Expert | Particle system (SHOWCASE) | 50 min |
-| `sdl_starfield.nano` | Advanced | Starfield | 30 min |
-| `ncurses_matrix_rain.nano` | Advanced | Matrix rain | 30 min |
-
-#### SDL Physics and Simulation
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_falling_sand.nano` | Expert | Falling sand physics | 50 min |
-| `sdl_boids.nano` | Expert | Flocking AI (SHOWCASE) | 60 min |
-
-#### SDL Games
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_pong.nano` | Advanced | Pong game | 40 min |
-| `sdl_checkers.nano` | Expert | Checkers + AI | 60 min |
-| `sdl_asteroids.nano` | Expert | Complete game (SHOWCASE) | 90 min |
-
-#### SDL Advanced Graphics
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_raytracer.nano` | Expert | Ray tracing | 90 min |
-| `sdl_terrain_explorer.nano` | Expert | 3D terrain (SHOWCASE) | 90 min |
-
-#### SDL Integration
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `sdl_nanoviz.nano` | Expert | 3D music visualizer | 90 min |
-| `sdl_example_launcher.nano` | Intermediate | Example browser/launcher (SDL UI) | 20 min |
-
----
-
-### 10. OPENGL (2 examples)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `opengl_cube.nano` | Expert | 3D cube | 45 min |
-| `opengl_teapot.nano` | Expert | Utah teapot | 45 min |
-
----
-
-### 11. ADVANCED FEATURES (1 example)
-
-| Example | Difficulty | Topics | Time |
-|---------|------------|--------|------|
-| `nl_demo_selfhosting.nano` | Expert | Self-hosting demo | 60 min |
-
----
-
-## My Showcase Applications
-
-I provide 6 showcase applications. These represent the best of what I am and show multiple features in production-quality code.
-
-1. **SDL Asteroids** (`sdl_asteroids.nano`) : Complete arcade game
-   - Topics: Game loop, physics, collision, entities, state management
-   - Time: 90+ minutes
-   - Why I showcase this: It is complete, polished, and ready for use.
-
-2. **SDL Terrain Explorer** (`sdl_terrain_explorer.nano`) : 3D graphics
-   - Topics: 3D math, LOD rendering, Perlin noise, camera controls
-   - Time: 90+ minutes
-   - Why I showcase this: It demonstrates advanced graphics and performance optimization.
-
-3. **SDL Boids** (`sdl_boids.nano`) : Flocking AI simulation
-   - Topics: AI, spatial hashing, emergent behavior, 1000+ entities
-   - Time: 60+ minutes
-   - Why I showcase this: It shows sophisticated algorithms and efficient execution.
-
-4. **SDL NanoAmp** (`sdl_nanoamp.nano`) : Music visualizer
-   - Topics: Audio, FFT, DSP, real-time visualization
-   - Time: 90+ minutes
-   - Why I showcase this: It handles audio processing and produces clear visualizations.
-
-5. **Matrix Operations** (`nl_matrix_operations.nano`) : Linear algebra
-   - Topics: Generics, performance, algorithms, comprehensive tests
-   - Time: 60+ minutes
-   - Why I showcase this: It is a production-quality library.
-
-6. **Stdlib AST Demo** (`stdlib_ast_demo.nano`) : Metaprogramming
-   - Topics: AST manipulation, compiler internals, code generation
-   - Time: 60+ minutes
-   - Why I showcase this: It demonstrates a unique feature of my design.
-
-See `docs/SHOWCASE_APPLICATIONS.md` for my detailed analysis.
-
----
-
-## My Difficulty Ratings
-
-- **Beginner** (0, 15 min): Basic syntax, no prerequisites
-- **Intermediate** (15, 30 min): Requires basic knowledge
-- **Advanced** (30, 50 min): Complex concepts, multiple features
-- **Expert** (50, 90 min): Production-quality, sophisticated
-- **Showcase** (90+ min): Best-in-class, comprehensive
-
----
-
-## Topic Index
-
-Find examples by topic:
-
-**Language Core**: hello, calculator, operators, types, mutable, factorial, fibonacci
-
-**Data Structures**: arrays, structs, enums, unions, generics
-
-**Functions**: first-class, factories (no captured closures), map/reduce
-
-**Strings**: operations, extern string
-
-**Math**: advanced math, matrix operations, pi calculator, extern math
-
-**I/O and OS**: file operations, paths
-
-**FFI and External**: curl, sqlite, uv, event, onnx
-
-**Games**: game of life, snake, maze, tic-tac-toe, boids
-
-**SDL Graphics**: primitives, textures, particles, effects
-
-**SDL Games**: pong, checkers, asteroids
-
-**SDL Audio**: wav player, audio player, visualizers
-
-**OpenGL**: 3D cube, teapot
-
-**Advanced**: generics, AST, self-hosting, tracing
-
----
-
-## My Prerequisites Map
-
-```
-LEVEL 1 (No Prerequisites):
-└─ nl_hello.nano
-
-LEVEL 2 (Hello World only):
-├─ nl_calculator.nano
-├─ nl_operators.nano
-└─ nl_types.nano
-
-LEVEL 3 (Basics + Types):
-├─ nl_mutable.nano
-├─ nl_array_complete.nano
-└─ nl_struct.nano
-
-LEVEL 4 (Data Structures):
-├─ nl_generics_demo.nano
-├─ nl_first_class_functions.nano
-└─ SDL basics (primitives, mouse)
-
-LEVEL 5 (Advanced Features):
-├─ SDL games (pong, asteroids)
-├─ stdlib_ast_demo.nano
-├─ Matrix operations
-└─ nl_forth_interpreter.nano (requires nl_generics_demo + nl_array_complete)
-
-SHOWCASE LEVEL:
-└─ All my showcase applications
+```nano
+# Example: Name
+# Purpose: One sentence.
+# Features: arrays, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: none
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: shadow-tested, native-compatible
+# Expected Output: Hello from NanoLang!
 ```
 
----
+`Track`, `Build`, `Dependencies`, and `Tags` are now parsed by `modules/examples/meta.nano` and `examples/lib/example_discovery.nano`. Old examples may still lack those fields. They should be normalized when touched.
 
-## My Total Time Estimates
+Use these build labels:
 
-- **Beginner Path**: 4, 7 hours
-- **Graphics Path**: 8, 12 hours
-- **FFI Path**: 6, 8 hours
-- **Advanced Path**: 8, 10 hours
-- **All Examples**: 60, 80 hours
-- **Showcase Only**: 8, 10 hours
+| Label | Meaning |
+| --- | --- |
+| `local` | I compile and run without external services. |
+| `external-deps` | I need a C library, native package, or module build artifact. |
+| `network` | I open sockets or require a local server. |
+| `api-key` | I call a remote authenticated service. |
+| `graphical` | I open a window. |
+| `audio` | I need audio device support. |
+| `gpu` | I need CUDA, OpenCL, or graphics drivers. |
+| `generated` | I am generated output or a compiler artifact. |
+| `concept` | I explain a design that is not fully compiler-backed. |
+| `expected-failure` | I am supposed to fail so diagnostics can be inspected. |
 
----
+## Directory Counts
 
-## Next Steps
+| Directory | `.nano` files | Track |
+| --- | ---: | --- |
+| `examples/` | 9 | tools, launchers, root showcases |
+| `examples/advanced/` | 26 | modules and advanced language demos |
+| `examples/audio/` | 5 | audio modules and showcases |
+| `examples/cross_backend/` | 1 | cross-backend learn fixture |
+| `examples/data/` | 1 | data module demos |
+| `examples/debug/` | 6 | diagnostics, logging, property tests |
+| `examples/diagnostics/` | 1 | expected-failure diagnostics |
+| `examples/games/` | 3 | SDL game showcases |
+| `examples/gpu/` | 6 | GPU modules |
+| `examples/graphics/` | 21 | SDL and OpenGL-adjacent visual examples |
+| `examples/hello_pkg/` | 1 | package manifest example |
+| `examples/integration/` | 1 | deterministic integration fixture |
+| `examples/language/` | 75 | core language learning path |
+| `examples/large_project/` | 3 | real multi-file package example |
+| `examples/lib/` | 5 | internal launcher/editor support |
+| `examples/mujoco/` | 2 | MuJoCo modules |
+| `examples/network/` | 5 | HTTP and curl modules |
+| `examples/opengl/` | 6 | OpenGL modules |
+| `examples/opl/` | 12 | parser/compiler showcase |
+| `examples/physics/` | 7 | Bullet physics modules |
+| `examples/playground/` | 1 | playground server |
+| `examples/properties/` | 1 | formal property illustration |
+| `examples/terminal/` | 3 | ncurses modules |
+| `examples/verified/` | 9 | verified-subset examples |
 
-1. **Start with my Beginner Path** : Learn my fundamentals.
-2. **Choose your interest** : Graphics, FFI, or Advanced features.
-3. **Build something** : Apply what you learned.
-4. **Study my Showcases** : See production-quality code.
+## Learn Track
 
-For my detailed analysis, see:
-- `docs/EXAMPLES_OVERLAP_AUDIT.md` : Redundancy analysis
-- `docs/EXAMPLES_INSTRUCTIONAL_REVIEW.md` : Teaching focus
-- `docs/REALWORLD_EXAMPLES_EVALUATION.md` : Production quality
-- `docs/SHOWCASE_APPLICATIONS.md` : Flagship applications
+Start here. These examples are deterministic and useful for learning the language itself.
 
----
+1. `examples/language/nl_hello.nano`
+2. `examples/language/nl_operators.nano`
+3. `examples/language/nl_comparisons.nano`
+4. `examples/language/nl_logical.nano`
+5. `examples/language/nl_types.nano`
+6. `examples/language/nl_mutable.nano`
+7. `examples/language/nl_functions_basic.nano`
+8. `examples/language/nl_function_return_values.nano`
+9. `examples/language/nl_factorial.nano`
+10. `examples/language/nl_fibonacci.nano`
+11. `examples/language/nl_control_if_while.nano`
+12. `examples/language/nl_control_for.nano`
+13. `examples/language/nl_array_complete.nano`
+14. `examples/language/nl_array_bounds.nano`
+15. `examples/language/nl_for_in_array.nano`
+16. `examples/language/nl_array_functional.nano`
+17. `examples/language/nl_struct.nano`
+18. `examples/language/nl_enum.nano`
+19. `examples/language/nl_union_types.nano`
+20. `examples/language/nl_types_union_construct.nano`
+21. `examples/language/nl_generics_demo.nano`
+22. `examples/language/nl_hashmap.nano`
+23. `examples/language/nl_types_tuple.nano`
+24. `examples/language/nl_result_propagation.nano`
+25. `examples/language/nl_affine_resource_demo.nano`
+26. `examples/advanced/testing_strategies.nano`
+27. `examples/cross_backend/hello_cross_backend.nano`
+28. `examples/integration/file_pipeline.nano`
 
-**I wish you a productive session.**
+## Progressions
 
+### Arrays
+
+Use this order:
+
+1. `nl_array_complete.nano` teaches literals, indexing, length, and simple operations.
+2. `nl_array_bounds.nano` focuses on checked access.
+3. `nl_array_infer.nano` shows inference around array literals.
+4. `nl_for_in_array.nano` shows iteration.
+5. `nl_array_functional.nano` shows map/filter/fold-style helpers.
+
+The old catalog treated array examples as peers. They are not peers. They are a progression.
+
+### Functions
+
+Use this order:
+
+1. `nl_functions_basic.nano`
+2. `nl_function_return_values.nano`
+3. `nl_function_variables.nano`
+4. `nl_first_class_functions.nano`
+5. `nl_function_factories_v2.nano`
+6. `nl_filter_map_fold.nano`
+
+The beginner path uses the first two. The rest belong to advanced function values.
+
+### Algorithms
+
+Use this order:
+
+1. `nl_factorial.nano`
+2. `nl_fibonacci.nano`
+3. `nl_primes.nano`
+4. `nl_primes_trial_division.nano`
+5. `nl_primes_sieve.nano`
+6. `nl_pi_calculator.nano`
+7. `nl_pi_chudnovsky.nano`
+
+This turns several overlapping math examples into increasing algorithmic weight.
+
+### REPL
+
+The canonical teaching pair is:
+
+1. `simple_repl.nano`
+2. `full_repl.nano`
+
+`vars_repl.nano`, `multi_type_repl.nano`, `multiline_repl.nano`, and `readline_repl.nano` are staged internal variants. Keep them if they are useful while developing the final REPL, but do not put all of them in the main learning path.
+
+### Forth
+
+`examples/language/nl_forth_interpreter.nano` is the canonical Forth interpreter. It has the larger test harness and the module integration.
+
+`examples/forth.nano` is a legacy root example. Keep it only as a smaller historical sketch or remove it after checking that no docs or scripts depend on it.
+
+## Modules Track
+
+These examples demonstrate module surfaces. They are useful, but they are not all beginner material.
+
+| Module Area | Examples | Build |
+| --- | --- | --- |
+| JSON | `examples/data/json_demo.nano`, `examples/opl/opl_json.nano` | local |
+| regex | `examples/advanced/regex_demo_simple.nano`, `examples/advanced/regex_demo.nano` | missing or external module status must be checked before claiming local |
+| datetime | `examples/advanced/datetime_demo.nano` | local or excluded by Makefile pending build check |
+| checked math | `examples/language/nl_checked_math_demo.nano` | local |
+| vector2d | `examples/advanced/module_introspection_demo.nano` | external SDL dependency because the demo also imports SDL |
+| filesystem/process/env | `examples/run_examples.nano`, `examples/opl/opl_cli.nano` | local with compiler/tool assumptions |
+| logging/coverage/proptest | `examples/debug/*.nano` | local |
+| HTTP server | `examples/network/http_hello_world.nano`, `http_static_server.nano`, `http_rest_api.nano` | network, native-only |
+| curl | `examples/network/curl_example.nano` | external-deps, network |
+| GitHub/OpenAI | `examples/ai_github_agent.nano`, `examples/autonomous_github_agent.nano` | api-key, network |
+| SDL | `examples/graphics/sdl_*.nano`, `examples/games/sdl_*.nano`, `examples/audio/sdl_*.nano` | graphical/audio/external-deps |
+| ncurses | `examples/terminal/ncurses_*.nano` | external-deps |
+| OpenGL | `examples/opengl/*.nano` | graphical/external-deps |
+| Bullet | `examples/physics/*.nano` | external-deps |
+| MuJoCo | `examples/mujoco/*.nano` | external-deps |
+| GPU | `examples/gpu/*.nano` | gpu/external-deps |
+| OPL | `examples/opl/*.nano` | local showcase with generated output |
+| packages | `examples/hello_pkg/`, `examples/large_project/` | local package layout |
+
+## Showcases
+
+These have real value because they show that I can hold a larger design together.
+
+| Showcase | Why it matters |
+| --- | --- |
+| `examples/opl/` | Lexer, parser, validator, compiler, JSON IR, and driver split across files. |
+| `examples/language/nl_forth_interpreter.nano` | A substantial interpreter with a real test vocabulary. |
+| `examples/games/sdl_checkers.nano` | Board state, move rules, UI, and simple AI. |
+| `examples/games/sdl_asteroids.nano` | Real-time loop, collision logic, wrapping, scoring, and rendering. |
+| `examples/audio/sdl_nanoamp.nano` | Audio, UI, visualization, and preferences. |
+| `examples/graphics/sdl_forth_ide.nano` | Terminal-like UI, process interaction, and editor behavior. |
+| `examples/playground/playground_server.nano` | Browser-facing tooling around compilation. |
+| `examples/large_project/` | A small package with a manifest and multiple imported source files. |
+
+## Redundancy Decisions
+
+These are the overlaps found in the audit and how I now classify them.
+
+| Area | Decision |
+| --- | --- |
+| Arrays | Keep all five, but teach them as a sequence. |
+| Functions | Keep the basic path and move function values/factories/fold examples to advanced. |
+| Algorithms | Keep factorial, Fibonacci, primes, sieve, trial division, and pi examples as a progression. |
+| REPL | Teach `simple_repl` then `full_repl`; classify the rest as staged internals. |
+| Forth | Make `nl_forth_interpreter.nano` canonical; mark root `forth.nano` legacy. |
+| `large_project_structure.nano` | Treat as a sketch. Use `examples/large_project/` as the real multi-file package. |
+| row polymorphism | Mark conceptual files as `concept` until the compiler accepts them as ordinary examples. |
+| network and AI | Keep live examples, but require deterministic dry-run or local fixtures before they enter Learn. |
+
+## Missing Coverage
+
+These gaps remain visible so future work does not rediscover them.
+
+| Gap | Current state | Next useful example |
+| --- | --- | --- |
+| resource and affine types | Added `nl_affine_resource_demo.nano`. | Add negative expected-failure fixtures for leak and use-after-consume diagnostics. |
+| LLM diagnostics | Added `examples/diagnostics/llm_diags_type_mismatch.nano`. | Add scripted golden JSON tests for `--llm-diags-json`. |
+| package manifests | Fixed `hello_pkg` and added `examples/large_project/`. | Add registry publish/install dry-run once the registry CLI is stable. |
+| cross-backend execution | Added `hello_cross_backend.nano`. | Add a small runner that executes native, VM, and WASM when those backends are present. |
+| deterministic integrations | Added `file_pipeline.nano`. | Add local HTTP fixture with fixed input and no internet dependency. |
+| stdlib modules | Coverage is uneven. | Add focused examples for option/result/list/iter/map/set/tidy/binary/io/preferences/websocket/pybridge/nano_highlight/audio_helpers/pt2_state. |
+| side-effect shadows | Many graphical and I/O demos still use `assert true`. | Extract pure helpers and test those helpers with concrete inputs. |
+| structured headers | Parser support exists now. | Normalize old headers opportunistically rather than churning every file at once. |
+
+## Build Truth
+
+`examples/Makefile` is still the build truth for compiled examples. It already excludes some files because of missing libraries, live services, or compiler/backend limits.
+
+The metadata does not replace the Makefile. It explains why an example is or is not suitable for a learning path, a launcher, or a backend test.

@@ -1,3 +1,15 @@
+# Example: Dispatch Stats
+# Purpose: Demonstrate serialized state updates through a dispatch queue
+# Features: dispatch module, serial queues, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_dispatch_counter
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/dispatch, libdispatch
+# Tags: concurrency, native-only
+# Expected Output: dispatch stats
+
 /* nl_dispatch_stats.nano
  * Demonstrates a serial queue guarding shared state.
  *

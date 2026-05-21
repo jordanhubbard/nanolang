@@ -1,0 +1,11 @@
+[package]
+name = "large_project"
+version = "0.1.0"
+description = "A small multi-file NanoLang package example"
+authors = ["NanoLang"]
+license = "MIT"
+entry = "main.nano"
+module_paths = ["src", "../../modules"]
+
+[dependencies]
+# I stay dependency-free. Registry dependencies belong here when they are real.

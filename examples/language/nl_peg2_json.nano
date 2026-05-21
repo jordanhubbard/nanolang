@@ -1,3 +1,15 @@
+# Example: PEG2 JSON
+# Purpose: Demonstrate JSON structural validation with PEG2
+# Features: PEG grammar, JSON validation, recursion, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_peg2_expr
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: parser, peg2
+# Expected Output: JSON validation
+
 /*
  * nl_peg2_json.nano — Validate JSON structure using peg2
  *

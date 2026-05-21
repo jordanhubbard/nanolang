@@ -1,7 +1,7 @@
 [package]
 name = "hello_pkg"
 version = "0.1.0"
-description = "A minimal example of a NanoLang package with dependencies"
+description = "A minimal example of a NanoLang package manifest"
 authors = ["NanoLang Contributors"]
 license = "MIT"
 
@@ -12,7 +12,9 @@ entry = "main.nano"
 module_paths = ["modules"]
 
 [dependencies]
-# Depend on the vector2d module from the registry
+# Registry dependencies would be declared here. This example stays dependency-free.
+#
+# Depend on the vector2d module from the registry:
 # vector2d = ">=1.0.0"
 
 # Example of pinned exact version

@@ -1,3 +1,15 @@
+# Example: Integer Match
+# Purpose: Demonstrate integer literal pattern matching
+# Features: match, integer patterns, wildcard pattern, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_control_if_while
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: match, shadow-tested
+# Expected Output: integer match
+
 /* nl_match_int.nano
  * Demonstrates integer literal pattern matching in match expressions.
  *

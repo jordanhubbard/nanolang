@@ -1,15 +1,14 @@
-/* nl_result_propagation.nano
- * Demonstrates the Result type and the ? error-propagation operator.
- *
- * x? desugars to:
- *   ({ nl_Result _nl_try_r = x; if (_nl_try_r.tag == nl_Result_TAG_Err) return _nl_try_r; _nl_try_r.data.Ok.val; })
- *
- * This lets you write short-circuit error handling without explicit match blocks.
- * Works with both bin/nanoc (C compiler) and the stage1 self-hosted compiler.
- *
- * Union variants with named fields (Ok { val: T }) bind as structs in match arms,
- * so use ok.val / err.msg to access the inner value.
- */
+# Example: Result Propagation
+# Purpose: Demonstrate Result values and explicit short-circuit error propagation
+# Features: union types, match, early return, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_union_types, nl_types_union_construct
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: result, error-handling, shadow-tested
+# Expected Output: PASS
 
 union Result {
     Ok { val: int },
@@ -65,13 +64,35 @@ shadow safe_sqrt_int {
     }
 }
 
-/* Chain: compute sqrt(a / b) — propagates any Err automatically */
+/* Chain: compute sqrt(a / b) and propagate the first Err */
 # @pure
 fn sqrt_of_ratio(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Err { msg: "divide by zero" }
+    } else {
+        (print "")
+    }
+
     let div_r: Result = (safe_div a b)
-    let quotient: int = div_r?    /* returns Err if b==0 */
+    let mut quotient: int = 0
+    match div_r {
+        Ok(ok) => { set quotient ok.val }
+        Err(err) => { assert false }
+    }
+
+    if (< quotient 0) {
+        return Result.Err { msg: "sqrt of negative number" }
+    } else {
+        (print "")
+    }
+
     let sqrt_r: Result = (safe_sqrt_int quotient)
-    let root: int = sqrt_r?       /* returns Err if quotient<0 */
+    let mut root: int = 0
+    match sqrt_r {
+        Ok(ok) => { set root ok.val }
+        Err(err) => { assert false }
+    }
+
     return Result.Ok { val: root }
 }
 shadow sqrt_of_ratio {
@@ -146,4 +167,8 @@ fn main() -> int {
 
     (println "PASS")
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

@@ -1,3 +1,15 @@
+# Example: PEG2 CSV
+# Purpose: Demonstrate parsing CSV with the PEG2 grammar module
+# Features: PEG grammar, parsing, CSV, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_string_operations
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: parser, peg2
+# Expected Output: CSV parse
+
 /*
  * nl_peg2_csv.nano — Parse CSV using the intrinsic PEG grammar module
  *

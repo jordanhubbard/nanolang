@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: none
+# Track: experimental
+# Build: api-key, network
+# Dependencies: GITHUB_TOKEN, OPENAI_API_KEY, modules/github, modules/openai
+# Tags: live-service, dry-run-needed
 # Expected Output: NanoLang Autonomous GitHub Agent
 
 import "modules/github/github.nano"

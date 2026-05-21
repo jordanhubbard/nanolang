@@ -1,3 +1,15 @@
+# Example: Array Inference
+# Purpose: Show array element type inference from literals
+# Features: arrays, type inference, loops, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_array_complete
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: arrays, shadow-tested
+# Expected Output: array inference
+
 /* Array Type Inference Example
    Arrays can now be declared without explicit element type annotation.
    The compiler infers the element type from the literal contents.

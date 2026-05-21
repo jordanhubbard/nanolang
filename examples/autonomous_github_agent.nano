@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: ai_github_agent
+# Track: experimental
+# Build: api-key, network
+# Dependencies: GITHUB_TOKEN or GitHub App token, OPENAI_API_KEY or local OpenAI-compatible endpoint
+# Tags: live-service, dry-run-supported
 # Expected Output: Autonomous GitHub Agent - Production Ready
 
 import "modules/github/github.nano"

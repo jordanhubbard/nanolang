@@ -1,6 +1,14 @@
-# Launcher UI Module
-# Rendering functions for icon grid, preview panel, resource bars, toolbar
-# Depends on SDL modules and ui_widgets
+# Example: Launcher UI Library
+# Purpose: Render the examples launcher UI
+# Features: SDL, icons, preview panel, toolbar
+# Difficulty: Advanced
+# Category: internal
+# Prerequisites: none
+# Track: internal
+# Build: graphical, external-deps
+# Dependencies: SDL, SDL_image, SDL_ttf, modules/ui_widgets
+# Tags: launcher, internal, graphical
+# Expected Output: none
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"

@@ -104,6 +104,10 @@ fn main() -> int {
             (println (+ "Difficulty:    " meta.difficulty))
             (println (+ "Category:      " meta.category))
             (println (+ "Prerequisites: " meta.prerequisites))
+            (println (+ "Track:         " meta.track))
+            (println (+ "Build:         " meta.build))
+            (println (+ "Dependencies:  " meta.dependencies))
+            (println (+ "Tags:          " meta.tags))
             (println (+ "Expected:      " meta.expected_output))
         }
         (println "")

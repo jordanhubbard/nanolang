@@ -1,0 +1,29 @@
+# Example: Cross Backend Hello
+# Purpose: Provide one small program suitable for native, VM, and WASM backend smoke tests
+# Features: pure functions, integer arithmetic, shadow tests
+# Difficulty: Beginner
+# Category: cross_backend
+# Prerequisites: nl_hello, nl_functions_basic
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: native-compatible, vm-compatible, wasm-compatible, shadow-tested
+# Expected Output: cross backend value: 42
+
+fn compute_value(seed: int) -> int {
+    return (+ (* seed 2) 2)
+}
+
+shadow compute_value {
+    assert (== (compute_value 20) 42)
+    assert (== (compute_value 0) 2)
+}
+
+fn main() -> int {
+    (println (+ "cross backend value: " (int_to_string (compute_value 20))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,3 +1,15 @@
+# Example: Dispatch Counter
+# Purpose: Demonstrate the dispatch queue API shape with a simple counter workload
+# Features: dispatch module, groups, queues, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_global_counter
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/dispatch, libdispatch
+# Tags: concurrency, native-only
+# Expected Output: dispatch counter
+
 /* nl_dispatch_counter.nano
  * Demonstrates GCD serial/concurrent queue and group API.
  *

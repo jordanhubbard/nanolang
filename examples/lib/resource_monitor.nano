@@ -1,5 +1,14 @@
-# Resource Monitor Module
-# Reads /proc/<pid>/stat and /proc/<pid>/status for CPU/memory/IO stats
+# Example: Resource Monitor Library
+# Purpose: Read process resource stats for launcher children
+# Features: filesystem reads, structs, parsing helpers
+# Difficulty: Advanced
+# Category: internal
+# Prerequisites: none
+# Track: internal
+# Build: local
+# Dependencies: modules/std/fs
+# Tags: launcher, process, internal
+# Expected Output: none
 
 from "modules/std/fs.nano" import read, exists
 

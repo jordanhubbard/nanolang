@@ -1,3 +1,15 @@
+# Example: GPU Ocean
+# Purpose: Demonstrate GPU wave simulation with SDL rendering
+# Features: gpu fn, SDL, simulation, rendering
+# Difficulty: Advanced
+# Category: gpu
+# Prerequisites: vector_add, sdl_drawing_primitives
+# Track: showcase
+# Build: gpu, graphical, external-deps
+# Dependencies: modules/gpu, SDL, CUDA or OpenCL runtime
+# Tags: gpu, graphical, native-only
+# Expected Output: graphical
+
 # ocean.nano — GPU-accelerated ocean simulation with ship physics
 #
 # A real-time ocean with multi-component wave superposition computed on the GPU

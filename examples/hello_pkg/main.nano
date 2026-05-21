@@ -1,19 +1,28 @@
-// hello_pkg — a minimal package example
-//
-// This demonstrates how a NanoLang project uses nano.toml
-// to declare metadata and dependencies.
-//
-// Build:
-//   nanoc main.nano -o hello_pkg
+# Example: Hello Package
+# Purpose: Show the smallest package with a nano.toml manifest and a real entry point
+# Features: package manifest, function, shadow tests
+# Difficulty: Beginner
+# Category: package
+# Prerequisites: nl_hello
+# Track: modules
+# Build: local
+# Dependencies: none
+# Tags: package, manifest, shadow-tested
+# Expected Output: Hello from a NanoLang package!
 
-fn main() -> Int {
-    let greeting: String = "Hello from a NanoLang package!"
-    print(greeting)
+fn greeting() -> string {
+    return "Hello from a NanoLang package!"
+}
 
-    // Shadow test: verify the greeting is what we expect
-    shadow_test "greeting content" {
-        assert(greeting == "Hello from a NanoLang package!")
-    }
+shadow greeting {
+    assert (== (greeting) "Hello from a NanoLang package!")
+}
 
+fn main() -> int {
+    (println (greeting))
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

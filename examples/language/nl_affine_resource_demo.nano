@@ -1,0 +1,44 @@
+# Example: Affine Resource Demo
+# Purpose: Show resource structs and single-use close behavior
+# Features: resource struct, functions, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_struct, nl_functions_basic
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: resource, affine, shadow-tested
+# Expected Output: resource closed
+
+resource struct FileHandle {
+    fd: int
+}
+
+fn open_file(path: string) -> FileHandle {
+    (println path)
+    return FileHandle { fd: 42 }
+}
+
+shadow open_file {
+    let f: FileHandle = (open_file "audit.log")
+    (close_file f)
+}
+
+fn close_file(f: FileHandle) -> void {
+    (println "resource closed")
+}
+
+shadow close_file {
+    let f: FileHandle = FileHandle { fd: 1 }
+    (close_file f)
+}
+
+fn main() -> int {
+    let f: FileHandle = (open_file "audit.log")
+    (close_file f)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

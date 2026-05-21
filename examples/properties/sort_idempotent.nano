@@ -1,3 +1,15 @@
+# Example: Sort Idempotence Property
+# Purpose: Demonstrate property tests for sorting behavior
+# Features: property tests, generated inputs, shrinking
+# Difficulty: Intermediate
+# Category: properties
+# Prerequisites: property_test_sorting
+# Track: modules
+# Build: local
+# Dependencies: proptest runner
+# Tags: properties, testing
+# Expected Output: proptest results
+#
 # Example property tests for nanolang --proptest mode
 #
 # Functions prefixed with prop_ are automatically discovered by the proptest

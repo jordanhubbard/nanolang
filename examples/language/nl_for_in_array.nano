@@ -1,3 +1,15 @@
+# Example: For-In Array
+# Purpose: Demonstrate for-in iteration over dynamic arrays
+# Features: arrays, for-in loops, ints, strings, floats
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_array_complete
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: arrays, iteration
+# Expected Output: 15
+
 /* nl_for_in_array.nano
  * Demonstrates for-in iteration over dyn_array (array<T>) variables.
  */

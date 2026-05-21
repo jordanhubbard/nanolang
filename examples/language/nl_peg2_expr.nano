@@ -1,3 +1,15 @@
+# Example: PEG2 Expressions
+# Purpose: Demonstrate arithmetic expression parsing with PEG2
+# Features: PEG grammar, parsing, expression grammar, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_peg2_csv
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: parser, peg2
+# Expected Output: expression parse
+
 /*
  * nl_peg2_expr.nano — Parse arithmetic expressions using peg2
  *

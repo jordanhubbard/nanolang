@@ -1,3 +1,15 @@
+# Example: Dispatch Pipeline
+# Purpose: Demonstrate fan-out and fan-in with dispatch queues
+# Features: dispatch module, queue_async, group_wait, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_dispatch_counter
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/dispatch, libdispatch
+# Tags: concurrency, native-only
+# Expected Output: dispatch pipeline
+
 /* nl_dispatch_pipeline.nano
  * Demonstrates queue_async fan-out + group_wait fan-in pattern.
  *

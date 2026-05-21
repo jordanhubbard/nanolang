@@ -1,5 +1,14 @@
-# Example Discovery Module
-# Auto-scans example directories, parses structured headers, builds catalog
+# Example: Example Discovery Library
+# Purpose: Discover example files and parse structured metadata headers
+# Features: filesystem walk, metadata parsing, filtering, shadow tests
+# Difficulty: Advanced
+# Category: internal
+# Prerequisites: none
+# Track: internal
+# Build: local
+# Dependencies: modules/std/fs
+# Tags: launcher, metadata, internal
+# Expected Output: none
 
 from "modules/std/fs.nano" import walkdir, basename, join, read, exists, dirname
 
@@ -11,6 +20,10 @@ struct ExampleInfo {
     difficulty: string,
     features: string,
     prerequisites: string,
+    track: string,
+    build: string,
+    dependencies: string,
+    tags: string,
     expected_output: string,
     icon_path: string,
     default_args: string
@@ -105,6 +118,10 @@ fn parse_example_header(path: string) -> ExampleInfo {
     let mut df: string = ""
     let mut ft: string = ""
     let mut pr: string = ""
+    let mut tr: string = ""
+    let mut bs: string = ""
+    let mut dp: string = ""
+    let mut tg: string = ""
     let mut eo: string = ""
     let mut da: string = ""
 
@@ -112,7 +129,7 @@ fn parse_example_header(path: string) -> ExampleInfo {
         let clen: int = (str_length content)
         let mut pos: int = 0
         let mut lc: int = 0
-        while (and (< pos clen) (< lc 12)) {
+        while (and (< pos clen) (< lc 20)) {
             let mut ll: int = 0
             let mut fnl: bool = false
             while (and (< (+ pos ll) clen) (not fnl)) {
@@ -139,6 +156,14 @@ fn parse_example_header(path: string) -> ExampleInfo {
             if (> (str_length g) 0) { set eo g }
             let h: string = (extract_hdr line "# Default Args: ")
             if (> (str_length h) 0) { set da h }
+            let k: string = (extract_hdr line "# Track: ")
+            if (> (str_length k) 0) { set tr k }
+            let l: string = (extract_hdr line "# Build: ")
+            if (> (str_length l) 0) { set bs l }
+            let m: string = (extract_hdr line "# Dependencies: ")
+            if (> (str_length m) 0) { set dp m }
+            let n: string = (extract_hdr line "# Tags: ")
+            if (> (str_length n) 0) { set tg n }
             set pos (+ pos (+ ll 1))
             set lc (+ lc 1)
         }
@@ -159,6 +184,7 @@ fn parse_example_header(path: string) -> ExampleInfo {
     return ExampleInfo {
         path: path, name: nm, description: ds, category: ct,
         difficulty: df, features: ft, prerequisites: pr,
+        track: tr, build: bs, dependencies: dp, tags: tg,
         expected_output: eo, icon_path: (find_icon path),
         default_args: da
     }
@@ -205,12 +231,14 @@ shadow filter_by_category {
     let mut exs: array<ExampleInfo> = []
     set exs (array_push exs ExampleInfo {
         path: "a", name: "A", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        difficulty: "", features: "", prerequisites: "", track: "", build: "",
+        dependencies: "", tags: "", expected_output: "", icon_path: "",
         default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "b", name: "B", description: "", category: "gfx",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        difficulty: "", features: "", prerequisites: "", track: "", build: "",
+        dependencies: "", tags: "", expected_output: "", icon_path: "",
         default_args: ""
     })
     assert (== (array_length (filter_by_category exs "games")) 1)
@@ -240,17 +268,20 @@ shadow collect_categories {
     let mut exs: array<ExampleInfo> = []
     set exs (array_push exs ExampleInfo {
         path: "a", name: "A", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        difficulty: "", features: "", prerequisites: "", track: "", build: "",
+        dependencies: "", tags: "", expected_output: "", icon_path: "",
         default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "b", name: "B", description: "", category: "games",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        difficulty: "", features: "", prerequisites: "", track: "", build: "",
+        dependencies: "", tags: "", expected_output: "", icon_path: "",
         default_args: ""
     })
     set exs (array_push exs ExampleInfo {
         path: "c", name: "C", description: "", category: "gfx",
-        difficulty: "", features: "", prerequisites: "", expected_output: "", icon_path: "",
+        difficulty: "", features: "", prerequisites: "", track: "", build: "",
+        dependencies: "", tags: "", expected_output: "", icon_path: "",
         default_args: ""
     })
     assert (== (array_length (collect_categories exs)) 2)
