@@ -30,6 +30,8 @@ const char *nl_mj_last_error(void) {
 #if NL_MJ_HAS_HEADERS
 
 #include <dlfcn.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 typedef const char *(*PFN_mj_versionString)(void);
 typedef int (*PFN_mj_version)(void);
@@ -76,6 +78,27 @@ static void *load_symbol(const char *name) {
     return sym;
 }
 
+// macOS framework casks ship the dylib as libmujoco.<version>.dylib inside
+// the framework. The version moves with each release, so we scan rather than
+// hardcode. Returns true if a successful dlopen happened.
+static int try_load_from_framework_dir(const char *dir) {
+    DIR *d = opendir(dir);
+    if (!d) return 0;
+    struct dirent *e;
+    int loaded = 0;
+    while ((e = readdir(d)) != NULL) {
+        if (strncmp(e->d_name, "libmujoco.", 10) != 0) continue;
+        size_t len = strlen(e->d_name);
+        if (len < 6 || strcmp(e->d_name + len - 6, ".dylib") != 0) continue;
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/%s", dir, e->d_name);
+        g_api.lib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+        if (g_api.lib) { loaded = 1; break; }
+    }
+    closedir(d);
+    return loaded;
+}
+
 static int load_api(void) {
     if (g_api.loaded) return 1;
 
@@ -97,6 +120,19 @@ static int load_api(void) {
         g_api.lib = dlopen(candidates[i], RTLD_NOW | RTLD_LOCAL);
         if (g_api.lib) break;
     }
+
+#ifdef __APPLE__
+    if (!g_api.lib) {
+        static const char *framework_dirs[] = {
+            "/Applications/MuJoCo.app/Contents/Frameworks/mujoco.framework/Versions/Current",
+            "/Applications/MuJoCo.app/Contents/Frameworks/mujoco.framework/Versions/A",
+            NULL
+        };
+        for (int i = 0; framework_dirs[i]; i++) {
+            if (try_load_from_framework_dir(framework_dirs[i])) break;
+        }
+    }
+#endif
 
     if (!g_api.lib) {
         const char *err = dlerror();
