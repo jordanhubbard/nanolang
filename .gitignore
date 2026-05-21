@@ -100,7 +100,7 @@ _cache/
 *.gcda
 *.gcno
 *.gcov
-coverage.info
+*.info
 coverage/
 
 # Coq/Rocq build artifacts
