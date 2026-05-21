@@ -55,7 +55,8 @@ class Failure:
     summary: str
 
 
-def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[str, str] | None = None, stream: bool = False) -> subprocess.CompletedProcess[str]:
+def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[str, str] | None = None, stream: bool = False, merge_stderr: bool = True) -> subprocess.CompletedProcess[str]:
+    stderr_target = subprocess.STDOUT if merge_stderr else subprocess.PIPE
     if stream:
         # Stream output to terminal while capturing it
         proc = subprocess.Popen(
@@ -63,7 +64,7 @@ def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[s
             cwd=str(cwd),
             text=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=stderr_target,
             env=env,
         )
         output_lines: list[str] = []
@@ -88,7 +89,7 @@ def _run(cmd: list[str], *, cwd: Path, timeout_s: int | None = None, env: dict[s
         cwd=str(cwd),
         text=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        stderr=stderr_target,
         timeout=timeout_s,
         check=False,
         env=env,
@@ -122,9 +123,12 @@ def _ensure_test_output_dir() -> None:
 
 
 def _load_bd_issues() -> list[dict[str, Any]]:
-    proc = _run([BD, "list", "--json"], cwd=PROJECT_ROOT, timeout_s=30)
+    # Keep stderr separate so warnings (e.g., permissions advisories) don't
+    # corrupt the JSON payload on stdout.
+    proc = _run([BD, "list", "--json"], cwd=PROJECT_ROOT, timeout_s=30, merge_stderr=False)
     if proc.returncode != 0:
-        raise RuntimeError(f"bd list failed (exit={proc.returncode}):\n{proc.stdout}")
+        stderr_tail = (proc.stderr or "").strip()
+        raise RuntimeError(f"bd list failed (exit={proc.returncode}):\nstdout:\n{proc.stdout}\nstderr:\n{stderr_tail}")
     try:
         return json.loads(proc.stdout)
     except Exception as e:
