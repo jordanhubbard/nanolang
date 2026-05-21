@@ -8,6 +8,7 @@
   "cflags_macos": ["-fblocks"],
   "ldflags_macos": [],
   "ldflags_linux": ["-ldispatch"],
+  "system_packages": ["libdispatch"],
   "dependencies": [],
-  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem (no extra -l needed). Linux: install libdispatch-dev (swift-corelibs-libdispatch)."
+  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem; the libdispatch registry entry no-ops on brew. Linux/FreeBSD: auto-installs swift-corelibs-libdispatch via the platform package manager."
 }

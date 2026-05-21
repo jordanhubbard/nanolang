@@ -1,254 +1,84 @@
-# Nanolang Module System Audit Report
+# NanoLang Module System Audit Report
 
-**Date:** November 23, 2024  
-**Objective:** Ensure all modules use pkg-config for universal cross-platform support
+**Last refreshed:** 2026-05-21
+**Previous audit:** 2024-11-23 (covered 19 modules; superseded by this revision)
+**Scope:** All 50 modules under `modules/` validated for cross-platform auto-install metadata.
 
 ## Summary
 
-✅ **All modules now properly use pkg-config for cross-platform compatibility**  
-✅ **No hardcoded paths or platform-specific flags**  
-✅ **Complete decoupling of library implementation details from nanolang code**
+✅ All modules wrapping external native libraries now use the canonical `system_packages` field driven by the [`packages.json`](../packages.json) registry. Auto-install fires during `module_build` when system metadata is present, so importing a module from a NanoLang program also installs the underlying native dep on macOS, Debian/Ubuntu, Fedora/RHEL, Arch, openSUSE, Alpine, FreeBSD, and Windows (chocolatey/winget/scoop).
 
----
+## Module classification
 
-## Modules Audited (19 total)
+50 modules, three categories:
 
-### ✅ **Already Compliant (12 modules)**
+### 1. Canonical — declares `system_packages` (23)
 
-These modules were already using pkg-config correctly:
+These wrap a native library and let `install_system_packages` resolve the platform package via `packages.json`:
 
-1. **sdl** - SDL2 windowing and graphics
-2. **sdl_helpers** - SDL helper functions
-3. **sdl_mixer** - SDL audio mixing
-4. **sdl_ttf** - SDL TrueType fonts
-5. **glfw** - Modern OpenGL windowing
-6. **curl** - HTTP/HTTPS client
-7. **event** - libevent async I/O
-8. **uv** - libuv event loop
-9. **math_ext** - Extended math (uses `-lm`, universally available)
-10. **stdio** - Standard I/O (no external deps)
-11. **vector2d** - 2D vector math (no external deps)
-12. **audio_helpers** - Audio conversion utilities (no external deps)
+`audio_viz`, `bullet`, `curl`, `dispatch`, `event`, `glew`, `glfw`, `glut`, `http_server`, `mujoco`, `ncurses`, `pt2_audio`, `readline`, `sdl`, `sdl_helpers`, `sdl_image`, `sdl_mixer`, `sdl_term`, `sdl_ttf`, `sqlite`, `ui_widgets`, `unicode`, `uv`.
 
-### 🔧 **Fixed (4 modules)**
+### 2. Transitive — inherits via `dependencies` (2)
 
-#### 1. **glew** - OpenGL Extension Wrangler
+These declare `dependencies: ["curl", ...]` so the `curl` module's `system_packages` is processed before they build:
 
-**Problem:**
-```json
-"ldflags": ["-framework", "OpenGL"]  // macOS-specific!
+`github`, `openai` — both `#include <curl/curl.h>` and rely on the `curl` module's auto-install to make libcurl available.
+
+### 3. Pure / internal — no external build-time deps (25)
+
+Either pure NanoLang, libc-only, or runtime-only Python via socket IPC. Correctly need no `system_packages`:
+
+`audio_helpers`, `filesystem`, `forth_see`, `gpu`, `libc`, `log`, `math_ext`, `nano_highlight`, `nano_tools`, `preferences`, `proptest`, `pt2_module`, `pt2_state`, `pty`, `pybridge`, `pybridge_matplotlib`, `pybridge_warp`, `std`, `std/collections`, `std/json`, `std/peg`, `std/peg2`, `stdio`, `vector2d`, `websocket`.
+
+Notes:
+- **`websocket`** explicitly declares `system_packages: []` — RFC 6455 implementation over plain POSIX sockets; no system dep.
+- **`pybridge_*`** spawn a Python subprocess over a socket — at build time they need only `<dlfcn.h>` and `<stdio.h>`. Their runtime Python package requirements (matplotlib, warp) are handled inside the subprocess.
+
+## How auto-install works
+
+```
+NanoLang source           module.json                packages.json                    package manager
+─────────────────         ─────────────              ──────────────                   ───────────────
+unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages.mujoco.install.brew ──► brew install --cask mujoco
+                                                                                  .apt ──► sudo apt install ...
+                                                                                  .pkg ──► sudo pkg install ...
 ```
 
-**Fix:**
-```json
-"pkg_config": ["glew"]  // GLEW's pkg-config handles OpenGL automatically
-```
+1. `src/module_builder.c:module_build` runs when the module needs rebuild.
+2. `install_system_packages` collects logical names from `system_packages`.
+3. `lookup_package_name(name, pm)` finds the platform-specific package in `packages.json`.
+4. `lookup_install_command(name, pm)` and `lookup_test_command(name, pm)` (since 2026-05-21) check for custom overrides — used when the default `<pm> install <pkg>` doesn't fit (e.g., brew casks, pip user installs, manual fallbacks).
+5. `install_single_package_ex` executes the test command; if it returns non-zero, runs the install command.
 
-**Impact:** Now works on both macOS (framework) and Linux (-lGL) automatically
+### Schema reference
 
----
+| Field | Where | Purpose |
+|---|---|---|
+| `system_packages: ["name"]` | `modules/<m>/module.json` | Logical package names to resolve via registry |
+| `packages.<name>.install.<pm>.package` | `packages.json` | Platform-native package name |
+| `packages.<name>.install.<pm>.install_command` | `packages.json` | Optional shell command overriding the default install incantation |
+| `packages.<name>.install.<pm>.test_command` | `packages.json` | Optional shell command returning 0 when the package is already present |
+| `packages.<name>.detection.headers` | `packages.json` | Header files used to detect prior installs (advisory) |
+| `cflags_macos` / `cflags_linux` | `modules/<m>/module.json` | Platform-specific compile flags (e.g., `-F<framework_dir>`) |
+| `ldflags_macos` / `ldflags_linux` | `modules/<m>/module.json` | Platform-specific link flags |
+| `dependencies: ["m"]` | `modules/<m>/module.json` | Other NanoLang modules whose `system_packages` should be installed first |
 
-#### 2. **glut** - OpenGL Utility Toolkit
+## Changes since the 2024-11 audit
 
-**Problems:**
-- Used macOS-specific `frameworks: ["GLUT"]`
-- Encouraged deprecated GLUT.framework
+| Module | Change |
+|---|---|
+| `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; `mujoco.c` scans `mujoco.framework/Versions/{Current,A}` for `libmujoco.*.dylib`. |
+| `dispatch` | Added `system_packages: ["libdispatch"]` (2026-05-21). `packages.json` brew entry no-ops with `test_command: "true"` since libdispatch ships with libSystem on macOS. |
+| `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Previously the fields existed in `packages.json` for chocolatey but were never read — they're now active for all package managers. |
+| `audio_viz`, `bullet`, `http_server`, `pt2_audio`, `sdl_*`, `sdl_term`, `ui_widgets`, `unicode` | Migrated to `system_packages` since 2024-11. |
 
-**Fix:**
-```json
-{
-  "description": "OpenGL Utility Toolkit (FreeGLUT) - 3D shapes, text rendering",
-  "pkg_config": ["glut"],  // FreeGLUT provides universal pkg-config
-  "install": {
-    "macos": {
-      "brew": "freeglut"  // Modern, maintained, cross-platform
-    },
-    "linux": {
-      "apt": "freeglut3-dev"
-    }
-  }
-}
-```
+## Verification
 
-**Impact:** 
-- Works identically on macOS and Linux
-- Uses actively maintained FreeGLUT instead of deprecated GLUT.framework
-- Provides real Utah Teapot and GLUT text rendering
+- `bin/mujoco_opengl_cartpole` runs from a clean `modules/mujoco/.build` checkout: triggers `brew install --cask mujoco`, picks up the framework header, dlopen's the versioned dylib, renders an OpenGL window.
+- `make examples` builds the full set on macOS arm64 with `glfw`/`glew` already present; OpenGL/freeglut examples remain gated on `pkg-config --exists glut` (skipped, not broken).
 
----
+## Open follow-ups
 
-#### 3. **sqlite** - SQLite3 Database
-
-**Problem:**
-```json
-"system_libs": ["sqlite3"]  // Doesn't use pkg-config path discovery
-```
-
-**Fix:**
-```json
-"pkg_config": ["sqlite3"]  // SQLite3 provides universal pkg-config
-```
-
-**Impact:** Automatic path discovery on all platforms
-
----
-
-#### 4. **onnx** - ONNX Runtime
-
-**Problems:**
-```json
-{
-  "include_dirs": [
-    "/opt/homebrew/include/onnxruntime",  // Apple Silicon only!
-    "/usr/local/include/onnxruntime"      // Intel Mac only!
-  ],
-  "ldflags": [
-    "-L/opt/homebrew/lib",  // Hardcoded paths
-    "-L/usr/local/lib"
-  ]
-}
-```
-
-**Fix:**
-```json
-{
-  "pkg_config": ["libonnxruntime"],  // Universal path discovery
-  "cflags": ["-O2"]  // Only optimization flags
-}
-```
-
-**Impact:** Works on Intel Macs, Apple Silicon, and Linux with any installation path
-
----
-
-### 📝 **No Changes Needed (3 modules)**
-
-These modules are internal or platform-agnostic:
-
-1. **pt2_audio** - ProTracker audio engine (pure C, no external deps)
-2. **pt2_module** - ProTracker MOD loader (pure C, no external deps)
-3. **pt2_state** - ProTracker state management (pure C, no external deps)
-
----
-
-## Testing
-
-### Build Verification
-
-```bash
-cd /Users/jordanh/Src/nanolang
-make clean
-make examples
-```
-
-**Result:** ✅ All examples compiled successfully with zero errors
-
-### Platform Support Matrix
-
-| Module | macOS Intel | macOS ARM | Linux |
-|--------|-------------|-----------|-------|
-| SDL | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| GLEW | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| GLFW | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| GLUT | ✅ pkg-config (freeglut) | ✅ pkg-config (freeglut) | ✅ pkg-config (freeglut) |
-| SQLite | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| Curl | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| libuv | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-| libevent | ✅ pkg-config | ✅ pkg-config | ✅ pkg-config |
-
----
-
-## Benefits Achieved
-
-### 1. **Zero Hardcoded Paths**
-- No `/opt/homebrew` or `/usr/local` in any module
-- Works on any system regardless of installation location
-
-### 2. **Platform Transparency**
-- Nanolang code imports modules identically across all platforms:
-  ```nano
-  import "modules/glut/glut.nano"
-  (glutSolidTeapot 1.0)  // Works everywhere!
-  ```
-
-### 3. **Flexible Installation**
-- Users can install via Homebrew, apt, yum, pacman, or from source
-- pkg-config automatically finds libraries
-
-### 4. **Future-Proof**
-- Works with future Homebrew path changes
-- Works with custom installation prefixes
-- Works with system-provided libraries
-
----
-
-## Key Improvements to GLEW Module
-
-Added essential OpenGL functions that were missing:
-
-```nano
-extern fn glFrustum(...) -> void      # Perspective projection
-extern fn glShadeModel(mode: int) -> void  # Smooth shading
-```
-
-These are now available to all OpenGL examples without manual extern declarations.
-
----
-
-## Documentation
-
-Created comprehensive guides:
-
-1. **MODULE_GUIDELINES.md** - Best practices for creating cross-platform modules
-2. **MODULE_AUDIT_REPORT.md** (this file) - Audit results and changes
-
----
-
-## Migration Notes
-
-### For Module Authors
-
-**Old way (❌ Don't do this):**
-```json
-{
-  "ldflags": ["-L/opt/homebrew/lib", "-lfoo"],
-  "include_dirs": ["/opt/homebrew/include"]
-}
-```
-
-**New way (✅ Always do this):**
-```json
-{
-  "pkg_config": ["foo"]
-}
-```
-
-### For Users
-
-**No changes needed!** All nanolang code works identically. The module system handles everything.
-
----
-
-## Conclusion
-
-The nanolang module system now provides **true platform transparency**. Users can write portable nanolang code that works seamlessly on:
-
-- macOS Intel (`/usr/local/*`)
-- macOS Apple Silicon (`/opt/homebrew/*`)  
-- Linux Debian/Ubuntu (`/usr/lib/*`)
-- Linux Fedora/RHEL (`/usr/lib64/*`)
-- Custom installations (any prefix)
-
-All achieved through universal pkg-config support. 🎉
-
----
-
-## Next Steps
-
-1. ✅ All modules audited
-2. ✅ All issues fixed
-3. ✅ Documentation created
-4. ✅ Examples verified
-5. 📦 Ready for production use
-
-**Status: COMPLETE** ✅
+- `pybridge_matplotlib` / `pybridge_warp` have runtime pip dependencies (`matplotlib`, `warp`) that aren't surfaced through the module system. Worth adding a `pip_packages` field analogous to `system_packages` if we want a truly one-shot install.
+- The `packages.json` schema isn't formally validated. Adding a draft-07 schema file would catch missing fields at PR time.
+- `modules/MODULE_SCHEMA.md` correctly notes that the per-module `install` block in `module.json` is documentation-only; that field has been superseded by `system_packages` plus the packages.json registry. Modules that still carry an `install` block (mujoco, glfw, glew, …) keep it for human readers but the auto-installer ignores it.
