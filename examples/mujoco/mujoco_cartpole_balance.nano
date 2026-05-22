@@ -1,0 +1,118 @@
+# Example: MuJoCo Cartpole Feedback
+# Purpose: I read simulated state, compute a feedback control value, and apply it through MuJoCo.
+# Features: MuJoCo qpos, qvel, ctrl, timestep, reset, forward dynamics, repeated stepping
+# Difficulty: Intermediate
+# Category: mujoco
+# Prerequisites: MuJoCo headers and shared library for runtime execution
+# Track: modules
+# Build: external-deps
+# Dependencies: MuJoCo, modules/mujoco
+# Tags: mujoco, control, feedback, qpos, qvel, actuator, shadow-tested
+# Expected Output: text
+
+unsafe module "modules/mujoco/mujoco.nano"
+
+fn clamp_float(v: float, lo: float, hi: float) -> float {
+  if (< v lo) {
+    return lo
+  } else {}
+  if (> v hi) {
+    return hi
+  } else {}
+  return v
+}
+shadow clamp_float {
+  assert (== (clamp_float -2.0 -1.0 1.0) -1.0)
+  assert (== (clamp_float 2.0 -1.0 1.0) 1.0)
+  assert (== (clamp_float 0.25 -1.0 1.0) 0.25)
+}
+
+fn cartpole_feedback(cart: float, pole: float, cart_vel: float, pole_vel: float) -> float {
+  let position_term: float = (* -0.70 cart)
+  let cart_velocity_term: float = (* -0.20 cart_vel)
+  let pole_term: float = (* 18.00 pole)
+  let pole_velocity_term: float = (* 3.20 pole_vel)
+  let raw: float = (+ position_term (+ cart_velocity_term (+ pole_term pole_velocity_term)))
+  return (clamp_float raw -1.0 1.0)
+}
+shadow cartpole_feedback {
+  assert (== (cartpole_feedback 0.0 0.0 0.0 0.0) 0.0)
+  assert (== (cartpole_feedback 0.0 2.0 0.0 0.0) 1.0)
+  assert (== (cartpole_feedback 0.0 -2.0 0.0 0.0) -1.0)
+}
+
+fn print_trace(step: int, time: float, cart: float, pole: float, control: float, applied: float) -> void {
+  (print "step ")
+  (print step)
+  (print " time ")
+  (print time)
+  (print " cart ")
+  (print cart)
+  (print " pole ")
+  (print pole)
+  (print " requested ")
+  (print control)
+  (print " applied ")
+  (println applied)
+}
+shadow print_trace {
+  assert true
+}
+
+fn main() -> int {
+  if (not (mujoco_available)) {
+    (println "I cannot run MuJoCo in this build.")
+    (println (mujoco_last_error))
+    return 0
+  } else {}
+
+  let sim: MjSim = (mujoco_load "examples/mujoco/assets/cartpole.xml")
+  if (not (mujoco_valid sim)) {
+    (println "I could not load examples/mujoco/assets/cartpole.xml.")
+    (println (mujoco_last_error))
+    return 1
+  } else {}
+
+  let motor_id: int = (nl_mj_actuator_id sim "cart_motor")
+  if (< motor_id 0) {
+    (println "I could not find the cart_motor actuator.")
+    (mujoco_free sim)
+    return 1
+  } else {}
+
+  (nl_mj_reset sim)
+  (nl_mj_set_timestep sim 0.004)
+  (nl_mj_set_qpos sim 0 0.000)
+  (nl_mj_set_qpos sim 1 0.180)
+  (nl_mj_set_qvel sim 0 0.000)
+  (nl_mj_set_qvel sim 1 0.000)
+  (nl_mj_forward sim)
+
+  (println "I am running a simple cartpole feedback controller.")
+  (print "timestep: ")
+  (println (nl_mj_timestep sim))
+
+  let mut step: int = 0
+  while (< step 600) {
+    let cart: float = (nl_mj_qpos sim 0)
+    let pole: float = (nl_mj_qpos sim 1)
+    let cart_vel: float = (nl_mj_qvel sim 0)
+    let pole_vel: float = (nl_mj_qvel sim 1)
+    let control: float = (cartpole_feedback cart pole cart_vel pole_vel)
+
+    (nl_mj_set_ctrl sim motor_id control)
+    (nl_mj_step sim)
+
+    if (== (% step 120) 0) {
+      (print_trace step (nl_mj_time sim) cart pole control (nl_mj_ctrl sim motor_id))
+    } else {}
+
+    set step (+ step 1)
+  }
+
+  (println "Final state:")
+  (print_trace step (nl_mj_time sim) (nl_mj_qpos sim 0) (nl_mj_qpos sim 1) 0.0 (nl_mj_ctrl sim motor_id))
+
+  (mujoco_free sim)
+  return 0
+}

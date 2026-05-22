@@ -1,0 +1,196 @@
+# Example: MuJoCo State Audit
+# Purpose: I load a model without graphics, set state and control values, and print the state I actually advanced.
+# Features: MuJoCo loading, qpos, qvel, ctrl, timestep, model counts, ids, deterministic stepping
+# Difficulty: Intermediate
+# Category: mujoco
+# Prerequisites: MuJoCo headers and shared library for runtime execution
+# Track: modules
+# Build: external-deps
+# Dependencies: MuJoCo, modules/mujoco
+# Tags: mujoco, headless, qpos, qvel, control, deterministic, shadow-tested
+# Expected Output: text
+
+unsafe module "modules/mujoco/mujoco.nano"
+
+fn abs_float(v: float) -> float {
+  if (< v 0.0) {
+    return (- 0.0 v)
+  } else {}
+  return v
+}
+shadow abs_float {
+  assert (== (abs_float 2.5) 2.5)
+  assert (== (abs_float -2.5) 2.5)
+}
+
+fn near_zero(v: float) -> bool {
+  return (< (abs_float v) 0.0001)
+}
+shadow near_zero {
+  assert (near_zero 0.0)
+  assert (not (near_zero 0.1))
+}
+
+fn all_ids_found(a: int, b: int, c: int) -> bool {
+  if (< a 0) {
+    return false
+  } else {}
+  if (< b 0) {
+    return false
+  } else {}
+  if (< c 0) {
+    return false
+  } else {}
+  return true
+}
+shadow all_ids_found {
+  assert (all_ids_found 0 1 2)
+  assert (not (all_ids_found 0 -1 2))
+}
+
+fn print_float_field(label: string, value: float) -> void {
+  (print label)
+  (println value)
+}
+shadow print_float_field {
+  assert true
+}
+
+fn print_int_field(label: string, value: int) -> void {
+  (print label)
+  (println value)
+}
+shadow print_int_field {
+  assert true
+}
+
+fn print_bool_field(label: string, value: bool) -> void {
+  (print label)
+  if value {
+    (println "true")
+  } else {
+    (println "false")
+  }
+}
+shadow print_bool_field {
+  assert true
+}
+
+fn print_vec3(label: string, v: MjVec3) -> void {
+  (print label)
+  (print v.x)
+  (print ", ")
+  (print v.y)
+  (print ", ")
+  (println v.z)
+}
+shadow print_vec3 {
+  assert true
+}
+
+fn print_quat(label: string, q: MjQuat) -> void {
+  (print label)
+  (print q.w)
+  (print ", ")
+  (print q.x)
+  (print ", ")
+  (print q.y)
+  (print ", ")
+  (println q.z)
+}
+shadow print_quat {
+  assert true
+}
+
+fn main() -> int {
+  if (not (mujoco_available)) {
+    (println "I cannot run MuJoCo in this build.")
+    (println (mujoco_last_error))
+    return 0
+  } else {}
+
+  let sim: MjSim = (mujoco_load "examples/mujoco/assets/cartpole.xml")
+  if (not (mujoco_valid sim)) {
+    (println "I could not load examples/mujoco/assets/cartpole.xml.")
+    (println (mujoco_last_error))
+    return 1
+  } else {}
+
+  (println "I loaded cartpole.xml for a headless state audit.")
+  (print "MuJoCo version: ")
+  (println (mujoco_version_string))
+  (print_int_field "MuJoCo version number: " (nl_mj_version))
+
+  (print_int_field "nq: " (nl_mj_nq sim))
+  (print_int_field "nv: " (nl_mj_nv sim))
+  (print_int_field "nu: " (nl_mj_nu sim))
+  (print_int_field "bodies: " (nl_mj_nbody sim))
+  (print_int_field "geoms: " (nl_mj_ngeom sim))
+  (print_int_field "sites: " (nl_mj_nsite sim))
+  (print_int_field "joints: " (nl_mj_njoint sim))
+
+  let slide_id: int = (nl_mj_joint_id sim "slide")
+  let hinge_id: int = (nl_mj_joint_id sim "hinge")
+  let motor_id: int = (nl_mj_actuator_id sim "cart_motor")
+  let cart_id: int = (nl_mj_body_id sim "cart")
+  let tip_site_id: int = (nl_mj_site_id sim "tip_site")
+  let cart_geom_id: int = (nl_mj_geom_id sim "cart_geom")
+  let tip_geom_id: int = (nl_mj_geom_id sim "tip_geom")
+  (print_int_field "slide joint id: " slide_id)
+  (print_int_field "hinge joint id: " hinge_id)
+  (print_int_field "cart motor id: " motor_id)
+  (print_int_field "cart body id: " cart_id)
+  (print_int_field "tip site id: " tip_site_id)
+  (print_int_field "cart geom id: " cart_geom_id)
+  (print_int_field "tip geom id: " tip_geom_id)
+
+  if (not (all_ids_found slide_id hinge_id motor_id)) {
+    (println "I expected slide, hinge, and cart_motor to exist.")
+    (mujoco_free sim)
+    return 1
+  } else {}
+
+  (nl_mj_reset sim)
+  (nl_mj_set_timestep sim 0.002)
+  (nl_mj_set_qpos sim 0 0.350)
+  (nl_mj_set_qpos sim 1 0.200)
+  (nl_mj_set_qvel sim 0 0.000)
+  (nl_mj_set_qvel sim 1 -0.150)
+  (nl_mj_set_ctrl sim motor_id 0.000)
+  (nl_mj_forward sim)
+
+  (println "Initial state after forward:")
+  (print_float_field "  time: " (nl_mj_time sim))
+  (print_float_field "  cart qpos[0]: " (nl_mj_qpos sim 0))
+  (print_float_field "  pole qpos[1]: " (nl_mj_qpos sim 1))
+  (print_float_field "  cart qvel[0]: " (nl_mj_qvel sim 0))
+  (print_float_field "  pole qvel[1]: " (nl_mj_qvel sim 1))
+  (print_float_field "  ctrl[cart_motor]: " (nl_mj_ctrl sim motor_id))
+  (print_float_field "  timestep: " (nl_mj_timestep sim))
+  (print_vec3 "  cart body position: " (mujoco_body_pos sim cart_id))
+  (print_vec3 "  cart geom position: " (mujoco_geom_pos sim cart_geom_id))
+  (print_vec3 "  tip site position: " (mujoco_site_pos sim tip_site_id))
+  (print_quat "  cart body quat: " (mujoco_body_quat sim cart_id))
+  (print_bool_field "  cart geom is box: " (mujoco_geom_is_box sim cart_geom_id))
+  (print_bool_field "  tip geom is sphere: " (mujoco_geom_is_sphere sim tip_geom_id))
+
+  (nl_mj_set_ctrl sim motor_id -0.450)
+  (mujoco_step_seconds sim 0.050)
+
+  (println "State after 0.050 seconds with negative cart force:")
+  (print_float_field "  time: " (nl_mj_time sim))
+  (print_float_field "  cart qpos[0]: " (nl_mj_qpos sim 0))
+  (print_float_field "  pole qpos[1]: " (nl_mj_qpos sim 1))
+  (print_float_field "  cart qvel[0]: " (nl_mj_qvel sim 0))
+  (print_float_field "  pole qvel[1]: " (nl_mj_qvel sim 1))
+  (print_float_field "  ctrl[cart_motor]: " (nl_mj_ctrl sim motor_id))
+
+  if (near_zero (nl_mj_time sim)) {
+    (println "I did not advance time.")
+  } else {
+    (println "I advanced time and left the final state printed above.")
+  }
+
+  (mujoco_free sim)
+  return 0
+}

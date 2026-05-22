@@ -1,6 +1,6 @@
 # My Examples
 
-I keep 211 `.nano` files here. They are not all the same kind of thing.
+I keep 245 `.nano` files here. They are not all the same kind of thing.
 
 Start with `docs/EXAMPLES_INDEX.md`. It is my source of truth for the examples catalog, the learning order, module coverage, dependency labels, and known gaps.
 

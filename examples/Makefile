@@ -7,7 +7,7 @@
 #   make ncurses      - Build NCurses examples only
 #   make nl           - Build nanolang-only examples
 #   make opengl       - Build OpenGL examples only
-#   make mujoco       - Build MuJoCo + OpenGL examples only
+#   make mujoco       - Build MuJoCo examples only
 #   make clean        - Remove build artifacts
 #
 # Naming Convention:
@@ -15,7 +15,7 @@
 #   sdl_*      - SDL2 graphics examples
 #   ncurses_*  - NCurses terminal UI examples
 #   opengl_*   - OpenGL 3D graphics examples
-#   mujoco_*   - MuJoCo simulation rendered with OpenGL
+#   mujoco_*   - MuJoCo simulation examples
 
 BIN_DIR = ../bin
 EXAMPLES_BACKEND ?= native
@@ -210,13 +210,15 @@ endif
 OPENGL_EXAMPLES := $(patsubst opengl/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(OPENGL_SOURCES))
 OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
 
-# === MuJoCo + OpenGL Examples (mujoco_*) ===
+# === MuJoCo Examples (mujoco_*) ===
 
+MUJOCO_HEADLESS_SOURCES := $(filter-out mujoco/mujoco_opengl_%.nano,$(wildcard mujoco/*.nano))
 ifeq ($(and $(filter yes,$(GLFW_AVAILABLE)),$(filter yes,$(GLEW_AVAILABLE))),yes)
-MUJOCO_SOURCES := $(wildcard mujoco/*.nano)
+MUJOCO_OPENGL_SOURCES := $(wildcard mujoco/mujoco_opengl_*.nano)
 else
-MUJOCO_SOURCES :=
+MUJOCO_OPENGL_SOURCES :=
 endif
+MUJOCO_SOURCES := $(MUJOCO_HEADLESS_SOURCES) $(MUJOCO_OPENGL_SOURCES)
 MUJOCO_EXAMPLES := $(patsubst mujoco/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(MUJOCO_SOURCES))
 MUJOCO_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(MUJOCO_EXAMPLES)))
 
@@ -343,7 +345,7 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "OpenGL examples (opengl_*):"
 	@$(if $(strip $(OPENGL_NAMES)),$(foreach ex,$(OPENGL_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
-	@echo "MuJoCo + OpenGL examples (mujoco_*):"
+	@echo "MuJoCo examples (mujoco_*):"
 	@$(if $(strip $(MUJOCO_NAMES)),$(foreach ex,$(MUJOCO_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
 	@echo "To launch the example browser:"
@@ -589,7 +591,7 @@ help:
 	@echo "  make sdl          - Build SDL examples"
 	@echo "  make ncurses      - Build NCurses examples"
 	@echo "  make opengl       - Build OpenGL examples"
-	@echo "  make mujoco       - Build MuJoCo + OpenGL examples"
+	@echo "  make mujoco       - Build MuJoCo examples"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"
@@ -597,5 +599,5 @@ help:
 	@echo "  sdl_*      - SDL2 graphics"
 	@echo "  ncurses_*  - NCurses terminal UI"
 	@echo "  opengl_*   - OpenGL 3D graphics"
-	@echo "  mujoco_*   - MuJoCo simulation rendered with OpenGL"
+	@echo "  mujoco_*   - MuJoCo simulation examples"
 	@echo ""

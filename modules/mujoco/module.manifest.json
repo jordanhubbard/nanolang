@@ -22,8 +22,11 @@
   ],
   "keywords": ["mujoco", "physics", "robotics", "mjcf", "simulation", "opengl"],
   "examples": [
+    "examples/mujoco/mujoco_state_audit.nano",
+    "examples/mujoco/mujoco_cartpole_balance.nano",
     "examples/mujoco/mujoco_opengl_cartpole.nano",
-    "examples/mujoco/mujoco_opengl_drop_lab.nano"
+    "examples/mujoco/mujoco_opengl_drop_lab.nano",
+    "examples/mujoco/mujoco_opengl_geom_browser.nano"
   ],
   "dependencies": {
     "nanolang": ["core>=1.0"],

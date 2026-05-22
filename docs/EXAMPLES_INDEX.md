@@ -1,8 +1,8 @@
 # My Examples Index
 
-Last audited: 2026-05-21.
+Last audited: 2026-05-22.
 
-I have 211 `.nano` files under `examples/`. The audit began at 204 files; this update adds missing package, resource, diagnostics, cross-backend, and deterministic integration examples.
+I have 245 `.nano` files under `examples/`. This update adds the missing MuJoCo state, control, and geom-rendering examples.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -57,8 +57,9 @@ Use these build labels:
 
 | Directory | `.nano` files | Track |
 | --- | ---: | --- |
-| `examples/` | 9 | tools, launchers, root showcases |
+| `examples/` | 10 | tools, launchers, root showcases |
 | `examples/advanced/` | 26 | modules and advanced language demos |
+| `examples/api_lessons/` | 30 | focused API lessons |
 | `examples/audio/` | 5 | audio modules and showcases |
 | `examples/cross_backend/` | 1 | cross-backend learn fixture |
 | `examples/data/` | 1 | data module demos |
@@ -72,10 +73,11 @@ Use these build labels:
 | `examples/language/` | 75 | core language learning path |
 | `examples/large_project/` | 3 | real multi-file package example |
 | `examples/lib/` | 5 | internal launcher/editor support |
-| `examples/mujoco/` | 2 | MuJoCo modules |
+| `examples/mujoco/` | 5 | MuJoCo modules |
 | `examples/network/` | 5 | HTTP and curl modules |
 | `examples/opengl/` | 6 | OpenGL modules |
 | `examples/opl/` | 12 | parser/compiler showcase |
+| `examples/opl/examples/output/` | 1 | generated OPL output fixture |
 | `examples/physics/` | 7 | Bullet physics modules |
 | `examples/playground/` | 1 | playground server |
 | `examples/properties/` | 1 | formal property illustration |
@@ -191,7 +193,7 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | ncurses | `examples/terminal/ncurses_*.nano` | external-deps |
 | OpenGL | `examples/opengl/*.nano` | graphical/external-deps |
 | Bullet | `examples/physics/*.nano` | external-deps |
-| MuJoCo | `examples/mujoco/*.nano` | external-deps |
+| MuJoCo | `examples/mujoco/mujoco_state_audit.nano`, `examples/mujoco/mujoco_cartpole_balance.nano`, `examples/mujoco/mujoco_opengl_cartpole.nano`, `examples/mujoco/mujoco_opengl_drop_lab.nano`, `examples/mujoco/mujoco_opengl_geom_browser.nano` | external-deps, graphical for `mujoco_opengl_*` |
 | GPU | `examples/gpu/*.nano` | gpu/external-deps |
 | OPL | `examples/opl/*.nano` | local showcase with generated output |
 | packages | `examples/hello_pkg/`, `examples/large_project/` | local package layout |
