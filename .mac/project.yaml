@@ -1,0 +1,28 @@
+schema: mac.repository_contract.v1
+project: nanolang
+platforms:
+  - darwin
+  - linux
+  - wsl2
+toolchain:
+  required_commands:
+    - python3
+    - git
+    - gh
+    - bd
+    - make
+    - cc
+bootstrap:
+  command: make build
+  creates:
+    - bin/nanoc
+    - bin/nano
+test:
+  command: make test-quick
+evidence:
+  required:
+    - repo.head_sha
+    - repo.pushed
+    - repo.dirty
+    - repo.files_changed
+    - tests
