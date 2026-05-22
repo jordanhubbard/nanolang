@@ -16,7 +16,9 @@ extern fn nl_ws_last_error(_handle: int) -> string
  * url: "ws://host:port/path"
  * Returns a handle (non-zero) on success, 0 on failure. */
 pub fn connect(url: string) -> int {
-    return (nl_ws_connect url)
+    unsafe {
+        return (nl_ws_connect url)
+    }
 }
 
 shadow connect {
@@ -27,7 +29,9 @@ shadow connect {
 
 /* Send a UTF-8 text message. Returns 0 on success. */
 pub fn send(h: int, message: string) -> int {
-    return (nl_ws_send h message)
+    unsafe {
+        return (nl_ws_send h message)
+    }
 }
 
 shadow send {
@@ -37,7 +41,9 @@ shadow send {
 /* Receive the next message (blocks until data arrives or connection closes).
  * Returns "" on error or close. */
 pub fn receive(h: int) -> string {
-    return (nl_ws_receive h)
+    unsafe {
+        return (nl_ws_receive h)
+    }
 }
 
 shadow receive {
@@ -47,7 +53,9 @@ shadow receive {
 /* Receive with a timeout in milliseconds.
  * Returns "" on timeout or error. */
 pub fn receive_timeout(h: int, timeout_ms: int) -> string {
-    return (nl_ws_receive_timeout h timeout_ms)
+    unsafe {
+        return (nl_ws_receive_timeout h timeout_ms)
+    }
 }
 
 shadow receive_timeout {
@@ -56,7 +64,9 @@ shadow receive_timeout {
 
 /* Close the WebSocket connection. Returns 0 on success. */
 pub fn close(h: int) -> int {
-    return (nl_ws_close h)
+    unsafe {
+        return (nl_ws_close h)
+    }
 }
 
 shadow close {
@@ -65,7 +75,9 @@ shadow close {
 
 /* Returns true if the handle refers to an open connection. */
 pub fn is_connected(h: int) -> bool {
-    return (!= (nl_ws_is_connected h) 0)
+    unsafe {
+        return (!= (nl_ws_is_connected h) 0)
+    }
 }
 
 shadow is_connected {
@@ -74,7 +86,9 @@ shadow is_connected {
 
 /* Returns the last error message for a handle. */
 pub fn last_error(h: int) -> string {
-    return (nl_ws_last_error h)
+    unsafe {
+        return (nl_ws_last_error h)
+    }
 }
 
 shadow last_error {

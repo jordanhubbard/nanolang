@@ -103,11 +103,8 @@ DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
 # === API Lessons (api_lessons/) ===
 # Single-file focused lessons for one module API surface.
 # Headers carry `# Build: local` (always built) or `# Build: external-deps`
-# (built when libs available) or `# Build: broken` (skipped).
-API_LESSONS_EXCLUDE := \
-	api_lessons/stdio_api.nano \
-	api_lessons/websocket_api.nano \
-	api_lessons/tidy_api.nano
+# (built when libs available).
+API_LESSONS_EXCLUDE :=
 API_LESSONS_SOURCES := $(filter-out $(API_LESSONS_EXCLUDE),$(wildcard api_lessons/*.nano))
 # Self-hosted compilers can't link many of the C-backed module helpers
 ifneq ($(IS_SELFHOSTED),)

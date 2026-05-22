@@ -5,10 +5,8 @@
 # Category: api_lessons
 # Prerequisites: fs_api
 # Track: modules
-# Build: broken
+# Build: local
 # Dependencies: modules/std/io/stdio, modules/std/fs
-# Reason: modules/std/io/stdio.nano declares extern fgetc/clearerr signatures that
-#         conflict with system <stdio.h> — independent of this lesson.
 # Tags: api-lesson, io, shadow-tested
 # Expected Output: stdio size: 5
 

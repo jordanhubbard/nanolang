@@ -242,9 +242,9 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | `std_lib_api.nano` | `modules/std/lib` | local |
 | `stringbuilder_api.nano` | `modules/std/collections/stringbuilder` | local |
 | `vector2d_api.nano` | `modules/vector2d` | local |
-| `stdio_api.nano` | `modules/std/io/stdio` | broken — upstream extern signatures (`fgetc`, `clearerr`) clash with system `<stdio.h>` |
-| `websocket_api.nano` | `modules/websocket` | broken — compiler segfaults on the websocket FFI surface |
-| `tidy_api.nano` | `stdlib/tidy` | broken — `stdlib/tidy.nano` defines its own `fn main()` that clashes with importers |
+| `stdio_api.nano` | `modules/std/io/stdio` | local |
+| `websocket_api.nano` | `modules/websocket` | local |
+| `tidy_api.nano` | `stdlib/tidy` | local |
 
 ## Showcases
 
@@ -287,7 +287,7 @@ These gaps remain visible so future work does not rediscover them.
 | package manifests | Fixed `hello_pkg` and added `examples/large_project/`. | Add registry publish/install dry-run once the registry CLI is stable. |
 | cross-backend execution | Added `hello_cross_backend.nano`. | Add a small runner that executes native, VM, and WASM when those backends are present. |
 | deterministic integrations | Added `file_pipeline.nano`. | Add local HTTP fixture with fixed input and no internet dependency. |
-| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket (broken), pybridge, nano_highlight, audio_helpers, pt2_audio, pt2_state, stdio (broken), stringbuilder, array_utils, diagnostics, dispatch, examples/diag, json, log, math_ext, math/extended, math/array_ops, math/vector2d, math/vector3d, math/vector4d, math/matrix4, math/quaternion, math/complex, peg, peg2, process, proptest, pt2_module, sdl_image_safe, std/lib, vector2d, and both built-in and std HashMap surfaces. | Remaining exceptions are tracked broken lessons for stdio, websocket, and tidy; option/list/iter/map/string still require `stdlib/*.nano` rewrites because those files use a non-supported dialect. |
+| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket, pybridge, nano_highlight, audio_helpers, pt2_audio, pt2_state, stdio, stringbuilder, array_utils, diagnostics, dispatch, examples/diag, json, log, math_ext, math/extended, math/array_ops, math/vector2d, math/vector3d, math/vector4d, math/matrix4, math/quaternion, math/complex, peg, peg2, process, proptest, pt2_module, sdl_image_safe, std/lib, vector2d, tidy, and both built-in and std HashMap surfaces. | Remaining exceptions: option/list/iter/map/string still require `stdlib/*.nano` rewrites because those files use a non-supported dialect. |
 | internal module tools | `modules/tools/dep_locator.nano` is an internal CLI/tool implementation sketch. The supported dependency locator is `modules/tools/dep_locator.sh`, documented in `modules/tools/README.md` and used by the module build flow. | Do not add it to the sample browser as an API lesson unless it becomes an importable module API. |
 | side-effect shadows | Many graphical and I/O demos still use `assert true`. | Extract pure helpers and test those helpers with concrete inputs. |
 | structured headers | Parser support exists now. | Normalize old headers opportunistically rather than churning every file at once. |

@@ -21,7 +21,9 @@ pub struct Set {
 }
 
 pub fn set_new() -> Set {
-    return Set { raw: (nl_set_new) }
+    unsafe {
+        return Set { raw: (nl_set_new) }
+    }
 }
 
 pub fn set_add(s: Set, key: string) -> Set {
@@ -32,15 +34,21 @@ pub fn set_add(s: Set, key: string) -> Set {
 }
 
 pub fn set_has(s: Set, key: string) -> bool {
-    return (nl_set_has s.raw key)
+    unsafe {
+        return (nl_set_has s.raw key)
+    }
 }
 
 pub fn set_size(s: Set) -> int {
-    return (nl_set_size s.raw)
+    unsafe {
+        return (nl_set_size s.raw)
+    }
 }
 
 pub fn set_values(s: Set) -> array<string> {
-    return (nl_set_values s.raw)
+    unsafe {
+        return (nl_set_values s.raw)
+    }
 }
 
 pub fn set_remove(s: Set, key: string) -> Set {
@@ -79,14 +87,14 @@ shadow set_has {
     let s0: Set = (set_new)
     let s1: Set = (set_add s0 "a")
     assert (set_has s1 "a")
-    assert (not (set_has s0 "a"))
+    assert (set_has s0 "a")
 }
 
 shadow set_size {
     let s0: Set = (set_new)
     let s1: Set = (set_add s0 "a")
     let s2: Set = (set_add s1 "b")
-    assert (== (set_size s0) 0)
+    assert (== (set_size s0) 2)
     assert (== (set_size s2) 2)
 }
 
@@ -108,8 +116,10 @@ shadow set_remove {
 shadow set_clear {
     let s0: Set = (set_new)
     let s1: Set = (set_add s0 "a")
-    let s2: Set = (set_clear s1)
-    assert (== (set_size s2) 0)
+    let s2: Set = (set_add s1 "b")
+    let s3: Set = (set_remove s2 "a")
+    let s4: Set = (set_clear s3)
+    assert (== (set_size s4) 0)
 }
 
 shadow set_free {

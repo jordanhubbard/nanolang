@@ -1696,26 +1696,12 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
                              (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
 
-            /* When both halves of a qualified name are uppercase (e.g. Shape.Circle),
-             * prefer the union-construct interpretation handled by parse_postfix.
-             *
-             * LANGUAGE CONVENTION: module aliases that start with uppercase
-             * (e.g. `module "x" as DT`) work fine for function calls
-             * `(DT.now)` but cannot be used to write a struct literal
-             * `DT.Date { year: 2026 }` — this parser routes those to
-             * union-construct, which then errors if DT is not actually a
-             * union. The principled fix (symbol-table-driven disambiguation
-             * in a post-parse resolution pass) is tracked in nl-421; in
-             * practice no current example uses a Module.Type struct literal,
-             * so the convention is "if you alias a module with an uppercase
-             * name, don't expect Module.Type{} struct literal syntax to
-             * work — lowercase the alias or define the struct locally."
-             *
-             * Originally added in edf4ceb; reintroduced after an unrelated
-             * revert in 2394b14 — see bead nl-cuc. */
-            bool is_union_construct = is_qualified &&
-                tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z' &&
-                looks_like_struct;  /* looks_like_struct already requires after_next uppercase */
+            /* Dotted uppercase literals are parsed as struct literals first.
+             * The typechecker resolves `Union.Variant { ... }` by checking
+             * whether the prefix names a known union; otherwise it can still
+             * resolve `Module.Struct { ... }` through module namespaces.
+             */
+            bool is_union_construct = false;
 
             if (has_lbrace && looks_like_struct && !looks_like_code_block && !is_union_construct) {
                 /* Parse struct literal */

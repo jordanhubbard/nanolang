@@ -124,10 +124,10 @@ shadow make_indent {
     assert (== (str_length indent3) 12)
 }
 
-shadow format {
+shadow tidy_format {
     # Test passthrough (currently just returns input)
     let input1: string = "fn test() -> int { return 42 }"
-    let output1: string = (format input1)
+    let output1: string = (tidy_format input1)
     assert (== input1 output1)
 }
 
@@ -146,24 +146,3 @@ shadow format_pretty {
     assert (str_contains output "{")
     assert (str_contains output "}")
 }
-
-# Example/test main function
-fn main() -> int {
-    let sample: string = "fn hello() -> int { let x: int = 42 return x }"
-    
-    (println "=== Testing format_with_wrap ===")
-    let wrapped: string = (format_with_wrap sample 40)
-    (println wrapped)
-    (println "")
-    
-    (println "=== Testing format_pretty ===")
-    let pretty: string = (format_pretty sample)
-    (println pretty)
-    
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
-

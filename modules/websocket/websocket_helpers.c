@@ -352,6 +352,7 @@ int64_t nl_ws_connect(const char *url) {
 }
 
 int64_t nl_ws_send(int64_t handle, const char *message) {
+    if (handle <= 0) return -1;
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     if (!c || !c->connected || c->fd == INVALID_SOCK) return -1;
     if (!message) message = "";
@@ -389,18 +390,21 @@ static const char *ws_recv_impl(WsCtx *c, int timeout_ms) {
 }
 
 const char *nl_ws_receive(int64_t handle) {
+    if (handle <= 0) return "";
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     if (!c || !c->connected) return "";
     return ws_recv_impl(c, -1);
 }
 
 const char *nl_ws_receive_timeout(int64_t handle, int64_t timeout_ms) {
+    if (handle <= 0) return "";
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     if (!c || !c->connected) return "";
     return ws_recv_impl(c, (int)timeout_ms);
 }
 
 int64_t nl_ws_close(int64_t handle) {
+    if (handle <= 0) return -1;
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     if (!c) return -1;
     if (c->fd != INVALID_SOCK) {
@@ -417,11 +421,13 @@ int64_t nl_ws_close(int64_t handle) {
 }
 
 int64_t nl_ws_is_connected(int64_t handle) {
+    if (handle <= 0) return 0;
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     return (c && c->connected) ? 1 : 0;
 }
 
 const char *nl_ws_last_error(int64_t handle) {
+    if (handle <= 0) return "Invalid handle";
     WsCtx *c = (WsCtx *)(uintptr_t)handle;
     if (!c) return "Invalid handle";
     return c->last_error;

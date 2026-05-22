@@ -1,32 +1,35 @@
 # Example: stdlib::tidy API Lesson
-# Purpose: I show the legacy stdlib/tidy.nano code-formatter helpers (build currently broken)
+# Purpose: I show the legacy stdlib/tidy.nano code-formatter helpers
 # Features: tidy_format, format_with_wrap, format_pretty
 # Difficulty: Beginner
 # Category: api_lessons
 # Prerequisites: stringbuilder_api
 # Track: modules
-# Build: broken
+# Build: local
 # Dependencies: stdlib/tidy
-# Tags: api-lesson, tidy, formatter, broken
-# Expected Output: (does not compile)
+# Tags: api-lesson, tidy, formatter, shadow-tested
+# Expected Output: tidy formatted: 37
 
-# Build failure reason:
-#   `stdlib/tidy.nano` ships with its own `fn main() -> int { ... }` at the
-#   bottom of the file. Importing it with `from "stdlib/tidy.nano" import ...`
-#   or `module "stdlib/tidy.nano" as Tidy` pulls that `main` into the current
-#   compilation unit, which then collides with the lesson's own `main`:
-#       Error at line N, column 1: Function 'main' is already defined
-#         Previous definition at line 151, column 18
-#   The module would need to be refactored to remove the example/test main()
-#   (or guard it behind a feature flag) before this lesson can be authored.
-#
-# Status: skipped, awaiting upstream fix.
+from "stdlib/tidy.nano" import tidy_format, format_with_wrap, format_pretty
 
-# Placeholder so the file remains valid metadata; the body below is the smallest
-# valid NanoLang program and does NOT exercise the tidy API.
+fn tidy_score() -> int {
+    let source: string = "fn hello() -> int { return 42 }"
+    let same: string = (tidy_format source)
+    let wrapped: string = (format_with_wrap source 12)
+    let pretty: string = (format_pretty source)
+    assert (== same source)
+    assert (> (str_length wrapped) (str_length source))
+    assert (str_contains pretty "{")
+    assert (str_contains pretty "}")
+    return (str_length pretty)
+}
+
+shadow tidy_score {
+    assert (> (tidy_score) 0)
+}
 
 fn main() -> int {
-    (println "tidy_api lesson is currently blocked by main() collision in stdlib/tidy.nano")
+    (println (+ "tidy formatted: " (int_to_string (tidy_score))))
     return 0
 }
 

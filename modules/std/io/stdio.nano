@@ -42,107 +42,193 @@ let FILE_MODE_READ_WRITE: string = "r+b"
 
 /* Seek from beginning of file */
 # frozen
-let SEEK_SET: int = 0
+let STDIO_SEEK_SET: int = 0
 
 /* Seek from current position */
 # frozen
-let SEEK_CUR: int = 1
+let STDIO_SEEK_CUR: int = 1
 
 /* Seek from end of file */
 # frozen
-let SEEK_END: int = 2
+let STDIO_SEEK_END: int = 2
 
 /* =============================================================================
  * Core File Operations
  * =============================================================================
  */
 
-/* Open a file
- * Returns: file handle (FILE* as int) or 0 on failure
- */
-pub extern fn fopen(_filename: string, _mode: string) -> int
+extern fn nl_stdio_fopen(_filename: string, _mode: string) -> int
+extern fn nl_stdio_fclose(_file: int) -> int
+extern fn nl_stdio_fread(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn nl_stdio_fwrite(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn nl_stdio_fflush(_file: int) -> int
+extern fn nl_stdio_fseek(_file: int, _offset: int, _whence: int) -> int
+extern fn nl_stdio_ftell(_file: int) -> int
+extern fn nl_stdio_rewind(_file: int) -> int
+extern fn nl_stdio_feof(_file: int) -> int
+extern fn nl_stdio_ferror(_file: int) -> int
+extern fn nl_stdio_clearerr(_file: int) -> int
+extern fn nl_stdio_fgetc(_file: int) -> int
+extern fn nl_stdio_fputc(_c: int, _file: int) -> int
+extern fn nl_stdio_ungetc(_c: int, _file: int) -> int
 
-/* Close a file
- * Returns: 0 on success
- */
-pub extern fn fclose(_file: int) -> int
+pub fn fopen(filename: string, mode: string) -> int {
+    unsafe {
+        return (nl_stdio_fopen filename mode)
+    }
+}
 
-/* Read data from file into buffer
- * size: size of each element
- * count: number of elements to read
- * Returns: number of elements successfully read
- */
-pub extern fn fread(_ptr: int, _size: int, _count: int, _file: int) -> int
+shadow fopen {
+    assert (== (fopen "/nonexistent" FILE_MODE_READ) 0)
+}
 
-/* Write data to file from buffer
- * size: size of each element
- * count: number of elements to write
- * Returns: number of elements successfully written
- */
-pub extern fn fwrite(_ptr: int, _size: int, _count: int, _file: int) -> int
+pub fn fclose(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fclose file)
+    }
+}
 
-/* Flush file buffer
- * Returns: 0 on success
- */
-pub extern fn fflush(_file: int) -> int
+shadow fclose {
+    assert (== (fclose 0) -1)
+}
+
+pub fn fread(ptr: int, size: int, count: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fread ptr size count file)
+    }
+}
+
+shadow fread {
+    assert (== (fread 0 1 1 0) 0)
+}
+
+pub fn fwrite(ptr: int, size: int, count: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fwrite ptr size count file)
+    }
+}
+
+shadow fwrite {
+    assert (== (fwrite 0 1 1 0) 0)
+}
+
+pub fn fflush(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fflush file)
+    }
+}
+
+shadow fflush {
+    assert (== (fflush 0) -1)
+}
 
 /* =============================================================================
  * File Position Operations
  * =============================================================================
  */
 
-/* Seek to position in file
- * offset: number of bytes to seek
- * whence: SEEK_SET, SEEK_CUR, or SEEK_END
- * Returns: 0 on success
+/* Seek to position in file.
+ * whence: STDIO_SEEK_SET, STDIO_SEEK_CUR, or STDIO_SEEK_END
  */
-pub extern fn fseek(_file: int, _offset: int, _whence: int) -> int
+pub fn fseek(file: int, offset: int, whence: int) -> int {
+    unsafe {
+        return (nl_stdio_fseek file offset whence)
+    }
+}
 
-/* Get current file position
- * Returns: current position or -1 on error
- */
-pub extern fn ftell(_file: int) -> int
+shadow fseek {
+    assert (== (fseek 0 0 STDIO_SEEK_SET) -1)
+}
 
-/* Rewind file to beginning */
-pub extern fn rewind(_file: int) -> int
+pub fn ftell(file: int) -> int {
+    unsafe {
+        return (nl_stdio_ftell file)
+    }
+}
+
+shadow ftell {
+    assert (== (ftell 0) -1)
+}
+
+pub fn rewind(file: int) -> int {
+    unsafe {
+        return (nl_stdio_rewind file)
+    }
+}
+
+shadow rewind {
+    assert (== (rewind 0) -1)
+}
 
 /* =============================================================================
  * File Status Operations
  * =============================================================================
  */
 
-/* Check for end of file
- * Returns: non-zero if EOF reached
- */
-pub extern fn feof(_file: int) -> int
+pub fn feof(file: int) -> int {
+    unsafe {
+        return (nl_stdio_feof file)
+    }
+}
 
-/* Check for file error
- * Returns: non-zero if error occurred
- */
-pub extern fn ferror(_file: int) -> int
+shadow feof {
+    assert (== (feof 0) 1)
+}
 
-/* Clear EOF and error indicators */
-pub extern fn clearerr(_file: int) -> int
+pub fn ferror(file: int) -> int {
+    unsafe {
+        return (nl_stdio_ferror file)
+    }
+}
+
+shadow ferror {
+    assert (== (ferror 0) 1)
+}
+
+pub fn clearerr(file: int) -> int {
+    unsafe {
+        return (nl_stdio_clearerr file)
+    }
+}
+
+shadow clearerr {
+    assert (== (clearerr 0) 1)
+}
 
 /* =============================================================================
  * Character I/O Operations
  * =============================================================================
  */
 
-/* Read a single character
- * Returns: character as int, or -1 on EOF
- */
-pub extern fn fgetc(_file: int) -> int
+pub fn fgetc(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fgetc file)
+    }
+}
 
-/* Write a single character
- * Returns: character written, or -1 on error
- */
-pub extern fn fputc(_c: int, _file: int) -> int
+shadow fgetc {
+    assert (== (fgetc 0) -1)
+}
 
-/* Put character back to stream
- * Returns: character pushed back, or -1 on error
- */
-pub extern fn ungetc(_c: int, _file: int) -> int
+pub fn fputc(c: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fputc c file)
+    }
+}
+
+shadow fputc {
+    assert (== (fputc 65 0) -1)
+}
+
+pub fn ungetc(c: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_ungetc c file)
+    }
+}
+
+shadow ungetc {
+    assert (== (ungetc 65 0) -1)
+}
 
 /* =============================================================================
  * Helper Functions
@@ -158,7 +244,7 @@ pub fn file_size(filename: string) -> int {
         return -1
     } else {
         unsafe {
-            (fseek file 0 SEEK_END)
+            (fseek file 0 STDIO_SEEK_END)
         }
         let size: int = (ftell file)
         unsafe {
@@ -192,5 +278,3 @@ pub fn stdio_file_readable(filename: string) -> bool {
 shadow stdio_file_readable {
     assert (== (stdio_file_readable "/nonexistent") false)
 }
-
-
