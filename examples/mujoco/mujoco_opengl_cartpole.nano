@@ -1,9 +1,14 @@
 # Example: MuJoCo OpenGL Cartpole
-# I load an MJCF cartpole, step it with MuJoCo, and draw the state with the
-# OpenGL module. I draw from body and site positions instead of duplicating the
-# physics in NanoLang.
+# Purpose: I load an MJCF cartpole, step it with MuJoCo, and draw body and site state with OpenGL.
+# Features: MuJoCo, OpenGL, GLFW, GLEW, body transforms, site transforms, actuator control, trail rendering
+# Difficulty: Advanced
 # Category: mujoco
-# Expected Output: graphical
+# Prerequisites: MuJoCo, GLFW, GLEW, and an OpenGL-capable desktop session
+# Track: modules
+# Build: graphical, external-deps
+# Dependencies: MuJoCo, GLFW, GLEW, OpenGL, modules/mujoco
+# Tags: mujoco, opengl, cartpole, control, renderer, shadow-tested
+# Expected Output: window
 
 unsafe module "modules/glfw/glfw.nano"
 unsafe module "modules/glew/glew.nano"

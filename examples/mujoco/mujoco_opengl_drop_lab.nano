@@ -1,9 +1,14 @@
 # Example: MuJoCo OpenGL Drop Lab
-# I step a small MuJoCo contact model and draw the moving bodies through the
-# OpenGL module. The ramps are part of the MJCF model; the balls come from
-# MuJoCo body transforms.
+# Purpose: I step a small MuJoCo contact scene and draw the moving bodies through OpenGL.
+# Features: MuJoCo, OpenGL, GLFW, GLEW, body transforms, contact scene, reset, shadow-tested helpers
+# Difficulty: Advanced
 # Category: mujoco
-# Expected Output: graphical
+# Prerequisites: MuJoCo, GLFW, GLEW, and an OpenGL-capable desktop session
+# Track: modules
+# Build: graphical, external-deps
+# Dependencies: MuJoCo, GLFW, GLEW, OpenGL, modules/mujoco
+# Tags: mujoco, opengl, contact, body-transforms, renderer, shadow-tested
+# Expected Output: window
 
 unsafe module "modules/glfw/glfw.nano"
 unsafe module "modules/glew/glew.nano"
