@@ -1,0 +1,78 @@
+# Example: std::math::array_ops API Lesson
+# Purpose: I show elementwise array math, reductions, normalization, and distance helpers.
+# Features: array_add, array_sub, array_mul, array_div, array_dot, array_norm, array_normalize, array_lerp, reductions
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_array_complete
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/array_ops
+# Tags: api-lesson, math, arrays, shadow-tested
+# Expected Output: array dot: 32.0
+
+from "modules/std/math/array_ops.nano" import array_add, array_sub, array_mul, array_div, array_add_scalar, array_mul_scalar, array_dot, array_norm, array_normalize, array_lerp, array_sum, array_mean, array_min, array_max, array_distance, array_sum_int, array_min_int, array_max_int
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 1.0 1.0001)
+    assert (not (close_float 1.0 1.1))
+}
+
+fn weighted_signal() -> array<float> {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [4.0, 5.0, 6.0]
+    let sum: array<float> = (array_add a b)
+    let shifted: array<float> = (array_add_scalar sum 1.0)
+    return (array_mul_scalar shifted 0.5)
+}
+
+shadow weighted_signal {
+    let r: array<float> = (weighted_signal)
+    assert (close_float (at r 0) 3.0)
+    assert (close_float (at r 1) 4.0)
+    assert (close_float (at r 2) 5.0)
+}
+
+fn distance_demo() -> float {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [3.0, 4.0]
+    return (array_distance a b)
+}
+
+shadow distance_demo {
+    assert (close_float (distance_demo) 5.0)
+}
+
+fn reduction_demo() -> int {
+    let xs: array<int> = [5, 2, 8, 1]
+    return (+ (array_sum_int xs) (+ (array_min_int xs) (array_max_int xs)))
+}
+
+shadow reduction_demo {
+    assert (== (reduction_demo) 25)
+}
+
+fn main() -> int {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [4.0, 5.0, 6.0]
+    let added: array<float> = (array_add a b)
+    let subbed: array<float> = (array_sub b a)
+    let multiplied: array<float> = (array_mul a b)
+    let divided: array<float> = (array_div multiplied b)
+    let normalized: array<float> = (array_normalize [3.0, 4.0])
+    let midpoint: array<float> = (array_lerp a b 0.5)
+    assert (close_float (array_norm normalized) 1.0)
+    assert (close_float (array_sum added) 21.0)
+    assert (close_float (array_mean midpoint) 3.5)
+    assert (close_float (array_min subbed) 3.0)
+    assert (close_float (array_max divided) 3.0)
+    (println (+ "array dot: " (float_to_string (array_dot a b))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

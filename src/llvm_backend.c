@@ -376,6 +376,18 @@ static void emit_stmt(LLVMCtx *ctx, ASTNode *node) {
             }
             break;
         }
+        case AST_SET: {
+            const char *name = node->as.set.name ? node->as.set.name : "_";
+            int idx = find_var(ctx, name);
+            int v = emit_expr(ctx, node->as.set.value);
+            if (idx >= 0) {
+                emit(ctx, "  store i64 %%%d, i64* %%%s, align 8\n", v, name);
+            } else {
+                ctx->error = 1;
+                emit(ctx, "  ; ERROR: set target '%s' is not declared\n", name);
+            }
+            break;
+        }
         case AST_RETURN: {
             if (node->as.return_stmt.value) {
                 int v = emit_expr(ctx, node->as.return_stmt.value);

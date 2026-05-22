@@ -1120,7 +1120,12 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
 }
 
 /* Compile a single module to an object file */
-bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose) {
+bool compile_module_to_object(const char *module_path,
+                              const char *output_obj,
+                              Environment *env,
+                              bool verbose,
+                              char **extra_compile_flags,
+                              size_t extra_compile_flags_count) {
     if (!module_path || !output_obj) return false;
 
     /* env is intentionally unused: module compilation is done in an isolated environment */
@@ -1320,8 +1325,21 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
 
-    char compile_cmd[2048];
+    char compile_cmd[4096];
+    char inherited_flags[2048] = "";
     const char *root = get_project_root();
+
+    for (size_t i = 0; i < extra_compile_flags_count; i++) {
+        if (!extra_compile_flags || !extra_compile_flags[i] || extra_compile_flags[i][0] == '\0') {
+            continue;
+        }
+        if (strlen(inherited_flags) + strlen(extra_compile_flags[i]) + 2 < sizeof(inherited_flags)) {
+            if (inherited_flags[0] != '\0') {
+                strcat(inherited_flags, " ");
+            }
+            strcat(inherited_flags, extra_compile_flags[i]);
+        }
+    }
 
     /* Extract the module's own directory for -I path (so it can find its own headers) */
     char module_dir[512] = "";
@@ -1346,9 +1364,9 @@ bool compile_module_to_object(const char *module_path, const char *output_obj, E
     }
 
     snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s -c -o %s %s",
+            "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
             cc, root, root, root, root, root, root, root, root, root,
-            module_dir, sdl_flags, output_obj, temp_c_file);
+            module_dir, sdl_flags, inherited_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1563,7 +1581,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 char nano_obj[512];
                 snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
                 
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose)) {
+                if (!compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -1643,7 +1661,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
 #pragma GCC diagnostic pop
 
             /* Compile module to object file */
-            if (!compile_module_to_object(module_path, obj_file, env, verbose)) {
+            if (!compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);

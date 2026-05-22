@@ -934,7 +934,12 @@ const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 void clear_module_cache(void);
-bool compile_module_to_object(const char *module_path, const char *output_obj, Environment *env, bool verbose);
+bool compile_module_to_object(const char *module_path,
+                              const char *output_obj,
+                              Environment *env,
+                              bool verbose,
+                              char **extra_compile_flags,
+                              size_t extra_compile_flags_count);
 bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
 
 /* Module metadata for serialization */

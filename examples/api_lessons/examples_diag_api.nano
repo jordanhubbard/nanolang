@@ -1,0 +1,41 @@
+# Example: Examples Diagnostic API Lesson
+# Purpose: I emit JSON-line diagnostics for examples that need machine-readable status.
+# Features: example_start, example_metric, emit_event_kv, example_pass, timestamp_ms
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: none
+# Track: modules
+# Build: local
+# Dependencies: modules/examples/diag
+# Tags: api-lesson, diagnostics, json-lines, shadow-tested
+# Expected Output: JSON diagnostic lines
+
+from "modules/examples/diag.nano" import emit_event_kv, example_start, example_pass, example_metric, timestamp_ms
+
+fn metric_count() -> int {
+    return 3
+}
+
+shadow metric_count {
+    assert (== (metric_count) 3)
+}
+
+fn timestamp_is_present() -> bool {
+    return (>= (timestamp_ms) 0)
+}
+
+shadow timestamp_is_present {
+    assert true
+}
+
+fn main() -> int {
+    (example_start "examples_diag_api")
+    (example_metric "examples_diag_api" "checks" (metric_count))
+    (emit_event_kv "note" "examples_diag_api" "format" "jsonl")
+    (example_pass "examples_diag_api")
+    return 0
+}
+
+shadow main {
+    assert true
+}

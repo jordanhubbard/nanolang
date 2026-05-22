@@ -44,11 +44,11 @@ extern fn glutCreateWindow(_title: string) -> int
 # === 3D Solid Shapes ===
 
 # The famous Utah Teapot!
-extern fn glutSolidTeapot(_size: float) -> void
-extern fn glutWireTeapot(_size: float) -> void
+pub extern fn glutSolidTeapot(_size: float) -> void
+pub extern fn glutWireTeapot(_size: float) -> void
 
 # Sphere
-extern fn glutSolidSphere(_radius: float, _slices: int, _stacks: int) -> void
+pub extern fn glutSolidSphere(_radius: float, _slices: int, _stacks: int) -> void
 extern fn glutWireSphere(_radius: float, _slices: int, _stacks: int) -> void
 
 # Cube
@@ -83,9 +83,9 @@ extern fn glutWireIcosahedron() -> void
 
 # Bitmap text rendering (fast, simple)
 # Note: font parameter is an integer representing the font type
-extern fn glutBitmapCharacter(_font: int, _character: int) -> void
+pub extern fn glutBitmapCharacter(_font: int, _character: int) -> void
 extern fn glutBitmapWidth(_font: int, _character: int) -> int
-extern fn glutBitmapLength(_font: int, _str: string) -> int
+pub extern fn glutBitmapLength(_font: int, _str: string) -> int
 
 # === Utility Functions ===
 

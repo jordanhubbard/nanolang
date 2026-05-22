@@ -2,7 +2,7 @@
 
 Last audited: 2026-05-22.
 
-I have 245 `.nano` files under `examples/`. This update adds the missing MuJoCo state, control, and geom-rendering examples.
+I have 257 `.nano` files under `examples/`. This update adds the missing MuJoCo state, control, geom-rendering, and module API examples.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -59,7 +59,7 @@ Use these build labels:
 | --- | ---: | --- |
 | `examples/` | 10 | tools, launchers, root showcases |
 | `examples/advanced/` | 26 | modules and advanced language demos |
-| `examples/api_lessons/` | 30 | focused API lessons |
+| `examples/api_lessons/` | 42 | focused API lessons |
 | `examples/audio/` | 5 | audio modules and showcases |
 | `examples/cross_backend/` | 1 | cross-backend learn fixture |
 | `examples/data/` | 1 | data module demos |
@@ -211,23 +211,35 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | `diagnostics_api.nano` | `modules/std/diagnostics` | local |
 | `dispatch_api.nano` | `modules/dispatch` (libdispatch / GCD) | local on macOS |
 | `env_api.nano` | `modules/std/env` | local |
+| `examples_diag_api.nano` | `modules/examples/diag` | local |
 | `fs_api.nano` | `modules/std/fs` | local |
+| `glut_helpers_api.nano` | `modules/glut/glut_helpers` | external-deps, graphical |
 | `json_api.nano` | `modules/std/json` | local |
 | `log_api.nano` | `modules/std/log` | local |
+| `math_array_ops_api.nano` | `modules/std/math/array_ops` | local |
+| `math_complex_api.nano` | `modules/std/math/complex` | local |
 | `math_ext_api.nano` | `modules/math_ext` | local |
 | `math_extended_api.nano` | `modules/std/math/extended` | local |
+| `math_matrix4_api.nano` | `modules/std/math/matrix4` | local |
+| `math_quaternion_api.nano` | `modules/std/math/quaternion` | local |
 | `math_vector2d_api.nano` | `modules/std/math/vector2d` | local |
+| `math_vector3d_api.nano` | `modules/std/math/vector3d` | local |
+| `math_vector4d_api.nano` | `modules/std/math/vector4d` | local |
 | `nano_highlight_api.nano` | `modules/nano_highlight` | local |
 | `peg_api.nano` | `modules/std/peg` | local |
 | `peg2_api.nano` | `modules/std/peg2` | local |
 | `preferences_api.nano` | `modules/preferences` | external-deps |
 | `process_api.nano` | `modules/std/process` | local |
 | `proptest_api.nano` | `modules/proptest` | local |
+| `pt2_audio_api.nano` | `modules/pt2_audio` | external-deps, audio |
 | `pt2_module_api.nano` | `modules/pt2_module` | external-deps |
 | `pt2_state_api.nano` | `modules/pt2_state` | local |
 | `pybridge_api.nano` | `modules/pybridge` | external-deps (Python) |
 | `pybridge_matplotlib_api.nano` | `modules/pybridge_matplotlib` | external-deps (Python + matplotlib) |
 | `result_api.nano` | `modules/std/result` | local |
+| `sdl_image_safe_api.nano` | `modules/sdl_image/sdl_image_safe` | external-deps, graphical |
+| `std_collections_hashmap_api.nano` | `modules/std/collections/hashmap` | local |
+| `std_lib_api.nano` | `modules/std/lib` | local |
 | `stringbuilder_api.nano` | `modules/std/collections/stringbuilder` | local |
 | `vector2d_api.nano` | `modules/vector2d` | local |
 | `stdio_api.nano` | `modules/std/io/stdio` | broken — upstream extern signatures (`fgetc`, `clearerr`) clash with system `<stdio.h>` |
@@ -275,7 +287,8 @@ These gaps remain visible so future work does not rediscover them.
 | package manifests | Fixed `hello_pkg` and added `examples/large_project/`. | Add registry publish/install dry-run once the registry CLI is stable. |
 | cross-backend execution | Added `hello_cross_backend.nano`. | Add a small runner that executes native, VM, and WASM when those backends are present. |
 | deterministic integrations | Added `file_pipeline.nano`. | Add local HTTP fixture with fixed input and no internet dependency. |
-| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket (broken), pybridge, nano_highlight, audio_helpers, pt2_state, stdio (broken), stringbuilder, array_utils, diagnostics, dispatch, json, log, math_ext, math/extended, math/vector2d, peg, peg2, process, proptest, pt2_module, vector2d, hashmap. | Outstanding gaps: option/list/iter/map/string lessons require `stdlib/*.nano` rewrites (currently use a non-supported dialect); math/vector3d, vector4d, matrix4, quaternion, complex still need lessons. |
+| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket (broken), pybridge, nano_highlight, audio_helpers, pt2_audio, pt2_state, stdio (broken), stringbuilder, array_utils, diagnostics, dispatch, examples/diag, json, log, math_ext, math/extended, math/array_ops, math/vector2d, math/vector3d, math/vector4d, math/matrix4, math/quaternion, math/complex, peg, peg2, process, proptest, pt2_module, sdl_image_safe, std/lib, vector2d, and both built-in and std HashMap surfaces. | Remaining exceptions are tracked broken lessons for stdio, websocket, and tidy; option/list/iter/map/string still require `stdlib/*.nano` rewrites because those files use a non-supported dialect. |
+| internal module tools | `modules/tools/dep_locator.nano` is an internal CLI/tool implementation sketch. The supported dependency locator is `modules/tools/dep_locator.sh`, documented in `modules/tools/README.md` and used by the module build flow. | Do not add it to the sample browser as an API lesson unless it becomes an importable module API. |
 | side-effect shadows | Many graphical and I/O demos still use `assert true`. | Extract pure helpers and test those helpers with concrete inputs. |
 | structured headers | Parser support exists now. | Normalize old headers opportunistically rather than churning every file at once. |
 

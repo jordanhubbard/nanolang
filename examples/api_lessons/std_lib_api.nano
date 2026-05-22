@@ -1,0 +1,30 @@
+# Example: std::lib API Lesson
+# Purpose: I show the standard library root import and its version constant.
+# Features: std_version, std root import
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: stringbuilder_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/lib
+# Tags: api-lesson, stdlib, root-module, shadow-tested
+# Expected Output: std version: 1.0.0
+
+from "modules/std/lib.nano" import std_version
+
+fn version_text() -> string {
+    return (std_version)
+}
+
+shadow version_text {
+    assert (== (version_text) "1.0.0")
+}
+
+fn main() -> int {
+    (println (+ "std version: " (version_text)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,72 @@
+# Example: std::math::Vector3D API Lesson
+# Purpose: I show 3D vector arithmetic for geometry and physics code.
+# Features: Vector3D, vec3_new, vec3_add, vec3_sub, vec3_scale, vec3_dot, vec3_cross, vec3_length, vec3_distance, vec3_normalize, vec3_lerp, vec3_reflect, vec3_clamp_length
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: math_vector2d_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/vector3d
+# Tags: api-lesson, math, vector3d, shadow-tested
+# Expected Output: reflected y: 1.0
+
+from "modules/std/math/vector3d.nano" import Vector3D, vec3_new, vec3_zero, vec3_add, vec3_sub, vec3_scale, vec3_dot, vec3_cross, vec3_length, vec3_distance, vec3_normalize, vec3_lerp, vec3_reflect, vec3_clamp_length
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 3.0 3.0001)
+    assert (not (close_float 3.0 3.1))
+}
+
+fn surface_normal() -> Vector3D {
+    let tangent: Vector3D = (vec3_new 1.0 0.0 0.0)
+    let bitangent: Vector3D = (vec3_new 0.0 1.0 0.0)
+    return (vec3_cross tangent bitangent)
+}
+
+shadow surface_normal {
+    let n: Vector3D = (surface_normal)
+    assert (close_float n.x 0.0)
+    assert (close_float n.y 0.0)
+    assert (close_float n.z 1.0)
+}
+
+fn bounce_velocity() -> Vector3D {
+    let v: Vector3D = (vec3_new 1.0 -1.0 0.0)
+    let n: Vector3D = (vec3_new 0.0 1.0 0.0)
+    return (vec3_reflect v n)
+}
+
+shadow bounce_velocity {
+    let b: Vector3D = (bounce_velocity)
+    assert (close_float b.x 1.0)
+    assert (close_float b.y 1.0)
+    assert (close_float b.z 0.0)
+}
+
+fn main() -> int {
+    let a: Vector3D = (vec3_new 1.0 2.0 3.0)
+    let b: Vector3D = (vec3_new 4.0 6.0 3.0)
+    let zero: Vector3D = (vec3_zero)
+    let sum: Vector3D = (vec3_add a b)
+    let delta: Vector3D = (vec3_sub b a)
+    let unit: Vector3D = (vec3_normalize (vec3_scale delta 2.0))
+    let mid: Vector3D = (vec3_lerp a b 0.5)
+    let limited: Vector3D = (vec3_clamp_length (vec3_new 3.0 4.0 0.0) 2.0)
+    assert (close_float (vec3_dot zero zero) 0.0)
+    assert (close_float (vec3_length unit) 1.0)
+    assert (close_float (vec3_distance a b) 5.0)
+    assert (close_float (vec3_length limited) 2.0)
+    assert (close_float mid.x 2.5)
+    assert (close_float sum.z 6.0)
+    let bounced: Vector3D = (bounce_velocity)
+    (println (+ "reflected y: " (float_to_string bounced.y)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

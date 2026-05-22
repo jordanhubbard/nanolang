@@ -7,8 +7,10 @@
 import "modules/sdl_image/sdl_image.nano"
 
 # Safe wrapper for loading textures
-fn img_load_texture(renderer: SDL_Renderer, file: string) -> int {
-    return unsafe { (nl_img_load_texture renderer file) }
+pub fn img_load_texture(renderer: SDL_Renderer, file: string) -> int {
+    unsafe {
+        return (nl_img_load_texture renderer file)
+    }
 }
 
 shadow img_load_texture {
@@ -16,8 +18,10 @@ shadow img_load_texture {
 }
 
 # Safe wrapper for loading PNG textures
-fn img_load_png_texture(renderer: SDL_Renderer, file: string) -> int {
-    return unsafe { (nl_img_load_png_texture renderer file) }
+pub fn img_load_png_texture(renderer: SDL_Renderer, file: string) -> int {
+    unsafe {
+        return (nl_img_load_png_texture renderer file)
+    }
 }
 
 shadow img_load_png_texture {
@@ -25,8 +29,10 @@ shadow img_load_png_texture {
 }
 
 # Safe wrapper for rendering textures
-fn img_render_texture(renderer: SDL_Renderer, texture: int, x: int, y: int, w: int, h: int) -> int {
-    return unsafe { (nl_img_render_texture renderer texture x y w h) }
+pub fn img_render_texture(renderer: SDL_Renderer, texture: int, x: int, y: int, w: int, h: int) -> int {
+    unsafe {
+        return (nl_img_render_texture renderer texture x y w h)
+    }
 }
 
 shadow img_render_texture {
@@ -34,8 +40,10 @@ shadow img_render_texture {
 }
 
 # Safe wrapper for rendering with rotation/flip
-fn img_render_texture_ex(renderer: SDL_Renderer, texture: int, x: int, y: int, w: int, h: int, angle: float, flip: int) -> int {
-    return unsafe { (nl_img_render_texture_ex renderer texture x y w h angle flip) }
+pub fn img_render_texture_ex(renderer: SDL_Renderer, texture: int, x: int, y: int, w: int, h: int, angle: float, flip: int) -> int {
+    unsafe {
+        return (nl_img_render_texture_ex renderer texture x y w h angle flip)
+    }
 }
 
 shadow img_render_texture_ex {
@@ -43,8 +51,10 @@ shadow img_render_texture_ex {
 }
 
 # Safe wrapper for sprite rendering
-fn img_render_sprite(renderer: SDL_Renderer, texture: int, src_x: int, src_y: int, src_w: int, src_h: int, dst_x: int, dst_y: int, dst_w: int, dst_h: int) -> int {
-    return unsafe { (nl_img_render_texture_sprite renderer texture src_x src_y src_w src_h dst_x dst_y dst_w dst_h) }
+pub fn img_render_sprite(renderer: SDL_Renderer, texture: int, src_x: int, src_y: int, src_w: int, src_h: int, dst_x: int, dst_y: int, dst_w: int, dst_h: int) -> int {
+    unsafe {
+        return (nl_img_render_texture_sprite renderer texture src_x src_y src_w src_h dst_x dst_y dst_w dst_h)
+    }
 }
 
 shadow img_render_sprite {
@@ -52,8 +62,10 @@ shadow img_render_sprite {
 }
 
 # Safe wrapper for getting texture width
-fn img_get_width(texture: int) -> int {
-    return unsafe { (nl_img_get_texture_width texture) }
+pub fn img_get_width(texture: int) -> int {
+    unsafe {
+        return (nl_img_get_texture_width texture)
+    }
 }
 
 shadow img_get_width {
@@ -61,8 +73,10 @@ shadow img_get_width {
 }
 
 # Safe wrapper for getting texture height  
-fn img_get_height(texture: int) -> int {
-    return unsafe { (nl_img_get_texture_height texture) }
+pub fn img_get_height(texture: int) -> int {
+    unsafe {
+        return (nl_img_get_texture_height texture)
+    }
 }
 
 shadow img_get_height {
@@ -70,8 +84,10 @@ shadow img_get_height {
 }
 
 # Safe wrapper for setting alpha
-fn img_set_alpha(texture: int, alpha: int) -> int {
-    return unsafe { (nl_img_set_texture_alpha texture alpha) }
+pub fn img_set_alpha(texture: int, alpha: int) -> int {
+    unsafe {
+        return (nl_img_set_texture_alpha texture alpha)
+    }
 }
 
 shadow img_set_alpha {
@@ -79,8 +95,10 @@ shadow img_set_alpha {
 }
 
 # Safe wrapper for setting color tint
-fn img_set_color(texture: int, r: int, g: int, b: int) -> int {
-    return unsafe { (nl_img_set_texture_color texture r g b) }
+pub fn img_set_color(texture: int, r: int, g: int, b: int) -> int {
+    unsafe {
+        return (nl_img_set_texture_color texture r g b)
+    }
 }
 
 shadow img_set_color {
@@ -88,8 +106,10 @@ shadow img_set_color {
 }
 
 # Safe wrapper for setting blend mode
-fn img_set_blend_mode(texture: int, blend: int) -> int {
-    return unsafe { (nl_img_set_texture_blend_mode texture blend) }
+pub fn img_set_blend_mode(texture: int, blend: int) -> int {
+    unsafe {
+        return (nl_img_set_texture_blend_mode texture blend)
+    }
 }
 
 shadow img_set_blend_mode {
@@ -97,7 +117,7 @@ shadow img_set_blend_mode {
 }
 
 # Safe wrapper for destroying textures
-fn img_destroy(texture: int) -> void {
+pub fn img_destroy(texture: int) -> void {
     unsafe { (nl_img_destroy_texture texture) }
 }
 
@@ -106,8 +126,10 @@ shadow img_destroy {
 }
 
 # Safe wrapper for Init
-fn img_init(flags: int) -> int {
-    return unsafe { (IMG_Init flags) }
+pub fn img_init(flags: int) -> int {
+    unsafe {
+        return (IMG_Init flags)
+    }
 }
 
 shadow img_init {
@@ -115,7 +137,7 @@ shadow img_init {
 }
 
 # Safe wrapper for Quit
-fn img_quit() -> void {
+pub fn img_quit() -> void {
     unsafe { (IMG_Quit) }
 }
 
@@ -124,8 +146,10 @@ shadow img_quit {
 }
 
 # Safe wrapper for LoadTexture
-fn img_load_texture_direct(renderer: SDL_Renderer, file: string) -> int {
-    return unsafe { (IMG_LoadTexture renderer file) }
+pub fn img_load_texture_direct(renderer: SDL_Renderer, file: string) -> int {
+    unsafe {
+        return (nl_img_load_texture renderer file)
+    }
 }
 
 shadow img_load_texture_direct {
@@ -133,11 +157,12 @@ shadow img_load_texture_direct {
 }
 
 # Safe wrapper for GetError
-fn img_get_error() -> string {
-    return unsafe { (IMG_GetError) }
+pub fn img_get_error() -> string {
+    unsafe {
+        return (IMG_GetError)
+    }
 }
 
 shadow img_get_error {
     assert (== 1 1)
 }
-

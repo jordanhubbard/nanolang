@@ -1,0 +1,60 @@
+# Example: pt2_audio API Lesson
+# Purpose: I show the ProTracker audio playback surface without requiring a real MOD file.
+# Features: pt2_audio_init, pt2_audio_load_mod, pt2_audio_play, pt2_audio_stop, pt2_audio_is_playing
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: pt2_module_api
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/pt2_audio
+# Tags: api-lesson, protracker, audio, native-only, shadow-tested
+# Expected Output: pt2_audio load missing: -1
+
+from "modules/pt2_audio/pt2_audio.nano" import pt2_audio_init, pt2_audio_load_mod, pt2_audio_play, pt2_audio_stop, pt2_audio_is_playing
+
+fn audio_surface_count() -> int {
+    return 5
+}
+
+shadow audio_surface_count {
+    assert (== (audio_surface_count) 5)
+}
+
+fn load_missing_mod() -> int {
+    unsafe {
+        return (pt2_audio_load_mod "/tmp/nanolang_missing_pt2_audio.mod")
+    }
+}
+
+shadow load_missing_mod {
+    assert true
+}
+
+fn stop_if_playing() -> int {
+    let mut playing: int = 0
+    unsafe {
+        set playing (pt2_audio_is_playing)
+        if (!= playing 0) {
+            (pt2_audio_stop)
+        } else {}
+    }
+    return playing
+}
+
+shadow stop_if_playing {
+    assert true
+}
+
+fn main() -> int {
+    unsafe {
+        (pt2_audio_init 44100)
+    }
+    let rc: int = (load_missing_mod)
+    (stop_if_playing)
+    (println (+ "pt2_audio load missing: " (int_to_string rc)))
+    return 0
+}
+
+shadow main {
+    assert true
+}

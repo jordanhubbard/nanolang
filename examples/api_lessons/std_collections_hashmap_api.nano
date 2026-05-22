@@ -1,0 +1,57 @@
+# Example: std::collections::HashMap API Lesson
+# Purpose: I show my string-to-string std HashMap wrapper and its explicit ownership boundary.
+# Features: HashMap, std_hm_new, std_hm_put, std_hm_has, std_hm_get, std_hm_size, std_hm_keys, std_hm_values, std_hm_remove, std_hm_clear, std_hm_free
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: collections_hashmap_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/collections/hashmap
+# Tags: api-lesson, collections, hashmap, shadow-tested
+# Expected Output: std hashmap size: 2
+
+from "modules/std/collections/hashmap.nano" import HashMap, std_hm_new, std_hm_put, std_hm_has, std_hm_get, std_hm_size, std_hm_keys, std_hm_values, std_hm_remove, std_hm_clear, std_hm_free
+
+fn build_std_map() -> HashMap {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "one" "1")
+    let hm2: HashMap = (std_hm_put hm1 "two" "2")
+    return (std_hm_put hm2 "two" "2")
+}
+
+shadow build_std_map {
+    let hm: HashMap = (build_std_map)
+    assert (std_hm_has hm "one")
+    assert (== (std_hm_get hm "two") "2")
+    assert (== (std_hm_size hm) 2)
+    (std_hm_free hm)
+}
+
+fn remove_then_clear() -> int {
+    let hm: HashMap = (build_std_map)
+    let removed: HashMap = (std_hm_remove hm "one")
+    assert (not (std_hm_has removed "one"))
+    let cleared: HashMap = (std_hm_clear removed)
+    let size: int = (std_hm_size cleared)
+    (std_hm_free cleared)
+    return size
+}
+
+shadow remove_then_clear {
+    assert (== (remove_then_clear) 0)
+}
+
+fn main() -> int {
+    let hm: HashMap = (build_std_map)
+    let keys: array<string> = (std_hm_keys hm)
+    let values: array<string> = (std_hm_values hm)
+    assert (== (array_length keys) (std_hm_size hm))
+    assert (== (array_length values) (std_hm_size hm))
+    (println (+ "std hashmap size: " (int_to_string (std_hm_size hm))))
+    (std_hm_free hm)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

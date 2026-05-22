@@ -26,3 +26,10 @@ import "std/collections/set.nano"
 # frozen
 let STD_VERSION: string = "1.0.0"
 
+pub fn std_version() -> string {
+    return STD_VERSION
+}
+
+shadow std_version {
+    assert (== (std_version) "1.0.0")
+}

@@ -23,7 +23,9 @@ pub struct HashMap {
 }
 
 pub fn map_new() -> HashMap {
-    return HashMap { raw: (nl_hm_new) }
+    unsafe {
+        return HashMap { raw: (nl_hm_new) }
+    }
 }
 
 pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
@@ -34,24 +36,34 @@ pub fn map_put(hm: HashMap, key: string, value: string) -> HashMap {
 }
 
 pub fn map_has(hm: HashMap, key: string) -> bool {
-    return (nl_hm_has hm.raw key)
+    unsafe {
+        return (nl_hm_has hm.raw key)
+    }
 }
 
 /* Returns "" if missing; use has() if you need to disambiguate. */
 pub fn map_get(hm: HashMap, key: string) -> string {
-    return (nl_hm_get hm.raw key)
+    unsafe {
+        return (nl_hm_get hm.raw key)
+    }
 }
 
 pub fn map_size(hm: HashMap) -> int {
-    return (nl_hm_size hm.raw)
+    unsafe {
+        return (nl_hm_size hm.raw)
+    }
 }
 
 pub fn map_keys(hm: HashMap) -> array<string> {
-    return (nl_hm_keys hm.raw)
+    unsafe {
+        return (nl_hm_keys hm.raw)
+    }
 }
 
 pub fn map_values(hm: HashMap) -> array<string> {
-    return (nl_hm_values hm.raw)
+    unsafe {
+        return (nl_hm_values hm.raw)
+    }
 }
 
 pub fn map_remove(hm: HashMap, key: string) -> HashMap {
@@ -69,6 +81,69 @@ pub fn map_clear(hm: HashMap) -> HashMap {
 }
 
 pub fn map_free(hm: HashMap) -> void {
+    unsafe {
+        (nl_hm_free hm.raw)
+    }
+}
+
+pub fn std_hm_new() -> HashMap {
+    unsafe {
+        return HashMap { raw: (nl_hm_new) }
+    }
+}
+
+pub fn std_hm_put(hm: HashMap, key: string, value: string) -> HashMap {
+    unsafe {
+        (nl_hm_put hm.raw key value)
+    }
+    return hm
+}
+
+pub fn std_hm_has(hm: HashMap, key: string) -> bool {
+    unsafe {
+        return (nl_hm_has hm.raw key)
+    }
+}
+
+pub fn std_hm_get(hm: HashMap, key: string) -> string {
+    unsafe {
+        return (nl_hm_get hm.raw key)
+    }
+}
+
+pub fn std_hm_size(hm: HashMap) -> int {
+    unsafe {
+        return (nl_hm_size hm.raw)
+    }
+}
+
+pub fn std_hm_keys(hm: HashMap) -> array<string> {
+    unsafe {
+        return (nl_hm_keys hm.raw)
+    }
+}
+
+pub fn std_hm_values(hm: HashMap) -> array<string> {
+    unsafe {
+        return (nl_hm_values hm.raw)
+    }
+}
+
+pub fn std_hm_remove(hm: HashMap, key: string) -> HashMap {
+    unsafe {
+        (nl_hm_remove hm.raw key)
+    }
+    return hm
+}
+
+pub fn std_hm_clear(hm: HashMap) -> HashMap {
+    unsafe {
+        (nl_hm_clear hm.raw)
+    }
+    return hm
+}
+
+pub fn std_hm_free(hm: HashMap) -> void {
     unsafe {
         (nl_hm_free hm.raw)
     }
@@ -139,5 +214,73 @@ shadow map_clear {
 shadow map_free {
     let hm: HashMap = (map_new)
     (map_free hm)
+    assert true
+}
+
+shadow std_hm_new {
+    let hm: HashMap = (std_hm_new)
+    assert (== (std_hm_size hm) 0)
+}
+
+shadow std_hm_put {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    assert (std_hm_has hm1 "a")
+    assert (== (std_hm_get hm1 "a") "1")
+}
+
+shadow std_hm_has {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "key" "val")
+    assert (std_hm_has hm1 "key")
+    assert (not (std_hm_has hm0 "key"))
+}
+
+shadow std_hm_get {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "x" "y")
+    assert (== (std_hm_get hm1 "x") "y")
+}
+
+shadow std_hm_size {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    let hm2: HashMap = (std_hm_put hm1 "b" "2")
+    assert (== (std_hm_size hm0) 0)
+    assert (== (std_hm_size hm2) 2)
+}
+
+shadow std_hm_keys {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    let keys: array<string> = (std_hm_keys hm1)
+    assert (== (array_length keys) 1)
+}
+
+shadow std_hm_values {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    let vals: array<string> = (std_hm_values hm1)
+    assert (== (array_length vals) 1)
+}
+
+shadow std_hm_remove {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    assert (std_hm_has hm1 "a")
+    let hm2: HashMap = (std_hm_remove hm1 "a")
+    assert (not (std_hm_has hm2 "a"))
+}
+
+shadow std_hm_clear {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "a" "1")
+    let hm2: HashMap = (std_hm_clear hm1)
+    assert (== (std_hm_size hm2) 0)
+}
+
+shadow std_hm_free {
+    let hm: HashMap = (std_hm_new)
+    (std_hm_free hm)
     assert true
 }
