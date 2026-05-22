@@ -3087,14 +3087,6 @@ shadow check_block { assert true }
  * Returns: true if valid, false if type errors
  */
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
-    (print "NSType checking function ")
-    (print func.name)
-    (print " (line ")
-    (print (int_to_string func.line))
-    (print ", body block ID ")
-    (print (int_to_string func.body))
-    (println ")")
-
     let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
     /* Create a fresh symbol table for this function.
@@ -3205,18 +3197,13 @@ shadow typecheck_phase { assert true }
 
 /* NSType check with initial symbol table (for transitive imports) */
 pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_symbols: array<Symbol>) -> TypecheckPhaseOutput {
-    (println "=== NSType Checking (Full AST Walk) ===")
-    
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = initial_symbols
     let mut error_count: int = 0
-    
+
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
-    (print "NSType checking ")
-    (print (int_to_string func_count))
-    (println " functions")
-    
+
     /* Validate we have at least one function */
     if (<= func_count 0) {
         (println "Error: No functions found")
@@ -3291,8 +3278,6 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     let mut i: int = 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        (println "  Registering function...")
-        
         let return_type: NSType = (type_from_string_with_parser parser func.return_type)
         let mut param_types: array<NSType> = []
         if (and (> func.param_count 0) (>= func.param_start 0)) {
@@ -3318,10 +3303,6 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
-        (print "  NSType checking function ")
-        (print func.name)
-        (println "...")
-        
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         if (not valid) {
             set error_count (+ error_count 1)
@@ -3330,13 +3311,8 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
         }
         set i (+ i 1)
     }
-    
+
     let had_error: bool = (Diagnostics.diag_list_has_errors env.diagnostics)
-    if had_error {
-        (println "✓ NSType checking complete - errors found")
-    } else {
-        (println "✓ NSType checking complete - All functions valid!")
-    }
     return (typecheck_output env.diagnostics error_count had_error)
 }
 

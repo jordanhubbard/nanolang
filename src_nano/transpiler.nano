@@ -7458,7 +7458,6 @@ shadow parser_has_peg2_import {
 }
 
 pub fn transpile_parser(parser: Parser) -> string {
-    (println "=== Code Generation (Full AST Walk) ===")
     (build_module_alias_map parser)
     (reset_fn_types)
 
@@ -7477,9 +7476,6 @@ pub fn transpile_parser(parser: Parser) -> string {
     
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
-    (print "Generating C code for ")
-    (print (int_to_string func_count))
-    (println " functions")
 
     let _reg: int = (register_extern_names parser)
     
@@ -7518,12 +7514,6 @@ pub fn transpile_parser(parser: Parser) -> string {
         }
 
         if (not body_dup) {
-        (print "  Generating: ")
-        (print func.name)
-        (print " (return type: ")
-        (print func.return_type)
-        (println ")")
-        
         /* Collect params (stored as lets) */
         let mut params: array<string> = []
         let mut types: array<string> = []
@@ -7559,8 +7549,7 @@ pub fn transpile_parser(parser: Parser) -> string {
         set i (+ i 1)
     }
     let all_functions: string = (cg_build sb)
-    
-    (println "✓ Code generation complete!")
+
     return (gen_c_program_with_modules parser all_functions)
 }
 
