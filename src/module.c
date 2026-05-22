@@ -1373,7 +1373,7 @@ bool compile_module_to_object(const char *module_path,
     }
     
     /* Compile and capture errors */
-    char error_cmd[2064];
+    char error_cmd[sizeof(compile_cmd) + 16];
     snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
     FILE *pipe = popen(error_cmd, "r");
     char error_output[4096] = {0};
