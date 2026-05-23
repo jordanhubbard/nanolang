@@ -23,7 +23,7 @@ shadow local_echo_url {
 fn closed_handle_is_not_connected() -> bool {
     let connected: bool = (is_connected 0)
     let err: string = (last_error 0)
-    assert (>= (str_length err) 0)
+    assert (!= err "")
     (close 0)
     return connected
 }

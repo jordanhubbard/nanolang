@@ -40,17 +40,17 @@ typedef struct {
 } NLHashMapCore;
 
 /* HashMap functions */
-uint64_t nl_hm_hash_string(const char *s);
-uint64_t nl_hm_hash_int(int64_t x);
-bool nl_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapValType *out_v);
-const char *nl_hm_typeinfo_arg_name(const TypeInfo *ti);
-NLHashMapCore *nl_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t capacity);
-bool nl_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Value *key);
-uint64_t nl_hm_hash_key(const NLHashMapCore *hm, const Value *key);
-int64_t nl_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_found);
-void nl_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e);
-void nl_hm_rehash(NLHashMapCore *hm, int64_t new_cap);
-void nl_hm_clear(NLHashMapCore *hm);
-void nl_hm_free(NLHashMapCore *hm);
+uint64_t eval_hm_hash_string(const char *s);
+uint64_t eval_hm_hash_int(int64_t x);
+bool eval_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapValType *out_v);
+const char *eval_hm_typeinfo_arg_name(const TypeInfo *ti);
+NLHashMapCore *eval_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t capacity);
+bool eval_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Value *key);
+uint64_t eval_hm_hash_key(const NLHashMapCore *hm, const Value *key);
+int64_t eval_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_found);
+void eval_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e);
+void eval_hm_rehash(NLHashMapCore *hm, int64_t new_cap);
+void eval_hm_clear(NLHashMapCore *hm);
+void eval_hm_free(NLHashMapCore *hm);
 
 #endif /* EVAL_HASHMAP_H */

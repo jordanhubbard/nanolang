@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 /* Cleanup function for hashmap (called by ARC wrapper finalizer) */
-void nl_hm_free(NLHashMapCore *hm);  /* Forward declaration */
+void eval_hm_free(NLHashMapCore *hm);  /* Forward declaration */
 
 /* ============================ Core HashMap<K,V> (Interpreter Implementation) ============================
  *
@@ -24,7 +24,7 @@ void nl_hm_free(NLHashMapCore *hm);  /* Forward declaration */
  * (new, put, get, has, size, free) for each K,V combination used in the program.
  * ========================================================================================== */
 
-uint64_t nl_hm_hash_string(const char *s) {
+uint64_t eval_hm_hash_string(const char *s) {
     if (!s) return 0;
     uint64_t h = 1469598103934665603ULL;
     for (const unsigned char *p = (const unsigned char*)s; *p; p++) {
@@ -34,7 +34,7 @@ uint64_t nl_hm_hash_string(const char *s) {
     return h;
 }
 
-uint64_t nl_hm_hash_int(int64_t x) {
+uint64_t eval_hm_hash_int(int64_t x) {
     uint64_t z = (uint64_t)x;
     z ^= z >> 33;
     z *= 0xff51afd7ed558ccdULL;
@@ -44,7 +44,7 @@ uint64_t nl_hm_hash_int(int64_t x) {
     return z;
 }
 
-bool nl_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapValType *out_v) {
+bool eval_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapValType *out_v) {
     if (out_k) *out_k = NL_HM_KEY_INT;
     if (out_v) *out_v = NL_HM_VAL_INT;
     if (!mono) return false;
@@ -80,7 +80,7 @@ bool nl_hm_parse_monomorph(const char *mono, NLHashMapKeyType *out_k, NLHashMapV
     return true;
 }
 
-const char *nl_hm_typeinfo_arg_name(const TypeInfo *ti) {
+const char *eval_hm_typeinfo_arg_name(const TypeInfo *ti) {
     if (!ti) return NULL;
     switch (ti->base_type) {
         case TYPE_INT: return "int";
@@ -89,12 +89,12 @@ const char *nl_hm_typeinfo_arg_name(const TypeInfo *ti) {
     }
 }
 
-NLHashMapCore *nl_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t capacity) {
+NLHashMapCore *eval_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t capacity) {
     if (capacity < 16) capacity = 16;
     int64_t cap = 1;
     while (cap < capacity) cap <<= 1;
 
-    /* Simple malloc - ARC wrapper will call nl_hm_free when done */
+    /* Simple malloc - ARC wrapper will call eval_hm_free when done */
     NLHashMapCore *hm = (NLHashMapCore*)calloc(1, sizeof(NLHashMapCore));
     if (!hm) return NULL;
 
@@ -109,7 +109,7 @@ NLHashMapCore *nl_hm_alloc(NLHashMapKeyType kt, NLHashMapValType vt, int64_t cap
     return hm;
 }
 
-bool nl_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Value *key) {
+bool eval_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Value *key) {
     if (!hm || !e || !key) return false;
     if (hm->key_type == NL_HM_KEY_INT) {
         return key->type == VAL_INT && e->key.i == key->as.int_val;
@@ -117,17 +117,17 @@ bool nl_hm_key_equals(const NLHashMapCore *hm, const NLHashMapEntry *e, const Va
     return key->type == VAL_STRING && e->key.s && key->as.string_val && strcmp(e->key.s, key->as.string_val) == 0;
 }
 
-uint64_t nl_hm_hash_key(const NLHashMapCore *hm, const Value *key) {
+uint64_t eval_hm_hash_key(const NLHashMapCore *hm, const Value *key) {
     if (!hm || !key) return 0;
-    if (hm->key_type == NL_HM_KEY_INT) return nl_hm_hash_int(key->as.int_val);
-    return nl_hm_hash_string(key->as.string_val);
+    if (hm->key_type == NL_HM_KEY_INT) return eval_hm_hash_int(key->as.int_val);
+    return eval_hm_hash_string(key->as.string_val);
 }
 
-int64_t nl_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_found) {
+int64_t eval_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_found) {
     if (out_found) *out_found = false;
     if (!hm || !hm->entries || hm->capacity <= 0) return -1;
 
-    uint64_t h = nl_hm_hash_key(hm, key);
+    uint64_t h = eval_hm_hash_key(hm, key);
     int64_t mask = hm->capacity - 1;
     int64_t idx = (int64_t)(h & (uint64_t)mask);
     int64_t first_tomb = -1;
@@ -140,7 +140,7 @@ int64_t nl_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_fou
         }
         if (e->state == 2) {
             if (first_tomb == -1) first_tomb = idx;
-        } else if (nl_hm_key_equals(hm, e, key)) {
+        } else if (eval_hm_key_equals(hm, e, key)) {
             if (out_found) *out_found = true;
             return idx;
         }
@@ -149,7 +149,7 @@ int64_t nl_hm_find_slot(const NLHashMapCore *hm, const Value *key, bool *out_fou
     return first_tomb;
 }
 
-void nl_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e) {
+void eval_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e) {
     if (!hm || !e) return;
     if (e->state != 1) return;
     if (hm->key_type == NL_HM_KEY_STRING && e->key.s) free(e->key.s);
@@ -158,9 +158,9 @@ void nl_hm_free_entry(NLHashMapCore *hm, NLHashMapEntry *e) {
     e->value.s = NULL;
 }
 
-void nl_hm_rehash(NLHashMapCore *hm, int64_t new_cap) {
+void eval_hm_rehash(NLHashMapCore *hm, int64_t new_cap) {
     if (!hm) return;
-    NLHashMapCore *next = nl_hm_alloc(hm->key_type, hm->val_type, new_cap);
+    NLHashMapCore *next = eval_hm_alloc(hm->key_type, hm->val_type, new_cap);
     if (!next) return;
 
     for (int64_t i = 0; i < hm->capacity; i++) {
@@ -178,7 +178,7 @@ void nl_hm_rehash(NLHashMapCore *hm, int64_t new_cap) {
         }
 
         bool found = false;
-        int64_t idx = nl_hm_find_slot(next, &key, &found);
+        int64_t idx = eval_hm_find_slot(next, &key, &found);
         if (idx >= 0) {
             next->entries[idx] = *e; /* move ownership */
             next->entries[idx].state = 1;
@@ -196,20 +196,20 @@ void nl_hm_rehash(NLHashMapCore *hm, int64_t new_cap) {
     free(next);
 }
 
-void nl_hm_clear(NLHashMapCore *hm) {
+void eval_hm_clear(NLHashMapCore *hm) {
     if (!hm || !hm->entries) return;
     for (int64_t i = 0; i < hm->capacity; i++) {
-        nl_hm_free_entry(hm, &hm->entries[i]);
+        eval_hm_free_entry(hm, &hm->entries[i]);
         hm->entries[i].state = 0;
     }
     hm->size = 0;
     hm->tombstones = 0;
 }
 
-void nl_hm_free(NLHashMapCore *hm) {
+void eval_hm_free(NLHashMapCore *hm) {
     if (!hm) return;
     /* Clear all entries and free the entries array */
-    nl_hm_clear(hm);
+    eval_hm_clear(hm);
     if (hm->entries) {
         free(hm->entries);
         hm->entries = NULL;

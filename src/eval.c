@@ -4096,12 +4096,12 @@ static Value eval_call(ASTNode *node, Environment *env) {
             NLHashMapKeyType kt;
             NLHashMapValType vt;
             const char *mono = node->as.call.return_struct_type_name;
-            if (!nl_hm_parse_monomorph(mono, &kt, &vt)) {
+            if (!eval_hm_parse_monomorph(mono, &kt, &vt)) {
                 fprintf(stderr, "Error: map_new requires HashMap<K,V> type context\n");
                 return create_void();
             }
 
-            NLHashMapCore *hm = nl_hm_alloc(kt, vt, 16);
+            NLHashMapCore *hm = eval_hm_alloc(kt, vt, 16);
             return create_int((long long)hm);
         }
 
@@ -4119,7 +4119,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
 
             /* Resize */
             if ((hm->size + hm->tombstones) * 10 >= hm->capacity * 7) {
-                nl_hm_rehash(hm, hm->capacity * 2);
+                eval_hm_rehash(hm, hm->capacity * 2);
             }
 
             /* Type checks */
@@ -4141,7 +4141,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
             }
 
             bool found = false;
-            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            int64_t idx = eval_hm_find_slot(hm, &args[1], &found);
             if (idx < 0) return create_void();
             NLHashMapEntry *e = &hm->entries[idx];
 
@@ -4185,7 +4185,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
                 return (Value){ .type = VAL_VOID };
             }
             bool found = false;
-            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            int64_t idx = eval_hm_find_slot(hm, &args[1], &found);
             if (!found || idx < 0) {
                 if (hm->val_type == NL_HM_VAL_STRING) return create_string("");
                 return create_int(0);
@@ -4207,7 +4207,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_bool(false);
             bool found = false;
-            (void)nl_hm_find_slot(hm, &args[1], &found);
+            (void)eval_hm_find_slot(hm, &args[1], &found);
             return create_bool(found);
         }
 
@@ -4223,10 +4223,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_void();
             bool found = false;
-            int64_t idx = nl_hm_find_slot(hm, &args[1], &found);
+            int64_t idx = eval_hm_find_slot(hm, &args[1], &found);
             if (!found || idx < 0) return create_void();
             NLHashMapEntry *e = &hm->entries[idx];
-            nl_hm_free_entry(hm, e);
+            eval_hm_free_entry(hm, e);
             e->state = 2;
             hm->size--;
             hm->tombstones++;
@@ -4258,9 +4258,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_void();
             if (strcmp(name, "map_free") == 0) {
-                nl_hm_free(hm);
+                eval_hm_free(hm);
             } else {
-                nl_hm_clear(hm);
+                eval_hm_clear(hm);
             }
             return create_void();
         }
@@ -5305,8 +5305,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 stmt->as.let.value->as.call.return_struct_type_name == NULL) {
                 TypeInfo *info = stmt->as.let.type_info;
                 if (info->generic_name && strcmp(info->generic_name, "HashMap") == 0 && info->type_param_count == 2) {
-                    const char *k = nl_hm_typeinfo_arg_name(info->type_params[0]);
-                    const char *v = nl_hm_typeinfo_arg_name(info->type_params[1]);
+                    const char *k = eval_hm_typeinfo_arg_name(info->type_params[0]);
+                    const char *v = eval_hm_typeinfo_arg_name(info->type_params[1]);
                     if (k && v) {
                         char mono[128];
                         snprintf(mono, sizeof(mono), "HashMap_%s_%s", k, v);
