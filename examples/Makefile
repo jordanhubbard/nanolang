@@ -18,18 +18,42 @@
 #   mujoco_*   - MuJoCo simulation examples
 
 BIN_DIR = ../bin
-EXAMPLES_BACKEND ?= native
+# Backends:
+#   c       - native executable through my C code generator
+#   llvm    - LLVM IR (.ll)
+#   wasm    - WebAssembly binary (.wasm)
+#   nanoisa - NanoISA bytecode for nano_vm (.nvm)
+# Compatibility aliases: native -> c, vm -> nanoisa
+EXAMPLES_BACKEND ?= c
+EXAMPLES_BACKEND_NORMALIZED := $(EXAMPLES_BACKEND)
+ifeq ($(EXAMPLES_BACKEND),native)
+EXAMPLES_BACKEND_NORMALIZED := c
+endif
+ifeq ($(EXAMPLES_BACKEND),vm)
+EXAMPLES_BACKEND_NORMALIZED := nanoisa
+endif
+
 BIN_SUFFIX ?=
-BIN_EXT ?=
 COMPILER_FLAGS ?=
 INTERPRETER ?= $(BIN_DIR)/nano
 
-ifeq ($(EXAMPLES_BACKEND),vm)
+ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
+COMPILER ?= $(BIN_DIR)/nanoc_c
+BIN_EXT =
+else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),llvm)
+COMPILER ?= $(BIN_DIR)/nanoc_c
+COMPILER_FLAGS += --llvm
+BIN_EXT = .ll
+else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),wasm)
+COMPILER ?= $(BIN_DIR)/nanoc_c
+COMPILER_FLAGS += --target wasm
+BIN_EXT = .wasm
+else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),nanoisa)
 COMPILER ?= $(BIN_DIR)/nano_virt
 COMPILER_FLAGS += --emit-nvm
-BIN_EXT ?= .nvm
+BIN_EXT = .nvm
 else
-COMPILER ?= $(BIN_DIR)/nanoc
+$(error Unsupported EXAMPLES_BACKEND '$(EXAMPLES_BACKEND)'. Use c, llvm, wasm, or nanoisa)
 endif
 
 # Module path for import resolution and module building.
@@ -53,8 +77,8 @@ NL_SOURCES := $(filter-out \
 	language/nl_first_class_functions.nano \
 	language/nl_function_%.nano,\
 	$(wildcard language/nl_*.nano))
-# VM backend cannot resolve module imports
-ifeq ($(EXAMPLES_BACKEND),vm)
+# NanoISA backend cannot resolve module imports
+ifeq ($(EXAMPLES_BACKEND_NORMALIZED),nanoisa)
 NL_SOURCES := $(filter-out language/nl_boids.nano language/nl_random_sentence.nano language/nl_demo_selfhosting.nano,$(NL_SOURCES))
 endif
 # Self-hosted compiler can't link C-backed modules (readline, forth_see)
@@ -249,8 +273,8 @@ OPL_EXAMPLES :=
 OPL_NAMES :=
 endif
 
-# VM backend cannot resolve module imports
-ifeq ($(EXAMPLES_BACKEND),vm)
+# NanoISA backend cannot resolve module imports
+ifeq ($(EXAMPLES_BACKEND_NORMALIZED),nanoisa)
 ADVANCED_SOURCES := $(filter-out advanced/stdlib_ast_demo.nano advanced/vector2d_demo.nano,$(ADVANCED_SOURCES))
 ADVANCED_EXAMPLES := $(patsubst advanced/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ADVANCED_SOURCES))
 ADVANCED_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ADVANCED_EXAMPLES)))
@@ -388,7 +412,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
 $(BIN_DIR)/nl_forth_interpreter_vm: language/nl_forth_interpreter.nano $(BIN_DIR)/nano_virt
 	@echo "Building $@..."
-	$(BIN_DIR)/nano_virt --emit-nvm $< -o $@
+	$(BIN_DIR)/nano_virt $< --emit-nvm -o $@
 
 test-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@echo ""
@@ -437,7 +461,7 @@ $(BIN_DIR)/nanoc:
 	@$(MAKE) -C .. bin/nanoc
 
 $(BIN_DIR)/nanoc_c:
-	@$(MAKE) -C .. stage1
+	@$(MAKE) -C .. bin/nanoc_c
 
 $(BIN_DIR)/nanoc_stage1:
 	@$(MAKE) -C .. bootstrap1
@@ -456,20 +480,20 @@ $(INTERPRETER):
 # Verified examples (in verified/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): verified/%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Debugging & validation examples (in debug/ subdirectory)
 $(BIN_DIR)/logging_%$(BIN_SUFFIX)$(BIN_EXT): debug/logging_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/coverage_demo$(BIN_SUFFIX)$(BIN_EXT): debug/coverage_demo.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/property_test_%$(BIN_SUFFIX)$(BIN_EXT): debug/property_test_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # OPL toolchain CLI (in opl/ subdirectory)
 $(BIN_DIR)/opl$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/opl_cli$(BIN_SUFFIX)$(BIN_EXT)
@@ -478,46 +502,46 @@ $(BIN_DIR)/opl$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/opl_cli$(BIN_SUFFIX)$(BIN_EXT)
 
 $(BIN_DIR)/opl_%$(BIN_SUFFIX)$(BIN_EXT): opl/opl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Nanolang-only examples (now in language/ subdirectory)
 $(BIN_DIR)/nl_%$(BIN_SUFFIX)$(BIN_EXT): language/nl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/%_repl$(BIN_SUFFIX)$(BIN_EXT): language/%_repl.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Advanced examples (in advanced/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): advanced/%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Data examples (in data/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): data/%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # API lesson examples (in api_lessons/ subdirectory) — all end in _api
 $(BIN_DIR)/%_api$(BIN_SUFFIX)$(BIN_EXT): api_lessons/%_api.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Network examples (in network/ subdirectory)
 $(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT): network/%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Physics examples (in physics/ subdirectory)
 $(BIN_DIR)/bullet_%$(BIN_SUFFIX)$(BIN_EXT): physics/bullet_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Playground examples
 $(BIN_DIR)/playground_server$(BIN_SUFFIX)$(BIN_EXT): playground/playground_server.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/playground_server$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Linking $@..."
@@ -526,45 +550,45 @@ $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/playground_server$(BIN_
 # Root examples
 $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT): run_examples.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Games (in games/ subdirectory)
 $(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): games/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Graphics (pattern rule for SDL graphics examples)
 $(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): graphics/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # Audio (pattern rule for SDL audio examples)
 $(BIN_DIR)/sdl_%$(BIN_SUFFIX)$(BIN_EXT): audio/sdl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # NCurses examples (in terminal/ subdirectory)
 $(BIN_DIR)/ncurses_%$(BIN_SUFFIX)$(BIN_EXT): terminal/ncurses_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # OpenGL examples (in opengl/ subdirectory)
 $(BIN_DIR)/opengl_%$(BIN_SUFFIX)$(BIN_EXT): opengl/opengl_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # MuJoCo examples (in mujoco/ subdirectory)
 $(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
 	@echo "Building $@..."
-	$(COMPILER) $(COMPILER_FLAGS) $< -o $(BIN_DIR)/$(notdir $@)
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # === Clean ===
 
@@ -579,6 +603,11 @@ clean:
 
 help:
 	@echo "Nanolang Examples Makefile"
+	@echo ""
+	@echo "Configuration:"
+	@echo "  EXAMPLES_BACKEND=c|llvm|wasm|nanoisa   (default: c)"
+	@echo "  COMPILER=../bin/nanoc_stage1           (override compiler explicitly)"
+	@echo "  BIN_SUFFIX=_stage2                     (avoid output collisions)"
 	@echo ""
 	@echo "Targets:"
 	@echo "  make              - Build all examples (default)"

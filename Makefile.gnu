@@ -131,6 +131,18 @@ ifeq ($(BOOTSTRAP_VERBOSE),1)
 BOOTSTRAP_VERBOSE_FLAG := -v
 endif
 
+# Example builds default to the C reference compiler and one backend.
+# Bootstrap compilers are opt-in through EXAMPLES_COMPILER_STAGE or explicit
+# stage targets below.
+EXAMPLES_BACKEND ?= c
+EXAMPLES_COMPILER_STAGE ?= c
+EXAMPLES_BIN_SUFFIX ?=
+EXAMPLES_IS_NANOISA = $(filter $(EXAMPLES_BACKEND),nanoisa vm)
+EXAMPLES_COMPILER_PREREQS = $(if $(EXAMPLES_IS_NANOISA),nano_virt nano_vm,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage2),bootstrap1,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage3),bootstrap3,$(COMPILER_C))))
+EXAMPLES_COMPILER_PATH = $(if $(EXAMPLES_IS_NANOISA),../bin/nano_virt,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage2),../bin/nanoc_stage1,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage3),../bin/nanoc_stage2,../bin/nanoc_c)))
+EXAMPLES_STAGE_SUFFIX = $(if $(EXAMPLES_IS_NANOISA),_nanoisa,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage2),_stage2,$(if $(filter $(EXAMPLES_COMPILER_STAGE),stage3),_stage3,)))
+EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_STAGE_SUFFIX))
+
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_profiler.c $(SRC_DIR)/wasm_simd.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/llvm_backend.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
@@ -212,6 +224,8 @@ $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
 # ============================================================================
 # Build C tool for generating module index
 GENERATE_MODULE_INDEX = bin/generate_module_index
+MODULE_INDEX = modules/index.json
+MODULE_MANIFESTS := $(shell find modules -name module.manifest.json 2>/dev/null)
 $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJSON.c src/runtime/dyn_array.c src/runtime/gc.c src/runtime/gc_struct.c
 	@echo "[tool] Building module index generator (C)..."
 	@mkdir -p bin
@@ -224,14 +238,14 @@ $(GENERATE_MODULE_INDEX): tools/generate_module_index.c modules/std/fs.c src/cJS
 		src/runtime/gc_struct.c \
 		-o $(GENERATE_MODULE_INDEX)
 
-modules-index: $(GENERATE_MODULE_INDEX)
+modules-index: $(MODULE_INDEX)
+
+$(MODULE_INDEX): $(GENERATE_MODULE_INDEX) $(MODULE_MANIFESTS)
 	@echo "[modules] Generating module index from manifests..."
 	@./$(GENERATE_MODULE_INDEX)
 
 # Validate module dependencies (always run, don't cache)
-modules:
-	@echo "[modules] Generating module index from manifests..."
-	@./$(GENERATE_MODULE_INDEX)
+modules: $(MODULE_INDEX)
 	@./scripts/validate-modules.sh
 
 # Install all missing module dependencies (requires sudo)
@@ -1084,85 +1098,104 @@ $(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
 $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
 
-# Build all examples (STRICT: requires all module dependencies)
-# Run 'make -B modules' first to validate dependencies
-examples:
+# Build all examples (STRICT: requires all module dependencies).
+# Defaults: C reference compiler, C/native backend, one pass.
+examples: examples-core
+
+.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-launcher
+
+examples-core: modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
-	@echo "Building Examples (All Compilers)"
+	@echo "Building Examples"
 	@echo "=========================================="
+	@echo "Compiler: $(EXAMPLES_COMPILER_PATH)"
+	@echo "Backend:  $(EXAMPLES_BACKEND)"
+	@echo "Suffix:   $(or $(EXAMPLES_EFFECTIVE_BIN_SUFFIX),(none))"
 	@echo "Note: This will fail if any module dependencies are missing."
 	@echo "      Run 'make -B modules' to see what's needed."
 	@echo "      Or use 'make examples-available' to skip unavailable examples."
 	@echo ""
-	@if [ "$$NANOLANG_AUTOBEADS_EXAMPLES" = "1" ]; then \
-		$(EXAMPLES_TIMEOUT_CMD) $(MAKE) examples-core; \
-	else \
-		NANOLANG_AUTOBEADS_EXAMPLES=1 $(EXAMPLES_TIMEOUT_CMD) python3 scripts/autobeads.py --examples; \
+	@case "$(EXAMPLES_BACKEND)" in c|native|llvm|wasm|nanoisa|vm) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c, llvm, wasm, or nanoisa)"; exit 1 ;; \
+	esac
+	@case "$(EXAMPLES_COMPILER_STAGE)" in c|stage2|stage3) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_COMPILER_STAGE='$(EXAMPLES_COMPILER_STAGE)' (use c, stage2, or stage3)"; exit 1 ;; \
+	esac
+	@if [ "$(EXAMPLES_IS_NANOISA)" != "" ] && [ "$(EXAMPLES_COMPILER_STAGE)" != "c" ]; then \
+		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to c, llvm, and wasm examples backends"; \
+		exit 1; \
 	fi
-
-.PHONY: examples-core examples-stage1 examples-full examples-stage3 examples-vm examples-launcher
-
-examples-core: examples-stage1 examples-full
+	@$(MAKE) $(EXAMPLES_COMPILER_PREREQS)
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build \
+		COMPILER="$(EXAMPLES_COMPILER_PATH)" \
+		EXAMPLES_BACKEND="$(EXAMPLES_BACKEND)" \
+		BIN_SUFFIX="$(EXAMPLES_EFFECTIVE_BIN_SUFFIX)" \
+		NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
-# Build with nanoc (C reference compiler) to include SDL/NCurses/network examples
-examples-full: stage1 modules-index check-deps-sdl
-	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples (Full Compiler)"
-	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+examples-c examples-full examples-backend-c: EXAMPLES_BACKEND = c
+examples-c examples-full examples-backend-c: EXAMPLES_COMPILER_STAGE = c
+examples-c examples-full examples-backend-c: examples-core
 
-examples-stage1: bootstrap1 modules-index check-deps-sdl
-	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples (Stage 1 Compiler)"
-	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+examples-backend-llvm: EXAMPLES_BACKEND = llvm
+examples-backend-llvm: examples-core
 
-examples-stage3: bootstrap3 modules-index check-deps-sdl
-	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples (Stage 3 Compiler)"
-	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build COMPILER=../bin/nanoc_stage2 BIN_SUFFIX=_stage3 NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+examples-backend-wasm: EXAMPLES_BACKEND = wasm
+examples-backend-wasm: examples-core
 
-examples-vm: vm modules-index check-deps-sdl
-	@echo ""
-	@echo "=========================================="
-	@echo "Building Examples (NanoVM Bytecode)"
-	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples build EXAMPLES_BACKEND=vm BIN_SUFFIX=_vm NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+examples-nanoisa examples-vm: EXAMPLES_BACKEND = nanoisa
+examples-nanoisa examples-vm: examples-core
+
+examples-bootstrap-stage2 examples-stage1 examples-stage2: EXAMPLES_COMPILER_STAGE = stage2
+examples-bootstrap-stage2 examples-stage1 examples-stage2: examples-core
+
+examples-bootstrap-stage3 examples-stage3: EXAMPLES_COMPILER_STAGE = stage3
+examples-bootstrap-stage3 examples-stage3: examples-core
 
 # Build available examples (GRACEFUL: skip examples with missing dependencies)
-examples-available: build check-deps-sdl
+examples-available: modules-index check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Available Examples"
 	@echo "=========================================="
 	@echo "Note: Examples with missing dependencies will be skipped."
 	@echo ""
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+	@case "$(EXAMPLES_BACKEND)" in c|native|llvm|wasm|nanoisa|vm) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c, llvm, wasm, or nanoisa)"; exit 1 ;; \
+	esac
+	@case "$(EXAMPLES_COMPILER_STAGE)" in c|stage2|stage3) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_COMPILER_STAGE='$(EXAMPLES_COMPILER_STAGE)' (use c, stage2, or stage3)"; exit 1 ;; \
+	esac
+	@if [ "$(EXAMPLES_IS_NANOISA)" != "" ] && [ "$(EXAMPLES_COMPILER_STAGE)" != "c" ]; then \
+		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to c, llvm, and wasm examples backends"; \
+		exit 1; \
+	fi
+	@$(MAKE) $(EXAMPLES_COMPILER_PREREQS)
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples examples-available \
+		COMPILER="$(EXAMPLES_COMPILER_PATH)" \
+		EXAMPLES_BACKEND="$(EXAMPLES_BACKEND)" \
+		BIN_SUFFIX="$(EXAMPLES_EFFECTIVE_BIN_SUFFIX)" \
+		NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Launch example browser
-examples-launcher: examples check-deps-sdl
+examples-launcher: examples-c check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_stage1 BIN_SUFFIX= NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
-launcher: build check-deps-sdl
+launcher: $(COMPILER_C) check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"
 	@echo "=========================================="
-	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
 # Examples without SDL: Build only non-SDL examples  
-examples-no-sdl: build
+examples-no-sdl: $(COMPILER_C) modules-index
 	@echo ""
 	@echo "=========================================="
 	@echo "Building Examples (Skipping SDL)"
@@ -1180,7 +1213,7 @@ examples-no-sdl: build
 	@echo "✅ Build complete (SDL examples skipped)"
 
 # Module self-tests (compile-only)
-module-self-test: build
+module-self-test: $(COMPILER_C) modules-index
 	@echo ""
 	@echo "=========================================="
 	@echo "Module Self-Tests"
@@ -1191,7 +1224,7 @@ module-self-test: build
 		name=$$(echo $$rel | sed 's#/mvp.nano##; s#/#_#g'); \
 		out=build/module_self_tests/$$name; \
 		echo "[module-self-test] $$file -> $$out"; \
-		$(TIMEOUT_CMD) ./bin/nanoc $$file -o $$out; \
+		$(TIMEOUT_CMD) ./bin/nanoc_c $$file -o $$out; \
 	done
 
 # Backwards-compatible alias
@@ -1928,8 +1961,14 @@ help:
 	@echo "  make pkg-init           - Create a new nano.toml"
 	@echo "  make pkg-list           - List installed packages"
 	@echo ""
-	@echo "  make examples           - Build all examples (STRICT: fails if deps missing)"
+	@echo "  make examples           - Build examples once with bin/nanoc_c (default backend: c)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
+	@echo "  make examples-backend-llvm - Build examples as LLVM IR"
+	@echo "  make examples-backend-wasm - Build examples as WASM"
+	@echo "  make examples-nanoisa   - Build examples as NanoISA .nvm bytecode"
+	@echo "  make examples-stage2    - Explicitly build/use nanoc_stage1 for examples"
+	@echo "  make examples-stage3    - Explicitly build/use nanoc_stage2 for examples"
+	@echo "  make examples EXAMPLES_BACKEND=c|llvm|wasm|nanoisa EXAMPLES_COMPILER_STAGE=c|stage2|stage3"
 	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
 	@echo "  make launcher           - Launch example browser"
 	@echo "  make clean              - Remove all artifacts"
@@ -2074,7 +2113,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-stage1 examples-stage3 examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules-index modules module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # AGENTFS PUBLISH
