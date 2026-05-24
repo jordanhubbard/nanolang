@@ -134,7 +134,7 @@ shadow main {
         code: `fn sum_array(arr: array<int>) -> int {
     let mut sum: int = 0
     for i in (range 0 (array_length arr)) {
-        set sum (+ sum (array_get arr i))
+        set sum (+ sum (at arr i))
     }
     return sum
 }
@@ -146,9 +146,9 @@ shadow sum_array {
 }
 
 fn find_max(arr: array<int>) -> int {
-    let mut max: int = (array_get arr 0)
+    let mut max: int = (at arr 0)
     for i in (range 1 (array_length arr)) {
-        let val: int = (array_get arr i)
+        let val: int = (at arr i)
         if (> val max) {
             set max val
         } else { (print "") }
@@ -261,7 +261,6 @@ shadow move_point {
 }
 
 fn main() -> int {
-    let origin: Point = Point { x: 0, y: 0 }
     let p: Point = Point { x: 10, y: 15 }
 
     (println (+ "Point: (" (+ (int_to_string p.x) (+ ", " (+ (int_to_string p.y) ")")))))

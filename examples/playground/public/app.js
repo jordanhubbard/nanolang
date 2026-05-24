@@ -31,11 +31,13 @@ const wasmReady = createNanolang({
 }).catch(err => {
     console.error('WASM load failed:', err);
     setStatus('error', 'Failed to load NanoLang WASM — server fallback active');
+    runBtn.disabled = false;
 });
 
 // ── ANSI escape-code stripper ─────────────────────────────────────────────────
 const ANSI_RE = /\x1b\[[0-9;]*[A-Za-z]/g;
 function stripAnsi(s) { return s.replace(ANSI_RE, ''); }
+function hasFatalDiagnostics(s) { return /(^|\n)(Runtime Error|Error):/.test(s); }
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentExample = null;
@@ -61,8 +63,11 @@ function getSource() {
     return window._cmGetSource ? window._cmGetSource() : codeEditor.value;
 }
 function setSource(src) {
-    if (window._cmSetSource) window._cmSetSource(src);
-    else setSource(src);
+    if (window._cmSetSource) {
+        window._cmSetSource(src);
+    } else {
+        codeEditor.value = src;
+    }
 }
 
 // ── URL-hash permalink ────────────────────────────────────────────────────────
@@ -219,7 +224,9 @@ function runWithWasm(code) {
     runBtn.disabled = false;
     runBtn.textContent = '▶ Run Code';
 
-    if (rc === 0) {
+    const failed = rc !== 0 || hasFatalDiagnostics(stderr);
+
+    if (!failed) {
         let html = '<div class="success-message">✅ <strong>Ran successfully (exit 0)</strong></div>';
         if (stdout.trim()) {
             html += '<div class="program-output"><strong>Output:</strong><pre>' + escapeHtml(stdout) + '</pre></div>';
@@ -232,7 +239,7 @@ function runWithWasm(code) {
             : '<div class="success-message">No errors or warnings.</div>';
         setStatus('ready', 'Done');
     } else {
-        outputDiv.innerHTML = '<div class="error-message">❌ <strong>Program exited with code ' + rc + '</strong></div>';
+        outputDiv.innerHTML = '<div class="error-message">❌ <strong>Program failed' + (rc !== 0 ? ' with exit ' + rc : '') + '</strong></div>';
         let errHtml = '';
         if (stderr.trim()) {
             errHtml += '<div class="error-details"><pre>' + escapeHtml(stderr) + '</pre></div>';
