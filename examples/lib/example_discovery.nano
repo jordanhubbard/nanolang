@@ -213,6 +213,88 @@ shadow discover_examples {
     assert (== 0 0)
 }
 
+# The demo launcher only surfaces examples that open a real GUI window
+# (SDL / OpenGL / Bullet / MuJoCo) and have non-trivial code. ncurses
+# examples render to a terminal, not a window. Beginner-tagged demos
+# are intentionally skipped because the launcher is a showcase, not a
+# tutorial index.
+fn is_graphical_demo(info: ExampleInfo) -> bool {
+    if (!= info.expected_output "graphical") { return false }
+    if (== info.category "terminal") { return false }
+    if (== info.difficulty "Beginner") { return false }
+    return true
+}
+
+shadow is_graphical_demo {
+    let advanced: ExampleInfo = ExampleInfo {
+        path: "p", name: "n", description: "", category: "graphics",
+        difficulty: "Advanced", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "graphical",
+        icon_path: "", default_args: ""
+    }
+    assert (is_graphical_demo advanced)
+
+    let beginner: ExampleInfo = ExampleInfo {
+        path: "p", name: "n", description: "", category: "graphics",
+        difficulty: "Beginner", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "graphical",
+        icon_path: "", default_args: ""
+    }
+    assert (not (is_graphical_demo beginner))
+
+    let ncurses: ExampleInfo = ExampleInfo {
+        path: "p", name: "n", description: "", category: "terminal",
+        difficulty: "Intermediate", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "graphical",
+        icon_path: "", default_args: ""
+    }
+    assert (not (is_graphical_demo ncurses))
+
+    let cli: ExampleInfo = ExampleInfo {
+        path: "p", name: "n", description: "", category: "language",
+        difficulty: "Advanced", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "ok",
+        icon_path: "", default_args: ""
+    }
+    assert (not (is_graphical_demo cli))
+}
+
+fn filter_graphical_demos(examples: array<ExampleInfo>) -> array<ExampleInfo> {
+    let mut out: array<ExampleInfo> = []
+    let mut i: int = 0
+    while (< i (array_length examples)) {
+        let ex: ExampleInfo = (at examples i)
+        if (is_graphical_demo ex) {
+            set out (array_push out ex)
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow filter_graphical_demos {
+    let mut exs: array<ExampleInfo> = []
+    set exs (array_push exs ExampleInfo {
+        path: "a", name: "A", description: "", category: "graphics",
+        difficulty: "Advanced", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "graphical",
+        icon_path: "", default_args: ""
+    })
+    set exs (array_push exs ExampleInfo {
+        path: "b", name: "B", description: "", category: "language",
+        difficulty: "Advanced", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "ok",
+        icon_path: "", default_args: ""
+    })
+    set exs (array_push exs ExampleInfo {
+        path: "c", name: "C", description: "", category: "terminal",
+        difficulty: "Intermediate", features: "", prerequisites: "", track: "",
+        build: "", dependencies: "", tags: "", expected_output: "graphical",
+        icon_path: "", default_args: ""
+    })
+    assert (== (array_length (filter_graphical_demos exs)) 1)
+}
+
 fn filter_by_category(examples: array<ExampleInfo>, category: string) -> array<ExampleInfo> {
     if (== category "all") { return examples }
     let mut filtered: array<ExampleInfo> = []

@@ -14,7 +14,7 @@ unsafe module "modules/sdl_image/sdl_image.nano"
 module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import read
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
-from "examples/lib/example_discovery.nano" import discover_examples, filter_by_category, collect_categories, find_icon
+from "examples/lib/example_discovery.nano" import discover_examples, filter_by_category, filter_graphical_demos, collect_categories, find_icon
 from "examples/lib/process_manager.nano" import pm_new, pm_launch, pm_kill, pm_poll, pm_is_running, pm_get_pid, pm_running_count, pm_cleanup_exited, build_example, get_binary_name, parse_mode, next_mode, init_mode
 from "examples/lib/source_editor.nano" import editor_new, editor_open, editor_close, editor_save, editor_insert_char, editor_insert_newline, editor_delete_char, editor_move_cursor, editor_scroll_to_cursor, editor_scroll, editor_get_content, editor_line_count, editor_new_file
 from "examples/lib/resource_monitor.nano" import resource_snapshot
@@ -116,8 +116,11 @@ fn main() -> int {
         return 1
     }
 
-    # Auto-discover all examples, sort icons-first
-    let discovered: array<ExampleInfo> = (discover_examples "examples")
+    # Auto-discover examples that open a GUI window with non-trivial code.
+    # The launcher is a showcase — CLI tools, beginner demos, and ncurses
+    # apps are filtered out by filter_graphical_demos.
+    let discovered_all: array<ExampleInfo> = (discover_examples "examples")
+    let discovered: array<ExampleInfo> = (filter_graphical_demos discovered_all)
     # Recompute icon paths locally (workaround: struct string fields corrupt across function returns)
     let mut icon_paths: array<string> = []
     let mut ip_i: int = 0
