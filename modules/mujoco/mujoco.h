@@ -39,6 +39,8 @@ int64_t nl_mj_joint_id(void *sim, const char *name);
 int64_t nl_mj_actuator_id(void *sim, const char *name);
 const char *nl_mj_body_name(void *sim, int64_t id);
 const char *nl_mj_geom_name(void *sim, int64_t id);
+int64_t nl_mj_body_qpos_addr(void *sim, int64_t id);
+int64_t nl_mj_body_qvel_addr(void *sim, int64_t id);
 
 double nl_mj_body_x(void *sim, int64_t id);
 double nl_mj_body_y(void *sim, int64_t id);
