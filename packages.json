@@ -97,6 +97,7 @@
       "install": {
         "apt": {"package": "libsdl2-mixer-dev"},
         "dnf": {"package": "SDL2_mixer-devel"},
+        "yum": {"package": "SDL2_mixer-devel"},
         "pacman": {"package": "sdl2_mixer"},
         "brew": {"package": "sdl2_mixer"},
         "chocolatey": {"package": "sdl2-mixer"},
@@ -115,6 +116,7 @@
       "install": {
         "apt": {"package": "libsdl2-ttf-dev"},
         "dnf": {"package": "SDL2_ttf-devel"},
+        "yum": {"package": "SDL2_ttf-devel"},
         "pacman": {"package": "sdl2_ttf"},
         "brew": {"package": "sdl2_ttf"},
         "chocolatey": {"package": "sdl2-ttf"},
@@ -133,6 +135,7 @@
       "install": {
         "apt": {"package": "libncurses-dev"},
         "dnf": {"package": "ncurses-devel"},
+        "yum": {"package": "ncurses-devel"},
         "pacman": {"package": "ncurses"},
         "brew": {"package": "ncurses"},
         "apk": {"package": "ncurses-dev"},
@@ -186,6 +189,7 @@
       "install": {
         "apt": {"package": "libsqlite3-dev"},
         "dnf": {"package": "sqlite-devel"},
+        "yum": {"package": "sqlite-devel"},
         "pacman": {"package": "sqlite"},
         "brew": {"package": "sqlite"},
         "chocolatey": {"package": "sqlite"},
@@ -205,6 +209,7 @@
       "install": {
         "apt": {"package": "libcurl4-openssl-dev"},
         "dnf": {"package": "libcurl-devel"},
+        "yum": {"package": "libcurl-devel"},
         "pacman": {"package": "curl"},
         "brew": {"package": "curl"},
         "chocolatey": {"package": "curl"},
@@ -258,6 +263,7 @@
       "install": {
         "apt": {"package": "libgl1-mesa-dev"},
         "dnf": {"package": "mesa-libGL-devel"},
+        "yum": {"package": "mesa-libGL-devel"},
         "pacman": {"package": "mesa"},
         "apk": {"package": "mesa-dev"},
         "zypper": {"package": "Mesa-libGL-devel"}
@@ -273,6 +279,7 @@
       "install": {
         "apt": {"package": "libglew-dev"},
         "dnf": {"package": "glew-devel"},
+        "yum": {"package": "glew-devel"},
         "pacman": {"package": "glew"},
         "brew": {"package": "glew"},
         "chocolatey": {"package": "glew"},
@@ -291,6 +298,7 @@
       "install": {
         "apt": {"package": "libglfw3-dev"},
         "dnf": {"package": "glfw-devel"},
+        "yum": {"package": "glfw-devel"},
         "pacman": {"package": "glfw"},
         "brew": {"package": "glfw"},
         "chocolatey": {"package": "glfw3"},
@@ -309,10 +317,12 @@
       "install": {
         "apt": {"package": "libbullet-dev"},
         "dnf": {"package": "bullet-devel"},
+        "yum": {"package": "bullet-devel"},
         "pacman": {"package": "bullet"},
         "brew": {"package": "bullet"},
         "chocolatey": {"package": "bullet"},
         "apk": {"package": "bullet-dev"},
+        "zypper": {"package": "bullet-devel"},
         "pkg": {"package": "bullet"}
       }
     },
@@ -324,16 +334,15 @@
         "headers": ["mujoco/mujoco.h"]
       },
       "install": {
+        "linux": {
+          "package": "mujoco",
+          "test_command": "test -f .nanolang/native/mujoco/include/mujoco/mujoco.h || test -f /usr/local/include/mujoco/mujoco.h || test -f /opt/mujoco/include/mujoco/mujoco.h",
+          "install_command": "if test -f modules/mujoco/install_linux.sh; then sh modules/mujoco/install_linux.sh; elif test -f ../modules/mujoco/install_linux.sh; then sh ../modules/mujoco/install_linux.sh; else echo 'I cannot find modules/mujoco/install_linux.sh.' >&2; exit 1; fi"
+        },
         "brew": {
           "package": "mujoco",
           "test_command": "brew list --cask mujoco >/dev/null 2>&1",
           "install_command": "brew install --cask mujoco"
-        },
-        "apt": {
-          "package": "mujoco",
-          "test_command": "test -f /usr/local/include/mujoco/mujoco.h || test -f /opt/mujoco/include/mujoco/mujoco.h",
-          "manual": true,
-          "install_message": "I look for MuJoCo headers under /usr/local/include and /opt/mujoco/include. Install a MuJoCo release there, or set CPATH and NANOLANG_MUJOCO_LIB before rebuilding."
         },
         "pkg": {
           "package": "mujoco",
@@ -352,6 +361,7 @@
       "install": {
         "apt": {"package": "pkg-config"},
         "dnf": {"package": "pkgconf-pkg-config"},
+        "yum": {"package": "pkgconfig"},
         "pacman": {"package": "pkgconf"},
         "brew": {"package": "pkg-config"},
         "apk": {"package": "pkgconf"},

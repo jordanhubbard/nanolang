@@ -61,6 +61,12 @@ typedef struct {
     // Custom linker flags
     char **ldflags;
     size_t ldflags_count;
+    char **ldflags_macos;
+    size_t ldflags_macos_count;
+    char **ldflags_linux;
+    size_t ldflags_linux_count;
+    char **ldflags_freebsd;
+    size_t ldflags_freebsd_count;
     
     // macOS frameworks (e.g., ["OpenGL", "Cocoa"])
     char **frameworks;
@@ -158,4 +164,3 @@ extern bool module_builder_verbose;
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out);
 
 #endif // MODULE_BUILDER_H
-

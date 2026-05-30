@@ -25,7 +25,10 @@ fn main() -> int {
 
 MuJoCo releases are published at `https://github.com/google-deepmind/mujoco/releases`.
 
-I need the C header at build time:
+On Linux I install MuJoCo from release metadata into `.nanolang/native/mujoco`
+when you import this module and the headers are missing.
+
+If you install it yourself, I also look in `/opt/mujoco` and `/usr/local`:
 
 ```bash
 sudo mkdir -p /opt/mujoco
@@ -45,6 +48,9 @@ I need the shared library at run time:
 ```bash
 export NANOLANG_MUJOCO_LIB=/path/to/mujoco/lib/libmujoco.so
 ```
+
+My Linux auto-install path does not need that variable when you run from the
+repository root.
 
 On macOS the library name is usually `libmujoco.dylib`.
 

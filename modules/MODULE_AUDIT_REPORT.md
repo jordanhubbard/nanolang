@@ -41,14 +41,15 @@ Notes:
 NanoLang source           module.json                packages.json                    package manager
 ─────────────────         ─────────────              ──────────────                   ───────────────
 unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages.mujoco.install.brew ──► brew install --cask mujoco
+                                                                                .linux ─► sh modules/mujoco/install_linux.sh
                                                                                   .apt ──► sudo apt install ...
                                                                                   .pkg ──► sudo pkg install ...
 ```
 
 1. `src/module_builder.c:module_build` runs when the module needs rebuild.
 2. `install_system_packages` collects logical names from `system_packages`.
-3. `lookup_package_name(name, pm)` finds the platform-specific package in `packages.json`.
-4. `lookup_install_command(name, pm)` and `lookup_test_command(name, pm)` (since 2026-05-21) check for custom overrides — used when the default `<pm> install <pkg>` doesn't fit (e.g., brew casks, pip user installs, manual fallbacks).
+3. `lookup_package_name(name, pm)` finds the platform-specific package in `packages.json`; on Linux I fall back to `install.linux` when no package-manager-specific entry exists.
+4. `lookup_install_command(name, pm)` and `lookup_test_command(name, pm)` (since 2026-05-21) check for custom overrides — used when the default `<pm> install <pkg>` doesn't fit (e.g., brew casks, release downloads, manual fallbacks).
 5. `install_single_package_ex` executes the test command; if it returns non-zero, runs the install command.
 
 ### Schema reference
@@ -57,6 +58,7 @@ unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages
 |---|---|---|
 | `system_packages: ["name"]` | `modules/<m>/module.json` | Logical package names to resolve via registry |
 | `packages.<name>.install.<pm>.package` | `packages.json` | Platform-native package name |
+| `packages.<name>.install.linux` | `packages.json` | Generic Linux fallback entry for dependencies that are not native distro packages |
 | `packages.<name>.install.<pm>.install_command` | `packages.json` | Optional shell command overriding the default install incantation |
 | `packages.<name>.install.<pm>.test_command` | `packages.json` | Optional shell command returning 0 when the package is already present |
 | `packages.<name>.detection.headers` | `packages.json` | Header files used to detect prior installs (advisory) |
@@ -68,9 +70,9 @@ unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages
 
 | Module | Change |
 |---|---|
-| `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; Linux include paths for `/opt/mujoco/include` and `/usr/local/include`; `mujoco.c` scans macOS framework dylibs and common Linux `libmujoco.so` paths. |
-| `dispatch` | Re-classified as pure/internal after Linux validation on Ubuntu 26.04 (2026-05-21). The wrapper's existing `#ifdef __APPLE__` gate handles the macOS-vs-Linux split; no `libdispatch-dev` package exists in Debian/Ubuntu/Fedora archives, so the auto-install path was a false promise. The original aspirational `ldflags_linux: ["-ldispatch"]` is harmless because dispatch.o contains only stubs on non-Apple. |
-| `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Manual registry entries use `manual: true` and `install_message`; I test them and print guidance instead of reporting a package-manager install failure. |
+| `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; Linux release install via `modules/mujoco/install_linux.sh`; Linux include paths for `.nanolang/native/mujoco/include`, `/opt/mujoco/include`, and `/usr/local/include`; `mujoco.c` scans macOS framework dylibs and common Linux `libmujoco.so` paths. |
+| `dispatch` | Re-classified as pure/internal after Linux validation on Ubuntu 26.04 (2026-05-21). The wrapper's existing `#ifdef __APPLE__` gate handles the macOS-vs-Linux split; no `libdispatch-dev` package exists in Debian/Ubuntu/Fedora archives, so the auto-install path was a false promise. I removed the stale Linux link flag. |
+| `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Manual registry entries use `manual: true` and `install_message`; I test them and print guidance instead of reporting a package-manager install failure. Since 2026-05-30, I also honor generic `install.linux` entries and platform-specific `ldflags_*`. |
 | `audio_viz`, `bullet`, `http_server`, `pt2_audio`, `sdl_*`, `sdl_term`, `ui_widgets`, `unicode` | Migrated to `system_packages` since 2024-11. |
 
 ## Verification

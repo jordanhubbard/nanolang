@@ -88,6 +88,7 @@ Current schema version: **1.0.0**
   4. Installs using detected package manager
 - **Benefits**: Single source of truth, Windows support automatic, DRY principle
 - **Note**: See `packages.json` in repo root for available packages
+- **Linux fallback**: A registry entry can define `install.linux`. I use it when the detected Linux package manager has no more specific entry.
 - **Manual entries**: A registry entry can set `"manual": true` with an `install_message`. I run its `test_command`; if that fails, I print the message and continue instead of pretending the package manager failed.
 
 #### `apt_packages` (array of strings) **[DEPRECATED]**
@@ -115,6 +116,18 @@ Current schema version: **1.0.0**
 - **Description**: macOS frameworks to link (macOS only)
 - **Example**: `["OpenGL", "Cocoa"]`
 - **Note**: Ignored on non-macOS platforms
+
+#### `cflags_macos`, `cflags_linux`, `cflags_freebsd` (array of strings)
+- **Required**: No
+- **Description**: Platform-specific compiler flags
+- **Example**: `["-I/opt/mujoco/include"]`
+- **Note**: I append only the current platform's flags
+
+#### `ldflags_macos`, `ldflags_linux`, `ldflags_freebsd` (array of strings)
+- **Required**: No
+- **Description**: Platform-specific linker flags
+- **Example**: `["-L/opt/mujoco/lib"]`
+- **Note**: I append only the current platform's flags
 
 #### `header_priority` (integer)
 - **Required**: No

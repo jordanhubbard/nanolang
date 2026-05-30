@@ -6,7 +6,7 @@
   "c_sources": ["mujoco.c"],
   "cflags": ["-Imodules/mujoco"],
   "cflags_macos": ["-F/Applications/MuJoCo.app/Contents/Frameworks"],
-  "cflags_linux": ["-I/opt/mujoco/include", "-I/usr/local/include"],
+  "cflags_linux": ["-I.nanolang/native/mujoco/include", "-I/opt/mujoco/include", "-I/usr/local/include"],
   "ldflags": ["-ldl"],
   "system_packages": ["mujoco"],
   "install": {

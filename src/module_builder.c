@@ -169,6 +169,15 @@ static const char* get_package_manager_name(PackageManager pm) {
     }
 }
 
+static bool is_linux_package_manager(PackageManager pm) {
+    return pm == PKG_MGR_APT ||
+           pm == PKG_MGR_DNF ||
+           pm == PKG_MGR_YUM ||
+           pm == PKG_MGR_PACMAN ||
+           pm == PKG_MGR_ZYPPER ||
+           pm == PKG_MGR_APK;
+}
+
 // Internal: locate the per-package-manager install entry in packages.json.
 // Returns the cJSON node (string or object) for the requested platform, or
 // NULL if the logical name / platform combination isn't represented.
@@ -188,7 +197,14 @@ static cJSON* lookup_pm_entry(const char *logical_name, PackageManager pm) {
     const char *pm_name = get_package_manager_name(pm);
     if (!pm_name) return NULL;
 
-    return cJSON_GetObjectItem(install, pm_name);
+    cJSON *pm_entry = cJSON_GetObjectItem(install, pm_name);
+    if (pm_entry) return pm_entry;
+
+    if (is_linux_package_manager(pm)) {
+        return cJSON_GetObjectItem(install, "linux");
+    }
+
+    return NULL;
 }
 
 // Look up a package name in the registry for the current platform.
@@ -298,6 +314,29 @@ static void append_split_flags_move_to_end(char **out_flags, size_t *out_count, 
     }
 
     free(copy);
+}
+
+static void append_platform_ldflags(ModuleBuildMetadata *meta, char **out_flags, size_t *out_count, size_t out_cap, bool split) {
+    if (!meta || !out_flags || !out_count) return;
+
+#ifdef __APPLE__
+    char **flags = meta->ldflags_macos;
+    size_t count = meta->ldflags_macos_count;
+#elif defined(__FreeBSD__)
+    char **flags = meta->ldflags_freebsd;
+    size_t count = meta->ldflags_freebsd_count;
+#else
+    char **flags = meta->ldflags_linux;
+    size_t count = meta->ldflags_linux_count;
+#endif
+
+    for (size_t i = 0; i < count; i++) {
+        if (split) {
+            append_split_flags_move_to_end(out_flags, out_count, out_cap, flags[i]);
+        } else if (*out_count < out_cap) {
+            out_flags[(*out_count)++] = strdup(flags[i]);
+        }
+    }
 }
 
 // Helper: Check if file exists
@@ -1173,6 +1212,9 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("cflags_linux", cflags_linux, cflags_linux_count);
     PARSE_STRING_ARRAY("cflags_freebsd", cflags_freebsd, cflags_freebsd_count);
     PARSE_STRING_ARRAY("ldflags", ldflags, ldflags_count);
+    PARSE_STRING_ARRAY("ldflags_macos", ldflags_macos, ldflags_macos_count);
+    PARSE_STRING_ARRAY("ldflags_linux", ldflags_linux, ldflags_linux_count);
+    PARSE_STRING_ARRAY("ldflags_freebsd", ldflags_freebsd, ldflags_freebsd_count);
     PARSE_STRING_ARRAY("frameworks", frameworks, frameworks_count);
     PARSE_STRING_ARRAY("dependencies", dependencies, dependencies_count);
     PARSE_STRING_ARRAY("system_packages", system_packages, system_packages_count);
@@ -1356,6 +1398,9 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(cflags_linux, cflags_linux_count);
     FREE_STRING_ARRAY(cflags_freebsd, cflags_freebsd_count);
     FREE_STRING_ARRAY(ldflags, ldflags_count);
+    FREE_STRING_ARRAY(ldflags_macos, ldflags_macos_count);
+    FREE_STRING_ARRAY(ldflags_linux, ldflags_linux_count);
+    FREE_STRING_ARRAY(ldflags_freebsd, ldflags_freebsd_count);
     FREE_STRING_ARRAY(frameworks, frameworks_count);
     FREE_STRING_ARRAY(dependencies, dependencies_count);
     FREE_STRING_ARRAY(system_packages, system_packages_count);
@@ -1542,6 +1587,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         for (size_t i = 0; i < meta->ldflags_count; i++) {
             link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
         }
+        append_platform_ldflags(meta, link_flags, &total_link_flags, 1024, false);
 
         // Add macOS frameworks
         #ifdef __APPLE__
@@ -1878,6 +1924,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             for (size_t i = 0; i < meta->ldflags_count; i++) {
                 append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
             }
+            append_platform_ldflags(meta, shared_ldflags, &shared_ldflags_count, 1024, true);
             #ifdef __APPLE__
             for (size_t i = 0; i < meta->frameworks_count; i++) {
                 append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
@@ -1965,6 +2012,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     for (size_t i = 0; i < meta->ldflags_count; i++) {
         link_flags[total_link_flags++] = strdup(meta->ldflags[i]);
     }
+    append_platform_ldflags(meta, link_flags, &total_link_flags, 1024, false);
 
     // Add macOS frameworks
     #ifdef __APPLE__
