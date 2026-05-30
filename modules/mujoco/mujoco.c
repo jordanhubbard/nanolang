@@ -103,8 +103,11 @@ static int load_api(void) {
     if (g_api.loaded) return 1;
 
     const char *env_path = getenv("NANOLANG_MUJOCO_LIB");
+    if (env_path && env_path[0]) {
+        g_api.lib = dlopen(env_path, RTLD_NOW | RTLD_LOCAL);
+    }
+
     const char *candidates[] = {
-        env_path,
         "libmujoco.dylib",
         "libmujoco.so",
         "libmujoco.so.3",
@@ -122,7 +125,7 @@ static int load_api(void) {
         NULL
     };
 
-    for (int i = 0; candidates[i]; i++) {
+    for (int i = 0; !g_api.lib && candidates[i]; i++) {
         if (!candidates[i][0]) continue;
         g_api.lib = dlopen(candidates[i], RTLD_NOW | RTLD_LOCAL);
         if (g_api.lib) break;
