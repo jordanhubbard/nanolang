@@ -1,0 +1,547 @@
+# Example: MuJoCo OpenGL Robot Sorter
+# Purpose: I move a simple robot arm through a pick, carry, and drop cycle using MuJoCo state.
+# Features: MuJoCo, OpenGL, GLFW, GLEW, joints, sites, freejoint balls, scripted grasp, contact bins, renderer
+# Difficulty: Advanced
+# Category: mujoco
+# Prerequisites: MuJoCo, GLFW, GLEW, and an OpenGL-capable desktop session
+# Track: modules
+# Build: graphical, external-deps
+# Dependencies: MuJoCo, GLFW, GLEW, OpenGL, modules/mujoco
+# Tags: mujoco, opengl, robot-arm, pick-place, freejoint, scripted-grasp, shadow-tested
+# Expected Output: window
+
+unsafe module "modules/glfw/glfw.nano"
+unsafe module "modules/glew/glew.nano"
+unsafe module "modules/opengl/opengl.nano"
+unsafe module "modules/mujoco/mujoco.nano"
+
+let WINDOW_WIDTH: int = 1120
+let WINDOW_HEIGHT: int = 720
+let BALL_COUNT: int = 5
+
+let STAGE_REACH: int = 0
+let STAGE_LIFT: int = 1
+let STAGE_CARRY: int = 2
+let STAGE_RELEASE: int = 3
+let STAGE_RETURN: int = 4
+
+struct SorterIds {
+    shoulder_q: int,
+    shoulder_v: int,
+    elbow_q: int,
+    elbow_v: int,
+    wrist_q: int,
+    wrist_v: int,
+    shoulder_body: int,
+    elbow_body: int,
+    wrist_body: int,
+    gripper_site: int
+}
+
+fn clamp01(v: float) -> float {
+    if (< v 0.0) { return 0.0 } else {}
+    if (> v 1.0) { return 1.0 } else {}
+    return v
+}
+
+shadow clamp01 {
+    assert (== (clamp01 -0.4) 0.0)
+    assert (== (clamp01 0.5) 0.5)
+    assert (== (clamp01 2.0) 1.0)
+}
+
+fn lerp(a: float, b: float, t: float) -> float {
+    return (+ a (* (- b a) (clamp01 t)))
+}
+
+shadow lerp {
+    assert (== (lerp 0.0 10.0 0.5) 5.0)
+}
+
+fn setup_opengl() -> void {
+    (glEnable GL_BLEND)
+    (glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA)
+    (glClearColor 0.045 0.050 0.060 1.0)
+
+    (glMatrixMode GL_PROJECTION)
+    (glLoadIdentity)
+    (glOrtho -2.75 2.75 -0.15 2.45 -4.0 4.0)
+    (glMatrixMode GL_MODELVIEW)
+}
+
+shadow setup_opengl { assert true }
+
+fn draw_rect(cx: float, cy: float, hx: float, hy: float) -> void {
+    (glBegin GL_QUADS)
+    (glVertex3f (- cx hx) (- cy hy) 0.0)
+    (glVertex3f (+ cx hx) (- cy hy) 0.0)
+    (glVertex3f (+ cx hx) (+ cy hy) 0.0)
+    (glVertex3f (- cx hx) (+ cy hy) 0.0)
+    (glEnd)
+}
+
+shadow draw_rect { assert true }
+
+fn draw_circle(cx: float, cy: float, radius: float, segments: int) -> void {
+    (glBegin GL_TRIANGLE_FAN)
+    (glVertex3f cx cy 0.0)
+    let mut i: int = 0
+    while (<= i segments) {
+        let a: float = (* (/ (cast_float i) (cast_float segments)) 6.28318530718)
+        (glVertex3f (+ cx (* (cos a) radius)) (+ cy (* (sin a) radius)) 0.0)
+        set i (+ i 1)
+    }
+    (glEnd)
+}
+
+shadow draw_circle { assert true }
+
+fn draw_segment(x0: float, y0: float, x1: float, y1: float, width: float) -> void {
+    (glLineWidth width)
+    (glBegin GL_LINES)
+    (glVertex3f x0 y0 0.0)
+    (glVertex3f x1 y1 0.0)
+    (glEnd)
+    (glLineWidth 1.0)
+}
+
+shadow draw_segment { assert true }
+
+fn draw_bins() -> void {
+    (glColor4f 0.09 0.10 0.12 1.0)
+    (draw_rect 0.0 -0.05 3.4 0.05)
+
+    (glColor4f 0.16 0.30 0.52 1.0)
+    (draw_rect -1.45 0.07 0.58 0.06)
+    (draw_rect -2.06 0.34 0.05 0.30)
+    (draw_rect -0.84 0.34 0.05 0.30)
+
+    (glColor4f 0.17 0.43 0.31 1.0)
+    (draw_rect 1.45 0.07 0.58 0.06)
+    (draw_rect 0.84 0.34 0.05 0.30)
+    (draw_rect 2.06 0.34 0.05 0.30)
+}
+
+shadow draw_bins { assert true }
+
+fn ball_name(i: int) -> string {
+    return (+ "ball_" (int_to_string i))
+}
+
+shadow ball_name {
+    assert (== (ball_name 4) "ball_4")
+}
+
+fn load_ball_ids(sim: MjSim) -> array<int> {
+    let mut ids: array<int> = []
+    let mut i: int = 0
+    while (< i BALL_COUNT) {
+        set ids (array_push ids (nl_mj_body_id sim (ball_name i)))
+        set i (+ i 1)
+    }
+    return ids
+}
+
+shadow load_ball_ids { assert true }
+
+fn load_sorter_ids(sim: MjSim) -> SorterIds {
+    let shoulder_joint: int = (nl_mj_joint_id sim "shoulder")
+    let elbow_joint: int = (nl_mj_joint_id sim "elbow")
+    let wrist_joint: int = (nl_mj_joint_id sim "wrist")
+    return SorterIds {
+        shoulder_q: (nl_mj_joint_qpos_addr sim shoulder_joint),
+        shoulder_v: (nl_mj_joint_qvel_addr sim shoulder_joint),
+        elbow_q: (nl_mj_joint_qpos_addr sim elbow_joint),
+        elbow_v: (nl_mj_joint_qvel_addr sim elbow_joint),
+        wrist_q: (nl_mj_joint_qpos_addr sim wrist_joint),
+        wrist_v: (nl_mj_joint_qvel_addr sim wrist_joint),
+        shoulder_body: (nl_mj_body_id sim "shoulder"),
+        elbow_body: (nl_mj_body_id sim "elbow"),
+        wrist_body: (nl_mj_body_id sim "wrist"),
+        gripper_site: (nl_mj_site_id sim "gripper_site")
+    }
+}
+
+shadow load_sorter_ids { assert true }
+
+fn sorter_ids_valid(ids: SorterIds) -> bool {
+    if (< ids.shoulder_q 0) { return false } else {}
+    if (< ids.elbow_q 0) { return false } else {}
+    if (< ids.wrist_q 0) { return false } else {}
+    if (< ids.gripper_site 0) { return false } else {}
+    return true
+}
+
+shadow sorter_ids_valid {
+    let ids: SorterIds = SorterIds {
+        shoulder_q: 0,
+        shoulder_v: 0,
+        elbow_q: 1,
+        elbow_v: 1,
+        wrist_q: 2,
+        wrist_v: 2,
+        shoulder_body: 1,
+        elbow_body: 2,
+        wrist_body: 3,
+        gripper_site: 0
+    }
+    assert (sorter_ids_valid ids)
+}
+
+fn set_joint(sim: MjSim, q: int, v: int, value: float) -> void {
+    if (>= q 0) { (nl_mj_set_qpos sim q value) } else {}
+    if (>= v 0) { (nl_mj_set_qvel sim v 0.0) } else {}
+}
+
+shadow set_joint { assert true }
+
+fn apply_arm_pose(sim: MjSim, ids: SorterIds, shoulder: float, elbow: float, wrist: float) -> void {
+    (set_joint sim ids.shoulder_q ids.shoulder_v shoulder)
+    (set_joint sim ids.elbow_q ids.elbow_v elbow)
+    (set_joint sim ids.wrist_q ids.wrist_v wrist)
+    (nl_mj_forward sim)
+}
+
+shadow apply_arm_pose { assert true }
+
+fn apply_blended_pose(sim: MjSim, ids: SorterIds, t: float, s0: float, e0: float, w0: float, s1: float, e1: float, w1: float) -> void {
+    (apply_arm_pose sim ids (lerp s0 s1 t) (lerp e0 e1 t) (lerp w0 w1 t))
+}
+
+shadow apply_blended_pose { assert true }
+
+fn source_ball_x(i: int) -> float {
+    if (== i 0) { return -1.78 } else {}
+    if (== i 1) { return -1.48 } else {}
+    if (== i 2) { return -1.18 } else {}
+    if (== i 3) { return -1.62 } else {}
+    return -1.30
+}
+
+shadow source_ball_x {
+    assert (< (source_ball_x 0) (source_ball_x 2))
+}
+
+fn source_ball_y(i: int) -> float {
+    if (== i 0) { return -0.18 } else {}
+    if (== i 1) { return 0.16 } else {}
+    if (== i 2) { return -0.10 } else {}
+    if (== i 3) { return 0.02 } else {}
+    return -0.24
+}
+
+shadow source_ball_y {
+    assert (== (source_ball_y 3) 0.02)
+}
+
+fn source_ball_z(i: int) -> float {
+    if (< i 3) { return 0.42 } else {}
+    return 0.66
+}
+
+shadow source_ball_z {
+    assert (< (source_ball_z 0) (source_ball_z 4))
+}
+
+fn clear_free_body_velocity(sim: MjSim, qvel0: int) -> void {
+    if (< qvel0 0) { return } else {}
+    let mut i: int = 0
+    while (< i 6) {
+        (nl_mj_set_qvel sim (+ qvel0 i) 0.0)
+        set i (+ i 1)
+    }
+}
+
+shadow clear_free_body_velocity { assert true }
+
+fn set_free_body_pose(sim: MjSim, body: int, x: float, y: float, z: float) -> void {
+    let qpos0: int = (nl_mj_body_qpos_addr sim body)
+    let qvel0: int = (nl_mj_body_qvel_addr sim body)
+    if (< qpos0 0) { return } else {}
+
+    (nl_mj_set_qpos sim qpos0 x)
+    (nl_mj_set_qpos sim (+ qpos0 1) y)
+    (nl_mj_set_qpos sim (+ qpos0 2) z)
+    (nl_mj_set_qpos sim (+ qpos0 3) 1.0)
+    (nl_mj_set_qpos sim (+ qpos0 4) 0.0)
+    (nl_mj_set_qpos sim (+ qpos0 5) 0.0)
+    (nl_mj_set_qpos sim (+ qpos0 6) 0.0)
+    (clear_free_body_velocity sim qvel0)
+    (nl_mj_forward sim)
+}
+
+shadow set_free_body_pose { assert true }
+
+fn set_free_body_release(sim: MjSim, body: int, x: float, y: float, z: float) -> void {
+    let qpos0: int = (nl_mj_body_qpos_addr sim body)
+    let qvel0: int = (nl_mj_body_qvel_addr sim body)
+    if (< qpos0 0) { return } else {}
+
+    (nl_mj_set_qpos sim qpos0 x)
+    (nl_mj_set_qpos sim (+ qpos0 1) y)
+    (nl_mj_set_qpos sim (+ qpos0 2) z)
+    (nl_mj_set_qpos sim (+ qpos0 3) 1.0)
+    (nl_mj_set_qpos sim (+ qpos0 4) 0.0)
+    (nl_mj_set_qpos sim (+ qpos0 5) 0.0)
+    (nl_mj_set_qpos sim (+ qpos0 6) 0.0)
+
+    if (>= qvel0 0) {
+        (nl_mj_set_qvel sim qvel0 0.0)
+        (nl_mj_set_qvel sim (+ qvel0 1) 0.0)
+        (nl_mj_set_qvel sim (+ qvel0 2) -0.25)
+        (nl_mj_set_qvel sim (+ qvel0 3) 0.0)
+        (nl_mj_set_qvel sim (+ qvel0 4) 0.0)
+        (nl_mj_set_qvel sim (+ qvel0 5) 0.0)
+    } else {}
+    (nl_mj_forward sim)
+}
+
+shadow set_free_body_release { assert true }
+
+fn reset_balls(sim: MjSim, balls: array<int>) -> void {
+    let mut i: int = 0
+    while (< i (array_length balls)) {
+        (set_free_body_pose sim (array_get balls i) (source_ball_x i) (source_ball_y i) (source_ball_z i))
+        set i (+ i 1)
+    }
+}
+
+shadow reset_balls { assert true }
+
+fn hold_ball_at_gripper(sim: MjSim, ids: SorterIds, body: int) -> void {
+    (set_free_body_pose sim body (nl_mj_site_x sim ids.gripper_site) (nl_mj_site_y sim ids.gripper_site) (nl_mj_site_z sim ids.gripper_site))
+}
+
+shadow hold_ball_at_gripper { assert true }
+
+fn release_ball_at_gripper(sim: MjSim, ids: SorterIds, body: int) -> void {
+    (set_free_body_release sim body (nl_mj_site_x sim ids.gripper_site) (nl_mj_site_y sim ids.gripper_site) (nl_mj_site_z sim ids.gripper_site))
+}
+
+shadow release_ball_at_gripper { assert true }
+
+fn draw_robot(sim: MjSim, ids: SorterIds) -> void {
+    let sx: float = (nl_mj_body_x sim ids.shoulder_body)
+    let sz: float = (nl_mj_body_z sim ids.shoulder_body)
+    let ex: float = (nl_mj_body_x sim ids.elbow_body)
+    let ez: float = (nl_mj_body_z sim ids.elbow_body)
+    let wx: float = (nl_mj_body_x sim ids.wrist_body)
+    let wz: float = (nl_mj_body_z sim ids.wrist_body)
+    let gx: float = (nl_mj_site_x sim ids.gripper_site)
+    let gz: float = (nl_mj_site_z sim ids.gripper_site)
+
+    (glColor4f 0.23 0.24 0.27 1.0)
+    (draw_circle 0.0 0.11 0.20 28)
+
+    (glColor4f 0.78 0.62 0.26 1.0)
+    (draw_segment sx sz ex ez 12.0)
+    (glColor4f 0.86 0.72 0.36 1.0)
+    (draw_segment ex ez wx wz 10.0)
+    (glColor4f 0.70 0.78 0.86 1.0)
+    (draw_segment wx wz gx gz 8.0)
+
+    (glColor4f 0.12 0.13 0.16 1.0)
+    (draw_circle sx sz 0.075 24)
+    (draw_circle ex ez 0.065 24)
+    (draw_circle wx wz 0.055 24)
+
+    (glColor4f 0.86 0.30 0.25 1.0)
+    (draw_circle gx gz 0.055 18)
+}
+
+shadow draw_robot { assert true }
+
+fn color_for_ball(i: int) -> void {
+    if (== i 0) { (glColor4f 0.94 0.25 0.21 1.0) } else {
+    if (== i 1) { (glColor4f 0.95 0.62 0.20 1.0) } else {
+    if (== i 2) { (glColor4f 0.96 0.84 0.25 1.0) } else {
+    if (== i 3) { (glColor4f 0.35 0.75 0.42 1.0) } else {
+        (glColor4f 0.28 0.58 0.92 1.0)
+    }}}}
+}
+
+shadow color_for_ball { assert true }
+
+fn draw_balls(sim: MjSim, balls: array<int>) -> void {
+    let mut i: int = 0
+    while (< i (array_length balls)) {
+        let body: int = (array_get balls i)
+        (color_for_ball i)
+        (draw_circle (nl_mj_body_x sim body) (nl_mj_body_z sim body) 0.09 24)
+        set i (+ i 1)
+    }
+}
+
+shadow draw_balls { assert true }
+
+fn draw_scene(sim: MjSim, ids: SorterIds, balls: array<int>) -> void {
+    (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
+    (glLoadIdentity)
+    (draw_bins)
+    (draw_robot sim ids)
+    (draw_balls sim balls)
+}
+
+shadow draw_scene { assert true }
+
+fn run_sorter_stage(sim: MjSim, ids: SorterIds, stage: int, elapsed: float, held_body: int, release_done: bool) -> bool {
+    if (== stage STAGE_REACH) {
+        (apply_blended_pose sim ids (/ elapsed 1.00) 0.00 0.00 0.00 -0.70 -1.40 0.50)
+        return release_done
+    } else {}
+
+    if (== stage STAGE_LIFT) {
+        (apply_blended_pose sim ids (/ elapsed 0.90) -0.70 -1.40 0.50 -0.45 -0.85 0.35)
+        (hold_ball_at_gripper sim ids held_body)
+        return release_done
+    } else {}
+
+    if (== stage STAGE_CARRY) {
+        (apply_blended_pose sim ids (/ elapsed 1.25) -0.45 -0.85 0.35 0.62 1.08 -0.42)
+        (hold_ball_at_gripper sim ids held_body)
+        return release_done
+    } else {}
+
+    if (== stage STAGE_RELEASE) {
+        (apply_arm_pose sim ids 0.62 1.08 -0.42)
+        if (not release_done) {
+            (release_ball_at_gripper sim ids held_body)
+            return true
+        } else {}
+        return release_done
+    } else {}
+
+    (apply_blended_pose sim ids (/ elapsed 1.00) 0.62 1.08 -0.42 0.00 0.00 0.00)
+    return release_done
+}
+
+shadow run_sorter_stage { assert true }
+
+fn main() -> int {
+    if (not (mujoco_available)) {
+        (println (mujoco_last_error))
+        return 0
+    } else {}
+
+    if (== (glfwInit) 0) {
+        (println "I could not initialize GLFW.")
+        return 1
+    } else {}
+
+    let window: GLFWwindow = (glfwCreateWindow WINDOW_WIDTH WINDOW_HEIGHT "NanoLang MuJoCo Robot Sorter" 0 0)
+    if (== window 0) {
+        (println "I could not create the OpenGL window.")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    (glfwMakeContextCurrent window)
+    (glfwSwapInterval 1)
+    if (!= (glewInit) GLEW_OK) {
+        (println "I could not initialize GLEW.")
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    let sim: MjSim = (mujoco_load "examples/mujoco/assets/robot_sorter.xml")
+    if (not (mujoco_valid sim)) {
+        (println (mujoco_last_error))
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    let ids: SorterIds = (load_sorter_ids sim)
+    if (not (sorter_ids_valid ids)) {
+        (println "I could not resolve the robot arm joints or gripper site.")
+        (mujoco_free sim)
+        (glfwTerminate)
+        return 1
+    } else {}
+
+    let balls: array<int> = (load_ball_ids sim)
+    (reset_balls sim balls)
+    (setup_opengl)
+    (println "I am sorting balls from the left bin into the right bin. The grasp is scripted; the drops and bins are MuJoCo state.")
+
+    let mut stage: int = STAGE_REACH
+    let mut stage_start: float = (glfwGetTime)
+    let mut pick_count: int = 0
+    let mut held_index: int = 0
+    let mut held_body: int = (array_get balls 0)
+    let mut release_done: bool = false
+
+    while (== (glfwWindowShouldClose window) 0) {
+        let now: float = (glfwGetTime)
+        let mut elapsed: float = (- now stage_start)
+
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) GLFW_PRESS) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
+        if (== (glfwGetKey window GLFW_KEY_R) GLFW_PRESS) {
+            (nl_mj_reset sim)
+            (reset_balls sim balls)
+            set stage STAGE_REACH
+            set stage_start now
+            set pick_count 0
+            set held_index 0
+            set held_body (array_get balls held_index)
+            set release_done false
+            set elapsed 0.0
+        } else {}
+
+        set held_index (% pick_count BALL_COUNT)
+        set held_body (array_get balls held_index)
+        set release_done (run_sorter_stage sim ids stage elapsed held_body release_done)
+
+        if (== stage STAGE_REACH) {
+            if (>= elapsed 1.00) {
+                set stage STAGE_LIFT
+                set stage_start now
+            } else {}
+        } else {
+            if (== stage STAGE_LIFT) {
+                if (>= elapsed 0.90) {
+                    set stage STAGE_CARRY
+                    set stage_start now
+                } else {}
+            } else {
+                if (== stage STAGE_CARRY) {
+                    if (>= elapsed 1.25) {
+                        set stage STAGE_RELEASE
+                        set stage_start now
+                        set release_done false
+                    } else {}
+                } else {
+                    if (== stage STAGE_RELEASE) {
+                        if (>= elapsed 0.35) {
+                            set stage STAGE_RETURN
+                            set stage_start now
+                        } else {}
+                    } else {
+                        if (>= elapsed 1.00) {
+                            set pick_count (+ pick_count 1)
+                            if (== (% pick_count BALL_COUNT) 0) {
+                                (reset_balls sim balls)
+                            } else {}
+                            set stage STAGE_REACH
+                            set stage_start now
+                            set release_done false
+                        } else {}
+                    }
+                }
+            }
+        }
+
+        (draw_scene sim ids balls)
+        (glfwSwapBuffers window)
+        (glfwPollEvents)
+        (nl_mj_step_n sim 4)
+    }
+
+    (mujoco_free sim)
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    return 0
+}
+
+shadow main { assert true }

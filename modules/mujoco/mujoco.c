@@ -372,6 +372,18 @@ const char *nl_mj_geom_name(void *ptr, int64_t id) {
     return id_to_name(ptr, mjOBJ_GEOM, id);
 }
 
+int64_t nl_mj_joint_qpos_addr(void *ptr, int64_t id) {
+    NLMjSim *sim = as_sim(ptr);
+    if (!valid_sim(sim) || id < 0 || id >= sim->model->njnt) return -1;
+    return (int64_t)sim->model->jnt_qposadr[id];
+}
+
+int64_t nl_mj_joint_qvel_addr(void *ptr, int64_t id) {
+    NLMjSim *sim = as_sim(ptr);
+    if (!valid_sim(sim) || id < 0 || id >= sim->model->njnt) return -1;
+    return (int64_t)sim->model->jnt_dofadr[id];
+}
+
 int64_t nl_mj_body_qpos_addr(void *ptr, int64_t id) {
     NLMjSim *sim = as_sim(ptr);
     if (!valid_sim(sim) || id < 0 || id >= sim->model->nbody) return -1;
@@ -561,6 +573,8 @@ int64_t nl_mj_joint_id(void *sim, const char *name) { (void)sim; (void)name; ret
 int64_t nl_mj_actuator_id(void *sim, const char *name) { (void)sim; (void)name; return -1; }
 const char *nl_mj_body_name(void *sim, int64_t id) { (void)sim; (void)id; return ""; }
 const char *nl_mj_geom_name(void *sim, int64_t id) { (void)sim; (void)id; return ""; }
+int64_t nl_mj_joint_qpos_addr(void *sim, int64_t id) { (void)sim; (void)id; return -1; }
+int64_t nl_mj_joint_qvel_addr(void *sim, int64_t id) { (void)sim; (void)id; return -1; }
 int64_t nl_mj_body_qpos_addr(void *sim, int64_t id) { (void)sim; (void)id; return -1; }
 int64_t nl_mj_body_qvel_addr(void *sim, int64_t id) { (void)sim; (void)id; return -1; }
 

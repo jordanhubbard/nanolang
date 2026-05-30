@@ -26,7 +26,8 @@
     "examples/mujoco/mujoco_cartpole_balance.nano",
     "examples/mujoco/mujoco_opengl_cartpole.nano",
     "examples/mujoco/mujoco_opengl_drop_lab.nano",
-    "examples/mujoco/mujoco_opengl_geom_browser.nano"
+    "examples/mujoco/mujoco_opengl_geom_browser.nano",
+    "examples/mujoco/mujoco_opengl_robot_sorter.nano"
   ],
   "dependencies": {
     "nanolang": ["core>=1.0"],

@@ -57,6 +57,7 @@ appears after a fallback build.
 - `nl_mj_nq`, `nl_mj_nv`, `nl_mj_nu`, `nl_mj_nbody`, `nl_mj_ngeom`, `nl_mj_nsite`, and `nl_mj_njoint`
 - `nl_mj_body_id`, `nl_mj_geom_id`, `nl_mj_site_id`, `nl_mj_joint_id`, and `nl_mj_actuator_id`
 - `nl_mj_body_name` and `nl_mj_geom_name`
+- `nl_mj_joint_qpos_addr` and `nl_mj_joint_qvel_addr`
 - `nl_mj_body_qpos_addr` and `nl_mj_body_qvel_addr` for the first joint owned by a body
 - `nl_mj_body_{x,y,z}(sim, body_id)`
 - `nl_mj_body_quat(sim, body_id, axis)`
@@ -77,3 +78,4 @@ I expose low-level `nl_mj_*` calls because MuJoCo is explicit. The small `mujoco
 - `examples/mujoco/mujoco_opengl_cartpole.nano` renders cartpole body and site transforms with OpenGL.
 - `examples/mujoco/mujoco_opengl_drop_lab.nano` renders a small contact scene from body transforms and keeps reusing the balls while the window is open.
 - `examples/mujoco/mujoco_opengl_geom_browser.nano` renders `drop_lab.xml` from geom type, size, color, transform, and body ownership metadata while the same ball stream keeps running.
+- `examples/mujoco/mujoco_opengl_robot_sorter.nano` loads a three-joint arm, two bins, and five freejoint balls, then scripts a pick, carry, and drop cycle.

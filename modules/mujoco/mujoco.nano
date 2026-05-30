@@ -48,6 +48,8 @@ pub extern fn nl_mj_joint_id(_sim: MjSim, _name: string) -> int
 pub extern fn nl_mj_actuator_id(_sim: MjSim, _name: string) -> int
 pub extern fn nl_mj_body_name(_sim: MjSim, _id: int) -> string
 pub extern fn nl_mj_geom_name(_sim: MjSim, _id: int) -> string
+pub extern fn nl_mj_joint_qpos_addr(_sim: MjSim, _id: int) -> int
+pub extern fn nl_mj_joint_qvel_addr(_sim: MjSim, _id: int) -> int
 pub extern fn nl_mj_body_qpos_addr(_sim: MjSim, _id: int) -> int
 pub extern fn nl_mj_body_qvel_addr(_sim: MjSim, _id: int) -> int
 
