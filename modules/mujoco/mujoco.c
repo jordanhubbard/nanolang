@@ -222,7 +222,8 @@ void *nl_mj_load(const char *path) {
     mjModel *model = g_api.load_xml(path, NULL, error, (int)sizeof(error));
     if (!model) {
         char msg[1024];
-        snprintf(msg, sizeof(msg), "I could not load %s: %s", path, error[0] ? error : "MuJoCo returned NULL");
+        const char *detail = error[0] ? error : "MuJoCo returned NULL";
+        snprintf(msg, sizeof(msg), "I could not load the model. path=%.*s detail=%.*s", 300, path, 600, detail);
         mj_set_error(msg);
         return NULL;
     }
