@@ -2,7 +2,7 @@
 #define SDL_HELPERS_H
 
 #include <stdint.h>
-#include <SDL.h>  /* Include SDL headers to avoid typedef redefinition warnings */
+#include <SDL2/SDL.h>  /* Include SDL headers to avoid typedef redefinition warnings */
 
 /* SDL Helper Functions - nanolang FFI bindings */
 

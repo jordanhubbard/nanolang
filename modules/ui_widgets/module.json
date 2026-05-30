@@ -24,5 +24,6 @@
   "dependencies": [
     "sdl",
     "sdl_ttf"
-  ]
+  ],
+  "header_priority": 5
 }
