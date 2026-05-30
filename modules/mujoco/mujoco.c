@@ -110,8 +110,12 @@ static int load_api(void) {
         "libmujoco.so.3",
         "/opt/homebrew/lib/libmujoco.dylib",
         "/usr/local/lib/libmujoco.dylib",
-        "/usr/lib/libmujoco.so",
         "/usr/local/lib/libmujoco.so",
+        "/usr/local/lib/libmujoco.so.3",
+        "/opt/mujoco/lib/libmujoco.so",
+        "/opt/mujoco/lib/libmujoco.so.3",
+        "/opt/mujoco/bin/libmujoco.so",
+        "/usr/lib/libmujoco.so",
         NULL
     };
 

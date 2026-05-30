@@ -68,9 +68,9 @@ unsafe module "..."  ───► system_packages: ["mujoco"] ──► packages
 
 | Module | Change |
 |---|---|
-| `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; `mujoco.c` scans `mujoco.framework/Versions/{Current,A}` for `libmujoco.*.dylib`. |
+| `mujoco` | Added 2026-05-20. Brew cask install via `install_command`; framework header path via `cflags_macos`; Linux include paths for `/opt/mujoco/include` and `/usr/local/include`; `mujoco.c` scans macOS framework dylibs and common Linux `libmujoco.so` paths. |
 | `dispatch` | Re-classified as pure/internal after Linux validation on Ubuntu 26.04 (2026-05-21). The wrapper's existing `#ifdef __APPLE__` gate handles the macOS-vs-Linux split; no `libdispatch-dev` package exists in Debian/Ubuntu/Fedora archives, so the auto-install path was a false promise. The original aspirational `ldflags_linux: ["-ldispatch"]` is harmless because dispatch.o contains only stubs on non-Apple. |
-| `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Previously the fields existed in `packages.json` for chocolatey but were never read — they're now active for all package managers. |
+| `module_builder.c` | Honors `install_command`/`test_command` per platform (2026-05-21). Manual registry entries use `manual: true` and `install_message`; I test them and print guidance instead of reporting a package-manager install failure. |
 | `audio_viz`, `bullet`, `http_server`, `pt2_audio`, `sdl_*`, `sdl_term`, `ui_widgets`, `unicode` | Migrated to `system_packages` since 2024-11. |
 
 ## Verification

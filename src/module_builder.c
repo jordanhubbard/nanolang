@@ -241,6 +241,23 @@ static const char* lookup_install_command(const char *logical_name, PackageManag
     return (cmd && cJSON_IsString(cmd)) ? cmd->valuestring : NULL;
 }
 
+// Manual entries are dependencies I can detect but cannot install through the
+// platform package manager. They still belong in the registry so modules get
+// one clear hint instead of a bogus apt/brew/pkg failure.
+static bool lookup_manual_install(const char *logical_name, PackageManager pm) {
+    cJSON *pm_entry = lookup_pm_entry(logical_name, pm);
+    if (!pm_entry || !cJSON_IsObject(pm_entry)) return false;
+    cJSON *manual = cJSON_GetObjectItem(pm_entry, "manual");
+    return cJSON_IsTrue(manual);
+}
+
+static const char* lookup_install_message(const char *logical_name, PackageManager pm) {
+    cJSON *pm_entry = lookup_pm_entry(logical_name, pm);
+    if (!pm_entry || !cJSON_IsObject(pm_entry)) return NULL;
+    cJSON *message = cJSON_GetObjectItem(pm_entry, "install_message");
+    return (message && cJSON_IsString(message)) ? message->valuestring : NULL;
+}
+
 // Optional shell command that probes whether the package is already
 // installed (exit 0 = installed). Mirrors `install_command`. NULL → fall
 // back to the package-manager default (e.g., `brew list <pkg>`).
@@ -809,8 +826,21 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
                 continue;
             }
 
-            const char *install_cmd = lookup_install_command(logical_name, pm);
             const char *test_cmd = lookup_test_command(logical_name, pm);
+            if (lookup_manual_install(logical_name, pm)) {
+                if (test_cmd && system(test_cmd) == 0) {
+                    printf("[Module]   ✓ %s already installed\n", actual_name);
+                } else {
+                    const char *message = lookup_install_message(logical_name, pm);
+                    printf("[Module]   I cannot install %s with this package manager.\n", actual_name);
+                    if (message && message[0]) {
+                        printf("[Module]   %s\n", message);
+                    }
+                }
+                continue;
+            }
+
+            const char *install_cmd = lookup_install_command(logical_name, pm);
             if (!install_single_package_ex(actual_name, pm, install_cmd, test_cmd)) {
                 all_installed = false;
             }

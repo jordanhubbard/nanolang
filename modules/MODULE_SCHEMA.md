@@ -88,6 +88,7 @@ Current schema version: **1.0.0**
   4. Installs using detected package manager
 - **Benefits**: Single source of truth, Windows support automatic, DRY principle
 - **Note**: See `packages.json` in repo root for available packages
+- **Manual entries**: A registry entry can set `"manual": true` with an `install_message`. I run its `test_command`; if that fails, I print the message and continue instead of pretending the package manager failed.
 
 #### `apt_packages` (array of strings) **[DEPRECATED]**
 - **Required**: No

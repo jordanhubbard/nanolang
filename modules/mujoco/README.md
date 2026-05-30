@@ -28,6 +28,14 @@ MuJoCo releases are published at `https://github.com/google-deepmind/mujoco/rele
 I need the C header at build time:
 
 ```bash
+sudo mkdir -p /opt/mujoco
+# unpack the release so /opt/mujoco/include/mujoco/mujoco.h exists
+rm -rf modules/mujoco/.build
+```
+
+If you install somewhere else:
+
+```bash
 export CPATH=/path/to/mujoco/include:$CPATH
 rm -rf modules/mujoco/.build
 ```
@@ -35,10 +43,10 @@ rm -rf modules/mujoco/.build
 I need the shared library at run time:
 
 ```bash
-export NANOLANG_MUJOCO_LIB=/path/to/mujoco/lib/libmujoco.dylib
+export NANOLANG_MUJOCO_LIB=/path/to/mujoco/lib/libmujoco.so
 ```
 
-On Linux the library name is usually `libmujoco.so`.
+On macOS the library name is usually `libmujoco.dylib`.
 
 The rebuild matters. My module cache does not know when an external header
 appears after a fallback build.

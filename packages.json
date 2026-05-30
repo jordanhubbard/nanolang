@@ -332,12 +332,14 @@
         "apt": {
           "package": "mujoco",
           "test_command": "test -f /usr/local/include/mujoco/mujoco.h || test -f /opt/mujoco/include/mujoco/mujoco.h",
-          "install_command": "echo 'Install MuJoCo from https://github.com/google-deepmind/mujoco/releases and place headers on the C include path. Set NANOLANG_MUJOCO_LIB to the libmujoco.so path.' && false"
+          "manual": true,
+          "install_message": "I look for MuJoCo headers under /usr/local/include and /opt/mujoco/include. Install a MuJoCo release there, or set CPATH and NANOLANG_MUJOCO_LIB before rebuilding."
         },
         "pkg": {
           "package": "mujoco",
           "test_command": "test -f /usr/local/include/mujoco/mujoco.h",
-          "install_command": "echo 'Install MuJoCo manually from https://github.com/google-deepmind/mujoco/releases on FreeBSD.' && false"
+          "manual": true,
+          "install_message": "I look for MuJoCo headers under /usr/local/include. Install a MuJoCo release there, or set CPATH and NANOLANG_MUJOCO_LIB before rebuilding."
         }
       }
     },
@@ -358,4 +360,3 @@
     }
   }
 }
-
