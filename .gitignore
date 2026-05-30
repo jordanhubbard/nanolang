@@ -51,6 +51,7 @@ __pycache__/
 # Dependency directories
 node_modules/
 vendor/
+.nanolang/
 
 # Debug files
 *.dSYM/
