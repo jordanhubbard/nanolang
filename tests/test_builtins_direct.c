@@ -754,17 +754,17 @@ void test_io_result_with_union(void) {
  * ============================================================================ */
 
 void test_hm_hash_functions(void) {
-    /* nl_hm_hash_string: different strings → different hashes */
-    uint64_t h1 = nl_hm_hash_string("hello");
-    uint64_t h2 = nl_hm_hash_string("world");
+    /* eval_hm_hash_string: different strings → different hashes */
+    uint64_t h1 = eval_hm_hash_string("hello");
+    uint64_t h2 = eval_hm_hash_string("world");
     ASSERT(h1 != h2);
 
-    uint64_t h_null = nl_hm_hash_string(NULL);
+    uint64_t h_null = eval_hm_hash_string(NULL);
     ASSERT_EQ(h_null, 0);
 
-    /* nl_hm_hash_int */
-    uint64_t hi1 = nl_hm_hash_int(42);
-    uint64_t hi2 = nl_hm_hash_int(43);
+    /* eval_hm_hash_int */
+    uint64_t hi1 = eval_hm_hash_int(42);
+    uint64_t hi2 = eval_hm_hash_int(43);
     ASSERT(hi1 != hi2);
 }
 
@@ -772,92 +772,92 @@ void test_hm_parse_monomorph(void) {
     NLHashMapKeyType k;
     NLHashMapValType v;
 
-    ASSERT(nl_hm_parse_monomorph("HashMap_string_int", &k, &v));
+    ASSERT(eval_hm_parse_monomorph("HashMap_string_int", &k, &v));
     ASSERT_EQ(k, NL_HM_KEY_STRING);
     ASSERT_EQ(v, NL_HM_VAL_INT);
 
-    ASSERT(nl_hm_parse_monomorph("HashMap_int_string", &k, &v));
+    ASSERT(eval_hm_parse_monomorph("HashMap_int_string", &k, &v));
     ASSERT_EQ(k, NL_HM_KEY_INT);
     ASSERT_EQ(v, NL_HM_VAL_STRING);
 
-    ASSERT(nl_hm_parse_monomorph("HashMap_int_int", &k, &v));
+    ASSERT(eval_hm_parse_monomorph("HashMap_int_int", &k, &v));
     ASSERT_EQ(k, NL_HM_KEY_INT);
     ASSERT_EQ(v, NL_HM_VAL_INT);
 
-    ASSERT(nl_hm_parse_monomorph("HashMap_string_string", &k, &v));
+    ASSERT(eval_hm_parse_monomorph("HashMap_string_string", &k, &v));
     ASSERT_EQ(k, NL_HM_KEY_STRING);
     ASSERT_EQ(v, NL_HM_VAL_STRING);
 
     /* Invalid forms */
-    ASSERT(!nl_hm_parse_monomorph(NULL, &k, &v));
-    ASSERT(!nl_hm_parse_monomorph("NotAHashMap", &k, &v));
-    ASSERT(!nl_hm_parse_monomorph("HashMap_", &k, &v));
-    ASSERT(!nl_hm_parse_monomorph("HashMap_float_int", &k, &v));
-    ASSERT(!nl_hm_parse_monomorph("HashMap_int_float", &k, &v));
+    ASSERT(!eval_hm_parse_monomorph(NULL, &k, &v));
+    ASSERT(!eval_hm_parse_monomorph("NotAHashMap", &k, &v));
+    ASSERT(!eval_hm_parse_monomorph("HashMap_", &k, &v));
+    ASSERT(!eval_hm_parse_monomorph("HashMap_float_int", &k, &v));
+    ASSERT(!eval_hm_parse_monomorph("HashMap_int_float", &k, &v));
 }
 
 void test_hm_alloc_free(void) {
-    NLHashMapCore *hm = nl_hm_alloc(NL_HM_KEY_STRING, NL_HM_VAL_INT, 0);
+    NLHashMapCore *hm = eval_hm_alloc(NL_HM_KEY_STRING, NL_HM_VAL_INT, 0);
     ASSERT(hm != NULL);
     ASSERT_EQ(hm->capacity, 16);  /* min capacity */
     ASSERT_EQ(hm->size, 0);
-    nl_hm_free(hm);
+    eval_hm_free(hm);
 
-    NLHashMapCore *hm2 = nl_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_STRING, 100);
+    NLHashMapCore *hm2 = eval_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_STRING, 100);
     ASSERT(hm2 != NULL);
     ASSERT(hm2->capacity >= 100);
-    nl_hm_free(hm2);
+    eval_hm_free(hm2);
 }
 
 void test_hm_key_equals(void) {
-    NLHashMapCore *hm = nl_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
+    NLHashMapCore *hm = eval_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
     NLHashMapEntry e;
     memset(&e, 0, sizeof(e));
     e.key.i = 42;
 
     Value key = make_int(42);
-    ASSERT(nl_hm_key_equals(hm, &e, &key));
+    ASSERT(eval_hm_key_equals(hm, &e, &key));
 
     Value key2 = make_int(99);
-    ASSERT(!nl_hm_key_equals(hm, &e, &key2));
+    ASSERT(!eval_hm_key_equals(hm, &e, &key2));
 
     /* NULL safety */
-    ASSERT(!nl_hm_key_equals(NULL, &e, &key));
-    ASSERT(!nl_hm_key_equals(hm, NULL, &key));
-    ASSERT(!nl_hm_key_equals(hm, &e, NULL));
+    ASSERT(!eval_hm_key_equals(NULL, &e, &key));
+    ASSERT(!eval_hm_key_equals(hm, NULL, &key));
+    ASSERT(!eval_hm_key_equals(hm, &e, NULL));
 
-    nl_hm_free(hm);
+    eval_hm_free(hm);
 }
 
 void test_hm_find_slot(void) {
-    NLHashMapCore *hm = nl_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
+    NLHashMapCore *hm = eval_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
 
     Value key = make_int(7);
     bool found = false;
-    int64_t slot = nl_hm_find_slot(hm, &key, &found);
+    int64_t slot = eval_hm_find_slot(hm, &key, &found);
     ASSERT(!found);
     ASSERT(slot >= 0 && slot < hm->capacity);
 
-    nl_hm_free(hm);
+    eval_hm_free(hm);
 }
 
 void test_hm_clear(void) {
-    NLHashMapCore *hm = nl_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
+    NLHashMapCore *hm = eval_hm_alloc(NL_HM_KEY_INT, NL_HM_VAL_INT, 16);
     /* Mark a few slots as filled */
     hm->entries[0].state = 1;
     hm->entries[0].key.i = 1;
     hm->entries[0].value.i = 100;
     hm->size = 1;
 
-    nl_hm_clear(hm);
+    eval_hm_clear(hm);
     ASSERT_EQ(hm->size, 0);
     ASSERT_EQ(hm->entries[0].state, 0);
 
-    nl_hm_free(hm);
+    eval_hm_free(hm);
 }
 
 void test_hm_free_null(void) {
-    nl_hm_free(NULL);  /* should not crash */
+    eval_hm_free(NULL);  /* should not crash */
 }
 
 /* ============================================================================
