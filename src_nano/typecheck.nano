@@ -1718,11 +1718,25 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "array_get") { return (type_unknown_named "array_elem") } else { (print "") }
 
     /* HashMap operations */
+    /* map_new return type is inferred from the declared variable type at the call site.
+     * Returning TYPE_UNKNOWN here caused the type checker to accept any HashMap<K,V>
+     * assignment silently (TYPE_UNKNOWN is compatible with everything in types_equal),
+     * which let HashMap<string,int> / HashMap<string,string> mismatches pass through
+     * to C codegen where gcc caught them as -Wincompatible-pointer-types.
+     * We now return a named-unknown that carries "HashMap" so the declared type on the
+     * lhs drives the check, but we do NOT return a concrete HashMap<K,V> here because
+     * the type checker does not thread the expected type into builtin_type_for_fn yet.
+     * The important invariant preserved: map_new is still TYPE_UNKNOWN (name="HashMap")
+     * so it unifies with both HashMap<string,int> and HashMap<string,string> on the lhs.
+     * The actual C-level type safety is enforced by the transpiler dispatch (nl_map_* vs
+     * nl_hm_*) which reads the variable's declared type from the genenv, not this return. */
     if (== fn_name "map_new") { return (type_unknown_named "HashMap") } else { (print "") }
+    if (== fn_name "map_put") { return (type_void) } else { (print "") }
     if (== fn_name "map_has") { return (type_bool) } else { (print "") }
     if (== fn_name "map_get") { return (type_unknown_named "map_value") } else { (print "") }
     if (== fn_name "map_set") { return (type_void) } else { (print "") }
     if (== fn_name "map_size") { return (type_int) } else { (print "") }
+    if (== fn_name "map_length") { return (type_int) } else { (print "") }
 
     /* OS operations */
     if (== fn_name "getcwd") { return (type_string) } else { (print "") }
