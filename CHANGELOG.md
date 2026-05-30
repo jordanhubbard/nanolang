@@ -5,6 +5,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.3.8] - 2026-05-30
+
+### Added
+- restrict catalog to graphical, non-trivial demos
+- api_lessons coverage + Makefile wiring + bullet/handle fix
+- honor install_command/test_command from packages.json
+- add nanoc add command and persist dependencies on save
+- enhance disassembly and add debug-info stripping
+
+### Fixed
+- wire auto-install + framework-cask runtime lookup
+- nl-1f3 — keep stderr off the JSON pipe in bd list --json
+- nl-phi — track current block label, fix phi predecessor after return
+- nl-d7n — remove dead nano_* declares, fix lli compatibility
+- nl-cuc — restore is_union_construct guard
+- nl-3du — replace silent i64.const-0 stubs with hard errors
+- restore generated C compilation
+- transpiler header resolution, fs/process linkage, beads.nano stdlib completions
+- Backend Matrix — C/LLVM/WASM/parser failures across 5 test programs
+- add pure keyword support to self-hosted lexer and parser
+
 ## [3.3.7] - 2026-04-20
 
 ### Added
