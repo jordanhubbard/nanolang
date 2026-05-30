@@ -42,11 +42,11 @@
       </body>
     </body>
 
-    <body name="ball_0" pos="-1.78 -0.18 0.42"><freejoint/><geom name="ball_0_geom" type="sphere" size="0.09" mass="0.08" rgba="0.94 0.25 0.21 1"/></body>
-    <body name="ball_1" pos="-1.48 0.16 0.42"><freejoint/><geom name="ball_1_geom" type="sphere" size="0.09" mass="0.08" rgba="0.95 0.62 0.20 1"/></body>
-    <body name="ball_2" pos="-1.18 -0.10 0.42"><freejoint/><geom name="ball_2_geom" type="sphere" size="0.09" mass="0.08" rgba="0.96 0.84 0.25 1"/></body>
-    <body name="ball_3" pos="-1.62 0.02 0.66"><freejoint/><geom name="ball_3_geom" type="sphere" size="0.09" mass="0.08" rgba="0.35 0.75 0.42 1"/></body>
-    <body name="ball_4" pos="-1.30 -0.24 0.66"><freejoint/><geom name="ball_4_geom" type="sphere" size="0.09" mass="0.08" rgba="0.28 0.58 0.92 1"/></body>
+    <body name="ball_0" pos="-1.55 -0.16 0.42"><freejoint/><geom name="ball_0_geom" type="sphere" size="0.09" mass="0.08" rgba="0.94 0.25 0.21 1"/></body>
+    <body name="ball_1" pos="-1.40 0.14 0.42"><freejoint/><geom name="ball_1_geom" type="sphere" size="0.09" mass="0.08" rgba="0.95 0.62 0.20 1"/></body>
+    <body name="ball_2" pos="-1.25 -0.05 0.42"><freejoint/><geom name="ball_2_geom" type="sphere" size="0.09" mass="0.08" rgba="0.96 0.84 0.25 1"/></body>
+    <body name="ball_3" pos="-1.68 0.06 0.66"><freejoint/><geom name="ball_3_geom" type="sphere" size="0.09" mass="0.08" rgba="0.35 0.75 0.42 1"/></body>
+    <body name="ball_4" pos="-1.34 -0.22 0.66"><freejoint/><geom name="ball_4_geom" type="sphere" size="0.09" mass="0.08" rgba="0.28 0.58 0.92 1"/></body>
   </worldbody>
 
   <actuator>
