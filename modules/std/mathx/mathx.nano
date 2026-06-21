@@ -19,3 +19,20 @@ shadow mathx_abs {
     assert (== (mathx_abs 7) 7)
     assert (== (mathx_abs 0) 0)
 }
+
+pub fn mathx_gcd(a: int, b: int) -> int {
+    let x: int = (mathx_abs a)
+    let y: int = (mathx_abs b)
+    if (== y 0) {
+        return x
+    } else {
+        return (mathx_gcd y (% x y))
+    }
+}
+
+shadow mathx_gcd {
+    assert (== (mathx_gcd 12 8) 4)
+    assert (== (mathx_gcd 17 5) 1)
+    assert (== (mathx_gcd 0 5) 5)
+    assert (== (mathx_gcd (- 0 12) 8) 4)
+}
