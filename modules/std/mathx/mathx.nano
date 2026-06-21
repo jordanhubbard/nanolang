@@ -36,3 +36,21 @@ shadow mathx_gcd {
     assert (== (mathx_gcd 0 5) 5)
     assert (== (mathx_gcd (- 0 12) 8) 4)
 }
+
+pub fn mathx_clamp(x: int, lo: int, hi: int) -> int {
+    if (< x lo) {
+        return lo
+    } else {
+        if (> x hi) {
+            return hi
+        } else {
+            return x
+        }
+    }
+}
+
+shadow mathx_clamp {
+    assert (== (mathx_clamp 5 0 10) 5)
+    assert (== (mathx_clamp (- 0 3) 0 10) 0)
+    assert (== (mathx_clamp 99 0 10) 10)
+}
