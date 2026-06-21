@@ -1,0 +1,21 @@
+# mathx: small integer math helpers for Nanolang.
+#
+# Pure .nano (no C builtins), so it runs on the prebuilt interpreter without a
+# compiler rebuild. Each helper is `pub` (cross-module visible) and carries a
+# `shadow` contract test. New helpers are appended below; this module plus
+# tests/test_mathx.nano are the integration points that independently authored
+# helpers converge on.
+
+pub fn mathx_abs(x: int) -> int {
+    if (< x 0) {
+        return (- 0 x)
+    } else {
+        return x
+    }
+}
+
+shadow mathx_abs {
+    assert (== (mathx_abs (- 0 5)) 5)
+    assert (== (mathx_abs 7) 7)
+    assert (== (mathx_abs 0) 0)
+}
