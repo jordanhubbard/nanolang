@@ -19,3 +19,31 @@ shadow mathx_abs {
     assert (== (mathx_abs 7) 7)
     assert (== (mathx_abs 0) 0)
 }
+
+# mathx_is_prime: true iff n is a prime number.
+#
+# Primality test by trial division: returns false for n < 2; otherwise scans
+# candidate divisors d in [2 .. n-1] and returns false on the first d that
+# divides n evenly. A simple `while` loop with an early-exit flag keeps the
+# control flow free of mid-loop `return`s.
+pub fn mathx_is_prime(n: int) -> bool {
+    if (< n 2) {
+        return false
+    } else {}
+    let mut d: int = 2
+    let mut prime: bool = true
+    while (and prime (< d n)) {
+        if (== (% n d) 0) {
+            set prime false
+        } else {}
+        set d (+ d 1)
+    }
+    return prime
+}
+
+shadow mathx_is_prime {
+    assert (== (mathx_is_prime 2) true)
+    assert (== (mathx_is_prime 7) true)
+    assert (== (mathx_is_prime 9) false)
+    assert (== (mathx_is_prime 1) false)
+}
