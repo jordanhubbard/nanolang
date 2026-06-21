@@ -1,41 +1,15 @@
 # Nanolang Cursor Rules
 
-## Session Start Protocol
-**CRITICAL**: At the start of every coding session, run:
+## Issue Tracking
+
+**DO NOT create markdown planning files.** Issues are tracked in the MAC hub
+task ledger — use `mac task` (not bd/beads):
+
 ```bash
-~/.local/bin/bd ready --json
-```
-This command shows all open issues ready to be worked on. Use this to understand project priorities.
-
-**IMPORTANT**: Always use the full path `~/.local/bin/bd` to avoid conflicts with other `bd` executables (e.g., droid's `bd` command). Never use just `bd` in commands.
-
-## Project Management via Beads
-
-**DO NOT create markdown planning files.** Instead, use beads CLI:
-
-### Creating Issues
-```bash
-~/.local/bin/bd create --title "Issue title" --description "Details" --priority [0-4] --type [feature|bug|task|chore|epic] --labels "label1,label2"
-```
-
-### Viewing Work
-```bash
-~/.local/bin/bd ready --json          # Show ready-to-work issues
-~/.local/bin/bd list --json           # Show all issues  
-~/.local/bin/bd show <id>             # Show specific issue details
-```
-
-### Working on Issues
-```bash
-~/.local/bin/bd update <id> --status in_progress    # Start work
-~/.local/bin/bd update <id> --notes "Progress..."   # Add progress notes
-~/.local/bin/bd close <id> --reason "Done because..." # Complete issue
-```
-
-### Dependencies
-```bash
-~/.local/bin/bd link <child-id> --depends-on <parent-id>  # Child depends on parent
-~/.local/bin/bd link <blocker-id> --blocks <blocked-id>   # Blocker blocks another issue
+mac task ready --limit 10            # show ready-to-work issues
+mac task show <id>                   # view an issue
+mac task claim <id> <agent_id>       # claim work
+mac task close <id> --reason="..."   # complete work
 ```
 
 ## Code Standards

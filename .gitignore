@@ -124,14 +124,9 @@ tests/fuzzing/crash-*
 tests/fuzzing/*.log
 .vibe/
 
-# Beads task tracker runtime data
-.beads/ephemeral.sqlite3
 bench/*.nano
 
 # Generated docs site
 site/
 
-# Beads / Dolt files (added by bd init)
-.dolt/
 *.db
-.beads-credential-key
