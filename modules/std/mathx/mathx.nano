@@ -113,3 +113,21 @@ shadow mathx_is_prime {
     assert (== (mathx_is_prime 97) true)
     assert (== (mathx_is_prime 0) false)
 }
+
+# mathx_lcm: least common multiple of two integers.
+#
+# Returns 0 when either argument is 0 (avoids divide-by-zero). Uses
+# mathx_abs to keep the result non-negative, and reuses mathx_gcd.
+pub fn mathx_lcm(a: int, b: int) -> int {
+    if (or (== a 0) (== b 0)) {
+        return 0
+    } else {}
+    return (mathx_abs (* a (/ b (mathx_gcd a b))))
+}
+
+shadow mathx_lcm {
+    assert (== (mathx_lcm 4 6) 12)
+    assert (== (mathx_lcm 21 6) 42)
+    assert (== (mathx_lcm 0 5) 0)
+    assert (== (mathx_lcm 7 7) 7)
+}
