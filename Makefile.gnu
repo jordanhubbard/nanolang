@@ -50,7 +50,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -march=native -ftree-vectorize -Isrc -D_GNU_SOURCE
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
-LDFLAGS = -lm -lcrypto
+LDFLAGS = -lm
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
