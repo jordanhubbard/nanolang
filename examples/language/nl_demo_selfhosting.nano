@@ -1,0 +1,140 @@
+# Example: Self-Hosting Demo
+# Purpose: Demonstrates import aliases and modular code composition as a foundation for self-hosting compilation
+# Features: module aliases, qualified function calls, recursion, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_hello, nl_functions, nl_modules
+# Expected Output: 
+
+module "examples/advanced/math_helper.nano" as Math
+
+# @pure
+fn fibonacci(n: int) -> int {
+    if (< n 2) {
+        return n
+    } else {
+        let a: int = (fibonacci (- n 1))
+        let b: int = (fibonacci (- n 2))
+        return (Math.add a b)  /* Using imported module with alias! */
+    }
+}
+
+shadow fibonacci {
+    assert (== (fibonacci 0) 0)
+    assert (== (fibonacci 1) 1)
+    assert (== (fibonacci 5) 5)
+    assert (== (fibonacci 10) 55)
+}
+
+# @pure
+fn factorial(n: int) -> int {
+    if (< n 2) {
+        return 1
+    } else {
+        let prev: int = (factorial (- n 1))
+        return (Math.multiply n prev)  /* Using imported module! */
+    }
+}
+
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 1) 1)
+    assert (== (factorial 5) 120)
+    assert (== (factorial 6) 720)
+}
+
+# @pure
+fn power(base: int, exp: int) -> int {
+    if (== exp 0) {
+        return 1
+    } else {
+        if (== exp 1) {
+            return base
+        } else {
+            let prev: int = (power base (- exp 1))
+            return (Math.multiply base prev)
+        }
+    }
+}
+
+shadow power {
+    assert (== (power 2 0) 1)
+    assert (== (power 2 1) 2)
+    assert (== (power 2 8) 256)
+    assert (== (power 10 3) 1000)
+}
+
+fn main() -> int {
+    (println "")
+    (println "╔══════════════════════════════════════════════════════════════╗")
+    (println "║  NanoLang Import Aliases - Self-Hosting Demonstration       ║")
+    (println "╚══════════════════════════════════════════════════════════════╝")
+    (println "")
+    (println "This program uses IMPORT ALIASES to compose modular code!")
+    (println "")
+    (println "Imported: examples/advanced/math_helper.nano as Math")
+    (println "")
+    
+    /* Test basic math operations */
+    (println "=== Basic Operations (via Math alias) ===")
+    let sum: int = (Math.add 15 27)
+    (println (+ "Math.add(15, 27) = " (int_to_string sum)))
+    
+    let product: int = (Math.multiply 12 8)
+    (println (+ "Math.multiply(12, 8) = " (int_to_string product)))
+    
+    let squared: int = (Math.square 11)
+    (println (+ "Math.square(11) = " (int_to_string squared)))
+    
+    (println "")
+    (println "=== Advanced Algorithms (using imported functions) ===")
+    
+    /* Fibonacci using imported Math.add */
+    let fib10: int = (fibonacci 10)
+    (println (+ "fibonacci(10) [using Math.add] = " (int_to_string fib10)))
+    
+    /* Factorial using imported Math.multiply */
+    let fact5: int = (factorial 5)
+    (println (+ "factorial(5) [using Math.multiply] = " (int_to_string fact5)))
+    
+    /* Power using imported Math.multiply */
+    let pow_result: int = (power 2 8)
+    (println (+ "power(2, 8) [using Math.multiply] = " (int_to_string pow_result)))
+    
+    (println "")
+    (println "✅ All operations successful!")
+    (println "")
+    (println "=== What This Proves ===")
+    (println "")
+    (println "✓ Import aliases work perfectly")
+    (println "✓ Qualified names (Math.function) resolve correctly")
+    (println "✓ Modular code composition works")
+    (println "✓ Type checking works with aliases")
+    (println "✓ Code generation handles qualified names")
+    (println "✓ Programs compile and execute correctly")
+    (println "")
+    (println "=== Path to TRUE Self-Hosting ===")
+    (println "")
+    (println "Now possible:")
+    (println "  import \"lexer_main.nano\" as Lexer")
+    (println "  import \"parser.nano\" as Parser")
+    (println "  import \"typecheck.nano\" as TC")
+    (println "  import \"transpiler.nano\" as Trans")
+    (println "")
+    (println "  fn compile(source: string) -> string {")
+    (println "      let tokens = (Lexer.tokenize source)")
+    (println "      let ast = (Parser.parse tokens)")
+    (println "      let checked = (TC.typecheck ast)")
+    (println "      let c_code = (Trans.transpile ast)")
+    (println "      return c_code")
+    (println "  }")
+    (println "")
+    (println "🎉 TRUE SELF-HOSTING IS NOW POSSIBLE! 🎉")
+    (println "")
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,27 @@
+/* Test: double-close should be caught */
+
+resource struct FileHandle {
+    fd: int
+}
+
+fn close_file(f: FileHandle) -> void {
+    (println "Closing file")
+}
+
+shadow close_file {
+    let f: FileHandle = FileHandle { fd: 1 }
+    (close_file f)
+}
+
+fn main() -> int {
+    let f: FileHandle = FileHandle { fd: 42 }
+    (close_file f)
+    /* This should error - f already consumed */
+    /* (close_file f) */
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

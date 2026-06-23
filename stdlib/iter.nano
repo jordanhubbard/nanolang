@@ -1,0 +1,112 @@
+-- stdlib/iter.nano — Lazy iterator combinators
+--
+-- Iterators are represented as closures over a state (int handle).
+-- Each iterator is a function: fn() -> Option<int>
+-- This is the lazy/pull-based iteration protocol.
+--
+-- Usage:
+--   import iter
+--   let it = iter.range(1, 10)
+--   let doubled = iter.map(it, fn(x) { x * 2 })
+--   let evens   = iter.filter(doubled, fn(x) { x % 2 == 0 })
+--   let result  = iter.collect(evens)     -- list of results
+--   let sum     = iter.fold(evens, 0, fn(acc, x) { acc + x })
+--   iter.for_each(it, fn(x) { print(x) })
+
+-- Iterator state: an opaque int handle into the interpreter's iterator store
+-- iter.new() returns a fresh handle
+
+pub fn range(start: int, end: int) -> int {
+  __builtin_iter_range(start, end)
+}
+
+pub fn range_step(start: int, end: int, step: int) -> int {
+  __builtin_iter_range_step(start, end, step)
+}
+
+-- next: advance iterator; returns Option (None when exhausted)
+pub fn next(it: int) -> import option.Option {
+  let val   = __builtin_iter_next(it)
+  let valid = __builtin_iter_has_next(it)
+  if valid { option.some(val) } else { option.none() }
+}
+
+pub fn has_next(it: int) -> bool { __builtin_iter_has_next(it) }
+
+-- from_list: iterate over a list
+pub fn from_list(lst: int) -> int { __builtin_iter_from_list(lst) }
+
+-- Map: lazy transform
+pub fn map(it: int, f: fn(int) -> int) -> int {
+  __builtin_iter_map(it, f)
+}
+
+-- Filter: lazy predicate
+pub fn filter(it: int, pred: fn(int) -> bool) -> int {
+  __builtin_iter_filter(it, pred)
+}
+
+-- Take: limit to first n elements
+pub fn take(it: int, n: int) -> int { __builtin_iter_take(it, n) }
+
+-- Skip: drop first n elements
+pub fn skip(it: int, n: int) -> int { __builtin_iter_skip(it, n) }
+
+-- Zip two iterators into iterator of 2-element lists
+pub fn zip(a: int, b: int) -> int { __builtin_iter_zip(a, b) }
+
+-- Flat_map: map then flatten
+pub fn flat_map(it: int, f: fn(int) -> int) -> int {
+  __builtin_iter_flat_map(it, f)
+}
+
+-- Chain: concatenate two iterators
+pub fn chain(a: int, b: int) -> int { __builtin_iter_chain(a, b) }
+
+-- Enumerate: yields (index, value) as 2-element lists
+pub fn enumerate(it: int) -> int { __builtin_iter_enumerate(it) }
+
+-- Terminal operations
+
+-- Collect into list
+pub fn collect(it: int) -> int { __builtin_iter_collect(it) }
+
+-- Fold (consumes iterator)
+pub fn fold(it: int, init: int, f: fn(int, int) -> int) -> int {
+  __builtin_iter_fold(it, init, f)
+}
+
+-- Sum / product
+pub fn sum(it: int) -> int     { fold(it, 0, fn(a, x) { a + x }) }
+pub fn product(it: int) -> int { fold(it, 1, fn(a, x) { a * x }) }
+
+-- for_each: side-effecting iteration
+pub fn for_each(it: int, f: fn(int) -> void) -> void {
+  __builtin_iter_for_each(it, f)
+}
+
+-- any / all
+pub fn any(it: int, pred: fn(int) -> bool) -> bool {
+  __builtin_iter_any(it, pred)
+}
+
+pub fn all(it: int, pred: fn(int) -> bool) -> bool {
+  __builtin_iter_all(it, pred)
+}
+
+-- count
+pub fn count(it: int) -> int { fold(it, 0, fn(acc, _) { acc + 1 }) }
+
+-- find: return first element satisfying predicate
+pub fn find(it: int, pred: fn(int) -> bool) -> import option.Option {
+  __builtin_iter_find(it, pred)
+}
+
+-- position: return index of first element satisfying predicate
+pub fn position(it: int, pred: fn(int) -> bool) -> import option.Option {
+  __builtin_iter_position(it, pred)
+}
+
+-- min / max over iterator
+pub fn min(it: int) -> import option.Option { __builtin_iter_min(it) }
+pub fn max(it: int) -> import option.Option { __builtin_iter_max(it) }

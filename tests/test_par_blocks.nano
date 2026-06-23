@@ -1,0 +1,80 @@
+/* test_par_blocks.nano — integration tests for par { } blocks */
+
+fn square(x: int) -> int {
+    return (* x x)
+}
+
+shadow square {
+    assert (== (square 3) 9)
+    assert (== (square 5) 25)
+}
+
+fn cube(x: int) -> int {
+    return (* x (* x x))
+}
+
+shadow cube {
+    assert (== (cube 2) 8)
+    assert (== (cube 3) 27)
+}
+
+fn par_basic() -> int {
+    par {
+        let a: int = (square 4)
+        let b: int = (cube 2)
+        let c: int = (+ 10 5)
+    }
+    return (+ (+ a b) c)
+}
+
+shadow par_basic {
+    assert (== (par_basic) 39)
+}
+
+fn par_floats() -> float {
+    par {
+        let x: float = (* 2.0 3.14)
+        let y: float = (+ 1.0 1.0)
+        let z: float = (* 0.5 4.0)
+    }
+    return (+ (+ x y) z)
+}
+
+shadow par_floats {
+    let result: float = (par_floats)
+    assert (> result 10.0)
+    assert (< result 12.0)
+}
+
+fn par_bindings_in_scope_after_block() -> int {
+    par {
+        let p: int = 7
+        let q: int = 8
+    }
+    let sum: int = (+ p q)
+    return sum
+}
+
+shadow par_bindings_in_scope_after_block {
+    assert (== (par_bindings_in_scope_after_block) 15)
+}
+
+fn par_multiple_independent() -> int {
+    par {
+        let s1: int = 100
+        let s2: int = 200
+        let s3: int = 300
+    }
+    return (+ (+ s1 s2) s3)
+}
+
+shadow par_multiple_independent {
+    assert (== (par_multiple_independent) 600)
+}
+
+fn main() -> int {
+    assert (== (par_basic) 39)
+    assert (== (par_bindings_in_scope_after_block) 15)
+    assert (== (par_multiple_independent) 600)
+    return 0
+}

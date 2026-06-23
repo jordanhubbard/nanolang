@@ -1,0 +1,20 @@
+# stdlib module MVP
+
+<!--nl-snippet {"name":"module_stdlib_mvp","check":false}-->
+```nano
+from "modules/stdlib/checked_math.nano" import checked_add
+
+fn main() -> int {
+    match (checked_add 2 3) {
+        Ok(v) => {
+            assert (== v.value 5)
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+    return 0
+}
+
+shadow main { assert true }
+```

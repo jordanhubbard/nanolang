@@ -1,0 +1,13 @@
+import "src_nano/transpiler.nano"
+
+fn main() -> int {
+    (println "=== nanolang Transpiler (Library Mode) ===")
+    (println "")
+    (println "This is a library module.")
+    (println "Use transpile_parser() function to generate C code.")
+    (println "")
+    (println "✓ Transpiler module loaded successfully")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,11 @@
+# Expected Error: Module not found
+
+import nonexistent_module  # Error: module does not exist
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

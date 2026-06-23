@@ -1,0 +1,14 @@
+/* Test 1: Simple union definition with no fields */
+union Status {
+    Ok {},
+    Error {}
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

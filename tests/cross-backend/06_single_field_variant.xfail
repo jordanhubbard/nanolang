@@ -1,0 +1,5 @@
+# Backends with known-broken codegen for this program.
+# wasm — nl-3du: feature support pending (strings/structs/unions/match)
+# llvm — unsupported AST nodes (struct literal, union construct, match)
+wasm
+llvm

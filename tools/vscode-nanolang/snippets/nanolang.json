@@ -1,0 +1,133 @@
+{
+    "Function": {
+        "prefix": "fn",
+        "body": ["fn ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Define a function"
+    },
+    "Shadow test": {
+        "prefix": "shadow",
+        "body": ["shadow ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Define a shadow test function"
+    },
+    "Let binding": {
+        "prefix": "let",
+        "body": ["let ${1:name}: ${2:Type} = ${0};"],
+        "description": "Immutable let binding"
+    },
+    "Var binding": {
+        "prefix": "var",
+        "body": ["var ${1:name}: ${2:Type} = ${0};"],
+        "description": "Mutable var binding"
+    },
+    "If statement": {
+        "prefix": "if",
+        "body": ["if ${1:condition} {", "\t${0}", "}"],
+        "description": "If statement"
+    },
+    "If-else statement": {
+        "prefix": "ife",
+        "body": ["if ${1:condition} {", "\t${2}", "} else {", "\t${0}", "}"],
+        "description": "If-else statement"
+    },
+    "Match expression": {
+        "prefix": "match",
+        "body": [
+            "match ${1:value} {",
+            "\t${2:Pattern1} => ${3:result1},",
+            "\t${4:Pattern2} => ${5:result2},",
+            "\t_ => ${0}",
+            "}"
+        ],
+        "description": "Pattern match expression"
+    },
+    "While loop": {
+        "prefix": "while",
+        "body": ["while ${1:condition} {", "\t${0}", "}"],
+        "description": "While loop"
+    },
+    "For loop": {
+        "prefix": "for",
+        "body": ["for ${1:item} in ${2:iterable} {", "\t${0}", "}"],
+        "description": "For-in loop"
+    },
+    "Struct": {
+        "prefix": "struct",
+        "body": ["struct ${1:Name} {", "\t${2:field}: ${3:Type},", "\t${0}", "}"],
+        "description": "Struct definition"
+    },
+    "Enum": {
+        "prefix": "enum",
+        "body": ["enum ${1:Name} {", "\t${2:Variant1},", "\t${3:Variant2},", "\t${0}", "}"],
+        "description": "Enum definition"
+    },
+    "Module": {
+        "prefix": "module",
+        "body": ["module ${1:name} {", "\t${0}", "}"],
+        "description": "Module definition"
+    },
+    "Import": {
+        "prefix": "import",
+        "body": ["import ${1:module}"],
+        "description": "Import a module"
+    },
+    "Import with use": {
+        "prefix": "use",
+        "body": ["use ${1:module}::${0:item}"],
+        "description": "Use an item from a module"
+    },
+    "Pub function": {
+        "prefix": "pfn",
+        "body": ["pub fn ${1:name}(${2:params}) -> ${3:ReturnType} {", "\t${0}", "}"],
+        "description": "Public function"
+    },
+    "Option type": {
+        "prefix": "opt",
+        "body": ["Option<${1:Type}>"],
+        "description": "Option type"
+    },
+    "Result type": {
+        "prefix": "res",
+        "body": ["Result<${1:OkType}, ${2:ErrType}>"],
+        "description": "Result type"
+    },
+    "List type": {
+        "prefix": "list",
+        "body": ["List<${1:Type}>"],
+        "description": "List type"
+    },
+    "HashMap type": {
+        "prefix": "map",
+        "body": ["HashMap<${1:KeyType}, ${2:ValueType}>"],
+        "description": "HashMap type"
+    },
+    "Tuple type": {
+        "prefix": "tup",
+        "body": ["(${1:Type1}, ${2:Type2})"],
+        "description": "Tuple type"
+    },
+    "Tuple literal": {
+        "prefix": "tupl",
+        "body": ["(${1:val1}, ${2:val2})"],
+        "description": "Tuple literal"
+    },
+    "Print": {
+        "prefix": "print",
+        "body": ["print(${0});"],
+        "description": "Print to stdout"
+    },
+    "Println": {
+        "prefix": "println",
+        "body": ["println(${0});"],
+        "description": "Print line to stdout"
+    },
+    "Return": {
+        "prefix": "ret",
+        "body": ["return ${0};"],
+        "description": "Return statement"
+    },
+    "Error propagation": {
+        "prefix": "try",
+        "body": ["${1:expr}?"],
+        "description": "Error propagation with ?"
+    }
+}

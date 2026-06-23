@@ -1,0 +1,8 @@
+{
+  "name": "preferences",
+  "version": "1.0.0",
+  "description": "Save and load application preferences",
+  "c_sources": ["preferences.c"],
+  "headers": ["preferences.h"],
+  "cflags": ["-Imodules/preferences"]
+}

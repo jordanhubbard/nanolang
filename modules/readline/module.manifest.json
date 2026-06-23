@@ -1,0 +1,61 @@
+{
+  "name": "readline",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "Interactive line editing with history, completion, and Emacs/vi key bindings.",
+  "use_when": [
+    "User wants interactive command-line input with editing",
+    "User says 'REPL', 'shell', 'interactive', 'command line'",
+    "User needs command history with up/down arrow navigation",
+    "User wants line editing with backspace, home/end, etc.",
+    "User needs to save/load command history to file"
+  ],
+  "avoid_when": [
+    "User wants simple one-line input without editing (use fgets/read_line)",
+    "User wants GUI input (use sdl or glfw)",
+    "User wants terminal UI with cursor positioning (use ncurses)"
+  ],
+  "capabilities": [
+    "read_line_with_prompt",
+    "line_editing",
+    "command_history",
+    "history_search",
+    "history_file_io",
+    "emacs_keybindings",
+    "vi_keybindings"
+  ],
+  "keywords": [
+    "readline",
+    "line editing",
+    "history",
+    "repl",
+    "shell",
+    "interactive",
+    "command line",
+    "input",
+    "libedit"
+  ],
+  "examples": [
+    "examples/readline_repl.nano"
+  ],
+  "dependencies": {
+    "nanolang": [],
+    "system": [
+      {
+        "id": "readline",
+        "install": {
+          "apt": "libreadline-dev",
+          "brew": "readline",
+          "pacman": "readline"
+        },
+        "version": ">=6.0",
+        "notes": "macOS includes libedit with readline compatibility by default"
+      }
+    ]
+  },
+  "io_surfaces": ["terminal"],
+  "alternatives": [
+    {"when": "simple input without editing", "module": "stdio"},
+    {"when": "full terminal UI", "module": "ncurses"}
+  ]
+}

@@ -1,0 +1,23 @@
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+fn sub(a: int, b: int) -> int {
+    return (- a b)
+}
+
+fn mul(a: int, b: int) -> int {
+    return (* a b)
+}
+
+fn factorial(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorial (- n 1)))
+    }
+}
+
+fn main() -> int {
+    return (add 3 4)
+}

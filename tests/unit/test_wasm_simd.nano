@@ -1,0 +1,83 @@
+/* test_wasm_simd.nano — Vectorizable patterns for the WASM SIMD128 pass
+ *
+ * Pure numeric functions: compile to WASM + scalar-correct interpreter output.
+ * The SIMD detector annotates these in the simd_annots custom section as
+ * candidates for f64x2 / i64x2 vectorization by downstream runtimes.
+ */
+
+/* ── i64x2 candidate: integer dot product ───────────────────────────── */
+fn dot4(a0: int, a1: int, a2: int, a3: int,
+        b0: int, b1: int, b2: int, b3: int) -> int {
+    return (+ (+ (+ (* a0 b0) (* a1 b1)) (* a2 b2)) (* a3 b3))
+}
+shadow dot4 {
+    assert (== (dot4 1 2 3 4 1 2 3 4) 30)
+    assert (== (dot4 0 0 0 1 0 0 0 1) 1)
+}
+
+/* ── i64x2 candidate: horizontal sum of 8 integers ──────────────────── */
+fn sum8(a: int, b: int, c: int, d: int,
+        e: int, f: int, g: int, h: int) -> int {
+    return (+ (+ (+ a b) (+ c d)) (+ (+ e f) (+ g h)))
+}
+shadow sum8 {
+    assert (== (sum8 1 2 3 4 5 6 7 8) 36)
+    assert (== (sum8 0 0 0 0 0 0 0 0) 0)
+}
+
+/* ── i64x2 candidate: elementwise scale (broadcast multiply) ─────────── */
+fn scale4(x0: int, x1: int, x2: int, x3: int, s: int) -> int {
+    let y0: int = (* x0 s)
+    let y1: int = (* x1 s)
+    let y2: int = (* x2 s)
+    let y3: int = (* x3 s)
+    return (+ (+ y0 y1) (+ y2 y3))
+}
+shadow scale4 {
+    assert (== (scale4 1 2 3 4 3) 30)
+    assert (== (scale4 2 2 2 2 5) 40)
+}
+
+/* ── f64x2 candidate: float dot product ──────────────────────────────── */
+fn dot2f(a0: float, a1: float, b0: float, b1: float) -> float {
+    return (+ (* a0 b0) (* a1 b1))
+}
+shadow dot2f {
+    assert (== (dot2f 1.0 2.0 3.0 4.0) 11.0)
+    assert (== (dot2f 0.0 1.0 0.0 5.0) 5.0)
+}
+
+/* ── f64x2 candidate: horizontal sum of 4 floats ─────────────────────── */
+fn sum4f(a: float, b: float, c: float, d: float) -> float {
+    return (+ (+ a b) (+ c d))
+}
+shadow sum4f {
+    assert (== (sum4f 1.0 2.0 3.0 4.0) 10.0)
+    assert (== (sum4f 0.5 0.5 0.5 0.5) 2.0)
+}
+
+/* ── f64x2 candidate: elementwise multiply and accumulate ───────────── */
+fn mac4f(a0: float, a1: float, a2: float, a3: float,
+         b0: float, b1: float, b2: float, b3: float) -> float {
+    return (+ (+ (* a0 b0) (* a1 b1)) (+ (* a2 b2) (* a3 b3)))
+}
+shadow mac4f {
+    assert (== (mac4f 1.0 1.0 1.0 1.0 2.0 3.0 4.0 5.0) 14.0)
+}
+
+/* WASM-compatible main: pure arithmetic only (no string builtins) */
+fn main() -> int {
+    let r0: int   = (dot4 1 2 3 4 1 2 3 4)
+    let r1: int   = (sum8 1 2 3 4 5 6 7 8)
+    let r2: int   = (scale4 1 2 3 4 3)
+    let r3: float = (dot2f 1.0 2.0 3.0 4.0)
+    let r4: float = (sum4f 1.0 2.0 3.0 4.0)
+    let r5: float = (mac4f 1.0 1.0 1.0 1.0 2.0 3.0 4.0 5.0)
+    if (!= r0 30) { return 1 }
+    if (!= r1 36) { return 2 }
+    if (!= r2 30) { return 3 }
+    return 0
+}
+shadow main {
+    assert (== (main) 0)
+}

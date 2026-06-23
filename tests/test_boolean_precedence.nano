@@ -1,0 +1,113 @@
+# Test that boolean operator precedence is preserved with proper parentheses
+
+fn test_and_or_precedence() -> bool {
+    # (a && b) || c should be true when a=true, b=true, c=false
+    let a = true
+    let b = true
+    let c = false
+    let result = (or (and a b) c)
+    return result
+}
+
+shadow test_and_or_precedence {
+    assert (== (test_and_or_precedence) true)
+}
+
+fn test_or_and_precedence() -> bool {
+    # (a || b) && c should be false when a=true, b=false, c=false
+    let a = true
+    let b = false
+    let c = false
+    let result = (and (or a b) c)
+    return result
+}
+
+shadow test_or_and_precedence {
+    assert (== (test_or_and_precedence) false)
+}
+
+fn test_nested_logic() -> bool {
+    # ((a && b) || c) && d
+    let a = false
+    let b = true
+    let c = true
+    let d = true
+    let result = (and (or (and a b) c) d)
+    return result  # Should be true: ((false && true) || true) && true = true
+}
+
+shadow test_nested_logic {
+    assert (== (test_nested_logic) true)
+}
+
+fn test_xor_simulation() -> bool {
+    # XOR: (a || b) && !(a && b)
+    # true XOR false = true
+    let a = true
+    let b = false
+    let result = (and (or a b) (not (and a b)))
+    return result
+}
+
+shadow test_xor_simulation {
+    assert (== (test_xor_simulation) true)
+}
+
+fn test_xor_both_true() -> bool {
+    # XOR: (a || b) && !(a && b)
+    # true XOR true = false
+    let a = true
+    let b = true
+    let result = (and (or a b) (not (and a b)))
+    return result
+}
+
+shadow test_xor_both_true {
+    assert (== (test_xor_both_true) false)
+}
+
+fn main() -> int {
+    (println "Testing boolean operator precedence...")
+
+    if (test_and_or_precedence) {
+        (println "✓ AND-OR precedence test passed")
+    } else {
+        (println "✗ AND-OR precedence test FAILED")
+        return 1
+    }
+
+    if (not (test_or_and_precedence)) {
+        (println "✓ OR-AND precedence test passed")
+    } else {
+        (println "✗ OR-AND precedence test FAILED")
+        return 1
+    }
+
+    if (test_nested_logic) {
+        (println "✓ Nested logic test passed")
+    } else {
+        (println "✗ Nested logic test FAILED")
+        return 1
+    }
+
+    if (test_xor_simulation) {
+        (println "✓ XOR simulation test passed")
+    } else {
+        (println "✗ XOR simulation test FAILED")
+        return 1
+    }
+
+    if (not (test_xor_both_true)) {
+        (println "✓ XOR both true test passed")
+    } else {
+        (println "✗ XOR both true test FAILED")
+        return 1
+    }
+
+    (println "All boolean precedence tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

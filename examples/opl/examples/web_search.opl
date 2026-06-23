@@ -1,0 +1,11 @@
+# web_search.opl - Agent that calls web search tool
+
+agent searcher {
+  doc "Search the web with a query"
+  uses web.search
+  input query:string
+  
+  call web.search { query: query, limit: 5 } as results
+  assert results != null else "Search failed"
+  emit search_results: results
+}

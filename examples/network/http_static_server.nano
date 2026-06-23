@@ -1,0 +1,39 @@
+# Example: Static File Server
+# Purpose: Serve static files from a directory using the NanoLang HTTP server
+# Features: HTTP server, static file serving, modules
+# Difficulty: Beginner
+# Category: network
+# Prerequisites: http_hello_world
+# Expected Output: interactive
+
+from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
+
+fn main() -> int {
+    (println "=== NanoLang Static File Server ===")
+    (println "")
+    
+    let port: int = 8080
+    let static_dir: string = "./public"
+    
+    (println (+ "Creating server on port " (int_to_string port)))
+    let server: HttpServer = (create port)
+    
+    (println (+ "Serving static files from: " static_dir))
+    (set_static_dir server static_dir)
+    
+    (println "")
+    (println (+ "✓ Server ready at http://localhost:" (int_to_string port)))
+    (println "Press Ctrl+C to stop")
+    (println "")
+    
+    let result: int = (start server)
+    
+    (println "")
+    (println "Server stopped")
+    (free_server server)
+    
+    return result
+}
+
+shadow main { assert true }
+

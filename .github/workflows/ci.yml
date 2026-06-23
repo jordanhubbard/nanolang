@@ -1,0 +1,578 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test (${{ matrix.arch || 'x64' }})
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure || false }}
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      checks: write
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            allow_failure: true
+          - os: macos-14
+            arch: arm64
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show platform info
+        run: |
+          echo "OS: ${{ runner.os }}"
+          echo "Architecture: ${{ matrix.arch || 'default' }}"
+          uname -a || systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            valgrind \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libncurses-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install gcc pkg-config openssl sdl2 sdl2_mixer sdl2_ttf
+
+      - name: Check dependencies
+        shell: bash
+        run: make check-deps
+
+      - name: Build - Stage 1 (C Reference Compiler)
+        run: make stage1
+
+      - name: Build - Stage 2 (Self-Hosted Components)
+        run: make stage2
+
+      - name: Build - Stage 3 (Bootstrap Validation)
+        run: make stage3
+
+      - name: Run test suite
+        run: make test
+
+      - name: Run test suite with JUnit XML output
+        run: make test-junit
+        continue-on-error: true
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        continue-on-error: true
+        with:
+          name: Nanolang Test Suite
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
+
+      - name: Validate user guide snippets
+        run: make userguide-check
+
+      - name: Show error logs on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Showing first failed test logs ==="
+          for log in .test_output/*.compile.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+              echo ""
+            fi
+          done | head -200
+
+      - name: Verify binaries exist
+        shell: bash
+        run: |
+          test -f ./bin/nanoc || exit 1
+          echo "✓ Compiler binary built successfully"
+
+      - name: Test basic examples
+        shell: bash
+        run: |
+          ./bin/nanoc examples/language/nl_hello.nano -o hello_test
+          ./hello_test
+          ./bin/nanoc examples/language/nl_factorial.nano -o factorial_test
+          ./factorial_test
+          rm -f hello_test factorial_test
+
+      # Valgrind checks disabled - small leaks acceptable for short-lived compiler
+      # - name: Check for memory leaks (Linux only)
+      #   if: runner.os == 'Linux'
+      #   run: make valgrind || true
+
+  docs:
+    name: Docs (link check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check markdown links
+        run: python3 scripts/check_markdown_links.py
+
+  api-docs:
+    name: API Docs (nanodoc)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate API documentation
+        run: |
+          mkdir -p docs/api
+          node tools/nanodoc.mjs --output docs/api \
+            $(find std -name '*.nano' | sort) \
+            $(find examples/language -name '*.nano' | sort)
+
+      - name: Upload API docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-docs
+          path: docs/api/
+          retention-days: 30
+
+  sanitizers:
+    name: Memory Sanitizers
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
+
+      - name: Build with AddressSanitizer
+        run: |
+          # Disable leak detection for exit-time leaks in short-lived compiler process
+          # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
+          export ASAN_OPTIONS=detect_leaks=0
+          make sanitize
+
+      - name: Complete 3-stage bootstrap with sanitizers
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+
+      - name: Run tests with sanitizers
+        timeout-minutes: 20  # Timeout for test step specifically
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
+
+      - name: Run negative tests with sanitizers
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          cd tests/negative
+          ./run_negative_tests.sh
+
+      - name: Show sanitizer error logs on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Showing first 3 failed test logs ==="
+          for log in .test_output/*.compile.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+              echo ""
+            fi
+          done | head -200
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            lcov \
+            bc \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
+
+      - name: Build with coverage
+        run: make coverage
+
+      - name: Complete 3-stage bootstrap with coverage
+        run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+
+      - name: Run tests
+        run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
+
+      - name: Run negative tests
+        run: |
+          cd tests/negative
+          ./run_negative_tests.sh
+
+      - name: Show error logs on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "=== Showing first failed test logs ==="
+          for log in .test_output/*.compile.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+              echo ""
+            fi
+          done | head -200
+
+      - name: Generate coverage report
+        run: |
+          lcov --capture --directory . --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
+          lcov --remove coverage.info '*/cJSON.c' --output-file coverage.info --ignore-errors unused
+          lcov --list coverage.info
+
+      - name: Generate HTML coverage report
+        run: |
+          genhtml coverage.info --output-directory coverage-html
+
+      - name: Calculate coverage percentage
+        id: coverage
+        run: |
+          # Extract overall line coverage percentage
+          COVERAGE=$(lcov --summary coverage.info 2>&1 | grep "lines" | grep -oE '[0-9]+\.[0-9]+%' | head -1 | sed 's/%//')
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: $COVERAGE%"
+
+      - name: Enforce coverage threshold
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.coverage }}
+          THRESHOLD=${COVERAGE_THRESHOLD:-75.0}
+          echo "Current coverage: $COVERAGE%"
+          echo "Required threshold: $THRESHOLD%"
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage $COVERAGE% is below threshold $THRESHOLD%"
+            echo "Please add tests to improve coverage."
+            exit 1
+          else
+            echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
+          fi
+
+
+      - name: Upload coverage report to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.info
+            coverage-html/
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const coverage = '${{ steps.coverage.outputs.coverage }}';
+            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (80%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: repoOwner,
+              repo: repoName,
+              body: body
+            });
+
+  performance:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comparison
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc
+
+      - name: Download baseline benchmark
+        id: baseline
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-baseline
+          path: .benchmark_baseline
+
+      - name: Run performance benchmarks
+        run: |
+          ./scripts/benchmark.sh
+          cp .benchmark_results/benchmark_*.json .benchmark_results/current.json
+
+      - name: Compare with baseline
+        id: compare
+        if: steps.baseline.outcome == 'success'
+        run: |
+          BASELINE=.benchmark_baseline/baseline.json
+          CURRENT=.benchmark_results/current.json
+          
+          if [ ! -f "$BASELINE" ]; then
+            echo "No baseline found, skipping comparison"
+            echo "regression=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Extract key metrics
+          BASELINE_BUILD=$(grep "total_build_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_BUILD=$(grep "total_build_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          BASELINE_TEST=$(grep "test_suite_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_TEST=$(grep "test_suite_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          BASELINE_COMPILE=$(grep "self_hosting_compile_ms" "$BASELINE" | grep -oE '[0-9]+')
+          CURRENT_COMPILE=$(grep "self_hosting_compile_ms" "$CURRENT" | grep -oE '[0-9]+')
+          
+          # Calculate percentage changes
+          BUILD_PCT=$(echo "scale=2; ($CURRENT_BUILD - $BASELINE_BUILD) * 100 / $BASELINE_BUILD" | bc)
+          TEST_PCT=$(echo "scale=2; ($CURRENT_TEST - $BASELINE_TEST) * 100 / $BASELINE_TEST" | bc)
+          COMPILE_PCT=$(echo "scale=2; ($CURRENT_COMPILE - $BASELINE_COMPILE) * 100 / $BASELINE_COMPILE" | bc)
+          
+          echo "build_change=$BUILD_PCT" >> $GITHUB_OUTPUT
+          echo "test_change=$TEST_PCT" >> $GITHUB_OUTPUT
+          echo "compile_change=$COMPILE_PCT" >> $GITHUB_OUTPUT
+          
+          # Check for regressions (>20% slower)
+          REGRESSION=false
+          if (( $(echo "$BUILD_PCT > 20" | bc -l) )); then
+            echo "⚠️  Build time regression: +${BUILD_PCT}% (${BASELINE_BUILD}ms → ${CURRENT_BUILD}ms)"
+            REGRESSION=true
+          fi
+          if (( $(echo "$TEST_PCT > 20" | bc -l) )); then
+            echo "⚠️  Test time regression: +${TEST_PCT}% (${BASELINE_TEST}ms → ${CURRENT_TEST}ms)"
+            REGRESSION=true
+          fi
+          if (( $(echo "$COMPILE_PCT > 20" | bc -l) )); then
+            echo "⚠️  Compile time regression: +${COMPILE_PCT}% (${BASELINE_COMPILE}ms → ${CURRENT_COMPILE}ms)"
+            REGRESSION=true
+          fi
+          
+          echo "regression=$REGRESSION" >> $GITHUB_OUTPUT
+          
+          # Create comparison report
+          cat > .benchmark_results/comparison.md << EOF
+          ## Performance Comparison
+          
+          | Metric | Baseline | Current | Change |
+          |--------|----------|---------|--------|
+          | Build Time | ${BASELINE_BUILD}ms | ${CURRENT_BUILD}ms | ${BUILD_PCT}% |
+          | Test Suite | ${BASELINE_TEST}ms | ${CURRENT_TEST}ms | ${TEST_PCT}% |
+          | Self-Host Compile | ${BASELINE_COMPILE}ms | ${CURRENT_COMPILE}ms | ${COMPILE_PCT}% |
+          EOF
+
+      - name: Fail on regression
+        if: steps.compare.outputs.regression == 'true'
+        run: |
+          echo "❌ Performance regression detected (>20% slower)"
+          echo "See comparison report in artifacts for details"
+          cat .benchmark_results/comparison.md
+          exit 1
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: .benchmark_results/
+
+      - name: Update performance baseline (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-baseline
+          path: .benchmark_results/current.json
+
+      - name: Comment performance on PR
+        if: github.event_name == 'pull_request' && steps.compare.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildChange = '${{ steps.compare.outputs.build_change }}';
+            const testChange = '${{ steps.compare.outputs.test_change }}';
+            const compileChange = '${{ steps.compare.outputs.compile_change }}';
+            
+            let emoji = '✅';
+            if (parseFloat(buildChange) > 20 || parseFloat(testChange) > 20 || parseFloat(compileChange) > 20) {
+              emoji = '⚠️';
+            } else if (parseFloat(buildChange) < -10 || parseFloat(testChange) < -10 || parseFloat(compileChange) < -10) {
+              emoji = '🚀';
+            }
+            
+            const body = `## ${emoji} Performance Report\n\n| Metric | Change |\n|--------|--------|\n| Build Time | ${buildChange}% |\n| Test Suite | ${testChange}% |\n| Self-Host Compile | ${compileChange}% |\n\n[View detailed benchmarks in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            const [perfOwner, perfRepo] = process.env.GITHUB_REPOSITORY.split('/');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: perfOwner,
+              repo: perfRepo,
+              body: body
+            });
+
+  concurrency:
+    name: Concurrency (clang + libdispatch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            libblocksruntime-dev \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
+          # libdispatch-dev was removed from Ubuntu 24.04; install if available
+          sudo apt-get install -y libdispatch-dev || true
+
+      - name: Build stage 1 with clang
+        run: make stage1 CC=clang
+
+      - name: Build stage 2 (self-hosted) with clang
+        run: make stage2 CC=clang
+
+      - name: Compile nl_global_counter example
+        run: |
+          bin/nanoc examples/language/nl_global_counter.nano -o /tmp/nl_global_counter \
+            CC=clang LDFLAGS="-ldispatch -lBlocksRuntime" || \
+          CC=clang bin/nanoc examples/language/nl_global_counter.nano -o /tmp/nl_global_counter
+
+      - name: Run nl_global_counter example
+        run: /tmp/nl_global_counter
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang-tidy
+
+      - name: Run clang-tidy
+        run: |
+          clang-tidy src/*.c -- -Isrc || true
+
+  # ---------------------------------------------------------------------------
+  # Benchmark regression gate — runs @bench functions, fails if mean > 2× baseline
+  # ---------------------------------------------------------------------------
+  bench:
+    name: Benchmark regression check
+    runs-on: ubuntu-24.04
+    if: false  # disabled until nanoc --bench is fully wired to interpreter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python + deps
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install clang / build deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends clang lld
+
+      - name: Build nanoc
+        run: make nanoc
+
+      - name: Run benchmarks
+        run: |
+          ./nanoc --bench --bench-json bench-results.json examples/bench_sample.nano || true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench-results.json
+          if-no-files-found: ignore

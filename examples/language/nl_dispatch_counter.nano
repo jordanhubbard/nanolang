@@ -1,0 +1,68 @@
+# Example: Dispatch Counter
+# Purpose: Demonstrate the dispatch queue API shape with a simple counter workload
+# Features: dispatch module, groups, queues, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_global_counter
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/dispatch, libdispatch
+# Tags: concurrency, native-only
+# Expected Output: dispatch counter
+
+/* nl_dispatch_counter.nano
+ * Demonstrates GCD serial/concurrent queue and group API.
+ *
+ * Uses libdispatch (Grand Central Dispatch) for parallel task dispatch.
+ * Spawns 10 tasks on a concurrent queue tracked by a group, then waits.
+ *
+ * Note: NanoLang closures are anonymous functions and do not capture outer
+ * variables. For concurrent state mutation you need atomic helpers or
+ * dedicated queues as in sdl_falling_sand.nano.
+ */
+
+module "modules/dispatch/dispatch.nano"
+
+# @pure
+fn work_item() -> void {
+    /* Simulated work — no-op placeholder */
+    let x: int = 42
+}
+
+shadow work_item {
+    (work_item)
+}
+
+fn main() -> int {
+    /* Create a concurrent queue */
+    let q: NlQueue = (queue_concurrent "nano.demo.worker")
+
+    /* Create a group to track all tasks */
+    let g: NlQueueGroup = (group_create)
+
+    /* Dispatch 10 tasks */
+    let mut i: int = 0
+    while (< i 10) {
+        (group_async g q fn() -> void { (work_item) })
+        set i (+ i 1)
+    }
+
+    /* Wait up to 5 seconds for all tasks to complete */
+    let rc: int = (group_wait_ms g 5000)
+    if (!= rc 0) {
+        (println "FAIL: group_wait timed out or failed")
+        (group_destroy g)
+        (queue_destroy q)
+        return 1
+    }
+
+    (println "PASS: all 10 tasks completed")
+
+    (group_destroy g)
+    (queue_destroy q)
+    return 0
+}
+
+shadow main {
+    (print "")
+}

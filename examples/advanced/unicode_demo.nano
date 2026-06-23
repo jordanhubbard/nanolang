@@ -1,0 +1,110 @@
+# Example: Unicode String Operations Demo
+# Purpose: Demonstrate grapheme-aware unicode string handling and operations
+# Features: unicode, grapheme clusters, string operations, unsafe modules
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === Unicode String Operations Demo ===
+
+/* Unicode String Operations Demo
+ * Demonstrates grapheme-aware string handling
+ */
+
+module "modules/unicode/unicode.nano"
+
+fn main() -> int {
+    (println "=== Unicode String Operations Demo ===")
+    (println "")
+    
+    /* Test ASCII */
+    (println "ASCII Tests:")
+    let ascii: string = "Hello, World!"
+    (print "  String: ")
+    (println ascii)
+    
+    unsafe {
+        (print "  Byte length: ")
+        (println (nl_str_byte_length ascii))
+        (print "  Grapheme length: ")
+        (println (nl_str_grapheme_length ascii))
+        (print "  Is ASCII: ")
+        (println (nl_str_is_ascii ascii))
+    }
+    (println "")
+    
+    /* Test emoji */
+    (println "Emoji Tests:")
+    let emoji: string = "😀😁😂🤣"
+    (print "  String: ")
+    (println emoji)
+    
+    unsafe {
+        (print "  Byte length: ")
+        (println (nl_str_byte_length emoji))
+        (print "  Grapheme length: ")
+        (println (nl_str_grapheme_length emoji))
+        (print "  Is ASCII: ")
+        (println (nl_str_is_ascii emoji))
+    }
+    (println "")
+    
+    /* Test complex grapheme (family emoji) */
+    (println "Complex Grapheme Test:")
+    let family: string = "👨‍👩‍👧‍👦"
+    (print "  Family emoji: ")
+    (println family)
+    
+    unsafe {
+        (print "  Byte length: ")
+        (println (nl_str_byte_length family))
+        (print "  Grapheme length (should be 1): ")
+        (println (nl_str_grapheme_length family))
+    }
+    (println "")
+    
+    /* Test case conversion */
+    (println "Case Conversion Tests:")
+    let mixed: string = "Hello World"
+    (print "  Original: ")
+    (println mixed)
+    
+    unsafe {
+        (print "  Lowercase: ")
+        (println (nl_str_to_lowercase mixed))
+        (print "  Uppercase: ")
+        (println (nl_str_to_uppercase mixed))
+    }
+    (println "")
+    
+    /* Test mixed content */
+    (println "Mixed Content Test:")
+    let mixed_content: string = "Hello 世界 🌍"
+    (print "  String: ")
+    (println mixed_content)
+    
+    unsafe {
+        (print "  Byte length: ")
+        (println (nl_str_byte_length mixed_content))
+        (print "  Grapheme length: ")
+        (println (nl_str_grapheme_length mixed_content))
+        (print "  Is valid UTF-8: ")
+        (println (nl_str_is_valid_utf8 mixed_content))
+    }
+    (println "")
+    
+    (println "✓ All Unicode operations completed successfully!")
+    (println "")
+    (println "Key insights:")
+    (println "  • Emoji can be 1 grapheme but many bytes")
+    (println "  • Family emoji (👨‍👩‍👧‍👦) is 1 grapheme despite visual complexity")
+    (println "  • Use grapheme_length for user-visible character count")
+    (println "  • Use byte_length for buffer sizes and file I/O")
+    
+    return 0
+}
+
+shadow main {
+    # Uses extern functions
+    assert true
+}
+

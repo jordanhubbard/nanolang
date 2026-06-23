@@ -1,0 +1,7 @@
+{
+  "name": "nano_highlight",
+  "version": "0.1.0",
+  "description": "NanoLang syntax highlighting helpers (tokenize + HTML).",
+  "c_sources": [],
+  "headers": []
+}

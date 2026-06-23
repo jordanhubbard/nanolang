@@ -1,0 +1,7 @@
+/* Differential test: let binding with variable in expression */
+fn main() -> int {
+    let x = 10
+    (println (cast_string (+ x 5)))
+    return 0
+}
+shadow main { assert true }

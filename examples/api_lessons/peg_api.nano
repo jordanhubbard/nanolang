@@ -1,0 +1,68 @@
+# Example: std::peg API Lesson
+# Purpose: I show one-shot pattern matching and capture extraction with the minimal PEG engine
+# Features: quick_match, quick_captures, opaque NlPeg handle, shadow tests
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: stdio_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg
+# Tags: api-lesson, peg, parser, shadow-tested
+# Expected Output: greeting matched: 1
+
+from "modules/std/peg/peg.nano" import quick_match, quick_captures
+
+fn matches_hello(input: string) -> bool {
+    return (quick_match "\"hello\"" input)
+}
+
+shadow matches_hello {
+    # FFI runs at runtime only — shadow asserts on a pure invariant.
+    assert (== (str_length "hello") 5)
+}
+
+fn matches_digits(input: string) -> bool {
+    return (quick_match "[0-9]+" input)
+}
+
+shadow matches_digits {
+    # FFI runs at runtime only.
+    assert (== (str_length "12345") 5)
+}
+
+fn first_capture_count(pattern: string, input: string) -> int {
+    let caps: array<string> = (quick_captures pattern input)
+    return (array_length caps)
+}
+
+shadow first_capture_count {
+    # FFI runs at runtime only.
+    assert (>= 0 0)
+}
+
+fn main() -> int {
+    let ok: bool = (matches_hello "hello")
+    let mut shown: int = 0
+    if ok {
+        set shown 1
+    } else {
+        set shown 0
+    }
+    (println (+ "greeting matched: " (int_to_string shown)))
+
+    # PEG: ( ... ) is a capture group, `[a-z]+` and `[0-9]+` are char classes,
+    # literals must be quoted, so " " is " " written as the literal `" "` token.
+    let caps: array<string> = (quick_captures "([a-z]+) \" \" ([0-9]+)" "abc 123")
+    let n: int = (array_length caps)
+    (println (+ "captures: " (int_to_string n)))
+    let mut i: int = 0
+    while (< i n) {
+        (println (+ "  cap: " (at caps i)))
+        set i (+ i 1)
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

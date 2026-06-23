@@ -1,0 +1,15 @@
+/* Basic namespace test - using module declarations */
+
+module test_namespace_basic
+
+/* Simple test function */
+pub fn main() -> int {
+    (println "=== Basic namespace test ===")
+    (println "✅ Module declaration works!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

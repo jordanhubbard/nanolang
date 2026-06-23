@@ -1,0 +1,132 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+
+# Compiled binaries (ignore all bin/ except README)
+/bin/*
+!/bin/README.md
+
+# Build artifacts (bootstrap stages)
+/build/
+
+# Distribution
+/dist/
+/target/
+
+# Object files directory
+/obj/
+
+# C intermediate files
+*.c.tmp
+*.h.tmp
+
+# Editor files
+.vscode/*
+!.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test outputs
+*.test
+test_output/
+.test/
+.test_output/
+.parity_check/
+
+# Compiler cache
+.cache/
+__pycache__/
+*.pyc
+
+# Dependency directories
+node_modules/
+vendor/
+.nanolang/
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Temporary files
+/tmp/
+*.tmp
+*.bak
+
+# OS-specific
+Thumbs.db
+.Spotlight-V100
+.Trashes
+modules/**/.build/
+*.genC
+
+# Build sentinels (old and new)
+.stage*.built
+.bootstrap*.built
+build/.*.done
+
+# Temporary test files
+examples/test_*.nano
+examples/phase2_*.nano
+examples/self_host_*.nano
+
+# Example binaries (built by 'make examples')
+examples/bin/
+
+
+# src_nano should contain ONLY pure NanoLang sources
+src_nano/*.c
+src_nano/*.bak
+src_nano/*.genC
+
+# Compiled binaries
+bin/
+modules/index.json
+nanoc_self
+repl_test
+
+# Module cache (build artifacts - platform-specific)
+_cache/
+
+# Code coverage artifacts
+*.gcda
+*.gcno
+*.gcov
+*.info
+coverage/
+
+# Coq/Rocq build artifacts
+formal/*.vo
+formal/*.vok
+formal/*.vos
+formal/*.glob
+formal/.*.aux
+
+# OCaml build artifacts (Coq extraction)
+*.cmi
+*.cmx
+tools/nanocore_ref/nanocore-ref
+
+# Fuzzing artifacts
+tests/fuzzing/fuzz_*
+!tests/fuzzing/fuzz_*.c
+tests/fuzzing/findings_*/
+tests/fuzzing/crash-*
+tests/fuzzing/*.log
+.vibe/
+
+bench/*.nano
+
+# Generated docs site
+site/
+
+*.db

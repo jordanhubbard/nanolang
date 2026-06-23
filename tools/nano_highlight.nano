@@ -1,0 +1,17 @@
+from "modules/nano_highlight/nano_highlight.nano" import highlight_html
+from "modules/std/env.nano" import argc, argv
+from "modules/std/fs.nano" import read
+
+fn main() -> int {
+    if (< (argc) 2) {
+        (println "usage: nano_highlight <path>")
+        return 1
+    }
+    let path: string = (argv 1)
+    let code: string = (read path)
+    let html: string = (highlight_html code)
+    (println html)
+    return 0
+}
+
+shadow main { assert true }

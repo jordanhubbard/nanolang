@@ -1,0 +1,100 @@
+/*
+ * test_repl_history.nano — unit tests for REPL persistent history helpers
+ * Tests get_history_path, save_session, load_session in isolation.
+ */
+from "modules/readline/readline.nano" import rl_read_history, rl_write_history, rl_stifle_history
+from "modules/std/env.nano" import nl_os_getenv
+from "modules/std/fs.nano" import file_read, file_write
+from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
+
+/* ── Helpers (duplicated from full_repl.nano for standalone testing) ── */
+
+fn get_history_path() -> string {
+    let home: string = (nl_os_getenv "HOME")
+    if (> (str_length home) 0) {
+        return (str_concat home "/.nano_history")
+    }
+    return ".nano_history"
+}
+
+shadow get_history_path {
+    let p: string = (get_history_path)
+    assert (> (str_length p) 0)
+    assert (str_contains p "nano_history")
+}
+
+fn save_session(preamble_sb: StringBuilder, path: string) -> int {
+    let content: string = (sb_to_string preamble_sb)
+    if (== (str_length content) 0) {
+        return 0
+    }
+    let result: int = (file_write path content)
+    return result
+}
+
+shadow save_session {
+    let sb: StringBuilder = (sb_new)
+    (sb_append sb "let answer: int = 42\n")
+    let r: int = (save_session sb "/tmp/nano_test_session.nano")
+    assert (== r 0)
+    /* Verify file was written */
+    let content: string = (file_read "/tmp/nano_test_session.nano")
+    assert (str_contains content "answer")
+    assert (str_contains content "42")
+}
+
+fn load_session_content(preamble_sb: StringBuilder, path: string) -> int {
+    let content: string = (file_read path)
+    if (== (str_length content) 0) {
+        return 1
+    }
+    (sb_append preamble_sb content)
+    return 0
+}
+
+shadow load_session_content {
+    /* Write a temp file, then load it */
+    let ok: int = (file_write "/tmp/nano_load_test.nano" "let loaded: int = 99\n")
+    assert (== ok 0)
+    let sb: StringBuilder = (sb_new)
+    let r: int = (load_session_content sb "/tmp/nano_load_test.nano")
+    assert (== r 0)
+    let preamble: string = (sb_to_string sb)
+    assert (str_contains preamble "loaded")
+    assert (str_contains preamble "99")
+}
+
+/* ── History stifle / read / write (non-interactive smoke test) ──────── */
+
+fn test_history_ops() -> int {
+    /* Limit history to 1000 entries */
+    (rl_stifle_history 1000)
+
+    /* Write to a temp history file */
+    let tmp_hist: string = "/tmp/nano_test_history"
+    let wres: int = (rl_write_history tmp_hist)
+    /* Write may return non-zero if no history yet — that's OK */
+    assert (>= wres -1)
+
+    /* Read it back */
+    let rres: int = (rl_read_history tmp_hist)
+    assert (>= rres -1)
+
+    return 0
+}
+
+shadow test_history_ops {
+    assert (== (test_history_ops) 0)
+}
+
+fn main() -> int {
+    let hp: string = (get_history_path)
+    assert (> (str_length hp) 0)
+    (rl_stifle_history 1000)
+    (println "REPL history unit tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,65 @@
+# GLUT Helper Functions
+# Provides convenient wrappers for common GLUT operations
+
+unsafe module "modules/glut/glut.nano"
+
+# === Text Rendering Helpers ===
+
+# Draw a string at the current raster position
+pub fn draw_bitmap_string(font: int, text: string) -> void {
+    # Note: This would need to iterate through the string characters
+    # For now, this is a placeholder showing the pattern
+    # Real implementation would need character iteration support
+    unsafe {
+        (glutBitmapCharacter font 72)  # 'H' as example
+    }
+}
+
+shadow draw_bitmap_string {
+    # Cannot test without OpenGL context
+    assert true
+}
+
+# Get the width of a text string in pixels
+pub fn get_text_width(font: int, text: string) -> int {
+    unsafe {
+        return (glutBitmapLength font text)
+    }
+}
+
+shadow get_text_width {
+    # Cannot test without OpenGL context  
+    assert true
+}
+
+# === Geometric Helpers ===
+
+# Draw a textured teapot (applies current texture/color)
+pub fn draw_fancy_teapot(size: float, wireframe: bool) -> void {
+    if wireframe {
+        unsafe {
+            (glutWireTeapot size)
+        }
+    } else {
+        unsafe {
+            (glutSolidTeapot size)
+        }
+    }
+}
+
+shadow draw_fancy_teapot {
+    # Cannot test without OpenGL context
+    assert true
+}
+
+# Draw a planet-like sphere
+pub fn draw_sphere(radius: float, detail: int) -> void {
+    unsafe {
+        (glutSolidSphere radius detail detail)
+    }
+}
+
+shadow draw_sphere {
+    # Cannot test without OpenGL context
+    assert true
+}

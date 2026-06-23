@@ -1,0 +1,21 @@
+/* pybridge_warp – NanoLang bindings for the NVIDIA Warp fluid simulation adapter.
+ *
+ * Delegates to the pybridge subprocess which runs the Warp (or NumPy CPU
+ * fallback) fluid simulation.  All handles are opaque integers returned by
+ * warp_fluid_init and consumed by every other function.
+ */
+
+extern fn warp_fluid_init(_n: int, _device: string) -> int
+extern fn warp_fluid_step(_handle: int, _dt: float, _iters: int) -> void
+extern fn warp_fluid_splat(_handle: int, _cx: int, _cy: int, _fx: float, _fy: float, _radius: int, _amount: float) -> void
+extern fn warp_fluid_get_image_png(_handle: int, _path: string) -> int
+extern fn warp_fluid_reset(_handle: int) -> void
+extern fn warp_fluid_destroy(_handle: int) -> void
+extern fn warp_fluid_shutdown() -> void
+extern fn warp_fluid_backend() -> string
+/* Returns a human-readable error string from the last failed operation,
+ * or an empty string if the last call succeeded. */
+extern fn warp_fluid_last_error() -> string
+/* Returns the backend chosen by the last successful warp_fluid_init call:
+ * "warp/cuda", "warp/cpu", or "numpy-cpu". Empty before the first init. */
+extern fn warp_fluid_last_backend() -> string

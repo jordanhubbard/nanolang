@@ -1,0 +1,19 @@
+# Expected error: Syntax error
+# Missing return type arrow
+
+fn broken(x: int) {
+    return x
+}
+
+shadow broken {
+    assert (== (broken 5) 5)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

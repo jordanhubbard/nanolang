@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoLang Playground</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- CodeMirror 6 — loaded from CDN, no build step needed -->
+    <script type="module">
+      import { EditorView, basicSetup } from 'https://esm.sh/@codemirror/basic-setup@0.20.0';
+      import { EditorState }            from 'https://esm.sh/@codemirror/state@6.4.1';
+      import { javascript }             from 'https://esm.sh/@codemirror/lang-javascript@6.2.2';
+      import { StreamLanguage }         from 'https://esm.sh/@codemirror/language@6.10.2';
+      import { oneDark }                from 'https://esm.sh/@codemirror/theme-one-dark@6.1.2';
+
+      // ── Nanolang syntax (StreamLanguage backed by simple rules) ────────────
+      // A lightweight mode that highlights nano keywords, types, strings,
+      // numbers, and comments using CodeMirror's StreamLanguage API.
+      // Full semantic tokens come from the LSP server; this gives immediate
+      // static highlighting with no server round-trip.
+      const nanoLangMode = StreamLanguage.define({
+        token(stream) {
+          if (stream.match(/\/\/.*/))                  return 'comment';
+          if (stream.match(/\/\*[\s\S]*?\*\//))        return 'comment';
+          if (stream.match(/"(?:[^"\\]|\\.)*"/))       return 'string';
+          if (stream.match(/'(?:[^'\\]|\\.)*'/))       return 'string';
+          if (stream.match(/\b(fn|let|mut|if|else|while|for|return|from|import|struct|enum|shadow|match|type|pub|extern|true|false)\b/))
+            return 'keyword';
+          if (stream.match(/\b(int|float|bool|string|void|char|uint|i64|u64|f64)\b/))
+            return 'typeName';
+          if (stream.match(/\b(assert|println|print|str_length|str_concat|char_at)\b/))
+            return 'builtin';
+          if (stream.match(/-?[0-9]+(\.[0-9]+)?/))    return 'number';
+          if (stream.match(/[a-zA-Z_][a-zA-Z0-9_]*/)) return 'variableName';
+          if (stream.match(/[-+*\/=<>!&|^~%?:@]/))     return 'operator';
+          stream.next();
+          return null;
+        }
+      });
+
+      // ── Build the editor once the DOM is ready ─────────────────────────────
+      window.addEventListener('DOMContentLoaded', () => {
+        const placeholder = document.getElementById('code-editor');
+        if (!placeholder) return;
+
+        // Capture initial content (may be set by app.js before CM inits)
+        const initialDoc = placeholder.value || '';
+
+        const view = new EditorView({
+          state: EditorState.create({
+            doc: initialDoc,
+            extensions: [
+              basicSetup,
+              nanoLangMode,
+              oneDark,
+              EditorView.updateListener.of(update => {
+                if (update.docChanged) {
+                  // Keep the textarea in sync so existing app.js code still works
+                  placeholder.value = view.state.doc.toString();
+                  placeholder.dispatchEvent(new Event('input'));
+                }
+              }),
+              EditorView.theme({
+                '&': { height: '100%', fontSize: '14px' },
+                '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', 'Fira Code', monospace" },
+              }),
+            ],
+          }),
+        });
+
+        // Insert CodeMirror after the textarea and hide the textarea
+        placeholder.style.display = 'none';
+        placeholder.parentNode.insertBefore(view.dom, placeholder.nextSibling);
+        view.dom.style.cssText = 'height:100%;min-height:300px;border-radius:4px;overflow:hidden;';
+
+        // Expose so app.js can set content
+        window._cmView = view;
+        window._cmGetSource = () => view.state.doc.toString();
+        window._cmSetSource = (src) => {
+          view.dispatch({
+            changes: { from: 0, to: view.state.doc.length, insert: src }
+          });
+          placeholder.value = src;
+        };
+
+        // If app.js already set a value via textarea, sync to CM
+        if (placeholder.value) {
+          view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: placeholder.value } });
+        }
+
+        // Notify app.js that CM is ready
+        window.dispatchEvent(new CustomEvent('cm-ready'));
+      });
+    </script>
+
+    <style>
+        /* Status bar */
+        .status-bar {
+            font-size: 0.8em;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-ready   { color: #2d7a2d; background: #e8f5e9; }
+        .status-running { color: #7a6a00; background: #fff8e1; }
+        .status-error   { color: #7a1a1a; background: #fdecea; }
+        /* Remove old "tip" banner */
+        .info-banner { display: none; }
+        /* CodeMirror container */
+        .editor-pane { position: relative; }
+        .cm-editor { border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <a href="#code-editor" class="skip-link">Skip to code editor</a>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🔬 NanoLang Playground</h1>
+                <p class="tagline">Write and run NanoLang entirely in your browser</p>
+            </div>
+            <div class="header-actions">
+                <span id="status-bar" class="status-bar status-ready">Loading…</span>
+                <button id="run-btn" class="btn btn-primary" aria-label="Run code" disabled>
+                    ▶ Run Code
+                </button>
+                <button id="clear-btn" class="btn btn-secondary" aria-label="Clear code editor">
+                    🗑 Clear
+                </button>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Sidebar with examples -->
+            <aside class="sidebar">
+                <h2>📚 Examples</h2>
+                <nav class="examples-list" id="examples-list" aria-label="Code examples">
+                    <button class="example-btn" data-example="hello">Hello World</button>
+                    <button class="example-btn" data-example="factorial">Factorial</button>
+                    <button class="example-btn" data-example="fibonacci">Fibonacci</button>
+                    <button class="example-btn" data-example="prime">Prime Numbers</button>
+                    <button class="example-btn" data-example="arrays">Array Operations</button>
+                    <button class="example-btn" data-example="strings">String Manipulation</button>
+                    <button class="example-btn" data-example="struct">Structs</button>
+                    <button class="example-btn" data-example="cond">Conditionals (cond)</button>
+                    <button class="example-btn" data-example="loops">Loops (while &amp; for)</button>
+                    <button class="example-btn" data-example="recursion">Recursion</button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <h3>🔗 Quick Links</h3>
+                    <nav aria-label="Quick links">
+                        <ul class="quick-links">
+                            <li><a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                            <li><a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                            <li><a href="../../../docs/QUICK_REFERENCE.md" target="_blank" rel="noopener noreferrer">Quick Reference</a></li>
+                        </ul>
+                    </nav>
+                    <p style="font-size:0.75em;margin-top:8px;color:#888;">
+                        Interpreter: NanoLang <span class="nl-version">…</span><br>
+                        Runs entirely in-browser via WebAssembly
+                    </p>
+                </div>
+            </aside>
+
+            <!-- Code editor -->
+            <div class="editor-pane">
+                <div class="editor-header">
+                    <span class="filename">playground.nano</span>
+                    <div class="editor-controls">
+                        <button id="copy-btn" class="btn-icon" aria-label="Copy code to clipboard">📋</button>
+                        <button id="download-btn" class="btn-icon" aria-label="Download code as file">💾</button>
+                        <button id="share-btn" class="btn-icon" aria-label="Share permalink to this code">🔗</button>
+                    </div>
+                </div>
+                <textarea id="code-editor" class="code-editor" spellcheck="false"
+                          aria-label="NanoLang code editor"></textarea>
+            </div>
+
+            <!-- Output panel -->
+            <div class="output-pane">
+                <div class="output-header">
+                    <h3>📄 Output</h3>
+                    <button id="clear-output-btn" class="btn-icon" aria-label="Clear output">🗑</button>
+                </div>
+                <div id="output" class="output-content" role="log" aria-live="polite"
+                     aria-label="Code execution output"></div>
+
+                <div class="output-header" style="margin-top: 20px;">
+                    <h3>⚠️ Compiler Messages</h3>
+                </div>
+                <div id="errors" class="error-content" role="log" aria-live="polite"
+                     aria-label="Compiler messages and errors"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>NanoLang Playground &copy; 2026 |
+               <a href="https://github.com/jordanhubbard/nanolang" target="_blank" rel="noopener noreferrer">GitHub</a> |
+               <a href="https://jordanhubbard.github.io/nanolang/" target="_blank" rel="noopener noreferrer">Docs</a>
+            </p>
+            <p class="version">NanoLang <span class="nl-version">…</span> — WebAssembly interpreter</p>
+        </footer>
+    </div>
+
+    <!-- Load WASM glue first, then app logic -->
+    <script src="nanolang.js"></script>
+    <script src="examples.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

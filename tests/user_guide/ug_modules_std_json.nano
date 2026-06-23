@@ -1,0 +1,27 @@
+from "modules/std/json/json.nano" import Json, parse, get, object_has, as_string
+
+fn extract_name(json_text: string) -> string {
+    let root: Json = (parse json_text)
+    if (== root 0) {
+        return ""
+    }
+    if (not (object_has root "name")) {
+        return ""
+    }
+    let v: Json = (get root "name")
+    let out: string = (as_string v)
+    return out
+    # Note: Json is automatically GC-managed - no manual free needed
+}
+
+shadow extract_name {
+    assert (== (extract_name "{\"name\":\"nano\"}") "nano")
+    assert (== (extract_name "{\"x\":1}") "")
+}
+
+fn main() -> int {
+    assert (== (extract_name "{\"name\":\"NanoLang\"}") "NanoLang")
+    return 0
+}
+
+shadow main { assert true }

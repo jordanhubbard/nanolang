@@ -1,0 +1,18 @@
+# Expected Error: Wrong parameter type
+
+fn multiply(a: int, b: int) -> int {
+    return (* a b)
+}
+
+shadow multiply {
+    assert (== (multiply 5 3) 15)
+}
+
+fn main() -> int {
+    let result: int = (multiply 5 "hello")  # Error: string passed to int parameter
+    return result
+}
+
+shadow main {
+    assert (== (main) 0)
+}

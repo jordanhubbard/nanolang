@@ -1,0 +1,11 @@
+{
+    "name": "forth_see",
+    "version": "1.0.0",
+    "description": "NanoISA decompiler for the Forth SEE word — disassembles built-in word implementations from .nvm bytecode",
+    "headers": ["forth_see.h"],
+    "cflags": ["-Imodules/forth_see"],
+    "c_sources": ["forth_see.c"],
+    "ldflags": [],
+    "system_packages": [],
+    "dependencies": []
+}

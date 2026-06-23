@@ -1,0 +1,199 @@
+# Tests for string stdlib builtins: str_starts_with, str_ends_with, str_index_of,
+# str_trim, str_trim_left, str_trim_right, str_to_lower, str_to_upper,
+# str_replace, str_split, str_join
+
+fn test_str_starts_with() -> int {
+    if (not (str_starts_with "hello world" "hello")) {
+        (println "FAIL: str_starts_with basic")
+        return 1
+    } else {}
+    if (str_starts_with "hello" "world") {
+        (println "FAIL: str_starts_with false case")
+        return 1
+    } else {}
+    if (not (str_starts_with "hello" "")) {
+        (println "FAIL: str_starts_with empty prefix")
+        return 1
+    } else {}
+    if (not (str_starts_with "" "")) {
+        (println "FAIL: str_starts_with both empty")
+        return 1
+    } else {}
+    if (str_starts_with "" "x") {
+        (println "FAIL: str_starts_with empty string non-empty prefix")
+        return 1
+    } else {}
+    if (str_starts_with "abc" "abcd") {
+        (println "FAIL: str_starts_with prefix longer than string")
+        return 1
+    } else {}
+    (println "OK: test_str_starts_with passed")
+    return 0
+}
+
+shadow test_str_starts_with {
+    assert (== (test_str_starts_with) 0)
+}
+
+fn test_str_ends_with() -> int {
+    if (not (str_ends_with "hello.nano" ".nano")) {
+        (println "FAIL: str_ends_with basic")
+        return 1
+    } else {}
+    if (str_ends_with "hello.nano" ".c") {
+        (println "FAIL: str_ends_with false case")
+        return 1
+    } else {}
+    if (not (str_ends_with "hello" "")) {
+        (println "FAIL: str_ends_with empty suffix")
+        return 1
+    } else {}
+    if (not (str_ends_with "" "")) {
+        (println "FAIL: str_ends_with both empty")
+        return 1
+    } else {}
+    if (str_ends_with "abc" "xabc") {
+        (println "FAIL: str_ends_with suffix longer than string")
+        return 1
+    } else {}
+    (println "OK: test_str_ends_with passed")
+    return 0
+}
+
+shadow test_str_ends_with {
+    assert (== (test_str_ends_with) 0)
+}
+
+fn test_str_index_of() -> int {
+    let idx1: int = (str_index_of "hello" "e")
+    if (!= idx1 1) {
+        (println "FAIL: str_index_of basic")
+        return 1
+    } else {}
+    let idx2: int = (str_index_of "hello" "x")
+    if (!= idx2 -1) {
+        (println "FAIL: str_index_of not found")
+        return 1
+    } else {}
+    let idx3: int = (str_index_of "List<Point>" "<")
+    if (!= idx3 4) {
+        (println "FAIL: str_index_of angle bracket")
+        return 1
+    } else {}
+    let idx4: int = (str_index_of "hello world" "world")
+    if (!= idx4 6) {
+        (println "FAIL: str_index_of substring")
+        return 1
+    } else {}
+    let idx5: int = (str_index_of "test" "")
+    if (!= idx5 0) {
+        (println "FAIL: str_index_of empty needle")
+        return 1
+    } else {}
+    (println "OK: test_str_index_of passed")
+    return 0
+}
+
+shadow test_str_index_of {
+    assert (== (test_str_index_of) 0)
+}
+
+fn test_str_trim() -> string {
+    return (str_trim "  hello  ")
+}
+
+shadow test_str_trim {
+    assert (== (test_str_trim) "hello")
+}
+
+fn test_str_trim_left() -> string {
+    return (str_trim_left "  hello  ")
+}
+
+shadow test_str_trim_left {
+    assert (== (test_str_trim_left) "hello  ")
+}
+
+fn test_str_trim_right() -> string {
+    return (str_trim_right "  hello  ")
+}
+
+shadow test_str_trim_right {
+    assert (== (test_str_trim_right) "  hello")
+}
+
+fn test_str_to_lower() -> string {
+    return (str_to_lower "HELLO")
+}
+
+shadow test_str_to_lower {
+    assert (== (test_str_to_lower) "hello")
+    assert (== (str_to_lower "Hello World") "hello world")
+    assert (== (str_to_lower "abc") "abc")
+}
+
+fn test_str_to_upper() -> string {
+    return (str_to_upper "hello")
+}
+
+shadow test_str_to_upper {
+    assert (== (test_str_to_upper) "HELLO")
+    assert (== (str_to_upper "Hello World") "HELLO WORLD")
+    assert (== (str_to_upper "ABC") "ABC")
+}
+
+fn test_str_replace() -> string {
+    return (str_replace "hello world" "world" "nano")
+}
+
+shadow test_str_replace {
+    assert (== (test_str_replace) "hello nano")
+    assert (== (str_replace "aaa" "a" "b") "bbb")
+    assert (== (str_replace "hello" "xyz" "abc") "hello")
+}
+
+fn test_str_split() -> int {
+    let parts = (str_split "a,b,c" ",")
+    return (array_length parts)
+}
+
+shadow test_str_split {
+    assert (== (test_str_split) 3)
+    let parts = (str_split "hello" ",")
+    assert (== (array_length parts) 1)
+}
+
+fn test_str_join() -> string {
+    let mut parts: array<string> = []
+    set parts (array_push parts "a")
+    set parts (array_push parts "b")
+    set parts (array_push parts "c")
+    return (str_join parts "-")
+}
+
+shadow test_str_join {
+    assert (== (test_str_join) "a-b-c")
+}
+
+fn main() -> int {
+    let r1: int = (test_str_starts_with)
+    let r2: int = (test_str_ends_with)
+    let r3: int = (test_str_index_of)
+    (println (str_trim "  hello  "))
+    (println (str_trim_left "  hello  "))
+    (println (str_trim_right "  hello  "))
+    (println (str_to_lower "HELLO WORLD"))
+    (println (str_to_upper "hello world"))
+    (println (str_replace "foo bar foo" "foo" "baz"))
+    let parts = (str_split "a,b,c" ",")
+    (println (int_to_string (array_length parts)))
+    let mut arr: array<string> = []
+    set arr (array_push arr "x")
+    set arr (array_push arr "y")
+    (println (str_join arr "+"))
+    return (+ (+ r1 r2) r3)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

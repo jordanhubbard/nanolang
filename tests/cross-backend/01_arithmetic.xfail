@@ -1,0 +1,4 @@
+# Backends with known-broken codegen for this program.
+# Remove an entry once the underlying bead is fixed.
+# wasm — nl-3du: feature support pending (builtins error rather than miscompile)
+wasm

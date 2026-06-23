@@ -1,0 +1,171 @@
+# Structured Logging and Tracing API for NanoLang
+# Provides log levels, structured output, and runtime control
+
+# Log levels (from least to most severe)
+enum LogLevel {
+    TRACE,    # Detailed trace information (verbose debugging)
+    DEBUG,    # Debug information useful during development
+    INFO,     # Informational messages about normal operations
+    WARN,     # Warning messages for potentially problematic situations
+    ERROR,    # Error messages for failures that don't halt execution
+    FATAL     # Fatal errors that require program termination
+}
+
+# Default log level constant (INFO level)
+# Future: Can be overridden via NANO_LOG_LEVEL environment variable
+let default_log_level: int = 2  # LogLevel.INFO
+
+# Get the current log level (checks environment variable NANO_LOG_LEVEL)
+# Returns default if env var not set or invalid
+pub fn log_get_level() -> int {
+    # For now, return default - future enhancement can read env vars
+    return default_log_level
+}
+
+shadow log_get_level {
+    assert (== (log_get_level) LogLevel.INFO)
+}
+
+# Convert log level to string
+fn log_level_name(level: int) -> string {
+    if (== level LogLevel.TRACE) { return "TRACE" } else {
+    if (== level LogLevel.DEBUG) { return "DEBUG" } else {
+    if (== level LogLevel.INFO) { return "INFO" } else {
+    if (== level LogLevel.WARN) { return "WARN" } else {
+    if (== level LogLevel.ERROR) { return "ERROR" } else {
+    if (== level LogLevel.FATAL) { return "FATAL" } else {
+        return "UNKNOWN"
+    }}}}}}
+}
+
+shadow log_level_name {
+    assert (== (log_level_name LogLevel.TRACE) "TRACE")
+    assert (== (log_level_name LogLevel.INFO) "INFO")
+    assert (== (log_level_name LogLevel.ERROR) "ERROR")
+}
+
+# Core logging function - checks level and outputs formatted message
+fn log_message(level: int, category: string, message: string) -> void {
+    let current_level: int = (log_get_level)
+    if (< level current_level) {
+        # Message is below threshold, suppress it
+        return
+    }
+    
+    # Format: [LEVEL] category: message
+    (print "[")
+    (print (log_level_name level))
+    (print "] ")
+    if (!= category "") {
+        (print category)
+        (print ": ")
+    }
+    (println message)
+}
+
+shadow log_message {
+    (log_message LogLevel.DEBUG "test" "debug message")
+    (log_message LogLevel.INFO "test" "info message")
+    (log_message LogLevel.ERROR "test" "error message")
+}
+
+# Public API functions for each log level
+
+pub fn log_trace(category: string, message: string) -> void {
+    (log_message LogLevel.TRACE category message)
+}
+
+shadow log_trace {
+    (log_trace "test" "Trace message")
+}
+
+pub fn log_debug(category: string, message: string) -> void {
+    (log_message LogLevel.DEBUG category message)
+}
+
+shadow log_debug {
+    (log_debug "test" "Debug message")
+}
+
+pub fn log_info(category: string, message: string) -> void {
+    (log_message LogLevel.INFO category message)
+}
+
+pub fn log_warn(category: string, message: string) -> void {
+    (log_message LogLevel.WARN category message)
+}
+
+shadow log_warn {
+    (log_warn "test" "Warning message")
+}
+
+pub fn log_error(category: string, message: string) -> void {
+    (log_message LogLevel.ERROR category message)
+}
+
+pub fn log_fatal(category: string, message: string) -> void {
+    (log_message LogLevel.FATAL category message)
+}
+
+shadow log_fatal {
+    (log_fatal "test" "Fatal error message")
+}
+
+shadow log_info {
+    (log_info "test" "This is an info message")
+    (log_debug "test" "This is a debug message")
+}
+
+shadow log_error {
+    (log_error "test" "This is an error message")
+}
+
+# Convenience functions without category
+
+pub fn trace(message: string) -> void {
+    (log_trace "" message)
+}
+
+pub fn debug(message: string) -> void {
+    (log_debug "" message)
+}
+
+pub fn info(message: string) -> void {
+    (log_info "" message)
+}
+
+pub fn warn(message: string) -> void {
+    (log_warn "" message)
+}
+
+pub fn error(message: string) -> void {
+    (log_error "" message)
+}
+
+pub fn fatal(message: string) -> void {
+    (log_fatal "" message)
+}
+
+shadow info {
+    (info "Simple info message")
+}
+
+shadow trace {
+    (trace "Trace message")
+}
+
+shadow debug {
+    (debug "Debug message")
+}
+
+shadow warn {
+    (warn "Warning message")
+}
+
+shadow error {
+    (error "Error message")
+}
+
+shadow fatal {
+    (fatal "Fatal message")
+}

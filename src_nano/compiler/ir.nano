@@ -1,0 +1,9 @@
+/* =============================================================================
+ * Compiler IR (Shared)
+ * =============================================================================
+ * Canonical data types shared by the self-hosted compiler phases.
+ */
+
+import "src_nano/generated/compiler_schema.nano"
+import "src_nano/generated/compiler_ast.nano"
+import "src_nano/ast_shared.nano"

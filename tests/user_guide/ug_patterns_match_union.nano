@@ -1,0 +1,27 @@
+union SimpleResult {
+    Ok { value: int },
+    Err { error: string }
+}
+
+fn unwrap_or_zero(r: SimpleResult) -> int {
+    let value: int = (match r {
+        Ok(v) => { return v.value }
+        Err(e) => { return 0 }
+    })
+    return value
+}
+
+shadow unwrap_or_zero {
+    let ok: SimpleResult = SimpleResult.Ok { value: 7 }
+    let err: SimpleResult = SimpleResult.Err { error: "nope" }
+    assert (== (unwrap_or_zero ok) 7)
+    assert (== (unwrap_or_zero err) 0)
+}
+
+fn main() -> int {
+    let r: SimpleResult = SimpleResult.Ok { value: 42 }
+    assert (== (unwrap_or_zero r) 42)
+    return 0
+}
+
+shadow main { assert true }

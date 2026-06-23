@@ -1,0 +1,9 @@
+from "modules/proptest/proptest.nano" import prop_pass, decode_outcome, prop_is_pass
+
+fn main() -> int {
+    let passed: bool = (prop_is_pass (decode_outcome (prop_pass)))
+    assert passed
+    return 0
+}
+
+shadow main { assert true }

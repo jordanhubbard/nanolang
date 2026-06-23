@@ -1,0 +1,17 @@
+# stdio module MVP
+
+<!--nl-snippet {"name":"module_stdio_mvp","check":false}-->
+```nano
+from "modules/stdio/stdio.nano" import nl_stdio_fopen, nl_stdio_fclose
+
+fn main() -> int {
+    let mut f: int = 0
+    unsafe { set f (nl_stdio_fopen "/tmp/nl_stdio_demo.txt" "w") }
+    if (!= f 0) {
+        unsafe { (nl_stdio_fclose f) }
+    }
+    return 0
+}
+
+shadow main { assert true }
+```

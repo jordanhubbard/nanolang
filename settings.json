@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "MCP(responsible-vibe-mcp:whats_next)",
+      "MCP(responsible-vibe-mcp:conduct_review)",
+      "MCP(responsible-vibe-mcp:list_workflows)",
+      "MCP(responsible-vibe-mcp:get_tool_info)",
+      "Read(README.md)",
+      "Read(./.vibe/**)",
+      "Write(./.vibe/**)"
+    ],
+    "ask": [
+      "Bash(*)",
+      "Write(**)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)"
+    ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nanolang",
+  "scopeName": "source.nano",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#annotations" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#constants" },
+    { "include": "#functions" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.nano",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "annotations": {
+      "patterns": [
+        {
+          "name": "meta.decorator.nano storage.type.annotation.nano",
+          "match": "@(property|bench|gpu|test|inline|extern|deprecated)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.nano",
+          "match": "\\b(if|else|while|return|match)\\b"
+        },
+        {
+          "name": "keyword.declaration.nano",
+          "match": "\\b(fn|let|type|struct|enum)\\b"
+        },
+        {
+          "name": "keyword.module.nano",
+          "match": "\\b(import|export|from|module)\\b"
+        },
+        {
+          "name": "keyword.effect.nano",
+          "match": "\\b(effect|handle|perform)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.builtin.nano",
+          "match": "\\b(Int|Float|Bool|String|Unit)\\b"
+        },
+        {
+          "name": "storage.type.user.nano",
+          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.nano",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nano",
+              "match": "\\\\(n|t|r|\\\\|\")"
+            },
+            {
+              "name": "meta.embedded.expression.nano",
+              "begin": "\\$\\{",
+              "end": "\\}",
+              "beginCaptures": {
+                "0": { "name": "punctuation.definition.template-expression.begin.nano" }
+              },
+              "endCaptures": {
+                "0": { "name": "punctuation.definition.template-expression.end.nano" }
+              },
+              "patterns": [{ "include": "$self" }]
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.nano",
+          "match": "\\b0x[0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.float.nano",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.nano",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.nano",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.nano",
+          "match": "\\b(null|nil|none|unit)\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.nano",
+          "match": "\\b([a-z_][a-zA-Z0-9_]*)(?=\\s*\\()"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arrow.nano",
+          "match": "->"
+        },
+        {
+          "name": "keyword.operator.comparison.nano",
+          "match": "==|!=|<=|>="
+        },
+        {
+          "name": "keyword.operator.logical.nano",
+          "match": "&&|\\|\\|"
+        },
+        {
+          "name": "keyword.operator.arithmetic.nano",
+          "match": "[+\\-*/%]"
+        },
+        {
+          "name": "keyword.operator.comparison.nano",
+          "match": "[<>]"
+        },
+        {
+          "name": "keyword.operator.assignment.nano",
+          "match": "="
+        }
+      ]
+    }
+  }
+}

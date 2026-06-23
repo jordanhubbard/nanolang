@@ -1,0 +1,7 @@
+{
+  "name": "std_io",
+  "version": "1.0.0",
+  "description": "C-backed std/io wrappers for FILE handles",
+  "c_sources": ["stdio.c"],
+  "cflags": ["-Imodules/std/io"]
+}

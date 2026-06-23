@@ -1,0 +1,34 @@
+/* cross-backend/06_single_field_variant.nano
+ * Tests: match-arm binding for a union variant whose payload is a
+ * single int field. Regression for nl-8k8 — the C backend emits
+ * `__typeof__(_match_val.as.X) name = _match_val.as.X;` and the
+ * binding must support `.field` access (not bare-int use).
+ *
+ * Expected output:
+ *   42
+ *   100
+ */
+union Box {
+    Int { value: int },
+    Sum { a: int, b: int }
+}
+
+fn unwrap(b: Box) -> int {
+    match b {
+        Int(x)  => { return x.value }
+        Sum(s)  => { return (+ s.a s.b) }
+    }
+}
+
+fn main() -> int {
+    let bi: Box = Box.Int { value: 42 }
+    let bs: Box = Box.Sum { a: 40, b: 60 }
+    (println (int_to_string (unwrap bi)))
+    (println (int_to_string (unwrap bs)))
+    return 0
+}
+
+shadow unwrap {
+    assert (== (unwrap Box.Int { value: 7 }) 7)
+    assert (== (unwrap Box.Sum { a: 1, b: 2 }) 3)
+}

@@ -1,0 +1,132 @@
+/* bench_stdlib.nano - NanoLang stdlib benchmark suite
+ *
+ * Compile with: nanoc --profile tests/bench_stdlib.nano -o /tmp/bench_stdlib
+ * Run: /tmp/bench_stdlib
+ * Profile output appears on stderr (or stdout with --profile-json / --profile-flamegraph)
+ *
+ * Exercises: arithmetic, string ops, array map/filter/fold, fibonacci
+ */
+
+fn double_it(x: int) -> int {
+    return (* x 2)
+}
+
+fn is_even(x: int) -> bool {
+    return (== (% x 2) 0)
+}
+
+fn add_ints(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+fn fib(n: int) -> int {
+    if (<= n 1) {
+        return n
+    }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+fn bench_fib(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    while (< i iters) {
+        set acc (+ acc (fib 20))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn bench_map(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    while (< i iters) {
+        let doubled: array<int> = (map nums double_it)
+        set acc (+ acc (array_get doubled 0))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn bench_filter(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    while (< i iters) {
+        let evens: array<int> = (filter nums is_even)
+        set acc (+ acc (array_length evens))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn bench_reduce(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    let nums: array<int> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    while (< i iters) {
+        let sum: int = (reduce nums 0 add_ints)
+        set acc (+ acc sum)
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn bench_string_concat(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    while (< i iters) {
+        let s: string = (+ "hello" (int_to_string i))
+        set acc (+ acc (str_length s))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn bench_int_to_string(iters: int) -> int {
+    let mut i: int = 0
+    let mut acc: int = 0
+    while (< i iters) {
+        let s: string = (int_to_string (* i 12345))
+        set acc (+ acc (str_length s))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+fn main() -> int {
+    let n_heavy: int = 10
+    let n_light: int = 10000
+
+    let fib_result: int = (bench_fib n_heavy)
+    let map_result: int = (bench_map n_light)
+    let filter_result: int = (bench_filter n_light)
+    let reduce_result: int = (bench_reduce n_light)
+    let str_result: int = (bench_string_concat n_light)
+    let conv_result: int = (bench_int_to_string n_light)
+
+    /* Print results to stdout to prevent dead-code elimination */
+    (println (+ "fib sum:     " (int_to_string fib_result)))
+    (println (+ "map acc:     " (int_to_string map_result)))
+    (println (+ "filter acc:  " (int_to_string filter_result)))
+    (println (+ "reduce acc:  " (int_to_string reduce_result)))
+    (println (+ "str_concat:  " (int_to_string str_result)))
+    (println (+ "int_to_str:  " (int_to_string conv_result)))
+    return 0
+}
+
+shadow double_it {
+    assert (== (double_it 5) 10)
+    assert (== (double_it 0) 0)
+}
+
+shadow is_even {
+    assert (== (is_even 4) true)
+    assert (== (is_even 3) false)
+}
+
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+}

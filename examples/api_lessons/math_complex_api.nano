@@ -1,0 +1,64 @@
+# Example: std::math::complex API Lesson
+# Purpose: I show complex arithmetic in rectangular and polar form.
+# Features: Complex, complex_new, complex_add, complex_sub, complex_mul, complex_div, complex_conj, complex_abs, complex_arg, complex_from_polar, complex_exp
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: math_extended_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/complex
+# Tags: api-lesson, math, complex, shadow-tested
+# Expected Output: complex magnitude: 5.0
+
+from "modules/std/math/complex.nano" import Complex, complex_new, complex_add, complex_sub, complex_mul, complex_div, complex_conj, complex_abs, complex_arg, complex_from_polar, complex_exp
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 2.0 2.0001)
+    assert (not (close_float 2.0 2.1))
+}
+
+fn multiply_i_by_i() -> Complex {
+    let i: Complex = (complex_new 0.0 1.0)
+    return (complex_mul i i)
+}
+
+shadow multiply_i_by_i {
+    let r: Complex = (multiply_i_by_i)
+    assert (close_float r.re -1.0)
+    assert (close_float r.im 0.0)
+}
+
+fn round_trip_division() -> Complex {
+    let a: Complex = (complex_new 4.0 2.0)
+    let b: Complex = (complex_new 2.0 0.0)
+    return (complex_div a b)
+}
+
+shadow round_trip_division {
+    let r: Complex = (round_trip_division)
+    assert (close_float r.re 2.0)
+    assert (close_float r.im 1.0)
+}
+
+fn main() -> int {
+    let z: Complex = (complex_new 3.0 4.0)
+    let shifted: Complex = (complex_add z (complex_new 1.0 -1.0))
+    let restored: Complex = (complex_sub shifted (complex_new 1.0 -1.0))
+    let conj: Complex = (complex_conj z)
+    let unit: Complex = (complex_from_polar 1.0 0.0)
+    let e0: Complex = (complex_exp (complex_new 0.0 0.0))
+    assert (close_float restored.re z.re)
+    assert (close_float conj.im -4.0)
+    assert (close_float (complex_arg unit) 0.0)
+    assert (close_float e0.re 1.0)
+    (println (+ "complex magnitude: " (float_to_string (complex_abs z))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

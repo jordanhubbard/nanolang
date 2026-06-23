@@ -1,0 +1,9 @@
+/* Test: minimal valid program with shadow test */
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

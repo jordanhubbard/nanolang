@@ -1,0 +1,66 @@
+#ifndef SDL_HELPERS_H
+#define SDL_HELPERS_H
+
+#include <stdint.h>
+#include <SDL.h>  /* Include SDL headers to avoid typedef redefinition warnings */
+
+/* SDL Helper Functions - nanolang FFI bindings */
+
+/* Render filled rectangle */
+int64_t nl_sdl_render_fill_rect(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h);
+
+/* Poll for quit event */
+int64_t nl_sdl_poll_event_quit(void);
+
+/* Poll for mouse click */
+int64_t nl_sdl_poll_mouse_click(void);
+
+/* Poll for mouse state (holding) */
+int64_t nl_sdl_poll_mouse_state(void);
+
+/* Get current mouse position (always returns x * 10000 + y) */
+int64_t nl_sdl_get_mouse_pos(void);
+
+/* Poll for mouse button up */
+int64_t nl_sdl_poll_mouse_up(void);
+
+/* Poll for mouse motion */
+int64_t nl_sdl_poll_mouse_motion(void);
+
+/* Poll for keyboard events - returns scancode or -1 */
+int64_t nl_sdl_poll_keypress(void);
+
+/* Poll for mouse wheel/trackpad scroll - returns positive (up) or negative (down), 0 if no scroll */
+int64_t nl_sdl_poll_mouse_wheel(void);
+
+/* Check if a key is currently held down - returns 1 if held, 0 otherwise */
+int64_t nl_sdl_key_state(int64_t scancode);
+
+/* Render text (solid - faster, no AA) */
+int64_t nl_sdl_render_text_solid(SDL_Renderer* renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);
+
+/* Render text (blended - slower, anti-aliased) */
+int64_t nl_sdl_render_text_blended(SDL_Renderer* renderer, int64_t font, const char* text, int64_t x, int64_t y, int64_t r, int64_t g, int64_t b, int64_t a);
+
+/* Save current renderer output to BMP file. Returns 0 on success. */
+int64_t nl_sdl_save_bmp(SDL_Renderer* renderer, int64_t w, int64_t h, const char* path);
+
+/* Save current renderer output to PNG file. Returns 0 on success. */
+int64_t nl_sdl_save_png(SDL_Renderer* renderer, int64_t w, int64_t h, const char* path);
+
+/* Execute a shell command via system(3) */
+int64_t nl_system(const char* cmd);
+
+/* Flush stdout - ensures diagnostic output is visible when redirected */
+void nl_flush_stdout(void);
+
+/* Start SDL text input mode - enables SDL_TEXTINPUT events */
+void nl_sdl_start_text_input(void);
+
+/* Stop SDL text input mode - disables SDL_TEXTINPUT events */
+void nl_sdl_stop_text_input(void);
+
+/* Poll for text input - returns typed character(s) or empty string */
+const char* nl_sdl_poll_text_input(void);
+
+#endif /* SDL_HELPERS_H */

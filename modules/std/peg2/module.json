@@ -1,0 +1,8 @@
+{
+  "name": "std_peg2",
+  "version": "1.0.0",
+  "description": "Packrat PEG parser engine — full grammar support with named rules, captures, lookahead, and O(n) memoization",
+  "c_sources": ["peg2.c"],
+  "headers": ["peg2.h"],
+  "cflags": ["-Imodules/std/peg2", "-Isrc"]
+}

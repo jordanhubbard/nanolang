@@ -1,0 +1,9 @@
+{
+  "name": "gpu",
+  "version": "1.0.0",
+  "description": "GPU computing module for nanolang. Tries CUDA first (NVIDIA), falls back to OpenCL (AMD/Intel/CPU via POCL). Provides kernel launching, device memory, and GPU intrinsics. All GPU libraries loaded dynamically at runtime via dlopen — no compile-time dependency.",
+  "c_sources": ["opencl_runtime.c"],
+  "cflags": [],
+  "ldflags": [],
+  "dependencies": []
+}

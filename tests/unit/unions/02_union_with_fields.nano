@@ -1,0 +1,15 @@
+/* Test 2: Union with fields */
+union Color {
+    Red {},
+    Green {},
+    Blue { intensity: int }
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

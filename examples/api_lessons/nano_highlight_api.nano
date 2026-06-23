@@ -1,0 +1,44 @@
+# Example: Nano Highlight API Lesson
+# Purpose: I show HTML and ANSI syntax highlighting for small NanoLang snippets
+# Features: highlight_html, highlight_ansi, string inspection
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: stringbuilder_api
+# Track: modules
+# Build: local
+# Dependencies: modules/nano_highlight
+# Tags: api-lesson, highlighting, shadow-tested
+# Expected Output: highlight html: ok
+
+from "modules/nano_highlight/nano_highlight.nano" import highlight_html, highlight_ansi
+
+fn highlight_html_has_keyword() -> bool {
+    let html: string = (highlight_html "fn main() -> int { return 0 }")
+    return (str_contains html "tok-keyword")
+}
+
+shadow highlight_html_has_keyword {
+    assert (highlight_html_has_keyword)
+}
+
+fn highlight_ansi_has_escape() -> bool {
+    let ansi: string = (highlight_ansi "fn main")
+    return (str_contains ansi "[35m")
+}
+
+shadow highlight_ansi_has_escape {
+    assert (highlight_ansi_has_escape)
+}
+
+fn main() -> int {
+    if (highlight_html_has_keyword) {
+        (println "highlight html: ok")
+    } else {
+        (println "highlight html: missing")
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,22 @@
+# Example: Large Project Models
+# Purpose: Provide shared records for the large project package
+# Features: module declaration, pub functions, shadow tests
+# Difficulty: Intermediate
+# Category: package
+# Prerequisites: nl_struct, nl_modules
+# Track: modules
+# Build: local
+# Dependencies: none
+# Tags: package, module, shadow-tested
+# Expected Output: none
+
+module models
+
+pub fn line_total(unit_cents: int, quantity: int) -> int {
+    return (* unit_cents quantity)
+}
+
+shadow line_total {
+    assert (== (line_total 2500 2) 5000)
+    assert (== (line_total 900 0) 0)
+}

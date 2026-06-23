@@ -1,0 +1,25 @@
+/* cross-backend/05_match.nano
+ * Tests: union types, match expression, variant field access
+ * Expected output:
+ *   9
+ *   16
+ */
+union Shape {
+    Circle { radius: int },
+    Square { side: int }
+}
+
+fn area(s: Shape) -> int {
+    match s {
+        Circle(c) => { return (* c.radius c.radius) }
+        Square(sq) => { return (* sq.side sq.side) }
+    }
+}
+
+fn main() -> int {
+    let c: Shape = Shape.Circle { radius: 3 }
+    let sq: Shape = Shape.Square { side: 4 }
+    (println (int_to_string (area c)))
+    (println (int_to_string (area sq)))
+    return 0
+}

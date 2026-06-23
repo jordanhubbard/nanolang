@@ -1,0 +1,9 @@
+fn greet(name: string, age: int) -> string {
+    return f"Hello, {name}! You are {age} years old."
+}
+
+shadow greet {
+    assert (str_equals (greet "Ada" 30) "Hello, Ada! You are 30 years old.")
+}
+
+fn main() -> int { return 0 }

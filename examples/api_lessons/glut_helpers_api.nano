@@ -1,0 +1,47 @@
+# Example: GLUT Helpers API Lesson
+# Purpose: I show the GLUT helper calls that should run only after an OpenGL context exists.
+# Features: draw_bitmap_string, get_text_width, draw_fancy_teapot, draw_sphere
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: OpenGL context created by GLUT or GLFW
+# Track: modules
+# Build: external-deps, graphical
+# Dependencies: modules/glut/glut_helpers
+# Tags: api-lesson, glut, opengl, helper-surface, shadow-tested
+# Expected Output: typed helper surface
+
+from "modules/glut/glut.nano" import GLUT_BITMAP_HELVETICA_18
+from "modules/glut/glut_helpers.nano" import draw_bitmap_string, get_text_width, draw_fancy_teapot, draw_sphere
+
+fn helper_surface_count() -> int {
+    return 4
+}
+
+shadow helper_surface_count {
+    assert (== (helper_surface_count) 4)
+}
+
+fn draw_calls_for_existing_context(wireframe: bool) -> void {
+    if false {
+        (draw_bitmap_string GLUT_BITMAP_HELVETICA_18 "Nano")
+        let width: int = (get_text_width GLUT_BITMAP_HELVETICA_18 "Nano")
+        if (> width 0) {
+            (draw_fancy_teapot 0.8 wireframe)
+        } else {
+            (draw_sphere 0.5 16)
+        }
+    } else {}
+}
+
+shadow draw_calls_for_existing_context {
+    assert true
+}
+
+fn main() -> int {
+    (println (+ "glut helper calls: " (int_to_string (helper_surface_count))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

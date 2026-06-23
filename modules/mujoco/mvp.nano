@@ -1,0 +1,16 @@
+unsafe module "modules/mujoco/mujoco.nano"
+
+fn main() -> int {
+    if (not (mujoco_available)) {
+        (println (mujoco_last_error))
+        return 0
+    } else {}
+
+    (print "MuJoCo ")
+    (println (mujoco_version_string))
+    return 0
+}
+
+shadow main {
+    assert true
+}

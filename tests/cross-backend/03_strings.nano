@@ -1,0 +1,14 @@
+/* cross-backend/03_strings.nano
+ * Tests: string concatenation, str_length builtin
+ * Expected output:
+ *   Hello, nano
+ *   11
+ */
+fn main() -> int {
+    let a: string = "Hello"
+    let b: string = ", nano"
+    let msg: string = (+ a b)
+    (println msg)
+    (println (int_to_string (str_length msg)))
+    return 0
+}

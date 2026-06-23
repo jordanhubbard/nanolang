@@ -1,0 +1,90 @@
+/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */
+
+import "src_nano/generated/compiler_schema.nano"
+
+enum TypeKind {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_BOOL,
+    TYPE_STRING,
+    TYPE_VOID,
+    TYPE_ARRAY,
+    TYPE_STRUCT,
+    TYPE_ENUM,
+    TYPE_UNION,
+    TYPE_GENERIC,
+    TYPE_LIST_INT,
+    TYPE_LIST_STRING,
+    TYPE_LIST_TOKEN,
+    TYPE_LIST_GENERIC,
+    TYPE_FUNCTION,
+    TYPE_TUPLE,
+    TYPE_OPAQUE,
+    TYPE_UNKNOWN
+}
+
+enum DiagnosticSeverity {
+    DIAG_INFO,
+    DIAG_WARNING,
+    DIAG_ERROR
+}
+
+enum CompilerPhase {
+    PHASE_LEXER,
+    PHASE_PARSER,
+    PHASE_TYPECHECK,
+    PHASE_TRANSPILER,
+    PHASE_RUNTIME
+}
+
+extern struct NSType {
+    kind: int,
+    name: string,
+    element_type_kind: int,
+    element_type_name: string
+}
+
+extern struct OptionType {
+    has_value: bool,
+    value: NSType
+}
+
+extern struct CompilerSourceLocation {
+    file: string,
+    line: int,
+    column: int
+}
+
+extern struct CompilerDiagnostic {
+    phase: int,
+    severity: int,
+    code: string,
+    message: string,
+    location: CompilerSourceLocation
+}
+
+extern struct LexPhaseOutput {
+    tokens: List<LexerToken>,
+    token_count: int,
+    diagnostics: List<CompilerDiagnostic>,
+    had_error: bool
+}
+
+extern struct ParsePhaseOutput {
+    parser: Parser,
+    diagnostics: List<CompilerDiagnostic>,
+    had_error: bool
+}
+
+extern struct TypecheckPhaseOutput {
+    environment: TypeEnvironment,
+    diagnostics: List<CompilerDiagnostic>,
+    had_error: bool
+}
+
+extern struct TranspilePhaseOutput {
+    c_source: string,
+    diagnostics: List<CompilerDiagnostic>,
+    had_error: bool,
+    output_path: string
+}

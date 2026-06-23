@@ -1,0 +1,166 @@
+# Dependency Locator - nanolang
+# Finds C/C++ libraries on macOS and Linux
+# Outputs JSON with library paths
+#
+# Usage: DEP_LOCATOR_NAME=<library> ./dep_locator.nano
+# Example: DEP_LOCATOR_NAME=SDL2 ./bin/nano dep_locator.nano --call main
+
+extern fn getenv(_name: string) -> string
+extern fn file_exists(_path: string) -> bool
+
+# Get library name from environment or default
+fn get_library_name() -> string {
+    let name_env: string = (getenv "DEP_LOCATOR_NAME")
+    if (!= (str_length name_env) 0) {
+        return name_env
+    } else {
+        return "SDL2"
+    }
+}
+
+shadow get_library_name {
+    let name: string = (get_library_name)
+    assert (> (str_length name) 0)
+}
+
+# Get default prefixes to search
+fn get_prefixes() -> array<string> {
+    let mut prefixes: array<string> = []
+    set prefixes (array_push prefixes "/usr")
+    set prefixes (array_push prefixes "/usr/local")
+    
+    if (file_exists "/opt/homebrew") {
+        set prefixes (array_push prefixes "/opt/homebrew")
+    } else {
+        set prefixes prefixes
+    }
+    
+    if (file_exists "/opt/local") {
+        set prefixes (array_push prefixes "/opt/local")
+    } else {
+        set prefixes prefixes
+    }
+    
+    return prefixes
+}
+
+shadow get_prefixes {
+    let prefixes: array<string> = (get_prefixes)
+    assert (> (array_length prefixes) 0)
+}
+
+# Find include directory for library
+fn find_include_dir(prefixes: array<string>, lib_name: string) -> string {
+    let mut i: int = 0
+    while (< i (array_length prefixes)) {
+        let prefix: string = (at prefixes i)
+        let temp1: string = (+ prefix "/include/")
+        let include_path: string = (+ temp1 lib_name)
+        
+        if (file_exists include_path) {
+            return include_path
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return ""
+}
+
+shadow find_include_dir {
+    let prefixes: array<string> = ["/usr", "/opt/homebrew"]
+    let result: string = (find_include_dir prefixes "SDL2")
+    # Result may be empty or found
+    assert (>= (str_length result) 0)
+}
+
+# Find library directory
+fn find_lib_dir(prefixes: array<string>) -> string {
+    let mut i: int = 0
+    while (< i (array_length prefixes)) {
+        let prefix: string = (at prefixes i)
+        let temp2: string = (+ prefix "/lib")
+        
+        if (file_exists temp2) {
+            return temp2
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return ""
+}
+
+shadow find_lib_dir {
+    let prefixes: array<string> = ["/usr", "/opt/homebrew"]
+    let result: string = (find_lib_dir prefixes)
+    assert (>= (str_length result) 0)
+}
+
+# Output JSON result
+fn output_result(lib_name: string, include_dir: string, lib_dir: string) -> int {
+    (println "{")
+    let name_part: string = (+ lib_name "\",")
+    let name_line: string = (+ "  \"name\": \"" name_part)
+    (println name_line)
+    
+    if (and (!= (str_length include_dir) 0) (!= (str_length lib_dir) 0)) {
+        (println "  \"found\": true,")
+        (println "  \"origin\": \"heuristic\",")
+    } else {
+        (println "  \"found\": false,")
+        (println "  \"origin\": \"none\",")
+    }
+    
+    (println "  \"include_dirs\": [")
+    if (!= (str_length include_dir) 0) {
+        let include_part: string = (+ include_dir "\"")
+        let include_line: string = (+ "    \"" include_part)
+        (println include_line)
+    } else {
+        (print "")
+    }
+    (println "  ],")
+    
+    (println "  \"library_dirs\": [")
+    if (!= (str_length lib_dir) 0) {
+        let lib_dir_part: string = (+ lib_dir "\"")
+        let lib_dir_line: string = (+ "    \"" lib_dir_part)
+        (println lib_dir_line)
+    } else {
+        (print "")
+    }
+    (println "  ],")
+    
+    (println "  \"libraries\": [")
+    if (!= (str_length lib_dir) 0) {
+        let lib_part: string = (+ lib_name "\"")
+        let lib_line: string = (+ "    \"" lib_part)
+        (println lib_line)
+    } else {
+        (print "")
+    }
+    (println "  ]")
+    (println "}")
+    
+    return 0
+}
+
+shadow output_result {
+    let result: int = (output_result "test" "/usr/include" "/usr/lib")
+    assert (== result 0)
+}
+
+# Main entry point
+fn main() -> int {
+    let lib_name: string = (get_library_name)
+    let prefixes: array<string> = (get_prefixes)
+    let include_dir: string = (find_include_dir prefixes lib_name)
+    let lib_dir: string = (find_lib_dir prefixes)
+    
+    let result: int = (output_result lib_name include_dir lib_dir)
+    return result
+}
+
+shadow main {
+    let result: int = (main)
+    assert (== result 0)
+}

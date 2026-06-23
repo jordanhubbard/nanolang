@@ -1,0 +1,119 @@
+# Example: std::math::extended API Lesson
+# Purpose: I show extended math helpers: trig, logs, constants, and angle conversion
+# Features: pub pure extern, asin, acos, atan, exp, log, log10, pi, e, deg_to_rad, lerp, clamp, shadow tests
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: math_ext_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/extended
+# Tags: api-lesson, math, shadow-tested
+# Expected Output: deg_to_rad 180: 3.14159
+
+from "modules/std/math/extended.nano" import asin, acos, atan, exp, log, log10
+from "modules/std/math/extended.nano" import fabs, fmod, pi, e, deg_to_rad, rad_to_deg, clamp, lerp
+
+fn near(actual: float, expected: float, eps: float) -> bool {
+    let delta: float = (fabs (- actual expected))
+    return (< delta eps)
+}
+
+fn log_round_trip() -> float {
+    return (log (exp 1.0))
+}
+
+shadow log_round_trip {
+    let r: float = (log_round_trip)
+    assert (and (> r 0.9999) (< r 1.0001))
+}
+
+fn log10_thousand() -> float {
+    return (log10 1000.0)
+}
+
+shadow log10_thousand {
+    let v: float = (log10_thousand)
+    assert (and (> v 2.999) (< v 3.001))
+}
+
+fn arcsine_one() -> float {
+    return (asin 1.0)
+}
+
+shadow arcsine_one {
+    let r: float = (arcsine_one)
+    # asin(1) == pi/2
+    assert (and (> r 1.5707) (< r 1.5709))
+}
+
+fn arccos_zero() -> float {
+    return (acos 0.0)
+}
+
+shadow arccos_zero {
+    let r: float = (arccos_zero)
+    assert (and (> r 1.5707) (< r 1.5709))
+}
+
+fn arctan_one() -> float {
+    return (atan 1.0)
+}
+
+shadow arctan_one {
+    let r: float = (arctan_one)
+    # atan(1) == pi/4
+    assert (and (> r 0.7853) (< r 0.7855))
+}
+
+fn semicircle_radians() -> float {
+    return (deg_to_rad 180.0)
+}
+
+shadow semicircle_radians {
+    let r: float = (semicircle_radians)
+    assert (and (> r 3.1414) (< r 3.1416))
+}
+
+fn back_to_degrees() -> float {
+    return (rad_to_deg (pi))
+}
+
+shadow back_to_degrees {
+    let d: float = (back_to_degrees)
+    assert (and (> d 179.9) (< d 180.1))
+}
+
+fn constants_in_range() -> bool {
+    return (and (> (pi) 3.14) (and (< (pi) 3.15) (and (> (e) 2.71) (< (e) 2.72))))
+}
+
+shadow constants_in_range {
+    assert (constants_in_range)
+}
+
+fn clamp_lerp_demo() -> float {
+    let mid: float = (lerp 0.0 10.0 0.5)
+    return (clamp mid 0.0 4.0)
+}
+
+shadow clamp_lerp_demo {
+    assert (== (clamp_lerp_demo) 4.0)
+}
+
+fn fmod_remainder() -> float {
+    return (fmod 7.5 2.0)
+}
+
+shadow fmod_remainder {
+    let r: float = (fmod_remainder)
+    assert (near r 1.5 0.0001)
+}
+
+fn main() -> int {
+    (println (+ "deg_to_rad 180: " (float_to_string (semicircle_radians))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

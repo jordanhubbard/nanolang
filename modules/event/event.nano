@@ -1,0 +1,50 @@
+# event.nano - libevent async event notification module for nanolang
+#
+# Provides asynchronous event loop for high-performance network servers
+# and non-blocking I/O operations.
+#
+# Example usage:
+#   import "modules/event/event.nano"
+#   
+#   fn main() -> int {
+#       let base: int = (nl_event_base_new)
+#       (println (nl_event_base_get_method base))
+#       (nl_event_base_free base)
+#       return 0
+#   }
+
+# ============================================================================
+# Event base (event loop) management
+# ============================================================================
+
+extern fn nl_event_base_new() -> int
+extern fn nl_event_base_free(_base: int) -> void
+extern fn nl_event_base_dispatch(_base: int) -> int
+extern fn nl_event_base_loop(_base: int, _flags: int) -> int
+extern fn nl_event_base_loopexit(_base: int, _timeout_secs: int) -> int
+extern fn nl_event_base_loopbreak(_base: int) -> int
+
+# ============================================================================
+# Event base information
+# ============================================================================
+
+extern fn nl_event_base_get_method(_base: int) -> string
+extern fn nl_event_base_get_num_events(_base: int) -> int
+extern fn nl_event_get_version() -> string
+extern fn nl_event_get_version_number() -> int
+
+# ============================================================================
+# Timer events
+# ============================================================================
+
+extern fn nl_evtimer_new(_base: int) -> int
+extern fn nl_event_free(_event: int) -> void
+extern fn nl_evtimer_add_timeout(_event: int, _timeout_secs: int) -> int
+extern fn nl_event_del(_event: int) -> int
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+extern fn nl_event_enable_debug_mode() -> void
+extern fn nl_event_sleep(_base: int, _seconds: int) -> int

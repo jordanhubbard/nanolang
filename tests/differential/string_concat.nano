@@ -1,0 +1,6 @@
+/* Differential test: string concatenation with + operator */
+fn main() -> int {
+    (println (+ "hello " "world"))
+    return 0
+}
+shadow main { assert true }

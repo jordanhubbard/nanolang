@@ -1,0 +1,71 @@
+# Example: Dispatch Pipeline
+# Purpose: Demonstrate fan-out and fan-in with dispatch queues
+# Features: dispatch module, queue_async, group_wait, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_dispatch_counter
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/dispatch, libdispatch
+# Tags: concurrency, native-only
+# Expected Output: dispatch pipeline
+
+/* nl_dispatch_pipeline.nano
+ * Demonstrates queue_async fan-out + group_wait fan-in pattern.
+ *
+ * Pattern:
+ *   1. Fan out N tasks onto a concurrent queue, tracked by a group
+ *   2. group_wait collects all (fan-in)
+ *   3. Serial result queue is used for sequenced work
+ *
+ * Note: NanoLang closures are anonymous functions and do not capture outer
+ * variables.  This example demonstrates the dispatch API structure without
+ * relying on closure variable capture.
+ */
+
+module "modules/dispatch/dispatch.nano"
+
+# @pure
+fn noop_work() -> void {}
+
+shadow noop_work {
+    (noop_work)
+}
+
+fn main() -> int {
+    let n_tasks: int = 16
+    let q_work: NlQueue = (queue_concurrent "nano.pipeline.work")
+    let q_result: NlQueue = (queue_serial "nano.pipeline.result")
+    let g: NlQueueGroup = (group_create)
+
+    /* Fan out N no-op tasks */
+    let mut i: int = 0
+    while (< i n_tasks) {
+        (group_async g q_work fn() -> void { (noop_work) })
+        set i (+ i 1)
+    }
+
+    /* Wait for all compute tasks */
+    let rc: int = (group_wait_ms g 5000)
+    if (!= rc 0) {
+        (println "FAIL: compute group_wait failed!")
+        (group_destroy g)
+        (queue_destroy q_work)
+        (queue_destroy q_result)
+        return 1
+    }
+
+    /* Drain result queue with a no-op */
+    (queue_sync q_result fn() -> void {})
+
+    (println "PASS: all pipeline tasks completed")
+
+    (group_destroy g)
+    (queue_destroy q_work)
+    (queue_destroy q_result)
+    return 0
+}
+
+shadow main {
+    (print "")
+}

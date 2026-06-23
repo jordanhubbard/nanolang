@@ -1,0 +1,94 @@
+# Example: String Interpolation
+# Purpose: Demonstrate f-string interpolation and automatic value conversion
+# Features: f-strings, string concatenation, value conversion, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_string_operations
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: strings, shadow-tested
+# Expected Output: string interpolation
+
+# nl_string_interp.nano - demonstrates f-string interpolation
+#
+# f"..." strings embed expressions in {expr} placeholders.
+# The compiler automatically converts int, float, and bool values
+# to strings; string values pass through unchanged.
+#
+# Desugaring (done at lex time):
+#   f"Hello, {name}!"     ->  (str_concat "Hello, " (to_string name))
+#   f"count={n} pi={pi}"  ->  (str_concat "count=" (str_concat (to_string n) ...))
+#
+# Only simple expressions are supported in {}: identifiers, arithmetic,
+# and function calls.  For explicit precision formatting use float_to_string.
+
+# @pure
+fn greet(name: string) -> string {
+    return f"Hello, {name}!"
+}
+
+shadow greet {
+    assert (== (greet "world") "Hello, world!")
+    assert (== (greet "NanoLang") "Hello, NanoLang!")
+}
+
+# @pure
+fn describe_int(label: string, n: int) -> string {
+    return f"{label}: {n}"
+}
+
+shadow describe_int {
+    assert (== (describe_int "count" 42) "count: 42")
+    assert (== (describe_int "zero" 0) "zero: 0")
+    assert (== (describe_int "neg" -7) "neg: -7")
+}
+
+# @pure
+fn describe_float(label: string, v: float) -> string {
+    return f"{label} = {v}"
+}
+
+shadow describe_float {
+    assert (str_contains (describe_float "pi" 3.14) "pi = 3.14")
+}
+
+# @pure
+fn describe_bool(label: string, flag: bool) -> string {
+    return f"{label}={flag}"
+}
+
+shadow describe_bool {
+    assert (== (describe_bool "enabled" true) "enabled=true")
+    assert (== (describe_bool "active" false) "active=false")
+}
+
+# @pure
+fn multi_interp(name: string, score: int) -> string {
+    return f"Player {name} scored {score} points"
+}
+
+shadow multi_interp {
+    let result: string = (multi_interp "Alice" 100)
+    assert (str_contains result "Alice")
+    assert (str_contains result "100")
+    assert (str_contains result "points")
+}
+
+fn main() -> int {
+    let name: string = "world"
+    let count: int = 42
+    let pi: float = 3.14159
+    let flag: bool = true
+
+    (println f"Hello, {name}!")
+    (println f"count = {count}")
+    (println f"pi = {pi}")
+    (println f"flag = {flag}")
+    (println f"Player {name} scored {count} points")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

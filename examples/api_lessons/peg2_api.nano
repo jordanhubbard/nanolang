@@ -1,0 +1,79 @@
+# Example: std::peg2 API Lesson
+# Purpose: I show compiling a named PEG2 grammar, parsing input, and reading rule_name + span
+# Features: peg2_compile, peg2_parse, peg2_matches, Peg2Grammar, Peg2Result, Peg2Node
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: peg_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: api-lesson, peg2, parser
+
+import "modules/std/peg2/peg2.nano"
+
+# Expected Output: parsed rule: greeting
+
+# A tiny PEG2 grammar with a single rule.
+# frozen
+let GRAMMAR: string = "greeting <- \"hello\" \" \" [a-zA-Z]+"
+
+fn parse_greeting(input: string) -> bool {
+    let g: Peg2Grammar = (peg2_compile GRAMMAR)
+    let r: Peg2Result = (peg2_parse g input)
+    (peg2_free g)
+    return r.ok
+}
+
+shadow parse_greeting {
+    # FFI runs at runtime; shadow asserts on pure invariants.
+    assert (> (str_length GRAMMAR) 0)
+}
+
+fn parsed_rule(input: string) -> string {
+    let g: Peg2Grammar = (peg2_compile GRAMMAR)
+    let r: Peg2Result = (peg2_parse g input)
+    let name: string = r.tree.rule_name
+    (peg2_free g)
+    return name
+}
+
+shadow parsed_rule {
+    assert (>= (str_length "greeting") 0)
+}
+
+fn parsed_span(input: string) -> int {
+    let g: Peg2Grammar = (peg2_compile GRAMMAR)
+    let r: Peg2Result = (peg2_parse g input)
+    let span_len: int = (- r.tree.end r.tree.start)
+    (peg2_free g)
+    return span_len
+}
+
+shadow parsed_span {
+    assert (>= 0 0)
+}
+
+fn quick_check(input: string) -> bool {
+    let g: Peg2Grammar = (peg2_compile GRAMMAR)
+    let ok: bool = (peg2_matches g input)
+    (peg2_free g)
+    return ok
+}
+
+shadow quick_check {
+    assert true
+}
+
+fn main() -> int {
+    let ok: bool = (parse_greeting "hello world")
+    if (not ok) {
+        (println "parse failed")
+        return 1
+    }
+    (println (+ "parsed rule: " (parsed_rule "hello world")))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nanolang Playground</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #1a1b1e;
+      --surface:   #25262b;
+      --border:    #373a40;
+      --accent:    #4dabf7;
+      --accent-dim:#1971c2;
+      --text:      #c1c2c5;
+      --text-dim:  #5c5f66;
+      --green:     #69db7c;
+      --red:       #ff6b6b;
+      --yellow:    #ffd43b;
+      --toolbar-h: 48px;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+
+    /* ── Toolbar ─────────────────────────────────── */
+    #toolbar {
+      height: var(--toolbar-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+    }
+
+    .logo {
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      margin-right: 6px;
+      user-select: none;
+    }
+
+    #examples {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+    #examples:focus { border-color: var(--accent); }
+
+    .spacer { flex: 1; }
+
+    #run-btn, #share-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #run-btn:hover, #share-btn:hover { opacity: 0.85; }
+    #run-btn:active, #share-btn:active { opacity: 0.7; }
+
+    #run-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+    #run-btn.running { background: var(--accent-dim); }
+
+    #share-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    kbd {
+      font-size: 0.7rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--text-dim);
+    }
+
+    /* ── Main layout ─────────────────────────────── */
+    #main {
+      display: flex;
+      height: calc(100vh - var(--toolbar-h));
+      overflow: hidden;
+    }
+
+    #editor-pane {
+      flex: 1;
+      min-width: 0;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #output-pane {
+      width: 42%;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .pane-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      user-select: none;
+    }
+
+    /* ── CodeMirror overrides ─────────────────────── */
+    .cm-editor {
+      flex: 1;
+      height: 100%;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .cm-editor.cm-focused { outline: none; }
+    .cm-scroller { overflow: auto !important; }
+
+    /* ── Output ──────────────────────────────────── */
+    #output-scroll {
+      flex: 1;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    #output {
+      font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    #output.stdout { color: var(--green); }
+    #output.error  { color: var(--red); }
+    #output.idle   { color: var(--text-dim); font-style: italic; }
+    #output.running { color: var(--yellow); }
+
+    /* ── Status bar ──────────────────────────────── */
+    #statusbar {
+      border-top: 1px solid var(--border);
+      padding: 3px 12px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+    }
+    #statusbar .ok   { color: var(--green); }
+    #statusbar .err  { color: var(--red); }
+
+    /* ── Toast ───────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <span class="logo">nano</span>
+    <select id="examples" title="Load example">
+      <option value="">— examples —</option>
+      <option value="hello">Hello World</option>
+      <option value="fibonacci">Fibonacci</option>
+      <option value="match">Match Expression</option>
+      <option value="struct">Structs</option>
+      <option value="fstring">String Interpolation</option>
+    </select>
+    <div class="spacer"></div>
+    <button id="share-btn">⬡ Share</button>
+    <button id="run-btn">▶ Run <kbd>Ctrl+↵</kbd></button>
+  </div>
+
+  <div id="main">
+    <div id="editor-pane">
+      <div class="pane-label">editor</div>
+      <div id="editor"></div>
+    </div>
+    <div id="output-pane">
+      <div class="pane-label">output</div>
+      <div id="output-scroll">
+        <pre id="output" class="idle">// Press Run or Ctrl+Enter to execute</pre>
+      </div>
+      <div id="statusbar">
+        <span id="status-text">ready</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "codemirror":                      "https://esm.sh/codemirror@6.0.1",
+      "@codemirror/state":               "https://esm.sh/@codemirror/state@6.4.1",
+      "@codemirror/view":                "https://esm.sh/@codemirror/view@6.26.3",
+      "@codemirror/commands":            "https://esm.sh/@codemirror/commands@6.3.3",
+      "@codemirror/language":            "https://esm.sh/@codemirror/language@6.10.1",
+      "@codemirror/theme-one-dark":      "https://esm.sh/@codemirror/theme-one-dark@6.1.2"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { EditorView, basicSetup } from "codemirror";
+    import { EditorState }            from "@codemirror/state";
+    import { keymap }                 from "@codemirror/view";
+    import { defaultKeymap }          from "@codemirror/commands";
+    import { StreamLanguage, syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language";
+    import { oneDark }                from "@codemirror/theme-one-dark";
+
+    // ── Nanolang syntax (StreamLanguage / CM5-style tokeniser) ──────────────
+    const KEYWORDS   = /^(fn|let|type|struct|enum|union|if|else|while|return|match|import|export|from|module|effect|handle|perform|set|mut|shadow|assert)\b/;
+    const BUILTINS   = /^(Int|Float|Bool|String|Unit)\b/;
+    const ATOM       = /^(true|false|null|nil|none|unit)\b/;
+    const ANNOTATION = /^@(property|bench|gpu|test|inline|extern|deprecated)\b/;
+    const IDENT_UC   = /^[A-Z][a-zA-Z0-9_]*/;   // user-defined types
+    const HEX        = /^0x[0-9a-fA-F]+/;
+    const FLOAT      = /^[0-9]+\.[0-9]+/;
+    const INT        = /^[0-9]+/;
+    const OPERATOR   = /^(->|==|!=|<=|>=|&&|\|\||[+\-*/%<>=])/;
+
+    const nanoLang = StreamLanguage.define({
+      token(stream) {
+        // Skip whitespace
+        if (stream.eatSpace()) return null;
+
+        // Line comment
+        if (stream.match("//")) { stream.skipToEnd(); return "comment"; }
+
+        // Block comment
+        if (stream.match("/*")) {
+          let depth = 1;
+          while (!stream.eol()) {
+            if (stream.match("/*", false)) { stream.next(); stream.next(); depth++; }
+            else if (stream.match("*/", false)) { stream.next(); stream.next(); depth--; if (depth === 0) break; }
+            else stream.next();
+          }
+          return "comment";
+        }
+
+        // Line comment with # (metadata comments)
+        if (stream.peek() === "#") { stream.skipToEnd(); return "comment"; }
+
+        // Annotation @foo
+        if (stream.peek() === "@" && stream.match(ANNOTATION)) return "meta";
+
+        // String
+        if (stream.peek() === '"' || (stream.peek() === 'f' && stream.string[stream.pos + 1] === '"')) {
+          if (stream.peek() === 'f') stream.next(); // consume f prefix
+          stream.next(); // consume opening "
+          while (!stream.eol()) {
+            const ch = stream.next();
+            if (ch === '\\') { stream.next(); continue; }
+            if (ch === '"') break;
+          }
+          return "string";
+        }
+
+        // Numbers
+        if (stream.match(HEX))   return "number";
+        if (stream.match(FLOAT)) return "number";
+        if (stream.match(INT))   return "number";
+
+        // Keywords
+        if (stream.match(KEYWORDS)) return "keyword";
+
+        // Built-in types
+        if (stream.match(BUILTINS)) return "typeName";
+
+        // Atoms (true/false/null etc.)
+        if (stream.match(ATOM)) return "atom";
+
+        // User-defined types (uppercase)
+        if (stream.match(IDENT_UC)) return "typeName";
+
+        // Operators (multi-char first)
+        if (stream.match(OPERATOR)) return "operator";
+
+        stream.next();
+        return null;
+      },
+    });
+
+    // ── Example programs ────────────────────────────────────────────────────
+    const EXAMPLES = {
+      hello: `fn main() -> int {
+    (println "Hello from Nanolang!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}`,
+
+      fibonacci: `// @pure
+fn fib(n: int) -> int {
+    if (<= n 1) { return n }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+
+fn main() -> int {
+    (println "Fibonacci sequence (first 12 numbers):")
+    let mut i: int = 0
+    while (< i 12) {
+        let msg: string = (+ (+ "fib(" (int_to_string i)) (+ ") = " (int_to_string (fib i))))
+        (println msg)
+        set i (+ i 1)
+    }
+    return 0
+}`,
+
+      match: `union Shape {
+    Circle { radius: int },
+    Rect   { width: int, height: int },
+    Point  { }
+}
+
+// @pure
+fn area(s: Shape) -> int {
+    match s {
+        Circle(c) => { return (* c.radius c.radius) }
+        Rect(r)   => { return (* r.width r.height) }
+        Point(p)  => { return 0 }
+    }
+}
+
+fn main() -> int {
+    let c: Shape = Shape.Circle { radius: 5 }
+    let r: Shape = Shape.Rect { width: 4, height: 6 }
+    (println (+ "Circle area: " (int_to_string (area c))))
+    (println (+ "Rect area:   " (int_to_string (area r))))
+    return 0
+}`,
+
+      struct: `struct Point {
+    x: int,
+    y: int
+}
+
+// @pure
+fn add_points(a: Point, b: Point) -> Point {
+    return Point { x: (+ a.x b.x), y: (+ a.y b.y) }
+}
+
+// @pure
+fn to_string(p: Point) -> string {
+    return (+ (+ (+ "(" (int_to_string p.x)) (+ ", " (int_to_string p.y))) ")")
+}
+
+fn main() -> int {
+    let p1: Point = Point { x: 3, y: 4 }
+    let p2: Point = Point { x: 1, y: 2 }
+    let p3: Point = (add_points p1 p2)
+    (println (+ "p1 = " (to_string p1)))
+    (println (+ "p2 = " (to_string p2)))
+    (println (+ "p1 + p2 = " (to_string p3)))
+    return 0
+}`,
+
+      fstring: `fn main() -> int {
+    let name: string = "Nanolang"
+    let version: int = 1
+    let pi: float = 3.14159
+
+    (println f"Welcome to {name}!")
+    (println f"Version: {version}")
+    (println f"Pi is approximately {pi}")
+
+    let mut i: int = 1
+    while (<= i 5) {
+        let sq: int = (* i i)
+        (println f"{i}^2 = {sq}")
+        set i (+ i 1)
+    }
+    return 0
+}`,
+    };
+
+    // ── Run-on-load from URL hash ────────────────────────────────────────────
+    function loadFromHash() {
+      const hash = location.hash.slice(1);
+      if (!hash) return null;
+      try { return decodeURIComponent(atob(hash)); } catch { return null; }
+    }
+
+    const initialCode = loadFromHash() || EXAMPLES.hello;
+
+    // ── Editor setup ─────────────────────────────────────────────────────────
+    const runCommand = (view) => { runCode(); return true; };
+
+    const editor = new EditorView({
+      state: EditorState.create({
+        doc: initialCode,
+        extensions: [
+          basicSetup,
+          nanoLang,
+          oneDark,
+          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+          keymap.of([
+            { key: "Ctrl-Enter", run: runCommand },
+            { key: "Mod-Enter", run: runCommand },
+            ...defaultKeymap,
+          ]),
+          EditorView.theme({
+            "&": { height: "100%", background: "#1a1b1e" },
+            ".cm-content": { padding: "12px 0" },
+            ".cm-gutters": { background: "#1a1b1e", borderRight: "1px solid #373a40" },
+            ".cm-lineNumbers .cm-gutterElement": { color: "#4a4e57", minWidth: "3em", padding: "0 8px 0 4px" },
+            ".cm-activeLine": { background: "rgba(255,255,255,0.04)" },
+            ".cm-selectionBackground, .cm-focused .cm-selectionBackground": { background: "rgba(77,171,247,0.2) !important" },
+          }),
+        ],
+      }),
+      parent: document.getElementById("editor"),
+    });
+
+    // ── Output helpers ───────────────────────────────────────────────────────
+    const outputEl = document.getElementById("output");
+    const statusEl = document.getElementById("status-text");
+    const runBtn   = document.getElementById("run-btn");
+
+    function setOutput(text, cls) {
+      outputEl.textContent = text || "(no output)";
+      outputEl.className = cls;
+    }
+
+    function setStatus(text, cls = "") {
+      statusEl.textContent = text;
+      statusEl.className = cls;
+    }
+
+    // ── Run ──────────────────────────────────────────────────────────────────
+    async function runCode() {
+      const source = editor.state.doc.toString();
+      runBtn.classList.add("running");
+      runBtn.textContent = "⏳ Running…";
+      setOutput("running…", "running");
+      setStatus("running…");
+
+      try {
+        const res = await fetch("/eval", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ source, timeout: 5000 }),
+        });
+        const { output, error } = await res.json();
+
+        if (error && !output) {
+          setOutput(error, "error");
+          setStatus("error", "err");
+        } else {
+          setOutput((output || "") + (error ? "\n--- stderr ---\n" + error : ""), output ? "stdout" : "error");
+          setStatus(error ? "exited with stderr" : "ok", error ? "err" : "ok");
+        }
+      } catch (e) {
+        setOutput("Network error: " + e.message, "error");
+        setStatus("network error", "err");
+      } finally {
+        runBtn.classList.remove("running");
+        runBtn.innerHTML = '▶ Run <kbd>Ctrl+↵</kbd>';
+      }
+    }
+
+    // ── Share ────────────────────────────────────────────────────────────────
+    function shareCode() {
+      const source = editor.state.doc.toString();
+      const hash = btoa(encodeURIComponent(source));
+      const url = location.origin + location.pathname + "#" + hash;
+      navigator.clipboard.writeText(url).then(() => showToast("URL copied to clipboard!"))
+        .catch(() => { location.hash = hash; showToast("Link updated in address bar"); });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    // ── Examples dropdown ────────────────────────────────────────────────────
+    document.getElementById("examples").addEventListener("change", (e) => {
+      const key = e.target.value;
+      if (!key) return;
+      const code = EXAMPLES[key];
+      if (code) {
+        editor.dispatch({
+          changes: { from: 0, to: editor.state.doc.length, insert: code },
+        });
+      }
+      e.target.value = "";
+    });
+
+    document.getElementById("run-btn").addEventListener("click", runCode);
+    document.getElementById("share-btn").addEventListener("click", shareCode);
+
+    // Auto-run on load if source came from hash
+    if (loadFromHash()) runCode();
+  </script>
+</body>
+</html>

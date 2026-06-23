@@ -1,0 +1,11 @@
+{
+  "name": "audio_viz",
+  "version": "1.0.0",
+  "description": "Real-time audio visualization for SDL_mixer",
+  "headers": ["audio_viz.h"],
+  "cflags": ["-Imodules/audio_viz"],
+  "c_sources": ["audio_viz.c"],
+  "pkg_config": ["sdl2", "SDL2_mixer"],
+  "system_packages": ["sdl2", "sdl2_mixer"],
+  "dependencies": ["sdl_mixer"]
+}

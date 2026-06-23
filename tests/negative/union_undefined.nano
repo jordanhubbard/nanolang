@@ -1,0 +1,10 @@
+/* Negative Test: Using undefined union should fail */
+fn main() -> int {
+    let c: Color = Color.Red {}
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

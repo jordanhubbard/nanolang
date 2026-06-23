@@ -1,0 +1,52 @@
+# Example: Preferences API Lesson
+# Purpose: I show playlist preference save/load and preference path helpers
+# Features: preferences path, save playlist, load playlist
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: fs_api
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/preferences
+# Tags: api-lesson, preferences, native-only
+# Expected Output: preferences loaded: 2
+
+from "modules/preferences/preferences.nano" import nl_prefs_save_playlist, nl_prefs_load_playlist, nl_prefs_get_home, nl_prefs_get_path
+from "modules/std/fs.nano" import delete
+
+fn preference_path() -> string {
+    let mut home: string = ""
+    let mut path: string = ""
+    unsafe {
+        set home (nl_prefs_get_home)
+        set path (nl_prefs_get_path "nanolang_api")
+    }
+    assert (> (str_length home) 0)
+    assert (> (str_length path) 0)
+    return path
+}
+
+shadow preference_path {
+    assert (> (str_length (preference_path)) 0)
+}
+
+fn save_and_load_playlist() -> int {
+    let path: string = "/tmp/nanolang_api_playlist.txt"
+    let items: array<string> = ["intro.mod", "outro.mod"]
+    let mut saved: int = 0
+    let mut loaded: array<string> = []
+    unsafe {
+        set saved (nl_prefs_save_playlist path items (array_length items))
+        set loaded (nl_prefs_load_playlist path)
+    }
+    (delete path)
+    if (== saved 1) {
+        return (array_length loaded)
+    }
+    return 0
+}
+
+fn main() -> int {
+    let count: int = (save_and_load_playlist)
+    (println (+ "preferences loaded: " (int_to_string count)))
+    return 0
+}

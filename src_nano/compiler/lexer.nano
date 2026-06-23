@@ -1,0 +1,911 @@
+/* =============================================================================
+ * Self-hosted lexer (library)
+ * =============================================================================
+ * Public API:
+ *   - tokenize_string(source) -> List<LexerToken>
+ *   - tokenize_file(path) -> List<LexerToken>
+ */
+
+import "src_nano/compiler/ir.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
+from "std/fs.nano" import read
+
+pure fn is_identifier_start(c: int) -> bool {
+    return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (== c 95))
+}
+
+shadow is_identifier_start {
+    assert (is_identifier_start 65)  /* A */
+    assert (is_identifier_start 90)  /* Z */
+    assert (is_identifier_start 97)  /* a */
+    assert (is_identifier_start 122) /* z */
+    assert (is_identifier_start 95)  /* _ */
+    assert (not (is_identifier_start 48)) /* 0 */
+    assert (not (is_identifier_start 32)) /* space */
+}
+
+pure fn is_identifier_char(c: int) -> bool {
+    return (or (is_identifier_start c) (and (>= c 48) (<= c 57)))
+}
+
+shadow is_identifier_char {
+    assert (is_identifier_char 65)  /* A */
+    assert (is_identifier_char 97)  /* a */
+    assert (is_identifier_char 95)  /* _ */
+    assert (is_identifier_char 48)  /* 0 */
+    assert (is_identifier_char 57)  /* 9 */
+    assert (not (is_identifier_char 32))  /* space */
+    assert (not (is_identifier_char 45))  /* - */
+}
+
+pure fn is_whitespace_char(c: int) -> bool {
+    return (or (or (or (== c 32) (== c 9)) (== c 10)) (== c 13))
+}
+
+shadow is_whitespace_char {
+    assert (is_whitespace_char 32)  /* space */
+    assert (is_whitespace_char 9)   /* tab */
+    assert (is_whitespace_char 10)  /* newline */
+    assert (is_whitespace_char 13)  /* carriage return */
+    assert (not (is_whitespace_char 65))  /* A */
+}
+
+pure fn is_digit_char(c: int) -> bool {
+    return (and (>= c 48) (<= c 57))
+}
+
+shadow is_digit_char {
+    assert (is_digit_char 48)  /* 0 */
+    assert (is_digit_char 57)  /* 9 */
+    assert (is_digit_char 53)  /* 5 */
+    assert (not (is_digit_char 65))  /* A */
+    assert (not (is_digit_char 47))  /* / (before 0) */
+    assert (not (is_digit_char 58))  /* : (after 9) */
+}
+
+pure fn keyword_group1(s: string) -> int {
+    if (== s "module") { return LexerTokenType.TOKEN_MODULE } else {
+        if (== s "pub") { return LexerTokenType.TOKEN_PUB } else {
+            if (== s "from") { return LexerTokenType.TOKEN_FROM } else {
+                if (== s "use") { return LexerTokenType.TOKEN_USE } else {
+                    return -1
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_group1 {
+    assert (== (keyword_group1 "module") 19)  /* TOKEN_MODULE */
+    assert (== (keyword_group1 "pub") 20)     /* TOKEN_PUB */
+    assert (== (keyword_group1 "from") 21)    /* TOKEN_FROM */
+    assert (== (keyword_group1 "use") 22)     /* TOKEN_USE */
+    assert (== (keyword_group1 "unknown") (- 0 1))  /* not a keyword */
+}
+
+pure fn keyword_group2(s: string) -> int {
+    if (== s "extern") { return LexerTokenType.TOKEN_EXTERN } else {
+        if (== s "fn") { return LexerTokenType.TOKEN_FN } else {
+            if (== s "let") { return LexerTokenType.TOKEN_LET } else {
+                if (== s "mut") { return LexerTokenType.TOKEN_MUT } else {
+                    if (== s "set") { return LexerTokenType.TOKEN_SET } else {
+                        if (== s "if") { return LexerTokenType.TOKEN_IF } else {
+                            if (== s "else") { return LexerTokenType.TOKEN_ELSE } else {
+                                if (== s "while") { return LexerTokenType.TOKEN_WHILE } else {
+                                    if (== s "for") { return LexerTokenType.TOKEN_FOR } else {
+                                        if (== s "in") { return LexerTokenType.TOKEN_IN } else {
+                                            if (== s "return") { return LexerTokenType.TOKEN_RETURN } else {
+                                                if (== s "assert") { return LexerTokenType.TOKEN_ASSERT } else {
+                                                    if (== s "shadow") { return LexerTokenType.TOKEN_SHADOW } else {
+                                if (== s "requires") { return LexerTokenType.TOKEN_REQUIRES } else {
+                                    if (== s "ensures") { return LexerTokenType.TOKEN_ENSURES } else {
+                                                        if (== s "array") { return LexerTokenType.TOKEN_ARRAY } else {
+                                                            if (== s "struct") { return LexerTokenType.TOKEN_STRUCT } else {
+                                                                if (== s "enum") { return LexerTokenType.TOKEN_ENUM } else {
+                                                                    if (== s "union") { return LexerTokenType.TOKEN_UNION } else {
+                                                                        if (== s "match") { return LexerTokenType.TOKEN_MATCH } else {
+                                                                            if (== s "import") { return LexerTokenType.TOKEN_IMPORT } else {
+                                                                                if (== s "as") { return LexerTokenType.TOKEN_AS } else {
+                                                if (== s "opaque") { return LexerTokenType.TOKEN_OPAQUE } else {
+                                                    if (== s "unsafe") { return LexerTokenType.TOKEN_UNSAFE } else {
+                                                        if (== s "pure") { return LexerTokenType.TOKEN_PURE } else {
+                                                        if (== s "true") { return LexerTokenType.TOKEN_TRUE } else {
+                                                            if (== s "false") { return LexerTokenType.TOKEN_FALSE } else {
+                                                                return -1
+                                                            }
+                                                        }
+                                                        }
+                                    }
+                                                    }
+                                                }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_group2 {
+    assert (== (keyword_group2 "fn") 24)       /* TOKEN_FN */
+    assert (== (keyword_group2 "let") 25)      /* TOKEN_LET */
+    assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
+    assert (== (keyword_group2 "return") 34)   /* TOKEN_RETURN */
+    assert (== (keyword_group2 "struct") 43)   /* TOKEN_STRUCT */
+    assert (== (keyword_group2 "pure") 87)     /* TOKEN_PURE */
+    assert (== (keyword_group2 "true") 5)      /* TOKEN_TRUE */
+    assert (== (keyword_group2 "false") 6)     /* TOKEN_FALSE */
+    assert (== (keyword_group2 "unknown") (- 0 1))
+}
+
+pure fn keyword_group3(s: string) -> int {
+    if (== s "int") { return LexerTokenType.TOKEN_TYPE_INT } else {
+        if (== s "float") { return LexerTokenType.TOKEN_TYPE_FLOAT } else {
+            if (== s "bool") { return LexerTokenType.TOKEN_TYPE_BOOL } else {
+                if (== s "string") { return LexerTokenType.TOKEN_TYPE_STRING } else {
+                    if (== s "bstring") { return LexerTokenType.TOKEN_TYPE_BSTRING } else {
+                        if (== s "void") { return LexerTokenType.TOKEN_TYPE_VOID } else {
+                            return -1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_group3 {
+    assert (== (keyword_group3 "int") 50)      /* TOKEN_TYPE_INT */
+    assert (== (keyword_group3 "float") 52)    /* TOKEN_TYPE_FLOAT */
+    assert (== (keyword_group3 "bool") 53)     /* TOKEN_TYPE_BOOL */
+    assert (== (keyword_group3 "string") 54)   /* TOKEN_TYPE_STRING */
+    assert (== (keyword_group3 "void") 56)     /* TOKEN_TYPE_VOID */
+    assert (== (keyword_group3 "unknown") (- 0 1))
+}
+
+pure fn keyword_group4(s: string) -> int {
+    if (== s "and") { return LexerTokenType.TOKEN_AND } else {
+        if (== s "or") { return LexerTokenType.TOKEN_OR } else {
+            if (== s "not") { return LexerTokenType.TOKEN_NOT } else {
+                return -1
+            }
+        }
+    }
+}
+
+shadow keyword_group4 {
+    assert (== (keyword_group4 "and") 68)   /* TOKEN_AND */
+    assert (== (keyword_group4 "or") 69)    /* TOKEN_OR */
+    assert (== (keyword_group4 "not") 70)   /* TOKEN_NOT */
+    assert (== (keyword_group4 "unknown") (- 0 1))
+}
+
+pure fn keyword_group5(s: string) -> int {
+    if (== s "grammar") { return LexerTokenType.TOKEN_GRAMMAR } else {
+        return -1
+    }
+}
+
+shadow keyword_group5 {
+    assert (== (keyword_group5 "grammar") 75)  /* TOKEN_GRAMMAR */
+    assert (== (keyword_group5 "unknown") (- 0 1))
+}
+
+pure fn keyword_or_identifier(s: string) -> int {
+    let t1: int = (keyword_group1 s)
+    if (!= t1 -1) {
+        return t1
+    } else {
+        let t2: int = (keyword_group2 s)
+        if (!= t2 -1) {
+            return t2
+        } else {
+            let t3: int = (keyword_group3 s)
+            if (!= t3 -1) {
+                return t3
+            } else {
+                let t4: int = (keyword_group4 s)
+                if (!= t4 -1) {
+                    return t4
+                } else {
+                    let t5: int = (keyword_group5 s)
+                    if (!= t5 -1) {
+                        return t5
+                    } else {
+                        return LexerTokenType.TOKEN_IDENTIFIER
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow keyword_or_identifier {
+    assert (== (keyword_or_identifier "fn") 24)      /* keyword from group2 */
+    assert (== (keyword_or_identifier "int") 50)     /* keyword from group3 */
+    assert (== (keyword_or_identifier "and") 68)     /* keyword from group4 */
+    assert (== (keyword_or_identifier "grammar") 75) /* keyword from group5 */
+    assert (== (keyword_or_identifier "myvar") 4)    /* TOKEN_IDENTIFIER */
+}
+
+fn push_tok(tokens: List<LexerToken>, token_type: int, value: string, line: int, column: int) -> void {
+    let tok: LexerToken = LexerToken { token_type: token_type, value: value, line: line, column: column }
+    (list_LexerToken_push tokens tok)
+}
+
+shadow push_tok {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    (push_tok tokens 24 "fn" 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 24)
+    assert (== tok.line 1)
+    assert (== tok.column 1)
+}
+
+fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = (+ i 1)
+    let start: int = pos
+    while (and (< pos len) (!= (char_at source pos) 34)) {
+        if (and (== (char_at source pos) 92) (< (+ pos 1) len)) {
+            set pos (+ pos 2)
+        } else {
+            set pos (+ pos 1)
+        }
+    }
+    if (>= pos len) {
+        return -1
+    } else {
+        let str_length: int = (- pos start)
+        let str_value: string = (str_substring source start str_length)
+        (push_tok tokens LexerTokenType.TOKEN_STRING str_value line column)
+        return (+ pos 1)
+    }
+}
+
+shadow process_string {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "\"hello\""
+    let new_pos: int = (process_string src 0 7 tokens 1 1)
+    assert (== new_pos 7)  /* position after closing quote */
+    assert (== (list_LexerToken_length tokens) 1)
+}
+
+fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = i
+    let start: int = pos
+    if (== (char_at source pos) 45) {
+        set pos (+ pos 1)
+    } else {
+        (print "")
+    }
+
+    while (and (< pos len) (is_digit_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+
+    if (and (and (< pos len) (== (char_at source pos) 46)) (and (< (+ pos 1) len) (is_digit_char (char_at source (+ pos 1))))) {
+        set pos (+ pos 1)
+        while (and (< pos len) (is_digit_char (char_at source pos))) {
+            set pos (+ pos 1)
+        }
+        let float_length: int = (- pos start)
+        let float_value: string = (str_substring source start float_length)
+        (push_tok tokens LexerTokenType.TOKEN_FLOAT float_value line column)
+        return pos
+    } else {
+        let num_length: int = (- pos start)
+        let num_value: string = (str_substring source start num_length)
+        (push_tok tokens LexerTokenType.TOKEN_NUMBER num_value line column)
+        return pos
+    }
+}
+
+shadow process_number {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "123"
+    let new_pos: int = (process_number src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER */
+}
+
+/* Read the body of a grammar { ... } block as a raw string token.
+ * Called after the 'grammar' keyword token has been emitted.
+ * Skips whitespace, expects '{', reads raw text until the matching '}',
+ * and emits it as TOKEN_STRING. Returns the position after the closing '}'. */
+fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = i
+    /* Skip whitespace before '{' */
+    while (and (< pos len) (is_whitespace_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+    /* Must be '{' (ASCII 123) */
+    if (or (>= pos len) (!= (char_at source pos) 123)) {
+        return i  /* No brace — leave caller to handle the error */
+    } else {
+        (print "")
+    }
+    set pos (+ pos 1)  /* consume '{' */
+    let body_start: int = pos
+    let mut depth: int = 1
+    while (and (< pos len) (> depth 0)) {
+        let c: int = (char_at source pos)
+        if (== c 123) {
+            set depth (+ depth 1)
+        } else {
+            if (== c 125) {
+                set depth (- depth 1)
+            } else {
+                (print "")
+            }
+        }
+        if (> depth 0) {
+            set pos (+ pos 1)
+        }
+    }
+    /* Extract body (excludes the closing '}') */
+    let body_len: int = (- pos body_start)
+    let body: string = (str_substring source body_start body_len)
+    (push_tok tokens LexerTokenType.TOKEN_STRING body line column)
+    return (+ pos 1)  /* advance past '}' */
+}
+
+shadow process_grammar_body {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    /* Simulate source positioned just after 'grammar', pointing at ' { rule <- "x" }' */
+    let src: string = " { rule <- \"x\" }"
+    let new_pos: int = (process_grammar_body src 0 16 tokens 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 3)  /* TOKEN_STRING */
+    assert (== new_pos 16)
+}
+
+fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = i
+    let start: int = pos
+    while (and (< pos len) (is_identifier_char (char_at source pos))) {
+        set pos (+ pos 1)
+    }
+    let id_length: int = (- pos start)
+    let id_value: string = (str_substring source start id_length)
+    let token_type: int = (keyword_or_identifier id_value)
+    (push_tok tokens token_type id_value line column)
+    /* Special case: grammar keyword — immediately read { body } as a raw string */
+    if (== token_type LexerTokenType.TOKEN_GRAMMAR) {
+        return (process_grammar_body source pos len tokens line column)
+    } else {
+        return pos
+    }
+}
+
+shadow process_identifier {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "myvar"
+    let new_pos: int = (process_identifier src 0 5 tokens 1 1)
+    assert (== new_pos 5)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 4)  /* TOKEN_IDENTIFIER */
+}
+
+shadow process_identifier {
+    /* Test grammar keyword reads body */
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "grammar { rule <- \"x\" }"
+    let new_pos: int = (process_identifier src 0 23 tokens 1 1)
+    assert (== (list_LexerToken_length tokens) 2)  /* TOKEN_GRAMMAR + TOKEN_STRING */
+    let t0: LexerToken = (list_LexerToken_get tokens 0)
+    let t1: LexerToken = (list_LexerToken_get tokens 1)
+    assert (== t0.token_type 75)  /* TOKEN_GRAMMAR */
+    assert (== t1.token_type 3)   /* TOKEN_STRING with body */
+    assert (== new_pos 23)
+}
+
+fn process_char_literal(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
+    let mut pos: int = (+ i 1)
+    if (>= pos len) {
+        return -1
+    } else {
+        (print "")
+    }
+
+    let mut ch: int = (char_at source pos)
+    if (== ch 92) {
+        set pos (+ pos 1)
+        if (>= pos len) {
+            return -1
+        } else {
+            (print "")
+        }
+        let esc: int = (char_at source pos)
+        if (== esc 110) { set ch 10 } else {
+        if (== esc 116) { set ch 9 } else {
+        if (== esc 114) { set ch 13 } else {
+        if (== esc 48) { set ch 0 } else {
+        if (== esc 92) { set ch 92 } else {
+        if (== esc 39) { set ch 39 } else {
+        if (== esc 34) { set ch 34 } else {
+            set ch esc
+        }}}}}}}
+    } else {
+        (print "")
+    }
+
+    set pos (+ pos 1)
+    if (>= pos len) {
+        return -1
+    } else {
+        (print "")
+    }
+
+    if (!= (char_at source pos) 39) {
+        return -1
+    } else {
+        let value_str: string = (int_to_string ch)
+        (push_tok tokens LexerTokenType.TOKEN_NUMBER value_str line column)
+        return (+ pos 1)
+    }
+}
+
+shadow process_char_literal {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let src: string = "'A'"
+    let new_pos: int = (process_char_literal src 0 3 tokens 1 1)
+    assert (== new_pos 3)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type 1)  /* TOKEN_NUMBER (char as int) */
+}
+
+/* Emit tokens for one part of an f-string (static text or expression).
+ * Expression parts are wrapped in (to_string ...) for automatic type conversion. */
+fn emit_fstring_part_tokens(part_text: string, is_expr: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
+    if (!= is_expr 0) {
+        /* Expression part: wrap with (to_string ...) for polymorphic type conversion */
+        (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
+        (push_tok tokens LexerTokenType.TOKEN_IDENTIFIER "to_string" line column)
+        let sub_tokens: List<LexerToken> = (tokenize_string part_text file_name diags)
+        let n: int = (list_LexerToken_length sub_tokens)
+        let mut k: int = 0
+        while (< k n) {
+            let tok: LexerToken = (list_LexerToken_get sub_tokens k)
+            if (!= tok.token_type LexerTokenType.TOKEN_EOF) {
+                (list_LexerToken_push tokens tok)
+            } else {
+                (print "")
+            }
+            set k (+ k 1)
+        }
+        (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
+    } else {
+        /* Static text part: emit as STRING token */
+        (push_tok tokens LexerTokenType.TOKEN_STRING part_text line column)
+    }
+}
+
+shadow emit_fstring_part_tokens {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* Static part: 1 STRING token */
+    (emit_fstring_part_tokens "hello" 0 tokens diags "test.nano" 1 1)
+    assert (== (list_LexerToken_length tokens) 1)
+    let tok: LexerToken = (list_LexerToken_get tokens 0)
+    assert (== tok.token_type LexerTokenType.TOKEN_STRING)
+    /* Expression part: ( to_string name ) = 4 tokens (LPAREN IDENT IDENT RPAREN) */
+    let tokens2: List<LexerToken> = (list_LexerToken_new)
+    (emit_fstring_part_tokens "name" 1 tokens2 diags "test.nano" 1 1)
+    assert (== (list_LexerToken_length tokens2) 4)
+    let t0: LexerToken = (list_LexerToken_get tokens2 0)
+    let t1: LexerToken = (list_LexerToken_get tokens2 1)
+    assert (== t0.token_type LexerTokenType.TOKEN_LPAREN)
+    assert (== t1.token_type LexerTokenType.TOKEN_IDENTIFIER)
+    assert (== t1.value "to_string")
+}
+
+/* Process an f-string starting at source[i] ('f').
+ * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
+ * Returns the new position (after closing quote), or -1 on error. */
+fn process_fstring(source: string, i: int, len: int, tokens: List<LexerToken>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> int {
+    /* source[i]=='f' (102), source[i+1]=='"' (34) */
+    let mut pos: int = (+ i 2)  /* skip f" */
+
+    let part_texts: List<string> = (list_string_new)
+    let part_is_exprs: List<int> = (list_int_new)
+
+    let mut part_start: int = pos
+    let mut found_end: bool = false
+
+    while (and (< pos len) (not found_end)) {
+        let c: int = (char_at source pos)
+        if (== c 34) {
+            /* Closing quote: save trailing static part */
+            let text: string = (str_substring source part_start (- pos part_start))
+            if (!= (str_length text) 0) {
+                (list_string_push part_texts text)
+                (list_int_push part_is_exprs 0)
+            } else {
+                (print "")
+            }
+            set pos (+ pos 1)
+            set found_end true
+        } else {
+            if (and (== c 92) (< (+ pos 1) len)) {
+                /* Escaped character in static part - skip both chars */
+                set pos (+ pos 2)
+            } else {
+                if (== c 123) {
+                    /* { starts interpolated expression */
+                    /* Save preceding static part */
+                    let text: string = (str_substring source part_start (- pos part_start))
+                    if (!= (str_length text) 0) {
+                        (list_string_push part_texts text)
+                        (list_int_push part_is_exprs 0)
+                    } else {
+                        (print "")
+                    }
+                    /* Scan to matching }, tracking brace depth */
+                    let expr_start: int = (+ pos 1)
+                    let mut depth: int = 1
+                    set pos (+ pos 1)
+                    while (and (< pos len) (> depth 0)) {
+                        let cc: int = (char_at source pos)
+                        if (== cc 123) {
+                            set depth (+ depth 1)
+                        } else {
+                            (print "")
+                        }
+                        if (== cc 125) {
+                            set depth (- depth 1)
+                        } else {
+                            (print "")
+                        }
+                        set pos (+ pos 1)
+                    }
+                    if (== depth 0) {
+                        /* expr_text = source[expr_start .. pos-2], length = pos-1-expr_start */
+                        let expr_text: string = (str_substring source expr_start (- (- pos 1) expr_start))
+                        if (!= (str_length expr_text) 0) {
+                            (list_string_push part_texts expr_text)
+                            (list_int_push part_is_exprs 1)
+                        } else {
+                            (print "")
+                        }
+                        set part_start pos
+                    } else {
+                        let diag: CompilerDiagnostic = (diag_lexer_error "L0004" "Unclosed '{' in f-string interpolation" (diag_location file_name line column))
+                        (diag_list_add diags diag)
+                        return -1
+                    }
+                } else {
+                    set pos (+ pos 1)
+                }
+            }
+        }
+    }
+
+    if (not found_end) {
+        let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated f-string literal" (diag_location file_name line column))
+        (diag_list_add diags diag)
+        return -1
+    }
+
+    /* Emit tokens for the collected parts */
+    let n: int = (list_string_length part_texts)
+    if (== n 0) {
+        /* Empty f-string: emit empty string token */
+        (push_tok tokens LexerTokenType.TOKEN_STRING "" line column)
+    } else {
+        if (== n 1) {
+            /* Single part: emit it directly */
+            let text: string = (list_string_get part_texts 0)
+            let is_expr: int = (list_int_get part_is_exprs 0)
+            (emit_fstring_part_tokens text is_expr tokens diags file_name line column)
+        } else {
+            /* Multiple parts: emit nested right-associated str_concat calls.
+             * Pattern for [p0, p1, ..., p_{n-1}]:
+             *   for k in 0..n-2: LPAREN IDENT(str_concat) [pk]
+             *   [p_{n-1}]
+             *   for k in 0..n-2: RPAREN
+             */
+            let mut k: int = 0
+            while (< k (- n 1)) {
+                (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
+                (push_tok tokens LexerTokenType.TOKEN_IDENTIFIER "str_concat" line column)
+                let text: string = (list_string_get part_texts k)
+                let is_expr: int = (list_int_get part_is_exprs k)
+                (emit_fstring_part_tokens text is_expr tokens diags file_name line column)
+                set k (+ k 1)
+            }
+            /* Last part */
+            let last_text: string = (list_string_get part_texts (- n 1))
+            let last_is_expr: int = (list_int_get part_is_exprs (- n 1))
+            (emit_fstring_part_tokens last_text last_is_expr tokens diags file_name line column)
+            /* Close all str_concat calls */
+            let mut k2: int = 0
+            while (< k2 (- n 1)) {
+                (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
+                set k2 (+ k2 1)
+            }
+        }
+    }
+
+    return pos
+}
+
+shadow process_fstring {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* f"Hello {name}!" -> (str_concat "Hello " (str_concat (to_string name) "!")) */
+    let src: string = "f\"Hello {name}!\""
+    let new_pos: int = (process_fstring src 0 (str_length src) tokens diags "test.nano" 1 1)
+    assert (> new_pos 0)
+    assert (not (diag_list_has_errors diags))
+    /* 12 tokens: ( str_concat "Hello " ( str_concat ( to_string name ) "!" ) ) */
+    assert (== (list_LexerToken_length tokens) 12)
+}
+
+pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
+    let mut tokens: List<LexerToken> = (list_LexerToken_new)
+    let mut i: int = 0
+    let len: int = (str_length source)
+    let mut line: int = 1
+    let mut column: int = 1
+    let mut line_start: int = 0
+
+    while (< i len) {
+        let c: int = (char_at source i)
+
+        if (is_whitespace_char c) {
+            if (== c 10) {
+                set line (+ line 1)
+                set line_start (+ i 1)
+            }
+            /* Don't manually track column - it's recalculated below when tokens are created */
+            set i (+ i 1)
+        } else {
+            /* Line comment */
+            if (== c 35) {
+                while (and (< i len) (!= (char_at source i) 10)) {
+                    set i (+ i 1)
+                }
+            } else {
+                /* Block comment */
+                if (and (== c 47) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 42))) {
+                    set i (+ i 2)
+                    let mut done_comment: bool = false
+                    while (and (< i len) (not done_comment)) {
+                        let cc: int = (char_at source i)
+                        if (== cc 10) {
+                            set line (+ line 1)
+                            set line_start (+ i 1)
+                        } else {
+                            (print "")
+                        }
+                        if (and (== cc 42) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 47))) {
+                            set i (+ i 2)
+                            set done_comment true
+                        } else {
+                            set i (+ i 1)
+                        }
+                    }
+                } else {
+                    set column (- (+ i 1) line_start)
+
+                    if (and (< (+ i 1) len) (and (== c 58) (== (char_at source (+ i 1)) 58))) {
+                        (push_tok tokens LexerTokenType.TOKEN_DOUBLE_COLON "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 45) (== (char_at source (+ i 1)) 62))) {
+                        (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 62))) {
+                        (push_tok tokens LexerTokenType.TOKEN_ARROW "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 61) (== (char_at source (+ i 1)) 61))) {
+                        (push_tok tokens LexerTokenType.TOKEN_EQ "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 33) (== (char_at source (+ i 1)) 61))) {
+                        (push_tok tokens LexerTokenType.TOKEN_NE "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 61))) {
+                        (push_tok tokens LexerTokenType.TOKEN_LE "" line column)
+                        set i (+ i 2)
+                    } else {
+                    if (and (< (+ i 1) len) (and (== c 62) (== (char_at source (+ i 1)) 61))) {
+                        (push_tok tokens LexerTokenType.TOKEN_GE "" line column)
+                        set i (+ i 2)
+                    } else {
+                    /* Pipe operator: |> */
+                    if (and (< (+ i 1) len) (and (== c 124) (== (char_at source (+ i 1)) 62))) {
+                        (push_tok tokens LexerTokenType.TOKEN_PIPE "" line column)
+                        set i (+ i 2)
+                    } else {
+                    /* PEG rule arrow: <- (ASCII 60, 45) */
+                    if (and (< (+ i 1) len) (and (== c 60) (== (char_at source (+ i 1)) 45))) {
+                        (push_tok tokens LexerTokenType.TOKEN_LARROW "" line column)
+                        set i (+ i 2)
+                    } else {
+                    /* Result propagation: ? (ASCII 63) */
+                    if (== c 63) {
+                        (push_tok tokens LexerTokenType.TOKEN_QUESTION "" line column)
+                        set i (+ i 1)
+                    } else {
+                        /* Single '=' assignment (but not '==', '=>') */
+                        if (== c 61) {
+                            (push_tok tokens LexerTokenType.TOKEN_ASSIGN "" line column)
+                            set i (+ i 1)
+                        } else {
+                            let mut new_pos: int = -1
+                            if (== c 39) {
+                                set new_pos (process_char_literal source i len tokens line column)
+                                if (== new_pos -1) {
+                                    let diag: CompilerDiagnostic = (diag_lexer_error "L0001" "Unterminated or invalid character literal" (diag_location file_name line column))
+                                    (diag_list_add diags diag)
+                                } else { (print "") }
+                            } else {
+                                if (== c 34) {
+                                    set new_pos (process_string source i len tokens line column)
+                                    if (== new_pos -1) {
+                                        let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated string literal" (diag_location file_name line column))
+                                        (diag_list_add diags diag)
+                                    } else { (print "") }
+                                } else {
+                                    if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
+                                        set new_pos (process_number source i len tokens line column)
+                                    } else {
+                                    /* f-string interpolation: f"..." */
+                                    if (and (== c 102) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 34))) {
+                                        set new_pos (process_fstring source i len tokens diags file_name line column)
+                                    } else {
+                                        if (is_identifier_start c) {
+                                            set new_pos (process_identifier source i len tokens line column)
+                                        } else {
+                                            if (== c 40) {
+                                                (push_tok tokens LexerTokenType.TOKEN_LPAREN "" line column)
+                                                set new_pos (+ i 1)
+                                            } else {
+                                                if (== c 41) {
+                                                    (push_tok tokens LexerTokenType.TOKEN_RPAREN "" line column)
+                                                    set new_pos (+ i 1)
+                                                } else {
+                                                    if (== c 123) {
+                                                        (push_tok tokens LexerTokenType.TOKEN_LBRACE "" line column)
+                                                        set new_pos (+ i 1)
+                                                    } else {
+                                                        if (== c 125) {
+                                                            (push_tok tokens LexerTokenType.TOKEN_RBRACE "" line column)
+                                                            set new_pos (+ i 1)
+                                                        } else {
+                                                            if (== c 91) {
+                                                                (push_tok tokens LexerTokenType.TOKEN_LBRACKET "" line column)
+                                                                set new_pos (+ i 1)
+                                                            } else {
+                                                                if (== c 93) {
+                                                                    (push_tok tokens LexerTokenType.TOKEN_RBRACKET "" line column)
+                                                                    set new_pos (+ i 1)
+                                                                } else {
+                                                                    if (== c 44) {
+                                                                        (push_tok tokens LexerTokenType.TOKEN_COMMA "" line column)
+                                                                        set new_pos (+ i 1)
+                                                                    } else {
+                                                                        if (== c 58) {
+                                                                            (push_tok tokens LexerTokenType.TOKEN_COLON "" line column)
+                                                                            set new_pos (+ i 1)
+                                                                        } else {
+                                                                            if (== c 46) {
+                                                                                (push_tok tokens LexerTokenType.TOKEN_DOT "" line column)
+                                                                                set new_pos (+ i 1)
+                                                                            } else {
+                                                                                if (== c 43) {
+                                                                                    (push_tok tokens LexerTokenType.TOKEN_PLUS "" line column)
+                                                                                    set new_pos (+ i 1)
+                                                                                } else {
+                                                                                    if (== c 45) {
+                                                                                        (push_tok tokens LexerTokenType.TOKEN_MINUS "" line column)
+                                                                                        set new_pos (+ i 1)
+                                                                                    } else {
+                                                                                        if (== c 42) {
+                                                                                            (push_tok tokens LexerTokenType.TOKEN_STAR "" line column)
+                                                                                            set new_pos (+ i 1)
+                                                                                        } else {
+                                                                                            if (== c 47) {
+                                                                                                (push_tok tokens LexerTokenType.TOKEN_SLASH "" line column)
+                                                                                                set new_pos (+ i 1)
+                                                                                            } else {
+                                                                                                if (== c 37) {
+                                                                                                    (push_tok tokens LexerTokenType.TOKEN_PERCENT "" line column)
+                                                                                                    set new_pos (+ i 1)
+                                                                                                } else {
+                                                                                                    if (== c 60) {
+                                                                                                        (push_tok tokens LexerTokenType.TOKEN_LT "" line column)
+                                                                                                        set new_pos (+ i 1)
+                                                                                                    } else {
+                                                                                                        if (== c 62) {
+                                                                                                            (push_tok tokens LexerTokenType.TOKEN_GT "" line column)
+                                                                                                            set new_pos (+ i 1)
+                                                                                                        } else {
+                                                                                                            /* Unexpected character */
+                                                                                                            let diag: CompilerDiagnostic = (diag_lexer_error "L0003" "Unexpected character" (diag_location file_name line column))
+                                                                                                            (diag_list_add diags diag)
+                                                                                                            set new_pos (+ i 1)
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    }
+                                }
+                            }
+
+                            if (== new_pos -1) {
+                                set i len
+                            } else {
+                                set i new_pos
+                            }
+                        }
+                    }
+                    }}}}}}}}}
+                }
+            }
+        }
+    }
+
+    (push_tok tokens LexerTokenType.TOKEN_EOF "" line column)
+    return tokens
+}
+
+pub fn tokenize_file(path: string, diags: List<CompilerDiagnostic>) -> List<LexerToken> {
+    let source: string = (read path)
+    return (tokenize_string source path diags)
+}
+
+shadow tokenize_file {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    /* Test on a known file that exists in the repository */
+    let toks: List<LexerToken> = (tokenize_file "examples/language/nl_hello.nano" diags)
+    assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
+}
+
+shadow tokenize_string {
+    let source: string = "import \"x.nano\" as X\nfn main() -> int { return 0 }"
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let toks: List<LexerToken> = (tokenize_string source "test.nano" diags)
+    assert (> (list_LexerToken_length toks) 0)
+    assert (not (diag_list_has_errors diags))
+}

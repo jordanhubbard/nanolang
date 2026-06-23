@@ -1,0 +1,63 @@
+{
+  "name": "curl",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "HTTP client for making web requests and downloading data.",
+  "use_when": [
+    "User wants to fetch data from a URL or web API",
+    "User says 'HTTP request', 'download', 'fetch', 'REST client', 'API call'",
+    "User needs to GET/POST data to a web service",
+    "User wants to download files from the internet"
+  ],
+  "avoid_when": [
+    "User wants to serve HTTP (use http_server instead)",
+    "User needs WebSocket client (not supported)",
+    "User wants FTP/SFTP (curl module is HTTP only)"
+  ],
+  "capabilities": [
+    "http_get",
+    "http_post",
+    "http_put",
+    "http_delete",
+    "download_file",
+    "set_headers",
+    "handle_response",
+    "follow_redirects"
+  ],
+  "keywords": [
+    "http",
+    "request",
+    "download",
+    "fetch",
+    "api",
+    "rest",
+    "client",
+    "get",
+    "post",
+    "curl",
+    "web request"
+  ],
+  "examples": [
+    "examples/curl_get.nano",
+    "examples/curl_post.nano"
+  ],
+  "dependencies": {
+    "nanolang": [],
+    "system": [
+      {
+        "id": "curl",
+        "install": {
+          "apt": "libcurl4-openssl-dev",
+          "brew": "curl",
+          "pacman": "curl"
+        },
+        "version": ">=7.0"
+      }
+    ]
+  },
+  "io_surfaces": ["network"],
+  "alternatives": [
+    {"when": "HTTP server", "module": "http_server"}
+  ]
+}
+

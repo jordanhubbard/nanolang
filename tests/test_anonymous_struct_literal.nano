@@ -1,0 +1,48 @@
+# Test anonymous struct literals with type inference
+
+struct Point {
+    x: int,
+    y: int
+}
+
+fn create_point_named(px: int, py: int) -> Point {
+    # Named struct literal (existing syntax)
+    return Point { x: px, y: py }
+}
+
+fn create_point_anonymous(px: int, py: int) -> Point {
+    # Anonymous struct literal (NEW syntax) - type inferred from return type
+    return { x: px, y: py }
+}
+
+fn create_point_in_let() -> int {
+    # Anonymous struct literal in let statement - type inferred from declaration
+    let p: Point = { x: 10, y: 20 }
+    return (+ p.x p.y)
+}
+
+shadow create_point_named {
+    let p: Point = (create_point_named 5 10)
+    assert (== p.x 5)
+    assert (== p.y 10)
+}
+
+shadow create_point_anonymous {
+    let p: Point = (create_point_anonymous 15 25)
+    assert (== p.x 15)
+    assert (== p.y 25)
+}
+
+shadow create_point_in_let {
+    assert (== (create_point_in_let) 30)
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+
+fn main() -> int {
+    (println "✅ All anonymous struct literal tests passed!")
+    return 0
+}
+

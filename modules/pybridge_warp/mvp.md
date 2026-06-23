@@ -1,0 +1,20 @@
+# pybridge_warp module MVP
+
+<!--nl-snippet {"name":"module_pybridge_warp_mvp","check":false}-->
+```nano
+from "modules/pybridge_warp/pybridge_warp.nano" import warp_fluid_init, warp_fluid_destroy, warp_fluid_shutdown
+
+fn main() -> int {
+    if false {
+        let mut handle: int = 0
+        unsafe { set handle (warp_fluid_init 64 "cpu") }
+        if (> handle 0) {
+            unsafe { (warp_fluid_destroy handle) }
+            unsafe { (warp_fluid_shutdown) }
+        }
+    }
+    return 0
+}
+
+shadow main { assert true }
+```

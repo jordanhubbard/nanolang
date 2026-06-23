@@ -1,0 +1,127 @@
+# Example: JSON Demo
+# Purpose: Demonstrates JSON parsing, creation, and array manipulation using the json module
+# Features: imports, JSON parsing, JSON creation, arrays, while loops, shadow tests
+# Difficulty: Intermediate
+# Category: data
+# Prerequisites: none
+# Expected Output: === JSON Parse Example ===
+
+import "modules/std/json/json.nano"
+
+fn parse_example() -> int {
+    let json_str: string = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}"
+    let obj: Json = (parse json_str)
+    
+    if (== obj 0) {
+        (println "Failed to parse JSON")
+        return 1
+    }
+    
+    let name_item: Json = (get obj "name")
+    let age_item: Json = (get obj "age")
+    let active_item: Json = (get obj "active")
+    
+    if (is_string name_item) {
+        let name: string = (as_string name_item)
+        (println (+ "Name: " name))
+    }
+    
+    if (is_number age_item) {
+        let age: int = (as_int age_item)
+        (println (+ "Age: " (int_to_string age)))
+    }
+    
+    if (is_bool active_item) {
+        let active: bool = (as_bool active_item)
+        if active {
+            (println "Status: Active")
+        } else {
+            (println "Status: Inactive")
+        }
+    }
+    
+    (free name_item)
+    (free age_item)
+    (free active_item)
+    (free obj)
+    return 0
+}
+
+shadow parse_example {
+    assert true
+}
+
+fn create_example() -> int {
+    let obj: Json = (new_object)
+    
+    (object_set obj "name" (new_string "Bob"))
+    (object_set obj "age" (new_int 25))
+    (object_set obj "active" (new_bool true))
+    
+    let arr: Json = (new_array)
+    (json_array_push arr (new_string "foo"))
+    (json_array_push arr (new_string "bar"))
+    (json_array_push arr (new_string "baz"))
+    (object_set obj "tags" arr)
+    
+    let json_str: string = (stringify obj)
+    (println "Generated JSON:")
+    (println json_str)
+    
+    (free obj)
+    return 0
+}
+
+shadow create_example {
+    assert true
+}
+
+fn array_example() -> int {
+    let json_str: string = "[1, 2, 3, 4, 5]"
+    let arr: Json = (parse json_str)
+    
+    if (== arr 0) {
+        (println "Failed to parse JSON array")
+        return 1
+    }
+    
+    let len: int = (array_size arr)
+    (println (+ "Array length: " (int_to_string len)))
+    
+    let mut i: int = 0
+    while (< i len) {
+        let item: Json = (get_index arr i)
+        if (is_number item) {
+            let num: int = (as_int item)
+            (println (+ "  [" (+ (int_to_string i) (+ "] = " (int_to_string num)))))
+        }
+        (free item)
+        set i (+ i 1)
+    }
+    
+    (free arr)
+    return 0
+}
+
+shadow array_example {
+    assert true
+}
+
+fn main() -> int {
+    (println "=== JSON Parse Example ===")
+    (parse_example)
+    (println "")
+    
+    (println "=== JSON Create Example ===")
+    (create_example)
+    (println "")
+    
+    (println "=== JSON Array Example ===")
+    (array_example)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

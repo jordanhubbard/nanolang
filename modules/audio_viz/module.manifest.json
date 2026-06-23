@@ -1,0 +1,22 @@
+{
+  "name": "audio_viz",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Audio visualization (spectrum, waveform, VU meters).",
+  "use_when": [
+    "User wants audio visualization",
+    "User says 'spectrum', 'waveform', 'vu meter', 'audio vis'",
+    "User is building a music visualizer"
+  ],
+  "avoid_when": ["User only needs audio playback (use sdl_mixer)"],
+  "capabilities": ["spectrum_analysis", "waveform_display", "vu_meters"],
+  "keywords": ["audio", "visualization", "spectrum", "waveform"],
+  "examples": ["examples/sdl_mod_visualizer.nano", "examples/sdl_nanoviz.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["sdl", "sdl_mixer"],
+    "system": []
+  },
+  "io_surfaces": ["window", "audio"],
+  "alternatives": []
+}

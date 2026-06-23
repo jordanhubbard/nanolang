@@ -1,0 +1,136 @@
+/* test_constant_folding.nano
+ * End-to-end tests for constant folding and dead code elimination behavior.
+ *
+ * The constant-folding pass (fold_constants.c) and DCE pass (dce_pass.c) run
+ * on the AST before code generation.  These tests verify that expressions
+ * involving only literals produce correct results and that unreachable branches
+ * are eliminated without affecting program output.
+ *
+ * Note: fold_constants.c and dce_pass.c are tested at the AST unit level by
+ * tests/test_optimizer.c.  This file tests end-to-end compiled behavior.
+ */
+
+/* ── Constant arithmetic expressions ─────────────────────────────────────── */
+
+fn test_int_arithmetic() -> int {
+    let a: int = 2 + 3        /* foldable: 5 */
+    let b: int = 10 - 4       /* foldable: 6 */
+    let c: int = 3 * 7        /* foldable: 21 */
+    let d: int = 20 / 4       /* foldable: 5 */
+    let e: int = 17 % 5       /* foldable: 2 */
+    return a + b + c + d + e  /* 5+6+21+5+2 = 39 */
+}
+
+shadow test_int_arithmetic {
+    assert (== (test_int_arithmetic) 39)
+}
+
+/* ── Constant comparisons ─────────────────────────────────────────────────── */
+
+fn test_comparisons() -> bool {
+    let lt: bool = 3 < 5
+    let gt: bool = 10 > 7
+    let eq: bool = 4 == 4
+    let ne: bool = 3 != 5
+    return lt and gt and eq and ne
+}
+
+shadow test_comparisons {
+    assert (test_comparisons)
+}
+
+/* ── Constant boolean operations ──────────────────────────────────────────── */
+
+fn test_bool_ops() -> bool {
+    let t: bool = true and true
+    let f: bool = false or false
+    let n: bool = not false
+    return t and n and not f
+}
+
+shadow test_bool_ops {
+    assert (test_bool_ops)
+}
+
+/* ── Nested constant expressions ──────────────────────────────────────────── */
+
+fn test_nested() -> int {
+    /* All literals: (2+3) * (4-1) = 5*3 = 15 */
+    let result: int = (2 + 3) * (4 - 1)
+    return result
+}
+
+shadow test_nested {
+    assert (== (test_nested) 15)
+}
+
+/* ── DCE: unreachable branch ──────────────────────────────────────────────── */
+
+fn test_dce_if_true() -> int {
+    if true {
+        return 42
+    } else {
+        /* This branch is dead — should not affect output */
+        return -1
+    }
+    return 0
+}
+
+shadow test_dce_if_true {
+    assert (== (test_dce_if_true) 42)
+}
+
+fn test_dce_if_false() -> int {
+    if false {
+        /* Dead branch */
+        return -1
+    } else {
+        return 99
+    }
+    return 0
+}
+
+shadow test_dce_if_false {
+    assert (== (test_dce_if_false) 99)
+}
+
+/* ── Constant float arithmetic ────────────────────────────────────────────── */
+
+fn test_float_fold() -> bool {
+    let x: float = 1.5 + 2.5   /* = 4.0 */
+    let y: float = 10.0 / 2.0  /* = 5.0 */
+    return x < y               /* 4.0 < 5.0 = true */
+}
+
+shadow test_float_fold {
+    assert (test_float_fold)
+}
+
+/* ── Unary constant folding ───────────────────────────────────────────────── */
+
+fn test_unary_fold() -> int {
+    let neg: int = 0 - 5         /* -5 */
+    let pos: int = 0 - (0 - 3)  /* 3 */
+    return neg + pos             /* -5 + 3 = -2 */
+}
+
+shadow test_unary_fold {
+    assert (== (test_unary_fold) -2)
+}
+
+fn main() -> int {
+    assert (== (test_int_arithmetic) 39)
+    assert (test_comparisons)
+    assert (test_bool_ops)
+    assert (== (test_nested) 15)
+    assert (== (test_dce_if_true) 42)
+    assert (== (test_dce_if_false) 99)
+    assert (test_float_fold)
+    assert (== (test_unary_fold) -2)
+    (println "constant folding tests PASSED")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,35 @@
+/* =============================================================================
+ * std::lib - Standard Library Root Module
+ * =============================================================================
+ * Re-exports commonly used functions and types from the standard library.
+ * Provides convenient access without fully qualified imports.
+ * 
+ * Usage:
+ *   from "std/lib.nano" import StringBuilder, file_exists, Vector2D
+ *   
+ * Or use fully qualified names:
+ *   from "std/collections/stringbuilder.nano" import StringBuilder
+ *   from "std/io/stdio.nano" import file_exists
+ *   from "std/math/vector2d.nano" import Vector2D
+ */
+
+module std
+
+/* Convenience module: importing this pulls in core std modules so their
+ * public symbols are available for downstream imports.
+ */
+
+import "std/collections/stringbuilder.nano"
+import "std/collections/hashmap.nano"
+import "std/collections/set.nano"
+
+# frozen
+let STD_VERSION: string = "1.0.0"
+
+pub fn std_version() -> string {
+    return STD_VERSION
+}
+
+shadow std_version {
+    assert (== (std_version) "1.0.0")
+}

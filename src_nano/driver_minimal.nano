@@ -1,0 +1,27 @@
+/* Minimal driver test to verify core structure */
+
+import "src_nano/compiler/ir.nano"
+from "src_nano/lexer_main.nano" import lex_phase_run
+
+fn main() -> int {
+    (println "=== Minimal Driver Test ===")
+    
+    /* Test lexer phase */
+    let test_source: string = "fn test() -> int { return 42 }"
+    let lex_output: LexPhaseOutput = (lex_phase_run test_source "test.nano")
+    
+    if lex_output.had_error {
+        (println "Lexer phase failed")
+        return 1
+    } else {
+        (print "Lexer phase successful - ")
+        (print (int_to_string lex_output.token_count))
+        (println " tokens")
+        return 0
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

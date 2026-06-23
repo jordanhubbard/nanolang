@@ -1,0 +1,26 @@
+enum Color {
+    Red = 0
+    Green = 1
+    Blue = 2
+}
+
+fn color_name(c: Color) -> string {
+    return (cond
+        ((== c Color.Red) "red")
+        ((== c Color.Green) "green")
+        (else "blue")
+    )
+}
+
+shadow color_name {
+    assert (== (color_name Color.Red) "red")
+    assert (== (color_name Color.Green) "green")
+    assert (== (color_name Color.Blue) "blue")
+}
+
+fn main() -> int {
+    (println (color_name Color.Green))
+    return 0
+}
+
+shadow main { assert true }

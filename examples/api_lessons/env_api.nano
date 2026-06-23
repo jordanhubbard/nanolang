@@ -1,0 +1,46 @@
+# Example: Environment API Lesson
+# Purpose: I show environment variable and argv access
+# Features: env get, set_env, unset, argc, argv, args
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: nl_string_operations
+# Track: modules
+# Build: local
+# Dependencies: modules/std/env
+# Tags: api-lesson, environment, shadow-tested
+# Expected Output: env argc:
+
+from "modules/std/env.nano" import get, set_env, unset, argc, argv, args
+
+fn set_get_unset() -> string {
+    assert (== (set_env "NANOLANG_API_LESSON" "env-ok") 0)
+    let value: string = (get "NANOLANG_API_LESSON")
+    assert (== (unset "NANOLANG_API_LESSON") 0)
+    return value
+}
+
+shadow set_get_unset {
+    assert (== (set_get_unset) "env-ok")
+}
+
+fn argv_summary() -> int {
+    let count: int = (argc)
+    assert (> count 0)
+    assert (> (str_length (argv 0)) 0)
+    let all_args: array<string> = (args)
+    assert (== (array_length all_args) count)
+    return count
+}
+
+shadow argv_summary {
+    assert (> (argv_summary) 0)
+}
+
+fn main() -> int {
+    (println (+ "env argc: " (int_to_string (argv_summary))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

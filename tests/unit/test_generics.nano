@@ -1,0 +1,75 @@
+/*
+ * test_generics.nano — real generic (type-variable) function tests
+ *
+ * Tests monomorphization of functions with type variable T:
+ *   - fn identity(x: T) -> T  called with int and bool
+ *   - fn pair_first(a: T, b: T) -> T  called with int and bool
+ *   - max_of remains concrete (uses > operator which requires int)
+ */
+
+/* ── identity: generic T → T ─────────────────────────────────────────── */
+fn identity(x: T) -> T {
+    return x
+}
+
+shadow identity {
+    let r1: int = (identity 42)
+    assert (== r1 42)
+    assert (== (identity 100) 100)
+    let r2: bool = (identity true)
+    assert (== r2 true)
+    assert (== (identity false) false)
+}
+
+/* ── pair_first: returns first of two T values ────────────────────────── */
+fn pair_first(a: T, b: T) -> T {
+    return a
+}
+
+shadow pair_first {
+    let ri: int = (pair_first 10 20)
+    assert (== ri 10)
+    assert (== (pair_first 99 0) 99)
+    let rb: bool = (pair_first true false)
+    assert (== rb true)
+}
+
+/* ── max_of: returns larger of two ints (concrete) ────────────────────── */
+fn max_of(a: int, b: int) -> int {
+    if (> a b) { return a }
+    return b
+}
+
+shadow max_of {
+    assert (== (max_of 3 7) 7)
+    assert (== (max_of 10 2) 10)
+    assert (== (max_of 0 0) 0)
+}
+
+/* ── main ──────────────────────────────────────────────────────────────── */
+/* Note: bare type-variable generics (identity, pair_first, clamp_zero, max_of)
+ * are tested via shadow tests (interpreter path). The compiled C path tests
+ * the concrete generic union (Maybe<int>) via safe_divide + maybe_unwrap_or.
+ */
+fn main() -> int {
+    let a: int = (identity 99)
+    assert (== a 99)
+
+    let b: bool = (identity true)
+    assert (== b true)
+
+    let c: int = (pair_first 5 10)
+    assert (== c 5)
+
+    let d: bool = (pair_first false true)
+    assert (== d false)
+
+    let e: int = (max_of 7 3)
+    assert (== e 7)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

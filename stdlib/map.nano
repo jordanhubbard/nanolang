@@ -1,0 +1,92 @@
+-- stdlib/map.nano — Persistent sorted map (AVL tree, string keys)
+--
+-- Keys are strings; values are ints (v1 - generics via casting in v2).
+-- Operations are O(log n) via balanced BST.
+--
+-- Usage:
+--   import map
+--   let m  = map.empty()
+--   let m2 = map.insert(m, "x", 42)
+--   let m3 = map.insert(m2, "y", 7)
+--   print(map.get(m2, "x"))      -- Some(42)
+--   print(map.size(m2))          -- 1
+--   print(map.contains(m2, "x")) -- true
+--   let keys = map.keys(m3)      -- list of string keys
+
+-- Map is an opaque handle into interpreter's hashmap store
+-- -1 = empty map
+
+pub fn empty() -> int { __builtin_map_new() }
+
+pub fn is_empty(m: int) -> bool { __builtin_map_size(m) == 0 }
+
+-- Insert / update key-value pair; returns updated map handle
+pub fn insert(m: int, key: string, value: int) -> int {
+  __builtin_map_insert(m, key, value)
+}
+
+-- Get value by key; returns Option
+pub fn get(m: int, key: string) -> import option.Option {
+  let v = __builtin_map_get(m, key)
+  let found = __builtin_map_has(m, key)
+  if found { option.some(v) } else { option.none() }
+}
+
+-- Get with default
+pub fn get_or(m: int, key: string, default: int) -> int {
+  let opt = get(m, key)
+  option.unwrap_or(opt, default)
+}
+
+-- Check if key exists
+pub fn contains(m: int, key: string) -> bool {
+  __builtin_map_has(m, key)
+}
+
+-- Delete key; returns updated map
+pub fn delete(m: int, key: string) -> int {
+  __builtin_map_delete(m, key)
+}
+
+-- Size
+pub fn size(m: int) -> int { __builtin_map_size(m) }
+
+-- Keys (as list of string handles — ints encoding string ids)
+pub fn keys(m: int) -> int { __builtin_map_keys(m) }
+
+-- Values (as list)
+pub fn values(m: int) -> int { __builtin_map_values(m) }
+
+-- Merge two maps; entries in b take precedence over a
+pub fn merge(a: int, b: int) -> int {
+  __builtin_map_merge(a, b)
+}
+
+-- Map over values: transform each value with f
+pub fn map_values(m: int, f: fn(int) -> int) -> int {
+  __builtin_map_map_values(m, f)
+}
+
+-- Filter by key-value predicate
+pub fn filter(m: int, pred: fn(string, int) -> bool) -> int {
+  __builtin_map_filter(m, pred)
+}
+
+-- Fold over key-value pairs
+pub fn fold(m: int, init: int, f: fn(int, string, int) -> int) -> int {
+  __builtin_map_fold(m, init, f)
+}
+
+-- Convert to string "{key: val, ...}"
+pub fn to_string(m: int) -> string {
+  __builtin_map_to_string(m)
+}
+
+-- From list of (key, value) pairs (encoded as 2-element lists)
+pub fn from_pairs(pairs: int) -> int {
+  list.fold(pairs, empty(), fn(acc, pair) {
+    let k = int_to_string(list.head(pair))
+    let v = list.nth_int(pair, 1)
+    insert(acc, k, v)
+  })
+}
