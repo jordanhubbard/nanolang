@@ -52,7 +52,8 @@ pub fn mathx_clamp(x: int, lo: int, hi: int) -> int {
 shadow mathx_clamp {
     assert (== (mathx_clamp 5 0 10) 5)
     assert (== (mathx_clamp (- 0 3) 0 10) 0)
-    assert (== (mathx_clamp 99 0 10) 10)
+    assert (== (mathx_clamp 42 0 10) 10)
+    assert (== (mathx_clamp 7 7 7) 7)
 }
 
 # mathx_isqrt: integer square root, i.e. the largest int r with r*r <= n.

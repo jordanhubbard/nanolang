@@ -49,8 +49,12 @@ fn test_clamp() -> int {
         (println "FAIL: mathx_clamp below")
         return 1
     } else {}
-    if (not (== (mathx.mathx_clamp 99 0 10) 10)) {
+    if (not (== (mathx.mathx_clamp 42 0 10) 10)) {
         (println "FAIL: mathx_clamp above")
+        return 1
+    } else {}
+    if (not (== (mathx.mathx_clamp 7 7 7) 7)) {
+        (println "FAIL: mathx_clamp equal bounds")
         return 1
     } else {}
     (println "OK: test_clamp")
