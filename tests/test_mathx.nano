@@ -115,6 +115,23 @@ fn test_is_prime() -> int {
     return 0
 }
 
+fn test_pred() -> int {
+    if (not (== (mathx.mathx_pred 0) (- 0 1))) {
+        (println "FAIL: mathx_pred 0 should be -1")
+        return 1
+    } else {}
+    if (not (== (mathx.mathx_pred 1) 0)) {
+        (println "FAIL: mathx_pred 1 should be 0")
+        return 1
+    } else {}
+    if (not (== (mathx.mathx_pred 43) 42)) {
+        (println "FAIL: mathx_pred 43 should be 42")
+        return 1
+    } else {}
+    (println "OK: test_pred")
+    return 0
+}
+
 fn main() -> int {
     if (not (== (test_abs) 0)) {
         return 1
@@ -129,6 +146,9 @@ fn main() -> int {
         return 1
     } else {}
     if (not (== (test_is_prime) 0)) {
+        return 1
+    } else {}
+    if (not (== (test_pred) 0)) {
         return 1
     } else {}
     (println "ALL OK: test_mathx")
