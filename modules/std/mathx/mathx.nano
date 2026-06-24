@@ -113,3 +113,27 @@ shadow mathx_is_prime {
     assert (== (mathx_is_prime 97) true)
     assert (== (mathx_is_prime 0) false)
 }
+
+# mathx_lcm: least common multiple of two integers.
+#
+# Returns (mathx_abs(a) * mathx_abs(b)) / mathx_gcd(a, b), which is the
+# standard lcm formula via gcd. Returns 0 when either input is 0, matching
+# the mathematical convention lcm(0, n) = 0.
+pub fn mathx_lcm(a: int, b: int) -> int {
+    let aa: int = (mathx_abs a)
+    let bb: int = (mathx_abs b)
+    if (== aa 0) {
+        return 0
+    } else {}
+    if (== bb 0) {
+        return 0
+    } else {}
+    return (/ (* aa bb) (mathx_gcd aa bb))
+}
+
+shadow mathx_lcm {
+    assert (== (mathx_lcm 4 6) 12)
+    assert (== (mathx_lcm 21 6) 42)
+    assert (== (mathx_lcm 0 5) 0)
+    assert (== (mathx_lcm 7 7) 7)
+}
