@@ -113,3 +113,13 @@ shadow mathx_is_prime {
     assert (== (mathx_is_prime 97) true)
     assert (== (mathx_is_prime 0) false)
 }
+
+pub fn mathx_succ(x: int) -> int {
+    return (+ x 1)
+}
+
+shadow mathx_succ {
+    assert (== (mathx_succ 0) 1)
+    assert (== (mathx_succ (- 0 1)) 0)
+    assert (== (mathx_succ 41) 42)
+}
