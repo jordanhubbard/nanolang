@@ -113,3 +113,12 @@ shadow mathx_is_prime {
     assert (== (mathx_is_prime 97) true)
     assert (== (mathx_is_prime 0) false)
 }
+
+pub fn mathx_thrice(x: int) -> int {
+    return (* x 3)
+}
+
+shadow mathx_thrice {
+    assert (== (mathx_thrice 0) 0)
+    assert (== (mathx_thrice 4) 12)
+}
