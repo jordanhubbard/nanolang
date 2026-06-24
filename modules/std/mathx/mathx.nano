@@ -113,3 +113,14 @@ shadow mathx_is_prime {
     assert (== (mathx_is_prime 97) true)
     assert (== (mathx_is_prime 0) false)
 }
+
+# mathx_sqr: integer square, i.e. x * x.
+pub fn mathx_sqr(x: int) -> int {
+    return (* x x)
+}
+
+shadow mathx_sqr {
+    assert (== (mathx_sqr 0) 0)
+    assert (== (mathx_sqr 3) 9)
+    assert (== (mathx_sqr (- 0 5)) 25)
+}
