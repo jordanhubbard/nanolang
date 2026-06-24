@@ -1,5 +1,6 @@
 schema: mac.repository_contract.v1
 project: nanolang
+canonical_remote_url: git@github.com:jordanhubbard/nanolang.git
 platforms:
   - darwin
   - linux
@@ -9,7 +10,6 @@ toolchain:
     - python3
     - git
     - gh
-    - bd
     - make
     - cc
 bootstrap:
