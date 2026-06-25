@@ -136,8 +136,13 @@ static const char *json_get_string(const char *json, const char *key) {
 
 int64_t warp_fluid_init(int64_t n, const char *device) {
     g_last_error[0] = '\0';
-    size_t len = (size_t)snprintf(NULL, 0, "{\"n\":%lld,\"device\":\"%s\"}",
-                                  (long long)n, device ? device : "cpu");
+    int flen = snprintf(NULL, 0, "{\"n\":%lld,\"device\":\"%s\"}",
+                        (long long)n, device ? device : "cpu");
+    if (flen < 0) {
+        snprintf(g_last_error, sizeof(g_last_error), "Out of memory");
+        return -1;
+    }
+    size_t len = (size_t)flen;
     char *params = (char *)malloc(len + 1);
     if (!params) {
         snprintf(g_last_error, sizeof(g_last_error), "Out of memory");
