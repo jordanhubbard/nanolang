@@ -1,0 +1,4 @@
+#!/bin/sh
+# Keep the CodeGraph index in sync with the working tree.
+command -v codegraph >/dev/null 2>&1 && (codegraph sync --quiet >/dev/null 2>&1 &)
+exit 0
