@@ -588,8 +588,14 @@ VmTrap vm_core_execute(VmState *vm) {
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                /* Division by zero = 0 (matches Coq semantics) */
-                stack_push(vm, val_int(b.as.i64 == 0 ? 0 : a.as.i64 / b.as.i64));
+                /* Total division: by zero = 0 (matches Coq semantics); the
+                 * INT64_MIN / -1 case is signed-overflow UB that raises SIGFPE
+                 * on x86-64, so wrap to INT64_MIN instead of dividing. */
+                int64_t q;
+                if (b.as.i64 == 0) q = 0;
+                else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) q = INT64_MIN;
+                else q = a.as.i64 / b.as.i64;
+                stack_push(vm, val_int(q));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
@@ -661,7 +667,13 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(b.as.i64 == 0 ? 0 : a.as.i64 % b.as.i64));
+                /* Total modulo: by zero = 0; INT64_MIN % -1 is mathematically 0
+                 * but signed-overflow UB (SIGFPE) if computed directly. */
+                int64_t r;
+                if (b.as.i64 == 0) r = 0;
+                else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) r = 0;
+                else r = a.as.i64 % b.as.i64;
+                stack_push(vm, val_int(r));
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "MOD: type error");
             }
@@ -671,7 +683,8 @@ VmTrap vm_core_execute(VmState *vm) {
         case OP_NEG: {
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_INT) {
-                stack_push(vm, val_int(-a.as.i64));
+                /* -INT64_MIN overflows (UB); wrap to INT64_MIN. */
+                stack_push(vm, val_int(a.as.i64 == INT64_MIN ? INT64_MIN : -a.as.i64));
             } else if (a.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(-a.as.f64));
             } else {

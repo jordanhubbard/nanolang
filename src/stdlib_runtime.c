@@ -49,7 +49,24 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static double nl_cast_float_from_float(double x) { return x; }\n");
     sb_append(sb, "static void* nl_null_opaque() { return NULL; }\n");
     sb_append(sb, "static int64_t nl_cast_bool_to_int(bool x) { return x ? 1 : 0; }\n");
-    sb_append(sb, "static bool nl_cast_bool(int64_t x) { return x != 0; }\n\n");
+    sb_append(sb, "static bool nl_cast_bool(int64_t x) { return x != 0; }\n");
+
+    /* Total integer division/modulo: matches the Coq semantics and the NanoISA
+     * VM. Division by zero yields 0; INT64_MIN/-1 (and INT64_MIN%-1) are
+     * signed-overflow UB (SIGFPE on x86-64) if computed directly, so define
+     * them explicitly instead of emitting a raw C divide. */
+    /* Prefix is `nano_rt_`, NOT `nl_`: user functions are mangled to
+     * `nl_<name>`, so any `nl_`-prefixed helper can be silently shadowed by a
+     * user function of the same name (e.g. a user `fn idiv` collides with a
+     * helper `nl_idiv`). `nano_rt_*` cannot be produced by the mangler. */
+    sb_append(sb, "static int64_t nano_rt_idiv(int64_t a, int64_t b) { "
+                  "if (b == 0) return 0; "
+                  "if (a == INT64_MIN && b == -1) return INT64_MIN; "
+                  "return a / b; }\n");
+    sb_append(sb, "static int64_t nano_rt_imod(int64_t a, int64_t b) { "
+                  "if (b == 0) return 0; "
+                  "if (a == INT64_MIN && b == -1) return 0; "
+                  "return a % b; }\n\n");
 
     /* println function - uses _Generic for type dispatch */
     sb_append(sb, "static void nl_println(void* value_ptr) {\n");

@@ -19,6 +19,7 @@
 #include "vm.h"
 #include "vm_ffi.h"
 #include "../nanoisa/nvm_format.h"
+#include "../nanoisa/verifier.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -205,6 +206,19 @@ static void *client_thread(void *arg) {
 
         if (!module) {
             vmd_msg_send_error(fd, "Invalid .nvm format");
+            break;
+        }
+
+        /* Verify bytecode safety before execution. The daemon previously
+         * skipped this (unlike the standalone path in main.c), so a client
+         * could hand it a blob with an out-of-range function code_offset or
+         * bad jump/call indices and reach OOB code fetches in vm_core_execute.
+         * Verify here too so daemon and standalone share the same trust gate. */
+        NvmVerifyResult vr = nvm_verify(module);
+        if (!vr.ok) {
+            nvm_module_free(module);
+            vmd_msg_send_error(fd, vr.error_msg[0] ? vr.error_msg
+                                                   : "Bytecode verification failed");
             break;
         }
 

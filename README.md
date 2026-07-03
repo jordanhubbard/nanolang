@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Bootstrap](https://img.shields.io/badge/bootstrap-100%25%20self--hosting-success.svg)
+![Bootstrap](https://img.shields.io/badge/bootstrap-self--hosting%20in%20progress-yellow.svg)
 
 **I am a minimal programming language designed for machines to write and humans to read. I require tests, I use unambiguous syntax, and my core is formally proved.**
 
@@ -57,7 +57,7 @@ EOF
 
 - **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is mostly complete with one `Admitted` sub-case (tuple value reconstruction in `formal/Equivalence.v`).
 - **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
-- **Automatic Memory Management** - I use reference counting (with a cycle collector for cyclic graphs) so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic.
+- **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. Note: reference *cycles* are not automatically reclaimed (there is no tracing cycle collector yet) — break cycles manually to avoid leaks.
 - **Machine-Led Optimization** - I run constant folding and dead-code elimination on the AST before code generation. I also support profile-guided inlining: build with profiling, run a representative workload to produce a `.nano.prof`, then recompile with `--pgo <path>` to apply hot-path inlining.
 - **Multi-Target Compilation** - I transpile to C for native performance and also emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519. The C backend is the production path; the WASM and LLVM backends do not yet fully support strings, structs, unions, or match expressions.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.

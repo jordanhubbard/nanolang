@@ -529,7 +529,11 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
         uint32_t sec_offset = le_read_u32(data + dir_off + 4);
         uint32_t sec_size   = le_read_u32(data + dir_off + 8);
 
-        if (sec_offset + sec_size > size) {
+        /* Overflow-safe bounds check: sec_offset + sec_size can wrap around
+         * uint32, letting a crafted offset (e.g. 0xFFFFFF00) slip past a naive
+         * `sec_offset + sec_size > size` test and point sec_data far outside
+         * the buffer. Compare via subtraction so no addition can overflow. */
+        if (sec_offset > size || sec_size > size - sec_offset) {
             nvm_module_free(mod);
             return NULL;
         }
@@ -546,7 +550,8 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                 while (pos + 4 <= sec_size) {
                     uint32_t slen = le_read_u32(sec_data + pos);
                     pos += 4;
-                    if (pos + slen > sec_size) break;
+                    /* Subtraction form: pos <= sec_size here, so no overflow. */
+                    if (slen > sec_size - pos) break;
                     nvm_add_string(mod, (const char *)(sec_data + pos), slen);
                     pos += slen;
                 }

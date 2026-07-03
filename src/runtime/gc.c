@@ -428,14 +428,33 @@ static void gc_sweep(void) {
     }
 }
 
-/* Run cycle detection */
+/* Run cycle detection.
+ *
+ * IMPORTANT / KNOWN LIMITATION: this does NOT collect reference cycles, and
+ * cannot in the current design. It marks every object with ref_count > 0 as a
+ * root — but cyclic garbage has ref_count > 0 by definition (that is exactly
+ * what pure reference counting cannot reclaim), so such objects are always
+ * marked and never swept. The function therefore only ever frees objects that
+ * are already at ref_count 0 (which gc_release frees anyway): it is a safe
+ * no-op with respect to cycles.
+ *
+ * A real synchronous cycle collector (e.g. Bacon–Rajan trial deletion) is
+ * implementable here — gc_mark already enumerates object edges — but ONLY if
+ * gc_mark provably traverses every heap reference edge for every object type;
+ * missing a single edge on a live path would free a live object (use-after-
+ * free), which is strictly worse than the current leak. Implementing it safely
+ * requires an exhaustive edge-coverage audit and is deliberately deferred
+ * rather than shipped half-correct. Until then: reference cycles leak and must
+ * be broken manually. See README/docs; do not advertise automatic cycle
+ * collection.
+ */
 void gc_collect_cycles(void) {
     if (!gc_state.initialized || !gc_state.cycle_detection_enabled) {
         return;
     }
-    
-    /* Mark phase: mark all objects reachable from roots */
-    /* In a simple implementation, objects with ref_count > 0 are roots */
+
+    /* Mark phase: conservatively treat every still-referenced object as a root.
+     * (This is why cycles are not reclaimed — see the note above.) */
     GCHeader* current = gc_state.all_objects;
     while (current != NULL) {
         if (current->ref_count > 0) {
@@ -443,10 +462,10 @@ void gc_collect_cycles(void) {
         }
         current = current->next;
     }
-    
-    /* Sweep phase: free unmarked objects */
+
+    /* Sweep phase: free unmarked objects (only ref_count==0 ones in practice). */
     gc_sweep();
-    
+
     gc_state.stats.num_collections++;
 }
 
