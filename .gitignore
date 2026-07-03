@@ -130,3 +130,5 @@ bench/*.nano
 site/
 
 *.db
+.beads/
+.codegraph/

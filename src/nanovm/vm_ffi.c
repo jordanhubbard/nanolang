@@ -588,8 +588,15 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
-        return vm_ffi_call(module, import_idx, args, arg_count,
-                           result, heap, error_msg, error_msg_size);
+        /* Isolation was explicitly requested (this function only runs under
+         * vm->isolate_ffi). If the co-process can't be launched we must NOT
+         * silently run the dangerous call in-process — that defeats the whole
+         * boundary and is attacker-forceable (e.g. exhaust process slots).
+         * Fail closed instead. */
+        snprintf(error_msg, error_msg_size,
+                 "COP: FFI isolation requested but co-process unavailable; "
+                 "refusing to run extern call in-process");
+        return false;
     }
 
     CopMailbox *mbox = vm->cop_mailbox;
@@ -643,8 +650,13 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                 return false;
             }
             if (mbox->resp_data_size > 0) {
+                /* resp_data_size is written by the (untrusted) child; clamp to
+                 * the actual slot size so a corrupt/hostile child can't make us
+                 * read past the 4 KB mailbox slot / the shared mapping. */
+                uint32_t resp_size = mbox->resp_data_size;
+                if (resp_size > COP_MAILBOX_SLOT_SIZE) resp_size = COP_MAILBOX_SLOT_SIZE;
                 uint32_t consumed = cop_deserialize_value(
-                    mbox->resp_data, mbox->resp_data_size, result, heap);
+                    mbox->resp_data, resp_size, result, heap);
                 if (consumed == 0) {
                     snprintf(error_msg, error_msg_size,
                              "COP: failed to deserialize mailbox result");
@@ -660,9 +672,15 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
 
     /* ── Pipe fallback: for large payloads or when mailbox unavailable ─ */
     if (vm->cop_in_fd < 0) {
-        /* Mailbox-only mode has no legacy pipes; fall back to in-process */
-        return vm_ffi_call(module, import_idx, args, arg_count,
-                           result, heap, error_msg, error_msg_size);
+        /* Mailbox-only mode has no legacy pipes and the args didn't fit the
+         * mailbox slot. There is no isolated channel for this call, so fail
+         * closed rather than silently running the dangerous op in-process
+         * (an attacker who controls argument size could otherwise force the
+         * bypass by exceeding COP_MAILBOX_SLOT_SIZE). */
+        snprintf(error_msg, error_msg_size,
+                 "COP: extern-call payload exceeds mailbox slot and no isolated "
+                 "pipe channel is available; refusing in-process fallback");
+        return false;
     }
 
     uint8_t payload[8192];

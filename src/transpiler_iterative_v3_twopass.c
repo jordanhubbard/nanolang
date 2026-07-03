@@ -1095,15 +1095,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, ", ");
                     build_expr(list, expr->as.prefix_op.args[1], env);
                     emit_literal(list, ")");
+                } else if ((op == TOKEN_SLASH || op == TOKEN_PERCENT)
+                           && check_expression(expr->as.prefix_op.args[0], env) == TYPE_INT
+                           && check_expression(expr->as.prefix_op.args[1], env) == TYPE_INT) {
+                    /* Integer / and % must match the language's total semantics
+                     * (div-by-zero -> 0; INT64_MIN / -1 and INT64_MIN % -1
+                     * defined, not signed-overflow UB/SIGFPE, matching the Coq
+                     * model and the NanoISA VM). Emit a runtime helper instead
+                     * of a raw C divide. Float division stays a plain `/`. */
+                    emit_literal(list, op == TOKEN_SLASH ? "nano_rt_idiv(" : "nano_rt_imod(");
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ", ");
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_literal(list, ")");
                 } else {
                     /* Regular binary operator */
-                    bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS || 
+                    bool needs_parens = (op == TOKEN_PLUS || op == TOKEN_MINUS ||
                                        op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT ||
                                        op == TOKEN_AND || op == TOKEN_OR);
-                    
+
                     if (needs_parens) emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);
-                    
+
                     const char *op_str = NULL;
                     switch (op) {
                         case TOKEN_PLUS: op_str = " + "; break;

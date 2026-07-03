@@ -325,16 +325,28 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     return a;
 }
 
-static void array_grow(VmArray *a) {
-    uint32_t new_cap = a->capacity * 2;
+/* Returns true on success, false if the array could not grow (overflow or
+ * OOM). Callers MUST NOT write past a->length when this returns false. */
+static bool array_grow(VmArray *a) {
+    uint32_t new_cap = a->capacity ? a->capacity * 2 : 4;
+    /* capacity*2 wraps to 0 for a 2^31-element array; reject rather than
+     * realloc(0) and then write out of bounds. */
+    if (new_cap <= a->capacity || new_cap > (UINT32_MAX / sizeof(NanoValue))) {
+        return false;
+    }
     NanoValue *new_elems = realloc(a->elements, new_cap * sizeof(NanoValue));
-    if (!new_elems) return;
+    if (!new_elems) return false;
     a->elements = new_elems;
     a->capacity = new_cap;
+    return true;
 }
 
 void vm_array_push(VmArray *a, NanoValue v) {
-    if (a->length >= a->capacity) array_grow(a);
+    if (a->length >= a->capacity) {
+        /* On grow failure keep the array intact and drop the push rather than
+         * writing past the buffer (heap overflow). */
+        if (!array_grow(a)) return;
+    }
     a->elements[a->length++] = v;
     vm_retain(v);
 }

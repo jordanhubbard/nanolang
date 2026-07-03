@@ -1,8 +1,15 @@
-# NanoCore: Formal Verification (Phase 5) - AXIOM-FREE
+# NanoCore: Formal Verification (Phase 5)
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
-formalized in the Rocq Prover (Coq). All proofs are **axiom-free**
-(0 `Admitted`, 0 `axiom` declarations) across ~6,170 lines of Coq.
+formalized in the Rocq Prover (Coq). The development is **axiom-free**
+(0 `Axiom` declarations) across ~6,170 lines of Coq, and contains
+**exactly one `Admitted`**: the `E_TupleIndex` case of the big-step ↔
+small-step equivalence proof (`Equivalence.v`), where indexing a tuple of
+values must be shown to yield the expected value expression. That case is
+narrow and believed straightforwardly provable, but until it is discharged
+the "semantic equivalence" theorem is not fully closed. Everything else
+(type soundness, progress, determinism, the fuel-based evaluator's soundness)
+is complete and `Admitted`-free.
 
 ## What's proved
 
@@ -226,5 +233,5 @@ make nanocore-ref  # Build reference interpreter binary
   - EvalFn.v: 9 (5%)
   - Other: 5 (2%)
 - **Axioms:** 0 (fully axiom-free)
-- **Admitted:** 0
-- **Main results:** Preservation, Progress, Determinism, Semantic Equivalence, Evaluator Soundness
+- **Admitted:** 1 (the `E_TupleIndex` case in `Equivalence.v`; see intro)
+- **Main results:** Preservation, Progress, Determinism, Evaluator Soundness (all complete); Semantic Equivalence (complete except the one `Admitted` tuple-index case)

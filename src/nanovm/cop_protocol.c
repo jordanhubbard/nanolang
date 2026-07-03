@@ -100,8 +100,8 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
     return pos;
 }
 
-uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
-                               NanoValue *out, VmHeap *heap) {
+static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size,
+                                           NanoValue *out, VmHeap *heap) {
     if (buf_size < 1) return 0;
     uint8_t tag = buf[0];
     uint32_t pos = 1;
@@ -134,7 +134,9 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
         uint32_t len;
         memcpy(&len, buf + pos, 4);
         pos += 4;
-        if (pos + len > buf_size) return 0;
+        /* Subtraction form: pos + len can overflow uint32 and slip past a
+         * naive check, letting vm_string_new read out of bounds. */
+        if (len > buf_size - pos) return 0;
         VmString *s = vm_string_new(heap, (const char *)(buf + pos), len);
         pos += len;
         *out = val_string(s);
@@ -157,6 +159,10 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
         uint32_t count;
         memcpy(&count, buf + pos, 4);
         pos += 4;
+        /* Each element is at least 1 byte (its tag), so a legitimate array
+         * cannot claim more elements than the remaining buffer. Reject before
+         * allocating, so a tiny hostile message can't request a ~64 GB alloc. */
+        if (count > buf_size - pos) { *out = val_void(); return 0; }
         VmArray *arr = vm_array_new(heap, etype, count > 0 ? count : 4);
         for (uint32_t i = 0; i < count; i++) {
             NanoValue elem;
@@ -176,6 +182,24 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
     }
 
     return pos;
+}
+
+/* Bound recursion so a deeply-nested serialized value (an array of arrays of
+ * arrays…) from an untrusted peer cannot overflow the C stack. Thread-local
+ * so it is safe under the multithreaded daemon. */
+#define COP_MAX_DESER_DEPTH 64
+static __thread int cop_deser_depth = 0;
+
+uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
+                               NanoValue *out, VmHeap *heap) {
+    if (cop_deser_depth >= COP_MAX_DESER_DEPTH) {
+        if (out) *out = val_void();
+        return 0;
+    }
+    cop_deser_depth++;
+    uint32_t r = cop_deserialize_value_impl(buf, buf_size, out, heap);
+    cop_deser_depth--;
+    return r;
 }
 
 /* ========================================================================

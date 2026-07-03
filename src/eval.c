@@ -2534,18 +2534,21 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case TOKEN_MINUS: result = left.as.int_val - right.as.int_val; break;
                 case TOKEN_STAR: result = left.as.int_val * right.as.int_val; break;
                 case TOKEN_SLASH:
-                    if (right.as.int_val == 0) {
-                        fprintf(stderr, "Error: Division by zero\n");
-                        return create_void();
-                    }
-                    result = left.as.int_val / right.as.int_val;
+                    /* Total division, matching the NanoISA VM and the Coq
+                     * semantics: by zero = 0; INT64_MIN / -1 is signed-overflow
+                     * UB, so wrap to INT64_MIN rather than crashing. (The
+                     * interpreter previously errored on x/0 — a third behavior
+                     * that diverged from both the VM and the spec.) */
+                    if (right.as.int_val == 0) result = 0;
+                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
+                        result = INT64_MIN;
+                    else result = left.as.int_val / right.as.int_val;
                     break;
                 case TOKEN_PERCENT:
-                    if (right.as.int_val == 0) {
-                        fprintf(stderr, "Error: Modulo by zero\n");
-                        return create_void();
-                    }
-                    result = left.as.int_val % right.as.int_val;
+                    if (right.as.int_val == 0) result = 0;
+                    else if (left.as.int_val == INT64_MIN && right.as.int_val == -1)
+                        result = 0;
+                    else result = left.as.int_val % right.as.int_val;
                     break;
                 default: result = 0;
             }
@@ -2557,11 +2560,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                 case TOKEN_MINUS: result = left.as.float_val - right.as.float_val; break;
                 case TOKEN_STAR: result = left.as.float_val * right.as.float_val; break;
                 case TOKEN_SLASH:
-                    if (right.as.float_val == 0.0) {
-                        fprintf(stderr, "Error: Division by zero\n");
-                        return create_void();
-                    }
-                    result = left.as.float_val / right.as.float_val;
+                    /* Total float division = 0.0 by zero, matching the VM. */
+                    result = right.as.float_val == 0.0
+                             ? 0.0
+                             : left.as.float_val / right.as.float_val;
                     break;
                 default: result = 0.0;
             }
