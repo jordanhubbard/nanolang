@@ -32,6 +32,7 @@ let ICON_SIZE: int = 80
 let ICON_MARGIN: int = 12
 let ICONS_PER_ROW: int = 3
 let ICON_TOTAL_SIZE: int = 100
+let DOUBLE_CLICK_THRESHOLD_MS: int = 500
 
 fn rgb(r: int, g: int, b: int) -> int {
     return (+ (* r 65536) (+ (* g 256) b))
@@ -84,6 +85,18 @@ fn category_color(cat: string) -> int {
 
 shadow category_color {
     assert (!= (category_color "games") (category_color "graphics"))
+}
+
+fn is_icon_double_click(clicked_index: int, last_index: int, current_time: int, last_time: int, threshold_ms: int) -> bool {
+    let elapsed: int = (- current_time last_time)
+    return (and (== clicked_index last_index) (and (>= elapsed 0) (< elapsed threshold_ms)))
+}
+
+shadow is_icon_double_click {
+    assert (is_icon_double_click 2 2 1400 1000 500)
+    assert (not (is_icon_double_click 2 3 1400 1000 500))
+    assert (not (is_icon_double_click 2 2 1500 1000 500))
+    assert (not (is_icon_double_click 2 2 900 1000 500))
 }
 
 fn main() -> int {
@@ -183,6 +196,8 @@ fn main() -> int {
     }
     let mut source_scroll: int = 0
     let mut icon_scroll: int = 0
+    let mut last_icon_click_time: int = 0
+    let mut last_icon_click_index: int = -1
     let mut running: bool = true
 
     # Category button layout
@@ -328,6 +343,8 @@ fn main() -> int {
                     }
                     set selected_index -1
                     set icon_scroll 0
+                    set last_icon_click_index -1
+                    set last_icon_click_time 0
                     set btn_i 9999
                 }
                 set btn_i (+ btn_i 1)
@@ -353,6 +370,7 @@ fn main() -> int {
             let grid_start_y: int = (+ LEFT_PANEL_Y (+ 10 (* (+ (/ num_cats 4) 1) 28)))
             let scroll_px: int = (* icon_scroll (+ ICON_TOTAL_SIZE ICON_MARGIN))
             let mut chk: int = 0
+            let mut icon_was_clicked: bool = false
             while (< chk (array_length filtered)) {
                 let row: int = (/ chk ICONS_PER_ROW)
                 let col: int = (% chk ICONS_PER_ROW)
@@ -361,7 +379,10 @@ fn main() -> int {
                 if (and (>= iy grid_start_y) (< iy (- WINDOW_HEIGHT 20))) {
                     if (and (>= click_x ix) (and (< click_x (+ ix ICON_SIZE))
                         (and (>= click_y iy) (< click_y (+ iy ICON_SIZE))))) {
+                        let current_time: int = (SDL_GetTicks)
+                        let should_launch: bool = (is_icon_double_click chk last_icon_click_index current_time last_icon_click_time DOUBLE_CLICK_THRESHOLD_MS)
                         set selected_index chk
+                        set icon_was_clicked true
                         let ex: ExampleInfo = (at filtered chk)
                         # Close editor if open
                         if editor.active {
@@ -373,10 +394,27 @@ fn main() -> int {
                         let highlighted: string = (pretty_print_ansi raw)
                         set source_code highlighted
                         set source_scroll 0
+                        if should_launch {
+                            if (not (pm_is_running pm ex.path)) {
+                                let build_result: ChildStatus = (build_example ex.path current_mode)
+                                if (== build_result.exit_code 0) {
+                                    set pm (pm_launch pm ex.path current_mode ex.default_args)
+                                }
+                            }
+                            set last_icon_click_index -1
+                            set last_icon_click_time 0
+                        } else {
+                            set last_icon_click_index chk
+                            set last_icon_click_time current_time
+                        }
                         set chk 99999
                     }
                 }
                 set chk (+ chk 1)
+            }
+            if (not icon_was_clicked) {
+                set last_icon_click_index -1
+                set last_icon_click_time 0
             }
 
             if (>= selected_index 0) {
