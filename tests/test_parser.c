@@ -601,6 +601,68 @@ void test_parse_selective_import_alias(void) {
     free_ast(prog);
 }
 
+/* Regression: a plain module import sets the expected path and leaves
+ * is_selective and is_wildcard both false, module_alias NULL, and
+ * import_symbol_count zero. */
+void test_parse_module_import_flags(void) {
+    ASTNode *prog = parse_ok(
+        "module \"modules/math/math.nano\"");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    /* path must match what was written */
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "modules/math/math.nano") == 0);
+
+    /* no alias on a plain import */
+    ASSERT_NULL(import->as.import_stmt.module_alias);
+
+    /* must NOT be flagged as selective or wildcard */
+    ASSERT(import->as.import_stmt.is_selective == false);
+    ASSERT(import->as.import_stmt.is_wildcard  == false);
+
+    /* no symbol list */
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+
+    free_ast(prog);
+}
+
+/* Regression: a wildcard import (from "..." import *) sets is_wildcard and
+ * is_selective without populating individual symbols or aliases. */
+void test_parse_wildcard_import_flags(void) {
+    ASTNode *prog = parse_ok(
+        "from \"modules/math/math.nano\" import *");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    /* path must be preserved */
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "modules/math/math.nano") == 0);
+
+    /* wildcard implies selective=true, wildcard=true */
+    ASSERT(import->as.import_stmt.is_wildcard  == true);
+    ASSERT(import->as.import_stmt.is_selective == true);
+
+    /* no individual symbols or aliases should be populated */
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+    ASSERT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT_NULL(import->as.import_stmt.import_aliases);
+
+    free_ast(prog);
+}
+
 /* ============================================================================
  * parse_repl_input tests
  * ============================================================================ */
@@ -810,6 +872,8 @@ int main(void) {
 
     printf("\n--- Import parsing ---\n");
     TEST(parse_selective_import_alias);
+    TEST(parse_module_import_flags);
+    TEST(parse_wildcard_import_flags);
 
     printf("\n--- parse_repl_input tests ---\n");
     TEST(parse_repl_simple);
