@@ -11,6 +11,9 @@
  *   7. peek does not consume the entry
  *   8. count tracks fill level accurately
  *   9. typed RINGBUF_DEFINE produces independent instances
+ *  10. failed push on full buffer preserves count AND FIFO contents (regression)
+ *  11. failed pop on empty buffer leaves caller output unchanged (regression)
+ *  12. failed peek on empty buffer leaves caller output unchanged (regression)
  */
 
 #include <stdint.h>
@@ -240,6 +243,97 @@ static void test_independent_types(void) {
 }
 
 /* -----------------------------------------------------------------------
+ * Test 10: failed push on full buffer preserves count AND FIFO contents
+ *
+ * Regression: a push that returns -1 must not corrupt head/tail or overwrite
+ * any slot — the caller must see the same ordered contents after the refusal.
+ * ----------------------------------------------------------------------- */
+static void test_push_full_preserves_fifo(void) {
+    printf("[10] failed push preserves count and FIFO contents\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Fill with ids 0..7 */
+    uint32_t i;
+    for (i = 0; i < 8; i++) {
+        msg_t m = { .id = i, .data = {0, 0, 0, 0} };
+        msg_rb_push(&rb, &m);
+    }
+    ASSERT(msg_rb_count(&rb) == 8, "count is 8 before failed push");
+
+    /* Attempt to push one more — must be rejected */
+    msg_t extra = { .id = 99, .data = {9, 9, 9, 9} };
+    ASSERT(msg_rb_push(&rb, &extra) == -1, "push on full returns -1");
+
+    /* Count must be unchanged */
+    ASSERT(msg_rb_count(&rb) == 8, "count still 8 after failed push");
+
+    /* Drain and verify the original FIFO sequence is intact */
+    int fifo_ok = 1;
+    for (i = 0; i < 8; i++) {
+        msg_t out = { 0 };
+        msg_rb_pop(&rb, &out);
+        if (out.id != i) fifo_ok = 0;
+    }
+    ASSERT(fifo_ok, "FIFO contents unchanged after failed push");
+    ASSERT(msg_rb_empty(&rb) == 1, "buffer empty after full drain");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 11: failed pop on empty buffer leaves caller output unchanged
+ *
+ * Regression: pop returning -1 must not write to *out — the caller's
+ * variable must hold the same value it had before the call.
+ * ----------------------------------------------------------------------- */
+static void test_pop_empty_no_clobber(void) {
+    printf("[11] failed pop on empty leaves output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Sentinel value chosen to be obviously distinct from a zero-initialised
+     * struct so we can tell if pop silently zeroed or wrote the slot. */
+    msg_t out;
+    out.id      = 0xDEADU;
+    out.data[0] = 0xABu;
+    out.data[1] = 0xCDu;
+    out.data[2] = 0xEFu;
+    out.data[3] = 0x12u;
+
+    ASSERT(msg_rb_pop(&rb, &out) == -1, "pop on empty returns -1");
+    ASSERT(out.id      == 0xDEADU, "out.id unchanged after failed pop");
+    ASSERT(out.data[0] == 0xABu,   "out.data[0] unchanged after failed pop");
+    ASSERT(out.data[1] == 0xCDu,   "out.data[1] unchanged after failed pop");
+    ASSERT(out.data[2] == 0xEFu,   "out.data[2] unchanged after failed pop");
+    ASSERT(out.data[3] == 0x12u,   "out.data[3] unchanged after failed pop");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 12: failed peek on empty buffer leaves caller output unchanged
+ *
+ * Regression: peek returning -1 must not write to *out — the caller's
+ * variable must hold the same value it had before the call.
+ * ----------------------------------------------------------------------- */
+static void test_peek_empty_no_clobber(void) {
+    printf("[12] failed peek on empty leaves output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    msg_t out;
+    out.id      = 0xBEEFU;
+    out.data[0] = 0x11u;
+    out.data[1] = 0x22u;
+    out.data[2] = 0x33u;
+    out.data[3] = 0x44u;
+
+    ASSERT(msg_rb_peek(&rb, &out) == -1, "peek on empty returns -1");
+    ASSERT(out.id      == 0xBEEFU, "out.id unchanged after failed peek");
+    ASSERT(out.data[0] == 0x11u,   "out.data[0] unchanged after failed peek");
+    ASSERT(out.data[1] == 0x22u,   "out.data[1] unchanged after failed peek");
+    ASSERT(out.data[2] == 0x33u,   "out.data[2] unchanged after failed peek");
+    ASSERT(out.data[3] == 0x44u,   "out.data[3] unchanged after failed peek");
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 int main(void) {
@@ -253,6 +347,9 @@ int main(void) {
     test_peek();
     test_count();
     test_independent_types();
+    test_push_full_preserves_fifo();
+    test_pop_empty_no_clobber();
+    test_peek_empty_no_clobber();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
