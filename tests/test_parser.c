@@ -573,6 +573,35 @@ void test_parse_unsafe_block(void) {
 }
 
 /* ============================================================================
+ * Import parsing tests
+ * ============================================================================ */
+
+void test_parse_selective_import_alias(void) {
+    ASTNode *prog = parse_ok(
+        "from \"modules/std/collections/stringbuilder.nano\" import sb_join as join_strings");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "modules/std/collections/stringbuilder.nano") == 0);
+    ASSERT_NULL(import->as.import_stmt.module_alias);
+    ASSERT(import->as.import_stmt.is_selective == true);
+    ASSERT(import->as.import_stmt.is_wildcard == false);
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 1);
+    ASSERT_NOT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT(strcmp(import->as.import_stmt.import_symbols[0], "sb_join") == 0);
+    ASSERT_NOT_NULL(import->as.import_stmt.import_aliases);
+    ASSERT_NOT_NULL(import->as.import_stmt.import_aliases[0]);
+    ASSERT(strcmp(import->as.import_stmt.import_aliases[0], "join_strings") == 0);
+
+    free_ast(prog);
+}
+
+/* ============================================================================
  * parse_repl_input tests
  * ============================================================================ */
 
@@ -651,6 +680,14 @@ void test_parse_err_invalid_token(void) {
     ASTNode *prog = parse_ok("fn main() -> int { return @ }");
     restore_stderr();
     if (prog) free_ast(prog);
+}
+
+void test_parse_err_selective_import_dangling_as(void) {
+    suppress_stderr();
+    ASTNode *prog = parse_ok(
+        "from \"modules/std/collections/stringbuilder.nano\" import sb_join as");
+    restore_stderr();
+    ASSERT_NULL(prog);
 }
 
 void test_parse_many_functions(void) {
@@ -771,6 +808,9 @@ int main(void) {
     TEST(parse_multiline_string);
     TEST(parse_unsafe_block);
 
+    printf("\n--- Import parsing ---\n");
+    TEST(parse_selective_import_alias);
+
     printf("\n--- parse_repl_input tests ---\n");
     TEST(parse_repl_simple);
     TEST(parse_repl_expression);
@@ -785,6 +825,7 @@ int main(void) {
     TEST(parse_err_unclosed_paren);
     TEST(parse_err_missing_return_type);
     TEST(parse_err_invalid_token);
+    TEST(parse_err_selective_import_dangling_as);
     TEST(parse_many_functions);
     TEST(parse_deep_nesting);
     TEST(parse_infix_operators);
