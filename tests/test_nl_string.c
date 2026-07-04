@@ -160,6 +160,124 @@ void test_null_termination() {
 }
 
 /* ============================================================================
+ * Capacity-Boundary Regression Tests
+ *
+ * These tests exercise binary strings at three critical capacity boundaries:
+ *   1. zero-length  — capacity == 0, ensure_null_terminated must realloc
+ *   2. exact-capacity — capacity == length, no slack for a null terminator
+ *   3. one-over-capacity — same as exact-capacity but with embedded NUL bytes
+ *
+ * For each boundary we verify:
+ *   - nl_string_length() before and after ensure_null_terminated
+ *   - raw byte content (including embedded NUL bytes) via nl_string_byte_at
+ *   - null_terminated flag before (false) and after (true)
+ * ============================================================================ */
+
+/* Boundary 1: zero-length binary string.
+ * nl_string_new_binary(ptr, 0) sets capacity=0 and length=0.
+ * ensure_null_terminated must detect length >= capacity (0 >= 0) and realloc
+ * to capacity=1 before writing the terminator.
+ */
+void test_binary_zero_length_null_termination() {
+    /* A non-NULL pointer is fine; zero length means nothing is copied. */
+    char dummy = '\xFF';
+    nl_string_t *str = nl_string_new_binary(&dummy, 0);
+    ASSERT(str != NULL);
+
+    /* Pre-condition: empty, not null-terminated, capacity leaves no room. */
+    ASSERT(nl_string_length(str) == 0);
+    ASSERT(str->capacity == 0);
+    ASSERT(!str->null_terminated);
+
+    nl_string_ensure_null_terminated(str);
+
+    /* Post-condition: length unchanged, terminator written, capacity grew. */
+    ASSERT(nl_string_length(str) == 0);
+    ASSERT(str->null_terminated);
+    ASSERT(str->data[0] == '\0');
+    ASSERT(str->capacity >= 1);
+
+    nl_string_free(str);
+}
+
+/* Boundary 2: exact-capacity binary string (no embedded NUL).
+ * nl_string_new_binary copies exactly N bytes and sets capacity=N, so there
+ * is no room for a null terminator.  ensure_null_terminated must realloc to
+ * capacity N+1 and write the terminator without altering any of the N bytes.
+ */
+void test_binary_exact_capacity_null_termination() {
+    /* Three ordinary bytes; no embedded NUL so cstr comparison is safe. */
+    char data[] = {'X', 'Y', 'Z'};
+    nl_string_t *str = nl_string_new_binary(data, 3);
+    ASSERT(str != NULL);
+
+    /* Pre-condition: length==3, capacity==3, not null-terminated. */
+    ASSERT(nl_string_length(str) == 3);
+    ASSERT(str->capacity == 3);
+    ASSERT(!str->null_terminated);
+
+    /* Raw bytes are preserved. */
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 'X');
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 'Y');
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 'Z');
+
+    nl_string_ensure_null_terminated(str);
+
+    /* Post-condition: length still 3, bytes intact, terminator written. */
+    ASSERT(nl_string_length(str) == 3);
+    ASSERT(str->null_terminated);
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 'X');
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 'Y');
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 'Z');
+    ASSERT(str->data[3] == '\0');
+    ASSERT(strcmp(nl_string_to_cstr(str), "XYZ") == 0);
+
+    nl_string_free(str);
+}
+
+/* Boundary 3: one-byte-over-capacity growth with embedded NUL bytes.
+ * A 5-byte binary string that contains embedded NUL bytes is created with
+ * nl_string_new_binary so capacity==5==length.  ensure_null_terminated must
+ * realloc (growing capacity by exactly one byte) and must preserve all five
+ * bytes including the interior NUL bytes.  Length must remain 5 throughout.
+ */
+void test_binary_embedded_nul_one_over_capacity_null_termination() {
+    /* Bytes: 0x41 'A', 0x00 NUL, 0x42 'B', 0x00 NUL, 0x43 'C' */
+    char data[] = {0x41, 0x00, 0x42, 0x00, 0x43};
+    nl_string_t *str = nl_string_new_binary(data, 5);
+    ASSERT(str != NULL);
+
+    /* Pre-condition: capacity tight, not null-terminated. */
+    ASSERT(nl_string_length(str) == 5);
+    ASSERT(str->capacity == 5);
+    ASSERT(!str->null_terminated);
+
+    /* All five bytes including the two embedded NULs are intact. */
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 0x41);
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 0x00);
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 0x42);
+    ASSERT((unsigned char)nl_string_byte_at(str, 3) == 0x00);
+    ASSERT((unsigned char)nl_string_byte_at(str, 4) == 0x43);
+
+    nl_string_ensure_null_terminated(str);
+
+    /* Post-condition: length==5, all bytes unchanged, terminator appended. */
+    ASSERT(nl_string_length(str) == 5);
+    ASSERT(str->null_terminated);
+    ASSERT(str->capacity >= 6);
+
+    /* Each byte must survive the realloc. */
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 0x41);
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 0x00);
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 0x42);
+    ASSERT((unsigned char)nl_string_byte_at(str, 3) == 0x00);
+    ASSERT((unsigned char)nl_string_byte_at(str, 4) == 0x43);
+    ASSERT(str->data[5] == '\0');
+
+    nl_string_free(str);
+}
+
+/* ============================================================================
  * Main
  * ============================================================================ */
 
@@ -181,6 +299,11 @@ int main() {
     printf("\nMemory Management:\n");
     TEST(clone);
     TEST(null_termination);
+
+    printf("\nCapacity-Boundary Regressions:\n");
+    TEST(binary_zero_length_null_termination);
+    TEST(binary_exact_capacity_null_termination);
+    TEST(binary_embedded_nul_one_over_capacity_null_termination);
     
     printf("\n✓ All tests passed!\n");
     return 0;
