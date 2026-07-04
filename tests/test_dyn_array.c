@@ -298,6 +298,11 @@ static void test_clear(void) {
     ASSERT_EQ(dyn_array_length(arr), 0, "length should be 0 after clear");
     ASSERT_EQ(dyn_array_capacity(arr), cap_before, "capacity should not change after clear");
 
+    /* Array must remain reusable after clear: push one element and verify it. */
+    dyn_array_push_int(arr, 42);
+    ASSERT_EQ(dyn_array_length(arr), 1, "length should be 1 after push post-clear");
+    ASSERT_EQ(dyn_array_get_int(arr, 0), 42, "first element after push post-clear should be 42");
+
     PASS(test_name);
 }
 
