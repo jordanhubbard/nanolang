@@ -132,3 +132,6 @@ site/
 *.db
 .beads/
 .codegraph/
+
+# MAC runtime evidence belongs in the task workspace, never in source control.
+/mac-evidence.json
