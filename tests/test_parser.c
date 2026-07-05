@@ -601,6 +601,61 @@ void test_parse_selective_import_alias(void) {
     free_ast(prog);
 }
 
+/* Regression: normal module import sets path and clears selective/wildcard flags */
+void test_parse_normal_module_import(void) {
+    ASTNode *prog = parse_ok("module \"modules/std/math.nano\"");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    /* module_path must reflect the declared path */
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path, "modules/std/math.nano") == 0);
+
+    /* A plain module import carries no alias */
+    ASSERT_NULL(import->as.import_stmt.module_alias);
+
+    /* Must NOT be selective or wildcard */
+    ASSERT(import->as.import_stmt.is_selective == false);
+    ASSERT(import->as.import_stmt.is_wildcard  == false);
+
+    /* No symbol list for a non-selective import */
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+
+    free_ast(prog);
+}
+
+/* Regression: wildcard import sets is_wildcard without populating symbols or aliases */
+void test_parse_wildcard_import(void) {
+    ASTNode *prog = parse_ok("from \"modules/std/collections.nano\" import *");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "modules/std/collections.nano") == 0);
+
+    /* Wildcard implies selective (from…import form) */
+    ASSERT(import->as.import_stmt.is_selective == true);
+    ASSERT(import->as.import_stmt.is_wildcard  == true);
+
+    /* No named symbols or aliases for a wildcard import */
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+    ASSERT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT_NULL(import->as.import_stmt.import_aliases);
+
+    free_ast(prog);
+}
+
 /* ============================================================================
  * parse_repl_input tests
  * ============================================================================ */
@@ -810,6 +865,8 @@ int main(void) {
 
     printf("\n--- Import parsing ---\n");
     TEST(parse_selective_import_alias);
+    TEST(parse_normal_module_import);
+    TEST(parse_wildcard_import);
 
     printf("\n--- parse_repl_input tests ---\n");
     TEST(parse_repl_simple);
