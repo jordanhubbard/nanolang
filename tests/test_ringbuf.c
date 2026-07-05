@@ -11,6 +11,7 @@
  *   7. peek does not consume the entry
  *   8. count tracks fill level accurately
  *   9. typed RINGBUF_DEFINE produces independent instances
+ *  10. FIFO/count remain correct across repeated wraparound cycles
  */
 
 #include <stdint.h>
@@ -20,6 +21,7 @@
 
 /* Use a small capacity so we can exercise full/wraparound easily */
 #define RINGBUF_SIZE 8u
+#define MSG_RB_CAPACITY 8u
 #define RINGBUF_NO_DEFAULT   /* we define our own typed variants below */
 #include "../include/ringbuf.h"
 
@@ -32,7 +34,7 @@ typedef struct {
     uint8_t  data[4];
 } msg_t;
 
-RINGBUF_DEFINE(msg_rb, msg_t, 8)
+RINGBUF_DEFINE(msg_rb, msg_t, MSG_RB_CAPACITY)
 
 typedef struct {
     uint64_t tick;
@@ -240,6 +242,78 @@ static void test_independent_types(void) {
 }
 
 /* -----------------------------------------------------------------------
+ * Test 10: repeated wraparound cycles with interleaved push/pop
+ * ----------------------------------------------------------------------- */
+static void test_multi_wraparound_cycles(void) {
+    printf("[10] multi-cycle wraparound FIFO/count\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    msg_t in  = { 0 };
+    msg_t out = { 0 };
+
+    /*
+     * Start away from index 0 so every capacity-sized cycle crosses the
+     * physical array boundary instead of merely ending at it.
+     */
+    for (uint32_t i = 0; i < 5; i++) {
+        in.id = 500 + i;
+        ASSERT(msg_rb_push(&rb, &in) == 0, "precondition push succeeds");
+        ASSERT(msg_rb_pop(&rb, &out) == 0,  "precondition pop succeeds");
+        ASSERT(out.id == 500 + i,           "precondition FIFO order");
+    }
+    ASSERT(msg_rb_empty(&rb) == 1, "precondition leaves buffer empty");
+    ASSERT(msg_rb_count(&rb) == 0, "precondition leaves count at 0");
+
+    uint32_t next_id = 1000;
+    uint32_t expected_id = next_id;
+    uint32_t expected_index = 5u;
+
+    for (uint32_t cycle = 0; cycle < 3; cycle++) {
+        size_t expected_count = 0;
+        char desc[96];
+
+        for (uint32_t pair = 0; pair < MSG_RB_CAPACITY / 2u; pair++) {
+            in.id = next_id++;
+            ASSERT(msg_rb_push(&rb, &in) == 0, "cycle first push succeeds");
+            expected_count++;
+            ASSERT(msg_rb_count(&rb) == expected_count, "count tracks first push");
+
+            in.id = next_id++;
+            ASSERT(msg_rb_push(&rb, &in) == 0, "cycle second push succeeds");
+            expected_count++;
+            ASSERT(msg_rb_count(&rb) == expected_count, "count tracks second push");
+
+            ASSERT(msg_rb_pop(&rb, &out) == 0, "cycle interleaved pop succeeds");
+            ASSERT(out.id == expected_id++,    "FIFO order during interleaved pop");
+            expected_count--;
+            ASSERT(msg_rb_count(&rb) == expected_count, "count tracks interleaved pop");
+        }
+
+        while (expected_count > 0) {
+            ASSERT(msg_rb_pop(&rb, &out) == 0, "cycle drain pop succeeds");
+            ASSERT(out.id == expected_id++,    "FIFO order during cycle drain");
+            expected_count--;
+            ASSERT(msg_rb_count(&rb) == expected_count, "count tracks cycle drain");
+        }
+
+        expected_index += MSG_RB_CAPACITY;
+        snprintf(desc, sizeof(desc), "cycle %u head advanced one full wrap", cycle + 1u);
+        ASSERT(rb.head == expected_index, desc);
+        snprintf(desc, sizeof(desc), "cycle %u tail advanced one full wrap", cycle + 1u);
+        ASSERT(rb.tail == expected_index, desc);
+        snprintf(desc, sizeof(desc), "cycle %u empty after complete wrap", cycle + 1u);
+        ASSERT(msg_rb_empty(&rb) == 1, desc);
+        snprintf(desc, sizeof(desc), "cycle %u count reset after complete wrap", cycle + 1u);
+        ASSERT(msg_rb_count(&rb) == 0, desc);
+        snprintf(desc, sizeof(desc), "cycle %u not full after complete wrap", cycle + 1u);
+        ASSERT(msg_rb_full(&rb) == 0, desc);
+    }
+
+    ASSERT(expected_id == next_id, "all cycle items consumed in FIFO order");
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 int main(void) {
@@ -253,6 +327,7 @@ int main(void) {
     test_peek();
     test_count();
     test_independent_types();
+    test_multi_wraparound_cycles();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
