@@ -225,7 +225,7 @@ fn main() -> int {
                             set next_direction Direction.RIGHT
                         } else {}
                     } else {
-                        if (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) {
+                        if (or (== key (cast_int 'q')) (== key (cast_int 'Q')) (== key 27)) {
                             set running false
                         } else {}
                     }
@@ -304,7 +304,7 @@ fn main() -> int {
         if game_over {
             unsafe {             (mvprintw_wrapper (/ GRID_HEIGHT 2) (/ GRID_WIDTH 2) "GAME OVER!") }
             unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 5) 0 (+ "Final Score: " (int_to_string score))) }
-            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 6) 0 "Press Q to quit") }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 6) 0 "Press Q or ESC to quit") }
             unsafe {             (refresh_wrapper) }
         } else {}
     }

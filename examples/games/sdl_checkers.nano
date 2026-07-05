@@ -1123,6 +1123,12 @@ fn main() -> int {
         if (== quit 1) {
             set running false
         } else {}
+
+        # ESC key to quit
+        let esc_key: int = (nl_sdl_poll_keypress)
+        if (== esc_key 41) {
+            set running false
+        } else {}
         
         # Check for game over (only if not already in game over state)
         if (!= game_state 2) {  # Not already GAME_OVER

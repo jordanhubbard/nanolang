@@ -269,7 +269,7 @@ fn main() -> int {
     unsafe {     (clear_wrapper) }
     (draw_grid_ncurses grid GRID_WIDTH GRID_HEIGHT)
     unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (+ "Generation: " (int_to_string generation))) }
-    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit") }
+    unsafe {     (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q/ESC=Quit") }
     unsafe {     (refresh_wrapper) }
     
     # Game loop
@@ -280,7 +280,7 @@ fn main() -> int {
         if (or (== key KEY_SPACE) (== key (cast_int ' '))) {
             set paused (not paused)
         } else {
-            if (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) {
+            if (or (== key (cast_int 'q')) (== key (cast_int 'Q')) (== key 27)) {
                 set running false
             } else {}
         }
@@ -299,9 +299,9 @@ fn main() -> int {
         unsafe {         (mvprintw_wrapper (+ GRID_HEIGHT 1) 0 (+ "Generation: " (int_to_string generation))) }
         
         if paused {
-            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q=Quit") }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "PAUSED - SPACE=Resume  Q/ESC=Quit") }
         } else {
-            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q=Quit") }
+            unsafe {             (mvprintw_wrapper (+ GRID_HEIGHT 2) 0 "SPACE=Pause  Q/ESC=Quit") }
         }
         
         unsafe {         (refresh_wrapper) }

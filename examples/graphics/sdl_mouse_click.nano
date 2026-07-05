@@ -50,6 +50,10 @@ fn main() -> int {
     while running {
         # Poll keyboard FIRST (this is what was breaking mouse clicks before)
         let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {
+            # ESC pressed - quit
+            set running false
+        } else {
         if (> key -1) {
             if (== key 44) {
                 # SPACE pressed
@@ -60,6 +64,7 @@ fn main() -> int {
             }
         } else {
             (print "")
+        }
         }
         
         # Check for quit event

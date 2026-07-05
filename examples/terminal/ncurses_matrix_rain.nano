@@ -38,7 +38,7 @@ fn random_speed() -> int {
 
 fn main() -> int {
     (println "Starting Matrix Digital Rain...")
-    (println "Press any key to exit")
+    (println "Press ESC to exit")
     (println "")
     
     # Seed random
@@ -88,7 +88,7 @@ fn main() -> int {
     
     # Main loop
     while running {
-        # Check for input (any key exits)
+        # Check for input (ESC exits; any key also exits)
         let key: int = (getch_wrapper)
         if (>= key 0) {
             set running false

@@ -491,6 +491,11 @@ fn main() -> int {
         if (not running) {
             (glfwSetWindowShouldClose window 1) 
         } else {}
+
+        # ESC to quit
+        if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+            (glfwSetWindowShouldClose window 1)
+        } else {}
         
         # Poll GLFW events
         (glfwPollEvents) 

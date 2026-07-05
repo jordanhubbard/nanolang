@@ -223,7 +223,7 @@ fn main() -> int {
 
     while running {
         let key: int = (nl_sdl_poll_keypress)
-        if (> key -1) {
+        if (or (== key 41) (== key 20)) {    # ESC or Q to quit
             set running false
         } else {}
 

@@ -209,6 +209,9 @@ fn main() -> int {
         
         # Check for keypresses (one-time events)
         let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {                                       # ESC - quit
+            set running false
+        } else {}
         if (== key 21) {                                       # R key
             if (== game_state STATE_GAME_OVER) {
                 # Restart game

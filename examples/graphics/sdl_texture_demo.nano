@@ -54,9 +54,10 @@ fn main() -> int {
     while running {
         # Events
         let quit_event: int = (nl_sdl_poll_event_quit)
-        (nl_sdl_poll_keypress) 
+        let key: int = (nl_sdl_poll_keypress)
         let should_quit: bool = (cond
             ((!= quit_event 0) true)
+            ((== key 41) true)
             (else false)
         )
         if should_quit {

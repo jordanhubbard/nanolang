@@ -661,6 +661,11 @@ while (== (glfwWindowShouldClose window) 0) {
     } else {}
     set last_r_state r_state
         
+    # ESC to quit
+    if (== (glfwGetKey window GLFW_KEY_ESCAPE) 1) {
+        (glfwSetWindowShouldClose window 1)
+    } else {}
+
     set frame_count (+ frame_count 1)
 }
     

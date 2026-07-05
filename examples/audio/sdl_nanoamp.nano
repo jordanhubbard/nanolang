@@ -241,6 +241,9 @@ fn main() -> int {
         
         let key: int = (nl_sdl_poll_keypress)
         
+        if (== key 41) {  # ESC - quit
+            set running false
+        } else {}
         if (== key 43) {  # TAB
             set viz_mode (% (+ viz_mode 1) num_viz_modes)
             if (== viz_mode 0) { (println "🌀 Circular Spectrum") } else {}
