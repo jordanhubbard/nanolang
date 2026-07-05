@@ -727,7 +727,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore
+test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
