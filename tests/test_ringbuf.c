@@ -12,6 +12,9 @@
  *   8. count tracks fill level accurately
  *   9. typed RINGBUF_DEFINE produces independent instances
  *  10. FIFO/count remain correct across repeated wraparound cycles
+ *  11. REGRESSION: failed push on full buffer preserves count and FIFO contents
+ *  12. REGRESSION: failed pop on empty buffer leaves caller output unchanged
+ *  13. REGRESSION: failed peek on empty buffer leaves caller output unchanged
  */
 
 #include <stdint.h>
@@ -314,6 +317,87 @@ static void test_multi_wraparound_cycles(void) {
 }
 
 /* -----------------------------------------------------------------------
+ * Test 11: REGRESSION — failed push on full buffer preserves count and
+ *          FIFO contents (not just count, but the queued items are intact)
+ * ----------------------------------------------------------------------- */
+static void test_push_full_preserves_fifo(void) {
+    printf("[11] REGRESSION: failed push preserves count and FIFO contents\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Fill the buffer with distinguishable, ordered items */
+    for (uint32_t i = 0; i < 8; i++) {
+        msg_t m = { .id = 10 + i, .data = {(uint8_t)i, 0, 0, 0} };
+        msg_rb_push(&rb, &m);
+    }
+    ASSERT(msg_rb_full(&rb) == 1, "buffer is full before failed push");
+
+    /* Attempt a push that must fail; use a sentinel value */
+    msg_t rejected = { .id = 0xFF, .data = {0xFF, 0xFF, 0xFF, 0xFF} };
+    int rc = msg_rb_push(&rb, &rejected);
+    ASSERT(rc == -1, "push on full returns -1");
+
+    /* Count must be unchanged */
+    ASSERT(msg_rb_count(&rb) == 8, "count still 8 after failed push");
+    ASSERT(msg_rb_full(&rb)  == 1, "full flag still set after failed push");
+
+    /* Drain and verify that the original FIFO sequence is intact —
+     * the rejected item must not appear and order must be preserved. */
+    int fifo_intact = 1;
+    for (uint32_t i = 0; i < 8; i++) {
+        msg_t out = { 0 };
+        msg_rb_pop(&rb, &out);
+        if (out.id != 10 + i) fifo_intact = 0;
+    }
+    ASSERT(fifo_intact,            "FIFO contents unchanged after failed push");
+    ASSERT(msg_rb_empty(&rb) == 1, "buffer empty after draining all original items");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 12: REGRESSION — failed pop on empty buffer leaves caller output
+ *          unchanged (the output variable must not be modified)
+ * ----------------------------------------------------------------------- */
+static void test_pop_empty_output_unchanged(void) {
+    printf("[12] REGRESSION: failed pop on empty buffer leaves output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Sentinel value in `out`; a buggy pop might zero it or overwrite it */
+    msg_t out = { .id = 0xDEAD, .data = {1, 2, 3, 4} };
+    int rc = msg_rb_pop(&rb, &out);
+    ASSERT(rc == -1,                "pop on empty returns -1");
+    ASSERT(out.id == 0xDEAD,       "pop on empty: caller id field unchanged");
+    ASSERT(out.data[0] == 1,       "pop on empty: caller data[0] unchanged");
+    ASSERT(out.data[1] == 2,       "pop on empty: caller data[1] unchanged");
+    ASSERT(out.data[2] == 3,       "pop on empty: caller data[2] unchanged");
+    ASSERT(out.data[3] == 4,       "pop on empty: caller data[3] unchanged");
+    ASSERT(msg_rb_empty(&rb) == 1, "buffer still empty after failed pop");
+    ASSERT(msg_rb_count(&rb) == 0, "count still 0 after failed pop");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 13: REGRESSION — failed peek on empty buffer leaves caller output
+ *          unchanged (the output variable must not be modified)
+ * ----------------------------------------------------------------------- */
+static void test_peek_empty_output_unchanged(void) {
+    printf("[13] REGRESSION: failed peek on empty buffer leaves output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Sentinel value in `out`; a buggy peek might zero it or overwrite it */
+    msg_t out = { .id = 0xBEEF, .data = {5, 6, 7, 8} };
+    int rc = msg_rb_peek(&rb, &out);
+    ASSERT(rc == -1,                "peek on empty returns -1");
+    ASSERT(out.id == 0xBEEF,       "peek on empty: caller id field unchanged");
+    ASSERT(out.data[0] == 5,       "peek on empty: caller data[0] unchanged");
+    ASSERT(out.data[1] == 6,       "peek on empty: caller data[1] unchanged");
+    ASSERT(out.data[2] == 7,       "peek on empty: caller data[2] unchanged");
+    ASSERT(out.data[3] == 8,       "peek on empty: caller data[3] unchanged");
+    ASSERT(msg_rb_empty(&rb) == 1, "buffer still empty after failed peek");
+    ASSERT(msg_rb_count(&rb) == 0, "count still 0 after failed peek");
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 int main(void) {
@@ -328,6 +412,9 @@ int main(void) {
     test_count();
     test_independent_types();
     test_multi_wraparound_cycles();
+    test_push_full_preserves_fifo();
+    test_pop_empty_output_unchanged();
+    test_peek_empty_output_unchanged();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
