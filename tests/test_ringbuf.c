@@ -12,6 +12,9 @@
  *   8. count tracks fill level accurately
  *   9. typed RINGBUF_DEFINE produces independent instances
  *  10. FIFO/count remain correct across repeated wraparound cycles
+ *  11. failed push on full buffer preserves count AND FIFO contents
+ *  12. failed pop on empty buffer leaves caller output unchanged
+ *  13. failed peek on empty buffer leaves caller output unchanged
  */
 
 #include <stdint.h>
@@ -314,6 +317,102 @@ static void test_multi_wraparound_cycles(void) {
 }
 
 /* -----------------------------------------------------------------------
+ * Test 11: failed push on full buffer preserves count AND FIFO contents
+ *
+ * Regression: a buggy implementation might silently overwrite the oldest
+ * entry (converting to a lossy overwrite ring).  Verify that after a
+ * rejected push, every item drained in FIFO order is the one that was
+ * originally enqueued, not the rejected payload.
+ * ----------------------------------------------------------------------- */
+static void test_push_full_preserves_fifo(void) {
+    printf("[11] failed push on full buffer preserves count and FIFO\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* Fill with IDs 0..7 */
+    uint32_t i;
+    for (i = 0; i < 8u; i++) {
+        msg_t m = { .id = i, .data = {(uint8_t)i, 0, 0, 0} };
+        msg_rb_push(&rb, &m);
+    }
+
+    /* Attempt to push a sentinel that must NOT appear in a subsequent drain */
+    msg_t sentinel = { .id = 0xDEADu, .data = {0xFF, 0xFF, 0xFF, 0xFF} };
+    int rc = msg_rb_push(&rb, &sentinel);
+    ASSERT(rc == -1, "push on full returns -1");
+    ASSERT(msg_rb_count(&rb) == 8, "count unchanged after rejected push");
+
+    /* Drain and verify original FIFO order — sentinel must not appear */
+    int fifo_ok   = 1;
+    int no_sentinel = 1;
+    for (i = 0; i < 8u; i++) {
+        msg_t out = { 0 };
+        msg_rb_pop(&rb, &out);
+        if (out.id != i)       fifo_ok    = 0;
+        if (out.id == 0xDEADu) no_sentinel = 0;
+    }
+    ASSERT(fifo_ok,    "FIFO contents intact after rejected push");
+    ASSERT(no_sentinel, "sentinel value absent — no overwrite occurred");
+    ASSERT(msg_rb_empty(&rb) == 1, "buffer empty after full drain");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 12: failed pop on empty buffer leaves caller output unchanged
+ *
+ * Regression: a buggy pop might write a zero-struct (or garbage) into
+ * *out even when returning -1.  The caller's variable must be bit-for-bit
+ * identical to its value before the failed pop.
+ * ----------------------------------------------------------------------- */
+static void test_pop_empty_output_unchanged(void) {
+    printf("[12] failed pop on empty buffer leaves caller output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* out is initialised to a known sentinel pattern */
+    msg_t out;
+    out.id      = 0xCAFEBABEu;
+    out.data[0] = 0xAA;
+    out.data[1] = 0xBB;
+    out.data[2] = 0xCC;
+    out.data[3] = 0xDD;
+
+    int rc = msg_rb_pop(&rb, &out);
+    ASSERT(rc == -1, "pop on empty returns -1");
+    ASSERT(out.id      == 0xCAFEBABEu, "out.id unchanged after failed pop");
+    ASSERT(out.data[0] == 0xAA,        "out.data[0] unchanged after failed pop");
+    ASSERT(out.data[1] == 0xBB,        "out.data[1] unchanged after failed pop");
+    ASSERT(out.data[2] == 0xCC,        "out.data[2] unchanged after failed pop");
+    ASSERT(out.data[3] == 0xDD,        "out.data[3] unchanged after failed pop");
+}
+
+/* -----------------------------------------------------------------------
+ * Test 13: failed peek on empty buffer leaves caller output unchanged
+ *
+ * Mirrors test 12 for peek: a failed peek must not clobber *out.
+ * ----------------------------------------------------------------------- */
+static void test_peek_empty_output_unchanged(void) {
+    printf("[13] failed peek on empty buffer leaves caller output unchanged\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+    /* out is initialised to a known sentinel pattern */
+    msg_t out;
+    out.id      = 0xDEADC0DEu;
+    out.data[0] = 0x11;
+    out.data[1] = 0x22;
+    out.data[2] = 0x33;
+    out.data[3] = 0x44;
+
+    int rc = msg_rb_peek(&rb, &out);
+    ASSERT(rc == -1, "peek on empty returns -1");
+    ASSERT(out.id      == 0xDEADC0DEu, "out.id unchanged after failed peek");
+    ASSERT(out.data[0] == 0x11,         "out.data[0] unchanged after failed peek");
+    ASSERT(out.data[1] == 0x22,         "out.data[1] unchanged after failed peek");
+    ASSERT(out.data[2] == 0x33,         "out.data[2] unchanged after failed peek");
+    ASSERT(out.data[3] == 0x44,         "out.data[3] unchanged after failed peek");
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 int main(void) {
@@ -328,6 +427,9 @@ int main(void) {
     test_count();
     test_independent_types();
     test_multi_wraparound_cycles();
+    test_push_full_preserves_fifo();
+    test_pop_empty_output_unchanged();
+    test_peek_empty_output_unchanged();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
