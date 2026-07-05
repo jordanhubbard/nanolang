@@ -301,6 +301,26 @@ static void test_clear(void) {
     PASS(test_name);
 }
 
+static void test_clear_reuse(void) {
+    const char *test_name = "dyn_array_clear: array is reusable after clear";
+    DynArray *arr = dyn_array_new(ELEM_INT);
+    ASSERT(arr != NULL, "dyn_array_new returned NULL");
+
+    dyn_array_push_int(arr, 10);
+    dyn_array_push_int(arr, 20);
+    dyn_array_push_int(arr, 30);
+
+    dyn_array_clear(arr);
+    ASSERT_EQ(dyn_array_length(arr), 0, "length should be 0 after clear");
+
+    /* Push one element after clear and verify array is reusable */
+    dyn_array_push_int(arr, 42);
+    ASSERT_EQ(dyn_array_length(arr), 1, "length should be 1 after push post-clear");
+    ASSERT_EQ(dyn_array_get_int(arr, 0), 42, "value at [0] should be 42 after push post-clear");
+
+    PASS(test_name);
+}
+
 static void test_reserve(void) {
     const char *test_name = "dyn_array_reserve: increases capacity";
     DynArray *arr = dyn_array_new(ELEM_INT);
@@ -540,6 +560,7 @@ int main(void) {
     test_remove_at();
     test_remove_at_last();
     test_clear();
+    test_clear_reuse();
     test_reserve();
     test_clone_int();
     test_nested_arrays();
