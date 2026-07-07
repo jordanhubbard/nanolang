@@ -589,6 +589,8 @@ void test_parse_selective_import_alias(void) {
     ASSERT(strcmp(import->as.import_stmt.module_path,
                   "modules/std/collections/stringbuilder.nano") == 0);
     ASSERT_NULL(import->as.import_stmt.module_alias);
+    ASSERT(import->as.import_stmt.is_unsafe == false);
+    ASSERT(import->as.import_stmt.is_pub_use == false);
     ASSERT(import->as.import_stmt.is_selective == true);
     ASSERT(import->as.import_stmt.is_wildcard == false);
     ASSERT_EQ(import->as.import_stmt.import_symbol_count, 1);
@@ -597,6 +599,34 @@ void test_parse_selective_import_alias(void) {
     ASSERT_NOT_NULL(import->as.import_stmt.import_aliases);
     ASSERT_NOT_NULL(import->as.import_stmt.import_aliases[0]);
     ASSERT(strcmp(import->as.import_stmt.import_aliases[0], "join_strings") == 0);
+
+    free_ast(prog);
+}
+
+/* Regression: pub use parses as a public re-export import with alias metadata */
+void test_parse_pub_use_reexport(void) {
+    ASTNode *prog = parse_ok("pub use \"std/math/extended.nano\" as Math");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "std/math/extended.nano") == 0);
+    ASSERT_NOT_NULL(import->as.import_stmt.module_alias);
+    ASSERT(strcmp(import->as.import_stmt.module_alias, "Math") == 0);
+
+    ASSERT(import->as.import_stmt.is_pub_use == true);
+    ASSERT(import->as.import_stmt.is_unsafe == false);
+    ASSERT(import->as.import_stmt.is_selective == false);
+    ASSERT(import->as.import_stmt.is_wildcard == false);
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+    ASSERT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT_NULL(import->as.import_stmt.import_aliases);
 
     free_ast(prog);
 }
@@ -619,12 +649,44 @@ void test_parse_normal_module_import(void) {
     /* A plain module import carries no alias */
     ASSERT_NULL(import->as.import_stmt.module_alias);
 
-    /* Must NOT be selective or wildcard */
+    /* Must NOT be public, unsafe, selective, or wildcard */
+    ASSERT(import->as.import_stmt.is_pub_use == false);
+    ASSERT(import->as.import_stmt.is_unsafe == false);
     ASSERT(import->as.import_stmt.is_selective == false);
     ASSERT(import->as.import_stmt.is_wildcard  == false);
 
     /* No symbol list for a non-selective import */
     ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+    ASSERT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT_NULL(import->as.import_stmt.import_aliases);
+
+    free_ast(prog);
+}
+
+/* Regression: unsafe module import preserves path, alias, and unsafe flag */
+void test_parse_unsafe_module_import(void) {
+    ASTNode *prog = parse_ok("unsafe module \"modules/libc/libc.nano\" as C");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->type, AST_PROGRAM);
+    ASSERT_EQ(prog->as.program.count, 1);
+
+    ASTNode *import = prog->as.program.items[0];
+    ASSERT_NOT_NULL(import);
+    ASSERT_EQ(import->type, AST_IMPORT);
+
+    ASSERT_NOT_NULL(import->as.import_stmt.module_path);
+    ASSERT(strcmp(import->as.import_stmt.module_path,
+                  "modules/libc/libc.nano") == 0);
+    ASSERT_NOT_NULL(import->as.import_stmt.module_alias);
+    ASSERT(strcmp(import->as.import_stmt.module_alias, "C") == 0);
+
+    ASSERT(import->as.import_stmt.is_unsafe == true);
+    ASSERT(import->as.import_stmt.is_pub_use == false);
+    ASSERT(import->as.import_stmt.is_selective == false);
+    ASSERT(import->as.import_stmt.is_wildcard == false);
+    ASSERT_EQ(import->as.import_stmt.import_symbol_count, 0);
+    ASSERT_NULL(import->as.import_stmt.import_symbols);
+    ASSERT_NULL(import->as.import_stmt.import_aliases);
 
     free_ast(prog);
 }
@@ -645,6 +707,8 @@ void test_parse_wildcard_import(void) {
                   "modules/std/collections.nano") == 0);
 
     /* Wildcard implies selective (from…import form) */
+    ASSERT(import->as.import_stmt.is_pub_use == false);
+    ASSERT(import->as.import_stmt.is_unsafe == false);
     ASSERT(import->as.import_stmt.is_selective == true);
     ASSERT(import->as.import_stmt.is_wildcard  == true);
 
@@ -865,7 +929,9 @@ int main(void) {
 
     printf("\n--- Import parsing ---\n");
     TEST(parse_selective_import_alias);
+    TEST(parse_pub_use_reexport);
     TEST(parse_normal_module_import);
+    TEST(parse_unsafe_module_import);
     TEST(parse_wildcard_import);
 
     printf("\n--- parse_repl_input tests ---\n");
