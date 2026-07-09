@@ -12,6 +12,10 @@
  *   8. count tracks fill level accurately
  *   9. typed RINGBUF_DEFINE produces independent instances
  *  10. FIFO/count remain correct across repeated wraparound cycles
+ *  R1. failed push on full buffer preserves count and FIFO contents
+ *  R2. failed pop on empty buffer leaves caller output unchanged
+ *  R3. failed peek on empty buffer leaves caller output unchanged
+ *  R4. FIFO order and count correct across complete fill/drain wraparound cycles
  */
 
 #include <stdint.h>
@@ -417,6 +421,61 @@ static void test_peek_empty_output_unchanged(void) {
 }
 
 /* -----------------------------------------------------------------------
+ * Regression Test D: FIFO order and count correct across complete
+ *                    fill/drain wraparound cycles
+ *
+ * Proves that across NUM_CYCLES full fill-then-drain cycles:
+ *   (a) count is exactly capacity after each fill
+ *   (b) count is exactly 0 after each drain
+ *   (c) FIFO order is preserved on every pop across the power-of-2 wrap
+ * ----------------------------------------------------------------------- */
+static void test_wraparound_fifo_count_cycles(void) {
+    printf("[R4] FIFO order and count across fill/drain wraparound cycles\n");
+    msg_rb_t rb;
+    msg_rb_init(&rb);
+
+#define NUM_CYCLES 4u
+#define RB_CAP     8u
+
+    uint32_t base_id = 2000u;
+
+    for (uint32_t cycle = 0; cycle < NUM_CYCLES; cycle++) {
+        /* Fill phase */
+        for (uint32_t i = 0; i < RB_CAP; i++) {
+            msg_t m = { .id = base_id + i };
+            ASSERT(msg_rb_push(&rb, &m) == 0, "fill push succeeds");
+        }
+        ASSERT(msg_rb_count(&rb) == RB_CAP, "count equals capacity after fill");
+        ASSERT(msg_rb_full (&rb) == 1,      "full flag set after fill");
+
+        /* Attempt overflow — must not corrupt contents */
+        msg_t overflow = { .id = 0xF00D };
+        ASSERT(msg_rb_push(&rb, &overflow) == -1, "overflow push returns -1");
+        ASSERT(msg_rb_count(&rb) == RB_CAP,       "count unchanged after overflow");
+
+        /* Drain phase — verify FIFO and count */
+        for (uint32_t i = 0; i < RB_CAP; i++) {
+            msg_t out = { 0 };
+            ASSERT(msg_rb_pop(&rb, &out) == 0,          "drain pop succeeds");
+            ASSERT(out.id == base_id + i,               "FIFO order preserved across wrap");
+            ASSERT(msg_rb_count(&rb) == RB_CAP - i - 1, "count decrements on drain");
+        }
+        ASSERT(msg_rb_empty(&rb) == 1, "empty after full drain");
+        ASSERT(msg_rb_count(&rb) == 0, "count zero after full drain");
+
+        /* Attempt pop on empty — must not change count */
+        msg_t out = { .id = 0xBEEF };
+        ASSERT(msg_rb_pop(&rb, &out) == -1,  "empty pop returns -1 after drain");
+        ASSERT(out.id == 0xBEEF,             "out unchanged after empty pop");
+        ASSERT(msg_rb_count(&rb) == 0,       "count stays 0 after empty pop");
+
+        base_id += RB_CAP;
+    }
+#undef NUM_CYCLES
+#undef RB_CAP
+}
+
+/* -----------------------------------------------------------------------
  * main
  * ----------------------------------------------------------------------- */
 int main(void) {
@@ -435,6 +494,7 @@ int main(void) {
     test_push_full_preserves_fifo();
     test_pop_empty_output_unchanged();
     test_peek_empty_output_unchanged();
+    test_wraparound_fifo_count_cycles();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
