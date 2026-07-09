@@ -706,6 +706,9 @@ void test_parse_wildcard_import(void) {
     ASSERT(strcmp(import->as.import_stmt.module_path,
                   "modules/std/collections.nano") == 0);
 
+    /* from...import * carries no module alias */
+    ASSERT_NULL(import->as.import_stmt.module_alias);
+
     /* Wildcard implies selective (from…import form) */
     ASSERT(import->as.import_stmt.is_pub_use == false);
     ASSERT(import->as.import_stmt.is_unsafe == false);
