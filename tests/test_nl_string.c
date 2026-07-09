@@ -277,6 +277,35 @@ void test_binary_embedded_nul_one_over_capacity_null_termination() {
     nl_string_free(str);
 }
 
+
+/* Boundary 4: idempotency – ensure_null_terminated on an already-terminated
+ * binary string must be a no-op: the null_terminated flag stays true, the
+ * capacity does not grow further, and all bytes remain intact.
+ */
+void test_binary_ensure_null_terminated_idempotent() {
+    char data[] = {'P', 'Q', 'R'};
+    nl_string_t *str = nl_string_new_binary(data, 3);
+    ASSERT(str != NULL);
+    ASSERT(!str->null_terminated);
+
+    /* First call: should reallocate and write terminator. */
+    nl_string_ensure_null_terminated(str);
+    ASSERT(str->null_terminated);
+    ASSERT(str->data[3] == '\0');
+    size_t cap_after_first = str->capacity;
+
+    /* Second call: must be a no-op – capacity and bytes unchanged. */
+    nl_string_ensure_null_terminated(str);
+    ASSERT(str->null_terminated);
+    ASSERT(str->capacity == cap_after_first);
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 'P');
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 'Q');
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 'R');
+    ASSERT(str->data[3] == '\0');
+
+    nl_string_free(str);
+}
+
 /* ============================================================================
  * Main
  * ============================================================================ */
@@ -304,6 +333,7 @@ int main() {
     TEST(binary_zero_length_null_termination);
     TEST(binary_exact_capacity_null_termination);
     TEST(binary_embedded_nul_one_over_capacity_null_termination);
+    TEST(binary_ensure_null_terminated_idempotent);
     
     printf("\n✓ All tests passed!\n");
     return 0;
