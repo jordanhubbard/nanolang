@@ -277,6 +277,40 @@ void test_binary_embedded_nul_one_over_capacity_null_termination() {
     nl_string_free(str);
 }
 
+/* Boundary 4: idempotency — second call is a strict no-op.
+ * After nl_string_ensure_null_terminated has already set null_terminated=true
+ * on a binary string, a second call must leave capacity, length, and every
+ * byte value completely unchanged.  This guards against double-realloc bugs.
+ */
+void test_binary_ensure_null_terminated_idempotent() {
+    /* 3-byte binary payload with one embedded NUL. */
+    char data[] = {0x41, 0x00, 0x42};
+    nl_string_t *str = nl_string_new_binary(data, 3);
+    ASSERT(str != NULL);
+
+    /* First call: grows capacity and sets the flag. */
+    nl_string_ensure_null_terminated(str);
+    ASSERT(str->null_terminated);
+    ASSERT(nl_string_length(str) == 3);
+
+    size_t cap_after_first = str->capacity;
+
+    /* Second call: must be a strict no-op. */
+    nl_string_ensure_null_terminated(str);
+
+    ASSERT(str->null_terminated);
+    ASSERT(nl_string_length(str) == 3);
+    ASSERT(str->capacity == cap_after_first);
+
+    /* Byte content must be intact across both calls. */
+    ASSERT((unsigned char)nl_string_byte_at(str, 0) == 0x41);
+    ASSERT((unsigned char)nl_string_byte_at(str, 1) == 0x00);
+    ASSERT((unsigned char)nl_string_byte_at(str, 2) == 0x42);
+    ASSERT(str->data[3] == '\0');
+
+    nl_string_free(str);
+}
+
 /* ============================================================================
  * Main
  * ============================================================================ */
@@ -304,6 +338,7 @@ int main() {
     TEST(binary_zero_length_null_termination);
     TEST(binary_exact_capacity_null_termination);
     TEST(binary_embedded_nul_one_over_capacity_null_termination);
+    TEST(binary_ensure_null_terminated_idempotent);
     
     printf("\n✓ All tests passed!\n");
     return 0;
