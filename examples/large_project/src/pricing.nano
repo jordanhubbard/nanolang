@@ -1,0 +1,31 @@
+# Example: Large Project Pricing
+# Purpose: Keep price arithmetic in a package module
+# Features: module declaration, pub functions, integer arithmetic, shadow tests
+# Difficulty: Intermediate
+# Category: package
+# Prerequisites: nl_functions_basic
+# Track: modules
+# Build: local
+# Dependencies: none
+# Tags: package, module, shadow-tested
+# Expected Output: none
+
+module pricing
+
+pub fn apply_percent_discount(cents: int, percent: int) -> int {
+    return (- cents (/ (* cents percent) 100))
+}
+
+shadow apply_percent_discount {
+    assert (== (apply_percent_discount 5000 10) 4500)
+    assert (== (apply_percent_discount 5000 0) 5000)
+}
+
+pub fn add_percent_tax(cents: int, percent: int) -> int {
+    return (+ cents (/ (* cents percent) 100))
+}
+
+shadow add_percent_tax {
+    assert (== (add_percent_tax 4500 8) 4860)
+    assert (== (add_percent_tax 4500 0) 4500)
+}

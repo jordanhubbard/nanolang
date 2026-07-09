@@ -1,0 +1,11 @@
+{
+  "name": "sdl_helpers",
+  "version": "1.0.0",
+  "description": "Helper functions for SDL rendering and event handling",
+  "headers": ["sdl_helpers.h"],
+  "cflags": ["-Imodules/sdl_helpers"],
+  "c_sources": ["sdl_helpers.c"],
+  "pkg_config": ["sdl2"],
+  "system_packages": ["sdl2"],
+  "dependencies": ["sdl"]
+}

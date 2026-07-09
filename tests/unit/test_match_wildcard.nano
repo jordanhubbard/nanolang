@@ -1,0 +1,68 @@
+/* Test: wildcard _ arm in match expressions */
+
+union Shape {
+    Circle { radius: int },
+    Square { side: int },
+    Triangle { base: int }
+}
+
+fn is_circle(s: Shape) -> bool {
+    match s {
+        Circle(c) => {
+            return true
+        }
+        _ => {
+            return false
+        }
+    }
+}
+
+shadow is_circle {
+    let c: Shape = Shape.Circle { radius: 5 }
+    let sq: Shape = Shape.Square { side: 3 }
+    let tri: Shape = Shape.Triangle { base: 7 }
+    assert (is_circle c)
+    assert (not (is_circle sq))
+    assert (not (is_circle tri))
+}
+
+union Opt {
+    Some { value: int },
+    None { }
+}
+
+fn unwrap_or(o: Opt, fallback: int) -> int {
+    match o {
+        Some(s) => {
+            return s.value
+        }
+        _ => {
+            return fallback
+        }
+    }
+}
+
+shadow unwrap_or {
+    let s: Opt = Opt.Some { value: 99 }
+    let n: Opt = Opt.None { }
+    assert (== (unwrap_or s 0) 99)
+    assert (== (unwrap_or n 42) 42)
+}
+
+fn main() -> int {
+    let c: Shape = Shape.Circle { radius: 5 }
+    let sq: Shape = Shape.Square { side: 3 }
+    assert (is_circle c)
+    assert (not (is_circle sq))
+
+    let s2: Opt = Opt.Some { value: 10 }
+    let n2: Opt = Opt.None { }
+    assert (== (unwrap_or s2 0) 10)
+    assert (== (unwrap_or n2 99) 99)
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

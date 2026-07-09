@@ -1,0 +1,15 @@
+{
+  "name": "websocket",
+  "version": "1.0.0",
+  "description": "WebSocket client (RFC 6455) — dependency-free, plain TCP with HTTP upgrade",
+  "c_sources": ["websocket_helpers.c"],
+  "system_packages": [],
+  "install": {
+    "macos": {
+      "command": "# No external dependencies required"
+    },
+    "linux": {
+      "command": "# No external dependencies required"
+    }
+  }
+}

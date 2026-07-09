@@ -1,0 +1,5 @@
+/* Fuzzing seed: struct definition for parser */
+struct Point {
+    x: int
+    y: int
+}

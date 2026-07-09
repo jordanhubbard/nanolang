@@ -1,0 +1,40 @@
+{
+  "name": "glfw",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "OpenGL window management and input handling via GLFW.",
+  "use_when": [
+    "User wants OpenGL context creation",
+    "User needs window management for OpenGL",
+    "User says 'opengl window', 'gl context', '3d graphics'",
+    "User needs keyboard/mouse input for OpenGL apps"
+  ],
+  "avoid_when": [
+    "User wants 2D only (use sdl)",
+    "User needs audio (use sdl_mixer)"
+  ],
+  "capabilities": [
+    "create_window",
+    "opengl_context",
+    "input_keyboard",
+    "input_mouse",
+    "window_events"
+  ],
+  "keywords": ["opengl", "window", "3d", "graphics", "input", "glfw"],
+  "examples": [
+    "examples/opengl_cube.nano",
+    "examples/opengl_teapot.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "system": [
+      {"id": "glfw", "install": {"apt": "libglfw3-dev", "brew": "glfw"}}
+    ]
+  },
+  "io_surfaces": ["window"],
+  "alternatives": [
+    {"when": "2D graphics", "module": "sdl"},
+    {"when": "legacy GLUT apps", "module": "glut"}
+  ]
+}
+

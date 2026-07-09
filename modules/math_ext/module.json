@@ -1,0 +1,10 @@
+{
+  "name": "math_ext",
+  "version": "1.0.0",
+  "description": "Extended math functions for nanolang (inverse trig, logarithms, etc.)",
+  "c_sources": [],
+  "cflags": [],
+  "ldflags": ["-lm"],
+  "dependencies": []
+}
+

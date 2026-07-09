@@ -1,0 +1,22 @@
+{
+  "name": "pt2_module",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "ProTracker 2 MOD file loader and parser.",
+  "use_when": [
+    "User wants to load MOD files",
+    "User says 'mod loader', 'parse mod', 'protracker format'",
+    "User needs access to MOD file data"
+  ],
+  "avoid_when": ["User only wants playback (use pt2_audio)"],
+  "capabilities": ["load_mod", "parse_mod", "mod_metadata"],
+  "keywords": ["protracker", "mod", "loader", "parser"],
+  "examples": ["examples/sdl_tracker_shell.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["std"],
+    "system": []
+  },
+  "io_surfaces": ["files"],
+  "alternatives": []
+}

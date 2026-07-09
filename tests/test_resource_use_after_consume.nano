@@ -1,0 +1,26 @@
+/* Test: use-after-consume should be caught */
+
+resource struct FileHandle {
+    fd: int
+}
+
+fn close_file(f: FileHandle) -> void {
+    (println "File closed")
+}
+
+fn main() -> int {
+    let f: FileHandle = FileHandle { fd: 42 }
+    
+    /* Consume the resource */
+    (close_file f)
+    
+    /* Try to use it again - should error! */
+    (close_file f)
+    
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

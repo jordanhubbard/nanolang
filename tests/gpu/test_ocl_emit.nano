@@ -1,0 +1,65 @@
+/*
+ * test_ocl_emit.nano — OpenCL C backend smoke test
+ *
+ * Compile with: NANO_MODULE_PATH=modules nanoc --target opencl \
+ *               tests/gpu/test_ocl_emit.nano -o /tmp/test_ocl_emit.cl
+ * Verifies: pointer-param detection, gpu_load/gpu_store emission, arithmetic,
+ *           comparisons, and control flow in the OpenCL C emitter.
+ */
+
+import "modules/gpu/gpu.nano"
+
+/* Buffer + scalar params — pointer analysis should classify correctly */
+gpu fn vec_add_cl(a: int, b: int, c: int, n: int) -> void {
+    let i: int = (global_id_x)
+    if (< i n) {
+        let oa: int   = (* i 8)
+        let va: int   = (gpu_load (+ a oa))
+        let vb: int   = (gpu_load (+ b oa))
+        (gpu_store (+ c oa) (+ va vb))
+        return
+    }
+}
+
+/* Scalar-only: no pointer params */
+gpu fn scale_cl(val: int, factor: int) -> int {
+    return (* val factor)
+}
+
+/* Float memory ops */
+gpu fn scale_f64(src: int, dst: int, n: int, factor: float) -> void {
+    let i: int    = (global_id_x)
+    if (< i n) {
+        let off: int   = (* i 8)
+        let v: float   = (gpu_load_float (+ src off))
+        let r: float   = (* v factor)
+        (gpu_store_float (+ dst off) r)
+        return
+    }
+}
+
+/* 2D grid indexing */
+gpu fn mat_scale(mat_a: int, mat_c: int, n: int, a: int) -> void {
+    let row: int = (global_id_y)
+    let col: int = (global_id_x)
+    if (and (< row n) (< col n)) {
+        let idx: int    = (+ (* row n) col)
+        let off: int    = (* idx 8)
+        let val: int    = (gpu_load (+ mat_a off))
+        let scaled: int = (* a val)
+        (gpu_store (+ mat_c off) scaled)
+        return
+    }
+}
+
+/*
+ * host_helper — not a gpu fn; verifies parser distinguishes gpu fn correctly.
+ */
+fn host_helper(n: int) -> int {
+    return (+ n 1)
+}
+
+shadow host_helper {
+    assert (== (host_helper 0) 1)
+    assert (== (host_helper 41) 42)
+}

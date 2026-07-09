@@ -1,0 +1,48 @@
+# Example: PyBridge Matplotlib API Lesson
+# Purpose: I show the matplotlib bridge rendering call with an inline PNG response
+# Features: mpl_init, mpl_render_png, mpl_shutdown
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: pybridge_api
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/pybridge_matplotlib, Python, matplotlib
+# Tags: api-lesson, pybridge, matplotlib, native-only
+# Expected Output: matplotlib: ok
+
+from "modules/pybridge_matplotlib/pybridge_matplotlib.nano" import mpl_init, mpl_render_png, mpl_shutdown
+
+fn render_small_plot() -> int {
+    let mut ok: int = 0
+    unsafe {
+        set ok (mpl_init 0)
+    }
+    if (== ok 0) {
+        return 0
+    }
+
+    let spec: string = "{\"title\":\"NanoLang\",\"x\":[0,1,2],\"y\":[0,1,4]}"
+    let mut response: string = ""
+    unsafe {
+        set response (mpl_render_png spec 1)
+        (mpl_shutdown)
+    }
+    if (> (str_length response) 0) {
+        return 1
+    }
+    return 0
+}
+
+shadow render_small_plot {
+    assert (>= (render_small_plot) 0)
+}
+
+fn main() -> int {
+    (render_small_plot)
+    (println "matplotlib: ok")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

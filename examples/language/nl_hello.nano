@@ -1,0 +1,16 @@
+# Example: Hello World
+# Purpose: The traditional first program - verify your NanoLang installation works
+# Features: println, main function, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: none
+# Expected Output: Hello from NanoLang!
+
+fn main() -> int {
+    (println "Hello from NanoLang!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

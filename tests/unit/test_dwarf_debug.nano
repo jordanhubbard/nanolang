@@ -1,0 +1,52 @@
+/* test_dwarf_debug.nano — DWARF debug info test
+ *
+ * When compiled with `nanoc --debug`, this file should produce a binary
+ * with DWARF v4 debug info mapping back to .nano source lines.
+ *
+ * Verified by tests/test_dwarf_debug.sh:
+ *   - objdump --dwarf=decodedline shows test_dwarf_debug.nano line numbers
+ *   - DWARF producer string contains -gdwarf-4
+ *   - GDB `info sources` lists test_dwarf_debug.nano
+ */
+
+fn factorial(n: int) -> int {
+    if (<= n 1) { return 1 }
+    return (* n (factorial (- n 1)))
+}
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 1) 1)
+    assert (== (factorial 5) 120)
+    assert (== (factorial 10) 3628800)
+}
+
+fn fib(n: int) -> int {
+    if (<= n 1) { return n }
+    return (+ (fib (- n 1)) (fib (- n 2)))
+}
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+}
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+shadow add {
+    assert (== (add 3 4) 7)
+    assert (== (add 0 0) 0)
+}
+
+fn main() -> int {
+    let f: int = (factorial 5)
+    let g: int = (fib 10)
+    let s: int = (add 3 4)
+    if (!= f 120)  { return 1 }
+    if (!= g 55)   { return 2 }
+    if (!= s 7)    { return 3 }
+    return 0
+}
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,28 @@
+/* Unicode-aware string operations for NanoLang
+ * 
+ * All string operations in NanoLang now use UTF-8 encoding by default.
+ * This module provides grapheme-aware operations for proper Unicode handling.
+ * 
+ * This is an FFI-only module - all functions are extern declarations
+ * that link to the C utf8proc library via unicode_ffi.c
+ */
+
+/* String Measurement */
+extern fn nl_str_byte_length(_s: string) -> int
+extern fn nl_str_grapheme_length(_s: string) -> int
+
+/* String Access */
+extern fn nl_str_codepoint_at(_s: string, _byte_idx: int) -> int
+extern fn nl_str_grapheme_at(_s: string, _grapheme_idx: int) -> string
+
+/* Case Conversion */
+extern fn nl_str_to_lowercase(_s: string) -> string
+extern fn nl_str_to_uppercase(_s: string) -> string
+
+/* Normalization (forms: 0=NFC, 1=NFD, 2=NFKC, 3=NFKD) */
+extern fn nl_str_normalize(_s: string, _form: int) -> string
+
+/* Validation */
+extern fn nl_str_is_ascii(_s: string) -> bool
+extern fn nl_str_is_valid_utf8(_s: string) -> bool
+

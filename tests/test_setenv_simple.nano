@@ -1,0 +1,15 @@
+/* Test: simple environment variable setting and retrieval */
+from "modules/std/env.nano" import set_env, get
+
+fn main() -> int {
+    let result = (set_env "TEST_VAR" "hello")
+    (println f"set_env returned: {result}")
+    let val = (get "TEST_VAR")
+    (println f"get returned: {val}")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

@@ -1,0 +1,34 @@
+{
+  "name": "nanolang",
+  "displayName": "NanoLang",
+  "description": "NanoLang language support (hover, definition, completion, diagnostics)",
+  "version": "0.1.0",
+  "publisher": "nanolang",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onLanguage:nanolang"],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "nanolang",
+        "aliases": ["NanoLang", "nanolang"],
+        "extensions": [".nano"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "configuration": {
+      "title": "NanoLang",
+      "properties": {
+        "nanolang.serverPath": {
+          "type": "string",
+          "default": "nanolang-lsp",
+          "description": "Path to the nanolang-lsp binary"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}

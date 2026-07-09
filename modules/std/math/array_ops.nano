@@ -1,0 +1,369 @@
+/* =============================================================================
+ * std::math::array_ops Module - Elementwise Array Math (float)
+ * =============================================================================
+ * Lightweight array arithmetic helpers intended for graphics use-cases.
+ *
+ * Notes:
+ * - Primarily focuses on array<float> (nanolang float).
+ * - Also provides a few small helpers for array<int> (reductions).
+ * - Uses explicit functions (no operator overloading / compiler changes).
+ * - On length mismatch, functions assert.
+ */
+
+module std_math_array
+
+# frozen
+let EPSILON: float = 0.000001
+
+pub fn assert_same_length(a: array<float>, b: array<float>) -> void {
+    assert (== (array_length a) (array_length b))
+}
+
+shadow assert_same_length {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [4.0, 5.0, 6.0]
+    (assert_same_length a b)
+    assert true
+}
+
+pub fn array_add(a: array<float>, b: array<float>) -> array<float> {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (+ (at a i) (at b i)))
+        set i (+ i 1)
+    }
+    return out
+}
+
+pub fn array_sub(a: array<float>, b: array<float>) -> array<float> {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (- (at a i) (at b i)))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_sub {
+    let a: array<float> = [10.0, 20.0, 30.0]
+    let b: array<float> = [1.0, 2.0, 3.0]
+    let c: array<float> = (array_sub a b)
+    assert (< (abs (- (at c 0) 9.0)) EPSILON)
+    assert (< (abs (- (at c 1) 18.0)) EPSILON)
+    assert (< (abs (- (at c 2) 27.0)) EPSILON)
+}
+
+pub fn array_mul(a: array<float>, b: array<float>) -> array<float> {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (* (at a i) (at b i)))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_mul {
+    let a: array<float> = [2.0, 3.0, 4.0]
+    let b: array<float> = [5.0, 6.0, 7.0]
+    let c: array<float> = (array_mul a b)
+    assert (< (abs (- (at c 0) 10.0)) EPSILON)
+    assert (< (abs (- (at c 1) 18.0)) EPSILON)
+    assert (< (abs (- (at c 2) 28.0)) EPSILON)
+}
+
+pub fn array_div(a: array<float>, b: array<float>) -> array<float> {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (/ (at a i) (at b i)))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_div {
+    let a: array<float> = [20.0, 30.0, 40.0]
+    let b: array<float> = [2.0, 3.0, 4.0]
+    let c: array<float> = (array_div a b)
+    assert (< (abs (- (at c 0) 10.0)) EPSILON)
+    assert (< (abs (- (at c 1) 10.0)) EPSILON)
+    assert (< (abs (- (at c 2) 10.0)) EPSILON)
+}
+
+pub fn array_add_scalar(a: array<float>, s: float) -> array<float> {
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (+ (at a i) s))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_add_scalar {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = (array_add_scalar a 5.0)
+    assert (< (abs (- (at b 0) 6.0)) EPSILON)
+    assert (< (abs (- (at b 1) 7.0)) EPSILON)
+    assert (< (abs (- (at b 2) 8.0)) EPSILON)
+}
+
+pub fn array_mul_scalar(a: array<float>, s: float) -> array<float> {
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        (array_set out i (* (at a i) s))
+        set i (+ i 1)
+    }
+    return out
+}
+
+pub fn array_dot(a: array<float>, b: array<float>) -> float {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut acc: float = 0.0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc (* (at a i) (at b i)))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+pub fn array_norm(a: array<float>) -> float {
+    return (sqrt (array_dot a a))
+}
+
+shadow array_norm {
+    let a: array<float> = [3.0, 4.0]
+    let n: float = (array_norm a)
+    assert (< (abs (- n 5.0)) EPSILON)
+}
+
+pub fn array_normalize(a: array<float>) -> array<float> {
+    let n: int = (array_length a)
+    let len: float = (array_norm a)
+    if (< (abs len) EPSILON) {
+        return (array_new n 0.0)
+    } else {
+        return (array_mul_scalar a (/ 1.0 len))
+    }
+}
+
+shadow array_normalize {
+    let a: array<float> = [3.0, 4.0]
+    let n: array<float> = (array_normalize a)
+    assert (< (abs (- (at n 0) 0.6)) EPSILON)
+    assert (< (abs (- (at n 1) 0.8)) EPSILON)
+}
+
+pub fn array_lerp(a: array<float>, b: array<float>, t: float) -> array<float> {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut out: array<float> = (array_new n 0.0)
+    let mut i: int = 0
+    while (< i n) {
+        let av: float = (at a i)
+        let bv: float = (at b i)
+        (array_set out i (+ av (* (- bv av) t)))
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow array_lerp {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [10.0, 20.0]
+    let c: array<float> = (array_lerp a b 0.5)
+    assert (< (abs (- (at c 0) 5.0)) EPSILON)
+    assert (< (abs (- (at c 1) 10.0)) EPSILON)
+}
+
+pub fn array_sum(a: array<float>) -> float {
+    let n: int = (array_length a)
+    let mut acc: float = 0.0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc (at a i))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+shadow array_sum {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let s: float = (array_sum a)
+    assert (< (abs (- s 6.0)) EPSILON)
+}
+
+pub fn array_mean(a: array<float>) -> float {
+    let n: int = (array_length a)
+    if (== n 0) { return 0.0 }
+    return (/ (array_sum a) (cast_float n))
+}
+
+shadow array_mean {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let m: float = (array_mean a)
+    assert (< (abs (- m 2.0)) EPSILON)
+}
+
+pub fn array_min(a: array<float>) -> float {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: float = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: float = (at a i)
+        if (< v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+shadow array_min {
+    let a: array<float> = [5.0, 2.0, 8.0, 1.0]
+    let mn: float = (array_min a)
+    assert (< (abs (- mn 1.0)) EPSILON)
+}
+
+pub fn array_max(a: array<float>) -> float {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: float = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: float = (at a i)
+        if (> v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+shadow array_max {
+    let a: array<float> = [5.0, 2.0, 8.0, 1.0]
+    let mx: float = (array_max a)
+    assert (< (abs (- mx 8.0)) EPSILON)
+}
+
+pub fn array_distance_squared(a: array<float>, b: array<float>) -> float {
+    (assert_same_length a b)
+    let n: int = (array_length a)
+    let mut acc: float = 0.0
+    let mut i: int = 0
+    while (< i n) {
+        let d: float = (- (at a i) (at b i))
+        set acc (+ acc (* d d))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+shadow array_distance_squared {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [3.0, 4.0]
+    let ds: float = (array_distance_squared a b)
+    assert (< (abs (- ds 25.0)) EPSILON)
+}
+
+pub fn array_distance(a: array<float>, b: array<float>) -> float {
+    return (sqrt (array_distance_squared a b))
+}
+
+shadow array_distance {
+    let a: array<float> = [0.0, 0.0]
+    let b: array<float> = [3.0, 4.0]
+    let d: float = (array_distance a b)
+    assert (< (abs (- d 5.0)) EPSILON)
+}
+
+pub fn array_sum_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    let mut acc: int = 0
+    let mut i: int = 0
+    while (< i n) {
+        set acc (+ acc (at a i))
+        set i (+ i 1)
+    }
+    return acc
+}
+
+shadow array_sum_int {
+    let a: array<int> = [1, 2, 3, 4]
+    let s: int = (array_sum_int a)
+    assert (== s 10)
+}
+
+pub fn array_min_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: int = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: int = (at a i)
+        if (< v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+shadow array_min_int {
+    let a: array<int> = [5, 2, 8, 1]
+    let mn: int = (array_min_int a)
+    assert (== mn 1)
+}
+
+pub fn array_max_int(a: array<int>) -> int {
+    let n: int = (array_length a)
+    assert (> n 0)
+    let mut m: int = (at a 0)
+    let mut i: int = 1
+    while (< i n) {
+        let v: int = (at a i)
+        if (> v m) { set m v }
+        set i (+ i 1)
+    }
+    return m
+}
+
+shadow array_max_int {
+    let a: array<int> = [5, 2, 8, 1]
+    let mx: int = (array_max_int a)
+    assert (== mx 8)
+}
+
+shadow array_add {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [10.0, 20.0, 30.0]
+    let c: array<float> = (array_add a b)
+    assert (< (abs (- (at c 0) 11.0)) EPSILON)
+    assert (< (abs (- (at c 1) 22.0)) EPSILON)
+    assert (< (abs (- (at c 2) 33.0)) EPSILON)
+}
+
+shadow array_mul_scalar {
+    let a: array<float> = [2.0, -3.0]
+    let b: array<float> = (array_mul_scalar a 4.0)
+    assert (< (abs (- (at b 0) 8.0)) EPSILON)
+    assert (< (abs (- (at b 1) -12.0)) EPSILON)
+}
+
+shadow array_dot {
+    let a: array<float> = [1.0, 2.0, 3.0]
+    let b: array<float> = [4.0, 5.0, 6.0]
+    let d: float = (array_dot a b)
+    assert (< (abs (- d 32.0)) EPSILON)
+}

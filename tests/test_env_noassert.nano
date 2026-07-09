@@ -1,0 +1,33 @@
+/* Test: environment variable get and set operations */
+from "modules/std/env.nano" import set_env, get
+
+fn test_it() -> int {
+    let k = "NANOLANG_TEST_ENV"
+    let code = (set_env k "abc")
+    if code != 0 {
+        (println "set_env failed!")
+        return 1
+    }
+    let val = (get k)
+    if val != "abc" {
+        (println "get returned wrong value!")
+        return 2
+    }
+    return 0
+}
+
+shadow test_it {
+    let result = (test_it)
+    if result != 0 {
+        (println f"test_it returned: {result}")
+    }
+    assert (== result 0)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

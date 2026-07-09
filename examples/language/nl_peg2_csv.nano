@@ -1,0 +1,100 @@
+# Example: PEG2 CSV
+# Purpose: Demonstrate parsing CSV with the PEG2 grammar module
+# Features: PEG grammar, parsing, CSV, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_string_operations
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: parser, peg2
+# Expected Output: CSV parse
+
+/*
+ * nl_peg2_csv.nano — Parse CSV using the intrinsic PEG grammar module
+ *
+ * Demonstrates peg2's grammar DSL to parse comma-separated values,
+ * including quoted fields with embedded commas and newlines.
+ */
+
+import "modules/std/peg2/peg2.nano"
+
+/* CSV grammar:
+ *   file  <- row ("\n" row)*
+ *   row   <- field ("," field)*
+ *   field <- quoted / plain
+ *   quoted <- '"' (!'"' .)* '"'
+ *   plain  <- [^,\n\r"]*
+ */
+# frozen
+let csv_grammar: string = "file <- row (\"\\n\" row)*\nrow <- field (\",\" field)*\nfield <- quoted / plain\nquoted <- \"\\\"\" (!\"\\\"\" .)* \"\\\"\"\nplain <- [^,\\n\\r\"]*"
+
+fn parse_csv(input: string) -> void {
+    let g: Peg2Grammar = (peg2_compile csv_grammar)
+    let result: Peg2Result = (peg2_parse g input)
+    if (== result.ok true) {
+        (print "Parsed successfully!")
+        (print (str_concat "  Matched rule: " result.tree.rule_name))
+        (print (str_concat "  Span: " (str_concat (int_to_string result.tree.start) (str_concat "-" (int_to_string result.tree.end)))))
+    } else {
+        (print (str_concat "Parse error: " result.error))
+    }
+    (peg2_free g)
+}
+
+fn demo_matches() -> void {
+    (print "\n--- CSV Field Matching ---")
+    let field_g: Peg2Grammar = (peg2_compile "field <- quoted / plain\nquoted <- \"\\\"\" (!\"\\\"\" .)* \"\\\"\"\nplain <- [^,\\n\\r\"]*")
+
+    let plain_result: Peg2Result = (peg2_parse field_g "hello")
+    let mut plain_status: string = "ok"
+    if (not plain_result.ok) { set plain_status plain_result.error } else { (print "") }
+    (print (str_concat "plain 'hello': " plain_status))
+
+    let quoted_result: Peg2Result = (peg2_parse field_g "\"hello, world\"")
+    let mut quoted_status: string = "ok"
+    if (not quoted_result.ok) { set quoted_status quoted_result.error } else { (print "") }
+    (print (str_concat "quoted 'hello, world': " quoted_status))
+
+    (peg2_free field_g)
+}
+
+fn demo_find_numbers() -> void {
+    (print "\n--- Find All Numbers in Text ---")
+    let num_g: Peg2Grammar = (peg2_compile "num <- \"-\"? [0-9]+ (\".\" [0-9]+)?")
+    let text: string = "The price is 3.14 dollars, or maybe 42 cents, but not -7.5 off."
+    let text_len: int = (str_length text)
+
+    /* Track absolute position in text; peg2_find returns positions
+     * relative to the remaining substring, so we adjust for abs coords. */
+    let mut pos: int = 0
+    let mut remaining: string = text
+    let mut r: Peg2Result = (peg2_find num_g remaining)
+    while (== r.ok true) {
+        let abs_start: int = (+ pos r.tree.start)
+        let abs_end: int = (+ pos r.tree.end)
+        let matched: string = (str_substring text abs_start (- abs_end abs_start))
+        (print (str_concat "  found number: " matched))
+        /* Advance absolute position past the matched span */
+        set pos abs_end
+        if (>= pos text_len) {
+            /* Done scanning */
+            set r (peg2_find num_g "")
+        } else {
+            set remaining (str_substring text pos (- text_len pos))
+            set r (peg2_find num_g remaining)
+        }
+    }
+
+    (peg2_free num_g)
+}
+
+fn main() -> int {
+    (print "=== peg2 CSV Parser Demo ===")
+    (parse_csv "name,age,city")
+    (parse_csv "Alice,30,\"New York\"")
+    (demo_matches)
+    (demo_find_numbers)
+    (print "\nDone.")
+    return 0
+}

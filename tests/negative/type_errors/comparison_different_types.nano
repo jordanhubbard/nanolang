@@ -1,0 +1,19 @@
+# Expected error: Type mismatch in comparison
+# Cannot compare int with string
+
+fn compare_bad(x: int, y: string) -> bool {
+    return (== x y)
+}
+
+shadow compare_bad {
+    assert (== (compare_bad 5 "5") false)
+}
+
+fn main() -> int {
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

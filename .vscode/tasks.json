@@ -1,0 +1,97 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "nanolang: build",
+      "type": "shell",
+      "command": "make",
+      "args": ["-f", "Makefile.gnu", "all"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "nanolang",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(error|warning):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "nanolang: run file",
+      "type": "shell",
+      "command": "./bin/nano",
+      "args": ["${file}"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "nanolang: format file",
+      "type": "shell",
+      "command": "./bin/nano-fmt",
+      "args": ["--in-place", "${file}"],
+      "group": "none",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "nanolang: run tests",
+      "type": "shell",
+      "command": "make",
+      "args": ["-f", "Makefile.gnu", "test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "nanolang: bench stdlib",
+      "type": "shell",
+      "command": "make",
+      "args": ["-f", "Makefile.gnu", "bench"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "nanolang: package extension",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "package"],
+      "options": {
+        "cwd": "${workspaceFolder}/vscode"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

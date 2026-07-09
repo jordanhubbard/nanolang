@@ -1,0 +1,58 @@
+# Example: std::math::Mat4 API Lesson
+# Purpose: I show 4x4 transforms for points and directions.
+# Features: Mat4, mat4_identity, mat4_get, mat4_set, mat4_mul, mat4_mul_vec4, translation, scale, rotations, transform_point, transform_dir
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: math_vector4d_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/matrix4
+# Tags: api-lesson, math, matrix4, transforms, shadow-tested
+# Expected Output: world x: 7.0
+
+from "modules/std/math/vector3d.nano" import Vector3D, vec3_new
+from "modules/std/math/vector4d.nano" import Vector4D, vec4_new
+from "modules/std/math/matrix4.nano" import Mat4, mat4_identity, mat4_get, mat4_set, mat4_mul, mat4_mul_vec4, mat4_translation, mat4_scale, mat4_rotation_x, mat4_rotation_y, mat4_rotation_z, mat4_transform_point, mat4_transform_dir
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 5.0 5.0001)
+    assert (not (close_float 5.0 5.1))
+}
+
+fn world_transform() -> Mat4 {
+    let translate: Mat4 = (mat4_translation 5.0 6.0 7.0)
+    let scale: Mat4 = (mat4_scale 2.0 3.0 4.0)
+    return (mat4_mul translate scale)
+}
+
+shadow world_transform {
+    let world: Mat4 = (world_transform)
+    let p: Vector3D = (mat4_transform_point world (vec3_new 1.0 2.0 3.0))
+    assert (close_float p.x 7.0)
+    assert (close_float p.y 12.0)
+    assert (close_float p.z 19.0)
+}
+
+fn main() -> int {
+    let id: Mat4 = (mat4_identity)
+    let edited: Mat4 = (mat4_set id 0 0 2.0)
+    let rx: Mat4 = (mat4_rotation_x 0.0)
+    let ry: Mat4 = (mat4_rotation_y 0.0)
+    let rz: Mat4 = (mat4_rotation_z 0.0)
+    let kept: Vector4D = (mat4_mul_vec4 id (vec4_new 1.0 2.0 3.0 1.0))
+    let dir: Vector3D = (mat4_transform_dir (mat4_mul (mat4_mul rx ry) rz) (vec3_new 1.0 0.0 0.0))
+    assert (close_float (mat4_get edited 0 0) 2.0)
+    assert (close_float kept.z 3.0)
+    assert (close_float dir.x 1.0)
+    let point: Vector3D = (mat4_transform_point (world_transform) (vec3_new 1.0 2.0 3.0))
+    (println (+ "world x: " (float_to_string point.x)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

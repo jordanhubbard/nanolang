@@ -1,0 +1,65 @@
+/* HM type inference tests: Algorithm W / let-polymorphism
+ * Run with: nanoc <file> --infer -o <out>
+ */
+
+/* Test 1: identity function - infer int -> int */
+fn identity_int(x: int) -> int {
+    return x
+}
+
+/* Test 2: simple arithmetic with let bindings */
+fn test_let_bindings() -> bool {
+    let a = 10
+    let b = 20
+    let c = a + b
+    return c == 30
+}
+
+/* Test 3: let-polymorphism - function used at multiple call sites */
+fn double(n: int) -> int {
+    return n * 2
+}
+
+fn test_let_poly() -> bool {
+    let d1 = (double 3)
+    let d2 = (double 100)
+    return (d1 == 6)
+}
+
+/* Test 4: recursive function - factorial */
+fn factorial(n: int) -> int {
+    if n <= 1 {
+        return 1
+    } else {
+        return n * (factorial (n - 1))
+    }
+}
+
+/* Test 5: higher-order function - type inferred through fn parameters */
+fn apply_fn(f: fn(int) -> int, x: int) -> int {
+    return (f x)
+}
+
+fn test_higher_order() -> bool {
+    let inc: fn(int) -> int = fn(x: int) -> int { return x + 1 }
+    let result = (apply_fn inc 5)
+    return result == 6
+}
+
+/* Test 6: boolean type inference - comparisons return bool */
+fn is_positive(n: int) -> bool {
+    return n > 0
+}
+
+fn main() -> int {
+    assert (== (identity_int 42) 42)
+    assert (== (test_let_bindings) true)
+    assert (== (test_let_poly) true)
+    assert (== (factorial 5) 120)
+    assert (== (factorial 0) 1)
+    assert (== (test_higher_order) true)
+    assert (== (is_positive 1) true)
+    assert (== (is_positive -1) false)
+    println "All HM inference tests passed."
+    return 0
+}

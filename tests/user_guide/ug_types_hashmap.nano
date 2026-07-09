@@ -1,0 +1,34 @@
+fn count_words(words: array<string>) -> HashMap<string, int> {
+    let counts: HashMap<string, int> = (map_new)
+    let mut i: int = 0
+    while (< i (array_length words)) {
+        let w: string = (at words i)
+        if (map_has counts w) {
+            let cur: int = (map_get counts w)
+            (map_put counts w (+ cur 1))
+        } else {
+            (map_put counts w 1)
+        }
+        set i (+ i 1)
+    }
+    return counts
+}
+
+shadow count_words {
+    let words: array<string> = ["a", "b", "a"]
+    let counts: HashMap<string, int> = (count_words words)
+    assert (== (map_get counts "a") 2)
+    assert (== (map_get counts "b") 1)
+    assert (== (map_has counts "c") false)
+    # Note: HashMap is automatically GC-managed - no manual free needed
+}
+
+fn main() -> int {
+    let counts: HashMap<string, int> = (count_words ["x", "x", "y"])
+    assert (== (map_get counts "x") 2)
+    assert (== (map_get counts "y") 1)
+    # Note: HashMap is automatically GC-managed - no manual free needed
+    return 0
+}
+
+shadow main { assert true }

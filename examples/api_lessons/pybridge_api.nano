@@ -1,0 +1,58 @@
+# Example: PyBridge API Lesson
+# Purpose: I show Python bridge initialization, import, call, get, set, release, and shutdown
+# Features: pybridge init, import, call, get, set, release, sysinfo, deps
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: json_demo
+# Track: modules
+# Build: external-deps
+# Dependencies: modules/pybridge, Python runtime
+# Tags: api-lesson, pybridge, native-only
+# Expected Output: pybridge: ok
+
+from "modules/pybridge/pybridge.nano" import pybridge_init, pybridge_import, pybridge_call, pybridge_get, pybridge_set, pybridge_release, pybridge_ping, pybridge_sysinfo, pybridge_deps, pybridge_shutdown
+
+fn pybridge_smoke() -> int {
+    let reqs: array<string> = (array_new 0 "")
+    let ok: bool = (pybridge_init reqs false)
+    if (not ok) {
+        return 0
+    }
+
+    let pong: string = (pybridge_ping)
+    assert (> (str_length pong) 0)
+
+    let math_handle: int = (pybridge_import "math")
+    if (> math_handle 0) {
+        let response: string = (pybridge_call math_handle "sqrt" "[9]" "{}")
+        assert (> (str_length response) 0)
+        let pi_response: string = (pybridge_get math_handle "pi")
+        assert (> (str_length pi_response) 0)
+        assert (pybridge_release math_handle)
+    }
+
+    let types_handle: int = (pybridge_import "types")
+    if (> types_handle 0) {
+        assert (pybridge_set types_handle "nanolang_api_value" "123")
+        assert (pybridge_release types_handle)
+    }
+
+    assert (> (str_length (pybridge_sysinfo)) 0)
+    assert (> (str_length (pybridge_deps)) 0)
+    (pybridge_shutdown)
+    return 1
+}
+
+shadow pybridge_smoke {
+    assert (>= (pybridge_smoke) 0)
+}
+
+fn main() -> int {
+    (pybridge_smoke)
+    (println "pybridge: ok")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,164 @@
+# Example: Array Functional Patterns
+# Purpose: Demonstrates transform, predicate, and reduction patterns on arrays
+# Features: arrays, helper functions, reductions, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_array_complete
+# Expected Output: Array Functional Patterns Demo
+
+# ---- Transform functions ----
+
+fn double_it(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double_it {
+    assert (== (double_it 0) 0)
+    assert (== (double_it 1) 2)
+    assert (== (double_it 5) 10)
+    assert (== (double_it -3) -6)
+}
+
+fn square_it(x: int) -> int {
+    return (* x x)
+}
+
+shadow square_it {
+    assert (== (square_it 0) 0)
+    assert (== (square_it 3) 9)
+    assert (== (square_it -4) 16)
+}
+
+# ---- Predicate functions ----
+
+fn is_even(x: int) -> bool {
+    return (== (% x 2) 0)
+}
+
+shadow is_even {
+    assert (== (is_even 0) true)
+    assert (== (is_even 2) true)
+    assert (== (is_even 4) true)
+    assert (== (is_even 1) false)
+    assert (== (is_even 3) false)
+    assert (== (is_even -2) true)
+    assert (== (is_even -1) false)
+}
+
+fn is_positive(x: int) -> bool {
+    return (> x 0)
+}
+
+shadow is_positive {
+    assert (== (is_positive 1) true)
+    assert (== (is_positive 100) true)
+    assert (== (is_positive 0) false)
+    assert (== (is_positive -1) false)
+}
+
+fn bool_text(b: bool) -> string {
+    return (cond ((== b true) "true") (else "false"))
+}
+
+shadow bool_text {
+    assert (== (bool_text true) "true")
+    assert (== (bool_text false) "false")
+}
+
+# ---- Fold / reduction ----
+
+fn sum(arr: array<int>) -> int {
+    let mut total: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set total (+ total (at arr i))
+        set i (+ i 1)
+    }
+    return total
+}
+
+shadow sum {
+    let empty: array<int> = []
+    assert (== (sum empty) 0)
+
+    let single: array<int> = [42]
+    assert (== (sum single) 42)
+
+    let nums: array<int> = [1, 2, 3, 4, 5]
+    assert (== (sum nums) 15)
+
+    let negatives: array<int> = [-1, -2, -3]
+    assert (== (sum negatives) -6)
+}
+
+fn product(arr: array<int>) -> int {
+    let mut result: int = 1
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set result (* result (at arr i))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow product {
+    let nums: array<int> = [1, 2, 3, 4]
+    assert (== (product nums) 24)
+
+    let single: array<int> = [7]
+    assert (== (product single) 7)
+}
+
+# ---- String utilities ----
+
+fn join(arr: array<string>, sep: string) -> string {
+    let len: int = (array_length arr)
+    if (== len 0) {
+        return ""
+    } else {}
+    let mut result: string = (at arr 0)
+    let mut i: int = 1
+    while (< i len) {
+        set result (+ result (+ sep (at arr i)))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow join {
+    let empty: array<string> = []
+    assert (== (join empty ",") "")
+
+    let single: array<string> = ["hello"]
+    assert (== (join single ",") "hello")
+
+    let words: array<string> = ["a", "b", "c"]
+    assert (== (join words ",") "a,b,c")
+    assert (== (join words " - ") "a - b - c")
+}
+
+fn main() -> int {
+    (println "Array Functional Patterns Demo")
+    (println "================================")
+    (println "")
+
+    let nums: array<int> = [1, 2, 3, 4, 5]
+
+    (println (+ "Sum of [1..5]: " (int_to_string (sum nums))))
+    (println (+ "Product of [1..4]: " (int_to_string (product [1, 2, 3, 4]))))
+    (println (+ "double_it(7): " (int_to_string (double_it 7))))
+    (println (+ "square_it(6): " (int_to_string (square_it 6))))
+    (println (+ "is_even(4): " (bool_text (is_even 4))))
+    (println (+ "is_positive(-1): " (bool_text (is_positive -1))))
+
+    let words: array<string> = ["nano", "lang", "rocks"]
+    (println (+ "join([nano,lang,rocks], \"-\"): " (join words "-")))
+
+    (println "")
+    (println "All array functional tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

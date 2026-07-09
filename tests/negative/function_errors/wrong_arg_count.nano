@@ -1,0 +1,18 @@
+# Expected Error: Wrong number of arguments
+
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 1 2) 3)
+}
+
+fn main() -> int {
+    let result: int = (add 1)  # Error: missing argument
+    return result
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,13 @@
+/* =============================================================================
+ * Compiler IR (Shared)
+ * =============================================================================
+ * Canonical data types shared by the self-hosted compiler phases.
+ * 
+ * NOTE: Most types (LexerToken, Parser, NSType, etc.) are auto-generated 
+ * from compiler_schema.json and are available via compiler_ast.nano.
+ */
+
+import "src_nano/generated/compiler_schema.nano"
+import "src_nano/generated/compiler_ast.nano"
+
+# No manual definitions needed here anymore - they are in compiler_ast.nano

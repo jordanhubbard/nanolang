@@ -1,0 +1,8 @@
+{
+  "name": "log",
+  "version": "1.0.0",
+  "description": "Structured logging and tracing",
+  "c_sources": ["log.c"],
+  "headers": ["log.h"]
+}
+

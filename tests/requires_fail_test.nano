@@ -1,0 +1,20 @@
+/* Test requires clause failure - this should fail at runtime */
+
+fn positive_only(x: int) -> int
+requires (> x 0)  /* x must be positive */
+{
+    return (* x 2)
+}
+
+shadow positive_only {
+    /* Only test valid cases in shadow tests */
+    assert (== (positive_only 5) 10)
+}
+
+fn main() -> int {
+    /* This should trigger the requires failure at runtime */
+    (println (int_to_string (positive_only -5)))  /* -5 is not > 0 */
+    return 0
+}
+
+shadow main { assert true }

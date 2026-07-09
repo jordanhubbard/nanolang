@@ -1,0 +1,201 @@
+# SDL_mixer Helpers - Convenience functions for audio playback
+# Provides higher-level wrappers around SDL_mixer FFI functions
+
+import "modules/sdl_mixer/sdl_mixer.nano"
+
+# === Helper Functions ===
+
+# Initialize audio system with common defaults
+# Returns 0 on success, -1 on failure
+fn init_audio() -> int {
+    # Initialize SDL_mixer with OGG and MP3 support
+    let flags: int = (+ MIX_INIT_OGG MIX_INIT_MP3)
+    let init_result: int = (Mix_Init flags)
+    
+    # Open audio with standard settings
+    # 44100 Hz, 16-bit, stereo, 2048 byte buffer
+    let audio_result: int = (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048)
+    
+    if (== audio_result 0) {
+        # Allocate 16 mixing channels
+        (Mix_AllocateChannels 16)
+        return 0
+    } else {
+        return (- 1)
+    }
+}
+
+shadow init_audio {
+    # Cannot test without actual audio device
+    assert true
+}
+
+# Shutdown audio system
+fn shutdown_audio() -> int {
+    (Mix_CloseAudio)
+    (Mix_Quit)
+    return 0
+}
+
+shadow shutdown_audio {
+    # Cannot test without actual audio device
+    assert true
+}
+
+# Play sound effect once
+# Returns channel number or -1 on error
+fn play_sound(chunk: int) -> int {
+    return (Mix_PlayChannel (- 1) chunk 0)
+}
+
+shadow play_sound {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Play sound effect looped
+# loops: -1 = forever, N = N+1 times total
+fn play_sound_looped(chunk: int, loops: int) -> int {
+    return (Mix_PlayChannel (- 1) chunk loops)
+}
+
+shadow play_sound_looped {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Play sound with fade in
+fn play_sound_fade_in(chunk: int, fade_ms: int) -> int {
+    return (Mix_FadeInChannel (- 1) chunk 0 fade_ms)
+}
+
+shadow play_sound_fade_in {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Stop all sound effects
+fn stop_all_sounds() -> int {
+    (Mix_HaltChannel (- 1))
+    return 0
+}
+
+shadow stop_all_sounds {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Play music once
+fn play_music(music: int) -> int {
+    return (Mix_PlayMusic music 0)
+}
+
+shadow play_music {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Play music looped
+# loops: -1 = forever, N = N+1 times total
+fn play_music_looped(music: int, loops: int) -> int {
+    return (Mix_PlayMusic music loops)
+}
+
+shadow play_music_looped {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Play music with fade in
+fn play_music_fade_in(music: int, fade_ms: int) -> int {
+    return (Mix_FadeInMusic music (- 1) fade_ms)
+}
+
+shadow play_music_fade_in {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Stop music
+fn stop_music() -> int {
+    (Mix_HaltMusic)
+    return 0
+}
+
+shadow stop_music {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Stop music with fade out
+fn stop_music_fade_out(fade_ms: int) -> int {
+    (Mix_FadeOutMusic fade_ms)
+    return 0
+}
+
+shadow stop_music_fade_out {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Toggle music pause
+fn toggle_music_pause() -> int {
+    let paused: int = (Mix_PausedMusic)
+    if (== paused 1) {
+        (Mix_ResumeMusic)
+        return 0
+    } else {
+        (Mix_PauseMusic)
+        return 1
+    }
+}
+
+shadow toggle_music_pause {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Set master volume (0-128)
+fn set_master_volume(volume: int) -> int {
+    (Mix_Volume (- 1) volume)
+    return 0
+}
+
+shadow set_master_volume {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Set music volume (0-128)
+fn set_music_volume(volume: int) -> int {
+    (Mix_VolumeMusic volume)
+    return 0
+}
+
+shadow set_music_volume {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Check if any sound is playing
+fn is_sound_playing() -> bool {
+    let playing: int = (Mix_Playing (- 1))
+    return (> playing 0)
+}
+
+shadow is_sound_playing {
+    # Cannot test without actual audio
+    assert true
+}
+
+# Check if music is playing
+fn is_music_playing() -> bool {
+    let playing: int = (Mix_PlayingMusic)
+    return (== playing 1)
+}
+
+shadow is_music_playing {
+    # Cannot test without actual audio
+    assert true
+}
+

@@ -1,0 +1,561 @@
+# regex_nfa: Thompson NFA regex engine in pure nanolang.
+#
+# Supports: literal characters, . (any), * (zero or more), + (one or more),
+#           | (alternation), () (grouping).  No backtracking; simulation is
+#           O(n * m) in pattern length n and text length m.
+#
+# Design:
+#   - NFA states are stored in parallel int arrays inside an NFA struct.
+#   - A Frag struct captures a compiled sub-expression fragment: the start
+#     state index and a list of as-yet-unpatched output pointers encoded as
+#     state_index * 2 + port (0 = out1, 1 = out2).
+#   - A CompileResult bundles (NFA, Frag, next-parse-position) so that a
+#     recursive helper can return all three without needing tuples.
+#
+# NFA state kinds (stored in NFA.kinds):
+#   0 = CHAR  - matches NFA.chars[i]; successor = NFA.out1s[i]
+#   1 = DOT   - matches any character; successor = NFA.out1s[i]
+#   2 = SPLIT - nondeterministic fork; successors = NFA.out1s[i], NFA.out2s[i]
+#   3 = MATCH - accepting state (no successors)
+#   4 = JMP   - unconditional jump; successor = NFA.out1s[i]
+#
+# Unpatched output slots hold -1.
+
+# ---------------------------------------------------------------------------
+# NFA: flat parallel-array representation
+# ---------------------------------------------------------------------------
+
+pub struct NFA {
+    kinds: array<int>,
+    chars: array<int>,
+    out1s: array<int>,
+    out2s: array<int>,
+    size: int
+}
+
+pub fn nfa_new() -> NFA {
+    return NFA {
+        kinds: [],
+        chars: [],
+        out1s: [],
+        out2s: [],
+        size: 0
+    }
+}
+
+shadow nfa_new {
+    let n: NFA = (nfa_new)
+    assert (== n.size 0)
+    assert (== (array_length n.kinds) 0)
+}
+
+# Append a new state and return the updated NFA.
+pub fn nfa_add(n: NFA, kind: int, c: int, o1: int, o2: int) -> NFA {
+    return NFA {
+        kinds: (array_push n.kinds kind),
+        chars: (array_push n.chars c),
+        out1s: (array_push n.out1s o1),
+        out2s: (array_push n.out2s o2),
+        size: (+ n.size 1)
+    }
+}
+
+shadow nfa_add {
+    let n0: NFA = (nfa_new)
+    let n1: NFA = (nfa_add n0 0 65 (- 0 1) (- 0 1))
+    assert (== n1.size 1)
+    assert (== (at n1.kinds 0) 0)
+    assert (== (at n1.chars 0) 65)
+    assert (== (at n1.out1s 0) (- 0 1))
+}
+
+# Patch a list of dangling output pointers to point to target.
+# outs: array of encoded refs, each = state_index*2 + port.
+pub fn nfa_patch(n: NFA, outs: array<int>, target: int) -> NFA {
+    let mut o1s: array<int> = n.out1s
+    let mut o2s: array<int> = n.out2s
+    let mut i: int = 0
+    while (< i (array_length outs)) {
+        let code: int = (at outs i)
+        let state: int = (/ code 2)
+        let port: int = (% code 2)
+        if (== port 0) {
+            (array_set o1s state target)
+        } else {
+            (array_set o2s state target)
+        }
+        set i (+ i 1)
+    }
+    return NFA { kinds: n.kinds, chars: n.chars, out1s: o1s, out2s: o2s, size: n.size }
+}
+
+shadow nfa_patch {
+    let n0: NFA = (nfa_new)
+    let n1: NFA = (nfa_add n0 0 65 (- 0 1) (- 0 1))
+    let outs: array<int> = [0]
+    let n2: NFA = (nfa_patch n1 outs 7)
+    assert (== (at n2.out1s 0) 7)
+}
+
+# Concatenate two dangling-pointer lists.
+pub fn outs_concat(a: array<int>, b: array<int>) -> array<int> {
+    let mut i: int = 0
+    let mut result: array<int> = a
+    while (< i (array_length b)) {
+        set result (array_push result (at b i))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow outs_concat {
+    let a: array<int> = [1, 2]
+    let b: array<int> = [3, 4]
+    let c: array<int> = (outs_concat a b)
+    assert (== (array_length c) 4)
+    assert (== (at c 2) 3)
+}
+
+# ---------------------------------------------------------------------------
+# Frag: a compiled NFA fragment with a start state and dangling outputs.
+# ---------------------------------------------------------------------------
+
+pub struct Frag {
+    start: int,
+    outs: array<int>
+}
+
+pub fn frag_new(start: int, outs: array<int>) -> Frag {
+    return Frag { start: start, outs: outs }
+}
+
+shadow frag_new {
+    let f: Frag = (frag_new 3 [6, 7])
+    assert (== f.start 3)
+    assert (== (array_length f.outs) 2)
+}
+
+# ---------------------------------------------------------------------------
+# CompileResult: bundles (NFA, Frag, pos) for recursive descent.
+# ---------------------------------------------------------------------------
+
+pub struct CompileResult {
+    nfa: NFA,
+    frag: Frag,
+    pos: int
+}
+
+pub fn compile_result(nfa: NFA, frag: Frag, pos: int) -> CompileResult {
+    return CompileResult { nfa: nfa, frag: frag, pos: pos }
+}
+
+shadow compile_result {
+    let n: NFA = (nfa_new)
+    let f: Frag = (frag_new 0 [])
+    let r: CompileResult = (compile_result n f 5)
+    assert (== r.pos 5)
+}
+
+# ---------------------------------------------------------------------------
+# Pattern parser / NFA compiler
+# ---------------------------------------------------------------------------
+
+# Forward declarations (helpers called before definition in recursion).
+# The compiler is structured so that re_compile_expr is the top level,
+# re_compile_concat handles sequences, re_compile_piece handles quantifiers,
+# and re_compile_atom handles single atoms (char, ., or group).
+
+# re_compile_atom: parse one atom from pattern at pos.
+# Returns CompileResult.  On error (unexpected end / mismatch), returns a
+# zero-state NFA with start=-1 as a sentinel.
+
+pub fn re_compile_atom(pat: string, n: NFA, pos: int) -> CompileResult {
+    let plen: int = (str_length pat)
+    if (>= pos plen) {
+        let f: Frag = (frag_new (- 0 1) [])
+        return (compile_result n f pos)
+    } else {}
+    let c: int = (char_at pat pos)
+
+    if (== c 40) {
+        # '(' - recurse for grouped expression
+        let inner: CompileResult = (re_compile_expr pat n (+ pos 1))
+        let plen2: int = (str_length pat)
+        if (>= inner.pos plen2) {
+            return inner
+        } else {}
+        let c2: int = (char_at pat inner.pos)
+        if (== c2 41) {
+            return (compile_result inner.nfa inner.frag (+ inner.pos 1))
+        } else {
+            return inner
+        }
+    } else {
+        if (== c 46) {
+            # '.' - match any character
+            let sid: int = n.size
+            let n2: NFA = (nfa_add n 1 0 (- 0 1) (- 0 1))
+            let outs: array<int> = [(* sid 2)]
+            let f: Frag = (frag_new sid outs)
+            return (compile_result n2 f (+ pos 1))
+        } else {
+            # literal character (skip metacharacters that are not atoms here)
+            if (or (== c 41) (or (== c 42) (or (== c 43) (or (== c 63) (== c 124))))) {
+                # ), *, +, ?, | are not atoms - return sentinel
+                let f: Frag = (frag_new (- 0 1) [])
+                return (compile_result n f pos)
+            } else {
+                let sid: int = n.size
+                let n2: NFA = (nfa_add n 0 c (- 0 1) (- 0 1))
+                let outs: array<int> = [(* sid 2)]
+                let f: Frag = (frag_new sid outs)
+                return (compile_result n2 f (+ pos 1))
+            }
+        }
+    }
+}
+
+shadow re_compile_atom {
+    let n: NFA = (nfa_new)
+    let r: CompileResult = (re_compile_atom "a" n 0)
+    assert (== r.nfa.size 1)
+    assert (== r.pos 1)
+    assert (== r.frag.start 0)
+}
+
+# re_compile_piece: parse atom optionally followed by *, +, or +.
+pub fn re_compile_piece(pat: string, n: NFA, pos: int) -> CompileResult {
+    let atom_r: CompileResult = (re_compile_atom pat n pos)
+    if (== atom_r.frag.start (- 0 1)) {
+        return atom_r
+    } else {}
+    let plen: int = (str_length pat)
+    if (>= atom_r.pos plen) {
+        return atom_r
+    } else {}
+    let quant: int = (char_at pat atom_r.pos)
+
+    if (== quant 42) {
+        # '*' - zero or more: SPLIT -> (atom -> loop back, or skip)
+        let sid: int = atom_r.nfa.size
+        let n2: NFA = (nfa_add atom_r.nfa 2 0 atom_r.frag.start (- 0 1))
+        let n3: NFA = (nfa_patch n2 atom_r.frag.outs sid)
+        let outs: array<int> = [(+ (* sid 2) 1)]
+        let f: Frag = (frag_new sid outs)
+        return (compile_result n3 f (+ atom_r.pos 1))
+    } else {
+        if (== quant 43) {
+            # '+' - one or more: atom -> SPLIT -> (loop back, or continue)
+            let sid: int = atom_r.nfa.size
+            let n2: NFA = (nfa_add atom_r.nfa 2 0 atom_r.frag.start (- 0 1))
+            let n3: NFA = (nfa_patch n2 atom_r.frag.outs sid)
+            let outs: array<int> = [(+ (* sid 2) 1)]
+            let f: Frag = (frag_new atom_r.frag.start outs)
+            return (compile_result n3 f (+ atom_r.pos 1))
+        } else {
+            if (== quant 63) {
+                # '?' - zero or one: SPLIT -> (atom, or skip)
+                let sid: int = atom_r.nfa.size
+                let n2: NFA = (nfa_add atom_r.nfa 2 0 atom_r.frag.start (- 0 1))
+                let outs: array<int> = (outs_concat atom_r.frag.outs [(+ (* sid 2) 1)])
+                let f: Frag = (frag_new sid outs)
+                return (compile_result n2 f (+ atom_r.pos 1))
+            } else {
+                return atom_r
+            }
+        }
+    }
+}
+
+shadow re_compile_piece {
+    let n: NFA = (nfa_new)
+    let r: CompileResult = (re_compile_piece "a*" n 0)
+    assert (>= r.nfa.size 2)
+    assert (== r.pos 2)
+}
+
+# re_compile_concat: parse a sequence of pieces (stops at | or ) or end).
+pub fn re_compile_concat(pat: string, n: NFA, pos: int) -> CompileResult {
+    let plen: int = (str_length pat)
+    # Parse first piece
+    let p0: CompileResult = (re_compile_piece pat n pos)
+    if (== p0.frag.start (- 0 1)) {
+        return p0
+    } else {}
+
+    let mut cur_nfa: NFA = p0.nfa
+    let mut cur_outs: array<int> = p0.frag.outs
+    let mut cur_start: int = p0.frag.start
+    let mut cur_pos: int = p0.pos
+    let mut prev_outs: array<int> = cur_outs
+
+    # Loop: consume more pieces
+    let mut keep_going: bool = true
+    while (and keep_going (< cur_pos plen)) {
+        let peek: int = (char_at pat cur_pos)
+        # Stop at | or )
+        if (or (== peek 124) (== peek 41)) {
+            set keep_going false
+        } else {
+            let next_r: CompileResult = (re_compile_piece pat cur_nfa cur_pos)
+            if (== next_r.frag.start (- 0 1)) {
+                set keep_going false
+            } else {
+                # Patch previous dangling outputs to point to next fragment's start
+                set cur_nfa (nfa_patch next_r.nfa prev_outs next_r.frag.start)
+                set prev_outs next_r.frag.outs
+                set cur_outs next_r.frag.outs
+                set cur_pos next_r.pos
+            }
+        }
+    }
+
+    let f: Frag = (frag_new cur_start cur_outs)
+    return (compile_result cur_nfa f cur_pos)
+}
+
+shadow re_compile_concat {
+    let n: NFA = (nfa_new)
+    let r: CompileResult = (re_compile_concat "ab" n 0)
+    assert (>= r.nfa.size 2)
+    assert (== r.pos 2)
+}
+
+# re_compile_expr: parse alternation (e1 | e2 | ...).
+pub fn re_compile_expr(pat: string, n: NFA, pos: int) -> CompileResult {
+    let plen: int = (str_length pat)
+    let left_r: CompileResult = (re_compile_concat pat n pos)
+    if (== left_r.frag.start (- 0 1)) {
+        return left_r
+    } else {}
+
+    let mut cur_nfa: NFA = left_r.nfa
+    let mut cur_outs: array<int> = left_r.frag.outs
+    let mut cur_start: int = left_r.frag.start
+    let mut cur_pos: int = left_r.pos
+
+    let mut keep_going: bool = true
+    while (and keep_going (< cur_pos plen)) {
+        let peek: int = (char_at pat cur_pos)
+        if (== peek 124) {
+            # '|'
+            let right_r: CompileResult = (re_compile_concat pat cur_nfa (+ cur_pos 1))
+            if (== right_r.frag.start (- 0 1)) {
+                set keep_going false
+            } else {
+                # Build a SPLIT state that branches to left and right
+                let sid: int = right_r.nfa.size
+                let n2: NFA = (nfa_add right_r.nfa 2 0 cur_start right_r.frag.start)
+                # Combine dangling outputs of both branches
+                let combined_outs: array<int> = (outs_concat cur_outs right_r.frag.outs)
+                set cur_nfa n2
+                set cur_outs combined_outs
+                set cur_start sid
+                set cur_pos right_r.pos
+            }
+        } else {
+            set keep_going false
+        }
+    }
+
+    let f: Frag = (frag_new cur_start cur_outs)
+    return (compile_result cur_nfa f cur_pos)
+}
+
+shadow re_compile_expr {
+    let n: NFA = (nfa_new)
+    let r: CompileResult = (re_compile_expr "a|b" n 0)
+    assert (>= r.nfa.size 3)
+    assert (== r.pos 3)
+}
+
+# ---------------------------------------------------------------------------
+# Public compile entry point
+# ---------------------------------------------------------------------------
+
+# CompileRoot bundles NFA + start state for the fully compiled pattern.
+pub struct CompileRoot {
+    nfa: NFA,
+    start: int,
+    ok: bool
+}
+
+pub fn re_compile(pat: string) -> CompileRoot {
+    let n0: NFA = (nfa_new)
+    let r: CompileResult = (re_compile_expr pat n0 0)
+    if (== r.frag.start (- 0 1)) {
+        return CompileRoot { nfa: r.nfa, start: (- 0 1), ok: false }
+    } else {}
+    # Add the MATCH state and patch all dangling outputs to it
+    let match_sid: int = r.nfa.size
+    let n2: NFA = (nfa_add r.nfa 3 0 (- 0 1) (- 0 1))
+    let n3: NFA = (nfa_patch n2 r.frag.outs match_sid)
+    return CompileRoot { nfa: n3, start: r.frag.start, ok: true }
+}
+
+shadow re_compile {
+    let cr: CompileRoot = (re_compile "a*b")
+    assert cr.ok
+    assert (>= cr.nfa.size 3)
+}
+
+# ---------------------------------------------------------------------------
+# Thompson simulation
+# ---------------------------------------------------------------------------
+
+# Add a state to the current-states set, following epsilon transitions
+# (SPLIT and JMP) recursively to avoid duplicates.
+# visited: boolean array sized to nfa.size, marking already-added states.
+pub fn re_add_state(nfa: NFA, state: int, states: array<int>, visited: array<bool>) -> array<int> {
+    if (< state 0) {
+        return states
+    } else {}
+    if (>= state nfa.size) {
+        return states
+    } else {}
+    if (at visited state) {
+        return states
+    } else {}
+    (array_set visited state true)
+    let kind: int = (at nfa.kinds state)
+    if (== kind 2) {
+        # SPLIT: follow both branches
+        let s1: int = (at nfa.out1s state)
+        let s2: int = (at nfa.out2s state)
+        let states2: array<int> = (re_add_state nfa s1 states visited)
+        return (re_add_state nfa s2 states2 visited)
+    } else {
+        if (== kind 4) {
+            # JMP: follow unconditionally
+            let s1: int = (at nfa.out1s state)
+            return (re_add_state nfa s1 states visited)
+        } else {
+            return (array_push states state)
+        }
+    }
+}
+
+shadow re_add_state {
+    let n0: NFA = (nfa_new)
+    let n1: NFA = (nfa_add n0 0 65 1 (- 0 1))
+    let n2: NFA = (nfa_add n1 3 0 (- 0 1) (- 0 1))
+    let mut vis: array<bool> = (array_new n2.size false)
+    let states: array<int> = (re_add_state n2 0 [] vis)
+    assert (== (array_length states) 1)
+    assert (== (at states 0) 0)
+}
+
+# Check if a state list contains a MATCH (kind=3) state.
+pub fn re_is_match(nfa: NFA, states: array<int>) -> bool {
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let s: int = (at states i)
+        if (== (at nfa.kinds s) 3) {
+            return true
+        } else {}
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow re_is_match {
+    let n0: NFA = (nfa_new)
+    let n1: NFA = (nfa_add n0 3 0 (- 0 1) (- 0 1))
+    assert (re_is_match n1 [0])
+    assert (not (re_is_match n1 []))
+}
+
+# Simulate the NFA over text starting at text position tpos.
+# Returns true if the NFA accepts text[tpos..].
+pub fn re_simulate(nfa: NFA, start: int, text: string, tpos: int) -> bool {
+    let tlen: int = (str_length text)
+    let mut vis0: array<bool> = (array_new nfa.size false)
+    let mut current: array<int> = (re_add_state nfa start [] vis0)
+
+    let mut ti: int = tpos
+    while (and (not (re_is_match nfa current)) (< ti tlen)) {
+        let ch: int = (char_at text ti)
+        set ti (+ ti 1)
+        # Build next state set
+        let mut vis1: array<bool> = (array_new nfa.size false)
+        let mut next: array<int> = []
+        let mut si: int = 0
+        while (< si (array_length current)) {
+            let s: int = (at current si)
+            let kind: int = (at nfa.kinds s)
+            let out: int = (at nfa.out1s s)
+            if (== kind 0) {
+                # CHAR: match specific character
+                if (== ch (at nfa.chars s)) {
+                    set next (re_add_state nfa out next vis1)
+                } else {}
+            } else {
+                if (== kind 1) {
+                    # DOT: match any character
+                    set next (re_add_state nfa out next vis1)
+                } else {}
+            }
+            set si (+ si 1)
+        }
+        set current next
+    }
+    return (re_is_match nfa current)
+}
+
+shadow re_simulate {
+    let cr: CompileRoot = (re_compile "ab")
+    assert (re_simulate cr.nfa cr.start "ab" 0)
+    assert (not (re_simulate cr.nfa cr.start "ac" 0))
+}
+
+# ---------------------------------------------------------------------------
+# Public match API: try to match pattern anywhere in text (like grep).
+# Returns true if any substring of text matches the pattern.
+# ---------------------------------------------------------------------------
+
+pub fn re_match(pat: string, text: string) -> bool {
+    let cr: CompileRoot = (re_compile pat)
+    if (not cr.ok) {
+        return false
+    } else {}
+    let tlen: int = (str_length text)
+    let mut i: int = 0
+    while (<= i tlen) {
+        if (re_simulate cr.nfa cr.start text i) {
+            return true
+        } else {}
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow re_match {
+    assert (re_match "a" "a")
+    assert (re_match "a" "ba")
+    assert (not (re_match "a" "b"))
+    assert (re_match "a*b" "aaab")
+    assert (not (re_match "a*b" "aaac"))
+    assert (re_match "a|b" "b")
+    assert (re_match "." "x")
+    assert (re_match "a+" "aaa")
+    assert (not (re_match "a+" "b"))
+}
+
+# re_match_full: true only if the entire text matches the pattern.
+pub fn re_match_full(pat: string, text: string) -> bool {
+    let cr: CompileRoot = (re_compile pat)
+    if (not cr.ok) {
+        return false
+    } else {}
+    return (re_simulate cr.nfa cr.start text 0)
+}
+
+shadow re_match_full {
+    assert (re_match_full "a*b" "aaab")
+    assert (not (re_match_full "a*b" "aaac"))
+    assert (re_match_full "a*b" "b")
+    assert (re_match_full "(a|b)*c" "ababc")
+    assert (not (re_match_full "(a|b)*c" "ababd"))
+    assert (re_match_full "a.c" "abc")
+    assert (not (re_match_full "a.c" "ac"))
+}

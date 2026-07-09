@@ -1,0 +1,116 @@
+-- stdlib/async.nano — Async/await concurrency utilities
+--
+-- nanolang async model: CSP-style channels + cooperative coroutines.
+-- Async functions are compiled to coroutine stacks via co_spawn().
+-- Channels provide typed, directional communication between tasks.
+--
+-- Language primitives (keywords, not library):
+--   async fn foo(x: int) -> int { ... }  -- declares async function
+--   let t = spawn foo(42)                 -- spawn as background task
+--   let v = await t                       -- await result
+--   let ch = chan int [8]                 -- buffered channel (capacity 8)
+--   let ch2 = chan int                    -- unbuffered channel
+--   ch <- 42                              -- send value
+--   let v = <- ch                         -- receive value
+--   close ch                              -- close channel (send side)
+--
+-- Select statement:
+--   select {
+--     v <- ch1 => { print(v) }
+--     ch2 <- 99 => { }
+--     default   => { }    -- optional: non-blocking
+--   }
+--
+-- This module provides higher-level combinators built on the primitives.
+
+-- wait_all: await a list of tasks, return list of results
+pub fn wait_all(tasks: int) -> int {
+  list.map(tasks, fn(t) { await t })
+}
+
+-- wait_any: return when first task completes (cancel others)
+-- Returns the value of the first-completing task
+pub fn wait_any(tasks: int) -> int {
+  -- Use a rendezvous channel
+  let result_ch = chan int
+  -- Spawn a proxy for each task
+  let _ = list.for_each(tasks, fn(t) {
+    spawn fn() {
+      result_ch <- (await t)
+    }()
+  })
+  <- result_ch
+}
+
+-- timeout: run a task with a time limit; returns Option
+pub fn timeout(task: int, millis: int) -> import option.Option {
+  let result_ch = chan int
+  let done_ch   = chan int
+  spawn fn() {
+    result_ch <- (await task)
+    done_ch <- 1
+  }()
+  spawn fn() {
+    sleep_ms(millis)
+    done_ch <- 0
+  }()
+  let ok = <- done_ch
+  if ok == 1 { option.some(<- result_ch) } else { option.none() }
+}
+
+-- pipeline: connect tasks via channels; like Unix pipe
+--   let result = pipeline(
+--     fn(in: int, out: int) { out <- (input * 2) },
+--     fn(in: int, out: int) { out <- (input + 1) }
+--   )
+pub fn pipeline(stages: int, input: int) -> int {
+  let out_ch = list.fold(stages, input, fn(in_ch, stage) {
+    let out = chan int [16]
+    spawn fn() { stage(in_ch, out) }()
+    out
+  })
+  out_ch
+}
+
+-- map_parallel: apply async fn to each element, collect results in order
+pub fn map_parallel(lst: int, f: fn(int) -> int) -> int {
+  let tasks = list.map(lst, fn(x) { spawn f(x) })
+  wait_all(tasks)
+}
+
+-- filter_parallel: filter with async predicate
+pub fn filter_parallel(lst: int, pred: fn(int) -> bool) -> int {
+  let pairs = map_parallel(lst, fn(x) { list.of(x, if pred(x) { 1 } else { 0 }) })
+  let kept  = list.filter(pairs, fn(pair) { list.nth_int(pair, 1) == 1 })
+  list.map(kept, fn(pair) { list.head(pair) })
+}
+
+-- channel_into_list: drain a closed channel into a list
+pub fn channel_into_list(ch: int) -> int {
+  let acc = list.empty()
+  loop {
+    let v = <- ch
+    if v == 0 and is_channel_closed(ch) { break }
+    acc = list.cons(v, acc)
+  }
+  list.reverse(acc)
+}
+
+-- generator: create an iterator from an async producer function
+-- fn producer(ch: chan int) { ch <- 1; ch <- 2; close ch }
+-- let gen = generator(producer)
+-- let v1  = iter.next(gen)    -- Some(1)
+pub fn generator(producer: fn(int) -> void) -> int {
+  let ch = chan int [16]
+  spawn producer(ch)
+  iter.from_channel(ch)
+}
+
+-- yield helper (alias for co_yield in nanolang)
+pub fn yield_now() -> void { __builtin_co_yield() }
+
+-- sleep_ms: cooperative sleep (yields for at least millis)
+pub fn sleep_ms(millis: int) -> void { __builtin_sleep_ms(millis) }
+
+-- is_channel_closed: check if channel has been closed by sender
+pub fn is_channel_closed(ch: int) -> bool { __builtin_chan_is_closed(ch) }

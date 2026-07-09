@@ -1,0 +1,58 @@
+# Example: std::math::Vector4D API Lesson
+# Purpose: I show homogeneous coordinates and 4D vector helpers.
+# Features: Vector4D, vec4_new, vec4_zero, vec4_add, vec4_sub, vec4_scale, vec4_dot, vec4_length, vec4_normalize, vec4_from_vec3, vec4_to_vec3_div_w
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: math_vector3d_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/vector4d
+# Tags: api-lesson, math, vector4d, shadow-tested
+# Expected Output: projected z: 3.0
+
+from "modules/std/math/vector3d.nano" import Vector3D, vec3_new
+from "modules/std/math/vector4d.nano" import Vector4D, vec4_new, vec4_zero, vec4_add, vec4_sub, vec4_scale, vec4_dot, vec4_length, vec4_normalize, vec4_from_vec3, vec4_to_vec3_div_w
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 4.0 4.0001)
+    assert (not (close_float 4.0 4.1))
+}
+
+fn project_point() -> Vector3D {
+    let p: Vector4D = (vec4_new 2.0 4.0 6.0 2.0)
+    return (vec4_to_vec3_div_w p)
+}
+
+shadow project_point {
+    let p: Vector3D = (project_point)
+    assert (close_float p.x 1.0)
+    assert (close_float p.y 2.0)
+    assert (close_float p.z 3.0)
+}
+
+fn main() -> int {
+    let a: Vector4D = (vec4_new 1.0 2.0 3.0 4.0)
+    let b: Vector4D = (vec4_new 5.0 6.0 7.0 8.0)
+    let zero: Vector4D = (vec4_zero)
+    let sum: Vector4D = (vec4_add a b)
+    let delta: Vector4D = (vec4_sub b a)
+    let scaled: Vector4D = (vec4_scale delta 0.5)
+    let unit: Vector4D = (vec4_normalize (vec4_new 3.0 0.0 0.0 0.0))
+    let from3: Vector4D = (vec4_from_vec3 (vec3_new 9.0 8.0 7.0) 1.0)
+    assert (close_float (vec4_dot zero zero) 0.0)
+    assert (close_float (vec4_length unit) 1.0)
+    assert (close_float sum.w 12.0)
+    assert (close_float scaled.x 2.0)
+    assert (close_float from3.z 7.0)
+    let projected: Vector3D = (project_point)
+    (println (+ "projected z: " (float_to_string projected.z)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

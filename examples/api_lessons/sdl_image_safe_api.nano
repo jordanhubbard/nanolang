@@ -1,0 +1,82 @@
+# Example: SDL_image Safe API Lesson
+# Purpose: I use the safe SDL_image wrappers so example code does not carry unsafe blocks at each texture call.
+# Features: img_init, img_load_png_texture, img_get_width, img_get_height, img_set_alpha, img_set_color, img_set_blend_mode, img_render_texture, img_render_texture_ex, img_render_sprite, img_destroy, img_quit
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: SDL2 and SDL_image
+# Track: modules
+# Build: external-deps, graphical
+# Dependencies: modules/sdl_image/sdl_image_safe
+# Tags: api-lesson, sdl-image, textures, graphical, shadow-tested
+# Expected Output: texture size: 80x80
+
+unsafe module "modules/sdl/sdl.nano"
+from "modules/sdl_image/sdl_image.nano" import IMG_INIT_PNG, SDL_FLIP_NONE, SDL_BLENDMODE_BLEND
+from "modules/sdl_image/sdl_image_safe.nano" import img_init, img_load_texture, img_load_png_texture, img_render_texture, img_render_texture_ex, img_render_sprite, img_get_width, img_get_height, img_set_alpha, img_set_color, img_set_blend_mode, img_destroy, img_quit, img_get_error
+
+fn demo_icon_path() -> string {
+    return "examples/icons/sdl_particles.png"
+}
+
+shadow demo_icon_path {
+    assert (> (str_length (demo_icon_path)) 0)
+}
+
+fn alpha_value() -> int {
+    return 220
+}
+
+shadow alpha_value {
+    assert (== (alpha_value) 220)
+}
+
+fn main() -> int {
+    if (!= (SDL_Init SDL_INIT_VIDEO) 0) {
+        (println "SDL init failed.")
+        return 1
+    } else {}
+
+    if (== (img_init IMG_INIT_PNG) 0) {
+        (println (img_get_error))
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    let window: SDL_Window = (SDL_CreateWindow "NanoLang SDL_image Safe API"
+        SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED 240 180 SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    let texture: int = (img_load_png_texture renderer (demo_icon_path))
+    let direct: int = (img_load_texture renderer (demo_icon_path))
+
+    if (== texture 0) {
+        (println (img_get_error))
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (img_quit)
+        (SDL_Quit)
+        return 1
+    } else {}
+
+    (img_set_alpha texture (alpha_value))
+    (img_set_color texture 255 240 210)
+    (img_set_blend_mode texture SDL_BLENDMODE_BLEND)
+    (img_render_texture renderer texture 10 10 80 80)
+    (img_render_texture_ex renderer texture 110 10 80 80 12.0 SDL_FLIP_NONE)
+    (img_render_sprite renderer texture 0 0 40 40 70 100 40 40)
+    (SDL_RenderPresent renderer)
+    (println (+ "texture size: " (+ (int_to_string (img_get_width texture)) (+ "x" (int_to_string (img_get_height texture))))))
+
+    if (!= direct 0) {
+        (img_destroy direct)
+    } else {}
+    (img_destroy texture)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (img_quit)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    assert true
+}

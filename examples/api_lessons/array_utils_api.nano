@@ -1,0 +1,31 @@
+# Example: Array Utils API Lesson
+# Purpose: I show the focused array utility API for sorting strings
+# Features: array_sort_strings, arrays, shadow tests
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: nl_array_complete
+# Track: modules
+# Build: local
+# Dependencies: modules/std/collections/array_utils
+# Tags: api-lesson, arrays, shadow-tested
+# Expected Output: first sorted: alpha
+
+from "modules/std/collections/array_utils.nano" import array_sort_strings
+
+fn first_sorted_word(words: array<string>) -> string {
+    let sorted: array<string> = (array_sort_strings words)
+    return (at sorted 0)
+}
+
+shadow first_sorted_word {
+    assert (== (first_sorted_word ["delta", "alpha", "beta"]) "alpha")
+}
+
+fn main() -> int {
+    (println (+ "first sorted: " (first_sorted_word ["delta", "alpha", "beta"])))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,8 @@
+{
+  "name": "std_peg",
+  "version": "0.1.0",
+  "description": "Minimal PEG engine (ordered choice) for nanolang",
+  "c_sources": ["peg.c"],
+  "headers": ["peg.h"],
+  "cflags": ["-Imodules/std/peg", "-Isrc"]
+}

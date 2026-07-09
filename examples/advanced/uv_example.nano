@@ -1,0 +1,497 @@
+# Example: Async I/O with libuv
+# Purpose: Demonstrate asynchronous I/O using the libuv event loop and system APIs
+# Features: libuv, async I/O, event loops, system info, high-resolution timing, C FFI
+# Difficulty: Advanced
+# Category: advanced
+# Prerequisites: ffi_tutorial
+# Expected Output: ASYNC I/O WITH LIBUV - Event Loop Foundation
+
+module "modules/uv/uv.nano"
+
+# =============================================================================
+# Example 1: Version and Capabilities
+# =============================================================================
+
+fn example_version_info() -> void {
+    (println "")
+    (println "=== Example 1: Version Information ===")
+    (println "libuv is the async I/O library powering Node.js, Neovim, and more.")
+    (println "")
+    
+    (print "  libuv version: ")
+    (println (nl_uv_version_string))
+    
+    let version_num: int = (nl_uv_version)
+    (print "  Version number (hex): 0x")
+    (println version_num)
+    
+    (println "")
+    (println "  Key Features:")
+    (println "    • Cross-platform async I/O")
+    (println "    • Event loop with multiple backends")
+    (println "    • TCP/UDP networking")
+    (println "    • File system operations")
+    (println "    • Child process management")
+    (println "    • Thread pool for blocking operations")
+}
+
+shadow example_version_info {
+    # Skip - uses extern functions
+}
+
+# =============================================================================
+# Example 2: System Information Queries
+# =============================================================================
+
+fn example_system_info() -> void {
+    (println "")
+    (println "=== Example 2: System Information ===")
+    (println "Querying OS and hardware information...")
+    (println "")
+    
+    (print "  Hostname: ")
+    (println (nl_uv_os_gethostname))
+    
+    (print "  Current directory: ")
+    (println (nl_uv_cwd))
+    
+    (print "  Process ID (PID): ")
+    (println (nl_uv_os_getpid))
+    
+    (print "  Parent PID (PPID): ")
+    (println (nl_uv_os_getppid))
+    
+    let cpu_count: int = (nl_uv_cpu_count)
+    (print "  CPU cores: ")
+    (print cpu_count)
+    (println " (logical processors)")
+    
+    let total_mem: int = (nl_uv_get_total_memory)
+    let total_gb: int = (/ total_mem 1073741824)  # Bytes to GB
+    (print "  Total memory: ")
+    (print total_gb)
+    (println " GB")
+    
+    let free_mem: int = (nl_uv_get_free_memory)
+    let free_gb: int = (/ free_mem 1073741824)
+    (print "  Free memory: ")
+    (print free_gb)
+    (println " GB")
+    
+    let load: int = (nl_uv_loadavg_1min)
+    (print "  Load average (1 min): ")
+    (println load)
+    
+    (println "")
+    (println "  Use Cases:")
+    (println "    • Resource monitoring dashboards")
+    (println "    • Auto-scaling decisions")
+    (println "    • Process managers")
+    (println "    • System health checks")
+}
+
+shadow example_system_info {
+    # Skip - uses extern functions
+}
+
+# =============================================================================
+# Example 3: Event Loop Lifecycle
+# =============================================================================
+
+fn example_event_loop() -> void {
+    (println "")
+    (println "=== Example 3: Event Loop Lifecycle ===")
+    (println "Creating and inspecting event loop...")
+    (println "")
+    
+    # Get default event loop (singleton)
+    let loop: int = (nl_uv_default_loop)
+    
+    if (== loop 0) {
+        (println "  ✗ Failed to get default loop")
+        return
+    }
+    
+    (println "  ✓ Event loop created successfully")
+    
+    # Check if loop is alive (has active handles)
+    let alive: int = (nl_uv_loop_alive loop)
+    (print "  Loop alive: ")
+    if (!= alive 0) {
+        (println "yes (has active handles)")
+    } else {
+        (println "no (no pending work)")
+    }
+    
+    # Get number of active handles
+    let handles: int = (nl_uv_loop_get_active_handles loop)
+    (print "  Active handles: ")
+    (println handles)
+    
+    # Get current loop time (cached, updated per iteration)
+    let now: int = (nl_uv_now loop)
+    (print "  Loop time (ms): ")
+    (println now)
+    
+    # Get high-resolution time (wall clock)
+    let hrtime: int = (nl_uv_hrtime)
+    (print "  HR time (ns): ")
+    (println hrtime)
+    
+    (println "")
+    (println "  Event Loop Modes:")
+    (println "    • UV_RUN_DEFAULT (0): Run until no active handles")
+    (println "    • UV_RUN_ONCE (1): Block and process one iteration")
+    (println "    • UV_RUN_NOWAIT (2): Poll without blocking")
+    (println "")
+    (println "  Note: Full loop control requires timer/handle support")
+}
+
+shadow example_event_loop {
+    # Skip - uses extern functions
+}
+
+# =============================================================================
+# Example 4: High-Resolution Timing
+# =============================================================================
+
+fn example_timing() -> void {
+    (println "")
+    (println "=== Example 4: High-Resolution Timing ===")
+    (println "Measuring precise time intervals...")
+    (println "")
+    
+    # Measure sleep accuracy
+    let start: int = (nl_uv_hrtime)
+    (println "  Sleeping for 100ms...")
+    unsafe {
+        (nl_uv_sleep 100)
+    }
+    let end: int = (nl_uv_hrtime)
+    
+    let elapsed_ns: int = (- end start)
+    let elapsed_ms: int = (/ elapsed_ns 1000000)
+    (print "  Actual sleep time: ")
+    (print elapsed_ms)
+    (println " ms")
+    
+    # Short precision test
+    let start2: int = (nl_uv_hrtime)
+    unsafe {
+        (nl_uv_sleep 1)
+    }
+    let end2: int = (nl_uv_hrtime)
+    let elapsed2_us: int = (/ (- end2 start2) 1000)
+    (print "  1ms sleep actual: ")
+    (print elapsed2_us)
+    (println " μs")
+    
+    (println "")
+    (println "  Timing Precision:")
+    (println "    • uv_hrtime(): Nanosecond resolution")
+    (println "    • uv_now(): Millisecond resolution (cached)")
+    (println "    • uv_update_time(): Updates cached time")
+    (println "")
+    (println "  Use Cases:")
+    (println "    • Performance profiling")
+    (println "    • Animation frame timing")
+    (println "    • Request latency measurement")
+    (println "    • Timeout enforcement")
+}
+
+shadow example_timing {
+    # Skip - uses extern functions
+}
+
+# =============================================================================
+# Example 5: Error Handling Patterns
+# =============================================================================
+
+fn example_error_handling() -> void {
+    (println "")
+    (println "=== Example 5: Error Handling ===")
+    (println "Understanding libuv error codes...")
+    (println "")
+    
+    (println "  Common libuv Error Codes:")
+    
+    # ENOENT - No such file or directory
+    let err_noent: string = (nl_uv_strerror -2)
+    let name_noent: string = (nl_uv_err_name -2)
+    (print "    -2 (")
+    (print name_noent)
+    (print "): ")
+    (println err_noent)
+    
+    # EACCES - Permission denied
+    let err_acces: string = (nl_uv_strerror -13)
+    let name_acces: string = (nl_uv_err_name -13)
+    (print "    -13 (")
+    (print name_acces)
+    (print "): ")
+    (println err_acces)
+    
+    # ECONNREFUSED - Connection refused
+    let err_connref: string = (nl_uv_strerror -111)
+    let name_connref: string = (nl_uv_err_name -111)
+    (print "    -111 (")
+    (print name_connref)
+    (print "): ")
+    (println err_connref)
+    
+    # ETIMEDOUT - Timeout
+    let err_timeout: string = (nl_uv_strerror -110)
+    let name_timeout: string = (nl_uv_err_name -110)
+    (print "    -110 (")
+    (print name_timeout)
+    (print "): ")
+    (println err_timeout)
+    
+    (println "")
+    (println "  Error Handling Best Practices:")
+    (println "    1. Always check return values (< 0 = error)")
+    (println "    2. Use uv_strerror() for user messages")
+    (println "    3. Use uv_err_name() for logging/debugging")
+    (println "    4. Implement retry logic for transient errors")
+    (println "    5. Clean up resources on error")
+}
+
+shadow example_error_handling {
+    # Skip - uses extern functions
+}
+
+# =============================================================================
+# Example 6: Async I/O Patterns (Conceptual)
+# =============================================================================
+
+fn example_async_patterns() -> void {
+    (println "")
+    (println "=== Example 6: Async I/O Patterns (Conceptual) ===")
+    (println "")
+    (println "While full async I/O requires additional C helpers, here are")
+    (println "the patterns you would use in a complete implementation:")
+    (println "")
+    
+    (println "  📁 Async File I/O Pattern:")
+    (println "")
+    (println "    # Open file asynchronously")
+    (println "    let req: int = (uv_fs_open loop \"data.txt\" O_RDONLY 0)")
+    (println "    (uv_fs_set_callback req on_open_complete)")
+    (println "")
+    (println "    fn on_open_complete(req: int) -> void {")
+    (println "        let fd: int = (uv_fs_get_result req)")
+    (println "        if (< fd 0) {")
+    (println "            # Handle error")
+    (println "        } else {")
+    (println "            # Read file")
+    (println "            let read_req: int = (uv_fs_read loop fd buffer)")
+    (println "            (uv_fs_set_callback read_req on_read_complete)")
+    (println "        }")
+    (println "        (uv_fs_req_cleanup req)")
+    (println "    }")
+    (println "")
+    
+    (println "  🌐 TCP Server Pattern:")
+    (println "")
+    (println "    # Create TCP handle")
+    (println "    let server: int = (uv_tcp_init loop)")
+    (println "    (uv_tcp_bind server \"0.0.0.0\" 8080)")
+    (println "    (uv_listen server 128 on_new_connection)")
+    (println "")
+    (println "    fn on_new_connection(server: int, status: int) -> void {")
+    (println "        let client: int = (uv_tcp_init loop)")
+    (println "        (uv_accept server client)")
+    (println "        (uv_read_start client on_read)")
+    (println "    }")
+    (println "")
+    
+    (println "  ⏱️ Timer Pattern:")
+    (println "")
+    (println "    let timer: int = (uv_timer_init loop)")
+    (println "    (uv_timer_start timer on_timeout 1000 1000)  # 1s, repeat")
+    (println "")
+    (println "    fn on_timeout(timer: int) -> void {")
+    (println "        (println \"Tick!\")")
+    (println "    }")
+    (println "")
+    
+    (println "  📡 UDP Pattern:")
+    (println "")
+    (println "    let udp: int = (uv_udp_init loop)")
+    (println "    (uv_udp_bind udp \"0.0.0.0\" 8080)")
+    (println "    (uv_udp_recv_start udp on_recv)")
+    (println "")
+    
+    (println "  Key Principles:")
+    (println "    • All operations are non-blocking")
+    (println "    • Callbacks fire when operations complete")
+    (println "    • Event loop drives all execution")
+    (println "    • Resources must be explicitly closed")
+    (println "    • Error codes returned via status parameters")
+}
+
+shadow example_async_patterns {
+    assert true
+}
+
+# =============================================================================
+# Example 7: Performance Characteristics
+# =============================================================================
+
+fn example_performance() -> void {
+    (println "")
+    (println "=== Example 7: Performance Characteristics ===")
+    (println "")
+    
+    (println "  libuv Performance:")
+    (println "")
+    (println "    Backend Selection (automatic):")
+    (println "      • Linux: epoll")
+    (println "      • macOS/BSD: kqueue")
+    (println "      • Windows: IOCP")
+    (println "      • Fallback: select/poll")
+    (println "")
+    
+    (println "    Scalability:")
+    (println "      • Handles 10,000+ concurrent connections efficiently")
+    (println "      • Thread pool (default 4 threads) for blocking ops")
+    (println "      • Single-threaded event loop (like Node.js)")
+    (println "      • Memory per connection: ~10KB")
+    (println "")
+    
+    (println "    Throughput (typical):")
+    (println "      • Network I/O: ~1-10 GB/s (depends on NIC)")
+    (println "      • File I/O: ~500 MB/s - 5 GB/s (depends on disk)")
+    (println "      • Event loop iteration: ~100μs")
+    (println "      • Callback overhead: ~10-50μs")
+    (println "")
+    
+    (println "    When to Use libuv:")
+    (println "      ✅ I/O-bound workloads (network, disk)")
+    (println "      ✅ Many concurrent connections")
+    (println "      ✅ Real-time requirements")
+    (println "      ✅ Event-driven architecture")
+    (println "")
+    
+    (println "    When NOT to Use:")
+    (println "      ❌ CPU-bound workloads (use threads)")
+    (println "      ❌ Simple sequential programs")
+    (println "      ❌ Low connection count (overhead not worth it)")
+    (println "")
+    
+    (println "  Comparison with Alternatives:")
+    (println "    • vs Threads: Lower memory, higher concurrency")
+    (println "    • vs sync I/O: Much higher throughput")
+    (println "    • vs async/await: More control, more complex")
+}
+
+shadow example_performance {
+    assert true
+}
+
+# =============================================================================
+# Example 8: Real-World Applications
+# =============================================================================
+
+fn example_real_world() -> void {
+    (println "")
+    (println "=== Example 8: Real-World Applications ===")
+    (println "")
+    
+    (println "  Projects Built on libuv:")
+    (println "")
+    
+    (println "    1. Node.js")
+    (println "       - JavaScript runtime")
+    (println "       - Powers millions of web servers")
+    (println "       - Event-driven I/O model")
+    (println "")
+    
+    (println "    2. Neovim")
+    (println "       - Text editor")
+    (println "       - Async plugin execution")
+    (println "       - Non-blocking UI updates")
+    (println "")
+    
+    (println "    3. Luvit")
+    (println "       - Lua runtime (like Node for Lua)")
+    (println "       - Web servers, tools")
+    (println "")
+    
+    (println "    4. Julia")
+    (println "       - Scientific computing language")
+    (println "       - Async I/O and parallel execution")
+    (println "")
+    
+    (println "  Common Use Cases:")
+    (println "    • Web servers (Express.js, Koa.js)")
+    (println "    • WebSocket servers (real-time chat)")
+    (println "    • API gateways")
+    (println "    • Build tools (Webpack, Vite)")
+    (println "    • CLI tools (npm, yarn)")
+    (println "    • Monitoring agents")
+    (println "    • File watchers (nodemon)")
+    (println "    • Database drivers")
+}
+
+shadow example_real_world {
+    assert true
+}
+
+# =============================================================================
+# Main Function - Run All Examples
+# =============================================================================
+
+fn main() -> int {
+    (println "")
+    (println "╔═══════════════════════════════════════════════════════╗")
+    (println "║   ASYNC I/O WITH LIBUV - Event Loop Foundation        ║")
+    (println "╚═══════════════════════════════════════════════════════╝")
+    (println "")
+    (println "libuv is the cross-platform async I/O library powering")
+    (println "Node.js, Neovim, Julia, and many other projects.")
+    (println "")
+    (println "This example demonstrates:")
+    (println "  ✓ Event loop lifecycle and management")
+    (println "  ✓ System information queries")
+    (println "  ✓ High-resolution timing (nanosecond precision)")
+    (println "  ✓ Error handling patterns")
+    (println "  ✓ Async I/O architecture (conceptual)")
+    (println "  ✓ Performance characteristics")
+    (println "  ✓ Real-world applications")
+    
+    # Run all examples
+    (example_version_info)
+    (example_system_info)
+    (example_event_loop)
+    (example_timing)
+    (example_error_handling)
+    (example_async_patterns)
+    (example_performance)
+    (example_real_world)
+    
+    (println "")
+    (println "═══════════════════════════════════════════════════════")
+    (println "✅ All libuv examples completed successfully!")
+    (println "")
+    (println "Key Takeaways:")
+    (println "  1. libuv provides cross-platform async I/O")
+    (println "  2. Event loop is single-threaded, highly efficient")
+    (println "  3. Ideal for I/O-bound workloads")
+    (println "  4. Used by Node.js and many other projects")
+    (println "  5. Full async I/O requires additional C helpers")
+    (println "")
+    (println "Next Steps:")
+    (println "  • Implement timer callbacks (requires C helpers)")
+    (println "  • Add async file I/O (uv_fs_* functions)")
+    (println "  • Build TCP server (uv_tcp_* functions)")
+    (println "  • Create HTTP server on top of TCP")
+    (println "═══════════════════════════════════════════════════════")
+    (println "")
+    
+    return 0
+}
+
+shadow main {
+    # Skip - uses extern functions
+}

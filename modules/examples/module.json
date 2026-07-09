@@ -1,0 +1,9 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "Shared examples I/O library - structured diagnostics and metadata parsing",
+  "c_sources": ["examples_io.c"],
+  "headers": ["examples_io.h"],
+  "cflags": [],
+  "dependencies": []
+}

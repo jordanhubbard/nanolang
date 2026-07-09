@@ -1,0 +1,61 @@
+# Example: std::math::Quat API Lesson
+# Purpose: I show quaternion construction, normalization, multiplication, and vector rotation.
+# Features: Quat, quat_new, quat_identity, quat_conjugate, quat_mul, quat_length, quat_normalize, quat_from_axis_angle, quat_rotate_vec3
+# Difficulty: Advanced
+# Category: api_lessons
+# Prerequisites: math_vector3d_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/quaternion
+# Tags: api-lesson, math, quaternion, rotation, shadow-tested
+# Expected Output: rotated x: 1.0
+
+from "modules/std/math/vector3d.nano" import Vector3D, vec3_new
+from "modules/std/math/quaternion.nano" import Quat, quat_new, quat_identity, quat_conjugate, quat_mul, quat_length, quat_normalize, quat_from_axis_angle, quat_rotate_vec3
+
+fn close_float(a: float, b: float) -> bool {
+    return (< (abs (- a b)) 0.001)
+}
+
+shadow close_float {
+    assert (close_float 6.0 6.0001)
+    assert (not (close_float 6.0 6.1))
+}
+
+fn identity_rotation() -> Vector3D {
+    let q: Quat = (quat_identity)
+    return (quat_rotate_vec3 q (vec3_new 1.0 0.0 0.0))
+}
+
+shadow identity_rotation {
+    let r: Vector3D = (identity_rotation)
+    assert (close_float r.x 1.0)
+    assert (close_float r.y 0.0)
+    assert (close_float r.z 0.0)
+}
+
+fn normalized_length() -> float {
+    let q: Quat = (quat_new 0.0 0.0 0.0 2.0)
+    return (quat_length (quat_normalize q))
+}
+
+shadow normalized_length {
+    assert (close_float (normalized_length) 1.0)
+}
+
+fn main() -> int {
+    let id: Quat = (quat_identity)
+    let q: Quat = (quat_from_axis_angle (vec3_new 0.0 1.0 0.0) 0.0)
+    let combined: Quat = (quat_mul id q)
+    let conj: Quat = (quat_conjugate (quat_new 1.0 2.0 3.0 4.0))
+    assert (close_float combined.w 1.0)
+    assert (close_float conj.x -1.0)
+    assert (close_float (quat_length (quat_normalize combined)) 1.0)
+    let rotated: Vector3D = (identity_rotation)
+    (println (+ "rotated x: " (float_to_string rotated.x)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

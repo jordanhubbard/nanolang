@@ -1,0 +1,34 @@
+# Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
+import "examples/opl/opl_compile.nano"
+
+module "modules/std/fs.nano"
+module "modules/std/json/json.nano"
+
+fn main() -> int {
+    let src = (read "examples/opl/bundle/EXAMPLES.opl")
+    let plan: Json = (opl_compile src)
+    if plan == 0 {
+        (println "COMPILE_ERROR")
+        return 1
+    } else {}
+
+    let got = (stringify plan)
+
+    let exp_src = (read "examples/opl/bundle/EXAMPLES.expected_plan.json")
+    let exp_json: Json = (parse exp_src)
+    let exp = (stringify exp_json)
+
+    if got == exp {
+        return 0
+    } else {
+        (println "PLAN_MISMATCH")
+        (println got)
+        (println exp)
+        return 2
+    }
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

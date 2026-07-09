@@ -1,0 +1,81 @@
+# Example: math_ext API Lesson
+# Purpose: I show the extern-FFI math_ext bindings for inverse trig, logs, hyperbolics, and floats
+# Features: extern fns, asin, acos, atan, log, log10, exp, sinh, cosh, tanh, fmod, fabs
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: nl_floats
+# Track: modules
+# Build: local
+# Dependencies: modules/math_ext
+# Tags: api-lesson, math, ffi, native-only
+# Expected Output: log of e: 1.0
+
+from "modules/math_ext/math_ext.nano" import asin, acos, atan
+from "modules/math_ext/math_ext.nano" import log, log10, exp
+from "modules/math_ext/math_ext.nano" import sinh, cosh, tanh
+from "modules/math_ext/math_ext.nano" import fmod, fabs
+
+fn near(actual: float, expected: float, eps: float) -> bool {
+    let delta: float = (fabs (- actual expected))
+    return (< delta eps)
+}
+
+fn log_of_e() -> float {
+    let e_val: float = (exp 1.0)
+    return (log e_val)
+}
+
+fn log10_of_thousand() -> float {
+    return (log10 1000.0)
+}
+
+fn asin_of_one() -> float {
+    return (asin 1.0)
+}
+
+fn acos_of_zero() -> float {
+    return (acos 0.0)
+}
+
+fn atan_of_one() -> float {
+    return (atan 1.0)
+}
+
+fn hyperbolic_identity() -> float {
+    # cosh(x)^2 - sinh(x)^2 should equal 1.0
+    let x: float = 1.3
+    let c: float = (cosh x)
+    let s: float = (sinh x)
+    return (- (* c c) (* s s))
+}
+
+fn tanh_bounded() -> bool {
+    let t1: float = (tanh 5.0)
+    let t2: float = (tanh -5.0)
+    return (and (> t1 0.9999) (< t2 -0.9999))
+}
+
+fn fmod_remainder() -> float {
+    return (fmod 17.5 5.0)
+}
+
+fn fabs_negative() -> float {
+    return (fabs -7.25)
+}
+
+fn main() -> int {
+    (println (+ "log of e: " (float_to_string (log_of_e))))
+    assert (near (log10_of_thousand) 3.0 0.0001)
+    assert (near (asin_of_one) 1.5707963 0.0001)
+    assert (near (acos_of_zero) 1.5707963 0.0001)
+    assert (near (atan_of_one) 0.7853981 0.0001)
+    assert (near (hyperbolic_identity) 1.0 0.0001)
+    assert (tanh_bounded)
+    assert (near (fmod_remainder) 2.5 0.0001)
+    assert (== (fabs_negative) 7.25)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

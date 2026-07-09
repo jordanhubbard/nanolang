@@ -1,0 +1,65 @@
+{
+  "name": "openai",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "OpenAI-compatible API client for chat completions, embeddings, and LLM interactions.",
+  "use_when": [
+    "User wants to use GPT models or other LLMs",
+    "User says 'ChatGPT', 'OpenAI', 'LLM', 'language model', 'AI assistant', 'chat completion'",
+    "User needs to generate text, analyze content, or get AI responses",
+    "User wants to use local LLMs (Ollama, LM Studio, etc.)",
+    "User needs embeddings for semantic search or clustering",
+    "User wants to build autonomous agents with LLM reasoning"
+  ],
+  "avoid_when": [
+    "User wants image generation (use DALL-E API separately)",
+    "User wants audio transcription (use Whisper API separately)",
+    "User needs structured data processing without AI (use standard modules)"
+  ],
+  "capabilities": [
+    "chat_completion",
+    "chat_completion_simple",
+    "chat_completion_with_temperature",
+    "create_embedding",
+    "list_models",
+    "get_model",
+    "token_estimation",
+    "configure_endpoint",
+    "local_llm_support"
+  ],
+  "keywords": [
+    "openai",
+    "chatgpt",
+    "gpt",
+    "llm",
+    "ai",
+    "language model",
+    "chat",
+    "completion",
+    "embedding",
+    "semantic search",
+    "autonomous agent",
+    "ollama",
+    "local llm"
+  ],
+  "examples": [
+    "examples/ai_github_agent.nano"
+  ],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["curl", "json"],
+    "system": [
+      {
+        "id": "curl",
+        "install": {
+          "apt": "libcurl4-openssl-dev",
+          "brew": "curl",
+          "pacman": "curl"
+        },
+        "version": ">=7.0"
+      }
+    ]
+  },
+  "io_surfaces": ["network", "env"],
+  "alternatives": []
+}

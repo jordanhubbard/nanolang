@@ -1,0 +1,9 @@
+# hello.opl - Simple "Hello World" task example
+
+task hello {
+  doc "A simple hello world task"
+  input name:string = "world"
+  
+  let greeting = "Hello, " + name
+  emit message: greeting
+}

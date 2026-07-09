@@ -1,0 +1,48 @@
+# Example: Deterministic File Pipeline
+# Purpose: Show integration-style logic without network, API keys, or time-dependent input
+# Features: structs, pure pipeline logic, shadow tests
+# Difficulty: Intermediate
+# Category: integration
+# Prerequisites: nl_struct, nl_array_complete
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: deterministic, integration, shadow-tested
+# Expected Output: pipeline checksum: 93
+
+struct Reading {
+    name: string,
+    value: int
+}
+
+fn reading_score(r: Reading) -> int {
+    return (* (str_length r.name) r.value)
+}
+
+shadow reading_score {
+    let r: Reading = Reading { name: "cpu", value: 7 }
+    assert (== (reading_score r) 21)
+}
+
+fn pipeline_checksum(cpu: Reading, disk: Reading, net: Reading) -> int {
+    return (+ (reading_score cpu) (+ (reading_score disk) (reading_score net)))
+}
+
+shadow pipeline_checksum {
+    let cpu: Reading = Reading { name: "cpu", value: 7 }
+    let disk: Reading = Reading { name: "disk", value: 9 }
+    let net: Reading = Reading { name: "net", value: 12 }
+    assert (== (pipeline_checksum cpu disk net) 93)
+}
+
+fn main() -> int {
+    let cpu: Reading = Reading { name: "cpu", value: 7 }
+    let disk: Reading = Reading { name: "disk", value: 9 }
+    let net: Reading = Reading { name: "net", value: 12 }
+    (println (+ "pipeline checksum: " (int_to_string (pipeline_checksum cpu disk net))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

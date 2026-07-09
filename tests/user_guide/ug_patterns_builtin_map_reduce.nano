@@ -1,0 +1,46 @@
+fn double(x: int) -> int {
+    return (* x 2)
+}
+
+shadow double {
+    assert (== (double 3) 6)
+}
+
+fn is_positive(x: int) -> bool {
+    return (> x 5)
+}
+
+shadow is_positive {
+    assert (is_positive 6)
+    assert (not (is_positive 5))
+}
+
+fn sum(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow sum {
+    assert (== (sum 2 3) 5)
+}
+
+fn main() -> int {
+    let xs: array<int> = (array_new 4 0)
+    (array_set xs 0 1)
+    (array_set xs 1 2)
+    (array_set xs 2 3)
+    (array_set xs 3 4)
+
+    let doubled: array<int> = (map xs double)
+    # doubled = [2, 4, 6, 8]
+    let large: array<int> = (filter doubled is_positive)
+    # large = [6, 8] (only elements > 5)
+    let total: int = (reduce large 0 sum)
+
+    assert (== (at doubled 0) 2)
+    assert (== (at doubled 3) 8)
+    assert (== (array_length large) 2)
+    assert (== total 14)  # 6 + 8 = 14
+    return 0
+}
+
+shadow main { assert true }

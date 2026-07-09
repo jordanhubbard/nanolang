@@ -1,0 +1,125 @@
+# mathx: small integer math helpers for Nanolang.
+#
+# Pure .nano (no C builtins), so it runs on the prebuilt interpreter without a
+# compiler rebuild. Each helper is `pub` (cross-module visible) and carries a
+# `shadow` contract test. New helpers are appended below; this module plus
+# tests/test_mathx.nano are the integration points that independently authored
+# helpers converge on.
+
+pub fn mathx_abs(x: int) -> int {
+    if (< x 0) {
+        return (- 0 x)
+    } else {
+        return x
+    }
+}
+
+shadow mathx_abs {
+    assert (== (mathx_abs (- 0 5)) 5)
+    assert (== (mathx_abs 7) 7)
+    assert (== (mathx_abs 0) 0)
+}
+
+pub fn mathx_gcd(a: int, b: int) -> int {
+    let x: int = (mathx_abs a)
+    let y: int = (mathx_abs b)
+    if (== y 0) {
+        return x
+    } else {
+        return (mathx_gcd y (% x y))
+    }
+}
+
+shadow mathx_gcd {
+    assert (== (mathx_gcd 12 8) 4)
+    assert (== (mathx_gcd 17 5) 1)
+    assert (== (mathx_gcd 0 5) 5)
+    assert (== (mathx_gcd (- 0 12) 8) 4)
+}
+
+pub fn mathx_clamp(x: int, lo: int, hi: int) -> int {
+    if (< x lo) {
+        return lo
+    } else {
+        if (> x hi) {
+            return hi
+        } else {
+            return x
+        }
+    }
+}
+
+shadow mathx_clamp {
+    assert (== (mathx_clamp 5 0 10) 5)
+    assert (== (mathx_clamp (- 0 3) 0 10) 0)
+    assert (== (mathx_clamp 99 0 10) 10)
+}
+
+# mathx_isqrt: integer square root, i.e. the largest int r with r*r <= n.
+#
+# Returns 0 for n <= 0. Counts r upward while the next candidate still fits
+# within n, comparing with the integer product (r+1)*(r+1) to stay clear of
+# floating point. A simple `while` loop keeps the control flow free of
+# mid-loop `return`s.
+pub fn mathx_isqrt(n: int) -> int {
+    if (<= n 0) {
+        return 0
+    } else {}
+    let mut r: int = 0
+    while (<= (* (+ r 1) (+ r 1)) n) {
+        set r (+ r 1)
+    }
+    return r
+}
+
+shadow mathx_isqrt {
+    assert (== (mathx_isqrt 0) 0)
+    assert (== (mathx_isqrt 1) 1)
+    assert (== (mathx_isqrt 15) 3)
+    assert (== (mathx_isqrt 16) 4)
+    assert (== (mathx_isqrt 24) 4)
+    assert (== (mathx_isqrt 25) 5)
+}
+
+# mathx_is_prime: true iff n is a prime number.
+#
+# Primality test by trial division: returns false for n < 2; otherwise scans
+# candidate divisors d starting at 2 and returns false on the first d that
+# divides n evenly. The loop is bounded by the sqrt of n via the integer test
+# `(<= (* d d) n)` — any composite has a factor no larger than its square root,
+# so testing past that point is wasted work. A simple `while` loop with an
+# early-exit flag keeps the control flow free of mid-loop `return`s.
+pub fn mathx_is_prime(n: int) -> bool {
+    if (< n 2) {
+        return false
+    } else {}
+    let mut d: int = 2
+    let mut prime: bool = true
+    while (and prime (<= (* d d) n)) {
+        if (== (% n d) 0) {
+            set prime false
+        } else {}
+        set d (+ d 1)
+    }
+    return prime
+}
+
+shadow mathx_is_prime {
+    assert (== (mathx_is_prime 2) true)
+    assert (== (mathx_is_prime 7) true)
+    assert (== (mathx_is_prime 9) false)
+    assert (== (mathx_is_prime 1) false)
+    assert (== (mathx_is_prime 25) false)
+    assert (== (mathx_is_prime 97) true)
+    assert (== (mathx_is_prime 0) false)
+}
+
+pub fn mathx_negate(x: int) -> int {
+    return (- 0 x)
+}
+
+shadow mathx_negate {
+    assert (== (mathx_negate 0) 0)
+    assert (== (mathx_negate 5) (- 0 5))
+    assert (== (mathx_negate (- 0 4)) 4)
+}

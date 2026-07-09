@@ -1,0 +1,11 @@
+from "modules/glfw/glfw.nano" import glfwInit, glfwTerminate
+
+fn main() -> int {
+    let mut code: int = 0
+    unsafe { set code (glfwInit) }
+    assert (>= code 0)
+    unsafe { (glfwTerminate) }
+    return 0
+}
+
+shadow main { assert true }

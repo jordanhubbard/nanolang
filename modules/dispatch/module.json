@@ -1,0 +1,13 @@
+{
+  "name": "dispatch",
+  "description": "Grand Central Dispatch (libdispatch) bindings — serial/concurrent queues, groups, async/sync dispatch",
+  "version": "1.0.0",
+  "headers": ["dispatch.h"],
+  "c_sources": ["dispatch.c"],
+  "cflags": ["-Imodules/dispatch"],
+  "cflags_macos": ["-fblocks"],
+  "ldflags_macos": [],
+  "ldflags_linux": [],
+  "dependencies": [],
+  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem (no install needed). Non-Apple: dispatch.c compiles in stub mode via #ifdef __APPLE__ — calls return early without performing real concurrency. To get real GCD on Linux, build swift-corelibs-libdispatch from source; Ubuntu/Debian/Fedora do not package it as of 2026."
+}

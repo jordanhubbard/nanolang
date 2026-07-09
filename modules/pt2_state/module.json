@@ -1,0 +1,8 @@
+{
+  "name": "pt2_state",
+  "version": "1.0.0",
+  "description": "ProTracker state management (workaround for global mutable state)",
+  "author": "nanolang",
+  "c_sources": ["pt2_state.c"],
+  "headers": []
+}

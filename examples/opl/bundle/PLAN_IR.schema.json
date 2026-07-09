@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PLAN_IR.schema.json",
+  "title": "OPL Execution Plan",
+  "type": "object",
+  "required": [
+    "planVersion",
+    "plans"
+  ],
+  "properties": {
+    "planVersion": {
+      "type": "string"
+    },
+    "plans": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/plan"
+      }
+    }
+  },
+  "$defs": {
+    "plan": {
+      "type": "object",
+      "required": [
+        "for",
+        "steps"
+      ],
+      "properties": {
+        "for": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/call"
+        },
+        {
+          "$ref": "#/$defs/assert"
+        },
+        {
+          "$ref": "#/$defs/emit"
+        },
+        {
+          "$ref": "#/$defs/if"
+        },
+        {
+          "$ref": "#/$defs/let"
+        }
+      ]
+    },
+    "call": {
+      "type": "object",
+      "required": [
+        "op",
+        "tool",
+        "args"
+      ],
+      "properties": {
+        "op": {
+          "const": "call"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object"
+        },
+        "saveAs": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "assert": {
+      "type": "object",
+      "required": [
+        "op",
+        "cond"
+      ],
+      "properties": {
+        "op": {
+          "const": "assert"
+        },
+        "cond": {},
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "emit": {
+      "type": "object",
+      "required": [
+        "op",
+        "name",
+        "value"
+      ],
+      "properties": {
+        "op": {
+          "const": "emit"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    "if": {
+      "type": "object",
+      "required": [
+        "op",
+        "cond",
+        "then",
+        "else"
+      ],
+      "properties": {
+        "op": {
+          "const": "if"
+        },
+        "cond": {},
+        "then": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "else": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "let": {
+      "type": "object",
+      "required": [
+        "op",
+        "name",
+        "expr"
+      ],
+      "properties": {
+        "op": {
+          "const": "let"
+        },
+        "name": {
+          "type": "string"
+        },
+        "expr": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

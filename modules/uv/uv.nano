@@ -1,0 +1,64 @@
+# uv.nano - libuv cross-platform async I/O module for nanolang
+#
+# Provides Node.js-style event loop and async I/O capabilities.
+#
+# Example usage:
+#   import "modules/uv/uv.nano"
+#   
+#   fn main() -> int {
+#       let loop: int = (nl_uv_default_loop)
+#       (println (nl_uv_version_string))
+#       (println "CPUs:")
+#       (println (nl_uv_cpu_count))
+#       return 0
+#   }
+
+# ============================================================================
+# Version information
+# ============================================================================
+
+extern fn nl_uv_version_string() -> string
+extern fn nl_uv_version() -> int
+
+# ============================================================================
+# Event loop management
+# ============================================================================
+
+extern fn nl_uv_default_loop() -> int
+extern fn nl_uv_loop_new() -> int
+extern fn nl_uv_loop_close(_loop: int) -> int
+extern fn nl_uv_run(_loop: int, _mode: int) -> int
+extern fn nl_uv_stop(_loop: int) -> void
+extern fn nl_uv_loop_alive(_loop: int) -> int
+extern fn nl_uv_loop_get_active_handles(_loop: int) -> int
+
+# ============================================================================
+# Time functions
+# ============================================================================
+
+extern fn nl_uv_now(_loop: int) -> int
+extern fn nl_uv_update_time(_loop: int) -> void
+extern fn nl_uv_hrtime() -> int
+extern fn nl_uv_sleep(_msec: int) -> void
+extern fn nl_uv_backend_timeout(_loop: int) -> int
+
+# ============================================================================
+# Error handling
+# ============================================================================
+
+extern fn nl_uv_strerror(_err: int) -> string
+extern fn nl_uv_err_name(_err: int) -> string
+extern fn nl_uv_translate_sys_error(_sys_errno: int) -> int
+
+# ============================================================================
+# System information
+# ============================================================================
+
+extern fn nl_uv_get_total_memory() -> int
+extern fn nl_uv_get_free_memory() -> int
+extern fn nl_uv_cpu_count() -> int
+extern fn nl_uv_loadavg_1min() -> int
+extern fn nl_uv_os_getpid() -> int
+extern fn nl_uv_os_getppid() -> int
+extern fn nl_uv_cwd() -> string
+extern fn nl_uv_os_gethostname() -> string

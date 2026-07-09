@@ -1,0 +1,6 @@
+/* Differential test: addition and string casting */
+fn main() -> int {
+    (println (cast_string (+ 40 2)))
+    return 0
+}
+shadow main { assert true }

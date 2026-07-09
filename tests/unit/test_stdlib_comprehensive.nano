@@ -1,0 +1,377 @@
+/* Comprehensive test for standard library functions */
+
+/* ===== MATH FUNCTIONS ===== */
+
+fn test_abs() -> bool {
+    let a = (abs -5)
+    let b = (abs 5)
+    let c = (abs 0)
+    return (and (== a 5) (and (== b 5) (== c 0)))
+}
+
+shadow test_abs {
+    assert (== (test_abs) true)
+}
+
+fn test_min() -> bool {
+    let a = (min 5 3)
+    let b = (min -2 5)
+    let c = (min 10 10)
+    return (and (== a 3) (and (== b -2) (== c 10)))
+}
+
+shadow test_min {
+    assert (== (test_min) true)
+}
+
+fn test_max() -> bool {
+    let a = (max 5 3)
+    let b = (max -2 5)
+    let c = (max 10 10)
+    return (and (== a 5) (and (== b 5) (== c 10)))
+}
+
+shadow test_max {
+    assert (== (test_max) true)
+}
+
+fn test_sqrt() -> bool {
+    let a = (sqrt 4.0)
+    let b = (sqrt 9.0)
+    let c = (sqrt 16.0)
+    return (and (== a 2.0) (and (== b 3.0) (== c 4.0)))
+}
+
+shadow test_sqrt {
+    assert (== (test_sqrt) true)
+}
+
+fn test_pow() -> bool {
+    let a = (pow 2.0 3.0)
+    let b = (pow 5.0 2.0)
+    return (and (== a 8.0) (== b 25.0))
+}
+
+shadow test_pow {
+    assert (== (test_pow) true)
+}
+
+fn test_floor() -> bool {
+    let a = (floor 3.7)
+    let b = (floor 3.2)
+    let c = (floor 3.0)
+    return (and (== a 3.0) (and (== b 3.0) (== c 3.0)))
+}
+
+shadow test_floor {
+    assert (== (test_floor) true)
+}
+
+fn test_ceil() -> bool {
+    let a = (ceil 3.1)
+    let b = (ceil 3.9)
+    let c = (ceil 3.0)
+    return (and (== a 4.0) (and (== b 4.0) (== c 3.0)))
+}
+
+shadow test_ceil {
+    assert (== (test_ceil) true)
+}
+
+fn test_round() -> bool {
+    let a = (round 3.4)
+    let b = (round 3.6)
+    let c = (round 3.5)
+    return (and (== a 3.0) (and (== b 4.0) (== c 4.0)))
+}
+
+shadow test_round {
+    assert (== (test_round) true)
+}
+
+/* ===== STRING FUNCTIONS ===== */
+
+fn test_str_length() -> bool {
+    let a = (str_length "hello")
+    let b = (str_length "")
+    let c = (str_length "world!")
+    return (and (== a 5) (and (== b 0) (== c 6)))
+}
+
+shadow test_str_length {
+    assert (== (test_str_length) true)
+}
+
+fn test_str_concat() -> bool {
+    let result = (+ "hello" " world")
+    return (== result "hello world")
+}
+
+shadow test_str_concat {
+    assert (== (test_str_concat) true)
+}
+
+fn test_str_substring() -> bool {
+    let result = (str_substring "hello world" 0 5)
+    return (== result "hello")
+}
+
+shadow test_str_substring {
+    assert (== (test_str_substring) true)
+}
+
+fn test_str_contains() -> bool {
+    let a = (str_contains "hello world" "world")
+    let b = (str_contains "hello world" "xyz")
+    return (and a (not b))
+}
+
+shadow test_str_contains {
+    assert (== (test_str_contains) true)
+}
+
+fn test_str_equals() -> bool {
+    let a = (== "hello" "hello")
+    let b = (== "hello" "world")
+    return (and a (not b))
+}
+
+shadow test_str_equals {
+    assert (== (test_str_equals) true)
+}
+
+fn test_char_at() -> bool {
+    let a = (char_at "hello" 0)
+    let b = (char_at "hello" 1)
+    /* 'h' = 104, 'e' = 101 */
+    return (and (== a 104) (== b 101))
+}
+
+shadow test_char_at {
+    assert (== (test_char_at) true)
+}
+
+fn test_string_from_char() -> bool {
+    let s = (string_from_char 65)  /* 'A' */
+    return (== s "A")
+}
+
+shadow test_string_from_char {
+    assert (== (test_string_from_char) true)
+}
+
+fn test_int_to_string() -> bool {
+    let s = (int_to_string 42)
+    return (== s "42")
+}
+
+shadow test_int_to_string {
+    assert (== (test_int_to_string) true)
+}
+
+fn test_string_to_int() -> bool {
+    let n = (string_to_int "123")
+    return (== n 123)
+}
+
+shadow test_string_to_int {
+    assert (== (test_string_to_int) true)
+}
+
+/* ===== CHARACTER CLASSIFICATION ===== */
+
+fn test_is_digit() -> bool {
+    let a = (is_digit 48)   /* '0' */
+    let b = (is_digit 53)   /* '5' */
+    let c = (is_digit 65)   /* 'A' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_digit {
+    assert (== (test_is_digit) true)
+}
+
+fn test_is_alpha() -> bool {
+    let a = (is_alpha 65)   /* 'A' */
+    let b = (is_alpha 122)  /* 'z' */
+    let c = (is_alpha 48)   /* '0' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_alpha {
+    assert (== (test_is_alpha) true)
+}
+
+fn test_is_alnum() -> bool {
+    let a = (is_alnum 65)   /* 'A' */
+    let b = (is_alnum 48)   /* '0' */
+    let c = (is_alnum 32)   /* ' ' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_alnum {
+    assert (== (test_is_alnum) true)
+}
+
+fn test_is_whitespace() -> bool {
+    let a = (is_whitespace 32)  /* ' ' */
+    let b = (is_whitespace 9)   /* tab */
+    let c = (is_whitespace 65)  /* 'A' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_whitespace {
+    assert (== (test_is_whitespace) true)
+}
+
+fn test_is_upper() -> bool {
+    let a = (is_upper 65)   /* 'A' */
+    let b = (is_upper 90)   /* 'Z' */
+    let c = (is_upper 97)   /* 'a' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_upper {
+    assert (== (test_is_upper) true)
+}
+
+fn test_is_lower() -> bool {
+    let a = (is_lower 97)   /* 'a' */
+    let b = (is_lower 122)  /* 'z' */
+    let c = (is_lower 65)   /* 'A' */
+    return (and a (and b (not c)))
+}
+
+shadow test_is_lower {
+    assert (== (test_is_lower) true)
+}
+
+fn test_digit_value() -> bool {
+    let a = (digit_value 48)  /* '0' -> 0 */
+    let b = (digit_value 53)  /* '5' -> 5 */
+    let c = (digit_value 57)  /* '9' -> 9 */
+    return (and (== a 0) (and (== b 5) (== c 9)))
+}
+
+shadow test_digit_value {
+    assert (== (test_digit_value) true)
+}
+
+fn test_char_to_lower() -> bool {
+    let a = (char_to_lower 65)  /* 'A' -> 'a' = 97 */
+    let b = (char_to_lower 90)  /* 'Z' -> 'z' = 122 */
+    let c = (char_to_lower 97)  /* 'a' -> 'a' = 97 */
+    return (and (== a 97) (and (== b 122) (== c 97)))
+}
+
+shadow test_char_to_lower {
+    assert (== (test_char_to_lower) true)
+}
+
+fn test_char_to_upper() -> bool {
+    let a = (char_to_upper 97)   /* 'a' -> 'A' = 65 */
+    let b = (char_to_upper 122)  /* 'z' -> 'Z' = 90 */
+    let c = (char_to_upper 65)   /* 'A' -> 'A' = 65 */
+    return (and (== a 65) (and (== b 90) (== c 65)))
+}
+
+shadow test_char_to_upper {
+    assert (== (test_char_to_upper) true)
+}
+
+/* ===== ARRAY FUNCTIONS ===== */
+
+fn test_array_length() -> bool {
+    let arr = [1, 2, 3, 4, 5]
+    let len = (array_length arr)
+    return (== len 5)
+}
+
+shadow test_array_length {
+    assert (== (test_array_length) true)
+}
+
+fn test_at() -> bool {
+    let arr = [10, 20, 30, 40, 50]
+    let a = (at arr 0)
+    let b = (at arr 2)
+    let c = (at arr 4)
+    return (and (== a 10) (and (== b 30) (== c 50)))
+}
+
+shadow test_at {
+    assert (== (test_at) true)
+}
+
+/* Note: array_new is internal and takes specific args, using array literal instead */
+fn test_array_creation() -> bool {
+    let arr = [0, 0, 0, 0, 0]
+    let len = (array_length arr)
+    let val = (at arr 0)
+    return (and (== len 5) (== val 0))
+}
+
+shadow test_array_creation {
+    assert (== (test_array_creation) true)
+}
+
+fn test_array_set() -> bool {
+    let mut arr: array<int> = [1, 2, 3]
+    (array_set arr 1 99)
+    let val = (at arr 1)
+    return (== val 99)
+}
+
+shadow test_array_set {
+    assert (== (test_array_set) true)
+}
+
+/* ===== COMPLEX INTEGRATION TESTS ===== */
+
+fn test_string_processing() -> bool {
+    let str = "Hello123"
+    let len = (str_length str)
+    let first = (char_at str 0)
+    let is_h = (is_upper first)
+    return (and (== len 8) is_h)
+}
+
+shadow test_string_processing {
+    assert (== (test_string_processing) true)
+}
+
+fn test_array_sum() -> int {
+    let arr = [1, 2, 3, 4, 5]
+    let mut sum = 0
+    let mut i = 0
+    while i < (array_length arr) {
+        set sum (sum + (at arr i))
+        set i (i + 1)
+    }
+    return sum
+}
+
+shadow test_array_sum {
+    assert (== (test_array_sum) 15)
+}
+
+fn test_math_combination() -> int {
+    let a = (abs -10)
+    let b = (max a 15)
+    let c = (min b 12)
+    return c
+}
+
+shadow test_math_combination {
+    assert (== (test_math_combination) 12)
+}
+
+fn main() -> int {
+    (println "All standard library tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+

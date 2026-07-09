@@ -1,0 +1,11 @@
+{
+    "name": "pty",
+    "version": "1.0.0",
+    "description": "POSIX pseudo-terminal (PTY) bindings for embedding subprocess terminal I/O",
+    "headers": ["pty.h"],
+    "cflags": ["-Imodules/pty"],
+    "c_sources": ["pty.c"],
+    "ldflags": [],
+    "system_packages": [],
+    "dependencies": []
+}

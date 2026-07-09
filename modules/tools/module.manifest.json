@@ -1,0 +1,22 @@
+{
+  "name": "tools",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Development tools and utilities for NanoLang projects.",
+  "use_when": [
+    "User needs build tools",
+    "User says 'dependency locator', 'module tools', 'build utilities'",
+    "User wants project management"
+  ],
+  "avoid_when": ["User just writing application code"],
+  "capabilities": ["dep_locator", "module_utils", "build_helpers"],
+  "keywords": ["tools", "build", "utilities", "development"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["std"],
+    "system": []
+  },
+  "io_surfaces": ["files"],
+  "alternatives": []
+}

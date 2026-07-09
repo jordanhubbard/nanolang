@@ -1,0 +1,13 @@
+# Expected Error: continue statement outside loop
+
+fn main() -> int {
+    let x: int = 5
+    if (== x 5) {
+        continue  # Error: continue outside loop context
+    }
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

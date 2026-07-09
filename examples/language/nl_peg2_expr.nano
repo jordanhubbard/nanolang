@@ -1,0 +1,74 @@
+# Example: PEG2 Expressions
+# Purpose: Demonstrate arithmetic expression parsing with PEG2
+# Features: PEG grammar, parsing, expression grammar, shadow tests
+# Difficulty: Advanced
+# Category: language
+# Prerequisites: nl_peg2_csv
+# Track: modules
+# Build: local
+# Dependencies: modules/std/peg2
+# Tags: parser, peg2
+# Expected Output: expression parse
+
+/*
+ * nl_peg2_expr.nano — Parse arithmetic expressions using peg2
+ *
+ * Demonstrates a classic recursive PEG grammar for arithmetic:
+ *   expr   <- term (("+" / "-") term)*
+ *   term   <- factor (("*" / "/") factor)*
+ *   factor <- "(" expr ")" / number
+ *   number <- "-"? [0-9]+ ("." [0-9]+)?
+ *   ws     <- [ \t]*
+ *
+ * This showcases:
+ *   - Iterative operator precedence (avoiding left recursion)
+ *   - Optional whitespace rule
+ *   - Nested grouping via parentheses
+ */
+
+import "modules/std/peg2/peg2.nano"
+
+# frozen
+let expr_grammar: string = "expr <- ws term (ws (\"+\" / \"-\") ws term)* ws\nterm <- factor (ws (\"*\" / \"/\") ws factor)*\nfactor <- \"(\" ws expr ws \")\" / number\nnumber <- \"-\"? [0-9]+ (\".\" [0-9]+)?\nws <- [ \\t]*"
+
+fn try_parse(g: Peg2Grammar, input: string) -> void {
+    let r: Peg2Result = (peg2_parse g input)
+    if (== r.ok true) {
+        (print (str_concat "  ok: " (str_concat input (str_concat " → span [" (str_concat (int_to_string r.tree.start) (str_concat "," (str_concat (int_to_string r.tree.end) "]")))))))
+    } else {
+        (print (str_concat "  fail: " (str_concat input (str_concat " → " r.error))))
+    }
+}
+
+fn check_valid(g: Peg2Grammar, input: string) -> void {
+    let ok: bool = (peg2_matches g input)
+    let mut validity: string = "valid"
+    if (not ok) { set validity "invalid" } else { (print "") }
+    (print (str_concat "  " (str_concat input (str_concat ": " validity))))
+}
+
+fn demo_validation() -> void {
+    (print "\n--- Expression Validation ---")
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+    (check_valid g "1 + 2")
+    (check_valid g "3 * (4 + 5)")
+    (check_valid g "-7.5 / 2.0")
+    (check_valid g "((1+2)*3)")
+    (check_valid g "1 + * 2")
+    (check_valid g "(unclosed")
+    (peg2_free g)
+}
+
+fn main() -> int {
+    (print "=== peg2 Arithmetic Expression Parser ===")
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+    (try_parse g "1 + 2")
+    (try_parse g "3 * (4 + 5)")
+    (try_parse g "-7.5 / 2.0")
+    (try_parse g "((1 + 2) * (3 - 4))")
+    (try_parse g "bad * * input")
+    (peg2_free g)
+    (demo_validation)
+    (print "\nDone.")
+    return 0
+}

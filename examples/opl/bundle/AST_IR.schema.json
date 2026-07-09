@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AST_IR.schema.json",
+  "title": "OPL AST/IR",
+  "type": "object",
+  "required": [
+    "version",
+    "nodes"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    }
+  },
+  "$defs": {
+    "loc": {
+      "type": "object",
+      "required": [
+        "line",
+        "col"
+      ],
+      "properties": {
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "col": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "node": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/block"
+        },
+        {
+          "$ref": "#/$defs/decl"
+        },
+        {
+          "$ref": "#/$defs/let"
+        },
+        {
+          "$ref": "#/$defs/call"
+        },
+        {
+          "$ref": "#/$defs/rule"
+        },
+        {
+          "$ref": "#/$defs/assert"
+        },
+        {
+          "$ref": "#/$defs/emit"
+        },
+        {
+          "$ref": "#/$defs/include"
+        }
+      ]
+    },
+    "block": {
+      "type": "object",
+      "required": [
+        "kind",
+        "blockType",
+        "name",
+        "body",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "block"
+        },
+        "blockType": {
+          "enum": [
+            "agent",
+            "service",
+            "task",
+            "schema"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decl": {
+      "type": "object",
+      "required": [
+        "kind",
+        "declType",
+        "value",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "decl"
+        },
+        "declType": {
+          "enum": [
+            "uses",
+            "input",
+            "output",
+            "returns",
+            "doc"
+          ]
+        },
+        "value": {},
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "let": {
+      "type": "object",
+      "required": [
+        "kind",
+        "name",
+        "expr",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "let"
+        },
+        "name": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/$defs/expr"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "call": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ref",
+        "args",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "call"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object"
+        },
+        "as": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ruleType",
+        "actions",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "rule"
+        },
+        "ruleType": {
+          "enum": [
+            "when",
+            "on"
+          ]
+        },
+        "cond": {
+          "$ref": "#/$defs/expr"
+        },
+        "event": {},
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assert": {
+      "type": "object",
+      "required": [
+        "kind",
+        "cond",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "assert"
+        },
+        "cond": {
+          "$ref": "#/$defs/expr"
+        },
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "emit": {
+      "type": "object",
+      "required": [
+        "kind",
+        "name",
+        "expr",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "emit"
+        },
+        "name": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/$defs/expr"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "include": {
+      "type": "object",
+      "required": [
+        "kind",
+        "path",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "include"
+        },
+        "path": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "expr": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/lit"
+        },
+        {
+          "$ref": "#/$defs/id"
+        },
+        {
+          "$ref": "#/$defs/un"
+        },
+        {
+          "$ref": "#/$defs/bin"
+        },
+        {
+          "$ref": "#/$defs/member"
+        },
+        {
+          "$ref": "#/$defs/list"
+        },
+        {
+          "$ref": "#/$defs/map"
+        },
+        {
+          "$ref": "#/$defs/callExpr"
+        }
+      ]
+    },
+    "lit": {
+      "type": "object",
+      "required": [
+        "kind",
+        "v",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "lit"
+        },
+        "v": {},
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "id": {
+      "type": "object",
+      "required": [
+        "kind",
+        "name",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "un": {
+      "type": "object",
+      "required": [
+        "kind",
+        "op",
+        "a",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "un"
+        },
+        "op": {
+          "enum": [
+            "not",
+            "-"
+          ]
+        },
+        "a": {
+          "$ref": "#/$defs/expr"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "bin": {
+      "type": "object",
+      "required": [
+        "kind",
+        "op",
+        "a",
+        "b",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "bin"
+        },
+        "op": {
+          "type": "string"
+        },
+        "a": {
+          "$ref": "#/$defs/expr"
+        },
+        "b": {
+          "$ref": "#/$defs/expr"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "member": {
+      "type": "object",
+      "required": [
+        "kind",
+        "base",
+        "field",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "member"
+        },
+        "base": {
+          "$ref": "#/$defs/expr"
+        },
+        "field": {
+          "type": "string"
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "list": {
+      "type": "object",
+      "required": [
+        "kind",
+        "items",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "list"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expr"
+          }
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "map": {
+      "type": "object",
+      "required": [
+        "kind",
+        "entries",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "map"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "k",
+              "v"
+            ],
+            "properties": {
+              "k": {
+                "type": "string"
+              },
+              "v": {
+                "$ref": "#/$defs/expr"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    },
+    "callExpr": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ref",
+        "args",
+        "loc"
+      ],
+      "properties": {
+        "kind": {
+          "const": "callExpr"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expr"
+          }
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+# conditional.opl - Agent with conditional logic using 'when'
+
+agent conditional_search {
+  doc "Search only when query is non-empty"
+  uses web.search
+  input query:string, max_results:int=10
+  
+  when query != "" -> call web.search { query: query, limit: max_results } as results, emit results: results
+}

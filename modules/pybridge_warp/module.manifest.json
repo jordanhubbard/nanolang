@@ -1,0 +1,31 @@
+{
+  "name": "pybridge_warp",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "GPU-accelerated 2D fluid simulation using NVIDIA Warp via the pybridge helper process.",
+  "use_when": [
+    "User wants CUDA-accelerated fluid simulation from NanoLang",
+    "User wants to call NVIDIA Warp from NanoLang via Python bridge",
+    "User needs GPU compute kernels accessible from NanoLang"
+  ],
+  "avoid_when": [
+    "User needs a display-connected interactive window (use SDL2 separately)",
+    "User requires zero Python dependencies"
+  ],
+  "capabilities": [
+    "fluid_simulation",
+    "cuda_acceleration",
+    "warp_adapter",
+    "png_export",
+    "numpy_cpu_fallback"
+  ],
+  "keywords": ["warp", "cuda", "fluid", "simulation", "gpu", "numpy", "python"],
+  "examples": ["examples/fluid_sim.nano"],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["pybridge"],
+    "system": []
+  },
+  "io_surfaces": ["files", "process"],
+  "alternatives": []
+}

@@ -1,0 +1,62 @@
+# Example: Process API Lesson
+# Purpose: I show process execution, exit codes, spawned processes, and pipe cleanup
+# Features: process run, exec, spawn, wait, pipes, fd_read_available, fd_close
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: env_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/process
+# Tags: api-lesson, process, shadow-tested
+# Expected Output: process output: process-api
+
+from "modules/std/process.nano" import Output, run, exec, spawn, is_running, wait, spawn_with_pipes, fd_read_available, fd_close
+
+fn command_output() -> string {
+    let result: Output = (run "printf process-api")
+    assert (== result.code 0)
+    assert (== result.stderr "")
+    return result.stdout
+}
+
+shadow command_output {
+    assert (== (command_output) "process-api")
+    assert (== (exec "true") 0)
+}
+
+fn spawn_and_wait() -> int {
+    let pid: int = (spawn "sleep 0.1")
+    assert (> pid 0)
+    assert (>= (is_running pid) 0)
+    return (wait pid)
+}
+
+shadow spawn_and_wait {
+    assert (== (spawn_and_wait) 0)
+}
+
+fn pipe_output() -> string {
+    let raw: array<string> = (spawn_with_pipes "printf piped")
+    let pid: int = (string_to_int (at raw 0))
+    let stdout_fd: int = (string_to_int (at raw 1))
+    let stderr_fd: int = (string_to_int (at raw 2))
+    assert (> pid 0)
+    assert (== (wait pid) 0)
+    let out: string = (fd_read_available stdout_fd)
+    (fd_close stdout_fd)
+    (fd_close stderr_fd)
+    return out
+}
+
+shadow pipe_output {
+    assert (== (pipe_output) "piped")
+}
+
+fn main() -> int {
+    (println (+ "process output: " (command_output)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

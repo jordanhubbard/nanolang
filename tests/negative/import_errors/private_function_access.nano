@@ -1,0 +1,13 @@
+# Expected Error: Cannot call private function from another module
+
+module "tests/test_modules/geometry.nano" as Geo
+
+fn main() -> int {
+    # private_helper is not pub - should be rejected
+    let x: int = (Geo.private_helper 5)
+    return x
+}
+
+shadow main {
+    assert (== (main) 0)
+}

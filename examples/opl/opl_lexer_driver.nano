@@ -1,0 +1,18 @@
+# Example: OPL Lexer Driver
+# Purpose: Test driver that exercises the OPL lexer with sample input
+# Features: imports, testing, lexer integration
+# Difficulty: Intermediate
+# Category: opl
+# Prerequisites: opl_lexer
+# Expected Output: none
+
+import "examples/opl/opl_lexer.nano"
+
+fn main() -> int {
+    let r: OplTokensResult = (opl_lex "agent a { uses web.search }")
+    if r.ok { return 0 } else { return 1 }
+}
+
+shadow main {
+    assert (== (main) 0)
+}

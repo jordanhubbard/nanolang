@@ -1,0 +1,55 @@
+{
+  "name": "math_ext",
+  "version": "1.0.0",
+  "stability": "stable",
+  "summary": "Extended math functions: trigonometry, logarithms, rounding, and constants.",
+  "use_when": [
+    "User needs trigonometric functions (sin, cos, tan)",
+    "User says 'scientific math', 'trigonometry', 'logarithm', 'exponential'",
+    "User needs pi, e, or other mathematical constants",
+    "User wants rounding, floor, ceiling operations"
+  ],
+  "avoid_when": [
+    "User only needs basic arithmetic (use core +, -, *, / instead)",
+    "User needs random numbers (use random module instead)",
+    "User needs complex numbers (not supported)"
+  ],
+  "capabilities": [
+    "sin",
+    "cos",
+    "tan",
+    "asin",
+    "acos",
+    "atan",
+    "atan2",
+    "log",
+    "log10",
+    "exp",
+    "pow",
+    "sqrt",
+    "floor",
+    "ceil",
+    "round",
+    "abs"
+  ],
+  "keywords": [
+    "math",
+    "trigonometry",
+    "sin",
+    "cos",
+    "tan",
+    "logarithm",
+    "exponential",
+    "scientific",
+    "pi",
+    "constants"
+  ],
+  "examples": [],
+  "dependencies": {
+    "nanolang": [],
+    "system": []
+  },
+  "io_surfaces": [],
+  "alternatives": []
+}
+

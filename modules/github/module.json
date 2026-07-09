@@ -1,0 +1,9 @@
+{
+  "name": "github",
+  "version": "1.0.0",
+  "description": "GitHub REST API client for nanolang with authentication support",
+  "headers": ["github.h"],
+  "c_sources": ["github.c"],
+  "dependencies": ["curl", "json"],
+  "notes": "Requires GITHUB_TOKEN environment variable for authentication. Supports GitHub REST API v3."
+}

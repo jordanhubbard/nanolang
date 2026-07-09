@@ -1,0 +1,8 @@
+{
+  "name": "pybridge_matplotlib",
+  "version": "1.0.0",
+  "description": "Matplotlib adapter for pybridge",
+  "headers": [],
+  "c_sources": ["pybridge_matplotlib.c"],
+  "cflags": ["-Imodules/pybridge", "-Isrc"]
+}

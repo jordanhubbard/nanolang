@@ -1,0 +1,626 @@
+/*
+ * Garbage Collector Implementation
+ * Reference counting with optional cycle detection
+ * 
+ * OPTIMIZATION (2026-02):
+ * - Hash table for O(1) gc_is_managed() lookup
+ * - Doubly-linked list for O(1) object removal
+ */
+
+#include "gc.h"
+#include "dyn_array.h"
+#include "gc_struct.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+
+/* ============================================================================
+ * Hash Table for O(1) pointer lookup
+ * ============================================================================ */
+
+#define GC_HASH_SIZE 1048576  /* Power of 2 for fast modulo - large for bootstrap */
+#define GC_HASH_MASK (GC_HASH_SIZE - 1)
+
+/* Hash bucket entry */
+typedef struct GCHashEntry {
+    void* ptr;
+    struct GCHashEntry* next;
+} GCHashEntry;
+
+/* Hash function for pointers (FNV-1a inspired) */
+static inline size_t gc_hash_ptr(void* ptr) {
+    size_t h = (size_t)ptr;
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h & GC_HASH_MASK;
+}
+
+/* GC State */
+static struct {
+    GCHeader* all_objects;      /* Doubly-linked list of all allocated objects */
+    GCHashEntry* hash_table[GC_HASH_SIZE];  /* Hash set for O(1) lookup */
+    GCStats stats;              /* GC statistics */
+    size_t threshold;           /* Memory threshold for auto-collection */
+    size_t last_collection_usage; /* Usage at last collection (hysteresis) */
+    bool cycle_detection_enabled;
+    bool initialized;
+} gc_state = {
+    .all_objects = NULL,
+    .stats = {0},
+    .threshold = (size_t)2048 * 1024 * 1024,  /* 2GB for bootstrap - reduce GC frequency */
+    .last_collection_usage = 0,
+    .cycle_detection_enabled = true,
+    .initialized = false
+};
+
+/* ============================================================================
+ * Hash Table Operations - O(1) average
+ * ============================================================================ */
+
+/* Add pointer to hash table */
+static void gc_hash_add(void* ptr) {
+    size_t idx = gc_hash_ptr(ptr);
+    GCHashEntry* entry = (GCHashEntry*)malloc(sizeof(GCHashEntry));
+    if (entry) {
+        entry->ptr = ptr;
+        entry->next = gc_state.hash_table[idx];
+        gc_state.hash_table[idx] = entry;
+    }
+}
+
+/* Remove pointer from hash table */
+static void gc_hash_remove(void* ptr) {
+    size_t idx = gc_hash_ptr(ptr);
+    GCHashEntry** current = &gc_state.hash_table[idx];
+    
+    while (*current != NULL) {
+        if ((*current)->ptr == ptr) {
+            GCHashEntry* to_free = *current;
+            *current = (*current)->next;
+            free(to_free);
+            return;
+        }
+        current = &(*current)->next;
+    }
+}
+
+/* Check if pointer is in hash table - O(1) average */
+static inline bool gc_hash_contains(void* ptr) {
+    size_t idx = gc_hash_ptr(ptr);
+    GCHashEntry* current = gc_state.hash_table[idx];
+    
+    while (current != NULL) {
+        if (current->ptr == ptr) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+}
+
+/* Clear entire hash table */
+static void gc_hash_clear(void) {
+    for (size_t i = 0; i < GC_HASH_SIZE; i++) {
+        GCHashEntry* current = gc_state.hash_table[i];
+        while (current != NULL) {
+            GCHashEntry* next = current->next;
+            free(current);
+            current = next;
+        }
+        gc_state.hash_table[i] = NULL;
+    }
+}
+
+static void gc_destroy_object(GCHeader *header, bool release_children) {
+    if (!header) return;
+    void *obj = gc_header_to_ptr(header);
+
+    /* Call finalizer first if present (for opaque types) */
+    if (header->finalizer) {
+        header->finalizer(obj);
+        header->finalizer = NULL;  /* Prevent double finalization */
+    }
+
+    switch (header->type) {
+        case GC_TYPE_ARRAY: {
+            DynArray *arr = (DynArray *)obj;
+            if (arr && arr->data) {
+                free(arr->data);
+                arr->data = NULL;
+            }
+            break;
+        }
+        case GC_TYPE_STRUCT: {
+            GCStruct *s = (GCStruct *)obj;
+            if (!s) break;
+
+            if (release_children) {
+                gc_struct_free(s);
+            } else {
+                for (int i = 0; i < s->field_count; i++) {
+                    if (s->field_names && s->field_names[i]) {
+                        free(s->field_names[i]);
+                    }
+                }
+                if (s->struct_name) free(s->struct_name);
+                if (s->field_names) free(s->field_names);
+                if (s->field_values) free(s->field_values);
+                if (s->field_gc_flags) free(s->field_gc_flags);
+                if (s->field_types) free(s->field_types);
+            }
+            break;
+        }
+        case GC_TYPE_OPAQUE:
+            /* Opaque types handled entirely by finalizer */
+            break;
+        default:
+            break;
+    }
+}
+
+/* Initialize GC */
+void gc_init(void) {
+    if (gc_state.initialized) {
+        return;
+    }
+    
+    memset(&gc_state.stats, 0, sizeof(GCStats));
+    memset(gc_state.hash_table, 0, sizeof(gc_state.hash_table));
+    gc_state.all_objects = NULL;
+    gc_state.threshold = 256 * 1024 * 1024;  /* 256MB - compilers are batch processes */
+    const char *gc_thresh = getenv("NANO_GC_THRESHOLD_MB");
+    if (gc_thresh) {
+        long val = strtol(gc_thresh, NULL, 10);
+        if (val > 0) gc_state.threshold = (size_t)val * 1024 * 1024;
+    }
+    gc_state.last_collection_usage = 0;
+    gc_state.cycle_detection_enabled = true;
+    gc_state.initialized = true;
+}
+
+/* Shutdown GC */
+void gc_shutdown(void) {
+    if (!gc_state.initialized) {
+        return;
+    }
+    
+    /* Free all remaining objects */
+    GCHeader* current = gc_state.all_objects;
+    while (current != NULL) {
+        GCHeader* next = current->next;
+        gc_destroy_object(current, false);
+        free(current);
+        current = next;
+    }
+    
+    /* Clear hash table */
+    gc_hash_clear();
+    
+    gc_state.all_objects = NULL;
+    gc_state.initialized = false;
+}
+
+/* Allocate GC-managed object */
+void* gc_alloc(size_t size, GCObjectType type) {
+    if (!gc_state.initialized) {
+        gc_init();
+    }
+    
+    /* Allocate space for header + object */
+    size_t total_size = sizeof(GCHeader) + size;
+    GCHeader* header = (GCHeader*)malloc(total_size);
+    
+    if (header == NULL) {
+        fprintf(stderr, "GC: Out of memory (requested %zu bytes)\n", total_size);
+        return NULL;
+    }
+    
+    /* Initialize header */
+    header->ref_count = 1;      /* Start with ref count 1 */
+    header->type = type;
+    header->marked = 0;
+    header->flags = 0;
+    header->size = total_size;
+    header->finalizer = NULL;   /* No finalizer by default */
+    
+    /* Add to doubly-linked list - O(1) */
+    header->prev = NULL;
+    header->next = gc_state.all_objects;
+    if (gc_state.all_objects != NULL) {
+        gc_state.all_objects->prev = header;
+    }
+    gc_state.all_objects = header;
+    
+    /* Get pointer to object */
+    void* ptr = gc_header_to_ptr(header);
+    
+    /* Add to hash table for O(1) lookup */
+    gc_hash_add(ptr);
+    
+    /* Update statistics */
+    gc_state.stats.total_allocated += total_size;
+    gc_state.stats.current_usage += total_size;
+    gc_state.stats.num_objects++;
+    
+    /* Check if we should trigger collection
+     * Use hysteresis: only collect if we've allocated at least 1MB MORE
+     * since the last collection. This prevents collecting on every allocation
+     * when memory usage hovers around the threshold.
+     */
+    if (gc_state.stats.current_usage > gc_state.threshold &&
+        gc_state.stats.current_usage > gc_state.last_collection_usage + (1024 * 1024)) {
+        if (gc_state.cycle_detection_enabled) {
+            gc_state.last_collection_usage = gc_state.stats.current_usage;
+            gc_collect_cycles();
+        }
+    }
+    
+    /* Return pointer to object (after header) */
+    return ptr;
+}
+
+/* Increment reference count */
+void gc_retain(void* ptr) {
+    if (ptr == NULL) {
+        return;
+    }
+    
+    GCHeader* header = gc_get_header(ptr);
+    header->ref_count++;
+}
+
+/* Decrement reference count and potentially free */
+void gc_release(void* ptr) {
+    if (ptr == NULL) {
+        return;
+    }
+
+    /* Safety check: only release GC-managed pointers */
+    /* This allows safe release of potentially borrowed references */
+    if (!gc_is_managed(ptr)) {
+        return;  /* Not GC-managed - nothing to release */
+    }
+
+    GCHeader* header = gc_get_header(ptr);
+
+    if (header->ref_count == 0) {
+        fprintf(stderr, "GC ERROR: Double release detected on %p (type=%d)\n", ptr, header->type);
+        assert(0 && "GC: Double release detected!");
+    }
+
+    header->ref_count--;
+    
+    /* If ref count reaches zero, free immediately */
+    if (header->ref_count == 0) {
+        /* Remove from doubly-linked list - O(1) */
+        if (header->prev != NULL) {
+            header->prev->next = header->next;
+        } else {
+            gc_state.all_objects = header->next;
+        }
+        if (header->next != NULL) {
+            header->next->prev = header->prev;
+        }
+        
+        /* Remove from hash table - O(1) average */
+        gc_hash_remove(ptr);
+        
+        /* Update statistics */
+        gc_state.stats.total_freed += header->size;
+        gc_state.stats.current_usage -= header->size;
+        gc_state.stats.num_objects--;
+        
+        gc_destroy_object(header, true);
+        
+        /* Free the object */
+        free(header);
+    }
+}
+
+/* Mark phase of mark-and-sweep */
+static void gc_mark(GCHeader* header) {
+    if (header == NULL || header->marked) {
+        return;
+    }
+    
+    header->marked = 1;
+    
+    /* Get object pointer */
+    void* obj = gc_header_to_ptr(header);
+    
+    /* Recursively mark nested GC objects */
+    switch (header->type) {
+        case GC_TYPE_ARRAY: {
+            DynArray* arr = (DynArray*)obj;
+            ElementType elem_type = dyn_array_get_elem_type(arr);
+            
+            if (elem_type == ELEM_ARRAY) {
+                /* Arrays of arrays: data is an array of DynArray* pointers */
+                int64_t len = dyn_array_length(arr);
+                void** ptr_data = (void**)arr->data;
+                for (int64_t i = 0; i < len; i++) {
+                    void* elem = ptr_data[i];
+                    if (elem && gc_is_managed(elem)) {
+                        gc_mark(gc_get_header(elem));
+                    }
+                }
+            } else if (elem_type == ELEM_STRUCT && arr->elem_size > 0) {
+                /* Arrays of structs: data is packed struct values (by value, not pointers).
+                 * Scan each struct's bytes at pointer-aligned offsets to find any GC-managed
+                 * pointers embedded in string/array fields within the struct. */
+                int64_t len = dyn_array_length(arr);
+                size_t stride = (size_t)arr->elem_size;
+                for (int64_t i = 0; i < len; i++) {
+                    uint8_t* struct_data = (uint8_t*)arr->data + (i * stride);
+                    /* Scan each pointer-aligned word within the struct */
+                    for (size_t off = 0; off + sizeof(void*) <= stride; off += sizeof(void*)) {
+                        void* field_ptr;
+                        memcpy(&field_ptr, struct_data + off, sizeof(void*));
+                        if (field_ptr && gc_is_managed(field_ptr)) {
+                            gc_mark(gc_get_header(field_ptr));
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        
+        case GC_TYPE_STRUCT: {
+            GCStruct* s = (GCStruct*)obj;
+            /* Mark all GC object fields */
+            for (int i = 0; i < s->field_count; i++) {
+                if (s->field_gc_flags[i] && s->field_values[i]) {
+                    if (gc_is_managed(s->field_values[i])) {
+                        gc_mark(gc_get_header(s->field_values[i]));
+                    }
+                }
+            }
+            break;
+        }
+        
+        case GC_TYPE_STRING:
+        case GC_TYPE_CLOSURE:
+        default:
+            /* These types don't have nested objects */
+            break;
+    }
+}
+
+/* Sweep phase of mark-and-sweep */
+static void gc_sweep(void) {
+    GCHeader* current = gc_state.all_objects;
+    
+    while (current != NULL) {
+        GCHeader* next = current->next;
+        
+        if (!current->marked && current->ref_count == 0) {
+            /* Unreachable object - free it */
+            
+            /* Remove from doubly-linked list - O(1) */
+            if (current->prev != NULL) {
+                current->prev->next = current->next;
+            } else {
+                gc_state.all_objects = current->next;
+            }
+            if (current->next != NULL) {
+                current->next->prev = current->prev;
+            }
+            
+            /* Remove from hash table - O(1) average */
+            gc_hash_remove(gc_header_to_ptr(current));
+            
+            gc_state.stats.total_freed += current->size;
+            gc_state.stats.current_usage -= current->size;
+            gc_state.stats.num_objects--;
+            
+            gc_destroy_object(current, true);
+            free(current);
+        } else {
+            /* Clear mark for next collection */
+            current->marked = 0;
+        }
+        
+        current = next;
+    }
+}
+
+/* Run cycle detection.
+ *
+ * IMPORTANT / KNOWN LIMITATION: this does NOT collect reference cycles, and
+ * cannot in the current design. It marks every object with ref_count > 0 as a
+ * root — but cyclic garbage has ref_count > 0 by definition (that is exactly
+ * what pure reference counting cannot reclaim), so such objects are always
+ * marked and never swept. The function therefore only ever frees objects that
+ * are already at ref_count 0 (which gc_release frees anyway): it is a safe
+ * no-op with respect to cycles.
+ *
+ * A real synchronous cycle collector (e.g. Bacon–Rajan trial deletion) is
+ * implementable here — gc_mark already enumerates object edges — but ONLY if
+ * gc_mark provably traverses every heap reference edge for every object type;
+ * missing a single edge on a live path would free a live object (use-after-
+ * free), which is strictly worse than the current leak. Implementing it safely
+ * requires an exhaustive edge-coverage audit and is deliberately deferred
+ * rather than shipped half-correct. Until then: reference cycles leak and must
+ * be broken manually. See README/docs; do not advertise automatic cycle
+ * collection.
+ */
+void gc_collect_cycles(void) {
+    if (!gc_state.initialized || !gc_state.cycle_detection_enabled) {
+        return;
+    }
+
+    /* Mark phase: conservatively treat every still-referenced object as a root.
+     * (This is why cycles are not reclaimed — see the note above.) */
+    GCHeader* current = gc_state.all_objects;
+    while (current != NULL) {
+        if (current->ref_count > 0) {
+            gc_mark(current);
+        }
+        current = current->next;
+    }
+
+    /* Sweep phase: free unmarked objects (only ref_count==0 ones in practice). */
+    gc_sweep();
+
+    gc_state.stats.num_collections++;
+}
+
+/* Force immediate collection */
+void gc_collect_all(void) {
+    gc_collect_cycles();
+}
+
+/* Get GC statistics */
+GCStats gc_get_stats(void) {
+    return gc_state.stats;
+}
+
+/* Print GC statistics */
+void gc_print_stats(void) {
+    printf("=== GC Statistics ===\n");
+    printf("Total allocated: %zu bytes\n", gc_state.stats.total_allocated);
+    printf("Total freed:     %zu bytes\n", gc_state.stats.total_freed);
+    printf("Current usage:   %zu bytes\n", gc_state.stats.current_usage);
+    printf("Live objects:    %zu\n", gc_state.stats.num_objects);
+    printf("Collections:     %zu\n", gc_state.stats.num_collections);
+    printf("====================\n");
+}
+
+/* Check if pointer is GC-managed - O(1) via hash table */
+bool gc_is_managed(void* ptr) {
+    if (ptr == NULL || !gc_state.initialized) {
+        return false;
+    }
+    
+    /* O(1) hash table lookup instead of O(n) linked list search */
+    return gc_hash_contains(ptr);
+}
+
+/* Enable/disable cycle detection */
+void gc_set_cycle_detection_enabled(bool enabled) {
+    gc_state.cycle_detection_enabled = enabled;
+}
+
+/* Set GC threshold */
+void gc_set_threshold(size_t bytes) {
+    gc_state.threshold = bytes;
+}
+
+/* Allocate GC-managed string */
+char* gc_alloc_string(size_t length) {
+    /* Allocate space for the string content + null terminator */
+    char* str = (char*)gc_alloc(length + 1, GC_TYPE_STRING);
+    if (str) {
+        str[length] = '\0';  /* Ensure null termination */
+    }
+    return str;
+}
+
+/* Allocate GC-managed opaque object with finalizer */
+void* gc_alloc_opaque(size_t size, GCFinalizer finalizer) {
+    void* obj = gc_alloc(size, GC_TYPE_OPAQUE);
+    if (obj && finalizer) {
+        GCHeader* header = gc_get_header(obj);
+        header->finalizer = finalizer;
+    }
+    return obj;
+}
+
+/* ============================================================================
+ * ARC-Style Automatic Wrapping for External Pointers
+ * ============================================================================
+ *
+ * External C libraries (cJSON, etc.) return raw malloc'd pointers.
+ * We wrap these in GC-managed objects for automatic cleanup.
+ *
+ * The wrapper is transparent to user code - the compiler automatically:
+ * - Wraps opaque returns from extern functions
+ * - Unwraps opaque parameters to extern functions
+ */
+
+/* Wrapper for external pointers */
+typedef struct {
+    void* external_ptr;      /* The actual malloc'd pointer */
+    GCFinalizer user_finalizer;  /* Cleanup function for external_ptr */
+} GCExternalWrapper;
+
+/* Internal finalizer for wrapper - calls user finalizer on wrapped pointer */
+static void gc_external_wrapper_finalizer(void* wrapper_obj) {
+    GCExternalWrapper* wrapper = (GCExternalWrapper*)wrapper_obj;
+    if (wrapper && wrapper->external_ptr && wrapper->user_finalizer) {
+        /* Call user's finalizer on the wrapped pointer */
+        wrapper->user_finalizer(wrapper->external_ptr);
+        wrapper->external_ptr = NULL;  /* Mark as cleaned up */
+    }
+}
+
+/* Wrap external pointer in GC-managed object (ARC-style) */
+void* gc_wrap_external(void* external_ptr, GCFinalizer finalizer) {
+    if (external_ptr == NULL) {
+        return NULL;
+    }
+
+    /* Check if already GC-managed (don't double-wrap) */
+    if (gc_is_managed(external_ptr)) {
+        /* Already wrapped or directly allocated with gc_alloc_opaque */
+        return external_ptr;
+    }
+
+    /* Create GC-managed wrapper */
+    GCExternalWrapper* wrapper = (GCExternalWrapper*)gc_alloc_opaque(
+        sizeof(GCExternalWrapper),
+        gc_external_wrapper_finalizer
+    );
+
+    if (!wrapper) {
+        /* Allocation failed - clean up external pointer */
+        if (finalizer) {
+            finalizer(external_ptr);
+        }
+        return NULL;
+    }
+
+    wrapper->external_ptr = external_ptr;
+    wrapper->user_finalizer = finalizer;
+
+    return (void*)wrapper;  /* Return wrapper, not external pointer */
+}
+
+/* Unwrap GC-managed pointer to get external pointer */
+void* gc_unwrap(void* wrapper_ptr) {
+    if (wrapper_ptr == NULL) {
+        return NULL;
+    }
+
+    /* Check if this is a GC-managed wrapper */
+    if (!gc_is_managed(wrapper_ptr)) {
+        /* Not GC-managed - assume it's already unwrapped (direct pointer) */
+        return wrapper_ptr;
+    }
+
+    /* Get the GC header to check if it's a wrapper */
+    GCHeader* header = gc_get_header(wrapper_ptr);
+
+    /* If finalizer is gc_external_wrapper_finalizer, it's a wrapper */
+    if (header->finalizer == gc_external_wrapper_finalizer) {
+        GCExternalWrapper* wrapper = (GCExternalWrapper*)wrapper_ptr;
+        return wrapper->external_ptr;
+    }
+
+    /* Not a wrapper - it's directly allocated opaque type */
+    /* (e.g., from gc_alloc_opaque in modified C code) */
+    return wrapper_ptr;
+}
+
+/* Legacy function - now redirects to gc_wrap_external */
+void gc_set_finalizer(void* ptr, GCFinalizer finalizer) {
+    (void)ptr;        /* Suppress unused warning */
+    (void)finalizer;  /* Suppress unused warning */
+    /* This is now a no-op - use gc_wrap_external instead */
+    fprintf(stderr, "[GC] gc_set_finalizer is deprecated - use gc_wrap_external\n");
+}
+

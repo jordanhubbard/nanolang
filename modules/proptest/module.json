@@ -1,0 +1,10 @@
+{
+  "name": "proptest",
+  "version": "0.1.0",
+  "description": "Property-based testing helpers for NanoLang",
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "modules": ["std"],
+    "system": []
+  }
+}

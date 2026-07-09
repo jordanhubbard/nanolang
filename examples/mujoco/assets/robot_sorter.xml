@@ -1,0 +1,57 @@
+<mujoco model="nano_robot_sorter">
+  <compiler angle="degree" coordinate="local"/>
+  <option timestep="0.004" gravity="0 0 -9.81"/>
+
+  <default>
+    <geom friction="0.85 0.12 0.08" solref="0.012 1" solimp="0.9 0.96 0.001"/>
+    <joint damping="1.2" armature="0.02"/>
+  </default>
+
+  <worldbody>
+    <geom name="floor" type="box" pos="0 0 -0.05" size="3.4 0.9 0.05" rgba="0.09 0.10 0.12 1"/>
+
+    <geom name="source_floor" type="box" pos="-1.45 0 0.07" size="0.58 0.48 0.06" rgba="0.16 0.30 0.52 1"/>
+    <geom name="source_left_wall" type="box" pos="-2.06 0 0.34" size="0.05 0.48 0.30" rgba="0.16 0.30 0.52 1"/>
+    <geom name="source_right_wall" type="box" pos="-0.84 0 0.34" size="0.05 0.48 0.30" rgba="0.16 0.30 0.52 1"/>
+    <geom name="source_back_wall" type="box" pos="-1.45 0.48 0.34" size="0.58 0.05 0.30" rgba="0.12 0.23 0.42 1"/>
+    <geom name="source_front_wall" type="box" pos="-1.45 -0.48 0.34" size="0.58 0.05 0.30" rgba="0.12 0.23 0.42 1"/>
+
+    <geom name="target_floor" type="box" pos="1.45 0 0.07" size="0.58 0.48 0.06" rgba="0.17 0.43 0.31 1"/>
+    <geom name="target_left_wall" type="box" pos="0.84 0 0.34" size="0.05 0.48 0.30" rgba="0.17 0.43 0.31 1"/>
+    <geom name="target_right_wall" type="box" pos="2.06 0 0.34" size="0.05 0.48 0.30" rgba="0.17 0.43 0.31 1"/>
+    <geom name="target_back_wall" type="box" pos="1.45 0.48 0.34" size="0.58 0.05 0.30" rgba="0.13 0.33 0.25 1"/>
+    <geom name="target_front_wall" type="box" pos="1.45 -0.48 0.34" size="0.58 0.05 0.30" rgba="0.13 0.33 0.25 1"/>
+
+    <geom name="base" type="cylinder" pos="0 0 0.11" size="0.20 0.11" rgba="0.23 0.24 0.27 1"/>
+
+    <body name="shoulder" pos="0 0 0.25">
+      <joint name="shoulder" type="hinge" axis="0 1 0" limited="true" range="-125 125"/>
+      <geom name="upper_arm" type="capsule" fromto="0 0 0 0 0 0.82" size="0.045" mass="0.45" rgba="0.78 0.62 0.26 1"/>
+
+      <body name="elbow" pos="0 0 0.82">
+        <joint name="elbow" type="hinge" axis="0 1 0" limited="true" range="-150 150"/>
+        <geom name="forearm" type="capsule" fromto="0 0 0 0 0 0.68" size="0.040" mass="0.36" rgba="0.86 0.72 0.36 1"/>
+
+        <body name="wrist" pos="0 0 0.68">
+          <joint name="wrist" type="hinge" axis="0 1 0" limited="true" range="-100 100"/>
+          <geom name="wrist_link" type="capsule" fromto="0 0 0 0 0 0.24" size="0.030" mass="0.16" rgba="0.70 0.78 0.86 1"/>
+          <geom name="left_finger" type="box" pos="-0.075 0 0.27" size="0.022 0.045 0.12" mass="0.04" rgba="0.86 0.30 0.25 1"/>
+          <geom name="right_finger" type="box" pos="0.075 0 0.27" size="0.022 0.045 0.12" mass="0.04" rgba="0.86 0.30 0.25 1"/>
+          <site name="gripper_site" pos="0 0 0.30" size="0.035" rgba="1 1 1 1"/>
+        </body>
+      </body>
+    </body>
+
+    <body name="ball_0" pos="-1.55 -0.16 0.42"><freejoint/><geom name="ball_0_geom" type="sphere" size="0.09" mass="0.08" rgba="0.94 0.25 0.21 1"/></body>
+    <body name="ball_1" pos="-1.40 0.14 0.42"><freejoint/><geom name="ball_1_geom" type="sphere" size="0.09" mass="0.08" rgba="0.95 0.62 0.20 1"/></body>
+    <body name="ball_2" pos="-1.25 -0.05 0.42"><freejoint/><geom name="ball_2_geom" type="sphere" size="0.09" mass="0.08" rgba="0.96 0.84 0.25 1"/></body>
+    <body name="ball_3" pos="-1.68 0.06 0.66"><freejoint/><geom name="ball_3_geom" type="sphere" size="0.09" mass="0.08" rgba="0.35 0.75 0.42 1"/></body>
+    <body name="ball_4" pos="-1.34 -0.22 0.66"><freejoint/><geom name="ball_4_geom" type="sphere" size="0.09" mass="0.08" rgba="0.28 0.58 0.92 1"/></body>
+  </worldbody>
+
+  <actuator>
+    <motor name="shoulder_motor" joint="shoulder" gear="24" ctrllimited="true" ctrlrange="-1 1"/>
+    <motor name="elbow_motor" joint="elbow" gear="18" ctrllimited="true" ctrlrange="-1 1"/>
+    <motor name="wrist_motor" joint="wrist" gear="10" ctrllimited="true" ctrlrange="-1 1"/>
+  </actuator>
+</mujoco>

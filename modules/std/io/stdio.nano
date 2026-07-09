@@ -1,0 +1,280 @@
+/* =============================================================================
+ * std::io Module - Standard I/O Operations
+ * =============================================================================
+ * Provides FFI bindings for C file I/O operations.
+ * Supports reading/writing files, seeking, and file size queries.
+ * 
+ * Usage:
+ *   from "std/io/stdio.nano" import fopen, fclose, file_size
+ *   
+ *   let file: int = (fopen "data.bin" FILE_MODE_READ)
+ *   let size: int = (file_size "data.bin")
+ *   (fclose file)
+ */
+
+module std_io
+
+/* =============================================================================
+ * File Mode Constants
+ * =============================================================================
+ */
+
+/* Open for reading (file must exist) */
+# frozen
+let FILE_MODE_READ: string = "rb"
+
+/* Open for writing (creates or truncates) */
+# frozen
+let FILE_MODE_WRITE: string = "wb"
+
+/* Open for append (creates if doesn't exist) */
+# frozen
+let FILE_MODE_APPEND: string = "ab"
+
+/* Open for reading and writing */
+# frozen
+let FILE_MODE_READ_WRITE: string = "r+b"
+
+/* =============================================================================
+ * Seek Position Constants
+ * =============================================================================
+ */
+
+/* Seek from beginning of file */
+# frozen
+let STDIO_SEEK_SET: int = 0
+
+/* Seek from current position */
+# frozen
+let STDIO_SEEK_CUR: int = 1
+
+/* Seek from end of file */
+# frozen
+let STDIO_SEEK_END: int = 2
+
+/* =============================================================================
+ * Core File Operations
+ * =============================================================================
+ */
+
+extern fn nl_stdio_fopen(_filename: string, _mode: string) -> int
+extern fn nl_stdio_fclose(_file: int) -> int
+extern fn nl_stdio_fread(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn nl_stdio_fwrite(_ptr: int, _size: int, _count: int, _file: int) -> int
+extern fn nl_stdio_fflush(_file: int) -> int
+extern fn nl_stdio_fseek(_file: int, _offset: int, _whence: int) -> int
+extern fn nl_stdio_ftell(_file: int) -> int
+extern fn nl_stdio_rewind(_file: int) -> int
+extern fn nl_stdio_feof(_file: int) -> int
+extern fn nl_stdio_ferror(_file: int) -> int
+extern fn nl_stdio_clearerr(_file: int) -> int
+extern fn nl_stdio_fgetc(_file: int) -> int
+extern fn nl_stdio_fputc(_c: int, _file: int) -> int
+extern fn nl_stdio_ungetc(_c: int, _file: int) -> int
+
+pub fn fopen(filename: string, mode: string) -> int {
+    unsafe {
+        return (nl_stdio_fopen filename mode)
+    }
+}
+
+shadow fopen {
+    assert (== (fopen "/nonexistent" FILE_MODE_READ) 0)
+}
+
+pub fn fclose(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fclose file)
+    }
+}
+
+shadow fclose {
+    assert (== (fclose 0) -1)
+}
+
+pub fn fread(ptr: int, size: int, count: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fread ptr size count file)
+    }
+}
+
+shadow fread {
+    assert (== (fread 0 1 1 0) 0)
+}
+
+pub fn fwrite(ptr: int, size: int, count: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fwrite ptr size count file)
+    }
+}
+
+shadow fwrite {
+    assert (== (fwrite 0 1 1 0) 0)
+}
+
+pub fn fflush(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fflush file)
+    }
+}
+
+shadow fflush {
+    assert (== (fflush 0) -1)
+}
+
+/* =============================================================================
+ * File Position Operations
+ * =============================================================================
+ */
+
+/* Seek to position in file.
+ * whence: STDIO_SEEK_SET, STDIO_SEEK_CUR, or STDIO_SEEK_END
+ */
+pub fn fseek(file: int, offset: int, whence: int) -> int {
+    unsafe {
+        return (nl_stdio_fseek file offset whence)
+    }
+}
+
+shadow fseek {
+    assert (== (fseek 0 0 STDIO_SEEK_SET) -1)
+}
+
+pub fn ftell(file: int) -> int {
+    unsafe {
+        return (nl_stdio_ftell file)
+    }
+}
+
+shadow ftell {
+    assert (== (ftell 0) -1)
+}
+
+pub fn rewind(file: int) -> int {
+    unsafe {
+        return (nl_stdio_rewind file)
+    }
+}
+
+shadow rewind {
+    assert (== (rewind 0) -1)
+}
+
+/* =============================================================================
+ * File Status Operations
+ * =============================================================================
+ */
+
+pub fn feof(file: int) -> int {
+    unsafe {
+        return (nl_stdio_feof file)
+    }
+}
+
+shadow feof {
+    assert (== (feof 0) 1)
+}
+
+pub fn ferror(file: int) -> int {
+    unsafe {
+        return (nl_stdio_ferror file)
+    }
+}
+
+shadow ferror {
+    assert (== (ferror 0) 1)
+}
+
+pub fn clearerr(file: int) -> int {
+    unsafe {
+        return (nl_stdio_clearerr file)
+    }
+}
+
+shadow clearerr {
+    assert (== (clearerr 0) 1)
+}
+
+/* =============================================================================
+ * Character I/O Operations
+ * =============================================================================
+ */
+
+pub fn fgetc(file: int) -> int {
+    unsafe {
+        return (nl_stdio_fgetc file)
+    }
+}
+
+shadow fgetc {
+    assert (== (fgetc 0) -1)
+}
+
+pub fn fputc(c: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_fputc c file)
+    }
+}
+
+shadow fputc {
+    assert (== (fputc 65 0) -1)
+}
+
+pub fn ungetc(c: int, file: int) -> int {
+    unsafe {
+        return (nl_stdio_ungetc c file)
+    }
+}
+
+shadow ungetc {
+    assert (== (ungetc 65 0) -1)
+}
+
+/* =============================================================================
+ * Helper Functions
+ * =============================================================================
+ */
+
+/* Get file size in bytes
+ * Returns: size in bytes, or -1 on error
+ */
+pub fn file_size(filename: string) -> int {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return -1
+    } else {
+        unsafe {
+            (fseek file 0 STDIO_SEEK_END)
+        }
+        let size: int = (ftell file)
+        unsafe {
+            (fclose file)
+        }
+        return size
+    }
+}
+
+shadow file_size {
+    /* Verify it handles nonexistent files */
+    assert (>= (file_size "/nonexistent") -1)
+}
+
+/* Check if file is readable
+ * Returns: true if file can be opened for reading
+ * Named stdio_file_readable to avoid clashing with fs.file_exists.
+ */
+pub fn stdio_file_readable(filename: string) -> bool {
+    let file: int = (fopen filename FILE_MODE_READ)
+    if (== file 0) {
+        return false
+    } else {
+        unsafe {
+            (fclose file)
+        }
+        return true
+    }
+}
+
+shadow stdio_file_readable {
+    assert (== (stdio_file_readable "/nonexistent") false)
+}

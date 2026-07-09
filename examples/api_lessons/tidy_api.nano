@@ -1,0 +1,38 @@
+# Example: stdlib::tidy API Lesson
+# Purpose: I show the legacy stdlib/tidy.nano code-formatter helpers
+# Features: tidy_format, format_with_wrap, format_pretty
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: stringbuilder_api
+# Track: modules
+# Build: local
+# Dependencies: stdlib/tidy
+# Tags: api-lesson, tidy, formatter, shadow-tested
+# Expected Output: tidy formatted: 37
+
+from "stdlib/tidy.nano" import tidy_format, format_with_wrap, format_pretty
+
+fn tidy_score() -> int {
+    let source: string = "fn hello() -> int { return 42 }"
+    let same: string = (tidy_format source)
+    let wrapped: string = (format_with_wrap source 12)
+    let pretty: string = (format_pretty source)
+    assert (== same source)
+    assert (> (str_length wrapped) (str_length source))
+    assert (str_contains pretty "{")
+    assert (str_contains pretty "}")
+    return (str_length pretty)
+}
+
+shadow tidy_score {
+    assert (> (tidy_score) 0)
+}
+
+fn main() -> int {
+    (println (+ "tidy formatted: " (int_to_string (tidy_score))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

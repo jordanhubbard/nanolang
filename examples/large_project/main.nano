@@ -1,0 +1,33 @@
+# Example: Large Project Package
+# Purpose: Show a real package entry point that imports multiple local modules
+# Features: nano.toml package, module aliases, qualified function calls, shadow tests
+# Difficulty: Intermediate
+# Category: package
+# Prerequisites: hello_pkg, nl_demo_selfhosting
+# Track: modules
+# Build: local
+# Dependencies: none
+# Tags: package, manifest, multi-file, shadow-tested
+# Expected Output: order total cents: 4860
+
+module "examples/large_project/src/models.nano" as Models
+module "examples/large_project/src/pricing.nano" as Pricing
+
+fn order_total() -> int {
+    let subtotal: int = (Models.line_total 2500 2)
+    let discounted: int = (Pricing.apply_percent_discount subtotal 10)
+    return (Pricing.add_percent_tax discounted 8)
+}
+
+shadow order_total {
+    assert (== (order_total) 4860)
+}
+
+fn main() -> int {
+    (println (+ "order total cents: " (int_to_string (order_total))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

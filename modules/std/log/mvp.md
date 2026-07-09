@@ -1,0 +1,13 @@
+# log module MVP
+
+<!--nl-snippet {"name":"module_log_mvp","check":false}-->
+```nano
+from "modules/std/log/log.nano" import log_info
+
+fn main() -> int {
+    (log_info "userguide log demo")
+    return 0
+}
+
+shadow main { assert true }
+```

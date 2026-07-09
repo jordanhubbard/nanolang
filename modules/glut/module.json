@@ -1,0 +1,12 @@
+{
+  "name": "glut",
+  "version": "1.0.0",
+  "description": "OpenGL Utility Toolkit - 3D shapes, text rendering, and the famous Utah Teapot",
+  "headers": [],
+  "cflags": ["-Imodules/glut"],
+  "c_sources": [],
+  "pkg_config": ["glut"],
+  "frameworks": ["GLUT"],
+  "system_packages": ["freeglut"],
+  "notes": "macOS uses system GLUT.framework (deprecated but still available). Linux/FreeBSD use FreeGLUT via pkg-config."
+}

@@ -1,0 +1,28 @@
+# Example: LLM Diagnostics Type Mismatch
+# Purpose: Provide an expected-failure input for --llm-diags-json
+# Features: diagnostics, type mismatch, machine-readable error output
+# Difficulty: Intermediate
+# Category: diagnostics
+# Prerequisites: nl_functions_basic
+# Track: experimental
+# Build: expected-failure
+# Dependencies: none
+# Tags: llm-diags, expected-failure
+# Expected Output: expected-failure
+
+fn add_ints(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add_ints {
+    assert (== (add_ints 1 2) 3)
+}
+
+fn main() -> int {
+    let total: int = (add_ints 1 "two")
+    return total
+}
+
+shadow main {
+    assert (== (main) 3)
+}

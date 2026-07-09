@@ -1,0 +1,9 @@
+{
+  "name": "openai",
+  "version": "1.0.0",
+  "description": "OpenAI-compatible API client for nanolang supporting chat completions, embeddings, and more",
+  "headers": ["openai.h"],
+  "c_sources": ["openai.c"],
+  "dependencies": ["curl", "json"],
+  "notes": "Supports OpenAI API and any OpenAI-compatible endpoints (local LLMs, etc.). Requires OPENAI_API_KEY environment variable or explicit key parameter. Default endpoint is https://api.openai.com/v1 but can be overridden for local deployments."
+}

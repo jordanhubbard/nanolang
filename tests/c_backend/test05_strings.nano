@@ -1,0 +1,9 @@
+fn greet(name: string) -> string {
+    return (+ "Hello, " name)
+}
+
+fn main() -> int {
+    let msg: string = (greet "nano")
+    (println msg)
+    return 0
+}

@@ -1,0 +1,326 @@
+# graphx: graph algorithms for Nanolang.
+#
+# Pure .nano (no C builtins), runs on the prebuilt interpreter without a
+# compiler rebuild. Every pub function carries a shadow contract test.
+#
+# Provides three canonical graph algorithms on explicit, hand-built graphs:
+#
+#   graphx_dijkstra   -- weighted shortest path (Dijkstra's algorithm)
+#   graphx_topo_sort  -- DAG topological ordering + cycle detection (Kahn's BFS)
+#   graphx_has_cycle  -- directed-graph cycle detection (convenience wrapper)
+#
+# Graph representation
+# --------------------
+# All algorithms share the same edge-list struct:
+#
+#   struct Graph {
+#       n:        int           -- number of nodes (0 .. n-1)
+#       m:        int           -- number of directed edges
+#       edge_src: array<int>    -- source node for each edge
+#       edge_dst: array<int>    -- destination node for each edge
+#       edge_wt:  array<int>    -- edge weights (use 1 for unweighted)
+#   }
+#
+# Build a graph with graphx_graph_new(n), then grow it edge by edge with
+# graphx_add_edge(g, u, v, w) or graphx_add_arc(g, u, v).
+#
+# Return value conventions (no union exports; callers may wrap as needed)
+# -----------------------------------------------------------------------
+# graphx_dijkstra(g, source, target) -> int
+#   Non-negative integer: shortest path cost.
+#   -1: no path exists from source to target.
+#   All edge weights must be >= 0.
+#
+# graphx_topo_sort(g) -> array<int>
+#   array_length == g.n : valid topological ordering of a DAG.
+#   array_length <  g.n : directed cycle detected (partial ordering).
+#
+# graphx_has_cycle(g) -> bool
+#   true iff the directed graph contains at least one directed cycle.
+
+module graphx_module
+
+# ---------------------------------------------------------------------------
+# Graph struct
+# ---------------------------------------------------------------------------
+
+pub struct Graph {
+    n:        int,
+    m:        int,
+    edge_src: array<int>,
+    edge_dst: array<int>,
+    edge_wt:  array<int>
+}
+
+# ---------------------------------------------------------------------------
+# graphx_graph_new: create an empty directed graph with n nodes.
+# ---------------------------------------------------------------------------
+pub fn graphx_graph_new(n: int) -> Graph {
+    return Graph {
+        n:        n,
+        m:        0,
+        edge_src: [],
+        edge_dst: [],
+        edge_wt:  []
+    }
+}
+
+shadow graphx_graph_new {
+    let g: Graph = (graphx_graph_new 5)
+    assert (== g.n 5)
+    assert (== g.m 0)
+    assert (== (array_length g.edge_src) 0)
+    assert (== (array_length g.edge_dst) 0)
+    assert (== (array_length g.edge_wt) 0)
+}
+
+# ---------------------------------------------------------------------------
+# graphx_add_edge: add a weighted directed edge u -> v with weight w >= 0.
+# ---------------------------------------------------------------------------
+pub fn graphx_add_edge(g: Graph, u: int, v: int, w: int) -> Graph {
+    return Graph {
+        n:        g.n,
+        m:        (+ g.m 1),
+        edge_src: (array_push g.edge_src u),
+        edge_dst: (array_push g.edge_dst v),
+        edge_wt:  (array_push g.edge_wt w)
+    }
+}
+
+shadow graphx_add_edge {
+    let g0: Graph = (graphx_graph_new 3)
+    let g1: Graph = (graphx_add_edge g0 0 1 7)
+    let g2: Graph = (graphx_add_edge g1 1 2 3)
+    assert (== g2.m 2)
+    assert (== (at g2.edge_src 0) 0)
+    assert (== (at g2.edge_dst 0) 1)
+    assert (== (at g2.edge_wt  0) 7)
+    assert (== (at g2.edge_src 1) 1)
+    assert (== (at g2.edge_dst 1) 2)
+    assert (== (at g2.edge_wt  1) 3)
+}
+
+# ---------------------------------------------------------------------------
+# graphx_add_arc: add an unweighted directed arc u -> v (weight = 1).
+# ---------------------------------------------------------------------------
+pub fn graphx_add_arc(g: Graph, u: int, v: int) -> Graph {
+    return (graphx_add_edge g u v 1)
+}
+
+shadow graphx_add_arc {
+    let g0: Graph = (graphx_graph_new 3)
+    let g1: Graph = (graphx_add_arc g0 0 2)
+    assert (== g1.m 1)
+    assert (== (at g1.edge_src 0) 0)
+    assert (== (at g1.edge_dst 0) 2)
+    assert (== (at g1.edge_wt  0) 1)
+}
+
+# ---------------------------------------------------------------------------
+# graphx_dijkstra: weighted shortest path from source to target.
+#
+# Uses a simple O(n^2) selection loop over an explicit distance array.
+# Returns the shortest path cost (non-negative int), or -1 when no path
+# exists from source to target.
+#
+# All edge weights must be non-negative for Dijkstra to be correct.
+# ---------------------------------------------------------------------------
+pub fn graphx_dijkstra(g: Graph, source: int, target: int) -> int {
+    let INF: int = 999999999
+    let gn: int = g.n
+    let gm: int = g.m
+    let mut dist: array<int> = (array_new gn INF)
+    let mut vis:  array<int> = (array_new gn 0)
+    (array_set dist source 0)
+
+    let mut itr: int = 0
+    while (< itr gn) {
+        # Select the unvisited node with minimum tentative distance
+        let mut u: int = -1
+        let mut best: int = INF
+        let mut j: int = 0
+        while (< j gn) {
+            if (== (at vis j) 0) {
+                if (< (at dist j) best) {
+                    set best (at dist j)
+                    set u j
+                } else {}
+            } else {}
+            set j (+ j 1)
+        }
+        if (== u -1) {
+            # All remaining nodes are unreachable; terminate early
+            set itr gn
+        } else {
+            (array_set vis u 1)
+            # Relax outgoing edges from u
+            let mut e: int = 0
+            while (< e gm) {
+                if (== (at g.edge_src e) u) {
+                    let v: int = (at g.edge_dst e)
+                    let w: int = (at g.edge_wt  e)
+                    let nd: int = (+ (at dist u) w)
+                    if (< nd (at dist v)) {
+                        (array_set dist v nd)
+                    } else {}
+                } else {}
+                set e (+ e 1)
+            }
+            set itr (+ itr 1)
+        }
+    }
+
+    let d: int = (at dist target)
+    if (== d INF) {
+        return -1
+    } else {
+        return d
+    }
+}
+
+shadow graphx_dijkstra {
+    # Weighted graph (4 nodes):
+    #   0->1 (w=4), 0->2 (w=1), 2->1 (w=2), 1->3 (w=1), 2->3 (w=5)
+    # Shortest paths from source 0:
+    #   d(0,0)=0, d(0,1)=3 (0->2->1), d(0,2)=1, d(0,3)=4 (0->2->1->3)
+    let mut g: Graph = (graphx_graph_new 4)
+    set g (graphx_add_edge g 0 1 4)
+    set g (graphx_add_edge g 0 2 1)
+    set g (graphx_add_edge g 2 1 2)
+    set g (graphx_add_edge g 1 3 1)
+    set g (graphx_add_edge g 2 3 5)
+
+    assert (== (graphx_dijkstra g 0 0) 0)
+    assert (== (graphx_dijkstra g 0 1) 3)
+    assert (== (graphx_dijkstra g 0 2) 1)
+    assert (== (graphx_dijkstra g 0 3) 4)
+
+    # No path from 3 back to 0 (directed graph, no reverse edges)
+    assert (== (graphx_dijkstra g 3 0) -1)
+
+    # Disconnected: node 2 unreachable from 0 in this graph
+    let mut g2: Graph = (graphx_graph_new 3)
+    set g2 (graphx_add_edge g2 0 1 5)
+    assert (== (graphx_dijkstra g2 0 2) -1)
+}
+
+# ---------------------------------------------------------------------------
+# graphx_topo_sort: topological ordering via Kahn's algorithm (BFS).
+#
+# Repeatedly removes zero-in-degree nodes, accumulating the ordering.
+# If the graph is a DAG, the returned array has length == g.n.
+# If a cycle exists, length < g.n (nodes stuck on the cycle remain).
+# ---------------------------------------------------------------------------
+pub fn graphx_topo_sort(g: Graph) -> array<int> {
+    let gn: int = g.n
+    let gm: int = g.m
+    # Compute in-degrees
+    let mut indegree: array<int> = (array_new gn 0)
+    let mut e: int = 0
+    while (< e gm) {
+        let v: int = (at g.edge_dst e)
+        (array_set indegree v (+ (at indegree v) 1))
+        set e (+ e 1)
+    }
+    # Seed the BFS queue with all zero-in-degree nodes
+    let mut queue: array<int> = []
+    let mut i: int = 0
+    while (< i gn) {
+        if (== (at indegree i) 0) {
+            set queue (array_push queue i)
+        } else {}
+        set i (+ i 1)
+    }
+    # Process queue: dequeue a node, add it to the order, reduce neighbours
+    let mut order: array<int> = []
+    let mut qi: int = 0
+    while (< qi (array_length queue)) {
+        let u: int = (at queue qi)
+        set order (array_push order u)
+        set qi (+ qi 1)
+        let mut e2: int = 0
+        while (< e2 gm) {
+            if (== (at g.edge_src e2) u) {
+                let v: int = (at g.edge_dst e2)
+                (array_set indegree v (- (at indegree v) 1))
+                if (== (at indegree v) 0) {
+                    set queue (array_push queue v)
+                } else {}
+            } else {}
+            set e2 (+ e2 1)
+        }
+    }
+    return order
+}
+
+shadow graphx_topo_sort {
+    # DAG: 5->2, 5->0, 4->0, 4->1, 2->3, 3->1
+    # In-degrees: 0:2, 1:2, 2:1, 3:1, 4:0, 5:0
+    # Kahn order (nodes 4,5 tie; node 4 < 5 in our scan): [4, 5, 2, 0, 3, 1]
+    let mut g: Graph = (graphx_graph_new 6)
+    set g (graphx_add_arc g 5 2)
+    set g (graphx_add_arc g 5 0)
+    set g (graphx_add_arc g 4 0)
+    set g (graphx_add_arc g 4 1)
+    set g (graphx_add_arc g 2 3)
+    set g (graphx_add_arc g 3 1)
+
+    let ord: array<int> = (graphx_topo_sort g)
+    assert (== (array_length ord) 6)
+    assert (== (at ord 0) 4)
+    assert (== (at ord 1) 5)
+    assert (== (at ord 2) 2)
+    assert (== (at ord 3) 0)
+    assert (== (at ord 4) 3)
+    assert (== (at ord 5) 1)
+
+    # Graph with cycle: 0->1->2->0  -- order shorter than 3
+    let mut gc: Graph = (graphx_graph_new 3)
+    set gc (graphx_add_arc gc 0 1)
+    set gc (graphx_add_arc gc 1 2)
+    set gc (graphx_add_arc gc 2 0)
+    let ordc: array<int> = (graphx_topo_sort gc)
+    assert (< (array_length ordc) 3)
+
+    # Single-node graph (trivially a DAG)
+    let g1: Graph = (graphx_graph_new 1)
+    let ord1: array<int> = (graphx_topo_sort g1)
+    assert (== (array_length ord1) 1)
+    assert (== (at ord1 0) 0)
+}
+
+# ---------------------------------------------------------------------------
+# graphx_has_cycle: true iff the directed graph has at least one directed cycle.
+#
+# Convenience wrapper around graphx_topo_sort: a complete topological
+# ordering exists iff the graph is acyclic.
+# ---------------------------------------------------------------------------
+pub fn graphx_has_cycle(g: Graph) -> bool {
+    let gn: int = g.n
+    let ord: array<int> = (graphx_topo_sort g)
+    return (< (array_length ord) gn)
+}
+
+shadow graphx_has_cycle {
+    # Acyclic: simple chain 0->1->2
+    let mut g_chain: Graph = (graphx_graph_new 3)
+    set g_chain (graphx_add_arc g_chain 0 1)
+    set g_chain (graphx_add_arc g_chain 1 2)
+    assert (== (graphx_has_cycle g_chain) false)
+
+    # Cyclic: 0->1->2->0
+    let mut g_cycle: Graph = (graphx_graph_new 3)
+    set g_cycle (graphx_add_arc g_cycle 0 1)
+    set g_cycle (graphx_add_arc g_cycle 1 2)
+    set g_cycle (graphx_add_arc g_cycle 2 0)
+    assert (== (graphx_has_cycle g_cycle) true)
+
+    # Self-loop: 0->0
+    let mut g_self: Graph = (graphx_graph_new 2)
+    set g_self (graphx_add_arc g_self 0 0)
+    assert (== (graphx_has_cycle g_self) true)
+
+    # Empty graph (no edges): always acyclic
+    let g_empty: Graph = (graphx_graph_new 4)
+    assert (== (graphx_has_cycle g_empty) false)
+}

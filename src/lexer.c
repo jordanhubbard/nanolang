@@ -1,0 +1,628 @@
+#include "nanolang.h"
+
+/* Forward declaration for mutual recursion with lex_fstring */
+Token *tokenize(const char *source, int *token_count);
+
+/* Helper function to create a token */
+static Token create_token(TokenType type, const char *value, int line, int column) {
+    Token token;
+    token.token_type = type;
+    token.value = value ? strdup(value) : NULL;
+    token.line = line;
+    token.column = column;
+    return token;
+}
+
+/* Check if character is part of an identifier */
+static bool is_identifier_start(char c) {
+    return isalpha(c) || c == '_';
+}
+
+static bool is_identifier_char(char c) {
+    return isalnum(c) || c == '_';
+}
+
+/* Check if string is a keyword and return appropriate token type */
+static TokenType keyword_or_identifier(const char *str) {
+    /* Keywords */
+    if (strcmp(str, "module") == 0) return TOKEN_MODULE;
+    if (strcmp(str, "pub") == 0) return TOKEN_PUB;
+    if (strcmp(str, "gpu") == 0) return TOKEN_GPU;
+    if (strcmp(str, "from") == 0) return TOKEN_FROM;
+    if (strcmp(str, "use") == 0) return TOKEN_USE;
+    if (strcmp(str, "extern") == 0) return TOKEN_EXTERN;
+    if (strcmp(str, "fn") == 0) return TOKEN_FN;
+    if (strcmp(str, "let") == 0) return TOKEN_LET;
+    if (strcmp(str, "mut") == 0) return TOKEN_MUT;
+    if (strcmp(str, "set") == 0) return TOKEN_SET;
+    if (strcmp(str, "if") == 0) return TOKEN_IF;
+    if (strcmp(str, "else") == 0) return TOKEN_ELSE;
+    if (strcmp(str, "cond") == 0) return TOKEN_COND;
+    if (strcmp(str, "while") == 0) return TOKEN_WHILE;
+    if (strcmp(str, "for") == 0) return TOKEN_FOR;
+    if (strcmp(str, "in") == 0) return TOKEN_IN;
+    if (strcmp(str, "return") == 0) return TOKEN_RETURN;
+    if (strcmp(str, "break") == 0) return TOKEN_BREAK;
+    if (strcmp(str, "continue") == 0) return TOKEN_CONTINUE;
+    if (strcmp(str, "assert") == 0) return TOKEN_ASSERT;
+    if (strcmp(str, "shadow") == 0) return TOKEN_SHADOW;
+    if (strcmp(str, "requires") == 0) return TOKEN_REQUIRES;
+    if (strcmp(str, "ensures") == 0) return TOKEN_ENSURES;
+    /* "print" and "println" are builtin functions, not keywords */
+    if (strcmp(str, "array") == 0) return TOKEN_ARRAY;
+    if (strcmp(str, "struct") == 0) return TOKEN_STRUCT;
+    if (strcmp(str, "enum") == 0) return TOKEN_ENUM;
+    if (strcmp(str, "union") == 0) return TOKEN_UNION;
+    if (strcmp(str, "match") == 0) return TOKEN_MATCH;
+    if (strcmp(str, "opaque") == 0) return TOKEN_OPAQUE;
+    if (strcmp(str, "import") == 0) return TOKEN_IMPORT;
+    if (strcmp(str, "unsafe") == 0) return TOKEN_UNSAFE;
+    if (strcmp(str, "resource") == 0) return TOKEN_RESOURCE;
+    if (strcmp(str, "par") == 0) return TOKEN_PAR;
+    if (strcmp(str, "effect") == 0) return TOKEN_EFFECT;
+    if (strcmp(str, "handle") == 0) return TOKEN_HANDLE;
+    if (strcmp(str, "with") == 0) return TOKEN_WITH;
+    if (strcmp(str, "resume") == 0) return TOKEN_RESUME;
+    if (strcmp(str, "async") == 0) return TOKEN_ASYNC;
+    if (strcmp(str, "await") == 0) return TOKEN_AWAIT;
+    if (strcmp(str, "pure") == 0) return TOKEN_PURE;
+
+    if (strcmp(str, "as") == 0) return TOKEN_AS;
+    /* Boolean literals */
+    if (strcmp(str, "true") == 0) return TOKEN_TRUE;
+    if (strcmp(str, "false") == 0) return TOKEN_FALSE;
+
+    /* Types */
+    if (strcmp(str, "int") == 0) return TOKEN_TYPE_INT;
+    if (strcmp(str, "u8") == 0) return TOKEN_TYPE_U8;
+    if (strcmp(str, "byte") == 0) return TOKEN_TYPE_U8;
+    if (strcmp(str, "float") == 0) return TOKEN_TYPE_FLOAT;
+    if (strcmp(str, "bool") == 0) return TOKEN_TYPE_BOOL;
+    if (strcmp(str, "string") == 0) return TOKEN_TYPE_STRING;
+    if (strcmp(str, "void") == 0) return TOKEN_TYPE_VOID;
+    if (strcmp(str, "bstring") == 0) return TOKEN_TYPE_BSTRING;
+
+    /* Operators (when used as identifiers in prefix position) */
+    if (strcmp(str, "and") == 0) return TOKEN_AND;
+    if (strcmp(str, "or") == 0) return TOKEN_OR;
+    if (strcmp(str, "not") == 0) return TOKEN_NOT;
+    /* "range", "print", "println" are builtin functions, not keywords - treat as identifiers */
+
+    return TOKEN_IDENTIFIER;
+}
+
+/* Emit one token into a dynamic token array, growing if needed.
+ * Returns 1 on success, 0 on allocation failure. */
+static int emit_token(Token **tokens, int *count, int *capacity,
+                       TokenType type, const char *value, int line, int column) {
+    if (*count >= *capacity - 1) {
+        *capacity *= 2;
+        *tokens = realloc(*tokens, sizeof(Token) * (*capacity));
+        if (!*tokens) return 0;
+    }
+    (*tokens)[(*count)++] = create_token(type, value, line, column);
+    return 1;
+}
+
+/* Emit tokens for one expression part of an f-string.
+ * Wraps with (to_string ...) for automatic type conversion. */
+static void emit_fstring_expr(Token **tokens, int *count, int *capacity,
+                               const char *text, int line, int column) {
+    emit_token(tokens, count, capacity, TOKEN_LPAREN, NULL, line, column);
+    emit_token(tokens, count, capacity, TOKEN_IDENTIFIER, "to_string", line, column);
+    int sub_count = 0;
+    Token *sub_tokens = tokenize(text, &sub_count);
+    for (int k = 0; k < sub_count - 1; k++) {  /* -1 to skip EOF */
+        emit_token(tokens, count, capacity, sub_tokens[k].token_type,
+                   sub_tokens[k].value, line, column);
+    }
+    free(sub_tokens);
+    emit_token(tokens, count, capacity, TOKEN_RPAREN, NULL, line, column);
+}
+
+/* Process an f-string starting at source[*pos] ('f').
+ * Desugars f"text {expr} text" into nested (str_concat ...) token sequences.
+ * Expression parts are wrapped with (to_string ...) for automatic type conversion.
+ * Modifies *pos to point past the closing quote.
+ * Returns 1 on success, 0 on error. */
+static int lex_fstring(const char *source, int *pos,
+                        Token **tokens, int *count, int *capacity,
+                        int line, int column) {
+    int i = *pos + 2;  /* skip f" */
+
+    /* Collect parts: (start, end, is_expr) triples in parallel arrays */
+    /* Max 64 parts for simplicity; realloc would be needed for more */
+    int max_parts = 64;
+    int *part_starts  = malloc(sizeof(int) * max_parts);
+    int *part_ends    = malloc(sizeof(int) * max_parts);
+    int *part_is_expr = malloc(sizeof(int) * max_parts);
+    int n_parts = 0;
+
+    int part_start = i;
+    int found_end = 0;
+
+    while (source[i] != '\0' && !found_end) {
+        if (source[i] == '"') {
+            /* Closing quote: save trailing static part */
+            if (i > part_start) {
+                part_starts[n_parts]  = part_start;
+                part_ends[n_parts]    = i;
+                part_is_expr[n_parts] = 0;
+                n_parts++;
+            }
+            i++;
+            found_end = 1;
+        } else if (source[i] == '\\' && source[i+1] != '\0') {
+            /* Escaped character in static part */
+            i += 2;
+        } else if (source[i] == '{') {
+            /* Save preceding static part */
+            if (i > part_start) {
+                part_starts[n_parts]  = part_start;
+                part_ends[n_parts]    = i;
+                part_is_expr[n_parts] = 0;
+                n_parts++;
+            }
+            /* Scan to matching }, tracking brace depth */
+            int expr_start = i + 1;
+            int depth = 1;
+            i++;
+            while (source[i] != '\0' && depth > 0) {
+                if (source[i] == '{') depth++;
+                else if (source[i] == '}') depth--;
+                i++;
+            }
+            if (depth == 0) {
+                /* Expression text: source[expr_start .. i-2] */
+                part_starts[n_parts]  = expr_start;
+                part_ends[n_parts]    = i - 1;  /* exclude the closing } */
+                part_is_expr[n_parts] = 1;
+                n_parts++;
+                part_start = i;
+            } else {
+                fprintf(stderr, "Error at line %d: Unclosed '{' in f-string\n", line);
+                free(part_starts); free(part_ends); free(part_is_expr);
+                return 0;
+            }
+        } else {
+            i++;
+        }
+    }
+
+    if (!found_end) {
+        fprintf(stderr, "Error at line %d: Unterminated f-string\n", line);
+        free(part_starts); free(part_ends); free(part_is_expr);
+        return 0;
+    }
+
+    /* Emit tokens for the collected parts */
+    if (n_parts == 0) {
+        /* Empty f-string */
+        emit_token(tokens, count, capacity, TOKEN_STRING, "", line, column);
+    } else if (n_parts == 1) {
+        /* Single part */
+        int len = part_ends[0] - part_starts[0];
+        char *text = malloc(len + 1);
+        strncpy(text, source + part_starts[0], len);
+        text[len] = '\0';
+        if (part_is_expr[0]) {
+            emit_fstring_expr(tokens, count, capacity, text, line, column);
+        } else {
+            emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
+        }
+        free(text);
+    } else {
+        /* Multiple parts: emit nested right-associated str_concat calls.
+         * Pattern for [p0, p1, ..., p_{n-1}]:
+         *   for k in 0..n-2: LPAREN IDENT("str_concat") emit(pk)
+         *   emit(p_{n-1})
+         *   for k in 0..n-2: RPAREN
+         */
+        for (int k = 0; k < n_parts - 1; k++) {
+            emit_token(tokens, count, capacity, TOKEN_LPAREN, NULL, line, column);
+            emit_token(tokens, count, capacity, TOKEN_IDENTIFIER, "str_concat", line, column);
+            int len = part_ends[k] - part_starts[k];
+            char *text = malloc(len + 1);
+            strncpy(text, source + part_starts[k], len);
+            text[len] = '\0';
+            if (part_is_expr[k]) {
+                emit_fstring_expr(tokens, count, capacity, text, line, column);
+            } else {
+                emit_token(tokens, count, capacity, TOKEN_STRING, text, line, column);
+            }
+            free(text);
+        }
+        /* Last part */
+        int last_len = part_ends[n_parts-1] - part_starts[n_parts-1];
+        char *last_text = malloc(last_len + 1);
+        strncpy(last_text, source + part_starts[n_parts-1], last_len);
+        last_text[last_len] = '\0';
+        if (part_is_expr[n_parts-1]) {
+            emit_fstring_expr(tokens, count, capacity, last_text, line, column);
+        } else {
+            emit_token(tokens, count, capacity, TOKEN_STRING, last_text, line, column);
+        }
+        free(last_text);
+        /* Close all str_concat calls */
+        for (int k = 0; k < n_parts - 1; k++) {
+            emit_token(tokens, count, capacity, TOKEN_RPAREN, NULL, line, column);
+        }
+    }
+
+    free(part_starts); free(part_ends); free(part_is_expr);
+    *pos = i;
+    return 1;
+}
+
+/* Tokenize the source code */
+Token *tokenize(const char *source, int *token_count) {
+    int capacity = 64;
+    int count = 0;
+    Token *tokens = malloc(sizeof(Token) * capacity);
+    int line = 1;
+    int column = 1;
+    int line_start = 0;  /* Track start of current line for column calculation */
+    int i = 0;
+
+    while (source[i] != '\0') {
+        /* Skip whitespace */
+        if (isspace(source[i])) {
+            if (source[i] == '\n') {
+                line++;
+                line_start = i + 1;
+                column = 1;
+            }
+            i++;
+            continue;
+        }
+
+        /* Skip comments (# to end of line) */
+        if (source[i] == '#') {
+            while (source[i] != '\0' && source[i] != '\n') i++;
+            continue;
+        }
+
+        /* Skip // line comments (includes /// doc comments — content is
+         * extracted from raw source by the doc generator, not the lexer) */
+        if (source[i] == '/' && source[i+1] == '/') {
+            while (source[i] != '\0' && source[i] != '\n') i++;
+            continue;
+        }
+
+        /* Skip C-style comments (slash-star ... star-slash) */
+        if (source[i] == '/' && source[i+1] == '*') {
+            i += 2;  /* Skip opening delimiter */
+            while (source[i] != '\0') {
+                if (source[i] == '*' && source[i+1] == '/') {
+                    i += 2;  /* Skip closing delimiter */
+                    break;
+                }
+                if (source[i] == '\n') {
+                    line++;
+                    line_start = i + 1;
+                }
+                i++;
+            }
+            continue;
+        }
+
+        /* Update column for this token */
+        column = i - line_start + 1;
+
+        /* Resize if needed */
+        if (count >= capacity - 1) {
+            capacity *= 2;
+            tokens = realloc(tokens, sizeof(Token) * capacity);
+        }
+
+        /* Character literals: 'x' or '\n' */
+        if (source[i] == '\'') {
+            i++; /* Skip opening quote */
+            if (source[i] == '\0') {
+                fprintf(stderr, "Error: Unterminated character literal at line %d\n", line);
+                free(tokens);
+                return NULL;
+            }
+            
+            int char_value;
+            if (source[i] == '\\') {
+                /* Escape sequence */
+                i++;
+                if (source[i] == '\0') {
+                    fprintf(stderr, "Error: Incomplete escape sequence at line %d\n", line);
+                    free(tokens);
+                    return NULL;
+                }
+                switch (source[i]) {
+                    case 'n': char_value = '\n'; break;
+                    case 't': char_value = '\t'; break;
+                    case 'r': char_value = '\r'; break;
+                    case '0': char_value = '\0'; break;
+                    case '\\': char_value = '\\'; break;
+                    case '\'': char_value = '\''; break;
+                    case '"': char_value = '"'; break;
+                    default:
+                        fprintf(stderr, "Error: Unknown escape sequence '\\%c' at line %d\n", source[i], line);
+                        char_value = source[i]; /* Use character as-is */
+                        break;
+                }
+                i++;
+            } else {
+                /* Regular character */
+                char_value = (unsigned char)source[i];
+                i++;
+            }
+            
+            if (source[i] != '\'') {
+                fprintf(stderr, "Error: Unterminated character literal at line %d (expected ')\n", line);
+                free(tokens);
+                return NULL;
+            }
+            i++; /* Skip closing quote */
+            
+            /* Create token with ASCII value as integer */
+            char value_str[16];
+            snprintf(value_str, sizeof(value_str), "%d", char_value);
+            tokens[count++] = create_token(TOKEN_NUMBER, value_str, line, column);
+            continue;
+        }
+
+        /* F-string interpolation: f"text {expr} text" */
+        if (source[i] == 'f' && source[i+1] == '"') {
+            if (!lex_fstring(source, &i, &tokens, &count, &capacity, line, column)) {
+                free(tokens);
+                return NULL;
+            }
+            continue;
+        }
+
+        /* String literals */
+        if (source[i] == '"') {
+            i++; /* Skip opening quote */
+            int start = i;
+            while (source[i] != '\0' && source[i] != '"') {
+                if (source[i] == '\\' && source[i + 1] != '\0') {
+                    i += 2; /* Skip escape sequences */
+                } else {
+                    i++;
+                }
+            }
+            if (source[i] != '"') {
+                fprintf(stderr, "Error: Unterminated string at line %d\n", line);
+                free(tokens);
+                return NULL;
+            }
+            int len = i - start;
+            char *str = malloc(len + 1);
+            strncpy(str, source + start, len);
+            str[len] = '\0';
+            tokens[count++] = create_token(TOKEN_STRING, str, line, column);
+            free(str);
+            i++; /* Skip closing quote */
+            continue;
+        }
+
+        /* Numbers (integers and floats) */
+        if (isdigit(source[i]) || (source[i] == '-' && isdigit(source[i + 1]))) {
+            int start = i;
+            if (source[i] == '-') i++;
+            while (isdigit(source[i])) i++;
+
+            /* Check for float */
+            if (source[i] == '.' && isdigit(source[i + 1])) {
+                i++;
+                while (isdigit(source[i])) i++;
+                int len = i - start;
+                char *num_str = malloc(len + 1);
+                strncpy(num_str, source + start, len);
+                num_str[len] = '\0';
+                tokens[count++] = create_token(TOKEN_FLOAT, num_str, line, column);
+                free(num_str);
+            } else {
+                int len = i - start;
+                char *num_str = malloc(len + 1);
+                strncpy(num_str, source + start, len);
+                num_str[len] = '\0';
+                tokens[count++] = create_token(TOKEN_NUMBER, num_str, line, column);
+                free(num_str);
+            }
+            continue;
+        }
+
+        /* Identifiers and keywords */
+        if (is_identifier_start(source[i])) {
+            int start = i;
+            while (is_identifier_char(source[i])) i++;
+            int len = i - start;
+            char *id_str = malloc(len + 1);
+            strncpy(id_str, source + start, len);
+            id_str[len] = '\0';
+
+            TokenType type = keyword_or_identifier(id_str);
+            tokens[count++] = create_token(type, id_str, line, column);
+            free(id_str);
+            continue;
+        }
+
+        /* Two-character operators */
+        if (source[i] == ':' && source[i + 1] == ':') {
+            tokens[count++] = create_token(TOKEN_DOUBLE_COLON, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '-' && source[i + 1] == '>') {
+            tokens[count++] = create_token(TOKEN_ARROW, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '=' && source[i + 1] == '>') {
+            tokens[count++] = create_token(TOKEN_ARROW, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '=' && source[i + 1] == '=') {
+            tokens[count++] = create_token(TOKEN_EQ, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '=' && source[i + 1] != '=' && source[i + 1] != '>') {
+            tokens[count++] = create_token(TOKEN_ASSIGN, NULL, line, column);
+            i++;
+            continue;
+        }
+        if (source[i] == '!' && source[i + 1] == '=') {
+            tokens[count++] = create_token(TOKEN_NE, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        /* Standalone ! as logical-not / effect-row separator */
+        if (source[i] == '!' && source[i + 1] != '=') {
+            tokens[count++] = create_token(TOKEN_NOT, "!", line, column);
+            i++;
+            continue;
+        }
+        if (source[i] == '<' && source[i + 1] == '=') {
+            tokens[count++] = create_token(TOKEN_LE, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '>' && source[i + 1] == '=') {
+            tokens[count++] = create_token(TOKEN_GE, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '|' && source[i + 1] == '>') {
+            tokens[count++] = create_token(TOKEN_PIPE, NULL, line, column);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '|') {
+            tokens[count++] = create_token(TOKEN_BAR, NULL, line, column);
+            i++;
+            continue;
+        }
+
+        /* Single-character tokens */
+        switch (source[i]) {
+            case '(': tokens[count++] = create_token(TOKEN_LPAREN, NULL, line, column); i++; break;
+            case ')': tokens[count++] = create_token(TOKEN_RPAREN, NULL, line, column); i++; break;
+            case '{': tokens[count++] = create_token(TOKEN_LBRACE, NULL, line, column); i++; break;
+            case '}': tokens[count++] = create_token(TOKEN_RBRACE, NULL, line, column); i++; break;
+            case '[': tokens[count++] = create_token(TOKEN_LBRACKET, NULL, line, column); i++; break;
+            case ']': tokens[count++] = create_token(TOKEN_RBRACKET, NULL, line, column); i++; break;
+            case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line, column); i++; break;
+            case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line, column); i++; break;
+            case '.': tokens[count++] = create_token(TOKEN_DOT, NULL, line, column); i++; break;
+            case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line, column); i++; break;
+            case '-': tokens[count++] = create_token(TOKEN_MINUS, NULL, line, column); i++; break;
+            case '*': tokens[count++] = create_token(TOKEN_STAR, NULL, line, column); i++; break;
+            case '/': tokens[count++] = create_token(TOKEN_SLASH, NULL, line, column); i++; break;
+            case '%': tokens[count++] = create_token(TOKEN_PERCENT, NULL, line, column); i++; break;
+            case '<': tokens[count++] = create_token(TOKEN_LT, NULL, line, column); i++; break;
+            case '>': tokens[count++] = create_token(TOKEN_GT, NULL, line, column); i++; break;
+            case '?': tokens[count++] = create_token(TOKEN_QUESTION, NULL, line, column); i++; break;
+            default:
+                fprintf(stderr, "Error: Unknown character '%c' at line %d\n", source[i], line);
+                i++;
+                break;
+        }
+    }
+
+    tokens[count++] = create_token(TOKEN_EOF, NULL, line, column);
+    *token_count = count;
+    return tokens;
+}
+
+/* Free token array */
+void free_tokens(Token *tokens, int count) {
+    for (int i = 0; i < count; i++) {
+        free((void*)tokens[i].value);
+    }
+    free(tokens);
+}
+
+/* Get token type name for debugging */
+const char *token_type_name(TokenType type) {
+    switch (type) {
+        case TOKEN_EOF: return "EOF";
+        case TOKEN_NUMBER: return "NUMBER";
+        case TOKEN_FLOAT: return "FLOAT";
+        case TOKEN_STRING: return "STRING";
+        case TOKEN_IDENTIFIER: return "IDENTIFIER";
+        case TOKEN_TRUE: return "TRUE";
+        case TOKEN_FALSE: return "FALSE";
+        case TOKEN_LPAREN: return "LPAREN";
+        case TOKEN_RPAREN: return "RPAREN";
+        case TOKEN_LBRACE: return "LBRACE";
+        case TOKEN_RBRACE: return "RBRACE";
+        case TOKEN_LBRACKET: return "LBRACKET";
+        case TOKEN_RBRACKET: return "RBRACKET";
+        case TOKEN_COMMA: return "COMMA";
+        case TOKEN_COLON: return "COLON";
+        case TOKEN_DOUBLE_COLON: return "DOUBLE_COLON";
+        case TOKEN_ARROW: return "ARROW";
+        case TOKEN_ASSIGN: return "ASSIGN";
+        case TOKEN_DOT: return "DOT";
+        case TOKEN_MODULE: return "MODULE";
+        case TOKEN_PUB: return "PUB";
+        case TOKEN_GPU: return "GPU";
+        case TOKEN_FROM: return "FROM";
+        case TOKEN_USE: return "USE";
+        case TOKEN_FN: return "FN";
+        case TOKEN_LET: return "LET";
+        case TOKEN_MUT: return "MUT";
+        case TOKEN_SET: return "SET";
+        case TOKEN_IF: return "IF";
+        case TOKEN_ELSE: return "ELSE";
+        case TOKEN_COND: return "COND";
+        case TOKEN_WHILE: return "WHILE";
+        case TOKEN_FOR: return "FOR";
+        case TOKEN_IN: return "IN";
+        case TOKEN_RETURN: return "RETURN";
+        case TOKEN_ASSERT: return "ASSERT";
+        case TOKEN_SHADOW: return "SHADOW";
+        /* TOKEN_PRINT removed */
+        case TOKEN_EXTERN: return "EXTERN";
+        case TOKEN_ARRAY: return "ARRAY";
+        case TOKEN_STRUCT: return "STRUCT";
+        case TOKEN_ENUM: return "ENUM";
+        case TOKEN_UNION: return "UNION";
+        case TOKEN_MATCH: return "MATCH";
+        case TOKEN_OPAQUE: return "OPAQUE";
+        case TOKEN_TYPE_INT: return "TYPE_INT";
+        case TOKEN_TYPE_U8: return "TYPE_U8";
+        case TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";
+        case TOKEN_TYPE_BOOL: return "TYPE_BOOL";
+        case TOKEN_TYPE_STRING: return "TYPE_STRING";
+        case TOKEN_TYPE_VOID: return "TYPE_VOID";
+        case TOKEN_PLUS: return "PLUS";
+        case TOKEN_MINUS: return "MINUS";
+        case TOKEN_STAR: return "STAR";
+        case TOKEN_SLASH: return "SLASH";
+        case TOKEN_PERCENT: return "PERCENT";
+        case TOKEN_EQ: return "EQ";
+        case TOKEN_NE: return "NE";
+        case TOKEN_LT: return "LT";
+        case TOKEN_LE: return "LE";
+        case TOKEN_GT: return "GT";
+        case TOKEN_GE: return "GE";
+        case TOKEN_AND: return "AND";
+        case TOKEN_OR: return "OR";
+        case TOKEN_NOT: return "NOT";
+        /* TOKEN_RANGE removed */
+        case TOKEN_UNSAFE: return "UNSAFE";
+        case TOKEN_RESOURCE: return "RESOURCE";
+        case TOKEN_PIPE: return "PIPE";
+        case TOKEN_BAR: return "BAR";
+        case TOKEN_QUESTION: return "QUESTION";
+        case TOKEN_PAR: return "PAR";
+        case TOKEN_EFFECT: return "EFFECT";
+        case TOKEN_HANDLE: return "HANDLE";
+        case TOKEN_WITH: return "WITH";
+        case TOKEN_RESUME: return "RESUME";
+        case TOKEN_ASYNC: return "ASYNC";
+        case TOKEN_AWAIT: return "AWAIT";
+        case TOKEN_PURE: return "PURE";
+        default: return "UNKNOWN";
+    }
+}

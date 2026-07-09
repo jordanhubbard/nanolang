@@ -1,0 +1,83 @@
+# Example: Array Inference
+# Purpose: Show array element type inference from literals
+# Features: arrays, type inference, loops, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_array_complete
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: arrays, shadow-tested
+# Expected Output: array inference
+
+/* Array Type Inference Example
+   Arrays can now be declared without explicit element type annotation.
+   The compiler infers the element type from the literal contents.
+*/
+
+# @pure
+fn sum(arr: array<int>) -> int {
+    let mut s: int = 0
+    let mut i: int = 0
+    while (< i (array_length arr)) {
+        set s (+ s (at arr i))
+        set i (+ i 1)
+    }
+    return s
+}
+
+shadow sum {
+    let empty: array<int> = []
+    assert (== (sum empty) 0)
+
+    let nums = [1, 2, 3, 4, 5]
+    assert (== (sum nums) 15)
+
+    let negatives = [-1, -2, -3]
+    assert (== (sum negatives) -6)
+}
+
+fn join(words: array<string>, sep: string) -> string {
+    let n: int = (array_length words)
+    if (== n 0) { return "" } else { (print "") }
+    let mut result: string = (at words 0)
+    let mut i: int = 1
+    while (< i n) {
+        set result (str_concat (str_concat result sep) (at words i))
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow join {
+    let empty: array<string> = []
+    assert (== (join empty ",") "")
+
+    let single = ["hello"]
+    assert (== (join single ",") "hello")
+
+    let words = ["nano", "lang", "rocks"]
+    assert (== (join words "-") "nano-lang-rocks")
+}
+
+fn main() -> int {
+    /* Type inferred as array<int> */
+    let nums = [10, 20, 30, 40]
+    let s1: int = (sum nums)
+    (println (+ "Sum: " (int_to_string s1)))
+
+    /* Type inferred as array<string> */
+    let words = ["nano", "lang", "rocks"]
+    (println (join words "-"))
+
+    /* Mixed usage */
+    let primes = [2, 3, 5, 7, 11]
+    let s2: int = (sum primes)
+    (println (+ "Primes sum: " (int_to_string s2)))
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,0 +1,129 @@
+/* =============================================================================
+ * std::collections::Set (string)
+ * =============================================================================
+ */
+
+module std_collections_set
+
+opaque type NLStringSet
+
+extern fn nl_set_new() -> NLStringSet
+extern fn nl_set_add(_s: NLStringSet, _key: string) -> void
+extern fn nl_set_has(_s: NLStringSet, _key: string) -> bool
+extern fn nl_set_size(_s: NLStringSet) -> int
+extern fn nl_set_values(_s: NLStringSet) -> array<string>
+extern fn nl_set_remove(_s: NLStringSet, _key: string) -> void
+extern fn nl_set_clear(_s: NLStringSet) -> void
+extern fn nl_set_free(_s: NLStringSet) -> void
+
+pub struct Set {
+    raw: NLStringSet
+}
+
+pub fn set_new() -> Set {
+    unsafe {
+        return Set { raw: (nl_set_new) }
+    }
+}
+
+pub fn set_add(s: Set, key: string) -> Set {
+    unsafe {
+        (nl_set_add s.raw key)
+    }
+    return s
+}
+
+pub fn set_has(s: Set, key: string) -> bool {
+    unsafe {
+        return (nl_set_has s.raw key)
+    }
+}
+
+pub fn set_size(s: Set) -> int {
+    unsafe {
+        return (nl_set_size s.raw)
+    }
+}
+
+pub fn set_values(s: Set) -> array<string> {
+    unsafe {
+        return (nl_set_values s.raw)
+    }
+}
+
+pub fn set_remove(s: Set, key: string) -> Set {
+    unsafe {
+        (nl_set_remove s.raw key)
+    }
+    return s
+}
+
+pub fn set_clear(s: Set) -> Set {
+    unsafe {
+        (nl_set_clear s.raw)
+    }
+    return s
+}
+
+pub fn set_free(s: Set) -> void {
+    unsafe {
+        (nl_set_free s.raw)
+    }
+}
+
+shadow set_new {
+    let s: Set = (set_new)
+    assert (== (set_size s) 0)
+}
+
+shadow set_add {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "x")
+    assert (set_has s1 "x")
+    assert (== (set_size s1) 1)
+}
+
+shadow set_has {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    assert (set_has s1 "a")
+    assert (set_has s0 "a")
+}
+
+shadow set_size {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let s2: Set = (set_add s1 "b")
+    assert (== (set_size s0) 2)
+    assert (== (set_size s2) 2)
+}
+
+shadow set_values {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let vals: array<string> = (set_values s1)
+    assert (== (array_length vals) 1)
+}
+
+shadow set_remove {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "x")
+    assert (set_has s1 "x")
+    let s2: Set = (set_remove s1 "x")
+    assert (not (set_has s2 "x"))
+}
+
+shadow set_clear {
+    let s0: Set = (set_new)
+    let s1: Set = (set_add s0 "a")
+    let s2: Set = (set_add s1 "b")
+    let s3: Set = (set_remove s2 "a")
+    let s4: Set = (set_clear s3)
+    assert (== (set_size s4) 0)
+}
+
+shadow set_free {
+    let s: Set = (set_new)
+    (set_free s)
+    assert true
+}

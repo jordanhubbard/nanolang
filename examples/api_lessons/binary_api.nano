@@ -1,0 +1,86 @@
+# Example: Binary API Lesson
+# Purpose: I show binary encode and decode helpers with Result-returning reads
+# Features: binary encoding, binary decoding, Result<T,E>, arrays
+# Difficulty: Intermediate
+# Category: api_lessons
+# Prerequisites: result_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/binary, modules/std/result
+# Tags: api-lesson, binary, shadow-tested
+# Expected Output: binary value: 1234
+
+from "modules/std/binary.nano" import encode_int, decode_int, encode_string, decode_string, encode_bool, decode_bool, encode_int_array, decode_int_array
+from "modules/std/result.nano" import Result
+
+fn round_trip_int(value: int) -> int {
+    let bytes: array<u8> = (encode_int value)
+    let decoded: Result<int, string> = (decode_int bytes)
+    match decoded {
+        Ok(v) => { return v.value }
+        Err(e) => { return -1 }
+    }
+}
+
+shadow round_trip_int {
+    assert (== (round_trip_int 1234) 1234)
+    assert (== (round_trip_int -9) -9)
+}
+
+fn round_trip_string(value: string) -> string {
+    let bytes: array<u8> = (encode_string value)
+    let decoded: Result<string, string> = (decode_string bytes)
+    match decoded {
+        Ok(v) => { return v.value }
+        Err(e) => { return e.error }
+    }
+}
+
+shadow round_trip_string {
+    assert (== (round_trip_string "nano") "nano")
+}
+
+fn round_trip_bool(value: bool) -> bool {
+    let bytes: array<u8> = (encode_bool value)
+    let decoded: Result<bool, string> = (decode_bool bytes)
+    match decoded {
+        Ok(v) => { return v.value }
+        Err(e) => { return false }
+    }
+}
+
+shadow round_trip_bool {
+    assert (round_trip_bool true)
+    assert (not (round_trip_bool false))
+}
+
+fn array_sum_after_round_trip(values: array<int>) -> int {
+    let bytes: array<u8> = (encode_int_array values)
+    let decoded: Result<array<int>, string> = (decode_int_array bytes)
+    match decoded {
+        Ok(v) => {
+            let arr: array<int> = v.value
+            let mut total: int = 0
+            let mut i: int = 0
+            while (< i (array_length arr)) {
+                set total (+ total (at arr i))
+                set i (+ i 1)
+            }
+            return total
+        }
+        Err(e) => { return -1 }
+    }
+}
+
+shadow array_sum_after_round_trip {
+    assert (== (array_sum_after_round_trip [1, 2, 3]) 6)
+}
+
+fn main() -> int {
+    (println (+ "binary value: " (int_to_string (round_trip_int 1234))))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

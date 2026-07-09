@@ -1,0 +1,11 @@
+{
+    "name": "ncurses",
+    "version": "1.0.0",
+    "description": "NCurses terminal UI library bindings for interactive text interfaces",
+    "headers": ["ncurses_helpers.h"],
+    "cflags": ["-Imodules/ncurses"],
+    "c_sources": ["ncurses_helpers.c"],
+    "ldflags": ["-lncurses"],
+    "system_packages": ["ncurses"],
+    "dependencies": []
+}

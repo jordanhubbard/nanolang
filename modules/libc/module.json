@@ -1,0 +1,29 @@
+{
+  "name": "libc",
+  "version": "1.0.0",
+  "description": "Standard C library (stdio, stdlib, string, etc.)",
+  "safety": "unsafe",
+  "has_ffi": true,
+  
+  "c_sources": ["libc_impl.c"],
+  "headers": [],
+  "pkg_config": [],
+  
+  "exports": {
+    "functions": [
+      "printf",
+      "malloc",
+      "free",
+      "strlen",
+      "strcmp",
+      "memcpy",
+      "exit"
+    ]
+  },
+  
+  "notes": [
+    "This module provides direct access to C standard library functions.",
+    "All functions are unsafe and require careful use.",
+    "Use NanoLang's built-in functions when possible."
+  ]
+}

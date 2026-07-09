@@ -1,0 +1,1 @@
+{"schema":"mac.worker_evidence.v1","status":"complete","evidence_type":"repo_change","repo":{"head_sha":"fe748591506ec592fecf248681d07bb974ea3b8a","remote_ref":"origin/main","pushed":true,"dirty":false,"files_changed":[],"tests":{"command":"make test-quick","returncode":0,"status":"pass","result":"passed"}}}

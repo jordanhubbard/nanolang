@@ -1,0 +1,174 @@
+# Example: Result Propagation
+# Purpose: Demonstrate Result values and explicit short-circuit error propagation
+# Features: union types, match, early return, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_union_types, nl_types_union_construct
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: result, error-handling, shadow-tested
+# Expected Output: PASS
+
+union Result {
+    Ok { val: int },
+    Err { msg: string }
+}
+
+/* Safe integer division — returns Err on divide-by-zero */
+# @pure
+fn safe_div(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Err { msg: "divide by zero" }
+    } else {
+        return Result.Ok { val: (/ a b) }
+    }
+}
+shadow safe_div {
+    let r1: Result = (safe_div 10 2)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    let r2: Result = (safe_div 7 0)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "divide by zero") }
+    }
+}
+
+/* Safe square root — returns Err on negative input */
+# @pure
+fn safe_sqrt_int(n: int) -> Result {
+    if (< n 0) {
+        return Result.Err { msg: "sqrt of negative number" }
+    } else {
+        /* Integer approximation */
+        let mut i: int = 0
+        while (<= (* i i) n) {
+            set i (+ i 1)
+        }
+        return Result.Ok { val: (- i 1) }
+    }
+}
+shadow safe_sqrt_int {
+    let r1: Result = (safe_sqrt_int 25)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    let r2: Result = (safe_sqrt_int -1)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "sqrt of negative number") }
+    }
+}
+
+/* Chain: compute sqrt(a / b) and propagate the first Err */
+# @pure
+fn sqrt_of_ratio(a: int, b: int) -> Result {
+    if (== b 0) {
+        return Result.Err { msg: "divide by zero" }
+    } else {
+        (print "")
+    }
+
+    let div_r: Result = (safe_div a b)
+    let mut quotient: int = 0
+    match div_r {
+        Ok(ok) => { set quotient ok.val }
+        Err(err) => { assert false }
+    }
+
+    if (< quotient 0) {
+        return Result.Err { msg: "sqrt of negative number" }
+    } else {
+        (print "")
+    }
+
+    let sqrt_r: Result = (safe_sqrt_int quotient)
+    let mut root: int = 0
+    match sqrt_r {
+        Ok(ok) => { set root ok.val }
+        Err(err) => { assert false }
+    }
+
+    return Result.Ok { val: root }
+}
+shadow sqrt_of_ratio {
+    /* Happy path */
+    let r1: Result = (sqrt_of_ratio 100 4)
+    match r1 {
+        Ok(ok) => { assert (== ok.val 5) }
+        Err(err) => { assert false }
+    }
+    /* Divide by zero propagates */
+    let r2: Result = (sqrt_of_ratio 100 0)
+    match r2 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "divide by zero") }
+    }
+    /* Negative sqrt propagates */
+    let r3: Result = (sqrt_of_ratio -9 1)
+    match r3 {
+        Ok(ok) => { assert false }
+        Err(err) => { assert (== err.msg "sqrt of negative number") }
+    }
+}
+
+fn main() -> int {
+    /* Happy path: sqrt(100 / 4) = sqrt(25) = 5 */
+    let r1: Result = (sqrt_of_ratio 100 4)
+    match r1 {
+        Ok(ok) => {
+            (print "sqrt(100/4) = ")
+            (println (int_to_string ok.val))
+            if (!= ok.val 5) {
+                (println "FAIL: expected 5")
+                return 1
+            } else { (print "") }
+        }
+        Err(err) => {
+            (print "FAIL: unexpected error: ")
+            (println err.msg)
+            return 1
+        }
+    }
+
+    /* Error path: divide by zero */
+    let r2: Result = (sqrt_of_ratio 100 0)
+    match r2 {
+        Ok(ok) => {
+            (println "FAIL: expected Err but got Ok")
+            return 1
+        }
+        Err(err) => {
+            (print "caught expected error: ")
+            (println err.msg)
+            if (!= err.msg "divide by zero") {
+                (println "FAIL: wrong error message")
+                return 1
+            } else { (print "") }
+        }
+    }
+
+    /* Error path: sqrt of negative */
+    let r3: Result = (sqrt_of_ratio -9 1)
+    match r3 {
+        Ok(ok) => {
+            (println "FAIL: expected Err for negative sqrt")
+            return 1
+        }
+        Err(err) => {
+            (print "caught expected error: ")
+            (println err.msg)
+        }
+    }
+
+    (println "PASS")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

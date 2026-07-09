@@ -1,0 +1,47 @@
+// tco_test.nano — tail-call optimization test
+// Tests that factorial with an accumulator can handle n=1_000_000 without
+// stack overflow (requires --tco flag or TCO enabled by default).
+
+fn factorial_tail(n: int, acc: int) -> int {
+    if n == 0 {
+        acc
+    } else {
+        factorial_tail(n - 1, acc * n)
+    }
+}
+
+fn factorial(n: int) -> int {
+    factorial_tail(n, 1)
+}
+
+fn fibonacci_tail(n: int, a: int, b: int) -> int {
+    if n == 0 {
+        a
+    } else {
+        fibonacci_tail(n - 1, b, a + b)
+    }
+}
+
+fn fibonacci(n: int) -> int {
+    fibonacci_tail(n, 0, 1)
+}
+
+fn main() -> int {
+    // Smoke test: small values
+    let f5 = factorial(5)
+    let f10 = factorial(10)
+    println(f5)   // 120
+    println(f10)  // 3628800
+
+    // Fibonacci smoke test
+    let fib20 = fibonacci(20)
+    println(fib20)  // 6765
+
+    // Deep recursion: would stack-overflow without TCO
+    // We call factorial_tail(1000000, 1) — this is 1M frames without TCO.
+    // Result overflows int64 but that's fine; we just need it not to crash.
+    let big = factorial_tail(1000000, 1)
+    println(big)
+
+    0
+}

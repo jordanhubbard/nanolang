@@ -1,0 +1,24 @@
+# Test: Redefining built-in function min (should fail with error)
+# Expected error: Cannot redefine built-in function 'min'
+
+fn min(a: int, b: int) -> int {
+    if (< a b) {
+        return a
+    } else {
+        return b
+    }
+}
+
+shadow min {
+    assert (== (min 5 10) 5)
+    assert (== (min 10 5) 5)
+}
+
+fn main() -> int {
+    return (min 3 7)
+}
+
+shadow main {
+    assert (== (main) 3)
+}
+

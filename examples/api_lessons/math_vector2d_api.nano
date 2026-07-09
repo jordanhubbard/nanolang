@@ -1,0 +1,84 @@
+# Example: std::math::Vector2D API Lesson
+# Purpose: I show the std::math 2D vector API with pure functions and reflection
+# Features: Vector2D, vec_new, vec_add, vec_sub, vec_scale, vec_dot, vec_length, vec_normalize, vec_reflect, vec_lerp, shadow tests
+# Difficulty: Beginner
+# Category: api_lessons
+# Prerequisites: vector2d_api
+# Track: modules
+# Build: local
+# Dependencies: modules/std/math/vector2d
+# Tags: api-lesson, math, vector2d, shadow-tested
+# Expected Output: reflected y: 5.0
+
+from "modules/std/math/vector2d.nano" import Vector2D, vec_new, vec_add, vec_sub, vec_scale, vec_dot, vec_length, vec_normalize, vec_reflect, vec_lerp
+
+fn add_then_scale() -> Vector2D {
+    let a: Vector2D = (vec_new 1.0 2.0)
+    let b: Vector2D = (vec_new 3.0 4.0)
+    let sum: Vector2D = (vec_add a b)
+    return (vec_scale sum 2.0)
+}
+
+shadow add_then_scale {
+    let r: Vector2D = (add_then_scale)
+    assert (== r.x 8.0)
+    assert (== r.y 12.0)
+}
+
+fn sub_length() -> float {
+    let a: Vector2D = (vec_new 7.0 1.0)
+    let b: Vector2D = (vec_new 4.0 1.0)
+    let d: Vector2D = (vec_sub a b)
+    return (vec_length d)
+}
+
+shadow sub_length {
+    let len: float = (sub_length)
+    assert (and (> len 2.999) (< len 3.001))
+}
+
+fn unit_dot_self() -> float {
+    let v: Vector2D = (vec_new 6.0 8.0)
+    let u: Vector2D = (vec_normalize v)
+    return (vec_dot u u)
+}
+
+shadow unit_dot_self {
+    let d: float = (unit_dot_self)
+    assert (and (> d 0.999) (< d 1.001))
+}
+
+fn bounce_off_floor() -> Vector2D {
+    # Velocity heading down-right; floor normal points up.
+    let v: Vector2D = (vec_new 3.0 -5.0)
+    let n: Vector2D = (vec_new 0.0 1.0)
+    return (vec_reflect v n)
+}
+
+shadow bounce_off_floor {
+    let r: Vector2D = (bounce_off_floor)
+    assert (== r.x 3.0)
+    assert (== r.y 5.0)
+}
+
+fn lerp_midpoint() -> Vector2D {
+    let a: Vector2D = (vec_new 0.0 0.0)
+    let b: Vector2D = (vec_new 4.0 2.0)
+    return (vec_lerp a b 0.5)
+}
+
+shadow lerp_midpoint {
+    let m: Vector2D = (lerp_midpoint)
+    assert (== m.x 2.0)
+    assert (== m.y 1.0)
+}
+
+fn main() -> int {
+    let bounced: Vector2D = (bounce_off_floor)
+    (println (+ "reflected y: " (float_to_string bounced.y)))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

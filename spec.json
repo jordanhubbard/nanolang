@@ -1,0 +1,856 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "0.3.0",
+  "language": "nanolang",
+  "description": "nanolang language specification - A minimal, statically-typed, LLM-friendly, self-hosted language with mandatory shadow-tests",
+  
+  "types": {
+    "primitives": [
+      {
+        "name": "int",
+        "c_type": "int64_t",
+        "size": 8,
+        "signed": true,
+        "description": "64-bit signed integer"
+      },
+      {
+        "name": "float",
+        "c_type": "double",
+        "size": 8,
+        "signed": true,
+        "description": "64-bit floating point (IEEE 754)"
+      },
+      {
+        "name": "bool",
+        "c_type": "bool",
+        "size": 1,
+        "signed": false,
+        "description": "Boolean value (true or false)"
+      },
+      {
+        "name": "string",
+        "c_type": "char*",
+        "size": 8,
+        "description": "UTF-8 text (heap-allocated, null-terminated)"
+      },
+      {
+        "name": "bstring",
+        "c_type": "nl_string_t*",
+        "size": 8,
+        "description": "Binary string (length-explicit, UTF-8 aware, supports embedded nulls)"
+      },
+      {
+        "name": "void",
+        "c_type": "void",
+        "size": 0,
+        "description": "No value (return type only)"
+      }
+    ],
+    
+    "composite": {
+      "array": {
+        "kind": "array",
+        "syntax": "array<element_type>",
+        "element_type": "any",
+        "dynamic": true,
+        "description": "Dynamic array type with automatic resizing and garbage collection",
+        "literals": {
+          "empty": "[]",
+          "with_elements": "[elem1, elem2, elem3]"
+        },
+        "examples": [
+          "let empty: array<int> = []",
+          "let nums: array<int> = [1, 2, 3, 4, 5]",
+          "let nested: array<array<int>> = [[1, 2], [3, 4]]"
+        ]
+      },
+      "struct": {
+        "kind": "struct",
+        "syntax": "struct Name { field1: type1, field2: type2 }",
+        "description": "Product type with named fields",
+        "c_transpilation": "typedef struct nl_Name { type1 field1; type2 field2; } nl_Name;"
+      },
+      "enum": {
+        "kind": "enum",
+        "syntax": "enum Name { Variant1 = value1, Variant2 = value2 }",
+        "description": "Enumeration with integer values",
+        "c_transpilation": "typedef enum { nl_Name_Variant1 = value1, nl_Name_Variant2 = value2 } nl_Name;"
+      },
+      "union": {
+        "kind": "union",
+        "syntax": "union Name { Variant1 { fields }, Variant2 { fields } }",
+        "description": "Tagged union (sum type) with variants",
+        "pattern_matching": "match expression { Variant(binding) => body }",
+        "c_transpilation": "typedef struct with tag and union of variant structs"
+      },
+      "generic": {
+        "kind": "generic",
+        "syntax": "List<T>",
+        "description": "Generic types with type parameters (monomorphized at compile time)",
+        "examples": ["List<int>", "List<string>", "List<Point>"],
+        "built_in_generics": ["List<T>"]
+      },
+      "function": {
+        "kind": "function",
+        "syntax": "fn(param_type1, param_type2) -> return_type",
+        "description": "First-class function type",
+        "examples": [
+          "fn(int, int) -> int",
+          "fn(string) -> bool",
+          "fn() -> void"
+        ]
+      },
+      "tuple": {
+        "kind": "tuple",
+        "syntax": "(type1, type2, type3)",
+        "description": "Tuple type with multiple values - COMPLETE",
+        "status": "complete",
+        "examples": ["(int, int)", "(string, int, bool)"],
+        "usage": [
+          "Type annotation: let t: (int, string) = (10, \"hello\")",
+          "Tuple literal: (value1, value2, value3)",
+          "Index access: tuple.0, tuple.1, tuple.2",
+          "Function returns: fn divide(a: int, b: int) -> (int, int)"
+        ]
+      }
+    }
+  },
+  
+  "syntax": {
+    "notation": "prefix",
+    "description": "S-expression style prefix notation for all operations",
+    "examples": {
+      "arithmetic": "(+ a b) instead of a + b",
+      "comparison": "(== x 5) instead of x == 5",
+      "logical": "(and p q) instead of p && q",
+      "function_call": "(function_name arg1 arg2) instead of function_name(arg1, arg2)"
+    }
+  },
+  
+  "operations": {
+    "arithmetic": {
+      "add": { "operator": "+", "types": ["int", "float"], "arity": 2, "pure": true },
+      "sub": { "operator": "-", "types": ["int", "float"], "arity": 2, "pure": true },
+      "mul": { "operator": "*", "types": ["int", "float"], "arity": 2, "pure": true },
+      "div": { "operator": "/", "types": ["int", "float"], "arity": 2, "pure": true, "preconditions": ["divisor != 0"] },
+      "mod": { "operator": "%", "types": ["int"], "arity": 2, "pure": true, "preconditions": ["divisor != 0"] }
+    },
+    "comparison": {
+      "eq": { "operator": "==", "types": ["int", "float", "bool", "string"], "arity": 2, "pure": true },
+      "ne": { "operator": "!=", "types": ["int", "float", "bool", "string"], "arity": 2, "pure": true },
+      "lt": { "operator": "<", "types": ["int", "float"], "arity": 2, "pure": true },
+      "le": { "operator": "<=", "types": ["int", "float"], "arity": 2, "pure": true },
+      "gt": { "operator": ">", "types": ["int", "float"], "arity": 2, "pure": true },
+      "ge": { "operator": ">=", "types": ["int", "float"], "arity": 2, "pure": true }
+    },
+    "logical": {
+      "and": { "operator": "and", "types": ["bool"], "arity": 2, "pure": true, "short_circuit": true },
+      "or": { "operator": "or", "types": ["bool"], "arity": 2, "pure": true, "short_circuit": true },
+      "not": { "operator": "not", "types": ["bool"], "arity": 1, "pure": true }
+    }
+  },
+  
+  "statements": {
+    "let": {
+      "syntax": "let [mut] name: type = expression",
+      "description": "Variable declaration (immutable by default)",
+      "mutability": "Optional 'mut' keyword for mutable variables"
+    },
+    "set": {
+      "syntax": "set variable_name expression",
+      "description": "Variable assignment (variable must be declared as mutable)"
+    },
+    "if": {
+      "syntax": "if condition { then_branch } [else { else_branch }]",
+      "description": "Conditional expression (else branch optional)"
+    },
+    "while": {
+      "syntax": "while condition { body }",
+      "description": "While loop"
+    },
+    "for": {
+      "syntax": "for var in (range start end) { body }",
+      "description": "For loop with range iterator"
+    },
+    "return": {
+      "syntax": "return expression",
+      "description": "Return statement"
+    },
+    "match": {
+      "syntax": "match expression { Variant(binding) => body, ... }",
+      "description": "Pattern matching on union types"
+    },
+    "unsafe": {
+      "syntax": "unsafe { statements }",
+      "description": "Unsafe block for FFI calls and unchecked operations - marks explicit trust boundaries"
+    }
+  },
+  
+  "features": {
+    "modules": {
+      "description": "Module system with FFI support and automatic dependency resolution",
+      "import_syntax": "import \"path/to/module.nano\"",
+      "import_alias": "import \"path/to/module.nano\" as Alias",
+      "qualified_names": "Alias.function_name or Alias.TypeName",
+      "extern_functions": "extern fn c_function(param: type) -> return_type",
+      "public_exports": "pub fn exported_function() or pub extern fn ffi_wrapper()",
+      "module_json": "module.json defines dependencies, C sources, and compiler flags"
+    },
+    "namespaces": {
+      "description": "All user-defined types prefixed with nl_ in generated C code",
+      "prefix": "nl_",
+      "examples": {
+        "struct": "Point -> nl_Point",
+        "enum": "Status -> nl_Status, Status.Active -> nl_Status_Active",
+        "union": "Result -> nl_Result, Result.Ok -> nl_Result_Ok"
+      }
+    },
+    "shadow_tests": {
+      "mandatory": true,
+      "description": "Every function must have a shadow-test block with assertions",
+      "syntax": "shadow function_name { assert ... }",
+      "execution": "Compile-time (during transpilation and type checking)",
+      "exception": "extern functions do not require shadow tests"
+    },
+    "static_typing": {
+      "mandatory": true,
+      "description": "All variables and parameters must have explicit type annotations",
+      "no_inference": true,
+      "no_implicit_conversions": true
+    },
+    "generics": {
+      "strategy": "monomorphization",
+      "description": "Generic types are specialized at compile time for each concrete type used",
+      "supported": ["List<T>", "user-defined generics"],
+      "examples": [
+        "List<int>",
+        "List<string>",
+        "List<Point>"
+      ]
+    },
+    "first_class_functions": {
+      "description": "Functions can be passed as parameters, returned, and assigned to variables",
+      "syntax": "fn(param_type) -> return_type",
+      "no_pointers": "Function types don't expose underlying C function pointers",
+      "examples": [
+        "let f: fn(int) -> int = double",
+        "fn apply(op: fn(int) -> int, x: int) -> int",
+        "fn get_function() -> fn(int) -> int"
+      ]
+    },
+    "unions": {
+      "description": "Tagged unions (sum types) with pattern matching",
+      "variants": "Each variant can have named fields",
+      "pattern_matching": "match expression destructures unions safely"
+    },
+    "garbage_collection": {
+      "description": "Automatic memory management for dynamic arrays and strings",
+      "strategy": "Reference counting with cycle detection",
+      "deterministic": true,
+      "no_pauses": "No stop-the-world GC pauses",
+      "operations": "Automatic retain/release on assignment and scope exit"
+    },
+    "dynamic_arrays": {
+      "description": "Built-in dynamic arrays with automatic resizing",
+      "growth_strategy": "2x geometric growth for amortized O(1) append",
+      "type_safe": true,
+      "bounds_checked": true,
+      "gc_integrated": "Automatically garbage collected"
+    }
+  },
+  
+  "stdlib": {
+    "io": {
+      "print": { "signature": "print(any) -> void", "description": "Print value to stdout" },
+      "println": { "signature": "println(any) -> void", "description": "Print value with newline" },
+      "assert": { "signature": "assert(bool) -> void", "description": "Runtime assertion" }
+    },
+    "math": {
+      "abs": { "signature": "abs(int|float) -> int|float", "description": "Absolute value" },
+      "min": { "signature": "min(int|float, int|float) -> int|float", "description": "Minimum of two values" },
+      "max": { "signature": "max(int|float, int|float) -> int|float", "description": "Maximum of two values" },
+      "sqrt": { "signature": "sqrt(float) -> float", "description": "Square root" },
+      "pow": { "signature": "pow(float, float) -> float", "description": "Power" },
+      "floor": { "signature": "floor(float) -> float", "description": "Round down" },
+      "ceil": { "signature": "ceil(float) -> float", "description": "Round up" },
+      "round": { "signature": "round(float) -> float", "description": "Round to nearest" },
+      "sin": { "signature": "sin(float) -> float", "description": "Sine (radians)" },
+      "cos": { "signature": "cos(float) -> float", "description": "Cosine (radians)" },
+      "tan": { "signature": "tan(float) -> float", "description": "Tangent (radians)" }
+    },
+    "string": {
+      "str_length": { "signature": "str_length(string) -> int", "description": "String length" },
+      "str_concat": { "signature": "str_concat(string, string) -> string", "description": "Concatenate strings" },
+      "str_substring": { "signature": "str_substring(string, int, int) -> string", "description": "Extract substring" },
+      "str_contains": { "signature": "str_contains(string, string) -> bool", "description": "Check substring" },
+      "str_equals": { "signature": "str_equals(string, string) -> bool", "description": "String equality" },
+      "char_at": { "signature": "char_at(string, int) -> int", "description": "Get ASCII value at index" },
+      "string_from_char": { "signature": "string_from_char(int) -> string", "description": "Create string from ASCII" },
+      "is_digit": { "signature": "is_digit(int) -> bool", "description": "Check if character is digit" },
+      "is_alpha": { "signature": "is_alpha(int) -> bool", "description": "Check if character is letter" },
+      "is_alnum": { "signature": "is_alnum(int) -> bool", "description": "Check if alphanumeric" },
+      "is_whitespace": { "signature": "is_whitespace(int) -> bool", "description": "Check if whitespace" },
+      "is_upper": { "signature": "is_upper(int) -> bool", "description": "Check if uppercase" },
+      "is_lower": { "signature": "is_lower(int) -> bool", "description": "Check if lowercase" },
+      "int_to_string": { "signature": "int_to_string(int) -> string", "description": "Convert int to string" },
+      "string_to_int": { "signature": "string_to_int(string) -> int", "description": "Parse string to int" },
+      "digit_value": { "signature": "digit_value(int) -> int", "description": "Convert '5' -> 5" },
+      "char_to_lower": { "signature": "char_to_lower(int) -> int", "description": "Convert to lowercase" },
+      "char_to_upper": { "signature": "char_to_upper(int) -> int", "description": "Convert to uppercase" }
+    },
+    "bstring": {
+      "bstr_new": { "signature": "bstr_new(string) -> bstring", "description": "Create binary string from C string" },
+      "bstr_new_binary": { "signature": "bstr_new_binary(string, int) -> bstring", "description": "Create binary string with explicit length" },
+      "bstr_length": { "signature": "bstr_length(bstring) -> int", "description": "Get binary string length in bytes" },
+      "bstr_concat": { "signature": "bstr_concat(bstring, bstring) -> bstring", "description": "Concatenate binary strings" },
+      "bstr_substring": { "signature": "bstr_substring(bstring, int, int) -> bstring", "description": "Extract substring from binary string" },
+      "bstr_equals": { "signature": "bstr_equals(bstring, bstring) -> bool", "description": "Binary string equality" },
+      "bstr_byte_at": { "signature": "bstr_byte_at(bstring, int) -> int", "description": "Get byte value at index" },
+      "bstr_to_cstr": { "signature": "bstr_to_cstr(bstring) -> string", "description": "Convert binary string to C string" },
+      "bstr_validate_utf8": { "signature": "bstr_validate_utf8(bstring) -> bool", "description": "Check if valid UTF-8" },
+      "bstr_utf8_length": { "signature": "bstr_utf8_length(bstring) -> int", "description": "Get UTF-8 character count" },
+      "bstr_utf8_char_at": { "signature": "bstr_utf8_char_at(bstring, int) -> int", "description": "Get UTF-8 character code point" },
+      "bstr_free": { "signature": "bstr_free(bstring) -> void", "description": "Free binary string memory" }
+    },
+    "array": {
+      "at": { "signature": "at(array<T>, int) -> T", "description": "Get element (bounds-checked)" },
+      "array_length": { "signature": "array_length(array<T>) -> int", "description": "Get array length" },
+      "array_new": { "signature": "array_new(int, T) -> array<T>", "description": "Create new array with size and default value" },
+      "array_set": { "signature": "array_set(array<T>, int, T) -> array<T>", "description": "Set element at index (returns new array, original unchanged)" },
+      "array_push": { "signature": "array_push(array<T>, T) -> array<T>", "description": "Append element to end (returns new array, original unchanged)" },
+      "array_pop": { "signature": "array_pop(array<T>) -> T", "description": "Remove and return last element (original array unchanged)" },
+      "array_remove_at": { "signature": "array_remove_at(array<T>, int) -> array<T>", "description": "Remove element at index (returns new array)" },
+      "filter": {
+        "signature": "filter(array<T>, fn(T) -> bool) -> array<T>",
+        "description": "Keep elements that satisfy a predicate and return a new array (compiled + interpreted)"
+      },
+      "map": {
+        "signature": "map(array<T>, fn(T) -> T) -> array<T>",
+        "description": "Apply a transform function to each element and return a new array (compiled + interpreted)"
+      },
+      "reduce": {
+        "signature": "reduce(array<T>, A, fn(A, T) -> A) -> A",
+        "description": "Fold an array into a single value, starting from an initial accumulator (compiled + interpreted)"
+      }
+    },
+    "os": {
+      "getcwd": { "signature": "getcwd() -> string", "description": "Get current directory" },
+      "getenv": { "signature": "getenv(string) -> string", "description": "Get environment variable" },
+      "range": { "signature": "range(int, int) -> iterator", "description": "Range iterator (for loops only)" }
+    },
+    "generics": {
+      "List_new": { "signature": "List_<T>_new() -> List<T>", "description": "Create empty list (monomorphized for each type)" },
+      "List_push": { "signature": "List_<T>_push(List<T>, T) -> void", "description": "Push element to end of list" },
+      "List_get": { "signature": "List_<T>_get(List<T>, int) -> T", "description": "Get list element at index (bounds-checked)" },
+      "List_length": { "signature": "List_<T>_length(List<T>) -> int", "description": "Get number of elements in list" }
+    },
+    "checked_math": {
+      "checked_add": {
+        "signature": "checked_add(int, int) -> Result<int, string>",
+        "description": "Safe addition with overflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in addition", "Integer underflow in addition"]
+      },
+      "checked_sub": {
+        "signature": "checked_sub(int, int) -> Result<int, string>",
+        "description": "Safe subtraction with underflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in subtraction", "Integer underflow in subtraction"]
+      },
+      "checked_mul": {
+        "signature": "checked_mul(int, int) -> Result<int, string>",
+        "description": "Safe multiplication with overflow detection (MISRA Rule 12.4 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Integer overflow in multiplication", "Integer underflow in multiplication"]
+      },
+      "checked_div": {
+        "signature": "checked_div(int, int) -> Result<int, string>",
+        "description": "Safe division with zero-divisor check (JSF AV Rule 204 compliant)",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Division by zero", "Integer overflow in division (INT64_MIN / -1)"]
+      },
+      "checked_mod": {
+        "signature": "checked_mod(int, int) -> Result<int, string>",
+        "description": "Safe modulo with zero-divisor check",
+        "module": "modules/stdlib/checked_math.nano",
+        "errors": ["Modulo by zero"]
+      }
+    },
+    "hashmap": {
+      "map_new": {
+        "signature": "map_new() -> HashMap<K,V>",
+        "description": "Create empty hash map (type inferred from context)",
+        "types": "K,V can be int or string",
+        "note": "Supported in both interpreter and compiled modes"
+      },
+      "map_put": {
+        "signature": "map_put(HashMap<K,V>, K, V) -> void",
+        "description": "Insert or update key-value pair"
+      },
+      "map_get": {
+        "signature": "map_get(HashMap<K,V>, K) -> V",
+        "description": "Retrieve value by key (returns 0/empty for missing keys)"
+      },
+      "map_has": {
+        "signature": "map_has(HashMap<K,V>, K) -> bool",
+        "description": "Check if key exists in map"
+      },
+      "map_size": {
+        "signature": "map_size(HashMap<K,V>) -> int",
+        "description": "Get number of key-value pairs"
+      },
+      "map_free": {
+        "signature": "map_free(HashMap<K,V>) -> void",
+        "description": "Free hash map memory"
+      }
+    }
+  },
+  
+  "compilation": {
+    "target": "C",
+    "c_standard": "C99",
+    "strategy": "transpilation",
+    "phases": [
+      "Lexical analysis (tokenization)",
+      "Parsing (AST generation)",
+      "Type checking (static analysis)",
+      "Shadow-test execution (compile-time testing)",
+      "C code generation (transpilation)",
+      "C compilation (gcc/clang)"
+    ],
+    "output": {
+      "executable": "Compiled binary from generated C code",
+      "intermediate": "Optional .c file output with --keep-c flag"
+    },
+    "optimization": "Relies on C compiler optimizations",
+    "timeouts": {
+      "recommended": "30-60 seconds per compilation to detect infinite loops",
+      "command": "perl -e 'alarm 60; exec @ARGV' env NANO_MODULE_PATH=modules ./bin/nanoc file.nano -o output",
+      "rationale": "Compiler can loop infinitely on syntax errors, printing same message repeatedly"
+    },
+    "module_system": {
+      "module_path": "NANO_MODULE_PATH environment variable",
+      "auto_install": "Modules automatically compile C dependencies via module.json",
+      "c_linking": "Automatic linking of shared libraries specified in module.json"
+    }
+  },
+  
+  "tooling": {
+    "compiler": {
+      "name": "nanoc",
+      "version": "0.3.0",
+      "usage": "nanoc <input.nano> -o <output>",
+      "flags": [
+        "--keep-c: Keep generated C file",
+        "--verbose: Verbose output",
+        "-o: Output binary name"
+      ],
+      "self_hosted": true,
+      "self_hosted_compiler": "nanoc_selfhost.nano (152 lines)"
+    },
+    "interpreter": {
+      "name": "nano",
+      "version": "0.3.0",
+      "usage": "nano <input.nano> [OPTIONS]",
+      "flags": [
+        "--trace-all: Trace all execution",
+        "--trace-function=<name>: Trace specific function",
+        "--trace-var=<name>: Trace variable operations",
+        "--trace-scope=<name>: Trace function scope",
+        "--call <function>: Call specific function"
+      ]
+    }
+  },
+
+  "common_errors": {
+    "missing_shadow_test": {
+      "severity": "warning",
+      "phase": "typecheck",
+      "message_template": "Warning: Function '{name}' is missing a shadow test",
+      "cause": "The function has no shadow block (and does not call extern functions).",
+      "fix": "Add a shadow block after the function with at least one assert.",
+      "example": "fn double(x: int) -> int {\n    return (* x 2)\n}\n\nshadow double {\n    assert (== (double 5) 10)\n}"
+    },
+    "undefined_variable": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Undefined variable '{name}'",
+      "cause": "A variable is referenced before it is declared in the current scope.",
+      "fix": "Declare the variable with let before use, or fix the identifier spelling.",
+      "example": "fn main() -> int {\n    let y: int = (+ x 1)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "type_mismatch_let": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Type mismatch in let statement",
+      "cause": "The declared type of a let binding does not match the type of the initializer expression.",
+      "fix": "Change the annotation or change the expression so the types match.",
+      "example": "fn main() -> int {\n    let x: int = 3.14\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "immutable_assignment": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error at line {line}, column {column}: Cannot assign to immutable variable '{name}'",
+      "cause": "set was used on a variable declared without mut.",
+      "fix": "Declare the variable with let mut, then use set.",
+      "example": "fn main() -> int {\n    let counter: int = 0\n    set counter (+ counter 1)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "undefined_var_or_function_runtime": {
+      "severity": "error",
+      "phase": "runtime",
+      "message_template": "Error: Undefined variable or function '{name}'",
+      "cause": "An identifier could not be resolved at runtime (neither variable nor function).",
+      "fix": "Ensure the identifier is declared/defined and in scope, or fix the spelling.",
+      "example": "fn main() -> int {\n    (foo 1 2)\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}"
+    },
+    "missing_main": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error: Program must define a 'main' function",
+      "cause": "The entrypoint function main was not found.",
+      "fix": "Define fn main() -> int { ... } in the program."
+    },
+    "main_wrong_return_type": {
+      "severity": "error",
+      "phase": "typecheck",
+      "message_template": "Error: 'main' function must return int",
+      "cause": "The main function exists but does not return int.",
+      "fix": "Change main signature to fn main() -> int and return an int."
+    }
+  },
+
+  "debugging": {
+    "workflow": [
+      "Start with the first reported error and use line/column to locate the source.",
+      "Use the interpreter (nano) for fast feedback; enable tracing to understand execution.",
+      "If compiling, use nanoc --keep-c to inspect generated C output."
+    ],
+    "interpreter_flags": {
+      "--trace-all": "Trace all execution",
+      "--trace-function=<name>": "Trace a specific function",
+      "--trace-var=<name>": "Trace variable reads/writes",
+      "--trace-scope=<name>": "Trace a function scope",
+      "--call <function>": "Call a specific function"
+    },
+    "compiler_flags": {
+      "--keep-c": "Keep the generated C file for inspection",
+      "--verbose": "Verbose output",
+      "-o": "Output binary name"
+    }
+  },
+
+  "idioms": {
+    "shadow_test_first": {
+      "description": "Write the shadow block first to lock behavior, then implement.",
+      "example": "fn add(a: int, b: int) -> int {\n    return (+ a b)\n}\n\nshadow add {\n    assert (== (add 2 3) 5)\n}"
+    },
+    "struct_constructor": {
+      "description": "Use a helper function to build structs consistently.",
+      "example": "struct Point { x: int, y: int }\n\nfn make_point(x: int, y: int) -> Point {\n    return Point { x: x, y: y }\n}\n\nshadow make_point {\n    let p: Point = (make_point 1 2)\n    assert (== p.x 1)\n    assert (== p.y 2)\n}"
+    },
+    "import_alias": {
+      "description": "Import a module with an alias and call functions via qualified name.",
+      "example": "import \"test_modules/math_helper.nano\" as Math\n\nfn main() -> int {\n    let sum: int = (Math.add 2 3)\n    return sum\n}\n\nshadow main {\n    assert (== (main) 5)\n}"
+    }
+  },
+  
+  "examples": {
+    "hello_world": "fn main() -> int {\n    (println \"Hello, World!\")\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}",
+    "shadow_test_driven": "fn double(x: int) -> int {\n    return (* x 2)\n}\n\nshadow double {\n    assert (== (double 0) 0)\n    assert (== (double 5) 10)\n}",
+    "import_alias": "import \"test_modules/math_helper.nano\" as Math\n\nfn main() -> int {\n    return (Math.add 2 3)\n}\n\nshadow main {\n    assert (== (main) 5)\n}",
+    "fibonacci": "See examples/nl_fibonacci.nano",
+    "prime_checker": "See examples/nl_primes.nano",
+    "unions": "See examples/nl_union_types.nano",
+    "generics": "See examples/nl_generics_demo.nano",
+    "first_class_functions": "See examples/nl_first_class_functions.nano",
+    "map_reduce": "See examples/nl_filter_map_fold.nano",
+    "data_analytics": "See examples/nl_data_analytics.nano"
+  },
+  
+  "compiler_internals": {
+    "description": "Internal compiler representations and implementation details",
+    "schema_location": "schema/compiler_schema.json",
+    "validation_tool": "tools/validate_schema_sync.py",
+    
+    "ast_nodes": {
+      "description": "Abstract Syntax Tree node types used by both C and NanoLang compilers",
+      "c_definition": "src/nanolang.h (ASTNodeType enum, ASTNode struct)",
+      "nano_definition": "src_nano/generated/compiler_ast.nano",
+      "node_types": [
+        {"name": "AST_NUMBER", "description": "Integer literal"},
+        {"name": "AST_FLOAT", "description": "Floating-point literal"},
+        {"name": "AST_STRING", "description": "String literal"},
+        {"name": "AST_BOOL", "description": "Boolean literal (true/false)"},
+        {"name": "AST_IDENTIFIER", "description": "Variable or function name"},
+        {"name": "AST_PREFIX_OP", "description": "Prefix operation (+ - * / == < > etc.)"},
+        {"name": "AST_CALL", "description": "Function call"},
+        {"name": "AST_ARRAY_LITERAL", "description": "Array literal [elem1, elem2, ...]"},
+        {"name": "AST_LET", "description": "Variable declaration"},
+        {"name": "AST_SET", "description": "Variable assignment (mutable only)"},
+        {"name": "AST_IF", "description": "Conditional expression"},
+        {"name": "AST_WHILE", "description": "While loop"},
+        {"name": "AST_FOR", "description": "For loop with range"},
+        {"name": "AST_RETURN", "description": "Return statement"},
+        {"name": "AST_BLOCK", "description": "Code block { statements }"},
+        {"name": "AST_UNSAFE_BLOCK", "description": "Unsafe block for FFI calls"},
+        {"name": "AST_FUNCTION", "description": "Function definition"},
+        {"name": "AST_SHADOW", "description": "Shadow test block"},
+        {"name": "AST_PROGRAM", "description": "Top-level program node"},
+        {"name": "AST_PRINT", "description": "Print statement"},
+        {"name": "AST_ASSERT", "description": "Assertion"},
+        {"name": "AST_STRUCT_DEF", "description": "Struct type definition"},
+        {"name": "AST_STRUCT_LITERAL", "description": "Struct instance creation"},
+        {"name": "AST_FIELD_ACCESS", "description": "Struct field access"},
+        {"name": "AST_ENUM_DEF", "description": "Enum type definition"},
+        {"name": "AST_UNION_DEF", "description": "Union type definition"},
+        {"name": "AST_UNION_CONSTRUCT", "description": "Union variant construction"},
+        {"name": "AST_MATCH", "description": "Pattern matching on unions"},
+        {"name": "AST_IMPORT", "description": "Module import"},
+        {"name": "AST_MODULE_DECL", "description": "Module declaration"},
+        {"name": "AST_OPAQUE_TYPE", "description": "Opaque type declaration"},
+        {"name": "AST_TUPLE_LITERAL", "description": "Tuple literal (val1, val2, ...)"},
+        {"name": "AST_TUPLE_INDEX", "description": "Tuple element access tuple.0"},
+        {"name": "AST_QUALIFIED_NAME", "description": "Qualified name Module::symbol"}
+      ],
+      "common_fields": {
+        "type": "ASTNodeType enum value",
+        "line": "Source line number (1-indexed)",
+        "column": "Source column number (1-indexed)"
+      }
+    },
+    
+    "type_info": {
+      "description": "Type system representation",
+      "c_definition": "src/nanolang.h (Type enum, TypeInfo struct)",
+      "nano_definition": "src_nano/generated/compiler_ast.nano (TypeKind enum, Type struct)",
+      "primitive_types": [
+        {"name": "TYPE_INT", "c_type": "int64_t", "size": 8, "description": "64-bit signed integer"},
+        {"name": "TYPE_U8", "c_type": "uint8_t", "size": 1, "description": "8-bit unsigned integer (byte)"},
+        {"name": "TYPE_FLOAT", "c_type": "double", "size": 8, "description": "64-bit IEEE 754 float"},
+        {"name": "TYPE_BOOL", "c_type": "bool", "size": 1, "description": "Boolean (true/false)"},
+        {"name": "TYPE_STRING", "c_type": "char*", "size": 8, "description": "Null-terminated C string"},
+        {"name": "TYPE_BSTRING", "c_type": "nl_string_t*", "size": 8, "description": "Binary string (length + data)"},
+        {"name": "TYPE_VOID", "c_type": "void", "size": 0, "description": "No value (return type only)"}
+      ],
+      "composite_types": [
+        {"name": "TYPE_ARRAY", "description": "Dynamic array array<T>"},
+        {"name": "TYPE_STRUCT", "description": "Product type with named fields"},
+        {"name": "TYPE_ENUM", "description": "Enumeration with integer values"},
+        {"name": "TYPE_UNION", "description": "Tagged union (sum type)"},
+        {"name": "TYPE_TUPLE", "description": "Fixed-size heterogeneous tuple"},
+        {"name": "TYPE_FUNCTION", "description": "Function type fn(T1, T2) -> R"},
+        {"name": "TYPE_GENERIC", "description": "Generic type parameter T"},
+        {"name": "TYPE_OPAQUE", "description": "Opaque type (FFI)"}
+      ],
+      "type_info_struct": {
+        "description": "Extended type information for generics and complex types",
+        "fields": [
+          {"name": "name", "type": "string", "description": "Type name (e.g., 'Result', 'List')"},
+          {"name": "type_params", "type": "array<TypeInfo*>", "description": "Generic type parameters"},
+          {"name": "param_count", "type": "int", "description": "Number of type parameters"}
+        ],
+        "example": "Result<int, string> has name='Result', param_count=2, type_params=[int, string]"
+      }
+    },
+    
+    "memory_model": {
+      "description": "Memory layout and management",
+      "stack_allocation": {
+        "primitives": "All primitive types (int, float, bool) are stack-allocated",
+        "strings": "String pointers on stack, data on heap",
+        "structs": "Small structs on stack, large structs on heap via GC",
+        "arrays": "Array pointers on stack, DynArray structure on heap"
+      },
+      "heap_allocation": {
+        "strings": "Heap-allocated via malloc, manually managed",
+        "bstrings": "Heap-allocated nl_string_t with length + data",
+        "arrays": "DynArray structure with capacity, count, and element array",
+        "structs": "GCStruct with reference counting when heap-allocated",
+        "unions": "Tagged unions with variant tag + data"
+      },
+      "garbage_collection": {
+        "strategy": "Reference counting with cycle detection",
+        "rc_increment": "nl_gc_retain(ptr) on assignment/copy",
+        "rc_decrement": "nl_gc_release(ptr) on scope exit",
+        "cycle_detection": "Mark-and-sweep for circular references",
+        "integration_points": [
+          "Variable assignment (set)",
+          "Function call arguments",
+          "Return values",
+          "Array element storage",
+          "Struct field storage"
+        ]
+      },
+      "alignment": {
+        "int": 8,
+        "float": 8,
+        "bool": 1,
+        "pointer": 8,
+        "struct": "Largest field alignment",
+        "padding": "Inserted to maintain alignment"
+      }
+    },
+    
+    "ffi_abi": {
+      "description": "Foreign Function Interface calling convention",
+      "c_to_nanolang": {
+        "int": "int64_t",
+        "float": "double",
+        "bool": "bool (C99)",
+        "string": "const char*",
+        "bstring": "nl_string_t*",
+        "array": "DynArray*",
+        "struct": "nl_StructName*",
+        "void": "void"
+      },
+      "nanolang_to_c": {
+        "description": "NanoLang functions transpile to C with nl_ prefix",
+        "naming": "fn my_function -> int64_t nl_my_function(...)",
+        "parameters": "Passed by value for primitives, by pointer for complex types",
+        "return_values": "Returned directly for primitives, via pointer for large structs"
+      },
+      "extern_functions": {
+        "declaration": "extern fn c_function(param: type) -> return_type",
+        "safety": "Must be called inside unsafe { } blocks",
+        "type_mapping": "NanoLang types map to C types as above",
+        "example": "extern fn getpid() -> int maps to pid_t getpid(void)"
+      },
+      "name_mangling": {
+        "user_functions": "nl_function_name",
+        "structs": "nl_StructName",
+        "enums": "nl_EnumName, nl_EnumName_Variant",
+        "unions": "nl_UnionName, nl_UnionName_Variant",
+        "no_mangling": "extern functions keep original C names"
+      }
+    },
+    
+    "compilation_phases": {
+      "description": "Compiler pipeline stages",
+      "phases": [
+        {
+          "name": "Lexical Analysis",
+          "input": "Source code (*.nano files)",
+          "output": "Token stream (LexerToken array)",
+          "implementation": "src/lexer.c, src_nano/compiler/lexer.nano",
+          "data_structures": ["LexerToken", "LexerTokenType enum"]
+        },
+        {
+          "name": "Parsing",
+          "input": "Token stream",
+          "output": "Abstract Syntax Tree (AST)",
+          "implementation": "src/parser.c, src_nano/parser.nano",
+          "data_structures": ["ASTNode", "Parser struct with node arrays"]
+        },
+        {
+          "name": "Type Checking",
+          "input": "AST",
+          "output": "Type-annotated AST + symbol table",
+          "implementation": "src/typechecker.c, src_nano/typecheck.nano",
+          "data_structures": ["TypeInfo", "Symbol table", "Environment"],
+          "checks": [
+            "Type compatibility",
+            "Variable mutability",
+            "Function signatures",
+            "Extern function safety (unsafe blocks)",
+            "Generic type instantiation"
+          ]
+        },
+        {
+          "name": "Transpilation",
+          "input": "Type-annotated AST",
+          "output": "C source code",
+          "implementation": "src/transpiler_iterative_v3_twopass.c, src_nano/transpiler.nano",
+          "passes": [
+            "Pass 1: Collect type definitions (structs, enums, unions)",
+            "Pass 2: Generate function bodies and main program"
+          ]
+        },
+        {
+          "name": "C Compilation",
+          "input": "Generated C code",
+          "output": "Native executable",
+          "implementation": "gcc or clang",
+          "flags": "-std=c99 -Wall -Wextra -O2"
+        }
+      ]
+    },
+    
+    "dual_implementation": {
+      "description": "C and NanoLang compilers must stay synchronized",
+      "c_compiler": {
+        "location": "src/",
+        "files": ["lexer.c", "parser.c", "typechecker.c", "transpiler.c"],
+        "purpose": "Bootstrap compiler, reference implementation"
+      },
+      "nanolang_compiler": {
+        "location": "src_nano/",
+        "files": ["compiler/lexer.nano", "parser.nano", "typecheck.nano", "transpiler.nano"],
+        "purpose": "Self-hosted compiler, production implementation"
+      },
+      "synchronization": {
+        "schema": "schema/compiler_schema.json defines canonical AST/IR",
+        "validation": "tools/validate_schema_sync.py checks for drift",
+        "testing": "Differential testing compares outputs",
+        "bootstrap": "make bootstrap verifies equivalence"
+      }
+    }
+  },
+  
+  "status": {
+    "version": "0.3.0",
+    "stability": "production-ready",
+    "production_ready": true,
+    "self_hosted": true,
+    "features_complete": [
+      "Basic types (int, float, bool, string, bstring, void)",
+      "Prefix notation (S-expressions)",
+      "Static typing with explicit annotations",
+      "Shadow-tests (mandatory, compile-time execution)",
+      "Structs (product types)",
+      "Enums (named constants)",
+      "Unions with pattern matching (sum types)",
+      "Tuples (complete)",
+      "Generics (List<T>) with monomorphization for all types",
+      "First-class functions",
+      "Mutability tracking (mut keyword)",
+      "Standard library (72 functions: 3 I/O, 11 math, 18 string, 12 bstring, 10 array, 3 OS, 4 generics, 5 checked math, 6 hashmap)",
+      "C transpilation with nl_ namespacing",
+      "Module system with FFI support",
+      "Import system for code organization",
+      "Binary strings (bstring) with UTF-8 support",
+      "Self-hosted compiler (nanoc written in NanoLang)",
+      "Dual execution (interpreter + compiler)",
+      "Comprehensive error messages with line/column tracking",
+      "Dynamic arrays with push/pop/remove operations",
+      "Garbage collection (reference counting + cycle detection)",
+      "Module system with import aliases and qualified names",
+      "Array literals [] and [elem1, elem2, elem3]",
+      "FFI (Foreign Function Interface) with extern keyword",
+      "Public exports (pub) for module interfaces"
+    ],
+    "features_in_development": [
+    ],
+    "future_features": [
+      "More standard library modules",
+      "Package manager",
+      "Incremental compilation",
+      "Optimization passes in NanoLang"
+    ],
+    "self_hosting_achievement": {
+      "date": "2025-11-30",
+      "status": "100% complete - true self-hosting achieved",
+      "compiler_source": "src_nano/nanoc_selfhost.nano (152 lines)",
+      "total_lines": "4,789 lines of self-hosted compiler code",
+      "components": {
+        "parser": "2,772 lines",
+        "typechecker": "795 lines", 
+        "transpiler": "1,070 lines",
+        "compiler_driver": "152 lines"
+      },
+      "bootstrap_chain": "C compiler → NanoLang compiler → NanoLang programs",
+      "verification": "All 156 shadow tests passing in self-hosted mode",
+      "bootstrap_stages": "Stage 0 (C) → Stage 1 (mixed) → Stage 2 (full self-host)",
+      "current_status": "Production-ready, self-compiling language (December 2025)"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+/* Fuzzing seed: string literal handling for parser */
+fn main() -> int {
+    let msg: string = "hello world"
+    return 0
+}

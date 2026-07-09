@@ -1,0 +1,21 @@
+{
+  "name": "event",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Event handling system for publish-subscribe patterns.",
+  "use_when": [
+    "User needs event system",
+    "User says 'events', 'pub-sub', 'observer', 'listeners'",
+    "User wants decoupled communication"
+  ],
+  "avoid_when": ["User wants direct function calls (simpler)"],
+  "capabilities": ["event_emit", "event_listen", "pub_sub"],
+  "keywords": ["events", "pubsub", "observer", "listeners"],
+  "examples": [],
+  "dependencies": {
+    "nanolang": ["core>=1.0"],
+    "system": []
+  },
+  "io_surfaces": [],
+  "alternatives": []
+}
