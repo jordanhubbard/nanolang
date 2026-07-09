@@ -17,9 +17,17 @@ typedef struct {
 
 /* Callback function for writing response data */
 static size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t realsize = size * nmemb;
     MemoryBuffer *mem = (MemoryBuffer *)userp;
-    
+
+    /* Guard against multiplication overflow (size * nmemb) */
+    if (nmemb != 0 && size > SIZE_MAX / nmemb)
+        return 0;
+    size_t realsize = size * nmemb;
+
+    /* Guard against addition overflow (mem->size + realsize + 1) */
+    if (realsize > SIZE_MAX - mem->size - 1)
+        return 0;
+
     char *ptr = realloc(mem->data, mem->size + realsize + 1);
     if (ptr == NULL) {
         fprintf(stderr, "curl_helpers: Out of memory\n");
