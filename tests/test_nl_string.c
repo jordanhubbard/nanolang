@@ -159,6 +159,174 @@ void test_null_termination() {
     nl_string_free(str);
 }
 
+
+/* ============================================================================
+ * Focused Regression Tests
+ *
+ * Five targeted cases covering: empty-string construction, byte_at_safe
+ * boundary indices, reserve preserving state, shrink_to_fit exact capacity,
+ * and clone owning a distinct buffer with all flags preserved.
+ * ============================================================================ */
+
+/* Regression 1: empty-string construction via nl_string_new("").
+ * The API documents that nl_string_new copies from a C string.  An empty C
+ * string must produce a non-NULL nl_string_t with length==0, capacity>=1 to
+ * hold the null terminator, null_terminated==true, and the data byte
+ * accessible as data[0]=='\0'.
+ */
+void test_empty_string_construction() {
+    nl_string_t *str = nl_string_new("");
+    ASSERT(str != NULL);
+    ASSERT(nl_string_length(str) == 0);
+    ASSERT(str->capacity >= 1);
+    ASSERT(str->null_terminated);
+    ASSERT(str->data[0] == '\0');
+    ASSERT(strcmp(nl_string_to_cstr(str), "") == 0);
+    nl_string_free(str);
+}
+
+/* Regression 2: nl_string_byte_at_safe at last valid and first invalid index.
+ * For a 4-byte string "abcd" the last valid index is 3; the first invalid
+ * index is 4.  byte_at_safe must return true and the correct byte for index 3,
+ * and false (leaving *out unchanged) for index 4.
+ */
+void test_byte_at_safe_boundary() {
+    nl_string_t *str = nl_string_new("abcd");
+    ASSERT(str != NULL);
+    ASSERT(nl_string_length(str) == 4);
+
+    /* Last valid index: 3 */
+    char result = '\0';
+    ASSERT(nl_string_byte_at_safe(str, 3, &result));
+    ASSERT(result == 'd');
+
+    /* First invalid index: 4 */
+    char sentinel = '\xAB';
+    ASSERT(!nl_string_byte_at_safe(str, 4, &sentinel));
+    ASSERT(sentinel == '\xAB'); /* out must be unchanged on failure */
+
+    nl_string_free(str);
+}
+
+/* Regression 3: nl_string_reserve preserves bytes and null-termination state.
+ * Start with a null-terminated "Hello" (length 5, capacity 6).  Reserve a
+ * larger capacity; verify that the bytes are identical and null_terminated
+ * remains true.  A reserve smaller than the current capacity is a no-op and
+ * must not alter any state.
+ */
+void test_reserve_preserves_state() {
+    nl_string_t *str = nl_string_new("Hello");
+    ASSERT(str != NULL);
+    size_t orig_capacity = str->capacity; /* 6 */
+    ASSERT(str->null_terminated);
+
+    /* Grow the capacity. */
+    nl_string_reserve(str, orig_capacity + 32);
+    ASSERT(str->capacity >= orig_capacity + 32);
+    ASSERT(nl_string_length(str) == 5);
+    ASSERT(str->null_terminated); /* flag must survive realloc */
+    ASSERT(strcmp(nl_string_to_cstr(str), "Hello") == 0);
+
+    /* A no-op reserve (new_capacity <= current) must not change anything. */
+    size_t capacity_before = str->capacity;
+    nl_string_reserve(str, 1); /* smaller than current */
+    ASSERT(str->capacity == capacity_before);
+    ASSERT(strcmp(nl_string_to_cstr(str), "Hello") == 0);
+
+    nl_string_free(str);
+}
+
+/* Regression 4: nl_string_shrink_to_fit chooses the exact required capacity.
+ * Build a string with excess capacity (via reserve), then shrink it.  For a
+ * null-terminated string the required capacity is length+1; for a binary
+ * string without a terminator it is exactly length.  Verify both cases.
+ */
+void test_shrink_to_fit_exact_capacity() {
+    /* Case A: null-terminated string */
+    nl_string_t *str = nl_string_new("Hi");   /* length=2, capacity=3 */
+    ASSERT(str != NULL);
+    nl_string_reserve(str, 64);               /* bloat capacity */
+    ASSERT(str->capacity >= 64);
+
+    nl_string_shrink_to_fit(str);
+
+    /* Expected capacity == length + 1 (room for the null terminator). */
+    ASSERT(str->capacity == nl_string_length(str) + 1);
+    ASSERT(str->null_terminated);
+    ASSERT(strcmp(nl_string_to_cstr(str), "Hi") == 0);
+    nl_string_free(str);
+
+    /* Case B: binary string (no null terminator) */
+    char data[] = {'P', 'Q', 'R'};
+    nl_string_t *bin = nl_string_new_binary(data, 3);
+    ASSERT(bin != NULL);
+    /* Manually bloat capacity for test. */
+    nl_string_reserve(bin, 64);
+    ASSERT(!bin->null_terminated);
+
+    nl_string_shrink_to_fit(bin);
+
+    /* Expected capacity == length (no terminator byte needed). */
+    ASSERT(bin->capacity == nl_string_length(bin));
+    ASSERT(!bin->null_terminated);
+    ASSERT((unsigned char)nl_string_byte_at(bin, 0) == 'P');
+    ASSERT((unsigned char)nl_string_byte_at(bin, 1) == 'Q');
+    ASSERT((unsigned char)nl_string_byte_at(bin, 2) == 'R');
+    nl_string_free(bin);
+}
+
+/* Regression 5: nl_string_clone preserves capacity, content, UTF-8 flag, and
+ * null-termination flag while owning a distinct buffer.
+ * Verify for (a) a plain ASCII null-terminated string, (b) a validated UTF-8
+ * string, and (c) a binary string that is not null-terminated.
+ */
+void test_clone_preserves_flags_and_owns_buffer() {
+    /* Case A: ASCII null-terminated */
+    nl_string_t *orig = nl_string_new("World");
+    ASSERT(orig != NULL);
+    nl_string_t *clone = nl_string_clone(orig);
+    ASSERT(clone != NULL);
+    ASSERT(clone != orig);
+    ASSERT(clone->data != orig->data);          /* distinct buffer */
+    ASSERT(nl_string_length(clone) == nl_string_length(orig));
+    ASSERT(clone->capacity == orig->capacity);
+    ASSERT(clone->null_terminated == orig->null_terminated);
+    ASSERT(clone->is_utf8 == orig->is_utf8);
+    ASSERT(nl_string_equals(orig, clone));
+    nl_string_free(orig);
+    nl_string_free(clone);
+
+    /* Case B: validated UTF-8 string */
+    nl_string_t *utf8 = nl_string_new("Héllo");
+    ASSERT(utf8 != NULL);
+    nl_string_validate_utf8(utf8);
+    ASSERT(utf8->is_utf8);
+    nl_string_t *utf8_clone = nl_string_clone(utf8);
+    ASSERT(utf8_clone != NULL);
+    ASSERT(utf8_clone->data != utf8->data);
+    ASSERT(utf8_clone->is_utf8 == utf8->is_utf8);
+    ASSERT(utf8_clone->null_terminated == utf8->null_terminated);
+    ASSERT(nl_string_equals(utf8, utf8_clone));
+    nl_string_free(utf8);
+    nl_string_free(utf8_clone);
+
+    /* Case C: binary string, not null-terminated */
+    char data[] = {0x01, 0x02, 0x03};
+    nl_string_t *bin = nl_string_new_binary(data, 3);
+    ASSERT(bin != NULL);
+    ASSERT(!bin->null_terminated);
+    nl_string_t *bin_clone = nl_string_clone(bin);
+    ASSERT(bin_clone != NULL);
+    ASSERT(bin_clone->data != bin->data);
+    ASSERT(!bin_clone->null_terminated);
+    ASSERT(bin_clone->capacity == bin->capacity);
+    ASSERT((unsigned char)nl_string_byte_at(bin_clone, 0) == 0x01);
+    ASSERT((unsigned char)nl_string_byte_at(bin_clone, 1) == 0x02);
+    ASSERT((unsigned char)nl_string_byte_at(bin_clone, 2) == 0x03);
+    nl_string_free(bin);
+    nl_string_free(bin_clone);
+}
+
 /* ============================================================================
  * Capacity-Boundary Regression Tests
  *
@@ -299,6 +467,14 @@ int main() {
     printf("\nMemory Management:\n");
     TEST(clone);
     TEST(null_termination);
+
+
+    printf("\nFocused Regressions:\n");
+    TEST(empty_string_construction);
+    TEST(byte_at_safe_boundary);
+    TEST(reserve_preserves_state);
+    TEST(shrink_to_fit_exact_capacity);
+    TEST(clone_preserves_flags_and_owns_buffer);
 
     printf("\nCapacity-Boundary Regressions:\n");
     TEST(binary_zero_length_null_termination);
