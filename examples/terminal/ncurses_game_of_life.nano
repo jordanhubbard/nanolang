@@ -280,7 +280,7 @@ fn main() -> int {
         if (or (== key KEY_SPACE) (== key (cast_int ' '))) {
             set paused (not paused)
         } else {
-            if (or (== key (cast_int 'q')) (== key (cast_int 'Q')) (== key 27)) {
+            if (or (or (== key (cast_int 'q')) (== key (cast_int 'Q'))) (== key 27)) {
                 set running false
             } else {}
         }
