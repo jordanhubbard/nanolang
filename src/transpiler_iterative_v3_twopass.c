@@ -3917,7 +3917,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_indent_item(list, indent + 1);
                         emit_literal(list, "#endif\n");
                         emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#ifdef __clang__\n");
+                        emit_indent_item(list, indent + 1);
                         emit_literal(list, "#pragma clang loop vectorize(enable) interleave(enable)\n");
+                        emit_indent_item(list, indent + 1);
+                        emit_literal(list, "#endif\n");
                     }
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
