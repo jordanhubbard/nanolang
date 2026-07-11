@@ -4,6 +4,7 @@
 # Difficulty: Beginner
 # Category: audio
 # Prerequisites: none
+# Build: external-deps, audio
 # Expected Output: Testing WAV playback...
 
 unsafe module "modules/sdl/sdl.nano"

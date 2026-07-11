@@ -4,6 +4,7 @@
 # Difficulty: Advanced
 # Category: audio
 # Prerequisites: none
+# Build: graphical, external-deps
 # Expected Output: graphical
 # Default Args: examples/audio
 

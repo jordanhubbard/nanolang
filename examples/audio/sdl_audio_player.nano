@@ -4,6 +4,7 @@
 # Difficulty: Intermediate
 # Category: audio
 # Prerequisites: none
+# Build: graphical, external-deps
 # Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
