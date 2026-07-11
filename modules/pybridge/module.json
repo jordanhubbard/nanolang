@@ -4,5 +4,6 @@
   "description": "Python helper process bridge for NanoLang",
   "headers": ["pybridge.h"],
   "c_sources": ["pybridge.c"],
-  "cflags": ["-Imodules/pybridge", "-Isrc"]
+  "cflags": ["-Imodules/pybridge", "-Isrc"],
+  "shared_c_sources": ["../../src/cJSON.c"]
 }

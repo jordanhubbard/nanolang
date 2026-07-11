@@ -101,6 +101,12 @@ typedef struct {
     // after copying into a nanolang Value.
     char **owned_string_returns;
     size_t owned_string_returns_count;
+
+    // C sources compiled with hidden visibility, linked only into the shared library.
+    // Use for private dependencies (e.g. cJSON) that must be embedded in libfoo.so
+    // without exporting symbols that would clash with other modules.
+    char **shared_c_sources;
+    size_t shared_c_sources_count;
 } ModuleBuildMetadata;
 
 // Build information for tracking

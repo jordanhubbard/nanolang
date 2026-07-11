@@ -1222,6 +1222,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     PARSE_STRING_ARRAY("dnf_packages", dnf_packages, dnf_packages_count);
     PARSE_STRING_ARRAY("brew_packages", brew_packages, brew_packages_count);
     PARSE_STRING_ARRAY("owned_string_returns", owned_string_returns, owned_string_returns_count);
+    PARSE_STRING_ARRAY("shared_c_sources", shared_c_sources, shared_c_sources_count);
 
     #undef PARSE_STRING_ARRAY
 
@@ -1408,6 +1409,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(dnf_packages, dnf_packages_count);
     FREE_STRING_ARRAY(brew_packages, brew_packages_count);
     FREE_STRING_ARRAY(owned_string_returns, owned_string_returns_count);
+    FREE_STRING_ARRAY(shared_c_sources, shared_c_sources_count);
 
     #undef FREE_STRING_ARRAY
 
@@ -1961,7 +1963,47 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 #endif
 
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
-            
+
+            /* Compile shared_c_sources with hidden visibility and link into the shared lib only.
+             * This embeds private dependencies (e.g. cJSON) without exporting their symbols,
+             * preventing duplicate-symbol errors when the host binary also has those symbols
+             * (e.g. from modules/std/json). */
+            if (meta->shared_c_sources_count > 0) {
+                const char *cc_sc = getenv("CC") ? getenv("CC") : "cc";
+                for (size_t sci = 0; sci < meta->shared_c_sources_count; sci++) {
+                    char sc_obj[2048];
+                    snprintf(sc_obj, sizeof(sc_obj), "%s/__shared_%zu.o", shared_dir, sci);
+
+                    char sc_cmd[8192];
+                    snprintf(sc_cmd, sizeof(sc_cmd),
+                             "%s -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L",
+                             cc_sc);
+                    /* Append module cflags (include paths) */
+                    for (size_t fi = 0; fi < meta->cflags_count; fi++) {
+                        size_t sc_len = strlen(sc_cmd);
+                        snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len, " %s", meta->cflags[fi]);
+                    }
+                    /* Append source path and output */
+                    size_t sc_len = strlen(sc_cmd);
+                    snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len,
+                             " %s/%s -o %s", meta->module_dir, meta->shared_c_sources[sci], sc_obj);
+
+                    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+                        printf("[Module] (shared-only) %s\n", sc_cmd);
+                    }
+
+                    if (system(sc_cmd) == 0) {
+                        /* Append this object to the lib_cmd */
+                        size_t lp = strlen(lib_cmd);
+                        snprintf(lib_cmd + lp, sizeof(lib_cmd) - lp, " %s", sc_obj);
+                    } else {
+                        fprintf(stderr,
+                                "Warning: Failed to compile shared_c_source %s for %s\n",
+                                meta->shared_c_sources[sci], meta->name);
+                    }
+                }
+            }
+
             /* Build shared library */
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] Building shared library: %s\n", lib_cmd);
