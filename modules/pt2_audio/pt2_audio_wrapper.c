@@ -7,8 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* Paula model constants (from pt2_paula.h) */
+#define PT2_MODEL_A1200 0
+#define PT2_MODEL_A500  1
+
+/* Forward-declare paulaSetup only when the full pt2 headers are available */
+#ifdef PT2_FULL_BUILD
 #include "pt2_structs.h"
 #include "pt2_paula.h"
+#endif
 
 /* Static state variables */
 static int g_initialized = 0;
@@ -20,8 +28,8 @@ static char g_mod_filename[4096] = {0};
 /* Initialize audio system */
 int64_t pt2_audio_init(int64_t sample_rate) {
     g_sample_rate = sample_rate;
-#ifdef PAULA_SETUP_AVAILABLE
-    paulaSetup((double)sample_rate, MODEL_A500);
+#ifdef PT2_FULL_BUILD
+    paulaSetup((double)sample_rate, PT2_MODEL_A500);
 #endif
     g_initialized = 1;
     return 0; /* Success */
