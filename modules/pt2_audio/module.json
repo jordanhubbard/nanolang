@@ -16,8 +16,7 @@
     "pt2_paula.h",
     "pt2_blep.h", 
     "pt2_rcfilters.h",
-    "pt2_structs.h",
-    "pt2_replayer.h"
+    "pt2_structs.h"
   ],
   "cflags": ["-Imodules/pt2_audio", "-O2", "-Wno-unused-variable"],
   "pkg_config": ["sdl2"],
