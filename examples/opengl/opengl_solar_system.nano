@@ -110,6 +110,15 @@ fn draw_solar_system(time_s: float) -> void {
 
 shadow draw_solar_system { assert true }
 
+# Initialize GLUT state required for primitive functions under GLFW.
+# freeglut requires glutInit to be called before any glutSolid* function,
+# even when GLFW (not GLUT) is managing the window and event loop.
+fn init_glut_for_primitives() -> void {
+    unsafe { (glutInit 0 0) }
+}
+
+shadow init_glut_for_primitives { assert true }
+
 fn main() -> int {
     if (== (glfwInit) 0) {
         (println "✗ Failed to initialize GLFW")
@@ -132,6 +141,10 @@ fn main() -> int {
         (glfwTerminate)
         return 1
     } else {}
+
+    # glutInit is required by freeglut even when GLFW owns the window,
+    # because GLUT primitive functions (glutSolidSphere etc.) need its internal state.
+    unsafe { (glutInit 0 0) }
 
     (setup_opengl)
     (println "✓ Running Solar System demo (ESC to quit)")

@@ -496,6 +496,10 @@ if (!= glew_status GLEW_OK) {
     (println "✓ GLEW initialized")
 }
     
+# glutInit is required by freeglut even when GLFW owns the window,
+# because GLUT primitive functions (glutSolidTeapot etc.) need its internal state.
+unsafe { (glutInit 0 0) }
+
 # Setup OpenGL
 (setup_opengl)
 (println "✓ OpenGL configured")
