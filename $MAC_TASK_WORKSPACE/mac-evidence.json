@@ -3,22 +3,31 @@
   "status": "complete",
   "evidence_type": "repo_change",
   "repo": {
-    "head_sha": "266d6b07ae73c568fecd70d36f33692e0730e85a",
-    "base_sha": "92083ac4df245203587bea4492976e5d9f733e58",
-    "branch": "mac/agent_jordanh-worker2/task_2f0fd83faad44b1d89c2a8cb6f0ef8b8-lease_f8349d1b70b64e2999",
-    "remote_ref": "origin/mac/agent_jordanh-worker2/task_2f0fd83faad44b1d89c2a8cb6f0ef8b8-lease_f8349d1b70b64e2999",
-    "pushed": true,
+    "head_sha": "1376f4a0b61558ea5a3ae12eeb58bc347d3d078e",
+    "base_sha": "87d249409cab7a558a5de429863eaa43918d236e",
+    "branch": "mac/agent_natasha/task_3c15c07d3c694f669d27f7a5f175233b-lease_d6447836f94a4d6cbe",
+    "remote_ref": "refs/heads/mac/agent_natasha/task_3c15c07d3c694f669d27f7a5f175233b-lease_d6447836f94a4d6cbe",
+    "pushed": false,
     "dirty": false,
-    "files_changed": ["tests/test_nl_string.c"]
+    "files_changed": [
+      "examples/opengl/opengl_solar_system.nano",
+      "examples/opengl/opengl_teapot.nano"
+    ]
+  },
+  "integration": {
+    "strategy": "merge_each_exact_child_commit",
+    "children": [
+      {
+        "task_id": "task_81009331be0142a999bd669e09fc8dde",
+        "head_sha": "1376f4a0b61558ea5a3ae12eeb58bc347d3d078e",
+        "remote_ref": "refs/heads/mac/agent_bullwinkle/task_81009331be0142a999bd669e09fc8dde-lease_fb9ff56fcef34c62b8",
+        "ancestry_verified": true,
+        "note": "Child commit 1376f4a0 is HEAD of integration branch; ancestry confirmed via git merge-base"
+      }
+    ]
   },
   "verification": {
     "tests": [
-      {
-        "command": "make test-nl-string",
-        "returncode": 0,
-        "status": "pass",
-        "summary": "15 tests passed: 11 existing + 3 pre-existing boundary regressions + 1 new idempotency regression"
-      },
       {
         "command": "make test-quick",
         "returncode": 0,
@@ -28,21 +37,25 @@
     ]
   },
   "codegraph": {
-    "init": "codegraph init — Indexed 452 files, 10,440 nodes, 35,381 edges in 6.6s",
-    "affected": "codegraph affected tests/test_nl_string.c — No test files affected by the changed files (change is self-contained)",
-    "impact": "codegraph impact tests/test_nl_string.c — 1 affected symbol: test_nl_string.c (file), no production code impact",
-    "assessment": "Change is test-only, confined to tests/test_nl_string.c. No production source files modified."
+    "init": "codegraph init — Indexed 10,449 nodes, 35,314 edges in 2.6s",
+    "affected": "codegraph affected examples/opengl/opengl_solar_system.nano examples/opengl/opengl_teapot.nano — No test files affected by the changed files",
+    "impact": "No production code impact; changes are self-contained to example files only",
+    "assessment": "Changes are example-only, confined to examples/opengl/opengl_solar_system.nano and examples/opengl/opengl_teapot.nano. No production source or test files modified."
   },
   "changes": {
-    "tests/test_nl_string.c": {
-      "description": "Added test_binary_ensure_null_terminated_idempotent (Boundary 4) to the Capacity-Boundary Regressions section. This test verifies that a second call to nl_string_ensure_null_terminated on an already null-terminated binary string is a strict no-op: null_terminated stays true, capacity does not change, and all bytes remain intact. Registered in main() after the three pre-existing boundary tests.",
-      "lines_added": 35,
-      "tests_added": ["test_binary_ensure_null_terminated_idempotent"]
+    "examples/opengl/opengl_solar_system.nano": {
+      "description": "Added init_glut_for_primitives() helper and glutInit(0,0) call in main() before setup_opengl(). Freeglut requires glutInit before any glutSolid* call even when GLFW manages the window.",
+      "lines_added": 13
+    },
+    "examples/opengl/opengl_teapot.nano": {
+      "description": "Added glutInit(0,0) call before setup_opengl(). Freeglut requires glutInit before glutSolidTeapot even when GLFW manages the window.",
+      "lines_added": 4
     }
   },
   "assumptions": [
-    "The three boundary regression tests (zero-length, exact-capacity, embedded-NUL over-capacity) were already present in the canonical main branch from a prior MAC task. This task adds a fourth regression (idempotency) to produce a genuine commit with changed files.",
-    "No implementation defects were found; the nl_string_ensure_null_terminated implementation correctly handles all four boundary cases including the idempotency path via the early-return guard.",
-    "Task branch was created from origin/main (SHA 552a9cca) which includes the three pre-existing boundary tests, and the idempotency test was added as the only new change."
+    "This is the cooperative integration pass for child task task_81009331be0142a999bd669e09fc8dde.",
+    "The child commit 1376f4a0 is already the tip of origin/main; integration branch was created from that exact commit.",
+    "No additional changes were needed beyond the child task delivery; this is a fast-forward integration.",
+    "The host finalizer will set pushed=true and supply the authoritative remote_ref after pushing."
   ]
 }
