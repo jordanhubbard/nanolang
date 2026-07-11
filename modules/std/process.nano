@@ -89,6 +89,13 @@ shadow is_running {
     assert (>= running 0)
     let result: int = (wait pid)
     assert (== result 0)
+
+    let exited_pid: int = (spawn "exit 7")
+    assert (> exited_pid 0)
+    let pause: Output = (run "sleep 0.1")
+    assert (== pause.code 0)
+    assert (== (is_running exited_pid) 0)
+    assert (== (wait exited_pid) 7)
 }
 
 /* Wait for a process to complete
@@ -169,4 +176,3 @@ shadow fd_close {
     let code: int = (fd_close -1)
     assert (== code -1)
 }
-

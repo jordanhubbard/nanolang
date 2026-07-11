@@ -11,7 +11,7 @@
 # Expected Output: none
 
 from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, Output
-from "modules/std/fs.nano" import exists, read, basename, dirname
+from "modules/std/fs.nano" import exists, read, write, append, basename, dirname
 from "modules/std/env.nano" import get as env_get
 
 struct ModeConfig {
@@ -35,14 +35,17 @@ struct ChildStatus {
     build_output: string,
     stdout_fd: int,
     stderr_fd: int,
-    runtime_output: string
+    runtime_output: string,
+    log_path: string,
+    task_filed: bool
 }
 
 fn empty_child(path: string) -> ChildStatus {
     return ChildStatus {
         example_path: path, pid: 0, state: 0, exit_code: 0,
         memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
-        stdout_fd: -1, stderr_fd: -1, runtime_output: ""
+        stdout_fd: -1, stderr_fd: -1, runtime_output: "",
+        log_path: "", task_filed: false
     }
 }
 
@@ -76,6 +79,80 @@ fn pm_ends_with(s: string, suffix: string) -> bool {
 
 shadow pm_ends_with {
     assert (pm_ends_with "test.nano" ".nano")
+}
+
+fn pm_shell_quote(value: string) -> string {
+    let escaped: string = (str_replace value "'" "'\"'\"'")
+    return (+ "'" (+ escaped "'"))
+}
+
+shadow pm_shell_quote {
+    assert (== (pm_shell_quote "plain") "'plain'")
+}
+
+fn pm_runtime_log_path(example_path: string, pid: int) -> string {
+    return (+ "/tmp/nanolang-launcher-" (+ (int_to_string pid) (+ "-" (+ (basename example_path) ".log"))))
+}
+
+shadow pm_runtime_log_path {
+    assert (== (pm_runtime_log_path "examples/games/sdl_pong.nano" 42)
+        "/tmp/nanolang-launcher-42-sdl_pong.nano.log")
+}
+
+fn pm_output_has_error(output: string) -> bool {
+    let lower: string = (str_to_lower output)
+    if (str_contains lower "addresssanitizer") { return true }
+    if (str_contains lower "segmentation fault") { return true }
+    if (str_contains lower "assertion failed") { return true }
+    if (str_contains lower "fatal error") { return true }
+    if (str_contains lower "runtime error") { return true }
+    if (str_contains lower "uncaught exception") { return true }
+    if (str_contains lower "traceback (most recent call last)") { return true }
+    if (str_contains lower "undefined symbol") { return true }
+    if (str_contains lower "panic:") { return true }
+    if (str_contains lower "[error]") { return true }
+    if (str_contains lower "error:") { return true }
+    if (str_contains lower "failed to") { return true }
+    return false
+}
+
+shadow pm_output_has_error {
+    assert (pm_output_has_error "fatal error: renderer initialization failed")
+    assert (pm_output_has_error "Traceback (most recent call last):")
+    assert (not (pm_output_has_error "I launched and rendered one frame."))
+}
+
+fn pm_file_failure_task(example_path: string, log_path: string, exit_code: int, output: string) -> int {
+    let base: string = (basename example_path)
+    let title: string = (+ "Fix my launcher runtime failure in " base)
+    let description_path: string = (+ log_path ".task.md")
+    let description: string = (+ "I launched " (+ example_path
+        (+ " from my SDL example launcher and detected a runtime failure.\n\nExit code (-999 means the process was still running): "
+        (+ (int_to_string exit_code) (+ "\nCaptured output: " (+ log_path (+ "\n\nOutput:\n" output)))))))
+    let description_result: int = (write description_path description)
+    if (!= description_result 0) {
+        (append log_path "\n[launcher]\nI could not write the task description file.\n")
+        return description_result
+    }
+
+    let quoted_title: string = (pm_shell_quote title)
+    let search_result: Output = (run (+ "mac task search " (+ quoted_title " --project nanolang --limit 20")))
+    if (and (== search_result.code 0) (str_contains search_result.stdout title)) {
+        (append log_path (+ "\n[launcher]\nI found an existing task named " (+ title ".\n")))
+        return 0
+    }
+
+    let command: string = (+ "mac task create " (+ quoted_title
+        (+ " --project nanolang --kind code --description-file "
+        (+ (pm_shell_quote description_path) " --no-ticket --no-decompose"))))
+    let create_result: Output = (run command)
+    (append log_path (+ "\n[launcher task stdout]\n" (+ create_result.stdout
+        (+ "\n[launcher task stderr]\n" create_result.stderr))))
+    return create_result.code
+}
+
+shadow pm_file_failure_task {
+    assert (== 0 0)
 }
 
 fn get_binary_name(example_path: string, mode: ModeConfig) -> string {
@@ -119,14 +196,19 @@ fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
         return ChildStatus {
             example_path: example_path, pid: 0, state: 0, exit_code: 0,
             memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: build_out,
-            stdout_fd: -1, stderr_fd: -1, runtime_output: ""
+            stdout_fd: -1, stderr_fd: -1, runtime_output: "",
+            log_path: "", task_filed: false
         }
     } else {
         (println (+ "[build] " (+ example_path (+ " failed:\n" build_out))))
+        let build_log_path: string = (+ "/tmp/nanolang-launcher-build-" (+ (basename example_path) ".log"))
+        (write build_log_path (+ "[build output]\n" build_out))
+        (pm_file_failure_task example_path build_log_path result.code build_out)
         return ChildStatus {
             example_path: example_path, pid: 0, state: 0, exit_code: result.code,
             memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: build_out,
-            stdout_fd: -1, stderr_fd: -1, runtime_output: ""
+            stdout_fd: -1, stderr_fd: -1, runtime_output: "",
+            log_path: build_log_path, task_filed: true
         }
     }
 }
@@ -148,15 +230,22 @@ fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default
     let pipe_result: array<string> = (spawn_with_pipes launch_cmd)
     let pid: int = (string_to_int (at pipe_result 0))
     if (<= pid 0) {
+        let spawn_log_path: string = (+ "/tmp/nanolang-launcher-spawn-" (+ (basename example_path) ".log"))
+        let spawn_error: string = (+ "I could not spawn " (+ launch_cmd ".\n"))
+        (write spawn_log_path spawn_error)
+        (pm_file_failure_task example_path spawn_log_path -1 spawn_error)
         return pm
     }
     let stdout_fd: int = (string_to_int (at pipe_result 1))
     let stderr_fd: int = (string_to_int (at pipe_result 2))
+    let log_path: string = (pm_runtime_log_path example_path pid)
+    (write log_path (+ "[launcher]\nI launched " (+ launch_cmd (+ " with pid " (+ (int_to_string pid) ".\n")))))
 
     let child: ChildStatus = ChildStatus {
         example_path: example_path, pid: pid, state: 1, exit_code: 0,
         memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
-        stdout_fd: stdout_fd, stderr_fd: stderr_fd, runtime_output: ""
+        stdout_fd: stdout_fd, stderr_fd: stderr_fd, runtime_output: "",
+        log_path: log_path, task_filed: false
     }
 
     return ProcessManager {
@@ -220,6 +309,9 @@ fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
     if (> child.pid 0) {
         (exec (+ "kill " (int_to_string child.pid)))
     }
+    if (> (str_length child.log_path) 0) {
+        (append child.log_path "\n[launcher]\nI stopped this process at the user's request.\n")
+    }
     (fd_close child.stdout_fd)
     (fd_close child.stderr_fd)
     let mut new_children: array<ChildStatus> = []
@@ -250,11 +342,14 @@ fn pm_poll(pm: ProcessManager) -> ProcessManager {
             let out_chunk: string = (fd_read_available child.stdout_fd)
             if (> (str_length out_chunk) 0) {
                 set new_runtime (+ new_runtime out_chunk)
+                (append child.log_path (+ "\n[stdout]\n" out_chunk))
             }
             let err_chunk: string = (fd_read_available child.stderr_fd)
             if (> (str_length err_chunk) 0) {
                 set new_runtime (+ new_runtime err_chunk)
+                (append child.log_path (+ "\n[stderr]\n" err_chunk))
             }
+            let mut task_filed: bool = child.task_filed
 
             let running: int = (is_running child.pid)
             if (== running 0) {
@@ -264,12 +359,19 @@ fn pm_poll(pm: ProcessManager) -> ProcessManager {
                 let err_final: string = (fd_read_available child.stderr_fd)
                 if (> (str_length out_final) 0) {
                     set new_runtime (+ new_runtime out_final)
+                    (append child.log_path (+ "\n[stdout]\n" out_final))
                 }
                 if (> (str_length err_final) 0) {
                     set new_runtime (+ new_runtime err_final)
+                    (append child.log_path (+ "\n[stderr]\n" err_final))
                 }
                 (fd_close child.stdout_fd)
                 (fd_close child.stderr_fd)
+                (append child.log_path (+ "\n[launcher]\nI observed exit code " (+ (int_to_string code) ".\n")))
+                if (and (not task_filed) (or (!= code 0) (pm_output_has_error new_runtime))) {
+                    (pm_file_failure_task child.example_path child.log_path code new_runtime)
+                    set task_filed true
+                }
                 if (> (str_length new_runtime) 0) {
                     (println (+ "[runtime:" (+ child.example_path (+ "] " new_runtime))))
                 }
@@ -278,16 +380,22 @@ fn pm_poll(pm: ProcessManager) -> ProcessManager {
                     state: 2, exit_code: code,
                     memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0,
                     build_output: child.build_output,
-                    stdout_fd: -1, stderr_fd: -1, runtime_output: new_runtime
+                    stdout_fd: -1, stderr_fd: -1, runtime_output: new_runtime,
+                    log_path: child.log_path, task_filed: task_filed
                 })
             } else {
+                if (and (not task_filed) (pm_output_has_error new_runtime)) {
+                    (pm_file_failure_task child.example_path child.log_path -999 new_runtime)
+                    set task_filed true
+                }
                 set new_children (array_push new_children ChildStatus {
                     example_path: child.example_path, pid: child.pid,
                     state: 1, exit_code: 0,
                     memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0,
                     build_output: child.build_output,
                     stdout_fd: child.stdout_fd, stderr_fd: child.stderr_fd,
-                    runtime_output: new_runtime
+                    runtime_output: new_runtime,
+                    log_path: child.log_path, task_filed: task_filed
                 })
             }
         } else {

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/wait.h>
 
 /* Use runtime DynArray API */
@@ -142,20 +143,16 @@ int64_t nl_os_process_spawn(const char* command) {
  */
 int64_t nl_os_process_is_running(int64_t pid) {
     if (pid <= 0) return -1;
-    
-    int status;
-    pid_t result = waitpid((pid_t)pid, &status, WNOHANG);
-    
-    if (result == 0) {
-        /* Process is still running */
-        return 1;
-    } else if (result == (pid_t)pid) {
-        /* Process has exited */
-        return 0;
-    } else {
-        /* Error (e.g., no such process) */
+
+    /* Observe termination without consuming the status. The caller follows
+     * this probe with nl_os_process_wait(), which owns the actual reap and
+     * must still be able to return the child's real exit code. */
+    siginfo_t info;
+    memset(&info, 0, sizeof(info));
+    if (waitid(P_PID, (id_t)pid, &info, WEXITED | WNOHANG | WNOWAIT) != 0) {
         return -1;
     }
+    return info.si_pid == 0 ? 1 : 0;
 }
 
 /* Wait for a process to complete
