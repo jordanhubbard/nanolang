@@ -8,15 +8,41 @@
     "User says 'mod files', 'protracker', 'tracker music'",
     "User is building a music player or tracker"
   ],
-  "avoid_when": ["User wants modern audio formats (use sdl_mixer)"],
-  "capabilities": ["mod_playback", "tracker_audio", "pattern_playback"],
-  "keywords": ["protracker", "mod", "tracker", "audio", "chiptune"],
-  "examples": ["examples/sdl_tracker_shell.nano"],
+  "avoid_when": [
+    "User wants modern audio formats (use sdl_mixer)"
+  ],
+  "capabilities": [
+    "mod_playback",
+    "tracker_audio",
+    "pattern_playback"
+  ],
+  "keywords": [
+    "protracker",
+    "mod",
+    "tracker",
+    "audio",
+    "chiptune"
+  ],
+  "examples": [
+    "examples/audio/sdl_tracker_shell.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["sdl_mixer", "pt2_module"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "sdl_mixer",
+      "pt2_module"
+    ],
     "system": []
   },
-  "io_surfaces": ["audio"],
-  "alternatives": [{"when": "modern formats", "module": "sdl_mixer"}]
+  "io_surfaces": [
+    "audio"
+  ],
+  "alternatives": [
+    {
+      "when": "modern formats",
+      "module": "sdl_mixer"
+    }
+  ]
 }

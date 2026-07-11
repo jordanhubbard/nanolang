@@ -8,13 +8,30 @@
     "User says 'tracker state', 'pattern editor', 'tracker ui'",
     "User needs tracker playback state"
   ],
-  "avoid_when": ["User only wants playback (use pt2_audio)"],
-  "capabilities": ["tracker_state", "pattern_state", "playback_position"],
-  "keywords": ["protracker", "state", "tracker", "ui"],
-  "examples": ["examples/sdl_tracker_shell.nano"],
+  "avoid_when": [
+    "User only wants playback (use pt2_audio)"
+  ],
+  "capabilities": [
+    "tracker_state",
+    "pattern_state",
+    "playback_position"
+  ],
+  "keywords": [
+    "protracker",
+    "state",
+    "tracker",
+    "ui"
+  ],
+  "examples": [
+    "examples/audio/sdl_tracker_shell.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["pt2_module"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "pt2_module"
+    ],
     "system": []
   },
   "io_surfaces": [],

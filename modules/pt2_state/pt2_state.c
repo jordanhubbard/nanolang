@@ -4,6 +4,7 @@
  * Stores replayer state in C to enable state mutation from nanolang
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -34,7 +35,7 @@ static int g_sample_loop_length[31];
 
 // === INITIALIZATION ===
 
-extern int pt2_init_state(void) {
+int64_t pt2_init_state(void) {
     g_playing = 0;
     g_current_pattern = 0;
     g_current_row = 0;
@@ -42,218 +43,218 @@ extern int pt2_init_state(void) {
     g_speed = 6;
     g_bpm = 125;
     g_tick = 0;
-    
+
     memset(g_pattern_table, 0, sizeof(g_pattern_table));
     g_pattern_table[0] = 0;
     g_song_length = 1;
-    
+
     memset(g_ch_period, 0, sizeof(g_ch_period));
     memset(g_ch_volume, 0, sizeof(g_ch_volume));
     memset(g_ch_sample, 0, sizeof(g_ch_sample));
     memset(g_ch_note, 0, sizeof(g_ch_note));
-    
+
     return 0;
 }
 
 // === PLAYBACK CONTROL ===
 
-extern int pt2_start_playback(void) {
+int64_t pt2_start_playback(void) {
     g_playing = 1;
     g_tick = 0;
     return 0;
 }
 
-extern int pt2_stop_playback(void) {
+int64_t pt2_stop_playback(void) {
     g_playing = 0;
     g_tick = 0;
     return 0;
 }
 
-extern int pt2_is_playing(void) {
-    return g_playing;
+int64_t pt2_is_playing(void) {
+    return (int64_t)g_playing;
 }
 
 // === STATE GETTERS ===
 
-extern int pt2_get_current_row(void) {
-    return g_current_row;
+int64_t pt2_get_current_row(void) {
+    return (int64_t)g_current_row;
 }
 
-extern int pt2_get_current_pattern(void) {
-    return g_current_pattern;
+int64_t pt2_get_current_pattern(void) {
+    return (int64_t)g_current_pattern;
 }
 
-extern int pt2_get_speed(void) {
-    return g_speed;
+int64_t pt2_get_speed(void) {
+    return (int64_t)g_speed;
 }
 
-extern int pt2_get_bpm(void) {
-    return g_bpm;
+int64_t pt2_get_bpm(void) {
+    return (int64_t)g_bpm;
 }
 
-extern int pt2_get_tick(void) {
-    return g_tick;
+int64_t pt2_get_tick(void) {
+    return (int64_t)g_tick;
+}
+
+int64_t pt2_get_song_pos(void) {
+    return (int64_t)g_song_pos;
 }
 
 // === STATE SETTERS ===
 
-extern void pt2_set_current_row(int row) {
-    g_current_row = row;
+void pt2_set_current_row(int64_t row) {
+    g_current_row = (int)row;
 }
 
-extern void pt2_set_current_pattern(int pattern) {
-    g_current_pattern = pattern;
+void pt2_set_current_pattern(int64_t pattern) {
+    g_current_pattern = (int)pattern;
 }
 
-extern void pt2_set_speed(int speed) {
-    g_speed = speed;
+void pt2_set_speed(int64_t speed) {
+    g_speed = (int)speed;
 }
 
-extern void pt2_set_bpm(int bpm) {
-    g_bpm = bpm;
+void pt2_set_bpm(int64_t bpm) {
+    g_bpm = (int)bpm;
 }
 
-extern void pt2_set_tick(int tick) {
-    g_tick = tick;
+void pt2_set_tick(int64_t tick) {
+    g_tick = (int)tick;
 }
 
-extern void pt2_set_song_pos(int pos) {
-    g_song_pos = pos;
-}
-
-extern int pt2_get_song_pos(void) {
-    return g_song_pos;
+void pt2_set_song_pos(int64_t pos) {
+    g_song_pos = (int)pos;
 }
 
 // === CHANNEL STATE ===
 
-extern void pt2_set_channel_period(int channel, int period) {
+void pt2_set_channel_period(int64_t channel, int64_t period) {
     if (channel >= 0 && channel < 4) {
-        g_ch_period[channel] = period;
+        g_ch_period[channel] = (int)period;
     }
 }
 
-extern int pt2_get_channel_period(int channel) {
+int64_t pt2_get_channel_period(int64_t channel) {
     if (channel >= 0 && channel < 4) {
-        return g_ch_period[channel];
-    }
-    return 0;
-}
-
-extern void pt2_set_channel_volume(int channel, int volume) {
-    if (channel >= 0 && channel < 4) {
-        g_ch_volume[channel] = volume;
-    }
-}
-
-extern int pt2_get_channel_volume(int channel) {
-    if (channel >= 0 && channel < 4) {
-        return g_ch_volume[channel];
+        return (int64_t)g_ch_period[channel];
     }
     return 0;
 }
 
-extern void pt2_set_channel_sample(int channel, int sample) {
+void pt2_set_channel_volume(int64_t channel, int64_t volume) {
     if (channel >= 0 && channel < 4) {
-        g_ch_sample[channel] = sample;
+        g_ch_volume[channel] = (int)volume;
     }
 }
 
-extern int pt2_get_channel_sample(int channel) {
+int64_t pt2_get_channel_volume(int64_t channel) {
     if (channel >= 0 && channel < 4) {
-        return g_ch_sample[channel];
+        return (int64_t)g_ch_volume[channel];
     }
     return 0;
 }
 
-extern void pt2_set_channel_note(int channel, int note) {
+void pt2_set_channel_sample(int64_t channel, int64_t sample) {
     if (channel >= 0 && channel < 4) {
-        g_ch_note[channel] = note;
+        g_ch_sample[channel] = (int)sample;
     }
 }
 
-extern int pt2_get_channel_note(int channel) {
+int64_t pt2_get_channel_sample(int64_t channel) {
     if (channel >= 0 && channel < 4) {
-        return g_ch_note[channel];
+        return (int64_t)g_ch_sample[channel];
+    }
+    return 0;
+}
+
+void pt2_set_channel_note(int64_t channel, int64_t note) {
+    if (channel >= 0 && channel < 4) {
+        g_ch_note[channel] = (int)note;
+    }
+}
+
+int64_t pt2_get_channel_note(int64_t channel) {
+    if (channel >= 0 && channel < 4) {
+        return (int64_t)g_ch_note[channel];
     }
     return 0;
 }
 
 // === PATTERN TABLE ===
 
-extern void pt2_set_pattern_table_entry(int pos, int pattern) {
+void pt2_set_pattern_table_entry(int64_t pos, int64_t pattern) {
     if (pos >= 0 && pos < 128) {
-        g_pattern_table[pos] = pattern;
+        g_pattern_table[pos] = (int)pattern;
     }
 }
 
-extern int pt2_get_pattern_table_entry(int pos) {
+int64_t pt2_get_pattern_table_entry(int64_t pos) {
     if (pos >= 0 && pos < 128) {
-        return g_pattern_table[pos];
+        return (int64_t)g_pattern_table[pos];
     }
     return 0;
 }
 
-extern void pt2_set_song_length(int length) {
+void pt2_set_song_length(int64_t length) {
     if (length > 0 && length <= 128) {
-        g_song_length = length;
+        g_song_length = (int)length;
     }
 }
 
-extern int pt2_get_song_length(void) {
-    return g_song_length;
+int64_t pt2_get_song_length(void) {
+    return (int64_t)g_song_length;
 }
 
 // === SAMPLE DATA ===
 
-extern void pt2_set_sample_length(int sample, int length) {
+void pt2_set_sample_length(int64_t sample, int64_t length) {
     if (sample >= 0 && sample < 31) {
-        g_sample_length[sample] = length;
+        g_sample_length[sample] = (int)length;
     }
 }
 
-extern int pt2_get_sample_length(int sample) {
+int64_t pt2_get_sample_length(int64_t sample) {
     if (sample >= 0 && sample < 31) {
-        return g_sample_length[sample];
-    }
-    return 0;
-}
-
-extern void pt2_set_sample_volume(int sample, int volume) {
-    if (sample >= 0 && sample < 31) {
-        g_sample_volume[sample] = volume;
-    }
-}
-
-extern int pt2_get_sample_volume(int sample) {
-    if (sample >= 0 && sample < 31) {
-        return g_sample_volume[sample];
+        return (int64_t)g_sample_length[sample];
     }
     return 0;
 }
 
-extern void pt2_set_sample_loop_start(int sample, int start) {
+void pt2_set_sample_volume(int64_t sample, int64_t volume) {
     if (sample >= 0 && sample < 31) {
-        g_sample_loop_start[sample] = start;
+        g_sample_volume[sample] = (int)volume;
     }
 }
 
-extern int pt2_get_sample_loop_start(int sample) {
+int64_t pt2_get_sample_volume(int64_t sample) {
     if (sample >= 0 && sample < 31) {
-        return g_sample_loop_start[sample];
+        return (int64_t)g_sample_volume[sample];
     }
     return 0;
 }
 
-extern void pt2_set_sample_loop_length(int sample, int length) {
+void pt2_set_sample_loop_start(int64_t sample, int64_t start) {
     if (sample >= 0 && sample < 31) {
-        g_sample_loop_length[sample] = length;
+        g_sample_loop_start[sample] = (int)start;
     }
 }
 
-extern int pt2_get_sample_loop_length(int sample) {
+int64_t pt2_get_sample_loop_start(int64_t sample) {
     if (sample >= 0 && sample < 31) {
-        return g_sample_loop_length[sample];
+        return (int64_t)g_sample_loop_start[sample];
+    }
+    return 0;
+}
+
+void pt2_set_sample_loop_length(int64_t sample, int64_t length) {
+    if (sample >= 0 && sample < 31) {
+        g_sample_loop_length[sample] = (int)length;
+    }
+}
+
+int64_t pt2_get_sample_loop_length(int64_t sample) {
+    if (sample >= 0 && sample < 31) {
+        return (int64_t)g_sample_loop_length[sample];
     }
     return 0;
 }
