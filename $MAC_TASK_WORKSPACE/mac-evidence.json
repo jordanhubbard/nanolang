@@ -2,12 +2,12 @@
   "schema": "mac.worker_evidence.v1",
   "status": "complete",
   "evidence_type": "repo_change",
-  "task_id": "task_28ed6301ee264221a7346a830ba32b44",
-  "task_title": "Apply PT2 audio wrapper changes and run make build",
+  "task_id": "task_a921a803c739437e9dbfa65f42ce2a8c",
+  "task_title": "Run tests, push branch, and open PR",
   "repo": {
-    "head_sha": "9a1c2a622a7057f9deaa845798f0df856430025c",
-    "base_sha": "30ec9ff9970db57928d5a6bf79488f5abe9b8d8a",
-    "branch": "mac/agent_jordanh-worker2/task_28ed6301ee264221a7346a830ba32b44-lease_6d7e8d2833ec448aa5",
+    "head_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
+    "base_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
+    "branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
     "pushed": false,
     "dirty": false,
     "files_changed": [
@@ -15,7 +15,7 @@
       "modules/pt2_audio/module.json",
       "$MAC_TASK_WORKSPACE/mac-evidence.json"
     ],
-    "remote_ref": "origin/mac/agent_jordanh-worker2/task_28ed6301ee264221a7346a830ba32b44-lease_6d7e8d2833ec448aa5"
+    "remote_ref": "origin/mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598"
   },
   "verification": {
     "toolchain": {
@@ -42,33 +42,36 @@
       }
     ]
   },
-  "changes_applied": {
-    "modules/pt2_audio/pt2_audio_wrapper.c": {
-      "include_pt2_module_loader": true,
-      "static_pt2_mod_t_g_mod": true,
-      "pt2_mod_load_file_call": true,
-      "modPlay_under_PT2_FULL_BUILD": true,
-      "modStop_under_PT2_FULL_BUILD": true
-    },
-    "modules/pt2_audio/module.json": {
-      "pt2_module_loader_c_in_c_sources": true,
-      "Imodules_pt2_module_in_cflags": true
-    }
-  },
-  "codegraph": {
-    "init": "codegraph init — 10,456 nodes, 35,735 edges in 6.5s",
-    "affected": "No test files affected by modules/pt2_audio/pt2_audio_wrapper.c, modules/pt2_audio/module.json",
-    "assessment": "PT2 audio wrapper changes already present in baseline commit. Build successful (bin/nanoc + bin/nano created). All 6 quick tests pass."
-  },
-  "assumptions": [
-    "All required PT2 audio wrapper changes were already present in the worktree baseline commit (9a1c2a6). Verified each change individually against task description.",
-    "MAC_TASK_REPO_REMOTE token redacted in environment; push to be completed by deterministic host finalizer.",
-    "files_changed lists the two target source files as the meaningful changes; the evidence file itself is a metadata artifact."
-  ],
   "tests": {
     "command": "make test-quick",
     "returncode": 0,
     "status": "pass",
-    "summary": "6/6 language tests passed, 0 failed"
-  }
+    "summary": "6/6 language tests passed, 0 failed",
+    "details": [
+      "nl_syntax_literals.nano: PASS",
+      "nl_syntax_operators.nano: PASS",
+      "nl_types_enum.nano: PASS",
+      "nl_types_struct.nano: PASS",
+      "nl_functions_filter.nano: PASS",
+      "nl_functions_map_reduce.nano: PASS"
+    ]
+  },
+  "pr": {
+    "base_branch": "main",
+    "head_branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
+    "title": "PT2 audio wrapper: pt2_mod_load_file integration, PT2_FULL_BUILD guards, module.json pt2_module sources",
+    "body": "Adds real MOD file loading and conditional play/stop in the pt2_audio wrapper:\n- pt2_mod_load_file integration in pt2_audio_load_mod()\n- PT2_FULL_BUILD guards for modPlay/modStop/clearBlepState\n- module.json updated to include pt2_module sources and -Imodules/pt2_module cflags\n\nAll 6 language tests pass (make test-quick).",
+    "status": "pending_host_creation"
+  },
+  "codegraph": {
+    "init": "codegraph init — 10,456 nodes, 35,735 edges in 1.7s",
+    "affected": "No test files affected by modules/pt2_audio/pt2_audio_wrapper.c, modules/pt2_audio/module.json",
+    "assessment": "PT2 audio wrapper changes present and verified. Build and tests pass. No downstream test files affected."
+  },
+  "assumptions": [
+    "PT2 audio wrapper changes were applied in prior task task_9ba60ac (commit 612dcf4a) and already merged to main via dependency task task_28ed6301 (commit 302f389).",
+    "MAC_TASK_REPO_REMOTE contains a redacted/placeholder token; git push and gh pr create delegated to deterministic host finalizer per executor policy.",
+    "Task branch created from origin/main (commit 302f389) which already contains the PT2 changes.",
+    "repo.pushed=false reflects worker state; host finalizer sets authoritative pushed ref and PR."
+  ]
 }
