@@ -6,7 +6,8 @@
     "pt2_paula.c",
     "pt2_blep.c",
     "pt2_rcfilters.c",
-    "pt2_audio_wrapper.c"
+    "pt2_audio_wrapper.c",
+    "../pt2_module/pt2_module_loader.c"
   ],
   "headers": [
     "pt2_math.h",
@@ -18,7 +19,7 @@
     "pt2_rcfilters.h",
     "pt2_structs.h"
   ],
-  "cflags": ["-Imodules/pt2_audio", "-O2", "-Wno-unused-variable"],
+  "cflags": ["-Imodules/pt2_audio", "-Imodules/pt2_module", "-O2", "-Wno-unused-variable"],
   "pkg_config": ["sdl2"],
   "system_packages": ["sdl2"]
 }

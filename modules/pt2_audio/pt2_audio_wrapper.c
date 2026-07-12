@@ -15,7 +15,10 @@
 #ifdef PT2_FULL_BUILD
 #include "pt2_structs.h"
 #include "pt2_paula.h"
+#include "pt2_replayer.h"
 #endif
+
+#include "pt2_module_loader.h"
 
 /* Internal state */
 static int      g_initialized   = 0;
@@ -23,6 +26,7 @@ static int64_t  g_sample_rate   = 0;
 static int      g_playing       = 0;
 static int      g_loaded        = 0;
 static char     g_mod_filename[4096] = {0};
+static pt2_mod_t g_mod;
 
 /* Initialize the audio system and Paula emulator.
  * Must be called before any other pt2_audio function.
@@ -43,7 +47,7 @@ int64_t pt2_audio_init(int64_t sample_rate) {
 }
 
 /* Load a MOD file for playback.
- * Returns 0 on success, -1 if the file cannot be opened,
+ * Returns 0 on success, -1 if the file cannot be opened or invalid format,
  * -2 if the audio system has not been initialized.
  */
 int64_t pt2_audio_load_mod(const char *filename) {
@@ -57,6 +61,10 @@ int64_t pt2_audio_load_mod(const char *filename) {
     }
     fclose(f);
 
+    if (pt2_mod_load_file(&g_mod, filename) != 0) {
+        return -1;
+    }
+
     strncpy(g_mod_filename, filename, sizeof(g_mod_filename) - 1);
     g_mod_filename[sizeof(g_mod_filename) - 1] = '\0';
     g_loaded   = 1;
@@ -68,6 +76,9 @@ int64_t pt2_audio_load_mod(const char *filename) {
 void pt2_audio_play(void) {
     if (g_initialized && g_loaded) {
         g_playing = 1;
+#ifdef PT2_FULL_BUILD
+        modPlay(-1, 0, 0);
+#endif
     }
 }
 
@@ -75,6 +86,7 @@ void pt2_audio_play(void) {
 void pt2_audio_stop(void) {
     g_playing = 0;
 #ifdef PT2_FULL_BUILD
+    modStop();
     clearBlepState();
 #endif
 }
