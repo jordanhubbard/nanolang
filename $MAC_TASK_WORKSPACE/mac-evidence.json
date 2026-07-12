@@ -2,12 +2,12 @@
   "schema": "mac.worker_evidence.v1",
   "status": "complete",
   "evidence_type": "repo_change",
-  "task_id": "task_a921a803c739437e9dbfa65f42ce2a8c",
-  "task_title": "Run tests, push branch, and open PR",
+  "task_id": "task_ff0c4a970d97478ca04383622b1449d0",
+  "task_title": "Repair contract prerequisites: Build, test, and push PT2 audio wrapper changes to satisfy repository contract",
   "repo": {
-    "head_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
-    "base_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
-    "branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
+    "head_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+    "base_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+    "branch": "mac/agent_jordanh-gke/task_ff0c4a970d97478ca04383622b1449d0-lease_ad39c42f865a4cfbb3",
     "pushed": false,
     "dirty": false,
     "files_changed": [
@@ -15,7 +15,35 @@
       "modules/pt2_audio/module.json",
       "$MAC_TASK_WORKSPACE/mac-evidence.json"
     ],
-    "remote_ref": "origin/mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598"
+    "remote_ref": "refs/heads/mac/agent_jordanh-gke/task_ff0c4a970d97478ca04383622b1449d0-lease_ad39c42f865a4cfbb3"
+  },
+  "integration": {
+    "mode": "cooperative_integration",
+    "strategy": "merge_each_exact_child_commit",
+    "children": [
+      {
+        "task_id": "task_4f3a20f2467542e5b16f82f5ab02a809",
+        "title": "Clone nanolang repo and set up task branch",
+        "status": "missing_evidence",
+        "note": "Work included in child task_9350e0017e44461ab52af093bd5750d4 commit 30ec9ff9"
+      },
+      {
+        "task_id": "task_28ed6301ee264221a7346a830ba32b44",
+        "title": "Apply PT2 audio wrapper changes and run make build",
+        "head_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
+        "remote_ref": "refs/heads/mac/agent_jordanh-worker2/task_28ed6301ee264221a7346a830ba32b44-lease_6d7e8d2833ec448aa5",
+        "ancestor_verified": true,
+        "status": "integrated"
+      },
+      {
+        "task_id": "task_a921a803c739437e9dbfa65f42ce2a8c",
+        "title": "Run tests, push branch, and open PR",
+        "head_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+        "remote_ref": "refs/heads/mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
+        "ancestor_verified": true,
+        "status": "integrated"
+      }
+    ]
   },
   "verification": {
     "toolchain": {
@@ -56,22 +84,16 @@
       "nl_functions_map_reduce.nano: PASS"
     ]
   },
-  "pr": {
-    "base_branch": "main",
-    "head_branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
-    "title": "PT2 audio wrapper: pt2_mod_load_file integration, PT2_FULL_BUILD guards, module.json pt2_module sources",
-    "body": "Adds real MOD file loading and conditional play/stop in the pt2_audio wrapper:\n- pt2_mod_load_file integration in pt2_audio_load_mod()\n- PT2_FULL_BUILD guards for modPlay/modStop/clearBlepState\n- module.json updated to include pt2_module sources and -Imodules/pt2_module cflags\n\nAll 6 language tests pass (make test-quick).",
-    "status": "pending_host_creation"
-  },
   "codegraph": {
-    "init": "codegraph init — 10,456 nodes, 35,735 edges in 1.7s",
+    "init": "codegraph init — 10,456 nodes, 35,735 edges in 6.6s",
     "affected": "No test files affected by modules/pt2_audio/pt2_audio_wrapper.c, modules/pt2_audio/module.json",
-    "assessment": "PT2 audio wrapper changes present and verified. Build and tests pass. No downstream test files affected."
+    "assessment": "PT2 audio wrapper changes verified. Build and tests pass. No downstream test files affected. Both child commits (302f389 and fe7cd562) confirmed as ancestors of integration HEAD."
   },
   "assumptions": [
-    "PT2 audio wrapper changes were applied in prior task task_9ba60ac (commit 612dcf4a) and already merged to main via dependency task task_28ed6301 (commit 302f389).",
-    "MAC_TASK_REPO_REMOTE contains a redacted/placeholder token; git push and gh pr create delegated to deterministic host finalizer per executor policy.",
-    "Task branch created from origin/main (commit 302f389) which already contains the PT2 changes.",
-    "repo.pushed=false reflects worker state; host finalizer sets authoritative pushed ref and PR."
+    "task_4f3a20f2467542e5b16f82f5ab02a809 (Clone repo and set up task branch) has missing_evidence but its work is included in commit 30ec9ff9 which is a verified ancestor of integration HEAD.",
+    "Both child commits verified as ancestors: git merge-base --is-ancestor confirmed for 302f389 and fe7cd562.",
+    "Integration HEAD equals child2/main (fe7cd562) since child2 is a strict superset of child1.",
+    "MAC_TASK_REPO_REMOTE contains a redacted token; git push delegated to deterministic host finalizer per executor policy.",
+    "repo.pushed=false reflects worker-phase state; host finalizer provides authoritative pushed ref."
   ]
 }
