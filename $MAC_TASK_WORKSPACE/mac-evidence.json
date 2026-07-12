@@ -2,31 +2,32 @@
   "schema": "mac.worker_evidence.v1",
   "status": "complete",
   "evidence_type": "repo_change",
+  "task_id": "task_4f3a20f2467542e5b16f82f5ab02a809",
+  "task_title": "Clone nanolang repo and set up task branch",
   "repo": {
-    "head_sha": "7bbb7f5d1d4953351609d9e726dfdeace8f2a59f",
-    "base_sha": "b30579b8a6e660e6fecdd6ba06210d1062a649a1",
-    "branch": "mac/agent_bullwinkle/task_9ba60ac436cb431699945896f2d4caa1-lease_904754fbb16744ac96",
-    "pushed": false,
+    "head_sha": "__PLACEHOLDER__",
+    "base_sha": "612dcf4af70551cc8e6de5165c7db383e24c2fc8",
+    "branch": "mac/agent_jordanh-gke/task_4f3a20f2467542e5b16f82f5ab02a809-lease_c5d0cbbfdcd6457387",
+    "pushed": true,
     "dirty": false,
     "files_changed": [
-      "modules/pt2_audio/pt2_audio_wrapper.c",
-      "modules/pt2_audio/module.json"
+      "$MAC_TASK_WORKSPACE/mac-evidence.json"
     ]
   },
   "verification": {
+    "toolchain": {
+      "python3": true,
+      "git": true,
+      "gh": true,
+      "make": true,
+      "cc": true
+    },
+    "bootstrap": {
+      "command": "make build",
+      "status": "pass",
+      "creates": ["bin/nanoc", "bin/nano"]
+    },
     "tests": [
-      {
-        "command": "cc -c modules/pt2_audio/pt2_audio_wrapper.c -Imodules/pt2_audio -Imodules/pt2_module -O2 -Wno-unused-variable",
-        "returncode": 0,
-        "status": "pass",
-        "summary": "Wrapper compiles cleanly with module cflags"
-      },
-      {
-        "command": "manual test: pt2_audio_init(44100) then pt2_audio_load_mod('/nonexistent/path/missing.mod')",
-        "returncode": 0,
-        "status": "pass",
-        "summary": "pt2_audio load missing returns -1 (negative); satisfies verification contract"
-      },
       {
         "command": "make test-quick",
         "returncode": 0,
@@ -35,25 +36,13 @@
       }
     ]
   },
+  "setup": {
+    "remote": "https://github.com/jordanhubbard/nanolang.git",
+    "branch_created_from": "origin/main",
+    "branch_base_sha": "612dcf4af70551cc8e6de5165c7db383e24c2fc8",
+    "git_identity_configured": true
+  },
   "codegraph": {
-    "init": "codegraph sync — Indexed 452 files, 10,456 nodes, 35,735 edges in 3.4s",
-    "affected": "codegraph affected modules/pt2_audio/pt2_audio_wrapper.c modules/pt2_audio/module.json — No test files affected by the changed files",
-    "impact": "codegraph impact modules/pt2_audio/pt2_audio_wrapper.c — 1 affected symbol: pt2_audio_wrapper.c (file), no production code impact beyond the wrapper itself",
-    "assessment": "Changes are self-contained within the pt2_audio module. No test files directly reference wrapper.c; mvp.nano exercises the existing init/stop path which still works."
-  },
-  "changes": {
-    "modules/pt2_audio/pt2_audio_wrapper.c": {
-      "description": "1) Added #include for pt2_module_loader.h. 2) Added static pt2_mod_t g_mod variable to hold loaded module. 3) pt2_audio_load_mod now calls pt2_mod_load_file() after fopen check; returns -1 on invalid format. 4) pt2_audio_play adds #ifdef PT2_FULL_BUILD guard calling modPlay(-1,0,0). 5) pt2_audio_stop adds modStop() call inside PT2_FULL_BUILD guard alongside existing clearBlepState().",
-      "lines_added": 14
-    },
-    "modules/pt2_audio/module.json": {
-      "description": "Added ../pt2_module/pt2_module_loader.c to c_sources and added -Imodules/pt2_module to cflags.",
-      "lines_added": 3
-    }
-  },
-  "assumptions": [
-    "modPlay signature in pt2_replayer.h is modPlay(int16_t patt, int16_t pos, int8_t row); called with (-1, 0, 0) to play from beginning (pattern -1 means current/default).",
-    "The PT2_FULL_BUILD guard ensures the wrapper compiles in portable stub mode without requiring SDL or replayer symbols.",
-    "The mvp.nano assert (>= code -1) still holds because pt2_audio_init returns 0 which satisfies >= -1."
-  ]
+    "assessment": "Setup/clone task: no source code changed, evidence file updated only."
+  }
 }
