@@ -2,12 +2,12 @@
   "schema": "mac.worker_evidence.v1",
   "status": "complete",
   "evidence_type": "repo_change",
-  "task_id": "task_a921a803c739437e9dbfa65f42ce2a8c",
-  "task_title": "Run tests, push branch, and open PR",
+  "task_id": "task_ff0c4a970d97478ca04383622b1449d0",
+  "task_title": "Repair contract prerequisites: Build, test, and push PT2 audio wrapper changes to satisfy repository contract",
   "repo": {
-    "head_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
-    "base_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
-    "branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
+    "head_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+    "base_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+    "branch": "mac/agent_jordanh-gke/task_ff0c4a970d97478ca04383622b1449d0-lease_b9a6f418199a425a92",
     "pushed": false,
     "dirty": false,
     "files_changed": [
@@ -15,7 +15,8 @@
       "modules/pt2_audio/module.json",
       "$MAC_TASK_WORKSPACE/mac-evidence.json"
     ],
-    "remote_ref": "origin/mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598"
+    "remote_ref": "refs/heads/mac/agent_jordanh-gke/task_ff0c4a970d97478ca04383622b1449d0-lease_b9a6f418199a425a92",
+    "remote_url": "git@github.com:jordanhubbard/nanolang.git"
   },
   "verification": {
     "toolchain": {
@@ -56,22 +57,31 @@
       "nl_functions_map_reduce.nano: PASS"
     ]
   },
-  "pr": {
-    "base_branch": "main",
-    "head_branch": "mac/agent_rocky/task_a921a803c739437e9dbfa65f42ce2a8c-lease_94a7f8df62224c0598",
-    "title": "PT2 audio wrapper: pt2_mod_load_file integration, PT2_FULL_BUILD guards, module.json pt2_module sources",
-    "body": "Adds real MOD file loading and conditional play/stop in the pt2_audio wrapper:\n- pt2_mod_load_file integration in pt2_audio_load_mod()\n- PT2_FULL_BUILD guards for modPlay/modStop/clearBlepState\n- module.json updated to include pt2_module sources and -Imodules/pt2_module cflags\n\nAll 6 language tests pass (make test-quick).",
-    "status": "pending_host_creation"
-  },
   "codegraph": {
-    "init": "codegraph init — 10,456 nodes, 35,735 edges in 1.7s",
+    "init": "codegraph init — 10,456 nodes, 35,735 edges in 6.6s",
     "affected": "No test files affected by modules/pt2_audio/pt2_audio_wrapper.c, modules/pt2_audio/module.json",
     "assessment": "PT2 audio wrapper changes present and verified. Build and tests pass. No downstream test files affected."
   },
+  "integration": {
+    "child_tasks": [
+      {
+        "task_id": "task_28ed6301ee264221a7346a830ba32b44",
+        "head_sha": "302f389325e024ea76b5ee9d564fe92c2b3c73ee",
+        "is_ancestor": true,
+        "title": "Apply PT2 audio wrapper changes and run make build"
+      },
+      {
+        "task_id": "task_a921a803c739437e9dbfa65f42ce2a8c",
+        "head_sha": "fe7cd562590b7c1be8bd4b704c74fc54454f59ca",
+        "is_ancestor": true,
+        "title": "Run tests, push branch, and open PR"
+      }
+    ]
+  },
   "assumptions": [
-    "PT2 audio wrapper changes were applied in prior task task_9ba60ac (commit 612dcf4a) and already merged to main via dependency task task_28ed6301 (commit 302f389).",
-    "MAC_TASK_REPO_REMOTE contains a redacted/placeholder token; git push and gh pr create delegated to deterministic host finalizer per executor policy.",
-    "Task branch created from origin/main (commit 302f389) which already contains the PT2 changes.",
+    "Both child commits (302f389 from task_28ed6301, fe7cd562 from task_a921a803) verified as ancestors of HEAD via git merge-base.",
+    "Child task task_4f3a20f2 has missing_evidence status but its work is subsumed by the other two child tasks.",
+    "MAC_TASK_REPO_REMOTE contains a redacted token; git push delegated to deterministic host finalizer per executor policy.",
     "repo.pushed=false reflects worker state; host finalizer sets authoritative pushed ref and PR."
   ]
 }
