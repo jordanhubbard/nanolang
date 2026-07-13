@@ -20,9 +20,11 @@ typedef struct {
 
 // Callback for receiving response body
 static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp) {
+    if (size != 0 && nmemb > (SIZE_MAX - 1) / size) return 0;
     size_t real_size = size * nmemb;
     nl_http_response_t* response = (nl_http_response_t*)userp;
-    
+
+    if (real_size > SIZE_MAX - response->body_size - 1) return 0;
     char* new_body = realloc(response->body, response->body_size + real_size + 1);
     if (!new_body) return 0;
     
