@@ -6,7 +6,7 @@
 
 **I am a minimal programming language designed for machines to write and humans to read. I require tests, I use unambiguous syntax, and my core is formally proved.**
 
-I transpile to C when you need native performance. I also provide my own virtual machine, NanoISA, which isolates dangerous external calls in a separate process. My core semantics are mechanically proved in Coq — type soundness, progress, and determinism are complete; one tuple sub-case in the big-step ↔ small-step equivalence proof is still `Admitted`.
+I transpile to C when you need native performance. I also provide my own virtual machine, NanoISA, which isolates dangerous external calls in a separate process. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
 ## Documentation
 
@@ -55,7 +55,7 @@ EOF
 
 ## My Features
 
-- **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is mostly complete with one `Admitted` sub-case (tuple value reconstruction in `formal/Equivalence.v`).
+- **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is complete and `Admitted`-free (including tuple value reconstruction in `formal/Equivalence.v`).
 - **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
 - **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. Note: reference *cycles* are not automatically reclaimed (there is no tracing cycle collector yet) — break cycles manually to avoid leaks.
 - **Machine-Led Optimization** - I run constant folding and dead-code elimination on the AST before code generation. I also support profile-guided inlining: build with profiling, run a representative workload to produce a `.nano.prof`, then recompile with `--pgo <path>` to apply hot-path inlining.
@@ -155,11 +155,11 @@ I have documented my complete architecture in [docs/NANOISA.md](docs/NANOISA.md)
 
 ## Formal Verification
 
-My core semantics, which I call NanoCore, are mechanically proved in Coq. I declare no `Axiom`s. One sub-case in the equivalence proof is still `Admitted` (`eval_to_multistep_gen` in `formal/Equivalence.v`).
+My core semantics, which I call NanoCore, are mechanically proved in Coq. I declare no `Axiom`s, and the equivalence proof (`eval_to_multistep_gen` in `formal/Equivalence.v`) is now complete and `Admitted`-free.
 
 - **Type Soundness** - I have proved that well-typed programs do not get stuck.
 - **Determinism** - I have proved that evaluation produces exactly one result.
-- **Semantic Equivalence** - I have proved that my big-step and small-step semantics agree, modulo one `Admitted` sub-case for tuple value reconstruction.
+- **Semantic Equivalence** - I have proved that my big-step and small-step semantics agree, including the tuple value reconstruction case, with no `Admitted` sub-cases.
 
 My proved subset includes integers, booleans, strings, arrays, records, variants, pattern matching, closures, recursion, and mutable variables. I explain this further in [formal/README.md](formal/README.md).
 

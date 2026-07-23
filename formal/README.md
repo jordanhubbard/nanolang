@@ -2,14 +2,13 @@
 
 Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
 formalized in the Rocq Prover (Coq). The development is **axiom-free**
-(0 `Axiom` declarations) across ~6,170 lines of Coq, and contains
-**exactly one `Admitted`**: the `E_TupleIndex` case of the big-step ↔
-small-step equivalence proof (`Equivalence.v`), where indexing a tuple of
-values must be shown to yield the expected value expression. That case is
-narrow and believed straightforwardly provable, but until it is discharged
-the "semantic equivalence" theorem is not fully closed. Everything else
-(type soundness, progress, determinism, the fuel-based evaluator's soundness)
-is complete and `Admitted`-free.
+(0 `Axiom` declarations) across ~6,170 lines of Coq, and is
+**`Admitted`-free**: every case of the big-step ↔ small-step equivalence
+proof (`Equivalence.v`), including the `E_TupleIndex` case where indexing a
+tuple of values yields the expected value expression, is fully discharged.
+Every result — type soundness, progress, determinism, the fuel-based
+evaluator's soundness, and semantic equivalence — is complete and
+`Admitted`-free.
 
 ## What's proved
 
@@ -233,5 +232,5 @@ make nanocore-ref  # Build reference interpreter binary
   - EvalFn.v: 9 (5%)
   - Other: 5 (2%)
 - **Axioms:** 0 (fully axiom-free)
-- **Admitted:** 1 (the `E_TupleIndex` case in `Equivalence.v`; see intro)
-- **Main results:** Preservation, Progress, Determinism, Evaluator Soundness (all complete); Semantic Equivalence (complete except the one `Admitted` tuple-index case)
+- **Admitted:** 0 (fully `Admitted`-free)
+- **Main results:** Preservation, Progress, Determinism, Evaluator Soundness, and Semantic Equivalence (all complete and `Admitted`-free)
