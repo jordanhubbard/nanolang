@@ -1,0 +1,137 @@
+/* nl_control_while.nano - Core while-loop control-flow tests
+ * Tests while loops, break/continue, and nested loops
+ * Category: Core Language - Control Flow
+ */
+
+/* ==== PART 1: Basic While Loops ==== */
+
+fn test_while_sum() -> int {
+    let mut sum = 0
+    let mut i = 1
+    while i <= 5 {
+        set sum (sum + i)
+        set i (i + 1)
+    }
+    return sum
+}
+
+shadow test_while_sum {
+    assert (== (test_while_sum) 15)
+}
+
+fn test_while_count_down() -> int {
+    let mut i = 10
+    let mut steps = 0
+    while i > 0 {
+        set i (i - 1)
+        set steps (steps + 1)
+    }
+    return steps
+}
+
+shadow test_while_count_down {
+    assert (== (test_while_count_down) 10)
+}
+
+fn test_while_never_runs() -> int {
+    let mut count = 0
+    while false {
+        set count (count + 1)
+    }
+    return count
+}
+
+shadow test_while_never_runs {
+    assert (== (test_while_never_runs) 0)
+}
+
+/* ==== PART 2: Break ==== */
+
+fn test_while_break() -> int {
+    let mut i = 0
+    while i < 100 {
+        if i == 7 {
+            break
+        } else { (print "") }
+        set i (i + 1)
+    }
+    return i
+}
+
+shadow test_while_break {
+    assert (== (test_while_break) 7)
+}
+
+/* ==== PART 3: Continue ==== */
+
+fn test_while_continue() -> int {
+    let mut sum = 0
+    let mut i = 0
+    while i < 10 {
+        set i (i + 1)
+        if (== (% i 2) 1) {
+            continue
+        } else { (print "") }
+        set sum (sum + i)
+    }
+    return sum
+}
+
+shadow test_while_continue {
+    /* Adds even values 2+4+6+8+10 = 30 */
+    assert (== (test_while_continue) 30)
+}
+
+/* ==== PART 4: Nested Loops ==== */
+
+fn test_nested_while() -> int {
+    let mut total = 0
+    let mut i = 0
+    while i < 3 {
+        let mut j = 0
+        while j < 4 {
+            set total (total + 1)
+            set j (j + 1)
+        }
+        set i (i + 1)
+    }
+    return total
+}
+
+shadow test_nested_while {
+    /* 3 outer * 4 inner iterations = 12 */
+    assert (== (test_nested_while) 12)
+}
+
+fn test_nested_break_inner() -> int {
+    let mut sum = 0
+    let mut i = 0
+    while i < 5 {
+        let mut j = 0
+        while j < 10 {
+            if j == 2 {
+                break
+            } else { (print "") }
+            set sum (sum + 1)
+            set j (j + 1)
+        }
+        set i (i + 1)
+    }
+    return sum
+}
+
+shadow test_nested_break_inner {
+    /* Each of 5 outer iterations adds 2 before break = 10 */
+    assert (== (test_nested_break_inner) 10)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_control_while: All while-loop tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

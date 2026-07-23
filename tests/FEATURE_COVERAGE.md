@@ -25,14 +25,14 @@
 | - let mut (mutable) | negative/mutability_errors/ | ✅ |
 | - set | negative/mutability_errors/ | ✅ |
 | - if/else | Multiple tests | ✅ |
-| - while | ❓ Need to verify |
+| - while | nl_control_while.nano, nl_control_flow.nano | ✅ |
 | - for | regression/bug_2025_09_30_for_loop_segfault.nano | ✅ |
 | - return | negative/return_errors/ | ✅ |
 | - match | unit/test_unions_match_comprehensive.nano | ✅ |
 | **Operations** | | |
-| - Arithmetic (+, -, *, /, %) | ❓ Need comprehensive test |
-| - Comparison (==, !=, <, <=, >, >=) | ❓ Need comprehensive test |
-| - Logical (and, or, not) | ❓ Need comprehensive test |
+| - Arithmetic (+, -, *, /, %) | nl_syntax_operators.nano | ✅ |
+| - Comparison (==, !=, <, <=, >, >=) | nl_syntax_operators.nano | ✅ |
+| - Logical (and, or, not) | nl_syntax_operators.nano | ✅ |
 | **Special Features** | | |
 | - Shadow tests | All tests | ✅ |
 | - Type checking | negative/type_errors/ | ✅ |
@@ -42,9 +42,7 @@
 
 ### ❌ Missing Critical Tests
 
-1. **Comprehensive Operations Test** - Need test covering all arithmetic, comparison, and logical operations
-2. **While Loop Test** - Need explicit while loop test
-3. **Standard Library Test** - Need comprehensive stdlib coverage test
+1. **Standard Library Test** - Need comprehensive stdlib coverage test
 
 ### 📝 Test Categories
 

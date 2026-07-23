@@ -1,0 +1,164 @@
+/* nl_control_flow.nano - Core control-flow tests
+ * Tests for-in loops, while loops, if/else chains, and match with bindings
+ * Category: Core Language - Control Flow
+ */
+
+/* ==== PART 1: for-in Loops ==== */
+
+fn test_for_range_sum() -> int {
+    let mut sum = 0
+    for i in (range 0 5) {
+        set sum (sum + i)
+    }
+    return sum
+}
+
+shadow test_for_range_sum {
+    /* 0+1+2+3+4 = 10 */
+    assert (== (test_for_range_sum) 10)
+}
+
+fn test_for_break() -> int {
+    let mut sum = 0
+    for i in (range 0 10) {
+        if i == 4 {
+            break
+        } else { (print "") }
+        set sum (sum + i)
+    }
+    return sum
+}
+
+shadow test_for_break {
+    /* 0+1+2+3 = 6 */
+    assert (== (test_for_break) 6)
+}
+
+fn test_for_continue() -> int {
+    let mut sum = 0
+    for i in (range 0 6) {
+        if (== (% i 2) 1) {
+            continue
+        } else { (print "") }
+        set sum (sum + i)
+    }
+    return sum
+}
+
+shadow test_for_continue {
+    /* 0+2+4 = 6 */
+    assert (== (test_for_continue) 6)
+}
+
+/* ==== PART 2: while Loops ==== */
+
+fn test_while_product() -> int {
+    let mut product = 1
+    let mut i = 1
+    while i <= 4 {
+        set product (product * i)
+        set i (i + 1)
+    }
+    return product
+}
+
+shadow test_while_product {
+    /* 1*2*3*4 = 24 */
+    assert (== (test_while_product) 24)
+}
+
+/* ==== PART 3: if/else Chains ==== */
+
+fn classify(n: int) -> int {
+    if n < 0 {
+        return 0
+    } else {
+        if n == 0 {
+            return 1
+        } else {
+            if n < 10 {
+                return 2
+            } else {
+                return 3
+            }
+        }
+    }
+}
+
+shadow classify {
+    assert (== (classify -5) 0)
+    assert (== (classify 0) 1)
+    assert (== (classify 7) 2)
+    assert (== (classify 100) 3)
+}
+
+fn test_if_else_negative() -> int {
+    return (classify -1)
+}
+
+shadow test_if_else_negative {
+    assert (== (test_if_else_negative) 0)
+}
+
+fn test_if_else_large() -> int {
+    return (classify 42)
+}
+
+shadow test_if_else_large {
+    assert (== (test_if_else_large) 3)
+}
+
+/* ==== PART 4: match with Bindings ==== */
+
+union Shape {
+    Circle { radius: int },
+    Rectangle { width: int, height: int }
+}
+
+fn area(s: Shape) -> int {
+    match s {
+        Circle(c) => {
+            /* approximate pi as 3 */
+            return (* 3 (* c.radius c.radius))
+        }
+        Rectangle(r) => {
+            return (* r.width r.height)
+        }
+    }
+}
+
+shadow area {
+    let circle: Shape = Shape.Circle { radius: 10 }
+    assert (== (area circle) 300)
+    let rect: Shape = Shape.Rectangle { width: 5, height: 6 }
+    assert (== (area rect) 30)
+}
+
+fn test_match_circle() -> int {
+    let s: Shape = Shape.Circle { radius: 4 }
+    return (area s)
+}
+
+shadow test_match_circle {
+    assert (== (test_match_circle) 48)
+}
+
+fn test_match_rectangle() -> int {
+    let s: Shape = Shape.Rectangle { width: 7, height: 3 }
+    return (area s)
+}
+
+shadow test_match_rectangle {
+    assert (== (test_match_rectangle) 21)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_control_flow: All control-flow tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
