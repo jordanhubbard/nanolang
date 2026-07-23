@@ -1,0 +1,157 @@
+/* nl_control_match.nano - Match arm binding scope regression tests
+ * Tests that match arm pattern bindings are visible in arm bodies,
+ * including field access (e.g. `Ok(s) => ... s.value`), nested
+ * expressions, and passing bindings to other functions.
+ * Category: Core Language - Control Flow
+ *
+ * Regression: the typechecker previously failed to push match arm
+ * bindings into scope, producing spurious "Undefined variable" and
+ * "Field access requires a struct" errors in arm bodies.
+ */
+
+/* ==== Union types used by the tests ==== */
+
+union Option {
+    Some { value: int },
+    None { }
+}
+
+union Result {
+    Ok { value: int },
+    Error { code: int, message: string }
+}
+
+union Color {
+    Red { },
+    Green { },
+    Blue { },
+    RGB { r: int, g: int, b: int }
+}
+
+/* ==== PART 1: Direct field access on binding ==== */
+
+# @pure
+fn unwrap_or_zero(opt: Option) -> int {
+    match opt {
+        Some(s) => {
+            return s.value
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow unwrap_or_zero {
+    let some_val: Option = Option.Some { value: 42 }
+    let none_val: Option = Option.None { }
+    assert (== (unwrap_or_zero some_val) 42)
+    assert (== (unwrap_or_zero none_val) 0)
+}
+
+/* ==== PART 2: Binding used inside a nested expression ==== */
+
+# @pure
+fn double_if_some(opt: Option) -> int {
+    match opt {
+        Some(s) => {
+            return (* s.value 2)
+        }
+        None(n) => {
+            return 0
+        }
+    }
+}
+
+shadow double_if_some {
+    let some_val: Option = Option.Some { value: 21 }
+    assert (== (double_if_some some_val) 42)
+}
+
+/* ==== PART 3: Binding used in a local let and passed to a helper ==== */
+
+# @pure
+fn add_one(x: int) -> int {
+    return (+ x 1)
+}
+
+# @pure
+fn combine_binding(opt: Option) -> int {
+    match opt {
+        Some(s) => {
+            let a: int = (add_one s.value)
+            let b: int = (* s.value 2)
+            return (+ a b)
+        }
+        None(n) => {
+            return -1
+        }
+    }
+}
+
+shadow combine_binding {
+    let some_val: Option = Option.Some { value: 10 }
+    let none_val: Option = Option.None { }
+    /* (10 + 1) + (10 * 2) = 31 */
+    assert (== (combine_binding some_val) 31)
+    assert (== (combine_binding none_val) -1)
+}
+
+/* ==== PART 4: Multi-field variant binding ==== */
+
+# @pure
+fn result_code(res: Result) -> int {
+    match res {
+        Ok(o) => {
+            return o.value
+        }
+        Error(e) => {
+            return e.code
+        }
+    }
+}
+
+shadow result_code {
+    let ok_val: Result = Result.Ok { value: 7 }
+    let err_val: Result = Result.Error { code: 404, message: "not found" }
+    assert (== (result_code ok_val) 7)
+    assert (== (result_code err_val) 404)
+}
+
+/* ==== PART 5: Binding on one of several variants ==== */
+
+# @pure
+fn color_score(c: Color) -> int {
+    match c {
+        Red(r) => {
+            return 1
+        }
+        Green(g) => {
+            return 2
+        }
+        Blue(b) => {
+            return 3
+        }
+        RGB(rgb) => {
+            return (+ (+ rgb.r rgb.g) rgb.b)
+        }
+    }
+}
+
+shadow color_score {
+    let red: Color = Color.Red { }
+    let custom: Color = Color.RGB { r: 100, g: 150, b: 200 }
+    assert (== (color_score red) 1)
+    assert (== (color_score custom) 450)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_control_match: All match arm binding tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
