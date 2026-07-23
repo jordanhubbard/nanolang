@@ -1,0 +1,114 @@
+/* nl_types_tuple.nano - Tuple return type regression tests
+ *
+ * Exercises the TupleTypeRegistry integration in the transpiler:
+ * functions that RETURN tuples must emit named typedefs (e.g.
+ * Tuple_int_int_0) that are shared between forward declarations and
+ * definitions, so the generated C compiles without duplicate anonymous
+ * struct type mismatches.
+ *
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Simple tuple return ==== */
+
+fn get_pair() -> (int, int) {
+    return (100, 200)
+}
+
+shadow get_pair {
+    let result: (int, int) = (get_pair)
+    assert (== result.0 100)
+    assert (== result.1 200)
+}
+
+/* ==== PART 2: Tuple return computed from arguments ==== */
+
+fn divide_with_remainder(a: int, b: int) -> (int, int) {
+    let quotient = (/ a b)
+    let remainder = (% a b)
+    return (quotient, remainder)
+}
+
+shadow divide_with_remainder {
+    let result: (int, int) = (divide_with_remainder 17 5)
+    assert (== result.0 3)
+    assert (== result.1 2)
+}
+
+/* ==== PART 3: Mixed-type tuple return ==== */
+
+fn describe(n: int) -> (int, bool, int) {
+    let doubled = (* n 2)
+    let is_even = (== (% n 2) 0)
+    return (n, is_even, doubled)
+}
+
+shadow describe {
+    let r: (int, bool, int) = (describe 6)
+    assert (== r.0 6)
+    assert (== r.1 true)
+    assert (== r.2 12)
+}
+
+/* ==== PART 4: Tuple return containing a string ==== */
+
+fn label_value(v: int) -> (string, int) {
+    return ("value", v)
+}
+
+shadow label_value {
+    let r: (string, int) = (label_value 42)
+    assert (== r.1 42)
+}
+
+/* ==== PART 5: Reusing the same tuple return signature ==== */
+
+fn origin() -> (int, int) {
+    return (0, 0)
+}
+
+shadow origin {
+    let r: (int, int) = (origin)
+    assert (== r.0 0)
+    assert (== r.1 0)
+}
+
+/* ==== PART 6: Passing a returned tuple through arithmetic ==== */
+
+fn min_max(a: int, b: int) -> (int, int) {
+    if (< a b) {
+        return (a, b)
+    } else {
+        return (b, a)
+    }
+}
+
+shadow min_max {
+    let lo: (int, int) = (min_max 3 8)
+    assert (== lo.0 3)
+    assert (== lo.1 8)
+    let hi: (int, int) = (min_max 8 3)
+    assert (== hi.0 3)
+    assert (== hi.1 8)
+}
+
+fn spread(a: int, b: int) -> int {
+    let mm: (int, int) = (min_max a b)
+    return (- mm.1 mm.0)
+}
+
+shadow spread {
+    assert (== (spread 9 4) 5)
+    assert (== (spread 4 9) 5)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_types_tuple: All tuple return tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,6 +1,6 @@
 # Tuple Return Types - Full Implementation Guide
 
-## Status: 95% Complete
+## Status: Complete ✅
 
 ### What's Been Accomplished ✅
 
@@ -19,7 +19,24 @@
    - Transpiler generates inline struct syntax for tuple returns
    - Applied to both forward declarations and definitions
 
-### Remaining Work (5%)  
+### Integration Completed ✅
+
+The `TupleTypeRegistry` is fully wired into the C transpiler entry point
+`transpile_to_c()` (in `src/transpiler.c`, which `#include`s
+`src/transpiler_iterative_v3_twopass.c`). The registry is created after the
+`FunctionTypeRegistry`, tuple-returning functions are registered via
+`collect_function_and_tuple_types()`, typedef declarations are emitted before
+forward declarations via `generate_type_typedefs()`, and both forward
+declarations and definitions use the shared typedef names. Tuple literals emit
+the same typedef names through the `g_tuple_registry` global, so the generated
+C compiles without duplicate anonymous-struct type mismatches.
+
+Regression coverage lives in `tests/nl_types_tuple.nano` (runs under
+`make test-quick`) and `tests/tuple_basic.nano`.
+
+<details>
+<summary>Original integration notes (now implemented)</summary>
+
 
 Need to integrate TupleTypeRegistry into main transpile function:
 
@@ -71,6 +88,8 @@ if (tuple_registry->count > 0) {
 free_tuple_type_registry(tuple_registry);
 ```
 
+</details>
+
 ### Testing
 
 After completing the integration:
@@ -118,7 +137,9 @@ Tuple_int_int_0 nl_get_pair() {
 
 - `src/nanolang.h` - Added `return_type_info` to function AST
 - `src/parser.c` - Capture TypeInfo for tuple returns  
-- `src/transpiler.c` - Added TupleTypeRegistry, needs integration
+- `src/transpiler.c` - TupleTypeRegistry defined and integrated into `transpile_to_c()`
+- `src/transpiler_iterative_v3_twopass.c` - Tuple literals emit registry typedef names
+- `tests/nl_types_tuple.nano` - Tuple return type regression test
 
 ### Integration Location
 
