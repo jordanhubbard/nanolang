@@ -470,6 +470,9 @@ Comparison of my backends:
 | **FFI safety** | In-process | Sandboxed | In-process | Device only | In-process | Process-isolated |
 | **Debug info** | DWARF (`-g`) | Source map | DWARF (`-g`) | — | DWARF (`-g`) | Line info in bytecode |
 | **Signing** | — | Ed25519 | — | — | — | — |
+| **Constructs** | All language constructs | Rejects strings, structs, unions, field access, match, arrays, tuples, and I/O/string builtins | Lowers string literals; rejects structs, unions, field access, match, arrays, tuples, captured-variable closures, effects, and `par` | Kernel subset only | Kernel subset only | All language constructs |
+
+> **Backend maturity:** The C transpiler and NanoISA VM run the full language. The WASM and LLVM backends are experimental and emit an explicit compile error (rather than a silently broken binary) for the constructs listed above that they cannot yet lower.
 
 **My VM Architecture:**
 - I use a 178-opcode stack machine with reference-counted GC.

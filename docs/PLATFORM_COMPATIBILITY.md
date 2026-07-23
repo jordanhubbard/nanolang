@@ -32,7 +32,7 @@ I distinguish between what I have verified and what I assume to work.
 | Platform | Status | Reason |
 |----------|--------|--------|
 | Windows | Not Supported | I rely on Unix-specific build systems and POSIX assumptions |
-| WebAssembly | Partial Support | `--target wasm` emits a WASM binary (int/float/bool, arithmetic, functions, if/else, recursion) |
+| WebAssembly | Partial Support | `--target wasm` emits a WASM binary for the numeric subset (int/float/bool, arithmetic, functions, if/else, recursion). It rejects string literals, struct literals, union constructs, field access, match expressions, array literals, tuple literals, and the I/O and string-conversion builtins with an explicit compile error. |
 
 ---
 
