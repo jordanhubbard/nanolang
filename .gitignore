@@ -135,3 +135,6 @@ site/
 
 # MAC runtime evidence belongs in the task workspace, never in source control.
 /mac-evidence.json
+
+# Stray MAC workspace artifacts (never belong in source control)
+/$MAC_TASK_WORKSPACE/
