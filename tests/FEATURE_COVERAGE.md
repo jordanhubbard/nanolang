@@ -40,26 +40,29 @@
 | - Namespacing | integration/test_namespacing.nano | ✅ |
 | - Modules/Imports | integration/test_modules.nano | ✅ |
 
-### ❌ Missing Critical Tests
+### ✅ Standard Library Coverage
 
-1. **Standard Library Test** - Need comprehensive stdlib coverage test
+Comprehensive stdlib coverage now lives in `tests/unit/test_stdlib_comprehensive.nano`.
 
 ### 📝 Test Categories
 
-- **Unit Tests** (`tests/unit/`): 6 comprehensive tests ✅
-- **Integration Tests** (`tests/integration/`): 4 tests ✅
-- **Negative Tests** (`tests/negative/`): 13+ error condition tests ✅
-- **Regression Tests** (`tests/regression/`): 1 test ✅
-- **Performance Tests** (`tests/performance/`): 0 tests (optional)
+- **Unit Tests** (`tests/unit/`): 22+ tests ✅
+- **Integration Tests** (`tests/integration/`): 5 tests ✅
+- **Negative Tests** (`tests/negative/`): 39 error condition tests (incl. subdirs) ✅
+- **Regression Tests** (`tests/regression/`): 2 tests ✅
+- **Performance Tests** (`tests/performance/`): optional
 - **Warning Tests** (`tests/warnings/`): 2 tests ✅
 
-**Total**: 48 test files
+**Total**: 340+ `.nano` test files across all categories (run `find tests -name '*.nano' | wc -l` to confirm).
 
 ## Action Items
 
-1. Create `unit/test_operators_comprehensive.nano` - All operators
-2. Create `unit/test_control_flow.nano` - while, for, if/else
-3. Create `unit/test_stdlib_comprehensive.nano` - All 37 stdlib functions
-4. Run all tests with interpreter
-5. Run all tests with compiler
+The previously listed comprehensive tests now exist under `tests/unit/`:
+
+- ✅ `unit/test_operators_comprehensive.nano` - All operators
+- ✅ `unit/test_control_flow.nano` - while, for, if/else
+- ✅ `unit/test_stdlib_comprehensive.nano` - Standard library coverage
+
+No open action items remain in this matrix. Run the suite with `make test-quick`
+(or the full `make test`) to exercise these under both the interpreter and compiler.
 
