@@ -1,0 +1,87 @@
+/* nl_functions_array_param.nano - array<T> element-type propagation for at()
+ * Category: Core Language - Functions
+ *
+ * Regression test: when a parameterised array (e.g. array<string>) is passed
+ * as a function parameter, the type checker must recover the element type so
+ * that (at param i) is inferred as T instead of failing with a spurious
+ * "Type mismatch" error. This mirrors the dep_locator.nano use case.
+ */
+
+fn first_string(items: array<string>) -> string {
+    return (at items 0)
+}
+
+shadow first_string {
+    let xs: array<string> = ["alpha", "beta"]
+    assert (== (str_length (first_string xs)) 5)
+}
+
+/* Loop over an array<string> parameter, exactly like dep_locator's
+ * find_include_dir: (at prefixes i) must type-check as string. */
+fn join_strings(prefixes: array<string>) -> string {
+    let mut i: int = 0
+    let mut acc: string = ""
+    while (< i (array_length prefixes)) {
+        let prefix: string = (at prefixes i)
+        set acc prefix
+        set i (+ i 1)
+    }
+    return acc
+}
+
+shadow join_strings {
+    let xs: array<string> = ["one", "two", "three"]
+    assert (== (str_length (join_strings xs)) 5)
+}
+
+fn first_int(items: array<int>) -> int {
+    return (at items 0)
+}
+
+shadow first_int {
+    let xs: array<int> = [42, 7, 9]
+    assert (== (first_int xs) 42)
+}
+
+fn sum_ints(items: array<int>) -> int {
+    let mut i: int = 0
+    let mut total: int = 0
+    while (< i (array_length items)) {
+        let v: int = (at items i)
+        set total (+ total v)
+        set i (+ i 1)
+    }
+    return total
+}
+
+shadow sum_ints {
+    let xs: array<int> = [1, 2, 3, 4]
+    assert (== (sum_ints xs) 10)
+}
+
+fn first_float(items: array<float>) -> float {
+    return (at items 0)
+}
+
+shadow first_float {
+    let xs: array<float> = [1.5, 2.5]
+    assert (> (first_float xs) 1.0)
+}
+
+fn first_bool(items: array<bool>) -> bool {
+    return (at items 0)
+}
+
+shadow first_bool {
+    let xs: array<bool> = [true, false]
+    assert (first_bool xs)
+}
+
+fn main() -> int {
+    (println "nl_functions_array_param: All array<T> parameter tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
