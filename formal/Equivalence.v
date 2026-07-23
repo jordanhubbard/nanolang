@@ -3260,11 +3260,13 @@ Proof.
            ++ inversion Heq'; subst.
               eapply forall_value_transfer_rev; [apply forall_val_to_expr_is_value | eassumption].
            ++ rewrite nth_error_map. rewrite H. reflexivity.
-      * admit.
+      * assert (Hnd : nth_default EUnit (map val_to_expr vs) i = val_to_expr v).
+        { unfold nth_default. rewrite nth_error_map. rewrite H. reflexivity. }
+        rewrite Hnd. apply expr_equiv_refl.
     + eapply Forall_nth_error.
       * inversion Hvg; subst. eassumption.
       * eassumption.
-Admitted.
+Qed.
 
 (** ** Wrapper: the original theorem follows from the generalized one *)
 
