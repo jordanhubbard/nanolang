@@ -102,6 +102,39 @@ shadow spread {
     assert (== (spread 4 9) 5)
 }
 
+/* ==== PART 7: Tuple returned, then reused to build another tuple ==== */
+
+fn make_point(x: int, y: int) -> (int, int) {
+    return (x, y)
+}
+
+shadow make_point {
+    let p: (int, int) = (make_point 7 11)
+    assert (== p.0 7)
+    assert (== p.1 11)
+}
+
+fn swap_point(x: int, y: int) -> (int, int) {
+    let p: (int, int) = (make_point x y)
+    return (p.1, p.0)
+}
+
+shadow swap_point {
+    let s: (int, int) = (swap_point 7 11)
+    assert (== s.0 11)
+    assert (== s.1 7)
+}
+
+fn point_sum(x: int, y: int) -> int {
+    let p: (int, int) = (make_point x y)
+    return (+ p.0 p.1)
+}
+
+shadow point_sum {
+    assert (== (point_sum 7 11) 18)
+    assert (== (point_sum 0 0) 0)
+}
+
 /* ==== Main ==== */
 
 fn main() -> int {

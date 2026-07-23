@@ -131,7 +131,7 @@ Tuple_int_int_0 nl_get_pair() {
 ✅ Tuple variables work in compiler  
 ✅ Tuple literals work in compiler  
 ✅ Tuple index access works in compiler  
-⚠️  Tuple return types need typedef integration (5% remaining)
+✅ Tuple return types emit shared `TupleTypeRegistry` typedefs (100% complete)
 
 ### Files Modified
 
@@ -143,7 +143,15 @@ Tuple_int_int_0 nl_get_pair() {
 
 ### Integration Location
 
-The main work needs to happen in `src/transpiler.c`, function `transpile_program()`, starting around line ~1950-2380.
+The integration lives in `src/transpiler.c`, in the C entry point
+`transpile_to_c()` (which drives the two-pass program transpiler). The
+`TupleTypeRegistry` is created there, populated by
+`collect_function_and_tuple_types()`, emitted as typedefs by
+`generate_type_typedefs()`, and referenced by shared typedef name in both the
+forward declarations and definitions of tuple-returning functions. No inline
+anonymous-struct return types remain, so the generated C compiles without
+duplicate/undeclared struct mismatches.
 
-All infrastructure is in place. Just needs the 4-5 integration points listed above.
+All integration points are complete and covered by the regression tests in
+`tests/nl_types_tuple.nano` (runs under `make test-quick`).
 
