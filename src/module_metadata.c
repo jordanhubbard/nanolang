@@ -481,22 +481,31 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     APPEND("    .unions = NULL  /* TODO: serialize unions */\n");
     APPEND("};\n\n");
     
-    /* Serialize constants */
+    /* Serialize constants.
+     *
+     * These are file-local records of the module's exported constant values.
+     * They are prefixed with the per-module identifier so they never collide
+     * with the module's own top-level `static const` definitions in the same
+     * translation unit (an un-prefixed name such as `MAX` produced a
+     * `redefinition` compile error and broke module object generation). */
     if (meta->constant_count > 0) {
         snprintf(temp, sizeof(temp), "/* Constants from module */\n");
         APPEND(temp);
         for (int i = 0; i < meta->constant_count; i++) {
             ConstantDef *c = &meta->constants[i];
+            const char *cname = c->name ? c->name : "unnamed";
             if (c->type == TYPE_INT) {
-                snprintf(temp, sizeof(temp), "static const int64_t %s = %lldLL;\n", 
-                         c->name, (long long)c->value);
+                snprintf(temp, sizeof(temp),
+                         "static const int64_t _module_const_%s_%s = %lldLL;\n",
+                         module_ident, cname, (long long)c->value);
                 APPEND(temp);
             } else if (c->type == TYPE_FLOAT) {
                 /* Reconstruct float from int64 bit pattern */
                 union { double d; int64_t i; } u;
                 u.i = c->value;
-                snprintf(temp, sizeof(temp), "static const double %s = %g;\n", 
-                         c->name, u.d);
+                snprintf(temp, sizeof(temp),
+                         "static const double _module_const_%s_%s = %g;\n",
+                         module_ident, cname, u.d);
                 APPEND(temp);
             }
         }

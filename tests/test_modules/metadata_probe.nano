@@ -1,0 +1,32 @@
+# Fixture module for the module-metadata embedding regression test.
+#
+# Compiling any program that imports this module drives
+# compile_module_to_object() -> extract_module_metadata() ->
+# embed_metadata_in_module_c(). Those paths were previously disabled
+# because they triggered a bus error; this fixture keeps them exercised
+# with scalar functions and function-signature parameters so a
+# regression surfaces as a build crash instead of silently vanishing.
+
+module metadata_probe
+
+
+pub struct Vec2 {
+    x: int,
+    y: int
+}
+
+pub fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+pub fn scale(v: int, factor: int) -> int {
+    return (* v factor)
+}
+
+shadow scale {
+    assert (== (scale 21 2) 42)
+}
