@@ -72,6 +72,8 @@ jobs:
           trap 'rm -rf "$TMPDIR_TESTS"' EXIT
           PASS=0
           FAIL=0
+          XFAIL=0
+          XPASS=0
 
           compile_nano() {
             local nano_file="$1"; shift
@@ -79,6 +81,38 @@ jobs:
               echo "    compile stderr:"
               cat /tmp/nano_err | sed 's/^/      /'
               return 1
+            fi
+          }
+
+          # is_xfail <backend> <nano_file>: 0 if backend is listed in <test>.xfail.
+          # Mirrors tests/cross-backend/run-all.sh so known-broken backends do not
+          # hard-fail the matrix. Remove the .xfail entry once the backend is fixed.
+          is_xfail() {
+            local backend="$1"
+            local xfail_file="${2%.nano}.xfail"
+            [ -f "$xfail_file" ] || return 1
+            grep -vE '^[[:space:]]*(#|$)' "$xfail_file" | grep -qxF "$backend"
+          }
+
+          # record <pass|fail> <nano_file> <detail>: apply xfail policy and count.
+          record() {
+            local outcome="$1"; local nano_file="$2"; local detail="${3:-}"
+            if is_xfail "$BACKEND" "$nano_file"; then
+              if [ "$outcome" = "pass" ]; then
+                echo "XPASS ($detail) — xfail entry should be removed"
+                XPASS=$((XPASS + 1))
+              else
+                echo "XFAIL ($detail)"
+                XFAIL=$((XFAIL + 1))
+              fi
+            else
+              if [ "$outcome" = "pass" ]; then
+                echo "PASS ($detail)"
+                PASS=$((PASS + 1))
+              else
+                echo "FAIL ($detail)"
+                FAIL=$((FAIL + 1))
+              fi
             fi
           }
 
@@ -91,16 +125,13 @@ jobs:
               wasm)
                 out="$TMPDIR_TESTS/${name}.wasm"
                 if ! compile_nano "$nano_file" --target wasm -o "$out"; then
-                  echo "FAIL (compile error)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "compile error"
                   continue
                 fi
                 if wasm-validate "$out" 2>/dev/null; then
-                  echo "PASS (wasm-validate ok)"
-                  PASS=$((PASS + 1))
+                  record pass "$nano_file" "wasm-validate ok"
                 else
-                  echo "FAIL (wasm-validate rejected output)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "wasm-validate rejected output"
                 fi
                 ;;
 
@@ -108,16 +139,13 @@ jobs:
               llvm)
                 out="$TMPDIR_TESTS/${name}.ll"
                 if ! compile_nano "$nano_file" --llvm -o "$out"; then
-                  echo "FAIL (compile error)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "compile error"
                   continue
                 fi
                 if llvm-as "$out" -o /dev/null 2>/dev/null; then
-                  echo "PASS (llvm-as ok)"
-                  PASS=$((PASS + 1))
+                  record pass "$nano_file" "llvm-as ok"
                 else
-                  echo "FAIL (llvm-as rejected IR)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "llvm-as rejected IR"
                 fi
                 ;;
 
@@ -125,16 +153,13 @@ jobs:
               riscv)
                 out="$TMPDIR_TESTS/${name}.s"
                 if ! compile_nano "$nano_file" --target riscv -o "$out"; then
-                  echo "FAIL (compile error)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "compile error"
                   continue
                 fi
                 if grep -q "\.text" "$out" 2>/dev/null; then
-                  echo "PASS (.text section present)"
-                  PASS=$((PASS + 1))
+                  record pass "$nano_file" ".text section present"
                 else
-                  echo "FAIL (no .text section in assembly output)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "no .text section in assembly output"
                 fi
                 ;;
 
@@ -144,14 +169,12 @@ jobs:
                 out_exe="$TMPDIR_TESTS/${name}"
                 expected_file="tests/cross-backend/${name}.expected"
                 if ! compile_nano "$nano_file" --target c -o "$out_c"; then
-                  echo "FAIL (compile error)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "compile error"
                   continue
                 fi
                 if ! gcc -std=gnu11 -o "$out_exe" "$out_c" 2>/tmp/gcc_err; then
-                  echo "FAIL (gcc failed)"
                   cat /tmp/gcc_err | sed 's/^/    /'
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "gcc failed"
                   continue
                 fi
                 actual="$("$out_exe" 2>/dev/null)" || actual="<runtime error>"
@@ -160,17 +183,14 @@ jobs:
                   # strip trailing newline from expected file for comparison
                   expected="${expected%$'\n'}"
                   if [ "$actual" = "$expected" ]; then
-                    echo "PASS (output: $(echo "$actual" | head -1)...)"
-                    PASS=$((PASS + 1))
+                    record pass "$nano_file" "output: $(echo "$actual" | head -1)..."
                   else
-                    echo "FAIL (output mismatch)"
                     echo "    expected: $(printf '%q' "$expected")"
                     echo "    actual:   $(printf '%q' "$actual")"
-                    FAIL=$((FAIL + 1))
+                    record fail "$nano_file" "output mismatch"
                   fi
                 else
-                  echo "PASS (ran ok, no .expected file)"
-                  PASS=$((PASS + 1))
+                  record pass "$nano_file" "ran ok, no .expected file"
                 fi
                 ;;
 
@@ -178,25 +198,25 @@ jobs:
               ptx)
                 out="$TMPDIR_TESTS/${name}.ptx"
                 if ! compile_nano "$nano_file" --target ptx -o "$out"; then
-                  echo "FAIL (compile error)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "compile error"
                   continue
                 fi
                 if grep -q "\.target sm_" "$out" 2>/dev/null; then
-                  echo "PASS (PTX header present)"
-                  PASS=$((PASS + 1))
+                  record pass "$nano_file" "PTX header present"
                 else
-                  echo "FAIL (PTX header .target sm_* not found)"
-                  FAIL=$((FAIL + 1))
+                  record fail "$nano_file" "PTX header .target sm_* not found"
                 fi
                 ;;
             esac
           done
 
           echo ""
-          echo "=== backend=$BACKEND results: $PASS passed, $FAIL failed ==="
+          echo "=== backend=$BACKEND results: $PASS passed, $FAIL failed, $XFAIL xfail, $XPASS xpass ==="
 
-          [ "$FAIL" -eq 0 ]
+          # xfail entries are known-broken and non-blocking. An XPASS means a
+          # backend was fixed but its .xfail entry is stale — treat as failure so
+          # the entry gets cleaned up.
+          [ "$FAIL" -eq 0 ] && [ "$XPASS" -eq 0 ]
 
       - name: Upload compile artifacts
         if: always()

@@ -419,6 +419,33 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return 0;
 
     case AST_STRUCT_LITERAL: {
+        /* A dotted struct name ("Union.Variant") is a union variant
+         * construction written with struct-literal syntax. The typechecker
+         * normalizes module-qualified struct names back to their bare form,
+         * so any surviving '.' here identifies a union variant. Emit the
+         * tagged-union initializer instead of an invalid dotted struct type. */
+        const char *dot = node->as.struct_literal.struct_name
+            ? strchr(node->as.struct_literal.struct_name, '.') : NULL;
+        if (dot) {
+            size_t union_name_len = (size_t)(dot - node->as.struct_literal.struct_name);
+            const char *variant_name = dot + 1;
+            fprintf(c->out, "(NanoUnion_%.*s){ .tag = NanoUnion_%.*s_TAG_%s",
+                    (int)union_name_len, node->as.struct_literal.struct_name,
+                    (int)union_name_len, node->as.struct_literal.struct_name,
+                    variant_name);
+            if (node->as.struct_literal.field_count > 0) {
+                fprintf(c->out, ", .as.%s = {", variant_name);
+                for (int i = 0; i < node->as.struct_literal.field_count; i++) {
+                    if (i > 0) fputs(", ", c->out);
+                    fprintf(c->out, ".%s = ", node->as.struct_literal.field_names[i]);
+                    if (emit_expr(c, node->as.struct_literal.field_values[i])) return -1;
+                }
+                fputc('}', c->out);
+            }
+            fputc('}', c->out);
+            return 0;
+        }
+
         /* Emit: (NanoStruct_Name){ .field = val, ... } */
         fprintf(c->out, "(NanoStruct_%s){", node->as.struct_literal.struct_name);
         for (int i = 0; i < node->as.struct_literal.field_count; i++) {
