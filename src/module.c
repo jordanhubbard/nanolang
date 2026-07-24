@@ -1172,8 +1172,8 @@ bool compile_module_to_object(const char *module_path,
     char *dot = strrchr(module_name, '.');
     if (dot) *dot = '\0';
     
-    /* Extract module metadata - TODO: Fix bus error in extract_module_metadata */
-    ModuleMetadata *meta = NULL;  // extract_module_metadata(env, module_name);
+    /* Extract module metadata from the isolated module environment. */
+    ModuleMetadata *meta = extract_module_metadata(module_env, module_name);
     
     /*
      * Transpile module to C.
@@ -1204,18 +1204,26 @@ bool compile_module_to_object(const char *module_path,
     }
     
     /* Embed metadata in C code */
-    /* TODO: Fix metadata embedding - currently disabled due to bus error */
-    /* if (meta) {
+    if (meta) {
         assert(c_code != NULL);
         size_t c_code_len = safe_strlen(c_code);
-        size_t buffer_size = c_code_len * 2;
-        char *c_code_with_meta = realloc(c_code, buffer_size);
-        if (c_code_with_meta) {
-            if (embed_metadata_in_module_c(c_code_with_meta, meta, buffer_size)) {
+        char *metadata_c = serialize_module_metadata_to_c(meta);
+        if (metadata_c) {
+            size_t meta_len = safe_strlen(metadata_c);
+            /* Reserve room for the original code, the metadata, a separator
+             * and the NUL terminator. embed_metadata_in_module_c() performs its
+             * own bounds check against this size. */
+            size_t buffer_size = c_code_len + meta_len + 128;
+            char *c_code_with_meta = realloc(c_code, buffer_size);
+            if (c_code_with_meta) {
                 c_code = c_code_with_meta;
+                /* On failure (should not happen given the sizing above) the
+                 * un-augmented C code is still valid, so ignore the result. */
+                (void)embed_metadata_in_module_c(c_code, meta, buffer_size);
             }
+            free(metadata_c);
         }
-    } */
+    }
     if (meta) {
         free_module_metadata(meta);
     }
@@ -1825,14 +1833,42 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         for (int i = 0; i < meta->function_count; i++) {
             /* Copy function - note: we copy pointers, not deep copy */
             meta->functions[i] = env->functions[i];
+            /* Sever shared pointers that reference AST/env-owned memory. These
+             * are NOT deep copied and must not be dereferenced or freed via the
+             * metadata copy; leaving them pointing into the environment caused a
+             * bus error once the environment was torn down. Complex nested type
+             * information (function signatures / tuple TypeInfo) is intentionally
+             * not serialized, so NULLing it here is safe and prevents the crash. */
+            meta->functions[i].body = NULL;
+            meta->functions[i].shadow_test = NULL;
+            meta->functions[i].module_name = NULL;
+            meta->functions[i].alias_of = NULL;
+            meta->functions[i].cleanup_function = NULL;
+            meta->functions[i].effect_names = NULL;
+            meta->functions[i].effect_count = 0;
+            meta->functions[i].return_fn_sig = NULL;
+            meta->functions[i].return_type_info = NULL;
+            meta->functions[i].params = NULL;
+            /* Keep params and param_count consistent: only restore the count
+             * once the parameter array has actually been deep copied below.
+             * Some environment functions carry a non-zero param_count with a
+             * NULL params pointer; copying that verbatim made the serializer
+             * dereference NULL (the reported bus error). */
+            meta->functions[i].param_count = 0;
             /* Deep copy name and params */
             if (env->functions[i].name) {
                 meta->functions[i].name = strdup(env->functions[i].name);
             }
             if (env->functions[i].param_count > 0 && env->functions[i].params) {
                 meta->functions[i].params = malloc(sizeof(Parameter) * env->functions[i].param_count);
+                meta->functions[i].param_count = env->functions[i].param_count;
                 for (int j = 0; j < env->functions[i].param_count; j++) {
                     meta->functions[i].params[j] = env->functions[i].params[j];
+                    /* Sever non-deep-copied pointers on the parameter copy. */
+                    meta->functions[i].params[j].fn_sig = NULL;
+                    meta->functions[i].params[j].type_info = NULL;
+                    meta->functions[i].params[j].name = NULL;
+                    meta->functions[i].params[j].struct_type_name = NULL;
                     if (env->functions[i].params[j].name) {
                         meta->functions[i].params[j].name = strdup(env->functions[i].params[j].name);
                     }
@@ -2021,6 +2057,22 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         for (int i = 0; i < env->symbol_count; i++) {
             Symbol *sym = &env->symbols[i];
             if (!sym->is_mut && (sym->type == TYPE_INT || sym->type == TYPE_FLOAT)) {
+                /* Deduplicate by name: the environment can hold several
+                 * immutable symbols that share a name (e.g. block-scoped
+                 * bindings that leaked into the flat symbol table). Emitting
+                 * each one produced duplicate `static const` C definitions and
+                 * a redefinition compile error, so only keep the first. */
+                if (sym->name) {
+                    bool already_present = false;
+                    for (int k = 0; k < const_idx; k++) {
+                        if (meta->constants[k].name &&
+                            strcmp(meta->constants[k].name, sym->name) == 0) {
+                            already_present = true;
+                            break;
+                        }
+                    }
+                    if (already_present) continue;
+                }
                 meta->constants[const_idx].name = sym->name ? strdup(sym->name) : NULL;
                 meta->constants[const_idx].type = sym->type;
                 if (sym->type == TYPE_INT) {

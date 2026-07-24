@@ -256,6 +256,27 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     snprintf(temp, sizeof(temp), "/* Module: %s */\n\n", meta->module_name);
     APPEND(temp);
     APPEND("#include \"nanolang.h\"\n\n");
+
+    /* Derive a C-safe, per-module identifier suffix so the exported metadata
+     * symbol does not collide when several module objects are linked into a
+     * single binary (previously every module exported `_module_metadata`,
+     * causing multiple-definition link errors). */
+    char module_ident[256];
+    {
+        const char *src = meta->module_name ? meta->module_name : "unknown";
+        size_t oi = 0;
+        for (size_t si = 0; src[si] && oi < sizeof(module_ident) - 1; si++) {
+            char ch = src[si];
+            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+                (ch >= '0' && ch <= '9')) {
+                module_ident[oi++] = ch;
+            } else {
+                module_ident[oi++] = '_';
+            }
+        }
+        if (oi == 0) module_ident[oi++] = '_';
+        module_ident[oi] = '\0';
+    }
     
     /* Count and declare FunctionSignature arrays */
     int fn_sig_count = count_function_signatures(meta);
@@ -441,8 +462,8 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     
     APPEND("}\n\n");
     
-    /* Export metadata accessor */
-    snprintf(temp, sizeof(temp), "ModuleMetadata _module_metadata = {\n");
+    /* Export metadata accessor (per-module symbol name to avoid link clashes) */
+    snprintf(temp, sizeof(temp), "ModuleMetadata _module_metadata_%s = {\n", module_ident);
     APPEND(temp);
     snprintf(temp, sizeof(temp), "    .module_name = \"%s\",\n", meta->module_name);
     APPEND(temp);
