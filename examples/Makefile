@@ -67,6 +67,16 @@ export NANO_MODULE_PATH
 
 IS_SELFHOSTED := $(or $(findstring nanoc_stage1,$(COMPILER)),$(findstring nanoc_stage2,$(COMPILER)),$(findstring nano_virt,$(COMPILER)))
 
+# === Optional native module availability ===
+# The readline module links libreadline via pkg-config. Skip readline-
+# dependent examples when it is not installed so `make examples` stays green
+# on hosts without the development package.
+READLINE_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists readline >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists readline >/dev/null 2>&1 && echo yes; fi')
+# SDL2 links via pkg-config sdl2; ncurses/mujoco are probed by compiler/loader.
+SDL_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists sdl2 >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists sdl2 >/dev/null 2>&1 && echo yes; fi')
+NCURSES_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1 && (pkg-config --exists ncursesw >/dev/null 2>&1 || pkg-config --exists ncurses >/dev/null 2>&1); then echo yes; elif printf "#include <ncurses.h>\nint main(void){return 0;}\n" | $${CC:-cc} -x c - -lncurses -o /dev/null >/dev/null 2>&1; then echo yes; fi')
+MUJOCO_AVAILABLE := $(shell sh -c 'if printf "#include <mujoco.h>\nint main(void){return 0;}\n" | $${CC:-cc} -x c - -I.nanolang/native/mujoco/include -I/opt/mujoco/include -I/usr/local/include -Imodules/mujoco -c -o /dev/null >/dev/null 2>&1; then echo yes; fi')
+
 # === Nanolang-Only Compiled Examples (nl_*) ===
 
 NL_SOURCES := $(filter-out \
@@ -86,15 +96,18 @@ endif
 ifneq ($(IS_SELFHOSTED),)
 NL_SOURCES := $(filter-out language/nl_forth_interpreter.nano language/nl_affine_resource_demo.nano,$(NL_SOURCES))
 endif
+# nl_forth_interpreter imports the readline module; skip it when libreadline
+# (pkg-config readline) is unavailable.
+ifneq ($(READLINE_AVAILABLE),yes)
+NL_SOURCES := $(filter-out language/nl_forth_interpreter.nano,$(NL_SOURCES))
+endif
 
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
 # === REPL Examples ===
 
-# Most REPL examples require the readline module. Skip if it's not available.
-READLINE_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists readline >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists readline >/dev/null 2>&1 && echo yes; fi')
-
+# Most REPL examples require the readline module (READLINE_AVAILABLE probed above).
 ifeq ($(READLINE_AVAILABLE),yes)
 REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano,$(wildcard language/*_repl.nano))
 else
@@ -127,8 +140,13 @@ DATA_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DATA_EXAMPLES)))
 # === API Lessons (api_lessons/) ===
 # Single-file focused lessons for one module API surface.
 # Headers carry `# Build: local` (always built) or `# Build: external-deps`
-# (built when libs available).
-API_LESSONS_EXCLUDE :=
+# (built only when the required libs are available).
+# `external-deps` lessons import modules that link optional system libraries
+# (GLUT, SDL2, audio, Python, ...). Skip them here so the STRICT `make
+# examples` build stays green on hosts without those development packages;
+# they are still built by `make examples-available` when their libs exist.
+API_LESSONS_EXTERNAL := $(shell grep -lE '^# Build:[[:space:]]*external-deps' api_lessons/*.nano 2>/dev/null)
+API_LESSONS_EXCLUDE := $(API_LESSONS_EXTERNAL)
 API_LESSONS_SOURCES := $(filter-out $(API_LESSONS_EXCLUDE),$(wildcard api_lessons/*.nano))
 # Self-hosted compilers can't link many of the C-backed module helpers
 ifneq ($(IS_SELFHOSTED),)
@@ -136,6 +154,11 @@ API_LESSONS_SOURCES :=
 endif
 API_LESSONS_EXAMPLES := $(patsubst api_lessons/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(API_LESSONS_SOURCES))
 API_LESSONS_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(API_LESSONS_EXAMPLES)))
+# External-deps lessons are still attempted (graceful) by examples-available.
+API_LESSONS_EXTERNAL_EXAMPLES := $(patsubst api_lessons/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(API_LESSONS_EXTERNAL))
+ifneq ($(IS_SELFHOSTED),)
+API_LESSONS_EXTERNAL_EXAMPLES :=
+endif
 
 # === Verified Examples (formally proven NanoCore programs) ===
 
@@ -151,8 +174,15 @@ DEBUG_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DEBUG_EXAMPLES)))
 
 # === Network Examples ===
 
+# The http_* examples import modules/http_server, which links libuv
+# (pkg_config libuv). Skip them when libuv is unavailable so STRICT `make
+# examples` stays green on hosts without libuv development packages.
+LIBUV_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists libuv >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists libuv >/dev/null 2>&1 && echo yes; fi')
 # Exclude: curl_example (needs libcurl), http_demo (missing std/http module)
 NETWORK_EXCLUDE := network/curl_example.nano network/http_demo.nano
+ifneq ($(LIBUV_AVAILABLE),yes)
+NETWORK_EXCLUDE += network/http_hello_world.nano network/http_rest_api.nano network/http_static_server.nano
+endif
 NETWORK_SOURCES := $(filter-out $(NETWORK_EXCLUDE),$(wildcard network/*.nano))
 # Self-hosted compiler can't link http_server.c; exclude all network examples
 ifneq ($(IS_SELFHOSTED),)
@@ -175,14 +205,24 @@ PHYSICS_NAMES :=
 endif
 
 # === Playground Examples ===
-
+# playground_server imports modules/http_server (libuv). Skip the playground
+# build when libuv is unavailable so STRICT `make examples` stays green.
+ifeq ($(LIBUV_AVAILABLE),yes)
 PLAYGROUND_SOURCES := $(wildcard playground/*.nano)
 PLAYGROUND_EXAMPLES := $(patsubst playground/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(PLAYGROUND_SOURCES)) $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT)
+else
+PLAYGROUND_SOURCES :=
+PLAYGROUND_EXAMPLES :=
+endif
 PLAYGROUND_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(PLAYGROUND_EXAMPLES)))
 
 # === Root Examples ===
 
-ROOT_SOURCES := nano_tools_lint.nano sdl_example_launcher.nano run_examples.nano
+# sdl_example_launcher imports the SDL module; only build it when SDL2 exists.
+ROOT_SOURCES := nano_tools_lint.nano run_examples.nano
+ifeq ($(SDL_AVAILABLE),yes)
+ROOT_SOURCES += sdl_example_launcher.nano
+endif
 ROOT_EXAMPLES := $(patsubst %.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ROOT_SOURCES))
 ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
 
@@ -204,17 +244,25 @@ ifeq ($(GLFW_AVAILABLE),no)
 SDL_GRAPHICS_SOURCES := $(filter-out graphics/sdl_nanoviz.nano,$(SDL_GRAPHICS_SOURCES))
 endif
 
+ifeq ($(SDL_AVAILABLE),yes)
 SDL_EXAMPLES = \
 	$(patsubst graphics/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(SDL_GRAPHICS_SOURCES)) \
 	$(patsubst audio/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard audio/sdl_*.nano)) \
 	$(patsubst games/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard games/sdl_*.nano)) \
 	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+else
+SDL_EXAMPLES =
+endif
 SDL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(SDL_EXAMPLES)))
 
 # === NCurses Examples (ncurses_*) ===
 # Require ncurses library
 
+ifeq ($(NCURSES_AVAILABLE),yes)
 NCURSES_SOURCES := $(wildcard terminal/ncurses_*.nano)
+else
+NCURSES_SOURCES :=
+endif
 NCURSES_EXAMPLES := $(patsubst terminal/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NCURSES_SOURCES))
 NCURSES_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NCURSES_EXAMPLES)))
 
@@ -233,7 +281,11 @@ OPENGL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(OPENGL_EXAMPLES)))
 
 # === MuJoCo Examples (mujoco_*) ===
 
+ifeq ($(MUJOCO_AVAILABLE),yes)
 MUJOCO_HEADLESS_SOURCES := $(filter-out mujoco/mujoco_opengl_%.nano,$(wildcard mujoco/*.nano))
+else
+MUJOCO_HEADLESS_SOURCES :=
+endif
 ifeq ($(and $(filter yes,$(GLFW_AVAILABLE)),$(filter yes,$(GLEW_AVAILABLE))),yes)
 MUJOCO_OPENGL_SOURCES := $(wildcard mujoco/mujoco_opengl_*.nano)
 else
@@ -379,7 +431,7 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 examples-available: $(COMPILER)
 	@echo "Building available examples (skipping those with missing dependencies)..."
 	@echo ""
-	@$(MAKE) -k $(ALL_EXAMPLES) 2>&1 | grep -v "Skipping module" || true
+	@$(MAKE) -k $(ALL_EXAMPLES) $(API_LESSONS_EXTERNAL_EXAMPLES) 2>&1 | grep -v "Skipping module" || true
 	@echo ""
 	@echo "=========================================="
 	@echo "Available Examples Built"
