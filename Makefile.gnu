@@ -794,6 +794,9 @@ test-impl: test-units
 	@echo "Testing the GLUT initialization boundary..."
 	@bash tests/test_opengl_glut_init.sh
 	@echo ""
+	@echo "Checking stdlib documentation coverage..."
+	@bash tests/check_stdlib_docs.sh
+	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
 		bash tests/test_proptest.sh; \
@@ -1068,6 +1071,13 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 	@bash tests/test_opengl_glut_init.sh --quick
+	@$(MAKE) --no-print-directory check-stdlib-docs
+
+# Documentation coverage: every builtin in src/builtins_registry.c must have a
+# section in docs/STDLIB.md, and vice versa. Needs no build.
+.PHONY: check-stdlib-docs
+check-stdlib-docs:
+	@bash tests/check_stdlib_docs.sh
 
 # User guide: validate executable snippets extracted from userguide/*.md
 .PHONY: userguide-check

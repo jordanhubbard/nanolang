@@ -2,6 +2,12 @@
 
 I provide these built-in functions. They are my core capabilities, available to you without external modules.
 
+This file and my builtin registry in `src/builtins_registry.c` are kept in step
+mechanically: `tests/check_stdlib_docs.sh` (run by `make check-stdlib-docs`,
+`make test-quick`, and `make test`) fails when a builtin has no `###` entry
+here, when an entry names a builtin I no longer have, or when a `## Section (N)`
+count disagrees with the entries beneath it.
+
 ---
 
 ## Core I/O (3)
@@ -325,7 +331,7 @@ let handle: opaque = (null_opaque)
 
 ---
 
-## String Operations (7)
+## String Operations (19)
 
 ### `str_length(s: string) -> int`
 I return the length of a string in bytes.
@@ -388,6 +394,111 @@ I create a single-character string from an ASCII value.
 (string_from_char 65)   # Returns "A"
 (string_from_char 90)   # Returns "Z"
 (string_from_char 48)   # Returns "0"
+```
+
+### `str_starts_with(s: string, prefix: string) -> bool`
+I return true if `s` begins with `prefix`. Every string starts with the empty prefix.
+
+```nano
+(str_starts_with "hello world" "hello")   # Returns true
+(str_starts_with "hello" "world")         # Returns false
+(str_starts_with "hello" "")              # Returns true
+```
+
+### `str_ends_with(s: string, suffix: string) -> bool`
+I return true if `s` ends with `suffix`. Every string ends with the empty suffix.
+
+```nano
+(str_ends_with "hello.nano" ".nano")   # Returns true
+(str_ends_with "hello.nano" ".c")      # Returns false
+(str_ends_with "abc" "xabc")           # Returns false (suffix is longer)
+```
+
+### `str_index_of(haystack: string, needle: string) -> int`
+I return the byte index of the first occurrence of `needle` in `haystack`, or `-1` if it does not occur. I return 0 for an empty needle.
+
+```nano
+(str_index_of "hello" "e")           # Returns 1
+(str_index_of "hello world" "world") # Returns 6
+(str_index_of "hello" "x")           # Returns -1
+```
+
+### `str_trim(s: string) -> string`
+I return a copy of `s` with leading and trailing whitespace (space, tab, newline, carriage return) removed.
+
+```nano
+(str_trim "  hello  ")     # Returns "hello"
+(str_trim "\n line \t")    # Returns "line"
+```
+
+### `str_trim_left(s: string) -> string`
+I return a copy of `s` with leading whitespace removed.
+
+```nano
+(str_trim_left "  hello  ")   # Returns "hello  "
+```
+
+### `str_trim_right(s: string) -> string`
+I return a copy of `s` with trailing whitespace removed.
+
+```nano
+(str_trim_right "  hello  ")   # Returns "  hello"
+```
+
+### `str_to_lower(s: string) -> string`
+I return a copy of `s` with every ASCII `A`–`Z` character lowercased. I leave all other bytes, including non-ASCII UTF-8 sequences, untouched.
+
+```nano
+(str_to_lower "HELLO")         # Returns "hello"
+(str_to_lower "Hello World")   # Returns "hello world"
+```
+
+### `str_to_upper(s: string) -> string`
+I return a copy of `s` with every ASCII `a`–`z` character uppercased. I leave all other bytes, including non-ASCII UTF-8 sequences, untouched.
+
+```nano
+(str_to_upper "hello")         # Returns "HELLO"
+(str_to_upper "Hello World")   # Returns "HELLO WORLD"
+```
+
+### `str_replace(s: string, old: string, new: string) -> string`
+I replace every occurrence of `old` in `s` with `new`. I return `s` unchanged when `old` is empty or does not occur.
+
+```nano
+(str_replace "hello world" "world" "nano")   # Returns "hello nano"
+(str_replace "aaa" "a" "b")                  # Returns "bbb"
+(str_replace "hello" "xyz" "abc")            # Returns "hello"
+```
+
+### `str_split(s: string, delimiter: string) -> array<string>`
+I split `s` on every occurrence of `delimiter` and return the pieces. A string with no delimiter yields a one-element array. An empty delimiter splits into single characters.
+
+```nano
+let parts: array<string> = (str_split "a,b,c" ",")
+(array_length parts)   # Returns 3
+(at parts 0)           # Returns "a"
+
+(array_length (str_split "hello" ","))   # Returns 1
+```
+
+### `str_join(parts: array<string>, delimiter: string) -> string`
+I concatenate the strings in `parts`, placing `delimiter` between adjacent elements. I return the empty string for an empty array.
+
+```nano
+let mut parts: array<string> = []
+set parts (array_push parts "a")
+set parts (array_push parts "b")
+set parts (array_push parts "c")
+(str_join parts "-")   # Returns "a-b-c"
+```
+
+### `format(template: string, args: any...) -> string`
+I am variadic. I substitute each `%s`, `%d`, `%f`, or `%g` placeholder in `template` with the next argument, converted to its string form. I copy any placeholder left over after the arguments run out verbatim, and I require at least the template argument.
+
+```nano
+(format "Hello, %s!" "world")            # Returns "Hello, world!"
+(format "kind=%s seq=%d" "spawn" 7)      # Returns "kind=spawn seq=7"
+(println (format "%s scored %d" name score))
 ```
 
 ---
@@ -488,7 +599,7 @@ I convert a lowercase letter code to uppercase. I leave non-letters unchanged.
 
 ---
 
-## Array Operations (13)
+## Array Operations (17)
 
 ### `at(arr: array<T>, index: int) -> T`
 I return the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds.
@@ -613,6 +724,43 @@ fn add(acc: int, x: int) -> int { return (+ acc x) }
 let nums: array<int> = [1, 2, 3, 4]
 let sum: int = (array_fold nums 0 add)
 # sum is 10
+```
+
+### `array_sort(arr: array<T>) -> array<T>`
+I return a new array with the elements sorted in ascending order. I sort arrays of `int`; I return an unmodified copy for other element types.
+
+```nano
+let nums: array<int> = [3, 1, 2]
+let sorted: array<int> = (array_sort nums)
+(at sorted 0)   # Returns 1
+# nums is unchanged
+```
+
+### `array_reverse(arr: array<T>) -> array<T>`
+I return a new array with the elements in reverse order. I leave the input untouched.
+
+```nano
+let nums: array<int> = [1, 2, 3]
+let flipped: array<int> = (array_reverse nums)
+(at flipped 0)   # Returns 3
+```
+
+### `array_contains(arr: array<int>, value: int) -> bool`
+I return true if `value` appears in the array. I compare integer elements.
+
+```nano
+let nums: array<int> = [10, 20, 30]
+(array_contains nums 20)   # Returns true
+(array_contains nums 99)   # Returns false
+```
+
+### `array_index_of(arr: array<int>, value: int) -> int`
+I return the index of the first occurrence of `value`, or `-1` if it is absent. I compare integer elements.
+
+```nano
+let nums: array<int> = [10, 20, 30]
+(array_index_of nums 30)   # Returns 2
+(array_index_of nums 99)   # Returns -1
 ```
 
 ---
@@ -1163,5 +1311,79 @@ if (bstr_validate_utf8 content) {
     (println "Valid UTF-8")
 } else {
     (println "Invalid encoding")
+}
+```
+
+---
+
+## GPU Kernel Builtins (15)
+
+I make these available only inside `gpu fn` bodies. The PTX backend (`--target ptx`) lowers each of them to a GPU special register or instruction; they have no meaning in host code. See `docs/AI_ML_GUIDE.md` for the surrounding kernel-launch model.
+
+```nano
+gpu fn vec_add(a: int, b: int) -> int {
+    let tid = (thread_id_x)
+    let bid = (block_id_x)
+    let bsz = (block_dim_x)
+    let gid = (+ (* bid bsz) tid)
+    return (+ (+ a b) gid)
+}
+```
+
+### `thread_id_x() -> int`
+I return the calling thread's x index within its block (PTX `%tid.x`).
+
+### `thread_id_y() -> int`
+I return the calling thread's y index within its block (PTX `%tid.y`).
+
+### `thread_id_z() -> int`
+I return the calling thread's z index within its block (PTX `%tid.z`).
+
+### `block_id_x() -> int`
+I return the block's x index within the grid (PTX `%ctaid.x`).
+
+### `block_id_y() -> int`
+I return the block's y index within the grid (PTX `%ctaid.y`).
+
+### `block_id_z() -> int`
+I return the block's z index within the grid (PTX `%ctaid.z`).
+
+### `block_dim_x() -> int`
+I return the number of threads per block along x (PTX `%ntid.x`).
+
+### `block_dim_y() -> int`
+I return the number of threads per block along y (PTX `%ntid.y`).
+
+### `block_dim_z() -> int`
+I return the number of threads per block along z (PTX `%ntid.z`).
+
+### `grid_dim_x() -> int`
+I return the number of blocks in the grid along x (PTX `%nctaid.x`).
+
+### `grid_dim_y() -> int`
+I return the number of blocks in the grid along y (PTX `%nctaid.y`).
+
+### `grid_dim_z() -> int`
+I return the number of blocks in the grid along z (PTX `%nctaid.z`).
+
+### `global_id_x() -> int`
+I return the global x index of the calling thread. I compute `(block_id_x * block_dim_x) + thread_id_x` for you.
+
+```nano
+gpu fn scale_by_index(x: int) -> int {
+    return (* x (global_id_x))
+}
+```
+
+### `global_id_y() -> int`
+I return the global y index of the calling thread, computed as `(block_id_y * block_dim_y) + thread_id_y`.
+
+### `gpu_barrier() -> void`
+I synchronize every thread in the block before any of them continues (PTX `bar.sync 0`).
+
+```nano
+gpu fn staged(x: int) -> int {
+    (gpu_barrier)
+    return x
 }
 ```

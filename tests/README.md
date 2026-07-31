@@ -72,6 +72,21 @@ make test-full         # All tests + examples
 ./tests/run_all_tests.sh --unit   # Unit tests only
 ```
 
+### Documentation Coverage
+```bash
+make check-stdlib-docs             # Also run by test-quick and test
+./tests/check_stdlib_docs.sh       # Direct execution
+./tests/check_stdlib_docs.sh --list        # Builtin names from the registry
+./tests/check_stdlib_docs.sh --documented  # Names documented in docs/STDLIB.md
+```
+
+`check_stdlib_docs.sh` diffs the builtin table in `src/builtins_registry.c`
+against the `### \`name(...)\`` entries in `docs/STDLIB.md` and fails when
+either side has an entry the other lacks, so a new builtin cannot land
+undocumented. Adding a builtin means adding its section — and bumping the
+`(N)` count in the enclosing `## Section` heading, which the checker also
+verifies.
+
 ## Test File Format
 
 Each test file should:

@@ -255,7 +255,7 @@ Goal: I am polishing myself for a 1.0 release and building my ecosystem.
 Status: In Progress
 
 High Priority:
-- [ ] I will complete the STDLIB.md documentation (41 missing functions).
+- [x] I have completed my STDLIB.md documentation. Every builtin in `src/builtins_registry.c` now has an entry, and `tests/check_stdlib_docs.sh` (wired into `make test-quick` and `make test`) fails the build if the two ever drift apart again.
 - [x] I have added code coverage metrics (gcov/lcov integration).
 - [x] I have created ERROR_MESSAGES.md with examples.
 - [x] I have documented my memory management model in MEMORY_MANAGEMENT.md.
@@ -269,15 +269,15 @@ High Priority:
 Medium Priority:
 - [x] I have a VS Code extension with DAP debug support (editors/vscode/).
 - [x] I have added a --profile flag and --profile-output for structured benchmark JSON.
-- [ ] I will create LEARNING_PATH.md for my examples.
-- [ ] I will document my error handling philosophy.
+- [x] I have created LEARNING_PATH.md for my examples (docs/LEARNING_PATH.md).
+- [x] I have documented my error handling philosophy (docs/ERROR_HANDLING.md).
 - [ ] I will add build modes (--debug / --release).
-- [ ] I will plan my Unicode support.
+- [x] I have planned my Unicode support (docs/UNICODE.md).
 - [x] I have expanded my negative test coverage from 20 to 36 tests (January 2026).
 
 Low Priority:
 - [x] I have established an RFC process for my evolution (January 2026).
-- [ ] I will create a package manager prototype (nanopkg).
+- [x] I have a package manager (scripts/nano-pkg.sh, packages.json, docs/PACKAGE_MANAGER.md).
 - [ ] I will document my concurrency model.
 - [ ] I will provide a formal grammar specification.
 

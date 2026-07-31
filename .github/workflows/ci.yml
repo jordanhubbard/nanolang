@@ -142,6 +142,9 @@ jobs:
       - name: Check markdown links
         run: python3 scripts/check_markdown_links.py
 
+      - name: Check stdlib documentation coverage
+        run: bash tests/check_stdlib_docs.sh
+
   api-docs:
     name: API Docs (nanodoc)
     runs-on: ubuntu-latest
