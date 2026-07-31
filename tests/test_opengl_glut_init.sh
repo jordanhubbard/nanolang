@@ -14,8 +14,9 @@
 #
 #   1. boundary unit test — drives modules/glut/glut_init.c against a stub
 #      GLUT, so it runs anywhere (only a C compiler is required)
-#   2. example guard — every example drawing GLUT primitives goes through the
-#      shared boundary and none re-implements glutInit by hand
+#   2. call-site guard — every source under examples/ and modules/ that draws
+#      GLUT primitives goes through the shared boundary and none re-implements
+#      glutInit by hand
 #   3. launch smoke — when the OpenGL toolchain and a display are present,
 #      build both GLUT examples and check they survive launch
 #
@@ -23,7 +24,10 @@
 #   bash tests/test_opengl_glut_init.sh            # all sections
 #   bash tests/test_opengl_glut_init.sh --quick    # skip the launch smoke
 #
-# Sections skip (without failing) when their prerequisites are missing.
+# Sections 1 and 2 need no OpenGL toolchain and no display, so they are the
+# regression net on headless machines and build agents. Section 3 skips
+# (without failing) when its prerequisites are missing, listing every unmet
+# prerequisite so the environment can be provisioned in one pass.
 # ============================================================================
 
 set -uo pipefail
@@ -89,31 +93,41 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
-# 2. Example guard — primitives are drawn only behind the shared boundary
+# 2. Call-site guard — primitives are drawn only behind the shared boundary
 # ---------------------------------------------------------------------------
-echo "-- Example guard --"
+#
+# This is the section that runs everywhere: the launch smoke below needs the
+# OpenGL toolchain and a display, so on a headless machine or a build agent
+# without freeglut/GLFW this guard is the only thing standing between a new
+# call site and the "called without first calling glutInit" abort. It therefore
+# scans every NanoLang source that draws primitives — examples/ and modules/
+# alike — instead of only examples/opengl/, so a call site added elsewhere
+# cannot slip past it.
+echo "-- Call-site guard --"
 
-GLUT_PRIMITIVE_EXAMPLES=()
-while IFS= read -r example; do
-    GLUT_PRIMITIVE_EXAMPLES+=("$example")
-done < <(grep -lE '\(glut(Solid|Wire)[A-Za-z]+ ' examples/opengl/*.nano 2>/dev/null | sort)
+GLUT_PRIMITIVE_SOURCES=0
+while IFS= read -r source; do
+    # modules/glut/glut.nano only declares the extern bindings; it is the
+    # boundary itself, not a call site.
+    [ "$source" = "modules/glut/glut.nano" ] && continue
+    GLUT_PRIMITIVE_SOURCES=$((GLUT_PRIMITIVE_SOURCES + 1))
 
-if [ ${#GLUT_PRIMITIVE_EXAMPLES[@]} -eq 0 ]; then
-    fail "no example draws GLUT primitives — the guard would never catch a regression"
-else
-    for example in "${GLUT_PRIMITIVE_EXAMPLES[@]}"; do
-        if grep -q 'glut_ensure_initialized' "$example"; then
-            pass "$example initializes GLUT through the shared boundary"
-        else
-            fail "$example draws GLUT primitives without calling glut_ensure_initialized"
-        fi
+    if grep -q 'glut_ensure_initialized' "$source"; then
+        pass "$source initializes GLUT through the shared boundary"
+    else
+        fail "$source draws GLUT primitives without calling glut_ensure_initialized"
+    fi
 
-        if grep -qE '\(glutInit ' "$example"; then
-            fail "$example calls glutInit directly instead of glut_ensure_initialized"
-        else
-            pass "$example does not hand-roll glutInit"
-        fi
-    done
+    if grep -qE '\(glutInit ' "$source"; then
+        fail "$source calls glutInit directly instead of glut_ensure_initialized"
+    else
+        pass "$source does not hand-roll glutInit"
+    fi
+done < <(grep -rlE '\(glut(Solid|Wire)[A-Za-z]+ ' \
+    --include='*.nano' examples modules 2>/dev/null | sort)
+
+if [ "$GLUT_PRIMITIVE_SOURCES" -eq 0 ]; then
+    fail "no source draws GLUT primitives — the guard would never catch a regression"
 fi
 echo ""
 
@@ -122,34 +136,45 @@ echo ""
 # ---------------------------------------------------------------------------
 echo "-- Launch smoke --"
 
+# Report *every* unmet prerequisite, not just the first one: whoever is
+# provisioning the machine can then install the whole set in one pass instead of
+# rediscovering the next missing piece on each run.
 launch_prerequisite_missing() {
     if [ "$QUICK" = true ]; then
         echo "--quick requested"
         return 0
     fi
+
+    # A plain string rather than an array: `set -u` makes an empty array an
+    # unbound variable on the bash 3.2 that ships with macOS.
+    local missing=""
+    note_missing() { missing="${missing:+$missing; }$1"; }
+
     if [ ! -x ./bin/nanoc_c ]; then
-        echo "./bin/nanoc_c not built (run 'make build')"
-        return 0
+        note_missing "./bin/nanoc_c not built (run 'make build')"
     fi
     if ! command -v perl >/dev/null 2>&1; then
-        echo "perl not available to bound the run"
-        return 0
+        note_missing "perl not available to bound the run"
     fi
     if ! command -v pkg-config >/dev/null 2>&1; then
-        echo "pkg-config not available"
-        return 0
+        note_missing "pkg-config not available"
+    else
+        for pkg in glut glfw3 glew; do
+            if ! pkg-config --exists "$pkg" 2>/dev/null; then
+                note_missing "$pkg development package not installed"
+            fi
+        done
     fi
-    for pkg in glut glfw3 glew; do
-        if ! pkg-config --exists "$pkg" 2>/dev/null; then
-            echo "$pkg development package not installed"
-            return 0
-        fi
-    done
     if [ "$(uname -s)" != "Darwin" ] && [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-        echo "no display available (headless)"
-        return 0
+        note_missing "no display available (headless)"
     fi
-    return 1
+
+    if [ -z "$missing" ]; then
+        return 1
+    fi
+
+    echo "$missing"
+    return 0
 }
 
 launch_example() {
