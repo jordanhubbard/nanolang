@@ -35,6 +35,46 @@ let GLUT_BITMAP_HELVETICA_18: int = 8
 
 # === GLUT Initialization ===
 
+# GLUT's solid/wire primitives read the library's global state, so freeglut
+# aborts with "glutSolidSphere called without first calling glutInit" when they
+# are drawn before initialization. Programs that let GLFW own the window and
+# the event loop still have to initialize GLUT, so this module owns one shared,
+# idempotent entry point for it: glut_ensure_initialized.
+#
+# The shim below never calls glutCreateWindow and never enters glutMainLoop, so
+# window ownership stays with whichever toolkit created the window.
+pub extern fn nl_glut_ensure_init() -> int
+pub extern fn nl_glut_is_initialized() -> int
+
+# Initialize GLUT once so the primitive drawing functions are usable.
+# Safe to call repeatedly; only the first call initializes.
+# Returns true when GLUT state is ready, false when the process has no display
+# and initialization was skipped.
+pub fn glut_ensure_initialized() -> bool {
+    unsafe {
+        return (== (nl_glut_ensure_init) 1)
+    }
+}
+
+shadow glut_ensure_initialized {
+    # Requires the linked GLUT library; not exercisable from the interpreter.
+    assert true
+}
+
+# Report whether GLUT has been initialized by glut_ensure_initialized.
+pub fn glut_is_initialized() -> bool {
+    unsafe {
+        return (== (nl_glut_is_initialized) 1)
+    }
+}
+
+shadow glut_is_initialized {
+    # Requires the linked GLUT library; not exercisable from the interpreter.
+    assert true
+}
+
+# Prefer glut_ensure_initialized over calling glutInit directly: glutInit reads
+# through its argc/argv pointers, and calling it twice is an error.
 extern fn glutInit(_argcp: int, _argv: int) -> void
 extern fn glutInitDisplayMode(_mode: int) -> void
 extern fn glutInitWindowSize(_width: int, _height: int) -> void

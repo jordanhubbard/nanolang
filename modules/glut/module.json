@@ -4,7 +4,7 @@
   "description": "OpenGL Utility Toolkit - 3D shapes, text rendering, and the famous Utah Teapot",
   "headers": [],
   "cflags": ["-Imodules/glut"],
-  "c_sources": [],
+  "c_sources": ["glut_init.c"],
   "pkg_config": ["glut"],
   "frameworks": ["GLUT"],
   "system_packages": ["freeglut"],

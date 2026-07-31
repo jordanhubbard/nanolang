@@ -749,6 +749,14 @@ test-proptest: $(INTERPRETER)
 	@bash tests/test_proptest.sh
 	@echo "proptest smoke tests passed."
 
+# GLUT initialization boundary tests.
+# Unit-tests modules/glut/glut_init.c against a stub GLUT (needs only a C
+# compiler) and, when the OpenGL toolchain and a display are available, checks
+# that the GLUT examples survive launch.
+.PHONY: test-glut-init
+test-glut-init:
+	@bash tests/test_opengl_glut_init.sh
+
 # Ring-buffer unit tests (no compiler or VM required)
 .PHONY: test-ringbuf
 test-ringbuf:
@@ -782,6 +790,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing alternative backends (riscv, ptx, reflect)..."
 	@bash tests/test_backends.sh $(COMPILER_C)
+	@echo ""
+	@echo "Testing the GLUT initialization boundary..."
+	@bash tests/test_opengl_glut_init.sh
 	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
@@ -1056,6 +1067,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@bash tests/test_opengl_glut_init.sh --quick
 
 # User guide: validate executable snippets extracted from userguide/*.md
 .PHONY: userguide-check
@@ -1991,6 +2003,7 @@ help:
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
 	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
+	@echo "  make test-glut-init    - Run GLUT initialization boundary tests"
 	@echo "  make fuzz              - Run fuzzing on seed corpus"
 	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""

@@ -44,6 +44,35 @@ fn setup_glut() -> int {
 shadow setup_glut { assert true }
 ```
 
+### Using GLUT Shapes Inside a GLFW Window
+
+GLUT's shapes read the library's own global state, so FreeGLUT aborts the process with
+
+```
+freeglut ERROR: glutSolidSphere called without first calling glutInit.
+```
+
+when they are drawn before GLUT is initialized — even when GLFW, not GLUT, created the window. Use `glut_ensure_initialized` for that case. It initializes GLUT once, never creates a GLUT window, and never enters `glutMainLoop`, so GLFW keeps ownership of the window and the event loop.
+
+```nano
+from "modules/glut/glut.nano" import glut_ensure_initialized
+
+fn prepare_glut_shapes() -> bool {
+    # Idempotent: only the first call initializes GLUT.
+    # Returns false when the process has no display, in which case the
+    # primitives must not be drawn.
+    return (glut_ensure_initialized)
+}
+
+shadow prepare_glut_shapes { assert true }
+```
+
+Call it after the GL context is current and before the first `glutSolid*`/`glutWire*` call. `glut_is_initialized` reports the current state without initializing anything.
+
+Prefer `glut_ensure_initialized` over calling `glutInit` directly: `glutInit` reads through its `argc`/`argv` pointers, and GLUT rejects a second initialization attempt.
+
+`examples/opengl/opengl_solar_system.nano` and `examples/opengl/opengl_teapot.nano` follow this pattern.
+
 **Display mode flags:**
 
 | Constant | Value | Description |

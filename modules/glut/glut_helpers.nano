@@ -35,16 +35,20 @@ shadow get_text_width {
 # === Geometric Helpers ===
 
 # Draw a textured teapot (applies current texture/color)
+# The primitives need GLUT initialized first, so go through the shared
+# initialization boundary; drawing is skipped when GLUT is unavailable.
 pub fn draw_fancy_teapot(size: float, wireframe: bool) -> void {
-    if wireframe {
-        unsafe {
-            (glutWireTeapot size)
+    if (glut_ensure_initialized) {
+        if wireframe {
+            unsafe {
+                (glutWireTeapot size)
+            }
+        } else {
+            unsafe {
+                (glutSolidTeapot size)
+            }
         }
-    } else {
-        unsafe {
-            (glutSolidTeapot size)
-        }
-    }
+    } else {}
 }
 
 shadow draw_fancy_teapot {
@@ -53,10 +57,14 @@ shadow draw_fancy_teapot {
 }
 
 # Draw a planet-like sphere
+# The primitives need GLUT initialized first, so go through the shared
+# initialization boundary; drawing is skipped when GLUT is unavailable.
 pub fn draw_sphere(radius: float, detail: int) -> void {
-    unsafe {
-        (glutSolidSphere radius detail detail)
-    }
+    if (glut_ensure_initialized) {
+        unsafe {
+            (glutSolidSphere radius detail detail)
+        }
+    } else {}
 }
 
 shadow draw_sphere {

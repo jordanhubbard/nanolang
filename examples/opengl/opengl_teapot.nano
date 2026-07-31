@@ -496,9 +496,18 @@ if (!= glew_status GLEW_OK) {
     (println "✓ GLEW initialized")
 }
     
-# glutInit is required by freeglut even when GLFW owns the window,
-# because GLUT primitive functions (glutSolidTeapot etc.) need its internal state.
-unsafe { (glutInit 0 0) }
+# GLUT primitives (glutSolidTeapot, glutWireTeapot) need GLUT's own state,
+# even though GLFW owns this window and the event loop. The glut module
+# provides the shared, idempotent initialization boundary for that.
+let glut_ready: bool = (glut_ensure_initialized)
+if glut_ready {
+    (println "✓ GLUT initialized")
+} else {
+    (println "✗ Failed to initialize GLUT for primitive rendering")
+    (glfwDestroyWindow window)
+    (glfwTerminate)
+    return 1
+}
 
 # Setup OpenGL
 (setup_opengl)

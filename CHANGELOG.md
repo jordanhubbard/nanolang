@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- initialize GLUT once through `modules/glut` so the GLFW-owned OpenGL examples
+  (`opengl_solar_system`, `opengl_teapot`) stop aborting with "glutSolidSphere
+  called without first calling glutInit"
+
 ## [3.3.8] - 2026-05-30
 
 ### Added
