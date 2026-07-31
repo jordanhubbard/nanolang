@@ -1,0 +1,246 @@
+/* test_launcher_capture.nano — regression test for SDL launcher child capture
+ *
+ * I cover the four guarantees the launcher makes about every child it starts:
+ *   1. stdout and stderr are persisted to a per-launch temporary log
+ *   2. the child's real exit status survives the is_running() poll that
+ *      precedes wait()
+ *   3. runtime diagnostics in the captured stream are detected
+ *   4. failure task filing is deduplicated per example
+ *
+ * No SDL and no display are required: I drive pm_poll() with an ordinary
+ * shell child, and a pre-created dedup marker keeps the test from shelling
+ * out to the `mac` CLI.
+ *
+ * Run: nanoc tests/unit/test_launcher_capture.nano -o /tmp/launcher_capture && /tmp/launcher_capture
+ */
+
+from "modules/std/process.nano" import spawn, is_running, wait, run, spawn_with_pipes, fd_close, Output
+from "modules/std/fs.nano" import exists, read, write, delete
+from "examples/lib/process_manager.nano" import ChildStatus, ProcessManager, pm_new, pm_poll, pm_kill, pm_drain_fd, pm_tail, pm_output_has_error, pm_runtime_log_path, pm_failure_marker_path
+
+# ---------------------------------------------------------------------------
+# 2. Real exit status survives polling
+# ---------------------------------------------------------------------------
+
+fn exit_status_survives_polling() -> int {
+    let pid: int = (spawn "exit 7")
+    assert (> pid 0)
+    # Settle, then probe. The probe must not consume the status.
+    let settle: Output = (run "sleep 0.2")
+    assert (== settle.code 0)
+    assert (== (is_running pid) 0)
+    assert (== (is_running pid) 0)
+    return (wait pid)
+}
+
+shadow exit_status_survives_polling {
+    assert (== (exit_status_survives_polling) 7)
+}
+
+# ---------------------------------------------------------------------------
+# 1 + 3. Both streams reach the per-launch log and diagnostics are detected
+# ---------------------------------------------------------------------------
+
+fn poll_captured_child() -> ChildStatus {
+    let example: string = "examples/internal/launcher_capture_probe.nano"
+    let marker: string = (pm_failure_marker_path example)
+    # Pre-file the marker so pm_poll's failure path deduplicates instead of
+    # invoking `mac task create` from a test.
+    (write marker "test-owned marker\n")
+
+    let raw: array<string> = (spawn_with_pipes "printf 'hello from stdout\\n'; printf 'fatal error: probe exploded\\n' 1>&2; exit 3")
+    let pid: int = (string_to_int (at raw 0))
+    assert (> pid 0)
+    let log_path: string = (pm_runtime_log_path example pid)
+    (write log_path "[launcher]\nI launched the capture probe.\n")
+
+    let child: ChildStatus = ChildStatus {
+        example_path: example, pid: pid, state: 1, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
+        stdout_fd: (string_to_int (at raw 1)), stderr_fd: (string_to_int (at raw 2)),
+        runtime_output: "", log_path: log_path, task_filed: false
+    }
+    let empty: ProcessManager = (pm_new 4)
+    let mut pm: ProcessManager = ProcessManager {
+        children: (array_push empty.children child), max_children: 4
+    }
+
+    # Poll like the launcher's frame loop until the child is harvested.
+    let mut spins: int = 0
+    while (< spins 50) {
+        set pm (pm_poll pm)
+        let current: ChildStatus = (at pm.children 0)
+        if (== current.state 2) {
+            (delete marker)
+            return current
+        }
+        let pause: Output = (run "sleep 0.1")
+        assert (== pause.code 0)
+        set spins (+ spins 1)
+    }
+    (delete marker)
+    return (at pm.children 0)
+}
+
+shadow poll_captured_child {
+    let harvested: ChildStatus = (poll_captured_child)
+    # The child was harvested with its real exit code, not a polling artifact.
+    assert (== harvested.state 2)
+    assert (== harvested.exit_code 3)
+    # Both streams were captured in memory...
+    assert (str_contains harvested.runtime_output "hello from stdout")
+    assert (str_contains harvested.runtime_output "fatal error: probe exploded")
+    # ...and persisted to the per-launch log alongside the observed status.
+    assert (exists harvested.log_path)
+    let logged: string = (read harvested.log_path)
+    assert (str_contains logged "hello from stdout")
+    assert (str_contains logged "fatal error: probe exploded")
+    assert (str_contains logged "I observed exit code 3")
+    # The dedup marker suppressed a duplicate task instead of shelling out.
+    assert (str_contains logged "I already filed a task")
+    # The diagnostic in that stream is recognised as a failure signal.
+    assert (pm_output_has_error harvested.runtime_output)
+    (delete harvested.log_path)
+}
+
+# ---------------------------------------------------------------------------
+# 1 + 2. A user-stopped child still gets its output logged and gets reaped
+# ---------------------------------------------------------------------------
+
+fn kill_captures_and_reaps() -> string {
+    let example: string = "examples/internal/launcher_kill_probe.nano"
+    # /bin/echo (not the shell builtin) exits immediately, so its bytes reach
+    # the pipe before the child parks in sleep.
+    let raw: array<string> = (spawn_with_pipes "/bin/echo pre-kill-output; sleep 5")
+    let pid: int = (string_to_int (at raw 0))
+    assert (> pid 0)
+    let log_path: string = (pm_runtime_log_path example pid)
+    (write log_path "[launcher]\nI launched the kill probe.\n")
+
+    let child: ChildStatus = ChildStatus {
+        example_path: example, pid: pid, state: 1, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
+        stdout_fd: (string_to_int (at raw 1)), stderr_fd: (string_to_int (at raw 2)),
+        runtime_output: "", log_path: log_path, task_filed: false
+    }
+    let empty: ProcessManager = (pm_new 4)
+    let started: ProcessManager = ProcessManager {
+        children: (array_push empty.children child), max_children: 4
+    }
+    let settle: Output = (run "sleep 0.3")
+    assert (== settle.code 0)
+
+    let stopped: ProcessManager = (pm_kill started example)
+    assert (== (array_length stopped.children) 0)
+    # The child was reaped, so the OS no longer reports it as ours.
+    assert (== (is_running pid) -1)
+    let logged: string = (read log_path)
+    (delete log_path)
+    return logged
+}
+
+shadow kill_captures_and_reaps {
+    let logged: string = (kill_captures_and_reaps)
+    assert (str_contains logged "I stopped this process at the user's request")
+    assert (str_contains logged "pre-kill-output")
+    # SIGTERM is reported as a negative signal number, not as a clean exit.
+    assert (str_contains logged "I reaped this process with status -15")
+}
+
+fn kill_escalates_to_sigkill() -> string {
+    let example: string = "examples/internal/launcher_stubborn_probe.nano"
+    let raw: array<string> = (spawn_with_pipes "trap '' TERM; /bin/echo ignoring-term; sleep 30")
+    let pid: int = (string_to_int (at raw 0))
+    assert (> pid 0)
+    let log_path: string = (pm_runtime_log_path example pid)
+    (write log_path "[launcher]\nI launched the stubborn probe.\n")
+
+    let child: ChildStatus = ChildStatus {
+        example_path: example, pid: pid, state: 1, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
+        stdout_fd: (string_to_int (at raw 1)), stderr_fd: (string_to_int (at raw 2)),
+        runtime_output: "", log_path: log_path, task_filed: false
+    }
+    let empty: ProcessManager = (pm_new 4)
+    let started: ProcessManager = ProcessManager {
+        children: (array_push empty.children child), max_children: 4
+    }
+    let settle: Output = (run "sleep 0.3")
+    assert (== settle.code 0)
+
+    let stopped: ProcessManager = (pm_kill started example)
+    assert (== (array_length stopped.children) 0)
+    assert (== (is_running pid) -1)
+    let logged: string = (read log_path)
+    (delete log_path)
+    return logged
+}
+
+shadow kill_escalates_to_sigkill {
+    let logged: string = (kill_escalates_to_sigkill)
+    assert (str_contains logged "ignoring-term")
+    # SIGTERM was trapped away, so the reap only completes because pm_kill
+    # escalated to SIGKILL instead of blocking the launcher forever.
+    assert (str_contains logged "I reaped this process with status -9")
+}
+
+# ---------------------------------------------------------------------------
+# 1. A burst larger than one pipe read is fully drained
+# ---------------------------------------------------------------------------
+
+fn drain_large_burst() -> int {
+    let raw: array<string> = (spawn_with_pipes "yes nanolang-launcher-capture | head -c 200000")
+    let pid: int = (string_to_int (at raw 0))
+    let stdout_fd: int = (string_to_int (at raw 1))
+    let stderr_fd: int = (string_to_int (at raw 2))
+    assert (> pid 0)
+
+    let mut total: int = 0
+    let mut spins: int = 0
+    while (< spins 200) {
+        set total (+ total (str_length (pm_drain_fd stdout_fd)))
+        if (>= total 200000) { set spins 200 }
+        else {
+            let pause: Output = (run "sleep 0.05")
+            assert (== pause.code 0)
+            set spins (+ spins 1)
+        }
+    }
+    (wait pid)
+    (fd_close stdout_fd)
+    (fd_close stderr_fd)
+    return total
+}
+
+shadow drain_large_burst {
+    # A single fd_read_available() call tops out at one buffer; the drain loop
+    # must recover the whole 200000-byte burst.
+    assert (== (drain_large_burst) 200000)
+}
+
+# ---------------------------------------------------------------------------
+# 4. Task descriptions keep the diagnostic tail
+# ---------------------------------------------------------------------------
+
+fn tail_keeps_diagnostic() -> string {
+    let noise: Output = (run "printf 'noise%.0s' $(seq 1 4000)")
+    assert (== noise.code 0)
+    return (pm_tail (+ noise.stdout "segmentation fault") 200)
+}
+
+shadow tail_keeps_diagnostic {
+    let tail: string = (tail_keeps_diagnostic)
+    assert (str_contains tail "segmentation fault")
+    assert (str_contains tail "I truncated")
+    assert (pm_output_has_error tail)
+}
+
+fn main() -> int {
+    assert (== (exit_status_survives_polling) 7)
+    (println "launcher capture OK")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
