@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <dirent.h>
 
 // JSON parsing (simple, minimal implementation for module.json)
 #include "cJSON.h"
@@ -421,6 +422,222 @@ static cJSON *load_hash_cache(const char *module_dir) {
     return root;
 }
 
+/* Resolve a module system header to an absolute path by searching:
+   1. -F<dir> framework dirs from cflags_macos: <dir>/<modname>.framework/Headers/<header>
+   2. -I<dir> dirs from cflags, cflags_macos, cflags_linux: <dir>/<header>
+   3. Standard fallback dirs.
+   Returns malloc'd path or NULL. Caller must free. */
+static char *find_system_header_path(const char *header, ModuleBuildMetadata *meta) {
+    char probe[1024];
+
+#ifdef __APPLE__
+    /* Search -F<framework_root> flags from cflags_macos */
+    static const char *framework_suffixes[] = {
+        "Headers",
+        "Versions/Current/Headers",
+        "Versions/A/Headers",
+        NULL
+    };
+    for (size_t fi = 0; meta && fi < meta->cflags_macos_count; fi++) {
+        const char *flag = meta->cflags_macos[fi];
+        if (strncmp(flag, "-F", 2) != 0) continue;
+        const char *fdir = flag + 2;
+        for (int si = 0; framework_suffixes[si]; si++) {
+            snprintf(probe, sizeof(probe), "%s/%s.framework/%s/%s",
+                     fdir, meta->name ? meta->name : "", framework_suffixes[si], header);
+            if (access(probe, R_OK) == 0) return strdup(probe);
+        }
+    }
+#endif
+
+    /* Search -I<dir> flags across all platform cflag arrays */
+    struct { char **flags; size_t count; } cflag_sets[] = {
+        { meta ? meta->cflags : NULL,       meta ? meta->cflags_count : 0 },
+#ifdef __APPLE__
+        { meta ? meta->cflags_macos : NULL, meta ? meta->cflags_macos_count : 0 },
+#elif defined(__linux__)
+        { meta ? meta->cflags_linux : NULL, meta ? meta->cflags_linux_count : 0 },
+#elif defined(__FreeBSD__)
+        { meta ? meta->cflags_freebsd : NULL, meta ? meta->cflags_freebsd_count : 0 },
+#endif
+        { NULL, 0 }
+    };
+    for (int si = 0; cflag_sets[si].flags; si++) {
+        for (size_t fi = 0; fi < cflag_sets[si].count; fi++) {
+            const char *flag = cflag_sets[si].flags[fi];
+            if (strncmp(flag, "-I", 2) != 0) continue;
+            snprintf(probe, sizeof(probe), "%s/%s", flag + 2, header);
+            if (access(probe, R_OK) == 0) return strdup(probe);
+        }
+    }
+
+    /* Standard fallback locations */
+    static const char *std_dirs[] = {
+        "/usr/local/include", "/usr/include",
+        "/opt/homebrew/include", "/opt/mujoco/include",
+        NULL
+    };
+    for (int di = 0; std_dirs[di]; di++) {
+        snprintf(probe, sizeof(probe), "%s/%s", std_dirs[di], header);
+        if (access(probe, R_OK) == 0) return strdup(probe);
+    }
+    return NULL;
+}
+
+/* Hash all system headers declared in meta->headers and add to a cJSON object.
+   Keys are prefixed with "sysheader:" to avoid colliding with c_sources entries. */
+static void hash_system_headers(cJSON *root, ModuleBuildMetadata *meta) {
+    if (!meta || meta->headers_count == 0) return;
+    for (size_t i = 0; i < meta->headers_count; i++) {
+        const char *hdr = meta->headers[i];
+        char *path = find_system_header_path(hdr, meta);
+        if (!path) continue;
+        uint64_t h = hash_file_fnv1a(path);
+        free(path);
+        char hstr[24];
+        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+        char key[256];
+        snprintf(key, sizeof(key), "sysheader:%s", hdr);
+        cJSON_AddStringToObject(root, key, hstr);
+    }
+}
+
+/* Check that system header hashes in cache still match the files on disk. */
+static bool system_headers_match(cJSON *cache, ModuleBuildMetadata *meta) {
+    if (!meta || meta->headers_count == 0) return true;
+    for (size_t i = 0; i < meta->headers_count; i++) {
+        const char *hdr = meta->headers[i];
+        char key[256];
+        snprintf(key, sizeof(key), "sysheader:%s", hdr);
+        cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, key);
+        /* If there's no cached entry for a sysheader, treat as clean (first run). */
+        if (!item || !cJSON_IsString(item)) continue;
+        char *path = find_system_header_path(hdr, meta);
+        if (!path) {
+            /* Header was cached but is now gone → rebuild. */
+            return false;
+        }
+        uint64_t h = hash_file_fnv1a(path);
+        free(path);
+        char hstr[24];
+        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+        if (strcmp(item->valuestring, hstr) != 0) return false;
+    }
+    return true;
+}
+
+/* Parse a compiler-generated Make-format .d dependency file and add every
+   listed dependency path as a "dep:<path>" hash entry in root.
+   Handles backslash-continuation lines and escaped spaces. */
+static void hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
+    FILE *fp = fopen(depfile_path, "r");
+    if (!fp) return;
+    fseek(fp, 0, SEEK_END);
+    long sz = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    if (sz <= 0) { fclose(fp); return; }
+    char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(fp); return; }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+    fread(buf, 1, (size_t)sz, fp);
+#pragma GCC diagnostic pop
+    buf[sz] = '\0';
+    fclose(fp);
+
+    /* Skip past the "target(s):" prefix to reach the dependency list. */
+    char *p = strchr(buf, ':');
+    if (!p) { free(buf); return; }
+    p++;
+
+    /* Tokenize: paths are space-separated, lines end with \ for continuation. */
+    char token[4096];
+    int ti = 0;
+
+    while (*p) {
+        if (*p == '\\' && *(p + 1) == '\n') {
+            p += 2; /* backslash-newline continuation */
+        } else if (*p == '\\' && *(p + 1) == '\r' && *(p + 2) == '\n') {
+            p += 3;
+        } else if (*p == '\\' && *(p + 1) == ' ') {
+            /* escaped space inside a path (rare but legal) */
+            if (ti < (int)sizeof(token) - 1) token[ti++] = ' ';
+            p += 2;
+        } else if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
+            if (ti > 0) {
+                token[ti] = '\0';
+                if (access(token, R_OK) == 0) {
+                    uint64_t h = hash_file_fnv1a(token);
+                    char hstr[24];
+                    snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+                    char key[4096 + 5];
+                    snprintf(key, sizeof(key), "dep:%s", token);
+                    if (!cJSON_GetObjectItemCaseSensitive(root, key))
+                        cJSON_AddStringToObject(root, key, hstr);
+                }
+                ti = 0;
+            }
+            p++;
+        } else {
+            if (ti < (int)sizeof(token) - 1) token[ti++] = *p;
+            p++;
+        }
+    }
+    /* flush final token */
+    if (ti > 0) {
+        token[ti] = '\0';
+        if (access(token, R_OK) == 0) {
+            uint64_t h = hash_file_fnv1a(token);
+            char hstr[24];
+            snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+            char key[4096 + 5];
+            snprintf(key, sizeof(key), "dep:%s", token);
+            if (!cJSON_GetObjectItemCaseSensitive(root, key))
+                cJSON_AddStringToObject(root, key, hstr);
+        }
+    }
+    free(buf);
+}
+
+/* Scan the module build directory for compiler-generated *.d files and add
+   all their dependency hashes to root. Called after a successful compile. */
+static void hash_depfiles_in_build_dir(cJSON *root, const char *module_dir) {
+    char *build_dir = module_get_build_dir(module_dir);
+    if (!build_dir) return;
+    DIR *d = opendir(build_dir);
+    if (!d) { free(build_dir); return; }
+    struct dirent *e;
+    while ((e = readdir(d)) != NULL) {
+        size_t len = strlen(e->d_name);
+        if (len < 3 || strcmp(e->d_name + len - 2, ".d") != 0) continue;
+        char deppath[1024];
+        snprintf(deppath, sizeof(deppath), "%s/%s", build_dir, e->d_name);
+        hash_depfile_into_cache(root, deppath);
+    }
+    closedir(d);
+    free(build_dir);
+}
+
+/* Verify that every "dep:<path>" entry in the cache still matches the file on disk.
+   A missing entry (no dep data yet) is treated as clean — first build sets the baseline. */
+static bool dep_hashes_match(cJSON *cache) {
+    cJSON *item = cache ? cache->child : NULL;
+    while (item) {
+        if (item->string && strncmp(item->string, "dep:", 4) == 0) {
+            const char *path = item->string + 4;
+            if (access(path, R_OK) != 0)
+                return false; /* previously-tracked header is gone */
+            uint64_t h = hash_file_fnv1a(path);
+            char hstr[24];
+            snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+            if (!cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+                return false;
+        }
+        item = item->next;
+    }
+    return true;
+}
+
 /* Save hash cache JSON for a module */
 static void save_hash_cache(const char *module_dir, cJSON *root) {
     char *path = hash_cache_path(module_dir);
@@ -453,6 +670,10 @@ void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta)
     char mj_hstr[24];
     snprintf(mj_hstr, sizeof(mj_hstr), "%llu", (unsigned long long)mj_hash);
     cJSON_AddStringToObject(root, "module.json", mj_hstr);
+    /* Hash system headers declared in module.json (fast top-level check) */
+    hash_system_headers(root, meta);
+    /* Hash all transitively-included headers from compiler-generated .d files */
+    hash_depfiles_in_build_dir(root, module_dir);
     save_hash_cache(module_dir, root);
     cJSON_Delete(root);
 }
@@ -484,6 +705,8 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
         if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
             match = false;
     }
+    if (match) match = system_headers_match(cache, meta);
+    if (match) match = dep_hashes_match(cache);
     cJSON_Delete(cache);
     return match;
 }
@@ -1512,6 +1735,37 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
         return true;
     }
 
+    /* Check if any platform-specific system include/framework directory is newer
+       than the object. This catches library reinstalls (e.g. brew cask upgrade)
+       where the C source is unchanged but the library's headers were replaced. */
+#ifdef __APPLE__
+    for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+        const char *flag = meta->cflags_macos[i];
+        if (strncmp(flag, "-F", 2) != 0) continue;
+        time_t fdir_mtime = get_mtime(flag + 2);
+        if (fdir_mtime > object_mtime) {
+            if (module_builder_verbose)
+                printf("[Module] %s needs rebuild: framework dir %s is newer\n", meta->name, flag + 2);
+            return true;
+        }
+    }
+#else
+    for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+        const char *flag = meta->cflags_linux[i];
+        if (strncmp(flag, "-I", 2) != 0) continue;
+        const char *dir = flag + 2;
+        /* Skip standard toolchain paths that are effectively immutable. */
+        if (strncmp(dir, "/usr/include", 12) == 0) continue;
+        if (strncmp(dir, "/usr/lib/gcc", 12) == 0) continue;
+        time_t idir_mtime = get_mtime(dir);
+        if (idir_mtime > object_mtime) {
+            if (module_builder_verbose)
+                printf("[Module] %s needs rebuild: include dir %s is newer\n", meta->name, dir);
+            return true;
+        }
+    }
+#endif
+
     return false;
 }
 
@@ -1784,9 +2038,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
+            char dep_path[1024];
+            snprintf(dep_path, sizeof(dep_path), "%s/%s.d",
+                     build_dir, meta->name ? meta->name : "unknown");
             char compile_cmd[8192];
-            snprintf(compile_cmd, sizeof(compile_cmd), "%s %s/%s -o %s",
-                     compile_prefix, meta->module_dir, meta->c_sources[0], object_file);
+            snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
+                     compile_prefix, dep_path, meta->module_dir, meta->c_sources[0], object_file);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", compile_cmd);
@@ -1812,9 +2069,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 snprintf(obj_path, sizeof(obj_path), "%s/%s_%zu.o", build_dir, meta->name, i);
                 src_objects[i] = strdup(obj_path);
 
+                char dep_path[1024];
+                snprintf(dep_path, sizeof(dep_path), "%s/%s_%zu.d",
+                         build_dir, meta->name ? meta->name : "unknown", i);
                 char compile_cmd[8192];
-                snprintf(compile_cmd, sizeof(compile_cmd), "%s %s/%s -o %s",
-                         compile_prefix, meta->module_dir, meta->c_sources[i], obj_path);
+                snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
+                         compile_prefix, dep_path, meta->module_dir, meta->c_sources[i], obj_path);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                     printf("[Module] %s\n", compile_cmd);
@@ -2022,6 +2282,18 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     } else {
         if (module_builder_verbose) {
             printf("[Module] %s up to date (using cache)\n", meta->name);
+        }
+        /* Repopulate hash cache if it's missing (e.g. after git clean or manual deletion).
+           This ensures system header hashes get recorded for future invalidation checks. */
+        {
+            char *cache_path = hash_cache_path(meta->module_dir);
+            if (cache_path) {
+                bool cache_exists = (access(cache_path, F_OK) == 0);
+                free(cache_path);
+                if (!cache_exists) {
+                    module_update_hash_cache(meta->module_dir, meta);
+                }
+            }
         }
     }
 

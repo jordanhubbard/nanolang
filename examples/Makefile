@@ -75,7 +75,7 @@ READLINE_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; t
 # SDL2 links via pkg-config sdl2; ncurses/mujoco are probed by compiler/loader.
 SDL_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists sdl2 >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists sdl2 >/dev/null 2>&1 && echo yes; fi')
 NCURSES_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1 && (pkg-config --exists ncursesw >/dev/null 2>&1 || pkg-config --exists ncurses >/dev/null 2>&1); then echo yes; elif [ -x /opt/homebrew/bin/pkg-config ] && (/opt/homebrew/bin/pkg-config --exists ncursesw >/dev/null 2>&1 || /opt/homebrew/bin/pkg-config --exists ncurses >/dev/null 2>&1); then echo yes; elif command -v ncurses-config >/dev/null 2>&1; then echo yes; elif [ -f /usr/include/ncurses.h ] || [ -f /usr/local/include/ncurses.h ] || [ -f /opt/homebrew/include/ncurses.h ]; then echo yes; fi')
-MUJOCO_AVAILABLE := $(shell sh -c 'for d in .nanolang/native/mujoco/include /opt/mujoco/include /usr/local/include modules/mujoco; do if [ -f "$$d/mujoco.h" ]; then echo yes; exit 0; fi; done')
+MUJOCO_AVAILABLE := $(shell sh -c 'for d in .nanolang/native/mujoco/include /opt/mujoco/include /usr/local/include modules/mujoco; do if [ -f "$$d/mujoco.h" ]; then echo yes; exit 0; fi; done; for fw in /Applications/MuJoCo.app/Contents/Frameworks /opt/homebrew/Caskroom/mujoco/*/mujoco.framework/.. ; do if [ -f "$$fw/mujoco.framework/Versions/Current/Headers/mujoco.h" ]; then echo yes; exit 0; fi; done')
 
 # === Nanolang-Only Compiled Examples (nl_*) ===
 
