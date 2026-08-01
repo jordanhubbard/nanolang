@@ -9,6 +9,8 @@
 #ifndef STDLIB_RUNTIME_H
 #define STDLIB_RUNTIME_H
 
+#include <stdbool.h>
+
 /**
  * @brief String builder for efficient C code generation
  *
@@ -113,6 +115,30 @@ void generate_profiling_system(StringBuilder *sb, const char *profile_output_pat
  */
 void generate_instrumented_profiling_system(StringBuilder *sb);
 void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegraph_path);
+
+/**
+ * @brief Resolve the effective backend name for a compilation
+ * @param target Value of --target, or NULL when the flag was not given
+ * @param llvm   True when --llvm was given
+ * @return Static string naming the backend ("native", "wasm", "llvm", ...)
+ *
+ * --llvm short-circuits the transpiler in the same way an explicit --target
+ * does, so it is reported as its own backend rather than as "native".
+ */
+const char *profile_runtime_backend_name(const char *target, bool llvm);
+
+/**
+ * @brief Can this backend emit a runtime flamegraph profile?
+ * @param backend Backend name from profile_runtime_backend_name()
+ * @return true only for backends that reach the transpiler's instrumentation
+ *
+ * --profile-runtime works by injecting clock_gettime counters into the C the
+ * transpiler emits and registering an atexit hook that writes the collapsed
+ * stack file. Every other backend (wasm, ptx, opencl, c, riscv, llvm) returns
+ * from main() before that code generation runs and emits an artifact that the
+ * compiler never executes, so none of them can produce a .nano.prof.
+ */
+bool profile_runtime_backend_supported(const char *backend);
 
 void generate_coroutine_builtins(StringBuilder *sb);
 

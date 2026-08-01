@@ -21,6 +21,7 @@
 #include "pgo_pass.h"
 #include "llvm_backend.h"
 #include "sign.h"
+#include "stdlib_runtime.h"  /* profile_runtime_backend_* support policy */
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
@@ -1547,6 +1548,8 @@ int main(int argc, char *argv[]) {
         printf("  --profile-runtime     Implies --profile; also write flamegraph collapsed-stack\n");
         printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
         printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
+        printf("                 Native target only — errors out under --target/--llvm, which\n");
+        printf("                 emit artifacts nanoc never runs and so cannot profile.\n");
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
         printf("  --target <t>   Compile target: native (default), wasm, ptx, opencl, c, riscv\n");
         printf("                 ptx:    emit NVIDIA PTX assembly for `gpu fn` functions\n");
@@ -1560,8 +1563,9 @@ int main(int argc, char *argv[]) {
         printf("  --bench-n <N>  Fixed iteration count (default: auto-calibrate to ~1s)\n");
         printf("  --bench-json <f> Write JSON benchmark results to file\n");
         printf("                          clang -O2 prog.ll -o prog\n");
-        printf("  --pgo <file>   Profile-guided inlining: read .nano.prof from --profile-runtime,\n");
-        printf("                 identify hot call sites and inline them. Combines with --tco.\n");
+        printf("  --pgo <file>   Profile-guided inlining: read .nano.prof from a native\n");
+        printf("                 --profile-runtime build, identify hot call sites and inline\n");
+        printf("                 them. Combines with --tco.\n");
         printf("                 Example: nanoc --profile-runtime prog.nano -o prog\n");
         printf("                          ./prog                    # generates prog.nano.prof\n");
         printf("                          nanoc --pgo prog.nano.prof prog.nano -o prog_opt\n");
@@ -1890,7 +1894,31 @@ int main(int argc, char *argv[]) {
     if (getenv("NANO_VERBOSE_BUILD")) {
         opts.verbose = true;
     }
-    
+
+    /* --profile-runtime instruments the C the transpiler emits, so it only has
+     * meaning on the native path. Fail loudly instead of accepting the flag and
+     * emitting an artifact with no profiling in it. */
+    if (opts.profile_runtime) {
+        const char *backend = profile_runtime_backend_name(opts.target, opts.llvm);
+        if (!profile_runtime_backend_supported(backend)) {
+            fprintf(stderr,
+                    "error: --profile-runtime is not supported for the '%s' backend\n",
+                    backend);
+            fprintf(stderr,
+                    "  Runtime flamegraph profiling instruments the C emitted by the native\n"
+                    "  backend and writes <output>.nano.prof when the compiled program exits.\n"
+                    "  The '%s' backend emits an artifact that nanoc never runs, so no\n"
+                    "  profile can be collected.\n", backend);
+            fprintf(stderr,
+                    "  Drop --target/--llvm to profile natively, then feed the resulting\n"
+                    "  .nano.prof back in with --pgo.\n");
+            free(include_paths);
+            free(library_paths);
+            free(libraries);
+            return 1;
+        }
+    }
+
     int result = compile_file(input_file, output_file, &opts);
     
     /* Cleanup */

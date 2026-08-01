@@ -9,6 +9,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - initialize GLUT once through `modules/glut` so the GLFW-owned OpenGL examples
   (`opengl_solar_system`, `opengl_teapot`) stop aborting with "glutSolidSphere
   called without first calling glutInit"
+- scope `--profile-runtime` to the backends that implement it. The flamegraph
+  counters and the `.nano.prof` writer are injected into the C the transpiler
+  emits, so only the native backend can produce a profile. `--target
+  wasm|ptx|opencl|c|riscv` and `--llvm` used to accept the flag and silently
+  emit an unprofiled artifact; they now fail with an explicit
+  unsupported-backend diagnostic. `--help` and the 3.3.x entry for #51 are
+  qualified to match.
+
+### Removed
+- `src/wasm_profiler.{c,h}`, a stub whose header claimed the real
+  implementation "lives in feat/wasm-runtime-profiler (PR #51, merged)" and was
+  lost in the merge. PR #51 touched only `Makefile.gnu`, `src/main.c`,
+  `src/nanolang.h`, `src/stdlib_runtime.{c,h}`, `src/transpiler.c` and
+  `tests/unit/test_profile_runtime.nano` — no WASM profiler source ever existed
+  to restore. `wasm_profiler_create()` returned `NULL` and nothing called it.
+  `tests/test_wasm_profiler.c` is now a real test of the backend support policy.
 
 ## [3.3.8] - 2026-05-30
 
@@ -133,8 +149,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - PTX backend — nanoc --target ptx emits NVIDIA PTX assembly for gpu fn kernels
 - PTX backend — nanoc --target ptx emits NVIDIA PTX assembly for gpu fn kernels (#50)
 - PTX backend — nanoc --target ptx emits NVIDIA PTX assembly for gpu fn kernels
-- WASM runtime profiler — --profile-runtime emits flamegraph collapsed-stack .nano.prof
-- WASM runtime profiler — --profile-runtime emits flamegraph collapsed-stack .nano.prof (#51)
+- native runtime profiler — --profile-runtime emits flamegraph collapsed-stack .nano.prof
+- native runtime profiler — --profile-runtime emits flamegraph collapsed-stack .nano.prof (#51)
+  (native backend only; see Unreleased → Fixed. #51 was titled "WASM runtime
+  profiler" but shipped no WASM support.)
 - row-polymorphic records — row var unification, spread, open patterns
 - f-string string interpolation — comprehensive tests and userguide docs (#49)
 - coverage tracking — --coverage flag, 80% CI threshold, coverage-check target (#48)

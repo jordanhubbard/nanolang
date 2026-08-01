@@ -2407,6 +2407,30 @@ void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegr
     sb_append(sb, "/* ========== End Flamegraph Profiling Output ========== */\n\n");
 }
 
+/* ── --profile-runtime backend support policy ───────────────────────────────
+ * The flamegraph profiler above is emitted into the C that the transpiler
+ * generates, and the .nano.prof file is written by an atexit hook in the
+ * resulting executable. That only happens on the native path.
+ *
+ * Every alternate backend returns from compile_file() before the transpiler
+ * runs, and each one emits a source or object artifact (.wasm, .ptx, .cl, .c,
+ * .s, .ll) that nanoc never executes — so there is no run in which a profile
+ * could be collected. Rather than accept --profile-runtime and silently emit
+ * nothing, nanoc rejects the combination up front.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+const char *profile_runtime_backend_name(const char *target, bool llvm) {
+    if (target && target[0]) return target;
+    /* --llvm short-circuits the transpiler just like an explicit --target. */
+    if (llvm) return "llvm";
+    return "native";
+}
+
+bool profile_runtime_backend_supported(const char *backend) {
+    if (!backend || !backend[0]) return true;  /* absent --target == native */
+    return strcmp(backend, "native") == 0;
+}
+
 /* ── Coroutine runtime builtins ─────────────────────────────────────────────
  * Expose the nanolang coroutine scheduler as nanolang builtins.
  * These wrap coroutine.h's nano_* API into nl_* C functions that the
