@@ -355,23 +355,14 @@ fn hold_ball_at_source(sim: MjSim, body: int, held_index: int) -> void {
 
 shadow hold_ball_at_source { assert true }
 
-fn lift_ball_from_source(sim: MjSim, body: int, held_index: int, t: float) -> void {
+fn hold_ball_at_gripper(sim: MjSim, ids: SorterIds, body: int) -> void {
     (set_free_body_pose sim body
-        (source_ball_x held_index)
-        (source_ball_y held_index)
-        (lerp (source_ball_z held_index) CARRY_HEIGHT t))
+        (nl_mj_site_x sim ids.gripper_site)
+        (nl_mj_site_y sim ids.gripper_site)
+        (nl_mj_site_z sim ids.gripper_site))
 }
 
-shadow lift_ball_from_source { assert true }
-
-fn carry_ball_to_target(sim: MjSim, body: int, held_index: int, t: float) -> void {
-    (set_free_body_pose sim body
-        (lerp (source_ball_x held_index) (target_ball_x held_index) t)
-        (lerp (source_ball_y held_index) (target_ball_y held_index) t)
-        CARRY_HEIGHT)
-}
-
-shadow carry_ball_to_target { assert true }
+shadow hold_ball_at_gripper { assert true }
 
 fn release_ball_over_target(sim: MjSim, body: int, held_index: int) -> void {
     (set_free_body_release sim body (target_ball_x held_index) (target_ball_y held_index) CARRY_HEIGHT)
@@ -453,14 +444,14 @@ fn run_sorter_stage(sim: MjSim, ids: SorterIds, stage: int, elapsed: float, held
     if (== stage STAGE_LIFT) {
         let t: float = (/ elapsed 0.90)
         (apply_blended_pose sim ids t -0.70 -1.40 0.50 -0.45 -0.85 0.35)
-        (lift_ball_from_source sim held_body held_index t)
+        (hold_ball_at_gripper sim ids held_body)
         return release_done
     } else {}
 
     if (== stage STAGE_CARRY) {
         let t: float = (/ elapsed 1.25)
         (apply_blended_pose sim ids t -0.45 -0.85 0.35 0.62 1.08 -0.42)
-        (carry_ball_to_target sim held_body held_index t)
+        (hold_ball_at_gripper sim ids held_body)
         return release_done
     } else {}
 
