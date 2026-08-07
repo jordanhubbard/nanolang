@@ -6,6 +6,7 @@
 # Prerequisites: none
 # Build: graphical, external-deps
 # Expected Output: graphical
+# Default Args: examples/audio/gabba-studies-12.mod
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
@@ -21,6 +22,15 @@ unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 let WINDOW_WIDTH: int = 640
 let WINDOW_HEIGHT: int = 480
 
+# The music file used when no path is given on the command line. This is the
+# only audio asset in the tree, so it is the only default that can actually
+# play; sdl_mod_visualizer.nano defaults to the same file.
+let DEFAULT_MUSIC: string = "examples/audio/gabba-studies-12.mod"
+
+# Command-line argument support
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
 # === RENDERING ===
 
 fn render_help_text(renderer: SDL_Renderer, font: TTF_Font) -> void {
@@ -35,6 +45,22 @@ fn render_help_text(renderer: SDL_Renderer, font: TTF_Font) -> void {
 # === MAIN ===
 
 fn main() -> int {
+    # Resolve arguments before touching SDL, so a usage message costs nothing.
+    let argc: int = (get_argc)
+
+    let mut music_file: string = DEFAULT_MUSIC
+    if (> argc 1) {
+        set music_file (get_argv 1)
+    } else {}
+
+    # The sound effect is optional and has no default: there is no .wav in the
+    # tree to point at, and inventing a path would put us back where this
+    # example started.
+    let mut sound_file: string = ""
+    if (> argc 2) {
+        set sound_file (get_argv 2)
+    } else {}
+
     (println "")
     (println "╔════════════════════════════════════════════╗")
     (println "║   NANOLANG AUDIO PLAYER                   ║")
@@ -42,14 +68,22 @@ fn main() -> int {
     (println "")
     (println "SDL_mixer audio playback demo")
     (println "")
-    
+    (println "Usage: sdl_audio_player [music-file] [sound-effect.wav]")
+    (print "       music: ")
+    (println music_file)
+    if (== argc 1) {
+        (println "       (no file given - using the bundled default)")
+    } else {}
+    (println "")
+
     # Initialize SDL
     (println "Initializing SDL...")
-    (SDL_Init 32) 
-    
+    (SDL_Init 32)
+
     # Initialize SDL_mixer
+    # MOD is included because the default file is a tracker module.
     (println "Initializing SDL_mixer...")
-    (Mix_Init (+ MIX_INIT_OGG MIX_INIT_MP3)) 
+    (Mix_Init (+ MIX_INIT_MOD (+ MIX_INIT_OGG MIX_INIT_MP3)))
     let audio_result: int = (Mix_OpenAudio 44100 MIX_DEFAULT_FORMAT 2 2048)
     (Mix_AllocateChannels 16) 
     if (== audio_result 0) {
@@ -106,28 +140,45 @@ fn main() -> int {
         (print "")
     }
     
-    # Try to load music file (try music.mp3)
-    (println "Checking for music files...")
-    let music: Mix_Music = (Mix_LoadMUS "music.mp3")
+    # Load the music file
+    (print "Loading music: ")
+    (println music_file)
+    let music: Mix_Music = (Mix_LoadMUS music_file)
     let music_loaded: bool = (!= music 0)
-    
+
     if music_loaded {
-        (println "✓ Loaded music.mp3")
+        (println "✓ Music loaded")
     } else {
-        (println "ℹ No music.mp3 found")
+        (print "✗ Could not load ")
+        (println music_file)
+        (println (Mix_GetError))
+        (println "  (run from the repository root, or pass a path that exists)")
     }
-    
-    # Try to load sound effect
-    (println "Checking for sound effect...")
-    let sound: Mix_Chunk = (Mix_LoadWAV "sound.wav")
+
+    # Load the sound effect, if one was named. An empty path fails to load,
+    # which is exactly the outcome we want when no effect was requested, so
+    # there is no null Mix_Chunk to bind.
+    let have_sound_arg: bool = (> (str_length sound_file) 0)
+    if have_sound_arg {
+        (print "Loading sound effect: ")
+        (println sound_file)
+    } else {
+        (println "ℹ No sound effect given - P key disabled")
+    }
+
+    let sound: Mix_Chunk = (Mix_LoadWAV sound_file)
     let mut sound_loaded: bool = false
     if (!= sound 0) {
-        (println "✓ Loaded sound.wav")
+        (println "✓ Sound effect loaded")
         set sound_loaded true
     } else {
-        (println "ℹ No sound.wav found")
+        if have_sound_arg {
+            (print "✗ Could not load ")
+            (println sound_file)
+            (println (Mix_GetError))
+        } else {}
     }
-    
+
     (println "")
     (println "Controls:")
     (println "  SPACE - Play/Pause music")
