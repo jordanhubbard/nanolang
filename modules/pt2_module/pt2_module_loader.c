@@ -125,6 +125,28 @@ int pt2_mod_load_file(pt2_mod_t *out, const char *filename) {
     }
 
     free(pat_raw);
+
+    /* Sample PCM data follows the pattern data, in sample order. Each sample
+     * is signed 8-bit mono. Allocate length_bytes + 2 so a Paula DMA fetch
+     * (which reads ahead) can never overrun, zero-padding any bytes that are
+     * missing from a truncated module. */
+    for (int i = 0; i < 31; i++) {
+        const uint32_t len = out->samples[i].length_bytes;
+        if (len == 0) {
+            out->samples[i].data = NULL;
+            continue;
+        }
+        int8_t *buf = (int8_t *)calloc((size_t)len + 2u, 1);
+        if (!buf) {
+            pt2_mod_free(out);
+            fclose(f);
+            return -1;
+        }
+        size_t got = fread(buf, 1, len, f);
+        (void)got; /* short reads leave the tail zero-padded */
+        out->samples[i].data = buf;
+    }
+
     fclose(f);
     return 0;
 }
@@ -134,4 +156,8 @@ void pt2_mod_free(pt2_mod_t *m) {
     free(m->patterns);
     m->patterns = NULL;
     m->pattern_count = 0;
+    for (int i = 0; i < 31; i++) {
+        free(m->samples[i].data);
+        m->samples[i].data = NULL;
+    }
 }

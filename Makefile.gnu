@@ -1071,7 +1071,26 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 	@bash tests/test_opengl_glut_init.sh --quick
+	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory check-stdlib-docs
+
+.PHONY: test-pt2-audio
+# Regression test: pt2_audio must render non-silent samples (previously it just
+# memset the output buffer and never called paulaGenerateSamples). Compiles the
+# SDL-free Paula audio path directly, so it runs headless with no SDL2.
+test-pt2-audio:
+	@echo "Running pt2_audio playback tests..."
+	@$(CC) $(CFLAGS) -Imodules/pt2_audio -Imodules/pt2_module \
+		-o tests/test_pt2_audio_playback \
+		tests/test_pt2_audio_playback.c \
+		modules/pt2_audio/pt2_audio_wrapper.c \
+		modules/pt2_audio/pt2_paula.c \
+		modules/pt2_audio/pt2_blep.c \
+		modules/pt2_audio/pt2_rcfilters.c \
+		modules/pt2_module/pt2_module_loader.c \
+		-lm
+	@./tests/test_pt2_audio_playback
+	@rm -f tests/test_pt2_audio_playback
 
 # Documentation coverage: every builtin in src/builtins_registry.c must have a
 # section in docs/STDLIB.md, and vice versa. Needs no build.

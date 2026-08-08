@@ -18,6 +18,7 @@ typedef struct pt2_sample {
     uint8_t volume;
     uint32_t loop_start_bytes;
     uint32_t loop_length_bytes;
+    int8_t *data; /* signed 8-bit PCM, length_bytes long (+2 pad); NULL if empty */
 } pt2_sample_t;
 
 typedef struct pt2_mod {

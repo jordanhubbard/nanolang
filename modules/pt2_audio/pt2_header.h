@@ -1,6 +1,12 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#if defined(__has_include)
+#  if __has_include(<SDL2/SDL.h>)
+#    include <SDL2/SDL.h>
+#  endif
+#else
+#  include <SDL2/SDL.h>
+#endif
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
