@@ -71,6 +71,118 @@ shadow get_filename_from_path {
     assert (== (get_filename_from_path "a/b/c.wav") "a/b/c.wav")
 }
 
+# Return 1 if `filename` ends with `ext` (case-insensitive), else 0.
+# Pure predicate so it can be exercised from a shadow block.
+fn audio_ext_matches(filename: string, ext: string) -> int {
+    let lower_name: string = (str_to_lower filename)
+    let lower_ext: string = (str_to_lower ext)
+    if (str_ends_with lower_name lower_ext) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow audio_ext_matches {
+    assert (== (audio_ext_matches "song.MOD" ".mod") 1)
+    assert (== (audio_ext_matches "song.mp3" ".mp3") 1)
+    assert (== (audio_ext_matches "SONG.OGG" ".ogg") 1)
+    assert (== (audio_ext_matches "clip.wav" ".wav") 1)
+    assert (== (audio_ext_matches "song.mod" ".mp3") 0)
+    assert (== (audio_ext_matches "readme.txt" ".mod") 0)
+}
+
+# Return 1 if `filename` is a playable audio file for the SDL_mixer backend
+# (matching any of the extensions the player can actually open), else 0.
+fn is_playable_audio(filename: string) -> int {
+    if (== (audio_ext_matches filename ".mod") 1) { return 1 } else {}
+    if (== (audio_ext_matches filename ".mp3") 1) { return 1 } else {}
+    if (== (audio_ext_matches filename ".ogg") 1) { return 1 } else {}
+    if (== (audio_ext_matches filename ".wav") 1) { return 1 } else {}
+    return 0
+}
+
+shadow is_playable_audio {
+    assert (== (is_playable_audio "gabba-studies-12.mod") 1)
+    assert (== (is_playable_audio "track.MP3") 1)
+    assert (== (is_playable_audio "loop.Ogg") 1)
+    assert (== (is_playable_audio "beep.WAV") 1)
+    assert (== (is_playable_audio "notes.txt") 0)
+    assert (== (is_playable_audio "cover.png") 0)
+}
+
+# List every playable audio file in `dir`, covering all SDL_mixer-playable
+# extensions. Uses the case-insensitive filesystem listing idiom and
+# de-duplicates results across the per-extension scans.
+fn list_audio_files(dir: string) -> array<string> {
+    let mut out: array<string> = []
+
+    let mods: array<string> = (nl_fs_list_files_ci dir ".mod")
+    let mp3s: array<string> = (nl_fs_list_files_ci dir ".mp3")
+    let oggs: array<string> = (nl_fs_list_files_ci dir ".ogg")
+    let wavs: array<string> = (nl_fs_list_files_ci dir ".wav")
+
+    let mut i: int = 0
+    while (< i (array_length mods)) {
+        set out (audio_list_add out (at mods i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length mp3s)) {
+        set out (audio_list_add out (at mp3s i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length oggs)) {
+        set out (audio_list_add out (at oggs i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length wavs)) {
+        set out (audio_list_add out (at wavs i))
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+shadow list_audio_files {
+    # The repository commits examples/audio/gabba-studies-12.mod and no other
+    # playable audio, so the case-insensitive scan must surface exactly it.
+    let found: array<string> = (list_audio_files "examples/audio")
+    let mut has_mod: int = 0
+    let mut k: int = 0
+    while (< k (array_length found)) {
+        if (== (at found k) "gabba-studies-12.mod") { set has_mod 1 } else {}
+        set k (+ k 1)
+    }
+    assert (== has_mod 1)
+}
+
+# Append `name` to `acc` unless it is already present (de-duplication helper).
+fn audio_list_add(acc: array<string>, name: string) -> array<string> {
+    let mut j: int = 0
+    while (< j (array_length acc)) {
+        if (== (at acc j) name) {
+            return acc
+        } else {}
+        set j (+ j 1)
+    }
+    return (array_push acc name)
+}
+
+shadow audio_list_add {
+    let base: array<string> = []
+    let one: array<string> = (audio_list_add base "a.mod")
+    assert (== (array_length one) 1)
+    # De-duplicates: adding the same name again keeps length at 1.
+    let dup: array<string> = (audio_list_add one "a.mod")
+    assert (== (array_length dup) 1)
+    # A distinct name appends.
+    let two: array<string> = (audio_list_add one "b.ogg")
+    assert (== (array_length two) 2)
+}
+
 # Safe music loading with error handling
 fn try_load_and_play_music(track_path: string) -> int {
     let music: Mix_Music = (Mix_LoadMUS track_path)
@@ -119,13 +231,13 @@ fn main() -> int {
         (print "Loading from: ")
         (println music_dir)
         
-        let files: array<string> = (nl_fs_list_files music_dir ".mp3")
+        let files: array<string> = (list_audio_files music_dir)
         let file_count: int = (array_length files)
         
         let mut i: int = 0
         while (< i file_count) {
             let filename: string = (at files i)
-            let full_path: string = (nl_fs_join_path pref_path filename)
+            let full_path: string = (nl_fs_join_path music_dir filename)
             set playlist (array_push playlist full_path)
             set i (+ i 1)
         }
@@ -133,7 +245,7 @@ fn main() -> int {
         
         (print "✓ Loaded ")
         (print playlist_count)
-        (println " MP3 files")
+        (println " audio files")
     } else {
         (println "Loading saved playlist...")
         set playlist (nl_prefs_load_playlist pref_path)
@@ -312,7 +424,7 @@ fn main() -> int {
             } else {}
             
             if (== (nl_ui_button renderer font "Select Folder" 90 70 120 25) 1) {
-                let files: array<string> = (nl_fs_list_files browser_path ".mp3")
+                let files: array<string> = (list_audio_files browser_path)
                 let file_count: int = (array_length files)
                 
                 let mut i: int = 0
@@ -326,7 +438,7 @@ fn main() -> int {
                 
                 (print "Added ")
                 (print file_count)
-                (println " MP3 files")
+                (println " audio files")
                 set ui_mode MODE_PLAYER
             } else {}
             
@@ -348,12 +460,12 @@ fn main() -> int {
             # List directories and files together
             let dirs: array<string> = (nl_fs_list_dirs browser_path)
             let dir_count: int = (array_length dirs)
-            let files: array<string> = (nl_fs_list_files browser_path ".mp3")
+            let files: array<string> = (list_audio_files browser_path)
             let file_count: int = (array_length files)
             let total_items: int = (+ dir_count file_count)
             
             if (== total_items 0) {
-                (nl_ui_label renderer small_font "No directories or MP3 files" 30 110 150 150 150 255) 
+                (nl_ui_label renderer small_font "No directories or audio files" 30 110 150 150 150 255) 
             } else {
                 let mut item_y: int = 110
                 let mut item_i: int = browser_scroll
@@ -407,8 +519,8 @@ fn main() -> int {
                                 set ui_mode MODE_PLAYER
                             } else {}
                             
-                            # Draw file indicator [MP3] in gray
-                            (nl_ui_label renderer tiny_font "[MP3]" 480 item_y 150 150 150 255) 
+                            # Draw file indicator [AUD] in gray
+                            (nl_ui_label renderer tiny_font "[AUD]" 480 item_y 150 150 150 255) 
                             
                             set item_y (+ item_y 25)
                             set file_i (+ file_i 1)
