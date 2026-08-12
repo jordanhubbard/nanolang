@@ -6,8 +6,10 @@
 # Prerequisites: none
 # Build: graphical, external-deps
 # Expected Output: graphical
+# Default Args: examples/audio
 
-# Usage: ./bin/sdl_nanoamp [optional: path/to/music/directory]
+# Usage: ./bin/sdl_nanoamp [path/to/music/directory]
+#        With no argument, scans the repo-relative examples/audio directory.
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
@@ -224,41 +226,50 @@ fn main() -> int {
     let mut playlist: array<string> = []
     let mut playlist_count: int = 0
     
-    # Load from command line or preferences
-    let mut music_dir: string = ""
+    # Load from command line or the repo-relative default music directory.
+    # With no argument we scan examples/audio (the # Default Args header value)
+    # so a fresh clone yields a non-empty playlist without any machine-local
+    # preferences file. Saved preferences are still honoured when present, but
+    # they only augment/override the scanned default; they are never required.
+    let mut music_dir: string = "examples/audio"
     if (>= argc 2) {
         set music_dir (get_argv 1) 
-        (print "Loading from: ")
-        (println music_dir)
-        
-        let files: array<string> = (list_audio_files music_dir)
-        let file_count: int = (array_length files)
-        
-        let mut i: int = 0
-        while (< i file_count) {
-            let filename: string = (at files i)
-            let full_path: string = (nl_fs_join_path music_dir filename)
-            set playlist (array_push playlist full_path)
-            set i (+ i 1)
-        }
-        set playlist_count (array_length playlist)
-        
-        (print "✓ Loaded ")
-        (print playlist_count)
-        (println " audio files")
-    } else {
-        (println "Loading saved playlist...")
-        set playlist (nl_prefs_load_playlist pref_path)
-        set playlist_count (array_length playlist)
-        
-        if (== playlist_count 0) {
-            (println "No saved playlist - starting empty")
-        } else {
-            (print "✓ Loaded ")
+    } else {}
+    (print "Loading from: ")
+    (println music_dir)
+
+    let files: array<string> = (list_audio_files music_dir)
+    let file_count: int = (array_length files)
+
+    let mut i: int = 0
+    while (< i file_count) {
+        let filename: string = (at files i)
+        let full_path: string = (nl_fs_join_path music_dir filename)
+        set playlist (array_push playlist full_path)
+        set i (+ i 1)
+    }
+    set playlist_count (array_length playlist)
+
+    (print "✓ Loaded ")
+    (print playlist_count)
+    (println " audio files")
+
+    # On a no-argument run, restore any user-saved playlist on top of the
+    # default scan. An absent or empty preferences file leaves the scanned
+    # default playlist intact, so we never start empty.
+    if (< argc 2) {
+        let saved: array<string> = (nl_prefs_load_playlist pref_path)
+        let saved_count: int = (array_length saved)
+        if (> saved_count 0) {
+            set playlist saved
+            set playlist_count saved_count
+            (print "✓ Restored ")
             (print playlist_count)
             (println " saved tracks")
+        } else {
+            (println "No saved playlist - using default music directory")
         }
-    }
+    } else {}
     (println "")
     
     # Initialize SDL
