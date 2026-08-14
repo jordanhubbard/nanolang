@@ -1,0 +1,177 @@
+# Headless verification harness for examples/audio/sdl_nanoamp.nano.
+#
+# Why this file exists:
+#   sdl_nanoamp.nano is marked `# Build: graphical, external-deps` and declares
+#   `unsafe module` dependencies on SDL, SDL_mixer and SDL_ttf. Those libraries
+#   are unavailable in the headless CI container, so the graphical program can
+#   neither be compiled nor run here. This harness reproduces exactly the
+#   playlist-construction path of sdl_nanoamp.nano's main() -- the part the
+#   `# Default Args: examples/audio` header and the pref_path join bug affect --
+#   using the very same filesystem and preferences modules, without pulling in
+#   any SDL dependency. It lets a no-argument run be proven to yield a non-empty
+#   playlist of on-disk files with no machine-local preferences present.
+#
+# Behaviour mirrors sdl_nanoamp.nano main():
+#   * pref_path = (nl_prefs_get_path "nanoamp")  -- consults $HOME only.
+#   * With no argument, music_dir defaults to "examples/audio" (the Default Args
+#     value); with one argument, music_dir is that argument.
+#   * The directory is scanned for playable audio via the identical
+#     list_audio_files / audio_list_add helpers, and each entry becomes
+#     (nl_fs_join_path music_dir filename).
+#   * On a no-argument run any saved playlist is restored on top of the scan;
+#     an absent/empty preferences file leaves the scanned default intact.
+# Additionally it asserts that every playlist entry exists on disk.
+
+module "modules/filesystem/filesystem.nano"
+module "modules/preferences/preferences.nano"
+
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+# Append `name` to `acc` unless already present (de-duplication helper) --
+# identical to sdl_nanoamp.nano's audio_list_add.
+fn audio_list_add(acc: array<string>, name: string) -> array<string> {
+    let mut j: int = 0
+    while (< j (array_length acc)) {
+        if (== (at acc j) name) {
+            return acc
+        } else {}
+        set j (+ j 1)
+    }
+    return (array_push acc name)
+}
+
+
+shadow audio_list_add {
+    let base: array<string> = []
+    let one: array<string> = (audio_list_add base "a.mod")
+    assert (== (array_length one) 1)
+    # De-duplicates: adding the same name again keeps length at 1.
+    let dup: array<string> = (audio_list_add one "a.mod")
+    assert (== (array_length dup) 1)
+    # A distinct name appends.
+    let two: array<string> = (audio_list_add one "b.ogg")
+    assert (== (array_length two) 2)
+}
+
+# List every playable audio file in `dir`, covering all SDL_mixer-playable
+# extensions -- identical to sdl_nanoamp.nano's list_audio_files.
+fn list_audio_files(dir: string) -> array<string> {
+    let mut out: array<string> = []
+
+    let mods: array<string> = (nl_fs_list_files_ci dir ".mod")
+    let mp3s: array<string> = (nl_fs_list_files_ci dir ".mp3")
+    let oggs: array<string> = (nl_fs_list_files_ci dir ".ogg")
+    let wavs: array<string> = (nl_fs_list_files_ci dir ".wav")
+
+    let mut i: int = 0
+    while (< i (array_length mods)) {
+        set out (audio_list_add out (at mods i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length mp3s)) {
+        set out (audio_list_add out (at mp3s i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length oggs)) {
+        set out (audio_list_add out (at oggs i))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length wavs)) {
+        set out (audio_list_add out (at wavs i))
+        set i (+ i 1)
+    }
+
+    return out
+}
+
+
+shadow list_audio_files {
+    # The repository commits examples/audio/gabba-studies-12.mod and no other
+    # playable audio, so the case-insensitive scan must surface exactly it.
+    let found: array<string> = (list_audio_files "examples/audio")
+    let mut has_mod: int = 0
+    let mut k: int = 0
+    while (< k (array_length found)) {
+        if (== (at found k) "gabba-studies-12.mod") { set has_mod 1 } else {}
+        set k (+ k 1)
+    }
+    assert (== has_mod 1)
+}
+
+fn main() -> int {
+    let pref_path: string = (nl_prefs_get_path "nanoamp")
+    (print "Preferences: ")
+    (println pref_path)
+
+    let argc: int = (get_argc)
+
+    # Default music directory matches the # Default Args: examples/audio header.
+    let mut music_dir: string = "examples/audio"
+    if (>= argc 2) {
+        set music_dir (get_argv 1)
+    } else {}
+    (print "Loading from: ")
+    (println music_dir)
+
+    let mut playlist: array<string> = []
+    let files: array<string> = (list_audio_files music_dir)
+    let file_count: int = (array_length files)
+
+    let mut i: int = 0
+    while (< i file_count) {
+        let filename: string = (at files i)
+        let full_path: string = (nl_fs_join_path music_dir filename)
+        set playlist (array_push playlist full_path)
+        set i (+ i 1)
+    }
+    let mut playlist_count: int = (array_length playlist)
+
+    (print "Loaded ")
+    (print playlist_count)
+    (println " audio files")
+
+    # Mirror the no-argument saved-playlist restore. An absent/empty prefs file
+    # leaves the scanned default intact, so we never start empty.
+    if (< argc 2) {
+        let saved: array<string> = (nl_prefs_load_playlist pref_path)
+        let saved_count: int = (array_length saved)
+        if (> saved_count 0) {
+            set playlist saved
+            set playlist_count saved_count
+            (print "Restored ")
+            (print playlist_count)
+            (println " saved tracks")
+        } else {
+            (println "No saved playlist - using default music directory")
+        }
+    } else {}
+
+    # A correct default-argument run must produce a non-empty playlist.
+    (print "Playlist count: ")
+    (println (int_to_string playlist_count))
+    assert (> playlist_count 0)
+
+    # Every entry must be a path that actually exists on disk. This is the
+    # invariant the pref_path join bug broke.
+    let mut k: int = 0
+    while (< k playlist_count) {
+        let entry: string = (at playlist k)
+        (print "  track: ")
+        (print entry)
+        let exists: int = (nl_fs_file_exists entry)
+        if (== exists 1) {
+            (println "  [exists]")
+        } else {
+            (println "  [MISSING]")
+        }
+        assert (== exists 1)
+        set k (+ k 1)
+    }
+
+    (println "OK: non-empty playlist of on-disk files")
+    return 0
+}
