@@ -40,9 +40,9 @@ jobs:
 
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
+        timeout-minutes: 10
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          ./scripts/ci-apt-install.sh \
             build-essential \
             valgrind \
             pkg-config \
@@ -187,9 +187,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
             libssl-dev \
@@ -248,9 +248,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          ./scripts/ci-apt-install.sh \
             build-essential \
             lcov \
             bc \
@@ -360,9 +360,8 @@ jobs:
           fetch-depth: 0  # Full history for comparison
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential bc
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential bc
 
       - name: Download baseline benchmark
         id: baseline
@@ -496,9 +495,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          ./scripts/ci-apt-install.sh \
             clang \
             libblocksruntime-dev \
             pkg-config \
@@ -507,7 +506,8 @@ jobs:
             libsdl2-mixer-dev \
             libsdl2-ttf-dev
           # libdispatch-dev was removed from Ubuntu 24.04; install if available
-          sudo apt-get install -y libdispatch-dev || true
+          CI_APT_ATTEMPTS=1 CI_APT_TIMEOUT_SECS=60 \
+            ./scripts/ci-apt-install.sh libdispatch-dev || true
 
       - name: Build stage 1 with clang
         run: make stage1 CC=clang
@@ -536,9 +536,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install clang-tidy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang-tidy
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh build-essential clang-tidy
 
       - name: Run clang-tidy
         run: |
@@ -562,9 +561,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install clang / build deps
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends clang lld
+        timeout-minutes: 10
+        run: ./scripts/ci-apt-install.sh clang lld
 
       - name: Build nanoc
         run: make nanoc
