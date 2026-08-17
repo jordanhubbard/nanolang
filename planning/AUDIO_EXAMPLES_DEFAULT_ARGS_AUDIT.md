@@ -1,75 +1,95 @@
-# Audio Examples `# Default Args:` Sibling Audit
+# Examples `# Default Args:` Sibling Audit
 
 ## Scope
 
-Parent task `task_50f2668605ce4d79b54fabf91b4b8f18` fixed the missing/broken
-`# Default Args:` header on `examples/audio/sdl_nanoamp.nano` (the launcher was
-silently running the player with no music directory). This audit checks the
-**sibling** audio examples under `examples/audio/` for the same defect and
-reports findings.
+Parent work fixed the missing `# Default Args:` header on
+`examples/audio/sdl_nanoamp.nano` (the launcher was silently running the player
+with no music directory). This audit enumerates **every** example under
+`examples/` that reads `get_argv` / `argv` (or otherwise takes a path argument),
+cross-references the launcher-consumed `# Default Args:` header, and reports
+which hits need a header-only follow-up versus a header-plus-asset follow-up.
+
+No example sources were changed in this task — findings are for sibling filing.
 
 The `# Default Args:` header is parsed by the launcher's real header parser
 (`examples/lib/example_discovery.nano :: parse_example_header`) and consumed by
 `examples/lib/process_manager.nano :: pm_launch`, which appends the value to the
 launch command. When the header is absent, `default_args` is the empty string,
-so the launcher runs the example with **no arguments**. For an example whose
-`main()` requires an argument, that no-argument launch fails (usage message,
-non-zero exit), which is the defect under audit.
+so the launcher runs the example with **no arguments**.
 
-## Files audited
+Bundled audio inventory (whole tree): exactly one playable asset —
+`examples/audio/gabba-studies-12.mod`. No `.wav` / `.mp3` / `.ogg` / `.xm` /
+`.s3m` / `.it` files are present.
 
-| File | `# Default Args:` | Value | Verdict |
-|------|-------------------|-------|---------|
-| `examples/audio/sdl_nanoamp.nano` | present | `examples/audio` (dir) | OK — parent-fixed; scan is non-empty |
-| `examples/audio/sdl_tracker_shell.nano` | present | `examples/audio` (dir) | OK — scan is non-empty |
-| `examples/audio/sdl_mod_visualizer.nano` | present | `examples/audio/gabba-studies-12.mod` (file) | OK — bundled, playable MOD |
-| `examples/audio/sdl_audio_player.nano` | present | `examples/audio/gabba-studies-12.mod` (file) | OK — bundled, playable MOD |
-| `examples/audio/sdl_audio_wav.nano` | **absent** | — | **Same defect class**; see Findings |
-| `examples/audio/nanoamp_playlist_harness.nano` | n/a | — | Not launcher-facing (headless harness); excluded |
+## Inventory (argv / path consumers)
 
-## Findings
+| File | `# Default Args:` | Path/value | Diagnosis |
+|------|-------------------|------------|-----------|
+| `examples/audio/sdl_nanoamp.nano` | present | `examples/audio` (dir, non-empty scan) | OK — parent-fixed |
+| `examples/audio/sdl_tracker_shell.nano` | present | `examples/audio` (dir) | OK |
+| `examples/audio/sdl_mod_visualizer.nano` | present | `examples/audio/gabba-studies-12.mod` | OK — bundled MOD |
+| `examples/audio/sdl_audio_player.nano` | present | `examples/audio/gabba-studies-12.mod` | OK — bundled MOD |
+| `examples/audio/sdl_audio_wav.nano` | **absent** | — | **HIT — header + asset** (see Findings) |
+| `examples/graphics/sdl_nanoviz.nano` | **absent** | self-defaults to `examples/audio/gabba-studies-12.mod` | **HIT — header-only** |
+| `examples/run_examples.nano` | present | `examples/language` | OK |
+| `examples/language/nl_pi_calculator.nano` | absent | optional **integer** (digits), not a path | Cleared — full demo runs with no args |
+| `examples/opl/opl_cli.nano` | absent | developer CLI; usage exit by design | Cleared as launcher Default-Args defect; see ancillary note |
+| `examples/api_lessons/env_api.nano` | absent | teaches `argc`/`argv` API only | Excluded — not a path consumer |
+| `examples/audio/nanoamp_playlist_harness.nano` | n/a | headless harness (no `# Example:` / `# Build:`) | Excluded — not launcher-facing |
+| `examples/lib/example_discovery.nano` | n/a | parses the header; not an example | Excluded — launcher machinery |
 
-1. **`sdl_audio_wav.nano` has the same missing-`# Default Args:` defect.**
-   Its `main()` returns `1` with a usage message when `argc < 2`, and it loads
-   the file via `Mix_LoadWAV`, which only accepts WAV data. The repository
-   bundles exactly one audio asset — `examples/audio/gabba-studies-12.mod` —
-   and **no** `.wav`. There is therefore no valid default this example could
-   point at:
-   - Pointing it at the bundled `.mod` would be a false fix: `Mix_LoadWAV`
-     cannot decode a tracker module, so a no-argument run would still fail (now
-     at load time instead of at the usage check).
-   - Adding a header naming a non-existent `.wav` would fail the same header
-     validity check the parent task introduced.
+## Findings (file for sibling tasks)
 
-   **Recommendation:** keep `sdl_audio_wav.nano` argument-required (no
-   `# Default Args:` header) until a small, license-clean `.wav` asset is added
-   to `examples/audio/`. Once such an asset exists, add
-   `# Default Args: examples/audio/<file>.wav` and extend the guard below.
-   The example already prints a helpful tip pointing users at
-   `sdl_mod_visualizer` for a zero-argument audio smoke test, so no runtime
-   change is required now.
+1. **`examples/audio/sdl_audio_wav.nano` — header + asset (expensive class).**
+   - No `# Default Args:` header, so the launcher runs it with no argument and
+     `main()` exits 1 with a usage message (`argc < 2`).
+   - It loads via `Mix_LoadWAV`, which only accepts WAV data. The repository
+     ships no `.wav`, so a header alone cannot make a no-argument run succeed.
+     Pointing a header at the bundled `.mod` would be a false fix (`Mix_LoadWAV`
+     cannot decode a tracker module).
+   - Stale tip path in the usage message: prints
+     `examples/gabba-studies-12.mod` but the file lives at
+     `examples/audio/gabba-studies-12.mod`.
+   - **Signal:** same class that made the nanoamp follow-up more expensive than
+     a pure header patch — needs a license-clean bundled `.wav` (or a redesign)
+     before a `# Default Args:` line is useful.
+   - Owned for remediation by the dedicated sibling WAV task; this audit does
+     not change the example.
 
-2. **The four MOD/directory players are correct.** All resolve to an existing
-   path that surfaces at least one playable audio file, so the launcher can run
-   them with no arguments.
+2. **`examples/graphics/sdl_nanoviz.nano` — header-only (cheap class).**
+   - Reads `get_argv(1)` with no `# Default Args:` header.
+   - When `argc < 2` it already self-defaults to the existing
+     `examples/audio/gabba-studies-12.mod`, so a no-argument manual run works.
+   - Adding `# Default Args: examples/audio/gabba-studies-12.mod` restores
+     launcher consistency only; no new asset required.
 
-3. **`nanoamp_playlist_harness.nano` is correctly excluded.** It is a headless
-   verification harness (no `# Example:` / `# Build:` metadata) that is not
-   surfaced in the launcher UI, so it needs no `# Default Args:` header. Its own
-   prose already documents the `examples/audio` default it mirrors.
+## Default Args path hygiene
+
+- No declared `# Default Args:` value is machine-specific.
+- All present headers name repo-relative paths that exist:
+  `examples/audio`, `examples/audio/gabba-studies-12.mod`, `examples/language`.
+- Stale path found outside the header (usage tip only): see Finding 1.
+
+## Ancillary (not a Default-Args defect)
+
+- `examples/opl/opl_cli.nano` embeds a machine-local `nanoc` absolute path inside
+  `cmd_build` (developer compile helper). That is outside the Default-Args
+  contract but should be filed separately as a portability cleanup using a
+  fleet-generic placeholder (for example `bin/nanoc` or `$NANO_ROOT/bin/nanoc`),
+  not a personal checkout path.
 
 ## Regression guard
 
 `tests/nl_functions_audio_examples_default_args.nano` generalises the parent's
 single-file regression (`tests/nl_functions_nanoamp_default_args.nano`) to the
-whole family. It runs under `make test-quick` (auto-discovered by the
-`tests/nl_functions_*.nano` glob in `tests/run_all_tests.sh`) and asserts:
+launcher-facing `examples/audio/` family. It asserts:
 
-- each launcher-facing audio example has a non-empty `# Default Args:` header
-  that resolves to a playable default (a directory whose audio scan is
-  non-empty, or a file with a `.mod/.mp3/.ogg/.wav` extension), and
-- `sdl_audio_wav.nano` intentionally has **no** `# Default Args:` header, so the
-  documented exclusion cannot silently regress into a broken `.mod` default.
+- each required audio example has a non-empty `# Default Args:` header that
+  resolves to a playable default (non-empty directory scan, or a
+  `.mod`/`.mp3`/`.ogg`/`.wav` file), and
+- `sdl_audio_wav.nano` intentionally has **no** `# Default Args:` header until a
+  bundled `.wav` exists, so the exclusion cannot silently regress into a broken
+  `.mod` default.
 
 The guard reuses the repository's real header parser and mirrors the players'
-audio-extension predicate rather than re-implementing them.
+audio-extension predicate.
