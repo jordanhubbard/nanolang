@@ -172,6 +172,44 @@ else
     fail "llvm: failed to compile module with --llvm"
 fi
 
+# Regression: print/println must pick the printf format specifier from each
+# argument's static type instead of hardcoding %lld. A string argument used to
+# be printed as a 64-bit integer (its data-section pointer); now it must lower
+# to %s / i8*, floats to %f / double, and ints/bools to %lld / i64.
+cat > "$TMP/print_types.nano" << 'NANO'
+fn main() -> int {
+    (println "hello")
+    (println 42)
+    (println 3.14)
+    return 0
+}
+NANO
+PRINT_LL="$TMP/print_types.ll"
+if "$COMPILER" "$TMP/print_types.nano" --llvm -o "$PRINT_LL" 2>/dev/null; then
+    if grep -q 'printf(i8\* %[0-9]*, i8\* %' "$PRINT_LL"; then
+        pass "llvm: string print lowers to %s / i8* (not %lld pointer misprint)"
+    else
+        fail "llvm: string print did not lower to i8* printf argument"
+    fi
+    if grep -q '"%s' "$PRINT_LL"; then
+        pass "llvm: format string contains %s for string argument"
+    else
+        fail "llvm: format string missing %s for string argument"
+    fi
+    if grep -q 'printf(i8\* %[0-9]*, double %' "$PRINT_LL"; then
+        pass "llvm: float print lowers to %f / double printf argument"
+    else
+        fail "llvm: float print did not lower to double printf argument"
+    fi
+    if grep -q 'printf(i8\* %[0-9]*, i64 %' "$PRINT_LL"; then
+        pass "llvm: int print still lowers to %lld / i64 printf argument"
+    else
+        fail "llvm: int print did not lower to i64 printf argument"
+    fi
+else
+    fail "llvm: failed to compile print_types.nano with --llvm"
+fi
+
 echo ""
 
 # ── DWARF debug info (riscv + --debug) ───────────────────────────────────────

@@ -47,6 +47,7 @@ typedef struct {
     char       *str_vals[LLVM_MAX_STRS]; /* string constant contents */
     /* Variable name → alloca slot name (%var_name) */
     char        var_names[LLVM_MAX_VARS][64];
+    Type        var_types[LLVM_MAX_VARS];  /* declared nanolang type per slot */
     int         var_count;
     bool        verbose;
     int         error;         /* non-zero = error occurred */
@@ -142,10 +143,90 @@ static int find_var(LLVMCtx *ctx, const char *name) {
 }
 
 static void declare_var(LLVMCtx *ctx, const char *name,
-                         const char *ll_ty) {
+                         const char *ll_ty, Type nano_ty) {
     if (ctx->var_count < LLVM_MAX_VARS) {
-        snprintf(ctx->var_names[ctx->var_count++], 64, "%s", name);
+        int slot = ctx->var_count;
+        snprintf(ctx->var_names[slot], 64, "%s", name);
+        ctx->var_types[slot] = nano_ty;
+        ctx->var_count++;
         emit(ctx, "  %%%s = alloca %s, align 8\n", name, ll_ty);
+    }
+}
+
+/* Declared nanolang type of a local variable, or TYPE_INT when unknown.
+ * The LLVM backend stores every local in an i64-shaped slot, so callers that
+ * need the *declared* type (e.g. print format selection) consult this. */
+static Type var_type_of(LLVMCtx *ctx, const char *name) {
+    int idx = find_var(ctx, name);
+    if (idx >= 0) return ctx->var_types[idx];
+    return TYPE_INT;
+}
+
+/* Statically infer the nanolang type of a print/println argument so the
+ * generated printf format string and value type match the runtime value.
+ * Returns TYPE_STRING / TYPE_FLOAT / TYPE_BOOL / TYPE_INT for the cases the
+ * backend can lower correctly; TYPE_UNKNOWN means "cannot prove a correct
+ * lowering" and the caller emits a compile-time diagnostic instead of the
+ * old silent %lld misprint. */
+static Type infer_print_arg_type(LLVMCtx *ctx, ASTNode *node) {
+    if (!node) return TYPE_INT;
+    switch (node->type) {
+        case AST_NUMBER:     return TYPE_INT;
+        case AST_FLOAT:      return TYPE_FLOAT;
+        case AST_BOOL:       return TYPE_BOOL;
+        case AST_STRING:     return TYPE_STRING;
+        case AST_IDENTIFIER: {
+            Type t = var_type_of(ctx, node->as.identifier);
+            if (t == TYPE_INT || t == TYPE_FLOAT ||
+                t == TYPE_BOOL || t == TYPE_STRING)
+                return t;
+            /* Struct / array / unknown-typed locals have no correct scalar
+             * printf lowering here. */
+            return TYPE_UNKNOWN;
+        }
+        case AST_PREFIX_OP: {
+            TokenType op = node->as.prefix_op.op;
+            switch (op) {
+                case TOKEN_EQ: case TOKEN_NE: case TOKEN_LT: case TOKEN_GT:
+                case TOKEN_LE: case TOKEN_GE: case TOKEN_AND: case TOKEN_OR:
+                case TOKEN_NOT:
+                    return TYPE_BOOL;
+                default:
+                    /* Arithmetic on ints yields i64 here; floats are not
+                     * tracked through arithmetic, so fall back to int which
+                     * the backend lowers as i64. */
+                    if (node->as.prefix_op.arg_count > 0) {
+                        Type lt = infer_print_arg_type(ctx,
+                                      node->as.prefix_op.args[0]);
+                        return (lt == TYPE_FLOAT) ? TYPE_FLOAT : TYPE_INT;
+                    }
+                    return TYPE_INT;
+            }
+        }
+        default:
+            /* Calls and other expressions are emitted as i64 by this backend,
+             * so an integer format is the correct lowering for them. */
+            return TYPE_INT;
+    }
+}
+
+/* printf conversion specifier for a print argument type. */
+static const char *print_fmt_spec(Type t) {
+    switch (t) {
+        case TYPE_STRING: return "%s";
+        case TYPE_FLOAT:  return "%f";
+        case TYPE_BOOL:   return "%lld";  /* bool lowered as i64 (0/1) */
+        default:          return "%lld";
+    }
+}
+
+/* LLVM value type used to pass a print argument of the given nanolang type to
+ * the variadic printf. */
+static const char *print_ll_type(Type t) {
+    switch (t) {
+        case TYPE_STRING: return "i8*";
+        case TYPE_FLOAT:  return "double";
+        default:          return "i64";
     }
 }
 
@@ -247,17 +328,56 @@ static int emit_expr(LLVMCtx *ctx, ASTNode *node) {
              * order. Allocate each fresh_tmp immediately before its emit. */
             /* Built-in: print → call printf */
             if (!strcmp(safe, "print") || !strcmp(safe, "println")) {
-                /* printf("%lld\n", val) for int; reuse first arg.
-                 * Strings would need a separate path with %s — currently
-                 * only int-valued args produce correct output. */
-                int fmt_idx = intern_string(ctx, "%lld\n");
+                /* Build the printf format string from each argument's static
+                 * type instead of hardcoding %lld. A string arg now prints its
+                 * text (%s) rather than its data-section pointer, floats print
+                 * as %f, and int/bool stay %lld. When an argument's type cannot
+                 * be proven to have a correct scalar lowering, emit a
+                 * compile-time diagnostic rather than silently misprinting. */
+                Type arg_types[32];
+                for (int i = 0; i < ac; i++) {
+                    arg_types[i] = infer_print_arg_type(ctx, node->as.call.args[i]);
+                    if (arg_types[i] == TYPE_UNKNOWN) {
+                        ctx->error = 1;
+                        emit(ctx, "  ; ERROR: %s: cannot determine a printable type"
+                                  " for argument %d; the LLVM backend can only print"
+                                  " int, float, bool, and string values\n",
+                             safe, i + 1);
+                        fprintf(stderr,
+                            "error: %s: LLVM backend cannot print argument %d "
+                            "(unsupported or undeterminable type)\n", safe, i + 1);
+                        int t = fresh_tmp(ctx);
+                        emit(ctx, "  %%%d = add i32 0, 0\n", t);
+                        return t;
+                    }
+                }
+
+                /* Assemble the format string: one specifier per argument, with
+                 * a trailing newline for println. */
+                char fmt[256];
+                fmt[0] = '\0';
+                size_t fpos = 0;
+                for (int i = 0; i < ac; i++) {
+                    const char *spec = print_fmt_spec(arg_types[i]);
+                    size_t slen = strlen(spec);
+                    if (fpos + slen < sizeof(fmt)) {
+                        memcpy(fmt + fpos, spec, slen);
+                        fpos += slen;
+                    }
+                }
+                if (!strcmp(safe, "println") && fpos + 1 < sizeof(fmt))
+                    fmt[fpos++] = '\n';
+                fmt[fpos] = '\0';
+
+                int fmt_idx = intern_string(ctx, fmt);
+                int fmt_len = (int)strlen(fmt) + 1;
                 int fmt_t   = fresh_tmp(ctx);
-                emit(ctx, "  %%%d = getelementptr inbounds [6 x i8], [6 x i8]* @.str.%d, i64 0, i64 0\n",
-                     fmt_t, fmt_idx);
+                emit(ctx, "  %%%d = getelementptr inbounds [%d x i8], [%d x i8]* @.str.%d, i64 0, i64 0\n",
+                     fmt_t, fmt_len, fmt_len, fmt_idx);
                 int t = fresh_tmp(ctx);
                 emit(ctx, "  %%%d = call i32 (i8*, ...) @printf(i8* %%%d", t, fmt_t);
                 for (int i = 0; i < ac; i++)
-                    emit(ctx, ", i64 %%%d", arg_vals[i]);
+                    emit(ctx, ", %s %%%d", print_ll_type(arg_types[i]), arg_vals[i]);
                 emit(ctx, ")\n");
                 return t;
             }
@@ -369,7 +489,7 @@ static void emit_stmt(LLVMCtx *ctx, ASTNode *node) {
     switch (node->type) {
         case AST_LET: {
             const char *name = node->as.let.name ? node->as.let.name : "_";
-            declare_var(ctx, name, "i64");
+            declare_var(ctx, name, "i64", node->as.let.var_type);
             if (node->as.let.value) {
                 int v = emit_expr(ctx, node->as.let.value);
                 emit(ctx, "  store i64 %%%d, i64* %%%s, align 8\n", v, name);
@@ -490,7 +610,7 @@ static void emit_function(LLVMCtx *ctx, ASTNode *fn) {
         const char *pname = fn->as.function.params[i].name ? fn->as.function.params[i].name : "_";
         const char *pt    = ll_type(fn->as.function.params[i].type,
                                      fn->as.function.params[i].struct_type_name);
-        declare_var(ctx, pname, pt);
+        declare_var(ctx, pname, pt, fn->as.function.params[i].type);
         emit(ctx, "  store %s %%arg_%s, %s* %%%s, align 8\n",
              pt, pname, pt, pname);
     }
