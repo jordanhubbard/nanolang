@@ -1,0 +1,116 @@
+# Example: Audio Examples Default-Args Sibling Audit Regression Test
+# Purpose: Guard that every launcher-facing audio example under examples/audio
+#          carries a `# Default Args:` header that names a real path which can
+#          actually be played (a directory whose audio scan is non-empty, or a
+#          playable audio file), so the launcher never silently runs a player
+#          with no media again.
+# Category: language
+# Difficulty: Intermediate
+# Expected Output: ok
+#
+# Context: this generalises tests/nl_functions_nanoamp_default_args.nano from a
+# single file (sdl_nanoamp.nano) to the whole examples/audio family. It was
+# added by the sibling audit of the "missing # Default Args:" defect. It uses
+# the repository's real header parser (examples/lib/example_discovery.nano ::
+# parse_example_header) rather than a re-implementation, and mirrors the
+# players' audio-extension predicate (the .mod/.mp3/.ogg/.wav set the SDL audio
+# examples scan).
+#
+# Intentional exclusions (documented in
+# planning/AUDIO_EXAMPLES_DEFAULT_ARGS_AUDIT.md):
+#   * examples/audio/sdl_audio_wav.nano   -- WAV-only (Mix_LoadWAV) and the tree
+#     bundles no .wav asset, so there is no valid default it could point at; it
+#     stays argument-required by design.
+#   * examples/audio/nanoamp_playlist_harness.nano -- a headless verification
+#     harness, not a launcher-facing example (it carries no `# Example:` /
+#     `# Build:` metadata and is not surfaced in the launcher UI).
+
+from "examples/lib/example_discovery.nano" import parse_example_header, ExampleInfo
+from "modules/std/fs.nano" import exists
+
+module "modules/filesystem/filesystem.nano"
+
+# Count playable audio files in `dir`, mirroring the extension set the SDL
+# audio players scan (.mod/.mp3/.ogg/.wav), using the same case-insensitive
+# filesystem listing idiom as the players themselves.
+fn count_playable_audio(dir: string) -> int {
+    let mods: array<string> = (nl_fs_list_files_ci dir ".mod")
+    let mp3s: array<string> = (nl_fs_list_files_ci dir ".mp3")
+    let oggs: array<string> = (nl_fs_list_files_ci dir ".ogg")
+    let wavs: array<string> = (nl_fs_list_files_ci dir ".wav")
+    return (+ (array_length mods)
+             (+ (array_length mp3s)
+                (+ (array_length oggs) (array_length wavs))))
+}
+
+shadow count_playable_audio {
+    # examples/audio commits gabba-studies-12.mod, so a scan of that
+    # directory must surface at least one playable file.
+    assert (> (count_playable_audio "examples/audio") 0)
+    # A directory with no playable audio yields zero.
+    assert (== (count_playable_audio "examples/lib") 0)
+}
+
+# A single path counts as a playable default if it is a directory whose scan
+# surfaces at least one audio file, or a file with a playable audio extension.
+fn is_playable_default(path: string) -> bool {
+    if (== (nl_fs_is_directory path) 1) {
+        return (> (count_playable_audio path) 0)
+    }
+    if (== (nl_fs_file_exists path) 1) {
+        if (str_ends_with path ".mod") { return true }
+        if (str_ends_with path ".mp3") { return true }
+        if (str_ends_with path ".ogg") { return true }
+        if (str_ends_with path ".wav") { return true }
+    }
+    return false
+}
+
+shadow is_playable_default {
+    assert (is_playable_default "examples/audio")
+    assert (is_playable_default "examples/audio/gabba-studies-12.mod")
+    assert (not (is_playable_default "examples/lib"))
+}
+
+# Assert one launcher-facing audio example has a valid, non-empty
+# `# Default Args:` header that resolves to a playable default.
+fn check_example(path: string) -> int {
+    let info: ExampleInfo = (parse_example_header path)
+    (print "Checking ")
+    (print path)
+    (print " -> Default Args: ")
+    (println info.default_args)
+
+    # (a) The `# Default Args:` header must be present and non-empty.
+    assert (> (str_length info.default_args) 0)
+
+    # (b) The path the header names must exist relative to the repo root.
+    assert (exists info.default_args)
+
+    # (c) The named path must be something a player can actually open.
+    assert (is_playable_default info.default_args)
+    return 0
+}
+
+fn main() -> int {
+    # Launcher-facing audio examples that must ship a working default.
+    let _a: int = (check_example "examples/audio/sdl_nanoamp.nano")
+    let _b: int = (check_example "examples/audio/sdl_tracker_shell.nano")
+    let _c: int = (check_example "examples/audio/sdl_mod_visualizer.nano")
+    let _d: int = (check_example "examples/audio/sdl_audio_player.nano")
+
+    # The WAV-only example is intentionally argument-required: it must NOT carry
+    # a `# Default Args:` header, because the tree bundles no .wav for it to
+    # default to. Guard that this documented exclusion stays true so the file is
+    # not "fixed" by pointing it at the .mod, which Mix_LoadWAV cannot play.
+    let wav: ExampleInfo = (parse_example_header "examples/audio/sdl_audio_wav.nano")
+    assert (== (str_length wav.default_args) 0)
+    (println "sdl_audio_wav.nano correctly has no Default Args (WAV-only, no bundled .wav).")
+
+    (println "audio examples default-args sibling audit passed.")
+    return 0
+}
+
+shadow main {
+    assert (== 0 0)
+}
