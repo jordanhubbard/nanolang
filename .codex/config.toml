@@ -1,0 +1,3 @@
+[mcp_servers.responsible-vibe-mcp]
+command = "npx"
+args = ["@codemcp/workflows@latest"]
