@@ -35,6 +35,16 @@
 int g_argc = 0;
 char **g_argv = NULL;
 
+/* Structured JSON diagnostics (implemented in json_diagnostics.c).  Declared
+ * here rather than including json_diagnostics.h because that header defines a
+ * DiagnosticSeverity enum that conflicts with the one pulled in via
+ * nanolang.h.  These entry points take no severity argument, so local extern
+ * declarations are safe and match the pattern used in lsp_server.c. */
+extern void json_diagnostics_init(void);
+extern void json_diagnostics_enable(void);
+extern void json_diagnostics_output(void);
+extern void json_diagnostics_cleanup(void);
+
 /* Compilation options */
 typedef struct {
     bool verbose;
@@ -403,6 +413,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char module_objs[2048] = "";
     char module_compile_flags[2048] = "";
 
+    /* Enable structured JSON diagnostics when the caller requested them via
+     * --json-errors.  Only the typechecker feeds json_error()/json_warning(),
+     * so we enable right before it and flush/free immediately after, keeping
+     * the earlier failure paths allocation-free. */
+    if (opts->json_errors) {
+        json_diagnostics_enable();
+        json_diagnostics_init();
+    }
+
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
     /* Use type_check_module if reflection or doc-md is requested (no main needed) */
@@ -413,6 +432,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!typecheck_success) {
         fprintf(stderr, "Type checking failed\n");
         diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
+        if (opts->json_errors) {
+            json_diagnostics_output();
+            json_diagnostics_cleanup();
+        }
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -423,6 +446,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
+    }
+    if (opts->json_errors) {
+        /* Typechecking succeeded: flush any warnings collected and release
+         * the diagnostics buffer so the JSON subsystem is left clean. */
+        json_diagnostics_output();
+        json_diagnostics_cleanup();
     }
     if (opts->verbose) printf("✓ Type checking complete\n");
 
