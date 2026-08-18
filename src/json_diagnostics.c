@@ -15,6 +15,11 @@ void json_diagnostics_init(void) {
     g_diagnostic_count = 0;
     g_diagnostic_capacity = 10;
     g_diagnostics = (Diagnostic *)malloc(sizeof(Diagnostic) * g_diagnostic_capacity);
+    if (g_diagnostics == NULL) {
+        /* Out of memory: fall back to an empty buffer that json_diagnostics_add
+         * will grow lazily rather than leaving a dangling capacity. */
+        g_diagnostic_capacity = 0;
+    }
 }
 
 void json_diagnostics_enable(void) {
@@ -24,6 +29,7 @@ void json_diagnostics_enable(void) {
 static char *strdup_safe(const char *s) {
     if (s == NULL) return NULL;
     char *copy = (char *)malloc(strlen(s) + 1);
+    if (copy == NULL) return NULL;
     strcpy(copy, s);
     return copy;
 }
@@ -33,11 +39,20 @@ void json_diagnostics_add(DiagnosticSeverity severity, const char *code,
                           int line, int column, const char *suggestion) {
     if (!g_json_output_enabled) return;
     
-    /* Expand capacity if needed */
+    /* Expand capacity if needed.  Guard against an uninitialised (zero)
+     * capacity so a call made before json_diagnostics_init() cannot double
+     * 0 forever and write past a NULL buffer. */
     if (g_diagnostic_count >= g_diagnostic_capacity) {
-        g_diagnostic_capacity *= 2;
-        g_diagnostics = (Diagnostic *)realloc(g_diagnostics,
-                                              sizeof(Diagnostic) * g_diagnostic_capacity);
+        int new_capacity = g_diagnostic_capacity > 0 ? g_diagnostic_capacity * 2 : 10;
+        Diagnostic *grown = (Diagnostic *)realloc(g_diagnostics,
+                                                  sizeof(Diagnostic) * new_capacity);
+        if (grown == NULL) {
+            /* Preserve the existing buffer and drop this diagnostic rather
+             * than leaking the old allocation or dereferencing NULL. */
+            return;
+        }
+        g_diagnostics = grown;
+        g_diagnostic_capacity = new_capacity;
     }
     
     /* Add diagnostic */

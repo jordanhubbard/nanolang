@@ -157,6 +157,21 @@ void test_json_null_suggestion(void) {
     g_json_output_enabled = false;
 }
 
+void test_json_add_before_init(void) {
+    /* Regression: adding a diagnostic while enabled but before
+     * json_diagnostics_init() must lazily allocate rather than doubling a
+     * zero capacity forever and writing through a NULL buffer. */
+    json_diagnostics_cleanup();   /* force capacity/count/buffer to zero */
+    json_diagnostics_enable();
+    json_error("E001", "no init yet", "x.nano", 1, 1, NULL);
+    json_error("E002", "still fine",  "x.nano", 2, 1, NULL);
+    ASSERT_EQ(json_diag_count(), 2);
+    ASSERT_STR_EQ(json_diag_code(0), "E001");
+    ASSERT_STR_EQ(json_diag_code(1), "E002");
+    json_diagnostics_cleanup();
+    g_json_output_enabled = false;
+}
+
 /* ============================================================================
  * toon_output tests
  * ============================================================================ */
@@ -274,6 +289,7 @@ int main(void) {
     TEST(json_out_of_bounds_accessors);
     TEST(json_capacity_expansion);
     TEST(json_null_suggestion);
+    TEST(json_add_before_init);
 
     printf("\n=== TOON Output Tests ===\n");
     /* NOTE: toon tests are order-dependent — disabled-state test MUST run first */
