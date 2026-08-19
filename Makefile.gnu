@@ -1235,6 +1235,24 @@ launcher: $(COMPILER_C) check-deps-sdl
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
+# Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
+# bin/nano_vm. Graceful: sources that do not yet lower to bytecode are skipped.
+examples-vm-build vm-examples: nano_virt nano_vm
+	@echo ""
+	@echo "=========================================="
+	@echo "🧩 Building NanoVM example bytecode"
+	@echo "=========================================="
+	@$(MAKE) -C examples vm-examples NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+
+# Launch the NanoVM example browser: a console launcher that itself runs inside
+# nano_vm and starts only the vm_ bytecode samples.
+examples-vm-launcher vm-launcher: nano_virt nano_vm
+	@echo ""
+	@echo "=========================================="
+	@echo "🧩 Launching NanoVM Example Browser (sandboxed)"
+	@echo "=========================================="
+	@$(MAKE) -C examples vm-launcher NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+
 # Examples without SDL: Build only non-SDL examples  
 examples-no-sdl: $(COMPILER_C) modules-index
 	@echo ""
@@ -2155,7 +2173,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # AGENTFS PUBLISH

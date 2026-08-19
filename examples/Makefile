@@ -358,9 +358,34 @@ ALL_EXAMPLES = \
 	$(OPENGL_EXAMPLES) \
 	$(MUJOCO_EXAMPLES)
 
+# === All Example Sources (for VM / bytecode builds) ===
+# The VM build compiles every example source that the native build covers into
+# NanoISA bytecode with a distinguishing `vm_` prefix (bin/vm_<name>.nvm), run
+# by bin/nano_vm. I aggregate the SOURCE lists (not the binary lists) so the
+# same dependency-availability filtering that the native build uses applies
+# here too. Paths are relative to examples/.
+ALL_VM_SOURCES = \
+	$(NL_SOURCES) \
+	$(REPL_SOURCES) \
+	$(ADVANCED_SOURCES) \
+	$(DATA_SOURCES) \
+	$(API_LESSONS_SOURCES) \
+	$(VERIFIED_SOURCES) \
+	$(DEBUG_SOURCES) \
+	$(NETWORK_SOURCES) \
+	$(PHYSICS_SOURCES) \
+	$(PLAYGROUND_SOURCES) \
+	$(OPL_SOURCES) \
+	$(SDL_GRAPHICS_SOURCES) \
+	$(wildcard audio/sdl_*.nano) \
+	$(wildcard games/sdl_*.nano) \
+	$(NCURSES_SOURCES) \
+	$(OPENGL_SOURCES) \
+	$(MUJOCO_SOURCES)
+
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher test test-forth run-forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher test test-forth run-forth forth-ide
 
 # Default: build all examples
 all: build
@@ -446,6 +471,53 @@ examples-available: $(COMPILER)
 launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+
+# === NanoVM (sandboxed bytecode) example builds ===
+# I compile every example source into NanoISA bytecode with a `vm_` prefix so a
+# VM build sits alongside its native counterpart: examples/language/nl_hello.nano
+# becomes bin/vm_nl_hello.nvm, run by bin/nano_vm. This demonstrates that I run
+# my examples inside a sandbox as well as natively.
+#
+# GRACEFUL by design: not every example lowers to bytecode yet (some lean on
+# intrinsics the NanoISA codegen does not implement), so a source that fails to
+# compile is reported and skipped rather than failing the whole build.
+VM_COMPILER := $(BIN_DIR)/nano_virt
+VM_RUNNER := $(BIN_DIR)/nano_vm
+
+vm-examples: $(VM_COMPILER) $(VM_RUNNER)
+	@echo "=========================================="
+	@echo "Building NanoVM example bytecode (vm_*.nvm)"
+	@echo "=========================================="
+	@built=0; skipped=0; \
+	for src in $(ALL_VM_SOURCES); do \
+	    [ -f "$$src" ] || continue; \
+	    stem=$$(basename "$$src" .nano); \
+	    out="$(BIN_DIR)/vm_$$stem.nvm"; \
+	    if $(VM_COMPILER) "$$src" --emit-nvm -o "$$out" >/tmp/vm_example_build.log 2>&1; then \
+	        echo "  ✓ vm_$$stem.nvm"; \
+	        built=$$((built+1)); \
+	    else \
+	        reason=$$(grep -m1 '^error:' /tmp/vm_example_build.log | sed 's/^error: //'); \
+	        [ -n "$$reason" ] || reason=$$(tail -1 /tmp/vm_example_build.log); \
+	        echo "  ⊘ skipped $$stem ($$reason)"; \
+	        skipped=$$((skipped+1)); \
+	    fi; \
+	done; \
+	echo ""; \
+	echo "NanoVM examples built: $$built, skipped: $$skipped"; \
+	echo "Run one with: ./bin/nano_vm bin/vm_<name>.nvm"; \
+	echo "Browse them:  make vm-launcher"
+
+# Console launcher that itself runs inside NanoVM and launches only the vm_
+# bytecode samples through bin/nano_vm. Compiled to bytecode and executed by the
+# VM, so the launcher and everything it starts stay in the sandbox.
+vm-launcher: $(VM_COMPILER) $(VM_RUNNER) $(BIN_DIR)/vm_example_launcher.nvm
+	@echo "Launching NanoVM example browser (inside the sandbox)..."
+	@cd .. && ./bin/nano_vm bin/vm_example_launcher.nvm
+
+$(BIN_DIR)/vm_example_launcher.nvm: vm_example_launcher.nano $(VM_COMPILER)
+	@echo "Building $@ (NanoVM bytecode launcher)..."
+	$(VM_COMPILER) $< --emit-nvm -o $@
 
 # Test: compile and run examples with output verification
 test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)

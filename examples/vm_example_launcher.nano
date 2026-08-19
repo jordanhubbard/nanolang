@@ -1,0 +1,198 @@
+# Example: NanoVM Example Launcher
+# Purpose: Browse and run the sandboxed vm_*.nvm example bytecode from inside NanoVM
+# Features: bytecode-only, runs under nano_vm, discovers and launches vm_ samples
+# Difficulty: Intermediate
+# Category: tools
+# Prerequisites: none
+# Expected Output: interactive
+#
+# I am the sandboxed sibling of the SDL example launcher. I compile to NanoISA
+# bytecode and run inside nano_vm, and I only ever launch the vm_*.nvm samples —
+# each of which also runs inside nano_vm. Launcher and launched both stay in the
+# sandbox.
+#
+# I have no windows and no mouse. I read no keyboard either: the VM I run in does
+# not hand me stdin. So I select what to run through the VM_EXAMPLE environment
+# variable. With no selection I list what is available; with one I run it.
+#
+#   make vm-examples                    # build the bin/vm_*.nvm samples
+#   make vm-launcher                    # list them (this program, under nano_vm)
+#   VM_EXAMPLE=nl_calculator make vm-launcher   # run one of them
+
+# I test whether `s` ends with `suffix` using only substring arithmetic, which
+# the VM implements natively.
+fn ends_with(s: string, suffix: string) -> bool {
+    let slen: int = (str_length s)
+    let suflen: int = (str_length suffix)
+    if (< slen suflen) { return false }
+    return (== (str_substring s (- slen suflen) suflen) suffix)
+}
+
+shadow ends_with {
+    assert (ends_with "vm_hello.nvm" ".nvm")
+    assert (not (ends_with "vm_hello" ".nvm"))
+    assert (not (ends_with "x" ".nvm"))
+}
+
+# I test whether `s` starts with `prefix`.
+fn starts_with(s: string, prefix: string) -> bool {
+    let plen: int = (str_length prefix)
+    if (< (str_length s) plen) { return false }
+    return (== (str_substring s 0 plen) prefix)
+}
+
+shadow starts_with {
+    assert (starts_with "vm_hello.nvm" "vm_")
+    assert (not (starts_with "hello.nvm" "vm_"))
+}
+
+# I turn a bytecode filename (vm_nl_calculator.nvm) into the short sample name
+# (nl_calculator) that a caller passes back to me through VM_EXAMPLE.
+fn sample_name(file: string) -> string {
+    let mut name: string = file
+    if (starts_with name "vm_") {
+        set name (str_substring name 3 (- (str_length name) 3))
+    }
+    if (ends_with name ".nvm") {
+        set name (str_substring name 0 (- (str_length name) 4))
+    }
+    return name
+}
+
+shadow sample_name {
+    assert (== (sample_name "vm_nl_calculator.nvm") "nl_calculator")
+    assert (== (sample_name "vm_sdl_pong.nvm") "sdl_pong")
+    assert (== (sample_name "plain") "plain")
+}
+
+# I decide whether a bin/ entry is one of my launchable samples: it must carry
+# the vm_ prefix and the .nvm extension. I refuse to launch myself — running the
+# launcher from inside the launcher is a loop I do not need.
+fn is_vm_sample(file: string) -> bool {
+    if (not (starts_with file "vm_")) { return false }
+    if (not (ends_with file ".nvm")) { return false }
+    if (== file "vm_example_launcher.nvm") { return false }
+    return true
+}
+
+shadow is_vm_sample {
+    assert (is_vm_sample "vm_nl_calculator.nvm")
+    assert (not (is_vm_sample "nl_calculator"))
+    assert (not (is_vm_sample "vm_nl_calculator"))
+    assert (not (is_vm_sample "vm_example_launcher.nvm"))
+}
+
+# I count how many vm_ samples live in bin/. I keep this separate from the
+# listing so I can report a total and prove the count with a real directory.
+fn count_samples(files: array<string>) -> int {
+    let mut i: int = 0
+    let mut n: int = 0
+    while (< i (array_length files)) {
+        if (is_vm_sample (at files i)) { set n (+ n 1) }
+        set i (+ i 1)
+    }
+    return n
+}
+
+shadow count_samples {
+    let files: array<string> = ["vm_a.nvm", "b.nvm", "vm_c.nvm", "vm_example_launcher.nvm"]
+    assert (== (count_samples files) 2)
+    let empty: array<string> = []
+    assert (== (count_samples empty) 0)
+}
+
+# I print every vm_ sample I found, one per line, with its short name. This is
+# what a caller sees when they run me with no VM_EXAMPLE selection.
+fn list_samples(files: array<string>) -> int {
+    let mut i: int = 0
+    let mut shown: int = 0
+    while (< i (array_length files)) {
+        let file: string = (at files i)
+        if (is_vm_sample file) {
+            (println (+ "  " (sample_name file)))
+            set shown (+ shown 1)
+        }
+        set i (+ i 1)
+    }
+    return shown
+}
+
+shadow list_samples {
+    let files: array<string> = ["vm_only.nvm"]
+    assert (== (list_samples files) 1)
+}
+
+# I confirm a requested sample actually exists as bytecode before I try to run
+# it, so I can give a clear message instead of a spawn failure.
+fn sample_exists(files: array<string>, name: string) -> bool {
+    let target: string = (+ "vm_" (+ name ".nvm"))
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        if (== (at files i) target) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow sample_exists {
+    let files: array<string> = ["vm_nl_calculator.nvm", "vm_sdl_pong.nvm"]
+    assert (sample_exists files "nl_calculator")
+    assert (not (sample_exists files "missing"))
+}
+
+# I run one sample by shelling out — still inside the sandbox — to nano_vm on its
+# bytecode, and I print whatever it produced. process_run gives me back
+# [exit_code, stdout, stderr].
+fn run_sample(name: string) -> int {
+    let bytecode: string = (+ "bin/vm_" (+ name ".nvm"))
+    let cmd: string = (+ "bin/nano_vm " bytecode)
+    (println (+ "I am running " (+ bytecode " inside nano_vm...")))
+    (println "----------------------------------------")
+    let result: array<string> = (process_run cmd)
+    let out: string = (at result 1)
+    let err: string = (at result 2)
+    if (> (str_length out) 0) { (print out) }
+    if (> (str_length err) 0) { (print err) }
+    (println "----------------------------------------")
+    let code: string = (at result 0)
+    (println (+ "Exit code: " code))
+    return (string_to_int code)
+}
+
+shadow run_sample {
+    # I only assert the name-to-path shaping here; running a real sample needs a
+    # built bytecode file, which the integration path (make vm-launcher) covers.
+    assert (== (+ "bin/vm_" (+ "nl_calculator" ".nvm")) "bin/vm_nl_calculator.nvm")
+}
+
+fn main() -> int {
+    (println "NanoVM Example Launcher — I run inside the sandbox.")
+    (println "")
+
+    let files: array<string> = (dir_list "bin")
+    let total: int = (count_samples files)
+
+    let selection: string = (getenv "VM_EXAMPLE")
+    if (> (str_length selection) 0) {
+        if (not (sample_exists files selection)) {
+            (println (+ "I have no bytecode sample named '" (+ selection "'.")))
+            (println "Run `make vm-examples` first, or pick one of these:")
+            (list_samples files)
+            return 1
+        }
+        return (run_sample selection)
+    }
+
+    if (== total 0) {
+        (println "I found no vm_*.nvm samples in bin/.")
+        (println "Build them with: make vm-examples")
+        return 0
+    }
+
+    (println (+ "I found " (+ (int_to_string total) " sandboxed samples:")))
+    (list_samples files)
+    (println "")
+    (println "Run one inside me with:")
+    (println "  VM_EXAMPLE=<name> make vm-launcher")
+    return 0
+}

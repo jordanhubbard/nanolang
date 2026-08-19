@@ -162,7 +162,17 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
             /* C functions return DynArray* - convert to VmArray */
             DynArray *darr = (DynArray *)(intptr_t)raw_result;
             if (!darr) return val_void();
-            VmArray *varr = vm_array_new(heap, TAG_INT, (uint32_t)darr->length);
+            /* Preserve the element type so ARR_GET / iteration observe the
+             * correct tag (strings were previously mislabelled as ints, which
+             * made e.g. dir_list()/process_run() elements read back empty). */
+            uint8_t vm_elem_tag = TAG_INT;
+            switch (darr->elem_type) {
+                case ELEM_FLOAT:  vm_elem_tag = TAG_FLOAT;  break;
+                case ELEM_BOOL:   vm_elem_tag = TAG_BOOL;    break;
+                case ELEM_STRING: vm_elem_tag = TAG_STRING;  break;
+                default:          vm_elem_tag = TAG_INT;     break;
+            }
+            VmArray *varr = vm_array_new(heap, vm_elem_tag, (uint32_t)darr->length);
             for (int64_t ai = 0; ai < darr->length; ai++) {
                 NanoValue elem;
                 switch (darr->elem_type) {

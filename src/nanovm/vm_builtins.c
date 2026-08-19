@@ -82,7 +82,10 @@ DynArray *vm_dir_list(const char *path) {
     while ((entry = readdir(d)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
-        dyn_array_push_string(arr, entry->d_name);
+        /* Copy: entry->d_name is owned by the DIR stream and is invalidated by
+         * the next readdir()/closedir(), so storing the raw pointer would leave
+         * every element dangling (they read back empty). */
+        dyn_array_push_string_copy(arr, entry->d_name);
     }
     closedir(d);
     return arr;

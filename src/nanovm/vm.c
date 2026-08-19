@@ -1113,6 +1113,67 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_STR_TRIM: {
+            NanoValue s = stack_pop(vm);
+            if (s.tag != TAG_STRING) {
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_TRIM: not a string");
+            }
+            const char *str = vmstring_cstr(s.as.string);
+            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t start = 0;
+            while (start < len && (str[start] == ' ' || str[start] == '\t' ||
+                                   str[start] == '\n' || str[start] == '\r')) {
+                start++;
+            }
+            int64_t end = len;
+            while (end > start && (str[end - 1] == ' ' || str[end - 1] == '\t' ||
+                                   str[end - 1] == '\n' || str[end - 1] == '\r')) {
+                end--;
+            }
+            VmString *out = vm_string_new(&vm->heap, str + start, (uint32_t)(end - start));
+            vm_release(&vm->heap, s);
+            stack_push(vm, val_string(out));
+            break;
+        }
+
+        case OP_STR_TO_LOWER:
+        case OP_STR_TO_UPPER: {
+            bool to_lower = (instr.opcode == OP_STR_TO_LOWER);
+            NanoValue s = stack_pop(vm);
+            if (s.tag != TAG_STRING) {
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  to_lower ? "STR_TO_LOWER: not a string"
+                                           : "STR_TO_UPPER: not a string");
+            }
+            const char *str = vmstring_cstr(s.as.string);
+            int64_t len = str ? (int64_t)strlen(str) : 0;
+            /* Strings are interned/immutable, so transform into a scratch
+             * buffer and only then construct the result string. */
+            char stackbuf[256];
+            char *buf = (len < (int64_t)sizeof(stackbuf)) ? stackbuf
+                                                          : malloc((size_t)len + 1);
+            if (!buf) {
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_MEMORY, "STR_TO_LOWER/UPPER: alloc failed");
+            }
+            for (int64_t i = 0; i < len; i++) {
+                unsigned char c = (unsigned char)str[i];
+                if (to_lower) {
+                    buf[i] = (c >= 'A' && c <= 'Z') ? (char)(c + 32) : (char)c;
+                } else {
+                    buf[i] = (c >= 'a' && c <= 'z') ? (char)(c - 32) : (char)c;
+                }
+            }
+            buf[len] = '\0';
+            VmString *out = vm_string_new(&vm->heap, buf, (uint32_t)len);
+            if (buf != stackbuf) free(buf);
+            vm_release(&vm->heap, s);
+            stack_push(vm, val_string(out));
+            break;
+        }
+
         /* ============================================================
          * Array Ops
          * ============================================================ */

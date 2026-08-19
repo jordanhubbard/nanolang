@@ -106,6 +106,9 @@ typedef enum {
     OP_STR_CHAR_AT  = 0x45,  /* pop index, pop str -> push char (as string) */
     OP_STR_FROM_INT = 0x46,  /* pop int -> push string */
     OP_STR_FROM_FLOAT = 0x47, /* pop float -> push string */
+    OP_STR_TRIM     = 0x48,  /* pop str -> push str with leading/trailing whitespace removed */
+    OP_STR_TO_LOWER = 0x49,  /* pop str -> push lowercased str */
+    OP_STR_TO_UPPER = 0x4A,  /* pop str -> push uppercased str */
 
     /* Array Ops (0x50-0x5F) */
     OP_ARR_NEW      = 0x50,  /* operand: u8 element type tag */

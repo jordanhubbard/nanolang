@@ -4678,6 +4678,7 @@ static const char *builtin_function_names[] = {
     "path_isfile", "path_isdir", "path_join", "path_basename", "path_dirname",
     /* Process operations */
     "system",
+    "process_run",
     /* List operations - list_int */
     "list_int_new", "list_int_with_capacity", "list_int_push", "list_int_pop",
     "list_int_get", "list_int_set", "list_int_insert", "list_int_remove",
@@ -5184,6 +5185,32 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* dir_list(path: string) -> array<string>
+     * Registered here so bytecode/VM programs (which lower dir_list to the
+     * vm_dir_list extern) type-check without an unsafe FFI declaration. */
+    func.name = "dir_list";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_ARRAY;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* process_run(command: string) -> array<string> ([exit_code, stdout, stderr])
+     * Registered here so bytecode/VM programs can shell out through the
+     * vm_process_run extern without an unsafe FFI declaration. */
+    func.name = "process_run";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_ARRAY;
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;

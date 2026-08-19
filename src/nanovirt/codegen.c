@@ -589,6 +589,21 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_STR_SUBSTR);
         return true;
     }
+    if (strcmp(name, "str_trim") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_STR_TRIM);
+        return true;
+    }
+    if (strcmp(name, "str_to_lower") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_STR_TO_LOWER);
+        return true;
+    }
+    if (strcmp(name, "str_to_upper") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_STR_TO_UPPER);
+        return true;
+    }
 
     /* Type casts */
     if (strcmp(name, "cast_int") == 0 && argc == 1) {
