@@ -604,6 +604,31 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_STR_TO_UPPER);
         return true;
     }
+    if (strcmp(name, "str_starts_with") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_STARTS_WITH);
+        return true;
+    }
+    if (strcmp(name, "str_ends_with") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_ENDS_WITH);
+        return true;
+    }
+    if (strcmp(name, "str_split") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        emit_op(cg, OP_STR_SPLIT);
+        return true;
+    }
+    if (strcmp(name, "str_replace") == 0 && argc == 3) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        compile_expr(cg, args[2]);
+        emit_op(cg, OP_STR_REPLACE);
+        return true;
+    }
 
     /* Type casts */
     if (strcmp(name, "cast_int") == 0 && argc == 1) {

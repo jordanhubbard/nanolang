@@ -109,6 +109,10 @@ typedef enum {
     OP_STR_TRIM     = 0x48,  /* pop str -> push str with leading/trailing whitespace removed */
     OP_STR_TO_LOWER = 0x49,  /* pop str -> push lowercased str */
     OP_STR_TO_UPPER = 0x4A,  /* pop str -> push uppercased str */
+    OP_STR_STARTS_WITH = 0x4B, /* pop prefix, pop str -> push bool */
+    OP_STR_ENDS_WITH   = 0x4C, /* pop suffix, pop str -> push bool */
+    OP_STR_SPLIT       = 0x4D, /* pop delim, pop str -> push array<string> */
+    OP_STR_REPLACE     = 0x4E, /* pop new, pop old, pop str -> push str with all old replaced */
 
     /* Array Ops (0x50-0x5F) */
     OP_ARR_NEW      = 0x50,  /* operand: u8 element type tag */

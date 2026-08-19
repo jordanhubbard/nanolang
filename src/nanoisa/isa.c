@@ -122,6 +122,10 @@ static const InstructionInfo instruction_table[256] = {
     INSTR0(OP_STR_TRIM,       "STR_TRIM"),
     INSTR0(OP_STR_TO_LOWER,   "STR_TO_LOWER"),
     INSTR0(OP_STR_TO_UPPER,   "STR_TO_UPPER"),
+    INSTR0(OP_STR_STARTS_WITH,"STR_STARTS_WITH"),
+    INSTR0(OP_STR_ENDS_WITH,  "STR_ENDS_WITH"),
+    INSTR0(OP_STR_SPLIT,      "STR_SPLIT"),
+    INSTR0(OP_STR_REPLACE,    "STR_REPLACE"),
 
     /* Array Ops */
     INSTR1(OP_ARR_NEW,     "ARR_NEW",     OPERAND_U8),

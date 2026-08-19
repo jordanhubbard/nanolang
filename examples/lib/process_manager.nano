@@ -82,64 +82,8 @@ shadow pm_ends_with {
     assert (pm_ends_with "test.nano" ".nano")
 }
 
-# I find the first index of `needle` in `haystack` at or after `start`,
-# returning -1 when it does not occur. I only lean on str_substring/str_length,
-# which the NanoISA VM implements natively, so I run unchanged under nano_vm.
-fn pm_index_of_from(haystack: string, needle: string, start: int) -> int {
-    let hlen: int = (str_length haystack)
-    let nlen: int = (str_length needle)
-    if (== nlen 0) { return start }
-    let mut i: int = start
-    while (<= (+ i nlen) hlen) {
-        if (== (str_substring haystack i nlen) needle) {
-            return i
-        }
-        set i (+ i 1)
-    }
-    return -1
-}
-
-shadow pm_index_of_from {
-    assert (== (pm_index_of_from "hello world" "world" 0) 6)
-    assert (== (pm_index_of_from "aaa" "a" 1) 1)
-    assert (== (pm_index_of_from "abc" "z" 0) -1)
-    assert (== (pm_index_of_from "abcabc" "bc" 2) 4)
-}
-
-# I replace every occurrence of `old_str` with `new_str`. This is a NanoLang
-# reimplementation of the str_replace runtime builtin (which the C backend
-# provides natively) so the launcher compiles to bytecode and runs under
-# nano_vm. When old_str is empty I return the input unchanged, matching the
-# runtime's guard against zero-length matches.
-fn pm_str_replace(s: string, old_str: string, new_str: string) -> string {
-    let olen: int = (str_length old_str)
-    if (== olen 0) { return s }
-    let mut result: string = ""
-    let mut pos: int = 0
-    let slen: int = (str_length s)
-    while (<= pos slen) {
-        let found: int = (pm_index_of_from s old_str pos)
-        if (< found 0) {
-            set result (+ result (str_substring s pos (- slen pos)))
-            return result
-        }
-        set result (+ result (str_substring s pos (- found pos)))
-        set result (+ result new_str)
-        set pos (+ found olen)
-    }
-    return result
-}
-
-shadow pm_str_replace {
-    assert (== (pm_str_replace "a,b,c" "," "-") "a-b-c")
-    assert (== (pm_str_replace "hello" "l" "L") "heLLo")
-    assert (== (pm_str_replace "no match" "z" "q") "no match")
-    assert (== (pm_str_replace "aaa" "a" "bb") "bbbbbb")
-    assert (== (pm_str_replace "keep" "" "x") "keep")
-}
-
 fn pm_shell_quote(value: string) -> string {
-    let escaped: string = (pm_str_replace value "'" "'\"'\"'")
+    let escaped: string = (str_replace value "'" "'\"'\"'")
     return (+ "'" (+ escaped "'"))
 }
 

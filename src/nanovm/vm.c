@@ -1174,6 +1174,143 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_STR_STARTS_WITH:
+        case OP_STR_ENDS_WITH: {
+            bool starts = (instr.opcode == OP_STR_STARTS_WITH);
+            NanoValue affix_v = stack_pop(vm);
+            NanoValue s = stack_pop(vm);
+            if (s.tag != TAG_STRING || affix_v.tag != TAG_STRING) {
+                vm_release(&vm->heap, affix_v);
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  starts ? "STR_STARTS_WITH: not a string"
+                                         : "STR_ENDS_WITH: not a string");
+            }
+            const char *str = vmstring_cstr(s.as.string);
+            const char *affix = vmstring_cstr(affix_v.as.string);
+            size_t slen = str ? strlen(str) : 0;
+            size_t alen = affix ? strlen(affix) : 0;
+            bool result;
+            if (alen > slen) {
+                result = false;
+            } else if (alen == 0) {
+                result = true;
+            } else if (starts) {
+                result = memcmp(str, affix, alen) == 0;
+            } else {
+                result = memcmp(str + slen - alen, affix, alen) == 0;
+            }
+            vm_release(&vm->heap, affix_v);
+            vm_release(&vm->heap, s);
+            stack_push(vm, val_bool(result));
+            break;
+        }
+
+        case OP_STR_SPLIT: {
+            NanoValue delim_v = stack_pop(vm);
+            NanoValue s = stack_pop(vm);
+            if (s.tag != TAG_STRING || delim_v.tag != TAG_STRING) {
+                vm_release(&vm->heap, delim_v);
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_SPLIT: not a string");
+            }
+            const char *str = vmstring_cstr(s.as.string);
+            const char *delim = vmstring_cstr(delim_v.as.string);
+            size_t dlen = delim ? strlen(delim) : 0;
+            VmArray *arr = vm_array_new(&vm->heap, TAG_STRING, 8);
+            if (dlen == 0) {
+                /* Empty delimiter: split into individual characters. */
+                size_t slen = str ? strlen(str) : 0;
+                for (size_t i = 0; i < slen; i++) {
+                    VmString *ch = vm_string_new(&vm->heap, str + i, 1);
+                    vm_array_push(arr, val_string(ch));
+                    vm_release(&vm->heap, val_string(ch));
+                }
+            } else {
+                const char *start = str ? str : "";
+                const char *found;
+                while ((found = strstr(start, delim)) != NULL) {
+                    VmString *seg = vm_string_new(&vm->heap, start,
+                                                  (uint32_t)(found - start));
+                    vm_array_push(arr, val_string(seg));
+                    vm_release(&vm->heap, val_string(seg));
+                    start = found + dlen;
+                }
+                VmString *rest = vm_string_new(&vm->heap, start,
+                                               (uint32_t)strlen(start));
+                vm_array_push(arr, val_string(rest));
+                vm_release(&vm->heap, val_string(rest));
+            }
+            vm_release(&vm->heap, delim_v);
+            vm_release(&vm->heap, s);
+            stack_push(vm, val_array(arr));
+            break;
+        }
+
+        case OP_STR_REPLACE: {
+            /* Args were pushed s, old, new -> pop in reverse. */
+            NanoValue new_v = stack_pop(vm);
+            NanoValue old_v = stack_pop(vm);
+            NanoValue s = stack_pop(vm);
+            if (s.tag != TAG_STRING || old_v.tag != TAG_STRING || new_v.tag != TAG_STRING) {
+                vm_release(&vm->heap, new_v);
+                vm_release(&vm->heap, old_v);
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_REPLACE: not a string");
+            }
+            const char *str = vmstring_cstr(s.as.string);
+            const char *old_str = vmstring_cstr(old_v.as.string);
+            const char *new_str = vmstring_cstr(new_v.as.string);
+            size_t olen = old_str ? strlen(old_str) : 0;
+            if (!str) str = "";
+            if (olen == 0) {
+                /* Empty needle: return the input unchanged (matches runtime). */
+                VmString *copy = vm_string_new(&vm->heap, str, (uint32_t)strlen(str));
+                vm_release(&vm->heap, new_v);
+                vm_release(&vm->heap, old_v);
+                vm_release(&vm->heap, s);
+                stack_push(vm, val_string(copy));
+                break;
+            }
+            size_t nlen = new_str ? strlen(new_str) : 0;
+            /* Count occurrences to size the output buffer. */
+            size_t count = 0;
+            const char *p = str;
+            const char *found;
+            while ((found = strstr(p, old_str)) != NULL) { count++; p = found + olen; }
+            size_t slen = strlen(str);
+            /* out_len = slen + count*(nlen - olen); compute signed to be safe. */
+            long long out_len_signed = (long long)slen +
+                                       (long long)count * ((long long)nlen - (long long)olen);
+            size_t out_len = out_len_signed > 0 ? (size_t)out_len_signed : 0;
+            char stackbuf[512];
+            char *buf = (out_len < sizeof(stackbuf)) ? stackbuf : malloc(out_len + 1);
+            if (!buf) {
+                vm_release(&vm->heap, new_v);
+                vm_release(&vm->heap, old_v);
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_MEMORY, "STR_REPLACE: alloc failed");
+            }
+            char *dst = buf;
+            const char *src = str;
+            while ((found = strstr(src, old_str)) != NULL) {
+                size_t seg = (size_t)(found - src);
+                memcpy(dst, src, seg); dst += seg;
+                memcpy(dst, new_str, nlen); dst += nlen;
+                src = found + olen;
+            }
+            size_t rest = strlen(src);
+            memcpy(dst, src, rest); dst += rest;
+            *dst = '\0';
+            VmString *out = vm_string_new(&vm->heap, buf, (uint32_t)(dst - buf));
+            if (buf != stackbuf) free(buf);
+            vm_release(&vm->heap, new_v);
+            vm_release(&vm->heap, old_v);
+            vm_release(&vm->heap, s);
+            stack_push(vm, val_string(out));
+            break;
+        }
+
         /* ============================================================
          * Array Ops
          * ============================================================ */
