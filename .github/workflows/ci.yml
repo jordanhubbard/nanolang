@@ -54,8 +54,15 @@ jobs:
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
+        timeout-minutes: 20
         run: |
-          brew install gcc pkg-config openssl sdl2 sdl2_mixer sdl2_ttf
+          ./scripts/ci-brew-install.sh \
+            gcc \
+            pkg-config \
+            openssl \
+            sdl2 \
+            sdl2_mixer \
+            sdl2_ttf
 
       - name: Check dependencies
         shell: bash
