@@ -91,6 +91,14 @@ DynArray *vm_dir_list(const char *path) {
     return arr;
 }
 
+/* The directory temporary files belong in. Mirrors nl_os_tmp_dir() in the
+ * native runtime so a program sees the same path under either backend. */
+char *vm_tmp_dir(void) {
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+    return strdup(tmp);
+}
+
 char *vm_mktemp_dir(const char *prefix) {
     const char *tmp = getenv("TMPDIR");
     if (!tmp || tmp[0] == '\0') tmp = "/tmp";
@@ -98,6 +106,20 @@ char *vm_mktemp_dir(const char *prefix) {
     snprintf(tmpl, sizeof(tmpl), "%s/%sXXXXXX", tmp, prefix ? prefix : "nano_");
     char *result = mkdtemp(tmpl);
     return result ? strdup(result) : strdup("");
+}
+
+/* Create a temporary *file* and return its path. mkstemp() creates the file
+ * and hands back a descriptor; the caller only wants the name, so close it. */
+char *vm_mktemp(const char *prefix) {
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || tmp[0] == '\0') tmp = "/tmp";
+    char tmpl[1024];
+    snprintf(tmpl, sizeof(tmpl), "%s/%sXXXXXX", tmp,
+             (prefix && prefix[0]) ? prefix : "nanolang_");
+    int fd = mkstemp(tmpl);
+    if (fd < 0) return strdup("");
+    close(fd);
+    return strdup(tmpl);
 }
 
 char *vm_getenv(const char *name) {

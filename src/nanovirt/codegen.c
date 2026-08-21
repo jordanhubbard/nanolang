@@ -1492,6 +1492,41 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    /* GPU launch-geometry intrinsics.
+     *
+     * These are only meaningful inside a `gpu fn` body that a GPU backend
+     * lowers to PTX or OpenCL. When the same source is compiled for a host
+     * target the intrinsics collapse to the constants for "thread 0 of a
+     * single block" — that is what the interpreter (eval.c) and the host-side
+     * runtime stubs under modules/gpu already return. The VM is a host
+     * target, so I fold them to the same constants at compile time rather than
+     * routing them through FFI: it keeps GPU examples inside the sandbox and
+     * keeps the three host paths agreeing on one answer. */
+    {
+        static const struct { const char *nano_name; int64_t value; } gpu_geometry[] = {
+            {"thread_id_x", 0}, {"thread_id_y", 0}, {"thread_id_z", 0},
+            {"block_id_x",  0}, {"block_id_y",  0}, {"block_id_z",  0},
+            {"block_dim_x", 256}, {"block_dim_y", 256}, {"block_dim_z", 1},
+            {"grid_dim_x",  1}, {"grid_dim_y",  1}, {"grid_dim_z",  1},
+            {"global_id_x", 0}, {"global_id_y", 0},
+            {NULL, 0}
+        };
+        if (argc == 0) {
+            for (int gi = 0; gpu_geometry[gi].nano_name; gi++) {
+                if (strcmp(name, gpu_geometry[gi].nano_name) == 0) {
+                    emit_op(cg, OP_PUSH_I64, gpu_geometry[gi].value);
+                    return true;
+                }
+            }
+            /* A barrier synchronises threads within a block; with one thread
+             * there is nothing to wait for. */
+            if (strcmp(name, "gpu_barrier") == 0) {
+                emit_op(cg, OP_PUSH_VOID);
+                return true;
+            }
+        }
+    }
+
     /* OS/IO builtins - map nanolang names to vm_* C functions */
     {
         static const struct { const char *nano_name; const char *c_name; int arity; uint8_t ret_tag; } os_builtins[] = {
@@ -1503,6 +1538,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"dir_exists", "vm_dir_exists",   1, TAG_BOOL},
             {"dir_create", "vm_dir_create",   1, TAG_INT},
             {"dir_list",   "vm_dir_list",     1, TAG_ARRAY},
+            {"tmp_dir",    "vm_tmp_dir",      0, TAG_STRING},
+            {"mktemp",     "vm_mktemp",       1, TAG_STRING},
             {"mktemp_dir", "vm_mktemp_dir",   1, TAG_STRING},
             {"getenv",     "vm_getenv",       1, TAG_STRING},
             {"setenv",     "vm_setenv",       2, TAG_INT},
@@ -2099,6 +2136,155 @@ static void compile_expr(CG *cg, ASTNode *node) {
     }
 }
 
+/* ── Nested function (closure) compilation ──────────────────────── */
+
+/* Compiling a nested function has to snapshot the whole parent CG plus its
+ * locals, loops and upvalue tables — well over 100 KB. That state used to live
+ * in the AST_FUNCTION arm of compile_stmt's switch, and because a compiler
+ * reserves the union of every arm's locals in the function's single frame,
+ * *every* compile_stmt frame paid for it. Statement nesting is recursive
+ * (block → if → block → ...), so roughly sixty levels of ordinary nesting
+ * exhausted an 8 MB stack and nano_virt died with SIGSEGV instead of emitting
+ * bytecode.
+ *
+ * Keeping this arm in its own function shrinks compile_stmt's frame to the
+ * handful of scalars the other arms need, and heap-allocating the snapshot
+ * keeps closure nesting cheap too. */
+typedef struct {
+    Local   locals[MAX_LOCALS];
+    LoopCtx loops[MAX_LOOP_DEPTH];
+    Upvalue upvalues[MAX_UPVALUES];
+    Upvalue child_upvalues[MAX_UPVALUES];
+    CG      parent_snapshot;
+} NestedFnState;
+
+static void compile_nested_function(CG *cg, ASTNode *node) {
+    if (node->as.function.is_extern) return;
+
+    const char *name = node->as.function.name;
+
+    /* Register nested function in module function table if not already there */
+    int32_t fn_idx = fn_find(cg, name);
+    if (fn_idx < 0) {
+        uint32_t name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+        NvmFunctionEntry fn = {0};
+        fn.name_idx = name_idx;
+        fn.arity = (uint16_t)node->as.function.param_count;
+        fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
+        if (cg->fn_count < MAX_FUNCTIONS) {
+            cg->functions[cg->fn_count].name = (char *)name;
+            cg->functions[cg->fn_count].fn_idx = (uint32_t)fn_idx;
+            cg->fn_count++;
+        }
+    }
+
+    NestedFnState *st = malloc(sizeof(NestedFnState));
+    if (!st) {
+        cg_error(cg, node->line, "out of memory compiling nested function '%s'", name);
+        return;
+    }
+
+    /* Save parent's compilation state */
+    uint8_t *saved_code = cg->code;
+    uint32_t saved_code_size = cg->code_size;
+    uint32_t saved_code_cap = cg->code_cap;
+    memcpy(st->locals, cg->locals, sizeof(cg->locals));
+    uint16_t saved_local_count = cg->local_count;
+    uint16_t saved_param_count = cg->param_count;
+    memcpy(st->loops, cg->loops, sizeof(cg->loops));
+    int saved_loop_depth = cg->loop_depth;
+    memcpy(st->upvalues, cg->upvalues, sizeof(cg->upvalues));
+    uint16_t saved_upvalue_count = cg->upvalue_count;
+    CG *saved_parent = cg->parent;
+
+    /* Set up child compilation context using same CG struct */
+    memcpy(&st->parent_snapshot, cg, sizeof(CG));
+    /* Restore parent's locals for upvalue resolution */
+    memcpy(st->parent_snapshot.locals, st->locals, sizeof(st->locals));
+    st->parent_snapshot.local_count = saved_local_count;
+    st->parent_snapshot.upvalues[0].name = NULL; /* sentinel */
+    st->parent_snapshot.upvalue_count = saved_upvalue_count;
+    st->parent_snapshot.parent = saved_parent;
+
+    cg->parent = &st->parent_snapshot;
+    cg->code = malloc(CODE_INITIAL);
+    cg->code_size = 0;
+    cg->code_cap = CODE_INITIAL;
+    cg->local_count = 0;
+    cg->param_count = (uint16_t)node->as.function.param_count;
+    cg->loop_depth = 0;
+    cg->upvalue_count = 0;
+
+    /* Parameters become the first locals of nested function */
+    for (int i = 0; i < node->as.function.param_count; i++) {
+        uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
+        if (node->as.function.params[i].struct_type_name) {
+            cg->locals[slot].struct_type = node->as.function.params[i].struct_type_name;
+        }
+    }
+
+    /* Compile nested function body */
+    ASTNode *body = node->as.function.body;
+    if (body) {
+        if (body->type == AST_BLOCK) {
+            for (int i = 0; i < body->as.block.count; i++) {
+                compile_stmt(cg, body->as.block.statements[i]);
+            }
+        } else {
+            compile_expr(cg, body);
+            emit_op(cg, OP_RET);
+        }
+    }
+    if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
+        emit_op(cg, OP_PUSH_VOID);
+        emit_op(cg, OP_RET);
+    }
+
+    /* Save nested function's upvalue info before restoring parent state */
+    uint16_t child_upvalue_count = cg->upvalue_count;
+    memcpy(st->child_upvalues, cg->upvalues, sizeof(Upvalue) * child_upvalue_count);
+
+    /* Finalize nested function in module */
+    if (!cg->had_error) {
+        uint32_t code_off = nvm_append_code(cg->module, cg->code, cg->code_size);
+        NvmFunctionEntry *entry = &cg->module->functions[fn_idx];
+        entry->code_offset = code_off;
+        entry->code_length = cg->code_size;
+        entry->local_count = cg->local_count;
+        entry->upvalue_count = child_upvalue_count;
+    }
+
+    /* Free child code buffer and restore parent state */
+    free(cg->code);
+    cg->code = saved_code;
+    cg->code_size = saved_code_size;
+    cg->code_cap = saved_code_cap;
+    memcpy(cg->locals, st->locals, sizeof(cg->locals));
+    cg->local_count = saved_local_count;
+    cg->param_count = saved_param_count;
+    memcpy(cg->loops, st->loops, sizeof(cg->loops));
+    cg->loop_depth = saved_loop_depth;
+    memcpy(cg->upvalues, st->upvalues, sizeof(cg->upvalues));
+    cg->upvalue_count = saved_upvalue_count;
+    cg->parent = saved_parent;
+
+    /* At the definition site: push captured values, then emit CLOSURE_NEW */
+    for (int i = 0; i < child_upvalue_count; i++) {
+        if (st->child_upvalues[i].is_local) {
+            emit_op(cg, OP_LOAD_LOCAL, (int)st->child_upvalues[i].parent_slot);
+        } else {
+            emit_op(cg, OP_LOAD_UPVALUE, 0, (int)st->child_upvalues[i].parent_slot);
+        }
+    }
+    emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, (int)child_upvalue_count);
+
+    /* Store closure in a local variable named after the function */
+    uint16_t closure_slot = local_add(cg, name, node->line);
+    emit_op(cg, OP_STORE_LOCAL, (int)closure_slot);
+
+    free(st);
+}
+
 /* ── Statement compilation ──────────────────────────────────────── */
 
 static void compile_stmt(CG *cg, ASTNode *node) {
@@ -2380,131 +2566,11 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_UNION_DEF:
         break;
 
-    case AST_FUNCTION: {
-        /* Nested function definition: compile with parent context for captures */
-        if (node->as.function.is_extern) break;
-
-        const char *name = node->as.function.name;
-
-        /* Register nested function in module function table if not already there */
-        int32_t fn_idx = fn_find(cg, name);
-        if (fn_idx < 0) {
-            uint32_t name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
-            NvmFunctionEntry fn = {0};
-            fn.name_idx = name_idx;
-            fn.arity = (uint16_t)node->as.function.param_count;
-            fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
-            if (cg->fn_count < MAX_FUNCTIONS) {
-                cg->functions[cg->fn_count].name = (char *)name;
-                cg->functions[cg->fn_count].fn_idx = (uint32_t)fn_idx;
-                cg->fn_count++;
-            }
-        }
-
-        /* Save parent's compilation state */
-        uint8_t *saved_code = cg->code;
-        uint32_t saved_code_size = cg->code_size;
-        uint32_t saved_code_cap = cg->code_cap;
-        Local saved_locals[MAX_LOCALS];
-        memcpy(saved_locals, cg->locals, sizeof(cg->locals));
-        uint16_t saved_local_count = cg->local_count;
-        uint16_t saved_param_count = cg->param_count;
-        LoopCtx saved_loops[MAX_LOOP_DEPTH];
-        memcpy(saved_loops, cg->loops, sizeof(cg->loops));
-        int saved_loop_depth = cg->loop_depth;
-        Upvalue saved_upvalues[MAX_UPVALUES];
-        memcpy(saved_upvalues, cg->upvalues, sizeof(cg->upvalues));
-        uint16_t saved_upvalue_count = cg->upvalue_count;
-        CG *saved_parent = cg->parent;
-
-        /* Set up child compilation context using same CG struct */
-        CG parent_snapshot;
-        memcpy(&parent_snapshot, cg, sizeof(CG));
-        /* Restore parent's locals for upvalue resolution */
-        memcpy(parent_snapshot.locals, saved_locals, sizeof(saved_locals));
-        parent_snapshot.local_count = saved_local_count;
-        parent_snapshot.upvalues[0].name = NULL; /* sentinel */
-        parent_snapshot.upvalue_count = saved_upvalue_count;
-        parent_snapshot.parent = saved_parent;
-
-        cg->parent = &parent_snapshot;
-        cg->code = malloc(CODE_INITIAL);
-        cg->code_size = 0;
-        cg->code_cap = CODE_INITIAL;
-        cg->local_count = 0;
-        cg->param_count = (uint16_t)node->as.function.param_count;
-        cg->loop_depth = 0;
-        cg->upvalue_count = 0;
-
-        /* Parameters become the first locals of nested function */
-        for (int i = 0; i < node->as.function.param_count; i++) {
-            uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
-            if (node->as.function.params[i].struct_type_name) {
-                cg->locals[slot].struct_type = node->as.function.params[i].struct_type_name;
-            }
-        }
-
-        /* Compile nested function body */
-        ASTNode *body = node->as.function.body;
-        if (body) {
-            if (body->type == AST_BLOCK) {
-                for (int i = 0; i < body->as.block.count; i++) {
-                    compile_stmt(cg, body->as.block.statements[i]);
-                }
-            } else {
-                compile_expr(cg, body);
-                emit_op(cg, OP_RET);
-            }
-        }
-        if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
-            emit_op(cg, OP_PUSH_VOID);
-            emit_op(cg, OP_RET);
-        }
-
-        /* Save nested function's upvalue info before restoring parent state */
-        uint16_t child_upvalue_count = cg->upvalue_count;
-        Upvalue child_upvalues[MAX_UPVALUES];
-        memcpy(child_upvalues, cg->upvalues, sizeof(Upvalue) * child_upvalue_count);
-
-        /* Finalize nested function in module */
-        if (!cg->had_error) {
-            uint32_t code_off = nvm_append_code(cg->module, cg->code, cg->code_size);
-            NvmFunctionEntry *entry = &cg->module->functions[fn_idx];
-            entry->code_offset = code_off;
-            entry->code_length = cg->code_size;
-            entry->local_count = cg->local_count;
-            entry->upvalue_count = child_upvalue_count;
-        }
-
-        /* Free child code buffer and restore parent state */
-        free(cg->code);
-        cg->code = saved_code;
-        cg->code_size = saved_code_size;
-        cg->code_cap = saved_code_cap;
-        memcpy(cg->locals, saved_locals, sizeof(cg->locals));
-        cg->local_count = saved_local_count;
-        cg->param_count = saved_param_count;
-        memcpy(cg->loops, saved_loops, sizeof(cg->loops));
-        cg->loop_depth = saved_loop_depth;
-        memcpy(cg->upvalues, saved_upvalues, sizeof(cg->upvalues));
-        cg->upvalue_count = saved_upvalue_count;
-        cg->parent = saved_parent;
-
-        /* At the definition site: push captured values, then emit CLOSURE_NEW */
-        for (int i = 0; i < child_upvalue_count; i++) {
-            if (child_upvalues[i].is_local) {
-                emit_op(cg, OP_LOAD_LOCAL, (int)child_upvalues[i].parent_slot);
-            } else {
-                emit_op(cg, OP_LOAD_UPVALUE, 0, (int)child_upvalues[i].parent_slot);
-            }
-        }
-        emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, (int)child_upvalue_count);
-
-        /* Store closure in a local variable named after the function */
-        uint16_t closure_slot = local_add(cg, name, node->line);
-        emit_op(cg, OP_STORE_LOCAL, (int)closure_slot);
+    case AST_FUNCTION:
+        /* Nested function definition. Kept in its own function so that its
+         * large saved-state buffers stay out of compile_stmt's frame. */
+        compile_nested_function(cg, node);
         break;
-    }
 
     case AST_UNSAFE_BLOCK: {
         for (int i = 0; i < node->as.unsafe_block.count; i++) {

@@ -359,29 +359,59 @@ ALL_EXAMPLES = \
 	$(MUJOCO_EXAMPLES)
 
 # === All Example Sources (for VM / bytecode builds) ===
-# The VM build compiles every example source that the native build covers into
-# NanoISA bytecode with a distinguishing `vm_` prefix (bin/vm_<name>.nvm), run
-# by bin/nano_vm. I aggregate the SOURCE lists (not the binary lists) so the
-# same dependency-availability filtering that the native build uses applies
-# here too. Paths are relative to examples/.
-ALL_VM_SOURCES = \
-	$(NL_SOURCES) \
-	$(REPL_SOURCES) \
-	$(ADVANCED_SOURCES) \
-	$(DATA_SOURCES) \
-	$(API_LESSONS_SOURCES) \
-	$(VERIFIED_SOURCES) \
-	$(DEBUG_SOURCES) \
-	$(NETWORK_SOURCES) \
-	$(PHYSICS_SOURCES) \
-	$(PLAYGROUND_SOURCES) \
-	$(OPL_SOURCES) \
-	$(SDL_GRAPHICS_SOURCES) \
-	$(wildcard audio/sdl_*.nano) \
-	$(wildcard games/sdl_*.nano) \
-	$(NCURSES_SOURCES) \
-	$(OPENGL_SOURCES) \
-	$(MUJOCO_SOURCES)
+# The VM build lowers every example source into NanoISA bytecode with a
+# distinguishing `vm_` prefix (bin/vm_<name>.nvm), run by bin/nano_vm.
+#
+# This list is deliberately NOT assembled from the native build's source
+# variables. Those are filtered by host library availability (SDL2, ncurses,
+# OpenGL, MuJoCo, Bullet, libuv, libreadline) because the native build has to
+# link against them. nano_virt links nothing: an FFI call becomes an extern
+# reference that bin/nano_vm resolves at run time through the co-process
+# loader, so bytecode for an SDL example emits fine on a machine with no SDL2
+# installed. Reusing the native filters meant those examples silently vanished
+# from the VM build instead of being compiled, and an example that is never
+# attempted is not an example that passes.
+#
+# So I enumerate the example tree directly and subtract one explicit list of
+# sources that are not standalone programs. A newly added example is therefore
+# covered automatically and must lower to bytecode.
+
+# Library modules imported by other examples. They define no `main`, so neither
+# the native build nor the VM build compiles them on their own.
+VM_LIBRARY_SOURCES := \
+	advanced/math_helper.nano \
+	$(wildcard lib/*.nano) \
+	$(wildcard large_project/src/*.nano) \
+	opl/opl_ast.nano \
+	opl/opl_codegen.nano \
+	opl/opl_compile.nano \
+	opl/opl_json.nano \
+	opl/opl_lexer.nano \
+	opl/opl_parser.nano \
+	opl/opl_validate.nano
+
+# Sources the native compiler rejects too, so they are not NanoVirt gaps:
+# a deliberately-invalid diagnostics fixture, generated OPL output, and
+# unmaintained sketches with parse/type errors. `make examples` does not build
+# these either. Each entry leaves this list when its source is fixed --
+# tests/test_vm_examples_coverage.sh fails if one starts compiling, so the
+# list cannot quietly outlive its reason.
+VM_UNSUPPORTED_SOURCES := \
+	advanced/datetime_demo.nano \
+	agentos_ipc_schema.nano \
+	ai_github_agent.nano \
+	autonomous_github_agent.nano \
+	diagnostics/llm_diags_type_mismatch.nano \
+	fluid_sim.nano \
+	opl/examples/output/hello.nano \
+	row_poly_records.nano
+
+VM_EXCLUDED_SOURCES := $(sort $(VM_LIBRARY_SOURCES) $(VM_UNSUPPORTED_SOURCES))
+
+# Every .nano under examples/, path-relative to examples/.
+ALL_NANO_SOURCES := $(shell find . -name '*.nano' -not -path './.*' | sed 's|^\./||' | sort)
+
+ALL_VM_SOURCES := $(filter-out $(VM_EXCLUDED_SOURCES),$(ALL_NANO_SOURCES))
 
 # === Targets ===
 
@@ -487,10 +517,17 @@ vm-examples: $(VM_COMPILER) $(VM_RUNNER)
 	@echo "=========================================="
 	@echo "Building NanoVM example bytecode (vm_*.nvm)"
 	@echo "=========================================="
-	@built=0; skipped=0; \
-	for src in $(ALL_VM_SOURCES); do \
-	    [ -f "$$src" ] || continue; \
-	    stem=$$(basename "$$src" .nano); \
+	@built=0; skipped=0; failures=''; \
+	all='$(ALL_VM_SOURCES)'; \
+	for src in $$all; do \
+	    [ -f "$$src" ] || { echo "  ✗ $$src (listed but missing)"; skipped=$$((skipped+1)); continue; }; \
+	    base=$$(basename "$$src" .nano); \
+	    dupes=$$(printf '%s\n' $$all | sed 's|.*/||' | grep -c "^$$base\.nano$$"); \
+	    if [ "$$dupes" -gt 1 ]; then \
+	        stem=$$(basename $$(dirname "$$src"))_$$base; \
+	    else \
+	        stem=$$base; \
+	    fi; \
 	    out="$(BIN_DIR)/vm_$$stem.nvm"; \
 	    if $(VM_COMPILER) "$$src" --emit-nvm -o "$$out" >/tmp/vm_example_build.log 2>&1; then \
 	        echo "  ✓ vm_$$stem.nvm"; \
@@ -498,15 +535,26 @@ vm-examples: $(VM_COMPILER) $(VM_RUNNER)
 	    else \
 	        reason=$$(grep -m1 '^error:' /tmp/vm_example_build.log | sed 's/^error: //'); \
 	        [ -n "$$reason" ] || reason=$$(tail -1 /tmp/vm_example_build.log); \
-	        echo "  ⊘ skipped $$stem ($$reason)"; \
+	        [ -n "$$reason" ] || reason="nano_virt exited $$? with no diagnostic (crash?)"; \
+	        echo "  ⊘ skipped $$src ($$reason)"; \
+	        failures="$$failures\n    $$src: $$reason"; \
 	        skipped=$$((skipped+1)); \
 	    fi; \
 	done; \
 	echo ""; \
 	echo "NanoVM examples built: $$built, skipped: $$skipped"; \
+	if [ "$$skipped" -ne 0 ]; then \
+	    echo ""; \
+	    echo "Every eligible example must lower to NanoISA bytecode. Skipped:"; \
+	    printf "$$failures\n"; \
+	    echo ""; \
+	    echo "Fix the NanoVirt/compiler gap. Do not silence this by adding the"; \
+	    echo "example to VM_EXCLUDED_SOURCES: that list is for sources the native"; \
+	    echo "compiler rejects too, and tests/test_vm_examples_coverage.sh checks it."; \
+	    exit 1; \
+	fi; \
 	echo "Run one with: ./bin/nano_vm bin/vm_<name>.nvm"; \
-	echo "Browse them:  make vm-launcher"; \
-	test "$$skipped" -eq 0
+	echo "Browse them:  make vm-launcher"
 
 # Console launcher that itself runs inside NanoVM and launches only the vm_
 # bytecode samples through bin/nano_vm. Compiled to bytecode and executed by the
