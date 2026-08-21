@@ -25,12 +25,40 @@ if [ "$#" -eq 0 ]; then
   exit 2
 fi
 
-if ! command -v timeout >/dev/null 2>&1; then
-  echo "error: GNU timeout is required" >&2
-  exit 2
+# `timeout` is GNU coreutils, so it is absent on macOS; coreutils installs it
+# there as `gtimeout`, never under the plain name. The per-attempt bound is
+# hardening, not a precondition, so a missing timeout binary falls back to the
+# job-level timeout the same way scripts/ci-brew-install.sh does. Treating it
+# as fatal made this helper unrunnable on macOS, which turned the macOS test
+# leg red once `make test` started exercising both helpers on every platform.
+TIMEOUT_BIN=""
+for candidate in timeout gtimeout; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    TIMEOUT_BIN="$candidate"
+    break
+  fi
+done
+if [ -z "$TIMEOUT_BIN" ]; then
+  echo "note: no timeout binary found; relying on the job timeout" >&2
 fi
 
 export DEBIAN_FRONTEND=noninteractive
+
+APT_ATTEMPT='
+  set -euo pipefail
+  export DEBIAN_FRONTEND=noninteractive
+  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 update -qq
+  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 install -y "$@"
+'
+
+install_once() {
+  if [ -n "$TIMEOUT_BIN" ]; then
+    "$TIMEOUT_BIN" --foreground --signal=KILL "$ATTEMPT_TIMEOUT" \
+      bash -c "$APT_ATTEMPT" ci-apt "$@"
+  else
+    bash -c "$APT_ATTEMPT" ci-apt "$@"
+  fi
+}
 
 attempt=1
 while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
@@ -39,13 +67,7 @@ while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
   # status of the `if` itself, which is 0 on a false condition, so the failure
   # diagnostic would report "exit 0" for every failed attempt.
   rc=0
-  timeout --foreground --signal=KILL "${ATTEMPT_TIMEOUT}" \
-      bash -c '
-        set -euo pipefail
-        export DEBIAN_FRONTEND=noninteractive
-        sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 update -qq
-        sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 install -y "$@"
-      ' ci-apt "$@" || rc=$?
+  install_once "$@" || rc=$?
   if [ "$rc" -eq 0 ]; then
     echo "apt install succeeded on attempt ${attempt}"
     exit 0

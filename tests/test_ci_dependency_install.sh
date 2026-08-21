@@ -23,6 +23,9 @@
 #   5. usage errors — no arguments is a usage error, not a silent no-op
 #   6. call-site guard — no workflow installs dependencies with a bare
 #      `apt-get install` or `brew install`; they all go through the helpers
+#   7. no-timeout hosts — `make test` runs this file on every platform, and
+#      macOS has no `timeout` (GNU coreutils installs it as `gtimeout`), so
+#      neither helper may treat a missing timeout binary as fatal
 #
 # Both package managers are stubbed on PATH, so this runs anywhere bash does:
 # no apt, no Homebrew, no network, no sudo.
@@ -120,12 +123,25 @@ STUB
 
 chmod +x "$STUB_DIR"/apt-get "$STUB_DIR"/sudo "$STUB_DIR"/killall "$STUB_DIR"/brew
 
+# A PATH that models a macOS runner: the stubs plus only the utilities the
+# helpers actually reach for, and deliberately no `timeout`/`gtimeout`. It has
+# to be an allow-list rather than a filtered copy of the real PATH, because the
+# point is to guarantee the timeout binaries are absent.
+NO_TIMEOUT_DIR="$STUB_DIR/no-timeout"
+mkdir -p "$NO_TIMEOUT_DIR"
+for stub in apt-get sudo killall brew; do
+    ln -s "$STUB_DIR/$stub" "$NO_TIMEOUT_DIR/$stub"
+done
+for tool in bash sleep cat; do
+    ln -s "$(command -v "$tool")" "$NO_TIMEOUT_DIR/$tool"
+done
+
 # Run a helper against the stubs. Backoff is collapsed to zero so the retry
 # paths cost no wall-clock; the helpers read it from the environment.
 run_helper() {
     local helper="$1"; shift
     echo 0 >"$ATTEMPTS_FILE"
-    PATH="$STUB_DIR:$PATH" \
+    PATH="${HELPER_PATH:-$STUB_DIR:$PATH}" \
     ATTEMPTS_FILE="$ATTEMPTS_FILE" \
     CI_APT_ATTEMPTS=3 CI_APT_BACKOFF_SECS=0 CI_APT_TIMEOUT_SECS=30 \
     CI_BREW_ATTEMPTS=3 CI_BREW_BACKOFF_SECS=0 CI_BREW_TIMEOUT_SECS=30 \
@@ -238,6 +254,36 @@ if [ -z "$BARE_CALLS" ]; then
 else
     fail "workflow steps bypass the retry helpers:"
     echo "$BARE_CALLS"
+fi
+
+# --- 7. no-timeout hosts ----------------------------------------------------
+# `make test` drives this file on macOS too, where `timeout` does not exist
+# under that name. A helper that refuses to run without it reports a red test
+# leg for a platform difference rather than for a packaging problem, so both
+# helpers must degrade to an unbounded attempt and keep their retry contract.
+
+HELPER_PATH="$NO_TIMEOUT_DIR" STUB_FAIL_UNTIL=2 run_helper "$APT_HELPER" build-essential
+if [ "$?" -eq 0 ] && [ "$(attempts_made)" -eq 3 ]; then
+    pass "apt helper still retries and installs on a host without GNU timeout"
+else
+    fail "apt helper is unusable without GNU timeout (attempts=$(attempts_made))"
+    cat "$STUB_DIR/out"
+fi
+
+HELPER_PATH="$NO_TIMEOUT_DIR" STUB_FAIL_UNTIL=99 run_helper "$APT_HELPER" build-essential
+if [ "$?" -ne 0 ] && [ "$(attempts_made)" -eq 3 ]; then
+    pass "apt helper still exhausts its budget on a host without GNU timeout"
+else
+    fail "apt helper lost its retry budget without GNU timeout (attempts=$(attempts_made))"
+    cat "$STUB_DIR/out"
+fi
+
+HELPER_PATH="$NO_TIMEOUT_DIR" STUB_FAIL_UNTIL=2 run_helper "$BREW_HELPER" sdl2
+if [ "$?" -eq 0 ] && [ "$(attempts_made)" -eq 3 ]; then
+    pass "brew helper still retries and installs on a host without GNU timeout"
+else
+    fail "brew helper is unusable without GNU timeout (attempts=$(attempts_made))"
+    cat "$STUB_DIR/out"
 fi
 
 echo "=========================================="
