@@ -56,10 +56,12 @@ LDFLAGS = -lm -lcrypto
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-LDFLAGS += -rdynamic
+EXPORT_DYNAMIC_LDFLAGS = -rdynamic
+LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),FreeBSD)
-LDFLAGS += -Wl,-E
+EXPORT_DYNAMIC_LDFLAGS = -Wl,-E
+LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),Darwin)
 # Homebrew OpenSSL is keg-only on macOS — add include/lib paths
@@ -403,7 +405,7 @@ VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
 nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
 		$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o \
-		$(OBJ_DIR)/nanovm/main.o $(LDFLAGS)
+		$(OBJ_DIR)/nanovm/main.o $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
 
 nano_vmd: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \

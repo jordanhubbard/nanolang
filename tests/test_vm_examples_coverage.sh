@@ -265,6 +265,14 @@ echo ""
 # ---------------------------------------------------------------------------
 echo "Test 6: VM builtins that examples depend on"
 
+if [ "$(uname -s)" = "Linux" ]; then
+    if nm -D bin/nano_vm | grep -q ' vm_tmp_dir$'; then
+        echo "  ✓ nano_vm exports builtins even when LDFLAGS is overridden"
+    else
+        fail "nano_vm does not export its builtin symbols for FFI resolution"
+    fi
+fi
+
 builtin_src="$work_dir/builtins.nano"
 cat > "$builtin_src" <<'EOF'
 fn main() -> int {
