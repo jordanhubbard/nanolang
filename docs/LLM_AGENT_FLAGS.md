@@ -58,5 +58,5 @@ When I add a new agent-only flag, I follow these principles:
 
 - I prefer machine-readable output like JSON over text meant only for humans.
 - I keep my outputs deterministic with stable ordering and keys.
-- I ensure my outputs can be used to auto-file beads. They are fingerprintable and actionable.
+- I ensure my outputs can be used to auto-file `mac task` issues. They are fingerprintable and actionable.
 

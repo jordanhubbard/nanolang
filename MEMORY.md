@@ -1150,17 +1150,16 @@ shadow divide {
 
 ---
 
-## 17. ISSUE TRACKING (BEADS)
+## 17. ISSUE TRACKING (MAC)
 
-NanoLang uses `bd` (beads) for issue tracking, stored in `.beads/`.
+NanoLang uses the **MAC hub task ledger** (`mac task`) for issue tracking, not
+bd/beads. Do NOT use `bd`, TodoWrite, TaskCreate, or markdown TODO lists.
 
 ```bash
-bd onboard             # Get started
-bd ready               # Find available work
-bd show <id>           # View issue details
-bd update <id> --status in_progress   # Claim work
-bd close <id>          # Complete work
-bd sync                # Sync with git
+mac task ready --limit 10            # find available work
+mac task show <id>                   # view an issue
+mac task claim <id> <agent_id>       # claim work
+mac task close <id> --reason="..."   # complete work
 ```
 
 ---

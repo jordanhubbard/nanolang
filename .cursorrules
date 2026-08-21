@@ -109,7 +109,7 @@ Never use `head` or `tail` on compile output - they hide loops. Always:
 - Docs: `docs/`
 - Examples: `examples/`
 - Modules: `modules/`
-- Legacy planning: `planning/` (read-only, create new issues as beads)
+- Legacy planning: `planning/` (read-only, create new issues via `mac task`)
 
 ## Git Workflow
 
