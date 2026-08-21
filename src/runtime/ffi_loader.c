@@ -229,6 +229,9 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
     /* Normalize: strip "modules/" prefix and ".nano" suffix */
     char normalized[512];
     const char *mn = module_name;
+    /* Strip any leading "./" segments (module paths may arrive as
+     * "./modules/std/fs.nano" from the VM import table). */
+    while (mn[0] == '.' && mn[1] == '/') mn += 2;
     if (strncmp(mn, "modules/", 8) == 0) mn += 8;
     size_t mn_len = strlen(mn);
     if (mn_len > 5 && strcmp(mn + mn_len - 5, ".nano") == 0) {

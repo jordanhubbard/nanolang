@@ -385,7 +385,7 @@ ALL_VM_SOURCES = \
 
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher test test-forth run-forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth-ide
 
 # Default: build all examples
 all: build
@@ -517,6 +517,21 @@ vm-launcher: $(VM_COMPILER) $(VM_RUNNER) $(BIN_DIR)/vm_example_launcher.nvm
 
 $(BIN_DIR)/vm_example_launcher.nvm: vm_example_launcher.nano $(VM_COMPILER)
 	@echo "Building $@ (NanoVM bytecode launcher)..."
+	$(VM_COMPILER) $< --emit-nvm -o $@
+
+# The full graphical SDL launcher, compiled to bytecode and run inside NanoVM.
+# SDL/TTF/image and std FFI resolve through the co-process FFI loader, which
+# dlopen()s each module's .build/lib*.dylib. Those shared libs are produced as a
+# side effect of a native compile, so I build the native launcher first (which
+# also validates the shadow tests), then emit and run the bytecode form.
+vm-launcher-sdl: $(COMPILER) $(VM_COMPILER) $(VM_RUNNER) $(BIN_DIR)/sdl_example_launcher $(BIN_DIR)/vm_sdl_example_launcher.nvm
+	@echo "Launching the graphical SDL launcher inside NanoVM..."
+	@cd .. && ./bin/nano_vm bin/vm_sdl_example_launcher.nvm
+
+# Build the SDL launcher native binary (produces the module .build/*.dylib libs
+# the VM FFI loader needs) and then the bytecode form.
+$(BIN_DIR)/vm_sdl_example_launcher.nvm: sdl_example_launcher.nano $(VM_COMPILER) $(BIN_DIR)/sdl_example_launcher
+	@echo "Building $@ (NanoVM bytecode SDL launcher)..."
 	$(VM_COMPILER) $< --emit-nvm -o $@
 
 # Test: compile and run examples with output verification

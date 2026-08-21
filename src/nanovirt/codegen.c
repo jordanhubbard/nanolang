@@ -3064,6 +3064,34 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                 }
             }
         }
+
+        /* Pass 1b-alias: a transitively-imported module may itself pull in
+         * functions under a selective-import alias (e.g. process_manager does
+         * `from std/env import get as env_get`). Pass 1 only wires aliases for
+         * the *main program's* direct imports, so without this a module's call
+         * to its own alias (env_get) fails codegen with "undefined function".
+         * Register each such alias as a second name sharing the target's
+         * fn_idx. */
+        for (int mi = 0; mi < modules->count; mi++) {
+            ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
+            if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+            for (int m = 0; m < mod_ast->as.program.count; m++) {
+                ASTNode *imp = mod_ast->as.program.items[m];
+                if (imp->type != AST_IMPORT || !imp->as.import_stmt.is_selective) continue;
+                for (int s = 0; s < imp->as.import_stmt.import_symbol_count; s++) {
+                    const char *orig = imp->as.import_stmt.import_symbols[s];
+                    const char *alias = imp->as.import_stmt.import_aliases[s];
+                    if (!alias || strcmp(alias, orig) == 0) continue;
+                    if (fn_find(&cg, alias) >= 0) continue;   /* already known */
+                    int32_t target = fn_find(&cg, orig);
+                    if (target < 0) continue;                 /* not a bytecode fn */
+                    if (cg.fn_count >= MAX_FUNCTIONS) break;
+                    cg.functions[cg.fn_count].name = (char *)alias;
+                    cg.functions[cg.fn_count].fn_idx = (uint32_t)target;
+                    cg.fn_count++;
+                }
+            }
+        }
     }
 
     /* ── Pass 1.5: Compile top-level let bindings as globals ─────── */
