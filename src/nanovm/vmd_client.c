@@ -37,10 +37,18 @@ static int try_connect(const char *sock_path) {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) return -1;
 
+    /* sun_path is short (104-108 bytes); a longer path cannot be represented,
+     * so reject it up front instead of silently connecting to a truncated name. */
+    size_t path_len = strlen(sock_path);
     struct sockaddr_un addr;
+    if (path_len >= sizeof(addr.sun_path)) {
+        close(fd);
+        return -1;
+    }
+
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, sock_path, sizeof(addr.sun_path) - 1);
+    memcpy(addr.sun_path, sock_path, path_len + 1);
 
     if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         close(fd);
@@ -53,6 +61,13 @@ static int try_connect(const char *sock_path) {
 /* Find the nano_vmd binary. Searches:
  * 1. Same directory as current executable
  * 2. PATH via execlp fallback */
+/* Join a directory (with trailing slash) and "nano_vmd" into buf. Returns false
+ * when the result would not fit, so a truncated path is never probed or exec'd. */
+static bool join_daemon_path(char *buf, size_t size, const char *dir) {
+    int n = snprintf(buf, size, "%snano_vmd", dir);
+    return n > 0 && (size_t)n < size;
+}
+
 static bool find_daemon_binary(char *buf, size_t size) {
 #ifdef __APPLE__
     extern int _NSGetExecutablePath(char *, uint32_t *);
@@ -63,8 +78,7 @@ static bool find_daemon_binary(char *buf, size_t size) {
         char *slash = strrchr(exe_path, '/');
         if (slash) {
             slash[1] = '\0';
-            snprintf(buf, size, "%snano_vmd", exe_path);
-            if (access(buf, X_OK) == 0) return true;
+            if (join_daemon_path(buf, size, exe_path) && access(buf, X_OK) == 0) return true;
         }
     }
 #else
@@ -75,8 +89,7 @@ static bool find_daemon_binary(char *buf, size_t size) {
         char *slash = strrchr(exe_path, '/');
         if (slash) {
             slash[1] = '\0';
-            snprintf(buf, size, "%snano_vmd", exe_path);
-            if (access(buf, X_OK) == 0) return true;
+            if (join_daemon_path(buf, size, exe_path) && access(buf, X_OK) == 0) return true;
         }
     }
 #endif

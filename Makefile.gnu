@@ -764,6 +764,15 @@ test-glut-init:
 test-ci-deps:
 	@bash tests/test_ci_dependency_install.sh
 
+# NanoVM example coverage.
+# Every eligible example must lower to NanoISA bytecode, and the exclusion list
+# in examples/Makefile must stay honest: an example that compiles, or that the
+# native compiler accepts, is not a valid exclusion. Needs nanoc_c as well as
+# the VM tools so it can tell a NanoVirt gap from a broken source.
+.PHONY: test-vm-examples
+test-vm-examples: nano_virt nano_vm $(COMPILER_C)
+	@bash tests/test_vm_examples_coverage.sh
+
 # Ring-buffer unit tests (no compiler or VM required)
 .PHONY: test-ringbuf
 test-ringbuf:
@@ -803,6 +812,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing the CI dependency-install helpers..."
 	@bash tests/test_ci_dependency_install.sh
+	@echo ""
+	@echo "Checking NanoVM example coverage..."
+	@$(MAKE) --no-print-directory test-vm-examples
 	@echo ""
 	@echo "Checking stdlib documentation coverage..."
 	@bash tests/check_stdlib_docs.sh
@@ -1083,6 +1095,7 @@ test-quick: build
 	@bash tests/test_opengl_glut_init.sh --quick
 	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-pt2-audio
+	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
 
 .PHONY: test-pt2-audio
@@ -2194,7 +2207,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # AGENTFS PUBLISH

@@ -17,7 +17,9 @@ int64_t vm_file_exists(const char *path);
 int64_t vm_dir_exists(const char *path);
 int64_t vm_dir_create(const char *path);
 DynArray *vm_dir_list(const char *path);
+char *vm_tmp_dir(void);
 char *vm_mktemp_dir(const char *prefix);
+char *vm_mktemp(const char *prefix);
 char *vm_getenv(const char *name);
 int64_t vm_setenv(const char *name, const char *value);
 
