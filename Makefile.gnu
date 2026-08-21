@@ -757,6 +757,13 @@ test-proptest: $(INTERPRETER)
 test-glut-init:
 	@bash tests/test_opengl_glut_init.sh
 
+# CI dependency-install helper tests.
+# Drives scripts/ci-apt-install.sh and scripts/ci-brew-install.sh against
+# stubbed package managers, so it needs no apt, no Homebrew, and no network.
+.PHONY: test-ci-deps
+test-ci-deps:
+	@bash tests/test_ci_dependency_install.sh
+
 # Ring-buffer unit tests (no compiler or VM required)
 .PHONY: test-ringbuf
 test-ringbuf:
@@ -793,6 +800,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing the GLUT initialization boundary..."
 	@bash tests/test_opengl_glut_init.sh
+	@echo ""
+	@echo "Testing the CI dependency-install helpers..."
+	@bash tests/test_ci_dependency_install.sh
 	@echo ""
 	@echo "Checking stdlib documentation coverage..."
 	@bash tests/check_stdlib_docs.sh
@@ -1071,6 +1081,7 @@ test-unit: build
 test-quick: build
 	@./tests/run_all_tests.sh --lang
 	@bash tests/test_opengl_glut_init.sh --quick
+	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory check-stdlib-docs
 
