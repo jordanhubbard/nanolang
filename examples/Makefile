@@ -118,8 +118,8 @@ REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
 
 # === Advanced Examples ===
 
-# Always exclude: helpers, beads, datetime
-ADVANCED_EXCLUDE := advanced/math_helper.nano $(wildcard advanced/beads_*.nano) advanced/datetime_demo.nano
+# Always exclude: helpers, mac task demos, datetime
+ADVANCED_EXCLUDE := advanced/math_helper.nano $(wildcard advanced/mac_*.nano) advanced/datetime_demo.nano
 # Missing modules (regex)
 ADVANCED_EXCLUDE += advanced/regex_demo.nano advanced/regex_demo_simple.nano
 # External C libraries needed (libevent, libuv, libc module, sqlite3, unicode FFI)

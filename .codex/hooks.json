@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bd prime"
+            "command": "cat skills/README.md 2>/dev/null; mac task ready --limit 10 2>/dev/null || true"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bd prime"
+            "command": "cat skills/README.md 2>/dev/null; mac task ready --limit 10 2>/dev/null || true"
           }
         ]
       }

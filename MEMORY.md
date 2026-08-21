@@ -601,7 +601,7 @@ Replace `T` with the concrete type: `List_int_new`, `List_string_push`, `List_Po
 | `stdlib/process.nano` | Process management |
 | `std/regex/regex.nano` | Regular expressions |
 | `stdlib/ast.nano` | AST manipulation utilities |
-| `stdlib/beads.nano` | Issue tracking integration |
+| `stdlib/mac.nano` | MAC task ledger integration |
 | `stdlib/StringBuilder.nano` | Efficient string building |
 
 ---

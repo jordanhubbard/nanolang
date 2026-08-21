@@ -1,5 +1,15 @@
 # Agent Instructions
 
+## Skills — Tool-Neutral, Read Them First
+
+Portable [Agent Skills](https://code.claude.com/docs/en/skills) live in
+[`skills/`](skills/README.md) and apply to every coding agent regardless of CLI.
+If your tool does not auto-discover them, read the relevant `SKILL.md` directly:
+
+- [`skills/reading-nanolang`](skills/reading-nanolang/SKILL.md) — how to read/write `.nano` code (prefix calls, mandatory shadow tests, explicit types, the persona voice).
+- [`skills/mac-task-tracking`](skills/mac-task-tracking/SKILL.md) — issue tracking via `mac task` (not bd/beads).
+- [`skills/session-completion`](skills/session-completion/SKILL.md) — landing the plane: quality gates, task status, and pushing.
+
 ## Persona — Read This First
 
 NanoLang speaks in the first person. It is both a language and a semi-sentient entity with its own voice, values, and opinions. **All documentation, examples, error messages, and design decisions must be written in NanoLang's voice as defined in [`docs/PERSONA.md`](docs/PERSONA.md).**

@@ -1,39 +1,39 @@
-# Example: Assert With Bead
-# Purpose: Demonstrate automatic issue creation from failed assertions using beads
-# Features: beads, assertions, issue tracking, validation
+# Example: Assert With Task
+# Purpose: Demonstrate automatic issue creation from failed assertions using MAC tasks
+# Features: mac, assertions, issue tracking, validation
 # Difficulty: Advanced
 # Category: advanced
-# Prerequisites: beads_basic_usage
-# Expected Output: === assert_with_bead Example ===
+# Prerequisites: mac_basic_usage
+# Expected Output: === assert_with_task Example ===
 
-from "stdlib/beads.nano" import assert_with_bead, assert_with_bead_context
+from "stdlib/mac.nano" import assert_with_task, assert_with_task_context
 
 # Example function with validation
 fn divide(a: int, b: int) -> int {
-    # Use assert_with_bead instead of regular assert
-    # If this fails, it will create a P0 bug automatically
-    (assert_with_bead
+    # Use assert_with_task instead of regular assert
+    # If this fails, it will file a P0 task automatically
+    (assert_with_task
         (!= b 0)
         "Division by zero detected"
         0
         "Attempted to divide by zero in divide() function"
     )
-    
+
     return (/ a b)
 }
 
 shadow divide {
     assert (== (divide 10 2) 5)
     assert (== (divide 20 4) 5)
-    # Note: Can't test divide by zero in shadow test as it would create a bead
+    # Note: Can't test divide by zero in shadow test as it would file a task
 }
 
 # Example: Data validation with automatic issue creation
 fn validate_user_input(age: int, name: string) -> bool {
     let mut all_valid: bool = true
-    
-    # Age validation - creates P1 bug if fails
-    if (not (assert_with_bead
+
+    # Age validation - files P1 task if fails
+    if (not (assert_with_task
         (and (>= age 0) (< age 150))
         "Invalid age value detected"
         1
@@ -41,9 +41,9 @@ fn validate_user_input(age: int, name: string) -> bool {
     )) {
         set all_valid false
     }
-    
-    # Name validation - creates P2 bug if fails
-    if (not (assert_with_bead
+
+    # Name validation - files P2 task if fails
+    if (not (assert_with_task
         (> (str_length name) 0)
         "Empty name detected"
         2
@@ -51,7 +51,7 @@ fn validate_user_input(age: int, name: string) -> bool {
     )) {
         set all_valid false
     }
-    
+
     return all_valid
 }
 
@@ -63,20 +63,20 @@ shadow validate_user_input {
 # Example: Using context-aware assertions
 fn process_array(arr: array<int>) -> int {
     # Enhanced assertion with file/line context
-    (assert_with_bead_context
+    (assert_with_task_context
         (> (array_length arr) 0)
         "Empty array passed to process_array"
         1
-        "beads_assert_with_bead.nano"
+        "mac_assert_with_task.nano"
         45
         "process_array() requires non-empty array"
     )
-    
+
     let mut sum: int = 0
     for i in (range 0 (array_length arr)) {
         set sum (+ sum (at arr i))
     }
-    
+
     return sum
 }
 
@@ -91,9 +91,9 @@ shadow process_array {
 # Example: Batch validation with prioritized issues
 fn validate_config(max_connections: int, timeout_ms: int, retry_count: int) -> bool {
     let mut valid: bool = true
-    
+
     # Critical validation - P0
-    if (not (assert_with_bead
+    if (not (assert_with_task
         (> max_connections 0)
         "Invalid max_connections: must be positive"
         0
@@ -101,9 +101,9 @@ fn validate_config(max_connections: int, timeout_ms: int, retry_count: int) -> b
     )) {
         set valid false
     }
-    
+
     # Important validation - P1
-    if (not (assert_with_bead
+    if (not (assert_with_task
         (>= timeout_ms 100)
         "Timeout too low: may cause premature failures"
         1
@@ -111,9 +111,9 @@ fn validate_config(max_connections: int, timeout_ms: int, retry_count: int) -> b
     )) {
         set valid false
     }
-    
+
     # Nice-to-have validation - P3
-    if (not (assert_with_bead
+    if (not (assert_with_task
         (<= retry_count 10)
         "Retry count excessive: may cause performance issues"
         3
@@ -121,7 +121,7 @@ fn validate_config(max_connections: int, timeout_ms: int, retry_count: int) -> b
     )) {
         set valid false
     }
-    
+
     return valid
 }
 
@@ -131,28 +131,28 @@ shadow validate_config {
 }
 
 fn main() -> int {
-    (println "=== assert_with_bead Example ===")
+    (println "=== assert_with_task Example ===")
     (println "")
     (println "This example demonstrates automatic issue creation from assertions.")
-    (println "When an assertion fails, a bead is created automatically.")
+    (println "When an assertion fails, a MAC task is filed automatically.")
     (println "")
-    
+
     # Example 1: Basic assertion
     (println "1. Testing divide function...")
     let result1: int = (divide 10 2)
     (println (+ "   10 / 2 = " (int_to_string result1)))
     (println "")
-    
+
     # Example 2: Validation with multiple assertions
     (println "2. Testing user input validation...")
     let valid1: bool = (validate_user_input 25 "Alice")
     (println (+ "   validate_user_input(25, 'Alice') = " (cond ((== valid1 true) "valid") (else "invalid"))))
-    
+
     let valid2: bool = (validate_user_input -5 "")
     (println (+ "   validate_user_input(-5, '') = " (cond ((== valid2 true) "valid") (else "invalid"))))
-    (println "   (If invalid, beads were created for the failures)")
+    (println "   (If invalid, tasks were filed for the failures)")
     (println "")
-    
+
     # Example 3: Array processing
     (println "3. Testing array processing...")
     let test_arr: array<int> = (array_new 3 0)
@@ -162,17 +162,17 @@ fn main() -> int {
     let sum: int = (process_array test_arr)
     (println (+ "   Sum of [5, 10, 15] = " (int_to_string sum)))
     (println "")
-    
+
     # Example 4: Config validation
     (println "4. Testing config validation...")
     let config_valid: bool = (validate_config 100 1000 3)
     (println (+ "   validate_config(100, 1000, 3) = " (cond ((== config_valid true) "valid") (else "invalid"))))
     (println "")
-    
-    (println "✓ Example complete!")
+
+    (println "Example complete!")
     (println "")
-    (println "Check 'bd list' to see any beads created by failed assertions.")
-    
+    (println "Check 'mac task list' to see any tasks filed by failed assertions.")
+
     return 0
 }
 

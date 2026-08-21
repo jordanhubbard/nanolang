@@ -1,0 +1,74 @@
+# Example: MAC Task Basic Usage
+# Purpose: Demonstrate querying and creating MAC tasks for programmatic issue management
+# Features: mac, module imports, structs, arrays
+# Difficulty: Intermediate
+# Category: advanced
+# Prerequisites: none
+# Expected Output: === MAC Task Module Basic Usage ===
+
+from "stdlib/mac.nano" import
+    Task, TaskStats, TaskCreateOptions,
+    mac_open, mac_ready, mac_stats, mac_create, mac_close
+
+fn main() -> int {
+    (println "=== MAC Task Module Basic Usage ===")
+    (println "")
+
+    # Get project statistics
+    (println "1. Getting project statistics...")
+    let stats: TaskStats = (mac_stats)
+    (println (+ "   Total tasks: " (int_to_string stats.total)))
+    (println (+ "   Open: " (int_to_string stats.open)))
+    (println (+ "   Running: " (int_to_string stats.running)))
+    (println (+ "   Completed: " (int_to_string stats.completed)))
+    (println (+ "   Cancelled: " (int_to_string stats.cancelled)))
+    (println "")
+
+    # List open tasks
+    (println "2. Listing open tasks...")
+    let open_tasks: array<Task> = (mac_open)
+    (println (+ "   Found " (+ (int_to_string (array_length open_tasks)) " open tasks")))
+    (println "")
+
+    # List task-ready work
+    (println "3. Listing task-ready work...")
+    let ready_tasks: array<Task> = (mac_ready)
+    (println (+ "   Found " (+ (int_to_string (array_length ready_tasks)) " ready tasks")))
+    (println "")
+
+    # Create a new task
+    (println "4. Creating a new test task...")
+    let task_id: string = (mac_create
+        "Example task created from NanoLang"
+        "This task was created programmatically using stdlib/mac.nano"
+        4
+        "report"
+    )
+
+    if (!= task_id "") {
+        (println (+ "   Created task: " task_id))
+        (println "")
+
+        # Close the test task
+        (println "5. Closing the test task...")
+        let closed: bool = (mac_close task_id "Example completed - cleaning up test task")
+
+        if closed {
+            (println "   Task closed successfully")
+        } else {
+            (println "   Failed to close task")
+        }
+    } else {
+        (println "   Failed to create task")
+        (println "   (Note: the mac CLI might be unavailable or unauthenticated)")
+    }
+
+    (println "")
+    (println "Example complete!")
+
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -927,20 +927,20 @@ test-docs: build $(USERGUIDE_CHECK_TOOL)
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
 
-# Test with beads integration (requires bd CLI to be installed)
-# Use this for local development when you want automatic issue tracking
-test-with-beads: build
+# Test with MAC task integration (requires the `mac` CLI to be installed)
+# Use this for local development when you want automatic task tracking
+test-with-mac: build
 	@echo ""
-	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + Beads tracking"
+	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + MAC task tracking"
 	@echo ""
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
 	@echo ""
-	@# Auto-file beads on failures.
-	@# Local default: per-failure beads. CI default: summary bead.
+	@# Auto-file mac tasks on failures.
+	@# Local default: per-failure tasks. CI default: summary task.
 	@MODE=per; \
 	if [ -n "$$CI" ]; then MODE=summary; fi; \
-	$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
+	$(TIMEOUT_CMD) python3 scripts/automac.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -2016,7 +2016,7 @@ help:
 	@echo "  make vm                 - Build NanoISA VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)"
 	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
-	@echo "  make test-beads         - Run tests; on failures, auto-create/update beads"
+	@echo "  make test-mac           - Run tests; on failures, auto-create/update mac tasks"
 	@echo ""
 	@echo "Module Dependencies:"
 	@echo "  make modules            - Check what dependencies are needed (no sudo)"
@@ -2038,7 +2038,7 @@ help:
 	@echo "  make examples-stage2    - Explicitly build/use nanoc_stage1 for examples"
 	@echo "  make examples-stage3    - Explicitly build/use nanoc_stage2 for examples"
 	@echo "  make examples EXAMPLES_BACKEND=c|llvm|wasm|nanoisa EXAMPLES_COMPILER_STAGE=c|stage2|stage3"
-	@echo "  make examples-beads     - Build examples; on failures, auto-create/update beads"
+	@echo "  make examples-mac       - Build examples; on failures, auto-create/update mac tasks"
 	@echo "  make launcher           - Launch example browser"
 	@echo "  make clean              - Remove all artifacts"
 	@echo "  make rebuild            - Clean + build"
@@ -2110,18 +2110,18 @@ help:
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
 
-# Legacy aliases for test-with-beads (kept for backwards compatibility)
-test-beads: test-with-beads
+# Aliases for test-with-mac
+test-mac: test-with-mac
 
-examples-beads:
-	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples
+examples-mac:
+	@$(TIMEOUT_CMD) python3 scripts/automac.py --examples
 
-# CI-friendly: one summary bead per run (per branch), auto-closed when green
-test-beads-ci:
-	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --tests --mode summary --close-on-success
+# CI-friendly: one summary task per run (per branch), auto-closed when green
+test-mac-ci:
+	@$(TIMEOUT_CMD) python3 scripts/automac.py --tests --mode summary --close-on-success
 
-examples-beads-ci:
-	@$(TIMEOUT_CMD) python3 scripts/autobeads.py --examples --mode summary --close-on-success
+examples-mac-ci:
+	@$(TIMEOUT_CMD) python3 scripts/automac.py --examples --mode summary --close-on-success
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"
