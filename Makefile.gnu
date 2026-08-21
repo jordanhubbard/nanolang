@@ -1247,7 +1247,7 @@ launcher: $(COMPILER_C) check-deps-sdl
 	@echo "✅ Examples built successfully!"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
-# bin/nano_vm. Graceful: sources that do not yet lower to bytecode are skipped.
+# bin/nano_vm. Every eligible source must lower successfully.
 examples-vm-build vm-examples: nano_virt nano_vm
 	@echo ""
 	@echo "=========================================="

@@ -1190,6 +1190,32 @@ static void test_global_constant(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_more_than_128_globals(void) {
+    fprintf(stderr, "  test_more_than_128_globals...");
+    char source[8192];
+    size_t used = 0;
+
+    for (int i = 0; i < 129; i++) {
+        int written = snprintf(source + used, sizeof(source) - used,
+                               "let GLOBAL_%d: int = %d\n", i, i);
+        ASSERT(written > 0 && (size_t)written < sizeof(source) - used,
+               "test source buffer overflow");
+        used += (size_t)written;
+    }
+    int written = snprintf(source + used, sizeof(source) - used,
+                           "fn main() -> int { return GLOBAL_128 }\n");
+    ASSERT(written > 0 && (size_t)written < sizeof(source) - used,
+           "test source buffer overflow");
+
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 128);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_function_as_value(void) {
     fprintf(stderr, "  test_function_as_value...");
     TestResult tr = compile_and_run(
@@ -1426,6 +1452,7 @@ int main(void) {
 
     fprintf(stderr, "\nComplex Types - Globals:\n");
     test_global_constant();
+    test_more_than_128_globals();
 
     fprintf(stderr, "\nHigher-Order Functions:\n");
     test_function_as_value();

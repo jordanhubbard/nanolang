@@ -478,9 +478,8 @@ launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 # becomes bin/vm_nl_hello.nvm, run by bin/nano_vm. This demonstrates that I run
 # my examples inside a sandbox as well as natively.
 #
-# GRACEFUL by design: not every example lowers to bytecode yet (some lean on
-# intrinsics the NanoISA codegen does not implement), so a source that fails to
-# compile is reported and skipped rather than failing the whole build.
+# Every eligible example must lower to bytecode. I report all failures before
+# returning a non-zero status so one bad example does not hide the next one.
 VM_COMPILER := $(BIN_DIR)/nano_virt
 VM_RUNNER := $(BIN_DIR)/nano_vm
 
@@ -506,7 +505,8 @@ vm-examples: $(VM_COMPILER) $(VM_RUNNER)
 	echo ""; \
 	echo "NanoVM examples built: $$built, skipped: $$skipped"; \
 	echo "Run one with: ./bin/nano_vm bin/vm_<name>.nvm"; \
-	echo "Browse them:  make vm-launcher"
+	echo "Browse them:  make vm-launcher"; \
+	test "$$skipped" -eq 0
 
 # Console launcher that itself runs inside NanoVM and launches only the vm_
 # bytecode samples through bin/nano_vm. Compiled to bytecode and executed by the

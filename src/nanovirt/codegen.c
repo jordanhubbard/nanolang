@@ -13,6 +13,7 @@
 #include "nanolang.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
+#include "nanovm/vm.h"
 #include "generated/compiler_schema.h"
 
 #include <stdio.h>
@@ -30,7 +31,7 @@
 #define MAX_STRUCT_DEFS 128
 #define MAX_ENUM_DEFS   64
 #define MAX_UNION_DEFS  64
-#define MAX_GLOBALS     128
+#define MAX_GLOBALS     VM_MAX_GLOBALS
 #define MAX_EXTERNS     256
 #define MAX_UPVALUES    64
 #define CODE_INITIAL    4096
