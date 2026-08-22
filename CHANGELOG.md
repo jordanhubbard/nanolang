@@ -5,6 +5,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-08-22
+
+### Added
+- make nanoisa_print assembler-canonical
+- add NanoISA I/O facade and dump CLI
+
+### Fixed
+- snap carried ball to gripper site in robot sorter example
+- repair MuJoCo regressions and harden module cache invalidation
+- GNU Make treats # as comment inside \$(shell ...) — remove #include probes
+
 ### Fixed
 - initialize GLUT once through `modules/glut` so the GLFW-owned OpenGL examples
   (`opengl_solar_system`, `opengl_teapot`) stop aborting with "glutSolidSphere
