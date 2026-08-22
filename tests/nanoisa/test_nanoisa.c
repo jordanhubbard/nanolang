@@ -9,6 +9,7 @@
 #include "nvm_format.h"
 #include "assembler.h"
 #include "disassembler.h"
+#include "nanoisa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1065,6 +1066,119 @@ static void test_roundtrip_assemble_serialize_deserialize_disassemble(void) {
 }
 
 /* ========================================================================
+ * Public NanoISA Facade Tests
+ * ======================================================================== */
+
+static void test_nanoisa_facade_roundtrip(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 1 0\n"
+        "  PUSH_I64 42\n"
+        "  PRINT\n"
+        "  HALT\n"
+        ".end\n";
+    NanoisaErr err;
+    NvmModule *assembled = nanoisa_assemble_text(src, &err);
+    ASSERT(assembled != NULL, "Facade assembles text");
+    ASSERT_EQ_INT(err.code, NANOISA_OK, "Facade clears assembly error");
+
+    char *assembled_pretty = nanoisa_pretty_print(assembled);
+    ASSERT(assembled_pretty != NULL, "Facade pretty-prints unsaved module");
+    ASSERT(strstr(assembled_pretty, "[logical] code") != NULL,
+           "Unsaved pretty print includes logical sections");
+    free(assembled_pretty);
+
+    uint32_t blob_size = 0;
+    uint8_t *blob = nanoisa_save_bytes(assembled, &blob_size, &err);
+    ASSERT(blob != NULL, "Facade saves bytes");
+    ASSERT(blob_size > NVM_HEADER_SIZE, "Facade emits complete NVM bytes");
+
+    NvmModule *loaded = nanoisa_load_bytes(blob, blob_size, &err);
+    ASSERT(loaded != NULL, "Facade loads bytes");
+
+    char *printed = nanoisa_print(loaded);
+    ASSERT(printed != NULL, "Facade prints canonical assembly");
+    ASSERT(strstr(printed, "PUSH_I64 42") != NULL,
+           "Canonical print contains instruction");
+
+    char *pretty = nanoisa_pretty_print(loaded);
+    ASSERT(pretty != NULL, "Facade pretty-prints module");
+    ASSERT(strstr(pretty, "NVM module") != NULL,
+           "Pretty print contains module heading");
+    ASSERT(strstr(pretty, "magic: NVM\\x01") != NULL,
+           "Pretty print contains module magic");
+    ASSERT(strstr(pretty, "Sections") != NULL,
+           "Pretty print contains section table");
+    ASSERT(strstr(pretty, "Functions") != NULL,
+           "Pretty print contains function table");
+    ASSERT(strstr(pretty, "[0000|0000] PUSH_I64 42") != NULL,
+           "Pretty print contains instruction offsets");
+
+    free(pretty);
+    free(printed);
+    nvm_module_free(loaded);
+    free(blob);
+    nvm_module_free(assembled);
+}
+
+static void test_nanoisa_facade_file_roundtrip(void) {
+    const char *path = "/tmp/nanolang_nanoisa_facade_test.nvm";
+    const char *src =
+        ".function helper 0 0 0\n"
+        "  RET\n"
+        ".end\n";
+    NanoisaErr err;
+    NvmModule *assembled = nanoisa_assemble_text(src, &err);
+    ASSERT(assembled != NULL, "Facade file test assembles");
+    ASSERT_EQ_INT(nanoisa_save_file(assembled, path, &err), NANOISA_OK,
+                  "Facade saves NVM file");
+
+    NvmModule *loaded = nanoisa_load_file(path, &err);
+    ASSERT(loaded != NULL, "Facade loads NVM file");
+    ASSERT_EQ_INT(loaded->function_count, 1, "Loaded file has function");
+    ASSERT_EQ_STR(nvm_get_string(loaded, loaded->functions[0].name_idx),
+                  "helper", "Loaded function name matches");
+
+    remove(path);
+    nvm_module_free(loaded);
+    nvm_module_free(assembled);
+}
+
+static void test_nanoisa_facade_reports_invalid_bytes(void) {
+    const uint8_t invalid[] = { 'N', 'V', 'M' };
+    NanoisaErr err;
+    NvmModule *mod = nanoisa_load_bytes(invalid, sizeof(invalid), &err);
+    ASSERT(mod == NULL, "Facade rejects truncated NVM bytes");
+    ASSERT(err.code != NANOISA_OK, "Facade reports an error code");
+    ASSERT(err.message[0] != '\0', "Facade reports an error message");
+
+    uint8_t bad_magic[NVM_HEADER_SIZE] = {0};
+    mod = nanoisa_load_bytes(bad_magic, sizeof(bad_magic), &err);
+    ASSERT(mod == NULL, "Facade rejects invalid NVM magic");
+    ASSERT(strstr(err.message, "magic") != NULL,
+           "Facade identifies invalid magic");
+
+    const char *src =
+        ".function checksum 0 0 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *assembled = nanoisa_assemble_text(src, &err);
+    ASSERT(assembled != NULL, "Checksum test assembles");
+    uint32_t size = 0;
+    uint8_t *blob = nanoisa_save_bytes(assembled, &size, &err);
+    ASSERT(blob != NULL, "Checksum test serializes");
+    blob[size - 1] ^= 0xff;
+
+    mod = nanoisa_load_bytes(blob, size, &err);
+    ASSERT(mod == NULL, "Facade rejects invalid NVM checksum");
+    ASSERT(strstr(err.message, "checksum") != NULL,
+           "Facade identifies invalid checksum");
+
+    free(blob);
+    nvm_module_free(assembled);
+}
+
+/* ========================================================================
  * Main
  * ======================================================================== */
 
@@ -1123,6 +1237,11 @@ int main(void) {
 
     printf("\n[Round-Trip]\n");
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);
+
+    printf("\n[Public Facade]\n");
+    RUN_TEST(test_nanoisa_facade_roundtrip);
+    RUN_TEST(test_nanoisa_facade_file_roundtrip);
+    RUN_TEST(test_nanoisa_facade_reports_invalid_bytes);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);

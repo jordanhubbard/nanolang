@@ -1,0 +1,82 @@
+module nanoisa
+
+from "modules/std/fs.nano" import write, delete
+
+extern fn nl_nanoisa_load_print(_path: string) -> string
+extern fn nl_nanoisa_load_pretty(_path: string) -> string
+extern fn nl_nanoisa_assemble_save(_nasm_path: string, _nvm_path: string) -> int
+extern fn nl_nanoisa_last_error() -> string
+
+pub fn load_print(path: string) -> string {
+    unsafe {
+        return (nl_nanoisa_load_print path)
+    }
+}
+
+shadow load_print {
+    let nasm_path: string = "/tmp/nanoisa_load_print_shadow.nasm"
+    let nvm_path: string = "/tmp/nanoisa_load_print_shadow.nvm"
+    let source: string = ".function main 0 0 0\n  HALT\n.end\n"
+    assert (== (write nasm_path source) 0)
+    assert (== (assemble_save nasm_path nvm_path) 0)
+    assert (str_contains (load_print nvm_path) "HALT")
+    (delete nasm_path)
+    (delete nvm_path)
+    let bad_path: string = "/tmp/nanoisa_load_print_bad.nvm"
+    assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
+    assert (== (load_print bad_path) "")
+    assert (str_contains (last_error) "magic")
+    (delete bad_path)
+}
+
+pub fn load_pretty(path: string) -> string {
+    unsafe {
+        return (nl_nanoisa_load_pretty path)
+    }
+}
+
+shadow load_pretty {
+    let nasm_path: string = "/tmp/nanoisa_load_pretty_shadow.nasm"
+    let nvm_path: string = "/tmp/nanoisa_load_pretty_shadow.nvm"
+    let source: string = ".function helper 0 0 0\n  RET\n.end\n"
+    assert (== (write nasm_path source) 0)
+    assert (== (assemble_save nasm_path nvm_path) 0)
+    let output: string = (load_pretty nvm_path)
+    assert (str_contains output "NVM module")
+    assert (str_contains output "Functions")
+    (delete nasm_path)
+    (delete nvm_path)
+    let bad_path: string = "/tmp/nanoisa_load_pretty_bad.nvm"
+    assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
+    assert (== (load_pretty bad_path) "")
+    assert (str_contains (last_error) "magic")
+    (delete bad_path)
+}
+
+pub fn assemble_save(nasm_path: string, nvm_path: string) -> int {
+    unsafe {
+        return (nl_nanoisa_assemble_save nasm_path nvm_path)
+    }
+}
+
+shadow assemble_save {
+    let nasm_path: string = "/tmp/nanoisa_assemble_save_shadow.nasm"
+    let nvm_path: string = "/tmp/nanoisa_assemble_save_shadow.nvm"
+    let source: string = ".function test 0 0 0\n  RET\n.end\n"
+    assert (== (write nasm_path source) 0)
+    assert (== (assemble_save nasm_path nvm_path) 0)
+    assert (> (str_length (load_print nvm_path)) 0)
+    (delete nasm_path)
+    (delete nvm_path)
+}
+
+pub fn last_error() -> string {
+    unsafe {
+        return (nl_nanoisa_last_error)
+    }
+}
+
+shadow last_error {
+    assert (== (load_print "/tmp/nanoisa_missing_file.nvm") "")
+    assert (> (str_length (last_error)) 0)
+}

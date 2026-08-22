@@ -15,6 +15,7 @@
 #include "vmd_client.h"
 #include "../nanoisa/verifier.h"
 #include "../nanoisa/nvm_format.h"
+#include "../../modules/nanoisa/nanoisa.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,15 +68,11 @@ static uint8_t *read_file(const char *path, uint32_t *out_size) {
 }
 
 static int run_standalone(const char *path) {
-    uint32_t file_size = 0;
-    uint8_t *data = read_file(path, &file_size);
-    if (!data) return 1;
-
-    NvmModule *module = nvm_deserialize(data, file_size);
-    free(data);
-
+    NanoisaErr err;
+    NvmModule *module = nanoisa_load_file(path, &err);
     if (!module) {
-        fprintf(stderr, "Error: Failed to load '%s' (invalid .nvm format)\n", path);
+        fprintf(stderr, "Error: Failed to load '%s': %s\n",
+                path, err.message);
         return 1;
     }
 

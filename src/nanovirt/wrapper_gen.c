@@ -99,6 +99,7 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
     /* Header includes */
     fprintf(f, "/* Auto-generated NVM wrapper - do not edit */\n");
     fprintf(f, "#include \"nanoisa/nvm_format.h\"\n");
+    fprintf(f, "#include \"nanoisa/nanoisa.h\"\n");
     fprintf(f, "#include \"nanovm/vm.h\"\n");
     fprintf(f, "#include \"nanovm/vm_ffi.h\"\n");
     fprintf(f, "#include \"nanovm/value.h\"\n");
@@ -130,9 +131,11 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
     fprintf(f, "    g_argv = argv;\n\n");
 
     /* Deserialize */
-    fprintf(f, "    NvmModule *module = nvm_deserialize(nvm_blob, %u);\n", blob_size);
+    fprintf(f, "    NanoisaErr load_error;\n");
+    fprintf(f, "    NvmModule *module = nanoisa_load_bytes(nvm_blob, %u, &load_error);\n",
+            blob_size);
     fprintf(f, "    if (!module) {\n");
-    fprintf(f, "        fprintf(stderr, \"error: failed to deserialize embedded bytecode\\n\");\n");
+    fprintf(f, "        fprintf(stderr, \"error: %%s\\n\", load_error.message);\n");
     fprintf(f, "        return 1;\n");
     fprintf(f, "    }\n\n");
 
@@ -258,7 +261,8 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
     };
     static const char *nanoisa_objs[] = {
         "nanoisa/isa.o", "nanoisa/nvm_format.o",
-        "nanoisa/assembler.o", "nanoisa/disassembler.o", NULL
+        "nanoisa/assembler.o", "nanoisa/disassembler.o",
+        "nanoisa/nanoisa_facade.o", NULL
     };
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
@@ -266,7 +270,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
         "module.o", "module_metadata.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
         "resource_tracking.o", "eval.o", "interpreter_ffi.o",
-        "json_diagnostics.o", "reflection.o",
+        "json_diagnostics.o", "reflection.o", "effects.o", "coroutine.o",
         "eval/eval_hashmap.o", "eval/eval_math.o",
         "eval/eval_string.o", "eval/eval_io.o", NULL
     };
@@ -387,6 +391,20 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
         }
     }
 
+    char modules_dir[4096];
+    snprintf(modules_dir, sizeof(modules_dir), "%s/../modules", obj_dir);
+    char *real_modules = realpath(modules_dir, NULL);
+    if (!real_modules) {
+        real_modules = realpath("modules", NULL);
+        if (!real_modules) {
+            fprintf(stderr, "error: cannot find modules/ include directory\n");
+            remove(temp_c);
+            free(real_src);
+            free(obj_dir);
+            return false;
+        }
+    }
+
     /* Select compiler */
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -406,12 +424,14 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
             "%s -std=c99 -Wall -Wextra -Werror "
             "-Wno-error=unused-function -Wno-error=unused-parameter "
             "-Wno-error=unused-variable -Wno-error=unused-but-set-variable "
-            "%s -I%s -o %s %s %s -lm",
-            cc, export_dynamic, real_src, output_path, temp_c, obj_list);
+            "%s -I%s -I%s -o %s %s %s -lm",
+            cc, export_dynamic, real_src, real_modules,
+            output_path, temp_c, obj_list);
 
     if (cmd_len >= (int)sizeof(cmd)) {
         fprintf(stderr, "error: compile command too long\n");
         remove(temp_c);
+        free(real_modules);
         free(real_src);
         free(obj_dir);
         return false;
@@ -425,6 +445,7 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
 
     /* Cleanup */
     remove(temp_c);
+    free(real_modules);
     free(real_src);
     free(obj_dir);
 

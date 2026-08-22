@@ -590,10 +590,16 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	@echo ""
 	@echo "All example tests passed!"
 
-../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h
+../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h \
+		../modules/nanoisa/nanoisa.c ../modules/nanoisa/nanoisa.h \
+		../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
+		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
 	@mkdir -p ../modules/forth_see/.build
-	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared -I../modules/forth_see \
-	    -o $@ ../modules/forth_see/forth_see.c
+	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
+	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa \
+	    -o $@ ../modules/forth_see/forth_see.c ../modules/nanoisa/nanoisa.c \
+	    ../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
+	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
@@ -601,7 +607,18 @@ $(BIN_DIR)/nl_forth_interpreter_vm: language/nl_forth_interpreter.nano $(BIN_DIR
 	@echo "Building $@..."
 	$(BIN_DIR)/nano_virt $< --emit-nvm -o $@
 
-test-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
+../build/test_forth_see: ../tests/nanoisa/test_forth_see.c ../modules/forth_see/.build/libforth_see.so
+	@mkdir -p ../build
+	$(CC) -Wall -Wextra -Werror -std=c99 -I../modules/forth_see \
+	    -o $@ $< -L../modules/forth_see/.build -lforth_see
+
+.PHONY: test-forth-see
+test-forth-see: $(BIN_DIR)/nl_forth_interpreter_vm ../build/test_forth_see
+	@DYLD_LIBRARY_PATH=../modules/forth_see/.build \
+	    LD_LIBRARY_PATH=../modules/forth_see/.build \
+	    ../build/test_forth_see $(BIN_DIR)/nl_forth_interpreter_vm
+
+test-forth: test-forth-see
 	@echo ""
 	@echo "=========================================="
 	@echo "Running Forth ANS test suite (280 tests)"

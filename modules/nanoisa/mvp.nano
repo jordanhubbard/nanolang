@@ -1,0 +1,11 @@
+from "modules/nanoisa/nanoisa.nano" import load_print, last_error
+
+fn main() -> int {
+    assert (== (load_print "/tmp/nanoisa_mvp_missing.nvm") "")
+    assert (> (str_length (last_error)) 0)
+    return 0
+}
+
+shadow main {
+    assert true
+}

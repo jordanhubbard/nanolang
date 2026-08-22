@@ -17,6 +17,7 @@
 #include "vm_ffi.h"
 #include "heap.h"
 #include "../nanoisa/nvm_format.h"
+#include "../../modules/nanoisa/nanoisa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,8 +44,8 @@ static bool handle_init(int in_fd, uint32_t payload_len) {
         return false;
     }
 
-    /* Deserialize the module to get its import table */
-    g_module = nvm_deserialize(blob, payload_len);
+    NanoisaErr load_error;
+    g_module = nanoisa_load_bytes(blob, payload_len, &load_error);
     free(blob);
     if (!g_module) return false;
 

@@ -14,6 +14,7 @@
 #include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/verifier.h"
+#include "../../modules/nanoisa/nanoisa.h"
 #include "nanovm/vm.h"
 #include "nanovm/vm_ffi.h"
 #include "nanovm/value.h"
@@ -171,9 +172,11 @@ int main(int argc, char **argv) {
     /* Write output if requested */
     if (output) {
         uint32_t size = 0;
-        uint8_t *blob = nvm_serialize(cg.module, &size);
+        NanoisaErr save_error;
+        uint8_t *blob = nanoisa_save_bytes(cg.module, &size, &save_error);
         if (!blob) {
-            fprintf(stderr, "error: serialization failed\n");
+            fprintf(stderr, "error: serialization failed: %s\n",
+                    save_error.message);
             nvm_module_free(cg.module);
             free_ast(program);
             free_environment(env);

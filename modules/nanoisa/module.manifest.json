@@ -1,0 +1,42 @@
+{
+  "name": "nanoisa",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "I read and write .nvm modules and print canonical or detailed NanoISA assembly.",
+  "use_when": [
+    "Inspecting NanoISA bytecode",
+    "Converting between .nasm text and .nvm binary modules"
+  ],
+  "avoid_when": [
+    "Compiling NanoLang source directly; use nano_virt"
+  ],
+  "capabilities": [
+    "nvm_read",
+    "nvm_write",
+    "nasm_assemble",
+    "nanoisa_print",
+    "nanoisa_pretty_print"
+  ],
+  "keywords": [
+    "nanoisa",
+    "nvm",
+    "nasm",
+    "assembler",
+    "disassembler"
+  ],
+  "examples": [
+    "modules/nanoisa/mvp.nano"
+  ],
+  "dependencies": {
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "std"
+    ],
+    "system": []
+  },
+  "io_surfaces": [
+    "files"
+  ]
+}

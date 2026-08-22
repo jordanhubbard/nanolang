@@ -300,9 +300,9 @@ build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER) $(REPL_BINARY)
 all: build
 
 # Build NanoISA virtual machine backend (nano_virt compiler, nano_vm executor, co-process, daemon)
-vm: nano_virt nano_vm nano_cop nano_vmd
+vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump
 	@echo ""
-	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd"
+	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd bin/nanoisa"
 
 # ============================================================================
 # Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
@@ -321,13 +321,20 @@ vm: nano_virt nano_vm nano_cop nano_vmd
 # ============================================================================
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
+NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c
-NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES))
+NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
+NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
+	$(NANOISA_FACADE_OBJECT)
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
+
+$(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
+		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
 $(OBJ_DIR)/nanoisa:
 	mkdir -p $(OBJ_DIR)/nanoisa
@@ -335,10 +342,43 @@ $(OBJ_DIR)/nanoisa:
 .PHONY: test-nanoisa
 test-nanoisa: $(NANOISA_OBJECTS)
 	@echo "Running NanoISA tests..."
-	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nanoisa \
+	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nanoisa \
 		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(LDFLAGS)
 	@./tests/nanoisa/test_nanoisa
 	@rm -f tests/nanoisa/test_nanoisa
+
+.PHONY: test-nanoisa-module
+test-nanoisa-module: build
+	@mkdir -p build/module_self_tests
+	@$(TIMEOUT_CMD) ./bin/nanoc_c modules/nanoisa/mvp.nano \
+		-o build/module_self_tests/nanoisa
+	@build/module_self_tests/nanoisa
+
+.PHONY: test-nanoisa-wrapper
+test-nanoisa-wrapper: nano_virt
+	@perl -e 'alarm 30; exec @ARGV' ./bin/nano_virt tests/test_minimal.nano \
+		-o /tmp/nanolang_nanoisa_wrapper_test
+	@/tmp/nanolang_nanoisa_wrapper_test
+	@rm -f /tmp/nanolang_nanoisa_wrapper_test
+
+NANOISA_DUMP_OBJECT = $(OBJ_DIR)/nanoisa/dump_main.o
+
+$(NANOISA_DUMP_OBJECT): $(NANOISA_MODULE_DIR)/dump_main.c $(NANOISA_MODULE_DIR)/nanoisa.h \
+		| $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
+
+.PHONY: nanoisa_dump
+nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_DUMP_OBJECT) | bin
+	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-nanoisa-dump
+test-nanoisa-dump: nanoisa_dump
+	@echo "Running NanoISA dump CLI tests..."
+	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) \
+		-o tests/nanoisa/test_nanoisa_dump \
+		tests/nanoisa/test_nanoisa_dump.c $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanoisa/test_nanoisa_dump bin/nanoisa
+	@rm -f tests/nanoisa/test_nanoisa_dump
 
 # ============================================================================
 # NanoVM - Virtual Machine Execution Engine
@@ -729,7 +769,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1992,10 +2032,11 @@ install: $(COMPILER) vm
 	install -m 755 bin/nano_vm $(PREFIX)/bin/nano_vm
 	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
-	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd)"
+	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
+	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa)"
 
 uninstall:
-	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd
+	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
 	@echo "Uninstalled from $(PREFIX)/bin"
 
 # Valgrind checks
@@ -2084,6 +2125,7 @@ help:
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
+	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
 	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
 	@echo "  make test-glut-init    - Run GLUT initialization boundary tests"
@@ -2209,7 +2251,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor release-patch pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # AGENTFS PUBLISH

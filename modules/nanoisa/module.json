@@ -1,0 +1,15 @@
+{
+  "name": "nanoisa",
+  "version": "1.0.0",
+  "description": "NanoISA binary and text assembly I/O facade",
+  "headers": [
+    "nanoisa.h"
+  ],
+  "c_sources": [
+    "nanoisa.c",
+    "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/nvm_format.c",
+    "../../src/nanoisa/assembler.c",
+    "../../src/nanoisa/disassembler.c"
+  ]
+}

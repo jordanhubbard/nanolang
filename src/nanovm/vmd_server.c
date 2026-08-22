@@ -20,6 +20,7 @@
 #include "vm_ffi.h"
 #include "../nanoisa/nvm_format.h"
 #include "../nanoisa/verifier.h"
+#include "../../modules/nanoisa/nanoisa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -200,12 +201,13 @@ static void *client_thread(void *arg) {
             break;
         }
 
-        /* Deserialize */
-        NvmModule *module = nvm_deserialize(blob, hdr.payload_len);
+        NanoisaErr load_error;
+        NvmModule *module = nanoisa_load_bytes(blob, hdr.payload_len,
+                                                &load_error);
         free(blob);
 
         if (!module) {
-            vmd_msg_send_error(fd, "Invalid .nvm format");
+            vmd_msg_send_error(fd, load_error.message);
             break;
         }
 
