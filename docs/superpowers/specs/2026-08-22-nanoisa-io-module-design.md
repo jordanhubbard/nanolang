@@ -90,11 +90,14 @@ contract as `nvm_serialize` today).
 
 ### Print vs pretty-print
 
-- **Print** = current `disasm_module`: `.string`, `.entry`,
-  `.function` / body / `.end`, reconstructed labels (`L0`, …).
-  This is the round-trip text.
-- **Pretty-print** = a preamble, then that listing with a bytecode
-  offset on each instruction. Preamble includes: magic, format
+- **Print** = `disasm_module_styled(..., DISASM_STYLE_CANONICAL)`:
+  `.string`, `.flag needs_extern` / `.flag debug_info` when set,
+  `.entry`, `.function` / body / `.end`, reconstructed labels
+  (`L0`, …), mnemonics without `[offset|abs]` prefixes or debug/cfg
+  comments. The assembler accepts this text again; dump → assemble →
+  dump is a text fixed point.
+- **Pretty-print** = a preamble, then the detailed listing with a
+  bytecode offset on each instruction. Preamble includes: magic, format
   version, flags, entry point, section table (type, offset, size),
   function table (name, arity, locals, upvalues, code offset/length),
   import table, debug-entry count.

@@ -109,7 +109,8 @@ static const char *control_flow_note(NanoOpcode opcode) {
 
 static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
                             const NvmModule *mod, uint32_t instr_offset,
-                            const DisasmLabel *labels, uint32_t label_count) {
+                            const DisasmLabel *labels, uint32_t label_count,
+                            DisasmStyle style) {
     switch (instr->operand_types[idx]) {
         case OPERAND_U8:
             fprintf(out, " %u", instr->operands[idx].u8);
@@ -119,7 +120,8 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
             break;
         case OPERAND_U32:
             /* For PUSH_STR, show the actual string */
-            if (instr->opcode == OP_PUSH_STR && idx == 0 && mod) {
+            if (style == DISASM_STYLE_DETAILED &&
+                instr->opcode == OP_PUSH_STR && idx == 0 && mod) {
                 const char *str = nvm_get_string(mod, instr->operands[idx].u32);
                 if (str) {
                     fprintf(out, " %u", instr->operands[idx].u32);
@@ -128,7 +130,9 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
                 }
             }
             /* For CALL, show function name */
-            if ((instr->opcode == OP_CALL || instr->opcode == OP_CALL_EXTERN) && idx == 0 && mod) {
+            if (style == DISASM_STYLE_DETAILED &&
+                (instr->opcode == OP_CALL || instr->opcode == OP_CALL_EXTERN) &&
+                idx == 0 && mod) {
                 uint32_t fn_idx = instr->operands[idx].u32;
                 if (fn_idx < mod->function_count) {
                     const char *name = nvm_get_string(mod, mod->functions[fn_idx].name_idx);
@@ -167,8 +171,9 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
  * Function Disassembly
  * ======================================================================== */
 
-void disasm_function(const uint8_t *code, uint32_t code_size,
-                     const NvmModule *mod, FILE *out) {
+void disasm_function_styled(const uint8_t *code, uint32_t code_size,
+                            const NvmModule *mod, FILE *out,
+                            DisasmStyle style) {
     /* Collect jump targets for label reconstruction */
     DisasmLabel labels[MAX_DISASM_LABELS];
     uint32_t label_count = collect_jump_targets(code, code_size, labels, MAX_DISASM_LABELS);
@@ -196,7 +201,11 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
         /* Check if there's a label at this offset */
         const char *label = find_label_at(labels, label_count, pos);
         if (label) {
-            fprintf(out, "%s:  ; <== jump target\n", label);
+            if (style == DISASM_STYLE_CANONICAL) {
+                fprintf(out, "%s:\n", label);
+            } else {
+                fprintf(out, "%s:  ; <== jump target\n", label);
+            }
         }
 
         DecodedInstruction instr;
@@ -209,24 +218,31 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
         }
 
         const InstructionInfo *info = isa_get_info(instr.opcode);
-        fprintf(out, "  [%04u|%04u] %s", pos, function_base_offset + pos, info ? info->name : "???");
+        if (style == DISASM_STYLE_CANONICAL) {
+            fprintf(out, "  %s", info ? info->name : "???");
+        } else {
+            fprintf(out, "  [%04u|%04u] %s", pos, function_base_offset + pos,
+                    info ? info->name : "???");
+        }
 
         for (int i = 0; i < instr.operand_count; i++) {
-            format_operand(out, &instr, i, mod, pos, labels, label_count);
+            format_operand(out, &instr, i, mod, pos, labels, label_count, style);
         }
 
-        if (instr.opcode == OP_DEBUG_LINE && instr.operand_count > 0) {
-            current_line = instr.operands[0].u32;
-            if (current_line > 0) {
-                fprintf(out, "  ; source %s:%u", src_file, current_line);
+        if (style == DISASM_STYLE_DETAILED) {
+            if (instr.opcode == OP_DEBUG_LINE && instr.operand_count > 0) {
+                current_line = instr.operands[0].u32;
+                if (current_line > 0) {
+                    fprintf(out, "  ; source %s:%u", src_file, current_line);
+                }
+            } else if (current_line > 0) {
+                fprintf(out, "  ; @ %s:%u", src_file, current_line);
             }
-        } else if (current_line > 0) {
-            fprintf(out, "  ; @ %s:%u", src_file, current_line);
-        }
 
-        if (is_control_flow_opcode(instr.opcode)) {
-            const char *note = control_flow_note(instr.opcode);
-            if (note) fprintf(out, "  ; cfg:%s", note);
+            if (is_control_flow_opcode(instr.opcode)) {
+                const char *note = control_flow_note(instr.opcode);
+                if (note) fprintf(out, "  ; cfg:%s", note);
+            }
         }
 
         fprintf(out, "\n");
@@ -240,11 +256,17 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
     }
 }
 
+void disasm_function(const uint8_t *code, uint32_t code_size,
+                     const NvmModule *mod, FILE *out) {
+    disasm_function_styled(code, code_size, mod, out, DISASM_STYLE_DETAILED);
+}
+
 /* ========================================================================
  * Module Disassembly
  * ======================================================================== */
 
-void disasm_module_to_file(const NvmModule *mod, FILE *out) {
+void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
+                                  DisasmStyle style) {
     /* String pool */
     for (uint32_t i = 0; i < mod->string_count; i++) {
         const char *s = nvm_get_string(mod, i);
@@ -267,6 +289,18 @@ void disasm_module_to_file(const NvmModule *mod, FILE *out) {
         fprintf(out, "\n");
     }
 
+    if (style == DISASM_STYLE_CANONICAL) {
+        if (mod->header.flags & NVM_FLAG_NEEDS_EXTERN) {
+            fprintf(out, ".flag needs_extern\n");
+        }
+        if (mod->header.flags & NVM_FLAG_DEBUG_INFO) {
+            fprintf(out, ".flag debug_info\n");
+        }
+        if ((mod->header.flags & (NVM_FLAG_NEEDS_EXTERN | NVM_FLAG_DEBUG_INFO)) != 0) {
+            fprintf(out, "\n");
+        }
+    }
+
     /* Entry point */
     if (mod->header.flags & NVM_FLAG_HAS_MAIN) {
         fprintf(out, ".entry %u\n\n", mod->header.entry_point);
@@ -282,22 +316,30 @@ void disasm_module_to_file(const NvmModule *mod, FILE *out) {
                 fn->arity, fn->local_count, fn->upvalue_count);
 
         if (fn->code_length > 0 && fn->code_offset + fn->code_length <= mod->code_size) {
-            disasm_function(mod->code + fn->code_offset, fn->code_length, mod, out);
+            disasm_function_styled(mod->code + fn->code_offset, fn->code_length,
+                                   mod, out, style);
         }
 
         fprintf(out, ".end\n\n");
     }
 }
 
-char *disasm_module(const NvmModule *mod) {
-    /* Write to a temporary memory stream */
+void disasm_module_to_file(const NvmModule *mod, FILE *out) {
+    disasm_module_to_file_styled(mod, out, DISASM_STYLE_DETAILED);
+}
+
+char *disasm_module_styled(const NvmModule *mod, DisasmStyle style) {
     char *buf = NULL;
     size_t buf_size = 0;
     FILE *stream = open_memstream(&buf, &buf_size);
     if (!stream) return NULL;
 
-    disasm_module_to_file(mod, stream);
+    disasm_module_to_file_styled(mod, stream, style);
     fclose(stream);
 
     return buf;
+}
+
+char *disasm_module(const NvmModule *mod) {
+    return disasm_module_styled(mod, DISASM_STYLE_DETAILED);
 }

@@ -99,6 +99,61 @@ static void test_dump_canonical(const char *cli) {
     remove(nvm_path);
 }
 
+static void test_dump_roundtrip(const char *cli) {
+    const char *src =
+        ".flag needs_extern\n"
+        ".entry 0\n"
+        ".function main 0 1 0\n"
+        "  PUSH_I64 9\n"
+        "  JMP done\n"
+        "  PUSH_I64 0\n"
+        "done:\n"
+        "  HALT\n"
+        ".end\n";
+    NanoisaErr err;
+    NvmModule *mod = nanoisa_assemble_text(src, &err);
+    ASSERT(mod != NULL, "round-trip fixture assembles");
+
+    const char *nvm_path = "/tmp/nanolang_nanoisa_dump_roundtrip.nvm";
+    ASSERT(nanoisa_save_file(mod, nvm_path, &err) == NANOISA_OK,
+           "round-trip fixture saves");
+    nvm_module_free(mod);
+
+    char *cli_q = quote_path(cli);
+    char *nvm_q = quote_path(nvm_path);
+    ASSERT(cli_q && nvm_q, "quoted paths");
+
+    char cmd[1024];
+    snprintf(cmd, sizeof(cmd), "%s dump %s 2>&1", cli_q, nvm_q);
+
+    char first[4096];
+    int status = -1;
+    ASSERT(capture_cmd(cmd, first, sizeof(first), &status) == 0,
+           "first dump ran");
+    ASSERT(status == 0, "first dump exits 0");
+    ASSERT(strstr(first, "[0000|") == NULL,
+           "dump listing has no offset prefixes");
+    ASSERT(strstr(first, ".flag needs_extern") != NULL,
+           "dump listing emits needs_extern");
+
+    NvmModule *reassembled = nanoisa_assemble_text(first, &err);
+    ASSERT(reassembled != NULL, "dump listing reassembles");
+    ASSERT(nanoisa_save_file(reassembled, nvm_path, &err) == NANOISA_OK,
+           "reassembled module saves");
+    nvm_module_free(reassembled);
+
+    char second[4096];
+    status = -1;
+    ASSERT(capture_cmd(cmd, second, sizeof(second), &status) == 0,
+           "second dump ran");
+    ASSERT(status == 0, "second dump exits 0");
+    ASSERT(strcmp(first, second) == 0, "dump listing is a text fixed point");
+
+    free(cli_q);
+    free(nvm_q);
+    remove(nvm_path);
+}
+
 static void test_dump_pretty(const char *cli) {
     const char *src =
         ".function helper 0 0 0\n"
@@ -203,6 +258,7 @@ int main(int argc, char **argv) {
 
     printf("=== NanoISA dump CLI tests ===\n");
     test_dump_canonical(argv[1]);
+    test_dump_roundtrip(argv[1]);
     test_dump_pretty(argv[1]);
     test_dump_missing_file(argv[1]);
     test_dump_invalid_magic(argv[1]);

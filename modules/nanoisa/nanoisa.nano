@@ -20,6 +20,7 @@ shadow load_print {
     assert (== (write nasm_path source) 0)
     assert (== (assemble_save nasm_path nvm_path) 0)
     assert (str_contains (load_print nvm_path) "HALT")
+    assert (not (str_contains (load_print nvm_path) "[0000|"))
     (delete nasm_path)
     (delete nvm_path)
     let bad_path: string = "/tmp/nanoisa_load_print_bad.nvm"

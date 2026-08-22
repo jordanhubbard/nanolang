@@ -257,7 +257,7 @@ char *nanoisa_print(const NvmModule *mod) {
     if (!mod) {
         return NULL;
     }
-    return disasm_module(mod);
+    return disasm_module_styled(mod, DISASM_STYLE_CANONICAL);
 }
 
 char *nanoisa_pretty_print(const NvmModule *mod) {

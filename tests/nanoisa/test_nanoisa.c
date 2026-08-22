@@ -1121,6 +1121,47 @@ static void test_nanoisa_facade_roundtrip(void) {
     nvm_module_free(assembled);
 }
 
+static void test_nanoisa_print_is_assemblable(void) {
+    const char *src =
+        ".flag needs_extern\n"
+        ".flag debug_info\n"
+        ".entry 0\n"
+        ".function main 0 1 0\n"
+        "  PUSH_I64 1\n"
+        "  JMP done\n"
+        "  PUSH_I64 0\n"
+        "done:\n"
+        "  HALT\n"
+        ".end\n";
+    NanoisaErr err;
+    NvmModule *mod = nanoisa_assemble_text(src, &err);
+    ASSERT(mod != NULL, "flagged fixture assembles");
+
+    char *printed = nanoisa_print(mod);
+    ASSERT(printed != NULL, "canonical print produced text");
+    ASSERT(strstr(printed, "[0000|") == NULL,
+           "canonical print has no offset prefixes");
+    ASSERT(strstr(printed, "; cfg:") == NULL,
+           "canonical print has no cfg notes");
+    ASSERT(strstr(printed, ".flag needs_extern") != NULL,
+           "canonical print emits needs_extern");
+    ASSERT(strstr(printed, ".flag debug_info") != NULL,
+           "canonical print emits debug_info");
+
+    NvmModule *reassembled = nanoisa_assemble_text(printed, &err);
+    ASSERT(reassembled != NULL, "canonical print reassembles");
+    ASSERT_EQ_INT(err.code, NANOISA_OK, "reassembly clears error");
+
+    char *printed_again = nanoisa_print(reassembled);
+    ASSERT(printed_again != NULL, "second canonical print produced text");
+    ASSERT_EQ_STR(printed, printed_again, "canonical print is a text fixed point");
+
+    free(printed_again);
+    nvm_module_free(reassembled);
+    free(printed);
+    nvm_module_free(mod);
+}
+
 static void test_nanoisa_facade_file_roundtrip(void) {
     const char *path = "/tmp/nanolang_nanoisa_facade_test.nvm";
     const char *src =
@@ -1240,6 +1281,7 @@ int main(void) {
 
     printf("\n[Public Facade]\n");
     RUN_TEST(test_nanoisa_facade_roundtrip);
+    RUN_TEST(test_nanoisa_print_is_assemblable);
     RUN_TEST(test_nanoisa_facade_file_roundtrip);
     RUN_TEST(test_nanoisa_facade_reports_invalid_bytes);
 
