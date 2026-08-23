@@ -3954,6 +3954,7 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return buf;\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "#ifndef NANOLANG_STD_PROCESS_H\n");
     sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
     sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
     sb_append(sb, "    if (!command) {\n");
@@ -4010,7 +4011,8 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    dyn_array_push_string(out, out_s);\n");
     sb_append(sb, "    dyn_array_push_string(out, err_s);\n");
     sb_append(sb, "    return out;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "}\n");
+    sb_append(sb, "#endif /* NANOLANG_STD_PROCESS_H */\n\n");
 }
 
 /* Generate C main() wrapper that calls nanolang main().

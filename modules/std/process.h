@@ -7,7 +7,7 @@
 /* Run a command and capture stdout/stderr
  * Returns array<string> with [exit_code, stdout, stderr]
  */
-DynArray* process_run(const char* command);
+DynArray* nl_os_process_run(const char* command);
 
 /* Spawn a process non-blocking
  * Returns process ID (pid) or -1 on error
