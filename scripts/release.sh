@@ -191,6 +191,15 @@ update_changelog() {
     success "CHANGELOG.md updated"
 }
 
+# Refresh root npm metadata for GitHub's dependency graph. The VS Code
+# extension owns the JavaScript dependencies; the release owns the version.
+update_package_json() {
+    local version=$1
+    info "Updating package.json..."
+    python3 scripts/generate_root_package_json.py "$version"
+    success "package.json updated"
+}
+
 # Create git tag and release notes
 create_release() {
     local version=$1
@@ -232,11 +241,11 @@ EOF
             "$compare_url" "${REPO_URL}" "$compare_url" >> /tmp/release_notes.md
     fi
     
-    # Commit changelog (if there are changes to commit)
-    info "Committing CHANGELOG.md..."
-    git add CHANGELOG.md
+    # Commit release metadata (if there are changes to commit)
+    info "Committing release metadata..."
+    git add CHANGELOG.md package.json
     if git diff --cached --quiet; then
-        info "CHANGELOG.md already up to date, skipping commit"
+        info "Release metadata already up to date, skipping commit"
     else
         git commit -m "docs: Update CHANGELOG for v$version release
 
@@ -323,6 +332,9 @@ main() {
     
     # Update changelog
     update_changelog "$CHANGELOG_ENTRY"
+
+    # Refresh root dependency metadata using this release's exact version.
+    update_package_json "$NEXT_VERSION"
     
     # Run tests before release (capture output for release notes)
     info "Running tests..."

@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "vscode-languageclient": "^9.0.0"
+  },
+  "description": "NanoLang repository dependency metadata for GitHub dependency analysis",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "typescript": "^5.0.0"
+  },
+  "name": "nanolang-repository",
+  "private": true,
+  "version": "3.4.2"
+}

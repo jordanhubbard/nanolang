@@ -324,6 +324,7 @@ void test_generate_console_io_utilities() {
     free(sb);
 }
 
+
 void test_generate_profiling_system() {
     StringBuilder *sb = sb_create();
     generate_profiling_system(sb, "/tmp/test_transpiler.prof");
@@ -664,6 +665,14 @@ void test_transpile_null_inputs() {
     free_environment(env);
 }
 
+void test_transpile_process_header_guard() {
+    char *c = transpile_src("fn main() -> int { return 0 }");
+    ASSERT(c != NULL);
+    ASSERT(strstr(c, "#ifndef NANOLANG_STD_PROCESS_H\nstatic DynArray* nl_os_process_run") != NULL);
+    ASSERT(strstr(c, "#endif /* NANOLANG_STD_PROCESS_H */") != NULL);
+    free(c);
+}
+
 /* ============================================================================
  * Main
  * ============================================================================ */
@@ -723,9 +732,9 @@ int main(void) {
     TEST(transpile_pub_function);
     TEST(transpile_print_println);
     TEST(transpile_opaque_type);
+    TEST(transpile_process_header_guard);
     TEST(transpile_null_inputs);
 
     printf("\n✓ All transpiler tests passed!\n");
     return 0;
 }
-

@@ -157,6 +157,13 @@ jobs:
           python3 -m unittest tests/test_build_userguide.py
           make userguide-html
 
+      - name: Check release dependency metadata
+        run: |
+          python3 -m unittest tests/test_generate_root_package_json.py
+          VERSION=$(python3 -c 'import json; print(json.load(open("package.json"))["version"])')
+          make package-json VERSION="$VERSION"
+          git diff --exit-code -- package.json
+
   api-docs:
     name: API Docs (nanodoc)
     runs-on: ubuntu-latest
