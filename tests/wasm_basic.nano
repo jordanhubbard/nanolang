@@ -2,12 +2,24 @@ fn add(a: int, b: int) -> int {
     return (+ a b)
 }
 
+shadow add {
+    assert (== (add 3 4) 7)
+}
+
 fn sub(a: int, b: int) -> int {
     return (- a b)
 }
 
+shadow sub {
+    assert (== (sub 9 4) 5)
+}
+
 fn mul(a: int, b: int) -> int {
     return (* a b)
+}
+
+shadow mul {
+    assert (== (mul 6 7) 42)
 }
 
 fn factorial(n: int) -> int {
@@ -18,6 +30,15 @@ fn factorial(n: int) -> int {
     }
 }
 
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 5) 120)
+}
+
 fn main() -> int {
     return (add 3 4)
+}
+
+shadow main {
+    assert (== (main) 7)
 }

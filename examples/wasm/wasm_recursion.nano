@@ -1,0 +1,32 @@
+# Example: WASM Recursion
+# Purpose: Compile and run a recursive function as WebAssembly
+# Features: recursion, comparisons, if/else, shadow tests
+# Difficulty: Beginner
+# Category: wasm
+# Prerequisites: nl_factorial
+# Track: learn
+# Build: wasm
+# Dependencies: none
+# Tags: wasm-compatible, numeric-subset, shadow-tested
+# Expected Output: main returns 120
+
+fn factorial(n: int) -> int {
+    if (<= n 1) {
+        return 1
+    } else {
+        return (* n (factorial (- n 1)))
+    }
+}
+
+shadow factorial {
+    assert (== (factorial 0) 1)
+    assert (== (factorial 5) 120)
+}
+
+fn main() -> int {
+    return (factorial 5)
+}
+
+shadow main {
+    assert (== (main) 120)
+}

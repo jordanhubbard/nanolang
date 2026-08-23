@@ -32,7 +32,7 @@ I distinguish between what I have verified and what I assume to work.
 | Platform | Status | Reason |
 |----------|--------|--------|
 | Windows | Not Supported | I rely on Unix-specific build systems and POSIX assumptions |
-| WebAssembly | Partial Support | `--target wasm` emits a WASM binary for the numeric subset (int/float/bool, arithmetic, functions, if/else, recursion). It rejects string literals, struct literals, union constructs, field access, match expressions, array literals, tuple literals, and the I/O and string-conversion builtins with an explicit compile error. |
+| WebAssembly | Partial Support | `--target wasm` emits standalone scalar modules for int/float/bool arithmetic, local functions, recursion, mutable locals, `if`, and `while`. It has no WASI start function, host I/O, imports, or linear-memory data model. See [my WASM module audit](WASM_MODULE_AUDIT.md). |
 
 ---
 
@@ -462,4 +462,3 @@ I have more details in my [CONTRIBUTING.md](CONTRIBUTING.md).
 - I should work on other Unix-like systems, but I have not tested them.
 
 If you have questions, see my [docs/README.md](README.md) or open a GitHub issue.
-

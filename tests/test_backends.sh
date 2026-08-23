@@ -441,6 +441,13 @@ WASM_OUT="$TMP/wasm_simple.wasm"
 if "$COMPILER" "$TMP/wasm_simple.nano" --target wasm -o "$WASM_OUT" 2>/dev/null; then
     if [ -f "$WASM_OUT" ] && [ -s "$WASM_OUT" ]; then
         pass "wasm: output file created and non-empty"
+        if command -v wasm-validate >/dev/null 2>&1; then
+            if wasm-validate "$WASM_OUT"; then
+                pass "wasm: output passes wasm-validate"
+            else
+                fail "wasm: output fails wasm-validate"
+            fi
+        fi
     else
         fail "wasm: output file missing or empty"
     fi
@@ -477,6 +484,27 @@ if "$COMPILER" "$TMP/wasm_module.nano" --target wasm -o "$WASM_OUT2" 2>/dev/null
 else
     fail "wasm: failed to compile integer module with --target wasm"
 fi
+
+# Compile repository examples and execute their zero-argument main exports
+# when WABT is available. These programs avoid strings and host I/O.
+for example in wasm_arithmetic wasm_recursion wasm_control_flow; do
+    EXAMPLE_WASM="$TMP/${example}.wasm"
+    if "$COMPILER" "examples/wasm/${example}.nano" --target wasm --no-sourcemap -o "$EXAMPLE_WASM" 2>/dev/null; then
+        if command -v wasm-validate >/dev/null 2>&1 && ! wasm-validate "$EXAMPLE_WASM"; then
+            fail "wasm: ${example} fails validation"
+        elif command -v wasm-interp >/dev/null 2>&1; then
+            if wasm-interp "$EXAMPLE_WASM" --run-all-exports >/dev/null; then
+                pass "wasm: ${example} validates and runs"
+            else
+                fail "wasm: ${example} failed at runtime"
+            fi
+        else
+            pass "wasm: ${example} compiled (WABT runtime unavailable)"
+        fi
+    else
+        fail "wasm: ${example} failed to compile"
+    fi
+done
 
 echo ""
 

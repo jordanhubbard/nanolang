@@ -51,6 +51,15 @@ static void restore_stderr(void) {
     s_orig_stderr = NULL;
 }
 
+static int wasm_validate_file(const char *path) {
+    char command[512];
+    if (system("command -v wasm-validate >/dev/null 2>&1") != 0) return 0;
+    int n = snprintf(command, sizeof(command),
+                     "wasm-validate '%s'",
+                     path);
+    return n > 0 && (size_t)n < sizeof(command) ? system(command) : -1;
+}
+
 /* Common nano programs used across backend tests */
 static const char *SRC_SIMPLE =
     "fn add(a: int, b: int) -> int {\n"
@@ -827,14 +836,15 @@ static void test_wasm_bool(void) {
         "}\n";
     ASTNode *prog = parse_nano(src);
     ASSERT(prog != NULL, "parse failed");
-    FILE *out = fopen("/dev/null", "w");
-    ASSERT(out != NULL, "fopen /dev/null failed");
     suppress_stderr();
-    int rc = wasm_backend_emit_fp(prog, out, false);
+    int rc = wasm_backend_emit(prog, "/tmp/test_backends_wasm_bool.wasm",
+                               "<test>", NULL, false);
     restore_stderr();
-    fclose(out);
     free_ast(prog);
     ASSERT(rc == 0, "wasm_backend_emit_fp returned non-zero");
+    ASSERT(wasm_validate_file("/tmp/test_backends_wasm_bool.wasm") == 0,
+           "bool WASM failed validation (is wasm-validate installed?)");
+    remove("/tmp/test_backends_wasm_bool.wasm");
     PASS();
 }
 
@@ -874,14 +884,15 @@ static void test_wasm_float(void) {
     const char *test_name = "wasm_backend: float arithmetic";
     ASTNode *prog = parse_nano(SRC_FLOAT);
     ASSERT(prog != NULL, "parse failed");
-    FILE *out = fopen("/dev/null", "w");
-    ASSERT(out != NULL, "fopen /dev/null failed");
     suppress_stderr();
-    int rc = wasm_backend_emit_fp(prog, out, false);
+    int rc = wasm_backend_emit(prog, "/tmp/test_backends_wasm_float.wasm",
+                               "<test>", NULL, false);
     restore_stderr();
-    fclose(out);
     free_ast(prog);
     ASSERT(rc == 0, "wasm_backend_emit_fp returned non-zero");
+    ASSERT(wasm_validate_file("/tmp/test_backends_wasm_float.wasm") == 0,
+           "float WASM failed validation (is wasm-validate installed?)");
+    remove("/tmp/test_backends_wasm_float.wasm");
     PASS();
 }
 

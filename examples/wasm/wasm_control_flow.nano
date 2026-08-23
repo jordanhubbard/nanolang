@@ -1,0 +1,34 @@
+# Example: WASM Control Flow
+# Purpose: Compile mutation, boolean logic, and a while loop as WebAssembly
+# Features: mutable locals, while, comparisons, boolean logic, shadow tests
+# Difficulty: Beginner
+# Category: wasm
+# Prerequisites: nl_mutable, nl_control_if_while
+# Track: learn
+# Build: wasm
+# Dependencies: none
+# Tags: wasm-compatible, numeric-subset, shadow-tested
+# Expected Output: main returns 15
+
+fn sum_to(limit: int) -> int {
+    let mut current = 1
+    let mut total = 0
+    while (and (<= current limit) (not false)) {
+        set total (+ total current)
+        set current (+ current 1)
+    }
+    return total
+}
+
+shadow sum_to {
+    assert (== (sum_to 0) 0)
+    assert (== (sum_to 5) 15)
+}
+
+fn main() -> int {
+    return (sum_to 5)
+}
+
+shadow main {
+    assert (== (main) 15)
+}
