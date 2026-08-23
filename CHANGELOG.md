@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.1] - 2026-08-23
+
+### Fixed
+- stop complete launcher process groups, clean up examples on exit, and provide
+  tailored icons for every launcher-visible graphical example
+- generate and load the `matmul` PTX and OpenCL kernels from stable repository
+  paths so the example runs through the launcher on OpenCL systems
+
 ## [3.4.0] - 2026-08-22
 
 ### Added
