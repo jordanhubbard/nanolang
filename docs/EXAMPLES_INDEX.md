@@ -2,7 +2,7 @@
 
 Last audited: 2026-08-23.
 
-I have 253 `.nano` files under `examples/`: 9 at the directory root and 244 below category directories. I count files on disk; deleted sketches do not remain examples by reputation alone.
+I have 241 `.nano` files under `examples/`: 8 at the directory root and 233 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -57,20 +57,20 @@ Use these build labels:
 
 | Directory | `.nano` files | Track |
 | --- | ---: | --- |
-| `examples/` | 10 | tools, launchers, root showcases |
-| `examples/advanced/` | 26 | modules and advanced language demos |
-| `examples/api_lessons/` | 42 | focused API lessons |
+| `examples/` | 8 | tools, launchers, root showcases |
+| `examples/advanced/` | 25 | modules and advanced language demos |
+| `examples/api_lessons/` | 41 | focused API lessons |
 | `examples/audio/` | 6 | audio modules and showcases |
 | `examples/cross_backend/` | 1 | cross-backend learn fixture |
 | `examples/data/` | 1 | data module demos |
-| `examples/debug/` | 6 | diagnostics, logging, property tests |
+| `examples/debug/` | 4 | diagnostics, logging, property tests |
 | `examples/diagnostics/` | 1 | expected-failure diagnostics |
 | `examples/games/` | 3 | SDL game showcases |
 | `examples/gpu/` | 6 | GPU modules |
-| `examples/graphics/` | 21 | SDL and OpenGL-adjacent visual examples |
+| `examples/graphics/` | 19 | SDL and OpenGL-adjacent visual examples |
 | `examples/hello_pkg/` | 1 | package manifest example |
 | `examples/integration/` | 1 | deterministic integration fixture |
-| `examples/language/` | 75 | core language learning path |
+| `examples/language/` | 69 | core language learning path |
 | `examples/large_project/` | 3 | real multi-file package example |
 | `examples/lib/` | 5 | internal launcher/editor support |
 | `examples/mujoco/` | 6 | MuJoCo modules |
@@ -151,27 +151,19 @@ Use this order:
 1. `nl_factorial.nano`
 2. `nl_fibonacci.nano`
 3. `nl_primes.nano`
-4. `nl_primes_trial_division.nano`
-5. `nl_primes_sieve.nano`
-6. `nl_pi_calculator.nano`
-7. `nl_pi_chudnovsky.nano`
+4. `nl_primes_sieve.nano`
+5. `nl_pi_calculator.nano`
+6. `nl_pi_chudnovsky.nano`
 
 This turns several overlapping math examples into increasing algorithmic weight.
 
 ### REPL
 
-The canonical teaching pair is:
-
-1. `simple_repl.nano`
-2. `full_repl.nano`
-
-`vars_repl.nano`, `multi_type_repl.nano`, `multiline_repl.nano`, and `readline_repl.nano` are staged internal variants. Keep them if they are useful while developing the final REPL, but do not put all of them in the main learning path.
+`examples/language/full_repl.nano` is the canonical REPL example. The staged compile-and-execute variants were removed after their useful behavior was consolidated into it.
 
 ### Forth
 
-`examples/language/nl_forth_interpreter.nano` is the canonical Forth interpreter. It has the larger test harness and the module integration.
-
-`examples/forth.nano` is a legacy root example. Keep it only as a smaller historical sketch or remove it after checking that no docs or scripts depend on it.
+`examples/language/nl_forth_interpreter.nano` is the canonical Forth interpreter. It has the larger test harness and the module integration. The legacy root sketch was removed.
 
 ## Modules Track
 
@@ -181,11 +173,11 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | --- | --- | --- |
 | JSON | `examples/data/json_demo.nano`, `examples/opl/opl_json.nano` | local |
 | regex | `examples/advanced/regex_demo_simple.nano`, `examples/advanced/regex_demo.nano` | missing or external module status must be checked before claiming local |
-| datetime | `examples/advanced/datetime_demo.nano` | local or excluded by Makefile pending build check |
+| datetime | `examples/advanced/datetime_demo.nano` | local; included in native and NanoVM example selection |
 | checked math | `examples/language/nl_checked_math_demo.nano` | local |
 | vector2d | `examples/advanced/module_introspection_demo.nano` | external SDL dependency because the demo also imports SDL |
 | filesystem/process/env | `examples/run_examples.nano`, `examples/opl/opl_cli.nano` | local with compiler/tool assumptions |
-| logging/coverage/proptest | `examples/debug/*.nano` | local |
+| logging/coverage/proptest | `examples/debug/logging_demo.nano`, `coverage_demo.nano`, `property_test_*.nano` | local |
 | HTTP server | `examples/network/http_hello_world.nano`, `examples/network/http_static_server.nano` | external-deps, network, native-only; static serving only |
 | curl | No current example. The module remains available, but I do not claim deleted client demos as coverage. | external-deps, network |
 | issue triage | `examples/ai_github_agent.nano` | local, deterministic; prompt construction and classification only, with no GitHub or LLM call |
@@ -238,7 +230,6 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | `pybridge_matplotlib_api.nano` | `modules/pybridge_matplotlib` | external-deps (Python + matplotlib) |
 | `result_api.nano` | `modules/std/result` | local |
 | `sdl_image_safe_api.nano` | `modules/sdl_image/sdl_image_safe` | external-deps, graphical |
-| `std_collections_hashmap_api.nano` | `modules/std/collections/hashmap` | local |
 | `std_lib_api.nano` | `modules/std/lib` | local |
 | `stringbuilder_api.nano` | `modules/std/collections/stringbuilder` | local |
 | `vector2d_api.nano` | `modules/vector2d` | local |
@@ -269,10 +260,13 @@ These are the overlaps found in the audit and how I now classify them.
 | --- | --- |
 | Arrays | Keep all five, but teach them as a sequence. |
 | Functions | Keep the basic path and move function values/factories/fold examples to advanced. |
-| Algorithms | Keep factorial, Fibonacci, primes, sieve, trial division, and pi examples as a progression. |
-| REPL | Teach `simple_repl` then `full_repl`; classify the rest as staged internals. |
-| Forth | Make `nl_forth_interpreter.nano` canonical; mark root `forth.nano` legacy. |
-| `large_project_structure.nano` | Treat as a sketch. Use `examples/large_project/` as the real multi-file package. |
+| Algorithms | Keep factorial, Fibonacci, primes, sieve, and pi examples as a progression. |
+| REPL | Keep `full_repl.nano` as the canonical example; the staged variants are removed. |
+| Forth | Keep `nl_forth_interpreter.nano` as the canonical implementation; the root sketch is removed. |
+| project structure | Use `examples/large_project/` as the real multi-file package; the competing single-file sketch is removed. |
+| HashMap API | Keep `collections_hashmap_api.nano`, which teaches the builtin `HashMap<K,V>` surface. |
+| logging | Keep one `logging_demo.nano` that covers the retained logging surface. |
+| SDL_image | Keep the demo, sprite animation, and tiled-background progression; the test and effects duplicates are removed. |
 | row polymorphism | Mark conceptual files as `concept` until the compiler accepts them as ordinary examples. |
 | network and AI | Keep the two local HTTP server examples in Modules. Use the rewritten offline issue-triage example for deterministic prompt construction; there is no current live curl, REST API, GitHub, or OpenAI example. |
 

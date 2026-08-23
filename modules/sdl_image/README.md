@@ -435,7 +435,8 @@ let version: int = (IMG_Linked_Version)
 
 ## See Also
 
-- `examples/graphics/sdl_image_test.nano` - Basic test
 - `examples/graphics/sdl_image_demo.nano` - Complete feature demo
+- `examples/graphics/sdl_image_sprite_animation.nano` - Sprite animation
+- `examples/graphics/sdl_image_tiled_background.nano` - Repeated textures
 - `examples/sdl_example_launcher.nano` - Real-world usage
 - [SDL_image Documentation](https://www.libsdl.org/projects/SDL_image/)

@@ -1,6 +1,6 @@
 # My Examples
 
-I keep 253 `.nano` files here: 9 at this directory's root and 244 below category directories. They are not all the same kind of thing.
+I keep 241 `.nano` files here: 8 at this directory's root and 233 below category directories. The total includes the generated OPL output fixture. They are not all the same kind of thing.
 
 Start with `docs/EXAMPLES_INDEX.md`. It is my source of truth for the examples catalog, the learning order, module coverage, dependency labels, and known gaps.
 

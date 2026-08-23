@@ -23,12 +23,36 @@ fn world_x(wx: float) -> int {
     return (cast_int centered)
 }
 
+shadow world_x { assert (== (world_x 0.0) 600) }
+
 fn world_y(wy: float) -> int {
     let adjusted: float = (- wy 45.0)
     let scaled: float = (* adjusted 12.0)
     let flipped: float = (- 450.0 scaled)
     return (cast_int flipped)
 }
+
+shadow world_y { assert (== (world_y 45.0) 450) }
+
+fn draw_bar(r: SDL_Renderer, wx: float, wy: float, half_w: float, half_h: float, degrees: float) -> void {
+    let angle: float = (* degrees 0.0174532925)
+    let c: float = (cos angle)
+    let s: float = (sin angle)
+    let x1: int = (world_x (+ wx (- (* (- 0.0 half_w) c) (* (- 0.0 half_h) s))))
+    let y1: int = (world_y (+ wy (+ (* (- 0.0 half_w) s) (* (- 0.0 half_h) c))))
+    let x2: int = (world_x (+ wx (- (* half_w c) (* (- 0.0 half_h) s))))
+    let y2: int = (world_y (+ wy (+ (* half_w s) (* (- 0.0 half_h) c))))
+    let x3: int = (world_x (+ wx (- (* half_w c) (* half_h s))))
+    let y3: int = (world_y (+ wy (+ (* half_w s) (* half_h c))))
+    let x4: int = (world_x (+ wx (- (* (- 0.0 half_w) c) (* half_h s))))
+    let y4: int = (world_y (+ wy (+ (* (- 0.0 half_w) s) (* half_h c))))
+    (SDL_RenderDrawLine r x1 y1 x2 y2)
+    (SDL_RenderDrawLine r x2 y2 x3 y3)
+    (SDL_RenderDrawLine r x3 y3 x4 y4)
+    (SDL_RenderDrawLine r x4 y4 x1 y1)
+}
+
+shadow draw_bar { assert true }
 
 /* Draw circle */
 fn draw_circle(r: SDL_Renderer, cx: int, cy: int, radius: int) -> int {
@@ -136,6 +160,23 @@ fn main() -> int {
             set gx (+ gx 2)
         }
         
+        /* Beads */
+        (SDL_SetRenderDrawColor renderer 200 100 50 255)
+        let mut draw_row: int = 0
+        while (< draw_row 5) {
+            let draw_y: float = (- 30.0 (* (cast_float draw_row) 14.0))
+            let mut draw_col: int = 0
+            let mut draw_offset: float = 0.0
+            if (== (% draw_row 2) 1) { set draw_offset 10.0 }
+            while (< draw_col 4) {
+                let draw_x: float = (+ -30.0 (+ (* (cast_float draw_col) 20.0) draw_offset))
+                let draw_angle: float = (+ 15.0 (* (cast_float (% (+ draw_row draw_col) 3)) 10.0))
+                (draw_bar renderer draw_x draw_y 7.0 1.0 draw_angle)
+                set draw_col (+ draw_col 1)
+            }
+            set draw_row (+ draw_row 1)
+        }
+
         /* Beads */
         (SDL_SetRenderDrawColor renderer 100 200 255 255)
         let mut i: int = 0

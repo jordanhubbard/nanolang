@@ -23,6 +23,41 @@ static int nl_sdl_quit_received = 0;  /* Track if quit was received this frame *
 static SDL_Event nl_sdl_last_mousemotion;
 static int nl_sdl_has_mousemotion = 0;
 
+int64_t nl_sdl_update_texture(SDL_Texture *texture, void *array,
+                              int64_t width, int64_t height) {
+    struct {
+        int64_t length;
+        int64_t capacity;
+        int32_t elem_type;
+        uint8_t elem_size;
+        uint8_t padding[3];
+        void *data;
+    } *pixels = array;
+    if (!texture || !pixels || !pixels->data || width <= 0 || height <= 0 ||
+        pixels->length < width * height) {
+        return -1;
+    }
+
+    uint32_t *packed = malloc((size_t)(width * height) * sizeof(uint32_t));
+    if (!packed) return -1;
+
+    const int64_t *source = pixels->data;
+    for (int64_t i = 0; i < width * height; i++) {
+        packed[i] = (uint32_t)source[i];
+    }
+
+    int result = SDL_UpdateTexture(texture, NULL, packed, (int)width * 4);
+    free(packed);
+    return result;
+}
+
+int64_t nl_sdl_render_texture(SDL_Renderer *renderer, SDL_Texture *texture,
+                              int64_t x, int64_t y, int64_t w, int64_t h) {
+    if (!renderer || !texture || w <= 0 || h <= 0) return -1;
+    SDL_Rect destination = { (int)x, (int)y, (int)w, (int)h };
+    return SDL_RenderCopy(renderer, texture, NULL, &destination);
+}
+
 static void nl__sdl_drain_events(void) {
     SDL_Event event;
 
@@ -492,4 +527,3 @@ const char* nl_sdl_poll_text_input(void) {
     text_buf[0] = '\0';
     return text_buf;
 }
-

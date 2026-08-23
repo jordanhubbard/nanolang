@@ -1,153 +1,151 @@
-# Example: SQLite Simple
-# Purpose: Demonstrate secure database CRUD operations with SQLite3 prepared statements
-# Features: sqlite, prepared statements, database CRUD, unsafe modules
+# Example: SQLite Prepared CRUD
+# Purpose: Create, read, update, and delete rows with prepared statements and bound values
+# Features: SQLite, prepared statements, parameter binding, CRUD
 # Difficulty: Intermediate
 # Category: advanced
 # Prerequisites: ffi_tutorial
-# Expected Output: SQLite Database Example
-#
-# SECURITY NOTE:
-# This example is SAFE because it uses:
-# - Hardcoded SQL strings (no user input concatenation)
-# - Prepared statements for queries
-#
-# For dynamic queries with user input, ALWAYS use parameter binding:
-# - SAFE:   let stmt = (nl_sqlite3_prepare db "SELECT * FROM users WHERE id = ?")
-#            (nl_sqlite3_bind_int stmt 1 user_id)
-#
-# - UNSAFE: Concatenating user input into SQL string
-#            This would allow SQL injection attacks!
+# Track: modules
+# Build: external-deps
+# Dependencies: SQLite3
+# Tags: sqlite, prepared-statements, crud, local
+# Expected Output: prepared CRUD: Alice -> Alicia -> deleted
 
-module "modules/sqlite/sqlite.nano"
+unsafe module "modules/sqlite/sqlite.nano" as sqlite
+
+fn execute_insert(db: int, name: string, email: string) -> int {
+    let stmt: int = (sqlite.prepare db
+        "INSERT INTO contacts (name, email) VALUES (?, ?)")
+    if (== stmt 0) { return 1 }
+    let mut result: int = (sqlite.bind_text stmt 1 name)
+    if (== result 0) { set result (sqlite.bind_text stmt 2 email) }
+    if (== result 0) {
+        let step_result: int = (sqlite.step stmt)
+        if (!= step_result (sqlite.SQLITE_DONE)) { set result step_result }
+    }
+    (sqlite.finalize stmt)
+    return result
+}
+
+shadow execute_insert {
+    let db: int = (sqlite.open ":memory:")
+    assert (!= db 0)
+    assert (== (sqlite.exec db "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)") 0)
+    assert (== (execute_insert db "Alice" "alice@example.com") 0)
+    assert (== (sqlite.changes db) 1)
+    (sqlite.close db)
+}
+
+fn execute_update(db: int, id: int, name: string) -> int {
+    let stmt: int = (sqlite.prepare db "UPDATE contacts SET name = ? WHERE id = ?")
+    if (== stmt 0) { return 1 }
+    let mut result: int = (sqlite.bind_text stmt 1 name)
+    if (== result 0) { set result (sqlite.bind_int stmt 2 id) }
+    if (== result 0) {
+        let step_result: int = (sqlite.step stmt)
+        if (!= step_result (sqlite.SQLITE_DONE)) { set result step_result }
+    }
+    (sqlite.finalize stmt)
+    return result
+}
+
+shadow execute_update {
+    let db: int = (sqlite.open ":memory:")
+    (sqlite.exec db "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+    (execute_insert db "Alice" "alice@example.com")
+    assert (== (execute_update db 1 "Alicia") 0)
+    assert (== (sqlite.changes db) 1)
+    (sqlite.close db)
+}
+
+fn select_name(db: int, id: int) -> string {
+    let stmt: int = (sqlite.prepare db "SELECT name FROM contacts WHERE id = ?")
+    if (== stmt 0) { return "" }
+    if (!= (sqlite.bind_int stmt 1 id) 0) {
+        (sqlite.finalize stmt)
+        return ""
+    }
+    let mut name: string = ""
+    if (== (sqlite.step stmt) (sqlite.SQLITE_ROW)) {
+        # SQLite owns column text until the statement is finalized, so copy it.
+        set name (+ "" (sqlite.column_text stmt 0))
+    }
+    (sqlite.finalize stmt)
+    return name
+}
+
+shadow select_name {
+    let db: int = (sqlite.open ":memory:")
+    (sqlite.exec db "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+    (execute_insert db "Alice" "alice@example.com")
+    assert (== (select_name db 1) "Alice")
+    assert (== (select_name db 99) "")
+    (sqlite.close db)
+}
+
+fn execute_delete(db: int, id: int) -> int {
+    let stmt: int = (sqlite.prepare db "DELETE FROM contacts WHERE id = ?")
+    if (== stmt 0) { return 1 }
+    let mut result: int = (sqlite.bind_int stmt 1 id)
+    if (== result 0) {
+        let step_result: int = (sqlite.step stmt)
+        if (!= step_result (sqlite.SQLITE_DONE)) { set result step_result }
+    }
+    (sqlite.finalize stmt)
+    return result
+}
+
+shadow execute_delete {
+    let db: int = (sqlite.open ":memory:")
+    (sqlite.exec db "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+    (execute_insert db "Alice" "alice@example.com")
+    assert (== (execute_delete db 1) 0)
+    assert (== (select_name db 1) "")
+    (sqlite.close db)
+}
 
 fn main() -> int {
-    (println "")
-    (println "📇 SQLite Database Example")
-    (println "==========================")
-    (println "")
-    
-    # Open database
-    let db_path: string = "test.db"
-    let mut db: int = 0
-    unsafe {
-        set db (nl_sqlite3_open db_path)
-    }
-    
+    let db: int = (sqlite.open ":memory:")
     if (== db 0) {
-        (println "❌ Failed to open database")
+        (println "Could not open an in-memory SQLite database")
         return 1
-    } else {
-        (print "✓ Database opened: ")
-        (println db_path)
     }
-    
-    # Create table
-    (println "")
-    (println "Creating table...")
-    let create_sql: string = "CREATE TABLE IF NOT EXISTS contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)"
-    let mut create_result: int = 0
-    unsafe {
-        set create_result (nl_sqlite3_exec db create_sql)
+    if (!= (sqlite.exec db "CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT)") 0) {
+        (println (sqlite.errmsg db))
+        (sqlite.close db)
+        return 1
     }
-    
-    if (== create_result 0) {
-        (println "✓ Table created")
-    } else {
-        (print "❌ Create failed: ")
-        let mut create_error: string = ""
-        unsafe {
-            set create_error (nl_sqlite3_errmsg db)
-        }
-        (println create_error)
+    if (!= (execute_insert db "Alice" "alice@example.com") 0) {
+        (println (sqlite.errmsg db))
+        (sqlite.close db)
+        return 1
     }
-    
-    # Insert data
-    (println "")
-    (println "Inserting contacts...")
-    let insert1: string = "INSERT INTO contacts (name, email) VALUES ('Alice', 'alice@example.com')"
-    unsafe {
-        (nl_sqlite3_exec db insert1)
+    let id: int = (sqlite.last_insert_rowid db)
+    let original: string = (select_name db id)
+    if (!= (execute_update db id "Alicia") 0) {
+        (println (sqlite.errmsg db))
+        (sqlite.close db)
+        return 1
     }
-    (println "✓ Inserted Alice")
-    
-    let insert2: string = "INSERT INTO contacts (name, email) VALUES ('Bob', 'bob@example.com')"
-    unsafe {
-        (nl_sqlite3_exec db insert2)
+    let updated: string = (select_name db id)
+    if (!= (execute_delete db id) 0) {
+        (println (sqlite.errmsg db))
+        (sqlite.close db)
+        return 1
     }
-    (println "✓ Inserted Bob")
-    
-    # Query data
-    (println "")
-    (println "Querying all contacts...")
-    (println "")
-    
-    let select_sql: string = "SELECT id, name, email FROM contacts"
-    let mut stmt: int = 0
-    unsafe {
-        set stmt (nl_sqlite3_prepare db select_sql)
+    let deleted: bool = (== (select_name db id) "")
+    (sqlite.close db)
+
+    if (and (== original "Alice") (and (== updated "Alicia") deleted)) {
+        (println "prepared CRUD: Alice -> Alicia -> deleted")
+        return 0
     }
-    
-    if (== stmt 0) {
-        (println "❌ Failed to prepare query")
-    } else {
-        let mut running: bool = true
-        let mut count: int = 0
-        
-        while running {
-            let mut result: int = 0
-            unsafe {
-                set result (nl_sqlite3_step stmt)
-            }
-            
-            if (== result 100) {  # SQLITE_ROW
-                set count (+ count 1)
-                
-                let mut id: int = 0
-                let mut name: string = ""
-                let mut email: string = ""
-                unsafe {
-                    set id (nl_sqlite3_column_int stmt 0)
-                    set name (nl_sqlite3_column_text stmt 1)
-                    set email (nl_sqlite3_column_text stmt 2)
-                }
-                
-                (print "ID: ")
-                (print id)
-                (print " | Name: ")
-                (print name)
-                (print " | Email: ")
-                (println email)
-            } else {
-                set running false
-            }
-        }
-        
-        unsafe {
-            (nl_sqlite3_finalize stmt)
-        }
-        
-        (println "")
-        (print "Total: ")
-        (print count)
-        (println " contacts")
-    }
-    
-    # Close database
-    unsafe {
-        (nl_sqlite3_close db)
-    }
-    
-    (println "")
-    (println "✅ Database operations completed!")
-    (println "")
-    (print "View with: sqlite3 ")
-    (println db_path)
-    (println "")
-    
-    return 0
+    (println (+ "CRUD verification failed: original="
+        (+ original (+ ", updated=" updated))))
+    return 1
 }
 
 shadow main {
-    # Uses extern functions
-    assert true
+    let db: int = (sqlite.open ":memory:")
+    assert (!= db 0)
+    (sqlite.close db)
 }

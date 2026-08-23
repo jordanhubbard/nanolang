@@ -1,9 +1,13 @@
 # Example: Datetime Library Demo
 # Purpose: Demonstrate date and time operations using the datetime module
-# Features: modules, datetime, formatting, date arithmetic
+# Features: modules, datetime, formatting, date arithmetic, shadow tests
 # Difficulty: Intermediate
 # Category: advanced
 # Prerequisites: none
+# Track: modules
+# Build: local, external-deps
+# Dependencies: C standard library time API
+# Tags: datetime, ffi, shadow-tested
 # Expected Output: === Current Time Example ===
 
 module "std/datetime/datetime.nano" as DT
@@ -15,7 +19,7 @@ fn current_time_example() -> void {
     let iso_str: string = (DT.to_iso current_dt)
     (println (+ "Current time (ISO): " iso_str))
     
-    let formatted: string = (DT.format current_dt "%A, %B %d, %Y at %I:%M %p")
+    let formatted: string = (DT.format_datetime current_dt "%A, %B %d, %Y at %I:%M %p")
     (println (+ "Formatted: " formatted))
     
     let year_val: int = (DT.year current_dt)
@@ -31,8 +35,9 @@ fn current_time_example() -> void {
 }
 
 shadow current_time_example {
-    (current_time_example)
-    assert true
+    let current_dt: DT.DateTime = (DT.now)
+    assert (> (DT.year current_dt) 1970)
+    (DT.free current_dt)
 }
 
 fn parsing_example() -> void {
@@ -49,8 +54,11 @@ fn parsing_example() -> void {
 }
 
 shadow parsing_example {
-    (parsing_example)
-    assert true
+    let parsed: DT.DateTime = (DT.parse_iso "2024-12-17T15:30:00")
+    assert (== (DT.year parsed) 2024)
+    assert (== (DT.month parsed) 12)
+    assert (== (DT.day parsed) 17)
+    (DT.free parsed)
 }
 
 fn arithmetic_example() -> void {
@@ -75,8 +83,11 @@ fn arithmetic_example() -> void {
 }
 
 shadow arithmetic_example {
-    (arithmetic_example)
-    assert true
+    let base: DT.DateTime = (DT.create 2024 1 1 12 0 0)
+    let plus_days: DT.DateTime = (DT.add_days base 30)
+    assert (== (DT.diff_seconds plus_days base) 2592000)
+    (DT.free base)
+    (DT.free plus_days)
 }
 
 fn comparison_example() -> void {
@@ -108,8 +119,12 @@ fn comparison_example() -> void {
 }
 
 shadow comparison_example {
-    (comparison_example)
-    assert true
+    let first: DT.DateTime = (DT.create 2024 6 15 12 0 0)
+    let second: DT.DateTime = (DT.create 2024 12 25 12 0 0)
+    assert (DT.before first second)
+    assert (DT.after second first)
+    (DT.free first)
+    (DT.free second)
 }
 
 fn utilities_example() -> void {
@@ -134,8 +149,8 @@ fn utilities_example() -> void {
 }
 
 shadow utilities_example {
-    (utilities_example)
-    assert true
+    assert (DT.is_leap_year 2024)
+    assert (== (DT.days_in_month 2024 2) 29)
 }
 
 fn timestamp_example() -> void {
@@ -154,8 +169,12 @@ fn timestamp_example() -> void {
 }
 
 shadow timestamp_example {
-    (timestamp_example)
-    assert true
+    let current_dt: DT.DateTime = (DT.now)
+    let timestamp: int = (DT.to_timestamp current_dt)
+    let from_ts: DT.DateTime = (DT.from_timestamp timestamp)
+    assert (DT.equals current_dt from_ts)
+    (DT.free current_dt)
+    (DT.free from_ts)
 }
 
 fn main() -> int {
@@ -174,4 +193,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

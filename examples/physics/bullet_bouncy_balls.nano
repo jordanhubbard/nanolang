@@ -192,6 +192,27 @@ shadow draw_filled_circle {
     assert true  # Uses extern SDL
 }
 
+fn draw_rotated_obstacle(renderer: SDL_Renderer, wx: float, wy: float,
+                         half_w: float, half_h: float, degrees: float) -> void {
+    let angle: float = (* degrees 0.0174532925)
+    let c: float = (cos angle)
+    let s: float = (sin angle)
+    let x1: int = (project_x (+ wx (- (* (- 0.0 half_w) c) (* (- 0.0 half_h) s))))
+    let y1: int = (project_y (+ wy (+ (* (- 0.0 half_w) s) (* (- 0.0 half_h) c))))
+    let x2: int = (project_x (+ wx (- (* half_w c) (* (- 0.0 half_h) s))))
+    let y2: int = (project_y (+ wy (+ (* half_w s) (* (- 0.0 half_h) c))))
+    let x3: int = (project_x (+ wx (- (* half_w c) (* half_h s))))
+    let y3: int = (project_y (+ wy (+ (* half_w s) (* half_h c))))
+    let x4: int = (project_x (+ wx (- (* (- 0.0 half_w) c) (* half_h s))))
+    let y4: int = (project_y (+ wy (+ (* (- 0.0 half_w) s) (* half_h c))))
+    (SDL_RenderDrawLine renderer x1 y1 x2 y2)
+    (SDL_RenderDrawLine renderer x2 y2 x3 y3)
+    (SDL_RenderDrawLine renderer x3 y3 x4 y4)
+    (SDL_RenderDrawLine renderer x4 y4 x1 y1)
+}
+
+shadow draw_rotated_obstacle { assert true }
+
 /* Random number generator (simple LCG) */
 let mut rng_state: int = 12345
 
@@ -482,27 +503,15 @@ fn main() -> int {
         # Draw obstacles (using same randomized positions as physics)
         (SDL_SetRenderDrawColor renderer 100 90 120 255)
         
-        # Center V funnel - draw as simple rectangles (approximation of angled boxes)
-        let v_left_cx: int = (project_x (- 0.0 v_spread))
-        let v_left_cy: int = (project_y (+ base_y v_height_offset))
-        let v_right_cx: int = (project_x v_spread)
-        let v_right_cy: int = (project_y (+ base_y v_height_offset))
-        let v_draw_width: int = (cast_int (* (* v_length 2.0) CAMERA_SCALE))
-        let v_draw_height: int = (cast_int (* 1.2 CAMERA_SCALE))
-        (nl_sdl_render_fill_rect renderer (- v_left_cx (/ v_draw_width 2)) (- v_left_cy (/ v_draw_height 2)) v_draw_width v_draw_height)
-        (nl_sdl_render_fill_rect renderer (- v_right_cx (/ v_draw_width 2)) (- v_right_cy (/ v_draw_height 2)) v_draw_width v_draw_height)
+        # Center V funnel
+        (draw_rotated_obstacle renderer (- 0.0 v_spread) (+ base_y v_height_offset) v_length 0.6 v_angle)
+        (draw_rotated_obstacle renderer v_spread (+ base_y v_height_offset) v_length 0.6 (- 0.0 v_angle))
         
         # Left ramp
-        let ramp_left_cx: int = (project_x (- 0.0 ramp_x_offset))
-        let ramp_left_cy: int = (project_y (+ base_y ramp_height_offset))
-        let ramp_draw_width: int = (cast_int (* (* ramp_length 2.0) CAMERA_SCALE))
-        let ramp_draw_height: int = (cast_int (* 1.2 CAMERA_SCALE))
-        (nl_sdl_render_fill_rect renderer (- ramp_left_cx (/ ramp_draw_width 2)) (- ramp_left_cy (/ ramp_draw_height 2)) ramp_draw_width ramp_draw_height)
+        (draw_rotated_obstacle renderer (- 0.0 ramp_x_offset) (+ base_y ramp_height_offset) ramp_length 0.6 ramp_angle)
         
         # Right ramp
-        let ramp_right_cx: int = (project_x ramp_x_offset)
-        let ramp_right_cy: int = (project_y (+ base_y ramp_height_offset))
-        (nl_sdl_render_fill_rect renderer (- ramp_right_cx (/ ramp_draw_width 2)) (- ramp_right_cy (/ ramp_draw_height 2)) ramp_draw_width ramp_draw_height)
+        (draw_rotated_obstacle renderer ramp_x_offset (+ base_y ramp_height_offset) ramp_length 0.6 (- 0.0 ramp_angle))
         
         # Pegs (using randomized positions and sizes)
         let peg_draw_size: int = (cast_int (* (* peg_size 2.0) CAMERA_SCALE))

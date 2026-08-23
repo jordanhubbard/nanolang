@@ -406,4 +406,3 @@ Create `examples/README.md` with:
 The examples demonstrate that **NanoLang is a capable, production-ready language**. The SDL games especially showcase real-world application development. However, the educational value is diminished by lack of documentation. With proper headers and organization, these examples could be an **excellent learning resource**.
 
 **Recommended Priority:** Fix documentation first (biggest impact for learners), then reorganize and add advanced examples.
-

@@ -1,7 +1,7 @@
 # Examples Consolidation Audit
 
 ## Overview
-Total examples when this proposal was written: about 108 `.nano` files. Current disk count: 253.
+Total examples when this proposal was written: about 108 `.nano` files. Current disk count: 241, including generated output.
 Goal: Reduce duplication, merge similar examples, improve discoverability
 
 This is a historical consolidation proposal, not my current catalog. `docs/EXAMPLES_INDEX.md` records the decisions and paths that exist now.

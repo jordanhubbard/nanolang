@@ -1,5 +1,5 @@
 # Example: PID Controller
-# Purpose: Proportional-Integral-Derivative control loop with verified safety bounds and anti-windup
+# Purpose: Test a bounded integer PID model inside the NanoCore trust boundary
 # Features: structs, integer fixed-point arithmetic, while loops, arrays, shadow tests
 # Difficulty: Advanced
 # Category: verified
@@ -9,7 +9,8 @@
 /* =============================================================================
  * Verified PID Controller with Safety Bounds
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust boundary: --trust-report classifies each function. My Coq theorems
+ * cover NanoCore language semantics, not control-system stability or tuning.
  *
  * Industry Context:
  *   PID controllers are used in industrial process control, automotive cruise
@@ -23,10 +24,9 @@
  *   All arithmetic uses integers (fixed-point scaling by 1000) to avoid
  *   floating-point non-determinism — matching the Coq integer semantics exactly.
  *
- * What the Coq proofs guarantee:
- *   - Determinism: same state + input always produces the same output
- *   - Type soundness: the controller never produces a wrong-typed output
- *   - Bounded output: the clamp function guarantees output stays in range
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows exercise fixed-point cases, clamping, and selected sequences.
+ * Assumed: integer overflow is absent and this plant model fits its real system.
  *
  * Run: nanoc --trust-report examples/verified/pid_controller.nano
  * ============================================================================= */
@@ -93,8 +93,8 @@ struct PIDState {
  *   D = Kd * (error - prev_error)
  *   output = clamp(P + I + D, min, max)
  *
- * The clamp guarantees output stays within safe bounds regardless of
- * accumulated integral or derivative spikes. */
+ * The implementation clamps the computed output to the configured interval.
+ * This is not a proof that the interval is physically safe. */
 
 fn pid_update(config: PIDConfig, state: PIDState,
               setpoint: int, measurement: int) -> PIDState {
@@ -179,10 +179,9 @@ shadow simulate_pid {
     assert (> final_val 0)  /* Should have moved toward setpoint */
 }
 
-/* ── Safety property: output is always bounded ──
- * Verifies the key safety invariant: no matter what the input sequence,
- * the PID output stays within [output_min, output_max].
- * This follows from the clamp, but we verify it empirically too. */
+/* ── Sampled output-bound checker ──
+ * Runs one supplied setpoint sequence and checks each computed output against
+ * the configured interval. The shadows test three concrete sequences. */
 
 fn verify_output_bounded(config: PIDConfig, setpoints: array<int>,
                           measurement: int) -> bool {
@@ -222,32 +221,6 @@ shadow verify_output_bounded {
     assert (verify_output_bounded config [-99999, -99999, -99999, -99999] 0)
 }
 
-/* ── Determinism verification ── */
-
-fn verify_pid_determinism(config: PIDConfig, setpoint: int) -> bool {
-    let h1: array<int> = (simulate_pid config setpoint 0 10 3)
-    let h2: array<int> = (simulate_pid config setpoint 0 10 3)
-    let mut i: int = 0
-    while (< i (array_length h1)) {
-        if (!= (at h1 i) (at h2 i)) {
-            return false
-        }
-        set i (+ i 1)
-    }
-    return true
-}
-
-shadow verify_pid_determinism {
-    let config: PIDConfig = PIDConfig {
-        kp: 500, ki: 50, kd: 100,
-        output_min: -10000, output_max: 10000,
-        integral_min: -5000, integral_max: 5000
-    }
-    assert (verify_pid_determinism config 1000)
-    assert (verify_pid_determinism config -500)
-    assert (verify_pid_determinism config 0)
-}
-
 /* ── Main ── */
 
 fn main() -> int {
@@ -257,7 +230,6 @@ fn main() -> int {
         integral_min: -5000, integral_max: 5000
     }
 
-    assert (verify_pid_determinism config 1000)
     assert (verify_output_bounded config [10000, -10000, 5000, -5000, 0] 0)
 
     let history: array<int> = (simulate_pid config 1000 0 20 3)

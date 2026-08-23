@@ -59,12 +59,14 @@ shadow build_sample_code {
 # Demo of the nl_ui_code_display widget with syntax highlighting
 fn main() -> int {
     # Initialize SDL and TTF
-    if (< (SDL_Init SDL_INIT_VIDEO) 0) {
-        (println (+ "SDL initialization failed: " (SDL_GetError)))
+    let sdl_status: int = (SDL_Init SDL_INIT_VIDEO)
+    if (!= sdl_status 0) {
+        (println (+ "I could not initialize SDL: " (SDL_GetError)))
         return 1
     }
-    if (< (TTF_Init) 0) {
-        (println (+ "TTF initialization failed: " (TTF_GetError)))
+    let ttf_status: int = (TTF_Init)
+    if (!= ttf_status 0) {
+        (println (+ "I could not initialize SDL_ttf: " (TTF_GetError)))
         (SDL_Quit)
         return 1
     }
@@ -72,17 +74,17 @@ fn main() -> int {
     # Create window
     let window: SDL_Window = (SDL_CreateWindow "Code Display Widget Demo" 100 100 1000 700 SDL_WINDOW_SHOWN)
     if (== window 0) {
-        (println (+ "Window creation failed: " (SDL_GetError)))
+        (println (+ "I could not create the code display window: " (SDL_GetError)))
         (TTF_Quit)
         (SDL_Quit)
         return 1
     }
-    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     if (== renderer 0) {
         set renderer (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE)
     }
     if (== renderer 0) {
-        (println (+ "Renderer creation failed: " (SDL_GetError)))
+        (println (+ "I could not create the code display renderer: " (SDL_GetError)))
         (SDL_DestroyWindow window)
         (TTF_Quit)
         (SDL_Quit)
@@ -93,7 +95,7 @@ fn main() -> int {
     let font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" 14)
     let title_font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" 18)
     if (or (== font 0) (== title_font 0)) {
-        (println (+ "Font loading failed: " (TTF_GetError)))
+        (println (+ "I could not open a font for the code display: " (TTF_GetError)))
         if (!= font 0) { (TTF_CloseFont font) }
         if (!= title_font 0) { (TTF_CloseFont title_font) }
         (SDL_DestroyRenderer renderer)
@@ -109,10 +111,7 @@ fn main() -> int {
     let mut running: bool = true
     let mut scroll_offset: int = 0
     
-    (println "🎨 Code Display Widget Demo")
-    (println "Press UP/DOWN to scroll")
-    (println "Press ESC to quit")
-    (println "")
+    (println "I opened the code display widget. Use UP/DOWN to scroll and ESC to quit.")
     
     while running {
         # Poll events
@@ -149,7 +148,7 @@ fn main() -> int {
         (nl_ui_label renderer font "Use UP/DOWN arrows to scroll" 20 40 180 180 200 255) 
         
         # Display the code with syntax highlighting
-        (nl_ui_code_display renderer font sample_code 20 70 960 600 scroll_offset 18) 
+        (nl_ui_code_display renderer font sample_code 20 70 960 600 scroll_offset 18)
         
         # Scroll indicator
         let scroll_text: string = (+ "Scroll: " (int_to_string scroll_offset))
@@ -171,5 +170,5 @@ fn main() -> int {
 }
 
 shadow main {
-    # Cannot test windowing functions
+    assert (str_contains (build_sample_code) "shadow factorial")
 }

@@ -105,6 +105,21 @@ fn get_asteroid_gray(size: int) -> int {
     )
 }
 
+fn count_active(flags: array<bool>) -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i (array_length flags)) {
+        if (at flags i) { set count (+ count 1) }
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow count_active {
+    assert (== (count_active [true, false, true]) 2)
+    assert (== (count_active []) 0)
+}
+
 shadow get_asteroid_gray {
     assert (== (get_asteroid_gray ASTEROID_SIZE_LARGE) 180)
     assert (== (get_asteroid_gray ASTEROID_SIZE_SMALL) 120)
@@ -724,11 +739,18 @@ fn main() -> int {
                     set asteroid_vx []
                     set asteroid_vy []
                     set asteroid_size []
+                    set asteroid_active []
                     set bullet_x []
                     set bullet_y []
                     set bullet_vx []
                     set bullet_vy []
                     set bullet_life []
+                    set bullet_active []
+                    set particle_x []
+                    set particle_y []
+                    set particle_vx []
+                    set particle_vy []
+                    set particle_life []
                     
                     # Spawn new asteroids
                     let mut spawn_i: int = 0
@@ -743,6 +765,7 @@ fn main() -> int {
                         set asteroid_vx (array_push asteroid_vx rand_vx)
                         set asteroid_vy (array_push asteroid_vy rand_vy)
                         set asteroid_size (array_push asteroid_size ASTEROID_SIZE_LARGE)
+                        set asteroid_active (array_push asteroid_active true)
                         
                         set spawn_i (+ spawn_i 1)
                     }
@@ -758,6 +781,20 @@ fn main() -> int {
                 (SDL_RenderDrawLine renderer 550 250 550 300) 
                 (SDL_RenderDrawLine renderer 550 300 250 300) 
                 (SDL_RenderDrawLine renderer 250 300 250 250) 
+            }
+        }
+
+        # Clearing every fragment starts a new wave without changing parallel-array lengths.
+        if (and (== game_state STATE_PLAYING) (== (count_active asteroid_active) 0)) {
+            let mut wave_i: int = 0
+            while (< wave_i 3) {
+                set asteroid_x (array_push asteroid_x (cast_float (+ 100 (* wave_i 250))))
+                set asteroid_y (array_push asteroid_y (cast_float (+ 80 (* (% wave_i 2) 420))))
+                set asteroid_vx (array_push asteroid_vx (cast_float (- (* wave_i 35) 30)))
+                set asteroid_vy (array_push asteroid_vy (cast_float (+ 25 (* wave_i 10))))
+                set asteroid_size (array_push asteroid_size ASTEROID_SIZE_LARGE)
+                set asteroid_active (array_push asteroid_active true)
+                set wave_i (+ wave_i 1)
             }
         }
         

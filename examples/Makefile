@@ -105,11 +105,11 @@ endif
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
-# === REPL Examples ===
+# === REPL Example ===
 
-# Most REPL examples require the readline module (READLINE_AVAILABLE probed above).
+# The full REPL requires the readline module (READLINE_AVAILABLE probed above).
 ifeq ($(READLINE_AVAILABLE),yes)
-REPL_SOURCES := $(filter-out language/readline_repl.nano language/full_repl.nano language/multi_type_repl.nano language/multiline_repl.nano,$(wildcard language/*_repl.nano))
+REPL_SOURCES := $(wildcard language/*_repl.nano)
 else
 REPL_SOURCES :=
 endif
@@ -118,8 +118,8 @@ REPL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(REPL_EXAMPLES)))
 
 # === Advanced Examples ===
 
-# Always exclude: helpers, mac task demos, datetime
-ADVANCED_EXCLUDE := advanced/math_helper.nano $(wildcard advanced/mac_*.nano) advanced/datetime_demo.nano
+# Always exclude: helpers and mac task demos
+ADVANCED_EXCLUDE := advanced/math_helper.nano $(wildcard advanced/mac_*.nano)
 # Missing modules (regex)
 ADVANCED_EXCLUDE += advanced/regex_demo.nano advanced/regex_demo_simple.nano
 # External C libraries needed (libevent, libuv, libc module, sqlite3, unicode FFI)
@@ -396,7 +396,6 @@ VM_LIBRARY_SOURCES := \
 # tests/test_vm_examples_coverage.sh fails if one starts compiling, so the
 # list cannot quietly outlive its reason.
 VM_UNSUPPORTED_SOURCES := \
-	advanced/datetime_demo.nano \
 	diagnostics/llm_diags_type_mismatch.nano \
 	opl/examples/output/hello.nano
 
@@ -497,13 +496,23 @@ launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT) gpu
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
 .PHONY: gpu-launcher-kernels
-gpu-launcher-kernels: gpu/matmul.ptx gpu/matmul.cl
+gpu-launcher-kernels: gpu/matmul.ptx gpu/matmul.cl gpu/ocean.ptx gpu/ocean.cl
 
 gpu/matmul.ptx: gpu/matmul.nano $(COMPILER)
 	$(COMPILER) $< --target ptx -o $@
 
 gpu/matmul.cl: gpu/matmul.nano $(COMPILER)
 	$(COMPILER) $< --target opencl -o $@
+
+gpu/ocean.ptx: gpu/ocean.nano $(COMPILER)
+	$(COMPILER) $< --target ptx -o $@
+
+gpu/ocean.cl: gpu/ocean.nano $(COMPILER)
+	$(COMPILER) $< --target opencl -o $@
+
+$(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT): gpu/ocean.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 # === NanoVM (sandboxed bytecode) example builds ===
 # I compile every example source into NanoISA bytecode with a `vm_` prefix so a

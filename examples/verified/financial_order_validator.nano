@@ -1,5 +1,5 @@
 # Example: Financial Order Validator
-# Purpose: Pre-trade order validation with formally verified safety checks and risk limits
+# Purpose: Test a pedagogical pre-trade policy and state its trust boundary
 # Features: unions, pattern matching, structs, integer arithmetic, bounds checking, shadow tests
 # Difficulty: Intermediate
 # Category: verified
@@ -9,7 +9,8 @@
 /* =============================================================================
  * Verified Financial Order Validator
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust boundary: --trust-report classifies each function. My Coq theorems do
+ * not prove that these limits satisfy an exchange, account, or deployment policy.
  *
  * Industry Context:
  *   Knight Capital (2012) lost $440M in 45 minutes when dormant code on one
@@ -20,13 +21,12 @@
  *   exchanges and dark pools using Coq, proving fairness and uniformity.
  *
  *   This example demonstrates the "verified critical path" pattern: order
- *   validation logic that gates every trade is in the NanoCore subset where
- *   the Coq proofs guarantee it behaves deterministically and type-safely.
+ *   validation logic that gates a trade has a visible trust boundary. The Coq
+ *   semantics do not prove these limits or the surrounding deployment policy.
  *
- * What the Coq proofs guarantee:
- *   - Determinism: same order always gets the same accept/reject decision
- *   - Type soundness: validation never produces a wrong-typed result
- *   - No stuck states: every well-typed order gets a definitive answer
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows cover selected structural, risk, aggregate, and price cases.
+ * Assumed: integer products do not overflow and configured limits are correct.
  *
  * Run: nanoc --trust-report examples/verified/financial_order_validator.nano
  * ============================================================================= */
@@ -332,34 +332,6 @@ shadow price_within_band {
     assert (not (price_within_band 6000 5000 10))
 }
 
-/* ── Determinism verification ── */
-
-fn verify_validation_determinism(order: Order, limits: RiskLimits) -> bool {
-    let r1: ValidationResult = (validate_risk_limits order limits)
-    let r2: ValidationResult = (validate_risk_limits order limits)
-    let mut v1: int = 0
-    let mut v2: int = 0
-    match r1 { Accepted(a) => { set v1 a.order_id }, Rejected(rj) => { set v1 (- 0 rj.order_id) } }
-    match r2 { Accepted(a) => { set v2 a.order_id }, Rejected(rj) => { set v2 (- 0 rj.order_id) } }
-    return (== v1 v2)
-}
-
-shadow verify_validation_determinism {
-    let limits: RiskLimits = RiskLimits {
-        max_order_quantity: 10000,
-        max_order_value_cents: 100000000,
-        max_daily_orders: 1000,
-        max_daily_value_cents: 500000000,
-        min_price_cents: 100,
-        max_price_cents: 100000
-    }
-    let o: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
-    assert (verify_validation_determinism o limits)
-
-    let bad: Order = Order { order_id: 2, side: 5, quantity: 1, price_cents: 1, account_id: 1 }
-    assert (verify_validation_determinism bad limits)
-}
-
 /* ── Main ── */
 
 fn main() -> int {
@@ -377,7 +349,6 @@ fn main() -> int {
     let mut accepted: bool = false
     match result { Accepted(a) => { set accepted true }, Rejected(rj) => {} }
     assert accepted
-    assert (verify_validation_determinism order limits)
     assert (price_within_band 5000 5000 10)
     return 0
 }

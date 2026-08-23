@@ -165,7 +165,7 @@ pub fn to_iso(dt: DateTime) -> string {
     }
 }
 
-pub fn format(dt: DateTime, format_str: string) -> string {
+pub fn format_datetime(dt: DateTime, format_str: string) -> string {
     unsafe {
         return (nl_datetime_format dt format_str)
     }
@@ -375,10 +375,10 @@ shadow to_iso {
     (free dt)
 }
 
-shadow format {
+shadow format_datetime {
     let dt: DateTime = (create 2024 6 15 12 34 56)
-    let out: string = (format dt "%Y-%m-%d")
-    assert (> (str_length out) 0)
+    let out: string = (format_datetime dt "%Y-%m-%d")
+    assert (str_equals out "2024-06-15")
     (free dt)
 }
 
@@ -511,4 +511,3 @@ shadow free {
     (free dt)
     assert true
 }
-

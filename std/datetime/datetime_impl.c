@@ -44,6 +44,7 @@ void* nl_datetime_parse_iso(const char* datetime_str) {
     if (!dt) return NULL;
     
     memset(&dt->tm, 0, sizeof(struct tm));
+    dt->tm.tm_isdst = -1;
     
     // Try full ISO format: YYYY-MM-DDTHH:MM:SS
     if (strptime(datetime_str, "%Y-%m-%dT%H:%M:%S", &dt->tm) != NULL) {
@@ -70,6 +71,7 @@ void* nl_datetime_parse_format(const char* datetime_str, const char* format) {
     if (!dt) return NULL;
     
     memset(&dt->tm, 0, sizeof(struct tm));
+    dt->tm.tm_isdst = -1;
     
     if (strptime(datetime_str, format, &dt->tm) != NULL) {
         dt->timestamp = mktime(&dt->tm);
@@ -299,4 +301,3 @@ void nl_datetime_free(void* datetime) {
         free(datetime);
     }
 }
-

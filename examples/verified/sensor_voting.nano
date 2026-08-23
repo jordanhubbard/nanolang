@@ -1,5 +1,5 @@
 # Example: Sensor Voting System
-# Purpose: Triple modular redundancy majority voting for safety-critical sensor readings
+# Purpose: Test a pedagogical sensor voter and state its trust boundary
 # Features: unions, pattern matching, structs, arrays, integer arithmetic, shadow tests
 # Difficulty: Intermediate
 # Category: verified
@@ -21,10 +21,9 @@
  *   16-bit integer conversion overflow. A formal model with bounds checking
  *   would have made the assumption explicit and forced verification.
  *
- * What the Coq proofs guarantee:
- *   - Determinism: same three sensor readings always produce the same vote
- *   - Type soundness: voting logic never produces a wrong-typed result
- *   - Well-typed expressions in the verified subset preserve their types
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows cover selected consensus, degraded, range, and failure cases.
+ * Assumed: sensors are independent, timestamps align, and tolerances are valid.
  *
  * Run: nanoc --trust-report examples/verified/sensor_voting.nano
  * ============================================================================= */
@@ -80,7 +79,8 @@ shadow readings_agree {
  *   - If two agree: Degraded (average of agreeing pair, dissenter identified)
  *   - If none agree: Failure
  *
- * The determinism proof guarantees: same inputs → same decision, always. */
+ * The semantic determinism theorem applies when --trust-report says [verified].
+ * It does not prove that this voting policy is correct for a physical sensor. */
 
 fn triple_vote(s1: SensorReading, s2: SensorReading, s3: SensorReading,
                tolerance: int) -> VoteResult {
@@ -298,33 +298,6 @@ shadow validated_vote {
     assert valid2  /* Still valid: 2 of 3 agree */
 }
 
-/* ── Determinism verification ── */
-
-fn verify_vote_determinism(s1: SensorReading, s2: SensorReading, s3: SensorReading) -> bool {
-    let r1: VoteResult = (triple_vote s1 s2 s3 5)
-    let r2: VoteResult = (triple_vote s1 s2 s3 5)
-    let mut v1: int = -999999
-    let mut v2: int = -999999
-    match r1 {
-        Consensus(c) => { set v1 c.value },
-        Degraded(d) => { set v1 d.value },
-        Failure(f) => {}
-    }
-    match r2 {
-        Consensus(c) => { set v2 c.value },
-        Degraded(d) => { set v2 d.value },
-        Failure(f) => {}
-    }
-    return (== v1 v2)
-}
-
-shadow verify_vote_determinism {
-    let s1: SensorReading = SensorReading { value: 100, sensor_id: 1, timestamp: 0 }
-    let s2: SensorReading = SensorReading { value: 200, sensor_id: 2, timestamp: 0 }
-    let s3: SensorReading = SensorReading { value: 300, sensor_id: 3, timestamp: 0 }
-    assert (verify_vote_determinism s1 s2 s3)
-}
-
 /* ── Main ── */
 
 fn main() -> int {
@@ -340,7 +313,6 @@ fn main() -> int {
         Failure(f) => {}
     }
     assert (== val 1013)
-    assert (verify_vote_determinism s1 s2 s3)
     assert (not (detect_stuck_sensor [1013, 1014, 1012, 1015, 1011] 1))
     return 0
 }

@@ -1,9 +1,9 @@
 # Example: SDL_image Complete Demo
-# Purpose: Comprehensive demonstration of all major SDL_image features including loading, scaling, rotation, and tinting
+# Purpose: I introduce SDL_image loading, scaling, rotation, flipping, tinting, and alpha blending in one window
 # Features: SDL_image, texture loading, alpha blending, color modulation, sprite sheets
 # Difficulty: Intermediate
 # Category: graphics
-# Prerequisites: sdl_image_test
+# Prerequisites: sdl_drawing_primitives
 # Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
@@ -199,4 +199,3 @@ shadow main {
     # Cannot test with shadow as it requires SDL context
     assert (== 1 1)
 }
-

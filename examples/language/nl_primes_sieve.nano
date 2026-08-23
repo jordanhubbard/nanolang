@@ -1,6 +1,6 @@
 # Example: Prime Sieve (Eratosthenes)
-# Purpose: Counts primes up to one million using the Sieve of Eratosthenes algorithm for optimized performance
-# Features: arrays, bool arrays, nested loops, algorithm optimization
+# Purpose: I replace the trial division from nl_primes with a sieve for the million-number benchmark
+# Features: arrays, bool arrays, nested loops, algorithm comparison
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello, nl_control_if_while, nl_primes
@@ -46,8 +46,10 @@ fn count_primes_sieve(limit: int) -> int {
 }
 
 shadow count_primes_sieve {
+    assert (== (count_primes_sieve 0) 0)
     assert (== (count_primes_sieve 2) 0)
     assert (== (count_primes_sieve 10) 4)
+    assert (== (count_primes_sieve 100) 25)
 }
 
 fn main() -> int {

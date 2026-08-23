@@ -1,34 +1,40 @@
-# Example: HashMap API Lesson
-# Purpose: I show the built-in HashMap API in one small lookup table
-# Features: HashMap<K,V>, map_new, map_put, map_has, map_get, map_size
-# Difficulty: Intermediate
+# Example: Collections HashMap API Lesson
+# Purpose: I show my string HashMap wrapper, including traversal, mutation, and explicit cleanup
+# Features: HashMap, std_hm_new, std_hm_put, std_hm_has, std_hm_get, std_hm_size, std_hm_keys, std_hm_values, std_hm_remove, std_hm_clear, std_hm_free
+# Difficulty: Advanced
 # Category: api_lessons
 # Prerequisites: nl_hashmap
 # Track: modules
 # Build: local
-# Dependencies: builtin HashMap
-# Tags: api-lesson, collections, shadow-tested
-# Expected Output: hashmap answer: language
+# Dependencies: modules/std/collections/hashmap
+# Tags: api-lesson, collections, hashmap, ownership, shadow-tested
+# Expected Output: hashmap answer: language (2 entries)
 
-fn build_terms() -> HashMap<string, string> {
-    let hm: HashMap<string, string> = (map_new)
-    (map_put hm "nano" "language")
-    (map_put hm "shadow" "test")
-    return hm
+from "modules/std/collections/hashmap.nano" import HashMap, std_hm_new, std_hm_put, std_hm_has, std_hm_get, std_hm_size, std_hm_keys, std_hm_values, std_hm_remove, std_hm_clear, std_hm_free
+
+fn build_terms() -> HashMap {
+    let hm0: HashMap = (std_hm_new)
+    let hm1: HashMap = (std_hm_put hm0 "nano" "language")
+    let hm2: HashMap = (std_hm_put hm1 "shadow" "test")
+    return (std_hm_put hm2 "shadow" "test")
 }
 
 shadow build_terms {
-    let terms: HashMap<string, string> = (build_terms)
-    assert (== (map_size terms) 2)
-    assert (map_has terms "nano")
-    assert (== (map_get terms "shadow") "test")
+    let terms: HashMap = (build_terms)
+    assert (== (std_hm_size terms) 2)
+    assert (std_hm_has terms "nano")
+    assert (== (std_hm_get terms "shadow") "test")
+    (std_hm_free terms)
 }
 
 fn lookup_or_default(key: string, fallback: string) -> string {
-    let terms: HashMap<string, string> = (build_terms)
-    if (map_has terms key) {
-        return (map_get terms key)
+    let terms: HashMap = (build_terms)
+    if (std_hm_has terms key) {
+        let value: string = (std_hm_get terms key)
+        (std_hm_free terms)
+        return value
     }
+    (std_hm_free terms)
     return fallback
 }
 
@@ -37,9 +43,28 @@ shadow lookup_or_default {
     assert (== (lookup_or_default "missing" "default") "default")
 }
 
+fn remove_then_clear() -> int {
+    let terms: HashMap = (build_terms)
+    let removed: HashMap = (std_hm_remove terms "shadow")
+    assert (not (std_hm_has removed "shadow"))
+    let cleared: HashMap = (std_hm_clear removed)
+    let size: int = (std_hm_size cleared)
+    (std_hm_free cleared)
+    return size
+}
+
+shadow remove_then_clear {
+    assert (== (remove_then_clear) 0)
+}
+
 fn main() -> int {
-    let terms: HashMap<string, string> = (build_terms)
-    (println (+ "hashmap answer: " (map_get terms "nano")))
+    let terms: HashMap = (build_terms)
+    let keys: array<string> = (std_hm_keys terms)
+    let values: array<string> = (std_hm_values terms)
+    assert (== (array_length keys) (std_hm_size terms))
+    assert (== (array_length values) (std_hm_size terms))
+    (println (+ "hashmap answer: " (+ (std_hm_get terms "nano") (+ " (" (+ (int_to_string (std_hm_size terms)) " entries)")))))
+    (std_hm_free terms)
     return 0
 }
 

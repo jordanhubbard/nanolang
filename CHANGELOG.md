@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- consolidate staged REPL, Forth, logging, HashMap, prime, SDL_image, and large
+  project examples around one maintained implementation per lesson
+- replace placeholder tracing, texture, file pipeline, SQLite, libevent, libuv,
+  sprite animation, and verified-boundary demonstrations with working examples
+
+### Fixed
+- restore visible GPU Ocean output on macOS with generated OpenCL kernels, a
+  stable kernel path, renderer fallback, and explicit SDL diagnostics
+- restore the Code Display Widget demo with portable font lookup, renderer
+  fallback, and initialization diagnostics
+- repair Checkers multi-jumps, Asteroids wave resets, rotated Bullet geometry,
+  raytracer quit controls, NanoAmp track ownership, and GPU Ocean fallback
+
 ## [3.4.1] - 2026-08-23
 
 ### Fixed

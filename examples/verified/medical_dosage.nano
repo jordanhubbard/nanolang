@@ -1,5 +1,5 @@
 # Example: Medical Dosage Calculator
-# Purpose: Safe drug dosage computation with verified safety interlocks and eligibility checks
+# Purpose: Test a pedagogical dosage policy and state its trust boundary
 # Features: unions, pattern matching, structs, integer arithmetic, safety checks, arrays, shadow tests
 # Difficulty: Intermediate
 # Category: verified
@@ -9,19 +9,19 @@
 /* =============================================================================
  * Verified Medical Dosage Calculator
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust boundary: --trust-report classifies each function. This is not a
+ * clinically validated calculator and must not be used for treatment.
  *
  * Industry Context:
  *   The Therac-25 radiation therapy machine (1985-1987) killed patients due to
  *   race conditions and missing safety interlocks. A formally verified state
  *   machine would have caught the error. This example demonstrates the
- *   "verified critical path" pattern: safety-critical dosage logic stays in the
- *   NanoCore subset where Coq proofs guarantee type soundness and determinism.
+ *   "verified critical path" pattern: a small decision function stays inside a
+ *   named trust boundary. This teaching policy is not a medical specification.
  *
- * What the Coq proofs guarantee for this code:
- *   - Type soundness: if it typechecks, evaluation never produces a wrong type
- *   - Determinism: same patient data always produces the same dosage decision
- *   - No stuck states: well-typed expressions always reduce to a value
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows exercise selected eligibility, dose, and schedule cases.
+ * Assumed: formulas, units, thresholds, and integer ranges fit the intended use.
  *
  * Run: nanoc --trust-report examples/verified/medical_dosage.nano
  * ============================================================================= */
@@ -44,7 +44,7 @@ union DosageResult {
 /* ── Kidney function estimate (simplified Cockcroft-Gault) ──
  * Real formula: CrCl = ((140 - age) * weight) / (72 * creatinine)
  * We use integer arithmetic (mg/dL conversion built in).
- * The Coq proofs guarantee this always returns an int, never gets stuck. */
+ * The trust report classifies the language constructs used here. */
 
 fn estimate_kidney_clearance(patient: PatientData) -> int {
     let numerator: int = (* (- 140 patient.age_years) patient.weight_kg)
@@ -127,8 +127,7 @@ shadow check_eligibility {
  * Adjusted for kidney function.
  * Clamped to [min_dose, max_dose] range.
  *
- * Key invariant (guaranteed by determinism proof):
- *   Given the same PatientData, this always returns the same DosageResult. */
+ * The formula and bounds are assumptions supplied by this example. */
 
 fn calculate_dosage(patient: PatientData, dose_per_kg: int,
                      min_dose_mg: int, max_dose_mg: int) -> DosageResult {
@@ -216,7 +215,7 @@ shadow calculate_dosage {
 
 /* ── Multi-dose schedule validator ──
  * Validates that a sequence of doses doesn't exceed daily limits.
- * Demonstrates array operations within the verified subset. */
+ * Demonstrates array operations; --trust-report records subset membership. */
 
 fn validate_daily_schedule(doses_mg: array<int>, max_daily_mg: int) -> bool {
     let mut total: int = 0
@@ -245,24 +244,6 @@ shadow validate_daily_schedule {
     assert (validate_daily_schedule [] 500)
 }
 
-/* ── Determinism verification ──
- * The Coq proofs guarantee this, but we demonstrate it empirically. */
-
-fn verify_dosage_determinism(patient: PatientData) -> bool {
-    let r1: DosageResult = (calculate_dosage patient 5 100 500)
-    let r2: DosageResult = (calculate_dosage patient 5 100 500)
-    let d1: int = match r1 { Safe(s) => s.dose_mg, Rejected(r) => -1 }
-    let d2: int = match r2 { Safe(s) => s.dose_mg, Rejected(r) => -1 }
-    return (== d1 d2)
-}
-
-shadow verify_dosage_determinism {
-    let p: PatientData = PatientData { weight_kg: 70, age_years: 40, creatinine_umol: 88 }
-    assert (verify_dosage_determinism p)
-    let p2: PatientData = PatientData { weight_kg: 0, age_years: 40, creatinine_umol: 88 }
-    assert (verify_dosage_determinism p2)
-}
-
 /* ── Main ── */
 
 fn main() -> int {
@@ -273,7 +254,6 @@ fn main() -> int {
         Rejected(r) => -1
     }
     assert (== dose 350)
-    assert (verify_dosage_determinism patient)
     assert (validate_daily_schedule [100, 100, 100] 500)
     return 0
 }

@@ -39,8 +39,9 @@ This was causing issues, but I resolved it by improving my struct literal detect
 
 ## Tree-Walking Interpreter (`bin/nano`) — Known Limitations
 
-The `bin/nano` interpreter runs nanolang programs directly without compiling to C.
-63 of 69 language examples pass. The remaining 6 have the following limitations:
+The `bin/nano` interpreter runs NanoLang programs directly without compiling to C.
+Its performance and host-module boundaries differ from compiled C output. The
+examples below document those boundaries; this is not a current pass-count report.
 
 ### Performance: Computationally Intensive Programs
 
@@ -48,7 +49,6 @@ The tree-walking interpreter is significantly slower than compiled C output.
 Programs that iterate millions of times will time out:
 
 - `nl_primes_sieve.nano` — Sieve of Eratosthenes over 1,000,000 elements
-- `nl_primes_trial_division.nano` — Trial division over 1,000,000 numbers
 - `nl_game_of_life.nano` — 40×20 grid Conway's Game of Life (10 generations)
 
 These programs work correctly when compiled with `nanoc` and run natively.

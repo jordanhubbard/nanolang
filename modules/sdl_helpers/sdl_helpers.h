@@ -9,6 +9,12 @@
 /* Render filled rectangle */
 int64_t nl_sdl_render_fill_rect(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h);
 
+/* Upload an array<int> as ARGB8888 pixels to a streaming texture. */
+int64_t nl_sdl_update_texture(SDL_Texture* texture, void* pixels, int64_t width, int64_t height);
+
+/* Render a whole texture into a destination rectangle. */
+int64_t nl_sdl_render_texture(SDL_Renderer* renderer, SDL_Texture* texture, int64_t x, int64_t y, int64_t w, int64_t h);
+
 /* Poll for quit event */
 int64_t nl_sdl_poll_event_quit(void);
 

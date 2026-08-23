@@ -572,6 +572,7 @@ fn main() -> int {
         (SDL_RenderClear renderer) 
         
         let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) { set running 0 }  # ESC
         if (== key 21) {  # R
             set cam_pos (vec3 0.0 0.2 3.0)
             set yaw 0.0
@@ -648,4 +649,3 @@ fn main() -> int {
 }
 
 shadow main { assert true }
-

@@ -3,7 +3,7 @@
 # Features: SDL_image, tile rendering, scrolling, grid patterns
 # Difficulty: Intermediate
 # Category: graphics
-# Prerequisites: sdl_image_test
+# Prerequisites: sdl_image_demo
 # Expected Output: graphical
 
 unsafe module "modules/sdl/sdl.nano"
@@ -169,4 +169,3 @@ fn main() -> int {
 shadow main {
     assert (== 1 1)  # Cannot test with shadow as it requires SDL context
 }
-

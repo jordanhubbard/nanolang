@@ -1,5 +1,5 @@
 # Example: Checksum Validator
-# Purpose: Verified checksum algorithms for data integrity validation with determinism guarantees
+# Purpose: Test pedagogical checksums and state their trust and integrity limits
 # Features: arrays, while loops, integer arithmetic, structs, unions, shadow tests
 # Difficulty: Intermediate
 # Category: verified
@@ -18,15 +18,12 @@
  *   specification. Mozilla Firefox ships HACL*, a formally verified crypto
  *   library extracted from F* (a dependent type theory like Coq).
  *
- *   This example demonstrates the "verified library" pattern: a small set of
- *   data integrity functions that are pure NanoCore, called by unverified
- *   application code. The Coq proofs guarantee the checksum computation
- *   is deterministic — the same data always produces the same hash.
+ *   This example demonstrates a small NanoCore-only library. These checksums
+ *   are collision-prone teaching algorithms, not cryptographic integrity.
  *
- * What the Coq proofs guarantee:
- *   - Determinism: same input data → same checksum, always
- *   - Type soundness: checksum functions always return the correct type
- *   - No silent corruption: well-typed programs cannot produce wrong types
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows cover selected checksum values and changed-input detection.
+ * Assumed: integer arithmetic stays in range and collision risk is acceptable.
  *
  * Run: nanoc --trust-report examples/verified/checksum_validator.nano
  * ============================================================================= */
@@ -56,8 +53,7 @@ shadow checksum_sum {
     assert (== (checksum_sum [1, 2, 3, 4, 5] 997) (% 15 997))
     assert (== (checksum_sum [] 997) 0)
     assert (== (checksum_sum [997] 997) 0)
-    /* Determinism: same input twice */
-    assert (== (checksum_sum [10, 20, 30] 997) (checksum_sum [10, 20, 30] 997))
+    assert (== (checksum_sum [-1, 2, -3] 997) 6)
 }
 
 /* ── Fletcher-16 style checksum (two running sums) ──
@@ -128,7 +124,7 @@ fn poly_checksum(data: array<int>, poly: int) -> int {
 }
 
 shadow poly_checksum {
-    assert (== (poly_checksum [72, 101, 108, 108, 111] 65521) (poly_checksum [72, 101, 108, 108, 111] 65521))
+    assert (== (poly_checksum [] 65521) 0)
     /* Different data → (very likely) different checksum */
     assert (!= (poly_checksum [1, 2, 3] 65521) (poly_checksum [3, 2, 1] 65521))
 }
@@ -164,31 +160,6 @@ shadow verify_integrity {
     let mut corrupted: bool = false
     match r2 { Valid(_v) => {}, Corrupted(_c) => { set corrupted true } }
     assert corrupted
-}
-
-/* ── Multi-algorithm cross-check ──
- * Uses two independent checksum algorithms to detect corruption.
- * If both agree, the data is (with high probability) intact. */
-
-fn cross_verify(data: array<int>) -> bool {
-    let sum_check: int = (checksum_sum data 997)
-    let fletcher: FletcherResult = (fletcher_checksum data 255)
-    let poly: int = (poly_checksum data 65521)
-
-    /* Recompute and compare */
-    let sum_check2: int = (checksum_sum data 997)
-    let fletcher2: FletcherResult = (fletcher_checksum data 255)
-    let poly2: int = (poly_checksum data 65521)
-
-    return (and (== sum_check sum_check2)
-                (and (== fletcher.combined fletcher2.combined)
-                     (== poly poly2)))
-}
-
-shadow cross_verify {
-    assert (cross_verify [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    assert (cross_verify [])
-    assert (cross_verify [255, 255, 255])
 }
 
 /* ── Block-wise checksum for large data ──
@@ -256,26 +227,6 @@ shadow find_corrupted_block {
     assert (== (find_corrupted_block bad_data good_cs 5 997) 0)
 }
 
-/* ── Determinism verification ── */
-
-fn verify_checksum_determinism(data: array<int>) -> bool {
-    let a: int = (checksum_sum data 997)
-    let b: int = (checksum_sum data 997)
-    let f1: FletcherResult = (fletcher_checksum data 255)
-    let f2: FletcherResult = (fletcher_checksum data 255)
-    let p1: int = (poly_checksum data 65521)
-    let p2: int = (poly_checksum data 65521)
-    return (and (== a b)
-                (and (== f1.combined f2.combined)
-                     (== p1 p2)))
-}
-
-shadow verify_checksum_determinism {
-    assert (verify_checksum_determinism [42, 17, 255, 0, 128])
-    assert (verify_checksum_determinism [])
-    assert (verify_checksum_determinism [1])
-}
-
 /* ── Main ── */
 
 fn main() -> int {
@@ -293,12 +244,6 @@ fn main() -> int {
     let mut valid: bool = false
     match r { Valid(_v) => { set valid true }, Corrupted(_c) => {} }
     assert valid
-
-    /* Cross-verification */
-    assert (cross_verify data)
-
-    /* Determinism */
-    assert (verify_checksum_determinism data)
 
     return 0
 }

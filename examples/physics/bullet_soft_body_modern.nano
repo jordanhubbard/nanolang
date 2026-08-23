@@ -92,13 +92,26 @@ shadow draw_filled_circle { assert true }
 fn draw_rotated_box(
     renderer: SDL_Renderer,
     cx: int, cy: int,
-    width: int, height: int
+    width: int, height: int, degrees: float
 ) -> void {
-    /* Simple filled rect for now */
-    let x1: int = (- cx (/ width 2))
-    let y1: int = (- cy (/ height 2))
+    let hw: float = (/ (cast_float width) 2.0)
+    let hh: float = (/ (cast_float height) 2.0)
+    let angle: float = (* degrees 0.0174532925)
+    let c: float = (cos angle)
+    let s: float = (sin angle)
+    let x1: int = (+ cx (cast_int (- (* (- 0.0 hw) c) (* (- 0.0 hh) s))))
+    let y1: int = (+ cy (cast_int (+ (* (- 0.0 hw) s) (* (- 0.0 hh) c))))
+    let x2: int = (+ cx (cast_int (- (* hw c) (* (- 0.0 hh) s))))
+    let y2: int = (+ cy (cast_int (+ (* hw s) (* (- 0.0 hh) c))))
+    let x3: int = (+ cx (cast_int (- (* hw c) (* hh s))))
+    let y3: int = (+ cy (cast_int (+ (* hw s) (* hh c))))
+    let x4: int = (+ cx (cast_int (- (* (- 0.0 hw) c) (* hh s))))
+    let y4: int = (+ cy (cast_int (+ (* (- 0.0 hw) s) (* hh c))))
     (SDL_SetRenderDrawColor renderer COLOR_OBSTACLE_R COLOR_OBSTACLE_G COLOR_OBSTACLE_B 255)
-    (nl_sdl_render_fill_rect renderer x1 y1 width height)
+    (SDL_RenderDrawLine renderer x1 y1 x2 y2)
+    (SDL_RenderDrawLine renderer x2 y2 x3 y3)
+    (SDL_RenderDrawLine renderer x3 y3 x4 y4)
+    (SDL_RenderDrawLine renderer x4 y4 x1 y1)
     return
 }
 
@@ -241,11 +254,14 @@ fn main() -> int {
             /* Draw as rectangles */
             if (== i 0) {
                 /* Ground - wide */
-                (draw_rotated_box renderer screen_x screen_y (* 100 (cast_int CAMERA_SCALE)) 10)
+                (draw_rotated_box renderer screen_x screen_y (* 100 (cast_int CAMERA_SCALE)) 10 0.0)
             } else {
                 /* Obstacle - thin bars */
-                (draw_rotated_box renderer screen_x screen_y 
-                    (* 12 (cast_int CAMERA_SCALE)) 8)
+                let obstacle_row: int = (/ (- i 1) 5)
+                let obstacle_col: int = (% (- i 1) 5)
+                let obstacle_angle: float = (+ 20.0 (* (cast_float (% (+ obstacle_row obstacle_col) 3)) 10.0))
+                (draw_rotated_box renderer screen_x screen_y
+                    (* 12 (cast_int CAMERA_SCALE)) 8 obstacle_angle)
             }
             
             set i (+ i 1)

@@ -1,12 +1,26 @@
 # Example: Logging Demo
-# Purpose: Demonstrates the structured logging API with fibonacci calculation and validation
-# Features: imports, structured logging, recursion, validation
+# Purpose: I show every structured log level and use categories to trace a calculation
+# Features: imports, structured logging, levels, categories, recursion, validation
 # Difficulty: Beginner
 # Category: debug
 # Prerequisites: none
 # Expected Output: [INFO] [app] Starting logging demo
 
-from "stdlib/log.nano" import log_debug, log_info, log_trace, log_error
+from "stdlib/log.nano" import log_trace, log_debug, log_info, log_warn, log_error, log_fatal
+
+fn demonstrate_log_levels() -> int {
+    (log_trace "levels" "TRACE records detailed execution flow")
+    (log_debug "levels" "DEBUG records development detail")
+    (log_info "levels" "INFO records normal operation")
+    (log_warn "levels" "WARN records a recoverable concern")
+    (log_error "levels" "ERROR records an operation failure")
+    (log_fatal "levels" "FATAL records a critical failure")
+    return 6
+}
+
+shadow demonstrate_log_levels {
+    assert (== (demonstrate_log_levels) 6)
+}
 
 fn calculate_fibonacci(n: int) -> int {
     (log_debug "fibonacci" (+ "Calculating fibonacci(" (+ (int_to_string n) ")")))
@@ -26,15 +40,22 @@ fn calculate_fibonacci(n: int) -> int {
     return result
 }
 
+shadow calculate_fibonacci {
+    assert (== (calculate_fibonacci 0) 0)
+    assert (== (calculate_fibonacci 1) 1)
+    assert (== (calculate_fibonacci 10) 55)
+}
+
 fn main() -> int {
     (log_info "app" "Starting logging demo")
+    let levels: int = (demonstrate_log_levels)
     
     (log_info "math" "Calculating fibonacci sequence")
     let fib10: int = (calculate_fibonacci 10)
     
     (log_info "result" (+ "Fibonacci(10) = " (int_to_string fib10)))
     
-    if (!= fib10 55) {
+    if (or (!= levels 6) (!= fib10 55)) {
         (log_error "validation" (+ "Expected 55, got " (int_to_string fib10)))
         return 1
     } else {

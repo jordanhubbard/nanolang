@@ -1,58 +1,42 @@
-# Example: Execution Tracing
-# Purpose: Demonstrates basic tracing concepts through function execution and shadow tests for debugging
-# Features: functions, shadow tests, arrays, loops, arithmetic
+# Example: Runtime Tracing
+# Purpose: Record function spans and named events with my tracing API
+# Features: trace spans, trace events, structured logging, shadow tests
 # Difficulty: Beginner
 # Category: language
-# Prerequisites: nl_hello, nl_operators
-# Expected Output: 30
+# Prerequisites: nl_functions_basic
+# Track: modules
+# Build: local
+# Dependencies: none
+# Tags: tracing, debugging, shadow-tested
+# Expected Output: trace records followed by total: 15
 
-# @pure
-fn add(a: int, b: int) -> int {
-    return (+ a b)
-}
+module "modules/std/log/log.nano" as log
 
-shadow add {
-    assert (== (add 5 3) 8)
-}
-
-# @pure
-fn multiply(x: int, y: int) -> int {
-    let result: int = (* x y)
-    return result
-}
-
-shadow multiply {
-    assert (== (multiply 4 7) 28)
-}
-
-# @pure
 fn calculate_sum(numbers: array<int>) -> int {
-    let mut sum: int = 0
+    let trace_id: int = (log.trace_enter "calculate_sum")
+    let mut total: int = 0
     let mut i: int = 0
     while (< i (array_length numbers)) {
-        let value: int = (at numbers i)
-        set sum (+ sum value)
+        set total (+ total (at numbers i))
         set i (+ i 1)
     }
-    return sum
+    (log.trace_event "sum_complete" (+ "total=" (int_to_string total)))
+    (log.trace_exit trace_id "calculate_sum")
+    return total
 }
 
 shadow calculate_sum {
     assert (== (calculate_sum [1, 2, 3]) 6)
+    assert (== (calculate_sum []) 0)
 }
 
 fn main() -> int {
-    let x: int = 10
-    let y: int = 20
-    let z: int = (add x y)
-    let arr: array<int> = [1, 2, 3, 4, 5]
-    let total: int = (calculate_sum arr)
-    (println z)
-    (println total)
+    (log.set_log_level 0)
+    let total: int = (calculate_sum [1, 2, 3, 4, 5])
+    (println (+ "total: " (int_to_string total)))
     return 0
 }
 
 shadow main {
-    assert (== (main) 0)
+    assert (== (calculate_sum [5, 10]) 15)
 }
-

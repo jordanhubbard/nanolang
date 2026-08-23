@@ -36,7 +36,7 @@
     "libedit"
   ],
   "examples": [
-    "examples/language/readline_repl.nano"
+    "examples/language/full_repl.nano"
   ],
   "dependencies": {
     "nanolang": [],

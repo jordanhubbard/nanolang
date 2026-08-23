@@ -24,6 +24,9 @@
   ],
   "keywords": ["sdl", "image", "png", "jpg", "jpeg", "texture", "sprite", "icon", "graphics"],
   "examples": [
+    "examples/graphics/sdl_image_demo.nano",
+    "examples/graphics/sdl_image_sprite_animation.nano",
+    "examples/graphics/sdl_image_tiled_background.nano",
     "examples/sdl_example_launcher.nano"
   ],
   "dependencies": {
@@ -39,4 +42,3 @@
     {"when": "custom image formats", "module": "custom_loader"}
   ]
 }
-

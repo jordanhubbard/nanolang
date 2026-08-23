@@ -1,5 +1,5 @@
 # Example: Safety-Critical State Machine
-# Purpose: Formally verified state machine for a reactor cooling system with safety interlocks
+# Purpose: Test a pedagogical transition table inside the NanoCore trust boundary
 # Features: unions, pattern matching, structs, arrays, state encoding, while loops, shadow tests
 # Difficulty: Advanced
 # Category: verified
@@ -9,23 +9,22 @@
 /* =============================================================================
  * Verified Safety-Critical State Machine
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust boundary: --trust-report classifies each function. The transition table
+ * itself is tested here, not formally proved to satisfy a reactor specification.
  *
  * Industry Context:
  *   State machines govern safety-critical transitions in nuclear reactors,
  *   chemical plants, and medical devices. The Therac-25 killed patients because
  *   its state machine allowed an unsafe transition (beam on while collimator
- *   was still moving). A formally verified state machine makes illegal
- *   transitions impossible by construction.
+ *   was still moving). This example represents rejected transitions explicitly.
  *
- *   This follows the seL4 / SPARK pattern: verify the core state transition
- *   logic that everything else depends on. The Coq proofs guarantee that
- *   the same state + event always produces the same next state.
+ *   This follows the seL4 / SPARK boundary pattern: isolate the transition
+ *   logic, then state separately which semantics are proved and which paths
+ *   have executable tests.
  *
- * What the Coq proofs guarantee:
- *   - Determinism: same state + event → same next state, always
- *   - Type soundness: transitions never produce invalid states
- *   - Every event gets a definitive response (accept or reject)
+ * Proved: the stated NanoCore semantic theorems apply to [verified] functions.
+ * Tested: shadows cover named normal, blocked, invalid, and emergency paths.
+ * Assumed: state encodings, thresholds, and events model the intended system.
  *
  * Run: nanoc --trust-report examples/verified/state_machine.nano
  * ============================================================================= */
@@ -83,8 +82,8 @@ shadow state_name {
 }
 
 /* ── Core state transition function ──
- * This is the safety-critical function. The Coq determinism proof guarantees
- * that for any given (state, event, conditions), the result is unique.
+ * This is the modeled transition function. The formal determinism theorem is a
+ * language-semantic result; the transition table remains a domain specification.
  *
  * Transition table:
  *   SHUTDOWN + START → STARTUP     (if temp < 500)
@@ -268,11 +267,9 @@ shadow transition {
     assert (== cooldown 3)  /* EMERGENCY → COOLDOWN */
 }
 
-/* ── Safety invariant checker ──
- * Verifies that a sequence of events never violates safety properties:
- * 1. Emergency can only be exited via CLEAR
- * 2. RUNNING is never entered from SHUTDOWN directly
- * 3. State is always in valid range [0, 4] */
+/* ── Sequence checker ──
+ * Executes a supplied sequence and checks that produced state codes stay in
+ * [0, 4]. The shadows cover two named paths and one mixed-event sequence. */
 
 fn verify_event_sequence(initial: SystemState, events: array<int>) -> bool {
     let mut cur_state: int = initial.state
@@ -313,37 +310,8 @@ shadow verify_event_sequence {
     assert (verify_event_sequence sys [0, 1, 2, 5])
     /* Emergency path: START → READY → ALARM → CLEAR → COOLED */
     assert (verify_event_sequence sys [0, 1, 3, 4, 5])
-    /* Random events should never crash */
+    /* Mixed invalid and blocked events remain represented results. */
     assert (verify_event_sequence sys [5, 4, 3, 2, 1, 0, 0, 0])
-}
-
-/* ── Determinism verification ── */
-
-fn verify_transition_determinism(sys: SystemState, event: int) -> bool {
-    let r1: TransitionResult = (transition sys event)
-    let r2: TransitionResult = (transition sys event)
-    let mut v1: int = -99
-    let mut v2: int = -99
-    match r1 { Transitioned(t) => { set v1 t.new_state }, Blocked(b) => { set v1 -1 }, Invalid(inv) => { set v1 -2 } }
-    match r2 { Transitioned(t) => { set v2 t.new_state }, Blocked(b) => { set v2 -1 }, Invalid(inv) => { set v2 -2 } }
-    return (== v1 v2)
-}
-
-shadow verify_transition_determinism {
-    let sys: SystemState = SystemState { state: 0, temperature: 200, pressure: 500, uptime: 0, error_count: 0 }
-    /* Test every state-event combination for determinism */
-    let mut s: int = 0
-    while (<= s 4) {
-        let mut e: int = 0
-        while (<= e 5) {
-            let test_sys: SystemState = SystemState {
-                state: s, temperature: 200, pressure: 500, uptime: 0, error_count: 0
-            }
-            assert (verify_transition_determinism test_sys e)
-            set e (+ e 1)
-        }
-        set s (+ s 1)
-    }
 }
 
 /* ── Main ── */
@@ -353,20 +321,6 @@ fn main() -> int {
 
     /* Verify normal lifecycle */
     assert (verify_event_sequence sys [0, 1, 2, 5])
-
-    /* Verify determinism exhaustively */
-    let mut s: int = 0
-    while (<= s 4) {
-        let mut e: int = 0
-        while (<= e 5) {
-            let test_sys: SystemState = SystemState {
-                state: s, temperature: 200, pressure: 500, uptime: 0, error_count: 0
-            }
-            assert (verify_transition_determinism test_sys e)
-            set e (+ e 1)
-        }
-        set s (+ s 1)
-    }
 
     return 0
 }

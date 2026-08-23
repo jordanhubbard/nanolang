@@ -5,7 +5,7 @@
 # Difficulty: Expert
 # Category: language
 # Target: NanoISA VM (build with make examples-vm)
-# Prerequisites: nl_struct, nl_array_complete, nl_generics_demo, simple_repl
+# Prerequisites: nl_struct, nl_array_complete, nl_generics_demo, full_repl
 # Expected Output: demo output (non-interactive); set FORTH_INTERACTIVE=1 for live forth> prompt
 #
 # Running interactive mode:

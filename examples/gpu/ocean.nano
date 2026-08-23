@@ -1,5 +1,5 @@
 # Example: GPU Ocean
-# Purpose: Demonstrate GPU wave simulation with SDL rendering
+# Purpose: Demonstrate GPU wave synthesis with SDL rendering and a CPU fallback
 # Features: gpu fn, SDL, simulation, rendering
 # Difficulty: Advanced
 # Category: gpu
@@ -10,21 +10,22 @@
 # Tags: gpu, graphical, native-only
 # Expected Output: graphical
 
-# ocean.nano — GPU-accelerated ocean simulation with ship physics
+# ocean.nano — GPU-accelerated wave synthesis with a responsive ship illustration
 #
-# A real-time ocean with multi-component wave superposition computed on the GPU
-# and a ship with actual mass/dimensions obeying Archimedes' principle.
+# A real-time height field uses four sine components. The ship follows that
+# field with tuned heave and pitch springs; this is not a fluid or buoyancy solver.
 #
 # GPU kernel:  computes wave height field (800 columns, 4 wave components)
-# Ship physics: heave (vertical) + pitch from buoyancy force vs. gravity
+# Ship motion: tuned heave and pitch springs driven by sampled wave heights
 # SDL rendering: depth-shaded ocean, gradient sky, detailed ship silhouette
 #
 # Controls:  ESC / Q to quit
 #
 # Compile:
-#   NANO_MODULE_PATH=modules nanoc --target ptx ocean.nano -o ocean.ptx
-#   NANO_MODULE_PATH=modules nanoc ocean.nano -o ocean
-#   ./ocean
+#   NANO_MODULE_PATH=modules nanoc examples/gpu/ocean.nano --target ptx -o examples/gpu/ocean.ptx
+#   NANO_MODULE_PATH=modules nanoc examples/gpu/ocean.nano --target opencl -o examples/gpu/ocean.cl
+#   NANO_MODULE_PATH=modules nanoc examples/gpu/ocean.nano -o bin/ocean
+#   ./bin/ocean
 
 import "modules/gpu/gpu.nano"
 unsafe module "modules/sdl/sdl.nano"
@@ -275,12 +276,12 @@ shadow draw_ship { assert true }
 
 fn main() -> int {
     # ── GPU init ──────────────────────────────────────────────────────────────
-    let use_gpu: bool = (gpu_init)
+    let mut use_gpu: bool = (gpu_init)
     if (not use_gpu) {
-        print "No CUDA GPU — wave heights will be computed on CPU"
+        (println "No GPU runtime; I am computing waves on the CPU.")
     }
     if use_gpu {
-        print (str_concat "GPU: " (gpu_device_info 0))
+        (println (+ "Wave compute: " (gpu_device_info 0)))
     }
 
     # Build integer sine table: sin_table[i] = round(sin(i * 2π / SIN_N) * 1000)
@@ -312,43 +313,43 @@ fn main() -> int {
         set d_sin_v (gpu_alloc sin_bytes)
         set d_h_v   (gpu_alloc h_bytes)
         if (or (== d_sin_v 0) (== d_h_v 0)) {
-            print "gpu_alloc failed — falling back to CPU"
+            (println "GPU allocation failed; I am computing waves on the CPU.")
+            set use_gpu false
         }
         if (not (== d_sin_v 0)) {
             (gpu_memcpy_to_device d_sin_v h_sin sin_bytes)
         }
     }
+    let mut gpu_ready: bool = (and use_gpu (and (not (== d_sin_v 0)) (not (== d_h_v 0))))
 
     # ── SDL init ──────────────────────────────────────────────────────────────
-    if (< (SDL_Init SDL_INIT_VIDEO) 0) {
-        (println (+ "SDL initialization failed: " (SDL_GetError)))
+    let sdl_status: int = (SDL_Init SDL_INIT_VIDEO)
+    if (!= sdl_status 0) {
+        (println (+ "I could not initialize SDL: " (SDL_GetError)))
         return 1
     }
     let window: SDL_Window = (SDL_CreateWindow
-        "Nanolang Ocean Simulation — GPU wave field, Archimedes ship physics"
+        "Nanolang Ocean — GPU wave field with spring-driven ship motion"
         SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
         W H SDL_WINDOW_SHOWN)
     if (== window 0) {
-        (println (+ "Window creation failed: " (SDL_GetError)))
+        (println (+ "I could not create the ocean window: " (SDL_GetError)))
         (SDL_Quit)
         return 1
     }
-    let mut rend: SDL_Renderer = (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_ACCELERATED)
+    let mut rend: SDL_Renderer = (SDL_CreateRenderer window -1 (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
     if (== rend 0) {
-        set rend (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_SOFTWARE)
+        set rend (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE)
     }
     if (== rend 0) {
-        (println (+ "Renderer creation failed: " (SDL_GetError)))
+        (println (+ "I could not create the ocean renderer: " (SDL_GetError)))
         (SDL_DestroyWindow window)
         (SDL_Quit)
         return 1
     }
 
     # ── Ship physics state ────────────────────────────────────────────────────
-    # Buoyancy restoring force spring:
-    #   F_net = ρ·g·A·(draft + δy) − m·g   where δy is deviation from rest draft
-    # Linearised: F_net ≈ ρ·g·A·δy   → spring constant k = ρ·g·A
-    # But we simulate at pixel level:  y_ship moves with wave + spring
+    # Tuned screen-space springs follow the sampled wave field.
 
     let ship_x:   int   = (/ W 2)
     let mut ship_vy:    float = 0.0   # heave velocity (px/s)
@@ -356,9 +357,7 @@ fn main() -> int {
     let mut ship_pitch: float = 0.0   # pitch angle (small, radians-ish)
     let mut ship_dvy:   float = 0.0   # pitch angular velocity
 
-    # Spring constant for heave: k = ρ·g·waterplane_area
-    # Waterplane area in px²: (SHIP_HW*2) × (SHIP_BEAM_M / PX_PER_M) is known
-    # Simplified: just use a tuned spring
+    # These are visual response coefficients, not derived vessel dynamics.
     let spring_k: float = 0.08   # px/px spring (tuned for visual)
     let spring_p: float = 0.04   # pitch spring
 
@@ -370,20 +369,23 @@ fn main() -> int {
         # Handle quit
         if (== (nl_sdl_poll_event_quit) 1) { set running 0 }
         let key: int = (nl_sdl_poll_keypress)
-        if (== key 27) { set running 0 }   # ESC
-        if (== key 113) { set running 0 }  # Q
+        if (== key 41) { set running 0 }   # ESC scancode
+        if (== key 20) { set running 0 }   # Q scancode
 
         # ── GPU: compute wave heights ─────────────────────────────────────────
         let mut gpu_frame_ok: bool = false
-        if (and use_gpu (and (not (== d_sin_v 0)) (not (== d_h_v 0)))) {
+        if gpu_ready {
             let threads: int = 256
             let blocks:  int = (/ (+ W (- threads 1)) threads)
-            let ok: bool = (gpu_launch "ocean.ptx" "compute_ocean"
+            let ok: bool = (gpu_launch "examples/gpu/ocean.ptx" "compute_ocean"
                                        blocks threads d_sin_v d_h_v W frame)
             if ok {
                 (gpu_sync)
                 (gpu_memcpy_from_device h_heights d_h_v h_bytes)
                 set gpu_frame_ok true
+            } else {
+                (println (+ "GPU launch failed; I am computing waves on the CPU: " (gpu_last_error)))
+                set gpu_ready false
             }
         }
 

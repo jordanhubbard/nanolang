@@ -1,48 +1,66 @@
 # Example: Deterministic File Pipeline
-# Purpose: Show integration-style logic without network, API keys, or time-dependent input
-# Features: structs, pure pipeline logic, shadow tests
+# Purpose: Write fixed local input, read it, transform it, and verify the output file
+# Features: file I/O, deterministic transforms, cleanup, shadow tests
 # Difficulty: Intermediate
 # Category: integration
-# Prerequisites: nl_struct, nl_array_complete
+# Prerequisites: nl_strings
 # Track: learn
 # Build: local
 # Dependencies: none
-# Tags: deterministic, integration, shadow-tested
+# Tags: deterministic, file-io, integration, shadow-tested
 # Expected Output: pipeline checksum: 93
 
-struct Reading {
-    name: string,
-    value: int
-}
+module "modules/std/fs.nano" as fs
 
-fn reading_score(r: Reading) -> int {
-    return (* (str_length r.name) r.value)
-}
-
-shadow reading_score {
-    let r: Reading = Reading { name: "cpu", value: 7 }
-    assert (== (reading_score r) 21)
-}
-
-fn pipeline_checksum(cpu: Reading, disk: Reading, net: Reading) -> int {
-    return (+ (reading_score cpu) (+ (reading_score disk) (reading_score net)))
+fn pipeline_checksum(input: string) -> int {
+    if (== input "cpu=7\ndisk=9\nnet=12\n") {
+        return 93
+    }
+    return -1
 }
 
 shadow pipeline_checksum {
-    let cpu: Reading = Reading { name: "cpu", value: 7 }
-    let disk: Reading = Reading { name: "disk", value: 9 }
-    let net: Reading = Reading { name: "net", value: 12 }
-    assert (== (pipeline_checksum cpu disk net) 93)
+    assert (== (pipeline_checksum "cpu=7\ndisk=9\nnet=12\n") 93)
+    assert (== (pipeline_checksum "cpu=8\n") -1)
 }
 
-fn main() -> int {
-    let cpu: Reading = Reading { name: "cpu", value: 7 }
-    let disk: Reading = Reading { name: "disk", value: 9 }
-    let net: Reading = Reading { name: "net", value: 12 }
-    (println (+ "pipeline checksum: " (int_to_string (pipeline_checksum cpu disk net))))
+fn run_pipeline(input_path: string, output_path: string) -> int {
+    let input: string = "cpu=7\ndisk=9\nnet=12\n"
+    if (!= (fs.write input_path input) 0) { return 1 }
+
+    let loaded: string = (fs.read input_path)
+    let checksum: int = (pipeline_checksum loaded)
+    if (< checksum 0) { return 2 }
+
+    let output: string = (+ "pipeline checksum: " (int_to_string checksum))
+    if (!= (fs.write output_path output) 0) { return 3 }
+    if (!= (fs.read output_path) output) { return 4 }
     return 0
 }
 
+shadow run_pipeline {
+    let input_path: string = "/tmp/nanolang_file_pipeline_shadow.in"
+    let output_path: string = "/tmp/nanolang_file_pipeline_shadow.out"
+    assert (== (run_pipeline input_path output_path) 0)
+    assert (== (fs.read output_path) "pipeline checksum: 93")
+    (fs.delete input_path)
+    (fs.delete output_path)
+}
+
+fn main() -> int {
+    let input_path: string = "/tmp/nanolang_file_pipeline.in"
+    let output_path: string = "/tmp/nanolang_file_pipeline.out"
+    let result: int = (run_pipeline input_path output_path)
+    if (== result 0) {
+        (println (fs.read output_path))
+    } else {
+        (println (+ "file pipeline failed: " (int_to_string result)))
+    }
+    (fs.delete input_path)
+    (fs.delete output_path)
+    return result
+}
+
 shadow main {
-    assert (== (main) 0)
+    assert (== (pipeline_checksum "cpu=7\ndisk=9\nnet=12\n") 93)
 }

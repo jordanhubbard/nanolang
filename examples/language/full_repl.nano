@@ -3,7 +3,7 @@
 # Features: imports, string parsing, eval, readline, StringBuilder, multi-line input, shadow tests
 # Difficulty: Advanced
 # Category: language
-# Prerequisites: simple_repl, readline_repl, vars_repl, multi_type_repl, multiline_repl
+# Prerequisites: nl_functions_basic, nl_string_operations
 # Expected Output: interactive
 
 from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_read_history, rl_write_history, rl_stifle_history, rl_append_history
@@ -28,46 +28,6 @@ fn print_banner() -> void {
 
 shadow print_banner {
     (print_banner)
-}
-
-fn str_trim(s: string) -> string {
-    let len: int = (str_length s)
-    if (== len 0) {
-        return s
-    } else { (print "") }
-
-    let mut start: int = 0
-    while (and (< start len) (is_whitespace (char_at s start))) {
-        set start (+ start 1)
-    }
-
-    let mut end: int = (- len 1)
-    while (and (> end start) (is_whitespace (char_at s end))) {
-        set end (- end 1)
-    }
-
-    if (>= start end) {
-        return ""
-    } else { (print "") }
-
-    return (str_substring s start (+ (- end start) 1))
-}
-
-shadow str_trim {
-    assert (== (str_trim "  hello  ") "hello")
-}
-
-fn str_starts_with(s: string, prefix: string) -> bool {
-    let slen: int = (str_length s)
-    let plen: int = (str_length prefix)
-    if (> plen slen) {
-        return false
-    } else { (print "") }
-    return (== (str_substring s 0 plen) prefix)
-}
-
-shadow str_starts_with {
-    assert (str_starts_with "hello" "hel")
 }
 
 # Check if input is complete (all brackets/braces closed)
@@ -297,10 +257,11 @@ shadow extract_import_path {
 }
 
 # Wrap expression with variable context
-fn wrap_with_context(preamble: string, expr: string) -> string {
+fn wrap_with_context(top_level: string, preamble: string, expr: string) -> string {
     let nl: string = (string_from_char 10)
     let sb: StringBuilder = (sb_new)
 
+    (sb_append sb top_level)
     (sb_append sb "fn main() -> int {")
     (sb_append sb nl)
 
@@ -326,15 +287,16 @@ fn wrap_with_context(preamble: string, expr: string) -> string {
 }
 
 shadow wrap_with_context {
-    let result: string = (wrap_with_context "" "(+ 1 2)")
+    let result: string = (wrap_with_context "" "" "(+ 1 2)")
     assert (str_contains result "fn main")
 }
 
 # Wrap expression with variable context (float result)
-fn wrap_with_context_float(preamble: string, expr: string) -> string {
+fn wrap_with_context_float(top_level: string, preamble: string, expr: string) -> string {
     let nl: string = (string_from_char 10)
     let sb: StringBuilder = (sb_new)
 
+    (sb_append sb top_level)
     (sb_append sb "fn main() -> int {")
     (sb_append sb nl)
 
@@ -360,15 +322,16 @@ fn wrap_with_context_float(preamble: string, expr: string) -> string {
 }
 
 shadow wrap_with_context_float {
-    let result: string = (wrap_with_context_float "" "(* 3.14 2.0)")
+    let result: string = (wrap_with_context_float "" "" "(* 3.14 2.0)")
     assert (str_contains result "float")
 }
 
 # Wrap expression with variable context (string result)
-fn wrap_with_context_string(preamble: string, expr: string) -> string {
+fn wrap_with_context_string(top_level: string, preamble: string, expr: string) -> string {
     let nl: string = (string_from_char 10)
     let sb: StringBuilder = (sb_new)
 
+    (sb_append sb top_level)
     (sb_append sb "fn main() -> int {")
     (sb_append sb nl)
 
@@ -394,15 +357,16 @@ fn wrap_with_context_string(preamble: string, expr: string) -> string {
 }
 
 shadow wrap_with_context_string {
-    let result: string = (wrap_with_context_string "" "\"hello\"")
+    let result: string = (wrap_with_context_string "" "" "\"hello\"")
     assert (str_contains result "string")
 }
 
 # Wrap expression with variable context (bool result)
-fn wrap_with_context_bool(preamble: string, expr: string) -> string {
+fn wrap_with_context_bool(top_level: string, preamble: string, expr: string) -> string {
     let nl: string = (string_from_char 10)
     let sb: StringBuilder = (sb_new)
 
+    (sb_append sb top_level)
     (sb_append sb "fn main() -> int {")
     (sb_append sb nl)
 
@@ -436,7 +400,7 @@ fn wrap_with_context_bool(preamble: string, expr: string) -> string {
 }
 
 shadow wrap_with_context_bool {
-    let result: string = (wrap_with_context_bool "" "(> 5 3)")
+    let result: string = (wrap_with_context_bool "" "" "(> 5 3)")
     assert (str_contains result "bool")
 }
 
@@ -455,8 +419,8 @@ shadow add_to_preamble {
 }
 
 # Evaluate expression with context
-fn eval_with_preamble(preamble: string, expr: string) -> int {
-    let source: string = (wrap_with_context preamble expr)
+fn eval_with_preamble(top_level: string, preamble: string, expr: string) -> int {
+    let source: string = (wrap_with_context top_level preamble expr)
     unsafe {
         return (eval_internal source)
     }
@@ -467,8 +431,8 @@ shadow eval_with_preamble {
 }
 
 # Evaluate expression with context (float)
-fn eval_with_preamble_float(preamble: string, expr: string) -> int {
-    let source: string = (wrap_with_context_float preamble expr)
+fn eval_with_preamble_float(top_level: string, preamble: string, expr: string) -> int {
+    let source: string = (wrap_with_context_float top_level preamble expr)
     unsafe {
         return (eval_internal source)
     }
@@ -479,8 +443,8 @@ shadow eval_with_preamble_float {
 }
 
 # Evaluate expression with context (string)
-fn eval_with_preamble_string(preamble: string, expr: string) -> int {
-    let source: string = (wrap_with_context_string preamble expr)
+fn eval_with_preamble_string(top_level: string, preamble: string, expr: string) -> int {
+    let source: string = (wrap_with_context_string top_level preamble expr)
     unsafe {
         return (eval_internal source)
     }
@@ -491,8 +455,8 @@ shadow eval_with_preamble_string {
 }
 
 # Evaluate expression with context (bool)
-fn eval_with_preamble_bool(preamble: string, expr: string) -> int {
-    let source: string = (wrap_with_context_bool preamble expr)
+fn eval_with_preamble_bool(top_level: string, preamble: string, expr: string) -> int {
+    let source: string = (wrap_with_context_bool top_level preamble expr)
     unsafe {
         return (eval_internal source)
     }
@@ -538,8 +502,8 @@ fn handle_fn(preamble_sb: StringBuilder, fn_names_sb: StringBuilder, input: stri
         return 1
     } else { (print "") }
 
-    # Add complete function to preamble (with proper indentation)
-    (add_to_preamble preamble_sb input)
+    (sb_append preamble_sb input)
+    (sb_append preamble_sb (string_from_char 10))
 
     # Add function signature (comma-separated)
     if (> (str_length (sb_to_string fn_names_sb)) 0) {
@@ -565,11 +529,8 @@ fn handle_import(preamble_sb: StringBuilder, import_paths_sb: StringBuilder, inp
         return 1
     } else { (print "") }
 
-    # Import statements must be at the top level, not inside functions
-    # So we need to add them to a separate section before the preamble
-    # For now, we'll add them to the preamble and let the compiler handle it
-    # Note: This is a limitation - imports in REPL may not work perfectly
-    (add_to_preamble preamble_sb input)
+    (sb_append preamble_sb input)
+    (sb_append preamble_sb (string_from_char 10))
 
     # Track imported module path
     if (> (str_length (sb_to_string import_paths_sb)) 0) {
@@ -728,6 +689,7 @@ fn run_repl() -> int {
     let _hist_load: int = (rl_read_history history_path)
 
     # Session state
+    let top_level_sb: StringBuilder = (sb_new)
     let preamble_sb: StringBuilder = (sb_new)
     let var_names_sb: StringBuilder = (sb_new)
     let fn_names_sb: StringBuilder = (sb_new)
@@ -770,6 +732,7 @@ fn run_repl() -> int {
                             } else {
                                 if (== trimmed ":clear") {
                                     (sb_clear preamble_sb)
+                                    (sb_clear top_level_sb)
                                     (sb_clear var_names_sb)
                                     (sb_clear fn_names_sb)
                                     (sb_clear import_paths_sb)
@@ -793,8 +756,9 @@ fn run_repl() -> int {
                                     if (str_starts_with trimmed ":float ") {
                                         let expr: string = (str_trim (str_substring trimmed 7 (- (str_length trimmed) 7)))
                                         (print "=> ")
+                                        let top_level: string = (sb_to_string top_level_sb)
                                         let preamble: string = (sb_to_string preamble_sb)
-                                        let status: int = (eval_with_preamble_float preamble expr)
+                                        let status: int = (eval_with_preamble_float top_level preamble expr)
                                         if (!= status 0) {
                                             (println "Error: evaluation failed")
                                         } else { (print "") }
@@ -804,8 +768,9 @@ fn run_repl() -> int {
                                         if (str_starts_with trimmed ":string ") {
                                             let expr: string = (str_trim (str_substring trimmed 8 (- (str_length trimmed) 8)))
                                             (print "=> ")
+                                            let top_level: string = (sb_to_string top_level_sb)
                                             let preamble: string = (sb_to_string preamble_sb)
-                                            let status: int = (eval_with_preamble_string preamble expr)
+                                            let status: int = (eval_with_preamble_string top_level preamble expr)
                                             if (!= status 0) {
                                                 (println "Error: evaluation failed")
                                             } else { (print "") }
@@ -815,8 +780,9 @@ fn run_repl() -> int {
                                             if (str_starts_with trimmed ":bool ") {
                                                 let expr: string = (str_trim (str_substring trimmed 6 (- (str_length trimmed) 6)))
                                                 (print "=> ")
+                                                let top_level: string = (sb_to_string top_level_sb)
                                                 let preamble: string = (sb_to_string preamble_sb)
-                                                let status: int = (eval_with_preamble_bool preamble expr)
+                                                let status: int = (eval_with_preamble_bool top_level preamble expr)
                                                 if (!= status 0) {
                                                     (println "Error: evaluation failed")
                                                 } else { (print "") }
@@ -832,22 +798,23 @@ fn run_repl() -> int {
                                                     # Handle function definition
                                                     if (is_fn_definition trimmed) {
                                                         let status: int = (handle_fn
-                                                            preamble_sb fn_names_sb trimmed)
+                                                            top_level_sb fn_names_sb trimmed)
                                                         if (!= status 0) {
                                                             (println "Error: Failed to define function")
                                                         } else { (print "") }
                                                     } else {
                                                         # Handle import statement
                                                         if (is_import_statement trimmed) {
-                                                            let status: int = (handle_import preamble_sb import_paths_sb trimmed)
+                                                            let status: int = (handle_import top_level_sb import_paths_sb trimmed)
                                                             if (!= status 0) {
                                                                 (println "Error: Failed to import module")
                                                             } else { (print "") }
                                                         } else {
                                                             # Evaluate expression (default: int)
                                                             (print "=> ")
+                                                            let top_level: string = (sb_to_string top_level_sb)
                                                             let preamble: string = (sb_to_string preamble_sb)
-                                                            let status: int = (eval_with_preamble preamble trimmed)
+                                                            let status: int = (eval_with_preamble top_level preamble trimmed)
                                                             if (!= status 0) {
                                                                 (println "Error: evaluation failed")
                                                             } else { (print "") }

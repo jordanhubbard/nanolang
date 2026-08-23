@@ -13,6 +13,12 @@
 # Helper to render a filled rectangle (wraps SDL_RenderFillRect with SDL_Rect)
 extern fn nl_sdl_render_fill_rect(_renderer: SDL_Renderer, _x: int, _y: int, _w: int, _h: int) -> int
 
+# Upload ARGB8888 pixels from an array<int> to a streaming texture.
+extern fn nl_sdl_update_texture(_texture: SDL_Texture, _pixels: array<int>, _width: int, _height: int) -> int
+
+# Render a whole texture into a destination rectangle.
+extern fn nl_sdl_render_texture(_renderer: SDL_Renderer, _texture: SDL_Texture, _x: int, _y: int, _w: int, _h: int) -> int
+
 # Helper to poll SDL events and return 1 if quit event, 0 otherwise
 extern fn nl_sdl_poll_event_quit() -> int
 
@@ -86,4 +92,3 @@ extern fn nl_sdl_stop_text_input() -> void
 # Returns empty string if no text input. Handles shift, caps, unicode.
 # Use alongside nl_sdl_poll_keypress() for control keys (arrows, backspace, etc.)
 extern fn nl_sdl_poll_text_input() -> string
-
