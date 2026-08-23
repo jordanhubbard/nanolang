@@ -19,6 +19,8 @@
 #      glutInit by hand
 #   3. launch smoke — when the OpenGL toolchain and a display are present,
 #      build both GLUT examples and check they survive launch
+#   4. macOS framework guard — compiling the teapot must use the SDK's GLUT
+#      framework without invoking Homebrew to install freeglut
 #
 # Usage:
 #   bash tests/test_opengl_glut_init.sh            # all sections
@@ -132,7 +134,49 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
-# 3. Launch smoke — both examples must survive launch on a real display
+# 3. macOS framework guard — a native framework must not trigger Homebrew
+# ---------------------------------------------------------------------------
+echo "-- macOS framework dependency guard --"
+
+if [ "$(uname -s)" != "Darwin" ]; then
+    skip "native GLUT framework check (not macOS)"
+elif [ ! -x ./bin/nanoc_c ]; then
+    skip "native GLUT framework check (run 'make build')"
+else
+    STUB_BIN="$WORK_DIR/stub-bin"
+    mkdir -p "$STUB_BIN"
+    REAL_BREW="$(command -v brew)"
+    cat >"$STUB_BIN/brew" <<'STUB'
+#!/usr/bin/env bash
+case " $* " in
+    *" freeglut "*) echo "$*" >>"$BREW_CALLS"; exit 99 ;;
+    *) exec "$REAL_BREW" "$@" ;;
+esac
+STUB
+    chmod +x "$STUB_BIN/brew"
+    : >"$WORK_DIR/brew-calls"
+
+    # The stub makes any package-manager invocation fail immediately. A normal
+    # compile exercises module resolution and proves it reaches the linker.
+    if PATH="$STUB_BIN:$PATH" BREW_CALLS="$WORK_DIR/brew-calls" REAL_BREW="$REAL_BREW" \
+        NANO_MODULE_PATH="$PROJECT_ROOT/modules" \
+        ./bin/nanoc_c examples/opengl/opengl_teapot.nano -o "$WORK_DIR/teapot" \
+        >"$WORK_DIR/framework-build.log" 2>&1; then
+        if [ -s "$WORK_DIR/brew-calls" ]; then
+            cat "$WORK_DIR/brew-calls"
+            fail "teapot dependency resolution invoked Homebrew for native GLUT"
+        else
+            pass "teapot uses the native GLUT framework without Homebrew"
+        fi
+    else
+        cat "$WORK_DIR/framework-build.log"
+        fail "teapot failed while resolving the native GLUT framework"
+    fi
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# 4. Launch smoke — both examples must survive launch on a real display
 # ---------------------------------------------------------------------------
 echo "-- Launch smoke --"
 

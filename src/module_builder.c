@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -1035,6 +1036,21 @@ static bool module_has_system_package_metadata(ModuleBuildMetadata *meta) {
            meta->brew_packages_count > 0;
 }
 
+#ifdef __APPLE__
+// A native framework satisfies a same-named pkg-config dependency on macOS.
+// Trying Homebrew first can turn an ordinary compile into a large package
+// installation even though the SDK already provides the library.
+static bool module_pkg_is_native_framework(ModuleBuildMetadata *meta, const char *package) {
+    if (!meta || !package) return false;
+    for (size_t i = 0; i < meta->frameworks_count; i++) {
+        if (strcasecmp(meta->frameworks[i], package) == 0 ||
+            (strncasecmp(package, "free", 4) == 0 &&
+             strcasecmp(meta->frameworks[i], package + 4) == 0)) return true;
+    }
+    return false;
+}
+#endif
+
 // Install system packages from module metadata (with registry support)
 static bool install_system_packages(ModuleBuildMetadata *meta) {
     PackageManager pm = detect_package_manager();
@@ -1078,6 +1094,13 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
         
         for (size_t i = 0; i < pkg_count; i++) {
             const char *logical_name = pkg_names[i];
+
+#ifdef __APPLE__
+            if (module_pkg_is_native_framework(meta, logical_name)) {
+                printf("[Module]   ✓ %s provided by macOS framework\n", logical_name);
+                continue;
+            }
+#endif
 
             // Look up actual package name for this platform in registry
             const char *actual_name = lookup_package_name(logical_name, pm);
@@ -1198,6 +1221,9 @@ static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char 
     }
     
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
         if (!check_pkg_config_package(meta->pkg_config[i])) {
             if (missing_pkg) {
                 *missing_pkg = meta->pkg_config[i];
@@ -1832,6 +1858,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
         // Add pkg-config link flags
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+            if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
             char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
             if (pkg_flags) {
                 append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
@@ -1869,6 +1898,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
         // Add pkg-config compile flags (include paths, defines)
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+            if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
                 append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
@@ -2005,6 +2037,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
         // Add pkg-config cflags
         for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+            if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
                 prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", pkg_cflags);
@@ -2158,6 +2193,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             char *shared_cflags[1024] = {0};
             size_t shared_cflags_count = 0;
             for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+                if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
                 char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
                 if (pkg_cflags) {
                     append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
@@ -2172,6 +2210,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             char *shared_ldflags[1024] = {0};
             size_t shared_ldflags_count = 0;
             for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+                if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
                 char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
                 if (pkg_libs) {
                     append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
@@ -2315,6 +2356,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
     // Add pkg-config link flags
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
         char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (pkg_flags) {
             append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
@@ -2352,6 +2396,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
     // Add pkg-config compile flags (include paths, defines)
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
         char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
         if (pkg_cflags) {
             append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
