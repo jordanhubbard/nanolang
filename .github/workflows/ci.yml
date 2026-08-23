@@ -152,6 +152,11 @@ jobs:
       - name: Check stdlib documentation coverage
         run: bash tests/check_stdlib_docs.sh
 
+      - name: Test and build user guide
+        run: |
+          python3 -m unittest tests/test_build_userguide.py
+          make userguide-html
+
   api-docs:
     name: API Docs (nanodoc)
     runs-on: ubuntu-latest

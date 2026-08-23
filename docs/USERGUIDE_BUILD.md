@@ -1,144 +1,54 @@
-# My User Guide Build Process
+# My User Guide Build
 
-I use this process to generate my HTML user guide from my markdown sources.
+I publish the Markdown sources selected by `userguide/nav.txt`. That manifest is
+the navigation order and the complete list of public pages. Old files under
+`userguide/` remain historical input until they are removed; they are not
+published merely because they exist.
 
-## My Build Command
-
-```bash
-# From project root
-make userguide
-
-# Or directly
-./scripts/userguide_build_html.nano
-```
-
-## My File Structure
-
-```
-userguide/
-├── index.md (landing page)
-├── part1_fundamentals/
-│   ├── 01_getting_started.md
-│   ├── 02_syntax_types.md
-│   └── ... (08 chapters)
-├── part2_stdlib/
-│   └── ... (4 chapters)
-├── part3_modules/
-│   └── ... (9 module groups)
-├── part4_advanced/
-│   └── ... (4 chapters)
-└── appendices/
-    └── ... (4 appendices)
-```
-
-## My Output Structure
-
-```
-docs_html/
-├── index.html
-├── part1_fundamentals/
-├── part2_stdlib/
-├── part3_modules/
-├── part4_advanced/
-├── appendices/
-└── assets/
-    ├── style.css
-    └── syntax-highlight.css
-```
-
-## How I Generate My Sidebar
-
-I organize my sidebar hierarchically:
-1. **Landing Page**
-2. **Part I: Language Fundamentals** (Chapters 1 to 8)
-3. **Part II: Standard Library** (Chapters 9 to 12)
-4. **Part III: External Modules** (Chapters 13 to 21)
-5. **Part IV: Advanced Topics** (Chapters 22 to 25)
-6. **Appendices** (A to D)
-
-I have documented the implementation details in `docs/SIDEBAR_GENERATION_SPEC.md`.
-
-## My Syntax Highlighting
-
-I highlight code blocks using `assets/syntax-highlight.css`:
-- Keywords: `fn`, `let`, `if`, `while`, etc.
-- Functions: `println`, `array_get`, etc.
-- Strings: Quoted text
-- Numbers: Integer and float literals
-- Comments: Lines starting with `#`
-
-## How I Test My Docs
-
-I follow these steps before I deploy:
+## Build and Check
 
 ```bash
-# Build HTML
-make userguide
-
-# Test locally
-cd docs_html
-python3 -m http.server 8000
-
-# Visit http://localhost:8000
+make userguide-check
+make userguide-html
+make -C userguide serve
 ```
 
-I verify these points:
-- All chapters load
-- Navigation works
-- Syntax highlighting applied
-- Mobile-responsive layout
-- Cross-references work
+I write the site to `build/userguide/html/`. The build starts from an empty
+output directory, generates reference pages, renders Markdown, then validates
+every local link and fragment.
 
-## My Deployment Process
+## Generated Reference
 
-### GitHub Pages
+`scripts/build_userguide.py` generates these pages during each build:
 
-```bash
-# Build
-make userguide
+| Page | Source |
+| --- | --- |
+| Builtins | `docs/STDLIB.md`, checked against `src/builtins_registry.c` |
+| Examples | Every `.nano` file under `examples/` and its metadata header |
+| Modules | `modules/`, `module.json`, `module.manifest.json`, and declarations |
+| Compiler CLI | `bin/nanoc_c --help` |
+| WebAssembly | `docs/WASM_MODULE_AUDIT.md` |
 
-# Deploy
-git add docs_html/
-git commit -m "docs: Update user guide HTML"
-git push
+Generated Markdown lives under `build/userguide/generated/`; it is a build
+artifact, not a second hand-maintained reference.
 
-# Configure GitHub Pages to serve from /docs_html
-```
+## Snippets
 
-### Manual Deployment
+Executable examples use an `nl-snippet` marker immediately before a NanoLang
+fence. `make userguide-check` compiles marked snippets and runs those with
+`run:true`. Unmarked blocks may be excerpts or conceptual fragments. They are
+not claimed as independently runnable programs.
 
-```bash
-# Copy to web server
-scp -r docs_html/* user@server:/var/www/nanolang/
-```
+## Publication
 
-## Accessibility Standards
+`.github/workflows/userguide_pages.yml` builds the same site on relevant pull
+requests. Pushes to `main` additionally upload and deploy the validated Pages
+artifact. The workflow does not edit tracked API Markdown while publishing.
 
-The HTML I generate meets WCAG 2.1 AA standards:
-- Semantic HTML5 elements
-- Proper heading hierarchy
-- Alt text for images
-- Keyboard navigation
-- Sufficient color contrast
-- Mobile-friendly responsive design
+## Accessibility
 
-## Troubleshooting
-
-### Missing styles
-**Problem:** CSS not loading.
-**Fix:** Check relative paths in HTML headers.
-
-### Broken links
-**Problem:** 404 on chapter links.
-**Fix:** Verify file names match exactly. I am case sensitive.
-
-### Code blocks not highlighted
-**Problem:** Syntax highlighting missing.
-**Fix:** Ensure `syntax-highlight.css` is loaded.
-
-## See Also
-
-- `docs/SIDEBAR_GENERATION_SPEC.md` - My sidebar implementation
-- `docs/API_REFERENCE_TEMPLATE.md` - My documentation standards
-- `userguide/assets/syntax-highlight.css` - My highlighting styles
-
+The generated pages provide semantic landmarks, a language attribute, skip
+navigation, keyboard focus, stable heading anchors, responsive navigation, and
+overflow-safe tables. These properties are tested structurally by the build.
+WCAG conformance still requires an accessibility audit; I do not claim one has
+occurred.

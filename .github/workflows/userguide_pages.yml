@@ -1,13 +1,33 @@
 name: User Guide (GitHub Pages)
 
 on:
+  pull_request:
+    paths:
+      - "userguide/**"
+      - "docs/STDLIB.md"
+      - "docs/WASM_MODULE_AUDIT.md"
+      - "examples/**"
+      - "modules/**"
+      - "src/builtins_registry.c"
+      - "src/main.c"
+      - "scripts/build_userguide.py"
+      - "scripts/userguide_snippets_check.nano"
+      - "Makefile.gnu"
+      - ".github/workflows/userguide_pages.yml"
   push:
     branches: [ main ]
     paths:
       - "userguide/**"
-      - "scripts/userguide_build_html.nano"
+      - "docs/STDLIB.md"
+      - "docs/WASM_MODULE_AUDIT.md"
+      - "examples/**"
+      - "modules/**"
+      - "src/builtins_registry.c"
+      - "src/main.c"
+      - "scripts/build_userguide.py"
       - "scripts/userguide_snippets_check.nano"
       - "Makefile.gnu"
+      - ".github/workflows/userguide_pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,6 +57,7 @@ jobs:
             nano-modules-
 
       - name: Configure Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
         with:
           enablement: true
@@ -48,14 +69,15 @@ jobs:
         run: make userguide-html
         env:
           USERGUIDE_TIMEOUT: 2400
-          USERGUIDE_BUILD_API_DOCS: 0
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/userguide/html
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

@@ -1,0 +1,20 @@
+fn count_three() -> int {
+    let mut count = 0
+    set count (+ count 1)
+    set count (+ count 1)
+    set count (+ count 1)
+    return count
+}
+
+shadow count_three {
+    assert (== (count_three) 3)
+}
+
+fn main() -> int {
+    assert (== (count_three) 3)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

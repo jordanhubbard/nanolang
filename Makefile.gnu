@@ -85,8 +85,6 @@ BUILD_DIR = $(OBJ_DIR)/build_bootstrap
 COV_DIR = coverage
 RUNTIME_DIR = $(SRC_DIR)/runtime
 USERGUIDE_DIR = build/userguide
-USERGUIDE_BUILD_TOOL_SRC = scripts/userguide_build_html.nano
-USERGUIDE_BUILD_TOOL = $(USERGUIDE_DIR)/userguide_build_html
 USERGUIDE_CHECK_TOOL_SRC = scripts/userguide_snippets_check.nano
 USERGUIDE_CHECK_TOOL = $(USERGUIDE_DIR)/userguide_snippets_check
 
@@ -876,7 +874,6 @@ test-impl: test-units
 # NOTE: Wrap test runs with a timeout to avoid infinite compiler loops.
 TEST_TIMEOUT ?= 1800
 USERGUIDE_TIMEOUT ?= 2400
-USERGUIDE_API_TIMEOUT ?= 600
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
 TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
@@ -890,7 +887,6 @@ EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV'
 # Release needs extended timeout since it runs tests + git/gh operations
 RELEASE_TIMEOUT ?= 2400
 RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
-USERGUIDE_BUILD_API_DOCS ?= 0
 test: build shadow-check userguide-export
 	@echo ""
 	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"
@@ -1170,18 +1166,8 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 	@$(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
-userguide-html: build shadow-check $(USERGUIDE_BUILD_TOOL)
-	@if [ "$$CI" = "true" ] || [ "$(USERGUIDE_BUILD_API_DOCS)" = "1" ]; then \
-		$(MAKE) userguide-api-docs; \
-	else \
-		echo "userguide-html: skipping API doc generation (set USERGUIDE_BUILD_API_DOCS=1 to enable)"; \
-	fi
-	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' $(USERGUIDE_BUILD_TOOL)
-
-.PHONY: userguide-api-docs
-userguide-api-docs: build
-	@echo "Generating API documentation..."
-	@perl -e 'alarm $(USERGUIDE_API_TIMEOUT); exec @ARGV' bash scripts/generate_all_api_docs.sh
+userguide-html: build shadow-check
+	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' python3 scripts/build_userguide.py --check
 
 .PHONY: shadow-check
 shadow-check: build
@@ -1208,9 +1194,6 @@ test-nano-style-audit:
 
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
-
-$(USERGUIDE_BUILD_TOOL): $(USERGUIDE_BUILD_TOOL_SRC) | $(USERGUIDE_DIR)
-	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_BUILD_TOOL)
 
 $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER_C) $(USERGUIDE_CHECK_TOOL_SRC) -o $(USERGUIDE_CHECK_TOOL)
@@ -1839,7 +1822,6 @@ bootstrap-status:
 PARSER_P = $(BIN_DIR)/parser_p
 TYPECHECK_P = $(BIN_DIR)/typecheck_p
 TRANSPILER_P = $(BIN_DIR)/transpiler_p
-USERGUIDE_HTML_P = $(BIN_DIR)/userguide_html_p
 
 bootstrap-profile: build
 	@echo ""
@@ -1861,10 +1843,6 @@ bootstrap-profile: build
 	@echo "  [3/4] Building transpiler_p..."
 	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/transpiler_driver.nano -o $(TRANSPILER_P) -pg 2>&1 | tail -3
 	@echo ""
-	@# Build profiled userguide_html
-	@echo "  [4/4] Building userguide_html_p..."
-	@$(TIMEOUT_CMD) $(COMPILER) $(USERGUIDE_BUILD_TOOL_SRC) -o $(USERGUIDE_HTML_P) -pg 2>&1 | tail -3
-	@echo ""
 	@echo "=========================================="
 	@echo "Running profiled components..."
 	@echo "=========================================="
@@ -1883,11 +1861,6 @@ bootstrap-profile: build
 	@echo ">>> PROFILING: transpiler_p on self (transpiler.nano)"
 	@echo "-------------------------------------------"
 	@$(TRANSPILER_P) 2>&1 || true
-	@echo ""
-	@# Run profiled userguide_html
-	@echo ">>> PROFILING: userguide_html_p"
-	@echo "-------------------------------------------"
-	@$(USERGUIDE_HTML_P) 2>&1 | head -60 || true
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Bootstrap Profile Complete"
