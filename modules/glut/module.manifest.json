@@ -15,7 +15,7 @@
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "modules": ["opengl"],
-    "system": [{"id": "freeglut", "install": {"apt": "freeglut3-dev", "brew": "freeglut"}}]
+    "system": [{"id": "glut", "install": {"apt": "freeglut3-dev", "dnf": "freeglut-devel", "macos": "system GLUT.framework"}}]
   },
   "io_surfaces": ["window"],
   "alternatives": [{"when": "modern OpenGL", "module": "glfw"}]

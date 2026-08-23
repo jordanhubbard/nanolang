@@ -5,8 +5,8 @@
   "headers": [],
   "cflags": ["-Imodules/glut"],
   "c_sources": ["glut_init.c"],
-  "pkg_config": ["glut"],
   "frameworks": ["GLUT"],
-  "system_packages": ["freeglut"],
-  "notes": "macOS uses system GLUT.framework (deprecated but still available). Linux/FreeBSD use FreeGLUT via pkg-config."
+  "ldflags_linux": ["-lglut"],
+  "ldflags_freebsd": ["-lglut"],
+  "notes": "macOS uses only GLUT.framework. Linux and FreeBSD use FreeGLUT. Mixing Apple GLUT and Homebrew FreeGLUT in one process leaves the primitive renderer in inconsistent global state."
 }

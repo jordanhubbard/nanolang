@@ -203,7 +203,11 @@ launch_prerequisite_missing() {
     if ! command -v pkg-config >/dev/null 2>&1; then
         note_missing "pkg-config not available"
     else
-        for pkg in glut glfw3 glew; do
+        local packages="glfw3 glew"
+        if [ "$(uname -s)" != "Darwin" ]; then
+            packages="glut $packages"
+        fi
+        for pkg in $packages; do
             if ! pkg-config --exists "$pkg" 2>/dev/null; then
                 note_missing "$pkg development package not installed"
             fi
@@ -232,6 +236,11 @@ launch_example() {
         >"$log" 2>&1; then
         cat "$log"
         fail "$name failed to build"
+        return
+    fi
+
+    if [ "$(uname -s)" = "Darwin" ] && otool -L "$binary" | grep -q '/opt/homebrew/.*/libglut'; then
+        fail "$name links Homebrew FreeGLUT alongside Apple GLUT.framework"
         return
     fi
 
