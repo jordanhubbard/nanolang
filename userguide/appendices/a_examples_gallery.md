@@ -2,7 +2,7 @@
 
 **Selected programs organized by category.**
 
-I require shadow tests, but external dependencies and expected-failure fixtures mean this gallery is not a promise that every file builds on every host. Browse all 253 files at [examples/ on GitHub](https://github.com/jordanhubbard/nanolang/tree/main/examples), and use [My Examples Index](../../docs/EXAMPLES_INDEX.md) for build boundaries.
+I require shadow tests, but external dependencies and expected-failure fixtures mean this gallery is not a promise that every file builds on every host. Browse all 241 `.nano` files, including the generated OPL output fixture, at [examples/ on GitHub](https://github.com/jordanhubbard/nanolang/tree/main/examples), and use [My Examples Index](../../docs/EXAMPLES_INDEX.md) for build boundaries.
 
 ## Getting Started
 
@@ -39,7 +39,6 @@ I require shadow tests, but external dependencies and expected-failure fixtures 
 | Example | Description |
 |---------|-------------|
 | [`examples/debug/logging_demo.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/logging_demo.nano) | Structured logging |
-| [`examples/debug/logging_levels_demo.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/logging_levels_demo.nano) | Log levels |
 | [`examples/advanced/regex_demo.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/regex_demo.nano) | Regular expressions |
 | [`examples/language/nl_string_operations.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/language/nl_string_operations.nano) | String manipulation |
 

@@ -1,6 +1,6 @@
 # Examples
 
-I keep all 253 examples in the repository [examples directory](https://github.com/jordanhubbard/nanolang/tree/main/examples). The maintained learning order and dependency boundaries live in [My Examples Index](../docs/EXAMPLES_INDEX.md).
+I keep 241 `.nano` example files in the repository [examples directory](https://github.com/jordanhubbard/nanolang/tree/main/examples), including one generated OPL output fixture. The maintained learning order and dependency boundaries live in [My Examples Index](../docs/EXAMPLES_INDEX.md).
 
 ## Categories
 
@@ -37,7 +37,6 @@ The SDL example launcher provides a graphical menu to browse and run examples:
 - [advanced/error_handling_patterns.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/error_handling_patterns.nano)
 - [advanced/event_example.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/event_example.nano)
 - [advanced/ffi_tutorial.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/ffi_tutorial.nano)
-- [advanced/large_project_structure.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/large_project_structure.nano)
 - [advanced/libc_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/libc_demo.nano)
 - [advanced/math_ext_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/math_ext_demo.nano)
 - [advanced/math_helper.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/advanced/math_helper.nano)
@@ -72,9 +71,7 @@ The SDL example launcher provides a graphical menu to browse and run examples:
 ## debug
 
 - [debug/coverage_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/coverage_demo.nano)
-- [debug/logging_categories_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/logging_categories_demo.nano)
 - [debug/logging_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/logging_demo.nano)
-- [debug/logging_levels_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/logging_levels_demo.nano)
 - [debug/property_test_math.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/property_test_math.nano)
 - [debug/property_test_sorting.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/debug/property_test_sorting.nano)
 
@@ -93,9 +90,7 @@ The SDL example launcher provides a graphical menu to browse and run examples:
 - [graphics/sdl_game_of_life.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_game_of_life.nano)
 - [graphics/sdl_glass_sphere.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_glass_sphere.nano)
 - [graphics/sdl_image_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_image_demo.nano)
-- [graphics/sdl_image_effects.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_image_effects.nano)
 - [graphics/sdl_image_sprite_animation.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_image_sprite_animation.nano)
-- [graphics/sdl_image_test.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_image_test.nano)
 - [graphics/sdl_image_tiled_background.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_image_tiled_background.nano)
 - [graphics/sdl_mouse_click.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_mouse_click.nano)
 - [graphics/sdl_nanoviz.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_nanoviz.nano)
