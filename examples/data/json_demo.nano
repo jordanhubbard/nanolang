@@ -4,6 +4,10 @@
 # Difficulty: Intermediate
 # Category: data
 # Prerequisites: none
+# Track: modules
+# Build: local
+# Dependencies: modules/std/json
+# Tags: json, ffi, shadow-tested
 # Expected Output: === JSON Parse Example ===
 
 import "modules/std/json/json.nano"
@@ -48,7 +52,7 @@ fn parse_example() -> int {
 }
 
 shadow parse_example {
-    assert true
+    assert (== (parse_example) 0)
 }
 
 fn create_example() -> int {
@@ -73,7 +77,7 @@ fn create_example() -> int {
 }
 
 shadow create_example {
-    assert true
+    assert (== (create_example) 0)
 }
 
 fn array_example() -> int {
@@ -104,7 +108,7 @@ fn array_example() -> int {
 }
 
 shadow array_example {
-    assert true
+    assert (== (array_example) 0)
 }
 
 fn main() -> int {

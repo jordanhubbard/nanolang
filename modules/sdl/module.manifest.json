@@ -47,15 +47,15 @@
     "sound"
   ],
   "examples": [
-    "examples/sdl_asteroids.nano",
-    "examples/sdl_boids.nano",
-    "examples/sdl_checkers.nano",
-    "examples/sdl_falling_sand.nano",
-    "examples/sdl_particles.nano",
-    "examples/sdl_pong.nano",
-    "examples/sdl_raytracer.nano",
-    "examples/sdl_starfield.nano",
-    "examples/sdl_terrain_explorer.nano"
+    "examples/games/sdl_asteroids.nano",
+    "examples/graphics/sdl_boids.nano",
+    "examples/games/sdl_checkers.nano",
+    "examples/graphics/sdl_falling_sand.nano",
+    "examples/graphics/sdl_particles.nano",
+    "examples/games/sdl_pong.nano",
+    "examples/graphics/sdl_raytracer.nano",
+    "examples/graphics/sdl_starfield.nano",
+    "examples/graphics/sdl_terrain_explorer.nano"
   ],
   "dependencies": {
     "nanolang": [],
@@ -87,4 +87,3 @@
     {"when": "3D graphics", "module": "opengl"}
   ]
 }
-

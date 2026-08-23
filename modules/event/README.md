@@ -57,7 +57,7 @@ shadow main {
 
 ## Example
 
-See `examples/event_example.nano` for comprehensive usage examples.
+See `examples/advanced/event_example.nano` for a focused event example.
 
 ## API Reference
 

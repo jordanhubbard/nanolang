@@ -1,509 +1,354 @@
-# My Canonical Style - The One True Way
+# How I Prefer To Be Written
 
-> **For LLMs:** I define exactly one correct way to write each of my constructs. Use these forms. Do not deviate.
+This guide describes the source my current parser and typechecker accept. It
+also states project policy. Those are different things.
 
-## My Core Principle
+- **Accepted** means my current implementation parses and typechecks the form.
+- **Required** means the implementation rejects the alternative.
+- **Policy** means contributors should follow the rule even where I do not yet
+  enforce it.
 
-**I have exactly one canonical way to write each operation.**
+My implementation is the authority when this guide and old examples disagree.
+The relevant code lives in `src/lexer.c`, `src/parser.c`, `src/typechecker.c`,
+and `src/resource_tracking.c`. Tests show observed behavior. Neither a parser
+branch nor an example is a proof of the whole language.
 
-When LLMs see multiple equivalent forms, they guess wrong about half the time. I eliminate guessing.
+## Calls And Expressions
 
----
-
-## My Function Calls
-
-### Canonical: Prefix Notation
-```nano
-(function arg1 arg2 arg3)
-(println "Hello")
-(str_concat "a" "b")
-```
-
-### Never Use
-```
-function(arg1, arg2)  # C-style - I DO NOT SUPPORT THIS
-function arg1 arg2    # Haskell-style - I DO NOT SUPPORT THIS
-```
-
-**Rule:** All my function calls use prefix notation `(f x y)`. I make no exceptions.
-
-> **Note:** My operators like `+`, `-`, `*`, and others support both prefix and infix notation. I explain this in the [Arithmetic](#arithmetic), [Boolean Logic](#boolean-logic), and [Comparisons](#comparisons) sections below.
-
----
-
-## Parentheses: Function Calls vs Tuples vs Grouping
-
-I use parentheses for three purposes. My parser disambiguates based on what follows the opening `(`:
-
-### The Rule: Commas Make Tuples, Spaces Make Calls
-
-| Pattern | Meaning |
-|---------|---------|
-| `(a, b, c)` | **Tuple literal** - comma-separated |
-| `(fn a b c)` | **Function call** - space-separated |
-| `(expr)` | **Grouping** - single expression, no comma |
-| `()` | **Empty tuple** |
-| `(fn)` | **Zero-arg call** - identifier alone = call |
-
-### Examples
+Write calls in parenthesized prefix form. Arguments are separated by spaces,
+not commas.
 
 ```nano
-# Function calls - arguments separated by SPACES
-(add 1 2)              # Call add with args 1 and 2
-(println "Hello")      # Call println with one arg
-(process x y z)        # Call process with three args
-
-# Tuples - elements separated by COMMAS
-(1, 2)                 # Tuple with two elements
-("a", "b", "c")        # Tuple with three strings
-(x, (y, z))            # Nested tuple
-
-# Grouping - single expression
-(+ 1 2)                # Groups the prefix op (returns 3)
-(3 + 4)                # Groups the infix op (returns 7)
-
-# Mixed: function taking a tuple argument
-(fn_expects_tuple (1, 2))   # Call fn_expects_tuple with tuple arg
+(println "ready")
+(distance x y)
+(canvas.clear color)
+(clock_now)
 ```
 
-### How I Parse `(arg (arg, arg) arg)`
-
-I parse this as a **function call** because I find no commas at the top level:
+I parse `(name)` as a zero-argument call. Parentheses around a non-identifier
+expression are grouping. Commas make tuples:
 
 ```nano
-(process a (x, y) b)
-#   │     │   │   └─ third argument: b
-#   │     │   └───── second argument: tuple (x, y)
-#   │     └───────── first argument: a
-#   └─────────────── function name: process
+let point = (10, 20)
+let answer = (compute)
+let grouped = (a + b)
 ```
 
-The nested `(x, y)` is a tuple because it contains a comma.
+Do not write `f(x, y)` or `object.method()`. They are not my call syntax. Dot
+syntax names struct fields and qualified module members; the call still wraps
+the qualified name: `(math.clamp x low high)`.
 
-### My Type Annotations
-
-My tuple types also use comma separation:
+Operators are the deliberate exception to call-only syntax. I accept prefix
+and infix forms for `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`,
+`and`, and `or`. I accept unary `not` and unary `-`.
 
 ```nano
-let pair: (int, int) = (1, 2)           # Tuple type and literal
-let triple: (string, int, bool) = ("a", 1, true)
+let prefix = (+ a b)
+let infix = a + b
+let negative = -value
+let disabled = not enabled
+```
 
-fn returns_pair() -> (int, string) {
-    return (42, "answer")
+All infix binary operators, including equality and boolean operators, have
+equal precedence and associate left to right:
+
+```nano
+let first = 2 + 3 * 4       # (2 + 3) * 4
+let second = 2 + (3 * 4)    # 2 + (3 * 4)
+let flag = a == b and ready # (a == b) and ready
+```
+
+**Policy:** prefer prefix operators in dense or mixed expressions. If infix is
+clearer, parenthesize every intended grouping. I have no hidden precedence
+table to rescue an ambiguous-looking line.
+
+## Bindings And Types
+
+Bindings are immutable unless marked `mut`. Mutation uses `set`.
+
+```nano
+let name = "Ada"
+let count: int = 3
+let mut frame = 0
+set frame (+ frame 1)
+```
+
+Local type annotations are optional. For `let x = expression`, my typechecker
+infers the type from the initializer and records it for later compiler phases.
+This is current behavior, not "limited future support."
+
+**Policy:** use local inference when the initializer makes the type plain. Add
+an annotation for empty collections, generic or union-heavy values, FFI
+handles, resource values, and anywhere the annotation documents a boundary.
+Some collection constructors require an annotation because their element types
+cannot be recovered from an empty value.
+
+Function parameters and return types remain explicit and required:
+
+```nano
+fn area(width: int, height: int) -> int {
+    return (* width height)
 }
 ```
 
-### Common Mistakes
+Use the implemented type spellings rather than inventing host-language ones.
+Common forms include `int`, `float`, `bool`, `string`, `void`, `array<T>`,
+tuples such as `(int, string)`, named `struct`, `enum`, `union`, generic unions
+such as `Result<int, string>`, function types, and opaque FFI types. Construct
+named records with `Type { field: value }` and read fields with `value.field`.
+Named types and variants start with an uppercase letter because the parser uses
+that convention when distinguishing constructors from ordinary identifiers.
+
+## Control Flow
+
+An `if` may omit `else`:
 
 ```nano
-# Never: This calls fn with args a, b (not a tuple)
-(fn a b)    # Function call with TWO arguments
-
-# Canonical: To pass a single tuple argument:
-(fn (a, b)) # Function call with ONE tuple argument
-
-# Never: Forgetting commas creates a call, not a tuple
-let t = (1 2 3)  # ERROR: I try to call "1" as a function
-
-# Canonical: Use commas for tuples
-let t = (1, 2, 3)  # Creates a tuple
+if needs_redraw {
+    (draw scene)
+}
 ```
 
----
+I also accept `else if` and `else`. Do not add `else {}` merely to satisfy an
+old document. Use an `else` when both outcomes matter.
 
-## Imports and Qualified Calls
+`cond` is an expression with a required final `(else value)` clause:
 
-### Canonical: Module Alias + Qualified Call
 ```nano
-import "modules/std/json/json.nano" as json
-
-let value: string = (json.get_string obj "name")
-```
-
-### Canonical: Import Alias for a Specific Function
-```nano
-from "modules/std/json/json.nano" import parse as json_parse
-
-let data: Json = (json_parse payload)
-```
-
-**Rule:** I prefer module aliases and qualified calls. This avoids global name collisions.
-
----
-
-## Conditionals
-
-### For Expressions: Use `cond`
-
-Canonical:
-```nano
-let result: int = (cond
-    ((< x 0) -1)
-    ((> x 0) 1)
+let sign = (cond
+    ((< n 0) -1)
+    ((> n 0) 1)
     (else 0)
 )
 ```
 
-Never:
-```nano
-let result: int = if (< x 0) { -1 } else { if (> x 0) { 1 } else { 0 } }
-```
+Use `if` for ordinary control flow and `cond` when selecting a value from
+several cases. Use `match` for unions and other data whose variants carry the
+decision. Current `for` syntax iterates a range expression:
 
-### For Statements: Use `if/else` (with `else if` chaining)
-
-Canonical:
 ```nano
-if (< x 0) {
-    (println "negative")
-} else if (== x 0) {
-    (println "zero")
-} else {
-    (println "positive")
+for i in (range 0 count) {
+    (visit i)
 }
 ```
 
-**Rule:**
-- **Expressions** (returning a value): Use `cond`
-- **Statements** (side effects only): Use `if/else` (with `else if` chaining as needed)
+`while`, `break`, and `continue` are also accepted.
 
----
+## Imports And Modules
 
-## String Operations
-
-### Canonical: String `+`
-```nano
-let greeting: string = (+ "Hello, " name)
-let full_path: string = (+ (+ base "/") filename)
-```
-
-### Alternative: `str_concat`
-```nano
-(str_concat "Hello, " name)  # Equivalent to (+ "Hello, " name)
-```
-
-**Note:** I treat `(+ s1 s2)` and `s1 + s2` as syntactic shorthand for `(str_concat s1 s2)`. All three work identically. I prefer `+` for consistency with numeric operations.
-
-### Canonical: String `==`
-```nano
-if (== name "Alice") { (println "Hello Alice!") }
-let same: bool = (== str1 str2)
-```
-
-### Never: `str_equals`
-```nano
-(str_equals name "Alice")  # I still support this, but avoid it
-```
-
-**Rule:** Always use `(== string1 string2)` when comparing strings.
-
----
-
-## Arithmetic
-
-I support **both prefix and infix** notation for my arithmetic operators.
-
-### Canonical: Prefix Notation
-```nano
-(+ a b)
-(- a b)
-(* a b)
-(/ a b)
-(% a b)
-```
-
-### Canonical: Infix Notation
-```nano
-a + b
-a - b
-a * b
-a / b
-a % b
-```
-
-### Precedence and Grouping
-
-All my infix operators have **equal precedence**. I evaluate them **left-to-right**. I do not use PEMDAS. Use parentheses to control evaluation order:
+The current module import form is `module`:
 
 ```nano
-# Left-to-right evaluation without parentheses
-let x: int = 2 + 3 * 4    # (2 + 3) * 4 = 20, NOT 2 + 12
+module "modules/std/json/json.nano" as json
 
-# Explicit grouping with parentheses
-let y: int = 2 + (3 * 4)  # 2 + 12 = 14
-let z: int = (2 + 3) * 4  # 5 * 4 = 20
-```
-
-My unary `-` works without parentheses: `-x`
-
-**Rule:** Both prefix `(+ a b)` and infix `a + b` are valid. My prefix notation avoids precedence ambiguity. My infix notation is often more readable for simple expressions. Use parentheses to group infix operations when precedence matters.
-
----
-
-## Boolean Logic
-
-I support **both prefix and infix** notation for my boolean operators.
-
-### Canonical: Prefix Notation
-```nano
-(and condition1 condition2)
-(or condition1 condition2)
-(not condition)
-```
-
-### Canonical: Infix Notation
-```nano
-condition1 and condition2
-condition1 or condition2
-not condition
-```
-
-### Never Use
-```
-condition1 && condition2  # C-style - I DO NOT SUPPORT THIS
-condition1 || condition2  # C-style - I DO NOT SUPPORT THIS
-!condition                # C-style - I DO NOT SUPPORT THIS
-```
-
-My unary `not` and `-` work without parentheses: `not flag`, `-x`
-
-**Rule:** Both prefix `(and a b)` and infix `a and b` are valid. I do not have C-style `&&`, `||`, or `!`.
-
----
-
-## Comparisons
-
-I support **both prefix and infix** notation for my comparison operators.
-
-### Canonical: Prefix Notation
-```nano
-(== a b)
-(!= a b)
-(< a b)
-(> a b)
-(<= a b)
-(>= a b)
-```
-
-### Canonical: Infix Notation
-```nano
-a == b
-a != b
-a < b
-a > b
-a <= b
-a >= b
-```
-
-**Rule:** Both prefix `(== a b)` and infix `a == b` are valid. The same equal-precedence, left-to-right evaluation applies as with my arithmetic operators.
-
----
-
-## Variables
-
-### Canonical
-```nano
-let name: type = value              # Immutable
-let mut counter: int = 0            # Mutable
-set counter (+ counter 1)           # Mutation
-```
-
-### Never Use
-```
-var name = value        # JavaScript-style - I DO NOT SUPPORT THIS
-counter = counter + 1   # Assignment with = - I DO NOT SUPPORT THIS (use set)
-counter += 1            # Compound assignment - I DO NOT SUPPORT THIS
-```
-
-**Rule:** 
-- Immutable: `let name: type = value`
-- Mutable: `let mut name: type = value`
-- Update: `set name new_value`
-
----
-
-## Loops
-
-### Canonical: `while` loops
-```nano
-while (< i 10) {
-    (println i)
-    set i (+ i 1)
+fn decode(payload: string) -> Json {
+    return (json.parse payload)
 }
 ```
 
-### Canonical: `for` loops
+A bare module identifier resolves through `modules/<name>/<name>.nano`, but an
+explicit path is easier to audit. The parser still accepts legacy `import`,
+`from ... import ...`, wildcard imports, and `pub use`. Do not choose legacy
+syntax for new code merely because it still parses.
+
+**Policy:** import a module under a short, specific alias and qualify its public
+API. Use selective imports only when they materially improve a small file.
+Avoid wildcard imports. Keep imports at the top, keep private helpers private,
+and mark only the intended module surface `pub`. A module is a boundary: expose
+domain types and operations, not incidental storage or raw foreign calls.
+
+## Unsafe Code And FFI
+
+Declare foreign functions with `extern fn`. A direct call to one must occur in
+an `unsafe { ... }` block unless the enclosing module is unsafe.
+
 ```nano
-for (let i: int = 0) (< i 10) (set i (+ i 1)) {
-    (println i)
+extern fn c_read(fd: int, buffer: string, count: int) -> int
+
+fn read_once(fd: int, buffer: string) -> int {
+    unsafe {
+        return (c_read fd buffer (str_length buffer))
+    }
 }
 ```
 
-### Never Use
-```
-forEach(item in list)   # I DO NOT SUPPORT THIS
-for item in list        # Python-style - I DO NOT SUPPORT THIS
-list.forEach(...)       # Method syntax - I DO NOT SUPPORT THIS
-```
+An unsafe import marks the imported module as unsafe:
 
-**Rule:** I only have `while` and `for`. I provide no other loop constructs.
-
----
-
-## Arrays
-
-### Canonical: Function calls only
 ```nano
-let arr: array<int> = (array_new 10 0)    # Create
-let val: int = (array_get arr 0)          # Read
-(array_set arr 0 42)                      # Write
-let len: int = (array_length arr)         # Length
+unsafe module "modules/sdl/sdl.nano" as sdl
 ```
 
-### Never Use
-```
-arr[0]          # Subscript syntax - I DO NOT SUPPORT THIS
-arr.get(0)      # Method syntax - I DO NOT SUPPORT THIS
-arr.length      # Property syntax - I DO NOT SUPPORT THIS
-```
+**Policy:** keep unsafe regions small. Put FFI declarations and representation
+conversions in a boundary module, validate values there, and export a typed safe
+wrapper where one can honestly be provided. Use an unsafe module only when the
+whole module is a foreign boundary. `unsafe` records responsibility; it does
+not make a pointer valid or a C library well behaved.
 
-**Rule:** All my array operations use explicit function calls.
+## Resources
 
----
+`resource struct` marks an affine resource type:
 
-## Function Definitions
-
-### Canonical
 ```nano
-fn function_name(arg1: type1, arg2: type2) -> return_type {
-    # body
-    return value
+resource struct FileHandle {
+    fd: int
 }
 
-shadow function_name {
-    # tests
-    assert (condition)
+fn close_file(file: FileHandle) -> void {
+    unsafe { (c_close file.fd) }
 }
 ```
 
-### Never Use
-```
-def function_name(...):           # Python-style - I DO NOT SUPPORT THIS
-function function_name(...) {...} # JavaScript-style - I DO NOT SUPPORT THIS
-auto function_name(...) -> {...}  # C++20-style - I DO NOT SUPPORT THIS
-```
+The current typechecker marks explicitly typed resource bindings and treats a
+direct resource identifier passed by value as consumed. It contains checks for
+use-after-consume and repeated consumption. The implementation is not a full
+ownership proof: leak checking is not wired into normal typechecking, inferred
+resource bindings do not carry all the same metadata, branch-sensitive state
+is limited, and some resource diagnostics do not currently propagate into the
+typecheck result.
 
-**Rule:** Use only the `fn` keyword. My shadow tests are mandatory, except for `extern` functions.
+**Policy:** annotate resource locals explicitly, give ownership to exactly one
+scope, pass the resource once to its cleanup function, and never use it
+afterward. Review every return and early exit for cleanup. Treat successful
+compilation as a check, not proof of resource safety.
 
----
+## Errors
 
-## Type Annotations
+Use `Result<T, E>` or another explicit union for failures callers can handle.
+Match the variants where context exists to recover or report. The postfix `?`
+operator is accepted for compatible result propagation, but an explicit
+`match` is better when adding context or cleanup.
 
-### Canonical
+Use `assert` in shadows for invariants and expected behavior. Do not use an
+assertion as routine input validation. At process boundaries, print a concise
+diagnostic and return a nonzero `int` from `main`. At module boundaries, return
+typed error information instead of magic integers where practical. Preserve
+foreign error codes or messages before performing more FFI calls.
+
+## Shadows: Enforcement And Policy
+
+A shadow is an executable test attached by name:
+
 ```nano
-let name: string = "value"
-fn add(x: int, y: int) -> int { ... }
-let arr: array<int> = (array_new 10 0)
-let opt: Result<int, string> = Result.Ok(42)
+fn double(value: int) -> int {
+    return (* value 2)
+}
+
+shadow double {
+    assert (== (double 3) 6)
+}
 ```
 
-### Never Use
-```
-let name = "value"              # I have limited support for type inference
-String name = "value"           # Java-style - I DO NOT SUPPORT THIS
-auto name = "value"             # C++-style - I DO NOT SUPPORT THIS
-```
+I do **not** universally reject a function without a shadow. In normal CPU
+typechecking I warn. I exempt `extern` functions, `main`,
+generated lambdas, GPU targets, and functions whose bodies call extern
+functions. It rejects a shadow attached directly to an `extern` function.
 
-**Rule:** Include explicit type annotations. I value clarity over brevity.
+Project policy is stricter than compiler enforcement: every added or changed
+non-extern named function gets a useful shadow in the same change, including
+`main` and wrappers around FFI when they can be tested. The repository's shadow
+check script enforces this policy textually for added functions in new files
+and functions added in a diff. That script is a policy gate, not the language
+grammar, and it does not establish test quality.
 
----
+Write shadows around observable contracts. Include boundaries and failure
+variants. A shadow shows behavior for the cases it executes. It does not prove
+the function for all inputs.
 
-## Module Imports
+## Comments And Names
 
-### Canonical
+I accept three comment forms:
+
 ```nano
-from "path/to/module.nano" import function1, function2, Type
+# ordinary line comment
+// line comment; /// is available to documentation tooling
+/* block comment */
 ```
 
-### Never Use
-```
-import module                   # Python-style - I DO NOT SUPPORT THIS
-const { f1, f2 } = require(...) # Node.js-style - I DO NOT SUPPORT THIS
-use module::function;           # Rust-style - I DO NOT SUPPORT THIS
-```
+Prefer `#` for ordinary source commentary. Use `///` only for API documentation
+consumed by documentation tools. Use block comments sparingly. Explain a
+constraint, ownership rule, foreign assumption, or non-obvious reason. Do not
+narrate syntax.
 
-**Rule:** Use only the `from ... import ...` syntax.
+Use `snake_case` for functions, locals, fields, and module aliases. Use
+`UpperCamelCase` for structs, unions, enums, and their variants. Use precise
+nouns for values and verbs for operations. Keep abbreviations established by
+the domain or foreign API. Prefix private helpers by domain when a generic name
+would be hard to search; do not encode types into names.
 
----
+## Example Metadata
 
-## Comments
+Repository examples begin with machine-readable `# Key: value` lines. Keep the
+catalog vocabulary and order used by neighboring current examples:
 
-### Canonical
 ```nano
-# Single-line comment
-/* Multi-line comment
-   spanning multiple lines */
+# Example: Checked Parser
+# Purpose: Parse input and report a typed error
+# Features: unions, match, shadow tests
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_union_types
+# Track: learn
+# Build: local
+# Dependencies: none
+# Tags: parsing, result, shadow-tested
+# Expected Output: parsed 3 records
 ```
 
-### Never Use
-```
-// C++ style     # I DO NOT SUPPORT THIS
--- Haskell style # I DO NOT SUPPORT THIS
-```
+`Example`, `Purpose`, `Features`, `Difficulty`, `Category`, `Prerequisites`, and
+`Expected Output` are the common core. Current catalog entries may also use
+`Track`, `Build`, `Dependencies`, and `Tags`. Use `none` rather than leaving a
+known-empty field blank. Metadata is catalog data in comments; my parser
+ignores it. Do not claim a backend, dependency, output, or shadow status
+that has not been checked.
 
-**Rule:** Use `#` for single-line comments and `/* */` for multi-line comments.
+## Graphical Programs
 
----
+A graphical example has a lifecycle, not merely a loop:
 
-## Summary: LLM Quick Reference
+1. Import the foreign modules and initialize each subsystem.
+2. Check every required window, renderer, context, font, texture, or audio
+   handle before entering the loop.
+3. Poll all pending events, then update state, then render and present once.
+4. Keep per-frame allocation and foreign resource creation out of the loop.
+5. Leave the loop through one cleanup path and destroy resources in reverse
+   construction order.
 
-**When you generate my code, always:**
+Use `# Expected Output: graphical` and list external libraries in
+`Dependencies`. Put `graphical` and `external-deps` in `Build` when applicable.
+A graphical shadow should test pure state transitions, geometry, parsing, or
+other deterministic helpers. Do not pretend that opening a window is a stable
+unit test. The interactive loop is tested by running it on a supported system;
+the helper mathematics can often be proved or tested more strongly.
 
-1. **Function calls:** `(f x y)` - use prefix notation only
-2. **Expressions:** `(cond ((test) result) (else default))`
-3. **Strings:** `(+ "a" "b")` or `"a" + "b"` - I prefer these over `str_concat`
-4. **Math:** `(+ a b)` or `a + b` - both prefix and infix are valid
-5. **Logic:** `(and a b)` or `a and b` - both prefix and infix are valid
-6. **Comparisons:** `(== a b)` or `a == b` - both prefix and infix are valid
-7. **Variables:** `let name: type = value` and `set name value`
-8. **Arrays:** `(array_get arr i)` - use function calls only
-9. **Types:** Keep them explicit, do not infer
-10. **Shadow tests:** These are mandatory for every function, unless it is `extern`
+## Claims: Proved, Tested, Assumed
 
-**Infix operator notes:**
-- All my infix operators have equal precedence and evaluate left-to-right
-- Use parentheses to group: `a * (b + c)`
-- My unary `not` and `-` work without parentheses: `not flag`, `-x`
+I use these words narrowly:
 
-**Never use:**
-- C-style function calls: `arr[i]`, `f(x, y)`
-- C-style boolean operators: `&&`, `||`, `!`
-- Property access: `obj.prop` (except for my structs)
-- Method calls: `obj.method()`
-- Type inference: `let x = 5` (I prefer `let x: int = 5`)
+- **Proved:** a stated property is covered by a checked formal theorem, within
+  that theorem's model and subset.
+- **Tested:** a named command, shadow, or test exercised stated cases and
+  passed on a stated backend or environment.
+- **Assumed:** the claim depends on an unchecked invariant, foreign library,
+  platform behavior, manual review, or intended implementation behavior.
 
----
+Do not write "proved" when a shadow passed. Do not write "tested" when code
+only compiled. Do not extend a proof about my verified subset to FFI, graphics,
+resource cleanup, or another backend without a theorem that covers it. State
+the boundary. Honesty is more useful than confidence.
 
-## Enforcement
+## Working Rule
 
-**Compiler warnings (future):**
-```bash
-./bin/nanoc file.nano --strict-canonical
-# Warning: You are using if/else for an expression. I prefer cond.
-```
+Write the smallest explicit program that states its boundaries:
 
-**Linter (future):**
-```bash
-./bin/nanolint file.nano
-# Error: I detected a non-canonical form.
-```
+- Prefix calls; grouped operators.
+- Inferred obvious locals; explicit public and difficult types.
+- Optional `else` used only when there is another outcome.
+- Qualified current-form module imports.
+- Narrow unsafe and FFI boundaries.
+- Explicit ownership and cleanup for resources.
+- Typed recoverable errors.
+- Shadows required by project policy, described as tests rather than proofs.
+- Metadata and claims that report what was actually checked.
 
----
-
-## Why This Matters
-
-**For Humans:** My consistency makes code easier to read and maintain.
-
-**For LLMs:** This eliminates guessing. Every operation has one correct form. My reliability improves.
-
-**Principle:** When my forms are well-defined and documented, LLMs produce correct code.
-
+That is my current style. When my implementation changes, update this guide
+from the parser and typechecker before repeating an older rule.

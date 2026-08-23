@@ -237,7 +237,7 @@ unsafe { (IMG_Quit) }
 
 ## Complete Example - All Features
 
-See `examples/sdl_image_demo.nano` for a comprehensive demonstration including:
+See `examples/graphics/sdl_image_demo.nano` for a comprehensive demonstration including:
 - Basic rendering
 - Scaling
 - Rotation
@@ -435,7 +435,7 @@ let version: int = (IMG_Linked_Version)
 
 ## See Also
 
-- `examples/sdl_image_test.nano` - Basic test
-- `examples/sdl_image_demo.nano` - Complete feature demo
+- `examples/graphics/sdl_image_test.nano` - Basic test
+- `examples/graphics/sdl_image_demo.nano` - Complete feature demo
 - `examples/sdl_example_launcher.nano` - Real-world usage
 - [SDL_image Documentation](https://www.libsdl.org/projects/SDL_image/)

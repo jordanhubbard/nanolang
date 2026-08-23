@@ -1,121 +1,43 @@
-# Example: agentOS IPC Schema
-# Purpose: Document conceptual row-polymorphic IPC message schemas
-# Features: records, conceptual row variables, IPC envelope pattern
-# Difficulty: Advanced
-# Category: concept
-# Prerequisites: row_poly_records
-# Track: experimental
-# Build: concept
+# Example: IPC Message Schema
+# Purpose: I model a small IPC envelope with explicit concrete message records
+# Features: structs, validation, deterministic local fixtures
+# Difficulty: Intermediate
+# Category: language
+# Prerequisites: nl_struct
+# Track: applications
+# Build: local
 # Dependencies: none
-# Tags: row-polymorphism, design-only, not-runnable
-# Expected Output: concept
-#
-# I use this file to sketch how row polymorphism models the agentOS IPC
-# protocol. It is not a runnable learning example.
+# Tags: ipc, records, validation, shadow-tested
+# Expected Output: spawn worker: valid
 
-# ── Common envelope fields ─────────────────────────────────────────────────
-#
-# Row-polymorphic type (conceptual): {id: string, ts: int, version: int | r}
-# Any concrete message type must supply these three fields.
+struct SpawnMessage { id: string, timestamp: int, image: string, args: string }
 
-struct IPCBase {
-    id:      string,
-    ts:      int,
-    version: int
+fn valid_spawn(message: SpawnMessage) -> bool {
+    return (and (> (str_length message.id) 0) (> (str_length message.image) 0))
 }
 
-# ── Message variants ───────────────────────────────────────────────────────
-
-struct SpawnMsg {
-    id:      string,
-    ts:      int,
-    version: int,
-    op:      string,
-    image:   string,
-    args:    string
+shadow valid_spawn {
+    let valid: SpawnMessage = SpawnMessage { id: "msg-1", timestamp: 10, image: "worker", args: "--once" }
+    let invalid: SpawnMessage = SpawnMessage { id: "", timestamp: 10, image: "worker", args: "" }
+    assert (valid_spawn valid)
+    assert (not (valid_spawn invalid))
 }
 
-struct KillMsg {
-    id:      string,
-    ts:      int,
-    version: int,
-    op:      string,
-    target:  string
+fn describe_spawn(message: SpawnMessage) -> string {
+    return (+ "spawn " (+ message.image (cond ((valid_spawn message) ": valid") (else ": invalid"))))
 }
 
-struct QueryMsg {
-    id:      string,
-    ts:      int,
-    version: int,
-    op:      string,
-    sql:     string,
-    limit:   int
+shadow describe_spawn {
+    let message: SpawnMessage = SpawnMessage { id: "msg-1", timestamp: 10, image: "worker", args: "--once" }
+    assert (== (describe_spawn message) "spawn worker: valid")
 }
 
-struct StatusMsg {
-    id:      string,
-    ts:      int,
-    version: int,
-    op:      string
+fn main() -> int {
+    let message: SpawnMessage = SpawnMessage { id: "msg-1", timestamp: 10, image: "worker", args: "--once" }
+    (println (describe_spawn message))
+    return 0
 }
 
-# ── Handlers ───────────────────────────────────────────────────────────────
-
-fn ack(msg_id: string, status: string) -> void {
-    (println (format "[IPC] ACK %s: %s" msg_id status))
-}
-
-fn handle_spawn(msg: SpawnMsg) -> void {
-    (println (format "[IPC] SPAWN image=%s args=%s" msg.image msg.args))
-    (ack msg.id "ok")
-}
-
-fn handle_kill(msg: KillMsg) -> void {
-    (println (format "[IPC] KILL target=%s" msg.target))
-    (ack msg.id "ok")
-}
-
-fn handle_query(msg: QueryMsg) -> void {
-    (println (format "[IPC] QUERY sql=%s limit=%d" msg.sql msg.limit))
-    (ack msg.id "ok")
-}
-
-fn handle_status(msg: StatusMsg) -> void {
-    (println "[IPC] STATUS request")
-    (ack msg.id "ok")
-}
-
-# ── Row-polymorphic router ─────────────────────────────────────────────────
-#
-# In a future parser extension, the router signature would be:
-#
-#   fn route_ipc(msg: {id: string, ts: int, op: string | r}) -> void
-#
-# The row variable `r` means this function accepts ANY IPC message that
-# carries at least id, ts, and op — regardless of additional payload fields.
-#
-# For now, expressed as a concrete overloaded dispatch:
-
-fn route_spawn(id: string, ts: int, version: int, image: string, args: string) -> void {
-    let msg: SpawnMsg = SpawnMsg {
-        id: id, ts: ts, version: version,
-        op: "spawn", image: image, args: args
-    }
-    (handle_spawn msg)
-}
-
-fn route_kill(id: string, ts: int, version: int, target: string) -> void {
-    let msg: KillMsg = KillMsg {
-        id: id, ts: ts, version: version,
-        op: "kill", target: target
-    }
-    (handle_kill msg)
-}
-
-# ── Example session ────────────────────────────────────────────────────────
-
-fn main() -> void {
-    (route_spawn "msg-001" 1743369600 1 "agent/worker:latest" "--mode=gpu")
-    (route_kill  "msg-002" 1743369601 1 "worker-42")
-    (println "[IPC] session complete")
+shadow main {
+    assert (== (main) 0)
 }

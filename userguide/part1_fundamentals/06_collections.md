@@ -312,17 +312,13 @@ shadow reverse {
 
 ## 6.3 List<T> (Dynamic Collections)
 
-Lists are dynamic arrays that can grow and shrink. They're implemented in the standard library.
+I do not currently expose a supported generic dynamic-list module. Use arrays for ordinary programs and the supported collection modules under `modules/std/collections/` where their APIs fit.
 
 ### Dynamic Lists
 
-**Note:** Lists are a higher-level abstraction built on arrays. For basic programs, arrays are sufficient.
+**Note:** The deleted root `stdlib/list.nano` used an unsupported dialect. It is not an import target.
 
-```nano
-# Lists allow adding elements without knowing size upfront
-# Import from stdlib when needed:
-# from "stdlib/list.nano" import List, list_new, list_push, list_get
-```
+The snippets below are conceptual descriptions of a future `List<T>` API, not code backed by a current module.
 
 ### List Operations
 

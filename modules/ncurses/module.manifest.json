@@ -35,8 +35,8 @@
     "colored text"
   ],
   "examples": [
-    "examples/ncurses_game_of_life.nano",
-    "examples/ncurses_snake.nano"
+    "examples/terminal/ncurses_game_of_life.nano",
+    "examples/terminal/ncurses_snake.nano"
   ],
   "dependencies": {
     "nanolang": [],
@@ -58,4 +58,3 @@
     {"when": "simple text output", "module": "stdio"}
   ]
 }
-

@@ -29,9 +29,7 @@
     "exec",
     "tty"
   ],
-  "examples": [
-    "examples/mvp.nano"
-  ],
+  "examples": ["modules/pty/mvp.nano"],
   "dependencies": {
     "nanolang": [],
     "system": []

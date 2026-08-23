@@ -133,7 +133,8 @@ shadow coverage_report {
     (coverage_init)
     (coverage_record "shadow" 2 3)
     (coverage_report)
-    assert true
+    assert (== (coverage_get_hit_count) 1)
+    assert (== (coverage_get_line_hits "shadow" 2) 1)
 }
 
 # Reset coverage data
@@ -224,9 +225,14 @@ pub fn timing_end(label: string, start_time: int) -> void {
 }
 
 shadow timing_end {
+    (timing_reset)
     let t: int = (timing_start "shadow")
     (timing_end "shadow" t)
-    assert true
+    assert (== (array_length g_timing_points) 1)
+    let point: TimingPoint = (at g_timing_points 0)
+    assert (== point.label "shadow")
+    assert (== point.call_count 1)
+    assert (>= point.total_time_ms 0)
 }
 
 # Print timing report
@@ -259,8 +265,14 @@ pub fn timing_report() -> void {
 }
 
 shadow timing_report {
+    (timing_reset)
+    let t: int = (timing_start "report")
+    (timing_end "report" t)
     (timing_report)
-    assert true
+    assert (== (array_length g_timing_points) 1)
+    let point: TimingPoint = (at g_timing_points 0)
+    assert (== point.label "report")
+    assert (== point.call_count 1)
 }
 
 # Reset timing data
@@ -363,7 +375,11 @@ shadow trace_report {
     (trace_init)
     (trace_record "CALL" "shadow" "test")
     (trace_report)
-    assert true
+    assert (== (array_length g_trace_events) 1)
+    let event: TraceEvent = (at g_trace_events 0)
+    assert (== event.event_type "CALL")
+    assert (== event.location "shadow")
+    assert (== event.details "test")
 }
 
 # Disable tracing

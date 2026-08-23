@@ -65,7 +65,7 @@ shadow main {
 
 ## Example
 
-See `examples/sqlite_example.nano` for comprehensive usage examples.
+See `examples/advanced/sqlite_simple.nano` for a focused SQLite example.
 
 ## API Reference
 

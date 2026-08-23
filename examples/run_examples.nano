@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: advanced
 # Prerequisites: none
+# Track: tools
+# Build: local
+# Dependencies: modules/examples, modules/std/env, bin/nanoc_c
+# Tags: examples, runner, diagnostics, native-only
 # Expected Output: Results:
 # Default Args: examples/language
 
@@ -15,7 +19,7 @@ fn usage() -> void {
     (println "Usage: run_examples [options] <directory>")
     (println "")
     (println "Options:")
-    (println "  --compiler <path>   Compiler to use (default: bin/nanoc)")
+    (println "  --compiler <path>   Compiler to use (default: bin/nanoc_c)")
     (println "  --mode <mode>       Compilation mode: stage1|stage3|vm (default: stage1)")
     (println "  --json              Output results as JSON")
     (println "  --meta <file>       Show metadata for a single file and exit")
@@ -37,7 +41,7 @@ fn main() -> int {
         (print "")
     }
 
-    let mut compiler: string = "bin/nanoc"
+    let mut compiler: string = "bin/nanoc_c"
     let mut mode: string = "stage1"
     let mut json_output: bool = false
     let mut meta_file: string = ""

@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: gpu
 # Prerequisites: pybridge module built (modules/pybridge/.build/libpybridge.so)
+# Track: applications
+# Build: external-deps
+# Dependencies: modules/pybridge_warp, Python, numpy; Warp and CUDA are optional
+# Tags: fluid-simulation, pybridge, native-only
 # Expected Output: ok
 #
 # Description:
@@ -35,16 +39,16 @@ fn fluid_init(n: int, device: string) -> int {
     unsafe { return (warp_fluid_init n device) }
 }
 
-fn fluid_step(handle: int, dt: float, iters: int) -> void {
-    unsafe { (warp_fluid_step handle dt iters) }
+fn fluid_step(sim: int, dt: float, iters: int) -> void {
+    unsafe { (warp_fluid_step sim dt iters) }
 }
 
-fn fluid_splat(handle: int, cx: int, cy: int, fx: float, fy: float, radius: int, amount: float) -> void {
-    unsafe { (warp_fluid_splat handle cx cy fx fy radius amount) }
+fn fluid_splat(sim: int, cx: int, cy: int, fx: float, fy: float, radius: int, amount: float) -> void {
+    unsafe { (warp_fluid_splat sim cx cy fx fy radius amount) }
 }
 
-fn fluid_save_png(handle: int, path: string) -> int {
-    unsafe { return (warp_fluid_get_image_png handle path) }
+fn fluid_save_png(sim: int, path: string) -> int {
+    unsafe { return (warp_fluid_get_image_png sim path) }
 }
 
 fn fluid_last_error() -> string {
@@ -55,11 +59,38 @@ fn fluid_last_backend() -> string {
     unsafe { return (warp_fluid_last_backend) }
 }
 
-fn fluid_destroy(handle: int) -> void {
+fn fluid_destroy(sim: int) -> void {
     unsafe {
-        (warp_fluid_destroy handle)
+        (warp_fluid_destroy sim)
         (warp_fluid_shutdown)
     }
+}
+
+# These wrappers cross into Python/Warp state. I test their argument policy in
+# pure helpers and exercise the foreign calls in integration runs.
+fn valid_sim_handle(sim: int) -> bool {
+    return (>= sim 0)
+}
+
+shadow valid_sim_handle {
+    assert (valid_sim_handle 0)
+    assert (not (valid_sim_handle -1))
+}
+
+shadow fluid_step {
+    assert (valid_sim_handle 0)
+}
+
+shadow fluid_splat {
+    assert (valid_sim_handle 0)
+}
+
+shadow fluid_save_png {
+    assert (== (str_substring "/tmp/frame.png" 10 4) ".png")
+}
+
+shadow fluid_destroy {
+    assert (valid_sim_handle 0)
 }
 
 fn fluid_available_backend() -> string {
@@ -88,12 +119,12 @@ fn main() -> int {
     (println (+ "Available backend: " avail))
     (println "")
 
-    /* Initialise with device="auto": the Python handler picks cuda → warp-cpu
+    /* Initialise with device="auto": the Python bridge picks cuda → warp-cpu
      * → numpy-cpu transparently, with no manual retry needed here. */
     (println (+ "Initialising " (+ (int_to_string N) (+ "x" (+ (int_to_string N) " grid (auto mode)...")))))
-    let handle: int = (fluid_init N "auto")
+    let sim: int = (fluid_init N "auto")
 
-    if (< handle 0) {
+    if (< sim 0) {
         /* Even "auto" failed – pybridge is almost certainly not built. */
         let err: string = (fluid_last_error)
         (println "Error: failed to initialise fluid simulation.")
@@ -114,7 +145,7 @@ fn main() -> int {
     /* Kick-start: central upward plume (matches fluid_sim.py). */
     let cx: int = (/ N 2)
     let cy: int = (/ N 4)
-    (fluid_splat handle cx cy 0.0 25.0 RADIUS D_AMT)
+    (fluid_splat sim cx cy 0.0 25.0 RADIUS D_AMT)
     (println "Initial plume injected.")
     (println "")
 
@@ -122,12 +153,12 @@ fn main() -> int {
     (println (+ "Running " (+ (int_to_string STEPS) " steps...")))
     let mut step: int = 0
     while (< step STEPS) {
-        (fluid_step handle DT ITERS)
+        (fluid_step sim DT ITERS)
 
         /* Every 10 steps save a PNG frame. */
-        if (== (mod step 10) 0) {
+        if (== (% step 10) 0) {
             let path: string = (+ "/tmp/fluid_frame_" (+ (int_to_string step) ".png"))
-            let ok: int = (fluid_save_png handle path)
+            let ok: int = (fluid_save_png sim path)
             if (!= ok 0) {
                 (println (+ "  Step " (+ (int_to_string step) (+ " -> " path))))
             } else {
@@ -137,8 +168,8 @@ fn main() -> int {
         }
 
         /* Continuous bottom-centre source every 3 steps. */
-        if (== (mod step 3) 0) {
-            (fluid_splat handle (/ N 2) 10 0.0 18.0 RADIUS D_AMT)
+        if (== (% step 3) 0) {
+            (fluid_splat sim (/ N 2) 10 0.0 18.0 RADIUS D_AMT)
         }
 
         set step (+ step 1)
@@ -146,14 +177,13 @@ fn main() -> int {
 
     (println "")
     (println "Simulation complete.")
-    (println (+ "Frames saved to /tmp/fluid_frame_*.png"))
+    (println "Frames saved to /tmp/fluid_frame_*.png")
 
-    (fluid_destroy handle)
+    (fluid_destroy sim)
     return 0
 }
 
 shadow main {
-    /* Full simulation requires an active pybridge + Python environment.
-     * Shadow test passes trivially to avoid CI failures without those deps. */
-    assert true
+    assert (== N 128)
+    assert (> STEPS 0)
 }

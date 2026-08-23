@@ -29,9 +29,7 @@
     "subprocess",
     "repl"
   ],
-  "examples": [
-    "examples/mvp.nano"
-  ],
+  "examples": ["modules/sdl_term/mvp.nano"],
   "dependencies": {
     "nanolang": ["sdl", "sdl_ttf"],
     "system": [

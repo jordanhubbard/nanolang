@@ -35,6 +35,12 @@ pure fn day_name(d: int) -> string {
     return result
 }
 
+shadow day_name {
+    assert (== (day_name 0) "Sunday")
+    assert (== (day_name 6) "Saturday")
+    assert (== (day_name 7) "Unknown")
+}
+
 pure fn http_status(code: int) -> string {
     let result: string = match code {
         200 => "OK"
@@ -49,6 +55,12 @@ pure fn http_status(code: int) -> string {
     return result
 }
 
+shadow http_status {
+    assert (== (http_status 200) "OK")
+    assert (== (http_status 404) "Not Found")
+    assert (== (http_status 999) "Unknown Status")
+}
+
 pure fn classify(n: int) -> string {
     let result: string = match n {
         0 => "zero"
@@ -57,6 +69,12 @@ pure fn classify(n: int) -> string {
         _ => "many"
     }
     return result
+}
+
+shadow classify {
+    assert (== (classify 0) "zero")
+    assert (== (classify 2) "two")
+    assert (== (classify 42) "many")
 }
 
 fn main() -> int {
@@ -84,5 +102,5 @@ fn main() -> int {
 }
 
 shadow main {
-    (print "")
+    assert (== (main) 0)
 }

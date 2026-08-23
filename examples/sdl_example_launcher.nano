@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: tools
 # Prerequisites: sdl_drawing_primitives
+# Track: tools
+# Build: external-deps, graphical
+# Dependencies: SDL2, SDL2_ttf, SDL2_image, modules/nano_tools
+# Tags: launcher, sdl, graphical, native-only
 # Expected Output: interactive
 
 unsafe module "modules/sdl/sdl.nano"

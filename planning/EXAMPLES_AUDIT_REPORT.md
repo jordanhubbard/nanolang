@@ -64,7 +64,7 @@ The SDL examples are **OUTSTANDING**:
 **Intermediate (100-300 lines):**
 - `nl_calculator.nano` (101 lines)
 - `datetime_demo.nano` (141 lines)
-- `http_demo.nano` (132 lines)
+- HTTP client demo (132 lines, since removed)
 - `ncurses_snake.nano` (320 lines)
 - Many more...
 
@@ -178,13 +178,13 @@ All SDL games are **excellent**:
 Most module examples work well but could use more explanation:
 
 **Good:**
-- `http_demo.nano` - Shows HTTP client
+- Deleted HTTP client demo - showed HTTP client use at the time of this audit
 - `json_demo.nano` - Shows JSON parsing
 - `datetime_demo.nano` - Shows datetime operations
 - `sqlite_simple.nano` - Shows database usage
 
 **Needs Better Docs:**
-- `curl_example.nano` (568 lines!) - Very long, needs sections
+- Deleted curl demo (568 lines) - was very long and needed sections
 - `event_example.nano` - Unclear purpose without header
 - `onnx_*.nano` - ML examples need more explanation
 - `uv_example.nano` (568 lines!) - Async I/O needs better docs
@@ -342,7 +342,7 @@ examples/
 │   ├── sdl_checkers.nano
 │   └── ...
 ├── modules/
-│   ├── http_demo.nano
+│   ├── HTTP client example (since removed)
 │   ├── sqlite_simple.nano
 │   └── ...
 └── advanced/
@@ -406,5 +406,4 @@ Create `examples/README.md` with:
 The examples demonstrate that **NanoLang is a capable, production-ready language**. The SDL games especially showcase real-world application development. However, the educational value is diminished by lack of documentation. With proper headers and organization, these examples could be an **excellent learning resource**.
 
 **Recommended Priority:** Fix documentation first (biggest impact for learners), then reorganize and add advanced examples.
-
 

@@ -4,9 +4,13 @@
 # Difficulty: Beginner
 # Category: advanced
 # Prerequisites: none
+# Track: internal
+# Build: module
+# Dependencies: none
+# Tags: module, arithmetic, shadow-tested
 # Expected Output: none
 
-/* Math helper module for nl_demo_selfhosting.nano */
+/* I provide arithmetic helpers for nl_demo_selfhosting.nano. */
 
 pub fn add(a: int, b: int) -> int {
     return (+ a b)
@@ -34,4 +38,3 @@ shadow square {
     assert (== (square 5) 25)
     assert (== (square 11) 121)
 }
-

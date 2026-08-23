@@ -3,7 +3,7 @@
 # Features: arrays, bool arrays, nested loops, algorithm optimization
 # Difficulty: Intermediate
 # Category: language
-# Prerequisites: nl_hello, nl_loops, nl_primes
+# Prerequisites: nl_hello, nl_control_if_while, nl_primes
 # Expected Output: Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...
 
 # @pure
@@ -45,10 +45,19 @@ fn count_primes_sieve(limit: int) -> int {
     return count
 }
 
+shadow count_primes_sieve {
+    assert (== (count_primes_sieve 2) 0)
+    assert (== (count_primes_sieve 10) 4)
+}
+
 fn main() -> int {
     print("Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...")
     let total: int = (count_primes_sieve 1000000)
     print("Total primes found: ")
     print((int_to_string total))
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

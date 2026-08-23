@@ -22,8 +22,8 @@
   ],
   "keywords": ["opengl", "window", "3d", "graphics", "input", "glfw"],
   "examples": [
-    "examples/opengl_cube.nano",
-    "examples/opengl_teapot.nano"
+    "examples/opengl/opengl_cube.nano",
+    "examples/opengl/opengl_teapot.nano"
   ],
   "dependencies": {
     "nanolang": ["core>=1.0"],
@@ -37,4 +37,3 @@
     {"when": "legacy GLUT apps", "module": "glut"}
   ]
 }
-

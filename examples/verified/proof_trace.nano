@@ -4,14 +4,13 @@
 # Difficulty: Advanced
 # Category: verified
 # Prerequisites: none
-# Expected Output: 
+# Expected Output: PROOF TRACE: Watch Formal Verification Unfold
 
 /* =============================================================================
  * PROOF TRACE: Watch Formal Verification Unfold
  * =============================================================================
- * This demo makes the invisible visible. It traces the exact evaluation
- * rules and typing judgments that the Coq proofs reason about — showing
- * you the "machinery" behind formal verification in real time.
+ * I trace representative evaluation rules and typing judgments from my Coq
+ * model. This program illustrates the model; it does not extract a proof trace.
  *
  * Each step shows:
  *   1. The expression being evaluated
@@ -645,6 +644,10 @@ fn print_summary() -> int {
     (println (repeat_char "=" 66))
     (println "")
     return 0
+}
+
+shadow print_summary {
+    assert (== (print_summary) 0)
 }
 
 /* ── Main ── */

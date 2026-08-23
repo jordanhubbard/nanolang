@@ -36,8 +36,8 @@
     "serve files"
   ],
   "examples": [
-    "examples/http_server_basic.nano",
-    "examples/http_server_static.nano"
+    "examples/network/http_hello_world.nano",
+    "examples/network/http_static_server.nano"
   ],
   "dependencies": {
     "nanolang": [],
@@ -58,4 +58,3 @@
     {"when": "HTTP client (make requests)", "module": "curl"}
   ]
 }
-

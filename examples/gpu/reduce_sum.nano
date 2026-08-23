@@ -66,6 +66,8 @@ fn main() -> int {
     let d_sum:   int = (gpu_alloc 8)
     if (or (== d_input 0) (== d_sum 0)) {
         print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        if (!= d_input 0) { (gpu_free d_input) } else {}
+        if (!= d_sum 0) { (gpu_free d_sum) } else {}
         return 1
     }
 

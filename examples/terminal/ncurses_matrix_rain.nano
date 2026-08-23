@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: terminal
 # Prerequisites: none
-# Expected Output: graphical
+# Expected Output: interactive terminal animation
 
 module "modules/ncurses/ncurses.nano"
 
@@ -34,11 +34,22 @@ fn random_speed() -> int {
     return (+ r 1)
 }
 
+fn is_quit_key(key: int) -> bool {
+    return (or (== key 27) (or (== key (cast_int 'q')) (== key (cast_int 'Q'))))
+}
+
+shadow is_quit_key {
+    assert (is_quit_key 27)
+    assert (is_quit_key (cast_int 'q'))
+    assert (not (is_quit_key (cast_int 'x')))
+    assert (not (is_quit_key -1))
+}
+
 # === MAIN ===
 
 fn main() -> int {
     (println "Starting Matrix Digital Rain...")
-    (println "Press ESC to exit")
+    (println "Press ESC or Q to exit")
     (println "")
     
     # Seed random
@@ -88,9 +99,9 @@ fn main() -> int {
     
     # Main loop
     while running {
-        # Check for input (ESC exits; any key also exits)
+        # Check for input without treating unrelated keys as quit requests.
         let key: int = (getch_wrapper)
-        if (>= key 0) {
+        if (is_quit_key key) {
             set running false
         } else {}
         

@@ -2,7 +2,7 @@
 name = "large_project"
 version = "0.1.0"
 description = "A small multi-file NanoLang package example"
-authors = ["NanoLang"]
+authors = ["NanoLang contributors"]
 license = "MIT"
 entry = "main.nano"
 module_paths = ["src", "../../modules"]

@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: terminal
 # Prerequisites: none
-# Expected Output: graphical
+# Expected Output: interactive terminal animation
 
 module "modules/ncurses/ncurses.nano"
 

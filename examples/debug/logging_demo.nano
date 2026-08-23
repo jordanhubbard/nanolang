@@ -1,6 +1,6 @@
 # Example: Logging Demo
 # Purpose: Demonstrates the structured logging API with fibonacci calculation and validation
-# Features: imports, structured logging, recursion, shadow tests
+# Features: imports, structured logging, recursion, validation
 # Difficulty: Beginner
 # Category: debug
 # Prerequisites: none

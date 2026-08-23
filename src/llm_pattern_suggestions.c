@@ -18,7 +18,7 @@ static PatternEntry pattern_library[] = {
             "    assert (== (function_name test_input) expected_output)\n"
             "}",
         .memory_reference = "MEMORY.md#test_patterns_basic",
-        .stdlib_examples = "stdlib/array.nano, stdlib/string.nano, stdlib/math.nano",
+        .stdlib_examples = "examples/language/nl_functions_basic.nano, examples/language/nl_factorial.nano",
         .estimated_fix_time = 30
     },
 
@@ -42,7 +42,7 @@ static PatternEntry pattern_library[] = {
             "    (array_push results value)\n"
             "}",
         .memory_reference = "MEMORY.md#accumulator_loop",
-        .stdlib_examples = "examples/language/nl_map_array.nano, examples/language/nl_filter.nano",
+        .stdlib_examples = "examples/language/nl_array_functional.nano, examples/language/nl_filter_map_fold.nano",
         .estimated_fix_time = 60
     },
 
@@ -64,7 +64,7 @@ static PatternEntry pattern_library[] = {
             "    assert (== (array_operation [-1,-2,-3]) expected_negative)\n"
             "}",
         .memory_reference = "MEMORY.md#test_patterns_edge_cases",
-        .stdlib_examples = "stdlib/array.nano, stdlib/math.nano",
+        .stdlib_examples = "examples/language/nl_array_functional.nano, examples/language/nl_primes.nano",
         .estimated_fix_time = 90
     },
 
@@ -75,13 +75,14 @@ static PatternEntry pattern_library[] = {
         .pattern_name = "module_function_reference",
         .description = "When I call an external function, the module must be imported",
         .code_template =
-            "import \"stdlib/array.nano\" as array_mod\n"
+            "import \"modules/std/collections/array_utils.nano\" as array_utils\n"
             "\n"
-            "fn my_function(arr: array<int>) -> int {\n"
-            "    return (array_mod.array_length arr)\n"
+            "fn first_word(words: array<string>) -> string {\n"
+            "    let sorted: array<string> = (array_utils.array_sort_strings words)\n"
+            "    return (at sorted 0)\n"
             "}",
         .memory_reference = "MEMORY.md#module_imports",
-        .stdlib_examples = "stdlib/array.nano, stdlib/string.nano",
+        .stdlib_examples = "examples/api_lessons/array_utils_api.nano",
         .estimated_fix_time = 45
     },
 
@@ -90,11 +91,12 @@ static PatternEntry pattern_library[] = {
         .error_code = "E0002",
         .error_pattern = "type_mismatch",
         .pattern_name = "explicit_type_annotation",
-        .description = "I require explicit types; add the missing annotation",
+        .description = "Add an explicit local type where it clarifies a boundary or resolves ambiguity",
         .code_template =
-            "# Variables must have explicit types\n"
-            "let x: int = 42               # Correct\n"
-            "let x = 42                    # Error - missing type\n"
+            "# I infer obvious local types\n"
+            "let count = 42\n"
+            "# I prefer an annotation at an empty or foreign boundary\n"
+            "let values: array<int> = []\n"
             "\n"
             "# Function parameters must have types\n"
             "fn add(a: int, b: int) -> int {  # All types explicit\n"

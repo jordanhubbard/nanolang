@@ -187,10 +187,13 @@ fn main() -> int {
         
         /* Handle events */
         let key: int = (nl_sdl_poll_keypress)
+        if (== key 41) {
+            set running false
+        } else {}
         
         if (== (nl_sdl_poll_event_quit) 1) {
             set running false
-        }
+        } else {}
         
         /* Step physics */
         (nl_bullet_step FRAME_TIME) 
@@ -308,5 +311,7 @@ fn main() -> int {
     return 0
 }
 
-shadow main { assert true }
-
+shadow main {
+    assert (== (project_x 0.0) (/ WINDOW_WIDTH 2))
+    assert (== (project_y CAMERA_OFFSET_Y) (/ WINDOW_HEIGHT 2))
+}

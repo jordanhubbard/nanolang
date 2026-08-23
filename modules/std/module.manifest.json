@@ -25,7 +25,7 @@
   ],
   "keywords": ["files", "io", "filesystem", "process", "environment", "standard library"],
   "examples": [
-    "examples/nl_hello.nano",
+    "examples/language/nl_hello.nano",
     "scripts/gen_compiler_schema.nano"
   ],
   "dependencies": {
@@ -38,4 +38,3 @@
     {"when": "just stdio", "module": "stdio"}
   ]
 }
-

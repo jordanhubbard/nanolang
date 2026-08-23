@@ -1,8 +1,8 @@
 # Appendix A: Examples Gallery
 
-**Complete working programs organized by category.**
+**Selected programs organized by category.**
 
-All examples include shadow tests and compile successfully. Browse the full collection at [examples/ on GitHub](https://github.com/jordanhubbard/nanolang/tree/main/examples).
+I require shadow tests, but external dependencies and expected-failure fixtures mean this gallery is not a promise that every file builds on every host. Browse all 253 files at [examples/ on GitHub](https://github.com/jordanhubbard/nanolang/tree/main/examples), and use [My Examples Index](../../docs/EXAMPLES_INDEX.md) for build boundaries.
 
 ## Getting Started
 
@@ -95,6 +95,9 @@ All examples include shadow tests and compile successfully. Browse the full coll
 | Example | Description |
 |---------|-------------|
 | [`examples/physics/bullet_bouncy_balls.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_bouncy_balls.nano) | Bouncing balls with Bullet |
+| [`examples/physics/bullet_beads_simple.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_beads_simple.nano) | Console soft-body bead simulation |
+| [`examples/physics/bullet_beads_visual.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_beads_visual.nano) | SDL soft-body bead visualization |
+| [`examples/physics/bullet_soft_body_modern.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_soft_body_modern.nano) | Modern soft-body plinko simulation |
 | [`examples/physics/bullet_softbody_hourglass.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_softbody_hourglass.nano) | Soft body simulation |
 | [`examples/physics/bullet_rigid_megastacks.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_rigid_megastacks.nano) | Rigid body stacking |
 | [`examples/graphics/sdl_physics_demo.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/graphics/sdl_physics_demo.nano) | Simple physics |
@@ -121,10 +124,10 @@ All examples include shadow tests and compile successfully. Browse the full coll
 
 | Example | Description |
 |---------|-------------|
-| [`examples/network/curl_example.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/curl_example.nano) | HTTP client |
 | [`examples/network/http_hello_world.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_hello_world.nano) | Simple web server |
-| [`examples/network/http_rest_api.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_rest_api.nano) | REST API server |
 | [`examples/network/http_static_server.nano`](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_static_server.nano) | Static file server |
+
+Both current networking examples serve local static files through libuv. I have no current HTTP client or REST API gallery entry.
 
 ## Testing & Debug
 

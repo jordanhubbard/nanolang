@@ -14,7 +14,7 @@
   ],
   "capabilities": ["render_3d", "shaders", "textures", "buffers", "opengl_api"],
   "keywords": ["opengl", "3d", "graphics", "rendering", "shaders"],
-  "examples": ["examples/opengl_cube.nano", "examples/opengl_teapot.nano"],
+  "examples": ["examples/opengl/opengl_cube.nano", "examples/opengl/opengl_teapot.nano"],
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "modules": ["glfw"],

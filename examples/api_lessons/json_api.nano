@@ -24,8 +24,7 @@ fn read_name(text: string) -> string {
 }
 
 shadow read_name {
-    # JSON FFI runs at runtime; shadow asserts on the literal payload.
-    assert (> (str_length SAMPLE) 0)
+    assert (== (read_name SAMPLE) "Ada")
 }
 
 fn read_age(text: string) -> int {
@@ -36,7 +35,7 @@ fn read_age(text: string) -> int {
 }
 
 shadow read_age {
-    assert (> (str_length SAMPLE) 0)
+    assert (== (read_age SAMPLE) 36)
 }
 
 fn build_record() -> string {
@@ -49,8 +48,9 @@ fn build_record() -> string {
 }
 
 shadow build_record {
-    # Output produced by JSON FFI; assert only that helper inputs are sane.
-    assert (>= 21 0)
+    let record: string = (build_record)
+    assert (str_contains record "Lin")
+    assert (str_contains record "21")
 }
 
 fn main() -> int {

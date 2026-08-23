@@ -17,8 +17,8 @@ fn matches_hello(input: string) -> bool {
 }
 
 shadow matches_hello {
-    # FFI runs at runtime only — shadow asserts on a pure invariant.
-    assert (== (str_length "hello") 5)
+    assert (matches_hello "hello")
+    assert (not (matches_hello "goodbye"))
 }
 
 fn matches_digits(input: string) -> bool {
@@ -26,8 +26,8 @@ fn matches_digits(input: string) -> bool {
 }
 
 shadow matches_digits {
-    # FFI runs at runtime only.
-    assert (== (str_length "12345") 5)
+    assert (matches_digits "12345")
+    assert (not (matches_digits "abc"))
 }
 
 fn first_capture_count(pattern: string, input: string) -> int {
@@ -36,8 +36,7 @@ fn first_capture_count(pattern: string, input: string) -> int {
 }
 
 shadow first_capture_count {
-    # FFI runs at runtime only.
-    assert (>= 0 0)
+    assert (== (first_capture_count "([a-z]+)" "abc") 1)
 }
 
 fn main() -> int {

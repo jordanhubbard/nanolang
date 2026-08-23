@@ -20,8 +20,8 @@
   ],
   "keywords": ["sdl", "fonts", "ttf", "text", "rendering", "typography"],
   "examples": [
-    "examples/sdl_drawing_primitives.nano",
-    "examples/sdl_ui_widgets_extended.nano"
+    "examples/graphics/sdl_drawing_primitives.nano",
+    "examples/graphics/sdl_ui_widgets_extended.nano"
   ],
   "dependencies": {
     "nanolang": ["core>=1.0"],
@@ -35,4 +35,3 @@
     {"when": "bitmap fonts", "module": "sdl"}
   ]
 }
-

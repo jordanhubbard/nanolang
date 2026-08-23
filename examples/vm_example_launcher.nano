@@ -4,6 +4,10 @@
 # Difficulty: Intermediate
 # Category: tools
 # Prerequisites: none
+# Track: tools
+# Build: nanoisa
+# Dependencies: bin/nano_vm, bin/vm_*.nvm
+# Tags: launcher, nanoisa, sandbox
 # Expected Output: interactive
 #
 # I am the sandboxed sibling of the SDL example launcher. I compile to NanoISA

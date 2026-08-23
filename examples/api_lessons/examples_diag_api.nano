@@ -25,7 +25,7 @@ fn timestamp_is_present() -> bool {
 }
 
 shadow timestamp_is_present {
-    assert true
+    assert (timestamp_is_present)
 }
 
 fn main() -> int {
@@ -37,5 +37,5 @@ fn main() -> int {
 }
 
 shadow main {
-    assert true
+    assert (== (main) 0)
 }

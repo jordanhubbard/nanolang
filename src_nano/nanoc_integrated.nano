@@ -1051,8 +1051,13 @@ fn parser_init_ast_lists() -> Parser {
 }
 
 shadow parser_init_ast_lists {
-    /* Tested via integration tests in parse_program */
-    assert (== 1 1)
+    let p: Parser = (parser_init_ast_lists)
+    assert (== p.position 0)
+    assert (== p.token_count 0)
+    assert (== p.numbers_count 0)
+    assert (== p.functions_count 0)
+    assert (== p.next_node_id 0)
+    assert (== p.last_expr_node_id -1)
 }
 
 /* Create new parser from token list */
@@ -1130,7 +1135,9 @@ fn parser_is_at_end(p: Parser) -> bool {
 }
 
 shadow parser_is_at_end {
-    assert (== 1 1)  /* Placeholder - will test with real parser state */
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    assert (parser_is_at_end p)
 }
 
 /* Helper: Copy parser with new position */
@@ -1177,8 +1184,13 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
 }
 
 shadow parser_with_position {
-    /* Tested via integration tests in parse_program */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    let moved: Parser = (parser_with_position p 3)
+    assert (== moved.position 3)
+    assert (== moved.token_count 0)
+    assert (not moved.has_error)
+    assert (== moved.next_node_id 0)
 }
 
 /* Advance parser to next token - returns new parser with advanced position */
@@ -1191,8 +1203,10 @@ fn parser_advance(p: Parser) -> Parser {
 }
 
 shadow parser_advance {
-    /* Tested via integration tests in parse_program */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    let advanced: Parser = (parser_advance p)
+    assert (== advanced.position 0)
 }
 
 /* Get current position */
@@ -1222,8 +1236,11 @@ fn parser_current(p: Parser) -> LexerToken {
 }
 
 shadow parser_current {
-    /* Tested via integration tests in tokenization and parsing pipeline */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    let tok: LexerToken = (parser_current p)
+    assert (== tok.token_type 0)
+    assert (== tok.value "")
 }
 
 /* Check if current token matches a specific type */
@@ -1237,8 +1254,9 @@ fn parser_match(p: Parser, token_type: int) -> bool {
 }
 
 shadow parser_match {
-    /* Tested via integration tests in parsing pipeline */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    assert (not (parser_match p 0))
 }
 
 /* Expect a specific token type - advance if matched, set error if not */
@@ -1251,8 +1269,11 @@ fn parser_expect(p: Parser, token_type: int) -> Parser {
 }
 
 shadow parser_expect {
-    /* Tested via integration tests in parsing pipeline */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    let failed: Parser = (parser_expect p 1)
+    assert failed.has_error
+    assert (== failed.position 0)
 }
 
 /* Peek ahead by offset without advancing */
@@ -1268,8 +1289,10 @@ fn parser_peek(p: Parser, offset: int) -> int {
 }
 
 shadow parser_peek {
-    /* Tested via integration tests in parsing pipeline */
-    assert (== 1 1)
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0)
+    assert (== (parser_peek p 0) 0)
+    assert (== (parser_peek p 4) 0)
 }
 
 /* Helper: Copy parser with error flag set */
@@ -5634,4 +5657,3 @@ extern fn str_concat(a: string, b: string) -> string
 /* int_to_string is defined statically in transpiled code - removed extern to avoid conflict */
 /* extern fn int_to_string(n: int) -> string */
 extern fn str_equals(a: string, b: string) -> bool
-

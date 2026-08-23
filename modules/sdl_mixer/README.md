@@ -236,7 +236,7 @@ let MIX_MAX_VOLUME: int = 128
 
 ## Complete Example
 
-See `examples/audio_player_sdl.nano` for a full-featured audio player with:
+See `examples/audio/sdl_audio_player.nano` for an SDL audio player with:
 - Music playback
 - Sound effects
 - Volume control

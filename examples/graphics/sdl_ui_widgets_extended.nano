@@ -218,14 +218,6 @@ fn main() -> int {
         
         # Dropdown (simplified - toggle open/close)
         (nl_ui_label renderer font "Quality Dropdown:" 770 105 180 180 200 255) 
-        let new_quality: int = (nl_ui_dropdown renderer font quality_options 
-                                              (array_length quality_options)
-                                              770 130 250 30 selected_quality dropdown_open)
-        if (!= new_quality -1) {
-            set selected_quality new_quality
-            set dropdown_open 0
-        } else {}
-        
         # Number Spinners
         (nl_ui_label renderer font "Difficulty:" 770 210 180 180 200 255) 
         set difficulty (nl_ui_number_spinner renderer font difficulty 1 10 770 235 120 30)
@@ -299,6 +291,15 @@ fn main() -> int {
         if (== show_tooltips 1) {
             # We can't easily detect hover state per widget yet, so just show a note
             (nl_ui_label renderer font "Tooltips enabled" 530 740 255 255 100 255) 
+        } else {}
+
+        # Draw the open dropdown last so later controls do not cover its menu.
+        let new_quality: int = (nl_ui_dropdown renderer font quality_options
+                                              (array_length quality_options)
+                                              770 130 250 30 selected_quality dropdown_open)
+        if (!= new_quality -1) {
+            set selected_quality new_quality
+            set dropdown_open 0
         } else {}
         
         # Instructions

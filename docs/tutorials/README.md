@@ -132,7 +132,7 @@ Legend: ✅ Complete | 🔄 In Progress | 📋 Planned
 After completing the tutorials, explore these examples:
 
 ### Basic Examples
-- `examples/nl_hello.nano` - Hello World
+- `examples/language/nl_hello.nano` - Hello World
 - `examples/nl_factorial.nano` - Recursion
 - `examples/nl_fibonacci.nano` - Iteration and recursion
 - `examples/nl_struct.nano` - Struct basics
@@ -231,4 +231,3 @@ A: Same as C (it compiles to C). Typical benchmarks show 90-100% of hand-written
 5. **Join the community** - Share your creations!
 
 Happy learning! 🚀
-

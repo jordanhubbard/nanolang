@@ -18,7 +18,7 @@
     "console_io"
   ],
   "keywords": ["io", "stdio", "console", "terminal", "print", "input"],
-  "examples": ["examples/nl_hello.nano", "examples/nl_calculator.nano"],
+  "examples": ["examples/language/nl_hello.nano", "examples/language/nl_calculator.nano"],
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "system": []

@@ -4,12 +4,13 @@
 # Difficulty: Intermediate
 # Category: verified
 # Prerequisites: none
-# Expected Output: 
+# Expected Output: no output; shadow tests validate the checksum functions
 
 /* =============================================================================
  * Verified Data Integrity / Checksum Validator
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust Level: inspect with --trust-report; this file mixes NanoCore operations
+ * with arrays, loops, and mutation.
  *
  * Industry Context:
  *   Amazon's s2n TLS library uses continuous formal verification: every commit

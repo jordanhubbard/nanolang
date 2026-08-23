@@ -37,7 +37,7 @@
     "terminal"
   ],
   "examples": [
-    "examples/logging_demo.nano"
+    "examples/debug/logging_demo.nano"
   ],
   "public_api": [
     "set_log_level(level: int) -> void",

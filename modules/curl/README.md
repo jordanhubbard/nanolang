@@ -1,6 +1,6 @@
-# libcurl Module for nanolang
+# My libcurl Module
 
-HTTP/HTTPS client for making web requests, REST API calls, and file downloads.
+I expose libcurl for HTTP/HTTPS requests and file downloads.
 
 ## Installation
 
@@ -50,7 +50,7 @@ shadow main {
 
 ## Example
 
-See `examples/curl_example.nano` for comprehensive usage examples.
+I do not currently keep a curl example under `examples/`. The usage sketch above shows the module boundary, but it contacts live services and is not a deterministic example.
 
 ## API Reference
 

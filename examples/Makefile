@@ -178,10 +178,9 @@ DEBUG_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(DEBUG_EXAMPLES)))
 # (pkg_config libuv). Skip them when libuv is unavailable so STRICT `make
 # examples` stays green on hosts without libuv development packages.
 LIBUV_AVAILABLE := $(shell sh -c 'if command -v pkg-config >/dev/null 2>&1; then pkg-config --exists libuv >/dev/null 2>&1 && echo yes; elif [ -x /opt/homebrew/bin/pkg-config ]; then /opt/homebrew/bin/pkg-config --exists libuv >/dev/null 2>&1 && echo yes; fi')
-# Exclude: curl_example (needs libcurl), http_demo (missing std/http module)
-NETWORK_EXCLUDE := network/curl_example.nano network/http_demo.nano
+NETWORK_EXCLUDE :=
 ifneq ($(LIBUV_AVAILABLE),yes)
-NETWORK_EXCLUDE += network/http_hello_world.nano network/http_rest_api.nano network/http_static_server.nano
+NETWORK_EXCLUDE += network/http_hello_world.nano network/http_static_server.nano
 endif
 NETWORK_SOURCES := $(filter-out $(NETWORK_EXCLUDE),$(wildcard network/*.nano))
 # Self-hosted compiler can't link http_server.c; exclude all network examples
@@ -219,7 +218,7 @@ PLAYGROUND_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(PLAYGROUND_EXAMPLES)))
 # === Root Examples ===
 
 # sdl_example_launcher imports the SDL module; only build it when SDL2 exists.
-ROOT_SOURCES := nano_tools_lint.nano run_examples.nano
+ROOT_SOURCES := agentos_ipc_schema.nano ai_github_agent.nano nano_tools_lint.nano row_poly_records.nano run_examples.nano
 ifeq ($(SDL_AVAILABLE),yes)
 ROOT_SOURCES += sdl_example_launcher.nano
 endif
@@ -398,13 +397,8 @@ VM_LIBRARY_SOURCES := \
 # list cannot quietly outlive its reason.
 VM_UNSUPPORTED_SOURCES := \
 	advanced/datetime_demo.nano \
-	agentos_ipc_schema.nano \
-	ai_github_agent.nano \
-	autonomous_github_agent.nano \
 	diagnostics/llm_diags_type_mismatch.nano \
-	fluid_sim.nano \
-	opl/examples/output/hello.nano \
-	row_poly_records.nano
+	opl/examples/output/hello.nano
 
 VM_EXCLUDED_SOURCES := $(sort $(VM_LIBRARY_SOURCES) $(VM_UNSUPPORTED_SOURCES))
 
@@ -761,6 +755,14 @@ $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/playground_server$(BIN_
 	cp $(BIN_DIR)/playground_server$(BIN_SUFFIX)$(BIN_EXT) $(BIN_DIR)/playground$(BIN_SUFFIX)$(BIN_EXT)
 
 # Root examples
+$(BIN_DIR)/agentos_ipc_schema$(BIN_SUFFIX)$(BIN_EXT): agentos_ipc_schema.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
+
+$(BIN_DIR)/ai_github_agent$(BIN_SUFFIX)$(BIN_EXT): ai_github_agent.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
+
 $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
@@ -770,6 +772,10 @@ $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nan
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT): run_examples.nano $(COMPILER)
+	@echo "Building $@..."
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
+
+$(BIN_DIR)/row_poly_records$(BIN_SUFFIX)$(BIN_EXT): row_poly_records.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 

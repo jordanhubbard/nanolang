@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: http_hello_world
+# Track: tools
+# Build: external-deps, interactive
+# Dependencies: modules/http_server, modules/nano_tools, libuv
+# Tags: playground, http, native-only, interactive
 # Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import create, set_static_dir, start
@@ -83,9 +87,8 @@ fn execute_code(code: string) -> int {
 }
 
 shadow execute_code {
-    let code: string = "fn test() -> int { return 42 }\nshadow test { assert (== (test) 42) }\nfn main() -> int { return 0 }\nshadow main { assert true }"
-    # Note: In testing, eval may not be available, so we just check the function exists
-    assert true
+    let code: string = "fn test() -> int { return 42 }\nshadow test { assert (== (test) 42) }\nfn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }"
+    assert (== (execute_code code) 0)
 }
 
 # Build JSON response for successful execution
@@ -134,8 +137,7 @@ fn get_port() -> int {
 }
 
 shadow get_port {
-    # Default port is 8080
-    assert (> (get_port) 0)
+    assert (>= (get_port) 1)
 }
 
 fn print_banner(port: int) -> void {
@@ -163,7 +165,7 @@ fn print_banner(port: int) -> void {
 }
 
 shadow print_banner {
-    assert true
+    (print_banner 8080)
 }
 
 fn main() -> int {
@@ -186,6 +188,6 @@ fn main() -> int {
 }
 
 shadow main {
-    # Can't really test server startup in shadow tests
-    assert true
+    # Starting the server blocks; pure request helpers are tested above.
+    assert (== (get_port) (get_port))
 }

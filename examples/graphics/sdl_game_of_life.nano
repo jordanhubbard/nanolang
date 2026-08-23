@@ -78,7 +78,12 @@ fn count_neighbors(grid: array<int>, x: int, y: int) -> int {
 }
 
 shadow count_neighbors {
-    assert true
+    let mut grid: array<int> = (array_new (* GRID_WIDTH GRID_HEIGHT) 0)
+    (array_set grid (grid_index 4 4) 1)
+    (array_set grid (grid_index 5 4) 1)
+    (array_set grid (grid_index 6 4) 1)
+    assert (== (count_neighbors grid 5 5) 3)
+    assert (== (count_neighbors grid 0 0) 0)
 }
 
 fn randomize_grid(grid: array<int>) -> array<int> {
@@ -120,7 +125,17 @@ fn step_generation(current: array<int>) -> array<int> {
     return next
 }
 
-shadow step_generation { assert true }
+shadow step_generation {
+    let mut grid: array<int> = (array_new (* GRID_WIDTH GRID_HEIGHT) 0)
+    (array_set grid (grid_index 4 5) 1)
+    (array_set grid (grid_index 5 5) 1)
+    (array_set grid (grid_index 6 5) 1)
+    let next: array<int> = (step_generation grid)
+    assert (== (at next (grid_index 5 4)) 1)
+    assert (== (at next (grid_index 5 5)) 1)
+    assert (== (at next (grid_index 5 6)) 1)
+    assert (== (at next (grid_index 4 5)) 0)
+}
 
 fn get_palette_index(step: int, palette: array<int>) -> int {
     let palette_count: int = (/ (array_length palette) 3)
@@ -217,7 +232,7 @@ fn main() -> int {
         (SDL_RenderClear renderer) 
         (render_grid renderer grid color_step color_palette)
 
-        let hud_text: string = (+ "Generation: " (+ (int_to_string generation) " (press Q to re-seed)"))
+        let hud_text: string = (+ "Generation: " (+ (int_to_string generation) " (press R to re-seed, ESC to quit)"))
         (nl_draw_text_blended renderer font hud_text 10 10 230 230 240 255) 
 
         (SDL_RenderPresent renderer) 
@@ -234,5 +249,5 @@ fn main() -> int {
 }
 
 shadow main {
-    assert true
+    assert (== (apply_rules 1 2) 1)
 }

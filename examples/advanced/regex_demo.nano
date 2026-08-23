@@ -27,8 +27,7 @@ fn quick_replace_all(pattern: string, text: string, replacement: string) -> stri
 }
 
 shadow quick_replace_all {
-    (quick_replace_all "b" "abbb" "X")
-    assert true
+    assert (== (quick_replace_all "," "a,b,c" " | ") "a | b | c")
 }
 
 # =============================================================================
@@ -220,8 +219,8 @@ shadow demo_comparison {
 fn main() -> int {
     (println "")
     (println "═══════════════════════════════════════════════════")
-    (println "    NanoLang Regex - Pythonic API Demo")
-    (println "    Tier 1: No Memory Management - Tier 2: Manual Free")
+    (println "    My Regex API Demo")
+    (println "    Tier 1: one-shot operations - Tier 2: compiled patterns")
     (println "═══════════════════════════════════════════════════")
     (println "")
     
@@ -246,6 +245,5 @@ fn main() -> int {
 }
 
 shadow main {
-    (main)
-    assert true
+    assert (== (main) 0)
 }

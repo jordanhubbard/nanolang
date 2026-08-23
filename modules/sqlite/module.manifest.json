@@ -36,10 +36,7 @@
     "sqlite",
     "data"
   ],
-  "examples": [
-    "examples/sqlite_basics.nano",
-    "examples/sqlite_query.nano"
-  ],
+  "examples": ["examples/advanced/sqlite_simple.nano"],
   "dependencies": {
     "nanolang": [],
     "system": [
@@ -60,4 +57,3 @@
     {"when": "in-memory data only", "module": "core (arrays/lists)"}
   ]
 }
-

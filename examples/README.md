@@ -1,6 +1,6 @@
 # My Examples
 
-I keep 257 `.nano` files here. They are not all the same kind of thing.
+I keep 253 `.nano` files here: 9 at this directory's root and 244 below category directories. They are not all the same kind of thing.
 
 Start with `docs/EXAMPLES_INDEX.md`. It is my source of truth for the examples catalog, the learning order, module coverage, dependency labels, and known gaps.
 
@@ -52,3 +52,7 @@ make -C examples
 ```
 
 Some examples need SDL, OpenGL, Bullet, MuJoCo, ncurses, curl, GPU drivers, local servers, or API keys. I do not hide that. The catalog marks those boundaries.
+
+The current network examples are `network/http_hello_world.nano` and `network/http_static_server.nano`. Both serve repository-local static files through `modules/http_server` and libuv. I do not currently provide a curl client or REST API example.
+
+`ai_github_agent.nano` is now an offline issue-triage exercise. It constructs and classifies a local fixture; it does not contact GitHub or an LLM. The Bullet soft-body progression is `physics/bullet_beads_simple.nano`, `physics/bullet_beads_visual.nano`, then `physics/bullet_soft_body_modern.nano`.

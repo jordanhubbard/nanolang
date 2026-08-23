@@ -180,7 +180,7 @@ This works identically on both macOS and Linux if utf8proc is installed correctl
 Run the built-in tests:
 ```bash
 # Compile and run demo
-nanoc examples/unicode_demo.nano -o bin/unicode_demo
+nanoc examples/advanced/unicode_demo.nano -o bin/unicode_demo
 ./bin/unicode_demo
 ```
 
@@ -227,4 +227,3 @@ This module uses utf8proc, which is licensed under the MIT License.
 - Unicode Standard: https://unicode.org/
 - UAX #29 (Text Segmentation): https://unicode.org/reports/tr29/
 - UAX #15 (Normalization): https://unicode.org/reports/tr15/
-

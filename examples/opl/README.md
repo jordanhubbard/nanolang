@@ -1,6 +1,7 @@
-### OPL (Operator Prompt Language) example
+# OPL (Operator Prompt Language)
 
-This directory contains a **self-contained OPL DSL toolchain** implemented in NanoLang:
+I implement this OPL DSL toolchain in NanoLang. The CLI uses repository-local
+modules, fixtures, Perl for command timeouts, and `bin/nanoc_c` for `build`.
 
 - **Lexer**: `opl_lexer.nano`
 - **Parser**: `opl_parser.nano` → AST JSON (`bundle/AST_IR.schema.json`)
@@ -9,14 +10,16 @@ This directory contains a **self-contained OPL DSL toolchain** implemented in Na
 - **Codegen**: `opl_codegen.nano` → NanoLang program skeleton from PLAN_IR
 - **CLI**: `opl_cli.nano` → `parse|validate|compile|test|codegen|build`
 
-The original spec bundle is vendored in `bundle/` (including `EXAMPLES.opl`, expected golden outputs, and `TESTS.cases.json`).
+The source bundle is vendored in `bundle/`, including `EXAMPLES.opl`, expected
+golden outputs, and `TESTS.cases.json`. The CLI's `test` command depends on
+those fixtures; they are not generated build artifacts.
 
-### Build and run the CLI
+## Build and run the CLI
 
 Compile the CLI:
 
 ```bash
-perl -e 'alarm 60; exec @ARGV' ./bin/nanoc examples/opl/opl_cli.nano -o /tmp/opl_cli
+perl -e 'alarm 60; exec @ARGV' ./bin/nanoc_c examples/opl/opl_cli.nano -o /tmp/opl_cli
 ```
 
 Commands:
@@ -42,7 +45,7 @@ Commands:
 /tmp/opl_cli build examples/opl/bundle/EXAMPLES.expected_plan.json --out /tmp/opl_codegen_tmp_bin
 ```
 
-### Notes / constraints
+## Notes and constraints
 
 - **Determinism**:
   - Parser/AST ordering follows source order.
@@ -55,4 +58,3 @@ Commands:
   - Generated programs are intentionally **auditable**: they print intended calls and emit values.
   - Tool calls are stubbed as `call_tool(tool, args)` returning `null`.
   - Nested `if.then` steps are currently not executed (left as a TODO in the generated program).
-

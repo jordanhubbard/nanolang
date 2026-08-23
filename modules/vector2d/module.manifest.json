@@ -22,7 +22,7 @@
     "vector_distance"
   ],
   "keywords": ["math", "vector", "2d", "physics", "geometry"],
-  "examples": ["examples/sdl_boids.nano"],
+  "examples": ["examples/graphics/sdl_boids.nano"],
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "system": []

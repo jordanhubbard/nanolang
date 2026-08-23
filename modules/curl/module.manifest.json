@@ -37,10 +37,7 @@
     "curl",
     "web request"
   ],
-  "examples": [
-    "examples/curl_get.nano",
-    "examples/curl_post.nano"
-  ],
+  "examples": [],
   "dependencies": {
     "nanolang": [],
     "system": [
@@ -60,4 +57,3 @@
     {"when": "HTTP server", "module": "http_server"}
   ]
 }
-

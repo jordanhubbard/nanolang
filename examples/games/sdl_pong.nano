@@ -48,6 +48,16 @@ fn winner_banner_x(player1_score: int, player2_score: int) -> int {
     )
 }
 
+fn is_quit_scancode(key: int) -> bool {
+    return (== key 41)
+}
+
+shadow is_quit_scancode {
+    assert (is_quit_scancode 41)
+    assert (not (is_quit_scancode 44))
+    assert (not (is_quit_scancode -1))
+}
+
 shadow winner_banner_x {
     assert (== (winner_banner_x WINNING_SCORE 0) 250)
     assert (== (winner_banner_x 0 WINNING_SCORE) 450)
@@ -157,7 +167,8 @@ fn main() -> int {
         if (== (nl_sdl_poll_event_quit) 1) { set running false }
         
         # Handle keyboard input
-        (nl_sdl_poll_keypress) 
+        let key: int = (nl_sdl_poll_keypress)
+        if (is_quit_scancode key) { set running false } else {}
         
         # Calculate delta time
         let current_time: int = (SDL_GetTicks)
@@ -240,41 +251,6 @@ fn main() -> int {
         (SDL_RenderClear renderer) 
         (SDL_SetRenderDrawColor renderer 255 255 255 255) 
 
-        # Update widget mouse state once per frame before any widget calls
-        (nl_ui_update_mouse_state) 
-        
-        # UI Buttons at bottom
-        if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
-            set paused false
-            set game_over false
-        }
-        
-        if (== (nl_ui_button renderer font "Pause" 330 560 70 30) 1) {
-            set paused true
-        }
-        
-        if (== (nl_ui_button renderer font "Reset" 410 560 70 30) 1) {
-            set player1_score 0
-            set player2_score 0
-            set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
-            set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
-            set ball_vx BALL_SPEED
-            set ball_vy 0.0
-            set paddle1_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
-            set paddle2_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
-            set paused true
-            set game_over false
-            (println "Game Reset")
-        }
-        
-        # Checkbox for showing FPS
-        set show_fps (nl_ui_checkbox renderer font "Show FPS" 550 565 show_fps)
-        
-        # Display FPS if checkbox is enabled
-        if (== show_fps 1) {
-            (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255) 
-        }
-        
         # Draw center line (dashed)
         let mut line_y: int = 0
         while (< line_y WINDOW_HEIGHT) {
@@ -316,6 +292,33 @@ fn main() -> int {
             (nl_sdl_render_fill_rect renderer banner_x msg_y 15 50) 
             (nl_sdl_render_fill_rect renderer banner_x (+ msg_y 35) 80 15) 
         }
+
+        # Draw controls last so the playfield cannot cover them.
+        (nl_ui_update_mouse_state)
+        if (== (nl_ui_button renderer font "Start" 250 560 70 30) 1) {
+            set paused false
+            set game_over false
+        }
+        if (== (nl_ui_button renderer font "Pause" 330 560 70 30) 1) {
+            set paused true
+        }
+        if (== (nl_ui_button renderer font "Reset" 410 560 70 30) 1) {
+            set player1_score 0
+            set player2_score 0
+            set ball_x (/ (cast_float WINDOW_WIDTH) 2.0)
+            set ball_y (/ (cast_float WINDOW_HEIGHT) 2.0)
+            set ball_vx BALL_SPEED
+            set ball_vy 0.0
+            set paddle1_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+            set paddle2_y (cast_float (/ (- WINDOW_HEIGHT PADDLE_HEIGHT) 2))
+            set paused true
+            set game_over false
+            (println "Game Reset")
+        }
+        set show_fps (nl_ui_checkbox renderer font "Show FPS" 550 565 show_fps)
+        if (== show_fps 1) {
+            (nl_ui_label renderer font "FPS: 60" 680 565 100 255 100 255)
+        } else {}
         
         # Draw on-screen help
         
@@ -334,4 +337,7 @@ fn main() -> int {
     return 0
 }
 
-shadow main { assert true }
+shadow main {
+    assert (is_quit_scancode 41)
+    assert (== (clamp_paddle_position -1.0) 0.0)
+}

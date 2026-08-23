@@ -1196,6 +1196,16 @@ shadow-check: build
 		done; \
 	fi
 
+.PHONY: nano-style-audit nano-style-audit-strict test-nano-style-audit
+nano-style-audit:
+	@python3 scripts/audit_nano_style.py
+
+nano-style-audit-strict:
+	@python3 scripts/audit_nano_style.py --strict
+
+test-nano-style-audit:
+	@python3 -m unittest tests/test_audit_nano_style.py
+
 $(USERGUIDE_DIR):
 	@mkdir -p $(USERGUIDE_DIR)
 
@@ -2089,6 +2099,8 @@ help:
 	@echo "  make modules            - Check what dependencies are needed (no sudo)"
 	@echo "  sudo make install-deps  - Install all missing dependencies (requires sudo)"
 	@echo "  make module-package-audit - Validate module package metadata coverage"
+	@echo "  make nano-style-audit    - Report current NanoLang source style debt"
+	@echo "  make nano-style-audit-strict - Fail on NanoLang style debt outside the baseline"
 	@echo ""
 	@echo "Package Manager:"
 	@echo "  make pkg-install        - Install packages from nano.toml"

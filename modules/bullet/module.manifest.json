@@ -11,7 +11,11 @@
   "avoid_when": ["User wants simple collision only (implement manually)"],
   "capabilities": ["rigid_body", "soft_body", "collision_detection", "physics_simulation"],
   "keywords": ["physics", "bullet", "collision", "simulation", "rigid body"],
-  "examples": ["examples/bullet_soft_body.nano"],
+  "examples": [
+    "examples/physics/bullet_beads_simple.nano",
+    "examples/physics/bullet_beads_visual.nano",
+    "examples/physics/bullet_soft_body_modern.nano"
+  ],
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "system": [{"id": "bullet", "install": {"apt": "libbullet-dev", "brew": "bullet"}}]

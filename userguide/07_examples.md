@@ -1,6 +1,6 @@
 # Examples
 
-All examples live in the repository [examples directory](https://github.com/jordanhubbard/nanolang/tree/main/examples).
+I keep all 253 examples in the repository [examples directory](https://github.com/jordanhubbard/nanolang/tree/main/examples). The maintained learning order and dependency boundaries live in [My Examples Index](../docs/EXAMPLES_INDEX.md).
 
 ## Categories
 
@@ -15,7 +15,7 @@ Examples are organized into the following categories:
 | **games** | Asteroids, Pong, Checkers |
 | **graphics** | SDL rendering, particles, raytracing, physics |
 | **language** | Core language features, algorithms, data structures |
-| **network** | HTTP client/server, REST APIs |
+| **network** | Static HTTP servers backed by libuv |
 | **opengl** | Modern OpenGL with shaders |
 | **physics** | Bullet physics engine demos |
 | **terminal** | ncurses-based terminal apps |
@@ -162,11 +162,10 @@ The SDL example launcher provides a graphical menu to browse and run examples:
 
 ## network
 
-- [network/curl_example.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/curl_example.nano)
-- [network/http_demo.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_demo.nano)
 - [network/http_hello_world.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_hello_world.nano)
-- [network/http_rest_api.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_rest_api.nano)
 - [network/http_static_server.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/network/http_static_server.nano)
+
+These examples serve repository-local static files. I have no current curl client or REST API example.
 
 ## opengl
 
@@ -201,7 +200,6 @@ OPL (Orchestration Planning Language) is a domain-specific language implemented 
 - [physics/bullet_beads_visual.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_beads_visual.nano)
 - [physics/bullet_bouncy_balls.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_bouncy_balls.nano)
 - [physics/bullet_rigid_megastacks.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_rigid_megastacks.nano)
-- [physics/bullet_soft_body_beads.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_soft_body_beads.nano)
 - [physics/bullet_soft_body_modern.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_soft_body_modern.nano)
 - [physics/bullet_softbody_hourglass.nano](https://github.com/jordanhubbard/nanolang/blob/main/examples/physics/bullet_softbody_hourglass.nano)
 

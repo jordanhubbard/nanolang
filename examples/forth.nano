@@ -4,6 +4,10 @@
 # Difficulty: Expert
 # Category: language
 # Prerequisites: nl_struct, nl_hashmap, nl_array_complete, simple_repl
+# Track: applications
+# Build: external-deps, interactive
+# Dependencies: modules/readline, modules/std/collections/stringbuilder, libreadline
+# Tags: forth, interpreter, repl, native-only
 # Expected Output: FIG-Forth demo output
 
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string

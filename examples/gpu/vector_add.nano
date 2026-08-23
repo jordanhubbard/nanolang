@@ -43,9 +43,9 @@ gpu fn vector_add(a: int, b: int, c: int, n: int) -> void {
         let addr_a: int = (+ a offset)
         let addr_b: int = (+ b offset)
         let addr_c: int = (+ c offset)
-        # result address is addr_c; values at addr_a and addr_b would be loaded
-        # via ld.global and stored via st.global (gpu_load/gpu_store, future work)
-        let _use: int = (+ addr_a (+ addr_b addr_c))
+        let value_a: int = (gpu_load addr_a)
+        let value_b: int = (gpu_load addr_b)
+        (gpu_store addr_c (+ value_a value_b))
         return
     }
 }
@@ -62,14 +62,14 @@ gpu fn dot_product_partial(a: int, b: int, out: int, n: int) -> void {
         let offset: int = (* gid 8)
         let addr_a: int = (+ a offset)
         let addr_b: int = (+ b offset)
-        # partial product address pair: addr_a * addr_b (illustrative)
-        let _partial: int = (* addr_a addr_b)
+        let _partial: int = (* (gpu_load addr_a) (gpu_load addr_b))
         # gpu_barrier synchronizes threads in block before block-level reduction
         (gpu_barrier)
         if (== lid 0) {
             let bid: int = (block_id_x)
             let out_addr: int = (+ out (* bid 8))
-            # st.global.s64 [out_addr], block_sum  (illustrative)
+            # A complete block reduction needs shared-memory storage, which this
+            # kernel deliberately does not claim to implement.
             let _store: int = out_addr
             return
         }
@@ -88,8 +88,7 @@ gpu fn matrix_add(a: int, b: int, c: int, rows: int, cols: int) -> void {
         let addr_a: int = (+ a offset)
         let addr_b: int = (+ b offset)
         let addr_c: int = (+ c offset)
-        # c[row][col] = a[row][col] + b[row][col]  (illustrative; needs gpu_load/gpu_store)
-        let _result: int = (+ addr_a (+ addr_b addr_c))
+        (gpu_store addr_c (+ (gpu_load addr_a) (gpu_load addr_b)))
         return
     }
 }
@@ -113,16 +112,32 @@ fn main() -> int {
     # Allocate vectors on host
     let n: int = 1024
     let bytes: int = (* n 8)
+    let mut h_a: array<int> = []
+    let mut h_b: array<int> = []
+    let mut h_c: array<int> = []
+    let mut i: int = 0
+    while (< i n) {
+        set h_a (array_push h_a i)
+        set h_b (array_push h_b (* i 2))
+        set h_c (array_push h_c 0)
+        set i (+ i 1)
+    }
 
     # Allocate device memory
     let d_a: int = (gpu_alloc bytes)
     let d_b: int = (gpu_alloc bytes)
     let d_c: int = (gpu_alloc bytes)
 
-    if (or (== d_a 0) (== d_b 0)) {
+    if (or (== d_a 0) (or (== d_b 0) (== d_c 0))) {
         print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        if (!= d_a 0) { (gpu_free d_a) } else {}
+        if (!= d_b 0) { (gpu_free d_b) } else {}
+        if (!= d_c 0) { (gpu_free d_c) } else {}
         return 1
     }
+
+    (gpu_memcpy_to_device d_a h_a bytes)
+    (gpu_memcpy_to_device d_b h_b bytes)
 
     # In a real program: build host arrays, gpu_memcpy_to_device, then:
     let threads_per_block: int = 256
@@ -141,12 +156,23 @@ fn main() -> int {
     }
 
     (gpu_sync)
-    # In a real program: gpu_memcpy_from_device to read results back
+    (gpu_memcpy_from_device h_c d_c bytes)
+
+    let mut errors: int = 0
+    let mut j: int = 0
+    while (< j n) {
+        if (!= (at h_c j) (* j 3)) { set errors (+ errors 1) } else {}
+        set j (+ j 1)
+    }
 
     (gpu_free d_a)
     (gpu_free d_b)
     (gpu_free d_c)
 
-    print "vector_add completed successfully"
-    return 0
+    if (== errors 0) {
+        print "VECTOR_ADD PASSED"
+        return 0
+    }
+    print (str_concat "VECTOR_ADD FAILED: " (str_concat (int_to_string errors) " errors"))
+    return 1
 }

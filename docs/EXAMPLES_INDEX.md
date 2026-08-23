@@ -1,8 +1,8 @@
 # My Examples Index
 
-Last audited: 2026-05-22.
+Last audited: 2026-08-23.
 
-I have 257 `.nano` files under `examples/`. This update adds the missing MuJoCo state, control, geom-rendering, and module API examples.
+I have 253 `.nano` files under `examples/`: 9 at the directory root and 244 below category directories. I count files on disk; deleted sketches do not remain examples by reputation alone.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -60,7 +60,7 @@ Use these build labels:
 | `examples/` | 10 | tools, launchers, root showcases |
 | `examples/advanced/` | 26 | modules and advanced language demos |
 | `examples/api_lessons/` | 42 | focused API lessons |
-| `examples/audio/` | 5 | audio modules and showcases |
+| `examples/audio/` | 6 | audio modules and showcases |
 | `examples/cross_backend/` | 1 | cross-backend learn fixture |
 | `examples/data/` | 1 | data module demos |
 | `examples/debug/` | 6 | diagnostics, logging, property tests |
@@ -73,12 +73,12 @@ Use these build labels:
 | `examples/language/` | 75 | core language learning path |
 | `examples/large_project/` | 3 | real multi-file package example |
 | `examples/lib/` | 5 | internal launcher/editor support |
-| `examples/mujoco/` | 5 | MuJoCo modules |
-| `examples/network/` | 5 | HTTP and curl modules |
+| `examples/mujoco/` | 6 | MuJoCo modules |
+| `examples/network/` | 2 | HTTP server modules |
 | `examples/opengl/` | 6 | OpenGL modules |
 | `examples/opl/` | 12 | parser/compiler showcase |
 | `examples/opl/examples/output/` | 1 | generated OPL output fixture |
-| `examples/physics/` | 7 | Bullet physics modules |
+| `examples/physics/` | 6 | Bullet physics modules |
 | `examples/playground/` | 1 | playground server |
 | `examples/properties/` | 1 | formal property illustration |
 | `examples/terminal/` | 3 | ncurses modules |
@@ -186,9 +186,9 @@ These examples demonstrate module surfaces. They are useful, but they are not al
 | vector2d | `examples/advanced/module_introspection_demo.nano` | external SDL dependency because the demo also imports SDL |
 | filesystem/process/env | `examples/run_examples.nano`, `examples/opl/opl_cli.nano` | local with compiler/tool assumptions |
 | logging/coverage/proptest | `examples/debug/*.nano` | local |
-| HTTP server | `examples/network/http_hello_world.nano`, `http_static_server.nano`, `http_rest_api.nano` | network, native-only |
-| curl | `examples/network/curl_example.nano` | external-deps, network |
-| GitHub/OpenAI | `examples/ai_github_agent.nano`, `examples/autonomous_github_agent.nano` | api-key, network |
+| HTTP server | `examples/network/http_hello_world.nano`, `examples/network/http_static_server.nano` | external-deps, network, native-only; static serving only |
+| curl | No current example. The module remains available, but I do not claim deleted client demos as coverage. | external-deps, network |
+| issue triage | `examples/ai_github_agent.nano` | local, deterministic; prompt construction and classification only, with no GitHub or LLM call |
 | SDL | `examples/graphics/sdl_*.nano`, `examples/games/sdl_*.nano`, `examples/audio/sdl_*.nano` | graphical/audio/external-deps |
 | ncurses | `examples/terminal/ncurses_*.nano` | external-deps |
 | OpenGL | `examples/opengl/*.nano` | graphical/external-deps |
@@ -274,7 +274,7 @@ These are the overlaps found in the audit and how I now classify them.
 | Forth | Make `nl_forth_interpreter.nano` canonical; mark root `forth.nano` legacy. |
 | `large_project_structure.nano` | Treat as a sketch. Use `examples/large_project/` as the real multi-file package. |
 | row polymorphism | Mark conceptual files as `concept` until the compiler accepts them as ordinary examples. |
-| network and AI | Keep live examples, but require deterministic dry-run or local fixtures before they enter Learn. |
+| network and AI | Keep the two local HTTP server examples in Modules. Use the rewritten offline issue-triage example for deterministic prompt construction; there is no current live curl, REST API, GitHub, or OpenAI example. |
 
 ## Missing Coverage
 
@@ -287,7 +287,7 @@ These gaps remain visible so future work does not rediscover them.
 | package manifests | Fixed `hello_pkg` and added `examples/large_project/`. | Add registry publish/install dry-run once the registry CLI is stable. |
 | cross-backend execution | Added `hello_cross_backend.nano`. | Add a small runner that executes native, VM, and WASM when those backends are present. |
 | deterministic integrations | Added `file_pipeline.nano`. | Add local HTTP fixture with fixed input and no internet dependency. |
-| stdlib modules | `examples/api_lessons/` now covers result, set, binary, env, fs, preferences, websocket, pybridge, nano_highlight, audio_helpers, pt2_audio, pt2_state, stdio, stringbuilder, array_utils, diagnostics, dispatch, examples/diag, json, log, math_ext, math/extended, math/array_ops, math/vector2d, math/vector3d, math/vector4d, math/matrix4, math/quaternion, math/complex, peg, peg2, process, proptest, pt2_module, sdl_image_safe, std/lib, vector2d, tidy, and both built-in and std HashMap surfaces. | Remaining exceptions: option/list/iter/map/string still require `stdlib/*.nano` rewrites because those files use a non-supported dialect. |
+| stdlib modules | `examples/api_lessons/` covers supported module paths including `modules/std/result.nano`, `modules/std/collections/set.nano`, binary, env, fs, stdio, stringbuilder, array utilities, JSON, logging, math, PEG, and process surfaces. | The deleted root `stdlib/` option, list, iter, map, set, string, result, and async files are not supported modules. Add examples only after a supported module exists under `modules/std/` or the capability is built in. |
 | internal module tools | `modules/tools/dep_locator.nano` is an internal CLI/tool implementation sketch. The supported dependency locator is `modules/tools/dep_locator.sh`, documented in `modules/tools/README.md` and used by the module build flow. | Do not add it to the sample browser as an API lesson unless it becomes an importable module API. |
 | side-effect shadows | Many graphical and I/O demos still use `assert true`. | Extract pure helpers and test those helpers with concrete inputs. |
 | structured headers | Parser support exists now. | Normalize old headers opportunistically rather than churning every file at once. |

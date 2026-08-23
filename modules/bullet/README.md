@@ -1,6 +1,6 @@
-# Bullet Physics Module for NanoLang
+# My Bullet Physics Module
 
-Real-time soft body and rigid body physics simulation using the [Bullet Physics SDK](https://github.com/bulletphysics/bullet3).
+I expose real-time soft-body and rigid-body simulation through the [Bullet Physics SDK](https://github.com/bulletphysics/bullet3).
 
 ## Features
 
@@ -126,7 +126,13 @@ fn main() -> int {
 
 ## Examples
 
-See `examples/bullet_soft_body_beads.nano` for a complete demo showing:
+Use this progression:
+
+- `examples/physics/bullet_beads_simple.nano` for a console-only soft-body simulation
+- `examples/physics/bullet_beads_visual.nano` for SDL rendering and continuous spawning
+- `examples/physics/bullet_soft_body_modern.nano` for the modernized plinko simulation
+
+Together they show:
 - Continuous spawning of soft body spheres
 - Plinko-style obstacle course
 - Real-time rendering with SDL2
@@ -151,4 +157,3 @@ The module uses optimized settings for soft bodies:
 ## Credits
 
 Built on [Bullet Physics SDK](https://pybullet.org/) by Erwin Coumans.
-

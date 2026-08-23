@@ -1,8 +1,10 @@
 # Examples Consolidation Audit
 
 ## Overview
-Total examples: ~108 .nano files
+Total examples when this proposal was written: about 108 `.nano` files. Current disk count: 253.
 Goal: Reduce duplication, merge similar examples, improve discoverability
+
+This is a historical consolidation proposal, not my current catalog. `docs/EXAMPLES_INDEX.md` records the decisions and paths that exist now.
 
 ## Category 1: BASIC LANGUAGE FEATURES (Merge into fewer examples)
 
@@ -159,7 +161,7 @@ Goal: Reduce duplication, merge similar examples, improve discoverability
 
 ### External Libraries (Keep separate)
 - `sqlite_simple.nano` - SQLite example
-- `curl_example.nano` - HTTP requests
+- HTTP client example - removed; no current replacement
 - `event_example.nano` - libevent
 - `uv_example.nano` - libuv
 - `sdl_import_test.nano` - DELETE (just a test)

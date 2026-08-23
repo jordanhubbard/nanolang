@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: none
+# Track: tools
+# Build: local
+# Dependencies: modules/nano_tools, src_nano/compiler/diagnostics
+# Tags: lint, diagnostics, shadow-tested
 # Expected Output: ok
 
 import "modules/nano_tools/nano_tools.nano" as tools

@@ -69,8 +69,11 @@ fn main() -> int {
     let d_x: int = (gpu_alloc bytes)
     let d_y: int = (gpu_alloc bytes)
     let d_z: int = (gpu_alloc bytes)
-    if (or (== d_x 0) (== d_y 0)) {
+    if (or (== d_x 0) (or (== d_y 0) (== d_z 0))) {
         print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        if (!= d_x 0) { (gpu_free d_x) } else {}
+        if (!= d_y 0) { (gpu_free d_y) } else {}
+        if (!= d_z 0) { (gpu_free d_z) } else {}
         return 1
     }
 

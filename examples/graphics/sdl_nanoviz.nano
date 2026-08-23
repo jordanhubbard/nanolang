@@ -1,10 +1,11 @@
 # Example: NanoViz 3D Music Visualizer
-# Purpose: Comprehensive multi-module integration demo combining SDL, OpenGL, and real-time audio FFT visualization
-# Features: OpenGL, SDL, audio FFT, ui_widgets, multi-module integration, 3D graphics, event handling
+# Purpose: I combine SDL audio levels with five OpenGL visualizations.
+# Features: OpenGL, SDL_mixer, channel-level audio visualization, 3D graphics, keyboard input
 # Difficulty: Advanced
 # Category: graphics
 # Prerequisites: sdl_drawing_primitives, sdl_particles
 # Expected Output: graphical
+# Default Args: examples/audio/gabba-studies-12.mod
 
 unsafe module "modules/glfw/glfw.nano"
 unsafe module "modules/glew/glew.nano"
@@ -73,13 +74,7 @@ fn setup_opengl_3d() -> void {
     (glMatrixMode GL_PROJECTION) 
     (glLoadIdentity) 
     
-    # Perspective projection for 3D
-    let fov: float = 60.0
-    let aspect: float = (/ (cast_float WINDOW_WIDTH) (cast_float WINDOW_HEIGHT))
-    let near_plane: float = 0.1
-    let far_plane: float = 100.0
-    
-    # Use simple orthographic for now (glFrustum has issues)
+    # Use an orthographic volume large enough for every visualization.
     (glOrtho -5.0 5.0 -5.0 5.0 0.1 100.0) 
     
     # Switch to modelview
@@ -216,7 +211,7 @@ fn draw_audio_particles(time: float, bass: float, mid: float, treble: float) -> 
     while (< i 500) {
         let angle1: float = (* (cast_float i) 0.1)
         let angle2: float = (* (cast_float i) 0.05)
-        let radius: float = (+ 3.0 (* bass 2.0))
+        let radius: float = (+ 3.0 (+ (* bass 2.0) (* mid 0.5)))
         
         # Spiral pattern
         let x: float = (* radius (* (cos angle1) (cos angle2)))
@@ -410,8 +405,7 @@ fn main() -> int {
     
     # Setup OpenGL
     (setup_opengl_3d)
-    # Note: glClearColor is not available in current OpenGL bindings
-    # unsafe {     (glClearColor 0.0 0.0 0.0 1.0) }
+    (glClearColor 0.0 0.0 0.0 1.0)
     (println "✓ OpenGL 3D setup complete")
     
     # Initialize SDL for audio
@@ -600,7 +594,7 @@ fn main() -> int {
         (Mix_FreeMusic music) 
     } else {}
     (nl_audio_viz_shutdown) 
-    (TTF_CloseFont font) 
+    if (!= font 0) { (TTF_CloseFont font) } else {}
     (TTF_Quit) 
     (Mix_CloseAudio) 
     (Mix_Quit) 

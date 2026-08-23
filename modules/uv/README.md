@@ -61,7 +61,7 @@ shadow main {
 
 ## Example
 
-See `examples/uv_example.nano` for comprehensive usage examples.
+See `examples/advanced/uv_example.nano` for a focused libuv example.
 
 ## API Reference
 

@@ -3,7 +3,7 @@
 #
 # Tests the --proptest flag of the nano interpreter:
 #   1. All-passing properties: exit 0, output contains "PASS"
-#   2. Known-broken property: exit 1, output contains "FAIL"
+#   2. Known-broken fixture: exit 1, output contains "FAIL"
 #
 # Usage: ./tests/test_proptest.sh [--verbose]
 #
@@ -88,20 +88,18 @@ fi
 pass "Test 2: Broken property → exit 1, output contains FAIL"
 log "$broken_output"
 
-# ── Test 3: full example file (has broken property → exit 1) ─────────────
-log "Test 3: Full example file contains a broken property"
-full_output=$("$NANO" --proptest --proptest-seed 42 "$EXAMPLE" 2>&1) && full_exit=0 || full_exit=$?
-
-if [ "$full_exit" -eq 0 ]; then
-    fail "Test 3: Expected exit 1 (broken property in example), got exit 0. Output: $full_output"
-fi
+# ── Test 3: runnable example contains only passing properties ─────────────
+log "Test 3: Full example file should pass"
+full_output=$("$NANO" --proptest --proptest-seed 42 "$EXAMPLE" 2>&1) || {
+    fail "Test 3: Expected exit 0 for example properties, got exit $?. Output: $full_output"
+}
 if ! echo "$full_output" | grep -q "PASS"; then
     fail "Test 3: Expected at least one 'PASS' in output, got: $full_output"
 fi
-if ! echo "$full_output" | grep -q "FAIL"; then
-    fail "Test 3: Expected 'FAIL' for broken property in output, got: $full_output"
+if echo "$full_output" | grep -q "FAIL"; then
+    fail "Test 3: Unexpected 'FAIL' in runnable example: $full_output"
 fi
-pass "Test 3: Example file correctly reports mixed PASS/FAIL"
+pass "Test 3: Example file reports passing properties"
 log "$full_output"
 
 # ── Cleanup ───────────────────────────────────────────────────────────────

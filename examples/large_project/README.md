@@ -10,9 +10,9 @@ examples/large_project/
   src/pricing.nano
 ```
 
-`large_project_structure.nano` is a sketch. This directory is the executable package example.
-
 ```bash
-./bin/nanoc examples/large_project/main.nano -o /tmp/large_project
+./bin/nanoc_c examples/large_project/main.nano -o /tmp/large_project
 /tmp/large_project
 ```
+
+The command runs from the repository root because the imports are repository-relative.

@@ -4,6 +4,10 @@
 # Difficulty: Beginner
 # Category: network
 # Prerequisites: http_hello_world
+# Track: modules
+# Build: external-deps, interactive
+# Dependencies: modules/http_server, libuv
+# Tags: http, static-files, native-only, interactive
 # Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import HttpServer, create, set_static_dir, start, free_server
@@ -13,7 +17,7 @@ fn main() -> int {
     (println "")
     
     let port: int = 8080
-    let static_dir: string = "./public"
+    let static_dir: string = "examples/network/hello_public"
     
     (println (+ "Creating server on port " (int_to_string port)))
     let server: HttpServer = (create port)
@@ -22,7 +26,7 @@ fn main() -> int {
     (set_static_dir server static_dir)
     
     (println "")
-    (println (+ "✓ Server ready at http://localhost:" (int_to_string port)))
+    (println (+ "Server ready at http://localhost:" (int_to_string port)))
     (println "Press Ctrl+C to stop")
     (println "")
     
@@ -35,5 +39,7 @@ fn main() -> int {
     return result
 }
 
-shadow main { assert true }
-
+shadow main {
+    # Starting the server blocks; the served fixture is repository-local.
+    assert (str_contains "examples/network/hello_public" "hello_public")
+}

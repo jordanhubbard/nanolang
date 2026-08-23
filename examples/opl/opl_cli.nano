@@ -4,6 +4,10 @@
 # Difficulty: Advanced
 # Category: opl
 # Prerequisites: opl_parser, opl_compile, opl_validate, opl_codegen
+# Track: compiler
+# Build: local
+# Dependencies: examples/opl/bundle, modules/std/fs, modules/std/json, perl, bin/nanoc_c
+# Tags: opl, cli, parser, compiler, shadow-tested
 # Expected Output: Usage: opl <parse|validate|compile|test> ...
 
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
@@ -55,8 +59,9 @@ fn proc_run(command: string) -> Output {
 }
 
 shadow proc_run {
-    # Dummy shadow test: uses extern process_run and depends on host shell.
-    assert true
+    let r: Output = (proc_run "printf opl")
+    assert (== r.code 0)
+    assert (== r.stdout "opl")
 }
 
 extern fn get_argc() -> int
@@ -171,7 +176,7 @@ fn cmd_build(plan_path: string, out_bin_path: string) -> int {
     if (!= gen_rc 0) { return gen_rc } else {}
 
     # Compile with timeout (required): use perl alarm to avoid hangs.
-    let cmd: string = (+ "perl -e 'alarm 60; exec @ARGV' /Users/jkh/Src/nanolang/bin/nanoc " tmp_nano)
+    let cmd: string = (+ "perl -e 'alarm 60; exec @ARGV' ./bin/nanoc_c " tmp_nano)
     let cmd2: string = (+ cmd (+ " -o " tmp_out))
     let r: Output = (proc_run cmd2)
     if (!= r.code 0) {
@@ -409,4 +414,3 @@ fn run_golden_plan(input_path: string, expected_path: string) -> bool {
 shadow run_golden_plan {
     assert (run_golden_plan (resolve_bundle_path "examples/opl/bundle/EXAMPLES.opl") (resolve_bundle_path "examples/opl/bundle/EXAMPLES.expected_plan.json"))
 }
-

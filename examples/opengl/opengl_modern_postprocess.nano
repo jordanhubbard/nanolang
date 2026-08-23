@@ -1,6 +1,6 @@
 # Example: Modern OpenGL Postprocess
-# Purpose: Demonstrates offscreen rendering to a framebuffer object with a screen-space wave warp postprocess shader
-# Features: OpenGL, GLFW, GLEW, FBO, framebuffer, texture, GLSL shaders, postprocessing, uniforms
+# Purpose: I apply an animated screen-space wave shader to a checker texture.
+# Features: OpenGL, GLFW, GLEW, texture sampling, GLSL shaders, postprocessing, uniforms
 # Difficulty: Advanced
 # Category: opengl
 # Prerequisites: opengl_modern_hello_triangle
@@ -27,6 +27,7 @@ fn main() -> int {
     (glfwMakeContextCurrent window)
     (glfwSwapInterval 1)
     if (!= (glewInit) GLEW_OK) {
+        (glfwDestroyWindow window)
         (glfwTerminate)
         return 1
     } else {}
@@ -78,6 +79,7 @@ fn main() -> int {
     let program: int = (nl_gl3_create_program_from_sources vs fs)
     if (== program 0) {
         (println "Failed to build postprocess program")
+        (glfwDestroyWindow window)
         (glfwTerminate)
         return 1
     } else {}
@@ -85,7 +87,7 @@ fn main() -> int {
     let loc_time: int = (nl_gl3_get_uniform_location program "uTime")
     let loc_tex: int = (nl_gl3_get_uniform_location program "uTex")
 
-    # Create texture that we will render to (and also seed with checkerboard)
+    # Create the source texture for the postprocess pass.
     let tex: int = (nl_gl3_gen_texture)
     (nl_gl3_active_texture GL_TEXTURE0)
     (nl_gl3_bind_texture GL_TEXTURE_2D tex)
@@ -94,19 +96,6 @@ fn main() -> int {
     (nl_gl3_tex_parami GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT)
     (nl_gl3_tex_parami GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_REPEAT)
     (nl_gl3_tex_image_2d_checker_rgba8 GL_TEXTURE_2D 512 512 32)
-
-    # FBO with texture attachment (color-only for demo)
-    let fbo: int = (nl_gl3_gen_framebuffer)
-    (nl_gl3_bind_framebuffer GL_FRAMEBUFFER fbo)
-    (nl_gl3_framebuffer_texture_2d GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 GL_TEXTURE_2D tex 0)
-    let status: int = (nl_gl3_check_framebuffer_status GL_FRAMEBUFFER)
-    if (!= status GL_FRAMEBUFFER_COMPLETE) {
-        (println "FBO incomplete")
-        (nl_gl3_bind_framebuffer GL_FRAMEBUFFER 0)
-        (glfwTerminate)
-        return 1
-    } else {}
-    (nl_gl3_bind_framebuffer GL_FRAMEBUFFER 0)
 
     (glClearColor 0.02 0.02 0.02 1.0)
     (println "✓ Postprocess demo running (ESC quit)")
@@ -118,14 +107,7 @@ fn main() -> int {
 
         let t: float = (glfwGetTime)
 
-        # Render something to FBO (for now: clear with animated color)
-        (nl_gl3_bind_framebuffer GL_FRAMEBUFFER fbo)
-        (glViewport 0 0 512 512)
-        (glClearColor 0.1 (+ 0.1 (* 0.1 (sin t))) 0.2 1.0)
-        (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
-        (nl_gl3_bind_framebuffer GL_FRAMEBUFFER 0)
-
-        # Postprocess to screen
+        # Postprocess the checker texture to screen.
         (glViewport 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
         (glClearColor 0.02 0.02 0.02 1.0)
         (glClear (+ GL_COLOR_BUFFER_BIT GL_DEPTH_BUFFER_BIT))
@@ -147,4 +129,3 @@ fn main() -> int {
 }
 
 shadow main { assert true }
-

@@ -25,8 +25,8 @@ fn parse_greeting(input: string) -> bool {
 }
 
 shadow parse_greeting {
-    # FFI runs at runtime; shadow asserts on pure invariants.
-    assert (> (str_length GRAMMAR) 0)
+    assert (parse_greeting "hello Ada")
+    assert (not (parse_greeting "goodbye Ada"))
 }
 
 fn parsed_rule(input: string) -> string {
@@ -38,7 +38,7 @@ fn parsed_rule(input: string) -> string {
 }
 
 shadow parsed_rule {
-    assert (>= (str_length "greeting") 0)
+    assert (== (parsed_rule "hello Ada") "greeting")
 }
 
 fn parsed_span(input: string) -> int {
@@ -50,7 +50,7 @@ fn parsed_span(input: string) -> int {
 }
 
 shadow parsed_span {
-    assert (>= 0 0)
+    assert (== (parsed_span "hello Ada") 9)
 }
 
 fn quick_check(input: string) -> bool {
@@ -61,7 +61,8 @@ fn quick_check(input: string) -> bool {
 }
 
 shadow quick_check {
-    assert true
+    assert (quick_check "hello Grace")
+    assert (not (quick_check "hello 42"))
 }
 
 fn main() -> int {

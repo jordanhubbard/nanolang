@@ -290,6 +290,11 @@ fn double(x: int) -> int {
     return (* x 2)
 }
 
+shadow double {
+    assert (== (double 0) 0)
+    assert (== (double -3) -6)
+}
+
 # @pure
 fn test_tuple_as_arg() -> int {
     let t: (int, int) = (5, 10)
@@ -320,6 +325,12 @@ fn fib_step(prev: (int, int)) -> (int, int) {
     let a: int = prev.0
     let b: int = prev.1
     return (b, (+ a b))
+}
+
+shadow fib_step {
+    let next: (int, int) = (fib_step (2, 3))
+    assert (== next.0 3)
+    assert (== next.1 5)
 }
 
 # @pure

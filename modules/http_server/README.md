@@ -128,9 +128,8 @@ The server automatically detects MIME types for:
 
 ## Examples
 
-See `examples/http_server_demo.nano` and `examples/rest_api_demo.nano` for complete examples.
+See `examples/network/http_hello_world.nano` and `examples/network/http_static_server.nano` for the current static-serving examples. I do not currently provide a REST routing example.
 
 ## License
 
 MIT
-

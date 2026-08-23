@@ -1,97 +1,61 @@
 ---
 name: reading-nanolang
 description: >-
-  Read, understand, and write NanoLang (.nano) source correctly. Use this
-  whenever you open .nano files, review NanoLang code, or generate NanoLang —
-  including the compiler's own source in src_nano/ and modules written in
-  NanoLang. Covers the prefix/infix call syntax, mandatory shadow tests,
-  explicit typing, required else branches, and NanoLang's first-person voice.
+  Read, understand, and write current NanoLang (.nano) source correctly. Use
+  this whenever you inspect, review, or generate NanoLang, including src_nano/
+  and NanoLang modules. Covers current calls, equal-precedence operators, local
+  inference, optional else, project shadow policy, safety boundaries, and my
+  first-person voice.
 ---
 
-# Reading and writing NanoLang
+# Reading And Writing NanoLang
 
-NanoLang is a small, explicit language that compiles to C (and to NanoISA
-bytecode). It is deliberately unambiguous: one canonical form per construct,
-mandatory tests, explicit types. Do not read it as if it were Python, C, or
-Lisp — the rules below are what actually hold.
+Read [`docs/CANONICAL_STYLE.md`](../../docs/CANONICAL_STYLE.md) before writing
+`.nano` code. It is my implementation-backed best-practices guide and separates
+syntax enforced by the compiler from repository policy. Read
+[`docs/PERSONA.md`](../../docs/PERSONA.md) before producing user-facing text.
 
-## The syntax that trips people up
+## Rules To Keep In View
 
-**Calls are prefix, in parentheses.** `(f x y)` calls `f` with `x` and `y`.
-This includes operators and built-ins: `(println "hi")`, `(+ a b)`,
-`(str_length s)`. When you grep NanoLang with tools that assume C/Python, short
-identifiers and prefix calls can *look* garbled or obfuscated — they are not.
-Read the file, don't guess from a mangled grep.
+- Write calls as `(function arg1 arg2)` and qualified calls as
+  `(module.function arg1)`. Operators accept prefix and infix forms.
+- All infix binary operators, including equality, comparison, and boolean
+  operators, have equal precedence and associate left to right. Parenthesize
+  intended grouping.
+- Write immutable `let` bindings by default, `let mut` when reassignment is
+  needed, and mutate with `set`.
+- Local annotations are optional: `let value = expression` is implemented type
+  inference. Function parameters and return types remain explicit. Annotate
+  locals where generic, empty, foreign, union, or resource types need clarity.
+- A bare `if condition { ... }` is valid. `else` is optional. `cond` requires a
+  final `(else value)` clause.
+- Prefer `module "path.nano" as alias` and qualified public names for new code.
+  Legacy `import` and `from ... import ...` forms still parse.
+- Direct extern calls require `unsafe { ... }` unless the module is unsafe.
+  Keep unsafe and FFI boundaries narrow.
+- Resource checking is partial, not a complete ownership proof. Explicitly
+  annotate resource locals, consume each once, and audit every cleanup path.
+- The compiler normally warns about missing shadows and has exemptions. Project
+  policy still requires a useful shadow for every added or changed non-extern
+  named function. A shadow is a test, not a proof.
+- `#`, `//`, and `/* ... */` comments are accepted. Prefer `#` for ordinary
+  comments and reserve `///` for documentation tooling.
+- Use `snake_case` for values and functions and `UpperCamelCase` for named types
+  and variants.
 
-**Operators work in prefix or infix, with EQUAL precedence, left-to-right.**
-`2 + 3 * 4` evaluates left-to-right as `(2 + 3) * 4 = 20`, NOT 14. There is no
-precedence table. Write `2 + (3 * 4)` when you mean 14. Prefer parentheses.
+## Before Making A Claim
 
-**Every function MUST have a shadow test.** A `fn` without a matching `shadow`
-block will not compile. Shadow tests are inline assertions that run when the
-binary executes:
+- Read the whole relevant function and its imports. Do not infer structure from
+  a truncated search result.
+- Check the current parser or typechecker before declaring syntax invalid.
+- Compile the changed program with the repository's current compiler and run
+  relevant shadows or tests.
+- Say **proved** only for a checked formal theorem in its stated subset, **tested**
+  only for behavior a named test exercised, and **assumed** for unchecked,
+  platform, FFI, graphical, or policy-dependent claims.
+- Keep example metadata consistent with the header fields documented in
+  `docs/CANONICAL_STYLE.md`; do not invent successful outputs or dependencies.
 
-```nano
-fn double(x: int) -> int {
-    return (* x 2)
-}
-
-shadow double {
-    assert (== (double 3) 6)
-    assert (== (double 0) 0)
-}
-```
-
-The only exception is `extern fn` (C code NanoLang cannot see). When you add or
-edit a function, add or update its shadow test in the same change.
-
-**Types are explicit and immutable by default.**
-
-```nano
-let x: int = 42                 # immutable
-let mut counter: int = 0        # mutable — `mut` is required to reassign
-set counter (+ counter 1)       # `set` only works on `mut` bindings
-```
-
-Function parameters and return types are always annotated:
-`fn add(a: int, b: int) -> int`.
-
-**`if` requires an `else` branch.** There is no bare `if`. Every `if` has a
-matching `else { ... }` (which may be empty: `else {}`).
-
-**Structs use dot access and literal construction:**
-
-```nano
-struct Point { x: int, y: int }
-let p: Point = Point { x: 1, y: 2 }
-let sum: int = (+ p.x p.y)
-```
-
-## Imports and modules
-
-```nano
-from "modules/std/fs.nano" import read, basename          # selective
-from "modules/std/env.nano" import get as env_get          # with alias
-```
-
-`extern fn name(...) -> T` declares a C function; calls to it must sit inside an
-`unsafe { ... }` block.
-
-## The persona — write in NanoLang's voice
-
-All user-facing text (docs, examples, error messages, comments meant to be read)
-speaks as NanoLang, in the first person: "I compile to C", not "NanoLang
-compiles to C". The tone is direct, plain, and unhurried — no marketing
-language, no superlatives. Distinguish what is proved from what is tested. Show
-code over prose. Read `docs/PERSONA.md` in full before producing user-facing
-text.
-
-## Before you claim something about NanoLang code
-
-- Open the file and read it. Do not infer structure from a truncated or mangled
-  search result.
-- If a function has no shadow test, that is a bug (or it is `extern`).
-- If you're editing, keep the shadow test true and add cases for new behavior.
-- Verify with the compiler: `bin/nanoc_c <file>.nano -o /tmp/out` compiles and
-  runs the shadow tests. `make shadow-check` verifies shadow tests on changed
-  files.
+All documentation, examples, diagnostics, and user-facing comments speak in my
+first person: "I compile to C," not "NanoLang compiles to C." My tone is direct,
+plain, and precise.

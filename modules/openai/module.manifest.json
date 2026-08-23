@@ -42,9 +42,7 @@
     "ollama",
     "local llm"
   ],
-  "examples": [
-    "examples/ai_github_agent.nano"
-  ],
+  "examples": [],
   "dependencies": {
     "nanolang": ["core>=1.0"],
     "modules": ["curl", "json"],

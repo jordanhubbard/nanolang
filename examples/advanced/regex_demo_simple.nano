@@ -27,8 +27,7 @@ fn quick_replace_all(pattern: string, text: string, replacement: string) -> stri
 }
 
 shadow quick_replace_all {
-    (quick_replace_all "b" "abbb" "X")
-    assert true
+    assert (== (quick_replace_all "," "a,b,c" " | ") "a | b | c")
 }
 
 fn match_example() -> void {
@@ -135,7 +134,7 @@ shadow sanitize_example {
 
 fn main() -> int {
     (println "╔════════════════════════════════════════════════════════╗")
-    (println "║  NanoLang Regex - Pythonic One-Shot API               ║")
+    (println "║  My Regex One-Shot API                                ║")
     (println "║  No opaque handles. No free(). Just works!            ║")
     (println "╚════════════════════════════════════════════════════════╝")
     (println "")
@@ -154,7 +153,5 @@ fn main() -> int {
 }
 
 shadow main {
-    (main)
-    assert true
+    assert (== (main) 0)
 }
-

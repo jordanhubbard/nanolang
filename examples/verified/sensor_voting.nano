@@ -4,12 +4,13 @@
 # Difficulty: Intermediate
 # Category: verified
 # Prerequisites: none
-# Expected Output: 
+# Expected Output: no output; shadow tests validate the voting logic
 
 /* =============================================================================
  * Verified Triple-Redundant Sensor Voting System
  * =============================================================================
- * Trust Level: VERIFIED (NanoCore subset — type soundness + determinism proven)
+ * Trust Level: inspect with --trust-report; this file mixes NanoCore operations
+ * with structs, unions, pattern matching, and mutation.
  *
  * Industry Context:
  *   Triple Modular Redundancy (TMR) is standard in aerospace (Airbus fly-by-wire),
@@ -23,7 +24,7 @@
  * What the Coq proofs guarantee:
  *   - Determinism: same three sensor readings always produce the same vote
  *   - Type soundness: voting logic never produces a wrong-typed result
- *   - The voter CANNOT silently produce a wrong answer for well-typed inputs
+ *   - Well-typed expressions in the verified subset preserve their types
  *
  * Run: nanoc --trust-report examples/verified/sensor_voting.nano
  * ============================================================================= */

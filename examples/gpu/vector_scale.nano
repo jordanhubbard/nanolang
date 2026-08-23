@@ -87,6 +87,8 @@ fn main() -> int {
     let d_y: int = (gpu_alloc bytes)
     if (or (== d_x 0) (== d_y 0)) {
         print (str_concat "gpu_alloc failed: " (gpu_last_error))
+        if (!= d_x 0) { (gpu_free d_x) } else {}
+        if (!= d_y 0) { (gpu_free d_y) } else {}
         return 1
     }
     (gpu_memcpy_to_device d_x h_x bytes)

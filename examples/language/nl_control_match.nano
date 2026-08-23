@@ -226,6 +226,17 @@ fn maybe_double(x: int) -> Option {
     }
 }
 
+shadow maybe_double {
+    let positive: Option = (maybe_double 4)
+    let non_positive: Option = (maybe_double 0)
+    let mut doubled: int = 0
+    let mut was_none: bool = false
+    match positive { Some(s) => { set doubled s.value }, None(_n) => {} }
+    match non_positive { Some(_s) => {}, None(_n) => { set was_none true } }
+    assert (== doubled 8)
+    assert was_none
+}
+
 # @pure
 fn test_chained_match() -> int {
     let result: Option = (maybe_double 5)
@@ -297,6 +308,17 @@ fn safe_divide(a: int, b: int) -> Result {
     } else {
         return Result.Ok { value: (/ a b) }
     }
+}
+
+shadow safe_divide {
+    let ok: Result = (safe_divide 20 4)
+    let failed: Result = (safe_divide 20 0)
+    let mut quotient: int = 0
+    let mut error_code: int = 0
+    match ok { Ok(o) => { set quotient o.value }, Error(_e) => {} }
+    match failed { Ok(_o) => {}, Error(e) => { set error_code e.code } }
+    assert (== quotient 5)
+    assert (== error_code 1)
 }
 
 # @pure

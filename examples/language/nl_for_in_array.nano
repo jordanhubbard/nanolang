@@ -23,6 +23,11 @@ fn sum_ints(nums: array<int>) -> int {
     return total
 }
 
+shadow sum_ints {
+    assert (== (sum_ints []) 0)
+    assert (== (sum_ints [1, 2, 3, 4]) 10)
+}
+
 # @pure
 fn join_strings(words: array<string>) -> string {
     let mut result: string = ""
@@ -36,6 +41,11 @@ fn join_strings(words: array<string>) -> string {
     return result
 }
 
+shadow join_strings {
+    assert (== (join_strings []) "")
+    assert (== (join_strings ["one", "two"]) "one, two")
+}
+
 fn count_above(vals: array<float>, threshold: float) -> int {
     let mut count: int = 0
     for v in vals {
@@ -44,6 +54,11 @@ fn count_above(vals: array<float>, threshold: float) -> int {
         } else { (print "") }
     }
     return count
+}
+
+shadow count_above {
+    assert (== (count_above [1.0, 2.5, 3.0] 2.0) 2)
+    assert (== (count_above [] 0.0) 0)
 }
 
 fn main() -> int {
@@ -74,5 +89,5 @@ fn main() -> int {
 }
 
 shadow main {
-    (print "")
+    assert (== (main) 0)
 }

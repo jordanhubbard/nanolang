@@ -3,7 +3,7 @@
 # Features: loops, conditionals, modulo, performance profiling
 # Difficulty: Intermediate
 # Category: language
-# Prerequisites: nl_hello, nl_loops, nl_primes
+# Prerequisites: nl_hello, nl_control_if_while, nl_primes
 # Expected Output: Calculating primes up to 1,000,000...
 
 # @pure
@@ -22,6 +22,13 @@ fn is_prime(n: int) -> bool {
     return true
 }
 
+shadow is_prime {
+    assert (not (is_prime 1))
+    assert (is_prime 2)
+    assert (is_prime 17)
+    assert (not (is_prime 21))
+}
+
 # @pure
 fn count_primes(limit: int) -> int {
     let mut count: int = 0
@@ -35,10 +42,19 @@ fn count_primes(limit: int) -> int {
     return count
 }
 
+shadow count_primes {
+    assert (== (count_primes 2) 0)
+    assert (== (count_primes 10) 4)
+}
+
 fn main() -> int {
     print("Calculating primes up to 1,000,000...")
     let total: int = (count_primes 1000000)
     print("Total primes found: ")
     print((int_to_string total))
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }
