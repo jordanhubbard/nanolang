@@ -106,9 +106,12 @@ static size_t leb_u32_size(uint32_t val) {
 #define OP_UNREACHABLE 0x00
 #define OP_NOP         0x01
 #define OP_BLOCK       0x02
+#define OP_LOOP        0x03
 #define OP_IF          0x04
 #define OP_ELSE        0x05
 #define OP_END         0x0B
+#define OP_BR          0x0C
+#define OP_BR_IF       0x0D
 #define OP_RETURN      0x0F
 #define OP_CALL        0x10
 #define OP_DROP        0x1A
@@ -121,6 +124,8 @@ static size_t leb_u32_size(uint32_t val) {
 #define OP_I32_EQZ     0x45
 #define OP_I32_EQ      0x46
 #define OP_I32_NE      0x47
+#define OP_I32_AND     0x71
+#define OP_I32_OR      0x72
 #define OP_I64_EQZ     0x50
 #define OP_I64_EQ      0x51
 #define OP_I64_NE      0x52
@@ -190,6 +195,7 @@ typedef struct {
     int         type_idx;      /* index into the type section */
     /* locals beyond params (from let bindings) */
     const char **local_names;
+    Type        *local_types;
     int          local_count;
     int          local_cap;
     /* source position of the function definition */
@@ -217,6 +223,7 @@ static void ctx_init(WasmCtx *c, bool verbose) {
 static void ctx_free(WasmCtx *c) {
     for (int i = 0; i < c->func_count; i++) {
         free(c->funcs[i].local_names);
+        free(c->funcs[i].local_types);
     }
     free(c->funcs);
     sm_free(&c->srcmap);
@@ -228,7 +235,7 @@ static uint8_t wasm_valtype(Type t) {
         case TYPE_INT:    return WASM_I64;
         case TYPE_FLOAT:  return WASM_F64;
         case TYPE_BOOL:   return WASM_I32;
-        default:          return WASM_I64; /* fallback */
+        default:          return 0;
     }
 }
 
@@ -272,15 +279,27 @@ static int find_local(WasmFunc *f, const char *name) {
     return -1;
 }
 
+static Type local_type(WasmFunc *f, const char *name) {
+    for (int i = 0; i < f->param_count; i++) {
+        if (strcmp(f->params[i].name, name) == 0) return f->params[i].type;
+    }
+    for (int i = 0; i < f->local_count; i++) {
+        if (strcmp(f->local_names[i], name) == 0) return f->local_types[i];
+    }
+    return TYPE_UNKNOWN;
+}
+
 /* Add a new local variable, return its index */
-static int add_local(WasmFunc *f, const char *name) {
+static int add_local(WasmFunc *f, const char *name, Type type) {
     int idx = find_local(f, name);
     if (idx >= 0) return idx; /* already exists */
     if (f->local_count >= f->local_cap) {
         f->local_cap = f->local_cap ? f->local_cap * 2 : 8;
         f->local_names = realloc(f->local_names, f->local_cap * sizeof(const char *));
+        f->local_types = realloc(f->local_types, f->local_cap * sizeof(Type));
     }
     f->local_names[f->local_count] = name;
+    f->local_types[f->local_count] = type;
     return f->param_count + f->local_count++;
 }
 
@@ -292,9 +311,57 @@ static int find_func(WasmCtx *ctx, const char *name) {
     return -1;
 }
 
-/* ── Emit expression bytecode ────────────────────────────────────────── */
 static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node);
 
+static Type expr_type(WasmCtx *ctx, WasmFunc *func, ASTNode *node) {
+    if (!node) return TYPE_VOID;
+    switch (node->type) {
+        case AST_NUMBER: return TYPE_INT;
+        case AST_FLOAT: return TYPE_FLOAT;
+        case AST_BOOL: return TYPE_BOOL;
+        case AST_IDENTIFIER: return local_type(func, node->as.identifier);
+        case AST_PREFIX_OP:
+            switch (node->as.prefix_op.op) {
+                case TOKEN_EQ: case TOKEN_NE: case TOKEN_LT: case TOKEN_GT:
+                case TOKEN_LE: case TOKEN_GE: case TOKEN_AND: case TOKEN_OR:
+                case TOKEN_NOT:
+                    return TYPE_BOOL;
+                default:
+                    return node->as.prefix_op.arg_count > 0
+                        ? expr_type(ctx, func, node->as.prefix_op.args[0])
+                        : TYPE_UNKNOWN;
+            }
+        case AST_CALL: {
+            int idx = find_func(ctx, node->as.call.name);
+            return idx >= 0 ? ctx->funcs[idx].return_type : TYPE_UNKNOWN;
+        }
+        case AST_LET: return TYPE_VOID;
+        case AST_SET: return TYPE_VOID;
+        case AST_RETURN: return TYPE_VOID;
+        case AST_IF: return TYPE_VOID;
+        case AST_WHILE: return TYPE_VOID;
+        case AST_BLOCK:
+            return node->as.block.count > 0
+                ? expr_type(ctx, func, node->as.block.statements[node->as.block.count - 1])
+                : TYPE_VOID;
+        default: return TYPE_UNKNOWN;
+    }
+}
+
+static int emit_condition(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node) {
+    if (emit_expr(ctx, func, code, node)) return -1;
+    Type type = expr_type(ctx, func, node);
+    if (type == TYPE_BOOL) return 0;
+    if (type == TYPE_INT) {
+        buf_byte(code, OP_I64_EQZ);
+        buf_byte(code, OP_I32_EQZ);
+        return 0;
+    }
+    ctx->error = "WASM condition must be bool or int";
+    return -1;
+}
+
+/* ── Emit expression bytecode ────────────────────────────────────────── */
 static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node) {
     if (!node) {
         ctx->error = "null AST node in expression";
@@ -336,10 +403,23 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
             /* Unary minus: (- x) → 0 - x */
             if (node->as.prefix_op.arg_count == 1 &&
                 node->as.prefix_op.op == TOKEN_MINUS) {
-                buf_byte(code, OP_I64_CONST);
-                emit_i64_leb(code, 0);
+                Type type = expr_type(ctx, func, node->as.prefix_op.args[0]);
+                if (type == TYPE_FLOAT) {
+                    double zero = 0.0;
+                    buf_byte(code, OP_F64_CONST);
+                    buf_bytes(code, (const uint8_t *)&zero, sizeof(zero));
+                } else {
+                    buf_byte(code, OP_I64_CONST);
+                    emit_i64_leb(code, 0);
+                }
                 if (emit_expr(ctx, func, code, node->as.prefix_op.args[0])) return -1;
-                buf_byte(code, OP_I64_SUB);
+                buf_byte(code, type == TYPE_FLOAT ? OP_F64_SUB : OP_I64_SUB);
+                return 0;
+            }
+            if (node->as.prefix_op.arg_count == 1 &&
+                node->as.prefix_op.op == TOKEN_NOT) {
+                if (emit_expr(ctx, func, code, node->as.prefix_op.args[0])) return -1;
+                buf_byte(code, OP_I32_EQZ);
                 return 0;
             }
             ctx->error = "unsupported arity in prefix op";
@@ -347,20 +427,25 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
         }
         ASTNode *lhs = node->as.prefix_op.args[0];
         ASTNode *rhs = node->as.prefix_op.args[1];
+        Type operand_type = expr_type(ctx, func, lhs);
         if (emit_expr(ctx, func, code, lhs)) return -1;
         if (emit_expr(ctx, func, code, rhs)) return -1;
         switch (node->as.prefix_op.op) {
-            case TOKEN_PLUS:     buf_byte(code, OP_I64_ADD); break;
-            case TOKEN_MINUS:    buf_byte(code, OP_I64_SUB); break;
-            case TOKEN_STAR:     buf_byte(code, OP_I64_MUL); break;
-            case TOKEN_SLASH:    buf_byte(code, OP_I64_DIV_S); break;
-            case TOKEN_PERCENT:  buf_byte(code, OP_I64_REM_S); break;
-            case TOKEN_EQ:       buf_byte(code, OP_I64_EQ); break;
-            case TOKEN_NE:       buf_byte(code, OP_I64_NE); break;
-            case TOKEN_LT:       buf_byte(code, OP_I64_LT_S); break;
-            case TOKEN_GT:       buf_byte(code, OP_I64_GT_S); break;
-            case TOKEN_LE:       buf_byte(code, OP_I64_LE_S); break;
-            case TOKEN_GE:       buf_byte(code, OP_I64_GE_S); break;
+            case TOKEN_PLUS:     buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_ADD : OP_I64_ADD); break;
+            case TOKEN_MINUS:    buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_SUB : OP_I64_SUB); break;
+            case TOKEN_STAR:     buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_MUL : OP_I64_MUL); break;
+            case TOKEN_SLASH:    buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_DIV : OP_I64_DIV_S); break;
+            case TOKEN_PERCENT:
+                if (operand_type == TYPE_FLOAT) { ctx->error = "WASM float remainder is unsupported"; return -1; }
+                buf_byte(code, OP_I64_REM_S); break;
+            case TOKEN_EQ:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_EQ : operand_type == TYPE_BOOL ? OP_I32_EQ : OP_I64_EQ); break;
+            case TOKEN_NE:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_NE : operand_type == TYPE_BOOL ? OP_I32_NE : OP_I64_NE); break;
+            case TOKEN_LT:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_LT : OP_I64_LT_S); break;
+            case TOKEN_GT:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_GT : OP_I64_GT_S); break;
+            case TOKEN_LE:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_LE : OP_I64_LE_S); break;
+            case TOKEN_GE:       buf_byte(code, operand_type == TYPE_FLOAT ? OP_F64_GE : OP_I64_GE_S); break;
+            case TOKEN_AND:      buf_byte(code, OP_I32_AND); break;
+            case TOKEN_OR:       buf_byte(code, OP_I32_OR); break;
             default:
                 ctx->error = "unsupported operator in WASM backend";
                 return -1;
@@ -399,38 +484,15 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
         return 0;
     }
     case AST_IF: {
-        /* Emit condition — result must be i32 for WASM if instruction.
-         * Comparisons already yield i32. Booleans are i32.
-         * If condition is an i64 (e.g. raw integer), convert: (i64 != 0) */
-        if (emit_expr(ctx, func, code, node->as.if_stmt.condition)) return -1;
-        /* Condition type heuristic: if the node is a plain comparison/bool it
-         * already yielded i32; if it's a number/identifier (i64) we need to
-         * wrap it.  Emit i64.eqz + i32.eqz only for non-comparison nodes. */
-        ASTNode *cond = node->as.if_stmt.condition;
-        bool cond_is_i32 = (cond->type == AST_BOOL) ||
-            (cond->type == AST_PREFIX_OP && (
-                cond->as.prefix_op.op == TOKEN_EQ ||
-                cond->as.prefix_op.op == TOKEN_NE ||
-                cond->as.prefix_op.op == TOKEN_LT ||
-                cond->as.prefix_op.op == TOKEN_GT ||
-                cond->as.prefix_op.op == TOKEN_LE ||
-                cond->as.prefix_op.op == TOKEN_GE));
-        if (!cond_is_i32) {
-            /* i64 → i32: truthy if != 0 */
-            buf_byte(code, OP_I64_EQZ);
-            buf_byte(code, OP_I32_EQZ);
-        }
+        /* WASM conditions consume i32. Comparisons and booleans already
+         * produce i32; integer conditions are normalized by emit_condition. */
+        if (emit_condition(ctx, func, code, node->as.if_stmt.condition)) return -1;
         buf_byte(code, OP_IF);
-        buf_byte(code, WASM_I64); /* block type: returns i64 */
+        buf_byte(code, 0x40); /* statement if: no result */
         if (emit_expr(ctx, func, code, node->as.if_stmt.then_branch)) return -1;
         if (node->as.if_stmt.else_branch) {
             buf_byte(code, OP_ELSE);
             if (emit_expr(ctx, func, code, node->as.if_stmt.else_branch)) return -1;
-        } else {
-            /* No else → push 0 as default */
-            buf_byte(code, OP_ELSE);
-            buf_byte(code, OP_I64_CONST);
-            emit_i64_leb(code, 0);
         }
         buf_byte(code, OP_END);
         return 0;
@@ -443,7 +505,9 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
             if (i < node->as.block.count - 1) {
                 ASTNode *s = node->as.block.statements[i];
                 /* Statements that don't push a value: let, set */
-                if (s->type != AST_LET && s->type != AST_SET)
+                if (s->type != AST_LET && s->type != AST_SET &&
+                    s->type != AST_RETURN && s->type != AST_IF &&
+                    s->type != AST_WHILE && s->type != AST_FOR)
                     buf_byte(code, OP_DROP);
             }
         }
@@ -451,7 +515,14 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
     }
     case AST_LET: {
         /* Compile the value, store in a local */
-        int idx = add_local(func, node->as.let.name);
+        Type type = node->as.let.var_type;
+        if (type == TYPE_UNKNOWN && node->as.let.value)
+            type = expr_type(ctx, func, node->as.let.value);
+        if (wasm_valtype(type) == 0) {
+            ctx->error = "unsupported local type in WASM backend";
+            return -1;
+        }
+        int idx = add_local(func, node->as.let.name, type);
         if (node->as.let.value) {
             if (emit_expr(ctx, func, code, node->as.let.value)) return -1;
         } else {
@@ -479,32 +550,20 @@ static int emit_expr(WasmCtx *ctx, WasmFunc *func, WasmBuf *code, ASTNode *node)
         }
         buf_byte(code, OP_RETURN);
         return 0;
-    case AST_FOR: {
-        /*
-         * Try SIMD vectorization first.  If the loop matches a known
-         * elementwise / reduction / map pattern over float/int arrays,
-         * emit SIMD128 v128 opcodes for 2-4× throughput.
-         * Falls back to scalar loop if pattern doesn't match.
-         */
-        /* SIMD vectorization path — disabled until SimdInfo type is fully defined in wasm_simd.h */
-#if 0
-        SimdInfo simd;
-        if (wasm_simd_supported(NULL) && wasm_simd_analyze(node, &simd)) {
-            if (ctx->verbose)
-                fprintf(stderr, "[wasm-simd] vectorizing for-loop pattern=%d op=%d lanes=%d\n",
-                        (int)simd.pattern, (int)simd.op, simd.lanes);
-            /* Use wasm_simd_emit_loop with placeholder locals (0/1/2).
-             * Full integration passes real local indices from the func context. */
-            if (wasm_simd_emit_loop(code, &simd, 0, 1, 2) == 0)
-                return 0;
-            /* If SIMD emit failed, fall through to scalar */
-        }
-#endif
-        /* Scalar fallback: emit as a no-op placeholder (loop body handled
-         * by the interpreter; full scalar WASM for-loop would be added here) */
-        buf_byte(code, 0x01); /* nop */
+    case AST_WHILE:
+        buf_byte(code, OP_BLOCK); buf_byte(code, 0x40);
+        buf_byte(code, OP_LOOP);  buf_byte(code, 0x40);
+        if (emit_condition(ctx, func, code, node->as.while_stmt.condition)) return -1;
+        buf_byte(code, OP_I32_EQZ);
+        buf_byte(code, OP_BR_IF); emit_u32_leb(code, 1);
+        if (emit_expr(ctx, func, code, node->as.while_stmt.body)) return -1;
+        buf_byte(code, OP_BR); emit_u32_leb(code, 0);
+        buf_byte(code, OP_END);
+        buf_byte(code, OP_END);
         return 0;
-    }
+    case AST_FOR:
+        ctx->error = "WASM backend: for loops are not yet implemented; use while";
+        return -1;
     case AST_STRING:
     case AST_STRUCT_LITERAL:
     case AST_UNION_CONSTRUCT:
@@ -652,8 +711,22 @@ int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
     if (verbose) fprintf(stderr, "[wasm] collected %d function(s)\n", ctx.func_count);
 
     /* Assign type indices (one type per function signature) */
-    for (int i = 0; i < ctx.func_count; i++)
+    for (int i = 0; i < ctx.func_count; i++) {
+        WasmFunc *f = &ctx.funcs[i];
+        if ((f->return_type != TYPE_VOID && wasm_valtype(f->return_type) == 0)) {
+            fprintf(stderr, "[wasm] error: function %s has an unsupported return type\n", f->name);
+            ctx_free(&ctx);
+            return 1;
+        }
+        for (int p = 0; p < f->param_count; p++) {
+            if (wasm_valtype(f->params[p].type) == 0) {
+                fprintf(stderr, "[wasm] error: function %s has an unsupported parameter type\n", f->name);
+                ctx_free(&ctx);
+                return 1;
+            }
+        }
         ctx.funcs[i].type_idx = i;
+    }
 
     WasmBuf final_out;
     buf_init(&final_out);
@@ -750,13 +823,30 @@ int wasm_backend_emit_fp_ex(ASTNode *root, FILE *out, bool verbose,
                 ctx_free(&ctx);
                 return 1;
             }
+            /* A statement body may return on every source-level path, but the
+             * WASM validator still requires the function's fallthrough stack
+             * to match its result type. This value is reached only when the
+             * source body falls through unexpectedly. */
+            if (f->return_type == TYPE_INT) {
+                buf_byte(&all_codes[i], OP_I64_CONST);
+                emit_i64_leb(&all_codes[i], 0);
+            } else if (f->return_type == TYPE_BOOL) {
+                buf_byte(&all_codes[i], OP_I32_CONST);
+                emit_i32_leb(&all_codes[i], 0);
+            } else if (f->return_type == TYPE_FLOAT) {
+                double zero = 0.0;
+                buf_byte(&all_codes[i], OP_F64_CONST);
+                buf_bytes(&all_codes[i], (const uint8_t *)&zero, sizeof(zero));
+            }
             buf_byte(&all_codes[i], OP_END); /* function end marker */
 
             /* Build body = locals_header + code */
             if (f->local_count > 0) {
-                emit_u32_leb(&all_bodies[i], 1); /* 1 local group */
                 emit_u32_leb(&all_bodies[i], (uint32_t)f->local_count);
-                buf_byte(&all_bodies[i], WASM_I64); /* all locals are i64 for now */
+                for (int l = 0; l < f->local_count; l++) {
+                    emit_u32_leb(&all_bodies[i], 1);
+                    buf_byte(&all_bodies[i], wasm_valtype(f->local_types[l]));
+                }
             } else {
                 emit_u32_leb(&all_bodies[i], 0); /* no additional locals */
             }
