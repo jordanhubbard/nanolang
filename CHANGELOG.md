@@ -5,6 +5,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.2] - 2026-08-23
+
 ### Changed
 - consolidate staged REPL, Forth, logging, HashMap, prime, SDL_image, and large
   project examples around one maintained implementation per lesson
