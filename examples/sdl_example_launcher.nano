@@ -15,7 +15,7 @@ module "modules/ui_widgets/ui_widgets.nano"
 from "modules/std/fs.nano" import read
 from "modules/nano_tools/nano_tools.nano" import pretty_print_ansi
 from "examples/lib/example_discovery.nano" import discover_examples, filter_by_category, filter_graphical_demos, collect_categories, find_icon
-from "examples/lib/process_manager.nano" import pm_new, pm_launch, pm_kill, pm_poll, pm_is_running, pm_get_pid, pm_running_count, pm_cleanup_exited, build_example, get_binary_name, parse_mode, next_mode, init_mode
+from "examples/lib/process_manager.nano" import pm_new, pm_launch, pm_kill, pm_kill_all, pm_poll, pm_is_running, pm_get_pid, pm_running_count, pm_cleanup_exited, build_example, get_binary_name, parse_mode, next_mode, init_mode
 from "examples/lib/source_editor.nano" import editor_new, editor_open, editor_close, editor_save, editor_insert_char, editor_insert_newline, editor_delete_char, editor_move_cursor, editor_scroll_to_cursor, editor_scroll, editor_get_content, editor_line_count, editor_new_file
 from "examples/lib/resource_monitor.nano" import resource_snapshot
 
@@ -678,6 +678,7 @@ fn main() -> int {
         (SDL_Delay 16)
     }
 
+    set pm (pm_kill_all pm)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
     (IMG_Quit)

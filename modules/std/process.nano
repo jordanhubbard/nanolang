@@ -11,6 +11,7 @@ extern fn nl_os_system(_command: string) -> int
 extern fn nl_os_process_spawn(_command: string) -> int
 extern fn nl_os_process_is_running(_pid: int) -> int
 extern fn nl_os_process_wait(_pid: int) -> int
+extern fn nl_os_process_kill_group(_pid: int, _signal_number: int) -> int
 extern fn nl_os_process_spawn_with_pipes(_command: string) -> array<string>
 extern fn nl_os_fd_read_available(_fd: int) -> string
 extern fn nl_os_fd_close(_fd: int) -> int
@@ -114,6 +115,19 @@ shadow wait {
     assert (> pid 0)
     let result: int = (wait pid)
     assert (== result 42)
+}
+
+/* Signal the whole command process group, including children of the shell. */
+pub fn kill_group(pid: int, signal_number: int) -> int {
+    let mut result: int = -1
+    unsafe {
+        set result (nl_os_process_kill_group pid signal_number)
+    }
+    return result
+}
+
+shadow kill_group {
+    assert (== (kill_group -1 15) -1)
 }
 
 /* Spawn a process non-blocking with pipes for stdout/stderr capture.

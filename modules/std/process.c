@@ -128,14 +128,21 @@ int64_t nl_os_process_spawn(const char* command) {
         return -1;
     } else if (pid == 0) {
         /* Child process */
+        setpgid(0, 0);
         /* Use sh -c to execute command string */
         execl("/bin/sh", "sh", "-c", command, (char*)NULL);
         /* If exec fails, exit child */
         _exit(127);
     } else {
         /* Parent process - return child PID */
+        setpgid(pid, pid);
         return (int64_t)pid;
     }
+}
+
+int64_t nl_os_process_kill_group(int64_t pid, int64_t signal_number) {
+    if (pid <= 0 || signal_number <= 0) return -1;
+    return kill(-(pid_t)pid, (int)signal_number) == 0 ? 0 : -1;
 }
 
 /* Check if a process is still running
@@ -208,6 +215,7 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
 
     if (pid == 0) {
         /* Child: wire stdout/stderr into the pipes and exec */
+        setpgid(0, 0);
         close(out_pipe[0]);
         close(err_pipe[0]);
         dup2(out_pipe[1], STDOUT_FILENO);
@@ -218,6 +226,7 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
         _exit(127);
     }
 
+    setpgid(pid, pid);
     /* Parent: keep read ends, close write ends, mark non-blocking */
     close(out_pipe[1]);
     close(err_pipe[1]);

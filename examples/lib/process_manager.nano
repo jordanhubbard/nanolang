@@ -10,7 +10,7 @@
 # Tags: launcher, process, internal
 # Expected Output: none
 
-from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, Output
+from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, kill_group, Output
 from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname
 from "modules/std/env.nano" import get as env_get
 
@@ -399,7 +399,7 @@ fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
     if (< idx 0) { return pm }
     let child: ChildStatus = (at pm.children idx)
     if (> child.pid 0) {
-        (exec (+ "kill " (int_to_string child.pid)))
+        (kill_group child.pid 15)
     }
     if (> (str_length child.log_path) 0) {
         (append child.log_path "\n[launcher]\nI stopped this process at the user's request.\n")
@@ -423,7 +423,7 @@ fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
             set spins (+ spins 1)
         }
         if (== (is_running child.pid) 1) {
-            (exec (+ "kill -9 " (int_to_string child.pid)))
+            (kill_group child.pid 9)
         }
         let code: int = (wait child.pid)
         if (> (str_length child.log_path) 0) {
@@ -448,6 +448,20 @@ shadow pm_kill {
     let pm: ProcessManager = (pm_new 10)
     let pm2: ProcessManager = (pm_kill pm "nonexistent")
     assert (== (array_length pm2.children) 0)
+}
+
+fn pm_kill_all(pm: ProcessManager) -> ProcessManager {
+    let mut remaining: ProcessManager = pm
+    while (> (array_length remaining.children) 0) {
+        let child: ChildStatus = (at remaining.children 0)
+        set remaining (pm_kill remaining child.example_path)
+    }
+    return remaining
+}
+
+shadow pm_kill_all {
+    let pm: ProcessManager = (pm_new 10)
+    assert (== (array_length (pm_kill_all pm).children) 0)
 }
 
 fn pm_poll(pm: ProcessManager) -> ProcessManager {

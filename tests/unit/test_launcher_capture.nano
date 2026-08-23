@@ -16,7 +16,7 @@
 
 from "modules/std/process.nano" import spawn, is_running, wait, run, spawn_with_pipes, fd_close, Output
 from "modules/std/fs.nano" import exists, read, write, delete
-from "examples/lib/process_manager.nano" import ChildStatus, ProcessManager, pm_new, pm_poll, pm_kill, pm_drain_fd, pm_tail, pm_output_has_error, pm_runtime_log_path, pm_failure_marker_path
+from "examples/lib/process_manager.nano" import ChildStatus, ProcessManager, pm_new, pm_poll, pm_kill, pm_kill_all, pm_drain_fd, pm_tail, pm_output_has_error, pm_runtime_log_path, pm_failure_marker_path
 
 # ---------------------------------------------------------------------------
 # 2. Real exit status survives polling
@@ -182,6 +182,38 @@ shadow kill_escalates_to_sigkill {
     # SIGTERM was trapped away, so the reap only completes because pm_kill
     # escalated to SIGKILL instead of blocking the launcher forever.
     assert (str_contains logged "I reaped this process with status -9")
+}
+
+fn kill_stops_descendant() -> bool {
+    let example: string = "examples/internal/launcher_descendant_probe.nano"
+    let marker: string = "/tmp/nanolang-launcher-descendant.marker"
+    (delete marker)
+    let command: string = (+ "(trap '' TERM; sleep 30; printf alive > " (+ marker ") & wait"))
+    let raw: array<string> = (spawn_with_pipes command)
+    let pid: int = (string_to_int (at raw 0))
+    let log_path: string = (pm_runtime_log_path example pid)
+    (write log_path "[launcher]\nI launched the descendant probe.\n")
+    let child: ChildStatus = ChildStatus {
+        example_path: example, pid: pid, state: 1, exit_code: 0,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
+        stdout_fd: (string_to_int (at raw 1)), stderr_fd: (string_to_int (at raw 2)),
+        runtime_output: "", log_path: log_path, task_filed: false
+    }
+    let empty: ProcessManager = (pm_new 4)
+    let started: ProcessManager = ProcessManager {
+        children: (array_push empty.children child), max_children: 4
+    }
+    let stopped: ProcessManager = (pm_kill_all started)
+    let pause: Output = (run "sleep 0.2")
+    assert (== pause.code 0)
+    let descendant_stopped: bool = (not (exists marker))
+    (delete log_path)
+    (delete marker)
+    return (and (== (array_length stopped.children) 0) descendant_stopped)
+}
+
+shadow kill_stops_descendant {
+    assert (kill_stops_descendant)
 }
 
 # ---------------------------------------------------------------------------

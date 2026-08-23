@@ -24,6 +24,9 @@ int64_t nl_os_process_is_running(int64_t pid);
  */
 int64_t nl_os_process_wait(int64_t pid);
 
+/* Signal the process group created for a spawned command. */
+int64_t nl_os_process_kill_group(int64_t pid, int64_t signal_number);
+
 /* Spawn a process non-blocking with pipes for stdout/stderr capture.
  * Returns array<string> with [pid, stdout_fd, stderr_fd], or ["-1","-1","-1"] on error.
  * Both fds are set non-blocking. Caller must close them with nl_os_fd_close().
@@ -39,4 +42,3 @@ const char* nl_os_fd_read_available(int64_t fd);
 int64_t nl_os_fd_close(int64_t fd);
 
 #endif /* NANOLANG_STD_PROCESS_H */
-
