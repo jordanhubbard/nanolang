@@ -1005,6 +1005,79 @@ static void test_disasm_source_annotations_and_cfg(void) {
     nvm_module_free(mod);
 }
 
+static char *disasm_raw_code(const uint8_t *code, uint32_t code_size) {
+    char *output = NULL;
+    size_t output_size = 0;
+    FILE *stream = open_memstream(&output, &output_size);
+    if (!stream) return NULL;
+    disasm_function(code, code_size, NULL, stream);
+    fclose(stream);
+    return output;
+}
+
+static void test_disasm_malformed_bytecode(void) {
+    uint8_t code[] = { OP_PUSH_I64, 0x01, OP_HALT };
+    char *output = disasm_raw_code(code, sizeof(code));
+    ASSERT(output != NULL, "Malformed disassembly produced output");
+    ASSERT(strstr(output, "ERROR: invalid opcode") != NULL,
+           "Malformed bytecode reports an error");
+    ASSERT(strstr(output, "HALT") != NULL,
+           "Disassembler recovers and decodes later valid bytes");
+    free(output);
+}
+
+static void test_disasm_label_deduplication(void) {
+    DecodedInstruction jump = {0};
+    uint8_t code[11] = {0};
+    jump.opcode = OP_JMP;
+    jump.operand_count = 1;
+    jump.operand_types[0] = OPERAND_I32;
+    jump.operands[0].i32 = 10;
+    ASSERT_EQ_INT(isa_encode(&jump, code, sizeof(code)), 5, "First jump encoded");
+    jump.operands[0].i32 = 5;
+    ASSERT_EQ_INT(isa_encode(&jump, code + 5, sizeof(code) - 5), 5, "Second jump encoded");
+    code[10] = OP_HALT;
+
+    char *output = disasm_raw_code(code, sizeof(code));
+    ASSERT(output != NULL, "Deduplication disassembly produced output");
+    ASSERT(strstr(output, "JMP L0") != NULL, "Repeated target uses a label");
+    ASSERT(strstr(output, "L1:") == NULL, "Repeated target is not assigned twice");
+    free(output);
+}
+
+static void test_disasm_label_limit_degrades_gracefully(void) {
+    const uint32_t jump_count = 513;
+    const uint32_t jump_size = 5;
+    const uint32_t code_size = jump_count * jump_size + jump_count + 1;
+    uint8_t *code = calloc(code_size, 1);
+    ASSERT(code != NULL, "Label-limit bytecode allocation succeeded");
+
+    DecodedInstruction jump = {0};
+    jump.opcode = OP_JMP;
+    jump.operand_count = 1;
+    jump.operand_types[0] = OPERAND_I32;
+    for (uint32_t i = 0; i < jump_count; i++) {
+        uint32_t pos = i * jump_size;
+        uint32_t target = jump_count * jump_size + i;
+        jump.operands[0].i32 = (int32_t)(target - pos);
+        ASSERT_EQ_INT(isa_encode(&jump, code + pos, code_size - pos), jump_size,
+                      "Label-limit jump encoded");
+    }
+    memset(code + jump_count * jump_size, OP_NOP, jump_count);
+    code[code_size - 1] = OP_HALT;
+
+    char *output = disasm_raw_code(code, code_size);
+    ASSERT(output != NULL, "Label-limit disassembly produced output");
+    ASSERT(strstr(output, "L511:") != NULL, "The 512th label is emitted");
+    ASSERT(strstr(output, "L512:") == NULL, "No label is emitted beyond the limit");
+    ASSERT(strstr(output, "JMP 517") != NULL,
+           "Targets beyond the limit remain numeric");
+    ASSERT(strstr(output, "HALT") != NULL, "Disassembly completes after label overflow");
+
+    free(output);
+    free(code);
+}
+
 /* ========================================================================
  * Round-Trip Test
  * ======================================================================== */
@@ -1275,6 +1348,9 @@ int main(void) {
     RUN_TEST(test_disasm_basic);
     RUN_TEST(test_disasm_labels);
     RUN_TEST(test_disasm_source_annotations_and_cfg);
+    RUN_TEST(test_disasm_malformed_bytecode);
+    RUN_TEST(test_disasm_label_deduplication);
+    RUN_TEST(test_disasm_label_limit_degrades_gracefully);
 
     printf("\n[Round-Trip]\n");
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);

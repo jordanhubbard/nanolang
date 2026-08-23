@@ -1,6 +1,6 @@
 /*
  * Garbage Collector Implementation
- * Reference counting with optional cycle detection
+ * Reference counting. Native reference cycles must be broken manually.
  * 
  * OPTIMIZATION (2026-02):
  * - Hash table for O(1) gc_is_managed() lookup
@@ -246,19 +246,6 @@ void* gc_alloc(size_t size, GCObjectType type) {
     gc_state.stats.current_usage += total_size;
     gc_state.stats.num_objects++;
     
-    /* Check if we should trigger collection
-     * Use hysteresis: only collect if we've allocated at least 1MB MORE
-     * since the last collection. This prevents collecting on every allocation
-     * when memory usage hovers around the threshold.
-     */
-    if (gc_state.stats.current_usage > gc_state.threshold &&
-        gc_state.stats.current_usage > gc_state.last_collection_usage + (1024 * 1024)) {
-        if (gc_state.cycle_detection_enabled) {
-            gc_state.last_collection_usage = gc_state.stats.current_usage;
-            gc_collect_cycles();
-        }
-    }
-    
     /* Return pointer to object (after header) */
     return ptr;
 }
@@ -321,152 +308,10 @@ void gc_release(void* ptr) {
     }
 }
 
-/* Mark phase of mark-and-sweep */
-static void gc_mark(GCHeader* header) {
-    if (header == NULL || header->marked) {
-        return;
-    }
-    
-    header->marked = 1;
-    
-    /* Get object pointer */
-    void* obj = gc_header_to_ptr(header);
-    
-    /* Recursively mark nested GC objects */
-    switch (header->type) {
-        case GC_TYPE_ARRAY: {
-            DynArray* arr = (DynArray*)obj;
-            ElementType elem_type = dyn_array_get_elem_type(arr);
-            
-            if (elem_type == ELEM_ARRAY) {
-                /* Arrays of arrays: data is an array of DynArray* pointers */
-                int64_t len = dyn_array_length(arr);
-                void** ptr_data = (void**)arr->data;
-                for (int64_t i = 0; i < len; i++) {
-                    void* elem = ptr_data[i];
-                    if (elem && gc_is_managed(elem)) {
-                        gc_mark(gc_get_header(elem));
-                    }
-                }
-            } else if (elem_type == ELEM_STRUCT && arr->elem_size > 0) {
-                /* Arrays of structs: data is packed struct values (by value, not pointers).
-                 * Scan each struct's bytes at pointer-aligned offsets to find any GC-managed
-                 * pointers embedded in string/array fields within the struct. */
-                int64_t len = dyn_array_length(arr);
-                size_t stride = (size_t)arr->elem_size;
-                for (int64_t i = 0; i < len; i++) {
-                    uint8_t* struct_data = (uint8_t*)arr->data + (i * stride);
-                    /* Scan each pointer-aligned word within the struct */
-                    for (size_t off = 0; off + sizeof(void*) <= stride; off += sizeof(void*)) {
-                        void* field_ptr;
-                        memcpy(&field_ptr, struct_data + off, sizeof(void*));
-                        if (field_ptr && gc_is_managed(field_ptr)) {
-                            gc_mark(gc_get_header(field_ptr));
-                        }
-                    }
-                }
-            }
-            break;
-        }
-        
-        case GC_TYPE_STRUCT: {
-            GCStruct* s = (GCStruct*)obj;
-            /* Mark all GC object fields */
-            for (int i = 0; i < s->field_count; i++) {
-                if (s->field_gc_flags[i] && s->field_values[i]) {
-                    if (gc_is_managed(s->field_values[i])) {
-                        gc_mark(gc_get_header(s->field_values[i]));
-                    }
-                }
-            }
-            break;
-        }
-        
-        case GC_TYPE_STRING:
-        case GC_TYPE_CLOSURE:
-        default:
-            /* These types don't have nested objects */
-            break;
-    }
-}
-
-/* Sweep phase of mark-and-sweep */
-static void gc_sweep(void) {
-    GCHeader* current = gc_state.all_objects;
-    
-    while (current != NULL) {
-        GCHeader* next = current->next;
-        
-        if (!current->marked && current->ref_count == 0) {
-            /* Unreachable object - free it */
-            
-            /* Remove from doubly-linked list - O(1) */
-            if (current->prev != NULL) {
-                current->prev->next = current->next;
-            } else {
-                gc_state.all_objects = current->next;
-            }
-            if (current->next != NULL) {
-                current->next->prev = current->prev;
-            }
-            
-            /* Remove from hash table - O(1) average */
-            gc_hash_remove(gc_header_to_ptr(current));
-            
-            gc_state.stats.total_freed += current->size;
-            gc_state.stats.current_usage -= current->size;
-            gc_state.stats.num_objects--;
-            
-            gc_destroy_object(current, true);
-            free(current);
-        } else {
-            /* Clear mark for next collection */
-            current->marked = 0;
-        }
-        
-        current = next;
-    }
-}
-
-/* Run cycle detection.
- *
- * IMPORTANT / KNOWN LIMITATION: this does NOT collect reference cycles, and
- * cannot in the current design. It marks every object with ref_count > 0 as a
- * root — but cyclic garbage has ref_count > 0 by definition (that is exactly
- * what pure reference counting cannot reclaim), so such objects are always
- * marked and never swept. The function therefore only ever frees objects that
- * are already at ref_count 0 (which gc_release frees anyway): it is a safe
- * no-op with respect to cycles.
- *
- * A real synchronous cycle collector (e.g. Bacon–Rajan trial deletion) is
- * implementable here — gc_mark already enumerates object edges — but ONLY if
- * gc_mark provably traverses every heap reference edge for every object type;
- * missing a single edge on a live path would free a live object (use-after-
- * free), which is strictly worse than the current leak. Implementing it safely
- * requires an exhaustive edge-coverage audit and is deliberately deferred
- * rather than shipped half-correct. Until then: reference cycles leak and must
- * be broken manually. See README/docs; do not advertise automatic cycle
- * collection.
- */
+/* Deprecated compatibility entry point. Native cycles are not collected. */
 void gc_collect_cycles(void) {
-    if (!gc_state.initialized || !gc_state.cycle_detection_enabled) {
-        return;
-    }
-
-    /* Mark phase: conservatively treat every still-referenced object as a root.
-     * (This is why cycles are not reclaimed — see the note above.) */
-    GCHeader* current = gc_state.all_objects;
-    while (current != NULL) {
-        if (current->ref_count > 0) {
-            gc_mark(current);
-        }
-        current = current->next;
-    }
-
-    /* Sweep phase: free unmarked objects (only ref_count==0 ones in practice). */
-    gc_sweep();
-
-    gc_state.stats.num_collections++;
+    /* Compatibility no-op. Reference counting already frees zero-count
+     * objects synchronously; cycles remain allocated until shutdown. */
 }
 
 /* Force immediate collection */
@@ -500,7 +345,7 @@ bool gc_is_managed(void* ptr) {
     return gc_hash_contains(ptr);
 }
 
-/* Enable/disable cycle detection */
+/* Retained for ABI compatibility; cycle collection is not implemented. */
 void gc_set_cycle_detection_enabled(bool enabled) {
     gc_state.cycle_detection_enabled = enabled;
 }
@@ -623,4 +468,3 @@ void gc_set_finalizer(void* ptr, GCFinalizer finalizer) {
     /* This is now a no-op - use gc_wrap_external instead */
     fprintf(stderr, "[GC] gc_set_finalizer is deprecated - use gc_wrap_external\n");
 }
-

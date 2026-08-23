@@ -123,9 +123,9 @@ int64_t nl_fibonacci(int64_t n) {
    - I check array bounds at runtime
    - The C compiler can optimize this away in some cases
 
-3. **GC Cycle Detection** (~1-3% overhead)
-   - I run periodic cycle detection for reference cycles
-   - This runs infrequently with minimal impact
+3. **Reference-cycle policy**
+   - I do not run a native cycle collector
+   - Cyclic ownership must be broken explicitly
 
 **Total Runtime Overhead:** ~5-15% compared to unsafe C code.
 
@@ -179,7 +179,7 @@ See [MEMORY_MANAGEMENT.md](MEMORY_MANAGEMENT.md) for details.
 
 ### GC Performance
 
-I use reference counting with cycle detection:
+I use reference counting:
 
 **Advantages:**
 - Deterministic cleanup. I free objects immediately when they become unreachable.
@@ -189,15 +189,12 @@ I use reference counting with cycle detection:
 
 **Disadvantages:**
 - Increment/decrement overhead (~5-10%).
-- I cannot handle reference cycles without my cycle detector.
+- Native reference cycles remain allocated until they are broken or shutdown runs.
 - Slower than no GC, but faster than tracing GC for most workloads.
 
-**Cycle Detection:**
-- I run this periodically every N allocations.
-- It is very fast for acyclic data structures.
-- It is slightly slower for data with many cycles like graphs or circular lists.
-
-**GC Pause Time:** Typically <1ms. This is imperceptible for most applications.
+**Cycles:**
+- Prefer non-owning identifiers for graph back-edges where practical.
+- Otherwise remove back-edges before releasing the graph's external owner.
 
 ### Memory Benchmarks
 

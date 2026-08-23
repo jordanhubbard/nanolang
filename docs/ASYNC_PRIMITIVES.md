@@ -1,15 +1,18 @@
 # Async Primitives
 
-I support async at the language level with `async fn` and `await`.
+I parse and interpret `async fn` and `await`. My current compiled lowering is
+synchronous compatibility, not a suspension-capable state machine.
 
 ## Model
 
 I use cooperative concurrency. I do not preempt running code.
 
-- `async fn` marks a function body as suspension-capable.
-- `await expr` marks a suspension boundary inside an async function.
-- My CPS pass validates `await` placement and preserves async boundaries.
-- My coroutine scheduler is cooperative and deterministic for a fixed schedule.
+- `async fn` marks a function for async-aware checking and interpreter dispatch.
+- `await expr` is valid syntax inside an async function.
+- My CPS pass currently validates and counts async constructs; it does not yet
+  rewrite them into continuations.
+- My coroutine scheduler has tested queue and result mechanics, but generated
+  code does not yet suspend and resume at `await`.
 
 ## VM Boundary
 
@@ -19,28 +22,30 @@ My NanoISA VM already separates pure execution (`vm_core_execute`) from side eff
 - External boundaries (I/O, assertions, FFI, halt) trap to the runtime harness.
 - This trap split is the suspension/resumption hook for VM async scheduling work.
 
-Today, my tested async execution path is in my compiler/runtime CPS + coroutine flow. VM async trap scheduling is designed around the existing trap contract and kept explicitly at that boundary.
+Today, I have tested parser/typechecker acceptance, synchronous interpreter
+behavior, and scheduler mechanics separately. NanoISA has no async suspension
+trap yet.
 
 ## C Backend Lowering
 
-I lower async programs into state-machine/coroutine-friendly C paths:
-
-- async syntax is lowered during CPS/coroutine lowering
-- generated C links against my coroutine runtime helpers
-- module-level concurrency helpers can use libdispatch when available
+My C backends currently lower `await expr` as `expr`. They do not generate a
+continuation or state machine. Module-level concurrency helpers can use
+libdispatch where available, but that is a separate facility.
 
 ## Errors Across Async Boundaries
 
-I propagate runtime errors through normal return/error flow. I do not silently swallow async failures.
+Synchronous error flow remains ordinary return/error flow. Error propagation
+across a real suspension boundary is not implemented yet.
 
 ## Shadow Tests
 
-I enforce shadow tests for async functions exactly like synchronous functions. See `tests/test_async.nano` for executable examples.
+See `tests/test_async.nano` for syntax and synchronous compatibility examples.
+Those tests do not establish interleaving or resumption.
 
 ## Formal Status
 
 I keep my proof boundary explicit:
 
 - proved: my existing NanoCore subset in `formal/`
-- tested: async syntax/type/runtime behavior in compiler and runtime tests
+- tested: async syntax/typechecking, synchronous interpreter compatibility, and scheduler unit behavior
 - planned proof work: async typing and operational soundness extensions
