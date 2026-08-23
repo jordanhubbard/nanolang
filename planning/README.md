@@ -40,15 +40,10 @@ I keep my design documents and incomplete implementation plans here. Completed w
 - [TRACING_DESIGN.md](TRACING_DESIGN.md) -- Tracing infrastructure
 - [WEB_PLAYGROUND_DESIGN.md](WEB_PLAYGROUND_DESIGN.md) -- Web playground Phase 2+
 - [REPL_DESIGN.md](REPL_DESIGN.md) -- C-native REPL binary
-- [REPL_IMPLEMENTATION_PLAN.md](REPL_IMPLEMENTATION_PLAN.md) -- REPL feature plan
-- [REPL_PROGRESS.md](REPL_PROGRESS.md) -- REPL progress tracker
-- [MULTILINE_REPL_DESIGN.md](MULTILINE_REPL_DESIGN.md) -- Multiline REPL input
-- [MULTI_TYPE_REPL_DESIGN.md](MULTI_TYPE_REPL_DESIGN.md) -- Multi-type eval in REPL
 
 ### Examples and Tests
 
 - [EXAMPLES_AUDIT_PROGRESS.md](EXAMPLES_AUDIT_PROGRESS.md) -- Examples modernization progress
-- [EXAMPLES_AUDIT_REPORT.md](EXAMPLES_AUDIT_REPORT.md) -- Examples audit findings
 - [EXAMPLES_CONSOLIDATION_AUDIT.md](EXAMPLES_CONSOLIDATION_AUDIT.md) -- Redundant examples cleanup
 - [EXAMPLES_MODERNIZATION.md](EXAMPLES_MODERNIZATION.md) -- Example modernization plan
 - [SHOWCASE_GAMES_ROADMAP.md](SHOWCASE_GAMES_ROADMAP.md) -- Showcase game examples
