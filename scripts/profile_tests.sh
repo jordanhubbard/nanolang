@@ -48,7 +48,6 @@ fi
 declare -A TESTS=(
     ["test_std_collections"]="tests/test_std_collections.nano"
     ["test_hashmap_set"]="tests/test_hashmap_set_advanced.nano"
-    ["userguide_build"]="scripts/userguide_build_html.nano"
     ["userguide_check"]="scripts/userguide_snippets_check.nano"
     ["syntax_highlighter"]="modules/nano_tools/nano_tools.nano"
 )

@@ -296,11 +296,14 @@ fn parse_snippets(md_path: string) -> Result<array<Snippet>, string> {
                             }
 
                             let mut j: int = (+ i 1)
-                            while (and (< j n) (not (is_fence_start (at lines j)))) {
+                            while (and (< j n) (== (str_length (trim (at lines j))) 0)) {
                                 set j (+ j 1)
                             }
                             if (>= j n) {
                                 return Result.Err { error: (+ "Snippet missing fenced code block in " md_path) }
+                            }
+                            if (not (is_fence_start (at lines j))) {
+                                return Result.Err { error: (+ "Snippet marker must be adjacent to its fenced code block in " md_path) }
                             }
                             let fence_lang: string = (str_lower (parse_fence_lang (at lines j)))
                             if (and (!= fence_lang "nano") (!= fence_lang "nanolang")) {
@@ -346,6 +349,20 @@ shadow parse_snippets {
         Ok(v) => { assert true }
         Err(e) => { assert false }
     }
+}
+
+fn string_array_contains(values: array<string>, needle: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        if (== (at values i) needle) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow string_array_contains {
+    assert (string_array_contains ["one", "two"] "two")
+    assert (not (string_array_contains ["one", "two"] "three"))
 }
 
 fn str_lower(s: string) -> string {
@@ -529,16 +546,26 @@ fn main() -> int {
     }
 
     let mut failures: array<string> = []
+    let mut failed_count: int = 0
+    let mut seen_names: array<string> = []
     let mut ri: int = 0
     while (< ri (array_length runnable)) {
         let snip: Snippet = (at runnable ri)
         let safe_name: string = (sanitize_name snip.name)
+        if (string_array_contains seen_names safe_name) {
+            set failed_count (+ failed_count 1)
+            set failures (array_push failures (+ "[FAIL] duplicate snippet name: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
+            set ri (+ ri 1)
+            continue
+        }
+        set seen_names (array_push seen_names safe_name)
         let src: string = (+ out_dir (+ "/" (+ safe_name ".nano")))
         let exe: string = (+ bin_dir (+ "/" safe_name))
         (write src snip.code)
         let compile_cmd: string = (+ (shell_escape "bin/nanoc") (+ " " (+ (shell_escape src) (+ " -o " (shell_escape exe)))))
         let compile_res: Output = (run_with_timeout compile_cmd snip.compile_timeout_s)
         if (!= compile_res.code 0) {
+            set failed_count (+ failed_count 1)
             set failures (array_push failures (+ "[FAIL] compile: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
             set failures (array_push failures compile_res.stdout)
             set failures (array_push failures compile_res.stderr)
@@ -548,6 +575,7 @@ fn main() -> int {
         let run_cmd: string = (shell_escape exe)
         let run_res: Output = (run_with_timeout run_cmd snip.run_timeout_s)
         if (!= run_res.code 0) {
+            set failed_count (+ failed_count 1)
             set failures (array_push failures (+ "[FAIL] run: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
             set failures (array_push failures run_res.stdout)
             set failures (array_push failures run_res.stderr)
@@ -558,6 +586,7 @@ fn main() -> int {
             let actual_norm: string = (trim_right run_res.stdout)
             let expect_norm: string = (trim_right snip.expect_stdout)
             if (not (== actual_norm expect_norm)) {
+                set failed_count (+ failed_count 1)
                 set failures (array_push failures (+ "[FAIL] stdout mismatch: " (+ snip.name (+ " (" (+ snip.source_path ")")))))
                 set failures (array_push failures "--- expected ---")
                 set failures (array_push failures snip.expect_stdout)
@@ -577,7 +606,7 @@ fn main() -> int {
             set fi (+ fi 1)
         }
         (println out_text)
-        (println (+ "userguide-check: " (+ (int_to_string (array_length failures)) " snippet(s) failed")))
+        (println (+ "userguide-check: " (+ (int_to_string failed_count) " snippet(s) failed")))
         return 1
     }
     (println (+ "userguide-check: " (+ (int_to_string (array_length runnable)) " snippet(s) passed")))
