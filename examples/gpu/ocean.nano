@@ -320,12 +320,29 @@ fn main() -> int {
     }
 
     # ── SDL init ──────────────────────────────────────────────────────────────
-    (SDL_Init SDL_INIT_VIDEO)
+    if (< (SDL_Init SDL_INIT_VIDEO) 0) {
+        (println (+ "SDL initialization failed: " (SDL_GetError)))
+        return 1
+    }
     let window: SDL_Window = (SDL_CreateWindow
         "Nanolang Ocean Simulation — GPU wave field, Archimedes ship physics"
         SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED
-        W H 0)
-    let rend: SDL_Renderer = (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_ACCELERATED)
+        W H SDL_WINDOW_SHOWN)
+    if (== window 0) {
+        (println (+ "Window creation failed: " (SDL_GetError)))
+        (SDL_Quit)
+        return 1
+    }
+    let mut rend: SDL_Renderer = (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_ACCELERATED)
+    if (== rend 0) {
+        set rend (SDL_CreateRenderer window (- 0 1) SDL_RENDERER_SOFTWARE)
+    }
+    if (== rend 0) {
+        (println (+ "Renderer creation failed: " (SDL_GetError)))
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    }
 
     # ── Ship physics state ────────────────────────────────────────────────────
     # Buoyancy restoring force spring:
@@ -357,7 +374,8 @@ fn main() -> int {
         if (== key 113) { set running 0 }  # Q
 
         # ── GPU: compute wave heights ─────────────────────────────────────────
-        if (and use_gpu (not (== d_sin_v 0))) {
+        let mut gpu_frame_ok: bool = false
+        if (and use_gpu (and (not (== d_sin_v 0)) (not (== d_h_v 0)))) {
             let threads: int = 256
             let blocks:  int = (/ (+ W (- threads 1)) threads)
             let ok: bool = (gpu_launch "ocean.ptx" "compute_ocean"
@@ -365,11 +383,12 @@ fn main() -> int {
             if ok {
                 (gpu_sync)
                 (gpu_memcpy_from_device h_heights d_h_v h_bytes)
+                set gpu_frame_ok true
             }
         }
 
         # Fallback: CPU wave computation (same math, but in nano not PTX)
-        if (not (and use_gpu (not (== d_sin_v 0)))) {
+        if (not gpu_frame_ok) {
             let BIG: int = 5120000
             let mut cx: int = 0
             while (< cx W) {

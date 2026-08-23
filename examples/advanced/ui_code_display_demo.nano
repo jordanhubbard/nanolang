@@ -8,6 +8,7 @@
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 module "modules/ui_widgets/ui_widgets.nano"
 
@@ -58,16 +59,49 @@ shadow build_sample_code {
 # Demo of the nl_ui_code_display widget with syntax highlighting
 fn main() -> int {
     # Initialize SDL and TTF
-    (SDL_Init SDL_INIT_VIDEO) 
-    (TTF_Init) 
+    if (< (SDL_Init SDL_INIT_VIDEO) 0) {
+        (println (+ "SDL initialization failed: " (SDL_GetError)))
+        return 1
+    }
+    if (< (TTF_Init) 0) {
+        (println (+ "TTF initialization failed: " (TTF_GetError)))
+        (SDL_Quit)
+        return 1
+    }
     
     # Create window
     let window: SDL_Window = (SDL_CreateWindow "Code Display Widget Demo" 100 100 1000 700 SDL_WINDOW_SHOWN)
-    let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    if (== window 0) {
+        (println (+ "Window creation failed: " (SDL_GetError)))
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    }
+    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
+    if (== renderer 0) {
+        set renderer (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE)
+    }
+    if (== renderer 0) {
+        (println (+ "Renderer creation failed: " (SDL_GetError)))
+        (SDL_DestroyWindow window)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    }
     
     # Load fonts
-    let font: TTF_Font = (TTF_OpenFont "modules/sdl_ttf/fonts/DejaVuSansMono.ttf" 14)
-    let title_font: TTF_Font = (TTF_OpenFont "modules/sdl_ttf/fonts/DejaVuSansMono.ttf" 18)
+    let font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" 14)
+    let title_font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" 18)
+    if (or (== font 0) (== title_font 0)) {
+        (println (+ "Font loading failed: " (TTF_GetError)))
+        if (!= font 0) { (TTF_CloseFont font) }
+        if (!= title_font 0) { (TTF_CloseFont title_font) }
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (TTF_Quit)
+        (SDL_Quit)
+        return 1
+    }
     
     # Build sample code
     let sample_code: string = (build_sample_code)
