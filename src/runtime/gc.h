@@ -1,7 +1,7 @@
 /*
  * Garbage Collector for nanolang
  * 
- * Reference counting GC with optional cycle detection
+ * Reference counting GC. Native reference cycles must be broken manually.
  * Manages dynamic arrays, strings, and future heap objects
  * 
  * OPTIMIZATION (2026-02): 
@@ -33,7 +33,7 @@ typedef void (*GCFinalizer)(void* object);
 typedef struct GCHeader {
     uint32_t ref_count;      /* Reference count */
     uint8_t type;            /* Object type (GCObjectType) */
-    uint8_t marked;          /* Mark bit for cycle collection */
+    uint8_t marked;          /* Reserved mark bit */
     uint16_t flags;          /* Additional flags */
     size_t size;             /* Object size in bytes (including header) */
     struct GCHeader* next;   /* Next object in allocation list */
@@ -65,10 +65,10 @@ void gc_retain(void* ptr);
 /* Decrement reference count (may free object) */
 void gc_release(void* ptr);
 
-/* Run cycle detection (mark-and-sweep) */
+/* Deprecated compatibility no-op. Native cycles are not collected. */
 void gc_collect_cycles(void);
 
-/* Force immediate collection (for testing/debugging) */
+/* Deprecated compatibility no-op. */
 void gc_collect_all(void);
 
 /* Get GC statistics */
@@ -90,7 +90,7 @@ static inline void* gc_header_to_ptr(GCHeader* header) {
 /* Check if pointer is GC-managed (for safety) */
 bool gc_is_managed(void* ptr);
 
-/* Enable/disable cycle detection */
+/* Deprecated compatibility setting; it does not enable cycle collection. */
 void gc_set_cycle_detection_enabled(bool enabled);
 
 /* Set GC threshold (trigger collection when memory usage exceeds this) */
@@ -114,4 +114,3 @@ void* gc_unwrap(void* wrapper_ptr);
 void gc_set_finalizer(void* ptr, GCFinalizer finalizer);
 
 #endif /* NANOLANG_GC_H */
-

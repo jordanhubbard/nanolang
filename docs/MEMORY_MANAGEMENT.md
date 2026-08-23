@@ -23,7 +23,7 @@ I use automatic garbage collection with reference counting for my memory managem
 
 - No manual memory management. I don't use malloc or free in my user code.
 - Deterministic cleanup. I free objects when their last reference disappears.
-- Cycle detection. I detect and collect circular references.
+- Explicit cycle policy. Native reference cycles must be broken manually.
 - Zero runtime pauses. My reference counting has no stop-the-world pauses.
 - Native performance. I compile to C with minimal overhead.
 
@@ -36,7 +36,7 @@ I use a hybrid approach:
 1. Stack Allocation for my primitives and small values.
 2. Garbage Collection for my dynamic data structures.
 3. Reference Counting as my primary mechanism.
-4. Cycle Collection as my backup for circular references.
+4. Explicit cleanup for foreign resources and cyclic ownership.
 
 ```
 ┌─────────────────┬──────────────────────┐
@@ -87,7 +87,7 @@ I do not collect these (they are stack-allocated):
 
 ## My Garbage Collector Details
 
-### Algorithm: Reference Counting + Cycle Detection
+### Algorithm: Reference Counting
 
 My Primary Mechanism is reference counting.
 - I give each object a reference count.
@@ -95,10 +95,8 @@ My Primary Mechanism is reference counting.
 - I decrement the count when a reference goes out of scope.
 - I free the object when its count reaches zero.
 
-My Secondary Mechanism is mark-and-sweep cycle collection.
-- I run this periodically or when requested.
-- I detect and collect circular references.
-- I don't require stop-the-world pauses.
+I do not run a native cycle collector. Objects in an owning cycle retain one
+another, so you must remove a back-edge or otherwise break the cycle manually.
 
 ### GC Operations
 
@@ -123,7 +121,7 @@ fn example() -> int {
 #### Manual Control (Advanced)
 
 ```nano
-# Force cycle collection
+# Deprecated compatibility no-op
 extern fn gc_collect_cycles() -> void
 
 # Get GC statistics
@@ -459,12 +457,13 @@ fn calculate(coords: array<int>) -> int {
 }
 ```
 
-### 4. Don't Worry About Cycles
+### 4. Break Cycles Explicitly
 
-I handle cycles automatically. This is fine:
+I do not collect native reference cycles. This shape needs an explicit break
+before its last external owner is released:
 
 ```nano
-# I will detect and collect this cycle
+# An owning back-edge can retain this graph
 struct Node {
     value: int,
     next: Option<Node>  # Can form cycle
@@ -497,7 +496,7 @@ fn main() -> int {
     # Run your code
     (my_function)
     
-    # Force my collection
+    # This compatibility call does not collect native cycles
     (gc_collect_cycles)
     
     # Check my stats again
@@ -508,7 +507,7 @@ fn main() -> int {
 ```
 
 Common causes:
-1. Circular references (I should collect these automatically).
+1. Circular references that were not broken explicitly.
 2. Global variables. I never free these.
 3. C FFI memory that was not freed. This requires your manual management.
 
@@ -575,7 +574,7 @@ fn example() -> void {
 ### My GC API Reference
 
 ```nano
-# Force cycle collection
+# Deprecated compatibility no-op
 extern fn gc_collect_cycles() -> void
 
 # Collect all unreachable objects

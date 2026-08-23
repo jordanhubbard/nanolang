@@ -12,7 +12,9 @@
 - **Reference counting** - I use deterministic counting. I do not have GC pauses.
 - **Automatic wrapping** - I wrap opaque types transparently at call boundaries.
 - **Borrowed reference detection** - I distinguish between owned and borrowed pointers.
-- **Cycle detection** - I use mark-and-sweep for circular references.
+- **Explicit cycle boundary** - My native runtime uses reference counting and
+  requires owning cycles to be broken manually. My WASM reference-count runtime
+  has a separate, tested closure-cycle collector.
 - **Safe gc_release()** - I handle both GC-managed and raw pointers.
 - **Zero manual memory management** - I do not require free() calls.
 
@@ -211,5 +213,4 @@ let len: int = (array_length numbers)
 **Timeline**: 2 to 3 weeks  
 
 **I am evolving.**
-
 
