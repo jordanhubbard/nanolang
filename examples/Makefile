@@ -498,9 +498,18 @@ examples-available: $(COMPILER)
 
 # Example launcher (SDL app-store style)
 # Note: must run from repo root so relative paths (examples/icons/, examples/games/) resolve
-launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT) gpu-launcher-kernels
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+
+.PHONY: gpu-launcher-kernels
+gpu-launcher-kernels: gpu/matmul.ptx gpu/matmul.cl
+
+gpu/matmul.ptx: gpu/matmul.nano $(COMPILER)
+	$(COMPILER) $< --target ptx -o $@
+
+gpu/matmul.cl: gpu/matmul.nano $(COMPILER)
+	$(COMPILER) $< --target opencl -o $@
 
 # === NanoVM (sandboxed bytecode) example builds ===
 # I compile every example source into NanoISA bytecode with a `vm_` prefix so a
