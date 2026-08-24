@@ -2324,6 +2324,11 @@ shadow set_fn_from_elem_type {
 }
 
 fn type_is_struct(t: string) -> bool {
+    if (is_opaque_type t) {
+        return false
+    } else {
+        (print "")
+    }
     if (or (is_array_type t) (str_contains t "List<")) {
         return false
     } else {
@@ -2370,6 +2375,7 @@ shadow box_struct_expr {
 shadow type_is_struct {
     assert (type_is_struct "Point")
     assert (not (type_is_struct "int"))
+    assert (not (type_is_struct "Mix_Music"))
 }
 
 fn c_type_from_elem_type(elem_type: string) -> string {
@@ -2378,8 +2384,9 @@ fn c_type_from_elem_type(elem_type: string) -> string {
     else { if (== elem_type "bool") { return "bool" }
     else { if (== elem_type "array") { return "DynArray*" }
     else { if (== elem_type "int") { return "int64_t" }
+    else { if (is_opaque_type elem_type) { return elem_type }
     else { if (type_is_struct elem_type) { return (+ "nl_" (mangle_type_name elem_type)) }
-    else { return "int64_t" } } } } } }
+    else { return "int64_t" } } } } } } }
 }
 
 shadow c_type_from_elem_type {
@@ -2387,6 +2394,7 @@ shadow c_type_from_elem_type {
     assert (== (c_type_from_elem_type "string") "const char*")
     assert (== (c_type_from_elem_type "bool") "bool")
     assert (== (c_type_from_elem_type "int") "int64_t")
+    assert (== (c_type_from_elem_type "Mix_Music") "Mix_Music")
     assert (== (c_type_from_elem_type "Point") "nl_Point")
 }
 
