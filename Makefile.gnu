@@ -804,6 +804,11 @@ test-glut-init:
 test-ci-deps:
 	@bash tests/test_ci_dependency_install.sh
 
+# Focused native example regressions that previously escaped CI.
+.PHONY: test-examples-regressions
+test-examples-regressions: $(COMPILER_C)
+	@bash tests/test_examples_regressions.sh
+
 # NanoVM example coverage.
 # Every eligible example must lower to NanoISA bytecode, and the exclusion list
 # in examples/Makefile must stay honest: an example that compiles, or that the
