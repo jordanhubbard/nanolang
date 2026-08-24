@@ -6,7 +6,6 @@
 # Prerequisites: none
 # Build: graphical, external-deps
 # Expected Output: graphical
-# Default Args: examples/audio
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
@@ -220,6 +219,33 @@ shadow period_to_note {
     assert (== (period_to_note 428) "C-3")
 }
 
+fn downloads_dir_from_home(home: string) -> string {
+    return (nl_fs_join_path home "Downloads")
+}
+
+shadow downloads_dir_from_home {
+    assert (== (downloads_dir_from_home "/Users/me") "/Users/me/Downloads")
+    assert (== (downloads_dir_from_home "/home/nano") "/home/nano/Downloads")
+}
+
+fn sample_downloads_dir() -> string {
+    let home: string = (env_get "HOME")
+    if (== (str_length home) 0) {
+        return "examples/audio"
+    }
+    return (downloads_dir_from_home home)
+}
+
+shadow sample_downloads_dir {
+    let dir: string = (sample_downloads_dir)
+    let home: string = (env_get "HOME")
+    if (> (str_length home) 0) {
+        assert (== dir (downloads_dir_from_home home))
+    } else {
+        assert (== dir "examples/audio")
+    }
+}
+
 # --- ModArchive helpers ---
 # Fetch a modarchive URL and return a list of "id|filename.mod" strings.
 # Uses curl + grep to extract download links for .mod files only.
@@ -262,7 +288,7 @@ shadow fetch_modarchive {
 fn download_mod(mod_id: string, filename: string, dest_dir: string) -> string {
     let url: string = (+ "https://api.modarchive.org/downloads.php?moduleid=" (+ mod_id (+ "#" filename)))
     let dest: string = (nl_fs_join_path dest_dir filename)
-    let cmd: string = (+ "curl -sL --max-time 60 \"" (+ url (+ "\" -o \"" (+ dest "\""))))
+    let cmd: string = (+ "mkdir -p \"" (+ dest_dir (+ "\" && curl -sL --max-time 60 \"" (+ url (+ "\" -o \"" (+ dest "\""))))))
     let result: Output = (run cmd)
     if (== result.code 0) { return dest }
     return ""
@@ -384,9 +410,9 @@ fn draw_viz_spiral(renderer: SDL_Renderer, center_x: int, center_y: int, wavefor
 shadow draw_viz_spiral { assert true }
 
 fn main() -> int {
-    # Default to examples/audio so the tracker opens on its own samples directory.
-    # The launcher passes this via "Default Args: examples/audio" in the header.
-    let mut current_dir: string = "."
+    # Default to $HOME/Downloads so ModArchive fetches and local browsing
+    # share the same user-owned sample directory instead of the repo tree.
+    let mut current_dir: string = (sample_downloads_dir)
     let argc: int = (get_argc)
     if (> argc 1) {
         set current_dir (get_argv 1)
@@ -530,9 +556,11 @@ fn main() -> int {
                                         let filename: string = (str_substring item (+ pipe_pos 1) fn_len)
                                         set search_status (+ "Downloading " filename)
                                         set browser_mode 3
-                                        let dest: string = (download_mod mod_id filename current_dir)
+                                        let dest_dir: string = (sample_downloads_dir)
+                                        let dest: string = (download_mod mod_id filename dest_dir)
                                         if (> (str_length dest) 0) {
-                                            set search_status (+ "Saved: " (+ filename (+ " → " current_dir)))
+                                            set current_dir dest_dir
+                                            set search_status (+ "Saved: " (+ filename (+ " → " dest_dir)))
                                             set browser_items (build_browser_items current_dir)
                                         } else {
                                             set search_status (+ "Download failed: " filename)

@@ -227,13 +227,19 @@ If you do not set this, I default to `modules` relative to the current directory
 
 ### NANO_BUILD_CACHE
 
-I use this directory for my module build cache:
+I use this directory for my module C/FFI build cache:
 
 ```bash
 export NANO_BUILD_CACHE="/tmp/nano_build_cache"
 ```
 
 If you do not set this, I default to `.build/` within each module directory.
+
+When you build through my Makefile I export `NANO_BUILD_CACHE` as
+`obj/module_cache` so `make clean` (which removes `obj/`) and `nanoc` share
+one cache. `NANO_CC` and `NANO_VERBOSE_BUILD` already reach every compile
+path that honors them. `NANO_BUILD_CACHE` is the matching knob for *where*
+those artifacts land.
 
 ### NANO_CC
 

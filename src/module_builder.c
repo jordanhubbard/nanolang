@@ -2,6 +2,7 @@
 // Handles automatic compilation of C sources, caching, and dependency tracking
 
 #include "module_builder.h"
+#include "runtime/module_build_dir.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -366,7 +367,8 @@ static time_t get_mtime(const char *path) {
  * Incremental compilation: content-hash cache
  *
  * Stores FNV-1a hashes of each C source + header in
- *   <module_dir>/.build/source_hashes.json
+ *   <module_build_dir>/source_hashes.json
+ *   (see nano_module_build_dir / NANO_BUILD_CACHE)
  * On rebuild check: if all hashes match, skip compilation
  * even when mtime is newer (e.g. after git checkout).
  * ============================================================ */
@@ -1670,7 +1672,10 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
 char* module_get_build_dir(const char *module_dir) {
     char *build_dir = malloc(1024);
     if (!build_dir) return NULL;
-    snprintf(build_dir, 1024, "%s/.build", module_dir);
+    if (!nano_module_build_dir(module_dir, build_dir, 1024)) {
+        free(build_dir);
+        return NULL;
+    }
     return build_dir;
 }
 
@@ -1706,12 +1711,17 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
     }
 
     /* If the shared library is missing, rebuild so interpreter FFI can load it */
+    char *slib_dir = module_get_build_dir(module_dir);
     char shared_lib[1024];
+    if (!slib_dir) {
+        return true;
+    }
     #ifdef __APPLE__
-    snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.dylib", module_dir, meta->name);
+    snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.dylib", slib_dir, meta->name);
     #else
-    snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.so", module_dir, meta->name);
+    snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.so", slib_dir, meta->name);
     #endif
+    free(slib_dir);
     if (!file_exists(shared_lib)) {
         if (module_builder_verbose) {
             printf("[Module] %s needs build: shared library missing\n", meta->name);
@@ -2152,18 +2162,17 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         }
         
         /* Also create shared library for interpreter FFI */
+        char shared_lib[1024];
         #ifdef __APPLE__
-        char shared_lib[1024];
-        snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.dylib", 
-                 meta->module_dir, meta->name);
+        snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.dylib",
+                 build_dir, meta->name);
         #else
-        char shared_lib[1024];
-        snprintf(shared_lib, sizeof(shared_lib), "%s/.build/lib%s.so", 
-                 meta->module_dir, meta->name);
+        snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.so",
+                 build_dir, meta->name);
         #endif
-        
+
         char shared_dir[1024];
-        snprintf(shared_dir, sizeof(shared_dir), "%s/.build", meta->module_dir);
+        snprintf(shared_dir, sizeof(shared_dir), "%s", build_dir);
         bool shared_dir_ok = dir_exists(shared_dir) || mkdir_p(shared_dir);
         if (!shared_dir_ok) {
             fprintf(stderr, "Warning: Failed to create shared library directory for %s\n", meta->name);

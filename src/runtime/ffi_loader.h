@@ -85,10 +85,12 @@ FfiModule *ffi_loader_get_modules(int *out_count);
  * nanolang search paths.  Writes the found path into @p out_path.
  *
  * Search order (for each extension .dylib then .so):
- *   1. <module_dir>/.build/lib<leaf>.<ext>    (if module_dir provided)
- *   2. modules/<normalized>/.build/lib<leaf>.<ext>
- *   3. modules/<parent_dir>/.build/lib<joined>.<ext>
- *   4. modules/<top_dir>/.build/lib<top_dir>.<ext>
+ *   1. nano_module_build_dir(module_dir)/lib<leaf>.<ext>
+ *   2. nano_module_build_dir(modules/<normalized>)/lib<leaf>.<ext>
+ *   3. nano_module_build_dir(modules/<parent_dir>)/lib<joined>.<ext>
+ *   4. nano_module_build_dir(modules/<top_dir>)/lib<top_dir>.<ext>
+ *
+ * nano_module_build_dir honors NANO_BUILD_CACHE, else <dir>/.build.
  *
  * @param module_name   Raw module name (may include "modules/" prefix, ".nano" suffix)
  * @param module_dir    Optional explicit directory (from interpreter's module path).
