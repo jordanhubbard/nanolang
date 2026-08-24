@@ -18,6 +18,7 @@
 #   mujoco_*   - MuJoCo simulation examples
 
 BIN_DIR = ../bin
+export NANO_BUILD_CACHE ?= $(abspath ../obj/module_cache)
 # Backends:
 #   c       - native executable through my C code generator
 #   llvm    - LLVM IR (.ll)
@@ -824,7 +825,8 @@ clean:
 	@echo "Cleaning example binaries..."
 	rm -f $(ALL_EXAMPLES)
 	rm -rf $(BIN_DIR)/*.dSYM
-	rm -rf ../modules/*/.build/
+	rm -rf ../modules/*/.build/ ../std/*/.build/
+	rm -rf $(NANO_BUILD_CACHE)
 	@echo "Done"
 
 # === Help ===

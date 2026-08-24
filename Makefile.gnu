@@ -82,6 +82,10 @@ SRC_NANO_DIR = src_nano
 OBJ_DIR = obj
 BIN_DIR = bin
 BUILD_DIR = $(OBJ_DIR)/build_bootstrap
+# Module FFI cache. nanoc honors NANO_BUILD_CACHE; Make exports this so
+# `make clean` (rm -rf $(OBJ_DIR)) and module compiles share one tree.
+MODULE_BUILD_CACHE ?= $(OBJ_DIR)/module_cache
+export NANO_BUILD_CACHE ?= $(abspath $(MODULE_BUILD_CACHE))
 COV_DIR = coverage
 RUNTIME_DIR = $(SRC_DIR)/runtime
 USERGUIDE_DIR = build/userguide
@@ -116,7 +120,7 @@ VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 BOOTSTRAP_DETERMINISTIC ?= 0
 # TMPDIR-aware temp directory for bootstrap test artifacts
 BOOTSTRAP_TMPDIR := $(or $(TMPDIR),/tmp)
-BOOTSTRAP_ENV := NANO_MODULE_PATH=modules
+BOOTSTRAP_ENV := NANO_MODULE_PATH=modules NANO_BUILD_CACHE=$(NANO_BUILD_CACHE)
 # Absolute path to repo modules; passed to examples build so module resolution works from any cwd
 NANO_MODULES_ABS := $(abspath $(CURDIR)/modules)
 ifeq ($(BOOTSTRAP_DETERMINISTIC),1)
@@ -169,6 +173,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
 	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c \
 	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/ffi_loader.c \
+	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
 COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
@@ -186,7 +191,7 @@ SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
-HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(SRC_DIR)/module_builder.h
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_STAMP)
@@ -662,6 +667,13 @@ test-nl-string: stage1
 	@./tests/test_nl_string
 	@rm -f tests/test_nl_string
 
+.PHONY: test-module-build-dir
+test-module-build-dir: stage1
+	@echo "Running module build-dir unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_module_build_dir tests/test_module_build_dir.c $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS)
+	@./tests/test_module_build_dir
+	@rm -f tests/test_module_build_dir
+
 .PHONY: test-refcount-gc
 test-refcount-gc:
 	@echo "Running refcount_gc unit tests..."
@@ -767,7 +779,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-module-build-dir test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

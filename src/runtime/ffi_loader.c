@@ -14,6 +14,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), pthread_rwlock_t */
 
 #include "ffi_loader.h"
+#include "runtime/module_build_dir.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -284,31 +285,46 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
 
     /* Pattern 1: module_dir (interpreter supplies this from import path) */
     if (module_dir && module_dir[0] != '\0') {
-        for (int ei = 0; exts[ei]; ei++) {
-            snprintf(out_path, path_size, "%s/.build/lib%s.%s",
-                     module_dir, lib_name, exts[ei]);
-            if (access(out_path, F_OK) == 0) return true;
+        char bdir[1024];
+        if (nano_module_build_dir(module_dir, bdir, sizeof(bdir))) {
+            for (int ei = 0; exts[ei]; ei++) {
+                snprintf(out_path, path_size, "%s/lib%s.%s",
+                         bdir, lib_name, exts[ei]);
+                if (access(out_path, F_OK) == 0) return true;
+            }
         }
     }
 
     for (int ei = 0; exts[ei]; ei++) {
-        /* Pattern 2: modules/<full_normalized>/.build/lib<leaf>.<ext> */
-        snprintf(out_path, path_size, "modules/%s/.build/lib%s.%s",
-                 mn, lib_name, exts[ei]);
-        if (access(out_path, F_OK) == 0) return true;
+        char logical[1024];
+        char bdir[1024];
 
-        /* Pattern 3: modules/<parent_dir>/.build/lib<joined>.<ext> */
-        if (parent_dir[0]) {
-            snprintf(out_path, path_size, "modules/%s/.build/lib%s.%s",
-                     parent_dir, joined_name, exts[ei]);
+        /* Pattern 2: modules/<full_normalized> */
+        snprintf(logical, sizeof(logical), "modules/%s", mn);
+        if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+            snprintf(out_path, path_size, "%s/lib%s.%s",
+                     bdir, lib_name, exts[ei]);
             if (access(out_path, F_OK) == 0) return true;
         }
 
-        /* Pattern 4: modules/<top_dir>/.build/lib<top_dir>.<ext> */
+        /* Pattern 3: modules/<parent_dir> with joined lib name */
+        if (parent_dir[0]) {
+            snprintf(logical, sizeof(logical), "modules/%s", parent_dir);
+            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+                snprintf(out_path, path_size, "%s/lib%s.%s",
+                         bdir, joined_name, exts[ei]);
+                if (access(out_path, F_OK) == 0) return true;
+            }
+        }
+
+        /* Pattern 4: modules/<top_dir> */
         if (top_dir[0]) {
-            snprintf(out_path, path_size, "modules/%s/.build/lib%s.%s",
-                     top_dir, top_dir, exts[ei]);
-            if (access(out_path, F_OK) == 0) return true;
+            snprintf(logical, sizeof(logical), "modules/%s", top_dir);
+            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+                snprintf(out_path, path_size, "%s/lib%s.%s",
+                         bdir, top_dir, exts[ei]);
+                if (access(out_path, F_OK) == 0) return true;
+            }
         }
     }
 

@@ -155,7 +155,7 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);
 // (called automatically by module_build; also callable manually)
 void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta);
 
-// Get module build directory path
+// Get module build directory path (honors NANO_BUILD_CACHE)
 char* module_get_build_dir(const char *module_dir);
 
 // Create build directory if it doesn't exist
