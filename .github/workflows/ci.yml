@@ -135,6 +135,71 @@ jobs:
       #   if: runner.os == 'Linux'
       #   run: make valgrind || true
 
+  examples:
+    name: Strict examples (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 75
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: macos-14
+            arch: arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install example dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        timeout-minutes: 10
+        run: |
+          ./scripts/ci-apt-install.sh \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libncurses-dev \
+            libreadline-dev \
+            libuv1-dev \
+            libbullet-dev \
+            freeglut3-dev
+
+      - name: Install example dependencies (macOS)
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: |
+          ./scripts/ci-brew-install.sh \
+            gcc \
+            pkg-config \
+            openssl \
+            sdl2 \
+            sdl2_image \
+            sdl2_mixer \
+            sdl2_ttf \
+            readline \
+            libuv \
+            bullet \
+            freeglut
+
+      - name: Build C reference compiler
+        run: make stage1
+
+      - name: Run escaped-example regressions
+        timeout-minutes: 2
+        run: make test-examples-regressions
+
+      - name: Build every available example strictly
+        timeout-minutes: 40
+        run: make examples EXAMPLES_TIMEOUT=2400
+
   docs:
     name: Docs (link check)
     runs-on: ubuntu-latest

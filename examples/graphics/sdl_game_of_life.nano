@@ -22,8 +22,16 @@ let GRID_WIDTH: int = (/ WINDOW_WIDTH CELL_SIZE)
 let GRID_HEIGHT: int = (/ WINDOW_HEIGHT CELL_SIZE)
 let COLOR_CYCLE_STEPS: int = 10
 
+fn grid_index_for_width(x: int, y: int, width: int) -> int {
+    return (+ (* y width) x)
+}
+
+shadow grid_index_for_width {
+    assert (== (grid_index_for_width 2 3 5) 17)
+}
+
 fn grid_index(x: int, y: int) -> int {
-    return (+ (* y GRID_WIDTH) x)
+    return (grid_index_for_width x y GRID_WIDTH)
 }
 
 shadow grid_index {
@@ -54,7 +62,7 @@ shadow apply_rules {
     assert (== (apply_rules 0 2) 0)
 }
 
-fn count_neighbors(grid: array<int>, x: int, y: int) -> int {
+fn count_neighbors(grid: array<int>, x: int, y: int, width: int, height: int) -> int {
     let mut total: int = 0
     let mut dy: int = -1
     while (<= dy 1) {
@@ -63,9 +71,9 @@ fn count_neighbors(grid: array<int>, x: int, y: int) -> int {
             if (or (!= dx 0) (!= dy 0)) {
                 let nx: int = (+ x dx)
                 let ny: int = (+ y dy)
-                if (and (>= nx 0) (< nx GRID_WIDTH)) {
-                    if (and (>= ny 0) (< ny GRID_HEIGHT)) {
-                        let idx: int = (grid_index nx ny)
+                if (and (>= nx 0) (< nx width)) {
+                    if (and (>= ny 0) (< ny height)) {
+                        let idx: int = (grid_index_for_width nx ny width)
                         set total (+ total (at grid idx))
                     } else {}
                 } else {}
@@ -78,12 +86,12 @@ fn count_neighbors(grid: array<int>, x: int, y: int) -> int {
 }
 
 shadow count_neighbors {
-    let mut grid: array<int> = (array_new (* GRID_WIDTH GRID_HEIGHT) 0)
-    (array_set grid (grid_index 4 4) 1)
-    (array_set grid (grid_index 5 4) 1)
-    (array_set grid (grid_index 6 4) 1)
-    assert (== (count_neighbors grid 5 5) 3)
-    assert (== (count_neighbors grid 0 0) 0)
+    let mut grid: array<int> = (array_new 25 0)
+    (array_set grid (grid_index_for_width 1 1 5) 1)
+    (array_set grid (grid_index_for_width 2 1 5) 1)
+    (array_set grid (grid_index_for_width 3 1 5) 1)
+    assert (== (count_neighbors grid 2 2 5 5) 3)
+    assert (== (count_neighbors grid 0 0 5 5) 1)
 }
 
 fn randomize_grid(grid: array<int>) -> array<int> {
@@ -107,15 +115,15 @@ shadow randomize_grid {
     assert (>= sum 0)
 }
 
-fn step_generation(current: array<int>) -> array<int> {
+fn step_generation(current: array<int>, width: int, height: int) -> array<int> {
     let mut next: array<int> = (array_new (array_length current) 0)
     let mut y: int = 0
-    while (< y GRID_HEIGHT) {
+    while (< y height) {
         let mut x: int = 0
-        while (< x GRID_WIDTH) {
-            let idx: int = (grid_index x y)
+        while (< x width) {
+            let idx: int = (grid_index_for_width x y width)
             let cell: int = (at current idx)
-            let neighbors: int = (count_neighbors current x y)
+            let neighbors: int = (count_neighbors current x y width height)
             let new_state: int = (apply_rules cell neighbors)
             (array_set next idx new_state)
             set x (+ x 1)
@@ -126,15 +134,15 @@ fn step_generation(current: array<int>) -> array<int> {
 }
 
 shadow step_generation {
-    let mut grid: array<int> = (array_new (* GRID_WIDTH GRID_HEIGHT) 0)
-    (array_set grid (grid_index 4 5) 1)
-    (array_set grid (grid_index 5 5) 1)
-    (array_set grid (grid_index 6 5) 1)
-    let next: array<int> = (step_generation grid)
-    assert (== (at next (grid_index 5 4)) 1)
-    assert (== (at next (grid_index 5 5)) 1)
-    assert (== (at next (grid_index 5 6)) 1)
-    assert (== (at next (grid_index 4 5)) 0)
+    let mut grid: array<int> = (array_new 25 0)
+    (array_set grid (grid_index_for_width 1 2 5) 1)
+    (array_set grid (grid_index_for_width 2 2 5) 1)
+    (array_set grid (grid_index_for_width 3 2 5) 1)
+    let next: array<int> = (step_generation grid 5 5)
+    assert (== (at next (grid_index_for_width 2 1 5)) 1)
+    assert (== (at next (grid_index_for_width 2 2 5)) 1)
+    assert (== (at next (grid_index_for_width 2 3 5)) 1)
+    assert (== (at next (grid_index_for_width 1 2 5)) 0)
 }
 
 fn get_palette_index(step: int, palette: array<int>) -> int {
@@ -222,7 +230,7 @@ fn main() -> int {
             }
         }
 
-        set grid (step_generation grid)
+        set grid (step_generation grid GRID_WIDTH GRID_HEIGHT)
         set generation (+ generation 1)
         if (== (% generation COLOR_CYCLE_STEPS) 0) {
             set color_step (+ color_step 1)

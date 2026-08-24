@@ -185,15 +185,30 @@ shadow audio_list_add {
     assert (== (array_length two) 2)
 }
 
-# Safe music loading with error handling
-fn replace_music(owned: array<Mix_Music>, track_path: string) -> array<Mix_Music> {
-    (Mix_HaltMusic)
-    let mut i: int = 0
-    while (< i (array_length owned)) {
-        (Mix_FreeMusic (at owned i))
-        set i (+ i 1)
+union OwnedMusic {
+    Loaded { music: Mix_Music },
+    Empty { }
+}
+
+fn music_is_loaded(owned: OwnedMusic) -> bool {
+    match owned {
+        Loaded(loaded) => { return true }
+        Empty(empty) => { return false }
     }
-    if (== track_path "") { return [] }
+}
+
+shadow music_is_loaded {
+    assert (not (music_is_loaded OwnedMusic.Empty { }))
+}
+
+# Safe music loading with error handling
+fn replace_music(owned: OwnedMusic, track_path: string) -> OwnedMusic {
+    (Mix_HaltMusic)
+    match owned {
+        Loaded(loaded) => { (Mix_FreeMusic loaded.music) }
+        Empty(empty) => { }
+    }
+    if (== track_path "") { return OwnedMusic.Empty { } }
     let music: Mix_Music = (Mix_LoadMUS track_path)
     if (== music 0) {
         # Failed to load - get error message
@@ -201,19 +216,19 @@ fn replace_music(owned: array<Mix_Music>, track_path: string) -> array<Mix_Music
         (println track_path)
         (print "  Error: ")
         (println (Mix_GetError))
-        return []
+        return OwnedMusic.Empty { }
     }
     if (!= (Mix_PlayMusic music -1) 0) {
         (println (+ "Failed to play: " track_path))
         (Mix_FreeMusic music)
-        return []
+        return OwnedMusic.Empty { }
     }
-    return [music]
+    return OwnedMusic.Loaded { music: music }
 }
 
 shadow replace_music {
     # Empty input exercises deterministic cleanup without opening an audio file.
-    assert (== (array_length (replace_music [] "")) 0)
+    assert (not (music_is_loaded (replace_music OwnedMusic.Empty { } "")))
 }
 
 fn main() -> int {
@@ -336,7 +351,7 @@ fn main() -> int {
     # State variables
     let mut running: bool = true
     let mut playback_state: int = STATE_STOPPED
-    let mut owned_music: array<Mix_Music> = []
+    let mut owned_music: OwnedMusic = OwnedMusic.Empty { }
     let mut current_track_index: int = 0
     let mut volume: float = 0.625  # 80/128
     let mut viz_mode: int = 1  # Start with frequency bars (most Winamp-like)
@@ -393,7 +408,10 @@ fn main() -> int {
             # SDL_mixer is the authority on track completion.
             if (== (Mix_PlayingMusic) 0) {
                 if (== repeat_mode REPEAT_ONE) {
-                    (Mix_PlayMusic (at owned_music 0) 0)
+                    match owned_music {
+                        Loaded(loaded) => { (Mix_PlayMusic loaded.music 0) }
+                        Empty(empty) => { }
+                    }
                     set playback_start_ticks (SDL_GetTicks)
                 } else {
                     # Next track
@@ -411,7 +429,7 @@ fn main() -> int {
                     set playback_start_ticks (SDL_GetTicks)
                     if (== playback_state STATE_PLAYING) {
                         set owned_music (replace_music owned_music (at playlist current_track_index))
-                        if (== (array_length owned_music) 0) { set playback_state STATE_STOPPED }
+                        if (not (music_is_loaded owned_music)) { set playback_state STATE_STOPPED }
                     } else {
                         set owned_music (replace_music owned_music "")
                     }
@@ -627,7 +645,7 @@ fn main() -> int {
                     set current_track_index (- current_track_index 1)
                     set playback_time 0
                     set playback_start_ticks (SDL_GetTicks)
-                    if (> (array_length owned_music) 0) { set playback_state STATE_PLAYING }
+                    if (music_is_loaded owned_music) { set playback_state STATE_PLAYING }
                     (println "[*] Previous")
                 } else {}
             } else {}
@@ -638,7 +656,7 @@ fn main() -> int {
                     if (== playback_state STATE_STOPPED) {
                         let track_path: string = (at playlist current_track_index)
                         set owned_music (replace_music owned_music track_path)
-                        if (> (array_length owned_music) 0) {
+                        if (music_is_loaded owned_music) {
                             # Successfully loaded and playing
                             set playback_state STATE_PLAYING
                             set playback_start_ticks (SDL_GetTicks)
@@ -653,7 +671,7 @@ fn main() -> int {
                                 set current_track_index (% (+ current_track_index 1) playlist_count)
                                 let next_path: string = (at playlist current_track_index)
                                 set owned_music (replace_music owned_music next_path)
-                                if (> (array_length owned_music) 0) {
+                                if (music_is_loaded owned_music) {
                                     set playback_state STATE_PLAYING
                                     set playback_start_ticks (SDL_GetTicks)
                                     (println "[*] Skipped to next track")
@@ -698,7 +716,7 @@ fn main() -> int {
                     set current_track_index (+ current_track_index 1)
                     set playback_time 0
                     set playback_start_ticks (SDL_GetTicks)
-                    if (> (array_length owned_music) 0) { set playback_state STATE_PLAYING }
+                    if (music_is_loaded owned_music) { set playback_state STATE_PLAYING }
                     (println "[*] Next")
                 } else {}
             } else {}
@@ -884,7 +902,7 @@ fn main() -> int {
                     # Auto-play with error handling
                     let track_path: string = (at playlist clicked)
                     set owned_music (replace_music owned_music track_path)
-                    if (> (array_length owned_music) 0) {
+                    if (music_is_loaded owned_music) {
                         # Successfully loaded and playing
                         set playback_state STATE_PLAYING
                         set playback_start_ticks (SDL_GetTicks)
@@ -952,10 +970,9 @@ fn main() -> int {
     
     (println "Cleaning up...")
     (Mix_HaltMusic) 
-    let mut music_i: int = 0
-    while (< music_i (array_length owned_music)) {
-        (Mix_FreeMusic (at owned_music music_i))
-        set music_i (+ music_i 1)
+    match owned_music {
+        Loaded(loaded) => { (Mix_FreeMusic loaded.music) }
+        Empty(empty) => { }
     }
     (nl_audio_viz_shutdown) 
     (TTF_CloseFont font) 
