@@ -21,6 +21,9 @@
 #   * examples/audio/sdl_audio_wav.nano   -- WAV-only (Mix_LoadWAV) and the tree
 #     bundles no .wav asset, so there is no valid default it could point at; it
 #     stays argument-required by design.
+#   * examples/audio/sdl_tracker_shell.nano -- ModArchive downloads and the
+#     default browser live in $HOME/Downloads, which is not a repo path the
+#     launcher can name. It must not carry `# Default Args:`.
 #   * examples/audio/nanoamp_playlist_harness.nano -- a headless verification
 #     harness, not a launcher-facing example (it carries no `# Example:` /
 #     `# Build:` metadata and is not surfaced in the launcher UI).
@@ -95,7 +98,6 @@ fn check_example(path: string) -> int {
 fn main() -> int {
     # Launcher-facing audio examples that must ship a working default.
     let _a: int = (check_example "examples/audio/sdl_nanoamp.nano")
-    let _b: int = (check_example "examples/audio/sdl_tracker_shell.nano")
     let _c: int = (check_example "examples/audio/sdl_mod_visualizer.nano")
     let _d: int = (check_example "examples/audio/sdl_audio_player.nano")
 
@@ -106,6 +108,11 @@ fn main() -> int {
     let wav: ExampleInfo = (parse_example_header "examples/audio/sdl_audio_wav.nano")
     assert (== (str_length wav.default_args) 0)
     (println "sdl_audio_wav.nano correctly has no Default Args (WAV-only, no bundled .wav).")
+
+    # Tracker samples live in $HOME/Downloads, not a repo-relative Default Args path.
+    let tracker: ExampleInfo = (parse_example_header "examples/audio/sdl_tracker_shell.nano")
+    assert (== (str_length tracker.default_args) 0)
+    (println "sdl_tracker_shell.nano correctly has no Default Args (HOME/Downloads).")
 
     (println "audio examples default-args sibling audit passed.")
     return 0
