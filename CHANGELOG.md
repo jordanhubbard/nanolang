@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.3] - 2026-08-24
+
+### Fixed
+- gate strict example builds in CI
+- retire stale runtime claims (#85)
+- publish release dependency metadata (#84)
+- make scalar WASM programs executable (#82)
+
 ## [3.4.2] - 2026-08-23
 
 ### Changed
