@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.4] - 2026-08-24
+
+### Fixed
+- honor NANO_BUILD_CACHE and keep tracker samples in Downloads
+
 ## [3.4.3] - 2026-08-24
 
 ### Fixed
