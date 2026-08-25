@@ -301,7 +301,7 @@ time ./bin/myprogram
 ./bin/program 2> profile.json
 ```
 
-See [Chapter 8: LLM-Powered Profiling](../08_profiling.md) for comprehensive profiling documentation.
+See [Performance Profiling](../guide/07_performance_profiling.md) for `-pg` JSON, OS collectors, and the measured LLM loop.
 
 ### Memory Profiling
 

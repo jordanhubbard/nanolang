@@ -214,6 +214,9 @@ jobs:
       - name: Check markdown links
         run: python3 scripts/check_markdown_links.py
 
+      - name: Assert performance-monitoring docs
+        run: bash tests/test_performance_monitoring_docs.sh
+
       - name: Check stdlib documentation coverage
         run: bash tests/check_stdlib_docs.sh
 

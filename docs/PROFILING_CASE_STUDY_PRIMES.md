@@ -230,4 +230,5 @@ My profiling showed these are premature. 88ms is fast enough for most of my use 
 ---
 
 **See also:**
-- [userguide/08_profiling.md](../userguide/08_profiling.md) ,oldString:
+- [Performance Monitoring and LLM Optimization](PERFORMANCE_MONITORING.md)
+- [User guide: Performance Profiling](../userguide/guide/07_performance_profiling.md)

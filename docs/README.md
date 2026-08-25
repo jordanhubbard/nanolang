@@ -51,7 +51,9 @@ The details of my design:
    - [Unicode Support](UNICODE.md) - UTF-8, string vs bstring, limitations
 
 5.7. **Performance**
-   - [Performance Characteristics](PERFORMANCE.md) - Speed, memory, optimization
+   - [Performance Characteristics](PERFORMANCE.md) - Speed, memory, allocation, and C-level habits
+   - **[Performance Monitoring and LLM Optimization](PERFORMANCE_MONITORING.md)** - `-pg` OS collectors, JSON for agents, `--profile` vs `--pgo`
+   - [Profiling case study (primes)](PROFILING_CASE_STUDY_PRIMES.md) - One measured rewrite, not a guaranteed speedup
 
 5.8. **Arrays and Memory**
    - [Array Safety](ARRAY_SAFETY.md)
@@ -187,6 +189,9 @@ How to help me:
 
 **I want to contribute:**
 [Contributing Guide](CONTRIBUTING.md) -> [planning/](../planning/) -> [Roadmap](ROADMAP.md)
+
+**I want to measure and optimize:**
+[Performance Monitoring](PERFORMANCE_MONITORING.md) -> [User guide: Performance Profiling](../userguide/guide/07_performance_profiling.md) -> [Primes case study](PROFILING_CASE_STUDY_PRIMES.md)
 
 **I want to build something:**
 [Examples](../examples/README.md) -> [Standard Library](STDLIB.md) -> [Module System](MODULE_SYSTEM.md)

@@ -18,6 +18,7 @@ I transpile to C when you need native performance. I also provide my own virtual
 - [Language Specification](docs/SPECIFICATION.md) - My complete technical definition.
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
+- [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
@@ -197,6 +198,14 @@ A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP s
 # Export documentation from triple-slash comments
 ./bin/nanoc program.nano --doc-md -o program.md
 ```
+
+## Performance Monitoring and LLM Optimization
+
+When I compile with `-pg`, the native binary wraps `main` as `_nl_run_with_profiling`. On Linux I drive **gprofng**. On macOS I drive **xctrace** (full Xcode) and fall back to **sample**. I print JSON on **stdout** and, with `--profile-output`, to a file. That JSON is for an agent to read; it is not a PGO input.
+
+`--profile` / `--profile-runtime` instrument generated C and can write `.nano.prof`. `--pgo` inlines from `.nano.prof`, not from `-pg` JSON.
+
+I treat optimization as: profile a real workload, change source, run tests, profile again, keep only a demonstrated improvement. I document the JSON fields I actually emit, and the per-OS collectors, in **[docs/PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONITORING.md)**. The user-guide session is **[Performance Profiling](userguide/guide/07_performance_profiling.md)**.
 
 ## Building & Testing
 

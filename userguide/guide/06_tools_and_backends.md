@@ -38,3 +38,5 @@ Unsupported constructs should fail explicitly rather than produce an artifact th
 ## Diagnostics
 
 Machine-facing diagnostics include JSON and TOON forms. Useful compiler options include `--llm-diags-json`, `--llm-diags-toon`, `--json-errors`, `--emit-typed-ast-json`, and `--reflect`. Consult the generated CLI page because flags change more often than prose should pretend they do not.
+
+`-pg` and `--profile-output` wrap a native binary with the host profiler and emit JSON on stdout. That path is not `--profile-runtime` and is not `--pgo`. I document it in [Performance Profiling](07_performance_profiling.md).
