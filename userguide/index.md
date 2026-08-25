@@ -24,6 +24,7 @@ shadow factorial {
 4. [Work with modules, foreign code, and resources](guide/04_modules_and_ffi.md).
 5. [Understand shadows, tests, and my verified boundary](guide/05_testing_and_trust.md).
 6. [Choose a tool or backend](guide/06_tools_and_backends.md).
+7. [Measure native performance and tune from evidence](guide/07_performance_profiling.md).
 
 ## Reference
 
