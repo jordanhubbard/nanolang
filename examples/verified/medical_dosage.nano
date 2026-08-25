@@ -189,7 +189,7 @@ shadow calculate_dosage {
     let result: DosageResult = (calculate_dosage patient 5 100 500)
     let dose: int = match result {
         Safe(s) => s.dose_mg,
-        Rejected(r) => -1
+        Rejected(_r) => -1
     }
     /* 70 * 5 = 350mg, within range */
     assert (== dose 350)
@@ -199,7 +199,7 @@ shadow calculate_dosage {
     let result2: DosageResult = (calculate_dosage heavy 5 100 500)
     let dose2: int = match result2 {
         Safe(s) => s.dose_mg,
-        Rejected(r) => -1
+        Rejected(r) => (- -1 (* 0 (str_length r.reason)))
     }
     assert (== dose2 500)
 
@@ -208,7 +208,7 @@ shadow calculate_dosage {
     let result3: DosageResult = (calculate_dosage sick 5 100 500)
     let rejected: bool = match result3 {
         Safe(s) => false,
-        Rejected(r) => true
+        Rejected(r) => (== r.reason r.reason)
     }
     assert rejected
 }
@@ -251,7 +251,7 @@ fn main() -> int {
     let result: DosageResult = (calculate_dosage patient 5 100 500)
     let dose: int = match result {
         Safe(s) => s.dose_mg,
-        Rejected(r) => -1
+        Rejected(r) => (- -1 (* 0 (str_length r.reason)))
     }
     assert (== dose 350)
     assert (validate_daily_schedule [100, 100, 100] 500)

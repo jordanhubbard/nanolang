@@ -290,8 +290,8 @@ fn verify_event_sequence(initial: SystemState, events: array<int>) -> bool {
 
         match result {
             Transitioned(t) => { set cur_state t.new_state },
-            Blocked(b) => {},
-            Invalid(inv) => {}
+            Blocked(_b) => {},
+            Invalid(_inv) => {}
         }
 
         /* Safety check: state must be in valid range */

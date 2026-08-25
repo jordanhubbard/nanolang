@@ -6,12 +6,11 @@
 # Prerequisites: http_hello_world
 # Track: tools
 # Build: external-deps, interactive
-# Dependencies: modules/http_server, modules/nano_tools, libuv
+# Dependencies: modules/http_server, libuv
 # Tags: playground, http, native-only, interactive
 # Expected Output: interactive
 
 from "modules/http_server/http_server.nano" import create, set_static_dir, start
-from "modules/nano_tools/nano_tools.nano" import eval_internal
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
 
 # Escape special characters for JSON strings
@@ -45,50 +44,6 @@ shadow json_escape {
     assert (str_equals (json_escape "hello") "hello")
     assert (str_contains (json_escape "say \"hi\"") "\\\"")
     assert (str_contains (json_escape "line1\nline2") "\\n")
-}
-
-# Wrap user code in a main function that captures output
-fn wrap_user_code(code: string) -> string {
-    let sb: StringBuilder = (sb_new)
-
-    # Add the user's code (which may contain fn definitions, etc.)
-    (sb_append sb code)
-    (sb_append sb "\n\n")
-
-    # Add a main function if one doesn't exist
-    # Note: This is a simple check - doesn't parse the code properly
-    if (not (str_contains code "fn main")) {
-        (sb_append sb "fn main() -> int {\n")
-        (sb_append sb "    return 0\n")
-        (sb_append sb "}\n\n")
-        (sb_append sb "shadow main { assert true }\n")
-    } else {
-        (print "")
-    }
-
-    return (sb_to_string sb)
-}
-
-shadow wrap_user_code {
-    let code: string = "fn add(a: int, b: int) -> int { return (+ a b) }\nshadow add { assert (== (add 2 3) 5) }"
-    let wrapped: string = (wrap_user_code code)
-    assert (str_contains wrapped "fn main")
-}
-
-# Execute user code and capture result
-fn execute_code(code: string) -> int {
-    let wrapped: string = (wrap_user_code code)
-
-    # Try to execute the code
-    # eval_internal returns 0 on success, non-zero on failure
-    unsafe {
-        return (eval_internal wrapped)
-    }
-}
-
-shadow execute_code {
-    let code: string = "fn test() -> int { return 42 }\nshadow test { assert (== (test) 42) }\nfn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }"
-    assert (== (execute_code code) 0)
 }
 
 # Build JSON response for successful execution

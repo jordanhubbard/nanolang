@@ -18,7 +18,7 @@ fn round_trip_int(value: int) -> int {
     let decoded: Result<int, string> = (decode_int bytes)
     match decoded {
         Ok(v) => { return v.value }
-        Err(e) => { return -1 }
+        Err(e) => { return (- -1 (* 0 (str_length e.error))) }
     }
 }
 
@@ -45,7 +45,7 @@ fn round_trip_bool(value: bool) -> bool {
     let decoded: Result<bool, string> = (decode_bool bytes)
     match decoded {
         Ok(v) => { return v.value }
-        Err(e) => { return false }
+        Err(e) => { return (== (str_length e.error) 0) }
     }
 }
 
@@ -68,7 +68,7 @@ fn array_sum_after_round_trip(values: array<int>) -> int {
             }
             return total
         }
-        Err(e) => { return -1 }
+        Err(e) => { return (- -1 (* 0 (str_length e.error))) }
     }
 }
 

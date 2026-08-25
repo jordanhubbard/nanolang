@@ -33,7 +33,7 @@ fn test_option_some() -> int {
         Some(s) => {
             return s.value
         }
-        None(n) => {
+        None(_n) => {
             return 0
         }
     }
@@ -51,7 +51,7 @@ fn test_option_none() -> int {
         Some(s) => {
             return s.value
         }
-        None(n) => {
+        None(_n) => {
             return -1
         }
     }
@@ -84,7 +84,7 @@ shadow test_result_ok {
 fn test_result_error() -> int {
     let res: Result = Result.Error { code: 404, message: "not found" }
     match res {
-        Ok(o) => {
+        Ok(_o) => {
             return 0
         }
         Error(e) => {
@@ -108,7 +108,7 @@ fn test_value_from_var() -> int {
         Some(s) => {
             return s.value
         }
-        None(n) => {
+        None(_n) => {
             return 0
         }
     }
@@ -126,7 +126,7 @@ fn test_value_from_expr() -> int {
         Some(s) => {
             return s.value
         }
-        None(n) => {
+        None(_n) => {
             return 0
         }
     }
@@ -143,7 +143,7 @@ fn test_multi_field_vars() -> int {
     let msg: string = "server error"
     let res: Result = Result.Error { code: code, message: msg }
     match res {
-        Ok(o) => {
+        Ok(_o) => {
             return 0
         }
         Error(e) => {
@@ -170,7 +170,7 @@ shadow make_some {
         Some(s) => {
             assert (== s.value 77)
         }
-        None(n) => {
+        None(_n) => {
             assert false
         }
     }
@@ -194,7 +194,7 @@ shadow maybe_value {
         Some(s) => {
             assert (== s.value 10)
         }
-        None(n) => {
+        None(_n) => {
             assert false
         }
     }
@@ -256,7 +256,7 @@ fn sum_some_values(count: int) -> int {
             Some(s) => {
                 set sum (+ sum s.value)
             }
-            None(n) => {
+            None(_n) => {
                 set sum sum
             }
         }
@@ -284,7 +284,7 @@ fn alternate_construct(count: int) -> int {
                 Some(s) => {
                     set sum (+ sum s.value)
                 }
-                None(n) => {
+                None(_n) => {
                     set sum sum
                 }
             }
@@ -294,7 +294,7 @@ fn alternate_construct(count: int) -> int {
                 Some(s) => {
                     set sum (+ sum s.value)
                 }
-                None(n) => {
+                None(_n) => {
                     set sum (+ sum 100)
                 }
             }
@@ -319,7 +319,7 @@ fn test_either_left() -> int {
         Left(l) => {
             return l.value
         }
-        Right(r) => {
+        Right(_r) => {
             return 0
         }
     }
@@ -379,12 +379,12 @@ fn chain_operations(x: int) -> int {
                 Some(s2) => {
                     return s2.value
                 }
-                None(n2) => {
+                None(_n2) => {
                     return 0
                 }
             }
         }
-        None(n) => {
+        None(_n) => {
             return -1
         }
     }
@@ -402,7 +402,7 @@ fn unwrap_or(opt: Option, default_val: int) -> int {
         Some(s) => {
             return s.value
         }
-        None(n) => {
+        None(_n) => {
             return default_val
         }
     }
@@ -429,7 +429,7 @@ fn test_multiple_constructions() -> int {
         Some(s) => {
             set sum (+ sum s.value)
         }
-        None(n) => {
+        None(_n) => {
             set sum sum
         }
     }
@@ -438,7 +438,7 @@ fn test_multiple_constructions() -> int {
         Some(s) => {
             set sum (+ sum s.value)
         }
-        None(n) => {
+        None(_n) => {
             set sum sum
         }
     }
@@ -447,7 +447,7 @@ fn test_multiple_constructions() -> int {
         Some(s) => {
             set sum (+ sum s.value)
         }
-        None(n) => {
+        None(_n) => {
             set sum (+ sum 70)
         }
     }

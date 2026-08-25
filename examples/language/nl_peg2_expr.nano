@@ -40,11 +40,23 @@ fn try_parse(g: Peg2Grammar, input: string) -> void {
     }
 }
 
+shadow try_parse {
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+    (try_parse g "1 + 2")
+    (peg2_free g)
+}
+
 fn check_valid(g: Peg2Grammar, input: string) -> void {
     let ok: bool = (peg2_matches g input)
     let mut validity: string = "valid"
     if (not ok) { set validity "invalid" } else { (print "") }
     (print (str_concat "  " (str_concat input (str_concat ": " validity))))
+}
+
+shadow check_valid {
+    let g: Peg2Grammar = (peg2_compile expr_grammar)
+    (check_valid g "1 + 2")
+    (peg2_free g)
 }
 
 fn demo_validation() -> void {
@@ -58,6 +70,8 @@ fn demo_validation() -> void {
     (check_valid g "(unclosed")
     (peg2_free g)
 }
+
+shadow demo_validation { (demo_validation) }
 
 fn main() -> int {
     (print "=== peg2 Arithmetic Expression Parser ===")

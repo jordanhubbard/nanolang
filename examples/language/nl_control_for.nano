@@ -24,7 +24,7 @@ shadow test_for_sum {
 # @pure
 fn test_for_count() -> int {
     let mut count: int = 0
-    for i in (range 0 10) {
+    for _i in (range 0 10) {
         set count (+ count 1)
     }
     return count
@@ -65,7 +65,7 @@ shadow test_for_range_start {
 # @pure
 fn test_for_single_iteration() -> int {
     let mut sum: int = 0
-    for i in (range 0 1) {
+    for _i in (range 0 1) {
         set sum (+ sum 42)
     }
     return sum
@@ -80,8 +80,8 @@ shadow test_for_single_iteration {
 # @pure
 fn test_nested_for() -> int {
     let mut sum: int = 0
-    for i in (range 0 3) {
-        for j in (range 0 3) {
+    for _i in (range 0 3) {
+        for _j in (range 0 3) {
             set sum (+ sum 1)
         }
     }

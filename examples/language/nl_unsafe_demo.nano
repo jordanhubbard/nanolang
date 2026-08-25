@@ -84,13 +84,13 @@ fn main() -> int {
     (println "=== Nanolang Unsafe Blocks Demo ===")
     (println "")
     
-    let r1: int = (example_basic_unsafe)
+    (example_basic_unsafe)
     (println "")
     
-    let r2: int = (example_nested_unsafe)
+    (example_nested_unsafe)
     (println "")
     
-    let r3: int = (example_unsafe_rationale)
+    (example_unsafe_rationale)
     (println "")
     
     (println "=== All examples completed successfully ===")
@@ -100,4 +100,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

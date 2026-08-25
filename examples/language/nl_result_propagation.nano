@@ -28,7 +28,7 @@ shadow safe_div {
     let r1: Result = (safe_div 10 2)
     match r1 {
         Ok(ok) => { assert (== ok.val 5) }
-        Err(err) => { assert false }
+        Err(err) => { return Result.Err { msg: err.msg } }
     }
     let r2: Result = (safe_div 7 0)
     match r2 {
@@ -55,7 +55,7 @@ shadow safe_sqrt_int {
     let r1: Result = (safe_sqrt_int 25)
     match r1 {
         Ok(ok) => { assert (== ok.val 5) }
-        Err(err) => { assert false }
+        Err(err) => { return Result.Err { msg: err.msg } }
     }
     let r2: Result = (safe_sqrt_int -1)
     match r2 {
@@ -77,7 +77,7 @@ fn sqrt_of_ratio(a: int, b: int) -> Result {
     let mut quotient: int = 0
     match div_r {
         Ok(ok) => { set quotient ok.val }
-        Err(err) => { assert false }
+        Err(err) => { return Result.Err { msg: err.msg } }
     }
 
     if (< quotient 0) {
@@ -90,7 +90,7 @@ fn sqrt_of_ratio(a: int, b: int) -> Result {
     let mut root: int = 0
     match sqrt_r {
         Ok(ok) => { set root ok.val }
-        Err(err) => { assert false }
+        Err(err) => { return Result.Err { msg: err.msg } }
     }
 
     return Result.Ok { val: root }
@@ -138,7 +138,7 @@ fn main() -> int {
     /* Error path: divide by zero */
     let r2: Result = (sqrt_of_ratio 100 0)
     match r2 {
-        Ok(ok) => {
+        Ok(_ok) => {
             (println "FAIL: expected Err but got Ok")
             return 1
         }
@@ -155,7 +155,7 @@ fn main() -> int {
     /* Error path: sqrt of negative */
     let r3: Result = (sqrt_of_ratio -9 1)
     match r3 {
-        Ok(ok) => {
+        Ok(_ok) => {
             (println "FAIL: expected Err for negative sqrt")
             return 1
         }

@@ -192,8 +192,8 @@ union OwnedMusic {
 
 fn music_is_loaded(owned: OwnedMusic) -> bool {
     match owned {
-        Loaded(loaded) => { return true }
-        Empty(empty) => { return false }
+        Loaded(loaded) => { return (not (== loaded.music 0)) }
+        Empty(_empty) => { return false }
     }
 }
 
@@ -206,7 +206,7 @@ fn replace_music(owned: OwnedMusic, track_path: string) -> OwnedMusic {
     (Mix_HaltMusic)
     match owned {
         Loaded(loaded) => { (Mix_FreeMusic loaded.music) }
-        Empty(empty) => { }
+        Empty(_empty) => { }
     }
     if (== track_path "") { return OwnedMusic.Empty { } }
     let music: Mix_Music = (Mix_LoadMUS track_path)
@@ -410,7 +410,7 @@ fn main() -> int {
                 if (== repeat_mode REPEAT_ONE) {
                     match owned_music {
                         Loaded(loaded) => { (Mix_PlayMusic loaded.music 0) }
-                        Empty(empty) => { }
+                        Empty(_empty) => { }
                     }
                     set playback_start_ticks (SDL_GetTicks)
                 } else {
@@ -972,7 +972,7 @@ fn main() -> int {
     (Mix_HaltMusic) 
     match owned_music {
         Loaded(loaded) => { (Mix_FreeMusic loaded.music) }
-        Empty(empty) => { }
+        Empty(_empty) => { }
     }
     (nl_audio_viz_shutdown) 
     (TTF_CloseFont font) 

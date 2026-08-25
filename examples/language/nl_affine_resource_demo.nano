@@ -24,7 +24,7 @@ shadow open_file {
     (close_file f)
 }
 
-fn close_file(f: FileHandle) -> void {
+fn close_file(_f: FileHandle) -> void {
     (println "resource closed")
 }
 

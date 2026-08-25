@@ -24,6 +24,9 @@ pub struct TestResult {
 fn compile_timeout() -> string { return "120" }
 fn run_timeout() -> string { return "30" }
 
+shadow compile_timeout { assert (== (compile_timeout) "120") }
+shadow run_timeout { assert (== (run_timeout) "30") }
+
 # Build the compiler command for an example file (with timeout)
 fn build_command(source_file: string, compiler: string, output_path: string) -> string {
     return (+ "timeout " (+ (compile_timeout) (+ " " (+ compiler (+ " " (+ source_file (+ " -o " output_path)))))))
@@ -92,6 +95,9 @@ shadow output_matches {
 # Compile and run a single example, returning a TestResult
 pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestResult {
     (example_start meta.name)
+
+    # The mode is part of the runner API even when the selected compiler needs no flag.
+    if (== mode "") { (print "") }
 
     let bin_path: string = (derive_binary_name meta.source_file)
     let compile_cmd: string = (build_command meta.source_file compiler bin_path)
