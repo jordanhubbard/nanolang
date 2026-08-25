@@ -5,8 +5,8 @@ profile and prints JSON an LLM can read. I do not guarantee a speedup. I keep
 an optimization when a second profile and my tests show it helped.
 
 The canonical field list, re-entry environment variables, and `/tmp` artifact
-names are in [docs/PERFORMANCE_MONITORING.md](../../docs/PERFORMANCE_MONITORING.md).
-Older links to [Chapter 8](../08_profiling.md) reach a pointer to this page.
+names are in
+[docs/PERFORMANCE_MONITORING.md](https://github.com/jordanhubbard/nanolang/blob/main/docs/PERFORMANCE_MONITORING.md).
 
 ## Capture a profile
 
