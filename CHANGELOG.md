@@ -5,6 +5,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.6] - 2026-08-25
+
 ### Added
 - first-class Performance Monitoring and LLM Optimization documentation for `-pg`
 
