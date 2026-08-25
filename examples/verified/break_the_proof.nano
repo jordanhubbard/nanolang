@@ -137,8 +137,8 @@ fn run_behavior_checks() -> int {
 
     let division: DivResult = (safe_divide 1 0)
     match division {
-        Quotient(q) => {},
-        DivisionByZero(e) => { set passed (+ passed 1) }
+        Quotient(_q) => {},
+        DivisionByZero(_e) => { set passed (+ passed 1) }
     }
     return passed
 }

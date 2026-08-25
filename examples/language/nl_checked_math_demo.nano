@@ -203,11 +203,11 @@ fn main() -> int {
     (println "╚══════════════════════════════════════════════════════════╝")
     (println "")
     
-    let r1: int = (demo_safe_addition)
-    let r2: int = (demo_safe_division)
-    let r3: int = (demo_safe_multiplication)
-    let r4: int = (demo_safe_subtraction)
-    let r5: int = (demo_safe_modulo)
+    (demo_safe_addition)
+    (demo_safe_division)
+    (demo_safe_multiplication)
+    (demo_safe_subtraction)
+    (demo_safe_modulo)
     
     (println "╔══════════════════════════════════════════════════════════╗")
     (println "║   ✓ All operations completed safely!                     ║")
@@ -222,4 +222,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

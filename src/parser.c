@@ -1312,6 +1312,14 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             int line = tok->line;
             int column = tok->column;
             advance(p);  /* consume '-' */
+            Token *operand_token = current_token(p);
+            if (operand_token && operand_token->token_type == TOKEN_NUMBER &&
+                strcmp(operand_token->value, "9223372036854775808") == 0) {
+                node = create_node(AST_NUMBER, line, column);
+                node->as.number = INT64_MIN;
+                advance(p);
+                return node;
+            }
             ASTNode *operand = parse_primary(p);
             if (!operand) return NULL;
             ASTNode *neg_node = create_node(AST_PREFIX_OP, line, column);

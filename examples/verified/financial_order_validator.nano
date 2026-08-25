@@ -126,7 +126,12 @@ fn validate_risk_limits(order: Order, limits: RiskLimits) -> ValidationResult {
     /* Check structural validity first */
     let structural: ValidationResult = (validate_order_structure order)
     let mut struct_ok: bool = false
-    match structural { Accepted(a) => { set struct_ok true }, Rejected(rj) => {} }
+    match structural {
+        Accepted(a) => { set struct_ok (== a.order_id order.order_id) },
+        Rejected(rj) => {
+            return ValidationResult.Rejected { order_id: rj.order_id, reason: rj.reason }
+        }
+    }
     if (not struct_ok) {
         return structural
     }
@@ -211,7 +216,12 @@ fn track_order(tracker: DailyTracker, order: Order, limits: RiskLimits) -> Daily
     /* First check per-order limits */
     let result: ValidationResult = (validate_risk_limits order limits)
     let mut per_ok: bool = false
-    match result { Accepted(a) => { set per_ok true }, Rejected(rj) => {} }
+    match result {
+        Accepted(a) => { set per_ok (== a.order_id order.order_id) },
+        Rejected(rj) => {
+            assert (== rj.order_id order.order_id)
+        }
+    }
 
     if (not per_ok) {
         return DailyTracker {
@@ -347,7 +357,10 @@ fn main() -> int {
     let order: Order = Order { order_id: 1, side: 0, quantity: 100, price_cents: 5000, account_id: 42 }
     let result: ValidationResult = (validate_risk_limits order limits)
     let mut accepted: bool = false
-    match result { Accepted(a) => { set accepted true }, Rejected(rj) => {} }
+    match result {
+        Accepted(a) => { set accepted (== a.order_id order.order_id) },
+        Rejected(rj) => { assert (> (str_length rj.reason) 0) }
+    }
     assert accepted
     assert (price_within_band 5000 5000 10)
     return 0

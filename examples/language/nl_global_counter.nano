@@ -61,7 +61,7 @@ fn main() -> int {
 
     let mut i: int = 0
     while (< i 10) {
-        let v: int = (increment)
+        (increment)
         set i (+ i 1)
     }
 

@@ -31,6 +31,8 @@ fn usage() -> void {
     (println "  run_examples --meta examples/language/nl_hello.nano")
 }
 
+shadow usage { (usage) }
+
 fn main() -> int {
     let nargs: int = (argc)
 

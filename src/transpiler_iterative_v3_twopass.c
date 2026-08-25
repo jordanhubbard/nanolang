@@ -799,7 +799,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
     switch (expr->type) {
         case AST_NUMBER:
-            emit_formatted(list, "%lldLL", expr->as.number);
+            if (expr->as.number == INT64_MIN) {
+                emit_literal(list, "INT64_MIN");
+            } else {
+                emit_formatted(list, "%lldLL", expr->as.number);
+            }
             break;
             
         case AST_FLOAT:
@@ -823,7 +827,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             Symbol *sym = env_get_var(env, expr->as.identifier);
             if (sym && !sym->is_mut) {
                 if (sym->value.type == VAL_INT) {
-                    emit_formatted(list, "%lldLL", (long long)sym->value.as.int_val);
+                    if (sym->value.as.int_val == INT64_MIN) {
+                        emit_literal(list, "INT64_MIN");
+                    } else {
+                        emit_formatted(list, "%lldLL", (long long)sym->value.as.int_val);
+                    }
                     return;
                 } else if (sym->value.type == VAL_FLOAT) {
                     emit_formatted(list, "%g", sym->value.as.float_val);
@@ -1156,7 +1164,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, ")");
                 } else if (op == TOKEN_MINUS) {
                     Type t = check_expression(expr->as.prefix_op.args[0], env);
-                    if (t == TYPE_ARRAY) {
+                    ASTNode *arg = expr->as.prefix_op.args[0];
+                    if (t == TYPE_INT && arg && arg->type == AST_NUMBER &&
+                        arg->as.number == INT64_MIN) {
+                        /* The parser stores the magnitude of -2^63 in an int64_t.
+                         * Spell the result with the standard macro so C never has
+                         * to represent the out-of-range positive literal first. */
+                        emit_literal(list, "INT64_MIN");
+                    } else if (t == TYPE_ARRAY) {
                         ASTNode *arr_expr = expr->as.prefix_op.args[0];
                         Type elem = infer_array_element_type(arr_expr, env);
                         if (elem == TYPE_INT || elem == TYPE_FLOAT) {

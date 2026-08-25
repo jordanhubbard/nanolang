@@ -105,7 +105,7 @@ fn make_empty_grid(width: int, height: int) -> array<int> {
     let dead: int = CellState.DEAD
     
     # Modern for loop
-    for i in (range 0 total) {
+    for _i in (range 0 total) {
         set grid (array_push grid dead)
     }
     

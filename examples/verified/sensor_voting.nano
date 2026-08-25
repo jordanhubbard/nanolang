@@ -270,7 +270,7 @@ fn validated_vote(s1: SensorReading, s2: SensorReading, s3: SensorReading,
     match vote {
         Consensus(c) => { set quality 3  set value c.value },
         Degraded(d) => { set quality 2  set value d.value },
-        Failure(f) => { set quality 0  set value 0 }
+        Failure(_f) => { set quality 0  set value 0 }
     }
 
     if (== quality 0) {
@@ -287,14 +287,14 @@ shadow validated_vote {
 
     let r: ValidatedReading = (validated_vote s1 s2 s3 5 0 200)
     let mut valid: bool = false
-    match r { Valid(v) => { set valid true }, Invalid(inv) => {} }
+    match r { Valid(_v) => { set valid true }, Invalid(_inv) => {} }
     assert valid
 
     /* One out of range */
     let s_bad: SensorReading = SensorReading { value: 999, sensor_id: 3, timestamp: 0 }
     let r2: ValidatedReading = (validated_vote s1 s2 s_bad 5 0 200)
     let mut valid2: bool = false
-    match r2 { Valid(v) => { set valid2 true }, Invalid(inv) => {} }
+    match r2 { Valid(_v) => { set valid2 true }, Invalid(_inv) => {} }
     assert valid2  /* Still valid: 2 of 3 agree */
 }
 
@@ -310,7 +310,7 @@ fn main() -> int {
     match vote {
         Consensus(c) => { set val c.value },
         Degraded(d) => { set val d.value },
-        Failure(f) => {}
+        Failure(_f) => {}
     }
     assert (== val 1013)
     assert (not (detect_stuck_sensor [1013, 1014, 1012, 1015, 1011] 1))

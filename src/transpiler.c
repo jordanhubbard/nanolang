@@ -4117,7 +4117,11 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
 
         if (!item->as.let.is_mut && is_const_init) {
             /* Emit true constants as C constants */
-            sb_append(sb, "static const ");
+            if (item->as.let.var_type == TYPE_STRING) {
+                sb_append(sb, "static const char * const");
+            } else {
+                sb_append(sb, "static const ");
+            }
             if (item->as.let.var_type == TYPE_HASHMAP &&
                 item->as.let.type_info &&
                 item->as.let.type_info->generic_name &&
@@ -4133,7 +4137,7 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
                 } else {
                     sb_append(sb, "void*");
                 }
-            } else {
+            } else if (item->as.let.var_type != TYPE_STRING) {
                 sb_append(sb, type_to_c(item->as.let.var_type));
             }
             sb_appendf(sb, " %s = ", item->as.let.name);

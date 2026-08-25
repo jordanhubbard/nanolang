@@ -6610,8 +6610,11 @@ register_function_pass1:;
                 check_purity(item->as.function.body, env, item->as.function.name);
             }
 
-            /* Check for unused variables before leaving scope */
-            check_unused_variables(&tc, saved_symbol_count);
+            /* Extern parameters describe the C ABI; they have no body in which
+             * they could be used. */
+            if (!item->as.function.is_extern) {
+                check_unused_variables(&tc, saved_symbol_count);
+            }
 
             /* DON'T restore environment - transpiler needs these symbols! */
             /* The old code removed function-local symbols after typechecking:
@@ -7314,8 +7317,11 @@ register_function_pass2:;
                 check_purity(item->as.function.body, env, item->as.function.name);
             }
 
-            /* Check for unused variables before leaving scope */
-            check_unused_variables(&tc, saved_symbol_count);
+            /* Extern parameters describe the C ABI; they have no body in which
+             * they could be used. */
+            if (!item->as.function.is_extern) {
+                check_unused_variables(&tc, saved_symbol_count);
+            }
 
             /* DON'T restore environment - transpiler needs these symbols! */
             /* The old code removed function-local symbols after typechecking:

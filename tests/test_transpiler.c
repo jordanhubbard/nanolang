@@ -536,6 +536,18 @@ void test_transpile_constants() {
     free(c);
 }
 
+void test_transpile_c_limit_constants() {
+    char *c = transpile_src(
+        "let LABEL: string = \"limits\"\n"
+        "fn main() -> int { let min: int = -9223372036854775808 return min }");
+    ASSERT(c != NULL);
+    ASSERT(strstr(c, "static const char * const LABEL") != NULL);
+    ASSERT(strstr(c, "INT64_MIN") != NULL);
+    ASSERT(strstr(c, "-9223372036854775808LL") == NULL);
+    ASSERT(strstr(c, "const const char") == NULL);
+    free(c);
+}
+
 void test_transpile_recursive() {
     char *c = transpile_src(
         "fn fib(n: int) -> int {\n"
@@ -722,6 +734,7 @@ int main(void) {
     TEST(transpile_for_range);
     TEST(transpile_if_else_chain);
     TEST(transpile_constants);
+    TEST(transpile_c_limit_constants);
     TEST(transpile_recursive);
     TEST(transpile_float_math);
     TEST(transpile_tuple);

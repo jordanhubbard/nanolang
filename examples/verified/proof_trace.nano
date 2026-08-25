@@ -40,7 +40,7 @@ fn match_example(choice: Choice) -> int {
     let mut result: int = -1
     match choice {
         Number(n) => { set result n.value },
-        Empty(e) => { set result 0 }
+        Empty(_e) => { set result 0 }
     }
     return result
 }

@@ -42,6 +42,8 @@ fn parse_csv(input: string) -> void {
     (peg2_free g)
 }
 
+shadow parse_csv { (parse_csv "name,age") }
+
 fn demo_matches() -> void {
     (print "\n--- CSV Field Matching ---")
     let field_g: Peg2Grammar = (peg2_compile "field <- quoted / plain\nquoted <- \"\\\"\" (!\"\\\"\" .)* \"\\\"\"\nplain <- [^,\\n\\r\"]*")
@@ -58,6 +60,8 @@ fn demo_matches() -> void {
 
     (peg2_free field_g)
 }
+
+shadow demo_matches { (demo_matches) }
 
 fn demo_find_numbers() -> void {
     (print "\n--- Find All Numbers in Text ---")
@@ -88,6 +92,8 @@ fn demo_find_numbers() -> void {
 
     (peg2_free num_g)
 }
+
+shadow demo_find_numbers { (demo_find_numbers) }
 
 fn main() -> int {
     (print "=== peg2 CSV Parser Demo ===")

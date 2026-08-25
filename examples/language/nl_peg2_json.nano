@@ -36,6 +36,12 @@ fn validate_json(g: Peg2Grammar, label: string, input: string) -> void {
     (print (str_concat "  " (str_concat label (str_concat " → " status))))
 }
 
+shadow validate_json {
+    let g: Peg2Grammar = (peg2_compile json_grammar)
+    (validate_json g "null literal" "null")
+    (peg2_free g)
+}
+
 fn main() -> int {
     (print "=== peg2 JSON Validator ===")
 

@@ -79,7 +79,10 @@ fn main() -> int {
     let values: array<int> = [10, 20, 30]
     let checked: LookupResult = (lookup_with_result values 9)
     let mut handled: bool = false
-    match checked { Found(v) => {}, Missing(m) => { set handled true } }
+    match checked {
+        Found(v) => { set handled (< v.value 0) },
+        Missing(m) => { set handled (== m.index 9) }
+    }
 
     let in_bounds: int = (lookup_with_assert values 1)
     let bounded: int = (clamp 50 0 10)

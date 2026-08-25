@@ -667,7 +667,11 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
     
-    if (!type_check_module(module_ast, env)) {
+    bool saved_suppress_shadow_warnings = env->suppress_shadow_warnings;
+    env->suppress_shadow_warnings = true;
+    bool module_typecheck_ok = type_check_module(module_ast, env);
+    env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
+    if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
         /* NOTE: module_name may have been freed/overwritten by the module's own
          * `module <name>` declaration handler in the typechecker, so we must not
@@ -1744,6 +1748,13 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             }
             
             if (!valid) {
+                free(link_flags[i]);
+                continue;
+            }
+
+            /* The driver always links libm. Do not repeat it when a module also
+             * declares the standard math library. */
+            if (strcmp(link_flags[i], "-lm") == 0) {
                 free(link_flags[i]);
                 continue;
             }
