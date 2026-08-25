@@ -45,7 +45,7 @@ fn round_trip_bool(value: bool) -> bool {
     let decoded: Result<bool, string> = (decode_bool bytes)
     match decoded {
         Ok(v) => { return v.value }
-        Err(e) => { return (> 0 (str_length e.error)) }
+        Err(e) => { return (== (str_length e.error) 0) }
     }
 }
 

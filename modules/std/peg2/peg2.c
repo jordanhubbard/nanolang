@@ -940,7 +940,7 @@ static Peg2Result run_match(Peg2Grammar *g, const char *input, int input_len, in
         }
         char buf[512];
         if (m.fail_expected[0])
-            snprintf(buf, sizeof(buf), "parse error at line %d col %d: expected %s",
+            snprintf(buf, sizeof(buf), "parse error at line %d col %d: expected %.440s",
                      line, col, m.fail_expected);
         else
             snprintf(buf, sizeof(buf), "parse error at line %d col %d", line, col);

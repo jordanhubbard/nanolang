@@ -45,6 +45,9 @@ extern fn nl_isatty(_fd: int) -> int
 # Initialise the 6 shared lists in place; caller must pass fresh empty lists.
 # @pure
 fn create_state(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> void {
+    if (and (== (list_int_length stack) 0) (== (list_int_length rstack) 0)) { (print "") }
+    if (and (== (list_string_length wnames) 0) (== (list_string_length wbodies) 0)) { (print "") }
+    if (== (list_int_length wimm) 0) { (print "") }
     (list_int_push dspace 10)  # [0] BASE = 10 (decimal)
     (list_int_push dspace 0)   # [1] stack depth
     (list_int_push dspace 0)   # [2] rstack depth
@@ -416,6 +419,7 @@ fn find_close_forward(tokens: List<string>, start: int, open_tok: string, close1
 # ── exec_builtin ───────────────────────────────────────────────────────────────
 # Returns 0=handled, 1=unknown, -1=abort, -99=bye
 fn exec_builtin(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>, token: string) -> int {
+    if (and (== (list_string_length wbodies) 0) (== (list_int_length wimm) 0)) { (print "") }
     let dq_str: string = (string_from_char 34)
     let dotquote: string = (+ "." dq_str)
 
