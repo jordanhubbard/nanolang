@@ -5,6 +5,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.7] - 2026-08-25
+
+### Fixed
+- keep strict example builds warning-free
+- remove recursive playground shadow execution
+- eliminate example compiler warnings
+
 ## [3.4.6] - 2026-08-25
 
 ### Added
