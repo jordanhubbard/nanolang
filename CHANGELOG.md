@@ -5,6 +5,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.5] - 2026-08-24
+
+### Added
+- document native `-pg` profiling, child-process collection, and evidence-based LLM performance tuning in the published user guide
+
+### Changed
+- install binaries under `$HOME/.local` by default while preserving `PREFIX` overrides for installation and removal
+
+### Fixed
+- compile SDL NanoAmp examples that use arrays of opaque `Mix_Music` handles
+
 ## [3.4.4] - 2026-08-24
 
 ### Fixed
