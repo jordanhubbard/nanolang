@@ -2162,6 +2162,7 @@ help:
 	@echo "  make coverage-check  - Check coverage.info meets threshold (COVERAGE_THRESHOLD=$(COVERAGE_THRESHOLD))"
 	@echo "  make valgrind        - Run memory checks with valgrind"
 	@echo "  make install         - Install to $(PREFIX)/bin"
+	@echo "  make uninstall       - Uninstall from $(PREFIX)/bin (for example, PREFIX=/usr/local make uninstall)"
 	@echo "  make vscode-ext      - Build VS Code extension (npm install + compile + vsce package)"
 	@echo ""
 	@echo "Coverage: Requires lcov (brew install lcov / apt-get install lcov)"
