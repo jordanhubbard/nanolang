@@ -1000,6 +1000,11 @@ test-doc-md: build
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
 
+.PHONY: test-performance-monitoring-docs
+test-performance-monitoring-docs:
+	@chmod +x tests/test_performance_monitoring_docs.sh
+	@bash tests/test_performance_monitoring_docs.sh
+
 # Export user guide snippets into tests/user_guide
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
@@ -2126,6 +2131,7 @@ help:
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
+	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"

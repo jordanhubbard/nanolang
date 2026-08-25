@@ -386,23 +386,20 @@ fn sum_array_fast(arr: array<int>) -> int {
 
 ### 5. Profile Before Optimizing
 
-Measure. Do not guess.
+Measure. Do not guess. For `-pg` JSON, OS collectors (gprofng / xctrace / sample),
+and the LLM loop, use [PERFORMANCE_MONITORING.md](PERFORMANCE_MONITORING.md).
 
 ```bash
-# Time your program
+# Wall clock without a collector
 time ./my_program
 
-# Profile with gprof (requires -pg flag)
-gcc -pg generated.c -o program
-./program
-gprof program gmon.out > analysis.txt
+# Host sampler + JSON (native -pg wrapper)
+./bin/nanoc program.nano -o bin/program -pg --profile-output profile.json
+./bin/program
 
 # Memory profile with valgrind
 valgrind --tool=massif ./program
 ms_print massif.out.XXXXX
-
-# Use macOS Instruments
-instruments -t "Time Profiler" ./program
 ```
 
 ## Common Performance Pitfalls

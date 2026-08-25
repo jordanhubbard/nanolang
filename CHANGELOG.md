@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- first-class Performance Monitoring and LLM Optimization documentation for `-pg`
+
 ## [3.4.5] - 2026-08-24
 
 ### Added
@@ -265,7 +268,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - float_to_string preserves decimal point for whole-number floats
 - restore missing source files and fix build for algebraic effects integration
 - add fn main stubs to ug_fstring_basic and ug_fstring_exprs snippets
-- move nl-snippet markers outside [?2004h)0[1;24r[m(B[4l[?7h[?25l[H[J[22;35H[0;7m(B[ New File ][m(B[?25h[24;1H[?2004lnano fences instead of before them. The userguide_snippets_check scanner does not track fence state, so it found these markers inside fenced blocks and then hit the bare nano and <!--nl-snippet ...--> lines so the marker precedes the fence, as required by the checker.
+- move nl-snippet markers outside [?2004h)0[1;24r[m(B[4l[?7h[?25l[H[J[22;35H[0;7m(B[ New File ][m(B[?25h[24;1H
+[?2004lnano fences instead of before them. The userguide_snippets_check scanner does not track fence state, so it found these markers inside fenced blocks and then hit the bare nano and <!--nl-snippet ...--> lines so the marker precedes the fence, as required by the checker.
 - add AST_ASYNC_FN/AST_AWAIT cases to type_infer.c
 - cross-platform random seed in sign.c for macOS/FreeBSD
 - transpile AST_ASYNC_FN and AST_AWAIT nodes

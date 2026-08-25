@@ -306,5 +306,4 @@ The GC automatically prevents:
 - **Double-free** - Each object is freed exactly once
 - **Use-after-free** - References are tracked and validated
 
-For more details on memory management and profiling, see [Chapter 8: Profiling](08_profiling.md).
-```
+For `-pg` profiling and the JSON I emit for LLM loops, see [Performance Profiling](guide/07_performance_profiling.md).
