@@ -6,6 +6,7 @@ guide/03_data_and_errors.md | Data and Errors | Learn
 guide/04_modules_and_ffi.md | Modules, FFI, and Resources | Learn
 guide/05_testing_and_trust.md | Testing and Trust | Learn
 guide/06_tools_and_backends.md | Tools and Backends | Use
+guide/07_performance_profiling.md | Performance Profiling | Use
 generated/examples.md | Examples | Reference
 generated/builtins.md | Builtins | Reference
 generated/modules.md | Modules | Reference
