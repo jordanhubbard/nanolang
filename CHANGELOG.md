@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.8] - 2026-08-26
+
+### Added
+- rebuild GPU Ocean as a two-dimensional CUDA/OpenCL surface with perspective rendering, distributed hull response, and a vessel wake
+
+### Changed
+- build the complete native example set before opening the example launcher
+- document the GPU runtime and generated-kernel requirements used by GPU Ocean
+
+### Fixed
+- launch prebuilt examples without recompiling them synchronously on the SDL event thread
+- include launcher-visible GPU artifacts in the normal example build
+
 ## [3.4.7] - 2026-08-25
 
 ### Fixed
