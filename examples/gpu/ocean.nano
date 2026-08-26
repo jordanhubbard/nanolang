@@ -1,19 +1,22 @@
 # Example: GPU Ocean
-# Purpose: Demonstrate GPU wave synthesis with SDL rendering and a CPU fallback
+# Purpose: Experimental GPU wave-field prototype; not a physical ocean simulation
 # Features: gpu fn, SDL, simulation, rendering
 # Difficulty: Advanced
 # Category: gpu
 # Prerequisites: vector_add, sdl_drawing_primitives
-# Track: showcase
-# Build: gpu, graphical, external-deps
-# Dependencies: modules/gpu, SDL, CUDA or OpenCL runtime
-# Tags: gpu, graphical, native-only
-# Expected Output: graphical
+# Track: experimental
+# Build: manual, gpu, external-deps
+# Dependencies: modules/gpu, SDL2, generated PTX/OpenCL kernels, CUDA driver or OpenCL 1.2 with fp64
+# Tags: gpu, prototype, native-only, not-launcher-ready
+# Expected Output: experimental
 
-# ocean.nano — GPU-accelerated wave synthesis with a responsive ship illustration
+# ocean.nano — GPU wave-field prototype
 #
-# A real-time height field uses four sine components. The ship follows that
-# field with tuned heave and pitch springs; this is not a fluid or buoyancy solver.
+# This program is retained as backend test material. It is not a virtual ocean:
+# it computes a one-dimensional sum of sine waves, draws screen-space columns,
+# and moves a ship illustration with tuned springs. It has no two-dimensional
+# surface, displacement spectrum, normals, buoyancy integration, or wake model.
+# I do not present it in the launcher until those boundaries are replaced.
 #
 # GPU kernel:  computes wave height field (800 columns, 4 wave components)
 # Ship motion: tuned heave and pitch springs driven by sampled wave heights
@@ -26,6 +29,14 @@
 #   NANO_MODULE_PATH=modules nanoc examples/gpu/ocean.nano --target opencl -o examples/gpu/ocean.cl
 #   NANO_MODULE_PATH=modules nanoc examples/gpu/ocean.nano -o bin/ocean
 #   ./bin/ocean
+#
+# Runtime requirements:
+#   CUDA: a driver that accepts the generated PTX target and an NVIDIA GPU.
+#   OpenCL: an ICD/runtime supporting OpenCL C 1.2, 64-bit integer operations,
+#           byte-addressable stores, and cl_khr_fp64. The generated .cl file
+#           must sit beside the .ptx file because the runtime derives its path.
+#   macOS: the system OpenCL framework is deprecated and its presence does not
+#          prove that this kernel compiles on the selected device.
 
 import "modules/gpu/gpu.nano"
 unsafe module "modules/sdl/sdl.nano"
