@@ -1308,7 +1308,7 @@ examples-launcher: examples-c check-deps-sdl
 	@echo "=========================================="
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
-launcher: $(COMPILER_C) check-deps-sdl
+launcher: examples-c check-deps-sdl
 	@echo ""
 	@echo "=========================================="
 	@echo "🚀 Launching Example Browser"

@@ -259,12 +259,7 @@ shadow get_binary_name {
 
 fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
     let output: string = (get_binary_name example_path mode)
-    # Prefer the pre-built binary that `make examples` produced. I only shell out
-    # to the compiler when the artifact is missing, so launching stays fast and I
-    # stop silently rebuilding on every launch (that was feature creep). Set
-    # NANO_FORCE_REBUILD=1 to force a fresh compile.
-    let force_rebuild: string = (env_get "NANO_FORCE_REBUILD")
-    if (and (not (== force_rebuild "1")) (exists output)) {
+    if (exists output) {
         return ChildStatus {
             example_path: example_path, pid: 0, state: 0, exit_code: 0,
             memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0,
@@ -272,41 +267,26 @@ fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
             runtime_output: "", log_path: "", task_filed: false
         }
     }
-    let mut cmd: string = (+ mode.compiler (+ " " (+ example_path (+ " -o " output))))
-    if (> (str_length mode.compiler_flags) 0) {
-        set cmd (+ mode.compiler (+ " " (+ mode.compiler_flags (+ " " (+ example_path (+ " -o " output))))))
-    }
-    # NANO_PROFILE=1 passes -pg to nanoc (triggers xctrace/gprofng JSON wrapper + gprof C flags).
-    # The profiling JSON appears in runtime_output via spawn_with_pipes when the example exits.
-    let nano_profile: string = (env_get "NANO_PROFILE")
-    if (== nano_profile "1") {
-        set cmd (+ cmd " -pg")
-    }
-    let result: Output = (run cmd)
-    let build_out: string = (+ result.stdout (+ "\n" result.stderr))
-    if (== result.code 0) {
-        return ChildStatus {
-            example_path: example_path, pid: 0, state: 0, exit_code: 0,
-            memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: build_out,
-            stdout_fd: -1, stderr_fd: -1, runtime_output: "",
-            log_path: "", task_filed: false
-        }
-    } else {
-        (println (+ "[build] " (+ example_path (+ " failed:\n" build_out))))
-        let build_log_path: string = (+ "/tmp/nanolang-launcher-build-" (+ (basename example_path) ".log"))
-        (write build_log_path (+ "[build output]\n" build_out))
-        (pm_file_failure_task example_path build_log_path result.code build_out)
-        return ChildStatus {
-            example_path: example_path, pid: 0, state: 0, exit_code: result.code,
-            memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: build_out,
-            stdout_fd: -1, stderr_fd: -1, runtime_output: "",
-            log_path: build_log_path, task_filed: true
-        }
+    let message: string = (+ "I cannot launch " (+ example_path (+ ": "
+        (+ output " is missing. Run `make examples` for native mode, or build the selected mode first."))))
+    (println message)
+    return ChildStatus {
+        example_path: example_path, pid: 0, state: 0, exit_code: 1,
+        memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: message,
+        stdout_fd: -1, stderr_fd: -1, runtime_output: "",
+        log_path: "", task_filed: false
     }
 }
 
 shadow build_example {
-    assert (== 0 0)
+    let artifact: string = "bin/launcher_prebuilt_artifact_probe"
+    (write artifact "prebuilt\n")
+    let mode: ModeConfig = (parse_mode "stage1")
+    let result: ChildStatus = (build_example "examples/internal/launcher_prebuilt_artifact_probe.nano" mode)
+    assert (== result.exit_code 0)
+    assert (str_contains result.build_output "Using pre-built")
+    assert (exists artifact)
+    (delete artifact)
 }
 
 fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
