@@ -1,8 +1,33 @@
-# nanolang GPU / PTX Backend
+# My GPU Backends
 
-nanolang supports GPU programming via `gpu fn` syntax and the `gpu` module.
-GPU kernels are compiled to NVIDIA PTX assembly; the host side manages device
-memory and kernel launches through the `gpu` module's CUDA driver API wrapper.
+I compile `gpu fn` kernels to NVIDIA PTX and OpenCL C. My runtime tries CUDA
+first, then OpenCL. These paths have different requirements; a machine having a
+library named OpenCL is not enough to establish that a generated kernel runs.
+
+## Runtime requirements
+
+The runtime loads drivers dynamically, so building the host executable requires
+no CUDA or OpenCL SDK. Running a kernel still requires all of the following:
+
+| Path | Requirements |
+| --- | --- |
+| CUDA | NVIDIA driver, a CUDA-capable device, and driver support for the PTX version and target emitted by the compiler |
+| OpenCL | A working ICD/runtime, an OpenCL device, OpenCL C 1.2 compilation, and every extension used by the generated kernel |
+| OpenCL CPU | A CPU implementation such as POCL; this is a runtime dependency, not a built-in fallback |
+
+My generated OpenCL currently requests `cl_khr_int64_base_atomics`,
+`cl_khr_byte_addressable_store`, and `cl_khr_fp64`, and builds with
+`-cl-std=CL1.2 -cl-unsafe-math-optimizations`. A device may enumerate correctly
+and still reject the program at `clBuildProgram`. Read `gpu_last_error()`; that
+build log is the relevant result.
+
+The runtime receives a `.ptx` path. On OpenCL it replaces the suffix with `.cl`,
+so both generated files must be deployed together with matching kernel names and
+arguments.
+
+On macOS I load `/System/Library/Frameworks/OpenCL.framework/OpenCL`. Apple has
+deprecated OpenCL. Framework presence is not a portability guarantee, and I do
+not describe the GPU Ocean prototype as a supported macOS showcase.
 
 ## Quick start
 

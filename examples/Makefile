@@ -226,6 +226,15 @@ endif
 ROOT_EXAMPLES := $(patsubst %.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(ROOT_SOURCES))
 ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
 
+# === GPU Examples ===
+
+ifeq ($(SDL_AVAILABLE),yes)
+GPU_EXAMPLES := $(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT)
+else
+GPU_EXAMPLES :=
+endif
+GPU_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(GPU_EXAMPLES)))
+
 # === OPL Examples ===
 
 OPL_SOURCES := $(filter-out opl/opl_ast.nano opl/opl_codegen.nano opl/opl_compile.nano opl/opl_json.nano opl/opl_lexer.nano opl/opl_parser.nano opl/opl_validate.nano,$(wildcard opl/*.nano))
@@ -352,6 +361,7 @@ ALL_EXAMPLES = \
 	$(PHYSICS_EXAMPLES) \
 	$(PLAYGROUND_EXAMPLES) \
 	$(ROOT_EXAMPLES) \
+	$(GPU_EXAMPLES) \
 	$(OPL_EXAMPLES) \
 	$(SDL_EXAMPLES) \
 	$(NCURSES_EXAMPLES) \
@@ -416,7 +426,7 @@ all: build
 
 # Build all examples (STRICT: fails if module dependencies missing)
 # Run 'make modules' first to see what's needed
-build: $(COMPILER) $(ALL_EXAMPLES)
+build: $(COMPILER) $(ALL_EXAMPLES) gpu-kernels
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ All Examples Built Successfully"
@@ -455,6 +465,9 @@ build: $(COMPILER) $(ALL_EXAMPLES)
 	@echo "Tools & launchers:"
 	@$(if $(strip $(ROOT_NAMES)),$(foreach ex,$(ROOT_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
+	@echo "GPU examples:"
+	@$(if $(strip $(GPU_NAMES)),$(foreach ex,$(GPU_NAMES),echo "  ./bin/$(ex)";),:)
+	@echo ""
 	@echo "OPL examples:"
 	@$(if $(strip $(OPL_NAMES)),$(foreach ex,$(OPL_NAMES),echo "  ./bin/$(ex)";),:)
 	@echo ""
@@ -492,12 +505,12 @@ examples-available: $(COMPILER)
 
 # Example launcher (SDL app-store style)
 # Note: must run from repo root so relative paths (examples/icons/, examples/games/) resolve
-launcher: $(COMPILER) $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT) gpu-launcher-kernels
+launcher: build
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
-.PHONY: gpu-launcher-kernels
-gpu-launcher-kernels: gpu/matmul.ptx gpu/matmul.cl gpu/ocean.ptx gpu/ocean.cl
+.PHONY: gpu-kernels
+gpu-kernels: gpu/matmul.ptx gpu/matmul.cl gpu/ocean.ptx gpu/ocean.cl
 
 gpu/matmul.ptx: gpu/matmul.nano $(COMPILER)
 	$(COMPILER) $< --target ptx -o $@
@@ -777,7 +790,7 @@ $(BIN_DIR)/nano_tools_lint$(BIN_SUFFIX)$(BIN_EXT): nano_tools_lint.nano $(COMPIL
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
-$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(COMPILER)
+$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT): sdl_example_launcher.nano $(wildcard lib/*.nano) $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
