@@ -1,0 +1,18 @@
+# Expected error: Call to extern function requires unsafe block or unsafe module
+#
+# I require every call to an extern (FFI) function to sit inside an
+# `unsafe { ... }` block or an unsafe module. A bare extern call nested inside
+# another expression used to slip past the type checker and only fail later at
+# link time with an undefined symbol. I reject it up front now.
+
+extern fn nl_test_extern_probe(name: string) -> string
+
+fn main() -> int {
+    # No unsafe block: this call must be rejected during type checking.
+    (println (nl_test_extern_probe "HOME"))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

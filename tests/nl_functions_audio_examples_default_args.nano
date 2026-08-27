@@ -31,7 +31,7 @@
 from "examples/lib/example_discovery.nano" import parse_example_header, ExampleInfo
 from "modules/std/fs.nano" import exists
 
-module "modules/filesystem/filesystem.nano"
+unsafe module "modules/filesystem/filesystem.nano"
 
 # Count playable audio files in `dir`, mirroring the extension set the SDL
 # audio players scan (.mod/.mp3/.ogg/.wav), using the same case-insensitive

@@ -16,7 +16,7 @@
 from "examples/lib/example_discovery.nano" import parse_example_header, ExampleInfo
 from "modules/std/fs.nano" import exists
 
-module "modules/filesystem/filesystem.nano"
+unsafe module "modules/filesystem/filesystem.nano"
 
 let NANOAMP_PATH: string = "examples/audio/sdl_nanoamp.nano"
 
