@@ -5,6 +5,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.11] - 2026-08-27
+
+### Changed
+- stop launching the GLUT examples during test and release runs; `make test-glut-launch` runs them on demand
+
+### Fixed
+- reject use-after-consume of a resource instead of reporting it and compiling anyway (#106)
+- probe installed apt packages with dpkg-query so the check never stalls in the system pager (#105)
+- stop dropping commits from the generated changelog
+
 ## [3.4.10] - 2026-08-27
 
 ### Fixed
