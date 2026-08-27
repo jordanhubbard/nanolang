@@ -27,7 +27,11 @@ if command -v pkg-config &> /dev/null; then
     PKG_CONFIG_AVAILABLE=true
 else
     echo -e "${RED}✗ pkg-config not found${NC}"
-    echo -e "  Install with: ${YELLOW}sudo apt-get install pkg-config${NC}"
+    if [ "$(uname -s)" = Darwin ]; then
+        echo -e "  Install with: ${YELLOW}brew install pkg-config${NC}"
+    else
+        echo -e "  Install with: ${YELLOW}sudo apt-get install pkg-config${NC}"
+    fi
     echo ""
 fi
 
@@ -37,7 +41,47 @@ import json
 import sys
 import subprocess
 import os
-import glob
+import shutil
+
+def detect_pkg_manager():
+    # `subprocess.run(['command', '-v', 'apt-get'], shell=True)` is not a
+    # presence check: with shell=True a list's first item is the -c string,
+    # so it runs the `command` builtin with no operands, which exits 0 on
+    # bash. That made every host look like Debian and printed
+    # `sudo apt-get install libreadline-dev` on macOS.
+    if sys.platform == 'darwin':
+        return 'brew' if shutil.which('brew') else ''
+    if shutil.which('apt-get'):
+        return 'apt'
+    if shutil.which('dnf'):
+        return 'dnf'
+    if shutil.which('brew'):
+        return 'brew'
+    return ''
+
+def pkg_config_exists(pkg):
+    # Homebrew keeps keg-only formulae (readline, ncurses, …) off the
+    # default search path. I look in the same opt prefixes module_builder.c
+    # already uses, so a healthy macOS checkout is not reported missing.
+    env = os.environ.copy()
+    extra = [
+        os.path.join('/opt/homebrew/opt', pkg, 'lib', 'pkgconfig'),
+        os.path.join('/usr/local/opt', pkg, 'lib', 'pkgconfig'),
+    ]
+    previous = env.get('PKG_CONFIG_PATH', '')
+    env['PKG_CONFIG_PATH'] = os.pathsep.join(
+        extra + ([previous] if previous else [])
+    )
+    try:
+        result = subprocess.run(
+            ['pkg-config', '--exists', pkg],
+            env=env,
+            capture_output=True,
+            timeout=2,
+        )
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
 
 try:
     with open('modules/index.json', 'r') as f:
@@ -93,13 +137,7 @@ for module in modules_with_deps:
 
     # Check pkg-config packages
     for pkg in module['pkg_config']:
-        try:
-            result = subprocess.run(['pkg-config', '--exists', pkg],
-                                  capture_output=True, timeout=2)
-            if result.returncode != 0:
-                module_ok = False
-                missing_deps.append(pkg)
-        except:
+        if not pkg_config_exists(pkg):
             module_ok = False
             missing_deps.append(pkg)
 
@@ -119,16 +157,8 @@ for module in modules_with_deps:
 
 # Print summary info
 print(f"SUMMARY:{len(available)}:{len(missing)}")
+platform = detect_pkg_manager()
 for mod in missing:
-    # Detect platform and get install command
-    platform = ""
-    try:
-        if subprocess.run(['command', '-v', 'apt-get'], capture_output=True, shell=True).returncode == 0:
-            platform = "apt"
-        elif subprocess.run(['command', '-v', 'brew'], capture_output=True, shell=True).returncode == 0:
-            platform = "brew"
-    except:
-        pass
 
     install_cmds = []
     for dep in mod['missing']:
