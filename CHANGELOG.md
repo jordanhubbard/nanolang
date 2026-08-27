@@ -10,6 +10,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - stop dpkg from paging Linux module-install probes through a TTY pager
 - find Homebrew keg-only readline on macOS and print brew hints instead of apt-get
+- keep the Darwin module-validator regression from failing when optional Homebrew formulae are absent
 
 ## [3.4.8] - 2026-08-26
 
