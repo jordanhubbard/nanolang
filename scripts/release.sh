@@ -107,48 +107,41 @@ generate_changelog_entry() {
         commits=$(git log --pretty=format:"%h %s" --no-merges)
     fi
     
-    # Categorize commits
+    # Categorize commits. Every commit reaches a section: a changelog that
+    # silently drops one is worse than a vague entry, because the omission is
+    # invisible in the released artifact.
     local added=""
     local changed=""
     local fixed=""
-    local removed=""
-    local other=""
-    
+
     while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
         if [[ $line =~ ^[a-f0-9]+\ feat(\(.*\))?:\ (.*) ]]; then
             added+="- ${BASH_REMATCH[2]}\n"
         elif [[ $line =~ ^[a-f0-9]+\ fix(\(.*\))?:\ (.*) ]]; then
             fixed+="- ${BASH_REMATCH[2]}\n"
-        elif [[ $line =~ ^[a-f0-9]+\ refactor(\(.*\))?:\ (.*) ]]; then
-            changed+="- ${BASH_REMATCH[2]}\n"
-        elif [[ $line =~ ^[a-f0-9]+\ (chore|docs)(\(.*\))?:\ (.*) ]]; then
-            other+="- ${BASH_REMATCH[3]}\n"
+        elif [[ $line =~ ^[a-f0-9]+\ (refactor|perf|test|chore|docs|build|ci|style)(\(.*\))?:\ (.*) ]]; then
+            changed+="- ${BASH_REMATCH[3]}\n"
         else
-            # Extract commit message after hash
-            local msg=$(echo "$line" | cut -d' ' -f2-)
-            other+="- $msg\n"
+            changed+="- $(echo "$line" | cut -d' ' -f2-)\n"
         fi
     done <<< "$commits"
-    
+
     # Build changelog entry
     local entry="## [$new_version] - $date\n\n"
-    
+
     if [[ -n "$added" ]]; then
         entry+="### Added\n$added\n"
     fi
-    
+
     if [[ -n "$changed" ]]; then
         entry+="### Changed\n$changed\n"
     fi
-    
+
     if [[ -n "$fixed" ]]; then
         entry+="### Fixed\n$fixed\n"
     fi
-    
-    if [[ -n "$removed" ]]; then
-        entry+="### Removed\n$removed\n"
-    fi
-    
+
     echo -e "$entry"
 }
 
