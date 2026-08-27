@@ -1855,6 +1855,77 @@ void module_builder_free(ModuleBuilder *builder) {
     free(builder);
 }
 
+/* Make sure a module's declared system dependencies are present on this host.
+ *
+ * Whether libsdl2-ttf-dev is installed is a fact about the machine, not about
+ * my object cache, so I check it on every build. Tying the check to
+ * module_needs_rebuild() meant a module whose cached object was still current
+ * never had its packages verified: the compile then died on a missing header
+ * instead of installing the package.
+ *
+ * When pkg-config already resolves every declared package there is nothing to
+ * do, which keeps warm builds free of package-manager probes. */
+static bool ensure_module_system_deps(ModuleBuildMetadata *meta) {
+    if (!meta) return false;
+
+    const char *missing_pkg = NULL;
+    if (meta->pkg_config_count > 0 && check_module_pkg_dependencies(meta, &missing_pkg)) {
+        return true;
+    }
+
+    bool has_package_metadata = module_has_system_package_metadata(meta);
+    if (has_package_metadata) {
+        if (!install_system_packages(meta)) {
+            fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
+            fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
+        }
+    }
+
+    missing_pkg = NULL;
+    if (check_module_pkg_dependencies(meta, &missing_pkg)) {
+        return true;
+    }
+
+    fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
+
+    if (has_package_metadata) {
+        fprintf(stderr,
+                "[Module] Module '%s' declared system_packages, but '%s' is still missing after auto-install\n",
+                meta->name, missing_pkg);
+        return false;
+    }
+
+    // Legacy fallback for older manifests that only define install.{apt,brew}
+    PackageManager pm = detect_package_manager();
+    const char *legacy_pkg = NULL;
+    if (pm == PKG_MGR_BREW) {
+        legacy_pkg = meta->install_brew;
+    } else if (pm == PKG_MGR_APT) {
+        legacy_pkg = meta->install_apt;
+    }
+
+    if (legacy_pkg) {
+        fprintf(stderr, "[Module] Attempting legacy install fallback: %s\n", legacy_pkg);
+        if (!install_single_package(legacy_pkg, pm) || !check_pkg_config_package(missing_pkg)) {
+            fprintf(stderr,
+                    "[Module] Failed to install missing dependency '%s' for module '%s'\n",
+                    missing_pkg, meta->name);
+            return false;
+        }
+        return true;
+    }
+
+    if (meta->install_brew || meta->install_apt) {
+        fprintf(stderr,
+                "[Module] Legacy install mapping for module '%s' does not match this package manager\n",
+                meta->name);
+        return false;
+    }
+
+    fprintf(stderr, "[Module] Skipping module '%s' - install '%s' manually\n", meta->name, missing_pkg);
+    return false;
+}
+
 ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
     if (!meta) return NULL;
 
@@ -1863,22 +1934,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
         if (!info) return NULL;
 
-        bool has_package_metadata = module_has_system_package_metadata(meta);
-        if (has_package_metadata) {
-            if (!install_system_packages(meta)) {
-                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
-                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
-            }
-        }
-
-        const char *missing_pkg = NULL;
-        if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
-            fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
-            if (has_package_metadata) {
-                fprintf(stderr,
-                        "[Module] Module '%s' declared system_packages, but '%s' is still missing after auto-install\n",
-                        meta->name, missing_pkg);
-            }
+        if (!ensure_module_system_deps(meta)) {
             free(info);
             return NULL;
         }
@@ -1980,6 +2036,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         return NULL;
     }
 
+    // Verify system dependencies before looking at the object cache: a cached
+    // object says nothing about whether this host still has the headers.
+    if (!ensure_module_system_deps(meta)) {
+        return NULL;
+    }
+
     // Check if rebuild needed
     bool needs_rebuild = module_needs_rebuild(meta->module_dir, meta);
 
@@ -1992,61 +2054,6 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     if (needs_rebuild) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
-        }
-
-        bool has_package_metadata = module_has_system_package_metadata(meta);
-
-        // Install declared system packages before checking pkg-config.
-        // This is the primary path for "import module -> auto-install deps".
-        if (has_package_metadata) {
-            if (!install_system_packages(meta)) {
-                fprintf(stderr, "[Module] Warning: Some system packages failed to install for '%s'\n", meta->name);
-                fprintf(stderr, "[Module] Continuing anyway - build may fail if dependencies are missing\n");
-            }
-        }
-
-        // Check pkg-config dependencies AFTER installation attempt.
-        const char *missing_pkg = NULL;
-        if (!check_module_pkg_dependencies(meta, &missing_pkg)) {
-            fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
-
-            if (has_package_metadata) {
-                fprintf(stderr,
-                        "[Module] Module '%s' declared system_packages, but '%s' is still missing after auto-install\n",
-                        meta->name, missing_pkg);
-                free(build_dir);
-                return NULL;
-            }
-
-            // Legacy fallback for older manifests that only define install.{apt,brew}
-            PackageManager pm = detect_package_manager();
-            const char *legacy_pkg = NULL;
-            if (pm == PKG_MGR_BREW) {
-                legacy_pkg = meta->install_brew;
-            } else if (pm == PKG_MGR_APT) {
-                legacy_pkg = meta->install_apt;
-            }
-
-            if (legacy_pkg) {
-                fprintf(stderr, "[Module] Attempting legacy install fallback: %s\n", legacy_pkg);
-                if (!install_single_package(legacy_pkg, pm) || !check_pkg_config_package(missing_pkg)) {
-                    fprintf(stderr,
-                            "[Module] Failed to install missing dependency '%s' for module '%s'\n",
-                            missing_pkg, meta->name);
-                    free(build_dir);
-                    return NULL;
-                }
-            } else if (meta->install_brew || meta->install_apt) {
-                fprintf(stderr,
-                        "[Module] Legacy install mapping for module '%s' does not match this package manager\n",
-                        meta->name);
-                free(build_dir);
-                return NULL;
-            } else {
-                fprintf(stderr, "[Module] Skipping module '%s' - install '%s' manually\n", meta->name, missing_pkg);
-                free(build_dir);
-                return NULL;
-            }
         }
 
         // Get CC from environment, module.json, or use POSIX cc

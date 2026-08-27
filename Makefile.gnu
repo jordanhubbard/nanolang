@@ -823,6 +823,18 @@ test-ci-deps:
 test-validate-modules:
 	@bash tests/test_validate_modules.sh
 
+# make launcher must build sdl_example_launcher even when SDL_AVAILABLE is no,
+# so Linux hosts without libsdl2-dev do not exec a skipped binary (Error 127).
+.PHONY: test-launcher-makefile
+test-launcher-makefile:
+	@bash tests/test_launcher_makefile.sh
+
+# A cached module object says nothing about whether this host still has the
+# dev package, so system dependencies must be re-checked on every build.
+.PHONY: test-module-dep-recheck
+test-module-dep-recheck: $(COMPILER_C)
+	@bash tests/test_module_dep_recheck.sh
+
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions
 test-examples-regressions: $(COMPILER_C)
@@ -879,6 +891,12 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing the module validator..."
 	@bash tests/test_validate_modules.sh
+	@echo ""
+	@echo "Testing the example launcher Makefile..."
+	@bash tests/test_launcher_makefile.sh
+	@echo ""
+	@echo "Testing module dependency re-checks against a warm object cache..."
+	@bash tests/test_module_dep_recheck.sh
 	@echo ""
 	@echo "Checking NanoVM example coverage..."
 	@$(MAKE) --no-print-directory test-vm-examples
@@ -1165,6 +1183,8 @@ test-quick: build
 	@bash tests/test_opengl_glut_init.sh --quick
 	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-validate-modules
+	@$(MAKE) --no-print-directory test-launcher-makefile
+	@$(MAKE) --no-print-directory test-module-dep-recheck
 	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
@@ -2140,6 +2160,8 @@ help:
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
 	@echo "  make test-validate-modules - Module validator keg-only/pkg-manager checks"
+	@echo "  make test-launcher-makefile - make launcher must build sdl_example_launcher"
+	@echo "  make test-module-dep-recheck - Module deps re-checked on warm object cache"
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
