@@ -829,6 +829,12 @@ test-validate-modules:
 test-launcher-makefile:
 	@bash tests/test_launcher_makefile.sh
 
+# A cached module object says nothing about whether this host still has the
+# dev package, so system dependencies must be re-checked on every build.
+.PHONY: test-module-dep-recheck
+test-module-dep-recheck: $(COMPILER_C)
+	@bash tests/test_module_dep_recheck.sh
+
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions
 test-examples-regressions: $(COMPILER_C)
@@ -888,6 +894,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing the example launcher Makefile..."
 	@bash tests/test_launcher_makefile.sh
+	@echo ""
+	@echo "Testing module dependency re-checks against a warm object cache..."
+	@bash tests/test_module_dep_recheck.sh
 	@echo ""
 	@echo "Checking NanoVM example coverage..."
 	@$(MAKE) --no-print-directory test-vm-examples
@@ -1175,6 +1184,7 @@ test-quick: build
 	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-validate-modules
 	@$(MAKE) --no-print-directory test-launcher-makefile
+	@$(MAKE) --no-print-directory test-module-dep-recheck
 	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
@@ -2151,6 +2161,7 @@ help:
 	@echo "  make test-quick        - Quick test (language tests only)"
 	@echo "  make test-validate-modules - Module validator keg-only/pkg-manager checks"
 	@echo "  make test-launcher-makefile - make launcher must build sdl_example_launcher"
+	@echo "  make test-module-dep-recheck - Module deps re-checked on warm object cache"
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
