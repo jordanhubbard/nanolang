@@ -816,6 +816,13 @@ test-glut-init:
 test-ci-deps:
 	@bash tests/test_ci_dependency_install.sh
 
+# Module validator: keg-only pkg-config prefixes and Darwin/brew hints.
+# scripts/validate-modules.sh is `make modules`; this pins the two macOS
+# lies it used to tell (missing readline, apt-get remediation).
+.PHONY: test-validate-modules
+test-validate-modules:
+	@bash tests/test_validate_modules.sh
+
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions
 test-examples-regressions: $(COMPILER_C)
@@ -869,6 +876,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing the CI dependency-install helpers..."
 	@bash tests/test_ci_dependency_install.sh
+	@echo ""
+	@echo "Testing the module validator..."
+	@bash tests/test_validate_modules.sh
 	@echo ""
 	@echo "Checking NanoVM example coverage..."
 	@$(MAKE) --no-print-directory test-vm-examples
@@ -1154,6 +1164,7 @@ test-quick: build
 	@./tests/run_all_tests.sh --lang
 	@bash tests/test_opengl_glut_init.sh --quick
 	@bash tests/test_ci_dependency_install.sh
+	@$(MAKE) --no-print-directory test-validate-modules
 	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
@@ -2128,6 +2139,7 @@ help:
 	@echo "  make test-app          - Test only application/integration tests"
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
+	@echo "  make test-validate-modules - Module validator keg-only/pkg-manager checks"
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"

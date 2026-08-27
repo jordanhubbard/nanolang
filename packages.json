@@ -33,7 +33,7 @@
       "install": {
         "apt": {
           "package": "libsdl2-dev",
-          "test_command": "dpkg -l libsdl2-dev"
+          "test_command": "dpkg-query -W -f='${Status}' libsdl2-dev 2>/dev/null | grep -q '^install ok installed$'"
         },
         "dnf": {
           "package": "SDL2-devel"
