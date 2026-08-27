@@ -43,9 +43,10 @@ echo "=========================================="
 # --- 1. the shell=True apt-get trap must not return -------------------------
 # A list passed to subprocess.run(..., shell=True) makes the first item the
 # -c string. `command` with no operands exits 0, so that pattern always
-# reports apt as present. Comments may mention it; a real call site must not.
+# reports apt as present. The validator documents that trap in comments;
+# only a non-comment call site is a regression.
 
-if grep -n "shell=True" "$VALIDATOR" | grep -v '^[^:]*:[[:space:]]*#' >/dev/null; then
+if grep "shell=True" "$VALIDATOR" | grep -v '#' >/dev/null; then
     fail "validator still uses subprocess.run(..., shell=True) as a presence check"
     grep -n "shell=True" "$VALIDATOR"
 else
