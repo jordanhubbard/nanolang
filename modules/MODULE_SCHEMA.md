@@ -90,6 +90,7 @@ Current schema version: **1.0.0**
 - **Note**: See `packages.json` in repo root for available packages
 - **Linux fallback**: A registry entry can define `install.linux`. I use it when the detected Linux package manager has no more specific entry.
 - **Manual entries**: A registry entry can set `"manual": true` with an `install_message`. I run its `test_command`; if that fails, I print the message and continue instead of pretending the package manager failed.
+- **Registry commands must run unattended**: I execute `test_command` and `install_command` verbatim with the build's terminal attached, so anything that pages or prompts stalls the build. Write probes that exit non-zero silently — `dpkg-query -W -f='${Status}' <pkg> | grep -q '^install ok installed$'`, not `dpkg -l <pkg>`, which Debian sends through `more` when stdout is a tty. I also force `PAGER=cat` and `DPKG_PAGER=cat` for these commands, but the probe should not depend on that.
 
 #### `apt_packages` (array of strings) **[DEPRECATED]**
 - **Required**: No

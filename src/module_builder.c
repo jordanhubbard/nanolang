@@ -847,6 +847,23 @@ static const char* module_builder_sudo_prefix(void) {
     return prefix;
 }
 
+// dpkg pipes list output through the system pager whenever stdout is a tty, so
+// a probe like `dpkg -l <pkg>` stops the build at a --More-- prompt. Every
+// command I run from the registry is an unattended probe or install, so none of
+// them may page.
+static void disable_subcommand_pager(void) {
+    static bool initialized = false;
+    if (initialized) {
+        return;
+    }
+    initialized = true;
+
+#ifndef _WIN32
+    setenv("DPKG_PAGER", "cat", 1);
+    setenv("PAGER", "cat", 1);
+#endif
+}
+
 // Install a single package using the detected package manager.
 // When install_cmd_override / test_cmd_override are non-NULL they win over
 // the built-in defaults — used for things that don't fit a simple template
@@ -857,6 +874,8 @@ static bool install_single_package_ex(const char *package_name, PackageManager p
     char cmd[2048];
     int result;
     const char *sudo_cmd = module_builder_sudo_prefix();
+
+    disable_subcommand_pager();
 
     // Check if sudo will work before attempting installation (for package managers that need it)
     bool needs_sudo = (pm == PKG_MGR_APT || pm == PKG_MGR_DNF || pm == PKG_MGR_YUM ||
@@ -1066,6 +1085,8 @@ static bool install_system_packages(ModuleBuildMetadata *meta) {
         }
         return true;
     }
+
+    disable_subcommand_pager();
 
     bool all_installed = true;
 
