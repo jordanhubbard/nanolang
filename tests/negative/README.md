@@ -1,8 +1,10 @@
 # Negative Tests
 
-This directory contains **negative test cases** - programs that should **fail to compile**.
+This directory contains programs I must reject.
 
-These tests verify that the NanoLang compiler correctly **rejects** invalid code and provides helpful error messages.
+The runner checks my public compiler contract: non-zero status, a diagnostic,
+and no output artifact. Selected compatibility-sensitive errors also pin their
+documented message.
 
 ## Purpose
 
@@ -17,8 +19,7 @@ Negative tests ensure:
 ## Running Tests
 
 ```bash
-cd tests/negative
-./run_negative_tests.sh
+make test-negative
 ```
 
 **Expected Output:** All tests should PASS, meaning the compiler correctly rejected the invalid code.
@@ -48,7 +49,7 @@ cd tests/negative
    ```
 3. Write code that should fail to compile
 4. Include shadow tests (even though they won't run)
-5. Run `./run_negative_tests.sh` to verify the test fails as expected
+5. Run `make test-negative` to verify I reject it for the intended reason
 
 ### Example
 
@@ -73,17 +74,8 @@ shadow main {
 }
 ```
 
-## Test Results
-
-Current status: **20 negative tests** - All passing ✅
-
-The compiler correctly rejects all invalid code in these tests.
-
----
-
 **See Also:**
 - [ERROR_MESSAGES.md](../../docs/ERROR_MESSAGES.md) - Error message guide
 - [FEATURE_COVERAGE.md](../FEATURE_COVERAGE.md) - Positive test coverage
 - [run_all_tests.sh](../run_all_tests.sh) - Full test suite
 
-**Last Updated:** January 25, 2026

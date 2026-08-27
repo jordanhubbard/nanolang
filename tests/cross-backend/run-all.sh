@@ -301,7 +301,7 @@ test_ptx() {
 
 # ── main loop ────────────────────────────────────────────────────────────────
 
-BACKENDS=(wasm llvm riscv c ptx)
+read -r -a BACKENDS <<<"${NANOLANG_TEST_BACKENDS:-wasm llvm riscv c ptx}"
 TEST_FILES=("$SCRIPT_DIR"/*.nano)
 
 echo "=== nanolang cross-backend compile suite ==="

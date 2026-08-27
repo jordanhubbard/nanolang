@@ -56,14 +56,6 @@ static void test_vm_file_write_read(void) {
     PASS(test_name);
 }
 
-static void test_vm_file_read_nonexistent(void) {
-    const char *test_name = "vm_file_read: nonexistent file returns NULL or empty";
-    char *result = vm_file_read("/tmp/no_such_file_vm_builtins.txt");
-    /* vm_file_read may return NULL or empty string for nonexistent files */
-    if (result) free(result);
-    PASS(test_name); /* Just verify no crash */
-}
-
 static void test_vm_dir_exists(void) {
     const char *test_name = "vm_dir_exists: /tmp exists";
     int64_t result = vm_dir_exists("/tmp");
@@ -89,14 +81,6 @@ static void test_vm_dir_list(void) {
     DynArray *list = vm_dir_list("/tmp");
     ASSERT(list != NULL, "vm_dir_list should return non-NULL for /tmp");
     (void)list; /* DynArray has no free function; leak in test is acceptable */
-    PASS(test_name);
-}
-
-static void test_vm_dir_list_nonexistent(void) {
-    const char *test_name = "vm_dir_list: nonexistent dir returns NULL or empty";
-    DynArray *list = vm_dir_list("/tmp/no_such_dir_vm_builtins");
-    /* May return NULL or empty array — just verify no crash */
-    (void)list;
     PASS(test_name);
 }
 
@@ -211,11 +195,9 @@ int main(void) {
     test_vm_getcwd();
     test_vm_file_exists_nonexistent();
     test_vm_file_write_read();
-    test_vm_file_read_nonexistent();
     test_vm_dir_exists();
     test_vm_dir_create();
     test_vm_dir_list();
-    test_vm_dir_list_nonexistent();
     test_vm_mktemp_dir();
     test_vm_getenv();
     test_vm_str_index_of();

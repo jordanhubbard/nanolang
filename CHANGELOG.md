@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.10] - 2026-08-27
+
+### Fixed
+- auto-install SDL dependencies on Linux instead of dying in the C compiler (#102)
+
 ## [3.4.9] - 2026-08-26
 
 ### Fixed

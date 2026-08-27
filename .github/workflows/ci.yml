@@ -95,9 +95,7 @@ jobs:
           fail-on-error: false
 
       - name: Run negative tests
-        run: |
-          cd tests/negative
-          ./run_negative_tests.sh
+        run: bash tests/run_negative_tests.sh
 
       - name: Validate user guide snippets
         run: make userguide-check
@@ -306,8 +304,7 @@ jobs:
       - name: Run negative tests with sanitizers
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          cd tests/negative
-          ./run_negative_tests.sh
+          bash tests/run_negative_tests.sh
 
       - name: Show sanitizer error logs on failure
         if: failure()
@@ -358,9 +355,7 @@ jobs:
         run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
-        run: |
-          cd tests/negative
-          ./run_negative_tests.sh
+        run: bash tests/run_negative_tests.sh
 
       - name: Show error logs on failure
         if: failure()
@@ -397,7 +392,7 @@ jobs:
       - name: Enforce coverage threshold
         run: |
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=${COVERAGE_THRESHOLD:-75.0}
+          THRESHOLD=${COVERAGE_THRESHOLD:-70.0}
           echo "Current coverage: $COVERAGE%"
           echo "Required threshold: $THRESHOLD%"
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then

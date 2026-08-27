@@ -1,0 +1,25 @@
+# Cross-backend state mutation and loop contract.
+
+fn sum_to(n: int) -> int {
+    let mut total: int = 0
+    let mut i: int = 1
+    while (<= i n) {
+        set total (+ total i)
+        set i (+ i 1)
+    }
+    return total
+}
+
+fn main() -> int {
+    (println (int_to_string (sum_to 5)))
+    return 0
+}
+
+shadow sum_to {
+    assert (== (sum_to 0) 0)
+    assert (== (sum_to 5) 15)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

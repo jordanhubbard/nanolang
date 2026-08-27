@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Module system dependencies are re-checked when the object cache is warm
+# Compiler contract: a cached module still requires its system packages
 # ============================================================================
 #
-# install_system_packages() and the pkg-config verification used to live inside
-# `if (needs_rebuild)`, so a module whose cached object was still current never
-# had its dependencies checked. On a host missing the headers the build died in
-# the C compiler ("fatal error: SDL2/SDL_ttf.h: No such file or directory")
-# instead of installing the package or naming the missing dependency.
+# Public interface: `nanoc_c` compiling a program that imports a C module
+# with pkg_config. Whether the host still has that package is independent
+# of whether I already have an object in NANO_BUILD_CACHE.
 #
-# Whether a dev package is installed is a fact about the machine, not about my
-# object cache, so the check must happen on every build.
+# Scenario: compile while the package is present → run the binary → the
+# package disappears → compile again. The second compile must fail with my
+# named missing-package diagnostic, not a C compiler "No such file" on a
+# header. Restoring the package must compile again.
 #
 # Usage:
 #   bash tests/test_module_dep_recheck.sh
@@ -58,7 +58,7 @@ cat >"$MOD_DIR/module.json" <<EOF
 {
   "name": "fakedep",
   "version": "1.0.0",
-  "description": "Fixture module guarded by a stub pkg-config package",
+  "description": "Fixture module guarded by a pkg-config package",
   "headers": ["fakedep.h"],
   "cflags": ["-I$WORK_REL/modules/fakedep"],
   "c_sources": ["fakedep.c"],
@@ -70,7 +70,6 @@ cat >"$MOD_DIR/fakedep.h" <<'EOF'
 #ifndef FAKEDEP_H
 #define FAKEDEP_H
 #include <stdint.h>
-/* nanolang's int is int64_t; long long would conflict on LP64 Linux. */
 int64_t fakedep_answer(void);
 #endif
 EOF
@@ -81,7 +80,6 @@ int64_t fakedep_answer(void) { return 42; }
 EOF
 
 cat >"$MOD_DIR/fakedep.nano" <<'EOF'
-# Fixture module: one extern function backed by fakedep.c
 extern fn fakedep_answer() -> int
 EOF
 
@@ -99,8 +97,6 @@ shadow main {
 }
 EOF
 
-# A real .pc file stands in for the installed dev package. Deleting it later
-# is how this test simulates "the package is not on this host".
 PC_FILE="$WORK/pc/fakedep.pc"
 cat >"$PC_FILE" <<'EOF'
 Name: fakedep
@@ -113,44 +109,87 @@ EOF
 export PKG_CONFIG_PATH="$WORK/pc"
 export NANO_BUILD_CACHE="$WORK/cache"
 
-# --- 1. warm the object cache while the dependency is present ---------------
-BUILD1="$(perl -e 'alarm 180; exec @ARGV' "$COMPILER" "$WORK_REL/prog.nano" -o "$WORK/prog" 2>&1)"
+compile() {
+    local out="$1"
+    perl -e 'alarm 180; exec @ARGV' "$COMPILER" "$WORK_REL/prog.nano" -o "$out" 2>&1
+}
+
+BUILD1="$(compile "$WORK/prog")"
 BUILD1_STATUS=$?
 
-if [ "$BUILD1_STATUS" -eq 0 ]; then
-    pass "fixture module builds while its pkg-config package is present"
-else
-    fail "fixture module did not build with its dependency present"
+if [ "$BUILD1_STATUS" -ne 0 ]; then
+    fail "compile failed while the pkg-config package was present"
     echo "$BUILD1" | tail -20
     echo "=========================================="
     echo -e "${RED}${FAILURES} module dependency re-check test(s) failed${NC}"
     exit 1
 fi
 
-CACHED_OBJ="$(find "$NANO_BUILD_CACHE" -name 'fakedep.o' -print -quit 2>/dev/null)"
-if [ -n "$CACHED_OBJ" ]; then
-    pass "module object is cached in NANO_BUILD_CACHE"
-else
-    fail "no cached fakedep.o - test cannot exercise the warm-cache path"
+if [ ! -x "$WORK/prog" ]; then
+    fail "compile reported success but wrote no binary"
+    echo "=========================================="
+    echo -e "${RED}${FAILURES} module dependency re-check test(s) failed${NC}"
+    exit 1
 fi
 
-# --- 2. the dependency disappears but the cached object stays ---------------
+RUN_OUT="$("$WORK/prog" 2>&1)"
+RUN_STATUS=$?
+if [ "$RUN_STATUS" -eq 0 ] && echo "$RUN_OUT" | grep -q '42'; then
+    pass "compile and run succeed while the system package is present"
+else
+    fail "compiled binary did not print 42 (exit $RUN_STATUS)"
+    echo "$RUN_OUT"
+fi
+
+# The warm-cache failure mode only exists if the first compile actually
+# cached an object. That is a scenario precondition, not a product claim.
+if ! find "$NANO_BUILD_CACHE" -name 'fakedep.o' -print -quit | grep -q .; then
+    fail "setup: first compile wrote no cached object; cannot observe a warm-cache rebuild"
+    echo "=========================================="
+    echo -e "${RED}${FAILURES} module dependency re-check test(s) failed${NC}"
+    exit 1
+fi
+
 rm -f "$PC_FILE"
 
-BUILD2="$(perl -e 'alarm 180; exec @ARGV' "$COMPILER" "$WORK_REL/prog.nano" -o "$WORK/prog2" 2>&1)"
+BUILD2="$(compile "$WORK/prog2")"
 BUILD2_STATUS=$?
 
-if [ "$BUILD2_STATUS" -ne 0 ]; then
-    pass "build fails when a cached module's dependency is missing"
+if [ "$BUILD2_STATUS" -eq 0 ]; then
+    fail "compile succeeded after the system package disappeared"
 else
-    fail "build succeeded with a missing dependency - the warm cache skipped the check"
+    pass "compile fails when the cached module's system package is gone"
 fi
 
 if echo "$BUILD2" | grep -q "not found for module 'fakedep'"; then
-    pass "missing dependency is reported by name, not left to the C compiler"
+    pass "failure names the missing package"
 else
-    fail "no dependency diagnostic for the missing package"
+    fail "failure did not name the missing package"
     echo "$BUILD2" | tail -20
+fi
+
+if echo "$BUILD2" | grep -qi 'fatal error:'; then
+    fail "failure was a C compiler fatal error instead of a package diagnostic"
+    echo "$BUILD2" | tail -20
+else
+    pass "failure is my diagnostic, not a missing-header C error"
+fi
+
+cat >"$PC_FILE" <<'EOF'
+Name: fakedep
+Description: fixture package for the module dependency re-check test
+Version: 1.0.0
+Cflags:
+Libs:
+EOF
+
+BUILD3="$(compile "$WORK/prog3")"
+BUILD3_STATUS=$?
+if [ "$BUILD3_STATUS" -eq 0 ] && [ -x "$WORK/prog3" ]; then
+    pass "compile recovers after the system package is restored"
+else
+    fail "compile still fails after restoring the system package"
+    echo "$BUILD3" | tail -20
 fi
 
 echo "=========================================="

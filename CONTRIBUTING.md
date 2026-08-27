@@ -89,6 +89,28 @@ My test hierarchy:
 2. **Integration Tests** (`tests/*.nano`) - These test how features work together.
 3. **Self-Hosting Tests** - These verify the bootstrap and fixed-point identity.
 
+For repository tests, start at my public boundary:
+
+- Compiler and tool tests invoke the CLI and assert exit status, output
+  artifacts, documented diagnostics, and backward-compatible schemas.
+- Runtime and module tests compile and run NanoLang programs through complete
+  workflows. Use real modules, files, caches, and processes where practical.
+- Failure tests cover malformed input, missing data, duplicate definitions,
+  unavailable dependencies, retries, partial writes, timeouts, and concurrent
+  state where those risks exist.
+- Parameterize families of equivalent inputs instead of copying the same test.
+- Test a C function directly only when its logic is algorithmically subtle,
+  safety-critical, or much easier to diagnose in isolation.
+
+Do not add a test to increase a count or a coverage percentage. Do not assert
+private call order, duplicate the same behavior at several layers, grep source
+text to prove runtime behavior, or mock code I own. A stub is appropriate only
+at a true external boundary such as a package manager, display server, network,
+clock, or operating-system process.
+
+Before adding a test, name the distinct public contract, failure mode,
+boundary, or regression it protects. If you cannot name one, do not add it.
+
 **Example**:
 ```nano
 fn list_length(list: List<int>) -> int {

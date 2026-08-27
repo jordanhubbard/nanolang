@@ -1,5 +1,8 @@
-#!/bin/bash
-set -eu
+#!/usr/bin/env bash
+# Public contract: graphical demos compile and, when a virtual display is
+# available, survive initialization instead of exiting immediately.
+
+set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
@@ -12,9 +15,28 @@ trap 'rm -rf "$tmp_dir"' EXIT
 bin/nanoc examples/gpu/ocean.nano -o "$tmp_dir/ocean"
 bin/nanoc examples/advanced/ui_code_display_demo.nano -o "$tmp_dir/ui_code_display_demo"
 
-grep -q 'if (not gpu_frame_ok)' examples/gpu/ocean.nano
-grep -q 'SDL_RENDERER_SOFTWARE' examples/gpu/ocean.nano
-grep -q 'nl_open_font_portable "DejaVuSansMono"' examples/advanced/ui_code_display_demo.nano
-grep -q 'SDL_RENDERER_SOFTWARE' examples/advanced/ui_code_display_demo.nano
+test -x "$tmp_dir/ocean"
+test -x "$tmp_dir/ui_code_display_demo"
 
-echo "Graphical demo initialization checks passed"
+if command -v xvfb-run >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    for demo in ocean ui_code_display_demo; do
+        set +e
+        xvfb-run -a timeout 3 "$tmp_dir/$demo" >"$tmp_dir/$demo.log" 2>&1
+        status=$?
+        set -e
+        case "$status" in
+            124|143)
+                echo "  ✓ $demo survived initialization"
+                ;;
+            *)
+                echo "  ✗ $demo exited during initialization (status $status)" >&2
+                tail -20 "$tmp_dir/$demo.log" >&2
+                exit 1
+                ;;
+        esac
+    done
+else
+    echo "  ⊘ runtime initialization requires xvfb-run and timeout"
+fi
+
+echo "Graphical demo public-interface checks passed"

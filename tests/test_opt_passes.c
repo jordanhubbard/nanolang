@@ -330,12 +330,10 @@ void test_par_let_three_bindings(void) {
  * ============================================================================ */
 
 void test_pgo_load_null_path(void) {
-    /* Loading a non-existent profile should return NULL gracefully */
     suppress_stderr();
     PGOProfile *prof = pgo_load_profile("/nonexistent/path/profile.nano.prof");
     restore_stderr();
-    /* May return NULL for missing file — just verify no crash */
-    if (prof) pgo_profile_free(prof);
+    ASSERT(prof == NULL);
 }
 
 void test_pgo_is_hot_null_profile(void) {
@@ -411,19 +409,6 @@ void test_tco_verbose_flag(void) {
     int result = tco_pass_run(prog, true);
     restore_stderr();
     ASSERT(result >= 0);
-    free_ast(prog);
-}
-
-void test_tco_convenience_wrapper(void) {
-    /* tco_pass() is the non-verbose wrapper */
-    ASTNode *prog = parse_nano(
-        "fn loop(n: int) -> int {\n"
-        "    if (<= n 0) { return 0 } else { return (loop (- n 1)) }\n"
-        "}\n"
-        "fn main() -> int { return (loop 3) }\n"
-    );
-    ASSERT_NOT_NULL(prog);
-    tco_pass(prog);  /* just verify it doesn't crash */
     free_ast(prog);
 }
 
@@ -714,7 +699,6 @@ int main(void) {
     TEST(tco_non_recursive_function);
     TEST(tco_tail_recursive_function);
     TEST(tco_verbose_flag);
-    TEST(tco_convenience_wrapper);
 
     printf("\n=== TCO Pure Pass Tests ===\n");
     TEST(tco_pure_empty_program);

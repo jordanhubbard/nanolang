@@ -16,3 +16,13 @@ fn main() -> int {
     (println (int_to_string p.x))
     return 0
 }
+
+shadow make_point {
+    let point: Point = (make_point 3 4)
+    assert (== point.x 3)
+    assert (== point.y 4)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -1,15 +1,17 @@
-# Test: Effect system error detection
-# This file should FAIL type checking
+# Expected error: duplicate effect declaration
 
 effect Console {
     log : string -> void
 }
 
-# Duplicate effect — should error
 effect Console {
     log : string -> void
 }
 
 fn main() -> int {
     return 0
+}
+
+shadow main {
+    assert (== (main) 0)
 }

@@ -634,13 +634,6 @@ test-typechecker: stage1
 	@./tests/test_typechecker
 	@rm -f tests/test_typechecker
 
-.PHONY: test-builtins-direct
-test-builtins-direct: stage1
-	@echo "Running builtin functions direct unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_builtins_direct tests/test_builtins_direct.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
-	@./tests/test_builtins_direct
-	@rm -f tests/test_builtins_direct
-
 .PHONY: test-transpiler
 test-transpiler: stage1
 	@echo "Running transpiler unit tests..."
@@ -667,13 +660,6 @@ test-nl-string: stage1
 	@./tests/test_nl_string
 	@rm -f tests/test_nl_string
 
-.PHONY: test-module-build-dir
-test-module-build-dir: stage1
-	@echo "Running module build-dir unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_module_build_dir tests/test_module_build_dir.c $(OBJ_DIR)/runtime/module_build_dir.o $(LDFLAGS)
-	@./tests/test_module_build_dir
-	@rm -f tests/test_module_build_dir
-
 .PHONY: test-refcount-gc
 test-refcount-gc:
 	@echo "Running refcount_gc unit tests..."
@@ -695,33 +681,12 @@ test-docgen: stage1
 	@./tests/test_docgen
 	@rm -f tests/test_docgen
 
-.PHONY: test-backends
-test-backends: stage1
-	@echo "Running alternative backend unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_backends tests/test_backends.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
-	@./tests/test_backends
-	@rm -f tests/test_backends
-
-.PHONY: test-compiler-utils
-test-compiler-utils: stage1
-	@echo "Running compiler utility module tests..."
-	$(CC) $(CFLAGS) -o tests/test_compiler_utils tests/test_compiler_utils.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_compiler_utils
-	@rm -f tests/test_compiler_utils
-
 .PHONY: test-sign
 test-sign: stage1
 	@echo "Running sign unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_sign tests/test_sign.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_sign
 	@rm -f tests/test_sign
-
-.PHONY: test-module-loading
-test-module-loading: stage1
-	@echo "Running module loading tests..."
-	$(CC) $(CFLAGS) -o tests/test_module_loading tests/test_module_loading.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_module_loading
-	@rm -f tests/test_module_loading
 
 .PHONY: test-fmt
 test-fmt: stage1
@@ -779,7 +744,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-builtins-direct test-typechecker test-parser test-transpiler test-nl-string test-module-build-dir test-refcount-gc test-pgo-pass test-docgen test-backends test-compiler-utils test-sign test-module-loading test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-sign test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -835,6 +800,18 @@ test-launcher-makefile:
 test-module-dep-recheck: $(COMPILER_C)
 	@bash tests/test_module_dep_recheck.sh
 
+.PHONY: test-negative
+test-negative: $(COMPILER)
+	@bash tests/run_negative_tests.sh
+
+.PHONY: test-runtime-failures
+test-runtime-failures: $(COMPILER_C)
+	@bash tests/test_runtime_failures.sh $(COMPILER_C)
+
+.PHONY: test-compiler-contracts
+test-compiler-contracts: $(COMPILER_C)
+	@bash tests/test_compiler_contracts.sh $(COMPILER_C)
+
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions
 test-examples-regressions: $(COMPILER_C)
@@ -869,19 +846,25 @@ test-impl: test-units
 	@echo "=========================================="
 	@./tests/run_all_tests.sh
 	@echo ""
+	@echo "Testing malformed-input compiler contracts..."
+	@$(MAKE) --no-print-directory test-negative
+	@echo ""
+	@echo "Testing runtime failure contracts..."
+	@$(MAKE) --no-print-directory test-runtime-failures
+	@echo ""
 	@echo "Running self-hosted compiler tests..."
 	@if [ -f tests/selfhost/run_selfhost_tests.sh ]; then \
 		./tests/selfhost/run_selfhost_tests.sh; \
 	fi
 	@echo ""
-	@echo "Testing C backend (--target c)..."
-	@bash tests/test_c_backend.sh $(COMPILER_C)
-	@echo ""
 	@echo "Testing Markdown docgen (--doc-md)..."
 	@bash tests/test_docgen_md.sh $(COMPILER_C)
 	@echo ""
-	@echo "Testing alternative backends (riscv, ptx, reflect)..."
-	@bash tests/test_backends.sh $(COMPILER_C)
+	@echo "Testing compiler output and analysis contracts..."
+	@$(MAKE) --no-print-directory test-compiler-contracts
+	@echo ""
+	@echo "Testing equivalent programs across compiler backends..."
+	@$(MAKE) --no-print-directory test-cross-backend
 	@echo ""
 	@echo "Testing the GLUT initialization boundary..."
 	@bash tests/test_opengl_glut_init.sh
@@ -979,7 +962,7 @@ test-dwarf: $(COMPILER_C)
 .PHONY: test-c-backend
 test-c-backend: $(COMPILER_C)
 	@echo "🔧 Testing --target c backend..."
-	@bash tests/test_c_backend.sh $(COMPILER_C)
+	@NANOLANG_TEST_BACKENDS=c bash tests/cross-backend/run-all.sh $(COMPILER_C)
 	@echo "✅ C backend tests PASSED"
 
 # Cross-backend compile suite: compile canonical test programs across all 5 backends
@@ -989,12 +972,6 @@ test-cross-backend: $(COMPILER)
 	@chmod +x tests/cross-backend/run-all.sh
 	@bash tests/cross-backend/run-all.sh $(COMPILER)
 	@echo "✅ Cross-backend tests PASSED"
-
-# Coroutine runtime test: runs tests/test_coroutine.nano through the interpreter
-test-coroutine: $(INTERPRETER)
-	@echo "🔄 Running coroutine runtime tests..."
-	@$(INTERPRETER) tests/test_coroutine.nano
-	@echo "✅ Coroutine runtime tests PASSED"
 
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json

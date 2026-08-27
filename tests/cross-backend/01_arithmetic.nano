@@ -7,3 +7,7 @@ fn main() -> int {
     (println (int_to_string result))
     return 0
 }
+
+shadow main {
+    assert (== (main) 0)
+}
