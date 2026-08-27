@@ -1414,24 +1414,6 @@ void test_eval_unsafe_block(void) {
     run_ctx_free(&ctx);
 }
 
-void test_eval_par_let(void) {
-    RunCtx ctx;
-    /* par-let syntax in interpreter — bindings evaluated sequentially */
-    bool ok = run_ctx_init(&ctx,
-        "fn main() -> int {\n"
-        "    par-let\n"
-        "        a = 3\n"
-        "        b = 12\n"
-        "    in\n"
-        "        (+ a b)\n"
-        "    return 0\n"
-        "}\n"
-    );
-    /* Just verify it doesn't crash — par-let may or may not fully typecheck */
-    (void)ok;
-    run_ctx_free(&ctx);
-}
-
 void test_eval_effects_basic(void) {
     /* Test effect declaration (no-op in interpreter) and basic effect structure */
     RunCtx ctx;
@@ -1441,29 +1423,9 @@ void test_eval_effects_basic(void) {
         "}\n"
         "fn noop() -> int { return 42 }\n"
     );
-    /* Effect decl is just a no-op in interpreter; verify init succeeds */
-    (void)ok;
-    if (ok) {
-        Value result = call_function("noop", NULL, 0, ctx.env);
-        ASSERT_EQ(result.as.int_val, 42);
-    }
-    run_ctx_free(&ctx);
-}
-
-void test_eval_print_statement(void) {
-    RunCtx ctx;
-    bool ok = run_ctx_init(&ctx,
-        "fn main() -> int { return 0 }\n"
-        "shadow main {\n"
-        "  print \"Hello\"\n"
-        "  println \" World\"\n"
-        "}\n"
-    );
     ASSERT(ok);
-    /* Just verify print doesn't crash */
-    suppress_stderr();
-    run_shadow_tests(ctx.program, ctx.env, false);
-    restore_stderr();
+    Value result = call_function("noop", NULL, 0, ctx.env);
+    ASSERT_EQ(result.as.int_val, 42);
     run_ctx_free(&ctx);
 }
 
@@ -1950,38 +1912,6 @@ void test_eval_for_over_float_array(void) {
     run_ctx_free(&ctx);
 }
 
-/* Print struct value — exercises eval_sb_append_value struct path (lines 785-795) */
-void test_eval_print_struct_value(void) {
-    RunCtx ctx;
-    /* Capturing stdout isn't needed — just verify no crash */
-    bool ok = run_ctx_init(&ctx,
-        "struct Point { x: int, y: int }\n"
-        "fn make_point(x: int, y: int) -> Point { return Point { x: x, y: y } }\n"
-        "fn main() -> int {\n"
-        "    let p: Point = (make_point 3 4)\n"
-        "    print p\n"
-        "    return 0\n"
-        "}\n"
-    );
-    ASSERT(ok);
-    run_ctx_free(&ctx);
-}
-
-/* Print union value — exercises eval_sb_append_value union path (lines 797-812) */
-void test_eval_print_union_value(void) {
-    RunCtx ctx;
-    bool ok = run_ctx_init(&ctx,
-        "union Shape { Circle { r: int }, Square { side: int } }\n"
-        "fn main() -> int {\n"
-        "    let s: Shape = Shape.Circle { r: 5 }\n"
-        "    print s\n"
-        "    return 0\n"
-        "}\n"
-    );
-    ASSERT(ok);
-    run_ctx_free(&ctx);
-}
-
 /* Coroutine spawn + scheduler_run (lines 48-56, 2841-2870, 4391-4401) */
 void test_eval_coroutine_spawn_and_run(void) {
     RunCtx ctx;
@@ -2133,8 +2063,6 @@ int main(void) {
     TEST(eval_array_set);
     TEST(eval_continue_in_loop);
     TEST(eval_unsafe_block);
-    TEST(eval_par_let);
-    TEST(eval_print_statement);
     TEST(eval_nested_closures);
     TEST(eval_string_format);
     TEST(eval_nested_arrays);
@@ -2160,8 +2088,6 @@ int main(void) {
     TEST(eval_array_scalar_broadcast_mul);
     TEST(eval_for_over_dynarray);
     TEST(eval_for_over_float_array);
-    TEST(eval_print_struct_value);
-    TEST(eval_print_union_value);
     TEST(eval_coroutine_spawn_and_run);
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);

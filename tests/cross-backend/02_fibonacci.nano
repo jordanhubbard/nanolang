@@ -13,3 +13,13 @@ fn main() -> int {
     (println (int_to_string (fib 10)))
     return 0
 }
+
+shadow fib {
+    assert (== (fib 0) 0)
+    assert (== (fib 1) 1)
+    assert (== (fib 10) 55)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

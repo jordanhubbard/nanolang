@@ -1,11 +1,11 @@
-# Test: Unknown effect operation in handler
+# Expected error: unknown effect operation
 
 effect Console {
     log : string -> void
 }
 
 fn main() -> int {
-    let x = handle {
+    let x: int = handle {
         42
     } with {
         nonexistent msg -> {
@@ -13,4 +13,8 @@ fn main() -> int {
         }
     }
     return x
+}
+
+shadow main {
+    assert (== (main) 42)
 }

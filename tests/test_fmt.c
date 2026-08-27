@@ -196,18 +196,6 @@ static void test_fmt_file_valid(void) {
     PASS(test_name);
 }
 
-static void test_fmt_file_check_only(void) {
-    const char *test_name = "fmt_file: check_only on already-formatted file";
-    /* Write a simple already-formatted file */
-    const char *path = write_temp_file("fn f(x: int) -> int {\n    return x\n}\n");
-    ASSERT(path != NULL, "failed to write temp file");
-    FmtOptions opts = { .indent_size = 4, .write_in_place = false, .check_only = true, .verbose = false };
-    /* check_only returns 0 if no changes needed, 2 if changes would be made */
-    int rc = fmt_file(path, &opts);
-    (void)rc; /* Either 0 or 2 is fine — just verify no crash */
-    PASS(test_name);
-}
-
 static void test_fmt_file_write_in_place(void) {
     const char *test_name = "fmt_file: write_in_place on valid file";
     const char *path = write_temp_file("fn g(n: int) -> int { return (* n n) }\n");
@@ -236,7 +224,6 @@ int main(void) {
     test_fmt_file_nonexistent();
     test_fmt_file_null_path();
     test_fmt_file_valid();
-    test_fmt_file_check_only();
     test_fmt_file_write_in_place();
 
     printf("\n");

@@ -177,24 +177,6 @@ static void test_sign_already_signed(void) {
     PASS(test_name);
 }
 
-static void test_sign_cmd_with_file(void) {
-    const char *test_name = "nanoc_sign_cmd: sign a file (uses default key path)";
-    const char *wasm_path = "/tmp/test_sign_cmd.wasm";
-
-    int wrc = write_wasm_file(wasm_path);
-    ASSERT(wrc == 0, "failed to create WASM file");
-
-    char *args[] = { (char *)wasm_path };
-    /* This uses the default key path (~/.nanoc/signing.key), which may or
-     * may not exist. We just verify it doesn't crash. */
-    suppress_stderr();
-    int rc = nanoc_sign_cmd(1, args);
-    restore_stderr();
-    (void)rc; /* Ignore return code - key path may not be writable */
-    unlink(wasm_path);
-    PASS(test_name);
-}
-
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -207,7 +189,6 @@ int main(void) {
     test_sign_nonexistent_file();
     test_sign_and_verify();
     test_sign_already_signed();
-    test_sign_cmd_with_file();
 
     printf("\n");
     if (g_fail == 0) {

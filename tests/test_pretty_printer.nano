@@ -301,7 +301,11 @@ shadow run_all_tests {
     assert (== (run_all_tests) 0)
 }
 
-# Note: This test file relies on shadow tests only.
-# It does not define its own main() to avoid conflicts with stdlib/tidy.nano's main().
-# The test runner will execute the shadow tests, which is sufficient for coverage.
+fn main() -> int {
+    return (run_all_tests)
+}
+
+shadow main {
+    assert (== (main) 0)
+}
 

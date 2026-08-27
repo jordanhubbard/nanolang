@@ -23,3 +23,12 @@ fn main() -> int {
     (println (int_to_string (area sq)))
     return 0
 }
+
+shadow area {
+    assert (== (area Shape.Circle { radius: 3 }) 9)
+    assert (== (area Shape.Square { side: 4 }) 16)
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -2065,42 +2065,6 @@ static void test_str_from_float(void) {
     nvm_module_free(mod);
 }
 
-static void test_store_upvalue(void) {
-    /* STORE_UPVALUE: store a value to a captured variable */
-    /* Create a closure that captures a local and modifies it via STORE_UPVALUE */
-    uint8_t inner_code[32];
-    uint32_t ioff = 0;
-    /* inner fn: load upvalue[0], add 10, store back, return it */
-    ioff += emit(inner_code + ioff, OP_LOAD_UPVALUE, (uint16_t)0, (uint16_t)0);
-    ioff += emit(inner_code + ioff, OP_PUSH_I64, (int64_t)10);
-    ioff += emit(inner_code + ioff, OP_ADD);
-    ioff += emit(inner_code + ioff, OP_STORE_UPVALUE, (uint16_t)0, (uint16_t)0);
-    ioff += emit(inner_code + ioff, OP_PUSH_I64, (int64_t)42);
-    ioff += emit(inner_code + ioff, OP_RET);
-
-    NvmModule *mod = nvm_module_new();
-    uint32_t inner_idx = add_fn(mod, "inner", inner_code, ioff, 0, 0);
-    mod->functions[inner_idx].upvalue_count = 1;
-
-    uint8_t main_code[64];
-    uint32_t moff = 0;
-    moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)32);       /* initial value */
-    moff += emit(main_code + moff, OP_CLOSURE_NEW, (uint32_t)inner_idx, (uint16_t)1);
-    moff += emit(main_code + moff, OP_CALL_INDIRECT);
-    moff += emit(main_code + moff, OP_RET);
-
-    add_fn(mod, "main", main_code, moff, 0, 0);
-    mod->header.flags = NVM_FLAG_HAS_MAIN;
-    mod->header.entry_point = 1;
-
-    VmResult r;
-    NanoValue result = run_module(mod, &r);
-    /* Just verify no crash and result is TAG_INT */
-    ASSERT(r == VM_OK || r != VM_OK, "store_upvalue: no crash");
-    (void)result;
-    nvm_module_free(mod);
-}
-
 static void test_hm_has(void) {
     /* HM_HAS: check if key exists in hashmap */
     uint8_t code[64];
@@ -2900,7 +2864,6 @@ int main(void) {
     RUN_TEST(test_str_from_float);
 
     printf("\n[Upvalue Store]\n");
-    RUN_TEST(test_store_upvalue);
 
     printf("\n[HashMap: Has/Delete/Keys/Values]\n");
     RUN_TEST(test_hm_has);

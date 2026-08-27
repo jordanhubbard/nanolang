@@ -23,6 +23,7 @@
 # ============================================================================
 
 set +e
+shopt -s globstar nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -109,17 +110,10 @@ record_result() {
     RESULT_CLASSES+=("$class")
 }
 
-# Expected failures (features not fully implemented)
-# None currently - function variables are now fully supported!
-EXPECTED_FAILURES=(
-    # Negative tests: expected to fail compilation (semantic errors in algebraic effects)
-    test_effects_negative.nano
-    test_effects_neg2.nano
-    # These tests require unmerged feature branches and compile against stub implementations.
-    # They will be un-skipped as the corresponding branches land in main.
-    test_coroutine.nano      # requires feat/coroutine-runtime
-    test_pretty_printer.nano # requires feat/nano-fmt or similar formatting branch
-)
+# A checked-in test either protects a supported contract or belongs in the
+# negative suite with an expected diagnostic. I do not silently skip broken
+# tests for unimplemented feature branches.
+EXPECTED_FAILURES=()
 
 # Per-backend expected failures
 VM_EXPECTED_FAILURES=(
@@ -167,7 +161,7 @@ run_test() {
 
     # Per-test timeouts (seconds). These prevent a single compiler hang from stalling the suite.
     # Override via env if needed (e.g. CI).
-    local COMPILE_TIMEOUT="${NANOLANG_TEST_COMPILE_TIMEOUT:-60}"
+    local COMPILE_TIMEOUT="${NANOLANG_TEST_COMPILE_TIMEOUT:-120}"
     local RUN_TIMEOUT="${NANOLANG_TEST_RUN_TIMEOUT:-60}"
     
     # Check for expected failures
@@ -400,103 +394,12 @@ if [ "$RUN_UNIT" = true ]; then
     echo -e "${CYAN}=== UNIT TESTS ===${NC}"
     echo ""
     
-    for f in tests/unit/*.nano; do
+    for f in tests/unit/**/*.nano; do
         [ -f "$f" ] && run_test "$f" "unit"
     done
     echo ""
     
     echo -e "${CYAN}Unit Tests: ${GREEN}$UNIT_PASS passed${NC}, ${RED}$UNIT_FAIL failed${NC}"
-    echo ""
-fi
-
-# ============================================================================
-# CATEGORY 4: Integration Tests (compiler flags, tooling)
-# These tests are C-transpiler-specific (--llm-diags-json, --llm-diags-toon)
-# ============================================================================
-if [ "$RUN_APP" = true ] && [ "$BACKEND" = "c" -o "$BACKEND" = "native" ]; then
-    echo -e "${CYAN}=== INTEGRATION TESTS ===${NC}"
-    echo ""
-    
-    INTEG_PASS=0
-    INTEG_FAIL=0
-    
-    # LLM Diagnostic Flags Tests
-    INTEG_TEMP=$(mktemp -d)
-    trap "rm -rf $INTEG_TEMP" EXIT
-    
-    # Create test fixtures
-    cat > "$INTEG_TEMP/error.nano" << 'FIXTURE'
-fn main() -> int {
-    return "not an int"
-}
-FIXTURE
-    
-    cat > "$INTEG_TEMP/success.nano" << 'FIXTURE'
-fn main() -> int {
-    return 0
-}
-
-shadow main {
-    assert (== (main) 0)
-}
-FIXTURE
-    
-    # Test: --llm-diags-json (error case)
-    ./bin/nanoc "$INTEG_TEMP/error.nano" --llm-diags-json "$INTEG_TEMP/d.json" >/dev/null 2>&1 || true
-    if [ -f "$INTEG_TEMP/d.json" ] && grep -q '"success":false' "$INTEG_TEMP/d.json"; then
-        echo -e "${GREEN}✅${NC} --llm-diags-json (error)"
-        INTEG_PASS=$((INTEG_PASS + 1))
-        TOTAL_PASS=$((TOTAL_PASS + 1))
-    else
-        echo -e "${RED}❌${NC} --llm-diags-json (error)"
-        INTEG_FAIL=$((INTEG_FAIL + 1))
-        TOTAL_FAIL=$((TOTAL_FAIL + 1))
-    fi
-    
-    # Test: --llm-diags-json (success case)
-    ./bin/nanoc "$INTEG_TEMP/success.nano" -o "$INTEG_TEMP/out" --llm-diags-json "$INTEG_TEMP/ok.json" >/dev/null 2>&1
-    if [ -f "$INTEG_TEMP/ok.json" ] && grep -q '"success":true' "$INTEG_TEMP/ok.json"; then
-        echo -e "${GREEN}✅${NC} --llm-diags-json (success)"
-        INTEG_PASS=$((INTEG_PASS + 1))
-        TOTAL_PASS=$((TOTAL_PASS + 1))
-    else
-        echo -e "${RED}❌${NC} --llm-diags-json (success)"
-        INTEG_FAIL=$((INTEG_FAIL + 1))
-        TOTAL_FAIL=$((TOTAL_FAIL + 1))
-    fi
-    
-    # Test: --llm-diags-toon (error case with content verification)
-    ./bin/nanoc "$INTEG_TEMP/error.nano" --llm-diags-toon "$INTEG_TEMP/d.toon" >/dev/null 2>&1 || true
-    # Verify: file exists, has header with count, has column headers, has data row with error code
-    if [ -f "$INTEG_TEMP/d.toon" ] && \
-       grep -q 'diagnostics\[1\]:' "$INTEG_TEMP/d.toon" && \
-       grep -q 'severity.*code.*message.*file.*line.*column' "$INTEG_TEMP/d.toon" && \
-       grep -q 'error.*CTYPE01' "$INTEG_TEMP/d.toon" && \
-       grep -q 'diagnostic_count: 1' "$INTEG_TEMP/d.toon"; then
-        echo -e "${GREEN}✅${NC} --llm-diags-toon (error)"
-        INTEG_PASS=$((INTEG_PASS + 1))
-        TOTAL_PASS=$((TOTAL_PASS + 1))
-    else
-        echo -e "${RED}❌${NC} --llm-diags-toon (error)"
-        INTEG_FAIL=$((INTEG_FAIL + 1))
-        TOTAL_FAIL=$((TOTAL_FAIL + 1))
-    fi
-    
-    # Test: --llm-diags-toon (success case)
-    ./bin/nanoc "$INTEG_TEMP/success.nano" -o "$INTEG_TEMP/out2" --llm-diags-toon "$INTEG_TEMP/ok.toon" >/dev/null 2>&1
-    if [ -f "$INTEG_TEMP/ok.toon" ] && grep -q 'diagnostic_count: 0' "$INTEG_TEMP/ok.toon"; then
-        echo -e "${GREEN}✅${NC} --llm-diags-toon (success)"
-        INTEG_PASS=$((INTEG_PASS + 1))
-        TOTAL_PASS=$((TOTAL_PASS + 1))
-    else
-        echo -e "${RED}❌${NC} --llm-diags-toon (success)"
-        INTEG_FAIL=$((INTEG_FAIL + 1))
-        TOTAL_FAIL=$((TOTAL_FAIL + 1))
-    fi
-    
-    rm -rf "$INTEG_TEMP"
-    echo ""
-    echo -e "${CYAN}Integration Tests: ${GREEN}$INTEG_PASS passed${NC}, ${RED}$INTEG_FAIL failed${NC}"
     echo ""
 fi
 

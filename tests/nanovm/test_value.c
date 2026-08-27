@@ -26,8 +26,6 @@ static int g_pass = 0, g_fail = 0;
 #define ASSERT(cond, msg) do { if (!(cond)) { FAIL(test_name, (msg)); return; } } while(0)
 
 /* Redirect val_print output to /dev/null for "no crash" tests */
-static FILE *devnull;
-
 /* ── val_truthy tests ────────────────────────────────────────────────────── */
 
 static void test_val_truthy_void(void) {
@@ -188,10 +186,11 @@ static void test_val_compare_enum_int_crosstype(void) {
 }
 
 static void test_val_compare_different_tags(void) {
-    const char *test_name = "val_compare: mismatched tags use tag difference";
-    /* For non-cross-type mismatches, result is (int)a.tag - (int)b.tag */
-    int r = val_compare(val_void(), val_bool(false));
-    (void)r; /* May be positive or negative — just verify no crash */
+    const char *test_name = "val_compare: mismatched tags define a stable ordering";
+    int forward = val_compare(val_void(), val_bool(false));
+    int reverse = val_compare(val_bool(false), val_void());
+    ASSERT(forward != 0, "different tags must not compare equal");
+    ASSERT(forward == -reverse, "cross-tag ordering must be antisymmetric");
     PASS(test_name);
 }
 
@@ -265,106 +264,39 @@ static void test_val_to_cstring_other(void) {
     PASS(test_name);
 }
 
-/* ── val_print tests ─────────────────────────────────────────────────────── */
+/* ── val_print contract ─────────────────────────────────────────────────── */
 
-static void test_val_print_void(void) {
-    const char *test_name = "val_print: void prints without crash";
-    val_print(val_void(), devnull);
-    PASS(test_name);
+static bool prints_as(NanoValue value, const char *expected) {
+    FILE *stream = tmpfile();
+    if (!stream) return false;
+    val_print(value, stream);
+    fflush(stream);
+    rewind(stream);
+
+    char actual[128] = {0};
+    size_t count = fread(actual, 1, sizeof(actual) - 1, stream);
+    actual[count] = '\0';
+    fclose(stream);
+    return strcmp(actual, expected) == 0;
 }
 
-static void test_val_print_int(void) {
-    const char *test_name = "val_print: int prints without crash";
-    val_print(val_int(123), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_float(void) {
-    const char *test_name = "val_print: float prints without crash";
-    val_print(val_float(2.718), devnull);
-    val_print(val_float(1.0), devnull); /* exercises the %.1f branch */
-    val_print(val_float(1e20), devnull); /* exercises the %g branch */
-    PASS(test_name);
-}
-
-static void test_val_print_bool(void) {
-    const char *test_name = "val_print: bool prints without crash";
-    val_print(val_bool(true),  devnull);
-    val_print(val_bool(false), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_u8(void) {
-    const char *test_name = "val_print: u8 prints without crash";
-    val_print(val_u8(42), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_string(void) {
-    const char *test_name = "val_print: null string prints 'null'";
-    val_print(val_string(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_array(void) {
-    const char *test_name = "val_print: null array prints '[]'";
-    val_print(val_array(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_struct(void) {
-    const char *test_name = "val_print: null struct prints '{}'";
-    val_print(val_struct(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_tuple(void) {
-    const char *test_name = "val_print: null tuple prints '()'";
-    val_print(val_tuple(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_union(void) {
-    const char *test_name = "val_print: null union prints 'union(null)'";
-    val_print(val_union(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_null_hashmap(void) {
-    const char *test_name = "val_print: hashmap prints without crash";
-    val_print(val_hashmap(NULL), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_enum(void) {
-    const char *test_name = "val_print: enum prints without crash";
-    val_print(val_enum(7), devnull);
-    PASS(test_name);
-}
-
-static void test_val_print_function(void) {
-    const char *test_name = "val_print: function prints without crash";
-    val_print(val_function(0), devnull);
-    PASS(test_name);
-}
-
-static void test_val_println_int(void) {
-    const char *test_name = "val_println: int prints to stdout without crash";
-    /* Redirect stdout temporarily */
-    FILE *orig = stdout;
-    (void)orig;
-    /* Just call it — if it doesn't crash, that's sufficient */
-    /* We can't easily redirect stdout, so just suppress via freopen */
-    val_println(val_int(42));
+static void test_val_print_contract(void) {
+    const char *test_name = "val_print: stable textual representation";
+    ASSERT(prints_as(val_void(), "void"), "void representation");
+    ASSERT(prints_as(val_int(123), "123"), "int representation");
+    ASSERT(prints_as(val_bool(true), "true"), "true representation");
+    ASSERT(prints_as(val_bool(false), "false"), "false representation");
+    ASSERT(prints_as(val_string(NULL), "null"), "null string representation");
+    ASSERT(prints_as(val_array(NULL), "[]"), "null array representation");
+    ASSERT(prints_as(val_struct(NULL), "{}"), "null struct representation");
+    ASSERT(prints_as(val_tuple(NULL), "()"), "null tuple representation");
+    ASSERT(prints_as(val_union(NULL), "union(null)"), "null union representation");
     PASS(test_name);
 }
 
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
-    devnull = fopen("/dev/null", "w");
-    if (!devnull) devnull = stderr;
-
     printf("\n[value] NanoVM value operations tests...\n\n");
 
     /* val_truthy */
@@ -404,23 +336,7 @@ int main(void) {
     test_val_to_cstring_string_null();
     test_val_to_cstring_other();
 
-    /* val_print */
-    test_val_print_void();
-    test_val_print_int();
-    test_val_print_float();
-    test_val_print_bool();
-    test_val_print_u8();
-    test_val_print_null_string();
-    test_val_print_null_array();
-    test_val_print_null_struct();
-    test_val_print_null_tuple();
-    test_val_print_null_union();
-    test_val_print_null_hashmap();
-    test_val_print_enum();
-    test_val_print_function();
-    test_val_println_int();
-
-    if (devnull != stderr) fclose(devnull);
+    test_val_print_contract();
 
     printf("\n");
     if (g_fail == 0) {

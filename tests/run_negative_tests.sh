@@ -1,66 +1,71 @@
-#!/bin/bash
-# Test runner for negative tests
-# These tests should FAIL to compile
+#!/usr/bin/env bash
+# Public compiler contract for malformed programs.
+#
+# Every fixture must be rejected, must produce a diagnostic, and must not
+# leave an executable behind. High-value namespace regressions additionally
+# pin their documented error or warning text.
 
-set -e
+set -uo pipefail
+shopt -s globstar nullglob
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+COMPILER="${NANOC:-$PROJECT_ROOT/bin/nanoc}"
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/nanolang-negative.XXXXXX")"
+trap 'rm -rf "$WORK"' EXIT
 
-COMPILER="../bin/nanoc"
-NEGATIVE_DIR="negative"
-PASSED=0
-FAILED=0
-TOTAL=0
-
-echo "========================================" 
-echo "Running Negative Tests"
-echo "========================================"
-echo ""
-
-# Check if compiler exists
-if [ ! -f "$COMPILER" ]; then
-    echo -e "${RED}Error: Compiler '$COMPILER' not found${NC}"
-    echo "Run 'make' from the project root first"
+if [ ! -x "$COMPILER" ]; then
+    echo "ERROR: compiler not found at $COMPILER" >&2
     exit 1
 fi
 
-# Find all negative test files
-find "$NEGATIVE_DIR" -name "*.nano" | sort | while read -r test_file; do
-    TOTAL=$((TOTAL + 1))
-    test_name=$(basename "$test_file" .nano)
-    category=$(basename $(dirname "$test_file"))
-    
-    echo -n "Testing $category/$test_name... "
-    
-    # Try to compile - should fail
-    if $COMPILER "$test_file" -o /tmp/negative_test_output 2>/dev/null >/dev/null; then
-        echo -e "${RED}✗ FAIL${NC} (compiled when it should have failed)"
-        FAILED=$((FAILED + 1))
-    else
-        echo -e "${GREEN}✓ PASS${NC} (failed as expected)"
-        PASSED=$((PASSED + 1))
+passed=0
+failed=0
+
+expected_diagnostic() {
+    case "$1" in
+        */duplicate_functions/duplicate_function.nano)
+            echo "Function 'add' is already defined" ;;
+        */builtin_collision/redefine_abs.nano)
+            echo "Cannot redefine built-in function 'abs'" ;;
+        */builtin_collision/redefine_min.nano)
+            echo "Cannot redefine built-in function 'min'" ;;
+        *) echo "error|Error|ERROR|failed|FAILED|UNDEFINED|Undefined" ;;
+    esac
+}
+
+for source in "$SCRIPT_DIR"/negative/**/*.nano; do
+    relative="${source#"$SCRIPT_DIR"/}"
+    output="$WORK/${relative//\//_}.out"
+    log="$WORK/${relative//\//_}.log"
+    pattern="$(expected_diagnostic "$source")"
+
+    printf "%-65s " "$relative"
+    if perl -e 'alarm 60; exec @ARGV' \
+            "$COMPILER" "$source" -o "$output" >"$log" 2>&1; then
+        echo "FAIL (compiler accepted invalid input)"
+        failed=$((failed + 1))
+        continue
     fi
-    
-    # Clean up
-    rm -f /tmp/negative_test_output
+
+    if [ -e "$output" ]; then
+        echo "FAIL (failed compile left an output artifact)"
+        failed=$((failed + 1))
+        continue
+    fi
+
+    if ! grep -Eq "$pattern" "$log"; then
+        echo "FAIL (missing expected diagnostic: $pattern)"
+        tail -10 "$log"
+        failed=$((failed + 1))
+        continue
+    fi
+
+    echo "PASS"
+    passed=$((passed + 1))
 done
 
-echo ""
-echo "========================================"
-echo "Negative Test Summary"
-echo "========================================"
-echo "Total: $TOTAL"
-echo -e "${GREEN}Passed: $PASSED${NC}"
-
-if [ $FAILED -gt 0 ]; then
-    echo -e "${RED}Failed: $FAILED${NC}"
-    exit 1
-else
-    echo "Failed: 0"
-    echo -e "${GREEN}All negative tests passed!${NC}"
-    exit 0
-fi
+total=$((passed + failed))
+echo "Negative compiler contracts: $passed/$total passed"
+test "$failed" -eq 0
 

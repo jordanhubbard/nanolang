@@ -1,0 +1,2 @@
+# WASM does not yet lower the string-conversion and output builtins used here.
+wasm

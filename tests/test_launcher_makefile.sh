@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Example launcher Makefile — do not exec a skipped SDL binary
+# Public make contract: `make launcher` compiles before it launches
 # ============================================================================
 #
-# `make launcher` used to run ./bin/sdl_example_launcher after `build` even
-# when SDL_AVAILABLE was no, so Linux hosts without libsdl2-dev printed
-# "Launching..." and then Error 127 / not found. The launcher target must
-# name that binary as a make prerequisite so compiling it can pull in the
-# SDL modules (and auto-install) instead of exec'ing a file that was skipped.
+# Observable interface: `make -C examples launcher`. When pkg-config has
+# not yet found SDL2, `build` used to skip sdl_example_launcher and the
+# launcher recipe still exec'd it (Error 127). The contract is that a
+# dry-run still plans to compile sdl_example_launcher.nano, and that
+# compile is planned before "Launching...".
+#
+# The compiler is a stub: this test is about Make's plan, not about
+# compiling NanoLang.
 #
 # Usage:
 #   bash tests/test_launcher_makefile.sh
@@ -39,29 +42,15 @@ chmod +x "$STUB_COMPILER"
 
 PLAN="$(make -C examples -n launcher SDL_AVAILABLE=no COMPILER="$STUB_COMPILER" 2>&1)" || true
 
-if echo "$PLAN" | grep -q 'sdl_example_launcher\.nano'; then
-    pass "launcher still compiles sdl_example_launcher when SDL_AVAILABLE=no"
-else
-    fail "launcher dry-run skipped sdl_example_launcher.nano when SDL_AVAILABLE=no"
-    echo "$PLAN" | tail -20
-fi
-
 compile_line="$(echo "$PLAN" | grep -n 'sdl_example_launcher\.nano' | head -1 | cut -d: -f1)"
 launch_line="$(echo "$PLAN" | grep -n 'Launching\.\.\.' | head -1 | cut -d: -f1)"
-if [ -n "$compile_line" ] && [ -n "$launch_line" ] && [ "$compile_line" -lt "$launch_line" ]; then
-    pass "compile of sdl_example_launcher is planned before Launching"
-else
-    fail "Launching is not sequenced after compiling sdl_example_launcher"
-    echo "compile_line=${compile_line:-none} launch_line=${launch_line:-none}"
-fi
 
-if grep -q 'launcher: build $(LAUNCHER_BIN)' examples/Makefile \
-    || grep -q 'launcher: build \$(LAUNCHER_BIN)' examples/Makefile \
-    || grep -E '^launcher:.*sdl_example_launcher' examples/Makefile >/dev/null; then
-    pass "examples/Makefile launcher prerequisite names the SDL launcher binary"
+if [ -n "$compile_line" ] && [ -n "$launch_line" ] && [ "$compile_line" -lt "$launch_line" ]; then
+    pass "make launcher plans to compile sdl_example_launcher before launching, even without SDL2"
 else
-    fail "examples/Makefile launcher target no longer depends on the launcher binary"
-    grep -n '^launcher:' examples/Makefile
+    fail "make launcher does not plan compile-then-launch when SDL_AVAILABLE=no"
+    echo "compile_line=${compile_line:-none} launch_line=${launch_line:-none}"
+    echo "$PLAN" | tail -25
 fi
 
 echo "=========================================="

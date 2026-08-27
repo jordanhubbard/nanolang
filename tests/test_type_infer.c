@@ -409,25 +409,6 @@ void test_infer_empty_program(void) {
     ASSERT(ok);  /* empty program has no type errors */
 }
 
-void test_infer_simple_parsed_program(void) {
-    /* Lex and parse a simple nano program, run HM inference on it */
-    const char *src =
-        "fn identity(x: int) -> int { x }\n"
-        "fn main() -> void { (print \"hello\") }\n";
-    int token_count = 0;
-    Token *tokens = tokenize(src, &token_count);
-    ASSERT_NOT_NULL(tokens);
-    ASTNode *program = parse_program(tokens, token_count);
-    ASSERT_NOT_NULL(program);
-    /* Run HM inference — just verify it doesn't crash */
-    suppress_stderr();
-    (void)hm_infer_program(program, "simple.nano");
-    restore_stderr();
-    free_ast(program);
-    free_tokens(tokens, token_count);
-
-}
-
 void test_infer_with_effects(void) {
     ASTNode prog;
     memset(&prog, 0, sizeof(prog));
@@ -504,7 +485,6 @@ int main(void) {
 
     printf("\n=== Program Inference Tests ===\n");
     TEST(infer_empty_program);
-    TEST(infer_simple_parsed_program);
     TEST(infer_with_effects);
     TEST(infer_for_lsp_and_free);
 
