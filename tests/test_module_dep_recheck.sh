@@ -69,13 +69,15 @@ EOF
 cat >"$MOD_DIR/fakedep.h" <<'EOF'
 #ifndef FAKEDEP_H
 #define FAKEDEP_H
-long long fakedep_answer(void);
+#include <stdint.h>
+/* nanolang's int is int64_t; long long would conflict on LP64 Linux. */
+int64_t fakedep_answer(void);
 #endif
 EOF
 
 cat >"$MOD_DIR/fakedep.c" <<'EOF'
 #include "fakedep.h"
-long long fakedep_answer(void) { return 42; }
+int64_t fakedep_answer(void) { return 42; }
 EOF
 
 cat >"$MOD_DIR/fakedep.nano" <<'EOF'
