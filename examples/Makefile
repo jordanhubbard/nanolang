@@ -505,7 +505,12 @@ examples-available: $(COMPILER)
 
 # Example launcher (SDL app-store style)
 # Note: must run from repo root so relative paths (examples/icons/, examples/games/) resolve
-launcher: build
+#
+# `build` omits sdl_example_launcher when SDL_AVAILABLE is no, so this target
+# names the binary itself. Compiling it pulls in the SDL modules, which can
+# auto-install libsdl2-dev. Executing a skipped binary was Error 127.
+LAUNCHER_BIN := $(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+launcher: build $(LAUNCHER_BIN)
 	@echo "Launching... (ESC or Quit to exit)"
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
