@@ -17,18 +17,19 @@
 #   2. call-site guard — every source under examples/ and modules/ that draws
 #      GLUT primitives goes through the shared boundary and none re-implements
 #      glutInit by hand
-#   3. launch smoke — when the OpenGL toolchain and a display are present,
-#      build both GLUT examples and check they survive launch
-#   4. macOS framework guard — compiling the teapot must use the SDK's GLUT
+#   3. macOS framework guard — compiling the teapot must use the SDK's GLUT
 #      framework without invoking Homebrew to install freeglut
+#   4. launch smoke (opt-in) — build both GLUT examples and check they survive
+#      launch on a real display
 #
 # Usage:
-#   bash tests/test_opengl_glut_init.sh            # all sections
-#   bash tests/test_opengl_glut_init.sh --quick    # skip the launch smoke
+#   bash tests/test_opengl_glut_init.sh             # sections 1-3
+#   bash tests/test_opengl_glut_init.sh --launch    # also run the launch smoke
 #
-# Sections 1 and 2 need no OpenGL toolchain and no display, so they are the
-# regression net on headless machines and build agents. Section 3 skips
-# (without failing) when its prerequisites are missing, listing every unmet
+# Sections 1-3 need no display, so they are what runs in the test suite and on
+# build agents. Section 4 opens real windows and needs a human at the machine,
+# so it is opt-in: automated runs must not depend on an interactive display.
+# When requested but unavailable it skips (without failing), listing every unmet
 # prerequisite so the environment can be provisioned in one pass.
 # ============================================================================
 
@@ -38,11 +39,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-QUICK=false
+LAUNCH_SMOKE=false
 for arg in "$@"; do
     case "$arg" in
-        --quick) QUICK=true ;;
-        --help|-h) sed -n '2,26p' "$0"; exit 0 ;;
+        --launch) LAUNCH_SMOKE=true ;;
+        --help|-h) sed -n '2,27p' "$0"; exit 0 ;;
         *) echo "Unknown argument: $arg" >&2; exit 1 ;;
     esac
 done
@@ -176,7 +177,7 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
-# 4. Launch smoke — both examples must survive launch on a real display
+# 4. Launch smoke (opt-in) — both examples must survive launch on a real display
 # ---------------------------------------------------------------------------
 echo "-- Launch smoke --"
 
@@ -184,8 +185,8 @@ echo "-- Launch smoke --"
 # provisioning the machine can then install the whole set in one pass instead of
 # rediscovering the next missing piece on each run.
 launch_prerequisite_missing() {
-    if [ "$QUICK" = true ]; then
-        echo "--quick requested"
+    if [ "$LAUNCH_SMOKE" != true ]; then
+        echo "opens interactive windows; pass --launch to run it"
         return 0
     fi
 
