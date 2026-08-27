@@ -32,8 +32,19 @@ fn main() -> int {
         return 1
     }
 
-    # Metadata must be present (populated), not absent.
-    let fn_count = (___module_function_count_metadata_probe)
+    # Metadata must be present (populated), not absent. The introspection
+    # accessors are extern (FFI) functions, so their calls live in unsafe blocks.
+    let mut fn_count = 0
+    let mut struct_count = 0
+    let mut module_is_unsafe = false
+    let mut module_has_ffi = false
+    unsafe {
+        set fn_count (___module_function_count_metadata_probe)
+        set struct_count (___module_struct_count_metadata_probe)
+        set module_is_unsafe (___module_is_unsafe_metadata_probe)
+        set module_has_ffi (___module_has_ffi_metadata_probe)
+    }
+
     (print "Exported functions: ")
     (println (int_to_string fn_count))
     if fn_count != 2 {
@@ -41,7 +52,6 @@ fn main() -> int {
         return 1
     }
 
-    let struct_count = (___module_struct_count_metadata_probe)
     (print "Exported structs: ")
     (println (int_to_string struct_count))
     if struct_count != 1 {
@@ -50,11 +60,11 @@ fn main() -> int {
     }
 
     # Safety flags must reflect a safe, FFI-free module.
-    if (___module_is_unsafe_metadata_probe) {
+    if module_is_unsafe {
         (println "ERROR: module should be safe")
         return 1
     }
-    if (___module_has_ffi_metadata_probe) {
+    if module_has_ffi {
         (println "ERROR: module should have no FFI")
         return 1
     }

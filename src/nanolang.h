@@ -776,6 +776,7 @@ typedef struct {
     bool emit_module_metadata;  /* Emit ___module_* metadata functions in transpiled C (disable for module objects) */
     bool emit_c_main;  /* Emit C main()/g_argc/g_argv wrapper in transpiled C (disable for module objects) */
     bool current_module_is_unsafe;  /* Is the current module context unsafe? */
+    bool in_unsafe_block;  /* Are we currently type-checking inside an unsafe { } block? */
     /* Phase 3: Module safety warning flags */
     bool warn_unsafe_imports;  /* Warn when importing unsafe modules */
     bool warn_unsafe_calls;    /* Warn when calling functions from unsafe modules */

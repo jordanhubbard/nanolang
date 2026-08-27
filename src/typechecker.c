@@ -1416,6 +1416,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
             }
+
+            /* Extern (FFI) calls require an unsafe block or unsafe module. The
+             * statement-level check only fires when the call is a bare
+             * statement; a call nested inside another expression (e.g. an
+             * argument to println) reaches the type checker only through this
+             * expression path, so enforce the same rule here. Without this an
+             * unguarded extern call type-checks and only fails later at link
+             * time with an undefined symbol. */
+            if (func && func->is_extern &&
+                !env->in_unsafe_block && !env->current_module_is_unsafe) {
+                fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
+                        expr->line, expr->column, expr->as.call.name);
+                fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
+                fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
+                g_typecheck_error_count++;
+            }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
@@ -4282,7 +4298,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_UNSAFE_BLOCK: {
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
+            bool prev_env_unsafe = tc->env->in_unsafe_block;
             tc->in_unsafe_block = true;
+            /* Mirror the flag onto the environment so extern calls nested inside
+             * expressions (which only receive the Environment) can see it too. */
+            tc->env->in_unsafe_block = true;
 
             /* Type check all statements in the unsafe block */
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
@@ -4291,6 +4311,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
+            tc->env->in_unsafe_block = prev_env_unsafe;
             return TYPE_VOID;
         }
 
@@ -4549,14 +4570,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
                         }
                         
-                        /* Check if unsafe context is required */
-                        if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
-                            fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
-                                    stmt->line, stmt->column, stmt->as.call.name);
-                            fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
-                            fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
-                            tc->has_error = true;
-                        }
+                        /* The unsafe-context requirement is enforced uniformly in
+                         * check_expression() (see the AST_CALL case there), which
+                         * runs for this statement below. Emitting it here as well
+                         * would double-report the same diagnostic. */
                     }
                 }
             }

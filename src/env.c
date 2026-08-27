@@ -45,6 +45,7 @@ Environment *create_environment(void) {
     env->emit_module_metadata = true;
     env->emit_c_main = true;
     env->current_module_is_unsafe = false;
+    env->in_unsafe_block = false;
     
     /* Initialize Phase 3: Module safety warning flags */
     env->warn_unsafe_imports = false;
