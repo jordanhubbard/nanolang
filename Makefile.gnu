@@ -1162,6 +1162,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
 	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-validate-modules

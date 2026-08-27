@@ -198,6 +198,7 @@ create_release() {
     local version=$1
     local prev_version=$2
     local test_status=$3  # Passed from caller to avoid running tests twice
+    local release_branch="release/v$version"
     
     info "Creating release v$version..."
     
@@ -247,17 +248,35 @@ Release highlights from v$prev_version
 Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>"
     fi
 
-    # Rebase on any commits that landed on origin since we started
-    info "Syncing with origin before tagging..."
+    # Rebase on any commits that landed on origin since we started, then put
+    # the release commit on a branch so protected main is only changed by PR.
+    info "Syncing with origin before creating the release PR..."
     git pull --rebase origin main
+    git switch -c "$release_branch"
 
-    # Create annotated git tag (after changelog commit and rebase so tag is at final HEAD)
+    info "Pushing $release_branch..."
+    git push --set-upstream origin "$release_branch"
+
+    info "Opening release PR..."
+    local pr_url
+    pr_url=$(gh pr create \
+        --base main \
+        --head "$release_branch" \
+        --title "Release v$version" \
+        --body "Prepare the v$version release.")
+
+    info "Waiting for release PR checks..."
+    gh pr checks "$pr_url" --watch --fail-fast
+
+    info "Merging release PR..."
+    gh pr merge "$pr_url" --squash --delete-branch
+
+    # The protected branch may use squash or merge commits. Tag the commit
+    # that actually landed instead of the now-obsolete release-branch commit.
+    git switch main
+    git pull --ff-only origin main
     info "Creating git tag v$version..."
     git tag -a "v$version" -m "Release v$version"
-
-    # Push commits and tags
-    info "Pushing to origin..."
-    git push origin main
     git push origin "v$version"
     
     # Create GitHub release
