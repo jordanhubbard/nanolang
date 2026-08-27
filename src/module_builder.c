@@ -935,8 +935,9 @@ static bool install_single_package_ex(const char *package_name, PackageManager p
 
     switch (pm) {
         case PKG_MGR_APT:
-            // Check if already installed
-            snprintf(cmd, sizeof(cmd), "dpkg -l %s 2>/dev/null | grep -q '^ii'", package_name);
+            // Check if already installed. Use dpkg-query rather than `dpkg -l`
+            // so the probe never pipes list output through the system pager.
+            snprintf(cmd, sizeof(cmd), "dpkg-query -W -f='${Status}' %s 2>/dev/null | grep -q '^install ok installed$'", package_name);
             if (system(cmd) == 0) {
                 printf("[Module]   ✓ %s already installed\n", package_name);
                 return true;
