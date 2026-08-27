@@ -868,8 +868,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Note: We'll track consumption separately when passing to functions */
             /* For now, just mark as used to detect use-after-consume */
             if (sym->is_resource) {
-                bool dummy_error = false;  /* We'll get the real error flag from context later */
-                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &dummy_error);
+                bool resource_error = false;
+                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &resource_error);
+                if (resource_error) {
+                    g_typecheck_error_count++;
+                }
             }
             
             return sym->type;
@@ -2113,8 +2116,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             Symbol *arg_sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
                             if (arg_sym && arg_sym->is_resource) {
                                 /* Resource is being passed to function - mark as consumed */
-                                bool dummy_error = false;
-                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &dummy_error);
+                                bool resource_error = false;
+                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &resource_error);
+                                if (resource_error) {
+                                    g_typecheck_error_count++;
+                                }
                             }
                         }
                         

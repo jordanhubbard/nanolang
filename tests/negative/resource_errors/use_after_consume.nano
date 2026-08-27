@@ -1,0 +1,25 @@
+# Expected error: Cannot consume a resource more than once
+
+resource struct FileHandle {
+    fd: int
+}
+
+fn close_file(file: FileHandle) -> void {
+    (println "closed")
+}
+
+shadow close_file {
+    let file: FileHandle = FileHandle { fd: 1 }
+    (close_file file)
+}
+
+fn main() -> int {
+    let file: FileHandle = FileHandle { fd: 42 }
+    (close_file file)
+    (close_file file)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
