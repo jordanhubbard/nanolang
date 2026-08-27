@@ -767,12 +767,17 @@ test-proptest: $(INTERPRETER)
 	@echo "proptest smoke tests passed."
 
 # GLUT initialization boundary tests.
-# Unit-tests modules/glut/glut_init.c against a stub GLUT (needs only a C
-# compiler) and, when the OpenGL toolchain and a display are available, checks
-# that the GLUT examples survive launch.
+# Unit-tests modules/glut/glut_init.c against a stub GLUT, guards every call
+# site, and checks macOS resolves Apple's GLUT framework. Needs no display.
 .PHONY: test-glut-init
 test-glut-init:
 	@bash tests/test_opengl_glut_init.sh
+
+# The same checks plus the launch smoke, which opens real example windows.
+# Interactive by nature, so it is never part of test or release runs.
+.PHONY: test-glut-launch
+test-glut-launch:
+	@bash tests/test_opengl_glut_init.sh --launch
 
 # CI dependency-install helper tests.
 # Drives scripts/ci-apt-install.sh and scripts/ci-brew-install.sh against
@@ -867,7 +872,7 @@ test-impl: test-units
 	@$(MAKE) --no-print-directory test-cross-backend
 	@echo ""
 	@echo "Testing the GLUT initialization boundary..."
-	@bash tests/test_opengl_glut_init.sh
+	@$(MAKE) --no-print-directory test-glut-init
 	@echo ""
 	@echo "Testing the CI dependency-install helpers..."
 	@bash tests/test_ci_dependency_install.sh
@@ -1157,7 +1162,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
-	@bash tests/test_opengl_glut_init.sh --quick
+	@$(MAKE) --no-print-directory test-glut-init
 	@bash tests/test_ci_dependency_install.sh
 	@$(MAKE) --no-print-directory test-validate-modules
 	@$(MAKE) --no-print-directory test-launcher-makefile
@@ -2147,7 +2152,8 @@ help:
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
 	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
-	@echo "  make test-glut-init    - Run GLUT initialization boundary tests"
+	@echo "  make test-glut-init    - Run GLUT initialization boundary tests (headless)"
+	@echo "  make test-glut-launch  - Also launch the GLUT examples (opens windows)"
 	@echo "  make fuzz              - Run fuzzing on seed corpus"
 	@echo "  make fuzz-lexer        - Fuzz lexer with AddressSanitizer"
 	@echo ""
