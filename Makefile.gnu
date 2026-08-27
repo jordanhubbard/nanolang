@@ -2139,6 +2139,7 @@ help:
 	@echo "  make test-app          - Test only application/integration tests"
 	@echo "  make test-unit         - Test only unit tests"
 	@echo "  make test-quick        - Quick test (language tests only)"
+	@echo "  make test-validate-modules - Module validator keg-only/pkg-manager checks"
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
