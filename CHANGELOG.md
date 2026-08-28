@@ -5,6 +5,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.12] - 2026-08-28
+
+### Added
+- turn ocean demo into a compute stress scene
+
+### Changed
+- release.sh pushes main directly, so make release always fails at the final step (task_89709a53b78f4b5f83466c2a4fb14013) (#108)
+
 ## [3.4.11] - 2026-08-27
 
 ### Changed
