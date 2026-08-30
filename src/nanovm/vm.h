@@ -19,6 +19,34 @@
 #define VM_STACK_INITIAL    4096
 #define VM_MAX_FRAMES       1024
 #define VM_MAX_GLOBALS      4096
+#define VM_PROFILE_TRIPLES  4096
+
+typedef struct {
+    uint32_t key;
+    uint64_t count;
+    bool used;
+} VmProfileTriple;
+
+typedef struct {
+    bool enabled;
+    bool has_previous;
+    bool has_previous_pair;
+    uint8_t previous;
+    uint16_t previous_pair;
+    uint64_t retired;
+    uint64_t opcode_counts[256];
+    uint64_t pair_counts[256 * 256];
+    VmProfileTriple triples[VM_PROFILE_TRIPLES];
+    uint64_t branches;
+    uint64_t branches_taken;
+    uint64_t direct_calls;
+    uint64_t indirect_calls;
+    uint64_t extern_calls;
+    uint64_t module_calls;
+    uint64_t traps;
+    uint32_t max_stack_depth;
+    uint32_t max_frame_depth;
+} VmProfile;
 
 /* ========================================================================
  * Call Frame
@@ -114,6 +142,9 @@ typedef struct VmState {
     /* Debug mode: emit stack trace on any runtime error.
      * Enabled via --debug flag or DEBUG env var. */
     bool debug_mode;
+
+    /* Optional low-overhead instruction and control-flow counters. */
+    VmProfile profile;
 } VmState;
 
 /* ========================================================================
@@ -180,6 +211,12 @@ VmTrap vm_core_execute(VmState *vm);
 
 /* Get the return value (top of stack after execution) */
 NanoValue vm_get_result(VmState *vm);
+
+/* Reset and enable or disable execution profiling. */
+void vm_profile_enable(VmState *vm, bool enabled);
+
+/* Write deterministic JSON containing execution counters. */
+bool vm_profile_write_json(const VmState *vm, FILE *out);
 
 /* Get error message string */
 const char *vm_error_string(VmResult result);

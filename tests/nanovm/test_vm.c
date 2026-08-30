@@ -252,6 +252,29 @@ static void test_persistent_invoke(void) {
     nvm_module_free(mod);
 }
 
+static void test_instruction_profile(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)22);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    vm_profile_enable(&vm, true);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "profiled execution succeeds");
+    ASSERT_EQ_INT(vm.profile.retired, 4, "profile counts retired instructions");
+    ASSERT_EQ_INT(vm.profile.opcode_counts[OP_PUSH_I64], 2,
+                  "profile counts opcodes");
+    ASSERT_EQ_INT(vm.profile.pair_counts[(OP_PUSH_I64 << 8) | OP_PUSH_I64], 1,
+                  "profile counts opcode pairs");
+    ASSERT_EQ_INT(vm.profile.pair_counts[(OP_PUSH_I64 << 8) | OP_ADD], 1,
+                  "profile counts second opcode pair");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Tests: Basic Integer Arithmetic
  * ======================================================================== */
@@ -2877,6 +2900,7 @@ int main(void) {
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
     RUN_TEST(test_persistent_invoke);
+    RUN_TEST(test_instruction_profile);
 
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);

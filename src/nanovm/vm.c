@@ -122,6 +122,100 @@ static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
     return vm->stack[vm->stack_size - 1 - offset];
 }
 
+static inline void profile_instruction(VmState *vm, uint8_t opcode) {
+    VmProfile *p = &vm->profile;
+    if (!p->enabled) return;
+
+    p->retired++;
+    p->opcode_counts[opcode]++;
+    if (p->has_previous) {
+        uint16_t pair = (uint16_t)(((uint16_t)p->previous << 8) | opcode);
+        p->pair_counts[pair]++;
+        if (p->has_previous_pair) {
+            uint32_t key = ((uint32_t)p->previous_pair << 8) | opcode;
+            uint32_t slot = (key * 2654435761U) % VM_PROFILE_TRIPLES;
+            for (uint32_t probe = 0; probe < VM_PROFILE_TRIPLES; probe++) {
+                VmProfileTriple *entry = &p->triples[slot];
+                if (!entry->used || entry->key == key) {
+                    entry->used = true;
+                    entry->key = key;
+                    entry->count++;
+                    break;
+                }
+                slot = (slot + 1) % VM_PROFILE_TRIPLES;
+            }
+        }
+        p->previous_pair = pair;
+        p->has_previous_pair = true;
+    }
+    p->previous = opcode;
+    p->has_previous = true;
+    if (vm->stack_size > p->max_stack_depth)
+        p->max_stack_depth = vm->stack_size;
+    if (vm->frame_count > p->max_frame_depth)
+        p->max_frame_depth = vm->frame_count;
+}
+
+void vm_profile_enable(VmState *vm, bool enabled) {
+    if (!vm) return;
+    memset(&vm->profile, 0, sizeof(vm->profile));
+    vm->profile.enabled = enabled;
+}
+
+bool vm_profile_write_json(const VmState *vm, FILE *out) {
+    if (!vm || !out) return false;
+    const VmProfile *p = &vm->profile;
+    fprintf(out, "{\n  \"schema\": \"nanoisa.profile.v1\",\n");
+    fprintf(out, "  \"retired\": %llu,\n", (unsigned long long)p->retired);
+    fprintf(out, "  \"max_stack_depth\": %u,\n", p->max_stack_depth);
+    fprintf(out, "  \"max_frame_depth\": %u,\n", p->max_frame_depth);
+    fprintf(out, "  \"branches\": %llu,\n", (unsigned long long)p->branches);
+    fprintf(out, "  \"branches_taken\": %llu,\n",
+            (unsigned long long)p->branches_taken);
+    fprintf(out, "  \"calls\": {\"direct\": %llu, \"indirect\": %llu, "
+                 "\"extern\": %llu, \"module\": %llu},\n",
+            (unsigned long long)p->direct_calls,
+            (unsigned long long)p->indirect_calls,
+            (unsigned long long)p->extern_calls,
+            (unsigned long long)p->module_calls);
+    fprintf(out, "  \"traps\": %llu,\n", (unsigned long long)p->traps);
+
+    fprintf(out, "  \"opcodes\": {");
+    bool first = true;
+    for (uint32_t i = 0; i < 256; i++) {
+        if (p->opcode_counts[i] == 0) continue;
+        fprintf(out, "%s\n    \"0x%02x\": %llu", first ? "" : ",", i,
+                (unsigned long long)p->opcode_counts[i]);
+        first = false;
+    }
+    fprintf(out, "%s\n  },\n", first ? "" : "");
+
+    fprintf(out, "  \"pairs\": {");
+    first = true;
+    for (uint32_t i = 0; i < 256U * 256U; i++) {
+        if (p->pair_counts[i] == 0) continue;
+        fprintf(out, "%s\n    \"%02x-%02x\": %llu", first ? "" : ",",
+                i >> 8, i & 0xff,
+                (unsigned long long)p->pair_counts[i]);
+        first = false;
+    }
+    fprintf(out, "%s\n  },\n", first ? "" : "");
+
+    fprintf(out, "  \"triples\": {");
+    first = true;
+    for (uint32_t i = 0; i < VM_PROFILE_TRIPLES; i++) {
+        const VmProfileTriple *entry = &p->triples[i];
+        if (!entry->used) continue;
+        fprintf(out, "%s\n    \"%02x-%02x-%02x\": %llu",
+                first ? "" : ",", (entry->key >> 16) & 0xff,
+                (entry->key >> 8) & 0xff, entry->key & 0xff,
+                (unsigned long long)entry->count);
+        first = false;
+    }
+    fprintf(out, "%s\n  }\n}\n", first ? "" : "");
+    return !ferror(out);
+}
+
 /* ========================================================================
  * Helper: output stream
  * ======================================================================== */
@@ -193,6 +287,7 @@ VmTrap vm_core_execute(VmState *vm) {
 
         uint32_t instr_start = vm->ip;
         vm->ip += consumed;
+        profile_instruction(vm, instr.opcode);
 
         switch (instr.opcode) {
 
@@ -785,6 +880,10 @@ VmTrap vm_core_execute(VmState *vm) {
          * ============================================================ */
 
         case OP_JMP: {
+            if (vm->profile.enabled) {
+                vm->profile.branches++;
+                vm->profile.branches_taken++;
+            }
             int32_t offset = instr.operands[0].i32;
             vm->ip = (uint32_t)((int32_t)instr_start + offset);
             break;
@@ -792,7 +891,12 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_JMP_TRUE: {
             NanoValue cond = stack_pop(vm);
-            if (val_truthy(cond)) {
+            bool taken = val_truthy(cond);
+            if (vm->profile.enabled) {
+                vm->profile.branches++;
+                if (taken) vm->profile.branches_taken++;
+            }
+            if (taken) {
                 vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
             }
             vm_release(&vm->heap, cond);
@@ -801,7 +905,12 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_JMP_FALSE: {
             NanoValue cond = stack_pop(vm);
-            if (!val_truthy(cond)) {
+            bool taken = !val_truthy(cond);
+            if (vm->profile.enabled) {
+                vm->profile.branches++;
+                if (taken) vm->profile.branches_taken++;
+            }
+            if (taken) {
                 vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
             }
             vm_release(&vm->heap, cond);
@@ -809,6 +918,7 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_CALL: {
+            if (vm->profile.enabled) vm->profile.direct_calls++;
             uint32_t callee_idx = instr.operands[0].u32;
             if (callee_idx >= vm->module->function_count) {
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
@@ -847,6 +957,7 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_CALL_INDIRECT: {
+            if (vm->profile.enabled) vm->profile.indirect_calls++;
             NanoValue fn_val = stack_pop(vm);
             if (fn_val.tag == TAG_FUNCTION) {
                 /* Check if it's a closure */
@@ -936,6 +1047,10 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_CALL_EXTERN: {
+            if (vm->profile.enabled) {
+                vm->profile.extern_calls++;
+                vm->profile.traps++;
+            }
             uint32_t import_idx = instr.operands[0].u32;
 
             /* Determine arg count from import table */
@@ -957,6 +1072,7 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_CALL_MODULE: {
+            if (vm->profile.enabled) vm->profile.module_calls++;
             uint32_t mod_idx = instr.operands[0].u32;
             uint32_t fn_idx_m = instr.operands[1].u32;
 
@@ -1875,6 +1991,7 @@ VmTrap vm_core_execute(VmState *vm) {
          * ============================================================ */
 
         case OP_PRINT: {
+            if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_PRINT };
             t.data.print.value = stack_pop(vm);
             t.data.print.newline = false;
@@ -1882,6 +1999,7 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_PRINTLN: {
+            if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_PRINT };
             t.data.print.value = stack_pop(vm);
             t.data.print.newline = true;
@@ -1889,6 +2007,7 @@ VmTrap vm_core_execute(VmState *vm) {
         }
 
         case OP_ASSERT: {
+            if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_ASSERT };
             t.data.assert_check.condition = stack_pop(vm);
             return t;
@@ -1919,6 +2038,7 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
 
         case OP_HALT:
+            if (vm->profile.enabled) vm->profile.traps++;
             return trap_halt();
 
         /* ============================================================

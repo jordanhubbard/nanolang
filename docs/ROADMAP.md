@@ -2,6 +2,170 @@
 
 I keep this document to outline my development journey.
 
+I execute active work from top to bottom. Before implementation begins, I add
+the work here as checkable items, including its tests and documentation. I mark
+an item complete only after I have verified it. MAC tasks track ownership and
+execution; this document records product direction and order.
+
+## Active Execution Queue
+
+### Phase 12 - NanoISA v2
+
+Goal: I will make NanoISA a regular, compositional, verified instruction set
+for NanoLang, Forth, and future frontends. My portable bytecode will remain
+readable. Verification and instantiation may translate it into a faster private
+form, including measured superinstructions.
+
+Workflow and evidence:
+- [x] I wrote the initial Forth-on-NanoISA architecture contract in `docs/superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md`.
+- [x] I added persistent `vm_invoke`, latest-function lookup, and incremental function verification on PR #115.
+- [x] I measured static NanoVirt opcode and instruction-sequence frequencies across the repository.
+- [x] I added a reproducible NanoISA benchmark and profiling harness before changing execution architecture.
+- [ ] I record opcode, pair, and triple frequencies, retired instructions, branches, call kinds, stack depths, and traps; I still need retain/release, allocation, and FFI byte/latency counters.
+- [ ] I will benchmark NanoLang and Forth interpretation, compilation, execution, memory, calls, exceptions, and FFI separately.
+- [ ] I will publish baseline results with hardware, OS, compiler, flags, commit, distributions, and normalized costs.
+- [ ] I will require semantic equivalence and full quality gates for every accepted optimization.
+
+Portable ISA design:
+- [ ] I will define one generated NanoISA v2 schema as the source of truth for opcodes, operands, stack effects, types, ownership effects, assembler syntax, disassembly, and verification.
+- [ ] I will use a regular local/stack hybrid: indexed locals for named state and an operand stack for expression evaluation.
+- [ ] I will remove fictional architectural registers from the documentation unless I implement them.
+- [ ] I will give each portable instruction one comprehensible meaning and keep operand forms symmetric.
+- [ ] I will split polymorphic arithmetic into explicit integer, unsigned, floating, boolean, bitwise, and dynamic-value operations.
+- [ ] I will add signed and unsigned division, remainder, comparison, shifts, carry, borrow, and wide arithmetic required by Forth double cells.
+- [ ] I will add coherent indexed stack operations rather than one-off stack permutations.
+- [ ] I will add byte-addressed memory loads and stores at 8, 16, 32, and 64 bits with explicit alignment behavior.
+- [ ] I will replace language-specific aggregate opcodes with regular layout-driven construct, get, set, and tag operations.
+- [ ] I will separate direct function references and closures so a callable has one unambiguous representation.
+- [ ] I will regularize direct, indirect, tail, imported, and linked calls around verified signatures.
+- [ ] I will resolve separate-module calls to callable handles during linking rather than carry module/function pairs through dispatch.
+- [ ] I will replace special print, assert, and host operations with typed traps where that improves composition.
+- [ ] I will move trimming, case conversion, splitting, replacement, formatting, parsing, and collection algorithms from the ISA into runtime libraries.
+- [ ] I will retain only primitive string and aggregate operations justified by representation or measured cost.
+- [ ] I will add compact constants, short local forms, and compact general operands without making assembly irregular.
+- [ ] I will define a clean extended-opcode space without treating an opcode value as an instruction count.
+
+Execution architecture:
+- [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
+- [ ] I will decode and resolve each function once rather than call the generic decoder for every retired instruction.
+- [ ] I will build instruction-boundary maps and resolve branches, calls, layouts, constants, globals, and imports during instantiation.
+- [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
+- [ ] I will move source locations entirely to side tables and remove executable `DEBUG_LINE` instructions.
+- [ ] I will make `--strip-debug` remove all runtime debug cost.
+- [ ] I will remove generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and other administrative sequences in lowering before adding fusions.
+- [ ] I will add tail-call lowering and execution.
+- [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.
+- [ ] I will initially evaluate local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions.
+- [ ] I will accept a fusion only when maintained NanoLang or Forth workloads justify it.
+
+Runtime representation:
+- [ ] I will measure and evaluate split payload/tag operand stacks and globals.
+- [ ] I will dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM.
+- [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
+- [ ] I will replace linear transient-string interning or stop interning transient values.
+- [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
+- [ ] I will add unboxed homogeneous arrays for integer, float, boolean, and byte elements.
+- [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
+- [ ] I will replace chained hash-map entries with a measured contiguous implementation.
+- [ ] I will fix reference ownership for array removal, closure calls, FFI trap arguments, and marshalled arrays.
+- [ ] I will choose and document tracing collection or enforceable cycle restrictions for heap graphs.
+
+Verifier and safety:
+- [ ] I will implement a control-flow verifier with instruction-boundary validation.
+- [ ] I will infer stack height and types through every basic block and require compatible merge states.
+- [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
+- [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
+- [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
+- [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
+- [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
+- [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.
+
+Module format and tools:
+- [ ] I will design a NanoISA v2 module header with format version, ISA version, feature bits, total size, and bounded section directory.
+- [ ] I will serialize required code, constants, signatures, globals, imports, layouts, links, metadata, and optional debug sections.
+- [ ] I will reject duplicate singleton sections, overlaps, partial records, trailing data, and arithmetic overflow.
+- [ ] I will make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands.
+- [ ] I will make canonical disassembly lossless and byte-length aware.
+- [ ] I will validate complete operand consumption and verify every assembled module.
+- [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
+- [ ] I will add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, and tests.
+- [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
+- [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
+
+FFI and traps:
+- [ ] I will resolve imports once into typed call descriptors.
+- [ ] I will use generated typed stubs or a general ABI layer for mixed integer and floating signatures.
+- [ ] I will make argument limits consistent across imports, traps, direct FFI, and co-process calls.
+- [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.
+- [ ] I will make co-process serialization explicitly little-endian and restore a tested large-payload path.
+- [ ] I will measure cold startup, warm calls, scalar calls, strings, arrays, crashes, restarts, and batching.
+- [ ] I will batch high-frequency host work rather than cross the process boundary for each element.
+
+Documentation and acceptance:
+- [ ] I will replace stale NanoISA opcode counts and architecture claims in `docs/NANOISA.md` and `docs/ROADMAP.md`.
+- [ ] I will document the portable ISA separately from verified and optimized runtime representations.
+- [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
+- [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
+- [ ] I will demonstrate performance changes with distributions, not single timing claims.
+
+### Phase 13 - Forth 2012 on NanoISA
+
+Goal: I will implement a standards-oriented Forth system whose colon words are
+verified NanoISA functions and whose typed library words use the same import and
+co-process machinery as NanoLang.
+
+Foundation:
+- [x] I selected Forth 2012 Core and every optional word set as the target.
+- [x] I established the persistent NanoVM invocation boundary required by an interactive compiler.
+- [x] I added and verified `examples/language/forth/pi.fs` under Gforth for 0, 1, 10, and 50 places.
+- [ ] I will pin the exact maintained-standard and test-suite revisions.
+- [ ] I will confirm licensing before vendoring third-party conformance files.
+- [ ] I will add differential runs against a pinned Gforth release.
+- [ ] I will document cells, characters, addresses, division, floats, files, terminals, blocks, limits, and ambiguous-condition behavior.
+
+Compiler and runtime:
+- [ ] I will create one mutable `NvmModule` and persistent `VmState` per Forth session.
+- [ ] I will add VM-owned data, return, floating-point, and control-flow stacks.
+- [ ] I will add a byte-addressable virtual Forth address space with validated allocation and file handles.
+- [ ] I will implement dictionary headers, execution tokens, name tokens, early binding, immediacy, and word lists.
+- [ ] I will implement nested terminal, evaluated-string, included-file, and block input sources with `SOURCE` and `>IN` restoration.
+- [ ] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.
+- [ ] I will compile calls to earlier definitions as stable `OP_CALL` references and `RECURSE` to the reserved current definition.
+- [ ] I will compile structured control flow with a checked compile-control stack and branch patching.
+- [ ] I will implement `CATCH` and `THROW` by restoring Forth stacks, locals, input sources, and NanoVM invocation state.
+- [ ] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
+- [ ] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
+- [ ] I will restart an isolated FFI co-process after dynamic import-table mutation.
+- [ ] I will make `SEE` disassemble the actual compiled NanoISA function and describe imported words.
+
+Standard word sets, in dependency order:
+- [ ] I will implement and test Core.
+- [ ] I will implement and test Core Extensions.
+- [ ] I will implement and test Exception and Exception Extensions.
+- [ ] I will implement genuine double-cell arithmetic and test Double Number and its extensions.
+- [ ] I will implement and test String and String Extensions.
+- [ ] I will implement and test Search Order and Search Order Extensions.
+- [ ] I will implement and test File Access and File Access Extensions.
+- [ ] I will implement and test Memory Allocation.
+- [ ] I will implement recursive, reentrant Locals and Locals Extensions.
+- [ ] I will implement and test Facility and Facility Extensions.
+- [ ] I will implement and test Programming Tools and Programming Tools Extensions.
+- [ ] I will implement an IEEE binary64 floating stack and test Floating Point and its extensions.
+- [ ] I will implement UTF-8 Extended Character and Extended Character Extensions.
+- [ ] I will implement Block and Block Extensions against an explicitly disposable image.
+
+Tests, examples, and SDL IDE:
+- [ ] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
+- [ ] I will run pinned committee Core and optional-word-set tests.
+- [ ] I will run licensed Forth-2012 tests and record unsupported or manual cases separately.
+- [ ] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
+- [ ] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
+- [ ] I will update every file in `examples/language/forth/` to standard behavior.
+- [ ] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
+- [ ] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
+- [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+- [ ] I will publish the precise standard-system label only after tests and required documentation support it.
+
 ## Project Vision
 
 I am a minimal, LLM-friendly programming language. I exist to fulfill these goals:

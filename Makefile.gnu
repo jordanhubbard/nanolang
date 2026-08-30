@@ -1053,6 +1053,10 @@ benchmark:
 
 .PHONY: benchmark
 
+.PHONY: benchmark-nanoisa
+benchmark-nanoisa: nano_virt nano_vm
+	@bash scripts/benchmark_nanoisa.sh
+
 # API documentation (nanodoc)
 DOCS_OUTPUT ?= docs/api
 NANODOC_SOURCES := $(wildcard std/*/*.nano) $(wildcard examples/language/*.nano)
