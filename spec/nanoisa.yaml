@@ -184,6 +184,7 @@ legacy_opcodes:
   - {name: ARRAY_SUB, code: 0xf7, operands: []}
   - {name: ARRAY_MUL, code: 0xf8, operands: []}
   - {name: ARRAY_DIV, code: 0xf9, operands: []}
+  - {name: FUNCREF, code: 0xfa, operands: [U32]}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

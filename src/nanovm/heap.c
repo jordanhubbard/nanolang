@@ -48,7 +48,7 @@ static uint32_t fnv1a(const char *data, uint32_t len) {
  * ======================================================================== */
 
 void vm_retain(VmHeap *heap, NanoValue v) {
-    if (!val_is_heap_obj(v) && v.tag != TAG_FUNCTION) return;
+    if (!val_is_heap_obj(v)) return;
     void *ptr = v.as.obj;
     if (!ptr) return;
     VmHeapHeader *hdr = (VmHeapHeader *)ptr;
@@ -64,7 +64,7 @@ static void release_closure(VmHeap *heap, VmClosure *c);
 static void release_hashmap(VmHeap *heap, VmHashMap *m);
 
 void vm_release(VmHeap *heap, NanoValue v) {
-    if (!val_is_heap_obj(v) && v.tag != TAG_FUNCTION) return;
+    if (!val_is_heap_obj(v)) return;
     void *ptr = v.as.obj;
     if (!ptr) return;
     if (heap) heap->stats.release_calls++;
@@ -104,11 +104,8 @@ void vm_release(VmHeap *heap, NanoValue v) {
         case TAG_HASHMAP:
             release_hashmap(heap, v.as.hashmap);
             break;
-        case TAG_FUNCTION:
-            /* Could be a closure */
-            if (v.as.closure && v.as.closure->header.obj_type == TAG_FUNCTION) {
-                release_closure(heap, v.as.closure);
-            }
+        case TAG_CLOSURE:
+            release_closure(heap, v.as.closure);
             break;
         default:
             break;
@@ -461,7 +458,7 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
     VmClosure *c = calloc(1, sz);
     if (!c) return NULL;
     c->header.ref_count = 1;
-    c->header.obj_type = TAG_FUNCTION;
+    c->header.obj_type = TAG_CLOSURE;
     c->fn_idx = fn_idx;
     c->capture_count = capture_count;
     heap->stats.allocated += sz;

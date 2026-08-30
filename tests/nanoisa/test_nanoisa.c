@@ -80,6 +80,7 @@ static void test_tag_names(void) {
     ASSERT_EQ_STR(isa_tag_name(TAG_ENUM), "enum", "TAG_ENUM name");
     ASSERT_EQ_STR(isa_tag_name(TAG_UNION), "union", "TAG_UNION name");
     ASSERT_EQ_STR(isa_tag_name(TAG_FUNCTION), "function", "TAG_FUNCTION name");
+    ASSERT_EQ_STR(isa_tag_name(TAG_CLOSURE), "closure", "TAG_CLOSURE name");
     ASSERT_EQ_STR(isa_tag_name(TAG_TUPLE), "tuple", "TAG_TUPLE name");
     ASSERT_EQ_STR(isa_tag_name(TAG_HASHMAP), "hashmap", "TAG_HASHMAP name");
     ASSERT_EQ_STR(isa_tag_name(TAG_OPAQUE), "opaque", "TAG_OPAQUE name");

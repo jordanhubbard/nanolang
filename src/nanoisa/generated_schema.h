@@ -3,7 +3,7 @@
 #define NANOISA_GENERATED_SCHEMA_H
 
 #define NANOISA_SCHEMA_VERSION 2
-#define NANOISA_LEGACY_OPCODE_COUNT 158
+#define NANOISA_LEGACY_OPCODE_COUNT 159
 #define NANOISA_V2_FAMILY_COUNT 56
 
 static const NanoisaSchemaTag nanoisa_schema_tags[] = {
@@ -184,6 +184,7 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
     {"ARRAY_SUB", 0xf7, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}},
     {"ARRAY_MUL", 0xf8, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}},
     {"ARRAY_DIV", 0xf9, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}},
+    {"FUNCREF", 0xfa, 1, {OPERAND_U32, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}},
 };
 
 static const NanoisaV2Family nanoisa_v2_families[] = {

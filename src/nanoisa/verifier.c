@@ -146,6 +146,14 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
+        case OP_FUNCREF: {
+            uint32_t fn_target = instr.operands[0].u32;
+            if (fn_target >= mod->function_count)
+                return fail("function[%u] OP_FUNCREF at offset %u: fn_idx %u >= function_count %u",
+                            fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+            break;
+        }
+
         /* --- String pool indices --- */
         case OP_PUSH_STR: {
             uint32_t str_idx = instr.operands[0].u32;

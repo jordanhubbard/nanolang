@@ -36,7 +36,7 @@ Portable ISA design:
 - [x] I added coherent indexed `PICK` and `ROLL` operations alongside the basic stack operations.
 - [x] I added byte-addressed little-endian memory loads and stores at 8, 16, 32, and 64 bits; unaligned access is explicitly supported.
 - [ ] I will replace language-specific aggregate opcodes with regular layout-driven construct, get, set, and tag operations.
-- [ ] I will separate direct function references and closures so a callable has one unambiguous representation.
+- [x] I separated direct function references and heap closures into unambiguous value tags and constructors.
 - [ ] I will regularize direct, indirect, tail, imported, and linked calls around verified signatures.
 - [ ] I will resolve separate-module calls to callable handles during linking rather than carry module/function pairs through dispatch.
 - [ ] I will replace special print, assert, and host operations with typed traps where that improves composition.

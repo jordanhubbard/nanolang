@@ -1611,8 +1611,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 /* Check if it's a function name (function-as-value) */
                 int32_t fn_idx = fn_find(cg, id);
                 if (fn_idx >= 0) {
-                    /* Push function reference as a TAG_FUNCTION value */
-                    emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, 0);
+                    emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
                 } else {
                     /* Check if it's a captured variable from parent scope */
                     int16_t uv = upvalue_resolve(cg, id);

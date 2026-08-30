@@ -25,6 +25,7 @@ static const char *tag_names[] = {
     [TAG_TUPLE]    = "tuple",
     [TAG_HASHMAP]  = "hashmap",
     [TAG_OPAQUE]   = "opaque",
+    [TAG_CLOSURE]  = "closure",
 };
 
 const char *isa_tag_name(uint8_t tag) {

@@ -364,6 +364,10 @@ VmTrap vm_core_execute(VmState *vm) {
             stack_push(vm, val_u8(instr.operands[0].u8));
             break;
 
+        case OP_FUNCREF:
+            stack_push(vm, val_function(instr.operands[0].u32));
+            break;
+
         case OP_DUP: {
             NanoValue top = stack_peek(vm, 0);
             vm_retain(&vm->heap, top);
@@ -1298,13 +1302,11 @@ dynamic_div:
         case OP_CALL_INDIRECT: {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
             NanoValue fn_val = stack_pop(vm);
-            if (fn_val.tag == TAG_FUNCTION) {
-                /* Check if it's a closure */
+            if (fn_val.tag == TAG_FUNCTION || fn_val.tag == TAG_CLOSURE) {
                 VmClosure *closure = NULL;
                 uint32_t callee_idx;
 
-                if (fn_val.as.closure &&
-                    ((VmHeapHeader *)fn_val.as.closure)->obj_type == TAG_FUNCTION) {
+                if (fn_val.tag == TAG_CLOSURE) {
                     closure = fn_val.as.closure;
                     callee_idx = closure->fn_idx;
                 } else {
@@ -2289,7 +2291,7 @@ dynamic_div:
 
         case OP_CLOSURE_CALL: {
             NanoValue fn_val = stack_pop(vm);
-            if (fn_val.tag != TAG_FUNCTION || !fn_val.as.closure) {
+            if (fn_val.tag != TAG_CLOSURE || !fn_val.as.closure) {
                 vm_release(&vm->heap, fn_val);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "CLOSURE_CALL: not a closure");
             }

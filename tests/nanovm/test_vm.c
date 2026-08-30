@@ -1403,6 +1403,33 @@ static void test_closure(void) {
     nvm_module_free(mod);
 }
 
+static void test_direct_function_reference(void) {
+    NvmModule *mod = make_multi_fn_module();
+    uint8_t callee_code[32];
+    uint32_t co = 0;
+    co += emit(callee_code + co, OP_LOAD_LOCAL, 0);
+    co += emit(callee_code + co, OP_PUSH_I64, (int64_t)1);
+    co += emit(callee_code + co, OP_I64_ADD);
+    co += emit(callee_code + co, OP_RET);
+    uint32_t callee = add_fn(mod, "increment", callee_code, co, 1, 1);
+
+    uint8_t main_code[32];
+    uint32_t mo = 0;
+    mo += emit(main_code + mo, OP_PUSH_I64, (int64_t)41);
+    mo += emit(main_code + mo, OP_FUNCREF, callee);
+    mo += emit(main_code + mo, OP_CALL_INDIRECT);
+    mo += emit(main_code + mo, OP_RET);
+    uint32_t main_fn = add_fn(mod, "main", main_code, mo, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = main_fn;
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "direct function reference executes");
+    ASSERT_EQ_INT(result.as.i64, 42, "direct function reference is unambiguous");
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Tests: I/O
  * ======================================================================== */
@@ -3070,6 +3097,7 @@ int main(void) {
 
     printf("\n[Closures]\n");
     RUN_TEST(test_closure);
+    RUN_TEST(test_direct_function_reference);
 
     printf("\n[I/O]\n");
     RUN_TEST(test_print);

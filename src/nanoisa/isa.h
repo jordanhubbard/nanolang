@@ -31,12 +31,13 @@ typedef enum {
     TAG_STRUCT   = 0x08,  /* Named struct with fields */
     TAG_ENUM     = 0x09,  /* Integer variant index */
     TAG_UNION    = 0x0A,  /* Tagged union */
-    TAG_FUNCTION = 0x0B,  /* Function table index + optional closure env */
+    TAG_FUNCTION = 0x0B,  /* Direct function table reference */
     TAG_TUPLE    = 0x0C,  /* Fixed-size heterogeneous */
     TAG_HASHMAP  = 0x0D,  /* Key-value map */
     TAG_OPAQUE   = 0x0E,  /* RPC proxy ID to co-process handle */
+    TAG_CLOSURE  = 0x0F,  /* Heap closure with captured values */
 
-    TAG_COUNT    = 0x0F   /* Number of valid tags (sentinel) */
+    TAG_COUNT    = 0x10   /* Number of valid tags (sentinel) */
 } NanoValueTag;
 
 /* ========================================================================
@@ -239,8 +240,9 @@ typedef enum {
     OP_ARRAY_SUB    = 0xF7,
     OP_ARRAY_MUL    = 0xF8,
     OP_ARRAY_DIV    = 0xF9,
+    OP_FUNCREF      = 0xFA,  /* operand: u32 function table index */
 
-    OP_COUNT        = 0xFA   /* Exclusive upper bound, not an opcode count */
+    OP_COUNT        = 0xFB   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
 
 /* ========================================================================
