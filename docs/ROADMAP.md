@@ -50,8 +50,8 @@ Execution architecture:
 - [ ] I will decode and resolve each function once rather than call the generic decoder for every retired instruction.
 - [ ] I will build instruction-boundary maps and resolve branches, calls, layouts, constants, globals, and imports during instantiation.
 - [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
-- [ ] I will move source locations entirely to side tables and remove executable `DEBUG_LINE` instructions.
-- [ ] I will make `--strip-debug` remove all runtime debug cost.
+- [x] I moved generated source locations entirely to side tables and removed executable `DEBUG_LINE` instructions from NanoVirt output.
+- [x] I made `--strip-debug` remove all generated runtime debug cost by stripping the side table from code that contains no debug opcodes.
 - [ ] I will remove generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and other administrative sequences in lowering before adding fusions.
 - [ ] I will add tail-call lowering and execution.
 - [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.

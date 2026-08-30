@@ -137,6 +137,23 @@ static TestResult compile_and_run(const char *source) {
     return tr;
 }
 
+static void test_debug_metadata_is_not_executable(void) {
+    const char *source =
+        "fn main() -> int {\n"
+        "    let x: int = 40\n"
+        "    return (+ x 2)\n"
+        "}\n"
+        "shadow main { assert true }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "debug metadata compile succeeds");
+    ASSERT(tr.module->debug_count > 0, "source map side table is populated");
+    for (uint32_t i = 0; i < tr.module->code_size; i++) {
+        ASSERT(tr.module->code[i] != OP_DEBUG_LINE,
+               "NanoVirt emits no executable DEBUG_LINE instructions");
+    }
+    nvm_module_free(tr.module);
+}
+
 /* Helper: compile and call a specific function by name */
 static TestResult compile_and_call(const char *source, const char *fn_name,
                                     NanoValue *args, uint16_t argc) {
@@ -1363,7 +1380,10 @@ int main(void) {
 
     fprintf(stderr, "\n=== NanoVirt Codegen Tests ===\n\n");
 
-    fprintf(stderr, "Integer Arithmetic:\n");
+    fprintf(stderr, "Debug Metadata:\n");
+    test_debug_metadata_is_not_executable();
+
+    fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();
     test_addition();
     test_subtraction();

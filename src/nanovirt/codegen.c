@@ -2290,9 +2290,9 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
-    /* Emit source location hint before each statement */
+    /* Source locations live in the side table, never in executable code. */
     if (node->line > 0) {
-        uint32_t off = emit_op(cg, OP_DEBUG_LINE, (uint32_t)node->line);
+        uint32_t off = cg->module->code_size + cg->code_size;
         nvm_add_debug_entry(cg->module, off, (uint32_t)node->line,
                             (uint32_t)(node->column > 0 ? node->column : 0));
     }
