@@ -127,6 +127,32 @@ legacy_opcodes:
   - {name: PRINTLN, code: 0xa4, operands: []}
   - {name: OPAQUE_NULL, code: 0xb0, operands: []}
   - {name: OPAQUE_VALID, code: 0xb1, operands: []}
+  - {name: I64_ADD, code: 0xc0, operands: []}
+  - {name: I64_SUB, code: 0xc1, operands: []}
+  - {name: I64_MUL, code: 0xc2, operands: []}
+  - {name: I64_DIV_S, code: 0xc3, operands: []}
+  - {name: I64_REM_S, code: 0xc4, operands: []}
+  - {name: I64_NEG, code: 0xc5, operands: []}
+  - {name: F64_ADD, code: 0xc8, operands: []}
+  - {name: F64_SUB, code: 0xc9, operands: []}
+  - {name: F64_MUL, code: 0xca, operands: []}
+  - {name: F64_DIV, code: 0xcb, operands: []}
+  - {name: F64_NEG, code: 0xcc, operands: []}
+  - {name: I64_EQ, code: 0xd0, operands: []}
+  - {name: I64_NE, code: 0xd1, operands: []}
+  - {name: I64_LT_S, code: 0xd2, operands: []}
+  - {name: I64_LE_S, code: 0xd3, operands: []}
+  - {name: I64_GT_S, code: 0xd4, operands: []}
+  - {name: I64_GE_S, code: 0xd5, operands: []}
+  - {name: F64_EQ, code: 0xd8, operands: []}
+  - {name: F64_NE, code: 0xd9, operands: []}
+  - {name: F64_LT, code: 0xda, operands: []}
+  - {name: F64_LE, code: 0xdb, operands: []}
+  - {name: F64_GT, code: 0xdc, operands: []}
+  - {name: F64_GE, code: 0xdd, operands: []}
+  - {name: BOOL_AND, code: 0xe0, operands: []}
+  - {name: BOOL_OR, code: 0xe1, operands: []}
+  - {name: BOOL_NOT, code: 0xe2, operands: []}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

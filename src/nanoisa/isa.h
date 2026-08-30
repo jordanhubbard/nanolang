@@ -180,7 +180,36 @@ typedef enum {
     OP_OPAQUE_NULL  = 0xB0,  /* push null opaque proxy */
     OP_OPAQUE_VALID = 0xB1,  /* pop opaque -> push bool (is non-null) */
 
-    OP_COUNT        = 0xB3   /* Sentinel: number of defined opcodes */
+    /* Typed scalar operations (v2 migration) */
+    OP_I64_ADD      = 0xC0,
+    OP_I64_SUB      = 0xC1,
+    OP_I64_MUL      = 0xC2,
+    OP_I64_DIV_S    = 0xC3,
+    OP_I64_REM_S    = 0xC4,
+    OP_I64_NEG      = 0xC5,
+    OP_F64_ADD      = 0xC8,
+    OP_F64_SUB      = 0xC9,
+    OP_F64_MUL      = 0xCA,
+    OP_F64_DIV      = 0xCB,
+    OP_F64_NEG      = 0xCC,
+
+    OP_I64_EQ       = 0xD0,
+    OP_I64_NE       = 0xD1,
+    OP_I64_LT_S     = 0xD2,
+    OP_I64_LE_S     = 0xD3,
+    OP_I64_GT_S     = 0xD4,
+    OP_I64_GE_S     = 0xD5,
+    OP_F64_EQ       = 0xD8,
+    OP_F64_NE       = 0xD9,
+    OP_F64_LT       = 0xDA,
+    OP_F64_LE       = 0xDB,
+    OP_F64_GT       = 0xDC,
+    OP_F64_GE       = 0xDD,
+    OP_BOOL_AND     = 0xE0,
+    OP_BOOL_OR      = 0xE1,
+    OP_BOOL_NOT     = 0xE2,
+
+    OP_COUNT        = 0xE3   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
 
 /* ========================================================================

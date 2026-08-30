@@ -807,6 +807,71 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_I64_ADD:
+        case OP_I64_SUB:
+        case OP_I64_MUL:
+        case OP_I64_DIV_S:
+        case OP_I64_REM_S: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag == TAG_ENUM) a = val_int((int64_t)a.as.enum_val);
+            if (b.tag == TAG_ENUM) b = val_int((int64_t)b.as.enum_val);
+            if (a.tag != TAG_INT || b.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two integers",
+                                  isa_get_info(instr.opcode)->name);
+            int64_t result = 0;
+            if (instr.opcode == OP_I64_ADD) result = a.as.i64 + b.as.i64;
+            else if (instr.opcode == OP_I64_SUB) result = a.as.i64 - b.as.i64;
+            else if (instr.opcode == OP_I64_MUL) result = a.as.i64 * b.as.i64;
+            else if (instr.opcode == OP_I64_DIV_S) {
+                if (b.as.i64 == 0) result = 0;
+                else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) result = INT64_MIN;
+                else result = a.as.i64 / b.as.i64;
+            } else {
+                if (b.as.i64 == 0 || (a.as.i64 == INT64_MIN && b.as.i64 == -1))
+                    result = 0;
+                else result = a.as.i64 % b.as.i64;
+            }
+            stack_push(vm, val_int(result));
+            break;
+        }
+
+        case OP_I64_NEG: {
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I64_NEG requires an integer");
+            stack_push(vm, val_int(a.as.i64 == INT64_MIN ? INT64_MIN : -a.as.i64));
+            break;
+        }
+
+        case OP_F64_ADD:
+        case OP_F64_SUB:
+        case OP_F64_MUL:
+        case OP_F64_DIV: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two floats",
+                                  isa_get_info(instr.opcode)->name);
+            double result = 0.0;
+            if (instr.opcode == OP_F64_ADD) result = a.as.f64 + b.as.f64;
+            else if (instr.opcode == OP_F64_SUB) result = a.as.f64 - b.as.f64;
+            else if (instr.opcode == OP_F64_MUL) result = a.as.f64 * b.as.f64;
+            else result = b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64;
+            stack_push(vm, val_float(result));
+            break;
+        }
+
+        case OP_F64_NEG: {
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_FLOAT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "F64_NEG requires a float");
+            stack_push(vm, val_float(-a.as.f64));
+            break;
+        }
+
         /* ============================================================
          * Comparison
          * ============================================================ */
@@ -865,6 +930,54 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_I64_EQ:
+        case OP_I64_NE:
+        case OP_I64_LT_S:
+        case OP_I64_LE_S:
+        case OP_I64_GT_S:
+        case OP_I64_GE_S: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag == TAG_ENUM) a = val_int((int64_t)a.as.enum_val);
+            if (b.tag == TAG_ENUM) b = val_int((int64_t)b.as.enum_val);
+            if (a.tag != TAG_INT || b.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two integers",
+                                  isa_get_info(instr.opcode)->name);
+            bool result = false;
+            if (instr.opcode == OP_I64_EQ) result = a.as.i64 == b.as.i64;
+            else if (instr.opcode == OP_I64_NE) result = a.as.i64 != b.as.i64;
+            else if (instr.opcode == OP_I64_LT_S) result = a.as.i64 < b.as.i64;
+            else if (instr.opcode == OP_I64_LE_S) result = a.as.i64 <= b.as.i64;
+            else if (instr.opcode == OP_I64_GT_S) result = a.as.i64 > b.as.i64;
+            else result = a.as.i64 >= b.as.i64;
+            stack_push(vm, val_bool(result));
+            break;
+        }
+
+        case OP_F64_EQ:
+        case OP_F64_NE:
+        case OP_F64_LT:
+        case OP_F64_LE:
+        case OP_F64_GT:
+        case OP_F64_GE: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two floats",
+                                  isa_get_info(instr.opcode)->name);
+            bool result = false;
+            if (instr.opcode == OP_F64_EQ) result = a.as.f64 == b.as.f64;
+            else if (instr.opcode == OP_F64_NE) result = a.as.f64 != b.as.f64;
+            else if (instr.opcode == OP_F64_LT) result = a.as.f64 < b.as.f64;
+            else if (instr.opcode == OP_F64_LE) result = a.as.f64 <= b.as.f64;
+            else if (instr.opcode == OP_F64_GT) result = a.as.f64 > b.as.f64;
+            else result = a.as.f64 >= b.as.f64;
+            stack_push(vm, val_bool(result));
+            break;
+        }
+
         /* ============================================================
          * Logic
          * ============================================================ */
@@ -891,6 +1004,28 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(!val_truthy(a)));
             vm_release(&vm->heap, a);
+            break;
+        }
+
+        case OP_BOOL_AND:
+        case OP_BOOL_OR: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_BOOL || b.tag != TAG_BOOL)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two booleans",
+                                  isa_get_info(instr.opcode)->name);
+            stack_push(vm, val_bool(instr.opcode == OP_BOOL_AND
+                                    ? a.as.boolean && b.as.boolean
+                                    : a.as.boolean || b.as.boolean));
+            break;
+        }
+
+        case OP_BOOL_NOT: {
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_BOOL)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "BOOL_NOT requires a boolean");
+            stack_push(vm, val_bool(!a.as.boolean));
             break;
         }
 

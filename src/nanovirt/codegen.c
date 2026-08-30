@@ -542,6 +542,12 @@ static bool compile_module_introspection(CG *cg, const char *name) {
 static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
 
+static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
+                                 bool want_float) {
+    compile_expr(cg, node);
+    if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
+}
+
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = node->as.call.name;
@@ -1646,31 +1652,46 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
         if (argc == 1) {
             /* Unary operators */
+            Type arg_type = check_expression(args[0], cg->env);
             compile_expr(cg, args[0]);
             switch (op) {
-                case TOKEN_MINUS: emit_op(cg, OP_NEG); break;
-                case TOKEN_NOT:   emit_op(cg, OP_NOT); break;
+                case TOKEN_MINUS:
+                    emit_op(cg, arg_type == TYPE_FLOAT ? OP_F64_NEG : OP_I64_NEG);
+                    break;
+                case TOKEN_NOT: emit_op(cg, OP_BOOL_NOT); break;
                 default:
                     cg_error(cg, node->line, "unsupported unary operator %d", op);
             }
         } else if (argc == 2) {
             /* Binary operators */
-            compile_expr(cg, args[0]);
-            compile_expr(cg, args[1]);
+            Type left = check_expression(args[0], cg->env);
+            Type right = check_expression(args[1], cg->env);
+            bool array_op = left == TYPE_ARRAY || right == TYPE_ARRAY;
+            bool float_op = left == TYPE_FLOAT || right == TYPE_FLOAT;
+            compile_numeric_expr(cg, args[0], left, float_op && !array_op);
+            compile_numeric_expr(cg, args[1], right, float_op && !array_op);
             switch (op) {
-                case TOKEN_PLUS:    emit_op(cg, OP_ADD); break;
-                case TOKEN_MINUS:   emit_op(cg, OP_SUB); break;
-                case TOKEN_STAR:    emit_op(cg, OP_MUL); break;
-                case TOKEN_SLASH:   emit_op(cg, OP_DIV); break;
-                case TOKEN_PERCENT: emit_op(cg, OP_MOD); break;
-                case TOKEN_EQ:      emit_op(cg, OP_EQ);  break;
-                case TOKEN_NE:      emit_op(cg, OP_NE);  break;
-                case TOKEN_LT:      emit_op(cg, OP_LT);  break;
-                case TOKEN_LE:      emit_op(cg, OP_LE);  break;
-                case TOKEN_GT:      emit_op(cg, OP_GT);  break;
-                case TOKEN_GE:      emit_op(cg, OP_GE);  break;
-                case TOKEN_AND:     emit_op(cg, OP_AND); break;
-                case TOKEN_OR:      emit_op(cg, OP_OR);  break;
+                case TOKEN_PLUS:
+                    emit_op(cg, array_op ? OP_ADD : (float_op ? OP_F64_ADD : OP_I64_ADD)); break;
+                case TOKEN_MINUS:
+                    emit_op(cg, array_op ? OP_SUB : (float_op ? OP_F64_SUB : OP_I64_SUB)); break;
+                case TOKEN_STAR:
+                    emit_op(cg, array_op ? OP_MUL : (float_op ? OP_F64_MUL : OP_I64_MUL)); break;
+                case TOKEN_SLASH:
+                    emit_op(cg, array_op ? OP_DIV : (float_op ? OP_F64_DIV : OP_I64_DIV_S)); break;
+                case TOKEN_PERCENT: emit_op(cg, OP_I64_REM_S); break;
+                case TOKEN_EQ:
+                    emit_op(cg, array_op || (left != TYPE_INT && left != TYPE_ENUM && !float_op)
+                        ? OP_EQ : (float_op ? OP_F64_EQ : OP_I64_EQ)); break;
+                case TOKEN_NE:
+                    emit_op(cg, array_op || (left != TYPE_INT && left != TYPE_ENUM && !float_op)
+                        ? OP_NE : (float_op ? OP_F64_NE : OP_I64_NE)); break;
+                case TOKEN_LT: emit_op(cg, float_op ? OP_F64_LT : OP_I64_LT_S); break;
+                case TOKEN_LE: emit_op(cg, float_op ? OP_F64_LE : OP_I64_LE_S); break;
+                case TOKEN_GT: emit_op(cg, float_op ? OP_F64_GT : OP_I64_GT_S); break;
+                case TOKEN_GE: emit_op(cg, float_op ? OP_F64_GE : OP_I64_GE_S); break;
+                case TOKEN_AND: emit_op(cg, OP_BOOL_AND); break;
+                case TOKEN_OR: emit_op(cg, OP_BOOL_OR); break;
                 default:
                     cg_error(cg, node->line, "unsupported binary operator %d", op);
             }

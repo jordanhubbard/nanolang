@@ -31,7 +31,7 @@ Portable ISA design:
 - [x] I use a regular local/stack hybrid: indexed locals for named state and an operand stack for expression evaluation.
 - [x] I removed fictional architectural registers from the active NanoISA documentation and v2 schema.
 - [ ] I will give each portable instruction one comprehensible meaning and keep operand forms symmetric.
-- [ ] I will split polymorphic arithmetic into explicit integer, unsigned, floating, boolean, bitwise, and dynamic-value operations.
+- [ ] NanoVirt emits explicit signed integer, floating, comparison, and boolean scalar operations; unsigned, bitwise, and dynamic-value separation remains.
 - [ ] I will add signed and unsigned division, remainder, comparison, shifts, carry, borrow, and wide arithmetic required by Forth double cells.
 - [ ] I will add coherent indexed stack operations rather than one-off stack permutations.
 - [ ] I will add byte-addressed memory loads and stores at 8, 16, 32, and 64 bits with explicit alignment behavior.
