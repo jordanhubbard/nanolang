@@ -153,6 +153,23 @@ legacy_opcodes:
   - {name: BOOL_AND, code: 0xe0, operands: []}
   - {name: BOOL_OR, code: 0xe1, operands: []}
   - {name: BOOL_NOT, code: 0xe2, operands: []}
+  - {name: I64_DIV_U, code: 0xe3, operands: []}
+  - {name: I64_REM_U, code: 0xe4, operands: []}
+  - {name: I64_LT_U, code: 0xe5, operands: []}
+  - {name: I64_LE_U, code: 0xe6, operands: []}
+  - {name: I64_GT_U, code: 0xe7, operands: []}
+  - {name: I64_GE_U, code: 0xe8, operands: []}
+  - {name: I64_AND, code: 0xe9, operands: []}
+  - {name: I64_OR, code: 0xea, operands: []}
+  - {name: I64_XOR, code: 0xeb, operands: []}
+  - {name: I64_INVERT, code: 0xec, operands: []}
+  - {name: I64_SHL, code: 0xed, operands: []}
+  - {name: I64_SHR_S, code: 0xee, operands: []}
+  - {name: I64_SHR_U, code: 0xef, operands: []}
+  - {name: I64_ADD_CARRY, code: 0xf0, operands: []}
+  - {name: I64_SUB_BORROW, code: 0xf1, operands: []}
+  - {name: I64_MUL_WIDE_S, code: 0xf2, operands: []}
+  - {name: I64_MUL_WIDE_U, code: 0xf3, operands: []}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

@@ -1029,6 +1029,115 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_I64_DIV_U:
+        case OP_I64_REM_U:
+        case OP_I64_LT_U:
+        case OP_I64_LE_U:
+        case OP_I64_GT_U:
+        case OP_I64_GE_U:
+        case OP_I64_AND:
+        case OP_I64_OR:
+        case OP_I64_XOR:
+        case OP_I64_SHL:
+        case OP_I64_SHR_S:
+        case OP_I64_SHR_U: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_INT || b.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two integers",
+                                  isa_get_info(instr.opcode)->name);
+            uint64_t ua = (uint64_t)a.as.i64;
+            uint64_t ub = (uint64_t)b.as.i64;
+            uint32_t shift = (uint32_t)(ub & 63U);
+            switch (instr.opcode) {
+                case OP_I64_DIV_U: stack_push(vm, val_int(ub ? (int64_t)(ua / ub) : 0)); break;
+                case OP_I64_REM_U: stack_push(vm, val_int(ub ? (int64_t)(ua % ub) : 0)); break;
+                case OP_I64_LT_U: stack_push(vm, val_bool(ua < ub)); break;
+                case OP_I64_LE_U: stack_push(vm, val_bool(ua <= ub)); break;
+                case OP_I64_GT_U: stack_push(vm, val_bool(ua > ub)); break;
+                case OP_I64_GE_U: stack_push(vm, val_bool(ua >= ub)); break;
+                case OP_I64_AND: stack_push(vm, val_int((int64_t)(ua & ub))); break;
+                case OP_I64_OR: stack_push(vm, val_int((int64_t)(ua | ub))); break;
+                case OP_I64_XOR: stack_push(vm, val_int((int64_t)(ua ^ ub))); break;
+                case OP_I64_SHL: stack_push(vm, val_int((int64_t)(ua << shift))); break;
+                case OP_I64_SHR_S: stack_push(vm, val_int(a.as.i64 >> shift)); break;
+                case OP_I64_SHR_U: stack_push(vm, val_int((int64_t)(ua >> shift))); break;
+                default: break;
+            }
+            break;
+        }
+
+        case OP_I64_INVERT: {
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I64_INVERT requires an integer");
+            stack_push(vm, val_int((int64_t)~(uint64_t)a.as.i64));
+            break;
+        }
+
+        case OP_I64_ADD_CARRY:
+        case OP_I64_SUB_BORROW: {
+            NanoValue carry = stack_pop(vm);
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_INT || b.tag != TAG_INT || carry.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires three integers",
+                                  isa_get_info(instr.opcode)->name);
+            uint64_t ua = (uint64_t)a.as.i64;
+            uint64_t ub = (uint64_t)b.as.i64;
+            uint64_t uc = (uint64_t)carry.as.i64 & 1U;
+            uint64_t low;
+            uint64_t high;
+            if (instr.opcode == OP_I64_ADD_CARRY) {
+                low = ua + ub;
+                high = low < ua;
+                uint64_t with_carry = low + uc;
+                high |= with_carry < low;
+                low = with_carry;
+            } else {
+                low = ua - ub;
+                high = ua < ub;
+                uint64_t with_borrow = low - uc;
+                high |= low < uc;
+                low = with_borrow;
+            }
+            stack_push(vm, val_int((int64_t)low));
+            stack_push(vm, val_int((int64_t)high));
+            break;
+        }
+
+        case OP_I64_MUL_WIDE_S:
+        case OP_I64_MUL_WIDE_U: {
+            NanoValue b = stack_pop(vm);
+            NanoValue a = stack_pop(vm);
+            if (a.tag != TAG_INT || b.tag != TAG_INT)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires two integers",
+                                  isa_get_info(instr.opcode)->name);
+            uint64_t low;
+            uint64_t high;
+#if defined(__SIZEOF_INT128__)
+            if (instr.opcode == OP_I64_MUL_WIDE_S) {
+                __int128 product = (__int128)a.as.i64 * (__int128)b.as.i64;
+                low = (uint64_t)product;
+                high = (uint64_t)((unsigned __int128)product >> 64);
+            } else {
+                unsigned __int128 product =
+                    (unsigned __int128)(uint64_t)a.as.i64
+                    * (unsigned __int128)(uint64_t)b.as.i64;
+                low = (uint64_t)product;
+                high = (uint64_t)(product >> 64);
+            }
+#else
+#error "NanoISA wide multiplication requires compiler 128-bit integer support"
+#endif
+            stack_push(vm, val_int((int64_t)low));
+            stack_push(vm, val_int((int64_t)high));
+            break;
+        }
+
         /* ============================================================
          * Control Flow
          * ============================================================ */

@@ -2895,6 +2895,44 @@ static void test_typed_scalar_type_error(void) {
     nvm_module_free(mod);
 }
 
+static void test_integer_machine_primitives(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)-1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_I64_DIV_U);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "unsigned division executes");
+    ASSERT_EQ_INT(result.as.i64, INT64_MAX, "unsigned division uses cell bits");
+    nvm_module_free(mod);
+
+    off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)-1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)0);
+    off += emit(code + off, OP_I64_ADD_CARRY);
+    off += emit(code + off, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "add with carry executes");
+    ASSERT_EQ_INT(result.as.i64, 1, "add with carry returns carry above low cell");
+    nvm_module_free(mod);
+
+    off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)-1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_I64_MUL_WIDE_U);
+    off += emit(code + off, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "wide unsigned multiplication executes");
+    ASSERT_EQ_INT(result.as.i64, 1, "wide multiplication returns high cell on top");
+    nvm_module_free(mod);
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -2915,6 +2953,7 @@ int main(void) {
     RUN_TEST(test_float_div_by_zero);
     RUN_TEST(test_typed_scalar_operations);
     RUN_TEST(test_typed_scalar_type_error);
+    RUN_TEST(test_integer_machine_primitives);
 
     printf("\n[Boolean & Comparison]\n");
     RUN_TEST(test_bool_push);

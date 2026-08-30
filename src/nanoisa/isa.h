@@ -208,8 +208,25 @@ typedef enum {
     OP_BOOL_AND     = 0xE0,
     OP_BOOL_OR      = 0xE1,
     OP_BOOL_NOT     = 0xE2,
+    OP_I64_DIV_U    = 0xE3,
+    OP_I64_REM_U    = 0xE4,
+    OP_I64_LT_U     = 0xE5,
+    OP_I64_LE_U     = 0xE6,
+    OP_I64_GT_U     = 0xE7,
+    OP_I64_GE_U     = 0xE8,
+    OP_I64_AND      = 0xE9,
+    OP_I64_OR       = 0xEA,
+    OP_I64_XOR      = 0xEB,
+    OP_I64_INVERT   = 0xEC,
+    OP_I64_SHL      = 0xED,
+    OP_I64_SHR_S    = 0xEE,
+    OP_I64_SHR_U    = 0xEF,
+    OP_I64_ADD_CARRY = 0xF0, /* a b carry -> low carry */
+    OP_I64_SUB_BORROW = 0xF1, /* a b borrow -> low borrow */
+    OP_I64_MUL_WIDE_S = 0xF2, /* a b -> low high */
+    OP_I64_MUL_WIDE_U = 0xF3, /* a b -> low high */
 
-    OP_COUNT        = 0xE3   /* Exclusive upper bound, not an opcode count */
+    OP_COUNT        = 0xF4   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
 
 /* ========================================================================
