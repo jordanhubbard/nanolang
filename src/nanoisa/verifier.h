@@ -25,7 +25,7 @@ typedef struct {
 /* Validate a deserialized NVM module for safe execution.
  * Checks:
  *   - Function code_offset/code_length within code section bounds
- *   - All jump targets land within the originating function's code range
+ *   - All jump targets land on instruction boundaries in the originating function
  *   - All OP_CALL function indices < function_count
  *   - All OP_PUSH_STR string indices < string_count
  *   - All OP_CALL_EXTERN import indices < import_count

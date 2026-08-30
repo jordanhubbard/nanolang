@@ -10,6 +10,7 @@
 
 #include "verifier.h"
 #include "isa.h"
+#include "../nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -86,21 +87,25 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         return fail("function index %u >= function_count %u",
                     fn_idx, mod->function_count);
     const NvmFunctionEntry *fn = &mod->functions[fn_idx];
-    const uint8_t *code = mod->code + fn->code_offset;
-    uint32_t code_end = fn->code_length;
-    uint32_t pos = 0;
+    VmDecodedFunction decoded;
+    char decode_error[VM_DECODE_ERROR_SIZE];
+    if (!vm_decode_function(mod, fn_idx, &decoded, decode_error))
+        return fail("%s", decode_error);
 
-    while (pos < code_end) {
-        DecodedInstruction instr;
-        uint32_t instr_size = isa_decode(code + pos, code_end - pos, &instr);
-        if (instr_size == 0)
-            return fail("function[%u] invalid instruction at offset %u",
-                        fn_idx, fn->code_offset + pos);
+#define FAIL_DECODED(...) do { \
+    NvmVerifyResult result = fail(__VA_ARGS__); \
+    vm_decoded_function_free(&decoded); \
+    return result; \
+} while (0)
+
+    for (uint32_t i = 0; i < decoded.instruction_count; i++) {
+        uint32_t pos = decoded.instructions[i].byte_offset;
+        DecodedInstruction instr = decoded.instructions[i].instruction;
 
         const InstructionInfo *info = isa_get_info(instr.opcode);
         if (!info)
-            return fail("function[%u] unknown opcode 0x%02x at offset %u",
-                        fn_idx, instr.opcode, fn->code_offset + pos);
+            FAIL_DECODED("function[%u] unknown opcode 0x%02x at offset %u",
+                         fn_idx, instr.opcode, fn->code_offset + pos);
 
         /* Validate operands based on opcode */
         switch (instr.opcode) {
@@ -111,10 +116,14 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_JMP_FALSE: {
             int32_t offset = instr.operands[0].i32;
             int64_t target = (int64_t)pos + offset;
-            if (target < 0 || (uint32_t)target > code_end)
-                return fail("function[%u] jump at offset %u targets %ld "
-                            "(outside function range 0..%u)",
-                            fn_idx, fn->code_offset + pos, (long)target, code_end);
+            if (target < 0 || target > UINT32_MAX
+                    || !vm_decoded_function_has_boundary(&decoded,
+                                                         (uint32_t)target)) {
+                FAIL_DECODED(
+                    "function[%u] jump at offset %u targets %ld "
+                    "(not an instruction boundary)",
+                    fn_idx, fn->code_offset + pos, (long)target);
+            }
             break;
         }
 
@@ -122,10 +131,14 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_MATCH_TAG: {
             int32_t offset = instr.operands[1].i32;
             int64_t target = (int64_t)pos + offset;
-            if (target < 0 || (uint32_t)target > code_end)
-                return fail("function[%u] match_tag at offset %u targets %ld "
-                            "(outside function range 0..%u)",
-                            fn_idx, fn->code_offset + pos, (long)target, code_end);
+            if (target < 0 || target > UINT32_MAX
+                    || !vm_decoded_function_has_boundary(&decoded,
+                                                         (uint32_t)target)) {
+                FAIL_DECODED(
+                    "function[%u] match_tag at offset %u targets %ld "
+                    "(not an instruction boundary)",
+                    fn_idx, fn->code_offset + pos, (long)target);
+            }
             break;
         }
 
@@ -133,24 +146,24 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_CALL: {
             uint32_t fn_target = instr.operands[0].u32;
             if (fn_target >= mod->function_count)
-                return fail("function[%u] OP_CALL at offset %u: fn_idx %u >= function_count %u",
-                            fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+                FAIL_DECODED("function[%u] OP_CALL at offset %u: fn_idx %u >= function_count %u",
+                             fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
             break;
         }
 
         case OP_CLOSURE_NEW: {
             uint32_t fn_target = instr.operands[0].u32;
             if (fn_target >= mod->function_count)
-                return fail("function[%u] OP_CLOSURE_NEW at offset %u: fn_idx %u >= function_count %u",
-                            fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+                FAIL_DECODED("function[%u] OP_CLOSURE_NEW at offset %u: fn_idx %u >= function_count %u",
+                             fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
             break;
         }
 
         case OP_FUNCREF: {
             uint32_t fn_target = instr.operands[0].u32;
             if (fn_target >= mod->function_count)
-                return fail("function[%u] OP_FUNCREF at offset %u: fn_idx %u >= function_count %u",
-                            fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+                FAIL_DECODED("function[%u] OP_FUNCREF at offset %u: fn_idx %u >= function_count %u",
+                             fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
             break;
         }
 
@@ -158,8 +171,8 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_PUSH_STR: {
             uint32_t str_idx = instr.operands[0].u32;
             if (str_idx >= mod->string_count)
-                return fail("function[%u] OP_PUSH_STR at offset %u: str_idx %u >= string_count %u",
-                            fn_idx, fn->code_offset + pos, str_idx, mod->string_count);
+                FAIL_DECODED("function[%u] OP_PUSH_STR at offset %u: str_idx %u >= string_count %u",
+                             fn_idx, fn->code_offset + pos, str_idx, mod->string_count);
             break;
         }
 
@@ -167,8 +180,8 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_CALL_EXTERN: {
             uint32_t imp_idx = instr.operands[0].u32;
             if (imp_idx >= mod->import_count)
-                return fail("function[%u] OP_CALL_EXTERN at offset %u: import_idx %u >= import_count %u",
-                            fn_idx, fn->code_offset + pos, imp_idx, mod->import_count);
+                FAIL_DECODED("function[%u] OP_CALL_EXTERN at offset %u: import_idx %u >= import_count %u",
+                             fn_idx, fn->code_offset + pos, imp_idx, mod->import_count);
             break;
         }
 
@@ -177,9 +190,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         case OP_STORE_LOCAL: {
             uint16_t slot = instr.operands[0].u16;
             if (slot >= fn->local_count)
-                return fail("function[%u] %s at offset %u: slot %u >= local_count %u",
-                            fn_idx, info->name, fn->code_offset + pos,
-                            slot, fn->local_count);
+                FAIL_DECODED("function[%u] %s at offset %u: slot %u >= local_count %u",
+                             fn_idx, info->name, fn->code_offset + pos,
+                             slot, fn->local_count);
             break;
         }
 
@@ -190,9 +203,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
              * operands[1]=index into this closure's capture array. */
             uint16_t idx = instr.operands[1].u16;
             if (idx >= fn->upvalue_count)
-                return fail("function[%u] %s at offset %u: upvalue index %u >= upvalue_count %u",
-                            fn_idx, info->name, fn->code_offset + pos,
-                            idx, fn->upvalue_count);
+                FAIL_DECODED("function[%u] %s at offset %u: upvalue index %u >= upvalue_count %u",
+                             fn_idx, info->name, fn->code_offset + pos,
+                             idx, fn->upvalue_count);
             break;
         }
 
@@ -202,9 +215,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             if (mod->struct_count > 0) {
                 uint32_t def_idx = instr.operands[0].u32;
                 if (def_idx >= mod->struct_count)
-                    return fail("function[%u] %s at offset %u: struct def_idx %u >= struct_count %u",
-                                fn_idx, info->name, fn->code_offset + pos,
-                                def_idx, mod->struct_count);
+                    FAIL_DECODED("function[%u] %s at offset %u: struct def_idx %u >= struct_count %u",
+                                 fn_idx, info->name, fn->code_offset + pos,
+                                 def_idx, mod->struct_count);
             }
             break;
         }
@@ -214,9 +227,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             if (mod->enum_count > 0) {
                 uint32_t def_idx = instr.operands[0].u32;
                 if (def_idx >= mod->enum_count)
-                    return fail("function[%u] %s at offset %u: enum def_idx %u >= enum_count %u",
-                                fn_idx, info->name, fn->code_offset + pos,
-                                def_idx, mod->enum_count);
+                    FAIL_DECODED("function[%u] %s at offset %u: enum def_idx %u >= enum_count %u",
+                                 fn_idx, info->name, fn->code_offset + pos,
+                                 def_idx, mod->enum_count);
             }
             break;
         }
@@ -226,9 +239,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             if (mod->union_count > 0) {
                 uint32_t def_idx = instr.operands[0].u32;
                 if (def_idx >= mod->union_count)
-                    return fail("function[%u] %s at offset %u: union def_idx %u >= union_count %u",
-                                fn_idx, info->name, fn->code_offset + pos,
-                                def_idx, mod->union_count);
+                    FAIL_DECODED("function[%u] %s at offset %u: union def_idx %u >= union_count %u",
+                                 fn_idx, info->name, fn->code_offset + pos,
+                                 def_idx, mod->union_count);
             }
             break;
         }
@@ -237,16 +250,16 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             uint8_t kind = instr.operands[0].u8;
             uint32_t layout = instr.operands[1].u32;
             if (kind > AGG_TUPLE)
-                return fail("function[%u] AGG_PACK at offset %u: invalid kind %u",
-                            fn_idx, fn->code_offset + pos, kind);
+                FAIL_DECODED("function[%u] AGG_PACK at offset %u: invalid kind %u",
+                             fn_idx, fn->code_offset + pos, kind);
             if (kind == AGG_RECORD && mod->struct_count > 0
                     && layout >= mod->struct_count)
-                return fail("function[%u] AGG_PACK record layout %u >= struct_count %u",
-                            fn_idx, layout, mod->struct_count);
+                FAIL_DECODED("function[%u] AGG_PACK record layout %u >= struct_count %u",
+                             fn_idx, layout, mod->struct_count);
             if (kind == AGG_VARIANT && mod->union_count > 0
                     && layout >= mod->union_count)
-                return fail("function[%u] AGG_PACK variant layout %u >= union_count %u",
-                            fn_idx, layout, mod->union_count);
+                FAIL_DECODED("function[%u] AGG_PACK variant layout %u >= union_count %u",
+                             fn_idx, layout, mod->union_count);
             break;
         }
 
@@ -255,9 +268,10 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
-        pos += instr_size;
     }
 
+#undef FAIL_DECODED
+    vm_decoded_function_free(&decoded);
     return ok_result();
 }
 

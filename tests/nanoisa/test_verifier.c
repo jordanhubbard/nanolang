@@ -8,6 +8,7 @@
 #include "nanoisa/verifier.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/isa.h"
+#include "nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -229,6 +230,73 @@ static void test_jmp_false_out_of_bounds(void) {
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(!r.ok, "out-of-bounds JMP_FALSE should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_jump_into_operand_fails(void) {
+    const char *test_name = "nvm_verify: JMP target inside operand fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_JMP, (int32_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "jump into its encoded operand should fail");
+    ASSERT(strstr(r.error_msg, "instruction boundary") != NULL,
+           "failure should identify the instruction-boundary violation");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_match_tag_into_operand_fails(void) {
+    const char *test_name = "nvm_verify: MATCH_TAG target inside operand fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_MATCH_TAG, (uint16_t)0, (int32_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "MATCH_TAG into its encoded operand should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_jump_to_function_end_passes(void) {
+    const char *test_name = "nvm_verify: JMP target at function end passes";
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_JMP, (int32_t)5);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "existing jump-to-end behavior should remain valid");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_predecoded_module_boundaries(void) {
+    const char *test_name = "vm_decode: module records instructions and boundaries";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    VmDecodedModule decoded;
+    char error[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, error), error);
+    ASSERT(decoded.function_count == 1, "one function should be decoded");
+    ASSERT(decoded.functions[0].instruction_count == 2,
+           "two instructions should be decoded");
+    ASSERT(decoded.functions[0].instructions[0].byte_offset == 0,
+           "first instruction should begin at zero");
+    ASSERT(decoded.functions[0].instructions[1].byte_offset == 9,
+           "RET should follow the encoded i64 instruction");
+    ASSERT(vm_decoded_function_has_boundary(&decoded.functions[0], 0),
+           "zero should be an instruction boundary");
+    ASSERT(!vm_decoded_function_has_boundary(&decoded.functions[0], 1),
+           "operand bytes should not be instruction boundaries");
+    ASSERT(vm_decoded_function_has_boundary(&decoded.functions[0], off),
+           "function end should be a boundary sentinel");
+    vm_decoded_module_free(&decoded);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -556,6 +624,10 @@ int main(void) {
     test_jump_negative_out_of_bounds();
     test_jmp_true_valid();
     test_jmp_false_out_of_bounds();
+    test_jump_into_operand_fails();
+    test_match_tag_into_operand_fails();
+    test_jump_to_function_end_passes();
+    test_predecoded_module_boundaries();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
     test_op_push_str_valid();
