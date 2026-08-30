@@ -188,7 +188,7 @@ SELFHOST_COMPONENTS = \
 
 # Header dependencies
 SCHEMA_JSON = schema/compiler_schema.json
-SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h
+SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h src/nanoisa/generated_schema.h
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
 HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h
@@ -198,6 +198,8 @@ schema: $(SCHEMA_STAMP)
 
 schema-check:
 	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
+	@$(TIMEOUT_CMD) python3 scripts/gen_nanoisa_schema.py --check
+	@$(TIMEOUT_CMD) python3 -m unittest tests.test_nanoisa_schema
 
 # Schema generation: Use NanoLang if compiler exists, fallback to Python for bootstrap
 bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
@@ -219,6 +221,9 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 		$(TIMEOUT_CMD) python3 scripts/gen_compiler_schema.py; \
 	fi
 	@touch $(SCHEMA_STAMP)
+
+src/nanoisa/generated_schema.h: spec/nanoisa.yaml scripts/gen_nanoisa_schema.py
+	@python3 scripts/gen_nanoisa_schema.py
 
 # Ensure generated schema headers are created before compilation
 $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)

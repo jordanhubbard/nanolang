@@ -211,6 +211,28 @@ typedef struct {
     OperandType operands[MAX_OPERANDS]; /* Operand types */
 } InstructionInfo;
 
+typedef struct {
+    const char *name;
+    uint8_t code;
+} NanoisaSchemaTag;
+
+typedef struct {
+    const char *name;
+    uint8_t opcode;
+    uint8_t operand_count;
+    OperandType operands[MAX_OPERANDS];
+} NanoisaSchemaOpcode;
+
+typedef struct {
+    const char *name;
+    const char *ownership;
+    uint8_t operand_count;
+    uint8_t pop_count;
+    uint8_t push_count;
+} NanoisaV2Family;
+
+#include "generated_schema.h"
+
 /* ========================================================================
  * Decoded Instruction (for disassembly / VM execution)
  * ======================================================================== */

@@ -23,6 +23,111 @@ value_tags:
   - {name: opaque, code: 0x0e}
   - {name: closure, code: 0x0f}
 
+# v1 remains executable while v2 families are introduced. This inventory is
+# generated into the active C metadata and prevents enum/table drift now.
+legacy_opcodes:
+  - {name: NOP, code: 0x00, operands: []}
+  - {name: PUSH_I64, code: 0x01, operands: [I64]}
+  - {name: PUSH_F64, code: 0x02, operands: [F64]}
+  - {name: PUSH_BOOL, code: 0x03, operands: [U8]}
+  - {name: PUSH_STR, code: 0x04, operands: [U32]}
+  - {name: PUSH_VOID, code: 0x05, operands: []}
+  - {name: PUSH_U8, code: 0x06, operands: [U8]}
+  - {name: DUP, code: 0x07, operands: []}
+  - {name: POP, code: 0x08, operands: []}
+  - {name: SWAP, code: 0x09, operands: []}
+  - {name: ROT3, code: 0x0a, operands: []}
+  - {name: LOAD_LOCAL, code: 0x10, operands: [U16]}
+  - {name: STORE_LOCAL, code: 0x11, operands: [U16]}
+  - {name: LOAD_GLOBAL, code: 0x12, operands: [U32]}
+  - {name: STORE_GLOBAL, code: 0x13, operands: [U32]}
+  - {name: LOAD_UPVALUE, code: 0x14, operands: [U16, U16]}
+  - {name: STORE_UPVALUE, code: 0x15, operands: [U16, U16]}
+  - {name: ADD, code: 0x20, operands: []}
+  - {name: SUB, code: 0x21, operands: []}
+  - {name: MUL, code: 0x22, operands: []}
+  - {name: DIV, code: 0x23, operands: []}
+  - {name: MOD, code: 0x24, operands: []}
+  - {name: NEG, code: 0x25, operands: []}
+  - {name: EQ, code: 0x28, operands: []}
+  - {name: NE, code: 0x29, operands: []}
+  - {name: LT, code: 0x2a, operands: []}
+  - {name: LE, code: 0x2b, operands: []}
+  - {name: GT, code: 0x2c, operands: []}
+  - {name: GE, code: 0x2d, operands: []}
+  - {name: AND, code: 0x30, operands: []}
+  - {name: OR, code: 0x31, operands: []}
+  - {name: NOT, code: 0x32, operands: []}
+  - {name: JMP, code: 0x38, operands: [I32]}
+  - {name: JMP_TRUE, code: 0x39, operands: [I32]}
+  - {name: JMP_FALSE, code: 0x3a, operands: [I32]}
+  - {name: CALL, code: 0x3b, operands: [U32]}
+  - {name: CALL_INDIRECT, code: 0x3c, operands: []}
+  - {name: RET, code: 0x3d, operands: []}
+  - {name: CALL_EXTERN, code: 0x3e, operands: [U32]}
+  - {name: CALL_MODULE, code: 0x3f, operands: [U32, U32]}
+  - {name: STR_LEN, code: 0x40, operands: []}
+  - {name: STR_CONCAT, code: 0x41, operands: []}
+  - {name: STR_SUBSTR, code: 0x42, operands: []}
+  - {name: STR_CONTAINS, code: 0x43, operands: []}
+  - {name: STR_EQ, code: 0x44, operands: []}
+  - {name: STR_CHAR_AT, code: 0x45, operands: []}
+  - {name: STR_FROM_INT, code: 0x46, operands: []}
+  - {name: STR_FROM_FLOAT, code: 0x47, operands: []}
+  - {name: STR_TRIM, code: 0x48, operands: []}
+  - {name: STR_TO_LOWER, code: 0x49, operands: []}
+  - {name: STR_TO_UPPER, code: 0x4a, operands: []}
+  - {name: STR_STARTS_WITH, code: 0x4b, operands: []}
+  - {name: STR_ENDS_WITH, code: 0x4c, operands: []}
+  - {name: STR_SPLIT, code: 0x4d, operands: []}
+  - {name: STR_REPLACE, code: 0x4e, operands: []}
+  - {name: ARR_NEW, code: 0x50, operands: [U8]}
+  - {name: ARR_PUSH, code: 0x51, operands: []}
+  - {name: ARR_POP, code: 0x52, operands: []}
+  - {name: ARR_GET, code: 0x53, operands: []}
+  - {name: ARR_SET, code: 0x54, operands: []}
+  - {name: ARR_LEN, code: 0x55, operands: []}
+  - {name: ARR_SLICE, code: 0x56, operands: []}
+  - {name: ARR_REMOVE, code: 0x57, operands: []}
+  - {name: ARR_LITERAL, code: 0x58, operands: [U8, U16]}
+  - {name: STRUCT_NEW, code: 0x60, operands: [U32]}
+  - {name: STRUCT_GET, code: 0x61, operands: [U16]}
+  - {name: STRUCT_SET, code: 0x62, operands: [U16]}
+  - {name: STRUCT_LITERAL, code: 0x63, operands: [U32, U16]}
+  - {name: UNION_CONSTRUCT, code: 0x68, operands: [U32, U16, U16]}
+  - {name: UNION_TAG, code: 0x69, operands: []}
+  - {name: UNION_FIELD, code: 0x6a, operands: [U16]}
+  - {name: MATCH_TAG, code: 0x6b, operands: [U16, I32]}
+  - {name: ENUM_VAL, code: 0x6c, operands: [U32, U16]}
+  - {name: TUPLE_NEW, code: 0x70, operands: [U16]}
+  - {name: TUPLE_GET, code: 0x71, operands: [U16]}
+  - {name: HM_NEW, code: 0x78, operands: [U8, U8]}
+  - {name: HM_GET, code: 0x79, operands: []}
+  - {name: HM_SET, code: 0x7a, operands: []}
+  - {name: HM_HAS, code: 0x7b, operands: []}
+  - {name: HM_DELETE, code: 0x7c, operands: []}
+  - {name: HM_KEYS, code: 0x7d, operands: []}
+  - {name: HM_VALUES, code: 0x7e, operands: []}
+  - {name: HM_LEN, code: 0x7f, operands: []}
+  - {name: GC_RETAIN, code: 0x80, operands: []}
+  - {name: GC_RELEASE, code: 0x81, operands: []}
+  - {name: GC_SCOPE_ENTER, code: 0x82, operands: []}
+  - {name: GC_SCOPE_EXIT, code: 0x83, operands: []}
+  - {name: CAST_INT, code: 0x88, operands: []}
+  - {name: CAST_FLOAT, code: 0x89, operands: []}
+  - {name: CAST_BOOL, code: 0x8a, operands: []}
+  - {name: CAST_STRING, code: 0x8b, operands: []}
+  - {name: TYPE_CHECK, code: 0x8c, operands: [U8]}
+  - {name: CLOSURE_NEW, code: 0x90, operands: [U32, U16]}
+  - {name: CLOSURE_CALL, code: 0x91, operands: []}
+  - {name: PRINT, code: 0xa0, operands: []}
+  - {name: ASSERT, code: 0xa1, operands: []}
+  - {name: DEBUG_LINE, code: 0xa2, operands: [U32]}
+  - {name: HALT, code: 0xa3, operands: []}
+  - {name: PRINTLN, code: 0xa4, operands: []}
+  - {name: OPAQUE_NULL, code: 0xb0, operands: []}
+  - {name: OPAQUE_VALID, code: 0xb1, operands: []}
+
 operand_kinds:
   - {name: value-tag, encoding: u8}
   - {name: local, encoding: uleb}

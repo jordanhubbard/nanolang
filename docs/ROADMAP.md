@@ -27,7 +27,7 @@ Workflow and evidence:
 - [x] I require semantic equivalence and full quality gates for every accepted optimization in `docs/NANOISA_OPTIMIZATION_POLICY.md`.
 
 Portable ISA design:
-- [ ] I defined the normative NanoISA v2 schema in `spec/nanoisa.yaml`; generators still need to replace the v1 hand-maintained tables.
+- [x] I defined `spec/nanoisa.yaml` as the source of truth and generate the active opcode metadata plus v2 stack and ownership metadata from it.
 - [x] I use a regular local/stack hybrid: indexed locals for named state and an operand stack for expression evaluation.
 - [x] I removed fictional architectural registers from the active NanoISA documentation and v2 schema.
 - [ ] I will give each portable instruction one comprehensible meaning and keep operand forms symmetric.
