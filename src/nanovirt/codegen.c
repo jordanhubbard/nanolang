@@ -1668,17 +1668,24 @@ static void compile_expr(CG *cg, ASTNode *node) {
             Type right = check_expression(args[1], cg->env);
             bool array_op = left == TYPE_ARRAY || right == TYPE_ARRAY;
             bool float_op = left == TYPE_FLOAT || right == TYPE_FLOAT;
+            bool string_concat = op == TOKEN_PLUS
+                && left == TYPE_STRING && right == TYPE_STRING;
             compile_numeric_expr(cg, args[0], left, float_op && !array_op);
             compile_numeric_expr(cg, args[1], right, float_op && !array_op);
             switch (op) {
                 case TOKEN_PLUS:
-                    emit_op(cg, array_op ? OP_ADD : (float_op ? OP_F64_ADD : OP_I64_ADD)); break;
+                    emit_op(cg, string_concat ? OP_STR_CONCAT
+                        : array_op ? OP_ARRAY_ADD
+                        : float_op ? OP_F64_ADD : OP_I64_ADD); break;
                 case TOKEN_MINUS:
-                    emit_op(cg, array_op ? OP_SUB : (float_op ? OP_F64_SUB : OP_I64_SUB)); break;
+                    emit_op(cg, array_op ? OP_ARRAY_SUB
+                        : float_op ? OP_F64_SUB : OP_I64_SUB); break;
                 case TOKEN_STAR:
-                    emit_op(cg, array_op ? OP_MUL : (float_op ? OP_F64_MUL : OP_I64_MUL)); break;
+                    emit_op(cg, array_op ? OP_ARRAY_MUL
+                        : float_op ? OP_F64_MUL : OP_I64_MUL); break;
                 case TOKEN_SLASH:
-                    emit_op(cg, array_op ? OP_DIV : (float_op ? OP_F64_DIV : OP_I64_DIV_S)); break;
+                    emit_op(cg, array_op ? OP_ARRAY_DIV
+                        : float_op ? OP_F64_DIV : OP_I64_DIV_S); break;
                 case TOKEN_PERCENT: emit_op(cg, OP_I64_REM_S); break;
                 case TOKEN_EQ:
                     emit_op(cg, array_op || (left != TYPE_INT && left != TYPE_ENUM && !float_op)

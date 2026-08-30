@@ -180,6 +180,10 @@ legacy_opcodes:
   - {name: I64_MUL_WIDE_U, code: 0xf3, operands: []}
   - {name: PICK, code: 0xf4, operands: [U16]}
   - {name: ROLL, code: 0xf5, operands: [U16]}
+  - {name: ARRAY_ADD, code: 0xf6, operands: []}
+  - {name: ARRAY_SUB, code: 0xf7, operands: []}
+  - {name: ARRAY_MUL, code: 0xf8, operands: []}
+  - {name: ARRAY_DIV, code: 0xf9, operands: []}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

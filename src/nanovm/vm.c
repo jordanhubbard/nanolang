@@ -504,7 +504,15 @@ VmTrap vm_core_execute(VmState *vm) {
          * Arithmetic
          * ============================================================ */
 
+        case OP_ARRAY_ADD:
+            if (stack_peek(vm, 0).tag != TAG_ARRAY
+                    && stack_peek(vm, 1).tag != TAG_ARRAY)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "ARRAY_ADD requires at least one array");
+            goto dynamic_add;
         case OP_ADD: {
+dynamic_add:
+            ;
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             /* Coerce enum to int for arithmetic */
@@ -601,7 +609,15 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_ARRAY_SUB:
+            if (stack_peek(vm, 0).tag != TAG_ARRAY
+                    && stack_peek(vm, 1).tag != TAG_ARRAY)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "ARRAY_SUB requires at least one array");
+            goto dynamic_sub;
         case OP_SUB: {
+dynamic_sub:
+            ;
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
@@ -671,7 +687,15 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_ARRAY_MUL:
+            if (stack_peek(vm, 0).tag != TAG_ARRAY
+                    && stack_peek(vm, 1).tag != TAG_ARRAY)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "ARRAY_MUL requires at least one array");
+            goto dynamic_mul;
         case OP_MUL: {
+dynamic_mul:
+            ;
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
@@ -740,7 +764,15 @@ VmTrap vm_core_execute(VmState *vm) {
             break;
         }
 
+        case OP_ARRAY_DIV:
+            if (stack_peek(vm, 0).tag != TAG_ARRAY
+                    && stack_peek(vm, 1).tag != TAG_ARRAY)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "ARRAY_DIV requires at least one array");
+            goto dynamic_div;
         case OP_DIV: {
+dynamic_div:
+            ;
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }

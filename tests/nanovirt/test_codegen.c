@@ -154,6 +154,42 @@ static void test_debug_metadata_is_not_executable(void) {
     nvm_module_free(tr.module);
 }
 
+static void test_scalar_codegen_uses_typed_opcodes(void) {
+    const char *source =
+        "fn main() -> int {\n"
+        "    let i: int = (+ 20 22)\n"
+        "    let f: float = (+ 1.0 2.0)\n"
+        "    let b: bool = (and true false)\n"
+        "    if (and (== i 42) (> f 2.0)) { return i }\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert true }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "typed scalar codegen succeeds");
+    bool saw_i64 = false;
+    bool saw_f64 = false;
+    bool saw_bool = false;
+    for (uint32_t i = 0; i < tr.module->code_size;) {
+        DecodedInstruction instruction;
+        uint32_t width = isa_decode(tr.module->code + i,
+                                    tr.module->code_size - i, &instruction);
+        ASSERT(width > 0, "typed scalar bytecode decodes");
+        ASSERT(instruction.opcode != OP_ADD && instruction.opcode != OP_SUB
+               && instruction.opcode != OP_MUL && instruction.opcode != OP_DIV
+               && instruction.opcode != OP_MOD && instruction.opcode != OP_NEG
+               && instruction.opcode != OP_AND && instruction.opcode != OP_OR
+               && instruction.opcode != OP_NOT,
+               "scalar codegen emits no legacy polymorphic operations");
+        if (instruction.opcode == OP_I64_ADD) saw_i64 = true;
+        if (instruction.opcode == OP_F64_ADD) saw_f64 = true;
+        if (instruction.opcode == OP_BOOL_AND) saw_bool = true;
+        i += width;
+    }
+    ASSERT(saw_i64 && saw_f64 && saw_bool,
+           "typed integer, float, and boolean operations are present");
+    nvm_module_free(tr.module);
+}
+
 /* Helper: compile and call a specific function by name */
 static TestResult compile_and_call(const char *source, const char *fn_name,
                                     NanoValue *args, uint16_t argc) {
@@ -1382,6 +1418,7 @@ int main(void) {
 
     fprintf(stderr, "Debug Metadata:\n");
     test_debug_metadata_is_not_executable();
+    test_scalar_codegen_uses_typed_opcodes();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();

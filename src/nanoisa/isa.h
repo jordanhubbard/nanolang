@@ -235,8 +235,12 @@ typedef enum {
     OP_I64_MUL_WIDE_U = 0xF3, /* a b -> low high */
     OP_PICK         = 0xF4,  /* operand: u16 depth */
     OP_ROLL         = 0xF5,  /* operand: u16 depth */
+    OP_ARRAY_ADD    = 0xF6,
+    OP_ARRAY_SUB    = 0xF7,
+    OP_ARRAY_MUL    = 0xF8,
+    OP_ARRAY_DIV    = 0xF9,
 
-    OP_COUNT        = 0xF6   /* Exclusive upper bound, not an opcode count */
+    OP_COUNT        = 0xFA   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
 
 /* ========================================================================
