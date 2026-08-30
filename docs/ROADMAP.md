@@ -166,6 +166,84 @@ Tests, examples, and SDL IDE:
 - [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
 
+### Phase 14 - NanoISA-Centered Backends
+
+Goal: NanoISA is the common typed and verified boundary between all language
+frontends and general execution targets. I will implement each frontend once
+and each backend once rather than maintain a frontend-by-backend matrix.
+
+Architecture:
+- [x] I selected NanoISA as the common IR for NanoLang, Nano Forth, and future frontends.
+- [ ] I will preserve frontend-specific purity, affine-use, generic, effect, and exhaustiveness facts as NanoISA metadata.
+- [ ] I will define general and restricted compute profiles with verifier-enforced feature sets.
+- [ ] I will make C11 the canonical ahead-of-time portability backend from NanoISA.
+- [ ] I will implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I will implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I will evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA translators.
+- [ ] I will use a restricted NanoISA compute profile for GPU targets instead of pretending every general instruction maps to a kernel.
+- [ ] I will run the same NanoISA module through each applicable target for semantic-equivalence testing.
+
+Direct backend retirement:
+- [x] I removed the immature direct NanoLang-to-LLVM backend and its CLI, build, test, and CI surface.
+- [x] I removed the immature direct NanoLang-to-WebAssembly backend and its CLI, build, test, signing, publication, and CI surface.
+- [x] I removed LLVM and Wasm from the direct cross-backend CI matrix.
+- [x] I retain the retired direct backends in Git history rather than carry dormant implementation files in the active tree.
+- [ ] I will reintroduce LLVM and Wasm only behind NanoISA translators with full applicable-language coverage.
+
+### Phase 15 - Internationalization and UTF-8 Neutrality
+
+Goal: I remain language-neutral in source, runtime text, diagnostics, and logs,
+and I publish a useful translated guide as evidence. English remains the
+canonical source until the translation workflow proves otherwise.
+
+Language scope:
+- [x] I selected the six largest languages by total-speaker metrics for the initial proof: English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French.
+- [x] I recorded Ethnologue 2026 total-speaker estimates as the dated selection method and treat the ranking as revisable.
+- [ ] I will use BCP 47 language tags and explicit fallback chains.
+- [ ] I will distinguish language, script, region, locale, encoding, collation, and text direction rather than treating them as one setting.
+
+UTF-8 language and runtime contract:
+- [ ] I will require valid UTF-8 at source, diagnostic, log, module metadata, and documentation boundaries unless a value is explicitly binary.
+- [ ] I will define identifier normalization and confusable-character policy.
+- [ ] I will implement normalization, Unicode case folding, grapheme iteration, display width, and safe character-indexed operations where the public API claims them.
+- [ ] I will keep byte-oriented APIs explicit and separate from code-point and grapheme APIs.
+- [ ] I will preserve embedded zero bytes only in binary strings and length-aware protocols.
+- [ ] I will test malformed, overlong, truncated, combining, supplementary-plane, emoji-sequence, and bidirectional text.
+- [ ] I will audit C, NanoVM, NanoISA, FFI, JSON, TOON, source maps, paths, terminals, SDL text, and file APIs for truncation or locale dependence.
+
+Language-neutral diagnostics and logging:
+- [ ] I will give every diagnostic and log event a stable message identifier independent of rendered English text.
+- [ ] I will separate structured fields from localized prose and keep machine-readable severity, phase, location, and parameters stable.
+- [ ] I will add locale selection through a documented CLI option and environment fallback without changing deterministic machine output.
+- [ ] I will implement UTF-8 message catalogs with English fallback and missing-key diagnostics.
+- [ ] I will support plural rules, number formatting, dates, lists, quoting, and parameter reordering without concatenating translated fragments.
+- [ ] I will keep LLM JSON and TOON diagnostics language-neutral by default, with localized rendering as an explicit layer.
+- [ ] I will make logs safe for right-to-left text and resistant to bidi control and terminal escape spoofing.
+- [ ] I will test catalog completeness, placeholder compatibility, fallback, invalid UTF-8, and deterministic output.
+
+Translated documentation and user guide:
+- [ ] I will make the user-guide builder locale-aware with per-language navigation, canonical URLs, `lang`, `dir`, `hreflang`, and fallback metadata.
+- [ ] I will define a translation source format that preserves code, links, anchors, front matter, and untranslatable identifiers.
+- [ ] I will add translation memory and source-hash tracking so stale translations are visible rather than silently published.
+- [ ] I will publish machine-translated Simplified Chinese, Hindi, Spanish, Modern Standard Arabic, and French guides as explicitly machine-generated drafts.
+- [ ] I will preserve English code examples and identifiers while translating explanation and interface prose.
+- [ ] I will add language switching that keeps the current page when a translation exists.
+- [ ] I will test generated links, anchors, search, code blocks, font fallback, mobile layout, and Arabic right-to-left rendering.
+- [ ] I will document how contributors report and correct translations through issues and pull requests.
+- [ ] I will credit human reviewers and distinguish reviewed translations from machine-generated drafts.
+
+Acceptance:
+- [ ] I will compile and run representative NanoLang programs containing all initial scripts through C and NanoVM paths.
+- [ ] I will emit and parse localized diagnostics and logs for all six initial languages.
+- [ ] I will build and link-check all six guide editions in CI.
+- [ ] I will perform visual checks for Simplified Chinese, Devanagari, Latin, and Arabic scripts on desktop and mobile.
+- [ ] I will not call the system internationalized while core diagnostics or logs still require English prose for machine interpretation.
+
+I chose the initial publication languages from total-speaker estimates reported
+by Ethnologue 2026: English, Mandarin Chinese, Hindi, Spanish, Modern Standard
+Arabic, and French. Counts and even language boundaries are estimates, so I
+record this as a dated coverage decision rather than a permanent ranking.
+
 ## Project Vision
 
 I am a minimal, LLM-friendly programming language. I exist to fulfill these goals:

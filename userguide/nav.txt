@@ -11,4 +11,3 @@ generated/examples.md | Examples | Reference
 generated/builtins.md | Builtins | Reference
 generated/modules.md | Modules | Reference
 generated/cli.md | Compiler CLI | Reference
-generated/wasm.md | WebAssembly | Reference

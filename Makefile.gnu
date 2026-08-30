@@ -148,7 +148,7 @@ EXAMPLES_STAGE_SUFFIX = $(if $(EXAMPLES_IS_NANOISA),_nanoisa,$(if $(filter $(EXA
 EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_STAGE_SUFFIX))
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/wasm_backend.c $(SRC_DIR)/wasm_simd.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/sign.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/llvm_backend.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -548,13 +548,6 @@ test-optimizer: stage1
 	@./tests/test_optimizer
 	@rm -f tests/test_optimizer
 
-.PHONY: test-wasm-profiler
-test-wasm-profiler: stage1
-	@echo "Running WASM profiler unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_wasm_profiler tests/test_wasm_profiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_wasm_profiler
-	@rm -f tests/test_wasm_profiler
-
 .PHONY: test-diagnostics
 test-diagnostics: stage1
 	@echo "Running diagnostics unit tests..."
@@ -618,13 +611,6 @@ test-ffi: stage1
 	@./tests/test_ffi
 	@rm -f tests/test_ffi
 
-.PHONY: test-wasm-simd
-test-wasm-simd: stage1
-	@echo "Running WASM SIMD unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_wasm_simd tests/test_wasm_simd.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_wasm_simd
-	@rm -f tests/test_wasm_simd
-
 .PHONY: test-runtime-lists
 test-runtime-lists: stage1
 	@echo "Running runtime list unit tests..."
@@ -686,13 +672,6 @@ test-docgen: stage1
 	@./tests/test_docgen
 	@rm -f tests/test_docgen
 
-.PHONY: test-sign
-test-sign: stage1
-	@echo "Running sign unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_sign tests/test_sign.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@./tests/test_sign
-	@rm -f tests/test_sign
-
 .PHONY: test-fmt
 test-fmt: stage1
 	@echo "Running fmt unit tests..."
@@ -749,7 +728,7 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@rm -f tests/nanovm/test_value
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-wasm-profiler test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-wasm-simd test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-sign test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1247,7 +1226,7 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 # Defaults: C reference compiler, C/native backend, one pass.
 examples: examples-core
 
-.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-launcher forth forth-ide
+.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-launcher forth forth-ide
 
 examples-core: modules-index check-deps-sdl
 	@echo ""
@@ -1261,14 +1240,14 @@ examples-core: modules-index check-deps-sdl
 	@echo "      Run 'make -B modules' to see what's needed."
 	@echo "      Or use 'make examples-available' to skip unavailable examples."
 	@echo ""
-	@case "$(EXAMPLES_BACKEND)" in c|native|llvm|wasm|nanoisa|vm) ;; \
-		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c, llvm, wasm, or nanoisa)"; exit 1 ;; \
+	@case "$(EXAMPLES_BACKEND)" in c|native|nanoisa|vm) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c or nanoisa)"; exit 1 ;; \
 	esac
 	@case "$(EXAMPLES_COMPILER_STAGE)" in c|stage2|stage3) ;; \
 		*) echo "ERROR: unsupported EXAMPLES_COMPILER_STAGE='$(EXAMPLES_COMPILER_STAGE)' (use c, stage2, or stage3)"; exit 1 ;; \
 	esac
 	@if [ "$(EXAMPLES_IS_NANOISA)" != "" ] && [ "$(EXAMPLES_COMPILER_STAGE)" != "c" ]; then \
-		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to c, llvm, and wasm examples backends"; \
+		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to the c examples backend"; \
 		exit 1; \
 	fi
 	@$(MAKE) $(EXAMPLES_COMPILER_PREREQS)
@@ -1282,12 +1261,6 @@ examples-core: modules-index check-deps-sdl
 examples-c examples-full examples-backend-c: EXAMPLES_BACKEND = c
 examples-c examples-full examples-backend-c: EXAMPLES_COMPILER_STAGE = c
 examples-c examples-full examples-backend-c: examples-core
-
-examples-backend-llvm: EXAMPLES_BACKEND = llvm
-examples-backend-llvm: examples-core
-
-examples-backend-wasm: EXAMPLES_BACKEND = wasm
-examples-backend-wasm: examples-core
 
 examples-nanoisa examples-vm: EXAMPLES_BACKEND = nanoisa
 examples-nanoisa examples-vm: examples-core
@@ -1306,14 +1279,14 @@ examples-available: modules-index check-deps-sdl
 	@echo "=========================================="
 	@echo "Note: Examples with missing dependencies will be skipped."
 	@echo ""
-	@case "$(EXAMPLES_BACKEND)" in c|native|llvm|wasm|nanoisa|vm) ;; \
-		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c, llvm, wasm, or nanoisa)"; exit 1 ;; \
+	@case "$(EXAMPLES_BACKEND)" in c|native|nanoisa|vm) ;; \
+		*) echo "ERROR: unsupported EXAMPLES_BACKEND='$(EXAMPLES_BACKEND)' (use c or nanoisa)"; exit 1 ;; \
 	esac
 	@case "$(EXAMPLES_COMPILER_STAGE)" in c|stage2|stage3) ;; \
 		*) echo "ERROR: unsupported EXAMPLES_COMPILER_STAGE='$(EXAMPLES_COMPILER_STAGE)' (use c, stage2, or stage3)"; exit 1 ;; \
 	esac
 	@if [ "$(EXAMPLES_IS_NANOISA)" != "" ] && [ "$(EXAMPLES_COMPILER_STAGE)" != "c" ]; then \
-		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to c, llvm, and wasm examples backends"; \
+		echo "ERROR: EXAMPLES_COMPILER_STAGE only applies to the c examples backend"; \
 		exit 1; \
 	fi
 	@$(MAKE) $(EXAMPLES_COMPILER_PREREQS)
@@ -2135,8 +2108,8 @@ help:
 	@echo ""
 	@echo "  make examples           - Build examples once with bin/nanoc_c (default backend: c)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
-	@echo "  make examples-backend-llvm - Build examples as LLVM IR"
-	@echo "  make examples-backend-wasm - Build examples as WASM"
+	@echo "  make - Build examples as LLVM IR"
+	@echo "  make - Build examples as WASM"
 	@echo "  make examples-nanoisa   - Build examples as NanoISA .nvm bytecode"
 	@echo "  make examples-stage2    - Explicitly build/use nanoc_stage1 for examples"
 	@echo "  make examples-stage3    - Explicitly build/use nanoc_stage2 for examples"
@@ -2293,7 +2266,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list
 
 # ============================================================================
 # AGENTFS PUBLISH
