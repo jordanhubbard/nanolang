@@ -9,7 +9,49 @@ execution; this document records product direction and order.
 
 ## Active Execution Queue
 
-### Phase 12 - NanoISA v2
+## Release Map
+
+I use releases as integration boundaries, not date promises. A release closes
+only when its checked deliverables, quality gates, and documentation agree.
+Patch releases may ship completed fixes without changing this dependency order.
+
+| Release | Theme | Required outcome |
+| --- | --- | --- |
+| **3.5** | NanoISA measurement and cleanup | I have repeatable profiles, generated ISA metadata, typed scalar and aggregate operations, side-table debug data, and no active direct LLVM/Wasm backend matrix. |
+| **4.0** | NanoISA v2 and NanoVM v2 | I have a versioned, verified, compositional IR; predecoded execution; regular calls, memory, traps, layouts, ownership, modules, and measured performance. |
+| **4.1** | Nano Forth | I compile Forth words to NanoISA, implement Forth 2012 Core and optional word sets, run pinned conformance suites, and use the same typed service/import boundary as NanoLang. |
+| **4.2** | International Nano platform | I provide language-neutral UTF-8 diagnostics and logs plus English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French guide editions. |
+| **4.3** | Service interfaces and module migration | I turn module manifests into versioned service contracts and generate clients, servers, wire schemas, policy declarations, compatibility tests, and documentation. |
+| **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. |
+| **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
+| **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
+
+Release dependencies:
+
+```text
+3.5 measurement and semantic cleanup
+ |
+ v
+4.0 NanoISA/NanoVM v2
+ |-------------------------|
+ v                         v
+4.1 Nano Forth        4.2 internationalization
+ |                         |
+ +------------+------------+
+              v
+4.3 service interfaces and module migration
+              |
+              v
+4.4 capability service fabric
+              |
+              v
+4.5 effects, policy, record/replay
+              |
+              v
+5.0 operating environment and kernel adapters
+```
+
+### Phase 12 - NanoISA v2 (3.5 foundation, 4.0 completion)
 
 Goal: I will make NanoISA a regular, compositional, verified instruction set
 for NanoLang, Forth, and future frontends. My portable bytecode will remain
@@ -108,7 +150,7 @@ Documentation and acceptance:
 - [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
 
-### Phase 13 - Forth 2012 on NanoISA
+### Phase 13 - Forth 2012 on NanoISA (4.1)
 
 Goal: I will implement a standards-oriented Forth system whose colon words are
 verified NanoISA functions and whose typed library words use the same import and
@@ -166,7 +208,7 @@ Tests, examples, and SDL IDE:
 - [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
 
-### Phase 14 - NanoISA-Centered Backends
+### Phase 14 - NanoISA-Centered Backends (4.0 and later)
 
 Goal: NanoISA is the common typed and verified boundary between all language
 frontends and general execution targets. I will implement each frontend once
@@ -190,7 +232,7 @@ Direct backend retirement:
 - [x] I retain the retired direct backends in Git history rather than carry dormant implementation files in the active tree.
 - [ ] I will reintroduce LLVM and Wasm only behind NanoISA translators with full applicable-language coverage.
 
-### Phase 15 - Internationalization and UTF-8 Neutrality
+### Phase 15 - Internationalization and UTF-8 Neutrality (4.2)
 
 Goal: I remain language-neutral in source, runtime text, diagnostics, and logs,
 and I publish a useful translated guide as evidence. English remains the
@@ -243,6 +285,182 @@ I chose the initial publication languages from total-speaker estimates reported
 by Ethnologue 2026: English, Mandarin Chinese, Hindi, Spanish, Modern Standard
 Arabic, and French. Counts and even language boundaries are estimates, so I
 record this as a dated coverage decision rather than a permanent ranking.
+
+### Phase 16 - Service Interface Description and Module Migration (4.3)
+
+Goal: I will turn a module boundary into a language-neutral service contract.
+The same source-level import can bind to an in-process implementation, a local
+service, a protected process, another NanoVM, or a remote endpoint according to
+deployment policy.
+
+Interface definition:
+- [ ] I will define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers.
+- [ ] I will describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema.
+- [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
+- [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
+- [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
+- [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.
+- [ ] I will generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests.
+- [ ] I will generate NanoISA imports and typed trap descriptors from service contracts.
+- [ ] I will preserve implementation language neutrality: C, C++, Python, Rust, NanoLang, NanoVM, and remote services expose the same contract.
+
+Module refactoring:
+- [ ] I will extend module manifests with interface version, required capabilities, isolation policy, resource budgets, restart policy, and implementation adapter.
+- [ ] I will separate portable interface metadata from platform-specific build metadata.
+- [ ] I will inventory every current native and Python-backed module by privilege, state, payload size, latency, and failure behavior.
+- [ ] I will migrate pure modules first and prove identical in-process and service-process behavior.
+- [ ] I will migrate filesystem, logging, process, networking, audio, graphics, GPU, and Python modules in increasing privilege order.
+- [ ] I will keep unsafe implementation details behind generated service boundaries rather than expose host pointers or library objects.
+- [ ] I will give each resource handle an interface type, service identity, generation, rights mask, and lifetime state.
+- [ ] I will update module discovery and package metadata to resolve interface contracts independently from implementations.
+- [ ] I will add contract tests that run one client against every supported implementation of an interface.
+
+Transport-neutral invocation:
+- [ ] I will replace symbol-name-centered RPC with stable interface and method identifiers.
+- [ ] I will define request, response, error, cancellation, deadline, and stream frames.
+- [ ] I will negotiate interface and transport versions before accepting calls.
+- [ ] I will support synchronous and asynchronous invocations without changing source-level imports.
+- [ ] I will implement bounded queues and explicit backpressure.
+- [ ] I will make idempotence and retry safety explicit properties of methods.
+- [ ] I will authenticate callers and validate capabilities before dispatch.
+- [ ] I will make malformed messages fail closed without corrupting the service or caller.
+
+Acceptance:
+- [ ] I will run one unchanged NanoLang client against in-process, local-process, and mock implementations.
+- [ ] I will run one unchanged Nano Forth client through the same generated interface.
+- [ ] I will demonstrate an implementation replacement without recompiling the client.
+- [ ] I will test schema evolution across at least one compatible minor version and one rejected breaking version.
+- [ ] I will document the exact trusted computing base for each deployment mode.
+
+### Phase 17 - Capability Runtime and Shared Memory (4.4)
+
+Goal: I will replace ambient authority with explicit, typed, least-privilege
+capabilities and move bulk data without weakening isolation.
+
+Capability model:
+- [ ] I will define unforgeable capability references that cannot be fabricated from integers or host pointers.
+- [ ] I will encode object type, service generation, rights, delegation policy, and revocation state in capability tables.
+- [ ] I will support rights attenuation when delegating capabilities.
+- [ ] I will require explicit transfer permission before a service can pass a capability onward.
+- [ ] I will invalidate stale handles after service restart and prevent generation reuse attacks.
+- [ ] I will map NanoLang resource types to capability ownership and consumption rules.
+- [ ] I will map Forth handles to validated capability references without exposing raw host addresses.
+- [ ] I will audit every capability creation, delegation, use, revocation, and failure.
+
+Shared-memory data plane:
+- [ ] I will keep typed IPC as the control plane and use capability-scoped shared regions for bulk data.
+- [ ] I will implement read, write, map, seal, transfer, borrow, return, and revoke rights for shared buffers.
+- [ ] I will validate offset, length, alignment, lifetime, and direction on every mapping and descriptor.
+- [ ] I will support zero-copy or bounded-copy paths for audio frames, graphics surfaces, network packets, files, and GPU buffers.
+- [ ] I will make ownership transfer and completion explicit so buffers cannot be reused while a service owns them.
+- [ ] I will provide a copying fallback with identical semantics when shared mappings are unavailable.
+- [ ] I will benchmark control-message latency, throughput, copies, mappings, and cache effects by payload size.
+
+Resource governance:
+- [ ] I will enforce per-service memory, CPU, handle, queue, file, network, and device budgets.
+- [ ] I will attach deadlines and cancellation tokens to service requests.
+- [ ] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients.
+- [ ] I will expose structured resource accounting without requiring localized prose.
+- [ ] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes.
+
+### Phase 18 - Portable Service Fabric and Supervision (4.4)
+
+Goal: I will host Nano services above ordinary multitasking kernels without
+embedding Linux, BSD, or microkernel assumptions in application interfaces.
+
+Supervisor:
+- [ ] I will implement service discovery, startup ordering, dependency health, readiness, and shutdown.
+- [ ] I will define restart, retry, fail-request, fail-application, and replacement policies.
+- [ ] I will distinguish transient, permanent, protocol, authorization, quota, and implementation failures.
+- [ ] I will make retries conditional on declared idempotence and request identity.
+- [ ] I will preserve or revoke state explicitly across service upgrade and restart.
+- [ ] I will support rolling replacement when interface compatibility permits it.
+- [ ] I will propagate deadlines, cancellation, tracing context, and audit identity across service calls.
+
+Portable host adapters:
+- [ ] I will define a narrow host abstraction for processes, threads, IPC endpoints, shared memory, clocks, entropy, files, networking, devices, and credentials.
+- [ ] I will implement the first complete service-fabric adapter on a mature host kernel selected by measured development cost and security properties.
+- [ ] I will keep transport and policy behavior identical across host adapters through conformance tests.
+- [ ] I will support local in-process mode for development without weakening production policy declarations.
+- [ ] I will support process-isolated mode using the host's strongest practical primitives.
+- [ ] I will support remote transport without giving remote services local capability authority.
+
+Service migration milestones:
+- [ ] I will migrate logging and diagnostics as the first observable service.
+- [ ] I will migrate filesystem access with path-scoped capabilities.
+- [ ] I will migrate process execution with executable, argument, environment, and child-control capabilities.
+- [ ] I will migrate networking with endpoint-scoped capabilities.
+- [ ] I will migrate audio with stream-scoped device and shared-buffer capabilities.
+- [ ] I will migrate graphics and window-system access with surface and input capabilities.
+- [ ] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities.
+- [ ] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage.
+
+### Phase 19 - Effects, Deployment Policy, and Deterministic Replay (4.5)
+
+Goal: I will connect declared program effects to deployable least-privilege
+policy and make nondeterministic execution recordable, replayable, and auditable.
+
+Effects to policy:
+- [ ] I will define the relationship between source effects, module requirements, NanoISA traps, service methods, and capabilities.
+- [ ] I will emit a complete effect and capability inventory for each program.
+- [ ] I will generate a reviewable deployment manifest from that inventory.
+- [ ] I will reject deployments whose granted capabilities do not cover declared effects.
+- [ ] I will report unused grants so policy can converge toward least privilege.
+- [ ] I will support explicit administrator overrides without silently widening source declarations.
+
+Record and replay:
+- [ ] I will define a versioned trap journal containing sequence, capability, method, arguments or hashes, result, timing, service generation, and implementation version.
+- [ ] I will record time, entropy, file, network, user-input, process, GPU, audio, and service nondeterminism at the boundary where it enters a NanoVM.
+- [ ] I will replay a NanoVM without invoking original services when the journal contains all required events.
+- [ ] I will validate replay order, argument identity, capability identity, and result schema.
+- [ ] I will support deterministic service mocks and configurable fault injection.
+- [ ] I will expose replay checkpoints for debugger reverse navigation where state capture permits it.
+- [ ] I will sign and hash journals when they are used as audit evidence.
+- [ ] I will define redaction and encryption so replayability does not require publishing sensitive payloads.
+
+Observability and provenance:
+- [ ] I will assign trace IDs across NanoVM, router, service, and kernel-adapter boundaries.
+- [ ] I will emit structured metrics and traces through an implementation-neutral telemetry interface.
+- [ ] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
+- [ ] I will test that localized logs do not alter stable audit fields or replay behavior.
+
+### Phase 20 - Hardened Operating Environment (5.0)
+
+Goal: I will package the language, VM, services, capabilities, policy, and
+supervision layers as a complete operating environment. Kernel choice remains
+a deployment decision below the stable Nano service ABI.
+
+System image and lifecycle:
+- [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
+- [ ] I will build deterministic system images from a locked dependency and service graph.
+- [ ] I will verify signatures, hashes, interface compatibility, and policy before activation.
+- [ ] I will implement atomic service and system upgrades with rollback.
+- [ ] I will implement health monitoring, crash-loop control, degraded operation, and recovery policy.
+- [ ] I will define administrative capabilities for inspection, update, backup, restore, and shutdown.
+- [ ] I will make boot, startup, steady state, upgrade, failure, and shutdown auditable.
+
+Kernel and isolation adapters, deliberately last:
+- [ ] I will specify the minimum kernel contract for address spaces, scheduling, IPC, shared memory, clocks, entropy, interrupts, credentials, and device access.
+- [ ] I will implement and test a Linux adapter using processes, Unix sockets, descriptor passing, shared memory, namespaces, seccomp, and Landlock where available.
+- [ ] I will implement and test a 5BSD adapter using its capability descriptors, process and jail isolation, MAC policy, keyvault, and auditable event interfaces where available.
+- [ ] I will evaluate and prototype an seL4 adapter using protection domains and capability IPC.
+- [ ] I will evaluate FreeBSD Capsicum and other capability-oriented hosts as additional adapters rather than forks of the service model.
+- [ ] I will map graphics, audio, GPU, network, storage, and input hardware privileges to narrowly scoped services on each host.
+- [ ] I will run the same service-contract conformance suite on every supported kernel adapter.
+- [ ] I will document which properties are enforced by NanoISA verification, NanoVM, the capability runtime, the service supervisor, and the host kernel.
+
+Security validation:
+- [ ] I will threat-model bytecode, verifier, VM, router, service, shared-memory, capability, update, replay, and kernel-adapter boundaries.
+- [ ] I will fuzz every untrusted binary and message parser.
+- [ ] I will test compromised services, confused deputies, capability leaks, stale handles, replay attacks, rollback attacks, denial of service, and malicious peripherals.
+- [ ] I will use formal methods for the portable capability and message semantics where the model is tractable.
+- [ ] I will not call the environment secure merely because its components are isolated; I will state which properties are tested, proved, inherited, or assumed.
+
+Release acceptance:
+- [ ] I will boot or launch a complete signed service graph on at least two materially different kernel substrates.
+- [ ] I will run unchanged NanoLang and Nano Forth applications across those substrates.
+- [ ] I will demonstrate least-privilege filesystem, network, graphics, audio, GPU, and Python services.
+- [ ] I will demonstrate crash containment, restart-safe handle invalidation, upgrade rollback, deterministic replay, and auditable provenance.
 
 ## Project Vision
 
